@@ -404,3 +404,16 @@ Describe "unlink.ps1 - -Force flag for non-interactive use" {
         $content | Should -Match 'managed-files\.json'
     }
 }
+
+Describe "unlink.ps1 - manifest projection unlink" {
+    It "invokes the projection unlink worker when ownership exists" {
+        $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\unlink.ps1") -Raw -Encoding UTF8
+        $content | Should -Match 'Invoke-CgProjection'
+        $content | Should -Match 'projection-ownership.json'
+    }
+
+    It "fails softly (warning) rather than deleting on worker failure" {
+        $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\unlink.ps1") -Raw -Encoding UTF8
+        $content | Should -Match 'Could not remove manifest projection files'
+    }
+}

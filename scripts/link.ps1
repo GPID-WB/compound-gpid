@@ -504,7 +504,15 @@ function Install-CgDirectoryUnit {
     $parent = Split-Path $target -Parent
     if (-not (Test-Path $parent)) { New-Item -ItemType Directory -Path $parent -Force | Out-Null }
     if ($Strategy -eq "copy-directory") {
-        Sync-CgCopiedDirectory -Source $source -SourceRel $SourceRel -Target $target -TargetRel $TargetRel -PreviousManifest $copyManifest
+        $python = Resolve-PythonCommand
+        if (-not $python) {
+            throw "Python 3.8+ is required for the shared Kilo copy worker."
+        }
+        $worker = Join-Path $PSScriptRoot "cg_kilo_copy.py"
+        & $python $worker --source $source --target $target --source-relative (ConvertTo-CgSlashPath $SourceRel)
+        if ($LASTEXITCODE -ne 0) {
+            throw "Shared Kilo copy worker failed for $TargetRel with exit code $LASTEXITCODE"
+        }
         $copied = Get-Item -LiteralPath $target -Force
         if ($copied.LinkType) {
             throw "copy-directory invariant failed for $TargetRel`: target is still a $($copied.LinkType)."
@@ -679,6 +687,24 @@ $argsParsed = Resolve-CgLinkArguments -Arguments $RawArgs
 $Force = [bool]$argsParsed.Force
 $selectedPlatforms = Resolve-CgPlatforms -PlatformsValue $argsParsed.Platforms
 
+# Check host containment before any update, copy, manifest, or global Kilo
+# permission mutation. The post-copy validation below remains necessary for
+# local projection/content ownership checks.
+$preflightKiloSelected = "kilo" -in $selectedPlatforms
+$preflightCompatibilitySelected = ("codex" -in $selectedPlatforms) -or ("claude-code" -in $selectedPlatforms)
+$preflightCompatibilityPresent = (Test-Path -LiteralPath (Join-Path $ProjectRoot ".agents\skills")) -or
+    (Test-Path -LiteralPath (Join-Path $ProjectRoot ".claude\skills"))
+if ($preflightKiloSelected -and ($preflightCompatibilitySelected -or $preflightCompatibilityPresent)) {
+    try {
+        [void](Invoke-CgKiloPreflight -ProjectRoot $ProjectRoot -RequireCoexistence -HostOnly)
+    } catch {
+        $preflightExitCode = 1
+        if ($_.Exception.Data.Contains("CgExitCode")) { $preflightExitCode = [int]$_.Exception.Data["CgExitCode"] }
+        Write-Error "Linking is blocked by Kilo host preflight: $_"
+        exit $preflightExitCode
+    }
+}
+
 Write-Host ""
 if ($env:CG_SKIP_UPDATE -eq "1") {
     Write-Host "Skipping Compound GPID update (CG_SKIP_UPDATE=1)." -ForegroundColor DarkGray
@@ -733,12 +759,27 @@ $manifest = Read-CgManagedFilesManifest -ManifestPath $ManifestPath
 Remove-CgLegacyModelMappingFiles -Manifest $manifest
 $installedEntries = New-Object System.Collections.ArrayList
 
+# Manifest-driven consumers materialize native generated-tree roots as real
+# project-local directories through the projection synchronizer. Their legacy
+# link-directory/copy-directory install units are therefore skipped: creating a
+# junction/copy first would make the no-follow synchronizer reject the root
+# (link/reparse destination). Copilot (canonical .github) and legacy
+# (non-manifest) consumers keep the legacy junction/copy path.
+$manifestDriven = Test-Path -LiteralPath (Join-Path $ProjectRoot "compound-gpid.local.md")
+
 foreach ($target in $targets) {
     Write-Host "Linking $($target.name)..." -ForegroundColor DarkGray
+    $nativeProjected = ($null -ne $target.generatedTreePath)
     foreach ($unit in @($target.installUnits)) {
         $targetRel = ConvertTo-CgSlashPath ([string]$unit.target)
         $rootName = Get-CgTargetRoot -RelativePath $targetRel
         if (-not (Ensure-CgRootDirectory -RootName $rootName)) { continue }
+
+        if ($manifestDriven -and $nativeProjected -and
+            ([string]$unit.type -eq "directory")) {
+            Write-Host "  $targetRel - projected by manifest (legacy install skipped)" -ForegroundColor DarkGray
+            continue
+        }
 
         $installed = $false
         if ([string]$unit.type -eq "directory") {
@@ -760,7 +801,65 @@ if ("kilo" -in $selectedPlatforms) {
     Update-CgKiloGlobalPermission -CompoundGpidDir $CompoundGpidDir | Out-Null
 }
 
+# Kilo can discover Codex/Claude skill roots from the same project. A combined
+# selection is supported only through the certified child-process launcher; a
+# Kilo-only project needs only local projection validation at link time.
+$kiloSelected = "kilo" -in $selectedPlatforms
+$compatibilitySelected = ("codex" -in $selectedPlatforms) -or ("claude-code" -in $selectedPlatforms)
+$compatibilityPresent = (Test-Path -LiteralPath (Join-Path $ProjectRoot ".agents\skills")) -or
+    (Test-Path -LiteralPath (Join-Path $ProjectRoot ".claude\skills"))
+$kiloRootPresent = Test-Path -LiteralPath (Join-Path $ProjectRoot ".kilo\skills")
+if ($kiloSelected -or ($compatibilityPresent -and $kiloRootPresent)) {
+    try {
+        if ($compatibilitySelected -or $compatibilityPresent) {
+            $kiloPreflight = Invoke-CgKiloPreflight -ProjectRoot $ProjectRoot -RequireCoexistence
+        } else {
+            $kiloPreflight = Invoke-CgKiloPreflight -ProjectRoot $ProjectRoot -LocalOnly
+        }
+        Write-Host "  Kilo preflight: $($kiloPreflight.status)" -ForegroundColor DarkGray
+        if ($kiloPreflight.certified_launch_required) {
+            Write-Host "  Certified launch required: cg-kilo (direct Kilo launches unsupported with compatibility roots)." -ForegroundColor Yellow
+        }
+    } catch {
+        $preflightExitCode = 1
+        if ($_.Exception.Data.Contains("CgExitCode")) { $preflightExitCode = [int]$_.Exception.Data["CgExitCode"] }
+        Write-Error "Linking is blocked by Kilo coexistence preflight: $_"
+        exit $preflightExitCode
+    }
+}
+
 Update-CgGitignoreBlock -Entries (@($installedEntries) + (Get-CgInstalledGitignoreEntries -Mapping $mapping -Manifest $manifest))
+
+$compProjectionStateDir = Join-Path $ProjectRoot ".compound-gpid"
+if (Test-Path -LiteralPath (Join-Path $ProjectRoot "compound-gpid.local.md")) {
+    # Persist the selected platform set in the committed active manifest so no
+    # separate resolution command is needed during later cg-update runs. A
+    # manifest-driven consumer with invalid strict config fails closed: linking
+    # must not silently fall through to the legacy unfiltered tree.
+    try {
+        [void](Resolve-CgActiveManifest -ProjectRoot $ProjectRoot -PlatformIds ($selectedPlatforms -join ","))
+        Write-Host "  Active manifest: resolved for $($selectedPlatforms -join ', ')" -ForegroundColor DarkGray
+    } catch {
+        Write-Error "Linking is blocked by active manifest resolution failure: $_"
+        exit 1
+    }
+}
+
+# For a manifest-driven consumer project, verify the committed active manifest
+# and recover/publish the project-local projection through the journaled
+# synchronizer. Fresh junction/copy links without a .compound-gpid state are
+# left on the legacy path; a projection error blocks the link success banner.
+$managedStateDir = $compProjectionStateDir
+if ((Test-Path -LiteralPath $managedStateDir) -and
+    (Test-Path -LiteralPath (Join-Path $managedStateDir "active-manifest.json"))) {
+    try {
+        [void](Invoke-CgProjection -ProjectRoot $ProjectRoot -SourceRoot $CompoundGpidDir -Mode sync)
+        Write-Host "  Project projection: synced and verified" -ForegroundColor DarkGray
+    } catch {
+        Write-Error "Linking is blocked by manifest projection failure: $_"
+        exit 1
+    }
+}
 
 Write-Host ""
 Write-Host "Platform availability checks:" -ForegroundColor DarkGray

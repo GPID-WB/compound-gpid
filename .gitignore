@@ -93,3 +93,15 @@ pr-result.txt
 # per-machine state, not generated-tree content, and must never be committed.
 **/.compound-gpid-managed-copy.json*
 
+# Project-local projection state (R5/R6): the committed active manifest is the
+# reviewable selection artifact; mutable ownership state, the publication
+# journal, and staging/quarantine/transient recovery files are per-project
+# runtime state and must never be committed.
+.compound-gpid/projection-ownership.json
+.compound-gpid/projection-transaction.json
+.compound-gpid/staging/
+.compound-gpid/quarantine/
+.compound-gpid/vendor-reviews/
+.compound-gpid/*.tmp
+.compound-gpid/*.bak
+

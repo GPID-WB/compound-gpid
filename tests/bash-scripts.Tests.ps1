@@ -55,7 +55,7 @@ Describe "bash-scripts - scripts exist with executable bit" {
 # bin/ wrappers exist with executable bit
 # ---------------------------------------------------------------------------
 Describe "bash-scripts - bin/ wrappers exist with executable bit" {
-    $wrappers = @("bin/cg-link", "bin/cg-unlink", "bin/cg-update", "bin/cg-index", "bin/cg-token-audit", "bin/cg-render-artifact", "bin/cg-publish-markdown")
+    $wrappers = @("bin/cg-link", "bin/cg-unlink", "bin/cg-update", "bin/cg-kilo", "bin/cg-index", "bin/cg-token-audit", "bin/cg-render-artifact", "bin/cg-publish-markdown")
 
     foreach ($wrapper in $wrappers) {
         $wrapperPath = Join-Path $repoRoot $wrapper
@@ -154,6 +154,7 @@ Describe "install.sh - PATH block is idempotent" {
         New-Item -ItemType SymbolicLink -Path $tmpInstallScripts -Target (Join-Path $repoRoot "scripts") -Force | Out-Null
         Copy-Item -Path (Join-Path $repoRoot "bin/cg-render-artifact") -Destination (Join-Path $tmpInstallBin "cg-render-artifact") -Force
         Copy-Item -Path (Join-Path $repoRoot "bin/cg-publish-markdown") -Destination (Join-Path $tmpInstallBin "cg-publish-markdown") -Force
+        Copy-Item -Path (Join-Path $repoRoot "bin/cg-kilo") -Destination (Join-Path $tmpInstallBin "cg-kilo") -Force
 
         try {
             # First run — use temp install dir
@@ -483,6 +484,28 @@ Describe "bash-scripts - bin/cg-index wrapper content" {
     It "install.sh generates a cg-index wrapper" {
         $installSh = Get-Content (Join-Path $repoRoot "scripts/install.sh") -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
         $installSh | Should -Match 'cg-index'
+    }
+}
+
+Describe "bash-scripts - bin/cg-kilo wrapper content" {
+    $wrapperPath = Join-Path $repoRoot "bin/cg-kilo"
+    $wrapperContent = Get-Content $wrapperPath -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
+
+    It "bin/cg-kilo exists and is executable" {
+        Test-Path $wrapperPath | Should -Be $true
+        Test-Executable $wrapperPath | Should -Be $true
+    }
+
+    It "bin/cg-kilo invokes the certified preflight worker" {
+        $wrapperContent | Should -Match 'cg_kilo_preflight\.py'
+        $wrapperContent | Should -Match '--launch'
+        $wrapperContent | Should -Match '"\$@"'
+    }
+
+    It "install.sh registers the committed cg-kilo wrapper" {
+        $installSh = Get-Content (Join-Path $repoRoot "scripts/install.sh") -Raw -Encoding UTF8
+        $installSh | Should -Match 'CG_KILO_SRC'
+        $installSh | Should -Match 'cg-kilo'
     }
 }
 

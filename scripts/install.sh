@@ -219,6 +219,22 @@ EOF
     print_gray "Created: $WRAPPER"
 done
 
+# cg-kilo is committed as the certified contained-launch source of truth.
+CG_KILO_SRC="$COMPOUND_GPID_DIR/bin/cg-kilo"
+CG_KILO_DST="$BIN_DIR/cg-kilo"
+if [[ ! -f "$CG_KILO_SRC" ]]; then
+    print_error "Certified Kilo launcher source is missing: $CG_KILO_SRC"
+    printf 'Run cg-update --fix and retry installation.\n' >&2
+    exit 1
+fi
+if [[ "$CG_KILO_SRC" != "$CG_KILO_DST" ]]; then
+    cp "$CG_KILO_SRC" "$CG_KILO_DST"
+else
+    print_gray "Already present: $CG_KILO_DST"
+fi
+chmod +x "$CG_KILO_DST"
+print_gray "Registered: $BIN_DIR/cg-kilo"
+
 # cg-index calls Python directly (not a .sh script), so it's generated
 # separately rather than inside the loop above.
 WRAPPER="$BIN_DIR/cg-index"
@@ -443,6 +459,7 @@ printf '  cg-update  -- Pull latest updates                    (run from anywher
 printf '  cg-update <version>  -- Pin to a specific release (e.g. cg-update v0.2.0)\n'
 printf '  cg-update latest     -- Unpin and return to tracking main\n'
 printf '  cg-update --list     -- Browse available releases\n'
+printf '  cg-kilo    -- Certified contained Kilo launch (run from project root)\n'
 printf '  cg-render-artifact   -- Render or validate one workflow artifact\n'
 printf '  cg-publish-markdown  -- Publish one generic Markdown document\n'
 printf '  cg-token-audit       -- Analyze token/context usage  (run from project root)\n'

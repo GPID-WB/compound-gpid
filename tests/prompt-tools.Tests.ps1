@@ -4849,6 +4849,36 @@ Describe "cg-commit-push-pr.prompt.md - structure" {
         ($content -match 'GitHub Pull Request.*extension|vscode.*github|github-pull-request_create|VS Code.*extension.*PR|extension.*PR.*creation') | Should -Be $true
     }
 
+    It "regenerates all target trees and refreshes the staging inventory before Step 2" {
+        $generation = $content.IndexOf("Run the generator unconditionally")
+        $staging = $content.IndexOf("### Step 2")
+        $generation | Should -BeGreaterThan -1
+        $staging | Should -BeGreaterThan $generation
+        ($content -match 'Rerun `git status --short`') | Should -Be $true
+        ($content -match '\.claude/') | Should -Be $true
+        ($content -match '\.agents/') | Should -Be $true
+        ($content -match '\.opencode/') | Should -Be $true
+        ($content -match '\.kilo/') | Should -Be $true
+    }
+
+    It "runs local CI-equivalent checks before staging" {
+        $generation = $content.IndexOf("Run these local CI-equivalent gates before Step 2")
+        $staging = $content.IndexOf("### Step 2")
+        $generation | Should -BeGreaterThan -1
+        $staging | Should -BeGreaterThan $generation
+        ($content -match 'test_cg_characterization\.py') | Should -Be $true
+        ($content -match 'check-docs-site\.js') | Should -Be $true
+        ($content -match '(?s)Run-Tests\.ps1 -File prompt-tools,model-assignments') | Should -Be $true
+    }
+
+    It "runs committed generated-target drift checks before push" {
+        $postCommit = $content.IndexOf("### Step 4.5: Post-Commit Generated Drift Gate")
+        $push = $content.IndexOf("### Step 5: Push")
+        $postCommit | Should -BeGreaterThan -1
+        $push | Should -BeGreaterThan $postCommit
+        ($content.Substring($postCommit, $push - $postCommit) -match 'test_target_drift\.py') | Should -Be $true
+    }
+
     It "gives actionable next-time setup instructions when no PR tool is available" {
         ($content -match 'next.time|to enable.*PR|install.*gh.*next|winget.*GitHub\.cli.*next|for.*future.*runs|next run') | Should -Be $true
     }
@@ -4931,8 +4961,10 @@ Describe "cg-verify-pr.prompt.md - structure" {
         ($content -match '@cg-code-quality') | Should -Be $true
     }
 
-    It "enforces 2-round cap via fix(ci): commit count (R8)" {
-        ($content -match 'fix\(ci\)') | Should -Be $true
+    It "enforces a PR-scoped 2-round cap without historical fix commit false positives (R8)" {
+        ($content -match 'CI-Fix-Round: <PR-number>/<round-number>') | Should -Be $true
+        ($content -match 'unique round numbers') | Should -Be $true
+        ($content -match 'historical `fix\(ci\):` subjects without this trailer') | Should -Be $true
     }
 
     It "mentions 2 fix rounds as the cap (R8)" {

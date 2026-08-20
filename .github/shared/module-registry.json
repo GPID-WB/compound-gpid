@@ -1,6 +1,128 @@
 {
-  "schemaVersion": 1,
-  "description": "Central module registry for Compound GPID — declares every canonical asset's owning module across three layers (kernel, capability packs, suites), plus dependency edges. Schema: a 'module' has id, layer (kernel|capability|suite), displayName, description, dependsOn (module ids in lower layers only), ownedAssets (glob patterns under .github/; trailing '/' means the directory and everything below it), and an optional 'ambiguous' list (each entry {asset, note}) flagging ownership decisions that must be resolved by a maintainer.",
+  "schemaVersion": 2,
+  "description": "Central module registry for Compound GPID — declares every canonical asset's owning module across three layers (kernel, capability packs, suites), structural dependency edges, and separate capability eligibility/activation records. Schema v2: a 'module' has id, layer (kernel|capability|suite), displayName, description, dependsOn (module ids in lower layers only, mandatory prerequisites only), ownedAssets (glob patterns under .github/; trailing '/' means the directory and everything below it), and an optional 'ambiguous' list. A 'capability' record declares stable id, owningModule, supportedSuites, supportedPlatforms, sourceProvenance, activationCost, taskTriggers, and configSelectors; config selectors derive baseline capabilities while explicit capabilities may extend but never subtract the derived baseline.",
+  "capabilities": [
+    {
+      "id": "r",
+      "owningModule": "cap-language-r",
+      "supportedSuites": ["cg", "cr"],
+      "supportedPlatforms": ["copilot", "claude-code", "codex", "opencode", "kilo"],
+      "sourceProvenance": "canonical/.github",
+      "activationCost": "low",
+      "taskTriggers": ["/cg-find-skill", "r-syntax", "language=r"],
+      "configSelectors": [{"field": "language", "operator": "contains", "value": "r"}]
+    },
+    {
+      "id": "python",
+      "owningModule": "cap-language-python",
+      "supportedSuites": ["cg", "cr"],
+      "supportedPlatforms": ["copilot", "claude-code", "codex", "opencode", "kilo"],
+      "sourceProvenance": "canonical/.github",
+      "activationCost": "low",
+      "taskTriggers": ["/cg-find-skill", "language=python"],
+      "configSelectors": [{"field": "language", "operator": "contains", "value": "python"}]
+    },
+    {
+      "id": "stata",
+      "owningModule": "cap-language-stata",
+      "supportedSuites": ["cg", "cr"],
+      "supportedPlatforms": ["copilot", "claude-code", "codex", "opencode", "kilo"],
+      "sourceProvenance": "canonical/.github",
+      "activationCost": "low",
+      "taskTriggers": ["/cg-find-skill", "language=stata"],
+      "configSelectors": [{"field": "language", "operator": "contains", "value": "stata"}]
+    },
+    {
+      "id": "powershell",
+      "owningModule": "cap-language-powershell",
+      "supportedSuites": ["cg", "cr"],
+      "supportedPlatforms": ["copilot", "claude-code", "codex", "opencode", "kilo"],
+      "sourceProvenance": "canonical/.github",
+      "activationCost": "low",
+      "taskTriggers": ["/cg-find-skill", "language=powershell"],
+      "configSelectors": [{"field": "language", "operator": "contains", "value": "powershell"}]
+    },
+    {
+      "id": "pester",
+      "owningModule": "cap-pester-safety",
+      "supportedSuites": ["cg", "cr"],
+      "supportedPlatforms": ["copilot", "claude-code", "codex", "opencode", "kilo"],
+      "sourceProvenance": "canonical/.github",
+      "activationCost": "low",
+      "taskTriggers": ["/cg-find-skill", "pester"],
+      "configSelectors": []
+    },
+    {
+      "id": "git-workflow",
+      "owningModule": "cap-git-workflow",
+      "supportedSuites": ["cg", "cr"],
+      "supportedPlatforms": ["copilot", "claude-code", "codex", "opencode", "kilo"],
+      "sourceProvenance": "canonical/.github",
+      "activationCost": "low",
+      "taskTriggers": ["/cg-find-skill", "git-workflow", "commit"],
+      "configSelectors": []
+    },
+    {
+      "id": "render-doc",
+      "owningModule": "cap-render-doc",
+      "supportedSuites": ["cg", "cr"],
+      "supportedPlatforms": ["copilot", "claude-code", "codex", "opencode", "kilo"],
+      "sourceProvenance": "canonical/.github",
+      "activationCost": "low",
+      "taskTriggers": ["/cg-find-skill", "render-doc", "publish-markdown"],
+      "configSelectors": []
+    },
+    {
+      "id": "wb-report-writing",
+      "owningModule": "cap-wb-report-writing",
+      "supportedSuites": ["cg", "cr"],
+      "supportedPlatforms": ["copilot", "claude-code", "codex", "opencode", "kilo"],
+      "sourceProvenance": "canonical/.github",
+      "activationCost": "low",
+      "taskTriggers": ["/cg-find-skill", "wb-report-writing", "report-writing"],
+      "configSelectors": []
+    },
+    {
+      "id": "review-agents",
+      "owningModule": "cap-review-agents",
+      "supportedSuites": ["cg", "cr"],
+      "supportedPlatforms": ["copilot", "claude-code", "codex", "opencode", "kilo"],
+      "sourceProvenance": "canonical/.github",
+      "activationCost": "low",
+      "taskTriggers": ["/cg-review", "/cr-review", "review"],
+      "configSelectors": []
+    },
+    {
+      "id": "compound-docs",
+      "owningModule": "cap-compound-docs",
+      "supportedSuites": ["cg", "cr"],
+      "supportedPlatforms": ["copilot", "claude-code", "codex", "opencode", "kilo"],
+      "sourceProvenance": "canonical/.github",
+      "activationCost": "low",
+      "taskTriggers": ["/cg-compound", "/cr-compound", "compound", "compound-docs"],
+      "configSelectors": []
+    },
+    {
+      "id": "research-output",
+      "owningModule": "cap-research-output",
+      "supportedSuites": ["cr"],
+      "supportedPlatforms": ["copilot", "claude-code", "codex", "opencode", "kilo"],
+      "sourceProvenance": "canonical/.github",
+      "activationCost": "high",
+      "taskTriggers": ["/cr-work", "replication", "publication", "research-output", "eda"],
+      "configSelectors": []
+    },
+    {
+      "id": "research-language",
+      "owningModule": "cap-language-research",
+      "supportedSuites": ["cr"],
+      "supportedPlatforms": ["copilot", "claude-code", "codex", "opencode", "kilo"],
+      "sourceProvenance": "canonical/.github",
+      "activationCost": "medium",
+      "taskTriggers": ["/cr-work", "latex", "math", "derivation", "symbolic-verification"],
+      "configSelectors": []
+    }
+  ],
   "modules": [
     {
       "id": "kernel",
@@ -15,6 +137,7 @@
         ".github/shared/model-advisory-examples.json",
         ".github/shared/retrieval-backends.json",
         ".github/shared/snapshot-research-modes.json",
+        ".github/shared/vendor-policy.json",
         ".github/skills/cg-skill-brain-query/",
         ".github/agents/cg-roadmap.agent.md",
         ".github/agents/cg-roadmap-view.agent.md"
@@ -151,10 +274,6 @@
       "description": "The /cg-* command orchestration surface: workflow prompts, suite-specific agents, and workflow-support skills.",
       "dependsOn": [
         "kernel",
-        "cap-language-r",
-        "cap-language-python",
-        "cap-language-stata",
-        "cap-language-powershell",
         "cap-pester-safety",
         "cap-git-workflow",
         "cap-render-doc",
@@ -214,10 +333,6 @@
       "description": "The /cr-* command orchestration surface: research prompts, domain-specific research agents, and domain research skills.",
       "dependsOn": [
         "kernel",
-        "cap-language-r",
-        "cap-language-python",
-        "cap-language-stata",
-        "cap-language-powershell",
         "cap-research-output",
         "cap-language-research",
         "cap-review-agents",

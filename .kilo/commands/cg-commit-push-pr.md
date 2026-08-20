@@ -71,26 +71,42 @@ You are a senior developer helping the user package their work into well-structu
 
 If both files exist:
 
-1. Run `git diff HEAD --name-only -- .github/` to check whether any `.github/`
-   canonical asset has changed (prompts, agents, skills, instructions, shared).
-2. If no `.github/` files are in the diff, skip to Step 2.
-3. If `.github/` files changed, regenerate platform trees before committing:
+1. Resolve a working Python command using the platform's normal launcher order
+   (`python3`, `python`, then `py`) and verify that `--version` starts with
+   `Python`. Store it as `$pythonCommand`. If no valid Python command is found,
+   halt before Step 2.
+2. Run the generator unconditionally before staging:
 
-   > **execution_subagent query**: "In the repo root, run
-   > `python3 scripts/cg_generate_targets.py --all`. Report the output and exit
-   > code. If the exit code is non-zero, report the full stderr."
+    > **execution_subagent query**: "In the repo root, run
+    > `<pythonCommand> scripts/cg_generate_targets.py --all`. Report the output and exit
+    > code. If the exit code is non-zero, report the full stderr."
 
-4. If generation succeeds:
-   - The generated `.claude/`, `.agents/`, and `.opencode/` trees are now
-     updated. They will be classified and staged in Step 2 alongside the
-     `.github/` source changes.
-   - Inform the user: "Platform trees regenerated from `.github/` changes.
-     Generated files will be included in the commit."
-5. If generation fails:
-   - **Halt before Step 2.** Report the command output and exit code. Do not
-     classify, stage, commit, push, or claim regenerated targets until generation
-     succeeds. Existing generated trees remain untouched and usable because the
-     generator validates and renders the complete plan before committing it.
+3. If generation succeeds:
+    - Rerun `git status --short` and replace the Step 1 inventory with this
+      refreshed output. This is the only inventory Step 2 may use, so newly
+      generated and untracked files cannot be omitted from staging.
+    - The generated `.claude/`, `.agents/`, `.opencode/`, and `.kilo/` trees
+      are now updated. They will be classified and staged in Step 2 alongside
+      canonical source changes.
+    - Inform the user: "Platform trees regenerated and the staging inventory
+      refreshed. Generated files will be included in the commit."
+4. If generation fails:
+    - **Halt before Step 2.** Report the command output and exit code. Do not
+      classify, stage, commit, push, or claim regenerated targets until generation
+      succeeds. Existing generated trees remain untouched and usable because the
+      generator validates and renders the complete plan before committing it.
+5. Run these local CI-equivalent gates before Step 2:
+    - Run `$pythonCommand -m pytest scripts/tests/test_cg_characterization.py -q`.
+    - Verify Node is available, then run `node --check docs/assets/site.js`,
+      `node --check scripts/check-docs-site.js`, and
+      `node scripts/check-docs-site.js`.
+    - If canonical prompts or agents changed, dispatch an execution subagent to
+      run `. tests\Run-Tests.ps1 -File prompt-tools,model-assignments` (no
+      pipeline), then read `tests/last-run.json` and report only `passed`,
+      `failedCount`, and `failures`.
+    - If any required local gate fails or a required runtime is unavailable,
+      halt before Step 2. Do not stage, commit, or push a change that local CI
+      already rejects.
 
 ### Step 2: Analyze Changes and Propose Commits
 
@@ -106,7 +122,7 @@ If both files exist:
    | **Plans/Knowledge** | Path starts with `.cg-docs/plans/` |
    | **Docs** | Path starts with `.cg-docs/brainstorms/`, `.cg-docs/solutions/`, or `.cg-docs/reviews/` |
    | **Code** | Extension is `.R`, `.r`, `.py`, `.do`, `.ado`, `.ps1`, `.sh`, `.bash`, `.zsh`, `.ts`, `.js`, `.mjs`, `.cs`, `.java`, `.go`, `.rs` |
-   | **Generated Targets** | Path starts with `.claude/`, `.agents/`, or `.opencode/` |
+   | **Generated Targets** | Path starts with `.claude/`, `.agents/`, `.opencode/`, or `.kilo/` |
    | **Other** | Everything else |
 
 3. Group files and present proposed commit structure:
@@ -150,6 +166,20 @@ For each confirmed commit group, in order:
    - Verify exit code after `git add`. If non-zero: report the exact git error and halt — do not attempt `git commit` for this group.
 2. `git commit -m "<subject>"` (append `--message "<body>"` if a body was generated)
 3. If commit fails: report the exact git error and halt — do not continue to the next group.
+
+### Step 4.5: Post-Commit Generated Drift Gate
+
+Before any push, if this is the Compound GPID source repository, run:
+
+```
+$pythonCommand -m pytest scripts/tests/test_target_drift.py -q
+```
+
+- This gate runs after commits so it verifies the staged-and-committed generated
+  inventory rather than only the working tree.
+- If it fails, halt before Step 5. Report the exact stale, missing, orphaned, or
+  content-drift paths. Do not push a commit that the native target CI gate will
+  reject.
 
 ### Step 5: Push
 

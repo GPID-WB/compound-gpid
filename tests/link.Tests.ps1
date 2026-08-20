@@ -221,12 +221,8 @@ Describe "link.ps1 - Kilo copy-directory strategy" {
     }
 
     It "syncs managed files by checksum and rejects a linked result" {
-        $linkContent | Should -Match 'Sync-CgCopiedDirectory -Source \$source'
-        $linkContent | Should -Match 'Resolve-CgContainedCopyPath -Base \$Target'
-        $linkContent | Should -Match 'Test-CgCopyPathHasReparsePoint -Base \$Target'
-        $linkContent | Should -Match 'Get-CgFileSha256 -Path \$destination'
-        $linkContent | Should -Match 'removed stale managed file'
-        $linkContent | Should -Match 'was modified or is user-owned; preserving it'
+        $linkContent | Should -Match 'cg_kilo_copy\.py'
+        $linkContent | Should -Match 'Shared Kilo copy worker failed'
         $linkContent | Should -Match 'copy-directory invariant failed'
     }
 
@@ -1059,5 +1055,44 @@ Describe "helpers.ps1 - ConvertTo-CgHashtable PS 5.1 compatibility" {
         $ht.ContainsKey('a') | Should -Be $true
         ($ht.nested -is [hashtable]) | Should -Be $true
         $ht.nested.ContainsKey('b') | Should -Be $true
+    }
+}
+
+Describe "link.ps1 - manifest-driven projection integration" {
+    Context "link.ps1 resolves the active manifest and syncs the projection" {
+        It "invokes Resolve-CgActiveManifest for the selected platforms" {
+            $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\link.ps1") -Raw -Encoding UTF8
+            $content | Should -Match 'Resolve-CgActiveManifest'
+            $content | Should -Match 'Active manifest: resolved'
+        }
+
+        It "syncs and verifies the projection when an active manifest exists" {
+            $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\link.ps1") -Raw -Encoding UTF8
+            $content | Should -Match 'Invoke-CgProjection'
+            $content | Should -Match 'projection: synced and verified'
+        }
+
+        It "blocks the link banner on projection failure" {
+            $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\link.ps1") -Raw -Encoding UTF8
+            $content | Should -Match 'blocked by manifest projection failure'
+        }
+    }
+}
+
+Describe "helpers.ps1 - Invoke-CgProjection interface" {
+    It "accepts sync, recover, verify, and unlink modes" {
+        $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\helpers.ps1") -Raw -Encoding UTF8
+        $content | Should -Match 'ValidateSet\("sync", "recover", "verify", "unlink"\)'
+    }
+
+    It "fails closed on a nonzero worker exit" {
+        $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\helpers.ps1") -Raw -Encoding UTF8
+        $content | Should -Match 'failed with exit code \$\{exit\}'
+    }
+
+    It "resolves the active manifest with ensure-state" {
+        $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\helpers.ps1") -Raw -Encoding UTF8
+        $content | Should -Match 'Resolve-CgActiveManifest'
+        $content | Should -Match '--ensure-state'
     }
 }

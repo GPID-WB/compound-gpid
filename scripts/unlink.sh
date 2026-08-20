@@ -282,6 +282,20 @@ done < <(all_unit_targets)
 for root in .github .claude .agents .opencode .kilo .compound-gpid; do remove_empty_root "$root"; done
 remove_gitignore_block
 
+# Remove only checksum-owned manifest projection files; user-modified projected
+# files and user roots are preserved (managed by scripts/cg_project_projection.py).
+if [ -f "$PROJECT_ROOT/.compound-gpid/projection-ownership.json" ]; then
+    set +e
+    PROJECTION_OUTPUT="$("$PYTHON_CMD" "$COMPOUND_GPID_DIR/scripts/cg_project_projection.py" --project-root "$PROJECT_ROOT" --unlink 2>&1)"
+    PROJECTION_STATUS=$?
+    set -e
+    if [ "$PROJECTION_STATUS" -ne 0 ]; then
+        print_warn "Could not remove manifest projection files."
+    else
+        print_gray "Removed checksum-owned manifest projection files."
+    fi
+fi
+
 printf '\n'
 if [ "$REMOVED_ANY" = true ]; then
     print_green "Unlinked."

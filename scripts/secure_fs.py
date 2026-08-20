@@ -953,7 +953,7 @@ def _windows_api():
 def _windows_open_directory(path: Path):
     ctypes, wintypes, kernel32 = _windows_api()
     handle = kernel32.CreateFileW(
-        str(path),
+        _windows_long_path(path),
         0x0020 | 0x0080,
         0x00000001 | 0x00000002,
         None,
@@ -977,7 +977,7 @@ def _windows_open_regular(
     ctypes, wintypes, kernel32 = _windows_api()
     access = (0x80000000 if read else 0) | (0x00010000 if delete else 0)
     handle = kernel32.CreateFileW(
-        str(path),
+        _windows_long_path(path),
         access,
         0x00000001 | 0x00000002 | (0x00000004 if share_delete else 0),
         None,
@@ -1080,7 +1080,7 @@ def _windows_create_file(path: Path, *, write: bool):
     ctypes, wintypes, kernel32 = _windows_api()
     access = (0x40000000 if write else 0) | 0x00010000
     handle = kernel32.CreateFileW(
-        str(path),
+        _windows_long_path(path),
         access,
         0x00000001 | 0x00000002 | 0x00000004,
         None,
@@ -1091,6 +1091,24 @@ def _windows_create_file(path: Path, *, write: bool):
     if handle == wintypes.HANDLE(-1).value:
         _windows_raise_last_error(ctypes, f"Could not create temporary file: {path}")
     return handle
+
+
+def _windows_long_path(path: Path) -> str:
+    """Return a Windows long-path (double-backslash-question-mark) form.
+
+    Windows API calls without the double-backslash-question-mark prefix are
+    limited to MAX_PATH (260) characters. The secure writers may stage deep
+    skill trees (e.g. ``cg-skill-wb-report-writing/evals/benchmarks/*.json``)
+    that push absolute temp paths past 260 once the transaction/staging prefix
+    is added, causing ``ERROR_PATH_NOT_FOUND`` (WinError 3). The long-path
+    prefix enables the deep canonical sources to remain publishable.
+    """
+    text = str(path)
+    if text.startswith("\\\\?\\"):
+        return text
+    if path.is_absolute():
+        return "\\\\?\\" + text
+    return text
 
 
 def _windows_regular_metadata(path: Path):
@@ -1219,7 +1237,7 @@ def _windows_rename_handle(handle, target: Path, *, replace: bool) -> None:
             ("FileName", wintypes.WCHAR * 1),
         ]
 
-    encoded_name = str(target).encode("utf-16-le")
+    encoded_name = _windows_long_path(target).encode("utf-16-le")
     buffer_size = ctypes.sizeof(RenameInformation) + len(encoded_name)
     buffer = ctypes.create_string_buffer(buffer_size)
     information = ctypes.cast(

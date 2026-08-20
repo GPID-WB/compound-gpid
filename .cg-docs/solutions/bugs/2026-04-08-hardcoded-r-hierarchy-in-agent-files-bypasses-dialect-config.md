@@ -141,3 +141,7 @@ git grep -n "Preference hierarchy" .github/
   related pattern for propagating changes through the agent/skill ecosystem
   (specifically about skill renames; the principle of "audit the whole hierarchy"
   applies here too)
+- [`.cg-docs/solutions/bugs/2026-08-14-capability-eligibility-namespace-mismatch.md`](./2026-08-14-capability-eligibility-namespace-mismatch.md) —
+  same theme: a configured selection silently short-circuits because two
+  unrelated identifier namespaces are compared; normalize names and gate with
+  tests.

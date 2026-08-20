@@ -224,7 +224,7 @@
       "path": ".opencode/commands/cg-commit-push-pr.md",
       "source": ".github/prompts/cg-commit-push-pr.prompt.md",
       "kind": "command",
-      "sha256": "3a98aa770f2697e7c198d58c179b939fbd82efec6fe935018417b47e0a09191b",
+      "sha256": "c6c39680376e1242c7faf5f779a2e453efefed3aba6aff939e5128d1d4354319",
       "executable": false
     },
     {
@@ -256,6 +256,13 @@
       "executable": false
     },
     {
+      "path": ".opencode/commands/cg-find-skill.md",
+      "source": ".github/prompts/cg-find-skill.prompt.md",
+      "kind": "command",
+      "sha256": "801c678cd54215a8ec1cbdc9649fe7a16eb3351eb9b34688927a915f48bd8ed6",
+      "executable": false
+    },
+    {
       "path": ".opencode/commands/cg-fix-problems.md",
       "source": ".github/prompts/cg-fix-problems.prompt.md",
       "kind": "command",
@@ -281,6 +288,13 @@
       "source": ".github/prompts/cg-ideate.prompt.md",
       "kind": "command",
       "sha256": "e51dab038b973c9144122887abc2e52e0ae64412dd3fce55d799317e274bb3a1",
+      "executable": false
+    },
+    {
+      "path": ".opencode/commands/cg-import-skill.md",
+      "source": ".github/prompts/cg-import-skill.prompt.md",
+      "kind": "command",
+      "sha256": "025a3195a1f52dcd979d12fb1a1d8a3d455709f6c49759c14bbe61e6d8edcdfd",
       "executable": false
     },
     {
@@ -371,7 +385,7 @@
       "path": ".opencode/commands/cg-verify-pr.md",
       "source": ".github/prompts/cg-verify-pr.prompt.md",
       "kind": "command",
-      "sha256": "56b690d0b2c6157c90bcdc7528313cea4d142bf90046117d0bb49fc7df94623b",
+      "sha256": "27cb448acbaa5b935e2c64304df6afbd0679062ac594a8857ebd5e8651afb6d2",
       "executable": false
     },
     {
@@ -504,7 +518,7 @@
       "path": ".opencode/shared/context-loading.contract.md",
       "source": ".github/shared/context-loading.contract.md",
       "kind": "shared",
-      "sha256": "2edf43adf36279f0401f91456fdedf26139ef93a1c98406f5a2822df100078c5",
+      "sha256": "ab623c6a3a1d4c2bdc0bd3019d520c1772149d044bfdde4e29b4dc70dc1b4f01",
       "executable": false
     },
     {
@@ -553,7 +567,14 @@
       "path": ".opencode/shared/target-mapping.json",
       "source": ".github/shared/target-mapping.json",
       "kind": "shared",
-      "sha256": "eeb80c3eb527219411aaf97a6bc753bbc00a868db72897cf7f1846ac8444b9d4",
+      "sha256": "ac6a2ad2ced44c7d99ffa05d4e962d349fe870152bc21263a692ae919367deec",
+      "executable": false
+    },
+    {
+      "path": ".opencode/shared/vendor-policy.json",
+      "source": ".github/shared/vendor-policy.json",
+      "kind": "shared",
+      "sha256": "12670cfe9582750acd6871c9132e6cba78a764e952a35e7b24b8eafa0c08c12d",
       "executable": false
     },
     {

@@ -326,6 +326,23 @@ if (Test-Path $cgTokenAuditCmdSrc) {
     Write-Warning "  bin\cg-token-audit.cmd not found in installation -- skipping cg-token-audit wrapper."
 }
 
+# Copy the certified Kilo launcher from the committed source of truth.
+$cgKiloCmdSrc = Join-Path $CompoundGpidDir "bin\cg-kilo.cmd"
+$cgKiloCmdDst = Join-Path $binDir "cg-kilo.cmd"
+if (Test-Path $cgKiloCmdSrc) {
+    $cgKiloSrcFull = [System.IO.Path]::GetFullPath($cgKiloCmdSrc)
+    $cgKiloDstFull = [System.IO.Path]::GetFullPath($cgKiloCmdDst)
+    if ($cgKiloSrcFull -ieq $cgKiloDstFull) {
+        Write-Host "  Already present: cg-kilo in $binDir" -ForegroundColor DarkGray
+    } else {
+        Copy-Item -Path $cgKiloCmdSrc -Destination $cgKiloCmdDst -Force
+        Write-Host "  Copied:  cg-kilo in $binDir" -ForegroundColor DarkGray
+    }
+} else {
+    Write-Error "Certified Kilo launcher source is missing: $cgKiloCmdSrc. Run cg-update --fix and retry installation."
+    exit 1
+}
+
 # Add bin/ to user PATH (persistent across sessions - no dot-sourcing needed)
 # Uses reg.exe as primary method (CLM-safe): [Environment]::SetEnvironmentVariable
 # is blocked by Constrained Language Mode on enterprise machines.
@@ -364,7 +381,7 @@ try {
     Write-Warning "  You may manually remove the old Compound GPID functions from: $PROFILE"
 }
 
-Write-Host "  Registered: cg-link, cg-unlink, cg-update, cg-index, cg-render-artifact, cg-publish-markdown, cg-token-audit" -ForegroundColor DarkGray
+Write-Host "  Registered: cg-link, cg-unlink, cg-update, cg-kilo, cg-index, cg-render-artifact, cg-publish-markdown, cg-token-audit" -ForegroundColor DarkGray
 
 # -----------------------------------------------------------------------
 # Step 4: Initialize .cg-version
@@ -399,6 +416,7 @@ Write-Host "Available commands (after restarting):"
 Write-Host "  cg-link    -- Link current project to Compound GPID  (run from project root)"
 Write-Host "  cg-unlink  -- Unlink current project                 (run from project root)"
 Write-Host "  cg-update  -- Pull latest updates                    (run from anywhere)"
+Write-Host "  cg-kilo    -- Certified contained Kilo launch         (run from project root)"
 Write-Host '  cg-update <version>  -- Pin to a specific release (e.g. cg-update v0.2.0)'
 Write-Host "  cg-update latest     -- Unpin and return to tracking main"
 Write-Host "  cg-update --list     -- Browse available releases"

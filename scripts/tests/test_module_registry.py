@@ -390,6 +390,79 @@ class TestOwnershipReport:
         assert any("empty module" in warning for warning in warnings)
 
 
+class TestCapabilitySchema:
+    def _v2_registry(self) -> dict:
+        registry = _default_registry()
+        registry["schemaVersion"] = 2
+        registry["capabilities"] = [
+            {"id": "r", "owningModule": "cap-language-r", "supportedSuites": ["cg"],
+             "supportedPlatforms": ["copilot", "kilo"], "sourceProvenance": "canonical/.github",
+             "activationCost": "low", "taskTriggers": ["language=r"],
+             "configSelectors": [{"field": "language", "operator": "contains", "value": "r"}]},
+        ]
+        return registry
+
+    def test_v2_registry_with_valid_capability_passes(self, tmp_path: Path) -> None:
+        _minimal_assets(tmp_path)
+        _registry(tmp_path, self._v2_registry())
+        errors = validator.check_ownership(tmp_path)
+        assert errors == [], f"Validation errors: {errors}"
+
+    def test_v1_registry_without_capabilities_passes(self, tmp_path: Path) -> None:
+        _minimal_assets(tmp_path)
+        _registry(tmp_path, _default_registry())
+        errors = validator.validate_registry_schema(_default_registry())
+        assert errors == [], f"Validation errors: {errors}"
+
+    def test_duplicate_capability_id_fails(self, tmp_path: Path) -> None:
+        _minimal_assets(tmp_path)
+        registry = self._v2_registry()
+        registry["capabilities"].append(dict(registry["capabilities"][0]))
+        _registry(tmp_path, registry)
+        errors = validator.validate_registry_schema(registry)
+        assert any("duplicate capability id" in error for error in errors)
+
+    def test_unknown_owning_module_fails(self, tmp_path: Path) -> None:
+        _minimal_assets(tmp_path)
+        registry = self._v2_registry()
+        registry["capabilities"][0]["owningModule"] = "does-not-exist"
+        _registry(tmp_path, registry)
+        errors = validator.validate_registry_schema(registry)
+        assert any("owningModule 'does-not-exist'" in error for error in errors)
+
+    def test_capability_owning_module_must_be_capability_layer(self, tmp_path: Path) -> None:
+        _minimal_assets(tmp_path)
+        registry = self._v2_registry()
+        registry["capabilities"][0]["owningModule"] = "kernel"
+        _registry(tmp_path, registry)
+        errors = validator.validate_registry_schema(registry)
+        assert any("capability-layer" in error for error in errors)
+
+    def test_unknown_supported_suite_fails(self, tmp_path: Path) -> None:
+        _minimal_assets(tmp_path)
+        registry = self._v2_registry()
+        registry["capabilities"][0]["supportedSuites"] = ["research"]
+        _registry(tmp_path, registry)
+        errors = validator.validate_registry_schema(registry)
+        assert any("supported suite 'research'" in error for error in errors)
+
+    def test_invalid_activation_cost_fails(self, tmp_path: Path) -> None:
+        _minimal_assets(tmp_path)
+        registry = self._v2_registry()
+        registry["capabilities"][0]["activationCost"] = "free"
+        _registry(tmp_path, registry)
+        errors = validator.validate_registry_schema(registry)
+        assert any("activationCost" in error for error in errors)
+
+    def test_missing_config_selectors_fails(self, tmp_path: Path) -> None:
+        _minimal_assets(tmp_path)
+        registry = self._v2_registry()
+        del registry["capabilities"][0]["configSelectors"]
+        _registry(tmp_path, registry)
+        errors = validator.validate_registry_schema(registry)
+        assert any("configSelectors is required" in error for error in errors)
+
+
 class TestRealRepoRegistry:
     def test_repo_ownership_closure_is_complete(self) -> None:
         errors = validator.check_ownership(REPO_ROOT)

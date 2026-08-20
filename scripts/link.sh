@@ -42,8 +42,11 @@ resolve_python() {
         command -v "$candidate" >/dev/null 2>&1 || continue
         version="$($candidate --version 2>&1 || true)"
         case "$version" in
-            Python\ [0-9]*) printf '%s\n' "$candidate"; return 0 ;;
+            Python\ [0-9]*) ;;
+            *) continue ;;
         esac
+        "$candidate" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 8) else 1)' >/dev/null 2>&1 || continue
+        printf '%s\n' "$candidate"; return 0
     done
     return 1
 }
@@ -82,6 +85,18 @@ normalize_platforms() {
         exit 1
     fi
     printf '%s\n' "$selected"
+}
+
+platform_generated_tree() {
+    # Returns the generatedTreePath (e.g. ".kilo") for a native platform, or an
+    # empty string for copilot / unknown platforms.
+    case "$1" in
+        claude-code) printf '%s\n' ".claude" ;;
+        codex)       printf '%s\n' ".agents" ;;
+        opencode)    printf '%s\n' ".opencode" ;;
+        kilo)        printf '%s\n' ".kilo" ;;
+        *)           printf '%s\n' "" ;;
+    esac
 }
 
 PLATFORMS="$(normalize_platforms "$PLATFORMS")"
@@ -250,11 +265,8 @@ install_directory_unit() {
     parent="$(dirname "$target_path")"
     mkdir -p "$parent"
     if [ "$strategy" = "copy-directory" ]; then
-        # copy-directory semantics: POSIX uses a wholesale overwrite (cp -R).
-        # The Windows link.ps1 counterpart preserves user edits and removes
-        # stale managed files via a per-directory checksum manifest; that
-        # divergence is intentional and asserted in tests/parity.Tests.ps1.
-        cp -R "$source_path/." "$target_path/"
+        "$PYTHON_CMD" "$COMPOUND_GPID_DIR/scripts/cg_kilo_copy.py" \
+            --source "$source_path" --target "$target_path" --source-relative "$source_rel"
         print_gray "$target_rel - copied"
     else
         ln -s "$source_path" "$target_path"
@@ -451,6 +463,40 @@ if changed:
 PYEOF
 }
 
+run_kilo_preflight() {
+    local mode="$1"
+    local output status
+    local -a preflight_args=("$COMPOUND_GPID_DIR/scripts/cg_kilo_preflight.py" --root "$PROJECT_ROOT" --json)
+    if [ "$mode" = "host" ]; then
+        preflight_args+=(--require-coexistence --host-only)
+    elif [ "$mode" = "coexistence" ]; then
+        preflight_args+=(--require-coexistence)
+    else
+        preflight_args+=(--local-only)
+    fi
+    set +e
+    output="$($PYTHON_CMD "${preflight_args[@]}")"
+    status=$?
+    set -e
+    if [ "$status" -ne 0 ]; then
+        print_error "Linking is blocked by Kilo coexistence preflight."
+        printf '%s\n' "$output" >&2
+        exit "$status"
+    fi
+    local result_status
+    result_status="$(printf '%s\n' "$output" | "$PYTHON_CMD" -c 'import json,sys; print(json.load(sys.stdin)["status"])')"
+    print_gray "Kilo preflight ($mode): $result_status"
+    if [ "$mode" = "coexistence" ]; then
+        print_yellow "Certified launch required: cg-kilo (direct Kilo launches unsupported with compatibility roots)."
+    fi
+}
+
+if [[ ",$PLATFORMS," == *,kilo,* ]] &&
+   [[ ",$PLATFORMS," == *,codex,* || ",$PLATFORMS," == *,claude-code,* ||
+      -d "$PROJECT_ROOT/.agents/skills" || -d "$PROJECT_ROOT/.claude/skills" ]]; then
+    run_kilo_preflight host
+fi
+
 if [ ! -d "$COMPOUND_GPID_DIR" ]; then print_error "Compound GPID installation directory not found at: $COMPOUND_GPID_DIR"; exit 1; fi
 if [ ! -f "$TARGET_MAPPING_PATH" ]; then print_error "Target mapping not found at: $TARGET_MAPPING_PATH"; exit 1; fi
 
@@ -560,10 +606,23 @@ fi
 
 cleanup_legacy_model_mapping_files
 
+MANIFEST_DRIVEN="false"
+[ -f "$PROJECT_ROOT/compound-gpid.local.md" ] && MANIFEST_DRIVEN="true"
+
 while IFS='|' read -r platform unit_type source_rel target_rel strategy snippet; do
     [ -z "$platform" ] && continue
     root_name="${target_rel%%/*}"
     ensure_root_directory "$root_name" || continue
+    # Manifest-driven consumers materialize native generated-tree roots as real
+    # project-local directories through the projection synchronizer. Their
+    # legacy link-directory/copy-directory install units are skipped so the
+    # no-follow synchronizer never sees a junction/copy destination.
+    GENERATED_PROJECTED="false"
+    if [ -n "$(platform_generated_tree "$platform")" ]; then GENERATED_PROJECTED="true"; fi
+    if [ "$MANIFEST_DRIVEN" = "true" ] && [ "$GENERATED_PROJECTED" = "true" ] && [ "$unit_type" = "directory" ]; then
+        print_gray "$target_rel - projected by manifest (legacy install skipped)"
+        continue
+    fi
     if [ "$unit_type" = "directory" ]; then
         if install_directory_unit "$source_rel" "$target_rel" "$strategy"; then printf '%s\n' "$target_rel" >> "$entries_file"; fi
     else
@@ -575,6 +634,16 @@ while IFS='|' read -r platform unit_type source_rel target_rel strategy snippet;
         esac
     fi
 done < "$units_file"
+
+if [[ ",$PLATFORMS," == *,kilo,* ]] &&
+   [[ ",$PLATFORMS," == *,codex,* || ",$PLATFORMS," == *,claude-code,* ]]; then
+    run_kilo_preflight coexistence
+elif [[ -d "$PROJECT_ROOT/.kilo/skills" &&
+        ( -d "$PROJECT_ROOT/.agents/skills" || -d "$PROJECT_ROOT/.claude/skills" ) ]]; then
+    run_kilo_preflight coexistence
+elif [[ ",$PLATFORMS," == *,kilo,* ]]; then
+    run_kilo_preflight local
+fi
 
 collect_existing_managed_entries >> "$entries_file"
 update_gitignore_block "$entries_file"
@@ -610,6 +679,40 @@ for platform in "${check_platforms[@]}"; do
 done
 
 printf '\n'
+# Persist the selected platform set in the committed active manifest so no
+# separate resolution command is needed during later cg-update runs. A
+# manifest-driven consumer with invalid strict config fails closed: linking
+# must not silently fall through to the legacy unfiltered tree.
+if [ -f "$PROJECT_ROOT/compound-gpid.local.md" ]; then
+    set +e
+    MANIFEST_OUTPUT="$("$PYTHON_CMD" "$COMPOUND_GPID_DIR/scripts/cg_project_manifest.py" --root "$PROJECT_ROOT" --platforms "$PLATFORMS" --ensure-state 2>&1)"
+    MANIFEST_STATUS=$?
+    set -e
+    if [ "$MANIFEST_STATUS" -ne 0 ]; then
+        print_error "Linking is blocked by active manifest resolution failure."
+        printf '%s\n' "$MANIFEST_OUTPUT" >&2
+        exit 1
+    fi
+    print_gray "Active manifest: resolved for $PLATFORMS"
+fi
+
+# For a manifest-driven consumer project, verify the committed active manifest
+# and recover/publish the project-local projection through the journaled
+# synchronizer. Fresh junction/copy links without a .compound-gpid state stay
+# on the legacy path; a projection error blocks the link success banner.
+if [ -d "$PROJECT_ROOT/.compound-gpid" ] && [ -f "$PROJECT_ROOT/.compound-gpid/active-manifest.json" ]; then
+    set +e
+    PROJECTION_OUTPUT="$("$PYTHON_CMD" "$COMPOUND_GPID_DIR/scripts/cg_project_projection.py" --project-root "$PROJECT_ROOT" --source-root "$COMPOUND_GPID_DIR" --sync 2>&1)"
+    PROJECTION_STATUS=$?
+    set -e
+    if [ "$PROJECTION_STATUS" -ne 0 ]; then
+        print_error "Linking is blocked by manifest projection failure."
+        printf '%s\n' "$PROJECTION_OUTPUT" >&2
+        exit 1
+    fi
+    print_gray "Project projection: synced and verified"
+fi
+
 print_green "Linked!"
 printf '\nCompound GPID assets are now available for: %s.\n' "$PLATFORMS"
 printf 'Use --platforms copilot for Copilot-only or --platforms kilo for Kilo-only assets.\n\n'

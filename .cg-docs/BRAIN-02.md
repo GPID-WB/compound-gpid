@@ -1,11 +1,19 @@
 # 🧠 Project Brain — Part 2
 
-_Generated 2026-08-13_
+_Generated 2026-08-17_
 
 ## Roadmap.Json / Test Scenarios / Prompt-Tools.Tests.Ps1 _(continued from Part 1)_
 
-_Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 92 entities
+_Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 96 entities
 
+- **[Test the interface contract between chained prompts \(review -> fix-triage pipeline\)](.cg-docs/solutions/testing-patterns/2026-03-30-prompt-pipeline-contract-testing.md)** · `solution` · _—_ · `2026-03-30`
+  > When two prompts are designed to work in sequence — the OUTPUT of one prompt is the INPUT of a follow-up prompt — the…
+- **[Test prompt frontmatter tools: list to guard against silent write failures](.cg-docs/solutions/testing-patterns/2026-03-30-test-prompt-frontmatter-tools-list.md)** · `solution` · _—_ · `2026-03-30`
+  > VS Code Copilot prompt files support a `tools:` key in their YAML frontmatter that restricts which tools the agent ma…
+- **[Invoke-Pester on full test directory with -PassThru pipeline crashes VS Code](.cg-docs/solutions/testing-patterns/2026-04-02-invoke-pester-full-suite-passthru-crashes-vscode.md)** · `solution` · _—_ · `2026-04-02`
+  > VS Code crashes and requires a manual restart when the agent (or user) runs Pester against the entire `tests/` direct…
+- **[AI agent repeats Pester crash pattern despite documented rules — documentation alone is insufficient](.cg-docs/solutions/testing-patterns/2026-04-06-ai-agent-ignores-pester-rules-despite-documentation.md)** · `solution` · _—_ · `2026-04-06`
+  > VS Code was crashed **multiple times in a single session** by the AI agent running forbidden Pester patterns — even t…
 - **[Four Pester test quality patterns: shared helpers, anchored regex, non-empty value checks, and named-criteria guards](.cg-docs/solutions/testing-patterns/2026-04-07-pester-test-quality-patterns.md)** · `solution` · _—_ · `2026-04-07`
   > Surfaced during the 2026-04-07 model-audit light review (P1.1, P2.1, P3.1–P3.4). All four patterns apply broadly to a…
 - **[Cross-cutting enumeration propagation: quality gate inversion and the full-audit pattern](.cg-docs/solutions/testing-patterns/2026-04-08-cross-cutting-enumeration-propagation-audit.md)** · `solution` · _—_ · `2026-04-08`
@@ -191,12 +199,12 @@ _Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 92
 - **[Trusted External Capability Adoption](.cg-docs/strategy/2026-07-30-trusted-external-capability-adoption.md)** · `strategy` · _—_ · `2026-07-30`
   > Compound GPID had completed the Canonical-to-Native Packaging Foundation on 2026-07-28. The completion was merged to …
 
-## Architecture Research Objective / Workflow Maturity Objective / Ongoing Ideas Objective
+## Architecture Research Objective / Ongoing Ideas Objective / Workflow Maturity Objective
 
 _Keywords: `architecture research
-objective` · `workflow maturity
 objective` · `ongoing ideas
-objective`_ · 144 entities
+objective` · `workflow maturity
+objective`_ · 151 entities
 
 - **[@cg-fix-problems agent \(auto-dispatched by /cg-work\)](roadmap.json#cg-fix-problems-agent)** · `feature` · _done_ · `—`
   > @cg-fix-problems agent (auto-dispatched by /cg-work)
@@ -294,6 +302,8 @@ objective`_ · 144 entities
   > Canonical-to-Native Packaging Foundation
 - **[External asset provenance and controlled intake](roadmap.json#attribution-documentation)** · `feature` · _idea_ · `—`
   > External asset provenance and controlled intake
+- **[Quarantined external-skill vendoring workflow](roadmap.json#quarantined-external-skill-vendoring)** · `feature` · _idea_ · `—`
+  > Quarantined external-skill vendoring workflow
 - **[GitHub Actions hardening external-skill pilot](roadmap.json#github-actions-supply-chain-hardening-pilot)** · `feature` · _idea_ · `—`
   > GitHub Actions hardening external-skill pilot
 - **[Modular Compound GPID architecture for technical and research suites](roadmap.json#modular-compound-gpid-architecture-for-technical-and-research-suites)** · `feature` · _done_ · `—`
@@ -434,6 +444,16 @@ objective`_ · 144 entities
   > CR asset classification mapping
 - **[Context-budget enforcement design](roadmap.json#context-budget-enforcement-design)** · `feature` · _planned_ · `—`
   > Context-budget enforcement design
+- **[Capability profiles and active project-manifest resolution](roadmap.json#capability-profile-manifest-resolution)** · `feature` · _planned_ · `—`
+  > Capability profiles and active project-manifest resolution
+- **[Narrow mandatory base capabilities with generated enforcement](roadmap.json#mandatory-base-capabilities-generated-enforcement)** · `feature` · _planned_ · `—`
+  > Narrow mandatory base capabilities with generated enforcement
+- **[Fail-closed manifest and skill-integrity validation](roadmap.json#manifest-integrity-fail-closed-validation)** · `feature` · _planned_ · `—`
+  > Fail-closed manifest and skill-integrity validation
+- **[Generate platform adapters from the active manifest](roadmap.json#active-manifest-platform-adapters)** · `feature` · _planned_ · `—`
+  > Generate platform adapters from the active manifest
+- **[Active-manifest install/update and cross-platform parity matrix](roadmap.json#active-manifest-install-update-parity-matrix)** · `feature` · _planned_ · `—`
+  > Active-manifest install/update and cross-platform parity matrix
 - **[Token Efficiency vs modular priority resolution](roadmap.json#token-efficiency-vs-modular-priority-resolution)** · `feature` · _planned_ · `—`
   > Token Efficiency vs modular priority resolution
 - **[Audit current context and model usage](roadmap.json#token-audit-context-model)** · `feature` · _idea_ · `—`
@@ -456,6 +476,8 @@ objective`_ · 144 entities
   > Make review cheaper with deterministic checks first
 - **[Benchmark before and after](roadmap.json#token-benchmark-before-after)** · `feature` · _idea_ · `—`
   > Benchmark before and after
+- **[Manifest-backed skills discovery catalog and /cg-skills](roadmap.json#manifest-backed-skills-discovery-catalog)** · `feature` · _idea_ · `—`
+  > Manifest-backed skills discovery catalog and /cg-skills
 - **[Capture the learning](roadmap.json#token-optimization-compound)** · `feature` · _idea_ · `—`
   > Capture the learning
 - **[Workflow suitability criteria and non-goals](roadmap.json#workflow-suitability-criteria)** · `feature` · _idea_ · `—`
@@ -506,6 +528,19 @@ objective` · `measurement`_ · 7 entities
   > Validate the Measurement archetype with a second use case
 - **[Team-level evidence library](roadmap.json#cr-team-evidence-library)** · `feature` · _idea_ · `—`
   > Team-level evidence library
+
+## Scripts/Cg_Kilo_Preflight.Py / Link.Sh / Cg_Kilo_Preflight.Py
+
+_Keywords: `scripts/cg_kilo_preflight.py` · `link.sh` · `cg_kilo_preflight.py`_ · 4 entities
+
+- **[2026-06-12-goal-driven-execution-verify-review-6](.cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-6.md)** · `review` · _—_ · `2026-07-05`
+  > - **Mode**: verify (`mode:verify`; light depth) - **Parent review**: `.cg-docs/reviews/2026-06-12-goal-driven-executi…
+- **[2026-06-12-goal-driven-execution-verify-review-7](.cg-docs/reviews/2026-06-12-goal-driven-execution-verify-review-7.md)** · `review` · _—_ · `2026-07-05`
+  > - **Mode**: verify (`mode:verify`; light depth) - **Parent review**: `.cg-docs/reviews/2026-06-12-goal-driven-executi…
+- **[2026-08-13-manifest-driven-skill-loading-review](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-review.md)** · `review` · _—_ · `2026-08-13`
+  > **Review mode**: full (auto-routed security/architecture/install changes) **Files reviewed**: Phase 1 implementation,…
+- **[2026-08-13-manifest-driven-skill-loading-verify-review](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review.md)** · `review` · _—_ · `2026-08-13`
+  > **Review mode**: verify (light) **Parent review**: `.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-review.…
 
 ## Tests / Filesystem / Python
 

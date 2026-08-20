@@ -28,7 +28,7 @@
       "path": ".agents/commands/cg-commit-push-pr.md",
       "source": ".github/prompts/cg-commit-push-pr.prompt.md",
       "kind": "command",
-      "sha256": "bb5985b44032b5242e7e541d0a0bdab835599eed195830242e73c4851ba358d2",
+      "sha256": "d7d2cf6c07ecf7ea795fd67ecdd9f48a6d9a4266c0f91f522f15bad491625772",
       "executable": false
     },
     {
@@ -60,6 +60,13 @@
       "executable": false
     },
     {
+      "path": ".agents/commands/cg-find-skill.md",
+      "source": ".github/prompts/cg-find-skill.prompt.md",
+      "kind": "command",
+      "sha256": "0ab4cb27d80cb56576c8682abd0e87314c56fb35b2e63dd099dfaa274643fcda",
+      "executable": false
+    },
+    {
       "path": ".agents/commands/cg-fix-problems.md",
       "source": ".github/prompts/cg-fix-problems.prompt.md",
       "kind": "command",
@@ -85,6 +92,13 @@
       "source": ".github/prompts/cg-ideate.prompt.md",
       "kind": "command",
       "sha256": "11e24e1e65444f929413d534732bd5f36ab4cbdd9baf17414ebf17c8c8512960",
+      "executable": false
+    },
+    {
+      "path": ".agents/commands/cg-import-skill.md",
+      "source": ".github/prompts/cg-import-skill.prompt.md",
+      "kind": "command",
+      "sha256": "718630a09fc56af0e5a09aa6c57ec45101462da8c0772859357274d487db2341",
       "executable": false
     },
     {
@@ -175,7 +189,7 @@
       "path": ".agents/commands/cg-verify-pr.md",
       "source": ".github/prompts/cg-verify-pr.prompt.md",
       "kind": "command",
-      "sha256": "12331c79f8ed4882297bd00bc422a345a1d07f5eec3290722f45723a4feb9b8c",
+      "sha256": "1b8eb364eb1443cd6ee38fbf212344aebaab8b998f65a7d955f774eee06ce097",
       "executable": false
     },
     {
@@ -301,7 +315,7 @@
       "path": ".agents/shared/context-loading.contract.md",
       "source": ".github/shared/context-loading.contract.md",
       "kind": "shared",
-      "sha256": "2edf43adf36279f0401f91456fdedf26139ef93a1c98406f5a2822df100078c5",
+      "sha256": "ab623c6a3a1d4c2bdc0bd3019d520c1772149d044bfdde4e29b4dc70dc1b4f01",
       "executable": false
     },
     {
@@ -350,7 +364,14 @@
       "path": ".agents/shared/target-mapping.json",
       "source": ".github/shared/target-mapping.json",
       "kind": "shared",
-      "sha256": "eeb80c3eb527219411aaf97a6bc753bbc00a868db72897cf7f1846ac8444b9d4",
+      "sha256": "ac6a2ad2ced44c7d99ffa05d4e962d349fe870152bc21263a692ae919367deec",
+      "executable": false
+    },
+    {
+      "path": ".agents/shared/vendor-policy.json",
+      "source": ".github/shared/vendor-policy.json",
+      "kind": "shared",
+      "sha256": "12670cfe9582750acd6871c9132e6cba78a764e952a35e7b24b8eafa0c08c12d",
       "executable": false
     },
     {

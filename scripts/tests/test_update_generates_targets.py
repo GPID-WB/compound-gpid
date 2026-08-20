@@ -233,9 +233,14 @@ class TestCommitPushPrRegeneratesTargets:
         assert "target-mapping.json" in content
         assert "cg_generate_targets.py" in content
 
-    def test_checks_github_diff_before_regenerating(self, content: str) -> None:
-        assert "git diff HEAD" in content
-        assert ".github/" in content
+    def test_regenerates_unconditionally_and_refreshes_staging_inventory(self, content: str) -> None:
+        assert "Run the generator unconditionally" in content
+        assert "Rerun `git status --short`" in content
+
+    def test_runs_local_ci_equivalent_gates_before_staging(self, content: str) -> None:
+        assert "test_cg_characterization.py" in content
+        assert "check-docs-site.js" in content
+        assert "prompt-tools,model-assignments" in content
 
     def test_generation_failure_halts_before_staging(self, content: str) -> None:
         failure = content.index("If generation fails")
@@ -253,3 +258,10 @@ class TestCommitPushPrRegeneratesTargets:
         assert ".claude/" in content
         assert ".agents/" in content
         assert ".opencode/" in content
+        assert ".kilo/" in content
+
+    def test_runs_target_drift_after_commits_and_before_push(self, content: str) -> None:
+        post_commit = content.index("### Step 4.5: Post-Commit Generated Drift Gate")
+        push = content.index("### Step 5: Push")
+        assert post_commit < push
+        assert "test_target_drift.py" in content[post_commit:push]

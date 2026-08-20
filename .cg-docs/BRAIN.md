@@ -1,6 +1,6 @@
 # 🧠 Project Brain
 
-_Generated 2026-08-13 · 717 entities · 5 topics · 309 edges_
+_Generated 2026-08-17 · 737 entities · 6 topics · 317 edges_
 
 ## How to Use
 
@@ -13,31 +13,32 @@ _Generated 2026-08-13 · 717 entities · 5 topics · 309 edges_
 
 | # | Topic | Entities | File |
 |---|-------|----------|------|
-| 1 | [Roadmap.Json / Test Scenarios / Prompt-Tools.Tests.Ps1](BRAIN-01.md#roadmap-json-test-scenarios-prompt-tools-tests-ps1) | 506 | BRAIN-01.md |
-| 2 | [Architecture Research Objective / Workflow Maturity Objective / Ongoing Ideas Objective](BRAIN-02.md#architecture-research-objective-workflow-maturity-objective-ongoing-ideas-objective) | 144 | BRAIN-02.md |
+| 1 | [Roadmap.Json / Test Scenarios / Prompt-Tools.Tests.Ps1](BRAIN-01.md#roadmap-json-test-scenarios-prompt-tools-tests-ps1) | 513 | BRAIN-01.md |
+| 2 | [Architecture Research Objective / Ongoing Ideas Objective / Workflow Maturity Objective](BRAIN-02.md#architecture-research-objective-ongoing-ideas-objective-workflow-maturity-objective) | 151 | BRAIN-02.md |
 | 3 | [Expand Compound Research / Responsible Research Partner Objective / Measurement](BRAIN-02.md#expand-compound-research-responsible-research-partner-objective-measurement) | 7 | BRAIN-02.md |
-| 4 | [Tests / Filesystem / Python](BRAIN-02.md#tests-filesystem-python) | 4 | BRAIN-02.md |
-| 5 | [Secure_Fs.Py / Validation / Parser.Py](BRAIN-02.md#secure-fs-py-validation-parser-py) | 3 | BRAIN-02.md |
+| 4 | [Scripts/Cg_Kilo_Preflight.Py / Link.Sh / Cg_Kilo_Preflight.Py](BRAIN-02.md#scripts-cg-kilo-preflight-py-link-sh-cg-kilo-preflight-py) | 4 | BRAIN-02.md |
+| 5 | [Tests / Filesystem / Python](BRAIN-02.md#tests-filesystem-python) | 4 | BRAIN-02.md |
+| 6 | [Secure_Fs.Py / Validation / Parser.Py](BRAIN-02.md#secure-fs-py-validation-parser-py) | 3 | BRAIN-02.md |
 
 ## Entity Summary
 
 | Type | Count |
 |------|-------|
-| brainstorm | 55 |
-| feature | 151 |
-| plan | 114 |
-| review | 170 |
-| solution | 212 |
+| brainstorm | 56 |
+| feature | 158 |
+| plan | 115 |
+| review | 175 |
+| solution | 218 |
 | strategy | 15 |
 
-_53 entities not assigned to any topic_
+_55 entities not assigned to any topic_
 
 ## Relationship Summary
 
 | Edge Type | Count |
 |-----------|-------|
-| decided_from | 78 |
+| decided_from | 79 |
 | implements | 26 |
-| references | 58 |
-| reviews | 92 |
-| verifies | 55 |
+| references | 59 |
+| reviews | 95 |
+| verifies | 58 |

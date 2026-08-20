@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-08-13 · 566 artifacts (newest first) + 151 roadmap features_
+_Generated 2026-08-17 · 579 artifacts (newest first) + 158 roadmap features_
 
 ## undated
 
@@ -127,10 +127,45 @@ _Generated 2026-08-13 · 566 artifacts (newest first) + 151 roadmap features_
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
 
+## 2026-08-17
+
+- **[Journal security hardening patterns for atomic file publication](.cg-docs/solutions/testing-patterns/2026-08-17-journal-security-hardening-patterns.md)** · `solution` · _—_ · `2026-08-17`
+  > The journaled projection synchronizer writes a `projection-journal.json` with a `transactionId` (32-hex) and records …
+- **[Manifest-driven install gate prevents junction conflicts with projection synchronizer](.cg-docs/solutions/environment-issues/2026-08-17-manifest-driven-install-gate-prevents-junction-conflicts.md)** · `solution` · _—_ · `2026-08-17`
+  > `link.ps1`/`link.sh` create directory junctions for `.agents/*`, `.claude/*`, `.opencode/*` installUnits before the p…
+- **[Windows long-path prefix required for staged file publication](.cg-docs/solutions/bugs/2026-08-17-windows-long-path-staged-publication.md)** · `solution` · _—_ · `2026-08-17`
+  > The manifest-driven projection synchronizer (`cg_project_projection.py`) stages files under `<project>/.compound-gpid…
+
+## 2026-08-15
+
+- **[2026-08-13-manifest-driven-skill-loading-phase3-verify-review](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-phase3-verify-review.md)** · `review` · _—_ · `2026-08-15`
+  > **Review mode**: verify (light) **Parent review**: `.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-phase3-…
+
+## 2026-08-14
+
+- **[2026-08-13-manifest-driven-skill-loading-phase3-review](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-phase3-review.md)** · `review` · _—_ · `2026-08-14`
+  > **Review mode**: auto -> full (Phase 3, steps 6-8: secure materialized projection) **Files reviewed**: 21 changed fil…
+- **[2026-08-13-manifest-driven-skill-loading-verify-review-2](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review-2.md)** · `review` · _—_ · `2026-08-14`
+  > **Review mode**: verify (light-only) **Files reviewed**: Phase 2 diff (registry v2 + capability resolution + strict c…
+- **[Capability suite-eligibility namespace mismatch makes activation dead code](.cg-docs/solutions/bugs/2026-08-14-capability-eligibility-namespace-mismatch.md)** · `solution` · _—_ · `2026-08-14`
+  > The v2 module registry introduced `capabilities[]` records with `supportedSuites` (user-facing names like `cg`/`cr`) …
+- **[Kilo coexistence requires a certified contained launch and no-follow local copies](.cg-docs/solutions/environment-issues/2026-08-14-kilo-contained-launch-and-no-follow-copy.md)** · `solution` · _—_ · `2026-08-14`
+  > When Kilo, Codex, and Claude-compatible roots coexist in one project, Kilo can discover skills outside the project-lo…
+- **[Pages immutable-ref gate rejects dev-series pre-release tags \(v1.2.0.900x\)](.cg-docs/solutions/bugs/2026-08-14-pages-immutable-ref-gate-rejects-dev-series-pre-release-tags.md)** · `solution` · _—_ · `2026-08-14`
+  > The tag-triggered Pages deployment failed for the pre-release release `v1.2.0.9004`. Running [31748306075](https://gi…
+
 ## 2026-08-13
 
 - **[2026-08-12-automated-documentation-deployment-review](.cg-docs/reviews/2026-08-12-automated-documentation-deployment-review.md)** · `review` · _—_ · `2026-08-13`
   > - Documentation generators, validation, release-payload contract, Pages and rebuild workflows. - Canonical prompts/ag…
+- **[2026-08-13-manifest-driven-skill-loading-review](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-review.md)** · `review` · _—_ · `2026-08-13`
+  > **Review mode**: full (auto-routed security/architecture/install changes) **Files reviewed**: Phase 1 implementation,…
+- **[2026-08-13-manifest-driven-skill-loading-verify-review](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review.md)** · `review` · _—_ · `2026-08-13`
+  > **Review mode**: verify (light) **Parent review**: `.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-review.…
+- **[Manifest-driven skill loading and project-local platform projections](.cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md)** · `plan` · _active_ · `2026-08-13`
+  > Replace all-skill, shared-install runtime exposure with a strict, committed per-project manifest and an atomically pu…
+- **[Manifest-driven skill loading for context efficiency](.cg-docs/brainstorms/2026-08-13-skill-loading-architecture-context-efficiency.md)** · `brainstorm` · _decided_ · `2026-08-13`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
 - **[Verified Pages artifacts and immutable release-tag gates](.cg-docs/solutions/git-workflows/2026-08-13-verified-pages-artifact-and-release-tag-gates.md)** · `solution` · _—_ · `2026-08-13`
   > An automated documentation workflow needs two independent guarantees: 1. The Pages deploy job must publish exactly th…
 
@@ -1418,6 +1453,10 @@ _Generated 2026-08-13 · 566 artifacts (newest first) + 151 roadmap features_
 
 ## Roadmap Features
 
+- **[Active-manifest install/update and cross-platform parity matrix](roadmap.json#active-manifest-install-update-parity-matrix)** · `feature` · _planned_ · `—`
+  > Active-manifest install/update and cross-platform parity matrix
+- **[Generate platform adapters from the active manifest](roadmap.json#active-manifest-platform-adapters)** · `feature` · _planned_ · `—`
+  > Generate platform adapters from the active manifest
 - **[Adding hooks to streamline process](roadmap.json#adding-hooks-to-streamline-process)** · `feature` · _idea_ · `—`
   > Adding hooks to streamline process
 - **[Update custom agents for model and tool governance](roadmap.json#agent-model-tool-governance)** · `feature` · _idea_ · `—`
@@ -1466,6 +1505,8 @@ _Generated 2026-08-13 · 566 artifacts (newest first) + 151 roadmap features_
   > Generic Markdown publishing skill and deterministic HTML views
 - **[Canonical-to-Native Packaging Foundation](roadmap.json#canonical-to-native-packaging-foundation)** · `feature` · _done_ · `—`
   > Canonical-to-Native Packaging Foundation
+- **[Capability profiles and active project-manifest resolution](roadmap.json#capability-profile-manifest-resolution)** · `feature` · _planned_ · `—`
+  > Capability profiles and active project-manifest resolution
 - **[CE-inspired improvements integration \(P0 severity, new prompts, smart workflows\)](roadmap.json#ce-improvements-integration)** · `feature` · _done_ · `—`
   > CE-inspired improvements integration (P0 severity, new prompts, smart workflows)
 - **[/cg-commit-push-pr — logical commit splitting, push, and PR creation](roadmap.json#cg-commit-push-pr)** · `feature` · _done_ · `—`
@@ -1560,6 +1601,12 @@ _Generated 2026-08-13 · 566 artifacts (newest first) + 151 roadmap features_
   > Include /ce:ideate-style prompt from compound-engineering-plugin
 - **[Inline self-review checklist at end of /cg-brainstorm and /cg-plan \[from SP\]](roadmap.json#inline-self-review-brainstorm-plan)** · `feature` · _idea_ · `—`
   > Inline self-review checklist at end of /cg-brainstorm and /cg-plan [from SP]
+- **[Narrow mandatory base capabilities with generated enforcement](roadmap.json#mandatory-base-capabilities-generated-enforcement)** · `feature` · _planned_ · `—`
+  > Narrow mandatory base capabilities with generated enforcement
+- **[Manifest-backed skills discovery catalog and /cg-skills](roadmap.json#manifest-backed-skills-discovery-catalog)** · `feature` · _idea_ · `—`
+  > Manifest-backed skills discovery catalog and /cg-skills
+- **[Fail-closed manifest and skill-integrity validation](roadmap.json#manifest-integrity-fail-closed-validation)** · `feature` · _planned_ · `—`
+  > Fail-closed manifest and skill-integrity validation
 - **[Add mattpocock/skills to competitive review sources](roadmap.json#mattpocock-skills-review-source)** · `feature` · _idea_ · `—`
   > Add mattpocock/skills to competitive review sources
 - **[Add model-policy tests](roadmap.json#model-policy-tests)** · `feature` · _idea_ · `—`
@@ -1604,6 +1651,8 @@ _Generated 2026-08-13 · 566 artifacts (newest first) + 151 roadmap features_
   > Update prompt frontmatter model and agent choices
 - **[Split large prompts into thin entrypoints and on-demand skills](roadmap.json#prompt-skill-split)** · `feature` · _idea_ · `—`
   > Split large prompts into thin entrypoints and on-demand skills
+- **[Quarantined external-skill vendoring workflow](roadmap.json#quarantined-external-skill-vendoring)** · `feature` · _idea_ · `—`
+  > Quarantined external-skill vendoring workflow
 - **[R dialect skills architecture \(collapse, data.table, tidyverse\)](roadmap.json#r-dialect-skills-architecture)** · `feature` · _done_ · `—`
   > R dialect skills architecture (collapse, data.table, tidyverse)
 - **[Reduce token cost via prompt prose compression and Step 0 dedup](roadmap.json#reduce-token-cost-late-sequence-content)** · `feature` · _done_ · `—`

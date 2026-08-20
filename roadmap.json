@@ -389,14 +389,21 @@
         {
           "id": "attribution-documentation",
           "title": "External asset provenance and controlled intake",
-          "description": "Establish the authoritative governance and intake system for adopting external skills, agents, instructions, scripts, templates, or other AI-assistance assets into Compound GPID. The system must record the upstream repository URL, immutable commit SHA, exact source paths, retrieval/import date, upstream and imported-file SHA-256 hashes, license and attribution obligations, reviewer identity, approval status, local destination mapping, adaptation summary, and refresh/removal history. Updates must compare two pinned upstream revisions and surface source changes for human review rather than merely regenerating local hashes. Intake must inspect all content as untrusted data; assess prompt-injection language, guardrail bypasses, remote-shell execution, automatic package execution, floating dependencies, executable resources, unsafe paths, credentials, network behavior, and runtime assumptions; and distinguish automated advisory findings from human approval. Define explicit outcomes for approved, rejected, quarantined, superseded, removed, and update-pending assets. Integrate with the completed atomic packaging and generated-target system without changing `.github/` as the canonical source. Initial implementation must remain narrowly focused on controlled intake and provenance, not create a public marketplace, generalized dependency DSL, automatic installation from arbitrary repositories, or implicit trust based on catalog inclusion.",
+          "description": "Establish the authoritative governance and intake system for adopting external skills, agents, instructions, scripts, templates, or other AI-assistance assets into Compound GPID. The system must record the upstream repository URL, immutable commit SHA, exact source paths, retrieval/import date, upstream and imported-file SHA-256 hashes, license and attribution obligations, reviewer identity, approval status, local destination mapping, adaptation summary, and refresh/removal history. Updates must compare two pinned upstream revisions and surface source changes for human review rather than merely regenerating local hashes. Intake must inspect all content as untrusted data; assess prompt-injection language, guardrail bypasses, remote-shell execution, automatic package execution, floating dependencies, executable resources, unsafe paths, credentials, network behavior, and runtime assumptions; and distinguish automated advisory findings from human approval. Define explicit outcomes for approved, rejected, quarantined, superseded, removed, and update-pending assets. Integrate with the completed atomic packaging and generated-target system without changing `.github/` as the canonical source. This is the required prerequisite for the later quarantined vendoring workflow and its GitHub Actions pilot. Initial implementation must remain narrowly focused on controlled intake and provenance, not create a public marketplace, generalized dependency DSL, automatic installation from arbitrary repositories, or implicit trust based on catalog inclusion.",
           "status": "idea",
           "plan": null
         },
         {
+          "id": "quarantined-external-skill-vendoring",
+          "title": "Quarantined external-skill vendoring workflow",
+          "description": "Extend, but do not duplicate, `attribution-documentation` after its controlled-intake and provenance controls are implemented. Add `/cg-import-skill <repo>@<sha> <path>` to stage only pinned external content in quarantine; perform static security, path, license, and provenance checks; require explicit human approval; and produce a review diff. Automation may make only mechanical namespace and path adaptations, then vendors an approved non-executable bundle into canonical `.github/skills/`. Define custom-skill collision handling through separate managed and user roots. Do not create a public marketplace, automatic installation from arbitrary GitHub repositories, or remote runtime fetches.",
+          "status": "active",
+          "plan": ".cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md"
+        },
+        {
           "id": "github-actions-supply-chain-hardening-pilot",
           "title": "GitHub Actions hardening external-skill pilot",
-          "description": "Run the first controlled external-skill adoption through the provenance and intake system by adapting Awesome Copilot's `github-actions-hardening` skill under a Compound GPID `cg-skill-*` namespace. This feature is blocked until `external asset provenance and controlled intake` is implemented and verified. Pin the upstream source to an immutable commit, preserve license and attribution evidence, document all local changes, and import the complete non-executable skill bundle through the canonical `.github/` source. Align upstream severity with Compound GPID's P0-P3 system and integrate the skill into existing `cg-version-control` and `cg-adversarial` review paths when `.github/workflows/*.yml` or `.yaml` files are in scope; do not create a redundant general review agent. Adapt the guidance to cover GitHub Actions trust boundaries, untrusted expression interpolation, privileged triggers, fork code execution, least-privilege `GITHUB_TOKEN` permissions, immutable action references, credential persistence, secrets, artifacts, caches, OIDC, and self-hosted runner exposure. Use the adapted skill to audit Compound GPID's current workflows and produce concrete remediation findings. Verify recursive bundle parity, reference closure, isolated native installation, and discoverability on GitHub Copilot, Claude Code, Codex, and OpenCode. The pilot must demonstrate that the intake, adaptation, packaging, review integration, and update process works end to end; it must not broaden into marketplace publication, automatic external installation, or unrelated repository-security automation.",
+          "description": "Run the first controlled external-skill adoption through the provenance and intake system by adapting Awesome Copilot's `github-actions-hardening` skill under a Compound GPID `cg-skill-*` namespace. This feature is blocked until both `attribution-documentation` and `quarantined-external-skill-vendoring` are implemented and verified. Pin the upstream source to an immutable commit, preserve license and attribution evidence, document all local changes, and import the complete non-executable skill bundle through the canonical `.github/` source. Align upstream severity with Compound GPID's P0-P3 system and integrate the skill into existing `cg-version-control` and `cg-adversarial` review paths when `.github/workflows/*.yml` or `.yaml` files are in scope; do not create a redundant general review agent. Adapt the guidance to cover GitHub Actions trust boundaries, untrusted expression interpolation, privileged triggers, fork code execution, least-privilege `GITHUB_TOKEN` permissions, immutable action references, credential persistence, secrets, artifacts, caches, OIDC, and self-hosted runner exposure. Use the adapted skill to audit Compound GPID's current workflows and produce concrete remediation findings. Verify recursive bundle parity, reference closure, isolated native installation, and discoverability on GitHub Copilot, Claude Code, Codex, and OpenCode. The pilot must demonstrate that the intake, adaptation, packaging, review integration, and update process works end to end; it must not broaden into marketplace publication, automatic external installation, or unrelated repository-security automation.",
           "status": "idea",
           "plan": null
         },
@@ -908,7 +915,42 @@
         {
           "id": "context-budget-enforcement-design",
           "title": "Context-budget enforcement design",
-          "description": "Design how AI agents enforce registry-based loading rules. Specify compound-gpid.local.md schema extension for suites: field, how each platform adapter reads it, and whether enforcement is instruction-level (AI compliance) or generator-level (code).",
+          "description": "After the baseline `token-audit-context-model`, make suite filtering work in normal link and update flows through generator and adapter enforcement rather than suite-selection prose alone. Specify the `compound-gpid.local.md` suite configuration, emitted inventory, and platform-adapter behavior as the first delivery step toward capability profiles. Enforcement must be generated artifacts and code, not only model instructions, and must not cause CG-only projects to ship every language pack. Capability-profile resolution, integrity checks, and active-manifest adapters follow this suite-filtering step.",
+          "status": "planned",
+          "plan": null
+        },
+        {
+          "id": "capability-profile-manifest-resolution",
+          "title": "Capability profiles and active project-manifest resolution",
+          "description": "Following suite filtering, replace suite-only closure with explicit capability profiles. Suites choose workflow namespaces, while `compound-gpid.local.md` selects language, dialect, tooling, and domain capability packs. Resolve one active project manifest from both sources so CG-only projects include only their selected packs, with clear validation for unsupported or ambiguous combinations. This foundation precedes manifest integrity, adapter generation, and install/update parity testing.",
+          "status": "planned",
+          "plan": null
+        },
+        {
+          "id": "mandatory-base-capabilities-generated-enforcement",
+          "title": "Narrow mandatory base capabilities with generated enforcement",
+          "description": "Define the minimal capability baseline used by active-manifest projects: a kernel runtime and manifest resolver plus a compact hard-stop router. Keep domain, language, Pester, Brain, and Git skills task-triggered rather than always active. Implement this boundary as generated artifacts and enforcement code, not model prose alone, during capability-profile delivery and before integrity and adapter work.",
+          "status": "planned",
+          "plan": null
+        },
+        {
+          "id": "manifest-integrity-fail-closed-validation",
+          "title": "Fail-closed manifest and skill-integrity validation",
+          "description": "After capability profiles are resolved, reject malformed or missing registries and configurations rather than silently falling back. Validate every named skill import, report actionable diagnostics for missing capabilities or configuration, and add generation/install coverage proving that invalid inputs fail closed before active-manifest adapters are emitted.",
+          "status": "planned",
+          "plan": null
+        },
+        {
+          "id": "active-manifest-platform-adapters",
+          "title": "Generate platform adapters from the active manifest",
+          "description": "Generate root and platform adapters from the validated active manifest so enabled `/cg-*` and `/cr-*` namespaces and selected skill paths exactly match the project configuration. Replace hard-coded `/cg-*` assumptions and wildcard all-skills messaging; do not expose unselected language, domain, or research assets. Deliver after fail-closed integrity validation and before the parity matrix.",
+          "status": "planned",
+          "plan": null
+        },
+        {
+          "id": "active-manifest-install-update-parity-matrix",
+          "title": "Active-manifest install/update and cross-platform parity matrix",
+          "description": "After manifest integrity and adapter generation, test install and update output for suite-only, CR-only, mixed, capability-specific, invalid-configuration, and external-collision cases on Windows and POSIX. Assert emitted inventories and routes exactly match the manifest, with no unrelated skills, commands, or namespace-routing leaks; include managed-versus-user root collision behavior for future reviewed external bundles.",
           "status": "planned",
           "plan": null
         },
@@ -930,7 +972,7 @@
         {
           "id": "token-audit-context-model",
           "title": "Audit current context and model usage",
-          "description": "Measure the current token and AI-credit burden of Compound GPID. Covers prompt files, agent files, skills, instructions, shared files, documentation references, Knowledge Brain artifacts, and explicit model declarations. Produces: context/model audit script, context audit report, model-declaration inventory, list of largest context-cost sources, list of prompts/agents with missing or expensive model assignments.",
+          "description": "Priority first: measure the current token and AI-credit burden of Compound GPID before context-reduction or manifest changes. Covers prompt files, agent files, skills, instructions, shared files, documentation references, Knowledge Brain artifacts, and explicit model declarations. Produces: context/model audit script, context audit report, model-declaration inventory, list of largest context-cost sources, list of prompts/agents with missing or expensive model assignments. Its baseline gates suite filtering, capability profiles, and before/after benchmarking.",
           "status": "idea",
           "plan": null
         },
@@ -965,21 +1007,21 @@
         {
           "id": "shrink-always-on-context",
           "title": "Shrink always-on context",
-          "description": "Reduce the size of instructions loaded automatically. The root Copilot instruction template should act as a short router, not a full manual. Produces: smaller .github/copilot-instructions.template.md, smaller instruction-router files, less repeated always-on text, clear pointers to stage-specific prompts/skills/context files.",
+          "description": "After the baseline audit, reduce the size of instructions loaded automatically. The root Copilot instruction template should act as a short router, not a full manual, and its active paths should align with the resolved project manifest. Produces: smaller .github/copilot-instructions.template.md, smaller instruction-router files, less repeated always-on text, clear pointers to stage-specific prompts, skills, and context files.",
           "status": "idea",
           "plan": null
         },
         {
           "id": "prompt-skill-split",
           "title": "Split large prompts into thin entrypoints and on-demand skills",
-          "description": "Refactor large slash prompts so they act as workflow entrypoints rather than carrying all reusable doctrine. Move repeated or specialized guidance into skills and reference files loaded only when relevant. Produces: smaller prompt files, more focused skill landing pages, reusable doctrine in skill references, less duplication across prompts/agents/instructions.",
+          "description": "Refactor large slash prompts so they act as workflow entrypoints rather than carrying all reusable doctrine. Move repeated or specialized guidance into manifest-selected skills and reference files loaded only when relevant. Produces: smaller prompt files, more focused skill landing pages, reusable doctrine in skill references, less duplication across prompts, agents, and instructions; verify the result against the audit baseline.",
           "status": "idea",
           "plan": null
         },
         {
           "id": "stage-context-contracts",
           "title": "Add stage-specific context contracts",
-          "description": "Define exactly what each workflow stage should read, avoid, and produce. Prevents broad context loading and makes the workflow more interpretable. Produces: context-contract files for major stages, explicit read-first lists, explicit do-not-read-by-default lists, required output schemas for each stage, context expansion rules requiring stated reason before loading broader context.",
+          "description": "Define exactly what each workflow stage should read, avoid, and produce, using active-manifest eligibility rather than broad all-skills assumptions. Prevents broad context loading and makes the workflow more interpretable. Produces: context-contract files for major stages, explicit read-first lists, explicit do-not-read-by-default lists, required output schemas for each stage, and context-expansion rules requiring a stated reason before loading broader context.",
           "status": "idea",
           "plan": null
         },
@@ -993,7 +1035,14 @@
         {
           "id": "token-benchmark-before-after",
           "title": "Benchmark before and after",
-          "description": "Run comparable tasks before and after optimization to measure whether changes actually reduce context burden and model cost without degrading workflow quality. Produces: before/after benchmark report, estimated token burden by workflow, model usage comparison, quality notes from real Copilot runtime tests, list of remaining optimization candidates.",
+          "description": "Run comparable tasks against the initial audit baseline and after optimization to measure whether suite filtering, active-manifest routing, and context changes reduce burden and model cost without degrading workflow quality. Produces: before/after benchmark report, estimated token burden by workflow, model usage comparison, quality notes from real Copilot runtime tests, and a list of remaining optimization candidates.",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "manifest-backed-skills-discovery-catalog",
+          "title": "Manifest-backed skills discovery catalog and /cg-skills",
+          "description": "After active-manifest integrity, adapter, and parity work, generate a static discovery catalog from the registry and skill frontmatter. Add on-demand `/cg-skills` discovery rather than injecting all skill descriptions into every session. Each record must state id, purpose, module owner, capability, suite and platform eligibility, activation cost, and provenance. The catalog supports measured context reduction and local discovery only; it must not become a public marketplace or remote runtime fetch mechanism.",
           "status": "idea",
           "plan": null
         },

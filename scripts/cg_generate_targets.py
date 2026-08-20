@@ -38,7 +38,7 @@ import unicodedata
 import urllib.parse
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
-from typing import Any, Dict, Mapping, Optional, Sequence, Tuple
+from typing import Any, Dict, Iterable, Mapping, Optional, Sequence, Tuple
 
 import secure_fs
 
@@ -278,6 +278,29 @@ def _validate_install_units(prefix: str, install_units: Any) -> list[str]:
     return errors
 
 
+def _validate_project_roots(prefix: str, project_roots: Any) -> list[str]:
+    """Validate the optional declared managed/optional user project roots block."""
+    errors: list[str] = []
+    if project_roots is None:
+        return errors
+    if not isinstance(project_roots, dict):
+        return [f"{prefix}.projectRoots: must be an object"]
+    for kind in ("managed", "optionalUser"):
+        entries = project_roots.get(kind)
+        if entries is None:
+            continue
+        if not isinstance(entries, list):
+            errors.append(f"{prefix}.projectRoots.{kind}: must be an array")
+            continue
+        for i, value in enumerate(entries):
+            errors.extend(_validate_repo_relative_path(
+                f"{prefix}.projectRoots.{kind}[{i}]", value
+            ))
+            if isinstance(value, str) and _is_within(value, ".github"):
+                errors.append(f"{prefix}.projectRoots.{kind}[{i}]: managed/optional user roots must be outside canonical .github")
+    return errors
+
+
 def validate_target_mapping(data: dict[str, Any]) -> list[str]:
     """Validate target-mapping.json structure. Returns list of error messages (empty = valid)."""
     errors: list[str] = []
@@ -332,6 +355,7 @@ def validate_target_mapping(data: dict[str, Any]) -> list[str]:
         errors.extend(_validate_formats(prefix, target.get("formats", {})))
         errors.extend(_validate_output_paths(prefix, target.get("outputPaths", {})))
         errors.extend(_validate_install_units(prefix, target.get("installUnits")))
+        errors.extend(_validate_project_roots(prefix, target.get("projectRoots")))
 
         gtp = target.get("generatedTreePath")
         if gtp is not None and not isinstance(gtp, str):
@@ -552,6 +576,7 @@ def _loadable_owned_asset_globs(root: Path, active_suites: Optional[Sequence[str
 def scan_canonical_assets(
     root: Path,
     active_suites: Optional[Sequence[str]] = None,
+    loadable_globs: Optional[Iterable[str]] = None,
 ) -> dict[str, list[dict[str, Any]]]:
     """Scan .github/ canonical assets and return structured metadata.
 
@@ -561,6 +586,12 @@ def scan_canonical_assets(
     When ``active_suites`` is provided, only assets owned by loadable modules
     (active suites + their transitive dependencies + kernel) are returned; all
     other assets are excluded from the scan (context-budget enforcement).
+
+    When ``loadable_globs`` is provided, it is used verbatim as the loadable
+    owned-asset filter instead of deriving globs from ``active_suites``. This
+    lets the manifest-driven projection planner restrict rendering to the
+    committed active manifest's resolved closure rather than re-deriving
+    selection from raw project config at publish time.
     """
     assets: dict[str, list[dict[str, Any]]] = {
         "prompts": [],
@@ -571,10 +602,13 @@ def scan_canonical_assets(
         "shared": [],
     }
 
-    loadable_globs = _loadable_owned_asset_globs(root, active_suites)
+    if loadable_globs is not None:
+        loadable_filter = set(loadable_globs)
+    else:
+        loadable_filter = _loadable_owned_asset_globs(root, active_suites)
 
     def _is_loadable(rel_path: str) -> bool:
-        if loadable_globs is None:
+        if loadable_filter is None:
             return True
         try:
             import cg_validate_modules as module_validator
@@ -582,7 +616,7 @@ def scan_canonical_assets(
             return True
         return any(
             module_validator._glob_match(pattern, rel_path)  # pylint: disable=protected-access
-            for pattern in loadable_globs
+            for pattern in loadable_filter
         )
 
     required_roots = {
@@ -690,7 +724,7 @@ def scan_canonical_assets(
         _validate_bundle_markdown_references(skill["bundle_files"])
 
     for category in required_roots:
-        if not assets[category] and active_suites is None:
+        if not assets[category] and active_suites is None and loadable_globs is None:
             raise ValueError(f"Required canonical {category} inventory is empty")
 
     return assets

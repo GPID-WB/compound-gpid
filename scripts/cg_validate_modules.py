@@ -42,6 +42,9 @@ from typing import Dict, Iterable, List, Optional, Tuple
 
 MODULE_REGISTRY_PATH = ".github/shared/module-registry.json"
 VALID_LAYERS = {"kernel", "capability", "suite"}
+VALID_SCHEMA_VERSIONS = {1, 2}
+VALID_ACTIVATION_COSTS = {"low", "medium", "high"}
+VALID_SELECTOR_OPERATORS = {"contains", "equals"}
 
 # Reuses the generator's canonical runtime dependency regex (Phase 2, Step 4).
 CANONICAL_RUNTIME_PATH_PATTERN = re.compile(
@@ -177,8 +180,8 @@ def validate_registry_schema(registry: dict) -> List[str]:
     errors: List[str] = []
     if "schemaVersion" not in registry:
         errors.append("Missing required field: schemaVersion")
-    elif type(registry["schemaVersion"]) is not int or registry["schemaVersion"] != 1:
-        errors.append("schemaVersion must be the integer 1")
+    elif type(registry["schemaVersion"]) is not int or registry["schemaVersion"] not in VALID_SCHEMA_VERSIONS:
+        errors.append(f"schemaVersion must be one of {sorted(VALID_SCHEMA_VERSIONS)}")
     if "description" not in registry:
         errors.append("Missing required field: description")
     elif not isinstance(registry["description"], str):
@@ -250,6 +253,108 @@ def validate_registry_schema(registry: dict) -> List[str]:
         for dep in module.get("dependsOn", []):
             if isinstance(dep, str) and dep not in seen_ids:
                 errors.append(f"module '{mid}' depends on unknown module '{dep}'")
+    if registry.get("schemaVersion") == 2:
+        errors.extend(validate_capability_records(registry, seen_ids))
+    return errors
+
+
+def validate_capability_records(registry: dict, module_ids: set[str]) -> List[str]:
+    """Validate v2 capability eligibility/activation records (R3, R4)."""
+    errors: List[str] = []
+    capabilities = registry.get("capabilities")
+    if capabilities is None:
+        errors.append("schemaVersion 2 requires a 'capabilities' array")
+        return errors
+    if not isinstance(capabilities, list):
+        errors.append("capabilities must be an array")
+        return errors
+    suite_ids = {
+        module.get("id")
+        for module in registry.get("modules", [])
+        if isinstance(module, dict) and module.get("layer") == "suite"
+    }
+    seen: set[str] = set()
+    for index, capability in enumerate(capabilities):
+        prefix = f"capabilities[{index}]"
+        if not isinstance(capability, dict):
+            errors.append(f"{prefix}: must be an object")
+            continue
+        cid = capability.get("id")
+        if not isinstance(cid, str) or not cid:
+            errors.append(f"{prefix}: id must be a non-empty string")
+        elif not MODULE_ID_PATTERN.fullmatch(cid):
+            errors.append(f"{prefix}: id must be a lowercase identifier")
+        elif cid in seen:
+            errors.append(f"{prefix}: duplicate capability id '{cid}'")
+        else:
+            seen.add(cid)
+
+        owning = capability.get("owningModule")
+        if not isinstance(owning, str) or owning not in module_ids:
+            errors.append(f"{prefix}: owningModule '{owning}' must name an existing module")
+        elif _layer_of(registry, owning) != "capability":
+            errors.append(f"{prefix}: owningModule '{owning}' must be a capability-layer module")
+
+        supported = capability.get("supportedSuites", [])
+        if not isinstance(supported, list) or not supported:
+            errors.append(f"{prefix}: supportedSuites must be a non-empty list")
+        else:
+            for suite in supported:
+                if not isinstance(suite, str) or not suite:
+                    errors.append(f"{prefix}: supported suite entries must be non-empty strings")
+                    continue
+                # User-facing suite names (cg/cr) resolve to suite-cg/suite-cr.
+                if suite in suite_ids:
+                    continue
+                if not any(sid.endswith(f"-{suite}") for sid in suite_ids):
+                    errors.append(f"{prefix}: supported suite '{suite}' is not a suite-layer module")
+
+        platforms = capability.get("supportedPlatforms", [])
+        if not isinstance(platforms, list) or not platforms:
+            errors.append(f"{prefix}: supportedPlatforms must be a non-empty list")
+        else:
+            for platform in platforms:
+                if not isinstance(platform, str) or not platform:
+                    errors.append(f"{prefix}: supportedPlatforms entries must be non-empty strings")
+
+        if not isinstance(capability.get("sourceProvenance"), str) or not capability["sourceProvenance"]:
+            errors.append(f"{prefix}: sourceProvenance must be a non-empty string")
+
+        cost = capability.get("activationCost")
+        if cost not in VALID_ACTIVATION_COSTS:
+            errors.append(f"{prefix}: activationCost must be one of {sorted(VALID_ACTIVATION_COSTS)}")
+
+        triggers = capability.get("taskTriggers", [])
+        if not isinstance(triggers, list) or not triggers:
+            errors.append(f"{prefix}: taskTriggers must be a non-empty list")
+
+        selectors = capability.get("configSelectors")
+        if selectors is None:
+            errors.append(f"{prefix}: configSelectors is required")
+        elif not isinstance(selectors, list):
+            errors.append(f"{prefix}: configSelectors must be a list")
+        else:
+            for s_index, selector in enumerate(selectors):
+                s_prefix = f"{prefix}.configSelectors[{s_index}]"
+                if not isinstance(selector, dict):
+                    errors.append(f"{s_prefix}: must be an object")
+                    continue
+                if not isinstance(selector.get("field"), str) or not selector["field"]:
+                    errors.append(f"{s_prefix}: field must be a non-empty string")
+                else:
+                    try:
+                        from parsing_utils import KNOWN_CONFIG_FIELDS
+                        if selector["field"] not in KNOWN_CONFIG_FIELDS:
+                            errors.append(
+                                f"{s_prefix}: selector field {selector['field']!r} is not a recognized "
+                                "project-config field and can never match"
+                            )
+                    except ImportError:  # pragma: no cover - parsing_utils always present
+                        pass
+                if selector.get("operator") not in VALID_SELECTOR_OPERATORS:
+                    errors.append(f"{s_prefix}: operator must be one of {sorted(VALID_SELECTOR_OPERATORS)}")
+                if not isinstance(selector.get("value"), str) or not selector["value"]:
+                    errors.append(f"{s_prefix}: value must be a non-empty string")
     return errors
 
 
@@ -499,6 +604,43 @@ def _transitive_dependency_closure(registry: dict, module_id: str) -> set[str]:
     return closure
 
 
+def _derived_capability_ids_for(registry: dict, module_id: str) -> set[str]:
+    """Module ids supplied by capability records for the module's suite context.
+
+    Step 4 removes blanket language dependencies from suite declarations and
+    derives them from configuration selectors instead. Structural reference
+    checks compute the derived set for the module's own suite context: a suite
+    module only sees capabilities it is eligible for (so suite-cg references to
+    cr-only research packs remain errors), while shared modules (kernel and
+    capability packs) use the full-config derived set. Per-project selection is
+    enforced separately by the active-manifest resolver (R13).
+    """
+    capabilities = registry.get("capabilities")
+    if not isinstance(capabilities, list):
+        return set()
+    try:
+        import cg_context_budget as budget
+    except ImportError:  # pragma: no cover - cg_context_budget always present
+        return set()
+    suite_module_names: list[str] = []
+    for module in registry.get("modules", []):
+        if not isinstance(module, dict) or module.get("layer") != "suite":
+            continue
+        mid = module.get("id")
+        user_name = mid[len("suite-"):] if mid and mid.startswith("suite-") else mid
+        if mid == module_id:
+            # A suite only sees its own user-facing selection context.
+            suite_module_names = [user_name]
+            break
+        suite_module_names.append(user_name)
+    return budget.capability_module_ids(registry, suite_module_names, config=None)
+
+
+def _reference_closure(registry: dict, module_id: str) -> set[str]:
+    """Static dependsOn closure plus the module's derived capability set."""
+    return set(_transitive_dependency_closure(registry, module_id)) | _derived_capability_ids_for(registry, module_id)
+
+
 def _resolve_name_reference(
     registry: dict,
     name: str,
@@ -654,7 +796,7 @@ def check_cross_suite_references(root: Path) -> List[str]:
     assets = list(canonical_assets(root))
     owner_map = _owner_map(registry, assets)
     for suite_id in suites:
-        closure = _transitive_dependency_closure(registry, suite_id)
+        closure = _reference_closure(registry, suite_id)
         refs = dict(_module_references(root, registry, suite_id, owner_map, assets))
         for reference, ref_owners in _module_name_references(root, registry, suite_id, owner_map, assets).items():
             refs.setdefault(reference, []).extend(ref_owners)
@@ -692,7 +834,7 @@ def check_unresolved_dependencies(root: Path) -> List[str]:
         if not isinstance(module, dict):
             continue
         mid = module.get("id")
-        closure = _transitive_dependency_closure(registry, mid)
+        closure = _reference_closure(registry, mid)
         refs = _module_references(root, registry, mid)
         for target, owners in sorted(refs.items()):
             owner = sorted(set(owners))[0] if owners else None

@@ -1,51 +1,26 @@
-"""Characterization tests for CG workflows and generated-target parity.
+"""Characterization tests for stable CG workflow semantics.
 
-Pins current CG behavior as a baseline before modular refactoring:
-1. The generated-target manifest (per-platform file list + sha256) reproduces
-   exactly the committed baseline fixture.
-2. Key workflow prompt bodies retain the required structural section headings.
+Generated-target parity is enforced by ``test_target_drift.py`` against the
+committed platform trees and ownership manifests. These tests retain small,
+human-reviewable workflow contracts without duplicating target checksums.
 
 Run from repo root:
     python -m pytest scripts/tests/test_cg_characterization.py -q
 """
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
-import cg_generate_targets as gen
-
 REPO_ROOT = Path(__file__).resolve().parents[2]
-FIXTURE = REPO_ROOT / "scripts/tests/fixtures/cg_characterization_manifest.json"
 
 
-def _build_manifest(root: Path) -> dict:
-    mapping = gen.load_target_mapping(root)
-    assets = gen.scan_canonical_assets(root)
-    plan = gen.build_generation_plan(root, mapping, assets)
-    out: dict = {}
-    for target_id, result in plan.by_target.items():
-        out[target_id] = sorted(
-            ({"path": entry.destination, "kind": entry.kind, "sha256": entry.sha256} for entry in result.entries),
-            key=lambda item: item["path"],
-        )
-    return out
-
-
-def test_cg_characterization_baseline_manifest_is_committed() -> None:
-    assert FIXTURE.exists(), f"Missing characterization fixture: {FIXTURE}"
-
-
-def test_generator_reproduces_characterization_baseline_exactly() -> None:
-    baseline = json.loads(FIXTURE.read_text(encoding="utf-8"))
-    current = _build_manifest(REPO_ROOT)
-    assert set(current) == set(baseline), "Platform set drifted"
-    for platform, entries in baseline.items():
-        assert current[platform] == entries, (
-            f"CG characterization drift on platform '{platform}'.\n"
-            "Run: python scripts/cg_generate_targets.py --all\n"
-            f"Then regenerate: scripts/tests/fixtures/cg_characterization_manifest.json"
-        )
+def test_does_not_duplicate_generated_target_drift_snapshot() -> None:
+    """Keep generated-target authority in target drift tests and manifests."""
+    snapshot = REPO_ROOT / "scripts/tests/fixtures/cg_characterization_manifest.json"
+    assert not snapshot.exists(), (
+        "Generated-target snapshots duplicate test_target_drift.py and create "
+        "stale-baseline CI failures."
+    )
 
 
 REQUIRED_SECTIONS = {

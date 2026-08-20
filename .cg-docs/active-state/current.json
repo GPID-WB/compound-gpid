@@ -1,30 +1,38 @@
 {
   "schemaVersion": "compound-gpid-active-state-v1",
-  "updatedAt": "2026-08-13T15:48:50Z",
+  "updatedAt": "2026-08-17T19:30:00-04:00",
   "workflow": "/cg-work",
-  "status": "blocked",
-  "branch": "automated-documentation",
-  "plan": ".cg-docs/plans/2026-08-12-automated-documentation-deployment.md",
-  "executionReport": ".cg-docs/work-reports/2026-08-13-automated-documentation-deployment.md",
-  "currentPhase": 5,
+  "status": "active",
+  "branch": "skill-marketplace",
+  "plan": ".cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md",
+  "executionReport": ".cg-docs/work-reports/2026-08-13-manifest-driven-skill-loading.md",
+  "currentPhase": 6,
   "evidenceStatus": [
-    {"id": "V1", "status": "passed", "artifact": "node scripts/check-docs-site.js + Node fixtures"},
-    {"id": "V2", "status": "passed", "artifact": "20 Node tests + consecutive rebuild checks"},
-    {"id": "V3", "status": "passed", "artifact": "Node release tests + payload validation fixtures"},
-    {"id": "V4", "status": "passed", "artifact": "docs-automation.Tests.ps1 workflow contracts"},
-    {"id": "V5", "status": "passed", "artifact": "Pages artifact handoff contract + site validation"},
-    {"id": "V6", "status": "passed", "artifact": "release-prompt sequencing + payload validation"},
-    {"id": "V7", "status": "passed", "artifact": "target generation + 280 pre-commit pytest passes"},
-    {"id": "V8", "status": "passed", "artifact": "tests/last-run.json via canonical safe runner"},
-    {"id": "V9", "status": "pending", "artifact": "GitHub Actions run URLs after merge; final"}
+    {"id": "V1", "status": "passed", "artifact": "kilo_coexistence_host.json + pytest + preflight exit 0"},
+    {"id": "V2", "status": "passed", "artifact": "cg-kilo launchers + install/update/link Pester gates"},
+    {"id": "V3", "status": "passed", "artifact": ".cg-docs/cost/skill-loading-baseline.json + .md; 14 tests"},
+    {"id": "V4", "status": "passed", "artifact": "registry/context/migration/strict-config tests"},
+    {"id": "V5", "status": "passed", "artifact": "test_project_manifest; real-repo manifest resolves"},
+    {"id": "V6", "status": "passed", "artifact": "test_project_projection + target_closure"},
+    {"id": "V7", "status": "passed", "artifact": "projection/secure-fs/path-safety + Pester link/unlink/parity green"},
+    {"id": "V8", "status": "passed", "artifact": "update_generates/manifest/projection gate + Pester link/update/unlink green"},
+    {"id": "V9", "status": "passed", "artifact": "test_skill_catalog 35 tests + router/leak tests"},
+    {"id": "V10", "status": "passed", "artifact": "catalog/router/closure/context-budget inactive tests"},
+    {"id": "V11", "status": "passed", "artifact": "test_import_skill 51 passed + 1 skipped (symlink Windows)"},
+    {"id": "V12", "status": "passed", "artifact": "review diff determinism + vendor registration provenance + collision tests"},
+    {"id": "V15", "status": "passed", "artifact": "roadmap.json vendoring feature reconciled to /cg-import-skill"}
   ],
   "unresolvedDecisions": [
-    {"id": "V9", "summary": "Post-merge GitHub Actions evidence is required before plan completion.", "blocking": true}
+    {"id": "D1", "summary": "Containment control verified for embedded Kilo 7.4.20/7.4.21; retain as tested control rather than permanent platform contract.", "blocking": false},
+    {"id": "D2", "summary": "Local Kilo logout confirmed: `kilo` credential row is active=0; server-side revocation unverified.", "blocking": false},
+    {"id": "D3", "summary": "Pre-existing pytest failure test_issue_dispatch::test_current_json_preserves_blocking_decisions (expects D4 in current.json; committed file has D1/D2). Outside review findings; follow-up needed.", "blocking": false},
+    {"id": "D5", "summary": "Preserved user-modified files are dropped from projection ownership (parity gap vs PowerShell path); cross-platform reconciliation deferred to Phase 6 migration.", "blocking": false}
   ],
   "artifactRefs": [
-    {"kind": "plan", "path": ".cg-docs/plans/2026-08-12-automated-documentation-deployment.md", "status": "active"},
-    {"kind": "execution-report", "path": ".cg-docs/work-reports/2026-08-13-automated-documentation-deployment.md", "status": "local-validation-complete"},
-    {"kind": "roadmap-feature", "path": "roadmap.json#automated-documentation-deployment-and-whats-new-page", "status": "active"}
+    {"kind": "plan", "path": ".cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md", "status": "phase-5-complete"},
+    {"kind": "execution-report", "path": ".cg-docs/work-reports/2026-08-13-manifest-driven-skill-loading.md", "status": "phase-5-complete"},
+    {"kind": "evidence", "path": ".cg-docs/cost/skill-loading-baseline.json", "status": "generated"},
+    {"kind": "solution", "path": ".cg-docs/solutions/bugs/2026-08-14-capability-eligibility-namespace-mismatch.md", "status": "captured"}
   ],
-  "nextCommand": "/cg-commit-push-pr"
+  "nextCommand": "/cg-work phase6"
 }

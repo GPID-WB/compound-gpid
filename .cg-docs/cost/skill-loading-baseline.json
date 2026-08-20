@@ -1,0 +1,871 @@
+{
+  "collectionCommands": [
+    "python scripts/cg_projection_benchmark.py --validate",
+    "python scripts/cg_audit_context.py --format both"
+  ],
+  "disclaimer": "Token estimates are heuristic (chars/4) and intended for directional baseline use; they are not evidence of token savings. Unavailable required host evidence is a blocking 'unavailable' result, never a zero.",
+  "generated": "2026-08-14T13:33:35-04:00@bcd1dd70a317",
+  "kind": "skill-loading-baseline",
+  "measurementPolicy": {
+    "tokenEstimate": "chars/4 heuristic",
+    "unavailableHostIsBlocking": true,
+    "workflowSuccessTrackedSeparately": true
+  },
+  "platformVersions": {
+    "platform": "Windows-2022Server-10.0.20348-SP0",
+    "python": "3.12.0"
+  },
+  "profiles": [
+    {
+      "advertisedSkillCount": 24,
+      "capabilities": [],
+      "config": {
+        "language": "both"
+      },
+      "contextAudit": {
+        "guardrailFailureCount": 1,
+        "requestedCommand": "/cg-work",
+        "totalSourceEstimatedTokens": 667212,
+        "totalSourceFiles": 161,
+        "workflowAvailable": true,
+        "workflowEstimatedTokens": 5315,
+        "workflowTotalRefs": 57
+      },
+      "description": "Technical-only project: only the /cg-* suite is selected.",
+      "expectedCatalogSummary": "cg-* workflows active; cr-* inactive",
+      "expectedHardStop": "cr-* capability inactive: add suite cr (or run cg-link/cg-update to regenerate)",
+      "expectedRoute": "cg-work",
+      "generatedInventory": {
+        "capabilities": [],
+        "config": {
+          "language": "both"
+        },
+        "digest": "63609222648f1d61e450e51f18ae5a1a7e2188fd615deb460e4f7d25830f3fc9",
+        "loadableAssetGlobs": [
+          ".github/agents/cg-adversarial.agent.md",
+          ".github/agents/cg-architecture.agent.md",
+          ".github/agents/cg-code-quality.agent.md",
+          ".github/agents/cg-data-quality.agent.md",
+          ".github/agents/cg-documentation.agent.md",
+          ".github/agents/cg-fix-problems.agent.md",
+          ".github/agents/cg-learnings-researcher.agent.md",
+          ".github/agents/cg-performance.agent.md",
+          ".github/agents/cg-plan-critic.agent.md",
+          ".github/agents/cg-project-scanner.agent.md",
+          ".github/agents/cg-release-scanner.agent.md",
+          ".github/agents/cg-reproducibility.agent.md",
+          ".github/agents/cg-roadmap-view.agent.md",
+          ".github/agents/cg-roadmap.agent.md",
+          ".github/agents/cg-testing.agent.md",
+          ".github/agents/cg-version-control.agent.md",
+          ".github/agents/cg-wiki.agent.md",
+          ".github/instructions/powershell.instructions.md",
+          ".github/instructions/python.instructions.md",
+          ".github/instructions/r.instructions.md",
+          ".github/instructions/stata.instructions.md",
+          ".github/prompts/cg-*.prompt.md",
+          ".github/prompts/resume-templates.md",
+          ".github/prompts/setup-templates.md",
+          ".github/shared/*.contract.md",
+          ".github/shared/model-advisory-examples.json",
+          ".github/shared/module-registry.json",
+          ".github/shared/retrieval-backends.json",
+          ".github/shared/snapshot-research-modes.json",
+          ".github/shared/target-mapping.json",
+          ".github/skills/cg-skill-brain-query/",
+          ".github/skills/cg-skill-brainstorming/",
+          ".github/skills/cg-skill-compound-docs/",
+          ".github/skills/cg-skill-fix-triage-migrate/",
+          ".github/skills/cg-skill-git-workflow/",
+          ".github/skills/cg-skill-pester-safety/",
+          ".github/skills/cg-skill-project-scanner/",
+          ".github/skills/cg-skill-python-best-practices/",
+          ".github/skills/cg-skill-r-*/",
+          ".github/skills/cg-skill-render-doc/",
+          ".github/skills/cg-skill-setup/",
+          ".github/skills/cg-skill-stata-*/",
+          ".github/skills/cg-skill-wb-report-writing/",
+          ".github/skills/cg-skill-wiki/",
+          ".github/skills/cg-skill-windows-cmd-python-detection/",
+          ".github/skills/cg-skill-yaml-frontmatter-lint/"
+        ],
+        "loadableModuleIds": [
+          "cap-compound-docs",
+          "cap-git-workflow",
+          "cap-language-powershell",
+          "cap-language-python",
+          "cap-language-r",
+          "cap-language-stata",
+          "cap-pester-safety",
+          "cap-render-doc",
+          "cap-review-agents",
+          "cap-wb-report-writing",
+          "kernel",
+          "suite-cg"
+        ],
+        "suites": [
+          "cg"
+        ]
+      },
+      "hostEvidence": {
+        "note": "static inventory and oracle executed against repository source",
+        "status": "available"
+      },
+      "hostProcedure": "python scripts/cg_projection_benchmark.py --profiles cg-only --validate",
+      "id": "cg-only",
+      "oracleStatus": "passed",
+      "requestedCommand": "/cg-work",
+      "sourceInventory": {
+        "byCategory": {
+          "agents": {
+            "characters": 184191,
+            "estimated_tokens": 46039,
+            "files": 28
+          },
+          "brain": {
+            "characters": 390442,
+            "estimated_tokens": 97610,
+            "files": 4
+          },
+          "brain_index": {
+            "characters": 866686,
+            "estimated_tokens": 216671,
+            "files": 1
+          },
+          "context": {
+            "characters": 78614,
+            "estimated_tokens": 19653,
+            "files": 1
+          },
+          "docs": {
+            "characters": 357075,
+            "estimated_tokens": 89255,
+            "files": 37
+          },
+          "instructions": {
+            "characters": 26301,
+            "estimated_tokens": 6573,
+            "files": 6
+          },
+          "prompts": {
+            "characters": 315554,
+            "estimated_tokens": 78877,
+            "files": 31
+          },
+          "roadmap": {
+            "characters": 92616,
+            "estimated_tokens": 23154,
+            "files": 1
+          },
+          "shared": {
+            "characters": 61855,
+            "estimated_tokens": 15460,
+            "files": 12
+          },
+          "skills": {
+            "characters": 294102,
+            "estimated_tokens": 73512,
+            "files": 39
+          },
+          "template": {
+            "characters": 1633,
+            "estimated_tokens": 408,
+            "files": 1
+          }
+        },
+        "totalCharacters": 2669069,
+        "totalEstimatedTokens": 667212,
+        "totalFiles": 161
+      },
+      "suites": [
+        "cg"
+      ],
+      "taskOracle": {
+        "checks": [
+          {
+            "detail": "",
+            "name": "includes kernel",
+            "ok": true
+          },
+          {
+            "detail": "",
+            "name": "includes suite-cg",
+            "ok": true
+          },
+          {
+            "detail": "",
+            "name": "excludes suite-cr",
+            "ok": true
+          },
+          {
+            "detail": "",
+            "name": "excludes cap-research-output",
+            "ok": true
+          },
+          {
+            "detail": "",
+            "name": "excludes cap-language-research",
+            "ok": true
+          },
+          {
+            "detail": "",
+            "name": "route cg-work",
+            "ok": true
+          },
+          {
+            "detail": "24 selected skills advertised",
+            "name": "catalog does not advertise inactive skill bodies",
+            "ok": true
+          }
+        ],
+        "passed": true
+      }
+    },
+    {
+      "advertisedSkillCount": 33,
+      "capabilities": [],
+      "config": {
+        "language": "both"
+      },
+      "contextAudit": {
+        "guardrailFailureCount": 1,
+        "requestedCommand": "/cr-work",
+        "totalSourceEstimatedTokens": 667212,
+        "totalSourceFiles": 161,
+        "workflowAvailable": false,
+        "workflowEstimatedTokens": null,
+        "workflowTotalRefs": null
+      },
+      "description": "Research-only project: only the /cr-* suite is selected.",
+      "expectedCatalogSummary": "cr-* workflows active; cg-* inactive",
+      "expectedHardStop": "cg-* capability inactive: add suite cg (or run cg-link/cg-update to regenerate)",
+      "expectedRoute": "cr-work",
+      "generatedInventory": {
+        "capabilities": [],
+        "config": {
+          "language": "both"
+        },
+        "digest": "7415bb2d8938efa851142cbe6337a56711dbdcb6f6a9eda31f459abbbfe44c63",
+        "loadableAssetGlobs": [
+          ".github/agents/cg-adversarial.agent.md",
+          ".github/agents/cg-architecture.agent.md",
+          ".github/agents/cg-code-quality.agent.md",
+          ".github/agents/cg-data-quality.agent.md",
+          ".github/agents/cg-documentation.agent.md",
+          ".github/agents/cg-learnings-researcher.agent.md",
+          ".github/agents/cg-performance.agent.md",
+          ".github/agents/cg-reproducibility.agent.md",
+          ".github/agents/cg-roadmap-view.agent.md",
+          ".github/agents/cg-roadmap.agent.md",
+          ".github/agents/cg-testing.agent.md",
+          ".github/agents/cg-version-control.agent.md",
+          ".github/agents/cr-*.agent.md",
+          ".github/instructions/latex.instructions.md",
+          ".github/instructions/math.instructions.md",
+          ".github/instructions/powershell.instructions.md",
+          ".github/instructions/python.instructions.md",
+          ".github/instructions/r.instructions.md",
+          ".github/instructions/stata.instructions.md",
+          ".github/prompts/cr-*.prompt.md",
+          ".github/shared/*.contract.md",
+          ".github/shared/model-advisory-examples.json",
+          ".github/shared/module-registry.json",
+          ".github/shared/retrieval-backends.json",
+          ".github/shared/snapshot-research-modes.json",
+          ".github/shared/target-mapping.json",
+          ".github/skills/cg-skill-brain-query/",
+          ".github/skills/cg-skill-compound-docs/",
+          ".github/skills/cg-skill-git-workflow/",
+          ".github/skills/cg-skill-pester-safety/",
+          ".github/skills/cg-skill-python-best-practices/",
+          ".github/skills/cg-skill-r-*/",
+          ".github/skills/cg-skill-render-doc/",
+          ".github/skills/cg-skill-stata-*/",
+          ".github/skills/cg-skill-wb-report-writing/",
+          ".github/skills/cg-skill-windows-cmd-python-detection/",
+          ".github/skills/cr-skill-academic-writing/",
+          ".github/skills/cr-skill-evidence-provenance/",
+          ".github/skills/cr-skill-identification-strategies/",
+          ".github/skills/cr-skill-mathematical-derivation/",
+          ".github/skills/cr-skill-measurement/",
+          ".github/skills/cr-skill-ml-economics/",
+          ".github/skills/cr-skill-publication-output/",
+          ".github/skills/cr-skill-replication-standards/",
+          ".github/skills/cr-skill-research-eda/",
+          ".github/skills/cr-skill-research-integrity/",
+          ".github/skills/cr-skill-research-scoping/",
+          ".github/skills/cr-skill-research-workflow/",
+          ".github/skills/cr-skill-structural-econometrics/",
+          ".github/skills/cr-skill-symbolic-verification/",
+          ".github/skills/cr-skill-theory-data-dialogue/"
+        ],
+        "loadableModuleIds": [
+          "cap-compound-docs",
+          "cap-git-workflow",
+          "cap-language-powershell",
+          "cap-language-python",
+          "cap-language-r",
+          "cap-language-research",
+          "cap-language-stata",
+          "cap-pester-safety",
+          "cap-render-doc",
+          "cap-research-output",
+          "cap-review-agents",
+          "cap-wb-report-writing",
+          "kernel",
+          "suite-cr"
+        ],
+        "suites": [
+          "cr"
+        ]
+      },
+      "hostEvidence": {
+        "note": "static inventory and oracle executed against repository source",
+        "status": "available"
+      },
+      "hostProcedure": "python scripts/cg_projection_benchmark.py --profiles cr-only --validate",
+      "id": "cr-only",
+      "oracleStatus": "passed",
+      "requestedCommand": "/cr-work",
+      "sourceInventory": {
+        "byCategory": {
+          "agents": {
+            "characters": 184191,
+            "estimated_tokens": 46039,
+            "files": 28
+          },
+          "brain": {
+            "characters": 390442,
+            "estimated_tokens": 97610,
+            "files": 4
+          },
+          "brain_index": {
+            "characters": 866686,
+            "estimated_tokens": 216671,
+            "files": 1
+          },
+          "context": {
+            "characters": 78614,
+            "estimated_tokens": 19653,
+            "files": 1
+          },
+          "docs": {
+            "characters": 357075,
+            "estimated_tokens": 89255,
+            "files": 37
+          },
+          "instructions": {
+            "characters": 26301,
+            "estimated_tokens": 6573,
+            "files": 6
+          },
+          "prompts": {
+            "characters": 315554,
+            "estimated_tokens": 78877,
+            "files": 31
+          },
+          "roadmap": {
+            "characters": 92616,
+            "estimated_tokens": 23154,
+            "files": 1
+          },
+          "shared": {
+            "characters": 61855,
+            "estimated_tokens": 15460,
+            "files": 12
+          },
+          "skills": {
+            "characters": 294102,
+            "estimated_tokens": 73512,
+            "files": 39
+          },
+          "template": {
+            "characters": 1633,
+            "estimated_tokens": 408,
+            "files": 1
+          }
+        },
+        "totalCharacters": 2669069,
+        "totalEstimatedTokens": 667212,
+        "totalFiles": 161
+      },
+      "suites": [
+        "cr"
+      ],
+      "taskOracle": {
+        "checks": [
+          {
+            "detail": "",
+            "name": "includes kernel",
+            "ok": true
+          },
+          {
+            "detail": "",
+            "name": "includes suite-cr",
+            "ok": true
+          },
+          {
+            "detail": "",
+            "name": "includes cap-research-output",
+            "ok": true
+          },
+          {
+            "detail": "",
+            "name": "includes cap-language-research",
+            "ok": true
+          },
+          {
+            "detail": "",
+            "name": "excludes suite-cg",
+            "ok": true
+          },
+          {
+            "detail": "",
+            "name": "route cr-work",
+            "ok": true
+          },
+          {
+            "detail": "33 selected skills advertised",
+            "name": "catalog does not advertise inactive skill bodies",
+            "ok": true
+          }
+        ],
+        "passed": true
+      }
+    },
+    {
+      "advertisedSkillCount": 39,
+      "capabilities": [],
+      "config": {
+        "language": "both"
+      },
+      "contextAudit": {
+        "guardrailFailureCount": 1,
+        "requestedCommand": "/cg-work",
+        "totalSourceEstimatedTokens": 667212,
+        "totalSourceFiles": 161,
+        "workflowAvailable": true,
+        "workflowEstimatedTokens": 5315,
+        "workflowTotalRefs": 57
+      },
+      "description": "Mixed project: both the /cg-* and /cr-* suites are selected.",
+      "expectedCatalogSummary": "cg-* and cr-* workflows active; no inactive suite",
+      "expectedHardStop": null,
+      "expectedRoute": "cg-work",
+      "generatedInventory": {
+        "capabilities": [],
+        "config": {
+          "language": "both"
+        },
+        "digest": "758a3d0c6fefeaddd27233bd9953815b2f2f2b7d15238a6788f44318e70026d7",
+        "loadableAssetGlobs": [
+          ".github/agents/cg-adversarial.agent.md",
+          ".github/agents/cg-architecture.agent.md",
+          ".github/agents/cg-code-quality.agent.md",
+          ".github/agents/cg-data-quality.agent.md",
+          ".github/agents/cg-documentation.agent.md",
+          ".github/agents/cg-fix-problems.agent.md",
+          ".github/agents/cg-learnings-researcher.agent.md",
+          ".github/agents/cg-performance.agent.md",
+          ".github/agents/cg-plan-critic.agent.md",
+          ".github/agents/cg-project-scanner.agent.md",
+          ".github/agents/cg-release-scanner.agent.md",
+          ".github/agents/cg-reproducibility.agent.md",
+          ".github/agents/cg-roadmap-view.agent.md",
+          ".github/agents/cg-roadmap.agent.md",
+          ".github/agents/cg-testing.agent.md",
+          ".github/agents/cg-version-control.agent.md",
+          ".github/agents/cg-wiki.agent.md",
+          ".github/agents/cr-*.agent.md",
+          ".github/instructions/latex.instructions.md",
+          ".github/instructions/math.instructions.md",
+          ".github/instructions/powershell.instructions.md",
+          ".github/instructions/python.instructions.md",
+          ".github/instructions/r.instructions.md",
+          ".github/instructions/stata.instructions.md",
+          ".github/prompts/cg-*.prompt.md",
+          ".github/prompts/cr-*.prompt.md",
+          ".github/prompts/resume-templates.md",
+          ".github/prompts/setup-templates.md",
+          ".github/shared/*.contract.md",
+          ".github/shared/model-advisory-examples.json",
+          ".github/shared/module-registry.json",
+          ".github/shared/retrieval-backends.json",
+          ".github/shared/snapshot-research-modes.json",
+          ".github/shared/target-mapping.json",
+          ".github/skills/cg-skill-brain-query/",
+          ".github/skills/cg-skill-brainstorming/",
+          ".github/skills/cg-skill-compound-docs/",
+          ".github/skills/cg-skill-fix-triage-migrate/",
+          ".github/skills/cg-skill-git-workflow/",
+          ".github/skills/cg-skill-pester-safety/",
+          ".github/skills/cg-skill-project-scanner/",
+          ".github/skills/cg-skill-python-best-practices/",
+          ".github/skills/cg-skill-r-*/",
+          ".github/skills/cg-skill-render-doc/",
+          ".github/skills/cg-skill-setup/",
+          ".github/skills/cg-skill-stata-*/",
+          ".github/skills/cg-skill-wb-report-writing/",
+          ".github/skills/cg-skill-wiki/",
+          ".github/skills/cg-skill-windows-cmd-python-detection/",
+          ".github/skills/cg-skill-yaml-frontmatter-lint/",
+          ".github/skills/cr-skill-academic-writing/",
+          ".github/skills/cr-skill-evidence-provenance/",
+          ".github/skills/cr-skill-identification-strategies/",
+          ".github/skills/cr-skill-mathematical-derivation/",
+          ".github/skills/cr-skill-measurement/",
+          ".github/skills/cr-skill-ml-economics/",
+          ".github/skills/cr-skill-publication-output/",
+          ".github/skills/cr-skill-replication-standards/",
+          ".github/skills/cr-skill-research-eda/",
+          ".github/skills/cr-skill-research-integrity/",
+          ".github/skills/cr-skill-research-scoping/",
+          ".github/skills/cr-skill-research-workflow/",
+          ".github/skills/cr-skill-structural-econometrics/",
+          ".github/skills/cr-skill-symbolic-verification/",
+          ".github/skills/cr-skill-theory-data-dialogue/"
+        ],
+        "loadableModuleIds": [
+          "cap-compound-docs",
+          "cap-git-workflow",
+          "cap-language-powershell",
+          "cap-language-python",
+          "cap-language-r",
+          "cap-language-research",
+          "cap-language-stata",
+          "cap-pester-safety",
+          "cap-render-doc",
+          "cap-research-output",
+          "cap-review-agents",
+          "cap-wb-report-writing",
+          "kernel",
+          "suite-cg",
+          "suite-cr"
+        ],
+        "suites": [
+          "cg",
+          "cr"
+        ]
+      },
+      "hostEvidence": {
+        "note": "static inventory and oracle executed against repository source",
+        "status": "available"
+      },
+      "hostProcedure": "python scripts/cg_projection_benchmark.py --profiles mixed --validate",
+      "id": "mixed",
+      "oracleStatus": "passed",
+      "requestedCommand": "/cg-work",
+      "sourceInventory": {
+        "byCategory": {
+          "agents": {
+            "characters": 184191,
+            "estimated_tokens": 46039,
+            "files": 28
+          },
+          "brain": {
+            "characters": 390442,
+            "estimated_tokens": 97610,
+            "files": 4
+          },
+          "brain_index": {
+            "characters": 866686,
+            "estimated_tokens": 216671,
+            "files": 1
+          },
+          "context": {
+            "characters": 78614,
+            "estimated_tokens": 19653,
+            "files": 1
+          },
+          "docs": {
+            "characters": 357075,
+            "estimated_tokens": 89255,
+            "files": 37
+          },
+          "instructions": {
+            "characters": 26301,
+            "estimated_tokens": 6573,
+            "files": 6
+          },
+          "prompts": {
+            "characters": 315554,
+            "estimated_tokens": 78877,
+            "files": 31
+          },
+          "roadmap": {
+            "characters": 92616,
+            "estimated_tokens": 23154,
+            "files": 1
+          },
+          "shared": {
+            "characters": 61855,
+            "estimated_tokens": 15460,
+            "files": 12
+          },
+          "skills": {
+            "characters": 294102,
+            "estimated_tokens": 73512,
+            "files": 39
+          },
+          "template": {
+            "characters": 1633,
+            "estimated_tokens": 408,
+            "files": 1
+          }
+        },
+        "totalCharacters": 2669069,
+        "totalEstimatedTokens": 667212,
+        "totalFiles": 161
+      },
+      "suites": [
+        "cg",
+        "cr"
+      ],
+      "taskOracle": {
+        "checks": [
+          {
+            "detail": "",
+            "name": "includes kernel",
+            "ok": true
+          },
+          {
+            "detail": "",
+            "name": "includes suite-cg",
+            "ok": true
+          },
+          {
+            "detail": "",
+            "name": "includes suite-cr",
+            "ok": true
+          },
+          {
+            "detail": "",
+            "name": "route cg-work",
+            "ok": true
+          },
+          {
+            "detail": "39 selected skills advertised",
+            "name": "catalog does not advertise inactive skill bodies",
+            "ok": true
+          }
+        ],
+        "passed": true
+      }
+    },
+    {
+      "advertisedSkillCount": 21,
+      "capabilities": [
+        "python"
+      ],
+      "config": {
+        "language": "r"
+      },
+      "contextAudit": {
+        "guardrailFailureCount": 1,
+        "requestedCommand": "/cg-find-skill",
+        "totalSourceEstimatedTokens": 667212,
+        "totalSourceFiles": 161,
+        "workflowAvailable": false,
+        "workflowEstimatedTokens": null,
+        "workflowTotalRefs": null
+      },
+      "description": "Technical project with an explicit additive python capability and an R language selector.",
+      "expectedCatalogSummary": "python capability active; stata/powershell inactive",
+      "expectedHardStop": "stata capability inactive: remove intent or add capability (run cg-link/cg-update to regenerate)",
+      "expectedRoute": "cg-find-skill",
+      "generatedInventory": {
+        "capabilities": [
+          "python"
+        ],
+        "config": {
+          "language": "r"
+        },
+        "digest": "b18d29fbfd0bf21eaa878d2c11f5342ade6daed187e49899f8f30297ac0612de",
+        "loadableAssetGlobs": [
+          ".github/agents/cg-adversarial.agent.md",
+          ".github/agents/cg-architecture.agent.md",
+          ".github/agents/cg-code-quality.agent.md",
+          ".github/agents/cg-data-quality.agent.md",
+          ".github/agents/cg-documentation.agent.md",
+          ".github/agents/cg-fix-problems.agent.md",
+          ".github/agents/cg-learnings-researcher.agent.md",
+          ".github/agents/cg-performance.agent.md",
+          ".github/agents/cg-plan-critic.agent.md",
+          ".github/agents/cg-project-scanner.agent.md",
+          ".github/agents/cg-release-scanner.agent.md",
+          ".github/agents/cg-reproducibility.agent.md",
+          ".github/agents/cg-roadmap-view.agent.md",
+          ".github/agents/cg-roadmap.agent.md",
+          ".github/agents/cg-testing.agent.md",
+          ".github/agents/cg-version-control.agent.md",
+          ".github/agents/cg-wiki.agent.md",
+          ".github/instructions/python.instructions.md",
+          ".github/instructions/r.instructions.md",
+          ".github/prompts/cg-*.prompt.md",
+          ".github/prompts/resume-templates.md",
+          ".github/prompts/setup-templates.md",
+          ".github/shared/*.contract.md",
+          ".github/shared/model-advisory-examples.json",
+          ".github/shared/module-registry.json",
+          ".github/shared/retrieval-backends.json",
+          ".github/shared/snapshot-research-modes.json",
+          ".github/shared/target-mapping.json",
+          ".github/skills/cg-skill-brain-query/",
+          ".github/skills/cg-skill-brainstorming/",
+          ".github/skills/cg-skill-compound-docs/",
+          ".github/skills/cg-skill-fix-triage-migrate/",
+          ".github/skills/cg-skill-git-workflow/",
+          ".github/skills/cg-skill-pester-safety/",
+          ".github/skills/cg-skill-project-scanner/",
+          ".github/skills/cg-skill-python-best-practices/",
+          ".github/skills/cg-skill-r-*/",
+          ".github/skills/cg-skill-render-doc/",
+          ".github/skills/cg-skill-setup/",
+          ".github/skills/cg-skill-wb-report-writing/",
+          ".github/skills/cg-skill-wiki/",
+          ".github/skills/cg-skill-yaml-frontmatter-lint/"
+        ],
+        "loadableModuleIds": [
+          "cap-compound-docs",
+          "cap-git-workflow",
+          "cap-language-python",
+          "cap-language-r",
+          "cap-pester-safety",
+          "cap-render-doc",
+          "cap-review-agents",
+          "cap-wb-report-writing",
+          "kernel",
+          "suite-cg"
+        ],
+        "suites": [
+          "cg"
+        ]
+      },
+      "hostEvidence": {
+        "note": "static inventory and oracle executed against repository source",
+        "status": "available"
+      },
+      "hostProcedure": "python scripts/cg_projection_benchmark.py --profiles capability-python --validate",
+      "id": "capability-python",
+      "oracleStatus": "passed",
+      "requestedCommand": "/cg-find-skill",
+      "sourceInventory": {
+        "byCategory": {
+          "agents": {
+            "characters": 184191,
+            "estimated_tokens": 46039,
+            "files": 28
+          },
+          "brain": {
+            "characters": 390442,
+            "estimated_tokens": 97610,
+            "files": 4
+          },
+          "brain_index": {
+            "characters": 866686,
+            "estimated_tokens": 216671,
+            "files": 1
+          },
+          "context": {
+            "characters": 78614,
+            "estimated_tokens": 19653,
+            "files": 1
+          },
+          "docs": {
+            "characters": 357075,
+            "estimated_tokens": 89255,
+            "files": 37
+          },
+          "instructions": {
+            "characters": 26301,
+            "estimated_tokens": 6573,
+            "files": 6
+          },
+          "prompts": {
+            "characters": 315554,
+            "estimated_tokens": 78877,
+            "files": 31
+          },
+          "roadmap": {
+            "characters": 92616,
+            "estimated_tokens": 23154,
+            "files": 1
+          },
+          "shared": {
+            "characters": 61855,
+            "estimated_tokens": 15460,
+            "files": 12
+          },
+          "skills": {
+            "characters": 294102,
+            "estimated_tokens": 73512,
+            "files": 39
+          },
+          "template": {
+            "characters": 1633,
+            "estimated_tokens": 408,
+            "files": 1
+          }
+        },
+        "totalCharacters": 2669069,
+        "totalEstimatedTokens": 667212,
+        "totalFiles": 161
+      },
+      "suites": [
+        "cg"
+      ],
+      "taskOracle": {
+        "checks": [
+          {
+            "detail": "",
+            "name": "includes kernel",
+            "ok": true
+          },
+          {
+            "detail": "",
+            "name": "includes suite-cg",
+            "ok": true
+          },
+          {
+            "detail": "",
+            "name": "includes cap-language-python",
+            "ok": true
+          },
+          {
+            "detail": "",
+            "name": "includes cap-language-r",
+            "ok": true
+          },
+          {
+            "detail": "",
+            "name": "excludes cap-language-stata",
+            "ok": true
+          },
+          {
+            "detail": "",
+            "name": "excludes cap-language-powershell",
+            "ok": true
+          },
+          {
+            "detail": "",
+            "name": "excludes suite-cr",
+            "ok": true
+          },
+          {
+            "detail": "",
+            "name": "route cg-find-skill",
+            "ok": true
+          },
+          {
+            "detail": "21 selected skills advertised",
+            "name": "catalog does not advertise inactive skill bodies",
+            "ok": true
+          }
+        ],
+        "passed": true
+      }
+    }
+  ],
+  "schemaVersion": 1,
+  "sourceRevision": "2026-08-14T13:33:35-04:00@bcd1dd70a317"
+}

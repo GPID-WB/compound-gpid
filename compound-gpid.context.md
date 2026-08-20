@@ -57,6 +57,8 @@ rules that help Copilot produce accurate outputs across all prompts and sessions
 
 - **Codex / Claude Code compatibility belongs in `AGENTS.md`, not `.github/` assets**: This repository's `.github/prompts`, `.github/skills`, `.github/agents`, and `.github/copilot-instructions.md` are designed for GitHub Copilot. When adapting the workflow for Codex or Claude Code, add dispatch rules and tool mappings to `AGENTS.md` only. Keep `AGENTS.md` explicitly scoped to Codex / Claude Code so it does not imply changed Copilot behavior. See `.cg-docs/solutions/environment-issues/2026-06-06-codex-claude-code-cg-prompt-dispatch-adapter.md`. (Note: the generated native trees now provide first-class platform support; `AGENTS.md` remains as a root-level adapter for the source repo itself.)
 
+- **Kilo plus Codex/Claude requires the certified child-process boundary**: A project containing Kilo and `.agents/skills` or `.claude/skills` must launch Kilo through `cg-kilo`, which verifies the local projection and sets `KILO_DISABLE_EXTERNAL_SKILLS=1` only for the child process. Direct Kilo launches are unsupported for that combined configuration. Local-content/frontmatter failures, Kilo host schema failures, and external-root discovery must remain separately diagnosable. Kilo copy-directory synchronization must reject links/reparse points and preserve user-modified files through checksum ownership. See `.cg-docs/solutions/environment-issues/2026-08-14-kilo-contained-launch-and-no-follow-copy.md`.
+
 ## Testing Conventions
 
 - **IndexOf guard pattern**: Block-scoped prompt tests that extract text via `$content.Substring($start, $end - $start)` must first assert both index values with `$start | Should BeGreaterThan -1` and `$end | Should BeGreaterThan $start`. Without guards, a missing section header throws `ArgumentOutOfRangeException`, obscuring which assertion failed.
@@ -242,6 +244,10 @@ rules that help Copilot produce accurate outputs across all prompts and sessions
 
 - **Kilo requires project-local markdown sources — never junction `.kilo/` to the global install**: Kilo (and upstream regression #12391) rejects agents/skills whose markdown resolves outside the project root through junctions/symlinks, surfacing as a misleading "Failed to parse agent" cascade for every file. The Kilo install units in `target-mapping.json` must use `copy-directory` (checksum-managed local copies with a `.compound-gpid-managed-copy.json` marker), on Windows AND POSIX. When users hit "Failed to parse agent", re-run `cg-link --platforms kilo` to migrate an old junctioned install. Never implement a per-unit strategy in only one of `link.ps1`/`link.sh` — parity + a mapping-level test are required. See `.cg-docs/solutions/bugs/2026-08-11-windows-link-kilo-copy-directory-parse-failure.md`.
 
+- **Manifest-driven consumers must skip legacy junction install for native generated-tree platforms**: When `compound-gpid.local.md` exists, `link.ps1`/`link.sh` must skip the legacy link-directory install of native generated-tree roots (`.claude/`, `.agents/`, `.opencode/`). The projection synchronizer materializes them as real directories instead. Running both junction install and projection `--sync` in the same link invocation causes `_reject_unsafe_destination` to abort on reparse-point ancestors. Gate: `$manifestDriven -and $nativeProjected -and $installUnit.type -eq "directory"`. See `.cg-docs/solutions/environment-issues/2026-08-17-manifest-driven-install-gate-prevents-junction-conflicts.md`.
+
+- **Windows staged-file publication requires `\\?\` long-path prefix**: Any `CreateFileW`/`open`/`rename` call in `secure_fs.py` operating on staged paths (under `.compound-gpid/staging/<tx>/<root>/...`) must use the `_windows_long_path` helper to prepend `\\?\` for paths that may exceed MAX_PATH 260. Deep canonical skill files (284+ chars) fail with `WinError 3` without the prefix. Apply the helper unconditionally — it is a no-op on non-Windows. See `.cg-docs/solutions/bugs/2026-08-17-windows-long-path-staged-publication.md`.
+
 ## Agent Design Conventions
 
 - **Path validation is mandatory for agent file reads**: Any agent that reads a file from a user-controlled path must validate: (1) path starts with the expected prefix (e.g., `.cg-docs/plans/`), (2) ends with expected suffix (`.md`), (3) contains no `..`, (4) is not absolute. Reject and emit a fixed error message without reading. An unrestricted `tools: ['read']` + user-controlled path = path traversal. Discovered as P0.1 in roadmap-visualization review.
@@ -307,6 +313,25 @@ rules that help Copilot produce accurate outputs across all prompts and sessions
 - **For gh-CLI-driven tools with a documented exit-code contract, guard response *shape*, not just JSON syntax**: `json.loads()` guards `JSONDecodeError` only. A valid-JSON payload with the wrong types (`"number": "abc"`, a JSON array where an object is expected, `projectItems.nodes` not a list of dicts) raises uncaught `ValueError`/`TypeError`/`AttributeError` during field extraction → traceback and exit 1, indistinguishable from a crash for a consumer branching on the exit-code contract (0/2/3/4 for `cg-issue-ready`). Wrap each extraction block in `try/except (ValueError, TypeError, AttributeError)` and re-raise as the documented API error (e.g., `ApiError(f"malformed <label> response from gh: ...")`), and keep deliberate-absent paths distinct (returning `None` for "issue not in any project" is valid; a present-but-garbage field is an API error). Add one regression test per remote call site feeding a wrong-shape payload. See `.cg-docs/solutions/bugs/2026-08-10-typed-invalid-gh-cli-payloads-crash-exit-code-contract.md`.
 
 - **Offline fixtures that mimic an external CLI must be verbatim mirrors of the CLI's wire format**: a fixture hand-crafting "nicer" keys (e.g., `headRef` instead of gh's `headRefName`) silently loses data when real CLI output is copied in, and an empty fixture array hides the drift (no test covers it). Document the convention in the fixture paragraph and align `FixtureClient` parsing with `GhCliClient` key-for-key, including author `{"login": ...}` normalization. See `.cg-docs/solutions/testing-patterns/2026-08-10-gh-cli-fixture-json-keys-must-match-client-parsing.md`.
+
+### Strict project config and capability selection (manifest-driven)
+
+- `compound-gpid.local.md` now uses a strict restricted grammar (UTF-8 no BOM,
+  ASCII keys, quoted/simple scalars, inline lists only). The only allowed
+  absent-field legacy default is `suites:` -> `[cg]`; malformed present values,
+  duplicate keys, anchors/tags/block scalars, and unknown keys fail with exact
+  line remediation. Authoritative reference: `docs/configuration.md` and
+  `scripts/parsing_utils.py::parse_strict_config`.
+- `scripts/cg_project_manifest.py` resolves the versioned module registry (v2
+  with `capabilities[]`) plus strict config into the committed
+  `.compound-gpid/active-manifest.json`. Capability selection is additive:
+  config selectors (e.g. `language: both` derives all language packs) extend the
+  suite closure; explicit `capabilities:` can add but never remove. Suite
+  eligibility compares user-facing names (`cg`/`cr`), and platform ids use the
+  canonical `claude-code` spelling from `target-mapping.json`.
+- `scripts/cg_projection_benchmark.py` records the before-state baseline matrix
+  (`.cg-docs/cost/skill-loading-baseline.json` / `.md`); unavailable required
+  host evidence is a blocking `unavailable`, never a zero.
 
 ## Wiki Configuration
 
