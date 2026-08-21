@@ -197,53 +197,57 @@ jobs:
           if (-not (Test-Path ".github\prompts\cg-setup.prompt.md")) {
             throw "cg-setup.prompt.md not accessible through the junction"
           }
-          if ((Get-Item ".kilo\skills" -Force).LinkType) {
-            throw "Expected .kilo/skills to remain a real copy"
-          }
-          if (-not (Test-Path ".kilo\skills\.compound-gpid-managed-copy.json")) {
-            throw "Expected managed-copy marker in .kilo/skills"
-          }
-          $compatibility = @(
-            [pscustomobject]@{ Root = ".claude\skills"; Source = "$env:GITHUB_WORKSPACE\.claude\skills"; Id = "claude-code" },
-            [pscustomobject]@{ Root = ".agents\skills"; Source = "$env:GITHUB_WORKSPACE\.agents\skills"; Id = "codex" },
-            [pscustomobject]@{ Root = ".opencode\skills"; Source = "$env:GITHUB_WORKSPACE\.opencode\skills"; Id = "opencode" }
-          )
-          foreach ($adapter in $compatibility) {
-            $item = Get-Item $adapter.Root -Force
-            $mirror = [System.IO.Path]::GetFullPath((Join-Path $e2eDir ".compound-gpid\kilo-compat-skills\$($adapter.Id)"))
-            $actual = [System.IO.Path]::GetFullPath([string]($item.Target -join ''))
-            if ($item.LinkType -ne 'Junction' -or $actual -ne $mirror) {
-              throw "Expected $($adapter.Root) junction to local mirror; got $actual"
+          # Kilo is excluded from CI platforms (certified host unavailable).
+          # Compatibility mirrors activate only when .kilo/skills is installed.
+          $kiloInstalled = (Test-Path ".kilo\skills\.compound-gpid-managed-copy.json")
+          if ($kiloInstalled) {
+            if ((Get-Item ".kilo\skills" -Force).LinkType) {
+              throw "Expected .kilo/skills to remain a real copy"
             }
-            if (-not (Test-Path (Join-Path $mirror ".compound-gpid-managed-copy.json"))) {
-              throw "Expected managed mirror marker for $($adapter.Id)"
+            $compatibility = @(
+              [pscustomobject]@{ Root = ".claude\skills"; Source = "$env:GITHUB_WORKSPACE\.claude\skills"; Id = "claude-code" },
+              [pscustomobject]@{ Root = ".agents\skills"; Source = "$env:GITHUB_WORKSPACE\.agents\skills"; Id = "codex" },
+              [pscustomobject]@{ Root = ".opencode\skills"; Source = "$env:GITHUB_WORKSPACE\.opencode\skills"; Id = "opencode" }
+            )
+            foreach ($adapter in $compatibility) {
+              $item = Get-Item $adapter.Root -Force
+              $mirror = [System.IO.Path]::GetFullPath((Join-Path $e2eDir ".compound-gpid\kilo-compat-skills\$($adapter.Id)"))
+              $actual = [System.IO.Path]::GetFullPath([string]($item.Target -join ''))
+              if ($item.LinkType -ne 'Junction' -or $actual -ne $mirror) {
+                throw "Expected $($adapter.Root) junction to local mirror; got $actual"
+              }
+              if (-not (Test-Path (Join-Path $mirror ".compound-gpid-managed-copy.json"))) {
+                throw "Expected managed mirror marker for $($adapter.Id)"
+              }
             }
+            $copyPairs = @(
+              [pscustomobject]@{ Source = "$env:GITHUB_WORKSPACE\.kilo\skills"; Target = ".kilo\skills"; SourceRel = ".kilo/skills" }
+            ) + @($compatibility | ForEach-Object {
+              [pscustomobject]@{ Source = $_.Source; Target = ".compound-gpid\kilo-compat-skills\$($_.Id)"; SourceRel = $_.Root.Replace('\', '/') }
+            })
+            foreach ($pair in $copyPairs) {
+               $sourceRoot = $pair.Source
+               $targetRoot = $pair.Target
+               $sourceFiles = @(Get-ChildItem -LiteralPath $sourceRoot -File -Recurse)
+               $marker = Get-Content -LiteralPath (Join-Path $targetRoot ".compound-gpid-managed-copy.json") -Raw -Encoding UTF8 | ConvertFrom-Json
+               if ($marker.schemaVersion -ne 1 -or $marker.source -ne $pair.SourceRel -or @($marker.files.PSObject.Properties).Count -ne $sourceFiles.Count) {
+                 throw "Invalid managed-copy marker: $targetRoot"
+               }
+               foreach ($sourceFile in $sourceFiles) {
+                 $relative = $sourceFile.FullName.Substring($sourceRoot.Length).TrimStart('\')
+                 $targetFile = Join-Path $targetRoot $relative
+                 if (-not (Test-Path -LiteralPath $targetFile -PathType Leaf)) {
+                   throw "Managed copy missing file: $targetFile"
+                 }
+                 if ((Get-FileHash -LiteralPath $sourceFile.FullName -Algorithm SHA256).Hash -ne
+                     (Get-FileHash -LiteralPath $targetFile -Algorithm SHA256).Hash) {
+                   throw "Managed copy byte mismatch: $targetFile"
+                 }
+               }
+             }
+          } else {
+            Write-Host "  Kilo not linked (certified host unavailable); skipping mirror assertions" -ForegroundColor DarkGray
           }
-          $copyPairs = @(
-            [pscustomobject]@{ Source = "$env:GITHUB_WORKSPACE\.kilo\skills"; Target = ".kilo\skills"; SourceRel = ".kilo/skills" }
-          ) + @($compatibility | ForEach-Object {
-            [pscustomobject]@{ Source = $_.Source; Target = ".compound-gpid\kilo-compat-skills\$($_.Id)"; SourceRel = $_.Root.Replace('\', '/') }
-          })
-          foreach ($pair in $copyPairs) {
-             $sourceRoot = $pair.Source
-             $targetRoot = $pair.Target
-             $sourceFiles = @(Get-ChildItem -LiteralPath $sourceRoot -File -Recurse)
-             $marker = Get-Content -LiteralPath (Join-Path $targetRoot ".compound-gpid-managed-copy.json") -Raw -Encoding UTF8 | ConvertFrom-Json
-             if ($marker.schemaVersion -ne 1 -or $marker.source -ne $pair.SourceRel -or @($marker.files.PSObject.Properties).Count -ne $sourceFiles.Count) {
-               throw "Invalid managed-copy marker: $targetRoot"
-             }
-             foreach ($sourceFile in $sourceFiles) {
-               $relative = $sourceFile.FullName.Substring($sourceRoot.Length).TrimStart('\')
-               $targetFile = Join-Path $targetRoot $relative
-               if (-not (Test-Path -LiteralPath $targetFile -PathType Leaf)) {
-                 throw "Managed copy missing file: $targetFile"
-               }
-               if ((Get-FileHash -LiteralPath $sourceFile.FullName -Algorithm SHA256).Hash -ne
-                   (Get-FileHash -LiteralPath $targetFile -Algorithm SHA256).Hash) {
-                 throw "Managed copy byte mismatch: $targetFile"
-               }
-             }
-           }
 
           # 3. Idempotency: link a second time - must not error
           & "$env:GITHUB_WORKSPACE\scripts\link.ps1" -Platforms "copilot,claude-code,codex,opencode"
@@ -357,21 +361,25 @@ jobs:
           if [[ ! -f ".github/prompts/cg-setup.prompt.md" ]]; then
             echo "ERROR: cg-setup.prompt.md not accessible through the symlink" >&2; exit 1
           fi
-          [[ ! -L ".kilo/skills" && -f ".kilo/skills/.compound-gpid-managed-copy.json" ]] || {
-            echo "ERROR: Expected .kilo/skills to be a marked real copy" >&2; exit 1;
-          }
-          python3 -c 'import json,sys; d=json.load(open(sys.argv[1], encoding="utf-8")); assert d["schemaVersion"] == 1 and d["source"] == sys.argv[2] and d["files"]' ".kilo/skills/.compound-gpid-managed-copy.json" ".kilo/skills"
-          for spec in ".claude/skills|.claude/skills|claude-code" ".agents/skills|.agents/skills|codex" ".opencode/skills|.opencode/skills|opencode"; do
-            IFS='|' read -r root source id <<< "$spec"
-            [[ -L "$root" ]] || { echo "ERROR: Expected $root to remain a symlink" >&2; exit 1; }
-            real="$(python3 -c 'import os,sys; print(os.path.realpath(sys.argv[1]))' "$root")"
-            expected="$E2E_DIR/.compound-gpid/kilo-compat-skills/$id"
-            [[ "$real" == "$expected" ]] || { echo "ERROR: $root resolves to $real, expected $expected" >&2; exit 1; }
-            [[ -f "$expected/.compound-gpid-managed-copy.json" ]] || { echo "ERROR: Missing mirror marker for $id" >&2; exit 1; }
-            python3 -c 'import json,sys; d=json.load(open(sys.argv[1], encoding="utf-8")); assert d["schemaVersion"] == 1 and d["source"] == sys.argv[2] and d["files"]' "$expected/.compound-gpid-managed-copy.json" "$source"
-            diff -rq -x '.compound-gpid-managed-copy.json' "$GITHUB_WORKSPACE/$source" "$expected"
-          done
-          diff -rq -x '.compound-gpid-managed-copy.json' "$GITHUB_WORKSPACE/.kilo/skills" ".kilo/skills"
+          # Kilo is excluded from CI platforms (certified host unavailable).
+          # Compatibility mirrors activate only when .kilo/skills is installed.
+          if [[ -f ".kilo/skills/.compound-gpid-managed-copy.json" ]]; then
+            [[ ! -L ".kilo/skills" ]] || { echo "ERROR: Expected .kilo/skills to remain a real copy" >&2; exit 1; }
+            python3 -c 'import json,sys; d=json.load(open(sys.argv[1], encoding="utf-8")); assert d["schemaVersion"] == 1 and d["source"] == sys.argv[2] and d["files"]' ".kilo/skills/.compound-gpid-managed-copy.json" ".kilo/skills"
+            for spec in ".claude/skills|.claude/skills|claude-code" ".agents/skills|.agents/skills|codex" ".opencode/skills|.opencode/skills|opencode"; do
+              IFS='|' read -r root source id <<< "$spec"
+              [[ -L "$root" ]] || { echo "ERROR: Expected $root to remain a symlink" >&2; exit 1; }
+              real="$(python3 -c 'import os,sys; print(os.path.realpath(sys.argv[1]))' "$root")"
+              expected="$E2E_DIR/.compound-gpid/kilo-compat-skills/$id"
+              [[ "$real" == "$expected" ]] || { echo "ERROR: $root resolves to $real, expected $expected" >&2; exit 1; }
+              [[ -f "$expected/.compound-gpid-managed-copy.json" ]] || { echo "ERROR: Missing mirror marker for $id" >&2; exit 1; }
+              python3 -c 'import json,sys; d=json.load(open(sys.argv[1], encoding="utf-8")); assert d["schemaVersion"] == 1 and d["source"] == sys.argv[2] and d["files"]' "$expected/.compound-gpid-managed-copy.json" "$source"
+              diff -rq -x '.compound-gpid-managed-copy.json' "$GITHUB_WORKSPACE/$source" "$expected"
+            done
+            diff -rq -x '.compound-gpid-managed-copy.json' "$GITHUB_WORKSPACE/.kilo/skills" ".kilo/skills"
+          else
+            echo "  Kilo not linked (certified host unavailable); skipping mirror assertions"
+          fi
 
           # Simulate a pre-marker POSIX copy from an older release. Changed
           # managed bytes are backed up, refreshed, and adopted into a marker.
