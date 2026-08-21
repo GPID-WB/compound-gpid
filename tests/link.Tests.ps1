@@ -389,7 +389,12 @@ Describe "link.ps1 - Kilo copy-directory strategy" {
         Push-Location $project
         try {
             $env:CG_SKIP_UPDATE = "1"
-            & (Join-Path $repoRoot "scripts\link.ps1") -RawArgs @("--platforms", "claude-code,codex,opencode,kilo", "--yes")
+            $linkError = $null
+            try {
+                & (Join-Path $repoRoot "scripts\link.ps1") -RawArgs @("--platforms", "claude-code,codex,opencode,kilo", "--yes")
+            } catch {
+                $linkError = $_
+            }
 
             $kiloSkills = Join-Path $project ".kilo\skills"
             $kiloLinked = Test-Path -LiteralPath (Join-Path $kiloSkills ".compound-gpid-managed-copy.json")
