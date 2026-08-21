@@ -28,6 +28,7 @@ PROJECT_ROOT="$(pwd)"
 TARGET_MAPPING_PATH="$COMPOUND_GPID_DIR/.github/shared/target-mapping.json"
 MANIFEST_PATH="$PROJECT_ROOT/.compound-gpid/managed-files.json"
 COPILOT_INSTRUCTIONS_MARKER="<!-- compound-gpid:managed -->"
+KILO_COMPAT_MIRROR_ROOT_REL=".compound-gpid/kilo-compat-skills"
 
 print_cyan()   { printf '\033[0;36m%s\033[0m\n' "$1"; }
 print_green()  { printf '\033[0;32m%s\033[0m\n' "$1"; }
@@ -57,6 +58,48 @@ if [ -z "$PYTHON_CMD" ]; then
     printf 'Install Xcode Command Line Tools or Python from https://www.python.org/downloads/\n' >&2
     exit 1
 fi
+
+same_realpath() {
+    "$PYTHON_CMD" - "$1" "$2" <<'PYEOF'
+import os
+import sys
+sys.exit(0 if os.path.realpath(sys.argv[1]) == os.path.realpath(sys.argv[2]) else 1)
+PYEOF
+}
+
+compat_platform_for_target() {
+    case "$1" in
+        .claude/skills) printf 'claude-code\n' ;;
+        .agents/skills) printf 'codex\n' ;;
+        .opencode/skills) printf 'opencode\n' ;;
+        *) return 1 ;;
+    esac
+}
+
+replace_symlink_safely() {
+    local link_path="$1" expected_target="$2" parent leaf temporary
+    parent="$(dirname "$link_path")"
+    leaf="$(basename "$link_path")"
+    temporary="$parent/.$leaf.cg-link-$$-${RANDOM:-0}"
+    rm -f "$temporary"
+    if ! ln -s "$expected_target" "$temporary"; then
+        return 1
+    fi
+    if ! same_realpath "$temporary" "$expected_target"; then
+        rm -f "$temporary"
+        return 1
+    fi
+    if ! "$PYTHON_CMD" - "$temporary" "$link_path" <<'PYEOF'
+import os
+import sys
+os.replace(sys.argv[1], sys.argv[2])
+PYEOF
+    then
+        rm -f "$temporary"
+        return 1
+    fi
+    same_realpath "$link_path" "$expected_target"
+}
 
 normalize_platforms() {
     local input selected item platform exists unknown
@@ -208,7 +251,7 @@ ensure_root_directory() {
     root_path="$PROJECT_ROOT/$root_name"
     if [ -L "$root_path" ]; then
         existing_target="$(readlink "$root_path")"
-        if [[ "$existing_target" == *compound-gpid* ]]; then
+        if same_realpath "$root_path" "$COMPOUND_GPID_DIR/$root_name"; then
             print_yellow "  $root_name/ - migrating legacy whole-root symlink"
             rm -f "$root_path"
             mkdir -p "$root_path"
@@ -229,12 +272,18 @@ ensure_root_directory() {
 }
 
 install_directory_unit() {
-    local source_rel="$1" target_rel="$2" strategy="$3" source_path target_path existing_target parent
+    local source_rel="$1" target_rel="$2" strategy="$3" source_path target_path existing_target parent compat_platform mirror_path
     source_path="$COMPOUND_GPID_DIR/$source_rel"
     target_path="$PROJECT_ROOT/$target_rel"
     if [ -L "$target_path" ]; then
         existing_target="$(readlink "$target_path")"
-        if [[ "$existing_target" == *compound-gpid* ]]; then
+        compat_platform="$(compat_platform_for_target "$target_rel" || true)"
+        mirror_path=""
+        [ -n "$compat_platform" ] && mirror_path="$PROJECT_ROOT/$KILO_COMPAT_MIRROR_ROOT_REL/$compat_platform"
+        if [ -n "$mirror_path" ] && same_realpath "$target_path" "$mirror_path"; then
+            print_gray "$target_rel - already linked through Kilo compatibility mirror"
+            return 0
+        elif same_realpath "$target_path" "$source_path"; then
             if [ "$strategy" = "copy-directory" ]; then
                 print_yellow "  $target_rel - migrating legacy symlink to copy-directory"
                 rm -f "$target_path"
@@ -263,16 +312,209 @@ install_directory_unit() {
         return 1
     fi
     parent="$(dirname "$target_path")"
-    mkdir -p "$parent"
     if [ "$strategy" = "copy-directory" ]; then
-        "$PYTHON_CMD" "$COMPOUND_GPID_DIR/scripts/cg_kilo_copy.py" \
-            --source "$source_path" --target "$target_path" --source-relative "$source_rel"
+        # Keep POSIX behavior in parity with the Windows checksum-managed copy:
+        # preserve user edits, remove only unchanged stale managed files, and
+        # reject any target path that crosses a symlink outside the project.
+        if ! "$PYTHON_CMD" - "$PROJECT_ROOT" "$source_rel" "$source_path" "$target_rel" "$target_path" <<'PYEOF'
+import hashlib
+import json
+import os
+import re
+import shutil
+import sys
+import tempfile
+
+project, source_rel, source, target_rel, target = sys.argv[1:]
+marker_name = ".compound-gpid-managed-copy.json"
+
+project = os.path.abspath(project)
+target = os.path.abspath(target)
+if os.path.commonpath((project, target)) != project or target == project:
+    raise SystemExit("Managed-copy target escapes the project root: " + target)
+
+relative_target = os.path.relpath(target, project)
+cursor = project
+for part in relative_target.split(os.sep):
+    cursor = os.path.join(cursor, part)
+    if os.path.lexists(cursor) and os.path.islink(cursor):
+        raise SystemExit("Managed-copy target crosses a symlink: " + cursor)
+os.makedirs(target, exist_ok=True)
+
+def sha256(path):
+    digest = hashlib.sha256()
+    with open(path, "rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+def destination(relative):
+    if not relative or relative.startswith(("/", "..")) or "\\" in relative or ":" in relative:
+        raise ValueError("unsafe managed-copy relative path: " + relative)
+    result = os.path.abspath(os.path.join(target, *relative.split("/")))
+    if os.path.commonpath((target, result)) != target or result == target:
+        raise ValueError("managed-copy path escapes target: " + relative)
+    cursor = target
+    for part in relative.split("/"):
+        cursor = os.path.join(cursor, part)
+        if os.path.lexists(cursor) and os.path.islink(cursor):
+            raise ValueError("managed-copy path crosses symlink: " + relative)
+    return result
+
+marker = os.path.join(target, marker_name)
+marker_existed = os.path.lexists(marker)
+previous = {}
+if os.path.isfile(marker) and not os.path.islink(marker):
+    try:
+        with open(marker, "r", encoding="utf-8") as handle:
+            data = json.load(handle)
+        if data.get("schemaVersion") == 1 and data.get("source") == source_rel and isinstance(data.get("files"), dict):
+            for relative, checksum in data["files"].items():
+                destination(relative)
+                if isinstance(checksum, str) and len(checksum) == 64:
+                    int(checksum, 16)
+                    previous[relative] = checksum.lower()
+    except (OSError, ValueError, TypeError, json.JSONDecodeError):
+        previous = {}
+
+legacy_managed = False
+gitignore = os.path.join(project, ".gitignore")
+if not marker_existed and os.path.isfile(gitignore):
+    with open(gitignore, "r", encoding="utf-8", errors="replace") as handle:
+        gitignore_text = handle.read()
+    legacy_managed = (
+        "# Compound GPID managed items" in gitignore_text
+        and re.search(r"(?m)^" + re.escape(target_rel) + r"/?$", gitignore_text) is not None
+    )
+
+def preserve_legacy_file(path):
+    backup = path + ".compound-gpid-legacy-backup"
+    suffix = 0
+    while os.path.lexists(backup):
+        suffix += 1
+        backup = path + ".compound-gpid-legacy-backup." + str(suffix)
+    shutil.copy2(path, backup)
+    return backup
+
+source_files = {}
+for root, dirs, names in os.walk(source):
+    dirs[:] = sorted(d for d in dirs if not os.path.islink(os.path.join(root, d)))
+    for name in sorted(names):
+        path = os.path.join(root, name)
+        if os.path.islink(path) or name == marker_name:
+            continue
+        relative = os.path.relpath(path, source).replace(os.sep, "/")
+        source_files[relative] = path
+
+next_files = {}
+for relative, source_file in sorted(source_files.items()):
+    try:
+        target_file = destination(relative)
+    except ValueError as error:
+        print("WARNING: %s/%s preserved: %s" % (target_rel, relative, error), file=sys.stderr)
+        continue
+    source_checksum = sha256(source_file)
+    old_checksum = previous.get(relative)
+    if os.path.exists(target_file):
+        if not os.path.isfile(target_file) or os.path.islink(target_file):
+            print("WARNING: %s/%s conflicts with a directory or link; preserving it" % (target_rel, relative), file=sys.stderr)
+            continue
+        current_checksum = sha256(target_file)
+        if current_checksum == source_checksum:
+            next_files[relative] = source_checksum
+            continue
+        if not old_checksum or current_checksum != old_checksum:
+            if legacy_managed and not old_checksum:
+                backup = preserve_legacy_file(target_file)
+                print(
+                    "WARNING: migrated legacy managed file %s/%s; previous bytes backed up to %s"
+                    % (target_rel, relative, backup),
+                    file=sys.stderr,
+                )
+                shutil.copy2(source_file, target_file)
+                next_files[relative] = source_checksum
+                continue
+            print("WARNING: %s/%s was modified or is user-owned; preserving it" % (target_rel, relative), file=sys.stderr)
+            if old_checksum:
+                next_files[relative] = old_checksum
+            continue
+    os.makedirs(os.path.dirname(target_file), exist_ok=True)
+    shutil.copy2(source_file, target_file)
+    next_files[relative] = source_checksum
+
+for relative, old_checksum in sorted(previous.items()):
+    if relative in source_files:
+        continue
+    try:
+        target_file = destination(relative)
+    except ValueError as error:
+        print("WARNING: stale %s/%s preserved: %s" % (target_rel, relative, error), file=sys.stderr)
+        continue
+    if os.path.isfile(target_file) and not os.path.islink(target_file):
+        if sha256(target_file) == old_checksum:
+            os.unlink(target_file)
+        else:
+            print("WARNING: stale %s/%s is user-modified; preserving it" % (target_rel, relative), file=sys.stderr)
+
+if not next_files:
+    raise SystemExit("Managed-copy source produced no safe files: " + source)
+data = {"schemaVersion": 1, "source": source_rel, "files": next_files}
+fd, temporary = tempfile.mkstemp(dir=target, prefix=marker_name + ".", suffix=".tmp")
+try:
+    with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as handle:
+        json.dump(data, handle, indent=2, sort_keys=True)
+        handle.write("\n")
+    os.replace(temporary, os.path.join(target, marker_name))
+finally:
+    if os.path.exists(temporary):
+        os.unlink(temporary)
+PYEOF
+        then
+            print_error "$target_rel managed-copy synchronization failed"
+            return 1
+        fi
         print_gray "$target_rel - copied"
     else
+        mkdir -p "$parent"
         ln -s "$source_path" "$target_path"
         print_gray "$target_rel - linked"
     fi
     return 0
+}
+
+protect_kilo_compatibility_skill_links() {
+    [ -f "$PROJECT_ROOT/.kilo/skills/.compound-gpid-managed-copy.json" ] || return 0
+    local record platform source_rel target_rel source_path target_path mirror_rel mirror_path link_target
+    for record in \
+        'claude-code|.claude/skills|.claude/skills' \
+        'codex|.agents/skills|.agents/skills' \
+        'opencode|.opencode/skills|.opencode/skills'; do
+        IFS='|' read -r platform source_rel target_rel <<< "$record"
+        source_path="$COMPOUND_GPID_DIR/$source_rel"
+        target_path="$PROJECT_ROOT/$target_rel"
+        mirror_rel="$KILO_COMPAT_MIRROR_ROOT_REL/$platform"
+        mirror_path="$PROJECT_ROOT/$mirror_rel"
+        [ -L "$target_path" ] || continue
+        link_target="$(readlink "$target_path")"
+        if ! same_realpath "$target_path" "$source_path" && ! same_realpath "$target_path" "$mirror_path"; then
+            continue
+        fi
+
+        if ! install_directory_unit "$source_rel" "$mirror_rel" "copy-directory"; then
+            print_error "$target_rel compatibility mirror synchronization failed"
+            return 1
+        fi
+        if same_realpath "$target_path" "$source_path"; then
+            if ! replace_symlink_safely "$target_path" "$mirror_path"; then
+                print_error "$target_rel compatibility link replacement failed"
+                return 1
+            fi
+            print_gray "$target_rel - localized for Kilo compatibility discovery"
+        else
+            print_gray "$target_rel - Kilo compatibility mirror updated"
+        fi
+        printf '%s\n%s\n' "$target_rel" "$mirror_rel" >> "$entries_file"
+    done
 }
 
 install_file_unit() {
@@ -376,14 +618,23 @@ PYEOF
 }
 
 collect_existing_managed_entries() {
-    local platform unit_type source_rel target_rel strategy snippet target_path existing_target
+    local platform unit_type source_rel target_rel strategy snippet target_path existing_target compat_platform mirror_path
     all_install_units | while IFS='|' read -r platform unit_type source_rel target_rel strategy snippet; do
         [ -z "$platform" ] && continue
         target_path="$PROJECT_ROOT/$target_rel"
         if [ "$unit_type" = "directory" ]; then
             if [ -L "$target_path" ]; then
                 existing_target="$(readlink "$target_path")"
-                [[ "$existing_target" == *compound-gpid* ]] && printf '%s\n' "$target_rel"
+                compat_platform="$(compat_platform_for_target "$target_rel" || true)"
+                mirror_path=""
+                [ -n "$compat_platform" ] && mirror_path="$PROJECT_ROOT/$KILO_COMPAT_MIRROR_ROOT_REL/$compat_platform"
+                if same_realpath "$target_path" "$COMPOUND_GPID_DIR/$source_rel" ||
+                   { [ -n "$mirror_path" ] && same_realpath "$target_path" "$mirror_path"; }; then
+                    printf '%s\n' "$target_rel"
+                fi
+            elif [ -f "$target_path/.compound-gpid-managed-copy.json" ] &&
+                 grep -qF "\"source\": \"$source_rel\"" "$target_path/.compound-gpid-managed-copy.json"; then
+                printf '%s\n' "$target_rel"
             fi
         elif [ "$target_rel" = ".github/copilot-instructions.md" ]; then
             if [ -f "$target_path" ] && grep -qF "$COPILOT_INSTRUCTIONS_MARKER" "$target_path" 2>/dev/null; then
@@ -624,7 +875,12 @@ while IFS='|' read -r platform unit_type source_rel target_rel strategy snippet;
         continue
     fi
     if [ "$unit_type" = "directory" ]; then
-        if install_directory_unit "$source_rel" "$target_rel" "$strategy"; then printf '%s\n' "$target_rel" >> "$entries_file"; fi
+        if install_directory_unit "$source_rel" "$target_rel" "$strategy"; then
+            printf '%s\n' "$target_rel" >> "$entries_file"
+        elif [ "$strategy" = "copy-directory" ]; then
+            print_error "$target_rel copy-directory installation failed"
+            exit 1
+        fi
     else
         output="$(install_file_unit "$source_rel" "$target_rel" "$strategy" "$snippet")"
         case "$output" in
@@ -645,6 +901,7 @@ elif [[ ",$PLATFORMS," == *,kilo,* ]]; then
     run_kilo_preflight local
 fi
 
+protect_kilo_compatibility_skill_links
 collect_existing_managed_entries >> "$entries_file"
 update_gitignore_block "$entries_file"
 

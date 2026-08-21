@@ -329,9 +329,20 @@ class TestGeneratorWrites:
         root = _make_fixture_repo(tmp_path)
         gen.main(["--root", str(root), "--target", "opencode"])
         content = (root / ".opencode/commands/cg-test.md").read_text()
-        assert "description: Test prompt" in content
+        assert 'description: "Test prompt"' in content
         assert "role:" not in content.split("---", 2)[1]
         assert "$ARGUMENTS" in content
+
+    def test_escaped_canonical_description_is_not_double_escaped(self, tmp_path: Path) -> None:
+        root = _make_fixture_repo(tmp_path)
+        _write(
+            root / ".github/prompts/cg-test.prompt.md",
+            '---\ndescription: "A \\"quoted\\" prompt"\n---\n\n# Test\n',
+        )
+        gen.main(["--root", str(root), "--target", "opencode"])
+        content = (root / ".opencode/commands/cg-test.md").read_text(encoding="utf-8")
+        description_line = next(line for line in content.splitlines() if line.startswith("description:"))
+        assert json.loads(description_line.partition(":")[2].strip()) == 'A "quoted" prompt'
 
     def test_opencode_uses_role_only_no_exact_models(self, tmp_path: Path) -> None:
         root = _make_fixture_repo(tmp_path)
@@ -351,13 +362,14 @@ class TestGeneratorWrites:
             "$schema": "https://app.kilo.ai/config.json",
             "instructions": [".kilo/AGENTS.md"],
             "skills": {"paths": [".kilo/skills"]},
+            "watcher": {"ignore": [".compound-gpid/kilo-compat-skills/**"]},
         }
 
     def test_kilo_commands_use_valid_frontmatter_and_arguments(self, tmp_path: Path) -> None:
         root = _make_fixture_repo(tmp_path)
         gen.main(["--root", str(root), "--target", "kilo"])
         content = (root / ".kilo/commands/cg-test.md").read_text()
-        assert "description: Test prompt" in content
+        assert 'description: "Test prompt"' in content
         assert "role:" not in content.split("---", 2)[1]
         assert "$ARGUMENTS" in content
 

@@ -46,8 +46,8 @@ jobs:
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0
         with:
           python-version: "3.11"
-      - name: Install Python test dependency
-        run: python -m pip install pytest
+      - name: Install Python test dependencies
+        run: python -m pip install pytest pyyaml
       - name: Run required native target gate
         run: >-
           python -m pytest
@@ -73,6 +73,8 @@ jobs:
           scripts/tests/test_cr_baseline.py
           scripts/tests/test_issue_readiness.py
           scripts/tests/test_issue_dispatch.py
+          scripts/tests/test_frontmatter_parsing.py
+          scripts/tests/test_yaml_frontmatter_lint.py
           -q
 
       - name: Run module registry and cross-suite gate
@@ -193,8 +195,55 @@ jobs:
               throw "Expected .github\prompts to be a Junction, got: $($junction.LinkType)"
           }
           if (-not (Test-Path ".github\prompts\cg-setup.prompt.md")) {
-              throw "cg-setup.prompt.md not accessible through the junction"
+            throw "cg-setup.prompt.md not accessible through the junction"
           }
+          if ((Get-Item ".kilo\skills" -Force).LinkType) {
+            throw "Expected .kilo/skills to remain a real copy"
+          }
+          if (-not (Test-Path ".kilo\skills\.compound-gpid-managed-copy.json")) {
+            throw "Expected managed-copy marker in .kilo/skills"
+          }
+          $compatibility = @(
+            [pscustomobject]@{ Root = ".claude\skills"; Source = "$env:GITHUB_WORKSPACE\.claude\skills"; Id = "claude-code" },
+            [pscustomobject]@{ Root = ".agents\skills"; Source = "$env:GITHUB_WORKSPACE\.agents\skills"; Id = "codex" },
+            [pscustomobject]@{ Root = ".opencode\skills"; Source = "$env:GITHUB_WORKSPACE\.opencode\skills"; Id = "opencode" }
+          )
+          foreach ($adapter in $compatibility) {
+            $item = Get-Item $adapter.Root -Force
+            $mirror = [System.IO.Path]::GetFullPath((Join-Path $e2eDir ".compound-gpid\kilo-compat-skills\$($adapter.Id)"))
+            $actual = [System.IO.Path]::GetFullPath([string]($item.Target -join ''))
+            if ($item.LinkType -ne 'Junction' -or $actual -ne $mirror) {
+              throw "Expected $($adapter.Root) junction to local mirror; got $actual"
+            }
+            if (-not (Test-Path (Join-Path $mirror ".compound-gpid-managed-copy.json"))) {
+              throw "Expected managed mirror marker for $($adapter.Id)"
+            }
+          }
+          $copyPairs = @(
+            [pscustomobject]@{ Source = "$env:GITHUB_WORKSPACE\.kilo\skills"; Target = ".kilo\skills"; SourceRel = ".kilo/skills" }
+          ) + @($compatibility | ForEach-Object {
+            [pscustomobject]@{ Source = $_.Source; Target = ".compound-gpid\kilo-compat-skills\$($_.Id)"; SourceRel = $_.Root.Replace('\', '/') }
+          })
+          foreach ($pair in $copyPairs) {
+             $sourceRoot = $pair.Source
+             $targetRoot = $pair.Target
+             $sourceFiles = @(Get-ChildItem -LiteralPath $sourceRoot -File -Recurse)
+             $marker = Get-Content -LiteralPath (Join-Path $targetRoot ".compound-gpid-managed-copy.json") -Raw -Encoding UTF8 | ConvertFrom-Json
+             if ($marker.schemaVersion -ne 1 -or $marker.source -ne $pair.SourceRel -or @($marker.files.PSObject.Properties).Count -ne $sourceFiles.Count) {
+               throw "Invalid managed-copy marker: $targetRoot"
+             }
+             foreach ($sourceFile in $sourceFiles) {
+               $relative = $sourceFile.FullName.Substring($sourceRoot.Length).TrimStart('\')
+               $targetFile = Join-Path $targetRoot $relative
+               if (-not (Test-Path -LiteralPath $targetFile -PathType Leaf)) {
+                 throw "Managed copy missing file: $targetFile"
+               }
+               if ((Get-FileHash -LiteralPath $sourceFile.FullName -Algorithm SHA256).Hash -ne
+                   (Get-FileHash -LiteralPath $targetFile -Algorithm SHA256).Hash) {
+                 throw "Managed copy byte mismatch: $targetFile"
+               }
+             }
+           }
 
           # 3. Idempotency: link a second time - must not error
           & "$env:GITHUB_WORKSPACE\scripts\link.ps1" -Platforms "copilot,claude-code,codex,opencode"
@@ -205,6 +254,9 @@ jobs:
           # 5. Assert clean state: junction removed
           if (Test-Path ".github\prompts") {
               throw "Expected .github\prompts to be removed after unlink, but it still exists"
+          }
+          foreach ($path in @(".claude\skills", ".agents\skills", ".opencode\skills", ".kilo\skills", ".compound-gpid\kilo-compat-skills")) {
+            if (Test-Path -LiteralPath $path) { throw "Managed path remains after unlink: $path" }
           }
           # 6. Assert .gitignore was cleaned up after unlink
           if (Test-Path ".gitignore") {
@@ -303,8 +355,39 @@ jobs:
               echo "ERROR: Expected .github/prompts to be a symlink" >&2; exit 1
           fi
           if [[ ! -f ".github/prompts/cg-setup.prompt.md" ]]; then
-              echo "ERROR: cg-setup.prompt.md not accessible through the symlink" >&2; exit 1
+            echo "ERROR: cg-setup.prompt.md not accessible through the symlink" >&2; exit 1
           fi
+          [[ ! -L ".kilo/skills" && -f ".kilo/skills/.compound-gpid-managed-copy.json" ]] || {
+            echo "ERROR: Expected .kilo/skills to be a marked real copy" >&2; exit 1;
+          }
+          python3 -c 'import json,sys; d=json.load(open(sys.argv[1], encoding="utf-8")); assert d["schemaVersion"] == 1 and d["source"] == sys.argv[2] and d["files"]' ".kilo/skills/.compound-gpid-managed-copy.json" ".kilo/skills"
+          for spec in ".claude/skills|.claude/skills|claude-code" ".agents/skills|.agents/skills|codex" ".opencode/skills|.opencode/skills|opencode"; do
+            IFS='|' read -r root source id <<< "$spec"
+            [[ -L "$root" ]] || { echo "ERROR: Expected $root to remain a symlink" >&2; exit 1; }
+            real="$(python3 -c 'import os,sys; print(os.path.realpath(sys.argv[1]))' "$root")"
+            expected="$E2E_DIR/.compound-gpid/kilo-compat-skills/$id"
+            [[ "$real" == "$expected" ]] || { echo "ERROR: $root resolves to $real, expected $expected" >&2; exit 1; }
+            [[ -f "$expected/.compound-gpid-managed-copy.json" ]] || { echo "ERROR: Missing mirror marker for $id" >&2; exit 1; }
+            python3 -c 'import json,sys; d=json.load(open(sys.argv[1], encoding="utf-8")); assert d["schemaVersion"] == 1 and d["source"] == sys.argv[2] and d["files"]' "$expected/.compound-gpid-managed-copy.json" "$source"
+            diff -rq -x '.compound-gpid-managed-copy.json' "$GITHUB_WORKSPACE/$source" "$expected"
+          done
+          diff -rq -x '.compound-gpid-managed-copy.json' "$GITHUB_WORKSPACE/.kilo/skills" ".kilo/skills"
+
+          # Simulate a pre-marker POSIX copy from an older release. Changed
+          # managed bytes are backed up, refreshed, and adopted into a marker.
+          legacy_skill=".kilo/skills/cg-skill-brainstorming/SKILL.md"
+          rm -f ".kilo/skills/.compound-gpid-managed-copy.json"
+          printf 'legacy managed bytes\n' > "$legacy_skill"
+          CG_SKIP_UPDATE=1 bash "$GITHUB_WORKSPACE/scripts/link.sh" --platforms kilo --yes
+          cmp "$GITHUB_WORKSPACE/.kilo/skills/cg-skill-brainstorming/SKILL.md" "$legacy_skill"
+          [[ -f "$legacy_skill.compound-gpid-legacy-backup" ]] || {
+            echo "ERROR: Expected backup while adopting legacy POSIX copy" >&2; exit 1;
+          }
+          python3 -c 'import pathlib,sys; assert pathlib.Path(sys.argv[1]).read_bytes() == b"legacy managed bytes\n"' "$legacy_skill.compound-gpid-legacy-backup"
+          [[ -f ".kilo/skills/.compound-gpid-managed-copy.json" ]] || {
+            echo "ERROR: Legacy POSIX copy was not adopted into a marker" >&2; exit 1;
+          }
+          rm -f "$legacy_skill.compound-gpid-legacy-backup"
 
           # 3. Idempotency: link a second time - must not error
           CG_SKIP_UPDATE=1 bash "$GITHUB_WORKSPACE/scripts/link.sh" --platforms "copilot,claude-code,codex,opencode"
@@ -316,10 +399,47 @@ jobs:
           if [[ -e ".github/prompts" ]]; then
               echo "ERROR: Expected .github/prompts to be removed after unlink, but it still exists" >&2; exit 1
           fi
+          for path in .claude/skills .agents/skills .opencode/skills .kilo/skills .compound-gpid/kilo-compat-skills; do
+            [[ ! -e "$path" && ! -L "$path" ]] || { echo "ERROR: Managed path remains after unlink: $path" >&2; exit 1; }
+          done
           # 6. Assert .gitignore was cleaned up after unlink
           if [[ -f ".gitignore" ]] && grep -q '\.github/prompts/' ".gitignore"; then
               echo "ERROR: .gitignore CG entries not cleaned after unlink" >&2; exit 1
           fi
+
+          # Replacement failure must leave the original adapter symlink intact.
+          REPLACE_FAIL_DIR="$RUNNER_TEMP/e2e-replace-failure"
+          rm -rf "$REPLACE_FAIL_DIR"
+          mkdir -p "$REPLACE_FAIL_DIR"
+          cd "$REPLACE_FAIL_DIR"
+          CG_SKIP_UPDATE=1 bash "$GITHUB_WORKSPACE/scripts/link.sh" --platforms codex --yes
+          original_target="$(readlink .agents/skills)"
+          chflags -h uchg .agents/skills
+          set +e
+          CG_SKIP_UPDATE=1 bash "$GITHUB_WORKSPACE/scripts/link.sh" --platforms kilo --yes >"$RUNNER_TEMP/e2e-replace-failure.log" 2>&1
+          replace_status=$?
+          set -e
+          chflags -h nouchg .agents/skills
+          [[ "$replace_status" -ne 0 ]] || { echo "ERROR: Injected symlink replacement failure reported success" >&2; exit 1; }
+          [[ "$(readlink .agents/skills)" == "$original_target" ]] || { echo "ERROR: Original adapter symlink was not preserved" >&2; exit 1; }
+          bash "$GITHUB_WORKSPACE/scripts/unlink.sh" --yes
+
+          # Managed-copy helper failure must propagate as a nonzero link result.
+          HELPER_FAIL_DIR="$RUNNER_TEMP/e2e-helper-failure"
+          rm -rf "$HELPER_FAIL_DIR"
+          mkdir -p "$HELPER_FAIL_DIR"
+          cd "$HELPER_FAIL_DIR"
+          CG_SKIP_UPDATE=1 bash "$GITHUB_WORKSPACE/scripts/link.sh" --platforms codex --yes
+          helper_original="$(readlink .agents/skills)"
+          chmod 000 "$GITHUB_WORKSPACE/.agents/skills"
+          set +e
+          CG_SKIP_UPDATE=1 bash "$GITHUB_WORKSPACE/scripts/link.sh" --platforms kilo --yes >"$RUNNER_TEMP/e2e-helper-failure.log" 2>&1
+          helper_status=$?
+          set -e
+          chmod 755 "$GITHUB_WORKSPACE/.agents/skills"
+          [[ "$helper_status" -ne 0 ]] || { echo "ERROR: Managed-copy helper failure reported success" >&2; exit 1; }
+          [[ "$(readlink .agents/skills)" == "$helper_original" ]] || { echo "ERROR: Helper failure replaced the adapter symlink" >&2; exit 1; }
+          bash "$GITHUB_WORKSPACE/scripts/unlink.sh" --yes
           echo "E2E smoke test passed."
 
       - name: E2E smoke test teardown (macOS)
@@ -328,6 +448,7 @@ jobs:
         run: |
           # On macOS, rm -rf does not follow symlinks — safe to call directly.
           rm -rf "$RUNNER_TEMP/e2e-project" || true
+          rm -rf "$RUNNER_TEMP/e2e-replace-failure" "$RUNNER_TEMP/e2e-helper-failure" || true
 
       # -------------------------------------------------------------------
       # Upload the test result artifact for diagnostics.

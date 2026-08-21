@@ -62,7 +62,7 @@ SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 
 CANONICAL_PROMPTS_GLOB = ".github/prompts/*.prompt.md"
 CANONICAL_AGENTS_GLOB = ".github/agents/*.agent.md"
-CANONICAL_SKILLS_GLOB = ".github/skills/*/SKILL.md"
+CANONICAL_SKILLS_GLOB = ".github/skills/*-skill-*/SKILL.md"
 CANONICAL_INSTRUCTIONS_GLOB = ".github/instructions/*.instructions.md"
 MARKDOWN_LINK_PATTERN = re.compile(r"!?\[[^\]]*\]\(\s*<?([^\s)>]+)>?(?:\s+[^)]*)?\)")
 MARKDOWN_REFERENCE_PATTERN = re.compile(r"^\s*\[[^\]]+\]:\s*<?([^\s>]+)>?", re.MULTILINE)
@@ -653,21 +653,8 @@ def scan_canonical_assets(
                 raise ValueError(f"Canonical asset is a symlink: {path.relative_to(root)}")
             if not stat.S_ISREG(path.lstat().st_mode):
                 raise ValueError(f"Canonical asset is not a regular file: {path.relative_to(root)}")
-            content = path.read_text(encoding="utf-8")
-            fm = _get_parse_frontmatter()(content)
-            if content.lstrip("\ufeff\r\n").startswith("---"):
-                block = content.lstrip("\ufeff\r\n").split("---", 2)[1]
-                for line in block.splitlines():
-                    if line.startswith("description:"):
-                        raw_description = line.partition(":")[2].strip()
-                        if raw_description.startswith('"'):
-                            try:
-                                fm["description"] = json.loads(raw_description)
-                            except json.JSONDecodeError:
-                                pass
-                        elif raw_description.startswith("'") and raw_description.endswith("'"):
-                            fm["description"] = raw_description[1:-1].replace("''", "'")
-                        break
+            content = path.read_text(encoding="utf-8-sig")
+            fm = _get_parse_frontmatter()(content, source=path)
             rel = str(path.relative_to(root)).replace("\\", "/")
             if not _is_loadable(rel):
                 continue
@@ -679,31 +666,7 @@ def scan_canonical_assets(
                 "filename": path.name,
             })
 
-    owned_skill_names = _registry_owned_skill_dir_names(root)
-    if owned_skill_names is None:
-        print(
-            "[deprecation] module-registry.json not found; falling back to "
-            "cg-skill-* glob-based skill discovery",
-            file=sys.stderr,
-        )
-        assets["skills"] = [
-            skill for skill in assets["skills"]
-            if Path(skill["path"]).parent.name.startswith("cg-skill-")
-        ]
-        canonical_skill_roots = tuple(sorted(
-            (root / ".github/skills").glob("cg-skill-*")
-        ))
-    else:
-        assets["skills"] = [
-            skill for skill in assets["skills"]
-            if Path(skill["path"]).parent.name in owned_skill_names
-        ]
-        canonical_skill_roots = tuple(sorted(
-            root / ".github/skills" / name
-            for name in sorted(owned_skill_names)
-            if _is_loadable(f".github/skills/{name}/SKILL.md")
-        ))
-
+    canonical_skill_roots = tuple(sorted((root / ".github/skills").glob("*-skill-*")))
     scanned_skill_roots = {Path(skill["path"]).parent for skill in assets["skills"]}
     for skill_root in canonical_skill_roots:
         if skill_root.is_symlink():
@@ -973,7 +936,10 @@ def _format_frontmatter(
     Returns:
         Formatted file content with new frontmatter + stripped body.
     """
-    desc = _yaml_scalar(fm.get("description", ""))
+    # Descriptions are always JSON/YAML double-quoted and ASCII-escaped. This
+    # prevents colon-space corruption and keeps generated frontmatter byte-safe
+    # across Windows, macOS, cloud sync, and strict YAML implementations.
+    desc = json.dumps(str(fm.get("description", "")), ensure_ascii=True)
     field_lines = ""
     for key, value in extra_fields.items():
         if value is not None:
@@ -1526,7 +1492,28 @@ def _emit_root_adapter(target: dict[str, Any]) -> str:
     """Emit a minimal root adapter file for the platform."""
     name = target["name"]
     paths = target["outputPaths"]
+<<<<<<< HEAD
     return f"# Compound GPID — {name} Adapter\n\nThis file is generated from the target mapping.\nIt maps Compound GPID `/cg-*` commands to native {name} paths.\n\n## Command Dispatch\n\n`/cg-<name> [args...]` -> `{paths['commands']}/cg-<name>.md`\n\n## Skills\n\nLoad skill files from `{paths['skills']}/*/SKILL.md`.\n\n## Agents\n\nAgent specs are under `{paths['agents']}/`.\n\n## Instructions And Contracts\n\nLanguage instructions are under `{paths['instructions']}/`; shared contracts are under `{paths['shared']}/`.\n"
+=======
+    adapter = f"# Compound GPID — {name} Adapter\n\nThis file is generated from the target mapping.\nIt maps Compound GPID `/cg-*` commands to native {name} paths.\n\n## Command Dispatch\n\n`/cg-<name> [args...]` -> `{paths['commands']}/cg-<name>.md`\n\n## Skills\n\nLoad skill files from `{paths['skills']}/*-skill-*/SKILL.md`.\n\n## Agents\n\nAgent specs are under `{paths['agents']}/`.\n\n## Instructions And Contracts\n\nLanguage instructions are under `{paths['instructions']}/`; shared contracts are under `{paths['shared']}/`.\n"
+    if target["id"] == "kilo":
+        adapter += (
+            "\n## Cross-Adapter Skill Discovery\n\n"
+            "Kilo auto-discovers `.agents/skills` and `.claude/skills` in addition to "
+            "`skills.paths`. As of the 2026-08-20 Kilo schema, project config has no "
+            "supported `only`, `exclude`, or auto-discovery switch; the process-level "
+            "`KILO_DISABLE_EXTERNAL_SKILLS` flag is not portable to VS Code/Positron "
+            "project installs. When Kilo and another adapter are linked together, "
+            "`cg-link` therefore keeps the adapter path as a junction/symlink but "
+            "points it at an adapter-specific managed mirror under "
+            "`.compound-gpid/kilo-compat-skills/`. This keeps every Kilo-reachable "
+            "`SKILL.md` inside the project trust boundary while preserving each "
+            "adapter's generated content. This workaround complements upstream Kilo "
+            "#12391/PR #12846 and remains necessary for Kilo versions that reject "
+            "auto-discovered compatibility skills resolving outside the project.\n"
+        )
+    return adapter
+>>>>>>> 505981d (fix(kilo): localize cross-adapter skill discovery for Kilo trust boundary)
 
 
 def _emit_config(target: dict[str, Any]) -> str:
@@ -1549,6 +1536,12 @@ def _emit_config(target: dict[str, Any]) -> str:
             "instructions": [output_paths.get("rootAdapter", ".kilo/AGENTS.md")],
             "skills": {
                 "paths": [output_paths.get("skills", ".kilo/skills")],
+            },
+            # Mirrors are scanned through their adapter links. Ignore direct
+            # watcher churn under the backing directory; this is not the trust
+            # boundary fix and does not disable compatibility auto-discovery.
+            "watcher": {
+                "ignore": [".compound-gpid/kilo-compat-skills/**"],
             },
         }
         return json.dumps(config, indent=2, ensure_ascii=False) + "\n"

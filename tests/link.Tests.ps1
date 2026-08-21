@@ -381,6 +381,70 @@ Describe "link.ps1 - Kilo copy-directory strategy" {
         Test-Path -LiteralPath $markerPath | Should -Be $true
         (Get-Content -LiteralPath $markerPath -Raw -Encoding UTF8 | ConvertFrom-Json).schemaVersion | Should -Be 1
     }
+
+    It "keeps compatibility adapters linked while localizing every Kilo-reachable skill" {
+        $project = Join-Path $TestDrive "codex-kilo-skill-boundary"
+        New-Item -ItemType Directory -Path $project -Force | Out-Null
+        $oldSkipUpdate = $env:CG_SKIP_UPDATE
+        Push-Location $project
+        try {
+            $env:CG_SKIP_UPDATE = "1"
+            & (Join-Path $repoRoot "scripts\link.ps1") -RawArgs @("--platforms", "claude-code,codex,opencode,kilo", "--yes")
+
+            $kiloSkills = Join-Path $project ".kilo\skills"
+            (Get-Item -LiteralPath $kiloSkills -Force).LinkType | Should -BeNullOrEmpty
+            Test-Path -LiteralPath (Join-Path $kiloSkills ".compound-gpid-managed-copy.json") | Should -Be $true
+
+            $projectPrefix = [System.IO.Path]::GetFullPath($project).TrimEnd('\') + '\'
+            $reachable = @(Get-ChildItem -LiteralPath $kiloSkills -Filter SKILL.md -File -Recurse)
+            foreach ($adapter in @(
+                [pscustomobject]@{ Root = ".claude\skills"; Id = "claude-code" },
+                [pscustomobject]@{ Root = ".agents\skills"; Id = "codex" },
+                [pscustomobject]@{ Root = ".opencode\skills"; Id = "opencode" }
+            )) {
+                $skills = Join-Path $project $adapter.Root
+                $mirror = Join-Path $project ".compound-gpid\kilo-compat-skills\$($adapter.Id)"
+                (Get-Item -LiteralPath $skills -Force).LinkType | Should -Be "Junction"
+                [string]((Get-Item -LiteralPath $skills -Force).Target -join '') | Should -Be $mirror
+                Test-Path -LiteralPath (Join-Path $mirror ".compound-gpid-managed-copy.json") | Should -Be $true
+                $reachable += @(Get-ChildItem -LiteralPath $skills -Filter SKILL.md -File -Recurse)
+            }
+            $reachable.Count | Should -BeGreaterThan 0
+            foreach ($skill in $reachable) {
+                $resolved = (Resolve-Path -LiteralPath $skill.FullName).Path
+                $resolved.StartsWith($projectPrefix, [System.StringComparison]::OrdinalIgnoreCase) |
+                    Should -Be $true -Because "Kilo-reachable skill resolved outside project: $($skill.FullName) -> $resolved"
+            }
+        } finally {
+            try { & (Join-Path $repoRoot "scripts\unlink.ps1") -RawArgs @("--yes") } catch { }
+            Pop-Location
+            $env:CG_SKIP_UPDATE = $oldSkipUpdate
+        }
+    }
+
+    It "refuses a compatibility mirror beneath a project reparse point" {
+        $project = Join-Path $TestDrive "kilo-external-mirror-project"
+        $external = Join-Path $TestDrive "kilo-external-mirror-target"
+        $compound = Join-Path $project ".compound-gpid"
+        New-Item -ItemType Directory -Path $project, $external -Force | Out-Null
+        New-Item -ItemType Junction -Path $compound -Value $external | Out-Null
+        $oldSkipUpdate = $env:CG_SKIP_UPDATE
+        Push-Location $project
+        try {
+            $env:CG_SKIP_UPDATE = "1"
+            { & (Join-Path $repoRoot "scripts\link.ps1") -RawArgs @("--platforms", "codex,kilo", "--yes") } |
+                Should -Throw
+            Test-Path -LiteralPath (Join-Path $external "kilo-compat-skills") | Should -Be $false
+        } finally {
+            Pop-Location
+            $item = Get-Item -LiteralPath $compound -Force -ErrorAction SilentlyContinue
+            if ($item -and $item.LinkType -eq "Junction") { [System.IO.Directory]::Delete($item.FullName) }
+            Push-Location $project
+            try { & (Join-Path $repoRoot "scripts\unlink.ps1") -RawArgs @("--yes") } catch { }
+            Pop-Location
+            $env:CG_SKIP_UPDATE = $oldSkipUpdate
+        }
+    }
 }
 
 Describe "link.ps1 - copilot-instructions.md management" {

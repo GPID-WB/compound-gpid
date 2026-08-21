@@ -7,7 +7,10 @@ from typing import Any, Optional
 
 from brain.utils import parse_frontmatter
 
-_FRONTMATTER_RE = re.compile(r"^\ufeff?---\s*\n(.*?)^---\s*\n?", re.DOTALL | re.MULTILINE)
+_FRONTMATTER_RE = re.compile(
+    r"^\ufeff?---[ \t]*(?:\r?\n)(.*?)^---[ \t]*\r?$(?:\r?\n)?",
+    re.DOTALL | re.MULTILINE,
+)
 
 _ASCII_KEY_RE = re.compile(r"^[A-Za-z][A-Za-z0-9_-]*$")
 _ASCII_IDENTIFIER_RE = re.compile(r"^[a-z][a-z0-9-]*$")
@@ -34,7 +37,9 @@ def parse_frontmatter_with_body(content: str) -> tuple[dict[str, Any], str]:
     match = _FRONTMATTER_RE.match(content)
     if not match:
         return {}, content
-    return parse_frontmatter(content), content[match.end():]
+    # Parse only the matched frontmatter document. Passing the entire markdown
+    # file lets body-level ``---`` dividers influence permissive YAML parsers.
+    return parse_frontmatter(match.group(0)), content[match.end():]
 
 
 @dataclass

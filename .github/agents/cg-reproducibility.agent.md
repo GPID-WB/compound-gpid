@@ -1,4 +1,4 @@
-﻿---
+---
 description: "Reviews reproducibility: environment lockfiles, relative paths, random seeds, deterministic outputs. Trilingual R/Python/Stata."
 tools: ['read', 'search']
 user-invocable: false

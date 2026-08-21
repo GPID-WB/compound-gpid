@@ -27,6 +27,7 @@ $TargetMappingPath = Join-Path $CompoundGpidDir ".github/shared/target-mapping.j
 $ManifestPath = Join-Path $ProjectRoot ".compound-gpid/managed-files.json"
 $CopilotInstructionsMarker = "<!-- compound-gpid:managed -->"
 $CopiedDirectoryMarkerName = ".compound-gpid-managed-copy.json"
+$KiloCompatMirrorRootRel = ".compound-gpid/kilo-compat-skills"
 
 . (Join-Path $PSScriptRoot "helpers.ps1")
 
@@ -130,6 +131,49 @@ function Remove-CgJunction {
     [System.IO.Directory]::Delete($item.FullName)
 }
 
+function Set-CgJunctionTargetSafely {
+    param(
+        [string]$Path,
+        [string]$Target
+    )
+
+    $parent = Split-Path $Path -Parent
+    $leaf = Split-Path $Path -Leaf
+    $operationId = [System.Guid]::NewGuid().ToString('N')
+    $temporary = Join-Path $parent ".$leaf.$operationId.new"
+    $backup = Join-Path $parent ".$leaf.$operationId.previous"
+    $movedOriginal = $false
+    try {
+        New-Item -ItemType Junction -Path $temporary -Value $Target | Out-Null
+        $temporaryItem = Get-Item -LiteralPath $temporary -Force
+        if (-not (Test-CgOwnedJunction -Item $temporaryItem -ExpectedTarget $Target)) {
+            throw "Temporary junction did not resolve to the expected target: $temporary"
+        }
+
+        [System.IO.Directory]::Move($Path, $backup)
+        $movedOriginal = $true
+        try {
+            [System.IO.Directory]::Move($temporary, $Path)
+        } catch {
+            if (-not (Test-Path -LiteralPath $Path) -and (Test-Path -LiteralPath $backup)) {
+                [System.IO.Directory]::Move($backup, $Path)
+                $movedOriginal = $false
+            }
+            throw
+        }
+        [System.IO.Directory]::Delete($backup)
+        $movedOriginal = $false
+    } finally {
+        $temporaryItem = Get-Item -LiteralPath $temporary -Force -ErrorAction SilentlyContinue
+        if ($temporaryItem -and $temporaryItem.LinkType -eq "Junction") {
+            [System.IO.Directory]::Delete($temporaryItem.FullName)
+        }
+        if ($movedOriginal -and -not (Test-Path -LiteralPath $Path) -and (Test-Path -LiteralPath $backup)) {
+            [System.IO.Directory]::Move($backup, $Path)
+        }
+    }
+}
+
 function Resolve-CgContainedCopyPath {
     param(
         [string]$Base,
@@ -185,6 +229,28 @@ function Test-CgCopyPathHasReparsePoint {
         }
     }
     return $false
+}
+
+function Assert-CgManagedCopyTargetSafe {
+    param([string]$Target)
+
+    $projectFull = Get-CgNormalizedFullPath $ProjectRoot
+    $targetFull = Get-CgNormalizedFullPath $Target
+    $prefix = $projectFull + [System.IO.Path]::DirectorySeparatorChar
+    if (-not $targetFull.StartsWith($prefix, [System.StringComparison]::OrdinalIgnoreCase)) {
+        throw "Managed-copy target escapes the project root: $Target"
+    }
+    $relative = $targetFull.Substring($projectFull.Length).TrimStart([char[]]@('\', '/'))
+    $current = $projectFull
+    foreach ($part in @($relative -split '[\\/]')) {
+        if (-not $part) { continue }
+        $current = Join-Path $current $part
+        if (-not (Test-Path -LiteralPath $current)) { continue }
+        $item = Get-Item -LiteralPath $current -Force
+        if (($item.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) {
+            throw "Managed-copy target crosses a reparse point: $current"
+        }
+    }
 }
 
 function Read-CgCopiedDirectoryManifest {
@@ -320,10 +386,10 @@ function Sync-CgCopiedDirectory {
     # previous manifest but absent from the source are removed STALE only when
     # their current bytes still match the previously recorded checksum.
     #
-    # copy-directory semantics: Windows preserves user edits and removes stale
-    # managed files via this checksum manifest; the POSIX link.sh uses a
-    # wholesale overwrite (see link.sh copy-directory branch). This divergence
-    # is intentional and asserted in tests/parity.Tests.ps1.
+    # copy-directory semantics: both Windows and POSIX preserve user edits and
+    # remove only checksum-matching stale managed files. Implementations differ
+    # by shell, but the manifest contract is shared and pinned by parity tests.
+    Assert-CgManagedCopyTargetSafe -Target $Target
     if (-not (Test-Path -LiteralPath $Target)) {
         New-Item -ItemType Directory -Path $Target -Force | Out-Null
     }
@@ -449,6 +515,20 @@ function Install-CgDirectoryUnit {
 
     if ($existing) {
         if ($existing.LinkType -eq "Junction") {
+            $compatPlatform = switch ($TargetRel) {
+                ".claude/skills" { "claude-code" }
+                ".agents/skills" { "codex" }
+                ".opencode/skills" { "opencode" }
+                default { $null }
+            }
+            if ($compatPlatform) {
+                $mirrorRel = Get-CgKiloCompatSkillMirrorRel -PlatformId $compatPlatform
+                $mirrorPath = Join-Path $ProjectRoot $mirrorRel
+                if (Test-CgOwnedJunction -Item $existing -ExpectedTarget $mirrorPath) {
+                    Write-Host "  $TargetRel - already linked through Kilo compatibility mirror" -ForegroundColor DarkGray
+                    return $true
+                }
+            }
             if (Test-CgOwnedJunction -Item $existing -ExpectedTarget $source) {
                 if ($Strategy -eq "copy-directory") {
                     Write-Host "  $TargetRel - migrating legacy junction to copy-directory" -ForegroundColor Yellow
@@ -579,6 +659,55 @@ function Install-CgFileUnit {
     return $true
 }
 
+function Get-CgKiloCompatSkillMirrorRel {
+    param([string]$PlatformId)
+    return "$KiloCompatMirrorRootRel/$PlatformId"
+}
+
+function Protect-CgKiloCompatibilitySkillLinks {
+    param($Mapping)
+
+    $kiloSkills = Join-Path $ProjectRoot ".kilo/skills"
+    if (-not (Read-CgCopiedDirectoryManifest -Target $kiloSkills -SourceRel ".kilo/skills")) {
+        return @()
+    }
+
+    $protected = New-Object System.Collections.ArrayList
+    foreach ($platformId in @("claude-code", "codex", "opencode")) {
+        $target = @($Mapping.targets | Where-Object { $_.id -eq $platformId })[0]
+        if (-not $target) { continue }
+        $unit = @($target.installUnits | Where-Object {
+            [string]$_.type -eq "directory" -and
+            (ConvertTo-CgSlashPath ([string]$_.target)) -eq [string]$target.outputPaths.skills
+        })[0]
+        if (-not $unit) { continue }
+
+        $sourceRel = ConvertTo-CgSlashPath ([string]$unit.source)
+        $targetRel = ConvertTo-CgSlashPath ([string]$unit.target)
+        $sourcePath = Join-Path $CompoundGpidDir $sourceRel
+        $targetPath = Join-Path $ProjectRoot $targetRel
+        $mirrorRel = Get-CgKiloCompatSkillMirrorRel -PlatformId $platformId
+        $mirrorPath = Join-Path $ProjectRoot $mirrorRel
+        $item = Get-Item -LiteralPath $targetPath -Force -ErrorAction SilentlyContinue
+        $pointsToSource = Test-CgOwnedJunction -Item $item -ExpectedTarget $sourcePath
+        $pointsToMirror = Test-CgOwnedJunction -Item $item -ExpectedTarget $mirrorPath
+        if (-not $pointsToSource -and -not $pointsToMirror) { continue }
+
+        $previous = Read-CgCopiedDirectoryManifest -Target $mirrorPath -SourceRel $sourceRel
+        Sync-CgCopiedDirectory -Source $sourcePath -SourceRel $sourceRel -Target $mirrorPath -TargetRel $mirrorRel -PreviousManifest $previous
+
+        if ($pointsToSource) {
+            Set-CgJunctionTargetSafely -Path $targetPath -Target $mirrorPath
+            Write-Host "  $targetRel - localized for Kilo compatibility discovery" -ForegroundColor DarkGray
+        } else {
+            Write-Host "  $targetRel - Kilo compatibility mirror updated" -ForegroundColor DarkGray
+        }
+        [void]$protected.Add($targetRel)
+        [void]$protected.Add($mirrorRel)
+    }
+    return @($protected)
+}
+
 function Update-CgGitignoreBlock {
     param([string[]]$Entries)
     $gitignorePath = Join-Path $ProjectRoot ".gitignore"
@@ -635,6 +764,21 @@ function Get-CgInstalledGitignoreEntries {
             } elseif ($Manifest.files[$targetRel] -and (Test-Path $targetPath)) {
                 [void]$entries.Add($targetRel)
             }
+        }
+    }
+
+    foreach ($platformId in @("claude-code", "codex", "opencode")) {
+        $target = @($Mapping.targets | Where-Object { $_.id -eq $platformId })[0]
+        if (-not $target) { continue }
+        $targetRel = ConvertTo-CgSlashPath ([string]$target.outputPaths.skills)
+        $targetPath = Join-Path $ProjectRoot $targetRel
+        $mirrorRel = Get-CgKiloCompatSkillMirrorRel -PlatformId $platformId
+        $mirrorPath = Join-Path $ProjectRoot $mirrorRel
+        $item = Get-Item -LiteralPath $targetPath -Force -ErrorAction SilentlyContinue
+        if ((Test-CgOwnedJunction -Item $item -ExpectedTarget $mirrorPath) -and
+            (Read-CgCopiedDirectoryManifest -Target $mirrorPath -SourceRel $targetRel)) {
+            [void]$entries.Add($targetRel)
+            [void]$entries.Add($mirrorRel)
         }
     }
 
@@ -790,6 +934,10 @@ foreach ($target in $targets) {
 
         if ($installed) { [void]$installedEntries.Add($targetRel) }
     }
+}
+
+foreach ($entry in @(Protect-CgKiloCompatibilitySkillLinks -Mapping $mapping)) {
+    [void]$installedEntries.Add($entry)
 }
 
 if ($manifest.files.Count -gt 0) {

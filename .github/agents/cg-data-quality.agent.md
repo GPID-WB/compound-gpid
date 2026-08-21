@@ -1,4 +1,4 @@
-﻿---
+---
 description: "Reviews data input validation, type checking, missing value handling, and schema consistency. Trilingual R/Python/Stata."
 tools: ['read', 'search']
 user-invocable: false

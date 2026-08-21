@@ -1,4 +1,4 @@
-﻿---
+---
 description: "Reviews version control practices: commit hygiene, branching, .gitignore, sensitive data exposure. Trilingual R/Python/Stata."
 tools: ['read', 'search']
 user-invocable: false

@@ -57,7 +57,7 @@ function Get-UnlinkShUnitKeysFromSource {
     param([string]$Content)
 
     $keys = @()
-    $matches = [regex]::Matches($Content, "'([^|'`r`n]+)\|([^|'`r`n]+)'")
+    $matches = [regex]::Matches($Content, "'([^|'`r`n]+)\|([^|'`r`n]+)(?:\|[^'`r`n]*)?'")
     foreach ($match in $matches) {
         $keys += "$($match.Groups[1].Value)|$($match.Groups[2].Value)"
     }
@@ -133,6 +133,36 @@ Describe "link.ps1 <-> link.sh parity" {
         $linkPs1 | Should -Match 'checksum'
         $linkSh  | Should -Match 'sha256'
     }
+
+    It "both scripts localize compatibility skill links when Kilo is installed" {
+        foreach ($content in @($linkPs1, $linkSh)) {
+            $content | Should -Match 'kilo-compat-skills'
+            $content | Should -Match 'claude-code'
+            $content | Should -Match 'codex'
+            $content | Should -Match 'opencode'
+            $content | Should -Match 'localized for Kilo compatibility discovery'
+        }
+    }
+
+    It "both scripts enforce exact ownership and project-contained copy targets" {
+        $linkPs1 | Should -Match 'Assert-CgManagedCopyTargetSafe'
+        $linkSh | Should -Match 'os\.path\.commonpath'
+        $linkSh | Should -Match 'same_realpath'
+        $linkSh | Should -Not -Match '\[\[\s+"\$existing_target"\s+==\s+\*compound-gpid\*\s+\]\]'
+    }
+
+    It "both scripts stage compatibility links before replacing working links" {
+        $linkPs1 | Should -Match 'Set-CgJunctionTargetSafely'
+        $linkPs1 | Should -Match 'Temporary junction did not resolve'
+        $linkSh | Should -Match 'replace_symlink_safely'
+        $linkSh | Should -Match 'os\.replace\(sys\.argv\[1\], sys\.argv\[2\]\)'
+    }
+
+    It "POSIX managed-copy failures are explicitly propagated" {
+        $linkSh | Should -Match 'managed-copy synchronization failed'
+        $linkSh | Should -Match 'copy-directory installation failed'
+        $linkSh | Should -Match 'migrated legacy managed file'
+    }
 }
 
 # ---------------------------------------------------------------------------
@@ -188,6 +218,17 @@ Describe "link.ps1 <-> unlink.ps1 parity (PowerShell pair)" {
         $linkPs1 | Should -Match 'target\.installUnits'
         $unlinkPs1 | Should -Match 'target\.installUnits'
     }
+
+    It "both PowerShell scripts manage Kilo compatibility mirrors" {
+        $linkPs1 | Should -Match 'kilo-compat-skills'
+        $unlinkPs1 | Should -Match 'kilo-compat-skills'
+    }
+
+    It "unlink requires exact junction targets and rejects reparse traversal" {
+        $unlinkPs1 | Should -Match 'ExpectedTarget'
+        $unlinkPs1 | Should -Match 'Test-CgManagedCopyPathSafe'
+        $unlinkPs1 | Should -Not -Match '\*compound-gpid\*'
+    }
 }
 
 # ---------------------------------------------------------------------------
@@ -216,22 +257,31 @@ Describe "link.sh <-> unlink.sh parity (bash pair)" {
         $missingFromLink | Should -BeNullOrEmpty
         $missingFromUnlink | Should -BeNullOrEmpty
     }
+
+    It "both bash scripts manage Kilo compatibility mirrors" {
+        $linkSh | Should -Match 'kilo-compat-skills'
+        $unlinkSh | Should -Match 'kilo-compat-skills'
+    }
+
+    It "unlink.sh requires exact realpaths and project-contained targets" {
+        $unlinkSh | Should -Match 'same_realpath'
+        $unlinkSh | Should -Match 'os\.path\.commonpath'
+        $unlinkSh | Should -Not -Match '\[\[\s+"\$link_target"\s+==\s+\*compound-gpid\*\s+\]\]'
+    }
 }
 
 # ---------------------------------------------------------------------------
-# link.ps1 <-> link.sh copy-directory semantics divergence note
+# link.ps1 <-> link.sh copy-directory semantics parity note
 # ---------------------------------------------------------------------------
 Describe "link copy-directory semantics parity note" {
     $linkPs1 = Get-Content (Join-Path $repoRoot "scripts/link.ps1") -Raw -Encoding UTF8
     $linkSh  = Get-Content (Join-Path $repoRoot "scripts/link.sh")  -Raw -Encoding UTF8
 
-    It "both scripts document the copy-directory semantic divergence" {
-        # Both platforms now use the shared checksum-aware Kilo worker. Keep the
-        # Windows helper's ownership wording and require the POSIX script to
-        # reference the same worker rather than recursive cp.
-        $linkPs1 | Should -Match 'copy-directory semantics: Windows preserves user edits'
-        $linkSh  | Should -Match 'cg_kilo_copy\.py'
-        $linkSh  | Should -Not -Match 'cp -R "\$source_path/\.'
+    It "both scripts preserve user edits through checksum-managed copies" {
+        $linkPs1 | Should -Match 'both Windows and POSIX preserve user edits'
+        $linkSh  | Should -Match 'preserve user edits, remove only unchanged stale managed files'
+        $linkPs1 | Should -Match '\.compound-gpid-managed-copy\.json'
+        $linkSh  | Should -Match '\.compound-gpid-managed-copy\.json'
     }
 }
 

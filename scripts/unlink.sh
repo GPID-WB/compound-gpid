@@ -18,6 +18,7 @@ PROJECT_ROOT="$(pwd)"
 MANIFEST_PATH="$PROJECT_ROOT/.compound-gpid/managed-files.json"
 GITIGNORE_PATH="$PROJECT_ROOT/.gitignore"
 COPILOT_INSTRUCTIONS_MARKER="<!-- compound-gpid:managed -->"
+KILO_COMPAT_MIRROR_ROOT_REL=".compound-gpid/kilo-compat-skills"
 
 print_cyan()   { printf '\033[0;36m%s\033[0m\n' "$1"; }
 print_green()  { printf '\033[0;32m%s\033[0m\n' "$1"; }
@@ -42,26 +43,52 @@ if [ -z "$PYTHON_CMD" ]; then
     exit 1
 fi
 
+same_realpath() {
+    "$PYTHON_CMD" - "$1" "$2" <<'PYEOF'
+import os
+import sys
+sys.exit(0 if os.path.realpath(sys.argv[1]) == os.path.realpath(sys.argv[2]) else 1)
+PYEOF
+}
+
+compat_platform_for_target() {
+    case "$1" in
+        .claude/skills) printf 'claude-code\n' ;;
+        .agents/skills) printf 'codex\n' ;;
+        .opencode/skills) printf 'opencode\n' ;;
+        *) return 1 ;;
+    esac
+}
+
 all_unit_targets() {
     printf '%s\n' \
-        '.github/prompts|directory' '.github/skills|directory' '.github/agents|directory' '.github/instructions|directory' '.github/shared|directory' '.github/copilot-instructions.md|file' \
-        '.claude/commands|directory' '.claude/skills|directory' '.claude/agents|directory' '.claude/instructions|directory' '.claude/shared|directory' '.claude/CLAUDE.md|file' \
-        '.agents/commands|directory' '.agents/skills|directory' '.agents/subagents|directory' '.agents/instructions|directory' '.agents/shared|directory' '.agents/AGENTS.md|file' \
-        '.opencode/commands|directory' '.opencode/skills|directory' '.opencode/agents|directory' '.opencode/instructions|directory' '.opencode/shared|directory' '.opencode/AGENTS.md|file' '.opencode/opencode.json|file' \
-        '.kilo/commands|directory' '.kilo/skills|directory' '.kilo/agents|directory' '.kilo/instructions|directory' '.kilo/shared|directory' '.kilo/AGENTS.md|file' '.kilo/kilo.json|file'
+        '.github/prompts|directory|.github/prompts|copilot' '.github/skills|directory|.github/skills|copilot' '.github/agents|directory|.github/agents|copilot' '.github/instructions|directory|.github/instructions|copilot' '.github/shared|directory|.github/shared|copilot' '.github/copilot-instructions.md|file||copilot' \
+        '.claude/commands|directory|.claude/commands|claude-code' '.claude/skills|directory|.claude/skills|claude-code' '.claude/agents|directory|.claude/agents|claude-code' '.claude/instructions|directory|.claude/instructions|claude-code' '.claude/shared|directory|.claude/shared|claude-code' '.claude/CLAUDE.md|file||claude-code' \
+        '.agents/commands|directory|.agents/commands|codex' '.agents/skills|directory|.agents/skills|codex' '.agents/subagents|directory|.agents/subagents|codex' '.agents/instructions|directory|.agents/instructions|codex' '.agents/shared|directory|.agents/shared|codex' '.agents/AGENTS.md|file||codex' \
+        '.opencode/commands|directory|.opencode/commands|opencode' '.opencode/skills|directory|.opencode/skills|opencode' '.opencode/agents|directory|.opencode/agents|opencode' '.opencode/instructions|directory|.opencode/instructions|opencode' '.opencode/shared|directory|.opencode/shared|opencode' '.opencode/AGENTS.md|file||opencode' '.opencode/opencode.json|file||opencode' \
+        '.kilo/commands|directory|.kilo/commands|kilo' '.kilo/skills|directory|.kilo/skills|kilo' '.kilo/agents|directory|.kilo/agents|kilo' '.kilo/instructions|directory|.kilo/instructions|kilo' '.kilo/shared|directory|.kilo/shared|kilo' '.kilo/AGENTS.md|file||kilo' '.kilo/kilo.json|file||kilo'
 }
 
 remove_copy_directory_unit() {
     local target_rel="$1" target_path="$PROJECT_ROOT/$1"
-    "$PYTHON_CMD" - "$target_path" "$target_rel" <<'PYEOF'
+    "$PYTHON_CMD" - "$target_path" "$target_rel" "$PROJECT_ROOT" <<'PYEOF'
 import hashlib
 import json
 import os
 import sys
 
-target, target_rel = sys.argv[1:3]
+target, target_rel, project = sys.argv[1:4]
+project = os.path.abspath(project)
+target = os.path.abspath(target)
+if os.path.commonpath((project, target)) != project or target == project:
+    sys.exit(1)
+cursor = project
+for part in os.path.relpath(target, project).split(os.sep):
+    cursor = os.path.join(cursor, part)
+    if os.path.lexists(cursor) and os.path.islink(cursor):
+        sys.exit(1)
 marker = os.path.join(target, ".compound-gpid-managed-copy.json")
-if not os.path.isfile(marker):
+if not os.path.isfile(marker) or os.path.islink(marker):
     sys.exit(1)
 try:
     with open(marker, "r", encoding="utf-8") as handle:
@@ -90,6 +117,16 @@ for rel, recorded in data["files"].items():
     real = os.path.realpath(file_path)
     if real != target_real and not real.startswith(target_real + os.sep):
         print("WARN %s/%s has an unsafe managed-copy path; leaving it in place" % (target_rel, rel))
+        continue
+    cursor = target
+    unsafe = False
+    for part in rel.split("/"):
+        cursor = os.path.join(cursor, part)
+        if os.path.lexists(cursor) and os.path.islink(cursor):
+            unsafe = True
+            break
+    if unsafe:
+        print("WARN %s/%s crosses a symlink; leaving it in place" % (target_rel, rel))
         continue
     if os.path.isfile(real) and sha256(real) == recorded:
         os.unlink(real)
@@ -121,12 +158,18 @@ PYEOF
 }
 
 remove_directory_unit() {
-    local target_rel="$1" target_path link_target
+    local target_rel="$1" source_rel="$2" platform="$3" target_path link_target mirror_platform mirror_path owned
     target_path="$PROJECT_ROOT/$target_rel"
     if [ ! -e "$target_path" ] && [ ! -L "$target_path" ]; then return 1; fi
     if [ -L "$target_path" ]; then
         link_target="$(readlink "$target_path")"
-        if [[ "$link_target" == *compound-gpid* ]]; then
+        owned=0
+        if same_realpath "$target_path" "$COMPOUND_GPID_DIR/$source_rel"; then owned=1; fi
+        mirror_platform="$(compat_platform_for_target "$target_rel" || true)"
+        mirror_path=""
+        [ -n "$mirror_platform" ] && mirror_path="$PROJECT_ROOT/$KILO_COMPAT_MIRROR_ROOT_REL/$mirror_platform"
+        if [ -n "$mirror_path" ] && same_realpath "$target_path" "$mirror_path"; then owned=1; fi
+        if [ "$owned" -eq 1 ]; then
             rm -f "$target_path"
             print_gray "$target_rel - symlink removed"
             return 0
@@ -137,7 +180,10 @@ remove_directory_unit() {
     if [ -d "$target_path" ]; then
         # Real directory: remove only if it is a managed copy-directory
         # (marker present); otherwise treat as user-owned and skip.
-        if remove_copy_directory_unit "$target_rel"; then return 0; fi
+        if remove_copy_directory_unit "$target_rel"; then
+            [ -z "$(ls -A "$target_path" 2>/dev/null)" ] && rmdir "$target_path"
+            return 0
+        fi
     fi
     print_yellow "  $target_rel - user-owned path, skipping"
     return 1
@@ -230,7 +276,7 @@ PYEOF
 
 remove_empty_root() {
     local root="$1" path="$PROJECT_ROOT/$1"
-    if [ -d "$path" ] && [ -z "$(ls -A "$path" 2>/dev/null)" ]; then
+    if [ -d "$path" ] && [ ! -L "$path" ] && [ -z "$(ls -A "$path" 2>/dev/null)" ]; then
         rmdir "$path"
         print_gray "$root/ - empty, removed"
     fi
@@ -259,7 +305,7 @@ for root in .github .claude .agents .opencode .kilo; do
     path="$PROJECT_ROOT/$root"
     if [ -L "$path" ]; then
         link_target="$(readlink "$path")"
-        if [[ "$link_target" == *compound-gpid* ]]; then
+        if same_realpath "$path" "$COMPOUND_GPID_DIR/$root"; then
             rm -f "$path"
             print_gray "$root/ - legacy whole-root symlink removed"
             REMOVED_ANY=true
@@ -267,9 +313,9 @@ for root in .github .claude .agents .opencode .kilo; do
     fi
 done
 
-while IFS='|' read -r target_rel unit_type; do
+while IFS='|' read -r target_rel unit_type source_rel platform; do
     if [ "$unit_type" = "directory" ]; then
-        if remove_directory_unit "$target_rel"; then REMOVED_ANY=true; fi
+        if remove_directory_unit "$target_rel" "$source_rel" "$platform"; then REMOVED_ANY=true; fi
     else
         status="$(remove_file_unit "$target_rel" || true)"
         case "$status" in
@@ -278,6 +324,19 @@ while IFS='|' read -r target_rel unit_type; do
         esac
     fi
 done < <(all_unit_targets)
+
+MIRROR_REMOVED=false
+for platform in claude-code codex opencode; do
+    mirror_rel="$KILO_COMPAT_MIRROR_ROOT_REL/$platform"
+    mirror_path="$PROJECT_ROOT/$mirror_rel"
+    if remove_copy_directory_unit "$mirror_rel"; then
+        REMOVED_ANY=true
+        MIRROR_REMOVED=true
+        if [ -d "$mirror_path" ] && [ ! -L "$mirror_path" ] && [ -z "$(ls -A "$mirror_path" 2>/dev/null)" ]; then rmdir "$mirror_path"; fi
+    fi
+done
+mirror_root="$PROJECT_ROOT/$KILO_COMPAT_MIRROR_ROOT_REL"
+if [ "$MIRROR_REMOVED" = true ] && [ -d "$mirror_root" ] && [ ! -L "$mirror_root" ] && [ -z "$(ls -A "$mirror_root" 2>/dev/null)" ]; then rmdir "$mirror_root"; fi
 
 for root in .github .claude .agents .opencode .kilo .compound-gpid; do remove_empty_root "$root"; done
 remove_gitignore_block
