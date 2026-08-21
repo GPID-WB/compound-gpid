@@ -9,7 +9,7 @@ It maps Compound GPID `/cg-*` commands to native Codex paths.
 
 ## Skills
 
-Load skill files from `.agents/skills/*/SKILL.md`.
+Load skill files from `.agents/skills/*-skill-*/SKILL.md`.
 
 ## Agents
 

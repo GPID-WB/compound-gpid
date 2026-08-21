@@ -1,5 +1,5 @@
 ---
-description: Discover skills and capabilities from the manifest-backed catalog.
+description: "Discover skills and capabilities from the manifest-backed catalog."
 ---
 
 # Find Skill

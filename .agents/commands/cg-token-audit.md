@@ -1,5 +1,5 @@
 ---
-description: Analyze Compound GPID token/context usage and suggest cost-efficient workflow choices.
+description: "Analyze Compound GPID token/context usage and suggest cost-efficient workflow choices."
 ---
 
 # Token Audit

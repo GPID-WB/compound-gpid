@@ -7,7 +7,7 @@
       "path": ".agents/AGENTS.md",
       "source": "adapter",
       "kind": "root-adapter",
-      "sha256": "7253747726423b705e8e74fc07eb7e9dd1013dda584580aa66abcbb7fd6225e1",
+      "sha256": "059a39815a87807c9c88379a7b4754fdc73281a606f404efb55fdc899a420cf1",
       "executable": false
     },
     {
@@ -21,7 +21,7 @@
       "path": ".agents/commands/cg-brainstorm.md",
       "source": ".github/prompts/cg-brainstorm.prompt.md",
       "kind": "command",
-      "sha256": "39b86d534a068f7e0ea321007e531aeec5e92525b9d3d92ab6d182925c2e5891",
+      "sha256": "e2a393b371b29b7f038ffac39879c40663f56a3aefb84d671511988bedabda1a",
       "executable": false
     },
     {
@@ -63,7 +63,7 @@
       "path": ".agents/commands/cg-find-skill.md",
       "source": ".github/prompts/cg-find-skill.prompt.md",
       "kind": "command",
-      "sha256": "0ab4cb27d80cb56576c8682abd0e87314c56fb35b2e63dd099dfaa274643fcda",
+      "sha256": "428f4271fdcadd1feca89960f7d3708edc37703c299e748b14fa8fda30cf596c",
       "executable": false
     },
     {
@@ -77,7 +77,7 @@
       "path": ".agents/commands/cg-fix-triage.md",
       "source": ".github/prompts/cg-fix-triage.prompt.md",
       "kind": "command",
-      "sha256": "116711f00dae9d08502ce4b9f586979e968d9b3dd132fd8c76f6b7097712b3ce",
+      "sha256": "0aa0c91679a3a3e650f4e597dc0af78b50b0ae4a5784e3e440179d2575e196b6",
       "executable": false
     },
     {
@@ -119,14 +119,14 @@
       "path": ".agents/commands/cg-plan.md",
       "source": ".github/prompts/cg-plan.prompt.md",
       "kind": "command",
-      "sha256": "10e36c1f48ab197a62c276cdc06bd160cd10ab57507d1464788ed4f84239ad34",
+      "sha256": "da2601654e011403bb66662e4bed3729a4d18f401b46ed2e2a804026346af712",
       "executable": false
     },
     {
       "path": ".agents/commands/cg-release.md",
       "source": ".github/prompts/cg-release.prompt.md",
       "kind": "command",
-      "sha256": "50251e414d528593cf9d67fb85fdbe746a995f227895e981fcc8bace97d79bf4",
+      "sha256": "bf378fa7a08905987680a21d4aa066f117e2233ed2cb7dce87976513364df32f",
       "executable": false
     },
     {
@@ -140,21 +140,21 @@
       "path": ".agents/commands/cg-resume.md",
       "source": ".github/prompts/cg-resume.prompt.md",
       "kind": "command",
-      "sha256": "b995a4cf2835a17da8023cebba2f6f00b1de8e645b1ad526aaa528735b95a336",
+      "sha256": "67a8a49fa0d3b0569f77d6f367ec0e9cb1a7a865749b488e59f26e91b7793265",
       "executable": false
     },
     {
       "path": ".agents/commands/cg-review-repos.md",
       "source": ".github/prompts/cg-review-repos.prompt.md",
       "kind": "command",
-      "sha256": "21eb3323acf4de0c342faf3b48026d6326c86749ca8797aa75d4ec97daec2e9f",
+      "sha256": "e2e97d594a74e094d9a6516de323b3d4d5924bb957392e8309e7ab5de9541bae",
       "executable": false
     },
     {
       "path": ".agents/commands/cg-review.md",
       "source": ".github/prompts/cg-review.prompt.md",
       "kind": "command",
-      "sha256": "4b181dae1b8190673be27cbd04c02e9689c2cc5d5fb493c5c4a141785df35f42",
+      "sha256": "5d093c5417f969c58d8c92d5f5db53e1ef1a540d461c7739b78f8e73c0b6f948",
       "executable": false
     },
     {
@@ -168,7 +168,7 @@
       "path": ".agents/commands/cg-setup.md",
       "source": ".github/prompts/cg-setup.prompt.md",
       "kind": "command",
-      "sha256": "ea460051540ff92da330a0408302d03bb5b4e97a3d461dcf3fe774ef66a905be",
+      "sha256": "4f31cfbd70d8098de1149d63b04b5f1a6388022170918aab182791710a8e911a",
       "executable": false
     },
     {
@@ -182,7 +182,7 @@
       "path": ".agents/commands/cg-token-audit.md",
       "source": ".github/prompts/cg-token-audit.prompt.md",
       "kind": "command",
-      "sha256": "9ef18d8e06abdf8a0f7b395f12af0858a84c0a71ca30ad211946d172f41907fe",
+      "sha256": "a3ebdd50472c099e187084a6c57f9c6b08e5d2e8258561b5ebaf396e1c92b274",
       "executable": false
     },
     {
@@ -210,35 +210,35 @@
       "path": ".agents/commands/cr-brainstorm.md",
       "source": ".github/prompts/cr-brainstorm.prompt.md",
       "kind": "command",
-      "sha256": "b801d1902eb79522806aa23e98fd69f0af7043595e4c29d5e0133764a6b79417",
+      "sha256": "3c26425b8772ad7ef8ecf4ae06507aba2c952f9932b823f0293fe131b0fd5a10",
       "executable": false
     },
     {
       "path": ".agents/commands/cr-compound.md",
       "source": ".github/prompts/cr-compound.prompt.md",
       "kind": "command",
-      "sha256": "c37a01f28b92b5ce26a3d091516de6e778c137de55c4e23f57d711b9befa9c05",
+      "sha256": "c72f62120bdd1337a9d0b99c2e98ba3515e891d49782476e94d9cee852535313",
       "executable": false
     },
     {
       "path": ".agents/commands/cr-plan.md",
       "source": ".github/prompts/cr-plan.prompt.md",
       "kind": "command",
-      "sha256": "a23c3440732aeb4ce3d52b3f4e79a8937e08d2778a1cf66152637b7fb5b8eefa",
+      "sha256": "278a89d22d04dfc153ce9ffd854b7b150c58a478d92674d1839edb2537d63292",
       "executable": false
     },
     {
       "path": ".agents/commands/cr-review.md",
       "source": ".github/prompts/cr-review.prompt.md",
       "kind": "command",
-      "sha256": "69e1454fe13e221bca985c40f902d86a892ea4afe790385a867052d7629273e1",
+      "sha256": "1c2ab84fd5b19c39a091a7f4f1f108185e6da0ff318feb55198c1c4a53734b09",
       "executable": false
     },
     {
       "path": ".agents/commands/cr-work.md",
       "source": ".github/prompts/cr-work.prompt.md",
       "kind": "command",
-      "sha256": "36141d1540c48f8df58edb8aa2ab36f12f54d73b0f8f96aa54cc7735253e6bef",
+      "sha256": "b359486c8e442f649721e4bfa6f16e6559e96f6d615267b60d6d368f92ba56fd",
       "executable": false
     },
     {
@@ -427,7 +427,7 @@
       "path": ".agents/skills/cg-performance.md",
       "source": ".github/agents/cg-performance.agent.md",
       "kind": "fallback-agent",
-      "sha256": "47aba1022e4adb5923c79a8b76aa080d0d81783e1394bb7fa1a52fec8313d9d1",
+      "sha256": "9ed177a3972515a8974ee2c32ee82c9f5e42a300eab6c4e34bb6f5f16d5c793d",
       "executable": false
     },
     {
@@ -1883,7 +1883,7 @@
       "path": ".agents/skills/cg-skill-yaml-frontmatter-lint/Invoke-YamlLint.ps1",
       "source": ".github/skills/cg-skill-yaml-frontmatter-lint/Invoke-YamlLint.ps1",
       "kind": "skill-resource",
-      "sha256": "68eb9627a35a1901c9463f3367bdf7ba74cd60d630b0558bf56d683cc0a335a3",
+      "sha256": "99df45b75bc4902a1d75490b3317e15f7397b6b246f94dd0ed6befff3f08338f",
       "executable": false
     },
     {
@@ -1897,14 +1897,21 @@
       "path": ".agents/skills/cg-skill-yaml-frontmatter-lint/SKILL.md",
       "source": ".github/skills/cg-skill-yaml-frontmatter-lint/SKILL.md",
       "kind": "skill",
-      "sha256": "e4d0087b2e54f1249be4079d435754a303f23de2be960412c688cf06a72a1386",
+      "sha256": "0c1adac9f1453fc7f5d4c98ced29e0e4983285f4d87ee95d817192937f6a76ec",
+      "executable": false
+    },
+    {
+      "path": ".agents/skills/cg-skill-yaml-frontmatter-lint/__pycache__/validate_yaml_frontmatter.cpython-312.pyc",
+      "source": ".github/skills/cg-skill-yaml-frontmatter-lint/__pycache__/validate_yaml_frontmatter.cpython-312.pyc",
+      "kind": "skill-resource",
+      "sha256": "5d9762ec00583b8a00c884f1c63378d696a6f63e804d0f26f4d9f89014e5da98",
       "executable": false
     },
     {
       "path": ".agents/skills/cg-skill-yaml-frontmatter-lint/validate_yaml_frontmatter.py",
       "source": ".github/skills/cg-skill-yaml-frontmatter-lint/validate_yaml_frontmatter.py",
       "kind": "skill-resource",
-      "sha256": "813c0d2105af47ed9fc7918d6d3db8dff3798a43f8854a7f62a943deef2afadc",
+      "sha256": "f0b9dd51054e79bdab98188c3179b3fad2b58b43b2627cf5c55831dbdbec2c1a",
       "executable": false
     },
     {
@@ -2079,7 +2086,7 @@
       "path": ".agents/skills/cr-skill-research-workflow/SKILL.md",
       "source": ".github/skills/cr-skill-research-workflow/SKILL.md",
       "kind": "skill",
-      "sha256": "b75f7fe2a658e8cb91cfc0a4a12500b0e105b78c42fe79f1b68f1b155e15a03c",
+      "sha256": "3d4e6139b975cf9af1dd4b71c264736b7dec7bb0b5d0dc59ef7f1382e4533c65",
       "executable": false
     },
     {
@@ -2163,7 +2170,7 @@
       "path": ".agents/subagents/cg-performance.toml",
       "source": ".github/agents/cg-performance.agent.md",
       "kind": "agent",
-      "sha256": "1e1b0a718344852d21f7fc00cd25ef55edf82fc7635e78de09d9404724f0aa83",
+      "sha256": "e0344cb5448789b877e620c56da4dcf350bcd260a5e4b605a150382ef3ad7d04",
       "executable": false
     },
     {

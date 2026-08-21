@@ -62,7 +62,7 @@ SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 
 CANONICAL_PROMPTS_GLOB = ".github/prompts/*.prompt.md"
 CANONICAL_AGENTS_GLOB = ".github/agents/*.agent.md"
-CANONICAL_SKILLS_GLOB = ".github/skills/*-skill-*/SKILL.md"
+CANONICAL_SKILLS_GLOB = ".github/skills/cg-skill-*/SKILL.md"
 CANONICAL_INSTRUCTIONS_GLOB = ".github/instructions/*.instructions.md"
 MARKDOWN_LINK_PATTERN = re.compile(r"!?\[[^\]]*\]\(\s*<?([^\s)>]+)>?(?:\s+[^)]*)?\)")
 MARKDOWN_REFERENCE_PATTERN = re.compile(r"^\s*\[[^\]]+\]:\s*<?([^\s>]+)>?", re.MULTILINE)
@@ -630,10 +630,17 @@ def scan_canonical_assets(
         if path.is_symlink() or not path.is_dir():
             raise ValueError(f"Required canonical {category} root is missing or invalid: {path.relative_to(root)}")
 
+    registry_owned_names = _registry_owned_skill_dir_names(root)
+    if registry_owned_names is not None:
+        skills_glob = ".github/skills/*-skill-*/SKILL.md"
+    else:
+        skills_glob = CANONICAL_SKILLS_GLOB
+        print("scan: no module-registry.json found; falling back to cg-skill-*", file=sys.stderr)
+
     for pattern, category in [
         (CANONICAL_PROMPTS_GLOB, "prompts"),
         (CANONICAL_AGENTS_GLOB, "agents"),
-        (CANONICAL_SKILLS_GLOB, "skills"),
+        (skills_glob, "skills"),
         (CANONICAL_INSTRUCTIONS_GLOB, "instructions"),
         (".github/prompts/*.md", "prompt_support"),
         (".github/shared/*", "shared"),
@@ -658,6 +665,10 @@ def scan_canonical_assets(
             rel = str(path.relative_to(root)).replace("\\", "/")
             if not _is_loadable(rel):
                 continue
+            if category == "skills" and registry_owned_names is not None:
+                skill_dir = path.parent.name
+                if skill_dir not in registry_owned_names:
+                    continue
             assets[category].append({
                 "path": str(path),
                 "relative_path": rel,
@@ -666,7 +677,14 @@ def scan_canonical_assets(
                 "filename": path.name,
             })
 
-    canonical_skill_roots = tuple(sorted((root / ".github/skills").glob("*-skill-*")))
+    if registry_owned_names is not None:
+        canonical_skill_roots = tuple(
+            root / ".github/skills" / name
+            for name in sorted(registry_owned_names)
+            if (root / ".github/skills" / name).is_dir()
+        )
+    else:
+        canonical_skill_roots = tuple(sorted((root / ".github/skills").glob("cg-skill-*")))
     scanned_skill_roots = {Path(skill["path"]).parent for skill in assets["skills"]}
     for skill_root in canonical_skill_roots:
         if skill_root.is_symlink():
@@ -1492,9 +1510,6 @@ def _emit_root_adapter(target: dict[str, Any]) -> str:
     """Emit a minimal root adapter file for the platform."""
     name = target["name"]
     paths = target["outputPaths"]
-<<<<<<< HEAD
-    return f"# Compound GPID — {name} Adapter\n\nThis file is generated from the target mapping.\nIt maps Compound GPID `/cg-*` commands to native {name} paths.\n\n## Command Dispatch\n\n`/cg-<name> [args...]` -> `{paths['commands']}/cg-<name>.md`\n\n## Skills\n\nLoad skill files from `{paths['skills']}/*/SKILL.md`.\n\n## Agents\n\nAgent specs are under `{paths['agents']}/`.\n\n## Instructions And Contracts\n\nLanguage instructions are under `{paths['instructions']}/`; shared contracts are under `{paths['shared']}/`.\n"
-=======
     adapter = f"# Compound GPID — {name} Adapter\n\nThis file is generated from the target mapping.\nIt maps Compound GPID `/cg-*` commands to native {name} paths.\n\n## Command Dispatch\n\n`/cg-<name> [args...]` -> `{paths['commands']}/cg-<name>.md`\n\n## Skills\n\nLoad skill files from `{paths['skills']}/*-skill-*/SKILL.md`.\n\n## Agents\n\nAgent specs are under `{paths['agents']}/`.\n\n## Instructions And Contracts\n\nLanguage instructions are under `{paths['instructions']}/`; shared contracts are under `{paths['shared']}/`.\n"
     if target["id"] == "kilo":
         adapter += (
@@ -1513,7 +1528,6 @@ def _emit_root_adapter(target: dict[str, Any]) -> str:
             "auto-discovered compatibility skills resolving outside the project.\n"
         )
     return adapter
->>>>>>> 505981d (fix(kilo): localize cross-adapter skill discovery for Kilo trust boundary)
 
 
 def _emit_config(target: dict[str, Any]) -> str:
