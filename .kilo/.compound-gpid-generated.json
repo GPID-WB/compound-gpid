@@ -2006,13 +2006,6 @@
       "executable": false
     },
     {
-      "path": ".kilo/skills/cg-skill-yaml-frontmatter-lint/__pycache__/validate_yaml_frontmatter.cpython-312.pyc",
-      "source": ".github/skills/cg-skill-yaml-frontmatter-lint/__pycache__/validate_yaml_frontmatter.cpython-312.pyc",
-      "kind": "skill-resource",
-      "sha256": "5d9762ec00583b8a00c884f1c63378d696a6f63e804d0f26f4d9f89014e5da98",
-      "executable": false
-    },
-    {
       "path": ".kilo/skills/cg-skill-yaml-frontmatter-lint/validate_yaml_frontmatter.py",
       "source": ".github/skills/cg-skill-yaml-frontmatter-lint/validate_yaml_frontmatter.py",
       "kind": "skill-resource",

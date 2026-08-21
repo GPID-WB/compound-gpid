@@ -62,7 +62,7 @@ SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 
 CANONICAL_PROMPTS_GLOB = ".github/prompts/*.prompt.md"
 CANONICAL_AGENTS_GLOB = ".github/agents/*.agent.md"
-CANONICAL_SKILLS_GLOB = ".github/skills/cg-skill-*/SKILL.md"
+CANONICAL_SKILLS_GLOB = ".github/skills/*/SKILL.md"
 CANONICAL_INSTRUCTIONS_GLOB = ".github/instructions/*.instructions.md"
 MARKDOWN_LINK_PATTERN = re.compile(r"!?\[[^\]]*\]\(\s*<?([^\s)>]+)>?(?:\s+[^)]*)?\)")
 MARKDOWN_REFERENCE_PATTERN = re.compile(r"^\s*\[[^\]]+\]:\s*<?([^\s>]+)>?", re.MULTILINE)
@@ -630,17 +630,10 @@ def scan_canonical_assets(
         if path.is_symlink() or not path.is_dir():
             raise ValueError(f"Required canonical {category} root is missing or invalid: {path.relative_to(root)}")
 
-    registry_owned_names = _registry_owned_skill_dir_names(root)
-    if registry_owned_names is not None:
-        skills_glob = ".github/skills/*-skill-*/SKILL.md"
-    else:
-        skills_glob = CANONICAL_SKILLS_GLOB
-        print("scan: no module-registry.json found; falling back to cg-skill-*", file=sys.stderr)
-
     for pattern, category in [
         (CANONICAL_PROMPTS_GLOB, "prompts"),
         (CANONICAL_AGENTS_GLOB, "agents"),
-        (skills_glob, "skills"),
+        (CANONICAL_SKILLS_GLOB, "skills"),
         (CANONICAL_INSTRUCTIONS_GLOB, "instructions"),
         (".github/prompts/*.md", "prompt_support"),
         (".github/shared/*", "shared"),
@@ -653,8 +646,8 @@ def scan_canonical_assets(
             if category == "shared" and path.name == "module-registry.json":
                 # The module registry is canonical-source tooling data whose
                 # body contains glob patterns (e.g. ".github/skills/cg-skill-r-*/")
-                # that the runtime-dependency rewriter would misread. It is not a
-                # per-platform runtime shared asset.
+                # that the runtime-dependency rewriter would misread. It is not
+                # a per-platform runtime shared asset.
                 continue
             if path.is_symlink():
                 raise ValueError(f"Canonical asset is a symlink: {path.relative_to(root)}")
@@ -665,10 +658,6 @@ def scan_canonical_assets(
             rel = str(path.relative_to(root)).replace("\\", "/")
             if not _is_loadable(rel):
                 continue
-            if category == "skills" and registry_owned_names is not None:
-                skill_dir = path.parent.name
-                if skill_dir not in registry_owned_names:
-                    continue
             assets[category].append({
                 "path": str(path),
                 "relative_path": rel,
@@ -677,14 +666,30 @@ def scan_canonical_assets(
                 "filename": path.name,
             })
 
-    if registry_owned_names is not None:
-        canonical_skill_roots = tuple(
-            root / ".github/skills" / name
-            for name in sorted(registry_owned_names)
-            if (root / ".github/skills" / name).is_dir()
+    owned_skill_names = _registry_owned_skill_dir_names(root)
+    if owned_skill_names is None:
+        print(
+            "[deprecation] module-registry.json not found; falling back to "
+            "cg-skill-* glob-based skill discovery",
+            file=sys.stderr,
         )
+        assets["skills"] = [
+            skill for skill in assets["skills"]
+            if Path(skill["path"]).parent.name.startswith("cg-skill-")
+        ]
+        canonical_skill_roots = tuple(sorted(
+            (root / ".github/skills").glob("cg-skill-*")
+        ))
     else:
-        canonical_skill_roots = tuple(sorted((root / ".github/skills").glob("cg-skill-*")))
+        assets["skills"] = [
+            skill for skill in assets["skills"]
+            if Path(skill["path"]).parent.name in owned_skill_names
+        ]
+        canonical_skill_roots = tuple(sorted(
+            root / ".github/skills" / name
+            for name in sorted(owned_skill_names)
+            if _is_loadable(f".github/skills/{name}/SKILL.md")
+        ))
     scanned_skill_roots = {Path(skill["path"]).parent for skill in assets["skills"]}
     for skill_root in canonical_skill_roots:
         if skill_root.is_symlink():
@@ -723,6 +728,12 @@ def _inventory_skill_bundle(root: Path, skill_root: Path) -> list[dict[str, Any]
                 if entry.is_symlink():
                     raise ValueError(f"Skill bundle contains symlink entry: {relative}")
                 if entry.is_dir(follow_symlinks=False):
+                    if entry.name == "__pycache__":
+                        # Python bytecode caches are local interpreter artifacts,
+                        # never canonical skill bundle content. They appear when
+                        # a validator module is imported during local test runs
+                        # and must not leak into generated trees or manifests.
+                        continue
                     visit(path)
                 elif entry.is_file(follow_symlinks=False):
                     mode = entry.stat(follow_symlinks=False).st_mode
@@ -1411,6 +1422,13 @@ def commit_generation_plan(
             )
     for commit_plan in commit_plans:
         for stale in commit_plan.stale_files:
+            stale_path = root / stale.path
+            # Match the preflight tolerance for stale entries that no longer
+            # exist on disk (e.g. bytecode caches removed after a prior
+            # manifest was committed): the Windows secure-delete path pins
+            # every parent directory and would fail on a missing ancestor.
+            if not stale_path.exists() and not stale_path.is_symlink():
+                continue
             _secure_delete_stale(root, stale)
         commit_plan.manifest_path.parent.mkdir(parents=True, exist_ok=True)
         manifest_entry = OutputEntry(
