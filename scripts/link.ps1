@@ -41,11 +41,13 @@ function Resolve-CgLinkArguments {
         $arg = [string]$Arguments[$i]
         if ($arg -in @("--yes", "-y", "-Force", "--force")) {
             $result.Force = $true
+        } elseif ($arg -like "--platform=*") {
+            $result.Platforms = $arg.Substring("--platform=".Length)
         } elseif ($arg -like "--platforms=*") {
             $result.Platforms = $arg.Substring("--platforms=".Length)
         } elseif ($arg -like "-Platforms=*") {
             $result.Platforms = $arg.Substring("-Platforms=".Length)
-        } elseif ($arg -in @("--platforms", "-Platforms")) {
+        } elseif ($arg -in @("--platform", "--platforms", "-Platforms")) {
             if ($i + 1 -ge $Arguments.Count) { throw "Missing value after $arg" }
             $i++
             $result.Platforms = [string]$Arguments[$i]
