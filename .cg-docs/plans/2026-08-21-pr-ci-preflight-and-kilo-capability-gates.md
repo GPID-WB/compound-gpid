@@ -1,7 +1,8 @@
 ---
 date: 2026-08-21
 title: "Prevent PR CI reruns with native-target and Kilo capability preflights"
-status: active
+status: completed
+completed-date: 2026-08-21
 scope: "Deep"
 brainstorm: null
 language: "both"
@@ -9,8 +10,7 @@ estimated-effort: "large"
 deviation-policy: "ask"
 artifact-schema-version: 1
 execution-report: ".cg-docs/work-reports/2026-08-21-pr-ci-preflight-and-kilo-capability-gates.md"
-completed-phases: [1, 2, 3, 4, 5]
-current-phase: 6
+completed-phases: [1, 2, 3, 4, 5, 6]
 tags: [ci, pull-requests, preflight, native-targets, kilo, capability-gates, drift, pester]
 phases: 6
 ---

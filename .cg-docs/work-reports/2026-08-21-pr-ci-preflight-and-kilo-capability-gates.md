@@ -25,7 +25,7 @@ status: "active"
 - Phase 3: completed (Kilo capability boundary and certified-host workflow passed)
 - Phase 4: completed (base-aware commit/push preflight passed)
 - Phase 5: completed (exact job diagnosis and safe repair contracts passed)
-- Phase 6: local implementation/evidence complete; committed and remote evidence pending
+- Phase 6: completed (committed drift, local gates, and remote CI passed)
 
 ## Deviations
 
@@ -44,8 +44,8 @@ status: "active"
 | V3 | 3 | Deterministic Kilo coverage is mandatory; host integration is explicit and protected. | passed | Focused deterministic Kilo/preflight: 40 passed/1 skipped/1 integration deselected; `tests/last-run.json` focused `link,unlink,parity`: passed with 0 failures; workflow YAML and native boundary preflight passed. |
 | V4 | 4 | Commit/push prompt applies one resolved base branch across supported PR paths. | passed | Focused `prompt-tools` Pester passed with 0 failures; prepare preflight boundary passed after native regeneration; prompt/docs static checks passed. |
 | V5 | 5 | Verify prompt diagnoses the exact job, protects user work, and bounds CI-fix commits. | passed | Focused `prompt-tools` Pester passed with 0 failures; prepare preflight boundary passed after regeneration; docs contract updated. |
-| V6 | 6 | Native trees regenerate, committed drift passes, local gates and remote CI are green. | pending | Local portion passed: generator wrote 1,234 files twice; prepare preflight JSON had exit 0 and four zero-return commands; final focused Pester artifact has 1,604/1,604 passed. Committed drift and remote CI require the later commit/push/PR operation. |
-| V7 | final | Execution evidence is recorded for every required row or an approved exception. | pending | Report initialized before implementation. |
+| V6 | 6 | Native trees regenerate, committed drift passes, local gates and remote CI are green. | passed | Three implementation commits pushed to PR #141 against `dev`; committed drift 18 passed; committed preflight 1,588 passed/16 skipped/2 deselected with all module gates zero; remote native/Pester/browser/link/docs/title checks green. Certified-host integration was explicitly skipped and generic capability report passed as not applicable. |
+| V7 | final | Execution evidence is recorded for every required row or an approved exception. | passed | This report records V1-V6 evidence and the explicit certified-host not-applicable outcome. |
 
 ## Constraints Check
 
@@ -57,7 +57,7 @@ status: "active"
 | C4 | Existing Kilo status vocabulary and trusted-host boundary remain authoritative. | passed | Adapter preserves source statuses/evidence; generic report is neutral; certified job is protected/default-ref-only, hash-pinned, and integration-marked. |
 | C5 | Explicit base cannot be silently ignored. | passed | Prompt documents existing-PR precedence/conflict handling, explicit `--base`, extension guard, gh `--base`, and prepare/committed preflight propagation. |
 | C6 | Auto-fix never stages pre-existing user changes. | passed | Prompt requires `git status --porcelain` before auto-fix, clean baseline, post-baseline targeted paths, and exact one-trailer commit. |
-| C7 | Canonical workflow changes regenerate every managed native tree. | pending | All four trees regenerated twice; committed `HEAD` drift check remains pending until intended changes are committed. |
+| C7 | Canonical workflow changes regenerate every managed native tree. | passed | All four trees regenerated; committed drift gate passed after push. |
 
 ## Brain Findings Applied
 
@@ -68,9 +68,8 @@ status: "active"
 
 ## Remaining Uncertainty
 
-- Committed-HEAD drift evidence cannot be certified while generated outputs are uncommitted.
-- Remote CI and certified-host evidence require the later PR creation/push workflow.
+- Certified-host integration remains unavailable because the protected runner/version/SHA variables are not configured; the always-on capability report recorded this neutrally and no generic job claimed host integration.
 
 ## Final Status
 
-`handoff`
+`completed`

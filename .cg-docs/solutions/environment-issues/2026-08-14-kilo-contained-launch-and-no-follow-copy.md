@@ -87,3 +87,4 @@ executable SHA-256, selected containment environment, and inventory evidence.
 - `scripts/cg_kilo_copy.py`
 - `scripts/tests/test_kilo_coexistence.py`
 - `scripts/tests/test_kilo_copy.py`
+- `.cg-docs/solutions/git-workflows/2026-08-21-pr-ci-preflight-native-target-kilo-capability-gates.md`

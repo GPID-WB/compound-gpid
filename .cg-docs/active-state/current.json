@@ -2,7 +2,7 @@
   "schemaVersion": "compound-gpid-active-state-v1",
   "updatedAt": "2026-08-21T20:25:47Z",
   "workflow": "/cg-work",
-  "status": "handoff",
+  "status": "completed",
   "branch": "fix-kilo-skills-issue",
   "plan": ".cg-docs/plans/2026-08-21-pr-ci-preflight-and-kilo-capability-gates.md",
   "executionReport": ".cg-docs/work-reports/2026-08-21-pr-ci-preflight-and-kilo-capability-gates.md",
@@ -13,13 +13,13 @@
     {"id": "V3", "status": "passed", "artifact": "Kilo adapter/workflow contracts + deterministic tests + focused Pester artifact"},
     {"id": "V4", "status": "passed", "artifact": "prompt-tools Pester + prepare preflight boundary"},
     {"id": "V5", "status": "passed", "artifact": "verify prompt-tools Pester + prepare preflight boundary"},
-    {"id": "V6", "status": "pending", "artifact": "local final evidence passed; committed drift and remote CI pending"},
-    {"id": "V7", "status": "pending", "artifact": null}
+    {"id": "V6", "status": "passed", "artifact": "committed drift + PR #141 remote CI green"},
+    {"id": "V7", "status": "passed", "artifact": "execution report complete"}
   ],
   "unresolvedDecisions": [],
   "artifactRefs": [
     {"kind": "plan", "path": ".cg-docs/plans/2026-08-21-pr-ci-preflight-and-kilo-capability-gates.md", "status": "active"},
     {"kind": "execution-report", "path": ".cg-docs/work-reports/2026-08-21-pr-ci-preflight-and-kilo-capability-gates.md", "status": "active"}
   ],
-  "nextCommand": "/cg-review mode:verify"
+  "nextCommand": "/cg-compound"
 }

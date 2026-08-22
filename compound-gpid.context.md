@@ -340,3 +340,14 @@ Wiki-aware prompts (`/cg-wiki`, `/cg-compound`) read these HTML comment directiv
 <!-- folder: docs -->
 <!-- audience: plugin users (developers integrating Compound GPID into their projects) -->
 <!-- tone: technical, concise -->
+
+### PR CI preflight and Kilo capability gates (2026-08-21)
+
+- The committed `scripts/cg_pr_preflight.py` is the authoritative native CI
+  selector. Prepare mode excludes only the HEAD-based drift test because
+  generated output is expected to be uncommitted before staging; committed mode
+  includes drift, all deterministic native tests, and the three module gates.
+- Generic Kilo host absence is reported as `generic-not-applicable`, not as
+  integration evidence. Real host checks require the protected certified job,
+  trusted default-branch checkout, and reviewed executable version/SHA-256
+  evidence. See `.cg-docs/solutions/git-workflows/2026-08-21-pr-ci-preflight-native-target-kilo-capability-gates.md`.

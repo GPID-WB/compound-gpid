@@ -1,11 +1,17 @@
 # 🧠 Project Brain — Part 2
 
-_Generated 2026-08-17_
+_Generated 2026-08-21_
 
 ## Roadmap.Json / Test Scenarios / Prompt-Tools.Tests.Ps1 _(continued from Part 1)_
 
-_Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 96 entities
+_Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 99 entities
 
+- **[Testing PowerShell \[switch\] parameters: magic-string API tests pass for the wrong reasons](.cg-docs/solutions/testing-patterns/2026-03-19-testing-powershell-switch-parameters.md)** · `solution` · _—_ · `2026-03-19`
+  > After refactoring `update.ps1` to replace the magic string `--list` with a proper `[switch]$List` parameter, the exis…
+- **[Validate derived state against stored state in schema tests](.cg-docs/solutions/testing-patterns/2026-03-30-derived-invariant-validation-in-schema-tests.md)** · `solution` · _—_ · `2026-03-30`
+  > `Test-RoadmapSchema` validated that `milestone.status` was a member of the allowed enum (`planned`, `in-progress`, `d…
+- **[Do NOT delegate file-writing steps in AI workflow prompts](.cg-docs/solutions/testing-patterns/2026-03-30-do-not-delegate-file-write-guardrail.md)** · `solution` · _—_ · `2026-03-30`
+  > A multi-step AI workflow prompt (`cg-review.prompt.md`) contained a step (Step 3.5) that was supposed to write the re…
 - **[Test the interface contract between chained prompts \(review -> fix-triage pipeline\)](.cg-docs/solutions/testing-patterns/2026-03-30-prompt-pipeline-contract-testing.md)** · `solution` · _—_ · `2026-03-30`
   > When two prompts are designed to work in sequence — the OUTPUT of one prompt is the INPUT of a follow-up prompt — the…
 - **[Test prompt frontmatter tools: list to guard against silent write failures](.cg-docs/solutions/testing-patterns/2026-03-30-test-prompt-frontmatter-tools-list.md)** · `solution` · _—_ · `2026-03-30`
@@ -302,7 +308,7 @@ objective`_ · 151 entities
   > Canonical-to-Native Packaging Foundation
 - **[External asset provenance and controlled intake](roadmap.json#attribution-documentation)** · `feature` · _idea_ · `—`
   > External asset provenance and controlled intake
-- **[Quarantined external-skill vendoring workflow](roadmap.json#quarantined-external-skill-vendoring)** · `feature` · _idea_ · `—`
+- **[Quarantined external-skill vendoring workflow](roadmap.json#quarantined-external-skill-vendoring)** · `feature` · _active_ · `—`
   > Quarantined external-skill vendoring workflow
 - **[GitHub Actions hardening external-skill pilot](roadmap.json#github-actions-supply-chain-hardening-pilot)** · `feature` · _idea_ · `—`
   > GitHub Actions hardening external-skill pilot
@@ -384,7 +390,7 @@ objective`_ · 151 entities
   > Dual-audience Brainstorm and Plan artifacts with human-readable HTML
 - **[Workflow completion report and human-readable HTML dossier](roadmap.json#workflow-completion-report-and-html-dossier)** · `feature` · _idea_ · `—`
   > Workflow completion report and human-readable HTML dossier
-- **[Automatic post-PR CI verification and universal PR targeting](roadmap.json#automatic-post-pr-verification-handoff)** · `feature` · _idea_ · `—`
+- **[Automatic post-PR CI verification and universal PR targeting](roadmap.json#automatic-post-pr-verification-handoff)** · `feature` · _done_ · `—`
   > Automatic post-PR CI verification and universal PR targeting
 - **[Make automatic artifact HTML publication opt-in by default](roadmap.json#artifact-html-opt-in-default)** · `feature` · _planned_ · `—`
   > Make automatic artifact HTML publication opt-in by default
@@ -529,6 +535,21 @@ objective` · `measurement`_ · 7 entities
 - **[Team-level evidence library](roadmap.json#cr-team-evidence-library)** · `feature` · _idea_ · `—`
   > Team-level evidence library
 
+## Tests / Root / Related
+
+_Keywords: `tests` · `root` · `related`_ · 5 entities
+
+- **[Secure publication and rollback must not clobber concurrent filesystem changes](.cg-docs/solutions/bugs/2026-08-01-secure-publication-rollback-must-not-clobber.md)** · `solution` · _—_ · `2026-08-01`
+  > The shared artifact and generated-target writer already pinned parent directories, but several operations could still…
+- **[Tar-slip, TOCTOU, and DoS fixes in quarantined import pipeline](.cg-docs/solutions/security/2026-08-17-tar-slip-toctou-dos-quarantine-pipeline.md)** · `solution` · _—_ · `2026-08-17`
+  > The `/cg-import-skill` importer had three security vulnerabilities discovered during code review: 1. **Tar path trave…
+- **[httpx.AsyncClient requires ASGITransport for FastAPI async tests](.cg-docs/solutions/testing-patterns/2026-03-17-httpx-async-client-asgi-transport.md)** · `solution` · _—_ · `2026-03-17`
+  > FastAPI async endpoint tests using `httpx.AsyncClient(app=app, ...)` fail or emit deprecation warnings on httpx ≥ 0.2…
+- **[PS 5.1 `python -c` here-string unreliable — write temp .py file for Pester Python tests](.cg-docs/solutions/testing-patterns/2026-05-07-ps51-python-c-heredoc-unreliable-use-temp-file.md)** · `solution` · _—_ · `2026-05-07`
+  > Passing multi-line Python code to `python -c` via a PowerShell here-string (`@"..."@`) in Pester tests produces unrel…
+- **[Filesystem race fixes require handle-relative mutation and real boundary tests](.cg-docs/solutions/testing-patterns/2026-07-28-handle-relative-filesystem-mutations-and-real-boundary-tests.md)** · `solution` · _—_ · `2026-07-28`
+  > The native target generator validated destination ancestors, hashes, and ownership before writing or deleting generat…
+
 ## Scripts/Cg_Kilo_Preflight.Py / Link.Sh / Cg_Kilo_Preflight.Py
 
 _Keywords: `scripts/cg_kilo_preflight.py` · `link.sh` · `cg_kilo_preflight.py`_ · 4 entities
@@ -541,19 +562,6 @@ _Keywords: `scripts/cg_kilo_preflight.py` · `link.sh` · `cg_kilo_preflight.py`
   > **Review mode**: full (auto-routed security/architecture/install changes) **Files reviewed**: Phase 1 implementation,…
 - **[2026-08-13-manifest-driven-skill-loading-verify-review](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review.md)** · `review` · _—_ · `2026-08-13`
   > **Review mode**: verify (light) **Parent review**: `.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-review.…
-
-## Tests / Filesystem / Python
-
-_Keywords: `tests` · `filesystem` · `python`_ · 4 entities
-
-- **[Secure publication and rollback must not clobber concurrent filesystem changes](.cg-docs/solutions/bugs/2026-08-01-secure-publication-rollback-must-not-clobber.md)** · `solution` · _—_ · `2026-08-01`
-  > The shared artifact and generated-target writer already pinned parent directories, but several operations could still…
-- **[httpx.AsyncClient requires ASGITransport for FastAPI async tests](.cg-docs/solutions/testing-patterns/2026-03-17-httpx-async-client-asgi-transport.md)** · `solution` · _—_ · `2026-03-17`
-  > FastAPI async endpoint tests using `httpx.AsyncClient(app=app, ...)` fail or emit deprecation warnings on httpx ≥ 0.2…
-- **[PS 5.1 `python -c` here-string unreliable — write temp .py file for Pester Python tests](.cg-docs/solutions/testing-patterns/2026-05-07-ps51-python-c-heredoc-unreliable-use-temp-file.md)** · `solution` · _—_ · `2026-05-07`
-  > Passing multi-line Python code to `python -c` via a PowerShell here-string (`@"..."@`) in Pester tests produces unrel…
-- **[Filesystem race fixes require handle-relative mutation and real boundary tests](.cg-docs/solutions/testing-patterns/2026-07-28-handle-relative-filesystem-mutations-and-real-boundary-tests.md)** · `solution` · _—_ · `2026-07-28`
-  > The native target generator validated destination ancestors, hashes, and ownership before writing or deleting generat…
 
 ## Secure_Fs.Py / Validation / Parser.Py
 
