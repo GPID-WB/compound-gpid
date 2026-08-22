@@ -154,6 +154,15 @@ class TestScanCanonicalAssets:
         with pytest.raises(ValueError, match=f"canonical {category} inventory is empty"):
             gen.scan_canonical_assets(root)
 
+    def test_regular_pyc_inside_skill_bundle_is_rejected(self, tmp_path: Path) -> None:
+        root = _make_fixture_repo(tmp_path)
+        cache_file = root / ".github/skills/cg-skill-test/nested/module.pyc"
+        cache_file.parent.mkdir(parents=True)
+        cache_file.write_bytes(b"bytecode")
+
+        with pytest.raises(ValueError, match=r"cache|\.pyc"):
+            gen.scan_canonical_assets(root)
+
 
 class TestDryRun:
     def test_dry_run_produces_no_files(self, tmp_path: Path) -> None:
@@ -524,15 +533,13 @@ class TestNamespaceAgnosticSkills:
         names = {Path(a["relative_path"]).parent.name for a in assets["skills"]}
         assert names == {"cg-skill-test", "cr-skill-identification"}
 
-    def test_discovery_skips_unregistered_skill_dir(self, tmp_path: Path) -> None:
+    def test_discovery_rejects_unregistered_skill_dir(self, tmp_path: Path) -> None:
         root = _make_fixture_repo(tmp_path)
         _write(root / ".github/skills/cr-skill-unowned/SKILL.md",
                "---\ndescription: unowned\n---\n\nBody.\n")
         self._registry(root, {"cg-skill-test": "cap-test"})
-        assets = gen.scan_canonical_assets(root)
-        names = {Path(a["relative_path"]).parent.name for a in assets["skills"]}
-        assert "cr-skill-unowned" not in names
-        assert names == {"cg-skill-test"}
+        with pytest.raises(ValueError, match="unowned|ownership"):
+            gen.scan_canonical_assets(root)
 
     def test_fallback_without_registry_keeps_cg_skill_glob(self, tmp_path: Path, capsys) -> None:
         root = _make_fixture_repo(tmp_path)
@@ -757,6 +764,31 @@ class TestOwnershipManifest:
             json.dumps(data), encoding="utf-8"
         )
         with pytest.raises(ValueError, match="target does not match"):
+            gen._read_prior_ownership_manifest(  # pylint: disable=protected-access
+                root, result
+            )
+
+    def test_read_prior_manifest_rejects_python_cache_path(self, tmp_path: Path) -> None:
+        root = tmp_path / "fixture"
+        (root / ".claude").mkdir(parents=True)
+        result = self._make_result(())
+        manifest = {
+            "schemaVersion": 1,
+            "target": "claude-code",
+            "policyVersion": 1,
+            "files": [{
+                "path": ".claude/skills/cg-skill-test/__pycache__/module.pyc",
+                "source": ".github/skills/cg-skill-test/__pycache__/module.pyc",
+                "kind": "skill-resource",
+                "sha256": "a" * 64,
+                "executable": False,
+            }],
+        }
+        (root / ".claude/.compound-gpid-generated.json").write_text(
+            json.dumps(manifest), encoding="utf-8"
+        )
+
+        with pytest.raises(ValueError, match=r"cache|\.pyc"):
             gen._read_prior_ownership_manifest(  # pylint: disable=protected-access
                 root, result
             )

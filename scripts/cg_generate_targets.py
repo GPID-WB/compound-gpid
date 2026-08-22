@@ -200,6 +200,12 @@ def _is_within(path: str, parent: str) -> bool:
     return path_parts[:len(parent_parts)] == parent_parts
 
 
+def _is_python_cache_path(value: str) -> bool:
+    """Return whether a path names a Python interpreter cache artifact."""
+    parts = PurePosixPath(value.replace("\\", "/")).parts
+    return "__pycache__" in parts or parts[-1].casefold().endswith(".pyc")
+
+
 def _validate_capabilities(prefix: str, caps: Any) -> list[str]:
     """Validate a target's capabilities block."""
     errors: list[str] = []
@@ -513,10 +519,9 @@ def _registry_owned_skill_dir_names(root: Path) -> Optional[set[str]]:
     """Return skill directory names owned by a registered module.
 
     Returns None when the module registry is absent (caller falls back to the
-    legacy ``cg-skill-*`` glob). When the registry is present, every existing
-    skill directory under ``.github/skills/`` is matched against registry
-    ``ownedAssets`` patterns; only directories owned by a declared module are
-    returned.
+    legacy ``cg-skill-*`` glob). When the registry is present, every canonical
+    skill directory containing ``SKILL.md`` must match a registry ``ownedAssets``
+    pattern; only registered directories are returned for active-suite filtering.
     """
     registry = _load_module_registry(root)
     if registry is None:
@@ -532,6 +537,9 @@ def _registry_owned_skill_dir_names(root: Path) -> Optional[set[str]]:
     for entry in sorted(skills_dir.iterdir()):
         if not entry.is_dir() or entry.is_symlink():
             continue
+        skill_file = entry / "SKILL.md"
+        if not skill_file.exists():
+            continue
         candidate = f".github/skills/{entry.name}/SKILL.md"
         if any(
             isinstance(pattern, str)
@@ -541,6 +549,11 @@ def _registry_owned_skill_dir_names(root: Path) -> Optional[set[str]]:
             for pattern in module.get("ownedAssets", [])
         ):
             names.add(entry.name)
+        else:
+            raise ValueError(
+                "Unowned canonical skill directory contains SKILL.md: "
+                f".github/skills/{entry.name}"
+            )
     return names
 
 
@@ -736,6 +749,10 @@ def _inventory_skill_bundle(root: Path, skill_root: Path) -> list[dict[str, Any]
                         continue
                     visit(path)
                 elif entry.is_file(follow_symlinks=False):
+                    if _is_python_cache_path(relative):
+                        raise ValueError(
+                            f"Skill bundle contains Python cache artifact: {relative}"
+                        )
                     mode = entry.stat(follow_symlinks=False).st_mode
                     files.append({
                         "path": str(path),
@@ -1235,6 +1252,8 @@ def _read_prior_ownership_manifest_snapshot(
         path_errors = _validate_repo_relative_path(f"{label}.path", path)
         if path_errors:
             raise ValueError("; ".join(path_errors))
+        if _is_python_cache_path(path):
+            raise ValueError(f"{label}.path references Python cache artifact: {path}")
         if not _is_within(path, result.target_root) or path == result.target_root:
             raise ValueError(f"{label}.path is outside target root '{result.target_root}'")
         if path == manifest_destination:
@@ -1243,6 +1262,10 @@ def _read_prior_ownership_manifest_snapshot(
             raise ValueError(f"Ownership manifest has duplicate destination: {path}")
         if not isinstance(item["source"], str) or not item["source"]:
             raise ValueError(f"{label}.source must be a non-empty string")
+        if _is_python_cache_path(item["source"]):
+            raise ValueError(
+                f"{label}.source references Python cache artifact: {item['source']}"
+            )
         if not isinstance(item["kind"], str) or not item["kind"]:
             raise ValueError(f"{label}.kind must be a non-empty string")
         if not isinstance(item["sha256"], str) or not SHA256_PATTERN.fullmatch(item["sha256"]):

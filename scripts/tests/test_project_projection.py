@@ -13,6 +13,7 @@ from pathlib import Path
 
 import pytest
 
+import cg_generate_targets as generator
 import cg_project_projection as projection
 import cg_project_manifest as manifest_module
 
@@ -267,6 +268,43 @@ class TestClosureFiltering:
         plan = projection.build_projection_plan(root, manifest)
         destinations = {entry.destination for entry in plan.entries}
         assert any(name.startswith(".kilo/skills/cg-skill-python-") for name in destinations)
+
+    @pytest.mark.parametrize("suites", ["[cg]", "[cg, cr]"])
+    def test_generator_and_projection_membership_match(
+        self, tmp_path: Path, suites: str
+    ) -> None:
+        root, manifest = _repo_root(tmp_path, platforms="kilo", suites=suites)
+        mapping = projection.load_target_mapping(root)
+        globs = projection._manifest_closure_globs(root, manifest)  # pylint: disable=protected-access
+        generation_assets = generator.scan_canonical_assets(root, loadable_globs=globs)
+        generation = generator.build_generation_plan(
+            root,
+            {"schemaVersion": 1, "description": "parity", "targets": [
+                target for target in mapping["targets"] if target["id"] == "kilo"
+            ]},
+            generation_assets,
+        )
+        plan = projection.build_projection_plan(root, manifest, mapping=mapping)
+
+        generated = {
+            (entry.destination, entry.source, entry.sha256)
+            for entry in generation.entries
+        }
+        projected = {
+            (entry.destination, entry.source, entry.sha256)
+            for entry in plan.entries
+        }
+        assert projected == generated
+
+    def test_unowned_skill_blocks_projection_planning(self, tmp_path: Path) -> None:
+        root, manifest = _repo_root(tmp_path, platforms="kilo", suites="[cg]")
+        _write(
+            root / ".github/skills/cr-skill-unowned/SKILL.md",
+            "---\ndescription: unowned\n---\nbody\n",
+        )
+
+        with pytest.raises((projection.ProjectionError, ValueError), match="Unowned|unowned|ownership"):
+            projection.build_projection_plan(root, manifest)
 
 
 class TestFullProfileByteParity:

@@ -180,13 +180,19 @@ def test_host_evidence_fixture_is_machine_readable() -> None:
 @pytest.mark.integration
 def test_current_embedded_kilo_hosts_match_containment_contract(tmp_path: Path) -> None:
     """Run the supported-host proof when an embedded editor host is installed."""
-    executables = []
-    for root in (
-        Path.home() / ".vscode/extensions",
-        Path.home() / ".positron/extensions",
-    ):
-        if root.is_dir():
-            executables.extend(root.glob("kilocode.kilo-code-*/bin/kilo.exe" if os.name == "nt" else "kilocode.kilo-code-*/bin/kilo"))
+    configured = os.environ.get("CG_KILO_CERTIFIED_EXECUTABLE")
+    if configured:
+        executables = [Path(configured)]
+        if not executables[0].is_file():
+            pytest.fail(f"Configured certified Kilo executable does not exist: {configured}")
+    else:
+        executables = []
+        for root in (
+            Path.home() / ".vscode/extensions",
+            Path.home() / ".positron/extensions",
+        ):
+            if root.is_dir():
+                executables.extend(root.glob("kilocode.kilo-code-*/bin/kilo.exe" if os.name == "nt" else "kilocode.kilo-code-*/bin/kilo"))
     if not executables:
         pytest.skip("No embedded Kilo host is installed on this machine")
 
