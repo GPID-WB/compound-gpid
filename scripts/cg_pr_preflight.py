@@ -1090,6 +1090,11 @@ def render_result(result: PreflightResult, output_format: str = "text") -> str:
             )
     for command_result in result.command_results:
         lines.append(f"Command {command_result.returncode}: {' '.join(command_result.command)}")
+        if command_result.returncode != 0:
+            if command_result.stdout:
+                lines.append("Native command stdout:\n" + command_result.stdout)
+            if command_result.stderr:
+                lines.append("Native command stderr:\n" + command_result.stderr)
     return "\n".join(lines)
 
 

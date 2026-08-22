@@ -277,6 +277,27 @@ def test_json_and_text_results_are_bounded() -> None:
     assert "prepare" in preflight.render_result(result, "text")
 
 
+def test_text_result_exposes_bounded_failed_command_output() -> None:
+    result = preflight.PreflightResult(
+        phase="committed",
+        selection=preflight.full_gate_selection(),
+        changed_files=(),
+        command_results=(
+            preflight.CommandResult(
+                command=("python", "-m", "pytest"),
+                returncode=1,
+                stdout="assertion failure",
+                stderr="pytest error",
+            ),
+        ),
+    )
+
+    rendered = preflight.render_result(result, "text")
+
+    assert "assertion failure" in rendered
+    assert "pytest error" in rendered
+
+
 def test_workflow_delegates_native_selection_and_preserves_context() -> None:
     workflow = (REPO_ROOT / ".github/workflows/tests.yml").read_text(encoding="utf-8")
     native_start = workflow.index("- name: Run authoritative native target preflight")
