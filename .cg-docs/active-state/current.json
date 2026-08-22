@@ -1,38 +1,25 @@
 {
   "schemaVersion": "compound-gpid-active-state-v1",
-  "updatedAt": "2026-08-17T19:30:00-04:00",
+  "updatedAt": "2026-08-21T20:25:47Z",
   "workflow": "/cg-work",
-  "status": "active",
-  "branch": "skill-marketplace",
-  "plan": ".cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md",
-  "executionReport": ".cg-docs/work-reports/2026-08-13-manifest-driven-skill-loading.md",
+  "status": "handoff",
+  "branch": "fix-kilo-skills-issue",
+  "plan": ".cg-docs/plans/2026-08-21-pr-ci-preflight-and-kilo-capability-gates.md",
+  "executionReport": ".cg-docs/work-reports/2026-08-21-pr-ci-preflight-and-kilo-capability-gates.md",
   "currentPhase": 6,
   "evidenceStatus": [
-    {"id": "V1", "status": "passed", "artifact": "kilo_coexistence_host.json + pytest + preflight exit 0"},
-    {"id": "V2", "status": "passed", "artifact": "cg-kilo launchers + install/update/link Pester gates"},
-    {"id": "V3", "status": "passed", "artifact": ".cg-docs/cost/skill-loading-baseline.json + .md; 14 tests"},
-    {"id": "V4", "status": "passed", "artifact": "registry/context/migration/strict-config tests"},
-    {"id": "V5", "status": "passed", "artifact": "test_project_manifest; real-repo manifest resolves"},
-    {"id": "V6", "status": "passed", "artifact": "test_project_projection + target_closure"},
-    {"id": "V7", "status": "passed", "artifact": "projection/secure-fs/path-safety + Pester link/unlink/parity green"},
-    {"id": "V8", "status": "passed", "artifact": "update_generates/manifest/projection gate + Pester link/update/unlink green"},
-    {"id": "V9", "status": "passed", "artifact": "test_skill_catalog 35 tests + router/leak tests"},
-    {"id": "V10", "status": "passed", "artifact": "catalog/router/closure/context-budget inactive tests"},
-    {"id": "V11", "status": "passed", "artifact": "test_import_skill 51 passed + 1 skipped (symlink Windows)"},
-    {"id": "V12", "status": "passed", "artifact": "review diff determinism + vendor registration provenance + collision tests"},
-    {"id": "V15", "status": "passed", "artifact": "roadmap.json vendoring feature reconciled to /cg-import-skill"}
+    {"id": "V1", "status": "passed", "artifact": "preflight prepare origin/main; native pytest + 3 module validators"},
+    {"id": "V2", "status": "passed", "artifact": "Phase 2 focused suites + native preflight boundary"},
+    {"id": "V3", "status": "passed", "artifact": "Kilo adapter/workflow contracts + deterministic tests + focused Pester artifact"},
+    {"id": "V4", "status": "passed", "artifact": "prompt-tools Pester + prepare preflight boundary"},
+    {"id": "V5", "status": "passed", "artifact": "verify prompt-tools Pester + prepare preflight boundary"},
+    {"id": "V6", "status": "pending", "artifact": "local final evidence passed; committed drift and remote CI pending"},
+    {"id": "V7", "status": "pending", "artifact": null}
   ],
-  "unresolvedDecisions": [
-    {"id": "D1", "summary": "Containment control verified for embedded Kilo 7.4.20/7.4.21; retain as tested control rather than permanent platform contract.", "blocking": false},
-    {"id": "D2", "summary": "Local Kilo logout confirmed: `kilo` credential row is active=0; server-side revocation unverified.", "blocking": false},
-    {"id": "D3", "summary": "Pre-existing pytest failure test_issue_dispatch::test_current_json_preserves_blocking_decisions (expects D4 in current.json; committed file has D1/D2). Outside review findings; follow-up needed.", "blocking": false},
-    {"id": "D5", "summary": "Preserved user-modified files are dropped from projection ownership (parity gap vs PowerShell path); cross-platform reconciliation deferred to Phase 6 migration.", "blocking": false}
-  ],
+  "unresolvedDecisions": [],
   "artifactRefs": [
-    {"kind": "plan", "path": ".cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md", "status": "phase-5-complete"},
-    {"kind": "execution-report", "path": ".cg-docs/work-reports/2026-08-13-manifest-driven-skill-loading.md", "status": "phase-5-complete"},
-    {"kind": "evidence", "path": ".cg-docs/cost/skill-loading-baseline.json", "status": "generated"},
-    {"kind": "solution", "path": ".cg-docs/solutions/bugs/2026-08-14-capability-eligibility-namespace-mismatch.md", "status": "captured"}
+    {"kind": "plan", "path": ".cg-docs/plans/2026-08-21-pr-ci-preflight-and-kilo-capability-gates.md", "status": "active"},
+    {"kind": "execution-report", "path": ".cg-docs/work-reports/2026-08-21-pr-ci-preflight-and-kilo-capability-gates.md", "status": "active"}
   ],
-  "nextCommand": "/cg-work phase6"
+  "nextCommand": "/cg-review mode:verify"
 }
