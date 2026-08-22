@@ -224,7 +224,7 @@
       "path": ".claude/commands/cg-commit-push-pr.md",
       "source": ".github/prompts/cg-commit-push-pr.prompt.md",
       "kind": "command",
-      "sha256": "db649c414fc51a08c9011d7245901c335a38b2df74dcacfbbeeaf9b3bd6e2130",
+      "sha256": "b51d5e119c5599ece484dbc5b4bf3c437637daf7a74f1888909a2125cb039130",
       "executable": false
     },
     {
@@ -385,7 +385,7 @@
       "path": ".claude/commands/cg-verify-pr.md",
       "source": ".github/prompts/cg-verify-pr.prompt.md",
       "kind": "command",
-      "sha256": "1b8eb364eb1443cd6ee38fbf212344aebaab8b998f65a7d955f774eee06ce097",
+      "sha256": "3751963bec6cd7a4b1d148920098977e2f5887f5f91e709f9a1bceb69515f27b",
       "executable": false
     },
     {

@@ -224,7 +224,7 @@
       "path": ".kilo/commands/cg-commit-push-pr.md",
       "source": ".github/prompts/cg-commit-push-pr.prompt.md",
       "kind": "command",
-      "sha256": "f1bd963ffb209b92dcaa0b07ce01c7ca5ada7b297ca310a2a0b55358617117ae",
+      "sha256": "4444adacf83e6d40740a0d35a0ad7cda0dd7cafd531fb48322d19f6e807149de",
       "executable": false
     },
     {
@@ -385,7 +385,7 @@
       "path": ".kilo/commands/cg-verify-pr.md",
       "source": ".github/prompts/cg-verify-pr.prompt.md",
       "kind": "command",
-      "sha256": "600635dd8a1105bed3e2d50fbcc7a9441b9cd7ae10ee47f9f7207431393e9093",
+      "sha256": "41ca5ccaa129cc999b78da021fb8b13043f5d8df44f5d8a0ad5326e719288296",
       "executable": false
     },
     {

@@ -194,6 +194,69 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | `/cg-work` | Implement a /cg-plan plan. Supports /cg-work [phaseX], review, and deviate controls. |
 <!-- cg:auto:end -->
 
+### `/cg-commit-push-pr` Base And Preflight Contract
+
+Use `--base <branch>` when the intended PR target is not the repository default.
+The prompt resolves one `$baseBranch` before generation or staging with this
+precedence: existing PR `baseRefName`, explicit `--base`, then the repository
+default branch. If the existing PR base conflicts with explicit input, it reports
+both values and uses the actual existing PR base.
+
+The prepare gate runs `cg_pr_preflight.py --phase prepare --base <branch>
+--run-native-target` before staging. After commits, the committed gate runs the
+same preflight with `--phase committed --base <branch> --run-native-target`
+before push. Nonzero or partial results block the operation; a successful
+`generic-not-applicable` Kilo result is a neutral capability outcome for generic
+behavior and does not claim certified-host integration.
+
+`gh` creation always receives `--base <branch>`. The VS Code GitHub Pull Request
+extension must resolve and honor the same `baseBranch`; if it cannot, the prompt
+halts with a manual `gh pr create --base <branch> --body-file <file>` route rather
+than silently selecting a different base.
+
+### `/cg-verify-pr` Exact Diagnosis And Repair Contract
+
+`/cg-verify-pr` requests the open PR's actual `baseRefName` in the same
+`statusCheckRollup` metadata query and halts if that base is unavailable. It uses
+that `$baseBranch` for every fetch, merge-base, rebase, changed-file comparison,
+preflight, and trailer-history operation; it never infers a base from a remote
+symbolic ref.
+
+For each failed check, the prompt reads its `detailsUrl` and accepts only a
+GitHub Actions job URL containing both identifiers. It retrieves the exact failed
+job with:
+
+```text
+gh run view <run-id> --job <job-id> --log-failed
+```
+
+Missing, non-Actions, unparseable, or unavailable URLs/logs use a manual route:
+open the check provider's details page, obtain the exact run/job IDs and failed
+step output, and do not select a latest run by workflow name or recency.
+
+Auto-fix first runs `git status --porcelain` and stops on any pre-existing staged,
+unstaged, or untracked change. After a clean baseline, the prompt runs
+`scripts/cg_pr_preflight.py` with `$baseBranch` and the PR changed files to select
+the exact focused local reproduction. A certified-host Kilo failure confirmed by
+the exact job log may use the certified-host remediation path; Kilo
+`generic-not-applicable` is neutral capability evidence, and generic linker
+failure is never Kilo integration proof.
+
+Only post-baseline targeted paths are staged. One verification pass creates
+exactly one `fix(ci)` commit with one unique `CI-Fix-Round: <PR>/<N>` trailer in
+`$mergeBase..HEAD`; historical `fix(ci):` subjects do not count. A rebase uses
+the resolved PR base, and `--force-with-lease` is used only after that rebase.
+
+Certified-host Kilo evidence is separate from generic CI. Configure the protected
+repository variables `CG_KILO_CERTIFIED_RUNNER`, `CG_KILO_CERTIFIED_VERSION`, and
+`CG_KILO_CERTIFIED_SHA256`, and require maintainer approval for the
+`cg-kilo-certified` environment. The certified job runs only on a protected
+default-branch push or an explicitly requested workflow dispatch for that same
+default branch, checks out that trusted ref, compares the preflight-reported
+executable version and SHA-256 before launch, and uploads `kilo-preflight.json`
+and inventory evidence. Missing configuration produces a neutral
+`generic-not-applicable` summary; generic CI never claims real-host integration.
+
 ### Research Suite Commands
 
 These commands are owned by `suite-cr` and are available when `suites:` in
