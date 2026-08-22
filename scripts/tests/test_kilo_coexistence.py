@@ -48,7 +48,8 @@ def _fake_kilo(path: Path, inventory_log: Path, *, ignore_containment: bool = Fa
     """Create a host fixture that honors the containment variable."""
     script = path.with_suffix(".py")
     ignore_containment_literal = "True" if ignore_containment else "False"
-    host_script = """import json, os, pathlib, sys
+    host_script = """#!/usr/bin/env python3
+import json, os, pathlib, sys
 args = sys.argv[1:]
 if args == ['--version']:
     print('7.4.21')
