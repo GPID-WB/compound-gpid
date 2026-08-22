@@ -10,9 +10,9 @@ PLATFORMS=""
 while [ "$#" -gt 0 ]; do
     case "$1" in
         --yes|-y|--force|-Force) FORCE=1; shift ;;
-        --platforms=*) PLATFORMS="${1#--platforms=}"; shift ;;
+        --platform=*|--platforms=*) PLATFORMS="${1#*=}"; shift ;;
         -Platforms=*) PLATFORMS="${1#-Platforms=}"; shift ;;
-        --platforms|-Platforms)
+        --platform|--platforms|-Platforms)
             shift
             if [ "$#" -eq 0 ]; then printf 'ERROR: Missing value after --platforms\n' >&2; exit 1; fi
             PLATFORMS="$1"

@@ -136,6 +136,26 @@ Describe "link.ps1 <-> link.sh parity" {
 }
 
 # ---------------------------------------------------------------------------
+# cg-link singular platform flag
+# ---------------------------------------------------------------------------
+Describe "cg-link - singular --platform flag" {
+    $linkPs1 = Get-Content (Join-Path $repoRoot "scripts/link.ps1") -Raw -Encoding UTF8
+    $linkSh  = Get-Content (Join-Path $repoRoot "scripts/link.sh")  -Raw -Encoding UTF8
+
+    It "recognizes singular --platform in the PowerShell argument parser" {
+        # The singular alias must be a parser token in its own right; matching
+        # only the prefix of --platforms is insufficient.
+        $linkPs1 | Should -Match '(?m)^\s*}\s*elseif\s*\(\$arg\s+-like\s+"--platform=\*"\)'
+    }
+
+    It "recognizes singular --platform in the bash argument parser" {
+        # The macOS launcher must select only the requested platform instead of
+        # warning on --platform and falling back to the all-platform default.
+        $linkSh | Should -Match '(?m)^\s*--platform(?!s)(?:=|\|)'
+    }
+}
+
+# ---------------------------------------------------------------------------
 # unlink.ps1 <-> unlink.sh parity
 # ---------------------------------------------------------------------------
 Describe "unlink.ps1 <-> unlink.sh parity" {
