@@ -91,7 +91,7 @@ class TestReleaseGateTargets:
         assert "cg_pr_preflight.py" in workflow
         assert "--run-native-target" in workflow
         preflight = (REPO_ROOT / "scripts/cg_pr_preflight.py").read_text(encoding="utf-8")
-        assert "test_release_gate_targets.py" in preflight
+        assert "test_release_policy.py" in preflight
 
     def test_workflow_runs_publisher_security_and_backend_race_gates(self) -> None:
         workflow = (REPO_ROOT / ".github/workflows/tests.yml").read_text(encoding="utf-8")
