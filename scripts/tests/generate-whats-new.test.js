@@ -89,6 +89,43 @@ test("--validate-payload accepts a valid payload", async () => {
   assert.equal(result.status, 0, result.stdout + result.stderr);
 });
 
+test("--validate-release-set accepts matching immutable and latest payloads", async () => {
+  const dir = await tempRepo("releases-multi");
+  const result = runRepo(dir, ["--validate-release-set"]);
+  assert.equal(result.status, 0, result.stdout + result.stderr);
+  assert.match(result.stdout, /release set valid/i);
+});
+
+test("--validate-release-set rejects latest.json that is not the newest immutable payload", async () => {
+  const dir = await tempRepo("releases-multi");
+  await writeFile(
+    path.join(dir, "releases", "latest.json"),
+    await readFile(path.join(dir, "releases", "v0.1.0.json"), "utf8")
+  );
+  const result = runRepo(dir, ["--validate-release-set"]);
+  assert.notEqual(result.status, 0);
+  assert.match(result.stdout + result.stderr, /newest immutable payload/i);
+});
+
+test("--validate-release-set rejects immutable payloads without latest.json", async () => {
+  const dir = await tempRepo("releases-multi");
+  await rm(path.join(dir, "releases", "latest.json"));
+  const result = runRepo(dir, ["--validate-release-set"]);
+  assert.notEqual(result.status, 0);
+  assert.match(result.stdout + result.stderr, /latest\.json is required/i);
+});
+
+test("--validate-payload rejects an impossible releaseDate", async () => {
+  const dir = await tempRepo("releases-multi");
+  const payloadPath = path.join(dir, "releases", "v0.2.0.json");
+  const payload = JSON.parse(await readFile(payloadPath, "utf8"));
+  payload.releaseDate = "2026-99-99";
+  await writeFile(payloadPath, JSON.stringify(payload));
+  const result = runRepo(dir, ["--validate-payload", "releases/v0.2.0.json"]);
+  assert.notEqual(result.status, 0);
+  assert.match(result.stdout + result.stderr, /releaseDate/i);
+});
+
 test("--validate-payload rejects an unknown kind", async () => {
   const dir = await tempRepo("unknown-kind");
   const result = runRepo(dir, ["--validate-payload", "releases/v0.1.0.json"]);
@@ -121,8 +158,8 @@ test("payload URL must match its immutable tag", async () => {
 
 test("history is capped at twenty releases with an older-history link", async () => {
   const dir = await tempRepo("releases-multi");
-  await rm(path.join(dir, "releases", "latest.json"));
   const releasesDir = path.join(dir, "releases");
+  let newestPayload;
   for (let i = 3; i <= 22; i++) {
     const tag = `v1.0.${i}`;
     const payload = {
@@ -134,8 +171,10 @@ test("history is capped at twenty releases with an older-history link", async ()
       sourceUrl: `https://github.com/GPID-WB/compound-gpid/tree/${tag}`,
       sections: [{ kind: "internal", title: "Maintenance", entries: ["Updated tooling"] }],
     };
+    newestPayload = payload;
     await writeFile(path.join(releasesDir, `${tag}.json`), JSON.stringify(payload));
   }
+  await writeFile(path.join(releasesDir, "latest.json"), JSON.stringify(newestPayload));
   const result = runRepo(dir);
   assert.equal(result.status, 0, result.stderr + result.stdout);
   const page = await readFile(path.join(dir, "docs", "whats-new.md"), "utf8");

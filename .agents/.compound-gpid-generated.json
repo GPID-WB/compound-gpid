@@ -126,7 +126,7 @@
       "path": ".agents/commands/cg-release.md",
       "source": ".github/prompts/cg-release.prompt.md",
       "kind": "command",
-      "sha256": "ac3fb5f55566f78563607c1e6e680c413332d4056f06117557386de9d09c5beb",
+      "sha256": "8c3bf370640f0d21dcb1e3a462675dd287b71dc07ba1306b0c79d8f707feaeaa",
       "executable": false
     },
     {

@@ -126,6 +126,21 @@ passes `-Prerelease` to `create-release.ps1`. Three-component tags remain the
 stable channel. Published release tags and immutable payloads must not be
 deleted or reused.
 
+Stable releases must be prepared from a clean `main` checkout matching
+`origin/main`. Four-component prereleases must be prepared directly from a
+clean `dev` checkout matching `origin/dev`; their exact tag remains eligible for
+resume after `dev` advances.
+
+Repository settings must include an active tag ruleset named `Protect release
+tags` for `refs/tags/v*`. It must block updates, non-fast-forward updates, and
+deletions without exclusions or bypass actors so a verified release tag cannot
+move during publication. A separate `Restrict release tag creation` ruleset
+allows only repository administrators to create `refs/tags/v*`; `Protect dev`
+blocks deletion and force-pushes on `refs/heads/dev` without bypass actors.
+Tag commits build documentation in the read-only `release-docs.yml` workflow;
+the protected-main `release-pages.yml` controller verifies and deploys that
+prebuilt artifact without executing tagged repository code with Pages access.
+
 ### Release payload schema
 
 Immutable, tracked files named `releases/v<major>.<minor>.<patch>[.<dev>].json`;

@@ -145,11 +145,14 @@ async function validateSkillsCatalog() {
   }
 
   const workflow = await readFile(".github/workflows/pages.yml", "utf8");
+  const releasePagesWorkflow = await readFile(".github/workflows/release-pages.yml", "utf8");
   for (const action of ["actions/configure-pages", "actions/upload-pages-artifact", "actions/deploy-pages"]) {
-    if (!workflow.includes(action)) throw new Error(`Pages workflow must use ${action}.`);
+    if (!workflow.includes(action) || !releasePagesWorkflow.includes(action)) {
+      throw new Error(`Pages controllers must use ${action}.`);
+    }
   }
-  if (!workflow.includes("path: docs") || !workflow.includes("path: site-artifact/docs")) {
-    throw new Error("Pages workflow must upload direct and downloaded docs artifacts.");
+  if (!workflow.includes("path: site-artifact/docs") || !releasePagesWorkflow.includes("path: release-artifact/docs")) {
+    throw new Error("Pages workflow must upload verified main and release documentation artifacts.");
   }
 
   // -------------------------------------------------------------------------
@@ -190,6 +193,7 @@ async function validateSkillsCatalog() {
   // Complete-build artifact handoff and freshness contract.
   // -------------------------------------------------------------------------
   const rebuildWorkflow = await readFile(".github/workflows/doc-rebuild.yml", "utf8");
+  const releaseWorkflow = await readFile(".github/workflows/release-docs.yml", "utf8");
   const rebuildContract = [
     "branches: [main]",
     "contents: write",
@@ -205,6 +209,21 @@ async function validateSkillsCatalog() {
   if (!rebuildWorkflow.includes("include-hidden-files: true")) {
     throw new Error("doc-rebuild.yml must include hidden artifact files.");
   }
+  const releaseContract = [
+    "name: Build release documentation",
+    "tags: [\"v*.*.*\"]",
+    "contents: read",
+    "rebuild-docs.js --all",
+    "--validate-release-set",
+    "release-docs-site",
+    ".docs-build-metadata.json",
+  ];
+  for (const token of releaseContract) {
+    if (!releaseWorkflow.includes(token)) throw new Error(`release-docs.yml must reference ${token}.`);
+  }
+  if (/pages:\s*write|id-token:\s*write/.test(releaseWorkflow)) {
+    throw new Error("release-docs.yml must remain unprivileged.");
+  }
   if (!/workflow_run\s*:/.test(workflow)) {
     throw new Error("pages.yml must consume doc-rebuild via workflow_run.");
   }
@@ -215,13 +234,21 @@ async function validateSkillsCatalog() {
     "--verify-artifact",
     "--verify-fingerprint",
     "site-artifact/docs",
-    "tags: [\"v*.*.*\"]",
-    "workflow_dispatch",
-    "rebuild-docs.js --all",
-    "resolve-immutable-ref",
   ];
   for (const token of pagesContract) {
     if (!workflow.includes(token)) throw new Error(`pages.yml must reference ${token}.`);
+  }
+  const releasePagesContract = [
+    "Build release documentation",
+    "release-docs-site",
+    "release-artifact/docs",
+    "Artifact digest mismatch",
+    "Deploy docs from",
+    "Refusing to deploy an older release artifact",
+    "Recheck release is still newest",
+  ];
+  for (const token of releasePagesContract) {
+    if (!releasePagesWorkflow.includes(token)) throw new Error(`release-pages.yml must reference ${token}.`);
   }
 
   await validateMarkdownLinks(markdownFiles);

@@ -266,7 +266,7 @@ release.
 
 ### Publishing an installable prerelease
 
-After the candidate changes are merged to an up-to-date `main`, run:
+From a clean `dev` checkout whose `HEAD` matches `origin/dev`, run:
 
 ```text
 /cg-release v1.2.0.9008
@@ -275,10 +275,16 @@ After the candidate changes are merged to an up-to-date `main`, run:
 The release workflow creates the durable payload, exact tag, immutable Pages
 deployment, and GitHub Release record. A four-component tag is automatically
 marked as a GitHub prerelease. It is accepted by both new-release and
-`--resume` flows.
+`--resume` flows. Stable three-component releases remain restricted to a clean,
+up-to-date `main` checkout.
 
 Published prerelease tags are immutable release records. Do not delete or reuse
 them; increment the build component for the next candidate.
+
+Only repository administrators can create release-shaped `v*` tags. The `dev`
+branch rejects deletion and force-pushes, and published tags reject every update
+or deletion. The release flow does not publish drafts because its durable
+payload and Pages deployment are public before the GitHub Release API record.
 
 ### Creating a temporary dev tag
 

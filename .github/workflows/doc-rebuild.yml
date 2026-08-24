@@ -13,13 +13,15 @@ on:
       - 'scripts/check-docs-site.js'
       - '.github/workflows/doc-rebuild.yml'
       - '.github/workflows/pages.yml'
+      - '.github/workflows/release-docs.yml'
+      - '.github/workflows/release-pages.yml'
 
 permissions:
   contents: read
 
 concurrency:
   group: doc-rebuild
-    cancel-in-progress: true
+  cancel-in-progress: true
 
 jobs:
   rebuild:

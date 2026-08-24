@@ -37,7 +37,9 @@ Parse optional arguments from the user's invocation message before running any s
   four-component `vX.Y.Z.<build>` prerelease tag. A supplied tag overrides the
   scanner's semver suggestion but still requires confirmation in Step 1f. A
   four-component tag always sets `<prerelease>` to `true`; it must be published
-  with GitHub's prerelease flag rather than as a stable release.
+  with GitHub's prerelease flag rather than as a stable release. Stable tags are
+  released from `main`; four-component prerelease tags are released directly
+  from `dev`.
 - `--since <value>`: Override the default 60-day scan window floor.
   - If value matches `^\d+$` (digits only, e.g., `--since 90`): treat as days.
   - If value matches `^\d{4}-\d{2}-\d{2}$` (e.g., `--since 2026-03-01`): treat as an ISO cutoff date. If the parsed date is after today, warn the user and fall back to the 60-day default.
@@ -57,14 +59,37 @@ Parse optional arguments from the user's invocation message before running any s
 
 ### Step 1: Collect git data and dispatch the scanner
 
-**1a. Detect the latest tag:**
+**1a. Detect the latest published release tag:**
 
 ```powershell
-git describe --tags --abbrev=0
+node scripts/generate-whats-new.js --validate-release-set
+$latestTag = $null
+if (Test-Path -LiteralPath releases/latest.json) {
+  $latestPayload = Get-Content releases/latest.json -Raw -Encoding UTF8 | ConvertFrom-Json
+  $latestTag = [string]$latestPayload.tag
+  git rev-parse --verify "$latestTag^{commit}"
+  gh release view $latestTag --json tagName,name,isDraft,isPrerelease,targetCommitish
+  Get-ChildItem releases -Filter 'v*.json' | ForEach-Object {
+    $record = Get-Content $_.FullName -Raw -Encoding UTF8 | ConvertFrom-Json
+    gh release view $record.tag --json tagName,name,isDraft,isPrerelease,targetCommitish
+  }
+}
 ```
 
-- If the command succeeds, record `<latest-tag>` (e.g. `v0.0.5`).
-- If the command fails (no tags exist): `<latest-tag>` is `null` — this is the first release.
+- If `releases/latest.json` exists and the release set validates, record its tag
+  as `<latest-tag>` (e.g. `v0.0.5`) after verifying that exact tag exists and
+  has a GitHub Release whose tag, name, target commit, draft state, and
+  three-/four-component prerelease classification match the durable payload.
+  If the release is absent or mismatched, halt and require `--resume` or
+  maintainer repair before scanning a later release.
+- Every immutable payload must have a matching non-draft GitHub Release with
+  the correct tag, name, target commit, and three-/four-component prerelease
+  classification. Halt for historical repair if any durable record is missing
+  or mismatched.
+- If no immutable payloads and no `releases/latest.json` exist, `<latest-tag>` is
+  `null` — this is the first release.
+- Never use unrestricted `git describe` as the release baseline. Temporary
+  `/cg-devtag` tags do not have durable payloads and must not truncate the scan.
 
 **1b. Get the tag date** (skip if `<latest-tag>` is `null`):
 
@@ -142,6 +167,9 @@ Record the confirmed `<next-tag>` — all subsequent steps reference it.
 Set `<prerelease>` to `true` when `<next-tag>` has four numeric components and
 to `false` when it has three. This derivation is mandatory even when the user
 supplied the tag directly.
+Set `<release-branch>` to `dev` when `<prerelease>` is `true`; otherwise set it
+to `main`. Stable releases must never be cut from `dev`, and four-component
+prereleases must be publishable directly from `dev`.
 
 ### Step 2: Check SCHEMA_VERSION
 
@@ -236,8 +264,8 @@ Ready to publish:
 
   Tag:             <proposed-tag>
   Name:            <proposed-name>  (derive from the top feature in New Features, formatted as "<tag> - <short feature title>")
-  Draft:           No  (or Yes if requested)
-  Prerelease:      <Yes for a four-component tag; otherwise No unless requested>
+  Draft:           No
+  Prerelease:      <Yes for a four-component tag; otherwise No>
   SCHEMA_VERSION:  <status from Step 2>
 
 Release notes preview:
@@ -260,20 +288,24 @@ On explicit confirmation, do **not** call `create-release.ps1` yet. The durable
 release payload, its exact tag, and the tag documentation deployment must exist
 first.
 
-1. Require a clean, up-to-date `main` checkout before writing payloads:
+1. Require a clean, up-to-date `<release-branch>` checkout before writing payloads:
 
    ```powershell
    git status --porcelain
-   git fetch origin main --tags
+   git fetch origin main <release-branch> --tags
    git branch --show-current
    git rev-parse HEAD
-   git rev-parse origin/main
+   git rev-parse origin/<release-branch>
+   # Four-component prereleases only:
+   git merge-base --is-ancestor origin/main HEAD
    ```
 
    Halt if status has tracked or untracked changes (other than ignored
-   `RELEASE_NOTES.md`), the branch is not `main`, or `HEAD` differs from
-   `origin/main`. Halt safely on a non-fast-forward main rather than creating a
-   release from a stale checkout.
+   `RELEASE_NOTES.md`), the branch is not `<release-branch>`, or `HEAD` differs
+   from `origin/<release-branch>`. Halt safely on a non-fast-forward release
+   branch rather than creating a release from a stale checkout. For a
+   four-component prerelease, also halt unless current `origin/main` is an
+   ancestor of `HEAD`; `dev` must contain the complete stable history.
 
 2. Extract exactly one fenced JSON object from the scanner's `## Release
    Payload` section. Parse it before writing any payload. It must contain only a
@@ -311,9 +343,10 @@ first.
    ```powershell
    node scripts/generate-whats-new.js --validate-payload releases/<next-tag>.json
    node scripts/generate-whats-new.js --validate-payload releases/latest.json
+   node scripts/generate-whats-new.js --validate-release-set
    ```
 
-   Halt on either validation failure. Report whether either durable file was
+   Halt on any validation failure. Report whether either durable file was
    written, but do not create a tag or call the GitHub API.
 
 5. Stage only the two payload files and commit only if this retry did not already
@@ -330,19 +363,27 @@ first.
    If no staged diff exists because both payload files are already byte-identical,
    do not create an empty commit.
 
-6. Verify or create the exact tag on the clean payload commit, then push main and
-   the tag. Do not use an unconditional `git tag` command:
+6. Verify the required active repository rulesets before creating the tag:
+   `Protect release tags` must block all updates and deletions for
+   `refs/tags/v*` without bypass actors; `Restrict release tag creation` must
+   restrict creation of `refs/tags/v*` to repository administrators; and
+   `Protect dev` must block deletion and force-pushes for `refs/heads/dev`
+   without bypass actors. Halt before tag creation if any rule is absent or
+   weaker than this contract.
+
+7. Verify or create the exact tag on the clean payload commit, then push the
+   release branch and tag. Do not use an unconditional `git tag` command:
 
    ```powershell
    git status --porcelain
    $head = (git rev-parse HEAD).Trim()
-   $existing = git rev-parse --verify <next-tag>^{commit} 2>$null
+   $existing = git rev-parse --verify "<next-tag>^{commit}" 2>$null
    if ($LASTEXITCODE -eq 0) {
      if ($existing.Trim() -ne $head) { throw "Existing tag <next-tag> points to another commit." }
    } else {
      git tag <next-tag>
    }
-   git push origin main
+   git push origin <release-branch>
    git push origin <next-tag>
    $remote = git ls-remote --tags origin refs/tags/<next-tag>
    if ($remote -notmatch $head) { throw "Remote tag <next-tag> does not resolve to the payload commit." }
@@ -353,38 +394,44 @@ first.
    payload/tag state so a maintainer can resume without overwriting a release
    record.
 
-7. Wait for the Pages tag deployment triggered by `<next-tag>`. Identify the
-   `pages.yml` run for the exact tag commit (not merely the newest deployment),
-   then wait for a successful conclusion. A GitHub CLI implementation may use
-   `gh run list --workflow pages.yml --branch <next-tag> --event push --json
-   databaseId,headSha,status,conclusion` and `gh run watch <databaseId>
-   --exit-status`. Halt on a missing, failed, or mismatched tag-site deployment.
-   Do not invoke `/cg-wiki` or rebuild documentation from this prompt; the tag
-   workflow owns the immutable complete-build deployment.
+8. Wait for the unprivileged `release-docs.yml` push run for the exact tag and
+   commit. Verify its successful conclusion and record its database ID. Then
+   identify the successful `release-pages.yml` `workflow_run` controller whose run name
+   is exactly `Deploy docs from <release-docs database ID>`. Halt on a missing,
+   failed, or mismatched build or deployment. The controller must already exist
+   on protected `main`. Do not invoke `/cg-wiki` or
+   rebuild documentation from this prompt; the release build and protected
+   controller own the immutable complete-build deployment.
 
 ### Resume An Interrupted Release
 
-When invoked with `--resume <tag>`, require a clean, up-to-date `main` checkout
-and do not prepare a new scanner payload. Confirm all of the following before
-retrying any publication step:
+When invoked with `--resume <tag>`, derive `<prerelease>` and
+`<release-branch>` from the tag using the same three-component/`main` and
+four-component/`dev` policy as a new release. Require a clean checkout at the
+exact tag commit; a detached checkout is allowed so resume remains possible
+after the release branch advances. Do not prepare a new scanner payload.
+Confirm all of the following before retrying any publication step:
 
 ```powershell
 git status --porcelain
-git fetch origin main --tags
+git fetch origin <release-branch> --tags
 git rev-parse HEAD
-git rev-parse origin/main
-git rev-parse <tag>^{commit}
+git rev-parse origin/<release-branch>
+git rev-parse "<tag>^{commit}"
+git merge-base --is-ancestor "<tag>^{commit}" origin/<release-branch>
 git ls-remote --tags origin refs/tags/<tag>
 node scripts/generate-whats-new.js --validate-payload releases/<tag>.json
 node scripts/generate-whats-new.js --validate-payload releases/latest.json
+node scripts/generate-whats-new.js --validate-release-set
 ```
 
-The local and remote `<tag>` must resolve to the clean `HEAD`; the immutable
-payload must be present and valid. Then wait for the exact tag-site deployment
-as in Step 5.7. If it failed, resume the deployment before the API record. If it
-succeeded but the API record is absent, recreate `RELEASE_NOTES.md` from the
-recorded scanner/release context and run Step 6 only. Never overwrite an
-immutable payload or create a new tag during resume.
+The local and remote `<tag>` must resolve to the clean `HEAD`, and that commit
+must remain on the authorized `<release-branch>` lineage. The immutable payload
+must be present and valid. Then wait for the exact tag-site deployment as in Step 5.8.
+If it failed, resume the deployment before the API record. If it succeeded but
+the API record is absent, recreate `RELEASE_NOTES.md` from the recorded
+scanner/release context and run Step 6 only. Never overwrite an immutable
+payload or create a new tag during resume.
 
 ### Step 6: Publish the GitHub Release API record
 
@@ -395,7 +442,8 @@ tag, and observed successful tag-site deployment, run:
 .\create-release.ps1 -Tag <tag> -Name "<name>" -NotesFile RELEASE_NOTES.md
 ```
 
-Add `-Draft` if the user requested a draft release.
+Draft releases are not supported by this durable publication flow. Do not pass
+`-Draft`; halt if a draft is requested.
 Add `-Prerelease` whenever `<prerelease>` is `true`. Four-component tags always
 set it to `true`; do not publish `vX.Y.Z.<build>` as a stable GitHub Release.
 
@@ -414,6 +462,14 @@ After the script completes, read `release-result.txt`:
 - Never run `create-release.ps1` without explicit user confirmation in Step 4,
   validated durable payloads, an exact pushed tag, and a successful tag-site deployment.
 - Never modify `SCHEMA_VERSION` automatically. Warn only.
+- Require stable three-component tags on `main` and four-component prerelease
+  tags on `dev`; never weaken this branch/tag matrix.
+- Require an active repository tag ruleset named `Protect release tags` that
+  blocks all updates and deletions for `refs/tags/v*` without exclusions or
+  bypass actors before API publication.
+- Require `Restrict release tag creation` to limit new `refs/tags/v*` tags to
+  repository administrators, and `Protect dev` to block deletion and
+  non-fast-forward updates of `refs/heads/dev` without bypass actors.
 - Always publish four-component `vX.Y.Z.<build>` tags as GitHub prereleases.
 - `RELEASE_NOTES.md` is ephemeral and gitignored. Release payload JSON is the
   durable What's New source; the GitHub Release is the public release record.

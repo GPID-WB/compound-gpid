@@ -66,6 +66,7 @@ NATIVE_PYTEST_FILES = (
     "scripts/tests/test_issue_dispatch.py",
     "scripts/tests/test_frontmatter_parsing.py",
     "scripts/tests/test_yaml_frontmatter_lint.py",
+    "scripts/tests/test_release_gate_targets.py",
 )
 NATIVE_TEST_FILES = NATIVE_PYTEST_FILES
 HEAD_DRIFT_TEST = "scripts/tests/test_target_drift.py"

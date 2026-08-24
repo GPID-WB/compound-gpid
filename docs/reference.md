@@ -180,7 +180,7 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | `/cg-issues` | Manage GitHub Issues linked to roadmap work items. Modes: status (default, read-only), backfill, link, adopt, setup. |
 | `/cg-plan-review` | Review an implementation plan for risks, over-engineering, missing edge cases, and flawed assumptions. Use after /cg-plan or on any existing plan. |
 | `/cg-plan` | Create a structured implementation plan with research. Use after brainstorming or when requirements are clear. |
-| `/cg-release [vX.Y.Z[.build]]` | Create a stable or prerelease GitHub Release for compound-gpid. Detects the next semver tag unless an exact tag is supplied, drafts curated release notes, checks SCHEMA_VERSION, confirms with the user, and publishes four-component tags as prereleases. Developer-only — guarded to the compound-gpid repo; Step 0 stops execution in consumer projects. |
+| `/cg-release [vX.Y.Z[.build]]` | Create a stable GitHub Release from `main` or a four-component prerelease directly from `dev`. Detects the next semver tag unless an exact tag is supplied, drafts curated release notes, checks SCHEMA_VERSION, and confirms before publication. Developer-only — guarded to the compound-gpid repo; Step 0 stops execution in consumer projects. |
 | `/cg-render-doc` | Render a workflow artifact or generic Markdown document to curated HTML. Routes typed artifacts to cg-render-artifact and generic documents to cg-publish-markdown. Supports --theme selection (reference or editorial). |
 | `/cg-resume` | Load context and resume interrupted work. Use at the start of a session to pick up where you left off. |
 | `/cg-review-repos` | Review external repos for features to integrate into compound-gpid. Developer-only. |
@@ -379,7 +379,7 @@ cleanup stay separate.
 
 | Prompt | Purpose | Distribution |
 |--------|---------|-------------|
-| `/cg-release [vX.Y.Z[.build]]` | Create a stable or four-component prerelease for compound-gpid. Detects the next tag unless an exact tag is supplied, drafts release notes from `.cg-docs/`, checks `SCHEMA_VERSION`, and publishes to GitHub Releases. | **Distributed** via junctions to consumer projects, but Step 0 stops execution immediately if not run inside compound-gpid. |
+| `/cg-release [vX.Y.Z[.build]]` | Create a stable release from `main` or a four-component prerelease from `dev`. Detects the next tag unless an exact tag is supplied, drafts release notes from `.cg-docs/`, checks `SCHEMA_VERSION`, and publishes to GitHub Releases. | **Distributed** via junctions to consumer projects, but Step 0 stops execution immediately if not run inside compound-gpid. |
 | `/cg-review-repos [--full]` | Review external repos for features to integrate into compound-gpid. Default (delta) mode reviews only releases newer than the last review. `--full` performs a deep initial assessment of all repos — required before delta mode can be used. Updates `.cg-docs/competitive-reviews/repos.json` after each run. | **Distributed** via junctions to consumer projects, but Step 0 stops execution immediately if not run inside compound-gpid. |
 
 ### Competitive Review System

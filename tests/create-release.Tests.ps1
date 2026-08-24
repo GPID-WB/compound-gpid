@@ -33,6 +33,9 @@ Describe "create-release.ps1 - tag format validation" {
     }
 
     Context "invalid tag formats" {
+        It "rejects uppercase V prefix" {
+            ("V1.2.3" -cmatch $tagPattern) | Should -Be $false
+        }
         It "rejects 1.2.3 (missing v prefix)" {
             ("1.2.3" -match $tagPattern) | Should -Be $false
         }
@@ -138,15 +141,15 @@ Describe "create-release.ps1 - switch parameter semantics" {
             $Prerelease.IsPresent | Should -Be $false
         }
 
-        It "prerelease field in payload reflects switch value when true" {
-            $Prerelease = [switch]$true
-            $payload = @{ prerelease = $Prerelease.IsPresent }
+        It "derives prerelease true from a four-component tag" {
+            $Tag = "v1.2.0.9008"
+            $payload = @{ prerelease = ($Tag -match '^v\d+\.\d+\.\d+\.\d+$') }
             $payload.prerelease | Should -Be $true
         }
 
-        It "prerelease field in payload reflects switch value when false" {
-            $Prerelease = [switch]$false
-            $payload = @{ prerelease = $Prerelease.IsPresent }
+        It "derives prerelease false from a three-component tag" {
+            $Tag = "v1.2.0"
+            $payload = @{ prerelease = ($Tag -match '^v\d+\.\d+\.\d+\.\d+$') }
             $payload.prerelease | Should -Be $false
         }
     }
@@ -308,11 +311,52 @@ Describe "create-release.ps1 - native packaging preflight" {
         $guard | Should -Match '(throw|exit\s+1|Write-Error)'
     }
 
-    It "supports a new tag while pinning publication to the verified HEAD" {
+    It "requires an existing exact local and remote tag at the verified HEAD" {
         $scriptContent | Should -Match 'tag --list \$Tag'
+        $scriptContent | Should -Match 'must exist locally before publication'
+        $scriptContent | Should -Match 'ls-remote --tags origin'
+        $scriptContent | Should -Match 'Remote release tag mismatch'
         $scriptContent | Should -Match 'target_commitish\s*=\s*\$headCommit'
-        $scriptContent | Should -Not -Match '\$Tag`\^\{commit\}'
         $scriptContent | Should -Not -Match 'rev-parse[^\r\n]+\|\s*Select-Object'
+    }
+
+    It "enforces the stable-main and prerelease-dev branch matrix" {
+        $scriptContent | Should -Match '\$isPrereleaseTag\s*=\s*\$Tag -cmatch'
+        $scriptContent | Should -Match '\$releaseBranch\s*=\s*"main"'
+        $scriptContent | Should -Match 'if \(\$isPrereleaseTag\) \{ \$releaseBranch = "dev" \}'
+        $scriptContent | Should -Match 'merge-base --is-ancestor \$headCommit \$remoteBranchCommit'
+        $scriptContent | Should -Match 'merge-base --is-ancestor \$remoteMainCommit \$headCommit'
+        $scriptContent | Should -Match 'prerelease\s*=\s*\$releasePrerelease'
+    }
+
+    It "validates payload set and exact Pages deployment before release API creation" {
+        $setIndex = $scriptContent.IndexOf('--validate-release-set')
+        $buildIndex = $scriptContent.IndexOf('actions/workflows/release-docs.yml/runs')
+        $pagesIndex = $scriptContent.IndexOf('actions/workflows/release-pages.yml/runs')
+        $releaseIndex = $scriptContent.LastIndexOf('Invoke-RestMethod -Uri "https://api.github.com/repos/GPID-WB/compound-gpid/releases"')
+        $setIndex | Should -BeGreaterThan -1
+        $buildIndex | Should -BeGreaterThan $setIndex
+        $pagesIndex | Should -BeGreaterThan $buildIndex
+        $releaseIndex | Should -BeGreaterThan $pagesIndex
+        $scriptContent | Should -Match '\$_.head_sha -eq \$headCommit -and \$_.head_branch -eq \$Tag'
+        $scriptContent | Should -Match "Protect release tags"
+        $scriptContent | Should -Match 'ruleTypes -notcontains "update"'
+        $scriptContent | Should -Match 'non_fast_forward'
+        $scriptContent | Should -Match 'bypassActors\.Count -ne 0'
+        $scriptContent | Should -Match 'Restrict release tag creation'
+        $scriptContent | Should -Match 'creationRuleTypes -notcontains "creation"'
+        $scriptContent | Should -Match 'Protect dev'
+        $scriptContent | Should -Match 'Assert-CgRemoteReleaseLineage'
+        $scriptContent | Should -Match 'has no published GitHub Release'
+        $scriptContent | Should -Match 'Method Delete'
+        $scriptContent | Should -Match 'Assert-CgRemoteTagCommit[\s\S]*Invoke-RestMethod -Uri "https://api.github.com/repos/GPID-WB/compound-gpid/releases"[\s\S]*Assert-CgRemoteTagCommit'
+    }
+
+    It "rejects drafts and verifies the public release body" {
+        $scriptContent | Should -Match 'Draft releases are not supported'
+        $scriptContent | Should -Match 'ConvertTo-CgNormalizedReleaseText \$existingRelease\.body'
+        $scriptContent | Should -Match 'ConvertTo-CgNormalizedReleaseText \$response\.body'
+        $scriptContent | Should -Match 'draft\s*=\s*\$false'
     }
 
     It "tests the exact commit in an isolated LF checkout" {
@@ -330,6 +374,9 @@ Describe "create-release.ps1 - native packaging preflight" {
         function global:git {
             $global:LASTEXITCODE = 0
             if ($args[0] -eq "-C" -and $args[2] -eq "rev-parse") { return "abc123" }
+            if ($args[0] -eq "-C" -and $args[2] -eq "tag") { return "v1.2.0.9006" }
+            if ($args[0] -eq "-C" -and $args[2] -eq "ls-remote" -and $args[3] -eq "--heads") { return "abc123`trefs/heads/dev" }
+            if ($args[0] -eq "-C" -and $args[2] -eq "ls-remote" -and $args[3] -eq "--tags") { return "abc123`trefs/tags/v1.2.0.9006" }
             if ($args[0] -eq "-C" -and $args[2] -eq "status") { return }
             if ($args[0] -eq "credential") { $script:credentialCalled = $true; return "password=fake" }
         }
@@ -339,7 +386,7 @@ Describe "create-release.ps1 - native packaging preflight" {
         }
         function global:Invoke-RestMethod { $script:apiCalled = $true }
         try {
-            { & $scriptPath -Tag "v1.2.3" -Name "Test" -NotesFile $notesPath } | Should -Throw
+            { & $scriptPath -Tag "v1.2.0.9006" -Name "v1.2.0.9006 - Manifest-driven skill loading, certified contained launcher, and quarantined skill importing" -NotesFile $notesPath } | Should -Throw
             $script:credentialCalled | Should -Be $false
             $script:apiCalled | Should -Be $false
         } finally {

@@ -41,6 +41,8 @@ def _run_release_fixture(
         "printf '%s\\n' \"$*\" >> \"$CG_GIT_LOG\"\n"
         "case \"$1 $3\" in\n"
         "  '-C rev-parse') case \"$5\" in HEAD*) printf '%s\\n' \"$CG_HEAD_COMMIT\" ;; *) printf '%s\\n' \"$CG_TAG_COMMIT\" ;; esac ;;\n"
+        "  '-C tag') printf '%s\\n' 'v1.2.0.9006' ;;\n"
+        "  '-C ls-remote') case \"$4\" in --heads) printf '%s\\t%s\\n' \"$CG_HEAD_COMMIT\" 'refs/heads/dev' ;; --tags) printf '%s\\t%s\\n' \"$CG_TAG_COMMIT\" 'refs/tags/v1.2.0.9006' ;; esac ;;\n"
         "  '-C status') [ \"$CG_DIRTY\" = 1 ] && printf '%s\\n' ' M changed.txt' ;;\n"
         "  'credential fill') printf '%s\\n' 'password=fake-token' ;;\n"
         "esac\nexit 0\n",
@@ -61,7 +63,7 @@ def _run_release_fixture(
         "$global:LASTEXITCODE = 0; "
         f"function global:Invoke-RestMethod {{ Add-Content -Path '{escaped_api_log}' -Value 'called'; "
         "return [pscustomobject]@{ id = 1; html_url = 'https://example.invalid' } }; "
-        f"& '{escaped_script}' -Tag v1.2.3 -Name Test -NotesFile '{escaped_notes}'"
+        f"& '{escaped_script}' -Tag v1.2.0.9006 -Name 'v1.2.0.9006 - Manifest-driven skill loading, certified contained launcher, and quarantined skill importing' -NotesFile '{escaped_notes}'"
     )
     env = os.environ.copy()
     env.update({
@@ -86,15 +88,10 @@ class TestReleaseGateTargets:
         assert "setup-python" in workflow
         assert "windows-2022" in workflow
         assert "macos-14" in workflow
-        for test_file in (
-            "test_target_mapping.py", "test_cg_generate_targets.py",
-            "test_target_path_safety.py", "test_target_packaging.py",
-            "test_target_ownership.py", "test_target_closure.py",
-            "test_target_determinism.py", "test_target_drift.py",
-            "test_target_claude.py", "test_target_codex.py", "test_target_opencode.py", "test_target_kilo.py",
-            "test_target_documentation.py", "test_model_advisory.py", "test_audit_context.py",
-        ):
-            assert test_file in workflow
+        assert "cg_pr_preflight.py" in workflow
+        assert "--run-native-target" in workflow
+        preflight = (REPO_ROOT / "scripts/cg_pr_preflight.py").read_text(encoding="utf-8")
+        assert "test_release_gate_targets.py" in preflight
 
     def test_workflow_runs_publisher_security_and_backend_race_gates(self) -> None:
         workflow = (REPO_ROOT / ".github/workflows/tests.yml").read_text(encoding="utf-8")
@@ -156,11 +153,12 @@ class TestReleaseGateTargets:
         assert f"-C {REPO_ROOT}" in git_log.read_text(encoding="utf-8")
         assert not api_log.exists()
         pytest_args = python_log.read_text(encoding="utf-8")
-        assert str(REPO_ROOT / "scripts/tests/test_target_mapping.py") in pytest_args
+        assert "scripts/cg_pr_preflight.py" in pytest_args
+        assert "--phase committed --full-gate --run-native-target" in pytest_args
 
     def test_release_prompt_requires_gate_before_execute(self) -> None:
         content = (REPO_ROOT / ".github/prompts/cg-release.prompt.md").read_text(encoding="utf-8")
-        execute = content.index("### Step 5: Execute")
+        execute = content.index("### Step 5: Create and publish the durable release source")
         before_execute = content[:execute].lower()
         assert "native packaging" in before_execute
         assert "release gate" in before_execute or "preflight" in before_execute

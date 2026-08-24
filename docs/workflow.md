@@ -966,10 +966,10 @@ check the Copilot UI if that identity matters.
 
 **When to use**: After completing and compounding a milestone, when you are ready to publish a new version of compound-gpid to GitHub.
 
-**What happens**: Detects the latest git tag, analyzes commits since then to suggest the next semver version, reads `.cg-docs/` entries dated after the last release to draft curated release notes, checks `SCHEMA_VERSION` for structural migration warnings, presents a confirmation summary, and runs `create-release.ps1` to publish to GitHub. Maintainers can supply an exact stable tag (`/cg-release v1.3.0`) or a four-component test-release tag (`/cg-release v1.2.0.9008`). Four-component tags are always published as GitHub prereleases and are supported by `--resume`.
+**What happens**: Reads the latest durable release payload, analyzes commits since its exact tag to suggest the next semver version, reads `.cg-docs/` entries dated after the last release to draft curated release notes, checks `SCHEMA_VERSION` for structural migration warnings, presents a confirmation summary, and runs `create-release.ps1` to publish to GitHub. Maintainers can supply an exact stable tag (`/cg-release v1.3.0`) from `main` or a four-component test-release tag (`/cg-release v1.2.0.9008`) directly from `dev`. Four-component tags are always GitHub prereleases. Tag documentation builds without Pages credentials, then a protected-main workflow verifies and deploys the prebuilt artifact before the API record is created. `--resume` follows the same branch and deployment policy.
 
 **When NOT to use**:
-- On a feature branch — merge to main first
+- On a branch other than `main` for stable releases or `dev` for four-component prereleases
 - Without reviewing and running the full test suite first
 - Without checking for open P0/P1 review findings
 

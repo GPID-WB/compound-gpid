@@ -321,6 +321,7 @@ def test_native_target_owns_deterministic_kilo_and_preflight_tests() -> None:
     assert "scripts/tests/test_kilo_copy.py" in preflight.NATIVE_PYTEST_FILES
     assert "scripts/tests/test_cg_pr_preflight.py" in preflight.NATIVE_PYTEST_FILES
     assert "scripts/tests/test_project_projection.py" in preflight.NATIVE_PYTEST_FILES
+    assert "scripts/tests/test_release_gate_targets.py" in preflight.NATIVE_PYTEST_FILES
 
 
 def test_workflow_reports_neutral_generic_kilo_capability() -> None:

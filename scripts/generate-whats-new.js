@@ -11,6 +11,7 @@
 //   default                  write mode (replace marker interior, write only on change)
 //   --check                  no-write; exit 1 naming the stale file, exit 0 when current
 //   --validate-payload <rel> machine-checkable payload validation; exit 0/1
+//   --validate-release-set   validate all immutable payload/latest invariants
 //
 // Path safety and payload validation mirror the release-payload contract:
 // strict schema, bounded plain text, allowed kinds, durable tag/URL shapes.
@@ -32,18 +33,19 @@ const EMPTY_STATE = "No releases published yet.\n";
 
 function usage() {
   console.error(
-    "Usage: node scripts/generate-whats-new.js [--root <path>] [--check] [--validate-payload <rel>]"
+    "Usage: node scripts/generate-whats-new.js [--root <path>] [--check] [--validate-payload <rel>] [--validate-release-set]"
   );
   process.exit(2);
 }
 
 function parseArgs(argv) {
-  const args = { root: process.cwd(), check: false, validatePayload: null };
+  const args = { root: process.cwd(), check: false, validatePayload: null, validateReleaseSet: false };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === "--root") args.root = path.resolve(argv[++i]);
     else if (a === "--check") args.check = true;
     else if (a === "--validate-payload") args.validatePayload = argv[++i];
+    else if (a === "--validate-release-set") args.validateReleaseSet = true;
     else return null;
   }
   return args;
@@ -72,6 +74,12 @@ function isIsoUtc(value) {
   if (Number.isNaN(d.getTime())) return false;
   const canonical = d.toISOString().replace(/\.000Z$/, "Z");
   return canonical === value;
+}
+
+function isIsoDate(value) {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const d = new Date(`${value}T00:00:00Z`);
+  return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === value;
 }
 
 function isGitHubReleaseUrl(value, tag) {
@@ -109,8 +117,7 @@ function validatePayload(payload, sourceName) {
   }
   if (!isGitHubReleaseUrl(payload.url, payload.tag)) fail(`${label} has invalid GitHub release URL`);
   if (!isGitHubTagUrl(payload.sourceUrl, payload.tag)) fail(`${label} has invalid sourceUrl for tag '${payload.tag}'`);
-  if (payload.releaseDate !== undefined
-    && (typeof payload.releaseDate !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(payload.releaseDate))) {
+  if (payload.releaseDate !== undefined && !isIsoDate(payload.releaseDate)) {
     fail(`${label} has invalid releaseDate`);
   }
   if (!Array.isArray(payload.sections) || payload.sections.length === 0) {
@@ -179,6 +186,7 @@ function loadReleasePayloads(root) {
     versioned.push({ payload, file, raw });
   }
   const result = versioned.map((v) => ({ payload: v.payload, file: v.file, raw: v.raw }));
+  if (result.length && !latest) fail("latest.json is required when immutable release payloads exist");
   // latest.json must be a byte-for-byte current-release convenience copy of an
   // immutable versioned payload; never render it as a second release.
   if (latest) {
@@ -322,6 +330,12 @@ function main() {
       const payload = JSON.parse(fs.readFileSync(full, "utf8"));
       validatePayload(payload, rel);
       console.log(`generate-whats-new: payload valid (${rel})`);
+      process.exitCode = 0;
+      return;
+    }
+    if (args.validateReleaseSet) {
+      const payloads = loadReleasePayloads(args.root);
+      console.log(`generate-whats-new: release set valid (${payloads.length} immutable payload(s))`);
       process.exitCode = 0;
       return;
     }

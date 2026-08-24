@@ -4,15 +4,6 @@ on:
   workflow_run:
     workflows: ["Rebuild documentation"]
     types: [completed]
-    branches: [main]
-  push:
-    tags: ["v*.*.*"]
-  workflow_dispatch:
-    inputs:
-      ref:
-        description: "Official release tag (vX.Y.Z) or full commit SHA on main"
-        required: true
-        type: string
 
 permissions:
   contents: read
@@ -25,6 +16,7 @@ jobs:
   deploy-rebuild-artifact:
     if: >-
       github.event_name == 'workflow_run' &&
+      github.event.workflow_run.name == 'Rebuild documentation' &&
       github.event.workflow_run.conclusion == 'success' &&
       github.event.workflow_run.head_branch == 'main'
     environment:
@@ -86,85 +78,5 @@ jobs:
 
       - name: Deploy to GitHub Pages
         if: steps.freshness.outputs.current == 'true'
-        id: deployment
-        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e  # v4.0.5
-
-  resolve-immutable-ref:
-    if: github.event_name != 'workflow_run'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    outputs:
-      sha: ${{ steps.resolve.outputs.sha }}
-    steps:
-      - name: Check out repository metadata
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
-        with:
-          fetch-depth: 0
-
-      - name: Resolve approved immutable source
-        id: resolve
-        env:
-          EVENT_NAME: ${{ github.event_name }}
-          EVENT_REF: ${{ github.ref_name }}
-          INPUT_REF: ${{ inputs.ref }}
-        run: |
-          ref="$EVENT_REF"
-          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
-            ref="$INPUT_REF"
-          fi
-          if [[ "$ref" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then
-            git fetch origin "refs/tags/$ref:refs/tags/$ref"
-            sha="$(git rev-list -n 1 "$ref")"
-          elif [[ "$ref" =~ ^[0-9a-f]{40}$ ]]; then
-            sha="$ref"
-          else
-            echo "Ref must be an official vX.Y.Z or dev-series pre-release (vX.Y.Z.<build>) tag, or a full commit SHA."
-            exit 1
-          fi
-          git fetch origin main dev
-          git cat-file -e "$sha^{commit}"
-          git merge-base --is-ancestor "$sha" origin/main \
-            || git merge-base --is-ancestor "$sha" origin/dev \
-            || { echo "Ref commit must be an ancestor of origin/main or origin/dev."; exit 1; }
-          echo "sha=$sha" >> "$GITHUB_OUTPUT"
-
-  build-and-deploy-immutable-ref:
-    needs: resolve-immutable-ref
-    if: github.event_name != 'workflow_run'
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    steps:
-      - name: Check out approved immutable commit
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
-        with:
-          ref: ${{ needs.resolve-immutable-ref.outputs.sha }}
-
-      - name: Set up Node
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4.4.0
-        with:
-          node-version: "22"
-
-      - name: Build complete documentation tree
-        run: node scripts/rebuild-docs.js --all
-
-      - name: Validate documentation site
-        run: node scripts/check-docs-site.js
-
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b  # v5.0.0
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa  # v3.0.1
-        with:
-          path: docs
-
-      - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e  # v4.0.5

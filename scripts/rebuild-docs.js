@@ -274,6 +274,8 @@ function canonicalInputFingerprint(root) {
     "scripts/check-docs-site.js",
     ".github/workflows/doc-rebuild.yml",
     ".github/workflows/pages.yml",
+    ".github/workflows/release-docs.yml",
+    ".github/workflows/release-pages.yml",
   ]) {
     const full = path.join(root, rel);
     if (fs.existsSync(full)) parts.push(`F:${rel}\n${fs.readFileSync(full, "utf8")}`);
