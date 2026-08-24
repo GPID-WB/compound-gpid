@@ -4866,9 +4866,9 @@ Describe "cg-commit-push-pr.prompt.md - structure" {
         $staging = $content.IndexOf("### Step 2")
         $generation | Should -BeGreaterThan -1
         $staging | Should -BeGreaterThan $generation
-        ($content -match 'test_cg_characterization\.py') | Should -Be $true
+        ($content -match 'cg_pr_preflight\.py') | Should -Be $true
         ($content -match 'check-docs-site\.js') | Should -Be $true
-        ($content -match '(?s)Run-Tests\.ps1 -File prompt-tools,model-assignments') | Should -Be $true
+        ($content -match 'Run-Tests\.ps1 -File <validated-groups>') | Should -Be $true
     }
 
     It "runs committed generated-target drift checks before push" {
@@ -4876,11 +4876,66 @@ Describe "cg-commit-push-pr.prompt.md - structure" {
         $push = $content.IndexOf("### Step 5: Push")
         $postCommit | Should -BeGreaterThan -1
         $push | Should -BeGreaterThan $postCommit
-        ($content.Substring($postCommit, $push - $postCommit) -match 'test_target_drift\.py') | Should -Be $true
+        ($content.Substring($postCommit, $push - $postCommit) -match 'cg_pr_preflight\.py --phase committed') | Should -Be $true
+    }
+
+    It "uses preflight-selected registered Pester groups instead of a hard-coded list" {
+        ($content -match 'pester_files') | Should -Be $true
+        ($content -match 'registered.*testNames|testNames.*registered') | Should -Be $true
+        ($content -match 'Run-Tests\.ps1 -File <validated-groups>') | Should -Be $true
     }
 
     It "gives actionable next-time setup instructions when no PR tool is available" {
         ($content -match 'next.time|to enable.*PR|install.*gh.*next|winget.*GitHub\.cli.*next|for.*future.*runs|next run') | Should -Be $true
+    }
+
+    It "accepts an explicit base and documents deterministic base precedence" {
+        ($content -match '--base') | Should -Be $true
+        ($content -match 'existing PR.*baseRefName.*explicit.*--base.*default branch') | Should -Be $true
+    }
+
+    It "resolves the base before generation, staging, or base-sensitive operations" {
+        $resolve = $content.IndexOf('Resolve `$baseBranch`')
+        $generation = $content.IndexOf('### Step 1.5:')
+        $staging = $content.IndexOf('### Step 2:')
+        $resolve | Should -BeGreaterThan -1
+        $generation | Should -BeGreaterThan $resolve
+        $staging | Should -BeGreaterThan $resolve
+        ($content -match 'baseRefName') | Should -Be $true
+    }
+
+    It "runs the prepare preflight with the resolved base before staging" {
+        $preflight = $content.IndexOf('cg_pr_preflight.py --phase prepare')
+        $staging = $content.IndexOf('### Step 2:')
+        $preflight | Should -BeGreaterThan -1
+        $preflight | Should -BeLessThan $staging
+        ($content.Substring($preflight, [Math]::Min(400, $content.Length - $preflight)) -match '--base.*\$baseBranch|\$baseBranch.*--base') | Should -Be $true
+        ($content -match '--run-native-target') | Should -Be $true
+    }
+
+    It "runs the committed preflight with the same base before push" {
+        $committed = $content.IndexOf('cg_pr_preflight.py --phase committed')
+        $push = $content.IndexOf('### Step 5: Push')
+        $committed | Should -BeGreaterThan -1
+        $committed | Should -BeLessThan $push
+        ($content.Substring($committed, [Math]::Min(400, $content.Length - $committed)) -match '--base.*\$baseBranch|\$baseBranch.*--base') | Should -Be $true
+    }
+
+    It "passes the resolved base to gh and the VS Code extension PR paths" {
+        ($content -match 'gh pr create.*--base.*\$baseBranch|--base.*\$baseBranch.*gh pr create') | Should -Be $true
+        ($content -match 'github-pull-request_create_pull_request') | Should -Be $true
+        ($content -match 'baseBranch.*extension|extension.*baseBranch') | Should -Be $true
+    }
+
+    It "does not infer the base from origin/HEAD and reports Kilo non-applicability" {
+        ($content -match 'origin/HEAD') | Should -Be $false
+        ($content -match 'Kilo.*not applicable|Kilo.*generic-not-applicable|generic-not-applicable.*Kilo') | Should -Be $true
+    }
+
+    It "does not retain the old hard-coded native gate list" {
+        ($content -match 'test_cg_characterization\.py') | Should -Be $false
+        ($content -match 'test_target_mapping\.py') | Should -Be $false
+        ($content -match 'test_target_drift\.py') | Should -Be $false
     }
 }
 
@@ -4983,8 +5038,11 @@ Describe "cg-verify-pr.prompt.md - structure" {
         ($content -match 'NOT deployment-ready|not deployment') | Should -Be $true
     }
 
-    It "includes run-id extraction via gh run list before gh run view (R7/P2.1)" {
-        ($content -match 'gh run list') | Should -Be $true
+    It "resolves each failed Actions check from detailsUrl to an exact run and job (R7/P2.1)" {
+        ($content -match 'detailsUrl') | Should -Be $true
+        ($content -match 'run.*job.*ID|run ID.*job ID') | Should -Be $true
+        ($content -match 'gh run view <run-id> --job <job-id> --log-failed') | Should -Be $true
+        ($content -match 'gh run list --branch <branch> --workflow') | Should -Be $false
     }
 
     It "handles rebase for diverged branches (R10)" {
@@ -5020,8 +5078,10 @@ Describe "cg-verify-pr.prompt.md - structure" {
         ($content -match 'detached HEAD state') | Should -Be $true
     }
 
-    It "skips log fetching with 'No run found' message when gh run list returns empty (P1.6)" {
+    It "reports unavailable exact job logs without selecting another run" {
         ($content -match 'No run found for workflow') | Should -Be $true
+        ($content -match 'exact Actions run/job log is unavailable') | Should -Be $true
+        ($content -match 'There is no run list fallback') | Should -Be $true
     }
 
     It "treats SKIPPED conclusion as passing (P1.7)" {
@@ -5038,6 +5098,71 @@ Describe "cg-verify-pr.prompt.md - structure" {
 
     It "halts on STALE conclusion (P1.7)" {
         ($content -match 'STALE') | Should -Be $true
+    }
+
+    It "provides a manual route for non-Actions and unparseable check URLs" {
+        ($content -match 'non-Actions') | Should -Be $true
+        ($content -match 'unparseable') | Should -Be $true
+        ($content -match 'Manual diagnosis required') | Should -Be $true
+        ($content -match 'manual provider/UI diagnosis route') | Should -Be $true
+        ($content -match 'no latest-run heuristic') | Should -Be $true
+    }
+
+    It "validates check object shapes and closed status/conclusion values before classification" {
+        ($content -match 'well-shaped check objects|well-shaped.*check') | Should -Be $true
+        ($content -match 'recognized.*status') | Should -Be $true
+        ($content -match 'recognized.*conclusion') | Should -Be $true
+        ($content -match 'unknown status/conclusion') | Should -Be $true
+        ($content -match 'Do not classify or mutate') | Should -Be $true
+    }
+
+    It "resolves baseRefName before fetch, merge-base, rebase, or preflight" {
+        $base = $content.IndexOf('baseRefName')
+        $fetch = $content.IndexOf('git fetch')
+        $mergeBase = $content.IndexOf('git merge-base')
+        $preflight = $content.IndexOf('cg_pr_preflight.py')
+        $base | Should -BeGreaterThan -1
+        $fetch | Should -BeGreaterThan $base
+        $mergeBase | Should -BeGreaterThan $base
+        $preflight | Should -BeGreaterThan $base
+        ($content -match 'baseBranch') | Should -Be $true
+        ($content -match 'fetch.*validat|validate.*fetch') | Should -Be $true
+    }
+
+    It "halts auto-fix on any pre-existing staged, unstaged, or untracked work" {
+        $status = $content.IndexOf('git status --porcelain')
+        $autoFix = $content.IndexOf('Before any auto-fix')
+        $status | Should -BeGreaterThan -1
+        $status | Should -BeLessThan $autoFix
+        ($content -match 'staged.*unstaged.*untracked|dirty.*worktree|dirty.*working tree') | Should -Be $true
+        ($content -match 'halt|stop') | Should -Be $true
+        ($content -match 'preFixStatusExit|status.*exit code') | Should -Be $true
+    }
+
+    It "requires exact local reproduction unless the failure is certified-host dependent" {
+        ($content -match 'exact.*focused.*local reproduction|focused local reproduction') | Should -Be $true
+        ($content -match 'host-dependent.*certified|certified.*host-dependent') | Should -Be $true
+        ($content -match 'cg_pr_preflight.py') | Should -Be $true
+    }
+
+    It "stages only post-baseline fix paths and creates one trailer-bearing fix commit" {
+        ($content -match 'clean baseline|baseline.*clean') | Should -Be $true
+        ($content -match 'stage only.*files|only.*post-baseline|selected.*paths') | Should -Be $true
+        ($content -match 'exact trailer.*CI-Fix-Round|CI-Fix-Round: <PR-number>/<round-number>') | Should -Be $true
+        ($content -match 'one.*fix\(ci\).*commit|exactly one.*fix\(ci\).*commit') | Should -Be $true
+        ($content -match 'unique.*trailer|unique round numbers') | Should -Be $true
+    }
+
+    It "routes certified Kilo failures separately from generic linker failures" {
+        ($content -match 'Kilo.*capability|capability.*Kilo') | Should -Be $true
+        ($content -match 'certified-host|host integration') | Should -Be $true
+        ($content -match 'generic.*linker|linker.*generic') | Should -Be $true
+    }
+
+    It "requires successful git status commands at the clean baseline" {
+        ($content -match 'baselineStatusExit') | Should -Be $true
+        ($content -match 'baselineCommitExit') | Should -Be $true
+        ($content -match 'Require.*baselineStatusExit') | Should -Be $true
     }
 }
 

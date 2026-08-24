@@ -200,6 +200,12 @@ def _is_within(path: str, parent: str) -> bool:
     return path_parts[:len(parent_parts)] == parent_parts
 
 
+def _is_python_cache_path(value: str) -> bool:
+    """Return whether a path names a Python interpreter cache artifact."""
+    parts = PurePosixPath(value.replace("\\", "/")).parts
+    return "__pycache__" in parts or parts[-1].casefold().endswith(".pyc")
+
+
 def _validate_capabilities(prefix: str, caps: Any) -> list[str]:
     """Validate a target's capabilities block."""
     errors: list[str] = []
@@ -513,10 +519,9 @@ def _registry_owned_skill_dir_names(root: Path) -> Optional[set[str]]:
     """Return skill directory names owned by a registered module.
 
     Returns None when the module registry is absent (caller falls back to the
-    legacy ``cg-skill-*`` glob). When the registry is present, every existing
-    skill directory under ``.github/skills/`` is matched against registry
-    ``ownedAssets`` patterns; only directories owned by a declared module are
-    returned.
+    legacy ``cg-skill-*`` glob). When the registry is present, every canonical
+    skill directory containing ``SKILL.md`` must match a registry ``ownedAssets``
+    pattern; only registered directories are returned for active-suite filtering.
     """
     registry = _load_module_registry(root)
     if registry is None:
@@ -532,6 +537,9 @@ def _registry_owned_skill_dir_names(root: Path) -> Optional[set[str]]:
     for entry in sorted(skills_dir.iterdir()):
         if not entry.is_dir() or entry.is_symlink():
             continue
+        skill_file = entry / "SKILL.md"
+        if not skill_file.exists():
+            continue
         candidate = f".github/skills/{entry.name}/SKILL.md"
         if any(
             isinstance(pattern, str)
@@ -541,6 +549,11 @@ def _registry_owned_skill_dir_names(root: Path) -> Optional[set[str]]:
             for pattern in module.get("ownedAssets", [])
         ):
             names.add(entry.name)
+        else:
+            raise ValueError(
+                "Unowned canonical skill directory contains SKILL.md: "
+                f".github/skills/{entry.name}"
+            )
     return names
 
 
@@ -646,28 +659,15 @@ def scan_canonical_assets(
             if category == "shared" and path.name == "module-registry.json":
                 # The module registry is canonical-source tooling data whose
                 # body contains glob patterns (e.g. ".github/skills/cg-skill-r-*/")
-                # that the runtime-dependency rewriter would misread. It is not a
-                # per-platform runtime shared asset.
+                # that the runtime-dependency rewriter would misread. It is not
+                # a per-platform runtime shared asset.
                 continue
             if path.is_symlink():
                 raise ValueError(f"Canonical asset is a symlink: {path.relative_to(root)}")
             if not stat.S_ISREG(path.lstat().st_mode):
                 raise ValueError(f"Canonical asset is not a regular file: {path.relative_to(root)}")
-            content = path.read_text(encoding="utf-8")
-            fm = _get_parse_frontmatter()(content)
-            if content.lstrip("\ufeff\r\n").startswith("---"):
-                block = content.lstrip("\ufeff\r\n").split("---", 2)[1]
-                for line in block.splitlines():
-                    if line.startswith("description:"):
-                        raw_description = line.partition(":")[2].strip()
-                        if raw_description.startswith('"'):
-                            try:
-                                fm["description"] = json.loads(raw_description)
-                            except json.JSONDecodeError:
-                                pass
-                        elif raw_description.startswith("'") and raw_description.endswith("'"):
-                            fm["description"] = raw_description[1:-1].replace("''", "'")
-                        break
+            content = path.read_text(encoding="utf-8-sig")
+            fm = _get_parse_frontmatter()(content, source=path)
             rel = str(path.relative_to(root)).replace("\\", "/")
             if not _is_loadable(rel):
                 continue
@@ -703,7 +703,6 @@ def scan_canonical_assets(
             for name in sorted(owned_skill_names)
             if _is_loadable(f".github/skills/{name}/SKILL.md")
         ))
-
     scanned_skill_roots = {Path(skill["path"]).parent for skill in assets["skills"]}
     for skill_root in canonical_skill_roots:
         if skill_root.is_symlink():
@@ -742,8 +741,18 @@ def _inventory_skill_bundle(root: Path, skill_root: Path) -> list[dict[str, Any]
                 if entry.is_symlink():
                     raise ValueError(f"Skill bundle contains symlink entry: {relative}")
                 if entry.is_dir(follow_symlinks=False):
+                    if entry.name == "__pycache__":
+                        # Python bytecode caches are local interpreter artifacts,
+                        # never canonical skill bundle content. They appear when
+                        # a validator module is imported during local test runs
+                        # and must not leak into generated trees or manifests.
+                        continue
                     visit(path)
                 elif entry.is_file(follow_symlinks=False):
+                    if _is_python_cache_path(relative):
+                        raise ValueError(
+                            f"Skill bundle contains Python cache artifact: {relative}"
+                        )
                     mode = entry.stat(follow_symlinks=False).st_mode
                     files.append({
                         "path": str(path),
@@ -973,7 +982,10 @@ def _format_frontmatter(
     Returns:
         Formatted file content with new frontmatter + stripped body.
     """
-    desc = _yaml_scalar(fm.get("description", ""))
+    # Descriptions are always JSON/YAML double-quoted and ASCII-escaped. This
+    # prevents colon-space corruption and keeps generated frontmatter byte-safe
+    # across Windows, macOS, cloud sync, and strict YAML implementations.
+    desc = json.dumps(str(fm.get("description", "")), ensure_ascii=True)
     field_lines = ""
     for key, value in extra_fields.items():
         if value is not None:
@@ -1240,6 +1252,8 @@ def _read_prior_ownership_manifest_snapshot(
         path_errors = _validate_repo_relative_path(f"{label}.path", path)
         if path_errors:
             raise ValueError("; ".join(path_errors))
+        if _is_python_cache_path(path):
+            raise ValueError(f"{label}.path references Python cache artifact: {path}")
         if not _is_within(path, result.target_root) or path == result.target_root:
             raise ValueError(f"{label}.path is outside target root '{result.target_root}'")
         if path == manifest_destination:
@@ -1248,6 +1262,10 @@ def _read_prior_ownership_manifest_snapshot(
             raise ValueError(f"Ownership manifest has duplicate destination: {path}")
         if not isinstance(item["source"], str) or not item["source"]:
             raise ValueError(f"{label}.source must be a non-empty string")
+        if _is_python_cache_path(item["source"]):
+            raise ValueError(
+                f"{label}.source references Python cache artifact: {item['source']}"
+            )
         if not isinstance(item["kind"], str) or not item["kind"]:
             raise ValueError(f"{label}.kind must be a non-empty string")
         if not isinstance(item["sha256"], str) or not SHA256_PATTERN.fullmatch(item["sha256"]):
@@ -1427,6 +1445,13 @@ def commit_generation_plan(
             )
     for commit_plan in commit_plans:
         for stale in commit_plan.stale_files:
+            stale_path = root / stale.path
+            # Match the preflight tolerance for stale entries that no longer
+            # exist on disk (e.g. bytecode caches removed after a prior
+            # manifest was committed): the Windows secure-delete path pins
+            # every parent directory and would fail on a missing ancestor.
+            if not stale_path.exists() and not stale_path.is_symlink():
+                continue
             _secure_delete_stale(root, stale)
         commit_plan.manifest_path.parent.mkdir(parents=True, exist_ok=True)
         manifest_entry = OutputEntry(
@@ -1526,7 +1551,24 @@ def _emit_root_adapter(target: dict[str, Any]) -> str:
     """Emit a minimal root adapter file for the platform."""
     name = target["name"]
     paths = target["outputPaths"]
-    return f"# Compound GPID — {name} Adapter\n\nThis file is generated from the target mapping.\nIt maps Compound GPID `/cg-*` commands to native {name} paths.\n\n## Command Dispatch\n\n`/cg-<name> [args...]` -> `{paths['commands']}/cg-<name>.md`\n\n## Skills\n\nLoad skill files from `{paths['skills']}/*/SKILL.md`.\n\n## Agents\n\nAgent specs are under `{paths['agents']}/`.\n\n## Instructions And Contracts\n\nLanguage instructions are under `{paths['instructions']}/`; shared contracts are under `{paths['shared']}/`.\n"
+    adapter = f"# Compound GPID — {name} Adapter\n\nThis file is generated from the target mapping.\nIt maps Compound GPID `/cg-*` commands to native {name} paths.\n\n## Command Dispatch\n\n`/cg-<name> [args...]` -> `{paths['commands']}/cg-<name>.md`\n\n## Skills\n\nLoad skill files from `{paths['skills']}/*-skill-*/SKILL.md`.\n\n## Agents\n\nAgent specs are under `{paths['agents']}/`.\n\n## Instructions And Contracts\n\nLanguage instructions are under `{paths['instructions']}/`; shared contracts are under `{paths['shared']}/`.\n"
+    if target["id"] == "kilo":
+        adapter += (
+            "\n## Cross-Adapter Skill Discovery\n\n"
+            "Kilo auto-discovers `.agents/skills` and `.claude/skills` in addition to "
+            "`skills.paths`. As of the 2026-08-20 Kilo schema, project config has no "
+            "supported `only`, `exclude`, or auto-discovery switch; the process-level "
+            "`KILO_DISABLE_EXTERNAL_SKILLS` flag is not portable to VS Code/Positron "
+            "project installs. When Kilo and another adapter are linked together, "
+            "`cg-link` therefore keeps the adapter path as a junction/symlink but "
+            "points it at an adapter-specific managed mirror under "
+            "`.compound-gpid/kilo-compat-skills/`. This keeps every Kilo-reachable "
+            "`SKILL.md` inside the project trust boundary while preserving each "
+            "adapter's generated content. This workaround complements upstream Kilo "
+            "#12391/PR #12846 and remains necessary for Kilo versions that reject "
+            "auto-discovered compatibility skills resolving outside the project.\n"
+        )
+    return adapter
 
 
 def _emit_config(target: dict[str, Any]) -> str:
@@ -1549,6 +1591,12 @@ def _emit_config(target: dict[str, Any]) -> str:
             "instructions": [output_paths.get("rootAdapter", ".kilo/AGENTS.md")],
             "skills": {
                 "paths": [output_paths.get("skills", ".kilo/skills")],
+            },
+            # Mirrors are scanned through their adapter links. Ignore direct
+            # watcher churn under the backing directory; this is not the trust
+            # boundary fix and does not disable compatibility auto-discovery.
+            "watcher": {
+                "ignore": [".compound-gpid/kilo-compat-skills/**"],
             },
         }
         return json.dumps(config, indent=2, ensure_ascii=False) + "\n"

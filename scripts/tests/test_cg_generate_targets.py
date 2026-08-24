@@ -154,6 +154,15 @@ class TestScanCanonicalAssets:
         with pytest.raises(ValueError, match=f"canonical {category} inventory is empty"):
             gen.scan_canonical_assets(root)
 
+    def test_regular_pyc_inside_skill_bundle_is_rejected(self, tmp_path: Path) -> None:
+        root = _make_fixture_repo(tmp_path)
+        cache_file = root / ".github/skills/cg-skill-test/nested/module.pyc"
+        cache_file.parent.mkdir(parents=True)
+        cache_file.write_bytes(b"bytecode")
+
+        with pytest.raises(ValueError, match=r"cache|\.pyc"):
+            gen.scan_canonical_assets(root)
+
 
 class TestDryRun:
     def test_dry_run_produces_no_files(self, tmp_path: Path) -> None:
@@ -329,9 +338,20 @@ class TestGeneratorWrites:
         root = _make_fixture_repo(tmp_path)
         gen.main(["--root", str(root), "--target", "opencode"])
         content = (root / ".opencode/commands/cg-test.md").read_text()
-        assert "description: Test prompt" in content
+        assert 'description: "Test prompt"' in content
         assert "role:" not in content.split("---", 2)[1]
         assert "$ARGUMENTS" in content
+
+    def test_escaped_canonical_description_is_not_double_escaped(self, tmp_path: Path) -> None:
+        root = _make_fixture_repo(tmp_path)
+        _write(
+            root / ".github/prompts/cg-test.prompt.md",
+            '---\ndescription: "A \\"quoted\\" prompt"\n---\n\n# Test\n',
+        )
+        gen.main(["--root", str(root), "--target", "opencode"])
+        content = (root / ".opencode/commands/cg-test.md").read_text(encoding="utf-8")
+        description_line = next(line for line in content.splitlines() if line.startswith("description:"))
+        assert json.loads(description_line.partition(":")[2].strip()) == 'A "quoted" prompt'
 
     def test_opencode_uses_role_only_no_exact_models(self, tmp_path: Path) -> None:
         root = _make_fixture_repo(tmp_path)
@@ -351,13 +371,14 @@ class TestGeneratorWrites:
             "$schema": "https://app.kilo.ai/config.json",
             "instructions": [".kilo/AGENTS.md"],
             "skills": {"paths": [".kilo/skills"]},
+            "watcher": {"ignore": [".compound-gpid/kilo-compat-skills/**"]},
         }
 
     def test_kilo_commands_use_valid_frontmatter_and_arguments(self, tmp_path: Path) -> None:
         root = _make_fixture_repo(tmp_path)
         gen.main(["--root", str(root), "--target", "kilo"])
         content = (root / ".kilo/commands/cg-test.md").read_text()
-        assert "description: Test prompt" in content
+        assert 'description: "Test prompt"' in content
         assert "role:" not in content.split("---", 2)[1]
         assert "$ARGUMENTS" in content
 
@@ -512,15 +533,13 @@ class TestNamespaceAgnosticSkills:
         names = {Path(a["relative_path"]).parent.name for a in assets["skills"]}
         assert names == {"cg-skill-test", "cr-skill-identification"}
 
-    def test_discovery_skips_unregistered_skill_dir(self, tmp_path: Path) -> None:
+    def test_discovery_rejects_unregistered_skill_dir(self, tmp_path: Path) -> None:
         root = _make_fixture_repo(tmp_path)
         _write(root / ".github/skills/cr-skill-unowned/SKILL.md",
                "---\ndescription: unowned\n---\n\nBody.\n")
         self._registry(root, {"cg-skill-test": "cap-test"})
-        assets = gen.scan_canonical_assets(root)
-        names = {Path(a["relative_path"]).parent.name for a in assets["skills"]}
-        assert "cr-skill-unowned" not in names
-        assert names == {"cg-skill-test"}
+        with pytest.raises(ValueError, match="unowned|ownership"):
+            gen.scan_canonical_assets(root)
 
     def test_fallback_without_registry_keeps_cg_skill_glob(self, tmp_path: Path, capsys) -> None:
         root = _make_fixture_repo(tmp_path)
@@ -745,6 +764,31 @@ class TestOwnershipManifest:
             json.dumps(data), encoding="utf-8"
         )
         with pytest.raises(ValueError, match="target does not match"):
+            gen._read_prior_ownership_manifest(  # pylint: disable=protected-access
+                root, result
+            )
+
+    def test_read_prior_manifest_rejects_python_cache_path(self, tmp_path: Path) -> None:
+        root = tmp_path / "fixture"
+        (root / ".claude").mkdir(parents=True)
+        result = self._make_result(())
+        manifest = {
+            "schemaVersion": 1,
+            "target": "claude-code",
+            "policyVersion": 1,
+            "files": [{
+                "path": ".claude/skills/cg-skill-test/__pycache__/module.pyc",
+                "source": ".github/skills/cg-skill-test/__pycache__/module.pyc",
+                "kind": "skill-resource",
+                "sha256": "a" * 64,
+                "executable": False,
+            }],
+        }
+        (root / ".claude/.compound-gpid-generated.json").write_text(
+            json.dumps(manifest), encoding="utf-8"
+        )
+
+        with pytest.raises(ValueError, match=r"cache|\.pyc"):
             gen._read_prior_ownership_manifest(  # pylint: disable=protected-access
                 root, result
             )

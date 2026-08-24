@@ -880,7 +880,17 @@ def recover_projection(project_root: Path) -> dict[str, Any]:
     if not isinstance(platforms, dict) or not platforms:
         raise ProjectionError("journal has no valid platforms map")
 
-    generation_base = (project_root / GENERATIONS_DIRNAME).resolve()
+    generations_root = project_root / GENERATIONS_DIRNAME
+    if generations_root.is_symlink():
+        raise ProjectionError(
+            "journal generation root is a symlink or reparse point: "
+            f"{GENERATIONS_DIRNAME}"
+        )
+    if generations_root.exists() and not generations_root.is_dir():
+        raise ProjectionError(
+            f"journal generation root is not a directory: {GENERATIONS_DIRNAME}"
+        )
+    generation_base = generations_root.resolve()
     try:
         generation_dir = (project_root / GENERATIONS_DIRNAME / tx_id).resolve()
         generation_dir.relative_to(generation_base)

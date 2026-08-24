@@ -216,6 +216,29 @@ class TestNoDrift:
                 f"Orphaned files (first 10): {sorted(orphaned)[:10]}"
             )
 
+    def test_generated_trees_contain_no_python_cache_artifacts(self) -> None:
+        """Committed native trees must not contain interpreter cache content."""
+        committed = _committed_generated_files(
+            REPO_ROOT, [".claude", ".agents", ".opencode", ".kilo"]
+        )
+        cache_paths = [
+            path for path in committed
+            if "__pycache__" in path.split("/") or path.casefold().endswith(".pyc")
+        ]
+        assert not cache_paths, f"Generated trees contain Python cache artifacts: {cache_paths}"
+
+    def test_ownership_manifests_do_not_reference_python_cache_artifacts(self) -> None:
+        """Committed ownership manifests must exclude interpreter cache paths."""
+        cache_references = []
+        for rel_path in sorted(OWNERSHIP_MANIFESTS):
+            manifest = json.loads(_read_git_blob_bytes(REPO_ROOT, rel_path).decode("utf-8"))
+            for entry in manifest.get("files", []):
+                for key in ("path", "source"):
+                    value = entry.get(key, "")
+                    if "__pycache__" in value.split("/") or value.casefold().endswith(".pyc"):
+                        cache_references.append((rel_path, value))
+        assert not cache_references, f"Ownership manifests reference cache artifacts: {cache_references}"
+
     def test_committed_generated_content_matches_dry_run_manifest(self) -> None:
         """Committed generated files should match dry-run regenerated content."""
         expected = _expected_paths(REPO_ROOT)

@@ -3,7 +3,7 @@ name: cr-skill-research-workflow
 module: research
 description: "Overarching conventions for the compound-research workflow loop.
   Covers research task taxonomy (10 types), Research Integrity Priority System
-  (P0–P3), active P0 detection mechanisms, verification chain, .cg-docs/research/
+  (P0-P3), active P0 detection mechanisms, verification chain, .cg-docs/research/
   layout, reasoning-trail documentation, and PhD student scaffolding conventions.
   ALWAYS load for any /cr-* command."
 ---

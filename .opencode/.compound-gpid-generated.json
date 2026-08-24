@@ -7,7 +7,7 @@
       "path": ".opencode/AGENTS.md",
       "source": "adapter",
       "kind": "root-adapter",
-      "sha256": "4a402ca472ead71e590e48962534b63bcc33b8099363a859eda035e50232781e",
+      "sha256": "309e0295ee595884def8b8ecd81ae48ddde8275c4fd41dc6047465bba8358b8e",
       "executable": false
     },
     {
@@ -56,14 +56,14 @@
       "path": ".opencode/agents/cg-learnings-researcher.md",
       "source": ".github/agents/cg-learnings-researcher.agent.md",
       "kind": "agent",
-      "sha256": "2e84f7c778766bd7e0e3aaa7af0238555c2ddc86e6d60373ff5232cd2149e053",
+      "sha256": "b6dfa4421b106e4691ca6d35bba9736d482fc2afc8bc0930a2256482dbf9b726",
       "executable": false
     },
     {
       "path": ".opencode/agents/cg-performance.md",
       "source": ".github/agents/cg-performance.agent.md",
       "kind": "agent",
-      "sha256": "71a442ea46f766fedbcfe9fa85799921be794addaf1d7f7228509eb48ca24485",
+      "sha256": "1f6caa256c4a8b2bf355086a03924f7ed8e3b0e175e46cfbb22dd6f99dc59be6",
       "executable": false
     },
     {
@@ -98,7 +98,7 @@
       "path": ".opencode/agents/cg-roadmap-view.md",
       "source": ".github/agents/cg-roadmap-view.agent.md",
       "kind": "agent",
-      "sha256": "10c4d935090b909c79aeecfea0eb2cd9b0fa9218eea2545940ab38f2f3888a2e",
+      "sha256": "eef3fe63a007a1c9d54a6a02a8a46369dcb2e5909b17f5faa4fe9c1835fff88d",
       "executable": false
     },
     {
@@ -175,7 +175,7 @@
       "path": ".opencode/agents/cr-provenance-audit.md",
       "source": ".github/agents/cr-provenance-audit.agent.md",
       "kind": "agent",
-      "sha256": "dbc264dc2049b50dccf12140f8c3bc0a8b0424df76b12db7a310b87ebaf6e313",
+      "sha256": "e13490edd9b912494888f3952548908e6cebc9ac68afa4b483fb8ffed7d064b1",
       "executable": false
     },
     {
@@ -217,14 +217,14 @@
       "path": ".opencode/commands/cg-brainstorm.md",
       "source": ".github/prompts/cg-brainstorm.prompt.md",
       "kind": "command",
-      "sha256": "246ae38bf6e061bfdd670d790a7e7889a0378519f7a63ef19604f0d8737981b6",
+      "sha256": "c4d49f5b3b9dc577947ee6cbcce176011bd600bdbf6672596b377beae6c63365",
       "executable": false
     },
     {
       "path": ".opencode/commands/cg-commit-push-pr.md",
       "source": ".github/prompts/cg-commit-push-pr.prompt.md",
       "kind": "command",
-      "sha256": "c6c39680376e1242c7faf5f779a2e453efefed3aba6aff939e5128d1d4354319",
+      "sha256": "4431eb5664439cca5cd02b48add6be12b409208a275d7650af19a3436c665348",
       "executable": false
     },
     {
@@ -259,7 +259,7 @@
       "path": ".opencode/commands/cg-find-skill.md",
       "source": ".github/prompts/cg-find-skill.prompt.md",
       "kind": "command",
-      "sha256": "801c678cd54215a8ec1cbdc9649fe7a16eb3351eb9b34688927a915f48bd8ed6",
+      "sha256": "2975c5a561b7c752ffbd155f5a1dc782052a20ae14c62a115b9cde6d3d91de04",
       "executable": false
     },
     {
@@ -273,7 +273,7 @@
       "path": ".opencode/commands/cg-fix-triage.md",
       "source": ".github/prompts/cg-fix-triage.prompt.md",
       "kind": "command",
-      "sha256": "c0c73c88099193e80bcde8d509869a4db61bd5e655fc494564b336ba557d0c64",
+      "sha256": "1a09c240c49ef92864b42c8440f3c93b2fb9294290740a141656564bca00c4ac",
       "executable": false
     },
     {
@@ -315,14 +315,14 @@
       "path": ".opencode/commands/cg-plan.md",
       "source": ".github/prompts/cg-plan.prompt.md",
       "kind": "command",
-      "sha256": "ae91f98d44748a89d475bae8e30ef69a5e676f1e71ace79be3cb0af9150f140c",
+      "sha256": "9a852daa106453fa5d44e623d28f83b68525c778cc01c2e2727215d1271405e4",
       "executable": false
     },
     {
       "path": ".opencode/commands/cg-release.md",
       "source": ".github/prompts/cg-release.prompt.md",
       "kind": "command",
-      "sha256": "e048e0e9de53194df6ee21e57212e02ce656d172a548c054ffbd1bebbaa87ee8",
+      "sha256": "98e82890127eea36affa34eef7fab417f522847edc99611c2b861d677154a474",
       "executable": false
     },
     {
@@ -336,21 +336,21 @@
       "path": ".opencode/commands/cg-resume.md",
       "source": ".github/prompts/cg-resume.prompt.md",
       "kind": "command",
-      "sha256": "29788de7ee628a8c36693d459aa40c83422c1491d7d7323047c03db6c04bac21",
+      "sha256": "a353cd2b98d6abf131d75e5e125686a7725d940fb6d6bd54a944087bacf81202",
       "executable": false
     },
     {
       "path": ".opencode/commands/cg-review-repos.md",
       "source": ".github/prompts/cg-review-repos.prompt.md",
       "kind": "command",
-      "sha256": "e56f69f9e950857556ad3ebc3fe34b41a2a8c7dedb4c4d2783259f66f8175474",
+      "sha256": "f2e46b3faa7dc3a86beada1160c7b351ea87ce961c67345cbeb1205454779f78",
       "executable": false
     },
     {
       "path": ".opencode/commands/cg-review.md",
       "source": ".github/prompts/cg-review.prompt.md",
       "kind": "command",
-      "sha256": "3f3b48e0efea27c3cd90f8f11dc3756f5406951a34b40f4962581b7717ebf62b",
+      "sha256": "ac2d2766b80989613e1a1438a617a42c690e6552a115bf7455290e5e4f95492a",
       "executable": false
     },
     {
@@ -364,7 +364,7 @@
       "path": ".opencode/commands/cg-setup.md",
       "source": ".github/prompts/cg-setup.prompt.md",
       "kind": "command",
-      "sha256": "77beaaa280a7af9aa0d5a90e09b35e6de6dd1abfc3bee48c21aafab6592d69d4",
+      "sha256": "a3c7ad557b2eb4a39fbb2cc1224ce249cde18f9bf4d8b01d32c500d10060414a",
       "executable": false
     },
     {
@@ -378,14 +378,14 @@
       "path": ".opencode/commands/cg-token-audit.md",
       "source": ".github/prompts/cg-token-audit.prompt.md",
       "kind": "command",
-      "sha256": "1e211674ee31c2795e2d7e22a78482d2b4766a25b2fc6e65cbcdab0cfac13f1c",
+      "sha256": "f4de31824b94a4cdb42bd520f0035a25bd5edbb16c99c674fa90995f89712a14",
       "executable": false
     },
     {
       "path": ".opencode/commands/cg-verify-pr.md",
       "source": ".github/prompts/cg-verify-pr.prompt.md",
       "kind": "command",
-      "sha256": "27cb448acbaa5b935e2c64304df6afbd0679062ac594a8857ebd5e8651afb6d2",
+      "sha256": "83c7e5c2068020da2b8e108f569e1ca4b50c989a5cd3c48cc4116b8ae281f214",
       "executable": false
     },
     {
@@ -406,35 +406,35 @@
       "path": ".opencode/commands/cr-brainstorm.md",
       "source": ".github/prompts/cr-brainstorm.prompt.md",
       "kind": "command",
-      "sha256": "afe4367010877af979706d051a8002c92dc3f8feaed7fcec1e0077042b4de525",
+      "sha256": "0fd7f10c596a2d53d333a30926ad011859bf565c19b7eed1e93faab1267ac6fa",
       "executable": false
     },
     {
       "path": ".opencode/commands/cr-compound.md",
       "source": ".github/prompts/cr-compound.prompt.md",
       "kind": "command",
-      "sha256": "91b4aaf6b9c5c754943ab0c1db3dbcf956eddfedf07122b291262e5b256879fa",
+      "sha256": "accb5cf41695451186d06d344436ce19a5b85603720fe3efc3e6b3940dff371b",
       "executable": false
     },
     {
       "path": ".opencode/commands/cr-plan.md",
       "source": ".github/prompts/cr-plan.prompt.md",
       "kind": "command",
-      "sha256": "4a674981f18e3c6c12071d6f1a0e80a4dfbb4a9f1ca3285c61d9f5c2d2f25e7d",
+      "sha256": "8f1b7e69357ba1a3ac13fb1134882fa383ed648ddcba00139cfe6d8773c92f34",
       "executable": false
     },
     {
       "path": ".opencode/commands/cr-review.md",
       "source": ".github/prompts/cr-review.prompt.md",
       "kind": "command",
-      "sha256": "a4e985cdcd3d586b73c52fd48b7c6120865593e4dea92821d8851442bfb7c150",
+      "sha256": "1c1e026d3397f4631357aaad6a5723bbc76f518722745778b93d843119f56a55",
       "executable": false
     },
     {
       "path": ".opencode/commands/cr-work.md",
       "source": ".github/prompts/cr-work.prompt.md",
       "kind": "command",
-      "sha256": "6dc81546d3580f293901a17aa46dfa8a91615856ae5460301fb06079ebad96a9",
+      "sha256": "45baaa21484dba0fa1726f315c816b46d0f699aa2f08a1f8e00e451f38baa7ca",
       "executable": false
     },
     {
@@ -1988,7 +1988,7 @@
       "path": ".opencode/skills/cg-skill-yaml-frontmatter-lint/Invoke-YamlLint.ps1",
       "source": ".github/skills/cg-skill-yaml-frontmatter-lint/Invoke-YamlLint.ps1",
       "kind": "skill-resource",
-      "sha256": "68eb9627a35a1901c9463f3367bdf7ba74cd60d630b0558bf56d683cc0a335a3",
+      "sha256": "99df45b75bc4902a1d75490b3317e15f7397b6b246f94dd0ed6befff3f08338f",
       "executable": false
     },
     {
@@ -2002,14 +2002,14 @@
       "path": ".opencode/skills/cg-skill-yaml-frontmatter-lint/SKILL.md",
       "source": ".github/skills/cg-skill-yaml-frontmatter-lint/SKILL.md",
       "kind": "skill",
-      "sha256": "e4d0087b2e54f1249be4079d435754a303f23de2be960412c688cf06a72a1386",
+      "sha256": "0c1adac9f1453fc7f5d4c98ced29e0e4983285f4d87ee95d817192937f6a76ec",
       "executable": false
     },
     {
       "path": ".opencode/skills/cg-skill-yaml-frontmatter-lint/validate_yaml_frontmatter.py",
       "source": ".github/skills/cg-skill-yaml-frontmatter-lint/validate_yaml_frontmatter.py",
       "kind": "skill-resource",
-      "sha256": "813c0d2105af47ed9fc7918d6d3db8dff3798a43f8854a7f62a943deef2afadc",
+      "sha256": "f0b9dd51054e79bdab98188c3179b3fad2b58b43b2627cf5c55831dbdbec2c1a",
       "executable": false
     },
     {
@@ -2093,7 +2093,7 @@
       "path": ".opencode/skills/cr-skill-research-workflow/SKILL.md",
       "source": ".github/skills/cr-skill-research-workflow/SKILL.md",
       "kind": "skill",
-      "sha256": "b75f7fe2a658e8cb91cfc0a4a12500b0e105b78c42fe79f1b68f1b155e15a03c",
+      "sha256": "3d4e6139b975cf9af1dd4b71c264736b7dec7bb0b5d0dc59ef7f1382e4533c65",
       "executable": false
     },
     {

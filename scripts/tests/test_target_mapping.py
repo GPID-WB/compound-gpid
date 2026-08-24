@@ -129,6 +129,17 @@ class TestTargetMappingSchema:
         assert len(directory_units) == 5
         assert {unit["strategy"] for unit in directory_units} == {"copy-directory"}
 
+    def test_codex_directories_remain_link_directory(self) -> None:
+        data = gen.load_target_mapping(REPO_ROOT)
+        codex = next(t for t in data["targets"] if t["id"] == "codex")
+        directories = [
+            unit for unit in codex["installUnits"]
+            if unit["type"] == "directory"
+        ]
+        assert len(directories) == 5
+        assert {unit["strategy"] for unit in directories} == {"link-directory"}
+        assert any(unit["target"] == ".agents/skills" for unit in directories)
+
 
 class TestTargetMappingValidation:
     def test_missing_schema_version_fails(self) -> None:

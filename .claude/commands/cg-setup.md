@@ -1,5 +1,5 @@
 ---
-description: Configure Compound GPID for this project and load context for returning projects.
+description: "Configure Compound GPID for this project and load context for returning projects."
 ---
 
 # Setup

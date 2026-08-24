@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-08-17 · 579 artifacts (newest first) + 158 roadmap features_
+_Generated 2026-08-21 · 589 artifacts (newest first) + 158 roadmap features_
 
 ## undated
 
@@ -127,12 +127,38 @@ _Generated 2026-08-17 · 579 artifacts (newest first) + 158 roadmap features_
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
 
+## 2026-08-21
+
+- **[2026-08-21-pr-ci-preflight-and-kilo-capability-gates-verify-review](.cg-docs/reviews/2026-08-21-pr-ci-preflight-and-kilo-capability-gates-verify-review.md)** · `review` · _—_ · `2026-08-21`
+  > - **Review mode**: verify (light-only) - **Parent review**: `.cg-docs/reviews/2026-08-13-manifest-driven-skill-loadin…
+- **[Authoritative PR preflight prevents native-target and Kilo capability reruns](.cg-docs/solutions/git-workflows/2026-08-21-pr-ci-preflight-native-target-kilo-capability-gates.md)** · `solution` · _—_ · `2026-08-21`
+  > PR #141 exposed several failures that local guidance did not catch before a remote run: interpreter cache files could…
+- **[Prevent PR CI reruns with native-target and Kilo capability preflights](.cg-docs/plans/2026-08-21-pr-ci-preflight-and-kilo-capability-gates.md)** · `plan` · _completed_ · `2026-08-21`
+  > Make `/cg-commit-push-pr` and `/cg-verify-pr` stop release-critical native-target, module-closure, Kilo-host, PR-base…
+
+## 2026-08-20
+
+- **[Kilo cross-adapter skill auto-discovery resolves linked skills outside project](.cg-docs/solutions/bugs/2026-08-20-kilo-cross-adapter-skill-autodiscovery.md)** · `solution` · _—_ · `2026-08-20`
+  > Kilo in VS Code on Windows and Positron on macOS repeatedly reported:
+
 ## 2026-08-17
 
+- **[2026-08-13-manifest-driven-skill-loading-phase5-review](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-phase5-review.md)** · `review` · _—_ · `2026-08-17`
+  > **Review mode**: full (auto-routed: security-risk — vendor policy, import pipeline, admission checks) **Files reviewe…
+- **[2026-08-13-manifest-driven-skill-loading-phase5-verify-review](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-phase5-verify-review.md)** · `review` · _—_ · `2026-08-17`
+  > **Review mode**: verify (light depth) **Parent review**: `.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-p…
+- **[2026-08-17-capability-router-hard-stop](.cg-docs/solutions/architecture/2026-08-17-capability-router-hard-stop.md)** · `solution` · _—_ · `2026-08-17`
+  > When a command explicitly requests a capability (by id, task trigger, or skill reference) that is not active in the p…
+- **[2026-08-17-manifest-catalog-staleness-testing](.cg-docs/solutions/testing-patterns/2026-08-17-manifest-catalog-staleness-testing.md)** · `solution` · _—_ · `2026-08-17`
+  > The `cg_skill_catalog.py` catalog has a staleness guard that compares the on-disk manifest's immutable selection fiel…
+- **[2026-08-17-phase4-verify-review](.cg-docs/reviews/2026-08-17-phase4-verify-review.md)** · `review` · _—_ · `2026-08-17`
+  > 11 files changed, 1546 insertions, 452 deletions across Phase 4 implementation.
 - **[Journal security hardening patterns for atomic file publication](.cg-docs/solutions/testing-patterns/2026-08-17-journal-security-hardening-patterns.md)** · `solution` · _—_ · `2026-08-17`
   > The journaled projection synchronizer writes a `projection-journal.json` with a `transactionId` (32-hex) and records …
 - **[Manifest-driven install gate prevents junction conflicts with projection synchronizer](.cg-docs/solutions/environment-issues/2026-08-17-manifest-driven-install-gate-prevents-junction-conflicts.md)** · `solution` · _—_ · `2026-08-17`
   > `link.ps1`/`link.sh` create directory junctions for `.agents/*`, `.claude/*`, `.opencode/*` installUnits before the p…
+- **[Tar-slip, TOCTOU, and DoS fixes in quarantined import pipeline](.cg-docs/solutions/security/2026-08-17-tar-slip-toctou-dos-quarantine-pipeline.md)** · `solution` · _—_ · `2026-08-17`
+  > The `/cg-import-skill` importer had three security vulnerabilities discovered during code review: 1. **Tar path trave…
 - **[Windows long-path prefix required for staged file publication](.cg-docs/solutions/bugs/2026-08-17-windows-long-path-staged-publication.md)** · `solution` · _—_ · `2026-08-17`
   > The manifest-driven projection synchronizer (`cg_project_projection.py`) stages files under `<project>/.compound-gpid…
 
@@ -1475,7 +1501,7 @@ _Generated 2026-08-17 · 579 artifacts (newest first) + 158 roadmap features_
   > Auto-update Current Focus when a milestone completes (/cg-work or /cg-resume detects staleness)
 - **[Automated Documentation Deployment and What's New Page](roadmap.json#automated-documentation-deployment-and-whats-new-page)** · `feature` · _active_ · `—`
   > Automated Documentation Deployment and What's New Page
-- **[Automatic post-PR CI verification and universal PR targeting](roadmap.json#automatic-post-pr-verification-handoff)** · `feature` · _idea_ · `—`
+- **[Automatic post-PR CI verification and universal PR targeting](roadmap.json#automatic-post-pr-verification-handoff)** · `feature` · _done_ · `—`
   > Automatic post-PR CI verification and universal PR targeting
 - **[Autonomous pipeline command /cg-autopilot \(blocked on workflow research + hooks evaluation\)](roadmap.json#autonomous-pipeline-autopilot)** · `feature` · _idea_ · `—`
   > Autonomous pipeline command /cg-autopilot (blocked on workflow research + hooks evaluation)
@@ -1651,7 +1677,7 @@ _Generated 2026-08-17 · 579 artifacts (newest first) + 158 roadmap features_
   > Update prompt frontmatter model and agent choices
 - **[Split large prompts into thin entrypoints and on-demand skills](roadmap.json#prompt-skill-split)** · `feature` · _idea_ · `—`
   > Split large prompts into thin entrypoints and on-demand skills
-- **[Quarantined external-skill vendoring workflow](roadmap.json#quarantined-external-skill-vendoring)** · `feature` · _idea_ · `—`
+- **[Quarantined external-skill vendoring workflow](roadmap.json#quarantined-external-skill-vendoring)** · `feature` · _active_ · `—`
   > Quarantined external-skill vendoring workflow
 - **[R dialect skills architecture \(collapse, data.table, tidyverse\)](roadmap.json#r-dialect-skills-architecture)** · `feature` · _done_ · `—`
   > R dialect skills architecture (collapse, data.table, tidyverse)

@@ -9,7 +9,7 @@ It maps Compound GPID `/cg-*` commands to native OpenCode paths.
 
 ## Skills
 
-Load skill files from `.opencode/skills/*/SKILL.md`.
+Load skill files from `.opencode/skills/*-skill-*/SKILL.md`.
 
 ## Agents
 

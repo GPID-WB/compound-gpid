@@ -1,5 +1,5 @@
 ---
-description: Review external repos for features to integrate into compound-gpid. Developer-only.
+description: "Review external repos for features to integrate into compound-gpid. Developer-only."
 ---
 
 # Review External Repos

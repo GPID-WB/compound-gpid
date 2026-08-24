@@ -28,6 +28,7 @@ $ManifestPath = Join-Path $ProjectRoot ".compound-gpid/managed-files.json"
 $gitignorePath = Join-Path $ProjectRoot ".gitignore"
 $CopilotInstructionsMarker = "<!-- compound-gpid:managed -->"
 $CopiedDirectoryMarkerName = ".compound-gpid-managed-copy.json"
+$KiloCompatMirrorRootRel = ".compound-gpid/kilo-compat-skills"
 
 . (Join-Path $PSScriptRoot "helpers.ps1")
 
@@ -45,17 +46,55 @@ function Resolve-CgUnlinkArguments {
     return $force
 }
 
+function Get-CgNormalizedFullPath {
+    param([string]$Path)
+    return [System.IO.Path]::GetFullPath($Path).TrimEnd([char[]]@('\', '/'))
+}
+
 function Test-CgOwnedJunction {
-    param($Item)
-    if (-not $Item) { return $false }
-    return ($Item.LinkType -eq "Junction" -and (($Item.Target -join '') -like "*compound-gpid*"))
+    param($Item, [string]$ExpectedTarget)
+    if (-not $Item -or $Item.LinkType -ne "Junction") { return $false }
+    $actual = [string]($Item.Target -join '')
+    if (-not [System.IO.Path]::IsPathRooted($actual)) {
+        $actual = Join-Path $Item.Parent.FullName $actual
+    }
+    return (Get-CgNormalizedFullPath $actual).Equals(
+        (Get-CgNormalizedFullPath $ExpectedTarget),
+        [System.StringComparison]::OrdinalIgnoreCase
+    )
+}
+
+function Test-CgManagedCopyPathSafe {
+    param([string]$Path)
+    $projectFull = Get-CgNormalizedFullPath $ProjectRoot
+    $pathFull = Get-CgNormalizedFullPath $Path
+    $prefix = $projectFull + [System.IO.Path]::DirectorySeparatorChar
+    if (-not $pathFull.StartsWith($prefix, [System.StringComparison]::OrdinalIgnoreCase)) { return $false }
+    $relative = $pathFull.Substring($projectFull.Length).TrimStart([char[]]@('\', '/'))
+    $current = $projectFull
+    foreach ($part in @($relative -split '[\\/]')) {
+        if (-not $part) { continue }
+        $current = Join-Path $current $part
+        if (-not (Test-Path -LiteralPath $current)) { continue }
+        $item = Get-Item -LiteralPath $current -Force
+        if (($item.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) { return $false }
+    }
+    return $true
 }
 
 function Remove-CgCopiedDirectoryUnit {
     param([string]$TargetRel)
     $target = Join-Path $ProjectRoot $TargetRel
     $markerPath = Join-Path $target $CopiedDirectoryMarkerName
+    if (-not (Test-CgManagedCopyPathSafe -Path $target)) {
+        Write-Warning "  $TargetRel crosses a reparse point or leaves the project; leaving it in place."
+        return $false
+    }
     if (-not (Test-Path -LiteralPath $markerPath -PathType Leaf)) { return $false }
+    if (-not (Test-CgManagedCopyPathSafe -Path $markerPath)) {
+        Write-Warning "  $TargetRel has a linked managed-copy marker; leaving it in place."
+        return $false
+    }
 
     # Only a directory bearing a valid managed-copy marker is Compound-owned.
     # We delete files whose current checksum still equals the recorded one and
@@ -103,6 +142,10 @@ function Remove-CgCopiedDirectoryUnit {
             Write-Warning "  $TargetRel/$relative has an unsafe managed-copy path; leaving it in place."
             continue
         }
+        if (-not (Test-CgManagedCopyPathSafe -Path $resolved)) {
+            Write-Warning "  $TargetRel/$relative crosses a reparse point; leaving it in place."
+            continue
+        }
         if (-not (Test-Path -LiteralPath $resolved -PathType Leaf)) { continue }
         $current = Get-CgFileSha256 -Path $resolved
         if ($current -eq [string]$property.Value) {
@@ -147,11 +190,21 @@ function Remove-CgJunction {
 }
 
 function Remove-CgDirectoryUnit {
-    param([string]$TargetRel)
+    param(
+        [string]$TargetRel,
+        [string]$SourceRel,
+        [string]$PlatformId
+    )
     $target = Join-Path $ProjectRoot $TargetRel
     $item = Get-Item -Path $target -ErrorAction SilentlyContinue
     if (-not $item) { return $false }
-    if (Test-CgOwnedJunction $item) {
+    $source = Join-Path $CompoundGpidDir $SourceRel
+    $owned = Test-CgOwnedJunction -Item $item -ExpectedTarget $source
+    if (-not $owned -and $TargetRel -in @(".claude/skills", ".agents/skills", ".opencode/skills")) {
+        $mirror = Join-Path $ProjectRoot "$KiloCompatMirrorRootRel/$PlatformId"
+        $owned = Test-CgOwnedJunction -Item $item -ExpectedTarget $mirror
+    }
+    if ($owned) {
         Remove-CgJunction -Path $target
         Write-Host "  $TargetRel - junction removed" -ForegroundColor DarkGray
         return $true
@@ -163,10 +216,38 @@ function Remove-CgDirectoryUnit {
     if ($item.PSIsContainer) {
         # Real directory: remove only if it is a managed copy-directory
         # (marker present); otherwise treat as user-owned and skip.
-        return Remove-CgCopiedDirectoryUnit -TargetRel $TargetRel
+        $removed = Remove-CgCopiedDirectoryUnit -TargetRel $TargetRel
+        if ($removed -and -not (Get-ChildItem -LiteralPath $target -Force -ErrorAction SilentlyContinue)) {
+            Remove-Item -LiteralPath $target -Force
+        }
+        return $removed
     }
     Write-Host "  $TargetRel - user-owned path, skipping" -ForegroundColor Yellow
     return $false
+}
+
+function Remove-CgKiloCompatibilityMirrors {
+    $removed = $false
+    foreach ($platformId in @("claude-code", "codex", "opencode")) {
+        $mirrorRel = "$KiloCompatMirrorRootRel/$platformId"
+        $mirrorPath = Join-Path $ProjectRoot $mirrorRel
+        $unitRemoved = Remove-CgCopiedDirectoryUnit -TargetRel $mirrorRel
+        if ($unitRemoved) { $removed = $true }
+        $mirrorItem = Get-Item -LiteralPath $mirrorPath -Force -ErrorAction SilentlyContinue
+        if ($unitRemoved -and $mirrorItem -and -not $mirrorItem.LinkType -and
+            (Test-CgManagedCopyPathSafe -Path $mirrorPath) -and
+            -not (Get-ChildItem -LiteralPath $mirrorPath -Force -ErrorAction SilentlyContinue)) {
+            Remove-Item -LiteralPath $mirrorPath -Force
+        }
+    }
+    $mirrorRoot = Join-Path $ProjectRoot $KiloCompatMirrorRootRel
+    $mirrorRootItem = Get-Item -LiteralPath $mirrorRoot -Force -ErrorAction SilentlyContinue
+    if ($removed -and $mirrorRootItem -and -not $mirrorRootItem.LinkType -and
+        (Test-CgManagedCopyPathSafe -Path $mirrorRoot) -and
+        -not (Get-ChildItem -LiteralPath $mirrorRoot -Force -ErrorAction SilentlyContinue)) {
+        Remove-Item -LiteralPath $mirrorRoot -Force
+    }
+    return $removed
 }
 
 function Remove-CgManagedFile {
@@ -228,7 +309,8 @@ function Remove-CgGitignoreBlock {
 function Remove-CgEmptyRoot {
     param([string]$RootName)
     $rootPath = Join-Path $ProjectRoot $RootName
-    if ((Test-Path $rootPath) -and (Get-Item $rootPath).PSIsContainer) {
+    $item = Get-Item -LiteralPath $rootPath -Force -ErrorAction SilentlyContinue
+    if ($item -and $item.PSIsContainer -and -not $item.LinkType) {
         $remaining = Get-ChildItem -Path $rootPath -Force -ErrorAction SilentlyContinue
         if (($remaining | Measure-Object).Count -eq 0) {
             Remove-Item -Path $rootPath -Force
@@ -267,7 +349,7 @@ $roots = New-Object System.Collections.ArrayList
 foreach ($rootName in @(".github", ".claude", ".agents", ".opencode", ".kilo")) {
     $rootPath = Join-Path $ProjectRoot $rootName
     $item = Get-Item -Path $rootPath -ErrorAction SilentlyContinue
-    if (Test-CgOwnedJunction $item) {
+    if (Test-CgOwnedJunction -Item $item -ExpectedTarget (Join-Path $CompoundGpidDir $rootName)) {
         Remove-CgJunction -Path $rootPath
         Write-Host "  $rootName/ - legacy whole-root junction removed" -ForegroundColor DarkGray
         $removedAny = $true
@@ -283,13 +365,15 @@ if (Test-Path $TargetMappingPath) {
             $rootName = $targetRel.Split("/")[0]
             if (-not $roots.Contains($rootName)) { [void]$roots.Add($rootName) }
             if ([string]$unit.type -eq "directory") {
-                if (Remove-CgDirectoryUnit -TargetRel $targetRel) { $removedAny = $true }
+                if (Remove-CgDirectoryUnit -TargetRel $targetRel -SourceRel ([string]$unit.source) -PlatformId ([string]$target.id)) { $removedAny = $true }
             } else {
                 if (Remove-CgManagedFile -TargetRel $targetRel -Manifest $manifest) { $removedAny = $true }
             }
         }
     }
 }
+
+if (Remove-CgKiloCompatibilityMirrors) { $removedAny = $true }
 
 if ($manifest.files.Count -gt 0) {
     Write-CgManagedFilesManifest -ManifestPath $ManifestPath -Manifest $manifest

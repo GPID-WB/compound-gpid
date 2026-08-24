@@ -50,7 +50,7 @@ You are a performance specialist for R, Python, and Stata data science projects,
 - **Stata**: Is `compress` used before saving to minimize file size? Are unused variables dropped early? Is `preserve`/`restore` used instead of reloading large datasets?
 
 ### 5. Algorithm Complexity
-- Are there O(nÂ²) or worse operations that could be O(n log n) or O(n)?
+- Are there O(n^2) or worse operations that could be O(n log n) or O(n)?
 - Are there repeated lookups that should use hash tables/keys/indices?
 - Are there nested loops over large data that could be replaced with joins?
 - Are sort operations repeated unnecessarily?
