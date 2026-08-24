@@ -47,6 +47,30 @@ def _run_validator(root: Path, *extra: str) -> subprocess.CompletedProcess:
     return subprocess.run(cmd, capture_output=True, text=True, cwd=str(REPO_ROOT), check=False)
 
 
+def _copy_tracked_adapter_tree(adapter: str, destination: Path) -> Path:
+    """Materialize only release-shipped adapter metadata for linting.
+
+    Gitignored local prototypes may live below an adapter's ``skills``
+    directory, but they are not part of the committed release inventory.
+    """
+    result = subprocess.run(
+        ["git", "ls-files", "--", f"{adapter}/agents", f"{adapter}/skills"],
+        cwd=str(REPO_ROOT), capture_output=True, text=True, check=True,
+    )
+    adapter_root = destination / adapter.lstrip(".")
+    for relative_text in result.stdout.splitlines():
+        relative = Path(relative_text)
+        if relative.name != "SKILL.md" and not (
+            relative.parent.name == "agents" and relative.suffix == ".md"
+        ):
+            continue
+        source = REPO_ROOT / relative
+        target = adapter_root / relative.relative_to(adapter)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(source, target)
+    return adapter_root
+
+
 def _write_bom_only_valid_file(tmp_path: Path) -> Path:
     """Create a valid tree with one agent that has only a UTF-8 BOM violation.
 
@@ -156,12 +180,15 @@ def test_description_matcher_is_line_scoped_and_escape_aware(
 
 
 @pytest.mark.parametrize("adapter", (".github", ".agents", ".kilo", ".opencode", ".claude"))
-def test_every_shipped_adapter_tree_passes_frontmatter_lint(adapter: str) -> None:
+def test_every_shipped_adapter_tree_passes_frontmatter_lint(
+    adapter: str, tmp_path: Path,
+) -> None:
     """The release gate scans every canonical and generated adapter tree."""
     root = REPO_ROOT / adapter
     if not root.is_dir():
         pytest.skip(f"adapter tree not present: {adapter}")
-    result = _run_validator(root)
+    tracked_root = _copy_tracked_adapter_tree(adapter, tmp_path)
+    result = _run_validator(tracked_root)
     assert result.returncode == 0, result.stdout + result.stderr
 
 

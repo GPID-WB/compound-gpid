@@ -105,6 +105,27 @@ generated from `releases/*.json` release payloads. Release payloads are the
 durable public-release source for the page; the GitHub Release remains the public
 release record. `RELEASE_NOTES.md` stays ephemeral and gitignored.
 
+### Release tag policy
+
+Compound GPID supports two release tag forms:
+
+| Tag form | Purpose | GitHub release type |
+|----------|---------|---------------------|
+| `v<major>.<minor>.<patch>` | Stable release | Release |
+| `v<major>.<minor>.<patch>.<build>` | Installable test release, conventionally using build numbers `9000+` | Prerelease |
+
+Pass an exact tag to `/cg-release` when preparing a test release:
+
+```text
+/cg-release v1.2.0.9008
+```
+
+The four-component form is a first-class release identifier, not malformed
+semver input. `/cg-release` accepts it for new and resumed releases and always
+passes `-Prerelease` to `create-release.ps1`. Three-component tags remain the
+stable channel. Published release tags and immutable payloads must not be
+deleted or reused.
+
 ### Release payload schema
 
 Immutable, tracked files named `releases/v<major>.<minor>.<patch>[.<dev>].json`;
@@ -114,7 +135,7 @@ never rendered as a second release.
 | Field | Required | Value |
 |-------|----------|-------|
 | `schemaVersion` | yes | `1` |
-| `tag` | yes | valid semver tag (e.g. `v1.2.3`) |
+| `tag` | yes | stable or prerelease tag (e.g. `v1.2.3` or `v1.2.3.9000`) |
 | `publishedAt` | yes | UTC ISO-8601 |
 | `name` | yes | release title |
 | `url` | yes | GitHub release URL shape |
@@ -133,7 +154,7 @@ Local payload validation (the machine-checkable guard before any payload
 commit):
 
 ```bash
-node scripts/generate-whats-new.js --validate-payload releases/v1.2.3.json
+node scripts/generate-whats-new.js --validate-payload releases/v1.2.3.9000.json
 ```
 
 ### Deployment behavior

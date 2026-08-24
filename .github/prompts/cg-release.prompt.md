@@ -32,6 +32,12 @@ If the file is missing or `project-name` does not equal `"Compound GPID"`:
 
 Parse optional arguments from the user's invocation message before running any steps:
 
+- `<tag>`: Request the tag for a new release. It must match
+  `^v\d+\.\d+\.\d+(\.\d+)?$`, accepting either a stable `vX.Y.Z` tag or a
+  four-component `vX.Y.Z.<build>` prerelease tag. A supplied tag overrides the
+  scanner's semver suggestion but still requires confirmation in Step 1f. A
+  four-component tag always sets `<prerelease>` to `true`; it must be published
+  with GitHub's prerelease flag rather than as a stable release.
 - `--since <value>`: Override the default 60-day scan window floor.
   - If value matches `^\d+$` (digits only, e.g., `--since 90`): treat as days.
   - If value matches `^\d{4}-\d{2}-\d{2}$` (e.g., `--since 2026-03-01`): treat as an ISO cutoff date. If the parsed date is after today, warn the user and fall back to the 60-day default.
@@ -41,7 +47,8 @@ Parse optional arguments from the user's invocation message before running any s
   `max(--since value, tag age)` when a prior tag exists. This ensures release notes never omit
   work done since the last release.
 - `--resume <tag>`: Resume an interrupted release for an existing tag. The tag
-  must match `^v\d+\.\d+\.\d+$`; do not combine it with `--since`. Resume skips
+  must match `^v\d+\.\d+\.\d+(\.\d+)?$`; do not combine it with `--since` or
+  the new-release `<tag>` argument. Resume skips
   the new-release scan, payload creation, commit, and tag creation steps. It
   validates the committed immutable payload and exact tag, waits for that tag's
   Pages deployment, then retries only the unfinished GitHub Release API call.
@@ -132,6 +139,9 @@ If the scan summary shows excluded entries, note:
 > _N commits and M .cg-docs entries older than the scan window were excluded from this report._
 
 Record the confirmed `<next-tag>` — all subsequent steps reference it.
+Set `<prerelease>` to `true` when `<next-tag>` has four numeric components and
+to `false` when it has three. This derivation is mandatory even when the user
+supplied the tag directly.
 
 ### Step 2: Check SCHEMA_VERSION
 
@@ -227,7 +237,7 @@ Ready to publish:
   Tag:             <proposed-tag>
   Name:            <proposed-name>  (derive from the top feature in New Features, formatted as "<tag> - <short feature title>")
   Draft:           No  (or Yes if requested)
-  Prerelease:      No  (or Yes if requested)
+  Prerelease:      <Yes for a four-component tag; otherwise No unless requested>
   SCHEMA_VERSION:  <status from Step 2>
 
 Release notes preview:
@@ -386,7 +396,8 @@ tag, and observed successful tag-site deployment, run:
 ```
 
 Add `-Draft` if the user requested a draft release.
-Add `-Prerelease` if the user requested a prerelease.
+Add `-Prerelease` whenever `<prerelease>` is `true`. Four-component tags always
+set it to `true`; do not publish `vX.Y.Z.<build>` as a stable GitHub Release.
 
 After the script completes, read `release-result.txt`:
 - If it starts with `CREATED|` — extract the URL and report success:
@@ -403,6 +414,7 @@ After the script completes, read `release-result.txt`:
 - Never run `create-release.ps1` without explicit user confirmation in Step 4,
   validated durable payloads, an exact pushed tag, and a successful tag-site deployment.
 - Never modify `SCHEMA_VERSION` automatically. Warn only.
+- Always publish four-component `vX.Y.Z.<build>` tags as GitHub prereleases.
 - `RELEASE_NOTES.md` is ephemeral and gitignored. Release payload JSON is the
   durable What's New source; the GitHub Release is the public release record.
 - If you are unsure whether a change is "structural" for SCHEMA_VERSION purposes, err on the side of warning the user.

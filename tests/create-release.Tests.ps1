@@ -12,43 +12,49 @@
 # ---------------------------------------------------------------------------
 
 Describe "create-release.ps1 - tag format validation" {
+    $tagPattern = '^v\d+\.\d+\.\d+(\.\d+)?$'
+
     Context "valid tag formats" {
         It "accepts v0.0.0 (leading zeros)" {
-            ("v0.0.0" -match '^v\d+\.\d+\.\d+$') | Should -Be $true
+            ("v0.0.0" -match $tagPattern) | Should -Be $true
         }
 
         It "accepts v1.2.3 (standard semver)" {
-            ("v1.2.3" -match '^v\d+\.\d+\.\d+$') | Should -Be $true
+            ("v1.2.3" -match $tagPattern) | Should -Be $true
         }
 
         It "accepts v10.20.300 (multi-digit components)" {
-            ("v10.20.300" -match '^v\d+\.\d+\.\d+$') | Should -Be $true
+            ("v10.20.300" -match $tagPattern) | Should -Be $true
+        }
+
+        It "accepts v1.2.0.9008 (four-component prerelease)" {
+            ("v1.2.0.9008" -match $tagPattern) | Should -Be $true
         }
     }
 
     Context "invalid tag formats" {
         It "rejects 1.2.3 (missing v prefix)" {
-            ("1.2.3" -match '^v\d+\.\d+\.\d+$') | Should -Be $false
+            ("1.2.3" -match $tagPattern) | Should -Be $false
         }
 
         It "rejects v1.2 (only two components)" {
-            ("v1.2" -match '^v\d+\.\d+\.\d+$') | Should -Be $false
+            ("v1.2" -match $tagPattern) | Should -Be $false
         }
 
         It "rejects vx.y.z (non-numeric components)" {
-            ("vx.y.z" -match '^v\d+\.\d+\.\d+$') | Should -Be $false
+            ("vx.y.z" -match $tagPattern) | Should -Be $false
         }
 
-        It "rejects v1.2.3.4 (four components)" {
-            ("v1.2.3.4" -match '^v\d+\.\d+\.\d+$') | Should -Be $false
+        It "rejects v1.2.3.4.5 (five components)" {
+            ("v1.2.3.4.5" -match $tagPattern) | Should -Be $false
         }
 
         It "rejects empty string" {
-            ("" -match '^v\d+\.\d+\.\d+$') | Should -Be $false
+            ("" -match $tagPattern) | Should -Be $false
         }
 
         It "rejects v1.2.3-beta (pre-release suffix)" {
-            ("v1.2.3-beta" -match '^v\d+\.\d+\.\d+$') | Should -Be $false
+            ("v1.2.3-beta" -match $tagPattern) | Should -Be $false
         }
     }
 }

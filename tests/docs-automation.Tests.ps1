@@ -156,6 +156,10 @@ Describe "Release payload sequencing contracts" {
         $scanner | Should -Match '0x1e'
         $releasePrompt | Should -Match 'git rev-parse --verify <next-tag>\^\{commit\}'
         $releasePrompt | Should -Match '--resume <tag>'
+        $releasePrompt | Should -Match '\^v\\d\+\\\.\\d\+\\\.\\d\+\(\\\.\\d\+\)\?\$'
+        $releasePrompt | Should -Match 'four-component `vX\.Y\.Z\.<build>` prerelease tag'
+        $releasePrompt | Should -Match 'Four-component tags always[\s\S]*GitHub prereleases'
+        $releasePrompt | Should -Match 'Add `-Prerelease` whenever `<prerelease>` is `true`'
         $releasePrompt | Should -Match 'Never overwrite an[\s\S]*immutable payload or create a new tag during resume'
     }
 

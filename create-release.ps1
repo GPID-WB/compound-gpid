@@ -8,7 +8,8 @@ Retrieves credentials from Git Credential Manager (idempotent -- skips if releas
 Writes release metadata to release-result.txt next to this script.
 
 .PARAMETER Tag
-The git tag in semver format (v<major>.<minor>.<patch>). Required.
+The git tag in stable or dev-prerelease format
+(v<major>.<minor>.<patch>[.<build>]). Required.
 
 .PARAMETER Name
 The GitHub Release name/title. Required.
@@ -27,6 +28,9 @@ If present, marks the release as a prerelease.
 
 .EXAMPLE
 .\create-release.ps1 -Tag v0.0.6 -Name "v0.0.6 - Draft" -NotesFile RELEASE_NOTES.md -Draft
+
+.EXAMPLE
+.\create-release.ps1 -Tag v1.2.0.9008 -Name "v1.2.0.9008 - Test release" -NotesFile RELEASE_NOTES.md -Prerelease
 
 .NOTES
 Output format in release-result.txt (written next to this script):
