@@ -116,6 +116,8 @@ def test_shell_links_fresh_manifest_driven_kilo_project(
         assert not root.is_symlink(), f"Projected root is a symlink: {root}"
     assert (project / ".kilo/commands/cg-plan.md").is_file()
     assert (project / ".compound-gpid/active-manifest.json").is_file()
+    gitignore = (project / ".gitignore").read_text(encoding="utf-8")
+    assert ".kilo" in {line.rstrip("/") for line in gitignore.splitlines()}
     if required_instruction is not None:
         assert (project / ".kilo/instructions" / required_instruction).is_file()
     if excluded_instruction is not None:

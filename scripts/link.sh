@@ -921,6 +921,13 @@ if [ -d "$PROJECT_ROOT/.compound-gpid" ] && [ -f "$PROJECT_ROOT/.compound-gpid/a
         exit 1
     fi
     print_gray "Project projection: synced and verified"
+
+    # Generated projection roots are reproducible runtime output. Keep them in
+    # the managed gitignore block while leaving active-manifest.json reviewable.
+    for platform in "${selected_parts[@]}"; do
+        projection_root="$(generated_tree_root "$platform")"
+        [ -n "$projection_root" ] && printf '%s\n' "$projection_root" >> "$entries_file"
+    done
 fi
 
 protect_kilo_compatibility_skill_links

@@ -961,6 +961,17 @@ if ((Test-Path -LiteralPath $compProjectionStateDir) -and
         Write-Error "Linking is blocked by manifest projection failure: $_"
         exit 1
     }
+
+    # Generated projection roots are reproducible runtime output. Keep them in
+    # the managed gitignore block while leaving active-manifest.json reviewable.
+    foreach ($platformId in $selectedPlatforms) {
+        $selectedTarget = @($mapping.targets | Where-Object { $_.id -eq $platformId })[0]
+        foreach ($managedRoot in @($selectedTarget.projectRoots.managed)) {
+            if (-not [string]::IsNullOrWhiteSpace([string]$managedRoot)) {
+                [void]$installedEntries.Add((ConvertTo-CgSlashPath ([string]$managedRoot)))
+            }
+        }
+    }
 }
 
 foreach ($entry in @(Protect-CgKiloCompatibilitySkillLinks -Mapping $mapping)) {

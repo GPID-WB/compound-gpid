@@ -1199,6 +1199,7 @@ suites: [cg]
             }
             Test-Path -LiteralPath (Join-Path $project ".kilo\commands\cg-plan.md") | Should -Be $true
             Test-Path -LiteralPath (Join-Path $project ".compound-gpid\active-manifest.json") | Should -Be $true
+            (Get-Content -LiteralPath (Join-Path $project ".gitignore") -Raw) | Should -Match '(?m)^\.kilo/?$'
         }
 
         It "rejects invalid manifest config before project mutation" {
