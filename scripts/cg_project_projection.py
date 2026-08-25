@@ -484,10 +484,11 @@ def _inventory_staged_destinations(
     link; the final regular-file check here is defense in depth.
     """
     inventory: dict[str, str] = {}
-    for path in sorted(staging_root.rglob("*")):
+    scan_root = _windows_scannable_path(staging_root)
+    for path in sorted(scan_root.rglob("*")):
         if path.is_symlink() or not path.is_file():
             continue
-        relative = path.relative_to(staging_root).as_posix()
+        relative = path.relative_to(scan_root).as_posix()
         if not _is_safe_relative(relative):
             raise ProjectionError(f"staged path escapes staging root: {relative!r}")
         inventory[relative] = hashlib.sha256(path.read_bytes()).hexdigest()
@@ -535,13 +536,20 @@ def _validate_staged_tree(
 
 def _validate_staged_markdown_utf8(staging_root: Path) -> None:
     """Reject staged Markdown that is not decodable as UTF-8 (fail closed)."""
-    for path in sorted(staging_root.rglob("*.md")):
+    for path in sorted(_windows_scannable_path(staging_root).rglob("*.md")):
         if path.is_symlink() or not path.is_file():
             continue
         try:
             path.read_text(encoding="utf-8")
         except UnicodeDecodeError as exc:
             raise ProjectionError(f"staged Markdown is not valid UTF-8: {path}") from exc
+
+
+def _windows_scannable_path(path: Path) -> Path:
+    """Return a pathlib root that can enumerate paths beyond MAX_PATH."""
+    if os.name == "nt":
+        return Path(secure_fs._windows_long_path(path))  # pylint: disable=protected-access
+    return path
 
 
 # ---------------------------------------------------------------------------
@@ -842,7 +850,7 @@ def publish_projection(
 
 def _remove_tree_no_follow(root: Path) -> None:
     """Delete a tree without following any link/reparse entry (children only)."""
-    for child in sorted(root.glob("*"), reverse=True):
+    for child in sorted(_windows_scannable_path(root).glob("*"), reverse=True):
         if child.is_symlink():
             child.unlink()
         elif child.is_dir():
@@ -1022,7 +1030,8 @@ def _staged_entries_from_generation(
             source_file.relative_to(generation_arena)
         except ValueError:
             raise ProjectionError(f"generation source escapes arena: {relative}") from None
-        actual = _regular_file_hash(source_file)
+        filesystem_source = _windows_scannable_path(source_file)
+        actual = _regular_file_hash(filesystem_source)
         if not _is_sha256(expected_sha) or actual != expected_sha:
             raise ProjectionError(f"generation hash mismatch for {relative}")
         entries.append(ProjectionEntry(
@@ -1030,9 +1039,9 @@ def _staged_entries_from_generation(
             destination=relative,
             source="recovered-generation",
             kind="recovered",
-            content=source_file.read_bytes(),
+            content=filesystem_source.read_bytes(),
             sha256=expected_sha,
-            executable=os.access(source_file, os.X_OK),
+            executable=os.access(filesystem_source, os.X_OK),
         ))
     return entries
 
@@ -1080,14 +1089,15 @@ def verify_projection(
             problems.append(f"{destination}: invalid ownership sha256")
             continue
         path = project_root / Path(*PurePosixPath(destination).parts)
-        if not path.exists():
+        filesystem_path = _windows_scannable_path(path)
+        if not filesystem_path.exists():
             problems.append(f"{destination}: projected file is missing")
             continue
-        if path.is_symlink() or not path.is_file():
+        if filesystem_path.is_symlink() or not filesystem_path.is_file():
             problems.append(f"{destination}: projected path is not a regular file")
             continue
         try:
-            if _regular_file_hash(path) != expected_sha:
+            if _regular_file_hash(filesystem_path) != expected_sha:
                 problems.append(f"{destination}: projected file drifted from ownership")
         except ProjectionError as exc:
             problems.append(str(exc))

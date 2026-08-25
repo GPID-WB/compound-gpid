@@ -917,13 +917,16 @@ function Resolve-CgActiveManifest {
         Consumer project root.
     .PARAMETER PlatformIds
         Comma-separated selected platform ids (default: all canonical).
+    .PARAMETER SourceRoot
+        Compound GPID source root containing the registry and canonical assets.
     .OUTPUTS
         PSCustomObject with the worker's status line.
     .EXAMPLE
-        Resolve-CgActiveManifest -ProjectRoot (Get-Location).Path -PlatformIds "kilo,opencode"
+        Resolve-CgActiveManifest -ProjectRoot (Get-Location).Path -SourceRoot (Split-Path $PSScriptRoot -Parent) -PlatformIds "kilo,opencode"
     #>
     param(
         [Parameter(Mandatory)][string]$ProjectRoot,
+        [Parameter(Mandatory)][string]$SourceRoot,
         [string]$PlatformIds
     )
 
@@ -935,7 +938,11 @@ function Resolve-CgActiveManifest {
     if (-not (Test-Path -LiteralPath $worker -PathType Leaf)) {
         throw "Active manifest worker not found at: $worker"
     }
-    $manifestArgs = @("--root", $ProjectRoot, "--ensure-state")
+    $manifestArgs = @(
+        "--root", $ProjectRoot,
+        "--source-root", $SourceRoot,
+        "--ensure-state"
+    )
     if (-not [string]::IsNullOrWhiteSpace($PlatformIds)) {
         $manifestArgs += @("--platforms", $PlatformIds)
     }

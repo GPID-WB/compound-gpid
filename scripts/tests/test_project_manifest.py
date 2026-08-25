@@ -91,6 +91,48 @@ class TestResolution:
         assert selection["desiredPlanDigest"]
         assert resolved["catalogRecords"]
 
+    def test_separate_source_root_bootstraps_fresh_consumer(self, tmp_path: Path) -> None:
+        source_root = _repo_root(tmp_path / "source")
+        consumer_root = tmp_path / "consumer"
+        _create_file(
+            consumer_root,
+            "compound-gpid.local.md",
+            '---\nlanguage: "r"\nsuites: [cg]\n---\n# consumer config\n',
+        )
+
+        resolved = manifest.resolve_active_manifest(
+            consumer_root,
+            platforms=["kilo"],
+            source_root=source_root,
+        )
+
+        assert resolved["selection"]["platforms"] == ["kilo"]
+        assert "cap-language-r" in resolved["selection"]["moduleClosure"]
+        assert "cap-language-python" not in resolved["selection"]["moduleClosure"]
+        assert resolved["catalogRecords"]
+
+    def test_cli_uses_separate_source_root(self, tmp_path: Path) -> None:
+        source_root = _repo_root(tmp_path / "source")
+        consumer_root = tmp_path / "consumer"
+        _create_file(
+            consumer_root,
+            "compound-gpid.local.md",
+            '---\nlanguage: "r"\nsuites: [cg]\n---\n# consumer config\n',
+        )
+
+        exit_code = manifest.main([
+            "--root", str(consumer_root),
+            "--source-root", str(source_root),
+            "--platforms", "kilo",
+            "--ensure-state",
+        ])
+
+        assert exit_code == 0
+        active = json.loads(
+            (consumer_root / ".compound-gpid/active-manifest.json").read_text(encoding="utf-8")
+        )
+        assert active["selection"]["platforms"] == ["kilo"]
+
     def test_absent_suites_defaults_to_cg_once(self, tmp_path: Path) -> None:
         root = _repo_root(tmp_path)
         config_path = root / "compound-gpid.local.md"

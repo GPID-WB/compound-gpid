@@ -901,6 +901,18 @@ if ($missingSources.Count -gt 0) {
     exit 1
 }
 
+$manifestDriven = Test-Path -LiteralPath (Join-Path $ProjectRoot "compound-gpid.local.md")
+$compProjectionStateDir = Join-Path $ProjectRoot ".compound-gpid"
+if ($manifestDriven) {
+    try {
+        [void](Resolve-CgActiveManifest -ProjectRoot $ProjectRoot -SourceRoot $CompoundGpidDir -PlatformIds ($selectedPlatforms -join ","))
+        Write-Host "  Active manifest: resolved for $($selectedPlatforms -join ', ')" -ForegroundColor DarkGray
+    } catch {
+        Write-Error "Linking is blocked by active manifest resolution failure: $_"
+        exit 1
+    }
+}
+
 $manifest = Read-CgManagedFilesManifest -ManifestPath $ManifestPath
 Remove-CgLegacyModelMappingFiles -Manifest $manifest
 $installedEntries = New-Object System.Collections.ArrayList
@@ -911,7 +923,6 @@ $installedEntries = New-Object System.Collections.ArrayList
 # junction/copy first would make the no-follow synchronizer reject the root
 # (link/reparse destination). Copilot (canonical .github) and legacy
 # (non-manifest) consumers keep the legacy junction/copy path.
-$manifestDriven = Test-Path -LiteralPath (Join-Path $ProjectRoot "compound-gpid.local.md")
 
 foreach ($target in $targets) {
     Write-Host "Linking $($target.name)..." -ForegroundColor DarkGray
@@ -938,6 +949,20 @@ foreach ($target in $targets) {
     }
 }
 
+# Publish manifest-driven roots before Kilo validates the local projection.
+# The legacy installer intentionally skips these directories, so preflight
+# cannot run until the synchronizer has materialized them.
+if ((Test-Path -LiteralPath $compProjectionStateDir) -and
+    (Test-Path -LiteralPath (Join-Path $compProjectionStateDir "active-manifest.json"))) {
+    try {
+        [void](Invoke-CgProjection -ProjectRoot $ProjectRoot -SourceRoot $CompoundGpidDir -Mode sync)
+        Write-Host "  Project projection: synced and verified" -ForegroundColor DarkGray
+    } catch {
+        Write-Error "Linking is blocked by manifest projection failure: $_"
+        exit 1
+    }
+}
+
 foreach ($entry in @(Protect-CgKiloCompatibilitySkillLinks -Mapping $mapping)) {
     [void]$installedEntries.Add($entry)
 }
@@ -945,10 +970,6 @@ foreach ($entry in @(Protect-CgKiloCompatibilitySkillLinks -Mapping $mapping)) {
 if ($manifest.files.Count -gt 0) {
     Write-CgManagedFilesManifest -ManifestPath $ManifestPath -Manifest $manifest
     [void]$installedEntries.Add(".compound-gpid/managed-files.json")
-}
-
-if ("kilo" -in $selectedPlatforms) {
-    Update-CgKiloGlobalPermission -CompoundGpidDir $CompoundGpidDir | Out-Null
 }
 
 # Kilo can discover Codex/Claude skill roots from the same project. A combined
@@ -978,38 +999,11 @@ if ($kiloSelected -or ($compatibilityPresent -and $kiloRootPresent)) {
     }
 }
 
+if ("kilo" -in $selectedPlatforms) {
+    Update-CgKiloGlobalPermission -CompoundGpidDir $CompoundGpidDir | Out-Null
+}
+
 Update-CgGitignoreBlock -Entries (@($installedEntries) + (Get-CgInstalledGitignoreEntries -Mapping $mapping -Manifest $manifest))
-
-$compProjectionStateDir = Join-Path $ProjectRoot ".compound-gpid"
-if (Test-Path -LiteralPath (Join-Path $ProjectRoot "compound-gpid.local.md")) {
-    # Persist the selected platform set in the committed active manifest so no
-    # separate resolution command is needed during later cg-update runs. A
-    # manifest-driven consumer with invalid strict config fails closed: linking
-    # must not silently fall through to the legacy unfiltered tree.
-    try {
-        [void](Resolve-CgActiveManifest -ProjectRoot $ProjectRoot -PlatformIds ($selectedPlatforms -join ","))
-        Write-Host "  Active manifest: resolved for $($selectedPlatforms -join ', ')" -ForegroundColor DarkGray
-    } catch {
-        Write-Error "Linking is blocked by active manifest resolution failure: $_"
-        exit 1
-    }
-}
-
-# For a manifest-driven consumer project, verify the committed active manifest
-# and recover/publish the project-local projection through the journaled
-# synchronizer. Fresh junction/copy links without a .compound-gpid state are
-# left on the legacy path; a projection error blocks the link success banner.
-$managedStateDir = $compProjectionStateDir
-if ((Test-Path -LiteralPath $managedStateDir) -and
-    (Test-Path -LiteralPath (Join-Path $managedStateDir "active-manifest.json"))) {
-    try {
-        [void](Invoke-CgProjection -ProjectRoot $ProjectRoot -SourceRoot $CompoundGpidDir -Mode sync)
-        Write-Host "  Project projection: synced and verified" -ForegroundColor DarkGray
-    } catch {
-        Write-Error "Linking is blocked by manifest projection failure: $_"
-        exit 1
-    }
-}
 
 Write-Host ""
 Write-Host "Platform availability checks:" -ForegroundColor DarkGray

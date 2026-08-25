@@ -1150,6 +1150,95 @@ Describe "link.ps1 - manifest-driven projection integration" {
             $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\link.ps1") -Raw -Encoding UTF8
             $content | Should -Match 'blocked by manifest projection failure'
         }
+
+        It "projects a fresh Kilo consumer before local preflight" {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $project = Join-Path $TestDrive "fresh-manifest-kilo-project"
+            $profileDir = Join-Path $TestDrive "fresh-manifest-kilo-profile"
+            New-Item -ItemType Directory -Path $project, $profileDir -Force | Out-Null
+            $config = @"
+---
+language: "both"
+project-type: "tool"
+review-depth: "thorough"
+suites: [cg]
+---
+# Test project
+"@
+            $utf8NoBom = New-Object -TypeName System.Text.UTF8Encoding -ArgumentList $false
+            [System.IO.File]::WriteAllText(
+                (Join-Path $project "compound-gpid.local.md"),
+                $config,
+                $utf8NoBom
+            )
+
+            $oldProfile = $env:USERPROFILE
+            $oldSkipUpdate = $env:CG_SKIP_UPDATE
+            Push-Location $project
+            try {
+                $env:USERPROFILE = $profileDir
+                $env:CG_SKIP_UPDATE = "1"
+                $linkPath = (Join-Path $repoRoot "scripts\link.ps1").Replace("'", "''")
+                $command = "& '$linkPath' -RawArgs @('--platforms', 'kilo', '--yes')"
+                $output = @(& powershell.exe -NoProfile -ExecutionPolicy Bypass -Command $command 2>&1)
+                $linkExitCode = $LASTEXITCODE
+            } finally {
+                Pop-Location
+                $env:USERPROFILE = $oldProfile
+                $env:CG_SKIP_UPDATE = $oldSkipUpdate
+            }
+
+            $diagnostic = $output -join "`n"
+            $linkExitCode | Should -Be 0 -Because $diagnostic
+            $diagnostic | Should -Not -Match 'local-projection-missing'
+            $diagnostic | Should -Match 'Kilo preflight: ok'
+            foreach ($rootName in @("commands", "skills", "agents", "instructions", "shared")) {
+                $root = Join-Path $project ".kilo\$rootName"
+                Test-Path -LiteralPath $root -PathType Container | Should -Be $true -Because $diagnostic
+                (Get-Item -LiteralPath $root -Force).LinkType | Should -BeNullOrEmpty
+            }
+            Test-Path -LiteralPath (Join-Path $project ".kilo\commands\cg-plan.md") | Should -Be $true
+            Test-Path -LiteralPath (Join-Path $project ".compound-gpid\active-manifest.json") | Should -Be $true
+        }
+
+        It "rejects invalid manifest config before project mutation" {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $project = Join-Path $TestDrive "invalid-manifest-kilo-project"
+            $profileDir = Join-Path $TestDrive "invalid-manifest-kilo-profile"
+            New-Item -ItemType Directory -Path $project, $profileDir -Force | Out-Null
+            $sentinel = Join-Path $project "user-content.txt"
+            Set-Content -LiteralPath $sentinel -Value "preserve me"
+            $config = "---`nunknown-key: invalid`n---`n# Invalid test config`n"
+            $utf8NoBom = New-Object -TypeName System.Text.UTF8Encoding -ArgumentList $false
+            [System.IO.File]::WriteAllText(
+                (Join-Path $project "compound-gpid.local.md"),
+                $config,
+                $utf8NoBom
+            )
+
+            $oldProfile = $env:USERPROFILE
+            $oldSkipUpdate = $env:CG_SKIP_UPDATE
+            Push-Location $project
+            try {
+                $env:USERPROFILE = $profileDir
+                $env:CG_SKIP_UPDATE = "1"
+                $linkPath = (Join-Path $repoRoot "scripts\link.ps1").Replace("'", "''")
+                $command = "& '$linkPath' -RawArgs @('--platforms', 'kilo', '--yes')"
+                $output = @(& powershell.exe -NoProfile -ExecutionPolicy Bypass -Command $command 2>&1)
+                $linkExitCode = $LASTEXITCODE
+            } finally {
+                Pop-Location
+                $env:USERPROFILE = $oldProfile
+                $env:CG_SKIP_UPDATE = $oldSkipUpdate
+            }
+
+            $diagnostic = $output -join "`n"
+            $linkExitCode | Should -Not -Be 0
+            (Get-Content -LiteralPath $sentinel -Raw).Trim() | Should -Be "preserve me"
+            Test-Path -LiteralPath (Join-Path $project ".kilo") | Should -Be $false
+            $diagnostic | Should -Not -Match 'Kilo preflight:'
+            $diagnostic | Should -Not -Match 'Linked!'
+        }
     }
 }
 
