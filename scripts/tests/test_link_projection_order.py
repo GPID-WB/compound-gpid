@@ -118,7 +118,18 @@ def test_shell_links_fresh_manifest_driven_kilo_project(
     assert (project / ".kilo/commands/cg-plan.md").is_file()
     assert (project / ".compound-gpid/active-manifest.json").is_file()
     gitignore = (project / ".gitignore").read_text(encoding="utf-8")
-    assert ".kilo" in {line.rstrip("/") for line in gitignore.splitlines()}
+    ignored = {line.rstrip("/") for line in gitignore.splitlines()}
+    assert ".kilo" in ignored
+    assert {
+        ".compound-gpid/active",
+        ".compound-gpid/generations",
+        ".compound-gpid/projection-ownership.json",
+        ".compound-gpid/projection-transaction.json",
+        ".compound-gpid/staging",
+        ".compound-gpid/quarantine",
+        ".compound-gpid/retired",
+    } <= ignored
+    assert ".compound-gpid/active-manifest.json" not in ignored
     if required_instruction is not None:
         assert (project / ".kilo/instructions" / required_instruction).is_file()
     if excluded_instruction is not None:

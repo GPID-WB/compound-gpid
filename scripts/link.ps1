@@ -972,6 +972,19 @@ if ((Test-Path -LiteralPath $compProjectionStateDir) -and
             }
         }
     }
+    foreach ($runtimeEntry in @(
+        ".compound-gpid/active/",
+        ".compound-gpid/generations/",
+        ".compound-gpid/projection-ownership.json",
+        ".compound-gpid/projection-transaction.json",
+        ".compound-gpid/staging/",
+        ".compound-gpid/quarantine/",
+        ".compound-gpid/retired/",
+        ".compound-gpid/*.tmp",
+        ".compound-gpid/*.bak"
+    )) {
+        [void]$installedEntries.Add($runtimeEntry)
+    }
 }
 
 foreach ($entry in @(Protect-CgKiloCompatibilitySkillLinks -Mapping $mapping)) {

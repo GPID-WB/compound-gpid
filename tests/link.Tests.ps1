@@ -1199,7 +1199,20 @@ suites: [cg]
             }
             Test-Path -LiteralPath (Join-Path $project ".kilo\commands\cg-plan.md") | Should -Be $true
             Test-Path -LiteralPath (Join-Path $project ".compound-gpid\active-manifest.json") | Should -Be $true
-            (Get-Content -LiteralPath (Join-Path $project ".gitignore") -Raw) | Should -Match '(?m)^\.kilo/?$'
+            $gitignore = Get-Content -LiteralPath (Join-Path $project ".gitignore") -Raw
+            $gitignore | Should -Match '(?m)^\.kilo/?$'
+            foreach ($runtimeEntry in @(
+                ".compound-gpid/active/",
+                ".compound-gpid/generations/",
+                ".compound-gpid/projection-ownership.json",
+                ".compound-gpid/projection-transaction.json",
+                ".compound-gpid/staging/",
+                ".compound-gpid/quarantine/",
+                ".compound-gpid/retired/"
+            )) {
+                $gitignore | Should -Match ("(?m)^" + [regex]::Escape($runtimeEntry) + "$")
+            }
+            $gitignore | Should -Not -Match '(?m)^\.compound-gpid/active-manifest\.json$'
         }
 
         It "rejects invalid manifest config before project mutation" {

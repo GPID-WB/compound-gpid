@@ -928,6 +928,16 @@ if [ -d "$PROJECT_ROOT/.compound-gpid" ] && [ -f "$PROJECT_ROOT/.compound-gpid/a
         projection_root="$(platform_generated_tree "$platform")"
         [ -n "$projection_root" ] && printf '%s\n' "$projection_root" >> "$entries_file"
     done
+    printf '%s\n' \
+        '.compound-gpid/active/' \
+        '.compound-gpid/generations/' \
+        '.compound-gpid/projection-ownership.json' \
+        '.compound-gpid/projection-transaction.json' \
+        '.compound-gpid/staging/' \
+        '.compound-gpid/quarantine/' \
+        '.compound-gpid/retired/' \
+        '.compound-gpid/*.tmp' \
+        '.compound-gpid/*.bak' >> "$entries_file"
 fi
 
 protect_kilo_compatibility_skill_links
