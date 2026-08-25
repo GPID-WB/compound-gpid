@@ -133,6 +133,27 @@ class TestResolution:
         )
         assert active["selection"]["platforms"] == ["kilo"]
 
+    def test_model_advisory_does_not_block_manifest_resolution(self, tmp_path: Path) -> None:
+        root = _repo_root(tmp_path)
+        (root / "compound-gpid.local.md").write_text(
+            "---\n"
+            'language: "both"\n'
+            "suites: [cg]\n"
+            "model-advisory:\n"
+            "  enabled: true\n"
+            "  examples:\n"
+            "    planning: strong-planning-example\n"
+            "    effort: high\n"
+            "---\n"
+            "# config\n",
+            encoding="utf-8",
+        )
+
+        resolved = manifest.resolve_active_manifest(root, platforms=["kilo"])
+
+        assert resolved["selection"]["platforms"] == ["kilo"]
+        assert resolved["selection"]["suites"] == ["cg"]
+
     def test_absent_suites_defaults_to_cg_once(self, tmp_path: Path) -> None:
         root = _repo_root(tmp_path)
         config_path = root / "compound-gpid.local.md"

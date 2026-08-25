@@ -54,6 +54,26 @@ class TestValidGrammar:
         assert parsed.valid, parsed.errors
         assert parsed.suites == ["cg", "cr"]
 
+    def test_nonselection_model_advisory_block_is_ignored(self) -> None:
+        text = _config([
+            'language: "both"',
+            "suites: [cg]",
+            "model-advisory:",
+            "  enabled: true",
+            "  examples:",
+            "    planning: strong-planning-example",
+            "    effort: high",
+            'review-depth: "standard"',
+        ])
+
+        parsed = parse_strict_config(text)
+
+        assert parsed.valid, parsed.errors
+        assert parsed.suites == ["cg"]
+        assert parsed.settings["language"] == "both"
+        assert parsed.settings["review-depth"] == "standard"
+        assert "model-advisory" not in parsed.settings
+
 
 class TestInvalidGrammar:
     @pytest.mark.parametrize("bad_line", [
@@ -108,6 +128,55 @@ class TestInvalidGrammar:
 
     def test_unrecognized_key_fails_with_remediation(self) -> None:
         parsed = parse_strict_config(_config(["mystery: 'x'"]))
+        assert not parsed.valid
+        assert any("unrecognized config key 'mystery'" in error for error in parsed.errors)
+
+    def test_malformed_inline_model_advisory_is_nonfatal(self) -> None:
+        parsed = parse_strict_config(_config(["model-advisory: enabled"]))
+        assert parsed.valid, parsed.errors
+        assert "model-advisory" not in parsed.settings
+
+    def test_malformed_nested_model_advisory_is_nonfatal(self) -> None:
+        parsed = parse_strict_config(_config([
+            "model-advisory:",
+            "\tmalformed: advisory",
+            'language: "r"',
+        ]))
+        assert parsed.valid, parsed.errors
+        assert parsed.settings["language"] == "r"
+
+    def test_malformed_model_advisory_header_tab_is_nonfatal(self) -> None:
+        parsed = parse_strict_config(_config([
+            "model-advisory:\tenabled",
+            'language: "r"',
+        ]))
+        assert parsed.valid, parsed.errors
+        assert parsed.settings["language"] == "r"
+
+    @pytest.mark.parametrize("header", ["model-advisory : enabled", "model-advisory\t: enabled"])
+    def test_model_advisory_whitespace_before_colon_is_nonfatal(self, header: str) -> None:
+        parsed = parse_strict_config(_config([header, 'language: "r"']))
+        assert parsed.valid, parsed.errors
+        assert parsed.settings["language"] == "r"
+
+    def test_duplicate_model_advisory_blocks_are_nonfatal(self) -> None:
+        parsed = parse_strict_config(_config([
+            "model-advisory:",
+            "  enabled: true",
+            "model-advisory:",
+            "  enabled: false",
+            "suites: [cg]",
+        ]))
+        assert parsed.valid, parsed.errors
+        assert parsed.suites == ["cg"]
+
+    def test_indented_advisory_fence_does_not_hide_unknown_top_level_key(self) -> None:
+        parsed = parse_strict_config(_config([
+            "model-advisory:",
+            "  notes: |",
+            "    ---",
+            'mystery: "must still fail"',
+        ]))
         assert not parsed.valid
         assert any("unrecognized config key 'mystery'" in error for error in parsed.errors)
 
