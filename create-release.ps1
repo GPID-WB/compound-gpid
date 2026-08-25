@@ -279,12 +279,16 @@ function Get-CgRepositoryRuleset {
     )
 
     for ($attempt = 1; $attempt -le 3; $attempt++) {
-        $summaries = @(Invoke-RestMethod -Uri "https://api.github.com/repos/GPID-WB/compound-gpid/rulesets" -Headers $headers)
-        $match = @($summaries | Where-Object {
-            $_.name -eq $RulesetName -and
-            $_.target -eq $RulesetTarget -and
-            $_.enforcement -eq "active"
-        })
+        $summaryResponse = Invoke-RestMethod -Uri "https://api.github.com/repos/GPID-WB/compound-gpid/rulesets" -Headers $headers
+        $summaries = @($summaryResponse)
+        $match = @()
+        foreach ($summary in $summaries) {
+            if ($summary.name -eq $RulesetName -and
+                $summary.target -eq $RulesetTarget -and
+                $summary.enforcement -eq "active") {
+                $match += $summary
+            }
+        }
         if ($match.Count -eq 1) {
             $detail = Invoke-RestMethod -Uri "https://api.github.com/repos/GPID-WB/compound-gpid/rulesets/$($match[0].id)" -Headers $headers
             $properties = @($detail.PSObject.Properties.Name)
@@ -369,7 +373,7 @@ $controllerRunName = "Deploy docs from $($matchingBuildRuns[0].id)"
 $pagesRunsUri = "https://api.github.com/repos/GPID-WB/compound-gpid/actions/workflows/release-pages.yml/runs?event=workflow_run&per_page=50"
 $pagesRuns = Invoke-RestMethod -Uri $pagesRunsUri -Headers $headers
 $matchingPagesRuns = @($pagesRuns.workflow_runs | Where-Object {
-    $_.name -eq "Deploy release documentation" -and $_.display_title -eq $controllerRunName
+    $_.name -eq $controllerRunName -and $_.display_title -eq $controllerRunName
 })
 if ($matchingPagesRuns.Count -ne 1 -or
     $matchingPagesRuns[0].status -ne "completed" -or
@@ -394,7 +398,8 @@ $immutablePayloads = @(Get-ChildItem -LiteralPath (Join-Path $PSScriptRoot "rele
 if ($immutablePayloads.Count -lt 1 -or [string]$immutablePayloads[0].tag -ne $Tag) {
     throw "Target tag '$Tag' must be the newest immutable release payload."
 }
-$publishedReleases = @(Invoke-RestMethod -Uri "https://api.github.com/repos/GPID-WB/compound-gpid/releases?per_page=100" -Headers $headers)
+$publishedReleaseResponse = Invoke-RestMethod -Uri "https://api.github.com/repos/GPID-WB/compound-gpid/releases?per_page=100" -Headers $headers
+$publishedReleases = @($publishedReleaseResponse)
 $publishedByTag = @{}
 foreach ($published in @($publishedReleases)) {
     if (-not [bool]$published.draft) { $publishedByTag[[string]$published.tag_name] = $published }
