@@ -739,6 +739,28 @@ class TestRealRepo:
         assert plan.platforms
         assert plan.entries
 
+    def test_python_only_cg_kilo_plan_resolves(self) -> None:
+        config = '---\nlanguage: "python"\nsuites: [cg]\n---\n# config\n'
+        manifest = manifest_module.resolve_active_manifest(
+            REPO_ROOT,
+            config_text=config,
+            platforms=["kilo"],
+            source_root=REPO_ROOT,
+        )
+
+        plan = projection.build_projection_plan(REPO_ROOT, manifest)
+        destinations = {entry.destination for entry in plan.entries}
+
+        assert ".kilo/commands/cg-fixbug.md" in destinations
+        assert ".kilo/instructions/python.instructions.md" in destinations
+        assert ".kilo/instructions/r.instructions.md" not in destinations
+        fixbug = next(
+            entry.content.decode("utf-8")
+            for entry in plan.entries
+            if entry.destination == ".kilo/commands/cg-fixbug.md"
+        )
+        assert "cg-skill-r-testing" not in fixbug
+
 
 class TestManifestFreshness:
     def _fresh_manifest(self, tmp_path: Path) -> tuple[Path, dict]:

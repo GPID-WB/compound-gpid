@@ -280,7 +280,7 @@
       "path": ".kilo/commands/cg-fixbug.md",
       "source": ".github/prompts/cg-fixbug.prompt.md",
       "kind": "command",
-      "sha256": "95ab661373aed93367f32079fecc4391a19621d0773544cfd5b2d4ea1e50bb71",
+      "sha256": "ed1dc0cdc0bc6ff2003377ec8746bd570bb5e64dfc7e3832f02ee28fbd94e1b1",
       "executable": false
     },
     {

@@ -280,7 +280,7 @@
       "path": ".claude/commands/cg-fixbug.md",
       "source": ".github/prompts/cg-fixbug.prompt.md",
       "kind": "command",
-      "sha256": "6829531849f9fc5c411d5946f876acc79a275e96ecacb721acae5348de0bb924",
+      "sha256": "495efde4edd2a25df7fd31622f89b0d7c6d92fc6ebccdcf5e5605bc0280422ce",
       "executable": false
     },
     {

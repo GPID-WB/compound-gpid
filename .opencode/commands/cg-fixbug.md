@@ -67,9 +67,8 @@ Valid sources (in priority order):
 6. **Hand-computed example** — known input → known output, verifiable without running the code
 7. **Backward-compatibility contract** — prior version's documented behavior
 
-R projects: load `cg-skill-r-testing` and its `references/test-integrity.md` for detection signals when classifying test gaps in Step 2.5.
-
-> See also `cg-skill-r-testing/references/test-integrity.md — Expected Behavior Sources` for source examples.
+When the active project includes language-specific testing guidance, load it for
+additional detection signals when classifying test gaps in Step 2.5.
 
 If no source can be identified, ask:
 > "I cannot determine the expected behavior from the code or documentation alone.
@@ -137,7 +136,7 @@ not catch this bug. State explicitly:
 
 > **Classification note**: `circular-test` is a subcategory of `wrong-test`. Prefer `circular-test` when the root cause is the derivation method (expected value was computed by running the implementation). Use `wrong-test` when expected values are incorrect for other reasons.
 
-> For typical signals distinguishing each category, see [`cg-skill-r-testing/references/test-integrity.md — Test Gap Taxonomy`](./../skills/cg-skill-r-testing/references/test-integrity.md).
+Use the taxonomy and definitions above consistently across supported languages.
 
 This classification informs which tests to repair in Step 4 and the Lessons Learned in Step 5.
 
@@ -159,10 +158,9 @@ This classification informs which tests to repair in Step 4 and the Lessons Lear
 
 ### Step 4: Fix — HARD STOP
 
-1. Implement the fix based on the confirmed diagnosis. Follow project conventions:
-   - R: follow `.opencode/instructions/r.instructions.md` style.
-   - Python: follow `.opencode/instructions/python.instructions.md` style.
-   - Stata: follow `.opencode/instructions/stata.instructions.md` style and load `cg-skill-stata-best-practices`.
+1. Implement the fix based on the confirmed diagnosis. Follow the active
+   project's language instructions and load any language-specific skills
+   selected by the project configuration.
 
 2. **Demonstrate red-green proof** (run these checks in order, report each result):
 

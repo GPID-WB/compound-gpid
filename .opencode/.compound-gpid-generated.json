@@ -280,7 +280,7 @@
       "path": ".opencode/commands/cg-fixbug.md",
       "source": ".github/prompts/cg-fixbug.prompt.md",
       "kind": "command",
-      "sha256": "fb05a253278df0b067a70f35d49c67a059a25d3e14f1750cf2b09e48cc2c9710",
+      "sha256": "2620bd7b54eda7e179bb652b59e811553ddb17f40de679eefcb4d6abaf0b9d36",
       "executable": false
     },
     {

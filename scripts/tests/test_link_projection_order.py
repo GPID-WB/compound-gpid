@@ -18,6 +18,18 @@ suites: [cg]
 ---
 # Test project
 """
+PYTHON_LOCAL_CONFIG = """---
+language: "python"
+project-type: "tool"
+review-depth: "thorough"
+suites: [cg]
+model-advisory:
+  enabled: true
+  examples:
+    planning: strong-planning-example
+---
+# Python test project
+"""
 REQUIRED_KILO_ROOTS = ("commands", "skills", "agents", "instructions", "shared")
 
 
@@ -51,7 +63,24 @@ def test_shell_projects_before_local_kilo_preflight() -> None:
 
 
 @pytest.mark.skipif(os.name == "nt", reason="macOS/Linux link.sh integration")
-def test_shell_links_fresh_manifest_driven_kilo_project(tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    ("local_config", "required_instruction", "excluded_instruction"),
+    [
+        (LOCAL_CONFIG, None, None),
+        (
+            PYTHON_LOCAL_CONFIG,
+            "python.instructions.md",
+            "r.instructions.md",
+        ),
+    ],
+    ids=("both-languages", "python-only-with-advisory"),
+)
+def test_shell_links_fresh_manifest_driven_kilo_project(
+    tmp_path: Path,
+    local_config: str,
+    required_instruction: str | None,
+    excluded_instruction: str | None,
+) -> None:
     """A fresh manifest consumer must not need manually precreated Kilo roots."""
     bash = shutil.which("bash")
     if bash is None:
@@ -61,7 +90,7 @@ def test_shell_links_fresh_manifest_driven_kilo_project(tmp_path: Path) -> None:
     profile = tmp_path / "profile"
     project.mkdir()
     profile.mkdir()
-    (project / "compound-gpid.local.md").write_text(LOCAL_CONFIG, encoding="utf-8")
+    (project / "compound-gpid.local.md").write_text(local_config, encoding="utf-8")
 
     environment = os.environ.copy()
     environment.update({"CG_SKIP_UPDATE": "1", "HOME": str(profile)})
@@ -79,6 +108,7 @@ def test_shell_links_fresh_manifest_driven_kilo_project(tmp_path: Path) -> None:
     assert result.returncode == 0, output
     assert "Platforms: kilo" in output
     assert "local-projection-missing" not in output
+    assert "manifest projection failure" not in output
     assert "Kilo preflight (local): ok" in output
     for root_name in REQUIRED_KILO_ROOTS:
         root = project / ".kilo" / root_name
@@ -86,6 +116,10 @@ def test_shell_links_fresh_manifest_driven_kilo_project(tmp_path: Path) -> None:
         assert not root.is_symlink(), f"Projected root is a symlink: {root}"
     assert (project / ".kilo/commands/cg-plan.md").is_file()
     assert (project / ".compound-gpid/active-manifest.json").is_file()
+    if required_instruction is not None:
+        assert (project / ".kilo/instructions" / required_instruction).is_file()
+    if excluded_instruction is not None:
+        assert not (project / ".kilo/instructions" / excluded_instruction).exists()
 
 
 @pytest.mark.skipif(os.name == "nt", reason="macOS/Linux link.sh integration")
