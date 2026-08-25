@@ -100,10 +100,11 @@ Open your project in VS Code and run in Copilot Chat:
 
 > ⚠️ **Do not skip this step.** `/cg-setup` creates the `.cg-docs/` directory structure (brainstorms, plans, reviews, strategy, solutions, archive) required by all workflow prompts. If you skip it, `/cg-strategy`, `/cg-review`, and `/cg-compound` will fail to write their output artifacts.
 
-This configures language preferences, project type, and review depth, scaffolds the `.cg-docs/` directory,
+This configures language preferences, project type, review depth, and active
+suites, scaffolds the `.cg-docs/` directory,
 and creates three config files:
 
-- `compound-gpid.local.md` — always created; gitignored; your personal config (language, review depth)
+- `compound-gpid.local.md` — always created and committed; shared team config (language, review depth, and `suites: [cg]`, `[cr]`, or `[cg, cr]`)
 - `compound-gpid.md` — optional; committed; shared project charter (objective, deliverables, constraints, current focus). All `/cg-*` prompts read this automatically.
 - `compound-gpid.context.md` — optional; committed; a growing knowledge base for project-specific facts Copilot can consult when needed (data sources, variable caveats, workspace folder descriptions, domain vocabulary). Ordinary prompts load targeted headings or snippets instead of reading the whole file by default. Grows over time via `/cg-compound`.
 
@@ -120,6 +121,12 @@ and creates three config files:
 > support files are included by default. Executable resources are opaque files;
 > packaging preserves their mode but never executes them. See
 > [Generated Native Platform Trees](context-files.md#generated-native-platform-trees).
+
+> **Suite selection**: `/cg-setup` records active suites in
+> `compound-gpid.local.md`. An absent `suites:` field defaults to `[cg]` for
+> backward compatibility. The generator filters each native tree to the active
+> suites, their transitive capability dependencies, and the kernel. See the
+> [Modular Guide](modular-guide.md).
 
 ---
 

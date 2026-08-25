@@ -2874,6 +2874,11 @@ Describe "cg-setup.prompt.md - Mode B quality gate" {
         ($content -match 'B0\.5') | Should -Be $true
     }
 
+    It "wiki initialization fallback directs users to /cg-wiki init" {
+        ($content -match 'Wiki initialization skipped.*`/cg-wiki init`') | Should -Be $true
+        ($content -notmatch 'Wiki initialization skipped.*`/cg-wiki rebuild`') | Should -Be $true
+    }
+
     It "Mode B B4 instructs carrying forward cg-schema-version on rewrite" {
         ($content -match 'carry forward.*cg-schema-version|cg-schema-version.*unchanged') | Should -Be $true
     }

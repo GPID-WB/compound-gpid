@@ -7,7 +7,7 @@
       "path": ".kilo/AGENTS.md",
       "source": "adapter",
       "kind": "root-adapter",
-      "sha256": "e65f3937008cee56a21902e72af271d01ea2617cdd2dbf39f87141bb8dd88fdc",
+      "sha256": "11a7a9fbee6397d56ffb6b74d582c6271a3f7ecda9e1fdd80882365a9508d208",
       "executable": false
     },
     {
@@ -35,7 +35,7 @@
       "path": ".kilo/agents/cg-data-quality.md",
       "source": ".github/agents/cg-data-quality.agent.md",
       "kind": "agent",
-      "sha256": "5aa128679829ea565b9c9a6372d53188bd870eec3da460102620de17db2c225d",
+      "sha256": "3b3c8698a34367e1205ebe5bb9849230ad63691b4bdbf6dd0f72fd9bcf27428a",
       "executable": false
     },
     {
@@ -63,7 +63,7 @@
       "path": ".kilo/agents/cg-performance.md",
       "source": ".github/agents/cg-performance.agent.md",
       "kind": "agent",
-      "sha256": "07bd6983bdb93b99eff383155486d17bf59ed7573e861017e88a2a94eb1e950c",
+      "sha256": "71a442ea46f766fedbcfe9fa85799921be794addaf1d7f7228509eb48ca24485",
       "executable": false
     },
     {
@@ -91,7 +91,7 @@
       "path": ".kilo/agents/cg-reproducibility.md",
       "source": ".github/agents/cg-reproducibility.agent.md",
       "kind": "agent",
-      "sha256": "c09d14809f953bd411100696303f295b1caab03a5ca1c0d093279ac28de0f7b4",
+      "sha256": "befa09374fe327fc37ff3d1752b4539d4e54f2a16f737f630dc7b89711338e6f",
       "executable": false
     },
     {
@@ -112,7 +112,7 @@
       "path": ".kilo/agents/cg-testing.md",
       "source": ".github/agents/cg-testing.agent.md",
       "kind": "agent",
-      "sha256": "414cdf9fd303c45b10cb10ef09f7ff959ea3553af60e8f7bac66a5c53586b159",
+      "sha256": "b5c6bba73fcdc6c9d8953de75d4aeaf90c54e4be1e21510e818ab00f8d2a651b",
       "executable": false
     },
     {
@@ -127,6 +127,83 @@
       "source": ".github/agents/cg-wiki.agent.md",
       "kind": "agent",
       "sha256": "c682b35500662e1765ee1e557e7fa8ece626f782ab17368cb44e351b473aacae",
+      "executable": false
+    },
+    {
+      "path": ".kilo/agents/cr-academic-writing.md",
+      "source": ".github/agents/cr-academic-writing.agent.md",
+      "kind": "agent",
+      "sha256": "b6721b989e19b9ead0cb0c82cbdcbc63454a4b3031e087b0df29f1bcb6b90640",
+      "executable": false
+    },
+    {
+      "path": ".kilo/agents/cr-econometric-reasoning.md",
+      "source": ".github/agents/cr-econometric-reasoning.agent.md",
+      "kind": "agent",
+      "sha256": "c4eb041bdda71be6baadda50ad0851a3eb88d54c30c14b73f8c1612ddbd4f524",
+      "executable": false
+    },
+    {
+      "path": ".kilo/agents/cr-identification-audit.md",
+      "source": ".github/agents/cr-identification-audit.agent.md",
+      "kind": "agent",
+      "sha256": "c560faf7b7f2b918255325b46b5265b8f3738712168d8e0bb67ed826aa946979",
+      "executable": false
+    },
+    {
+      "path": ".kilo/agents/cr-mathematical-verification.md",
+      "source": ".github/agents/cr-mathematical-verification.agent.md",
+      "kind": "agent",
+      "sha256": "31f590e6f39a24d668c0dba0fb22b6066f636be2c32ec7577db11aa0020018e8",
+      "executable": false
+    },
+    {
+      "path": ".kilo/agents/cr-measurement-integrity.md",
+      "source": ".github/agents/cr-measurement-integrity.agent.md",
+      "kind": "agent",
+      "sha256": "2253428e7eb6bc107994be3c5377dbaee7eeb3e7db5c21aff1eef4da9127e2d3",
+      "executable": false
+    },
+    {
+      "path": ".kilo/agents/cr-ml-methodology.md",
+      "source": ".github/agents/cr-ml-methodology.agent.md",
+      "kind": "agent",
+      "sha256": "787e70cb45b7bc3351187c679a38bc99bbec69c606c9c515c0737951d72f398e",
+      "executable": false
+    },
+    {
+      "path": ".kilo/agents/cr-provenance-audit.md",
+      "source": ".github/agents/cr-provenance-audit.agent.md",
+      "kind": "agent",
+      "sha256": "dbc264dc2049b50dccf12140f8c3bc0a8b0424df76b12db7a310b87ebaf6e313",
+      "executable": false
+    },
+    {
+      "path": ".kilo/agents/cr-publication-output.md",
+      "source": ".github/agents/cr-publication-output.agent.md",
+      "kind": "agent",
+      "sha256": "a2e7419beb7c29a5a4a88361a6736dcee2c671418ac0c11018456454d09033dc",
+      "executable": false
+    },
+    {
+      "path": ".kilo/agents/cr-replication-package.md",
+      "source": ".github/agents/cr-replication-package.agent.md",
+      "kind": "agent",
+      "sha256": "b2d5092b3224099d3dff1be75970d95239cbab34c88f9a693a9883c5bcfa2789",
+      "executable": false
+    },
+    {
+      "path": ".kilo/agents/cr-research-integrity.md",
+      "source": ".github/agents/cr-research-integrity.agent.md",
+      "kind": "agent",
+      "sha256": "60642e0350d238db3fbbd9704553ec4b5c812eac2e773f66bcea61139b397683",
+      "executable": false
+    },
+    {
+      "path": ".kilo/agents/cr-specification-analysis.md",
+      "source": ".github/agents/cr-specification-analysis.agent.md",
+      "kind": "agent",
+      "sha256": "da99e99a90952268318f6e1e1857cf76b3dddb6bcd42a30a070d5069d814a1d4",
       "executable": false
     },
     {
@@ -273,7 +350,7 @@
       "path": ".kilo/commands/cg-setup.md",
       "source": ".github/prompts/cg-setup.prompt.md",
       "kind": "command",
-      "sha256": "e7cd521be443eacb32211a90addd76ea09a390209dca05224f1ade50f60ed02e",
+      "sha256": "2ad6f67d8babd0163578cd069bbd26b7167bdf512f9a501e36934a06eeff759c",
       "executable": false
     },
     {
@@ -312,6 +389,41 @@
       "executable": false
     },
     {
+      "path": ".kilo/commands/cr-brainstorm.md",
+      "source": ".github/prompts/cr-brainstorm.prompt.md",
+      "kind": "command",
+      "sha256": "dcee2a61f4bc0ccb26d88f80f5d8010f08c337ec738b19cdb09d57cba1bd1858",
+      "executable": false
+    },
+    {
+      "path": ".kilo/commands/cr-compound.md",
+      "source": ".github/prompts/cr-compound.prompt.md",
+      "kind": "command",
+      "sha256": "d3e517be320fe92ab3af6fb3e66cbe1c8f53e8b9a9a18d259e41df5b6d67eaa5",
+      "executable": false
+    },
+    {
+      "path": ".kilo/commands/cr-plan.md",
+      "source": ".github/prompts/cr-plan.prompt.md",
+      "kind": "command",
+      "sha256": "0d7271a293034cbd7a0e1cfc8cb4220f4cf71439a4b808255ddb813d97b20d1a",
+      "executable": false
+    },
+    {
+      "path": ".kilo/commands/cr-review.md",
+      "source": ".github/prompts/cr-review.prompt.md",
+      "kind": "command",
+      "sha256": "06f5c4f836edbfda61b59bf618485e72873e198845509f8fbbdc5943f6716e45",
+      "executable": false
+    },
+    {
+      "path": ".kilo/commands/cr-work.md",
+      "source": ".github/prompts/cr-work.prompt.md",
+      "kind": "command",
+      "sha256": "e27059e72d1eb8bb3c7737dc054c2394d91303d861d999edc44032afc1810553",
+      "executable": false
+    },
+    {
       "path": ".kilo/commands/resume-templates.md",
       "source": ".github/prompts/resume-templates.md",
       "kind": "prompt-support",
@@ -323,6 +435,20 @@
       "source": ".github/prompts/setup-templates.md",
       "kind": "prompt-support",
       "sha256": "6073fae5d5f178a973dc90ba017a6d49576e75505cd81ec06bbce01cb6f9d442",
+      "executable": false
+    },
+    {
+      "path": ".kilo/instructions/latex.instructions.md",
+      "source": ".github/instructions/latex.instructions.md",
+      "kind": "instruction",
+      "sha256": "79bbfbbd869590523666458d5a0f1571b172b8725026f99f38d190ff7f3f9e0a",
+      "executable": false
+    },
+    {
+      "path": ".kilo/instructions/math.instructions.md",
+      "source": ".github/instructions/math.instructions.md",
+      "kind": "instruction",
+      "sha256": "2efedd2da098e79daef7fc6cab0f6ede63fd8f83310d8f5df73c7715fb3ed5db",
       "executable": false
     },
     {
@@ -378,7 +504,7 @@
       "path": ".kilo/shared/context-loading.contract.md",
       "source": ".github/shared/context-loading.contract.md",
       "kind": "shared",
-      "sha256": "1a2bedd59b8d1de9d1354accedf434db2b6572fb377b034ade64a894ffc4cb62",
+      "sha256": "2edf43adf36279f0401f91456fdedf26139ef93a1c98406f5a2822df100078c5",
       "executable": false
     },
     {
@@ -924,7 +1050,7 @@
       "path": ".kilo/skills/cg-skill-setup/SKILL.md",
       "source": ".github/skills/cg-skill-setup/SKILL.md",
       "kind": "skill",
-      "sha256": "00281b612d08da394785ff64b607a29bd49feb8b805ea3f03bdc25403960d3f2",
+      "sha256": "b9460054c80cff28c70ff2989e5fb47439cbcea9ecdda31eee1e990c6a4841e6",
       "executable": false
     },
     {
@@ -1863,6 +1989,111 @@
       "source": ".github/skills/cg-skill-yaml-frontmatter-lint/validate_yaml_frontmatter.py",
       "kind": "skill-resource",
       "sha256": "813c0d2105af47ed9fc7918d6d3db8dff3798a43f8854a7f62a943deef2afadc",
+      "executable": false
+    },
+    {
+      "path": ".kilo/skills/cr-skill-academic-writing/SKILL.md",
+      "source": ".github/skills/cr-skill-academic-writing/SKILL.md",
+      "kind": "skill",
+      "sha256": "7bcfa4b7124aeb0870851c0c26078949f4a1dd70e2a324e76627fe698e03b03f",
+      "executable": false
+    },
+    {
+      "path": ".kilo/skills/cr-skill-evidence-provenance/SKILL.md",
+      "source": ".github/skills/cr-skill-evidence-provenance/SKILL.md",
+      "kind": "skill",
+      "sha256": "caf15be827053bb8f9f6be49f468553f84fc26dabc703023ee4085b93ebf7fe1",
+      "executable": false
+    },
+    {
+      "path": ".kilo/skills/cr-skill-identification-strategies/SKILL.md",
+      "source": ".github/skills/cr-skill-identification-strategies/SKILL.md",
+      "kind": "skill",
+      "sha256": "f3aeb59e9c4a6e16bcc7b687b330bf88091fb763b4b03f0dc2429213658968a3",
+      "executable": false
+    },
+    {
+      "path": ".kilo/skills/cr-skill-mathematical-derivation/SKILL.md",
+      "source": ".github/skills/cr-skill-mathematical-derivation/SKILL.md",
+      "kind": "skill",
+      "sha256": "376f30f5342598843da3d70872e5452b1453930227799f81daf914f67eb31975",
+      "executable": false
+    },
+    {
+      "path": ".kilo/skills/cr-skill-measurement/SKILL.md",
+      "source": ".github/skills/cr-skill-measurement/SKILL.md",
+      "kind": "skill",
+      "sha256": "5ba3928b963d4f57cdd95005c926a07875434557db84a391e848559a4a5611d0",
+      "executable": false
+    },
+    {
+      "path": ".kilo/skills/cr-skill-ml-economics/SKILL.md",
+      "source": ".github/skills/cr-skill-ml-economics/SKILL.md",
+      "kind": "skill",
+      "sha256": "a932b38c28e3614e200ace0fd16e070c94c9dbeb7690b241f1aa7710e8cb4e4b",
+      "executable": false
+    },
+    {
+      "path": ".kilo/skills/cr-skill-publication-output/SKILL.md",
+      "source": ".github/skills/cr-skill-publication-output/SKILL.md",
+      "kind": "skill",
+      "sha256": "09956e4b721ff09bed148ddffd99296b767134bde5ed2d1f205515aac26bf998",
+      "executable": false
+    },
+    {
+      "path": ".kilo/skills/cr-skill-replication-standards/SKILL.md",
+      "source": ".github/skills/cr-skill-replication-standards/SKILL.md",
+      "kind": "skill",
+      "sha256": "edee223327b9e0feed251ed8a99392e1b3fc94e419869459db2fa6d39aa367ad",
+      "executable": false
+    },
+    {
+      "path": ".kilo/skills/cr-skill-research-eda/SKILL.md",
+      "source": ".github/skills/cr-skill-research-eda/SKILL.md",
+      "kind": "skill",
+      "sha256": "a71c45b7d18e8e6158811e33257cb3683e353bf9c9ae95c9193e79601c40d5b7",
+      "executable": false
+    },
+    {
+      "path": ".kilo/skills/cr-skill-research-integrity/SKILL.md",
+      "source": ".github/skills/cr-skill-research-integrity/SKILL.md",
+      "kind": "skill",
+      "sha256": "25d0b92ad3648b12623144ad13a82a3f66ed6e7a5b9c6f1ed1d9028c0589c9b5",
+      "executable": false
+    },
+    {
+      "path": ".kilo/skills/cr-skill-research-scoping/SKILL.md",
+      "source": ".github/skills/cr-skill-research-scoping/SKILL.md",
+      "kind": "skill",
+      "sha256": "ab18f52d19559c504e0624f245ece8ae7e513df9fcfd20f9db9db6a044add79c",
+      "executable": false
+    },
+    {
+      "path": ".kilo/skills/cr-skill-research-workflow/SKILL.md",
+      "source": ".github/skills/cr-skill-research-workflow/SKILL.md",
+      "kind": "skill",
+      "sha256": "b75f7fe2a658e8cb91cfc0a4a12500b0e105b78c42fe79f1b68f1b155e15a03c",
+      "executable": false
+    },
+    {
+      "path": ".kilo/skills/cr-skill-structural-econometrics/SKILL.md",
+      "source": ".github/skills/cr-skill-structural-econometrics/SKILL.md",
+      "kind": "skill",
+      "sha256": "aa1f3f4272ee138fc385fab5b587d7d7e2a6cb5f4ca758db9f5d32a080fe0f31",
+      "executable": false
+    },
+    {
+      "path": ".kilo/skills/cr-skill-symbolic-verification/SKILL.md",
+      "source": ".github/skills/cr-skill-symbolic-verification/SKILL.md",
+      "kind": "skill",
+      "sha256": "2760940d0df74238d8afe7f8501b2baaaa262d0392ea142c6934fa8a11be7709",
+      "executable": false
+    },
+    {
+      "path": ".kilo/skills/cr-skill-theory-data-dialogue/SKILL.md",
+      "source": ".github/skills/cr-skill-theory-data-dialogue/SKILL.md",
+      "kind": "skill",
+      "sha256": "d399adb9df8f58e8e29a39422641af8d36c7554dc954574f74df6590696558d8",
       "executable": false
     }
   ]

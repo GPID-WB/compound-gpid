@@ -7,7 +7,7 @@ targets, and durable workflow artifacts.
 
 | Path | Ownership | Purpose |
 |---|---|---|
-| `compound-gpid.local.md` | Team; committed | Shared language, dialect, project-type, and review settings (plus shared `## Notes`); must stay out of `.gitignore`
+| `compound-gpid.local.md` | Team; committed | Shared language, dialect, project-type, review, and active-suite settings (plus shared `## Notes`); must stay out of `.gitignore`
 | `compound-gpid.md` | Team; committed | Optional short project charter |
 | `compound-gpid.context.md` | Team; committed | Optional tactical project context |
 | `roadmap.json` | Team; committed | Milestones, features, plan links, and optional issue metadata |
@@ -22,6 +22,17 @@ targets, and durable workflow artifacts.
 | `.agents/` | Generated Codex target |
 | `.opencode/` | Generated OpenCode target |
 | `.kilo/` | Generated Kilo target |
+
+## Modular source files
+
+| Path | Purpose |
+|---|---|
+| `.github/shared/module-registry.json` | Canonical module ownership and dependency graph |
+| `.github/shared/context-loading.contract.md` | Suite-aware context loading and expansion policy |
+| `.github/shared/target-mapping.json` | Canonical-to-native target formats, paths, and install units |
+| `scripts/cg_context_budget.py` | Resolves `suites:` into the loadable module closure |
+| `scripts/cg_validate_modules.py` | Validates ownership, dependency layers, cycles, and cross-suite safety |
+| `scripts/cg_generate_targets.py` | Generates filtered native trees from canonical assets |
 
 Directory units are linked into consumer projects. Some strict root or JSON
 files are copied and tracked by the sidecar manifest. Project-owned roots and
@@ -39,6 +50,7 @@ conflicting files are preserved.
 | `inbox/` | Unapproved strategy ideas awaiting promotion |
 | `plans/` | `/cg-plan` implementation plans |
 | `reviews/` | Review and verification reports with finding status |
+| `research/` | Research derivations, specifications, evidence, replication, and other CR workflow artifacts |
 | `solutions/` | Verified reusable lessons from `/cg-compound` |
 | `strategy/` | `/cg-strategy` records |
 | `token/` | Token dashboard, context map, regression checks, and short-lived output evidence |

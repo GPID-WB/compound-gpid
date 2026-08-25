@@ -48,7 +48,7 @@ class TestClaudeCodeTreeStructure:
             assert (REPO_ROOT / ".claude/agents" / agent_name).exists(), f"Missing agent: {agent_name}"
 
     def test_every_skill_has_a_skill_file(self) -> None:
-        skills = list((REPO_ROOT / ".github/skills").glob("cg-skill-*/SKILL.md"))
+        skills = list((REPO_ROOT / ".github/skills").glob("*/SKILL.md"))
         for skill in skills:
             skill_name = skill.parent.name
             assert (REPO_ROOT / ".claude/skills" / skill_name / "SKILL.md").exists(), f"Missing skill: {skill_name}"

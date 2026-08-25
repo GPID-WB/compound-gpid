@@ -33,7 +33,8 @@ specs, shared contracts, and instruction files from `.github/` as needed.
 ## Local Skills
 
 When a `.github/prompts/*.prompt.md`, `.github/agents/*.agent.md`, or project
-instruction references a skill named `cg-skill-*`, load it from:
+instruction references a skill named `<prefix>-skill-*` (e.g. `cg-skill-*` or
+`cr-skill-*`), load it from:
 
 ```text
 .github/skills/<skill-name>/SKILL.md

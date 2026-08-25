@@ -1,6 +1,6 @@
 # Token Dashboard
 
-_Generated: 2026-07-31T10:58:19-04:00@c80f66e6828f_
+_Generated: 2026-08-07T19:20:40-04:00@d716ce703e14_
 
 > Token estimates are heuristic (chars/4) and intended for directional audit use.
 
@@ -10,32 +10,32 @@ comparable repository probes.
 
 ## Regression Status
 
-- Status: `baseline`
-- Reason: No baseline comparison was supplied; current audit is the baseline.
-- Guardrail failures: 0
-- Guardrail warnings: 4
+- Status: `fail`
+- Reason: Deterministic guardrail failures are present.
+- Guardrail failures: 1
+- Guardrail warnings: 25
 - Baseline comparison: not_supplied
 
 ## Source Scope
 
-- Source files counted: 118
-- Source estimated tokens: 495800
+- Source files counted: 157
+- Source estimated tokens: 602133
 - Workflow rows: 9
 
 ## Highest Workflow Budgets
 
 | Workflow | Path | Tokens | Refs | Context Risk | Budget Status |
 | --- | --- | --- | --- | --- | --- |
-| /cg-work | .github/prompts/cg-work.prompt.md | 5117 | 56 | 0 | warn |
-| /cg-review | .github/prompts/cg-review.prompt.md | 4889 | 58 | 0 | pass |
-| /cg-brainstorm | .github/prompts/cg-brainstorm.prompt.md | 3798 | 34 | 0 | pass |
-| /cg-plan | .github/prompts/cg-plan.prompt.md | 3345 | 25 | 0 | pass |
-| /cg-resume | .github/prompts/cg-resume.prompt.md | 3153 | 19 | 0 | pass |
+| /cg-work | .github/prompts/cg-work.prompt.md | 5315 | 57 | 0 | warn |
+| /cg-review | .github/prompts/cg-review.prompt.md | 5032 | 58 | 0 | warn |
+| /cg-brainstorm | .github/prompts/cg-brainstorm.prompt.md | 3965 | 34 | 0 | pass |
+| /cg-plan | .github/prompts/cg-plan.prompt.md | 3507 | 26 | 0 | pass |
+| /cg-resume | .github/prompts/cg-resume.prompt.md | 3152 | 19 | 0 | pass |
 
 ## Context and Warning Summary
 
-- Context loading signals: risk=3, justified=17, targeted=102
-- Reviewed warnings: fix=1, accept=0, docs-only=3
+- Context loading signals: risk=23, justified=17, targeted=114
+- Reviewed warnings: fix=10, accept=12, docs-only=3
 
 ## Observability Boundaries
 

@@ -16,6 +16,7 @@ contains the supported setup fields:
 | `r-syntax` | `data.table-collapse` or `tidyverse` | Selects the R manipulation dialect; `collapse` remains available for weighted statistics |
 | `project-type` | `package`, `analysis`, `dashboard`, `api`, `tool`, or `other` | Provides project-structure context |
 | `review-depth` | `light`, `standard`, or `thorough` | Sets the legacy default; `thorough` maps to `full` review |
+| `suites` | `[cg]` (default/absent), `[cr]`, `[cg, cr]` | Active suites for the modular architecture; selects which workflow prompts/skills load into routine sessions |
 | `artifact-html` | `true` or `false` | Explicitly enables automatic Brainstorm/Plan and generic Markdown HTML writes; validation remains mandatory |
 | `cg-schema-version` | Date-prefixed schema identifier | Managed by updates; do not edit manually |
 
@@ -47,6 +48,30 @@ in `.cg-docs/` rather than duplicating them here.
 Do keep `compound-gpid.local.md` version-controlled (committed, not in `.gitignore`).
 Do not place credentials, private data,
 or raw secrets in any context file.
+
+## Modular architecture
+
+`.github/shared/module-registry.json` assigns every canonical prompt, agent,
+skill, instruction, and shared contract to exactly one module. Modules form
+three layers:
+
+| Layer | Responsibility |
+|---|---|
+| Kernel | Lifecycle contracts, context loading, target mapping, and core infrastructure |
+| Capability packs | Reusable language, testing, rendering, review, knowledge, and research-output support |
+| Suites | Independent user-facing command surfaces: technical `suite-cg` and research `suite-cr` |
+
+Active suites plus their transitive capability dependencies and the kernel form
+the loadable set. Suites never depend directly on one another. Research work may
+reuse technical capability packs without importing the `/cg-*` command suite.
+
+Validate registry ownership and boundaries with:
+
+```bash
+python scripts/cg_validate_modules.py --check-ownership --check-dependencies --check-cross-suite
+```
+
+See the [Modular Guide](../modular-guide.md).
 
 ## Platform selection
 

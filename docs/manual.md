@@ -7,6 +7,7 @@ of contents.
 ## Pages
 
 - [Getting Started](getting-started/index.md)
+- [Modular Guide](modular-guide.md)
 - [Why Compound GPID?](why-compound-gpid.md)
 - [Workflow Overview](workflows/index.md)
 - [Skills Catalog](skills/index.md)
