@@ -306,36 +306,52 @@ $headers = @{
     "User-Agent"  = "ps-cg"
 }
 
-$rulesets = @(Invoke-RestMethod -Uri "https://api.github.com/repos/GPID-WB/compound-gpid/rulesets" -Headers $headers)
-$releaseTagRuleset = @($rulesets | Where-Object {
-    $_.name -eq "Protect release tags" -and $_.target -eq "tag" -and $_.enforcement -eq "active"
-})
-if ($releaseTagRuleset.Count -ne 1) {
-    throw "Active 'Protect release tags' repository ruleset is required before publication."
+function Get-CgRepositoryRuleset {
+    param(
+        [string]$Name,
+        [string]$Target
+    )
+
+    for ($attempt = 1; $attempt -le 3; $attempt++) {
+        $summaries = @(Invoke-RestMethod -Uri "https://api.github.com/repos/GPID-WB/compound-gpid/rulesets" -Headers $headers)
+        $match = @($summaries | Where-Object {
+            $_.name -eq $Name -and $_.target -eq $Target -and $_.enforcement -eq "active"
+        })
+        if ($match.Count -eq 1) {
+            $detail = Invoke-RestMethod -Uri "https://api.github.com/repos/GPID-WB/compound-gpid/rulesets/$($match[0].id)" -Headers $headers
+            $properties = @($detail.PSObject.Properties.Name)
+            if ($properties -contains "rules" -and
+                $properties -contains "conditions" -and
+                $properties -contains "bypass_actors" -and
+                $properties -contains "current_user_can_bypass") {
+                return $detail
+            }
+        }
+        if ($attempt -lt 3) { Start-Sleep -Seconds 2 }
+    }
+
+    throw "Could not read one complete active '$Name' $Target ruleset after 3 attempts."
 }
-$ruleset = Invoke-RestMethod -Uri "https://api.github.com/repos/GPID-WB/compound-gpid/rulesets/$($releaseTagRuleset[0].id)" -Headers $headers
+
+$ruleset = Get-CgRepositoryRuleset -Name "Protect release tags" -Target "tag"
 $ruleTypes = @($ruleset.rules | ForEach-Object { [string]$_.type })
 $includedRefs = @($ruleset.conditions.ref_name.include | ForEach-Object { [string]$_ })
 $excludedRefs = @($ruleset.conditions.ref_name.exclude | ForEach-Object { [string]$_ })
 $bypassActors = @($ruleset.bypass_actors)
 $currentUserCanBypass = [string]$ruleset.current_user_can_bypass
-if ($ruleTypes -notcontains "update" -or
-    $ruleTypes -notcontains "deletion" -or
-    $ruleTypes -notcontains "non_fast_forward" -or
-    $includedRefs -notcontains "refs/tags/v*" -or
-    $excludedRefs.Count -ne 0 -or
-    $bypassActors.Count -ne 0 -or
-    $currentUserCanBypass -ne "never") {
-    throw "'Protect release tags' must block every update and deletion for refs/tags/v* without exclusions or bypass actors."
+$tagRuleProblems = @()
+if ($ruleTypes -notcontains "update") { $tagRuleProblems += "missing update rule" }
+if ($ruleTypes -notcontains "deletion") { $tagRuleProblems += "missing deletion rule" }
+if ($ruleTypes -notcontains "non_fast_forward") { $tagRuleProblems += "missing non_fast_forward rule" }
+if ($includedRefs -notcontains "refs/tags/v*") { $tagRuleProblems += "missing refs/tags/v* include" }
+if ($excludedRefs.Count -ne 0) { $tagRuleProblems += "has excluded refs" }
+if ($bypassActors.Count -ne 0) { $tagRuleProblems += "has bypass actors" }
+if ($currentUserCanBypass -ne "never") { $tagRuleProblems += "current user can bypass ($currentUserCanBypass)" }
+if ($tagRuleProblems.Count -ne 0) {
+    throw "'Protect release tags' is invalid: $($tagRuleProblems -join '; ')."
 }
 
-$creationRulesetSummary = @($rulesets | Where-Object {
-    $_.name -eq "Restrict release tag creation" -and $_.target -eq "tag" -and $_.enforcement -eq "active"
-})
-if ($creationRulesetSummary.Count -ne 1) {
-    throw "Active 'Restrict release tag creation' repository ruleset is required before publication."
-}
-$creationRuleset = Invoke-RestMethod -Uri "https://api.github.com/repos/GPID-WB/compound-gpid/rulesets/$($creationRulesetSummary[0].id)" -Headers $headers
+$creationRuleset = Get-CgRepositoryRuleset -Name "Restrict release tag creation" -Target "tag"
 $creationRuleTypes = @($creationRuleset.rules | ForEach-Object { [string]$_.type })
 $creationIncludes = @($creationRuleset.conditions.ref_name.include | ForEach-Object { [string]$_ })
 $creationExcludes = @($creationRuleset.conditions.ref_name.exclude | ForEach-Object { [string]$_ })
@@ -350,13 +366,7 @@ if ($creationRuleTypes -notcontains "creation" -or
     throw "'Restrict release tag creation' must limit refs/tags/v* creation to repository administrators."
 }
 
-$devRulesetSummary = @($rulesets | Where-Object {
-    $_.name -eq "Protect dev" -and $_.target -eq "branch" -and $_.enforcement -eq "active"
-})
-if ($devRulesetSummary.Count -ne 1) {
-    throw "Active 'Protect dev' repository ruleset is required before publication."
-}
-$devRuleset = Invoke-RestMethod -Uri "https://api.github.com/repos/GPID-WB/compound-gpid/rulesets/$($devRulesetSummary[0].id)" -Headers $headers
+$devRuleset = Get-CgRepositoryRuleset -Name "Protect dev" -Target "branch"
 $devRuleTypes = @($devRuleset.rules | ForEach-Object { [string]$_.type })
 $devIncludes = @($devRuleset.conditions.ref_name.include | ForEach-Object { [string]$_ })
 $devExcludes = @($devRuleset.conditions.ref_name.exclude | ForEach-Object { [string]$_ })

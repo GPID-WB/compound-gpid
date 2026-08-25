@@ -340,6 +340,9 @@ Describe "create-release.ps1 - native packaging preflight" {
         $releaseIndex | Should -BeGreaterThan $pagesIndex
         $scriptContent | Should -Match '\$_.head_sha -eq \$headCommit -and \$_.head_branch -eq \$Tag'
         $scriptContent | Should -Match "Protect release tags"
+        $scriptContent | Should -Match 'Get-CgRepositoryRuleset'
+        $scriptContent | Should -Match 'after 3 attempts'
+        $scriptContent | Should -Match 'missing update rule'
         $scriptContent | Should -Match 'ruleTypes -notcontains "update"'
         $scriptContent | Should -Match 'non_fast_forward'
         $scriptContent | Should -Match 'bypassActors\.Count -ne 0'
