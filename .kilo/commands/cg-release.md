@@ -292,20 +292,18 @@ first.
 
    ```powershell
    git status --porcelain
-   git fetch origin main <release-branch> --tags
+   git fetch origin <release-branch> --tags
    git branch --show-current
    git rev-parse HEAD
    git rev-parse origin/<release-branch>
-   # Four-component prereleases only:
-   git merge-base --is-ancestor origin/main HEAD
    ```
 
    Halt if status has tracked or untracked changes (other than ignored
    `RELEASE_NOTES.md`), the branch is not `<release-branch>`, or `HEAD` differs
    from `origin/<release-branch>`. Halt safely on a non-fast-forward release
-   branch rather than creating a release from a stale checkout. For a
-   four-component prerelease, also halt unless current `origin/main` is an
-   ancestor of `HEAD`; `dev` must contain the complete stable history.
+   branch rather than creating a release from a stale checkout. Do not require
+   a four-component prerelease commit on `dev` to contain the current `main`
+   tip; exact `origin/dev` lineage is the prerelease authorization boundary.
 
 2. Extract exactly one fenced JSON object from the scanner's `## Release
    Payload` section. Parse it before writing any payload. It must contain only a

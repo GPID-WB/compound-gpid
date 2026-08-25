@@ -20,6 +20,26 @@ def test_release_branch_matrix_is_explicit() -> None:
     assert "Draft releases are not supported" in script
 
 
+def test_prerelease_lineage_does_not_depend_on_main() -> None:
+    prompt = _read(".github/prompts/cg-release.prompt.md")
+    script = _read("create-release.ps1")
+    builder = _read(".github/workflows/release-docs.yml")
+    controller = _read(".github/workflows/release-pages.yml")
+
+    assert "exact `origin/dev` lineage is the prerelease authorization boundary" in prompt
+    assert "merge-base --is-ancestor origin/main HEAD" not in prompt
+    assert "Prerelease branch is stale: origin/main" not in script
+    assert "merge-base --is-ancestor $remoteMainCommit $headCommit" not in script
+    assert 'git merge-base --is-ancestor "$RELEASE_SHA" "origin/$required_branch"' in builder
+    assert 'git merge-base --is-ancestor "$RELEASE_SHA" "origin/$required_branch"' in controller
+    assert 'git fetch origin "$required_branch"' in builder
+    assert 'git fetch origin "$required_branch"' in controller
+    assert "git fetch origin main dev" not in builder
+    assert "git fetch origin main dev" not in controller
+    assert 'git merge-base --is-ancestor origin/main "$RELEASE_SHA"' not in builder
+    assert 'git merge-base --is-ancestor origin/main "$RELEASE_SHA"' not in controller
+
+
 def test_release_rulesets_and_exact_run_chain_are_required() -> None:
     script = _read("create-release.ps1")
 

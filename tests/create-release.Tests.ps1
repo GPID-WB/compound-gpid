@@ -325,7 +325,8 @@ Describe "create-release.ps1 - native packaging preflight" {
         $scriptContent | Should -Match '\$releaseBranch\s*=\s*"main"'
         $scriptContent | Should -Match 'if \(\$isPrereleaseTag\) \{ \$releaseBranch = "dev" \}'
         $scriptContent | Should -Match 'merge-base --is-ancestor \$headCommit \$remoteBranchCommit'
-        $scriptContent | Should -Match 'merge-base --is-ancestor \$remoteMainCommit \$headCommit'
+        $scriptContent | Should -Not -Match 'merge-base --is-ancestor \$remoteMainCommit \$headCommit'
+        $scriptContent | Should -Not -Match 'Prerelease branch is stale: origin/main'
         $scriptContent | Should -Match 'prerelease\s*=\s*\$releasePrerelease'
     }
 
@@ -374,8 +375,10 @@ Describe "create-release.ps1 - native packaging preflight" {
         Set-Content -Path $notesPath -Value "notes" -Encoding UTF8
         $script:credentialCalled = $false
         $script:apiCalled = $false
+        $script:queriedMain = $false
         function global:git {
             $global:LASTEXITCODE = 0
+            if (($args -join ' ') -match 'refs/heads/main|origin/main') { $script:queriedMain = $true }
             if ($args[0] -eq "-C" -and $args[2] -eq "rev-parse") { return "abc123" }
             if ($args[0] -eq "-C" -and $args[2] -eq "tag") { return "v1.2.0.9006" }
             if ($args[0] -eq "-C" -and $args[2] -eq "ls-remote" -and $args[3] -eq "--heads") { return "abc123`trefs/heads/dev" }
@@ -392,6 +395,7 @@ Describe "create-release.ps1 - native packaging preflight" {
             { & $scriptPath -Tag "v1.2.0.9006" -Name "v1.2.0.9006 - Manifest-driven skill loading, certified contained launcher, and quarantined skill importing" -NotesFile $notesPath } | Should -Throw
             $script:credentialCalled | Should -Be $false
             $script:apiCalled | Should -Be $false
+            $script:queriedMain | Should -Be $false
         } finally {
             Remove-Item Function:\git -Force -ErrorAction SilentlyContinue
             Remove-Item Function:\python3 -Force -ErrorAction SilentlyContinue

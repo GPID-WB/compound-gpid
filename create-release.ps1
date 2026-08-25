@@ -95,8 +95,7 @@ function Assert-CgRemoteTagCommit {
 function Assert-CgRemoteReleaseLineage {
     param(
         [string]$ExpectedCommit,
-        [string]$Branch,
-        [bool]$IsPrerelease
+        [string]$Branch
     )
 
     $branchRef = "+refs/heads/$Branch`:refs/remotes/origin/$Branch"
@@ -118,25 +117,6 @@ function Assert-CgRemoteReleaseLineage {
         throw "Release lineage mismatch: $ExpectedCommit is not on origin/$Branch ($branchCommit)."
     }
 
-    if ($IsPrerelease) {
-        git -C $PSScriptRoot fetch origin "+refs/heads/main`:refs/remotes/origin/main" 2>$null
-        if ($LASTEXITCODE -ne 0) {
-            throw "Could not refresh origin/main during prerelease publication."
-        }
-        $mainLines = @(git -C $PSScriptRoot ls-remote --heads origin "refs/heads/main" 2>$null)
-        if ($LASTEXITCODE -ne 0 -or $mainLines.Count -ne 1) {
-            throw "Could not resolve origin/main during prerelease publication."
-        }
-        $mainCommit = ([string]$mainLines[0] -split '\s+')[0]
-        $fetchedMainCommit = git -C $PSScriptRoot rev-parse --verify "origin/main^{commit}" 2>$null
-        if ($LASTEXITCODE -ne 0 -or $fetchedMainCommit.Trim() -ne $mainCommit) {
-            throw "Remote branch origin/main changed during publication."
-        }
-        git -C $PSScriptRoot merge-base --is-ancestor $mainCommit $ExpectedCommit 2>$null
-        if ($LASTEXITCODE -ne 0) {
-            throw "Prerelease branch is stale: origin/main ($mainCommit) is not an ancestor of $ExpectedCommit."
-        }
-    }
 }
 
 function ConvertTo-CgNormalizedReleaseText {
@@ -196,11 +176,8 @@ if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($tagCommit)) {
 if ($headCommit -ne $tagCommit.Trim()) {
     throw "Release checkout mismatch: tag '$Tag' resolves to $($tagCommit.Trim()) but HEAD is $headCommit. Check out the tag commit before releasing."
 }
-$fetchRefs = @("+refs/heads/$releaseBranch`:refs/remotes/origin/$releaseBranch")
-if ($isPrereleaseTag) {
-    $fetchRefs += "+refs/heads/main`:refs/remotes/origin/main"
-}
-git -C $PSScriptRoot fetch origin @fetchRefs --tags 2>$null
+$branchRef = "+refs/heads/$releaseBranch`:refs/remotes/origin/$releaseBranch"
+git -C $PSScriptRoot fetch origin $branchRef --tags 2>$null
 if ($LASTEXITCODE -ne 0) {
     throw "Could not refresh origin/$releaseBranch before publication."
 }
@@ -213,18 +190,7 @@ git -C $PSScriptRoot merge-base --is-ancestor $headCommit $remoteBranchCommit 2>
 if ($LASTEXITCODE -ne 0) {
     throw "Release lineage mismatch: tag '$Tag' at $headCommit is not on origin/$releaseBranch ($remoteBranchCommit)."
 }
-if ($isPrereleaseTag) {
-    $remoteMain = @(git -C $PSScriptRoot ls-remote --heads origin "refs/heads/main" 2>$null)
-    if ($LASTEXITCODE -ne 0 -or $remoteMain.Count -ne 1) {
-        throw "Could not resolve origin/main for prerelease ancestry verification."
-    }
-    $remoteMainCommit = ([string]$remoteMain[0] -split '\s+')[0]
-    git -C $PSScriptRoot merge-base --is-ancestor $remoteMainCommit $headCommit 2>$null
-    if ($LASTEXITCODE -ne 0) {
-        throw "Prerelease branch is stale: origin/main ($remoteMainCommit) is not an ancestor of HEAD ($headCommit)."
-    }
-}
-Assert-CgRemoteReleaseLineage -ExpectedCommit $headCommit -Branch $releaseBranch -IsPrerelease $isPrereleaseTag
+Assert-CgRemoteReleaseLineage -ExpectedCommit $headCommit -Branch $releaseBranch
 Assert-CgRemoteTagCommit -ReleaseTag $Tag -ExpectedCommit $headCommit
 $worktreeChanges = @(git -C $PSScriptRoot status --porcelain --untracked-files=normal 2>$null)
 if ($LASTEXITCODE -ne 0) {
@@ -457,18 +423,16 @@ if ($null -ne $existingRelease) {
         (ConvertTo-CgNormalizedReleaseText $existingRelease.body) -ne (ConvertTo-CgNormalizedReleaseText $notes)) {
         throw "Existing GitHub Release for '$Tag' does not match the requested immutable release metadata."
     }
-    Assert-CgRemoteReleaseLineage -ExpectedCommit $headCommit -Branch $releaseBranch -IsPrerelease $isPrereleaseTag
+    Assert-CgRemoteReleaseLineage -ExpectedCommit $headCommit -Branch $releaseBranch
     Assert-CgRemoteTagCommit -ReleaseTag $Tag -ExpectedCommit $headCommit
     "EXISTS|$($existingRelease.id)|$($existingRelease.html_url)" | Set-Content $resultFile
     exit 0
 }
 
 # Create the release
-Assert-CgRemoteReleaseLineage -ExpectedCommit $headCommit -Branch $releaseBranch -IsPrerelease $isPrereleaseTag
+Assert-CgRemoteReleaseLineage -ExpectedCommit $headCommit -Branch $releaseBranch
 Assert-CgRemoteTagCommit -ReleaseTag $Tag -ExpectedCommit $headCommit
 $releaseBranchSnapshot = Get-CgRemoteBranchCommit -Branch $releaseBranch
-$mainSnapshot = $null
-if ($isPrereleaseTag) { $mainSnapshot = Get-CgRemoteBranchCommit -Branch "main" }
 $payload = ConvertTo-Json -InputObject @{
     tag_name         = $Tag
     target_commitish = $headCommit
@@ -486,8 +450,7 @@ try {
     $response = Invoke-RestMethod -Uri "https://api.github.com/repos/GPID-WB/compound-gpid/releases" `
         -Method Post -Headers $headers -Body $payload -ContentType "application/json"
     Assert-CgRemoteTagCommit -ReleaseTag $Tag -ExpectedCommit $headCommit
-    if ((Get-CgRemoteBranchCommit -Branch $releaseBranch) -ne $releaseBranchSnapshot -or
-        ($isPrereleaseTag -and (Get-CgRemoteBranchCommit -Branch "main") -ne $mainSnapshot)) {
+    if ((Get-CgRemoteBranchCommit -Branch $releaseBranch) -ne $releaseBranchSnapshot) {
         throw "Release branch lineage changed during API publication."
     }
     if (-not $response.id -or -not $response.html_url -or

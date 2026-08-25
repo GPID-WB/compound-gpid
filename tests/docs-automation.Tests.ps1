@@ -99,8 +99,14 @@ Describe "Pages exact-artifact deployment contracts" {
     It "binds stable tags to main and prerelease tags to dev" {
         $releaseWorkflow | Should -Match 'required_branch="main"'
         $releaseWorkflow | Should -Match '\^v\[0-9\]\+\\\.\[0-9\]\+\\\.\[0-9\]\+\\\.\[0-9\]\+\$[\s\S]*required_branch="dev"'
+        $releaseWorkflow | Should -Match 'git fetch origin "\$required_branch"'
+        $releaseWorkflow | Should -Not -Match 'git fetch origin main dev'
         $releaseWorkflow | Should -Match 'is-ancestor "\$RELEASE_SHA" "origin/\$required_branch"'
-        $releaseWorkflow | Should -Match 'is-ancestor origin/main "\$RELEASE_SHA"'
+        $releaseWorkflow | Should -Not -Match 'is-ancestor origin/main "\$RELEASE_SHA"'
+        $releasePagesWorkflow | Should -Match 'git fetch origin "\$required_branch"'
+        $releasePagesWorkflow | Should -Not -Match 'git fetch origin main dev'
+        $releasePagesWorkflow | Should -Match 'is-ancestor "\$RELEASE_SHA" "origin/\$required_branch"'
+        $releasePagesWorkflow | Should -Not -Match 'is-ancestor origin/main "\$RELEASE_SHA"'
     }
 
     It "binds tag deployments to the exact latest durable payload" {
@@ -197,7 +203,8 @@ Describe "Release payload sequencing contracts" {
         $releasePrompt | Should -Match 'git fetch origin <release-branch> --tags'
         $releasePrompt | Should -Match 'git rev-parse origin/<release-branch>'
         $releasePrompt | Should -Match 'git push origin <release-branch>'
-        $releasePrompt | Should -Match 'merge-base --is-ancestor origin/main HEAD'
+        $releasePrompt | Should -Not -Match 'merge-base --is-ancestor origin/main HEAD'
+        $releasePrompt | Should -Match 'exact `origin/dev` lineage is the prerelease authorization boundary'
         $releasePrompt | Should -Not -Match 'Require a clean, up-to-date `main` checkout before writing payloads'
     }
 
