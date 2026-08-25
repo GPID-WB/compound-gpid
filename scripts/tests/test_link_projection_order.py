@@ -60,6 +60,7 @@ def test_shell_projects_before_local_kilo_preflight() -> None:
     content = (REPO_ROOT / "scripts/link.sh").read_text(encoding="utf-8")
     _assert_order(content, "cg_project_manifest.py", "\ncleanup_legacy_model_mapping_files\n")
     _assert_order(content, "cg_project_projection.py", "run_kilo_preflight local")
+    assert 'projection_root="$(platform_generated_tree "$platform")"' in content
 
 
 @pytest.mark.skipif(os.name == "nt", reason="macOS/Linux link.sh integration")

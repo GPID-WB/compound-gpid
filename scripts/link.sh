@@ -925,7 +925,7 @@ if [ -d "$PROJECT_ROOT/.compound-gpid" ] && [ -f "$PROJECT_ROOT/.compound-gpid/a
     # Generated projection roots are reproducible runtime output. Keep them in
     # the managed gitignore block while leaving active-manifest.json reviewable.
     for platform in "${selected_parts[@]}"; do
-        projection_root="$(generated_tree_root "$platform")"
+        projection_root="$(platform_generated_tree "$platform")"
         [ -n "$projection_root" ] && printf '%s\n' "$projection_root" >> "$entries_file"
     done
 fi
