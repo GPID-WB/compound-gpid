@@ -342,6 +342,9 @@ Describe "create-release.ps1 - native packaging preflight" {
         $scriptContent | Should -Match '\$_.head_sha -eq \$headCommit -and \$_.head_branch -eq \$Tag'
         $scriptContent | Should -Match "Protect release tags"
         $scriptContent | Should -Match 'Get-CgRepositoryRuleset'
+        $scriptContent | Should -Match '\$RulesetName'
+        $scriptContent | Should -Match '\$RulesetTarget'
+        $scriptContent | Should -Not -Match 'Get-CgRepositoryRuleset -Name'
         $scriptContent | Should -Match 'after 3 attempts'
         $scriptContent | Should -Match 'missing update rule'
         $scriptContent | Should -Match 'ruleTypes -notcontains "update"'

@@ -274,14 +274,16 @@ $headers = @{
 
 function Get-CgRepositoryRuleset {
     param(
-        [string]$Name,
-        [string]$Target
+        [string]$RulesetName,
+        [string]$RulesetTarget
     )
 
     for ($attempt = 1; $attempt -le 3; $attempt++) {
         $summaries = @(Invoke-RestMethod -Uri "https://api.github.com/repos/GPID-WB/compound-gpid/rulesets" -Headers $headers)
         $match = @($summaries | Where-Object {
-            $_.name -eq $Name -and $_.target -eq $Target -and $_.enforcement -eq "active"
+            $_.name -eq $RulesetName -and
+            $_.target -eq $RulesetTarget -and
+            $_.enforcement -eq "active"
         })
         if ($match.Count -eq 1) {
             $detail = Invoke-RestMethod -Uri "https://api.github.com/repos/GPID-WB/compound-gpid/rulesets/$($match[0].id)" -Headers $headers
@@ -296,10 +298,10 @@ function Get-CgRepositoryRuleset {
         if ($attempt -lt 3) { Start-Sleep -Seconds 2 }
     }
 
-    throw "Could not read one complete active '$Name' $Target ruleset after 3 attempts."
+    throw "Could not read one complete active '$RulesetName' $RulesetTarget ruleset after 3 attempts."
 }
 
-$ruleset = Get-CgRepositoryRuleset -Name "Protect release tags" -Target "tag"
+$ruleset = Get-CgRepositoryRuleset -RulesetName "Protect release tags" -RulesetTarget "tag"
 $ruleTypes = @($ruleset.rules | ForEach-Object { [string]$_.type })
 $includedRefs = @($ruleset.conditions.ref_name.include | ForEach-Object { [string]$_ })
 $excludedRefs = @($ruleset.conditions.ref_name.exclude | ForEach-Object { [string]$_ })
@@ -317,7 +319,7 @@ if ($tagRuleProblems.Count -ne 0) {
     throw "'Protect release tags' is invalid: $($tagRuleProblems -join '; ')."
 }
 
-$creationRuleset = Get-CgRepositoryRuleset -Name "Restrict release tag creation" -Target "tag"
+$creationRuleset = Get-CgRepositoryRuleset -RulesetName "Restrict release tag creation" -RulesetTarget "tag"
 $creationRuleTypes = @($creationRuleset.rules | ForEach-Object { [string]$_.type })
 $creationIncludes = @($creationRuleset.conditions.ref_name.include | ForEach-Object { [string]$_ })
 $creationExcludes = @($creationRuleset.conditions.ref_name.exclude | ForEach-Object { [string]$_ })
@@ -332,7 +334,7 @@ if ($creationRuleTypes -notcontains "creation" -or
     throw "'Restrict release tag creation' must limit refs/tags/v* creation to repository administrators."
 }
 
-$devRuleset = Get-CgRepositoryRuleset -Name "Protect dev" -Target "branch"
+$devRuleset = Get-CgRepositoryRuleset -RulesetName "Protect dev" -RulesetTarget "branch"
 $devRuleTypes = @($devRuleset.rules | ForEach-Object { [string]$_.type })
 $devIncludes = @($devRuleset.conditions.ref_name.include | ForEach-Object { [string]$_ })
 $devExcludes = @($devRuleset.conditions.ref_name.exclude | ForEach-Object { [string]$_ })
