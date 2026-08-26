@@ -16,6 +16,7 @@ import pytest
 import cg_generate_targets as generator
 import cg_project_projection as projection
 import cg_project_manifest as manifest_module
+import secure_fs
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -30,6 +31,33 @@ def _write_json(path: Path, payload: dict) -> None:
 def _write(path: Path, content: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(content, encoding="utf-8")
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Windows MAX_PATH regression")
+def test_staged_inventory_enumerates_long_windows_paths(tmp_path: Path) -> None:
+    relative = (
+        ".kilo/skills/cg-skill-wb-report-writing/evals/benchmarks/"
+        "country-analytical-narrative.benchmark.json"
+    )
+    minimum_padding = 262 - len(str(tmp_path / "x" / relative))
+    padding = max(1, minimum_padding)
+    assert padding < 240
+    staging_root = tmp_path / ("x" * padding)
+    staging_root.mkdir()
+    destination = Path(secure_fs._windows_long_path(staging_root / relative))
+    destination.parent.mkdir(parents=True)
+    destination.write_bytes(b"{}\n")
+    assert len(str(staging_root / relative)) > 260
+
+    inventory = projection._inventory_staged_destinations(staging_root)
+
+    assert relative in inventory
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Windows UNC path regression")
+def test_windows_long_path_formats_unc_roots() -> None:
+    unc = Path(r"\\server\share\project")
+    assert secure_fs._windows_long_path(unc) == r"\\?\UNC\server\share\project"
 
 
 def _real_registry(root: Path) -> None:
@@ -710,6 +738,28 @@ class TestRealRepo:
         plan = projection.build_projection_plan(REPO_ROOT, manifest)
         assert plan.platforms
         assert plan.entries
+
+    def test_python_only_cg_kilo_plan_resolves(self) -> None:
+        config = '---\nlanguage: "python"\nsuites: [cg]\n---\n# config\n'
+        manifest = manifest_module.resolve_active_manifest(
+            REPO_ROOT,
+            config_text=config,
+            platforms=["kilo"],
+            source_root=REPO_ROOT,
+        )
+
+        plan = projection.build_projection_plan(REPO_ROOT, manifest)
+        destinations = {entry.destination for entry in plan.entries}
+
+        assert ".kilo/commands/cg-fixbug.md" in destinations
+        assert ".kilo/instructions/python.instructions.md" in destinations
+        assert ".kilo/instructions/r.instructions.md" not in destinations
+        fixbug = next(
+            entry.content.decode("utf-8")
+            for entry in plan.entries
+            if entry.destination == ".kilo/commands/cg-fixbug.md"
+        )
+        assert "cg-skill-r-testing" not in fixbug
 
 
 class TestManifestFreshness:

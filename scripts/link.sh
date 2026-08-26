@@ -118,7 +118,7 @@ normalize_platforms() {
         fi
         case "$platform" in
             copilot|claude-code|codex|opencode|kilo)
-                case ",$selected," in *",$platform,"*) ;; *) selected="${selected:+$selected},$platform" ;; esac
+                case ",$selected," in *",$platform,"*) ;; *) selected="${selected:+$selected,}$platform" ;; esac
                 ;;
             *) print_warn "Unknown platform '$platform' -- skipping" ;;
         esac
@@ -855,10 +855,26 @@ if [ -n "$missing" ]; then
     exit 1
 fi
 
-cleanup_legacy_model_mapping_files
-
 MANIFEST_DRIVEN="false"
 [ -f "$PROJECT_ROOT/compound-gpid.local.md" ] && MANIFEST_DRIVEN="true"
+
+# Resolve strict manifest inputs before any consumer cleanup or installation.
+# Registry/catalog data comes from the Compound GPID source; project selection
+# and managed output remain rooted in the consumer project.
+if [ "$MANIFEST_DRIVEN" = "true" ]; then
+    set +e
+    MANIFEST_OUTPUT="$("$PYTHON_CMD" "$COMPOUND_GPID_DIR/scripts/cg_project_manifest.py" --root "$PROJECT_ROOT" --source-root "$COMPOUND_GPID_DIR" --platforms "$PLATFORMS" --ensure-state 2>&1)"
+    MANIFEST_STATUS=$?
+    set -e
+    if [ "$MANIFEST_STATUS" -ne 0 ]; then
+        print_error "Linking is blocked by active manifest resolution failure."
+        printf '%s\n' "$MANIFEST_OUTPUT" >&2
+        exit 1
+    fi
+    print_gray "Active manifest: resolved for $PLATFORMS"
+fi
+
+cleanup_legacy_model_mapping_files
 
 while IFS='|' read -r platform unit_type source_rel target_rel strategy snippet; do
     [ -z "$platform" ] && continue
@@ -891,6 +907,41 @@ while IFS='|' read -r platform unit_type source_rel target_rel strategy snippet;
     fi
 done < "$units_file"
 
+# Publish manifest-driven roots before Kilo validates the local projection.
+# The legacy installer intentionally skips these directories, so preflight
+# cannot run until the synchronizer has materialized them.
+if [ -d "$PROJECT_ROOT/.compound-gpid" ] && [ -f "$PROJECT_ROOT/.compound-gpid/active-manifest.json" ]; then
+    set +e
+    PROJECTION_OUTPUT="$("$PYTHON_CMD" "$COMPOUND_GPID_DIR/scripts/cg_project_projection.py" --project-root "$PROJECT_ROOT" --source-root "$COMPOUND_GPID_DIR" --sync 2>&1)"
+    PROJECTION_STATUS=$?
+    set -e
+    if [ "$PROJECTION_STATUS" -ne 0 ]; then
+        print_error "Linking is blocked by manifest projection failure."
+        printf '%s\n' "$PROJECTION_OUTPUT" >&2
+        exit 1
+    fi
+    print_gray "Project projection: synced and verified"
+
+    # Generated projection roots are reproducible runtime output. Keep them in
+    # the managed gitignore block while leaving active-manifest.json reviewable.
+    for platform in "${selected_parts[@]}"; do
+        projection_root="$(platform_generated_tree "$platform")"
+        [ -n "$projection_root" ] && printf '%s\n' "$projection_root" >> "$entries_file"
+    done
+    printf '%s\n' \
+        '.compound-gpid/active/' \
+        '.compound-gpid/generations/' \
+        '.compound-gpid/projection-ownership.json' \
+        '.compound-gpid/projection-transaction.json' \
+        '.compound-gpid/staging/' \
+        '.compound-gpid/quarantine/' \
+        '.compound-gpid/retired/' \
+        '.compound-gpid/*.tmp' \
+        '.compound-gpid/*.bak' >> "$entries_file"
+fi
+
+protect_kilo_compatibility_skill_links
+
 if [[ ",$PLATFORMS," == *,kilo,* ]] &&
    [[ ",$PLATFORMS," == *,codex,* || ",$PLATFORMS," == *,claude-code,* ]]; then
     run_kilo_preflight coexistence
@@ -901,7 +952,6 @@ elif [[ ",$PLATFORMS," == *,kilo,* ]]; then
     run_kilo_preflight local
 fi
 
-protect_kilo_compatibility_skill_links
 collect_existing_managed_entries >> "$entries_file"
 update_gitignore_block "$entries_file"
 
@@ -936,40 +986,6 @@ for platform in "${check_platforms[@]}"; do
 done
 
 printf '\n'
-# Persist the selected platform set in the committed active manifest so no
-# separate resolution command is needed during later cg-update runs. A
-# manifest-driven consumer with invalid strict config fails closed: linking
-# must not silently fall through to the legacy unfiltered tree.
-if [ -f "$PROJECT_ROOT/compound-gpid.local.md" ]; then
-    set +e
-    MANIFEST_OUTPUT="$("$PYTHON_CMD" "$COMPOUND_GPID_DIR/scripts/cg_project_manifest.py" --root "$PROJECT_ROOT" --platforms "$PLATFORMS" --ensure-state 2>&1)"
-    MANIFEST_STATUS=$?
-    set -e
-    if [ "$MANIFEST_STATUS" -ne 0 ]; then
-        print_error "Linking is blocked by active manifest resolution failure."
-        printf '%s\n' "$MANIFEST_OUTPUT" >&2
-        exit 1
-    fi
-    print_gray "Active manifest: resolved for $PLATFORMS"
-fi
-
-# For a manifest-driven consumer project, verify the committed active manifest
-# and recover/publish the project-local projection through the journaled
-# synchronizer. Fresh junction/copy links without a .compound-gpid state stay
-# on the legacy path; a projection error blocks the link success banner.
-if [ -d "$PROJECT_ROOT/.compound-gpid" ] && [ -f "$PROJECT_ROOT/.compound-gpid/active-manifest.json" ]; then
-    set +e
-    PROJECTION_OUTPUT="$("$PYTHON_CMD" "$COMPOUND_GPID_DIR/scripts/cg_project_projection.py" --project-root "$PROJECT_ROOT" --source-root "$COMPOUND_GPID_DIR" --sync 2>&1)"
-    PROJECTION_STATUS=$?
-    set -e
-    if [ "$PROJECTION_STATUS" -ne 0 ]; then
-        print_error "Linking is blocked by manifest projection failure."
-        printf '%s\n' "$PROJECTION_OUTPUT" >&2
-        exit 1
-    fi
-    print_gray "Project projection: synced and verified"
-fi
-
 print_green "Linked!"
 printf '\nCompound GPID assets are now available for: %s.\n' "$PLATFORMS"
 printf 'Use --platforms copilot for Copilot-only or --platforms kilo for Kilo-only assets.\n\n'

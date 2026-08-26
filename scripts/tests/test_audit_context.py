@@ -214,6 +214,57 @@ class TestAdvisoryValidation:
         errors = audit.validate_local_advisory_config(tmp_path)
         assert any("executable advisory key" in error for error in errors)
 
+    def test_local_advisory_inline_value_warns(self, tmp_path: Path) -> None:
+        _write(tmp_path / "compound-gpid.local.md", "model-advisory: enabled\n")
+        errors = audit.validate_local_advisory_config(tmp_path)
+        assert any("must use a nested block" in error for error in errors)
+
+    def test_local_advisory_tab_indentation_warns(self, tmp_path: Path) -> None:
+        _write(
+            tmp_path / "compound-gpid.local.md",
+            "model-advisory:\n\tenabled: true\n\texamples: strong\n",
+        )
+        errors = audit.validate_local_advisory_config(tmp_path)
+        assert any("tab indentation" in error for error in errors)
+
+    def test_local_advisory_indented_fence_does_not_hide_forbidden_key(self, tmp_path: Path) -> None:
+        _write(
+            tmp_path / "compound-gpid.local.md",
+            "model-advisory:\n"
+            "  enabled: true\n"
+            "  examples:\n"
+            "    notes: |\n"
+            "      ---\n"
+            "    model: forbidden\n",
+        )
+        errors = audit.validate_local_advisory_config(tmp_path)
+        assert any("executable advisory key" in error for error in errors)
+
+    def test_duplicate_local_advisory_blocks_warn_and_validate_later_block(self, tmp_path: Path) -> None:
+        _write(
+            tmp_path / "compound-gpid.local.md",
+            "model-advisory:\n"
+            "  enabled: true\n"
+            "  examples: strong\n"
+            "model-advisory:\n"
+            "  enabled: false\n"
+            "  examples: strong\n"
+            "  model: forbidden\n",
+        )
+        errors = audit.validate_local_advisory_config(tmp_path)
+        assert any("duplicate model-advisory blocks" in error for error in errors)
+        assert any("executable advisory key" in error for error in errors)
+
+    def test_local_advisory_header_comment_is_not_an_inline_value(self, tmp_path: Path) -> None:
+        _write(
+            tmp_path / "compound-gpid.local.md",
+            "model-advisory: # optional preferences\n"
+            "  enabled: true\n"
+            "  examples: strong\n",
+        )
+        errors = audit.validate_local_advisory_config(tmp_path)
+        assert not any("must use a nested block" in error for error in errors)
+
     def test_empty_advisory_bundle_is_invalid(self, tmp_path: Path) -> None:
         _write(tmp_path / ".github/shared/model-advisory.contract.md", "user makes the final selection\navailability can differ by platform and date\nRuntime catalog introspection is intentionally deferred\nmust never be translated into prompt or agent frontmatter\n")
         _write(tmp_path / ".github/shared/model-advisory-examples.json", "{}\n")

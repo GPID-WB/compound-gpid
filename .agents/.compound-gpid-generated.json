@@ -84,7 +84,7 @@
       "path": ".agents/commands/cg-fixbug.md",
       "source": ".github/prompts/cg-fixbug.prompt.md",
       "kind": "command",
-      "sha256": "27349c30be2e6e0b2270dcd5daa265f933d1963c2bf066d5a50414ba4d5356bc",
+      "sha256": "46b05ece16a4a188776a1620d24b49e84264e6c0e83e7055894c46d0c423500e",
       "executable": false
     },
     {

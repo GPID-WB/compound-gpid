@@ -6211,12 +6211,14 @@ Describe "cg-fixbug.prompt.md - P1.2 escape hatch for 'test is not failing' resp
     }
 }
 
-Describe "cg-fixbug.prompt.md - P1.3 cross-reference pointer in Step 2.5 table" {
+Describe "cg-fixbug.prompt.md - language-neutral Step 2.5 testing guidance" {
     $promptFile = Join-Path $repoRoot ".github\prompts\cg-fixbug.prompt.md"
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
-    It "Step 2.5 table footer references test-integrity.md for Typical Signal column" {
-        ($content -match 'test-integrity\.md.*Test Gap Taxonomy') | Should -Be $true
+    It "loads only testing guidance selected by the active project" {
+        ($content -match 'active project includes language-specific testing guidance') | Should -Be $true
+        ($content -match 'taxonomy and definitions above consistently across supported languages') | Should -Be $true
+        ($content -match 'cg-skill-r-testing/references/test-integrity\.md') | Should -Be $false
     }
 }
 

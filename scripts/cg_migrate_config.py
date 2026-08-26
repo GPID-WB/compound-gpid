@@ -50,21 +50,12 @@ def _frontmatter_bounds(text: str) -> tuple[int, int] | None:
     return start, end_marker
 
 
-def _has_field(frontmatter: str, key: str) -> bool:
-    for line in frontmatter.splitlines():
-        if line.strip().split(":", 1)[0].strip() == key:
-            return True
-    return False
-
-
 def migrate_file_text(text: str) -> tuple[str, bool, str | None]:
     """Return (new_text, changed, error). Non-destructive; preserves all fields."""
     bounds = _frontmatter_bounds(text)
     if bounds is None:
         return text, False, "missing top-level frontmatter delimiter '---'"
     start, end = bounds
-    frontmatter = text[start:end]
-
     parsed = parse_strict_config(text)
     if parsed.errors:
         return text, False, "strict config validation failed: " + parsed.errors[0]
@@ -81,7 +72,7 @@ def migrate_file_text(text: str) -> tuple[str, bool, str | None]:
     insert: list[str] = []
     if not parsed.suites:
         insert.append(f"suites: {SUITES_DEFAULT}")
-    if not _has_field(frontmatter, CONFIG_SCHEMA_VERSION_FIELD):
+    if version is None:
         insert.append(f'{CONFIG_SCHEMA_VERSION_FIELD}: "{SUPPORTED_CONFIG_SCHEMA_VERSION}"')
     if not insert:
         return text, False, None

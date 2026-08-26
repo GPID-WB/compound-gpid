@@ -562,23 +562,18 @@ def validate_local_advisory_config(root: Path) -> list[str]:
     if not path.exists():
         return []
     content = path.read_text(encoding="utf-8-sig")
-    if "model-advisory:" not in content:
+    if not re.search(r"(?m)^model-advisory[ \t]*:", content):
         return []
     lines = content.splitlines()
-    starts = [index for index, line in enumerate(lines) if line.strip() == "model-advisory:"]
+    starts = [
+        index for index, line in enumerate(lines)
+        if re.match(r"^model-advisory[ \t]*:", line)
+    ]
     if not starts:
         return []
-    start = starts[0]
-    section: list[tuple[int, str]] = []
-    for index, line in enumerate(lines[start + 1:], start=start + 2):
-        if line.strip() == "---" or (line and not line[0].isspace()):
-            break
-        section.append((index, line))
     errors: list[str] = []
-    if not any(re.match(r"^\s+enabled\s*:", line) for _, line in section):
-        errors.append("compound-gpid.local.md model-advisory block is missing enabled")
-    if not any(re.match(r"^\s+(examples|preferences)\s*:", line) for _, line in section):
-        errors.append("compound-gpid.local.md model-advisory block is missing examples or preferences")
+    if len(starts) > 1:
+        errors.append("compound-gpid.local.md contains duplicate model-advisory blocks")
     bundled_ids: set[str] = set()
     examples_path = root / MODEL_ADVISORY_EXAMPLES_PATH
     if examples_path.exists():
@@ -592,24 +587,39 @@ def validate_local_advisory_config(root: Path) -> list[str]:
         except (OSError, json.JSONDecodeError):
             pass
 
-    for index, line in section:
-        match = re.match(r"^\s+([^:#]+?)\s*:", line)
-        if not match:
-            continue
-        key = match.group(1).strip()
-        key_lower = key.casefold()
-        value = line.split(":", 1)[1].strip().strip("\"'")
-        indent = len(line) - len(line.lstrip())
-        if key_lower in FORBIDDEN_ADVISORY_KEYS:
-            errors.append(f"compound-gpid.local.md line {index} contains executable advisory key")
-        elif indent == 2 and key_lower not in {"enabled", "examples", "preferences"}:
-            errors.append(f"compound-gpid.local.md line {index} contains unsupported advisory field: {key}")
-        elif key_lower == "enabled" and value.casefold() not in {"true", "false"}:
-            errors.append(f"compound-gpid.local.md line {index} enabled must be true or false")
-        elif key_lower in {"effort", "strongeffort", "economicaleffort"} and value not in ADVISORY_EFFORT_LABELS:
-            errors.append(f"compound-gpid.local.md line {index} uses unsupported advisory effort: {value}")
-        elif key_lower in {"strong", "economical", "example", "exampleref"} and bundled_ids and value not in bundled_ids:
-            errors.append(f"compound-gpid.local.md line {index} references unknown advisory example: {value}")
+    for start in starts:
+        header_value = lines[start].split(":", 1)[1].split("#", 1)[0].strip()
+        section: list[tuple[int, str]] = []
+        for index, line in enumerate(lines[start + 1:], start=start + 2):
+            if re.fullmatch(r"---[ \t]*", line) or (line and not line[0].isspace()):
+                break
+            section.append((index, line))
+        if header_value:
+            errors.append("compound-gpid.local.md model-advisory must use a nested block")
+        if any("\t" in line for _, line in section):
+            errors.append("compound-gpid.local.md model-advisory contains tab indentation")
+        if not any(re.match(r"^\s+enabled\s*:", line) for _, line in section):
+            errors.append("compound-gpid.local.md model-advisory block is missing enabled")
+        if not any(re.match(r"^\s+(examples|preferences)\s*:", line) for _, line in section):
+            errors.append("compound-gpid.local.md model-advisory block is missing examples or preferences")
+        for index, line in section:
+            match = re.match(r"^\s+([^:#]+?)\s*:", line)
+            if not match:
+                continue
+            key = match.group(1).strip()
+            key_lower = key.casefold()
+            value = line.split(":", 1)[1].strip().strip("\"'")
+            indent = len(line) - len(line.lstrip())
+            if key_lower in FORBIDDEN_ADVISORY_KEYS:
+                errors.append(f"compound-gpid.local.md line {index} contains executable advisory key")
+            elif indent == 2 and key_lower not in {"enabled", "examples", "preferences"}:
+                errors.append(f"compound-gpid.local.md line {index} contains unsupported advisory field: {key}")
+            elif key_lower == "enabled" and value.casefold() not in {"true", "false"}:
+                errors.append(f"compound-gpid.local.md line {index} enabled must be true or false")
+            elif key_lower in {"effort", "strongeffort", "economicaleffort"} and value not in ADVISORY_EFFORT_LABELS:
+                errors.append(f"compound-gpid.local.md line {index} uses unsupported advisory effort: {value}")
+            elif key_lower in {"strong", "economical", "example", "exampleref"} and bundled_ids and value not in bundled_ids:
+                errors.append(f"compound-gpid.local.md line {index} references unknown advisory example: {value}")
     return errors
 
 

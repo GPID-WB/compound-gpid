@@ -98,6 +98,46 @@ class TestMigration:
             assert f"{field}:" in content, f"field lost: {field}"
         assert "# Compound GPID — Project Config" in content
 
+    def test_advisory_fence_does_not_hide_existing_suite_selection(self, tmp_path: Path) -> None:
+        config = """---
+language: "both"
+model-advisory:
+  notes: |
+    ---
+suites: [cr]
+---
+# config
+"""
+        path = _write(tmp_path, config)
+
+        result = migration.migrate_local_config(path)
+
+        assert result.changed is True
+        content = path.read_text(encoding="utf-8")
+        assert content.count("suites:") == 1
+        assert _read_suites(content) == "[cr]"
+        assert migration.CONFIG_SCHEMA_VERSION_FIELD + ":" in content
+
+    def test_nested_advisory_schema_marker_does_not_suppress_migration(self, tmp_path: Path) -> None:
+        config = """---
+language: "both"
+model-advisory:
+  config-schema-version: "2"
+suites: [cg]
+---
+# config
+"""
+        path = _write(tmp_path, config)
+
+        result = migration.migrate_local_config(path)
+
+        assert result.changed is True
+        top_level_markers = [
+            line for line in path.read_text(encoding="utf-8").splitlines()
+            if line.startswith("config-schema-version:")
+        ]
+        assert top_level_markers == ['config-schema-version: "2"']
+
     def test_malformed_present_suites_fails_closed(self, tmp_path: Path) -> None:
         for bad_suites in ("suites:", "suites: []", 'suites: "cg"', "suites: [cg, cg]"):
             config = LEGACY_CONFIG.replace("review-depth: \"thorough\"\n", f"review-depth: \"thorough\"\n{bad_suites}\n")

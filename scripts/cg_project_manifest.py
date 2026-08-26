@@ -18,6 +18,7 @@ per-file ownership checksums and stale-deletion authorization live in
 
 Usage:
     python scripts/cg_project_manifest.py [--root <path>] [--output <path>]
+        [--source-root <path>]
         [--platforms copilot,kilo]
         [--validate] [--check-stale <manifest>] [--ensure-state]
 
@@ -238,6 +239,7 @@ def resolve_active_manifest(
     root: Path,
     config_text: Optional[str] = None,
     platforms: Optional[list[str]] = None,
+    source_root: Optional[Path] = None,
 ) -> dict[str, Any]:
     """Resolve the canonical active manifest. Side-effect-free.
 
@@ -247,6 +249,7 @@ def resolve_active_manifest(
             platform ids.
     """
     root = Path(root).resolve()
+    source_root = Path(source_root).resolve() if source_root is not None else root
     if config_text is None:
         config_path = root / LOCAL_CONFIG_PATH
         if not config_path.exists():
@@ -267,8 +270,8 @@ def resolve_active_manifest(
             f"({SUPPORTED_CONFIG_SCHEMA_VERSION}); migrate explicitly before strict resolution"
         )
 
-    registry = _load_registry(root)
-    available_platforms = canonical_platform_ids(root)
+    registry = _load_registry(source_root)
+    available_platforms = canonical_platform_ids(source_root)
     selected_platforms = list(platforms) if platforms is not None else list(available_platforms)
     unknown_platforms = [p for p in selected_platforms if p not in available_platforms]
     if unknown_platforms:
@@ -296,18 +299,18 @@ def resolve_active_manifest(
     closure_ids = sorted(loadable_ids)
     closure_globs = sorted(budget.loadable_asset_globs(registry, loadable_ids))
     derived_ids = budget.capability_ids_by_selector(registry, settings, suites)
-    registry_hash, registry_schema = registry_digest(root)
+    registry_hash, registry_schema = registry_digest(source_root)
 
     manifest: dict[str, Any] = {
         "header": HEADER,
         "schemaVersion": 1,
-        "generated": audit._deterministic_generated_stamp(root),
+        "generated": audit._deterministic_generated_stamp(source_root),
         "selection": {
             "configDigest": config_digest(config_text),
             "configSchemaVersion": config_schema_version,
             "registryDigest": registry_hash,
             "registrySchemaVersion": registry_schema,
-            "sourceRevision": source_revision(root),
+            "sourceRevision": source_revision(source_root),
             "suites": suites,
             "capabilities": explicit,
             "derivedCapabilities": derived_ids,
@@ -321,7 +324,7 @@ def resolve_active_manifest(
             "Set by cg-link/cg-update preflight; True requires the certified "
             "`cg-kilo` launcher for combined Kilo+Codex configurations."
         ),
-        "catalogRecords": _catalog_records(root, closure_globs, registry),
+        "catalogRecords": _catalog_records(source_root, closure_globs, registry),
     }
     return manifest
 
@@ -470,6 +473,7 @@ def ensure_managed_state(root: Path, manifest: dict[str, Any]) -> list[str]:
 def main(argv: Optional[list[str]] = None) -> int:
     parser = argparse.ArgumentParser(description="Resolve and validate the active project manifest.")
     parser.add_argument("--root", default=".", help="Project root directory (default: .)")
+    parser.add_argument("--source-root", default=None, help="Compound GPID source root for registry and catalog inputs (default: project root)")
     parser.add_argument("--output", default=ACTIVE_MANIFEST_PATH, help="Output manifest path (default: .compound-gpid/active-manifest.json)")
     parser.add_argument("--platforms", default=None, help="Comma-separated selected platform ids (default: all canonical)")
     parser.add_argument("--validate", action="store_true", help="Validate instead of writing")
@@ -481,12 +485,16 @@ def main(argv: Optional[list[str]] = None) -> int:
     if not root.is_dir():
         print(f"Error: project root does not exist or is not a directory: {root}", file=sys.stderr)
         return 2
+    source_root = Path(args.source_root).resolve() if args.source_root else root
+    if not source_root.is_dir():
+        print(f"Error: source root does not exist or is not a directory: {source_root}", file=sys.stderr)
+        return 2
 
     try:
         platforms = None
         if args.platforms:
             platforms = [item.strip() for item in args.platforms.split(",") if item.strip()]
-        manifest = resolve_active_manifest(root, platforms=platforms)
+        manifest = resolve_active_manifest(root, platforms=platforms, source_root=source_root)
     except ManifestResolutionError as exc:
         print(f"Error: manifest resolution failed: {exc}", file=sys.stderr)
         return 1

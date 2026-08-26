@@ -16,7 +16,7 @@ _ASCII_KEY_RE = re.compile(r"^[A-Za-z][A-Za-z0-9_-]*$")
 _ASCII_IDENTIFIER_RE = re.compile(r"^[a-z][a-z0-9-]*$")
 _SIMPLE_SCALAR_RE = re.compile(r"^[A-Za-z0-9._/+-]+$")
 _ASCII_PRINTABLE_RE = re.compile(r"^[\x20-\x7e]*$")
-_CLOSING_FENCE_RE = re.compile(r"^[ \t]*---[ \t]*$")
+_CLOSING_FENCE_RE = re.compile(r"^---[ \t]*$")
 
 # Known top-level project-config fields. Unrecognized keys fail with remediation.
 KNOWN_CONFIG_FIELDS = frozenset({
@@ -30,6 +30,12 @@ KNOWN_CONFIG_FIELDS = frozenset({
     "cg-schema-version",
     "config-schema-version",
 })
+
+# Advisory metadata is intentionally non-executable and does not participate in
+# suite/capability resolution. It may use nested YAML because its independent
+# validator treats malformed advisory preferences as warnings, while this
+# parser continues to enforce the restricted grammar for selection fields.
+NON_SELECTION_BLOCK_FIELDS = frozenset({"model-advisory"})
 
 
 def parse_frontmatter_with_body(content: str) -> tuple[dict[str, Any], str]:
@@ -154,8 +160,18 @@ def parse_strict_config(text: str) -> StrictConfig:
         return result
     lines = [all_lines[index].rstrip("\r") for index in range(opening_line, closing)]
     seen_keys: set[str] = set()
+    active_nonselection_block: Optional[str] = None
     for line_number, line in enumerate(lines, start=opening_line + 1):
         if not line.strip() or line.strip().startswith("#"):
+            continue
+        if (
+            not line[0].isspace()
+            and ":" in line
+            and line.split(":", 1)[0].rstrip(" \t") in NON_SELECTION_BLOCK_FIELDS
+        ):
+            active_nonselection_block = line.split(":", 1)[0].rstrip(" \t")
+            continue
+        if line[0].isspace() and active_nonselection_block is not None:
             continue
         if "\t" in line:
             result.errors.append(f"line {line_number}: tab characters are not allowed")
@@ -165,6 +181,7 @@ def parse_strict_config(text: str) -> StrictConfig:
                 f"line {line_number}: indented/nested values are not allowed; use inline lists"
             )
             continue
+        active_nonselection_block = None
         if ":" not in line:
             result.errors.append(f"line {line_number}: expected a 'key: value' line")
             continue

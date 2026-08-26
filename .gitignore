@@ -99,8 +99,11 @@ pr-result.txt
 # runtime state and must never be committed.
 .compound-gpid/projection-ownership.json
 .compound-gpid/projection-transaction.json
+.compound-gpid/active/
+.compound-gpid/generations/
 .compound-gpid/staging/
 .compound-gpid/quarantine/
+.compound-gpid/retired/
 .compound-gpid/vendor-reviews/
 .compound-gpid/*.tmp
 .compound-gpid/*.bak

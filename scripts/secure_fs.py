@@ -1106,6 +1106,8 @@ def _windows_long_path(path: Path) -> str:
     text = str(path)
     if text.startswith("\\\\?\\"):
         return text
+    if text.startswith("\\\\"):
+        return "\\\\?\\UNC\\" + text.lstrip("\\")
     if path.is_absolute():
         return "\\\\?\\" + text
     return text
