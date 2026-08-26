@@ -16,6 +16,7 @@ import shutil
 import subprocess
 import tempfile
 from pathlib import Path
+from typing import Iterable
 
 import cg_generate_targets as gen
 
@@ -78,19 +79,35 @@ def _sha256_bytes(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
-def _is_git_ignored(root: Path, rel_path: str) -> bool:
-    """Return True when a repository-relative path is ignored by git."""
+def _git_ignored_paths(root: Path, rel_paths: Iterable[str]) -> set[str]:
+    """Return ignored paths using one NUL-delimited Git query."""
+    paths = sorted(set(rel_paths))
+    if not paths:
+        return set()
+
     result = subprocess.run(
-        ["git", "check-ignore", "--quiet", "--", rel_path],
+        ["git", "check-ignore", "--stdin", "-z"],
+        input="".join(f"{path}\0" for path in paths),
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
         cwd=str(root),
         timeout=30,
         check=False,
     )
-    if result.returncode == 0:
-        return True
-    if result.returncode == 1:
-        return False
-    pytest.fail(f"Could not evaluate git ignore state for {rel_path}")
+    if result.returncode not in {0, 1}:
+        detail = (result.stderr or "").strip() or (
+            f"git exited with status {result.returncode}"
+        )
+        pytest.fail(f"Could not evaluate git ignore state: {detail}")
+    return {path for path in result.stdout.split("\0") if path}
+
+
+@functools.lru_cache(maxsize=8)
+def _ignored_expected_paths(root: Path) -> frozenset[str]:
+    """Return ignored generated paths, cached across drift assertions."""
+    return frozenset(_git_ignored_paths(root, _expected_paths(root)))
 
 
 @pytest.mark.parametrize(
@@ -137,7 +154,28 @@ def test_git_ignore_failure_fails_instead_of_skip(monkeypatch: pytest.MonkeyPatc
         lambda *args, **kwargs: subprocess.CompletedProcess(args[0], 128),
     )
     with pytest.raises(pytest.fail.Exception, match="ignore state"):
-        _is_git_ignored(REPO_ROOT, ".claude/missing")
+        _git_ignored_paths(REPO_ROOT, [".claude/missing"])
+
+
+def test_git_ignore_checks_are_batched(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Release drift checks should query all expected paths in one Git process."""
+    calls: list[list[str]] = []
+
+    def fake_run(command: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
+        calls.append(command)
+        assert command == ["git", "check-ignore", "--stdin", "-z"]
+        assert kwargs["input"] == ".agents/kept.md\0.kilo/ignored.md\0"
+        return subprocess.CompletedProcess(command, 0, ".kilo/ignored.md\0", "")
+
+    monkeypatch.setattr(subprocess, "run", fake_run)
+
+    ignored = _git_ignored_paths(
+        REPO_ROOT,
+        [".kilo/ignored.md", ".agents/kept.md"],
+    )
+
+    assert ignored == {".kilo/ignored.md"}
+    assert len(calls) == 1
 
 
 class TestNoDrift:
@@ -189,11 +227,7 @@ class TestNoDrift:
         """Every non-ignored expected file should exist in committed outputs."""
         expected = _expected_paths(REPO_ROOT)
         committed = _committed_generated_files(REPO_ROOT, [".claude", ".agents", ".opencode", ".kilo"])
-        expected_committed = {
-            path
-            for path in expected
-            if not _is_git_ignored(REPO_ROOT, path)
-        }
+        expected_committed = expected - _ignored_expected_paths(REPO_ROOT)
 
         missing = expected_committed - committed
         if missing:
@@ -243,11 +277,7 @@ class TestNoDrift:
         """Committed generated files should match dry-run regenerated content."""
         expected = _expected_paths(REPO_ROOT)
         committed = _committed_generated_files(REPO_ROOT, [".claude", ".agents", ".opencode", ".kilo"])
-        expected_committed = {
-            path
-            for path in expected
-            if not _is_git_ignored(REPO_ROOT, path)
-        }
+        expected_committed = expected - _ignored_expected_paths(REPO_ROOT)
 
         # Compare only files that are both expected and committed to avoid
         # duplicate reporting with stale/orphaned path tests above.

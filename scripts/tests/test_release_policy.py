@@ -4,6 +4,13 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[2]
+RELEASE_PROMPTS = (
+    ".github/prompts/cg-release.prompt.md",
+    ".kilo/commands/cg-release.md",
+    ".claude/commands/cg-release.md",
+    ".agents/commands/cg-release.md",
+    ".opencode/commands/cg-release.md",
+)
 
 
 def _read(relative: str) -> str:
@@ -38,6 +45,20 @@ def test_prerelease_lineage_does_not_depend_on_main() -> None:
     assert "git fetch origin main dev" not in controller
     assert 'git merge-base --is-ancestor origin/main "$RELEASE_SHA"' not in builder
     assert 'git merge-base --is-ancestor origin/main "$RELEASE_SHA"' not in controller
+
+
+def test_all_materialized_release_commands_allow_prereleases_from_dev() -> None:
+    for relative in RELEASE_PROMPTS:
+        prompt = _read(relative)
+
+        assert (
+            "Set `<release-branch>` to `dev` when `<prerelease>` is `true`" in prompt
+        )
+        assert "four-component prerelease tags are released directly" in prompt
+        assert (
+            "Require a clean, up-to-date `main` checkout before writing payloads"
+            not in prompt
+        )
 
 
 def test_release_rulesets_and_exact_run_chain_are_required() -> None:
