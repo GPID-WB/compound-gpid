@@ -13,7 +13,7 @@
     "powershell.pester.useLegacyCodeLens": true,
     // Enable /cg-* slash command discovery for Copilot.
     // .github/prompts/ holds the canonical command prompts (including developer-only
-    // commands like /cg-release and /cg-review-repos, which guard themselves via Step 0).
+    // commands like /cg-release and /cg-compound-gpid-rd, which guard themselves via Step 0).
     "chat.promptFilesLocations": {
         ".github/prompts": true
     }

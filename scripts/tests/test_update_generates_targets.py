@@ -237,10 +237,10 @@ class TestCommitPushPrRegeneratesTargets:
         assert "Run the generator unconditionally" in content
         assert "Rerun `git status --short`" in content
 
-    def test_runs_local_ci_equivalent_gates_before_staging(self, content: str) -> None:
-        assert "test_cg_characterization.py" in content
+    def test_runs_authoritative_ci_equivalent_gates_before_staging(self, content: str) -> None:
+        assert "cg_pr_preflight.py --phase prepare" in content
+        assert "pester_files" in content
         assert "check-docs-site.js" in content
-        assert "prompt-tools,model-assignments" in content
 
     def test_generation_failure_halts_before_staging(self, content: str) -> None:
         failure = content.index("If generation fails")
@@ -260,8 +260,8 @@ class TestCommitPushPrRegeneratesTargets:
         assert ".opencode/" in content
         assert ".kilo/" in content
 
-    def test_runs_target_drift_after_commits_and_before_push(self, content: str) -> None:
+    def test_runs_committed_preflight_after_commits_and_before_push(self, content: str) -> None:
         post_commit = content.index("### Step 4.5: Post-Commit Generated Drift Gate")
         push = content.index("### Step 5: Push")
         assert post_commit < push
-        assert "test_target_drift.py" in content[post_commit:push]
+        assert "cg_pr_preflight.py --phase committed" in content[post_commit:push]

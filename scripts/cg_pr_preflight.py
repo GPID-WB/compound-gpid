@@ -40,6 +40,8 @@ PROJECT_IMPACT_PATHS = frozenset({
 NATIVE_PYTEST_FILES = (
     "scripts/tests/test_target_mapping.py",
     "scripts/tests/test_cg_generate_targets.py",
+    "scripts/tests/test_commit_push_pr_source_detection.py",
+    "scripts/tests/test_cg_compound_gpid_rd_registry.py",
     "scripts/tests/test_target_path_safety.py",
     "scripts/tests/test_target_packaging.py",
     "scripts/tests/test_target_ownership.py",
