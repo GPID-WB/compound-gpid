@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-08-21 · 589 artifacts (newest first) + 158 roadmap features_
+_Generated 2026-08-28 · 596 artifacts (newest first) + 159 roadmap features_
 
 ## undated
 
@@ -127,12 +127,32 @@ _Generated 2026-08-21 · 589 artifacts (newest first) + 158 roadmap features_
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
 
+## 2026-08-28
+
+- **[2026-08-13-manifest-driven-skill-loading-verify-review-3](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review-3.md)** · `review` · _—_ · `2026-08-28`
+  > **Review mode**: light (`mode:verify`) **Parent review**: `.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-…
+- **[2026-08-28-compound-gpid-rd-command-review](.cg-docs/reviews/2026-08-28-compound-gpid-rd-command-review.md)** · `review` · _—_ · `2026-08-28`
+  > **Review mode**: full (auto-routed security-risk) **Files reviewed**: canonical prompt, registry utility, tests, audi…
+- **[Rename repository review command and add registry management flags](.cg-docs/brainstorms/2026-08-28-compound-gpid-rd-command.md)** · `brainstorm` · _decided_ · `2026-08-28`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[Rename repository review command and add registry management flags](.cg-docs/plans/2026-08-28-compound-gpid-rd-command.md)** · `plan` · _completed_ · `2026-08-28`
+  > Replace the developer-only `/cg-review-repos` command with `/cg-compound-gpid-rd`, preserve its full and delta review…
+- **[Secure registry mutation requires exact JSON and pre-commit output validation](.cg-docs/solutions/data-quality/2026-08-28-exact-json-registry-mutation-boundaries.md)** · `solution` · _—_ · `2026-08-28`
+  > A deterministic JSON registry utility preserved unknown fields structurally but decoded unknown numbers as binary flo…
+
+## 2026-08-26
+
+- **[Release drift ignore checks spawn thousands of Git processes](.cg-docs/solutions/bugs/2026-08-26-release-drift-ignore-checks-spawn-thousands-of-git-processes.md)** · `solution` · _—_ · `2026-08-26`
+  > The `/cg-release` packaging gate took more than 20 minutes in the full workflow. The native packaging test portion al…
+
 ## 2026-08-21
 
 - **[2026-08-21-pr-ci-preflight-and-kilo-capability-gates-verify-review](.cg-docs/reviews/2026-08-21-pr-ci-preflight-and-kilo-capability-gates-verify-review.md)** · `review` · _—_ · `2026-08-21`
   > - **Review mode**: verify (light-only) - **Parent review**: `.cg-docs/reviews/2026-08-13-manifest-driven-skill-loadin…
 - **[Authoritative PR preflight prevents native-target and Kilo capability reruns](.cg-docs/solutions/git-workflows/2026-08-21-pr-ci-preflight-native-target-kilo-capability-gates.md)** · `solution` · _—_ · `2026-08-21`
   > PR #141 exposed several failures that local guidance did not catch before a remote run: interpreter cache files could…
+- **[cg-link ignored singular --platform flag](.cg-docs/solutions/bugs/2026-08-21-cg-link-singular-platform-flag.md)** · `solution` · _—_ · `2026-08-21`
+  > On version `v1.2.0.9006`, running `cg-link --platform kilo` produced warnings that `--platform` and `kilo` were unrec…
 - **[Prevent PR CI reruns with native-target and Kilo capability preflights](.cg-docs/plans/2026-08-21-pr-ci-preflight-and-kilo-capability-gates.md)** · `plan` · _completed_ · `2026-08-21`
   > Make `/cg-commit-push-pr` and `/cg-verify-pr` stop release-critical native-target, module-closure, Kilo-host, PR-base…
 
@@ -1422,7 +1442,7 @@ _Generated 2026-08-21 · 589 artifacts (newest first) + 158 roadmap features_
   > On WBG enterprise machines, calling `[Environment]::GetEnvironmentVariable` or `[Environment]::SetEnvironmentVariable…
 - **[Fix CLM/OneDrive profile dot-source error](.cg-docs/brainstorms/2026-03-13-clm-onedrive-install-fix.md)** · `brainstorm` · _decided_ · `2026-03-13`
   > After a OneDrive Documents folder redirection was pushed to World Bank machines, `$PROFILE` now resolves to an OneDri…
-- **[Fix CLM/OneDrive profile dot-source error — batch wrappers + C:\\WBG install](.cg-docs/plans/2026-03-13-clm-onedrive-install-fix.md)** · `plan` · _completed_ · `2026-03-13`
+- **[Fix CLM/OneDrive profile dot-source error — batch wrappers + C:\WBG install](.cg-docs/plans/2026-03-13-clm-onedrive-install-fix.md)** · `plan` · _completed_ · `2026-03-13`
   > Replace the broken `$PROFILE`-based command registration with `.cmd` batch wrappers on PATH, and change the default i…
 - **[Regression test for try/catch control-flow guards when script cannot be executed](.cg-docs/solutions/testing-patterns/2026-03-13-regression-test-trycatch-guard-clm-environment.md)** · `solution` · _—_ · `2026-03-13`
   > A PS5.1 bug (`ErrorActionPreference=Stop` promoting git stderr to a terminating error) was fixed in `update.ps1` by w…
@@ -1683,6 +1703,8 @@ _Generated 2026-08-21 · 589 artifacts (newest first) + 158 roadmap features_
   > R dialect skills architecture (collapse, data.table, tidyverse)
 - **[Reduce token cost via prompt prose compression and Step 0 dedup](roadmap.json#reduce-token-cost-late-sequence-content)** · `feature` · _done_ · `—`
   > Reduce token cost via prompt prose compression and Step 0 dedup
+- **[Rename repository review command and add registry management flags](roadmap.json#rename-repository-review-command-and-add-registry-management-flags)** · `feature` · _done_ · `—`
+  > Rename repository review command and add registry management flags
 - **[Make review cheaper with deterministic checks first](roadmap.json#review-deterministic-first)** · `feature` · _idea_ · `—`
   > Make review cheaper with deterministic checks first
 - **[Per-finding status tracking in review files](roadmap.json#review-finding-status-tracking)** · `feature` · _done_ · `—`

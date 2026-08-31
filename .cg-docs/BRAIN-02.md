@@ -1,11 +1,29 @@
 # 🧠 Project Brain — Part 2
 
-_Generated 2026-08-21_
+_Generated 2026-08-28_
 
 ## Roadmap.Json / Test Scenarios / Prompt-Tools.Tests.Ps1 _(continued from Part 1)_
 
-_Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 99 entities
+_Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 110 entities
 
+- **[Pre-compute GRP once for blocks with multiple aggregations over the same grouping](.cg-docs/solutions/performance-issues/2026-03-18-grp-precomputation-for-multi-aggregation.md)** · `solution` · _—_ · `2026-03-18`
+  > A common pattern in GPID welfare code computes several statistics by region in consecutive calls: Each call passes `g…
+- **[Full model audit — classification methodology and results](.cg-docs/solutions/performance-issues/2026-04-07-model-audit-classification.md)** · `solution` · _applied_ · `2026-04-07`
+  > All 12 prompts and 10 agents in Compound GPID launched with default model assignments that were never systematically …
+- **[Tar-slip, TOCTOU, and DoS fixes in quarantined import pipeline](.cg-docs/solutions/security/2026-08-17-tar-slip-toctou-dos-quarantine-pipeline.md)** · `solution` · _—_ · `2026-08-17`
+  > The `/cg-import-skill` importer had three security vulnerabilities discovered during code review: 1. **Tar path trave…
+- **[Constraining file writes in output-producing prompts without agent: plan mode](.cg-docs/solutions/testing-patterns/2026-03-02-prompt-file-permission-guardrails.md)** · `solution` · _—_ · `2026-03-02`
+  > When designing prompts that should not modify source code (e.g., `cg-brainstorm`, `cg-plan`), the natural instinct is…
+- **[Add-if-missing config blocks create duplicate headers; use remove-then-rewrite](.cg-docs/solutions/testing-patterns/2026-03-04-add-if-missing-creates-duplicate-config-headers.md)** · `solution` · _—_ · `2026-03-04`
+  > A script managed a named section in a text config file (`.gitignore`, a profile, an `.ini`) using an "add if missing"…
+- **[Pester 3.4 vs Pester 5 syntax — Windows built-in compatibility](.cg-docs/solutions/testing-patterns/2026-03-04-pester-3-vs-5-windows-compatibility.md)** · `solution` · _—_ · `2026-03-04`
+  > Tests were written using Pester 5 syntax and ran fine in CI but failed on team Windows machines with errors such as: …
+- **[Pester $TestDrive cleanup follows junction links, hanging VS Code](.cg-docs/solutions/testing-patterns/2026-03-04-pester-testdrive-follows-junctions-freezes-vscode.md)** · `solution` · _—_ · `2026-03-04`
+  > VS Code froze completely and required a force-quit — reproducibly, every time the workspace was opened. The freeze ha…
+- **[Regression test for try/catch control-flow guards when script cannot be executed](.cg-docs/solutions/testing-patterns/2026-03-13-regression-test-trycatch-guard-clm-environment.md)** · `solution` · _—_ · `2026-03-13`
+  > A PS5.1 bug (`ErrorActionPreference=Stop` promoting git stderr to a terminating error) was fixed in `update.ps1` by w…
+- **[httpx.AsyncClient requires ASGITransport for FastAPI async tests](.cg-docs/solutions/testing-patterns/2026-03-17-httpx-async-client-asgi-transport.md)** · `solution` · _—_ · `2026-03-17`
+  > FastAPI async endpoint tests using `httpx.AsyncClient(app=app, ...)` fail or emit deprecation warnings on httpx ≥ 0.2…
 - **[Testing PowerShell \[switch\] parameters: magic-string API tests pass for the wrong reasons](.cg-docs/solutions/testing-patterns/2026-03-19-testing-powershell-switch-parameters.md)** · `solution` · _—_ · `2026-03-19`
   > After refactoring `update.ps1` to replace the magic string `--list` with a proper `[switch]$List` parameter, the exis…
 - **[Validate derived state against stored state in schema tests](.cg-docs/solutions/testing-patterns/2026-03-30-derived-invariant-validation-in-schema-tests.md)** · `solution` · _—_ · `2026-03-30`
@@ -84,6 +102,8 @@ _Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 99
   > During fix-triage for the roadmap-visualization review, finding P2.15 required migrating `cg-ideate.prompt.md` to dis…
 - **[Pester write-guard regex with ^ always false without \(?m\) — silent false-positive](.cg-docs/solutions/testing-patterns/2026-05-06-pester-caret-anchor-requires-multiline-flag.md)** · `solution` · _—_ · `2026-05-06`
   > A write-guard test for `cg-roadmap-view.agent.md` was written as: This test **always passes** — not because the agent…
+- **[PS 5.1 `python -c` here-string unreliable — write temp .py file for Pester Python tests](.cg-docs/solutions/testing-patterns/2026-05-07-ps51-python-c-heredoc-unreliable-use-temp-file.md)** · `solution` · _—_ · `2026-05-07`
+  > Passing multi-line Python code to `python -c` via a PowerShell here-string (`@"..."@`) in Pester tests produces unrel…
 - **[Source-scanning regression guard for PowerShell scripting anti-patterns](.cg-docs/solutions/testing-patterns/2026-05-12-source-scanning-regression-guard-for-scripting-anti-patterns.md)** · `solution` · _—_ · `2026-05-12`
   > A scripting anti-pattern (`Read-Host ""`) was introduced during a feature addition to `scripts/link.ps1`. The anti-pa…
 - **[CI bypass flag pattern: \[switch\]$Force / --yes for interactive scripts](.cg-docs/solutions/testing-patterns/2026-05-13-ci-bypass-flag-force-yes-interactive-scripts.md)** · `solution` · _—_ · `2026-05-13`
@@ -160,6 +180,8 @@ _Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 99
   > The Phase 1 World Bank report-writing skill shipped with a valid thin router, shared references, deterministic Python…
 - **[Positive validator fixtures must avoid placeholder evidence once validation tightens](.cg-docs/solutions/testing-patterns/2026-07-24-positive-validator-fixtures-must-avoid-placeholder-evidence.md)** · `solution` · _—_ · `2026-07-24`
   > The World Bank report-writing validator was tightened to reject placeholder hosts like `example.org` in approved sour…
+- **[Filesystem race fixes require handle-relative mutation and real boundary tests](.cg-docs/solutions/testing-patterns/2026-07-28-handle-relative-filesystem-mutations-and-real-boundary-tests.md)** · `solution` · _—_ · `2026-07-28`
+  > The native target generator validated destination ancestors, hashes, and ownership before writing or deleting generat…
 - **[Use Get-ToolsList helper over regex for YAML tools-array assertions](.cg-docs/solutions/testing-patterns/2026-07-29-get-toolslist-over-tools-regex.md)** · `solution` · _—_ · `2026-07-29`
   > Agent frontmatter files declare a `tools:` array. Tests often assert the presence or absence of specific tools using …
 - **[Guard Get-Frontmatter at Context scope to prevent silent test-block crashes](.cg-docs/solutions/testing-patterns/2026-07-29-pester-context-scope-frontmatter-guard.md)** · `solution` · _—_ · `2026-07-29`
@@ -210,7 +232,7 @@ _Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 99
 _Keywords: `architecture research
 objective` · `ongoing ideas
 objective` · `workflow maturity
-objective`_ · 151 entities
+objective`_ · 152 entities
 
 - **[@cg-fix-problems agent \(auto-dispatched by /cg-work\)](roadmap.json#cg-fix-problems-agent)** · `feature` · _done_ · `—`
   > @cg-fix-problems agent (auto-dispatched by /cg-work)
@@ -332,6 +354,8 @@ objective`_ · 151 entities
   > Brainstorm depth overhaul — grill-me mode + grill-with-docs skill
 - **[/cg-confidence — honest confidence/assumptions/unknowns assessment](roadmap.json#cg-confidence-prompt)** · `feature` · _idea_ · `—`
   > /cg-confidence — honest confidence/assumptions/unknowns assessment
+- **[Rename repository review command and add registry management flags](roadmap.json#rename-repository-review-command-and-add-registry-management-flags)** · `feature` · _done_ · `—`
+  > Rename repository review command and add registry management flags
 - **[roadmap.json schema validation after @cg-roadmap writes](roadmap.json#roadmap-schema-validation)** · `feature` · _idea_ · `—`
   > roadmap.json schema validation after @cg-roadmap writes
 - **[Required frontmatter field checks from /cg-plan output](roadmap.json#plan-frontmatter-checks)** · `feature` · _idea_ · `—`
@@ -534,21 +558,6 @@ objective` · `measurement`_ · 7 entities
   > Validate the Measurement archetype with a second use case
 - **[Team-level evidence library](roadmap.json#cr-team-evidence-library)** · `feature` · _idea_ · `—`
   > Team-level evidence library
-
-## Tests / Root / Related
-
-_Keywords: `tests` · `root` · `related`_ · 5 entities
-
-- **[Secure publication and rollback must not clobber concurrent filesystem changes](.cg-docs/solutions/bugs/2026-08-01-secure-publication-rollback-must-not-clobber.md)** · `solution` · _—_ · `2026-08-01`
-  > The shared artifact and generated-target writer already pinned parent directories, but several operations could still…
-- **[Tar-slip, TOCTOU, and DoS fixes in quarantined import pipeline](.cg-docs/solutions/security/2026-08-17-tar-slip-toctou-dos-quarantine-pipeline.md)** · `solution` · _—_ · `2026-08-17`
-  > The `/cg-import-skill` importer had three security vulnerabilities discovered during code review: 1. **Tar path trave…
-- **[httpx.AsyncClient requires ASGITransport for FastAPI async tests](.cg-docs/solutions/testing-patterns/2026-03-17-httpx-async-client-asgi-transport.md)** · `solution` · _—_ · `2026-03-17`
-  > FastAPI async endpoint tests using `httpx.AsyncClient(app=app, ...)` fail or emit deprecation warnings on httpx ≥ 0.2…
-- **[PS 5.1 `python -c` here-string unreliable — write temp .py file for Pester Python tests](.cg-docs/solutions/testing-patterns/2026-05-07-ps51-python-c-heredoc-unreliable-use-temp-file.md)** · `solution` · _—_ · `2026-05-07`
-  > Passing multi-line Python code to `python -c` via a PowerShell here-string (`@"..."@`) in Pester tests produces unrel…
-- **[Filesystem race fixes require handle-relative mutation and real boundary tests](.cg-docs/solutions/testing-patterns/2026-07-28-handle-relative-filesystem-mutations-and-real-boundary-tests.md)** · `solution` · _—_ · `2026-07-28`
-  > The native target generator validated destination ancestors, hashes, and ownership before writing or deleting generat…
 
 ## Scripts/Cg_Kilo_Preflight.Py / Link.Sh / Cg_Kilo_Preflight.Py
 

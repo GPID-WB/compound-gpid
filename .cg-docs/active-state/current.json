@@ -1,25 +1,28 @@
 {
   "schemaVersion": "compound-gpid-active-state-v1",
-  "updatedAt": "2026-08-21T20:25:47Z",
+  "updatedAt": "2026-08-31T16:26:26Z",
   "workflow": "/cg-work",
   "status": "completed",
-  "branch": "fix-kilo-skills-issue",
-  "plan": ".cg-docs/plans/2026-08-21-pr-ci-preflight-and-kilo-capability-gates.md",
-  "executionReport": ".cg-docs/work-reports/2026-08-21-pr-ci-preflight-and-kilo-capability-gates.md",
-  "currentPhase": 6,
+  "branch": "review-repos-update",
+  "plan": ".cg-docs/plans/2026-08-28-compound-gpid-rd-command.md",
+  "executionReport": ".cg-docs/work-reports/2026-08-28-compound-gpid-rd-command.md",
+  "currentPhase": null,
   "evidenceStatus": [
-    {"id": "V1", "status": "passed", "artifact": "preflight prepare origin/main; native pytest + 3 module validators"},
-    {"id": "V2", "status": "passed", "artifact": "Phase 2 focused suites + native preflight boundary"},
-    {"id": "V3", "status": "passed", "artifact": "Kilo adapter/workflow contracts + deterministic tests + focused Pester artifact"},
-    {"id": "V4", "status": "passed", "artifact": "prompt-tools Pester + prepare preflight boundary"},
-    {"id": "V5", "status": "passed", "artifact": "verify prompt-tools Pester + prepare preflight boundary"},
-    {"id": "V6", "status": "passed", "artifact": "committed drift + PR #141 remote CI green"},
-    {"id": "V7", "status": "passed", "artifact": "execution report complete"}
+    {"id": "V1", "status": "passed", "artifact": "scripts/tests/test_cg_compound_gpid_rd_registry.py"},
+    {"id": "V2", "status": "passed", "artifact": "tests/last-run.json"},
+    {"id": "V3", "status": "passed", "artifact": "scripts/tests/test_cg_generate_targets.py"},
+    {"id": "V4", "status": "passed", "artifact": "tests/prompt-tools.Tests.ps1"},
+    {"id": "V5", "status": "passed", "artifact": "docs/competitive-reviews.md"},
+    {"id": "V6", "status": "passed", "artifact": "scripts/tests/test_cg_compound_gpid_rd_registry.py"}
   ],
-  "unresolvedDecisions": [],
+  "unresolvedDecisions": [
+    {"id": "pr-base", "summary": "Create the pull request against dev", "blocking": false}
+  ],
   "artifactRefs": [
-    {"kind": "plan", "path": ".cg-docs/plans/2026-08-21-pr-ci-preflight-and-kilo-capability-gates.md", "status": "active"},
-    {"kind": "execution-report", "path": ".cg-docs/work-reports/2026-08-21-pr-ci-preflight-and-kilo-capability-gates.md", "status": "active"}
+    {"kind": "plan", "path": ".cg-docs/plans/2026-08-28-compound-gpid-rd-command.md", "status": "completed"},
+    {"kind": "work-report", "path": ".cg-docs/work-reports/2026-08-28-compound-gpid-rd-command.md", "status": "completed"},
+    {"kind": "review", "path": ".cg-docs/reviews/2026-08-28-compound-gpid-rd-command-review.md", "status": "fixed"},
+    {"kind": "verification", "path": ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review-3.md", "status": "fixed"}
   ],
-  "nextCommand": "/cg-compound"
+  "nextCommand": "/cg-commit-push-pr --base dev"
 }
