@@ -224,7 +224,14 @@
       "path": ".claude/commands/cg-commit-push-pr.md",
       "source": ".github/prompts/cg-commit-push-pr.prompt.md",
       "kind": "command",
-      "sha256": "b51d5e119c5599ece484dbc5b4bf3c437637daf7a74f1888909a2125cb039130",
+      "sha256": "1abeaf9166f58a697666ce6956c05481de36c9618d1d8cd497a5ddf09f086b8b",
+      "executable": false
+    },
+    {
+      "path": ".claude/commands/cg-compound-gpid-rd.md",
+      "source": ".github/prompts/cg-compound-gpid-rd.prompt.md",
+      "kind": "command",
+      "sha256": "b22b97366a2557484aa66dea89cd65bf1b139605d59ac91083c64395ab45018a",
       "executable": false
     },
     {
@@ -337,13 +344,6 @@
       "source": ".github/prompts/cg-resume.prompt.md",
       "kind": "command",
       "sha256": "94321287caf36280ea8495613ed962e8ddd2d9f4c4a6b875787c1ce449b02842",
-      "executable": false
-    },
-    {
-      "path": ".claude/commands/cg-review-repos.md",
-      "source": ".github/prompts/cg-review-repos.prompt.md",
-      "kind": "command",
-      "sha256": "e2e97d594a74e094d9a6516de323b3d4d5924bb957392e8309e7ab5de9541bae",
       "executable": false
     },
     {

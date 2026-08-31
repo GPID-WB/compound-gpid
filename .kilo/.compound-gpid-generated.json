@@ -224,7 +224,14 @@
       "path": ".kilo/commands/cg-commit-push-pr.md",
       "source": ".github/prompts/cg-commit-push-pr.prompt.md",
       "kind": "command",
-      "sha256": "4444adacf83e6d40740a0d35a0ad7cda0dd7cafd531fb48322d19f6e807149de",
+      "sha256": "f4b292fcd7e735560a90b9b3f76a675f6d13eb08da865bd7c1f26f1b5b0cd49b",
+      "executable": false
+    },
+    {
+      "path": ".kilo/commands/cg-compound-gpid-rd.md",
+      "source": ".github/prompts/cg-compound-gpid-rd.prompt.md",
+      "kind": "command",
+      "sha256": "b9dd73eff84c17d2a3e26f14956616cf0f271a293f439d0e0f60ced26e57f810",
       "executable": false
     },
     {
@@ -337,13 +344,6 @@
       "source": ".github/prompts/cg-resume.prompt.md",
       "kind": "command",
       "sha256": "bf09fdaf3f4bad368135d5ae5071011374ab3e20fd57499056fefffb9ec92b0c",
-      "executable": false
-    },
-    {
-      "path": ".kilo/commands/cg-review-repos.md",
-      "source": ".github/prompts/cg-review-repos.prompt.md",
-      "kind": "command",
-      "sha256": "58edb614e5d321c8995002351769e0dbdabb536f3204632790d81a1c120aaaec",
       "executable": false
     },
     {
