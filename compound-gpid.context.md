@@ -351,3 +351,12 @@ Wiki-aware prompts (`/cg-wiki`, `/cg-compound`) read these HTML comment directiv
   integration evidence. Real host checks require the protected certified job,
   trusted default-branch checkout, and reviewed executable version/SHA-256
   evidence. See `.cg-docs/solutions/git-workflows/2026-08-21-pr-ci-preflight-native-target-kilo-capability-gates.md`.
+
+## Python Registry Mutation Conventions
+
+- Parse rewritable JSON numbers exactly; binary floats do not preserve unknown
+  numeric fields.
+- Validate the complete success response and bounded rendered registry before
+  expected-state publication.
+- Test the real final secure-write boundary and assert exact source restoration,
+  not only mocked writer failure.

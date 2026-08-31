@@ -169,21 +169,23 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | `/cg-brain-rebuild` | Rebuild the project knowledge brain (BRAIN.md + indexes). |
 | `/cg-brainstorm` | Brainstorm answers about what to build and how. Use when requirements are fuzzy. |
 | `/cg-commit-push-pr` | Stage changes into logical commits, push, and open a PR with plan-driven description. |
+| `/cg-compound-gpid-rd` | Research public GitHub repos for features to integrate into Compound GPID and manage the review registry. Developer-only. |
 | `/cg-compound-refresh` | Audit and refresh .cg-docs/solutions/ for staleness, drift, and consolidation opportunities. |
 | `/cg-compound` | Capture a solved problem as reusable knowledge. Offers canonical .github/ updates; the user applies them manually after fixing a non-trivial issue. |
 | `/cg-devtag` | Create a dev tag (v&lt;MAJOR&gt;.&lt;MINOR&gt;.&lt;PATCH&gt;.9000+) on the current branch and push it to origin. Enables end-to-end installation testing via cg-update before an official release. Developer-only. |
 | `/cg-diagnose` | Diagnose VS Code crashes. Inspects logs, classifies the crash category, checks for uncommitted work, and recommends recovery steps. |
+| `/cg-find-skill` | Discover skills and capabilities from the manifest-backed catalog. |
 | `/cg-fix-problems` | Interactive VS Code diagnostics fixer. Scans all workspace files for errors, warnings, and info diagnostics, lets the user select scope and severity, then applies fixes. Dispatches @cg-fix-problems agent. |
 | `/cg-fix-triage` | Apply review findings from a saved review report. Fixes all findings or a subset by ID/priority. |
 | `/cg-fixbug` | Structured bug-fix workflow: establish the expected-behavior source in Step 1.5, perform test-gap classification in Step 2.5, and require red-green proof. |
 | `/cg-ideate` | Generate, critique, and filter improvement ideas for the project. Use before /cg-brainstorm when you want to discover what to work on next. |
+| `/cg-import-skill` | Import an external skill into Compound GPID with quarantine, security scanning, and approval workflow. |
 | `/cg-issues` | Manage GitHub Issues linked to roadmap work items. Modes: status (default, read-only), backfill, link, adopt, setup. |
 | `/cg-plan-review` | Review an implementation plan for risks, over-engineering, missing edge cases, and flawed assumptions. Use after /cg-plan or on any existing plan. |
 | `/cg-plan` | Create a structured implementation plan with research. Use after brainstorming or when requirements are clear. |
-| `/cg-release [vX.Y.Z[.build]]` | Create a stable GitHub Release from `main` or a four-component prerelease directly from `dev`. Detects the next semver tag unless an exact tag is supplied, drafts curated release notes, checks SCHEMA_VERSION, and confirms before publication. Developer-only — guarded to the compound-gpid repo; Step 0 stops execution in consumer projects. |
+| `/cg-release` | Create a GitHub Release for compound-gpid. Detects the next semver tag from git history, drafts curated release notes, checks SCHEMA_VERSION, confirms with the user, and publishes. Developer-only — guarded to the compound-gpid repo; Step 0 stops execution in consumer projects. |
 | `/cg-render-doc` | Render a workflow artifact or generic Markdown document to curated HTML. Routes typed artifacts to cg-render-artifact and generic documents to cg-publish-markdown. Supports --theme selection (reference or editorial). |
 | `/cg-resume` | Load context and resume interrupted work. Use at the start of a session to pick up where you left off. |
-| `/cg-review-repos` | Review external repos for features to integrate into compound-gpid. Developer-only. |
 | `/cg-review` | Run multi-agent code review on recent changes. Produces prioritized P0/P1/P2/P3 findings. |
 | `/cg-roadmap-view` | Visualize the project roadmap in chat. Supports flags: --milestone, --tasks, --detail, --status, --wip, --plan, --help. Dispatches @cg-roadmap-view agent for rendering. |
 | `/cg-setup` | Configure Compound GPID for this project and load context for returning projects. |
@@ -372,7 +374,7 @@ cleanup stay separate.
 ### Plugin Development (developer-only)
 
 > **Consumer project users**: The prompts below are for compound-gpid maintenance
-> only. `/cg-release` and `/cg-review-repos` appear in your autocomplete because
+> only. `/cg-release` and `/cg-compound-gpid-rd` appear in your autocomplete because
 > they are distributed via junctions, but they **will not run** outside the
 > compound-gpid repo — Step 0 stops them immediately. Do not use these prompts in
 > consumer projects.
@@ -380,50 +382,106 @@ cleanup stay separate.
 | Prompt | Purpose | Distribution |
 |--------|---------|-------------|
 | `/cg-release [vX.Y.Z[.build]]` | Create a stable release from `main` or a four-component prerelease from `dev`. Detects the next tag unless an exact tag is supplied, drafts release notes from `.cg-docs/`, checks `SCHEMA_VERSION`, and publishes to GitHub Releases. | **Distributed** via junctions to consumer projects, but Step 0 stops execution immediately if not run inside compound-gpid. |
-| `/cg-review-repos [--full]` | Review external repos for features to integrate into compound-gpid. Default (delta) mode reviews only releases newer than the last review. `--full` performs a deep initial assessment of all repos — required before delta mode can be used. Updates `.cg-docs/competitive-reviews/repos.json` after each run. | **Distributed** via junctions to consumer projects, but Step 0 stops execution immediately if not run inside compound-gpid. |
+| `/cg-compound-gpid-rd`, `/cg-compound-gpid-rd --full`, `/cg-compound-gpid-rd --add <URL>`, `/cg-compound-gpid-rd --remove <id>` | Research public GitHub repositories for Compound GPID. Delta and full modes create reviews. Add and remove modes safely manage the registry without starting a review. `rd` means `research-development`; the current scope is public GitHub repository research for Compound GPID maintainers. | **Distributed** via junctions to consumer projects, but Step 0 requires the exact Compound GPID charter and stops before registry access, network access, utility calls, or writes in other projects. |
 
 ### Competitive Review System
 
-`/cg-review-repos` uses a registry file (`.cg-docs/competitive-reviews/repos.json`) to
-track which repos are monitored and when each was last reviewed. The registry stores the
-last-reviewed release tag per repo so delta reviews only scan new releases.
+`/cg-compound-gpid-rd` uses
+`.cg-docs/competitive-reviews/repos.json` to track monitored repositories and
+review state. Its four mutually exclusive invocation forms are:
 
-**Adding a new repo**: Edit `repos.json` and add an entry with the following fields:
-- `id` — unique identifier, alphanumeric + hyphens only
-- `url` — repo URL (must begin with `https://github.com/`)
-- `releasesUrl` — releases page URL (must begin with `https://github.com/` and end with `/releases`)
-- `shortName` — unique display label, 1–10 alphanumeric characters only (no hyphens, spaces, or special characters)
-- `lastReviewedRelease` — set to `null` for new entries
-- `lastReviewDate` — set to `null` for new entries
+| Mode | Invocation | Behavior |
+|------|------------|----------|
+| Delta | `/cg-compound-gpid-rd` | Review releases newer than `lastReviewedRelease`. |
+| Full | `/cg-compound-gpid-rd --full` | Perform a deep README and release review and create or refresh baselines. |
+| Add | `/cg-compound-gpid-rd --add <URL>` | Validate and register one public GitHub repository without starting a review. |
+| Remove | `/cg-compound-gpid-rd --remove <id>` | Remove one exact registry entry after exact case-sensitive confirmation without deleting assessment history. |
 
-The registry root must also include `"schemaVersion": "compound-gpid-competitive-reviews-v1"`.
+Missing values, duplicate or combined mode flags, unknown flags, and extra values
+stop before work starts.
 
-> **Schema version sync**: The `schemaVersion` value in `repos.json` and the expected
-> value hardcoded in Step 1 of `cg-review-repos.prompt.md` must always match. When
-> bumping the schema version, update both files together.
+**Adding a repository**: Use `--add`; do not edit `repos.json` manually. The raw URL
+first passes a 1-164 character ASCII lexical allowlist and remains one process
+argument. A Python 3.8+ deterministic utility then validates the complete registry,
+normalizes the public URL to `https://github.com/<owner>/<repository>`, rejects
+duplicates, and returns a non-writing plan with exact before/after SHA-256 values.
+The prompt fetches only that
+returned canonical URL and requires a non-empty public repository page with the same
+final resolved URL. Redirects, private or deleted repositories, sign-in pages, 404
+responses, empty content, and ambiguous responses stop before mutation.
 
-Also add a column to the concept mapping table in Step 1.5 of
-`.github/prompts/cg-review-repos.prompt.md` for the new repo's terminology.
+After accessibility passes, the utility writes one entry with a derived unique
+`id`, canonical `url`, derived `releasesUrl`, derived unique `shortName`, and
+`lastReviewedRelease: null`. It omits `lastReviewDate` until a review succeeds.
+Add mode does not create an automatic baseline or assessment. The next review must be:
 
-Then run `/cg-review-repos --full` to establish a baseline.
+```text
+/cg-compound-gpid-rd --full
+```
 
-**Review cadence**: Run `/cg-review-repos` (delta mode) every 1–2 weeks to check for new
-releases. Run `--full` only when adding a new repo or doing a periodic deep audit.
+**Removing a repository**: Use `--remove <id>`; do not edit `repos.json` manually.
+The command runs a non-writing plan and shows the complete entry, ID, URL, and exact
+hashes. It writes only when the maintainer types the complete exact ID. Apply also
+requires the displayed URL and the plan's exact source SHA-256, so same-ID URL
+replacement and unrelated stale state are rejected. The utility removes only the
+registry entry. It retains all full-review assessments, delta reports, and other
+historical review files.
+
+Add mode accepts an empty registry. Remove mode can remove the final entry. Full and
+delta modes stop on an empty registry and direct the maintainer to
+`/cg-compound-gpid-rd --add <URL>`. Delta mode also skips entries with null review
+state and directs the maintainer to run a full review.
+
+The registry root must include
+`"schemaVersion": "compound-gpid-competitive-reviews-v1"`.
+
+> **Three-way schema coupling**: Keep this exact v1 value synchronized across
+> `.cg-docs/competitive-reviews/repos.json`, the validation step in
+> `.github/prompts/cg-compound-gpid-rd.prompt.md`, and `EXPECTED_SCHEMA_VERSION` in
+> `scripts/cg_compound_gpid_rd_registry.py`. Update and verify all three together for
+> any future schema migration.
+
+**Review cadence**: Run `/cg-compound-gpid-rd` (delta mode) every 1-2 weeks to
+check for new releases. Run `/cg-compound-gpid-rd --full` after adding a repository,
+when a baseline is needed, or for a periodic deep audit.
 
 **Outputs**: Per-repo full-review files (`.cg-docs/competitive-reviews/YYYY-MM-DD-<id>-full-review.md`)
 and delta reports (`.cg-docs/competitive-reviews/YYYY-MM-DD-delta-review.md`).
+All four modes get ordered repository scope from the utility's bounded read-only
+`state` command. State and mutation responses expose before/after source SHA-256
+values and scope digests. The scope digest covers ordered ID-to-URL identities,
+repository release/date projections, and root review state. Per-repository review
+state is changed only by deterministic `review-repo` check-only/apply calls. Each
+check-only call requires the last accepted chain SHA and exact prior release/date
+null, absent, or value state. Full root state is changed only by `review-full`
+check-only/apply calls; finalization requires the last accepted chain SHA and scope
+digest. No review mode directly writes `repos.json`.
 After a `--full` run, `lastFullReview` at the root of `repos.json` is set to today's date
 (YYYY-MM-DD), recording the last complete audit across all repos. On partial failure,
-`lastFullReview` is set to `null` and a `lastFullReviewNote` field records which repos failed.
+`lastFullReview` is set to `null` and `lastFullReviewNote` is the deterministic ASCII
+value `partial - <failed IDs in registry order>`.
 `lastFullReviewNote` is removed on the next successful full run.
-Per-repo `lastReviewDate` fields are the durable record of individual repo review history.
-`lastFullReview` reflects only the most recent successful full-suite run.
+Full-review and delta-report files are the durable review history. Entry-local
+`lastReviewDate` and `lastReviewedRelease` values describe only repositories that
+remain in the registry and are removed with an entry. `lastFullReview` reflects
+only the most recent successful full-suite run.
 
-> **Distribution note**: `/cg-review-repos` is distributed to consumer projects via
+**Transaction outcomes**: Exit 0 means a valid response was flushed; fixed warning
+codes are committed success. Exit 1 is a definite precommit rejection with no writer
+dispatch. Exit 2 is invalid CLI syntax. Exit 3, timeout, missing or invalid output,
+stdout delivery failure, or unexpected post-dispatch stderr is ambiguous. The prompt
+invokes read-only `state`, compares exact before/after hashes and identity/review
+postconditions plus the scope digest, and never retries an ambiguous mutation
+automatically. Fetched release tags are accepted only when they match the bounded
+1-128 character ASCII allowlist `^[A-Za-z0-9][A-Za-z0-9._+/-]{0,127}$`; each release
+is passed as one quoted process argument, and the utility applies the same rule to
+new and expected release values.
+
+> **Distribution note**: `/cg-compound-gpid-rd` is distributed to consumer projects via
 > junctions (it lives in `.github/prompts/` along with all other prompts). It will appear
 > in the Copilot Chat autocomplete for any project using compound-gpid. The Step 0
-> guardrail stops execution cleanly with an explanatory message if the prompt is invoked
-> outside the compound-gpid repo — no action is taken in consumer projects.
+> guardrail requires the exact Compound GPID charter and stops before registry access,
+> network access, utility calls, or writes when invoked outside the development repo.
 
 ---
 
@@ -697,7 +755,7 @@ your-project/
 └── .cg-docs/                 # Compound GPID knowledge base (committed -- institutional memory)
     ├── archive/              # Archived charter sections removed by the user (not loaded at session start)
     ├── brainstorms/          # /cg-brainstorm outputs
-    ├── competitive-reviews/  # /cg-review-repos registry (repos.json) and assessment outputs
+    ├── competitive-reviews/  # /cg-compound-gpid-rd registry (repos.json) and assessment outputs
     ├── cost/                 # context/model audit reports and release-readiness checklists
     ├── inbox/                # unprocessed strategy ideas; not approved roadmap items until promoted via /cg-strategy
     ├── plans/                # /cg-plan outputs
