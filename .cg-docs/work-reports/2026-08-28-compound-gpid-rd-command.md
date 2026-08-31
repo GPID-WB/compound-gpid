@@ -63,10 +63,11 @@
 
 ## Remaining Uncertainty
 
-- HEAD-based target drift remains deferred to post-commit/CI as required by the plan.
+- HEAD-based target drift passed in the committed preflight before push.
 - Final full Pester gate passed with 2,723 passed, 0 failed, and 2 skipped tests; `filteredFiles` was null.
 - Native prepare preflight passed with 1,613 passed, 19 skipped, 2 deselected, and all module validators successful.
-- Full auto-review P0 blockers were remediated and independently reverified on 2026-08-31. PR base selection remains pending until `/cg-commit-push-pr --base dev` completes.
+- Full auto-review P0 blockers were remediated and independently reverified on 2026-08-31. PR base selection was resolved explicitly to `dev`.
+- Pull request #146 was created successfully against `dev` on 2026-08-31.
 
 ## Final Status
 

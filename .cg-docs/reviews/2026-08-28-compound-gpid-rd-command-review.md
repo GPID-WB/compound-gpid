@@ -15,7 +15,7 @@ findings:
   P1.5: fixed
   P1.6: fixed
   P1.7: fixed
-  P1.8: skipped
+  P1.8: fixed
   P2.1: fixed
   P2.2: fixed
   P2.3: fixed
@@ -205,4 +205,4 @@ registry utility now binds removal and review updates to accepted identity,
 metadata, scope, and source-state digests; it reconciles ambiguous post-dispatch
 outcomes without retry; and it rejects unsafe release values before shell use.
 Generated adapters, focused tests, full Pester, and the native preflight passed.
-P1.8 remains a PR-time item until the branch is pushed with `dev` as its base.
+P1.8 was resolved by pull request #146, created with `dev` as its explicit base.
