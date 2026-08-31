@@ -72,10 +72,28 @@ Announce the active mode:
 
 ### Step 2: Check CI Status
 
-1. Parse `statusCheckRollup` from the PR view JSON. This is an array of check objects with `name`, `conclusion`, `status`, and `detailsUrl` fields.
+1. Parse `statusCheckRollup` from the PR view JSON. GitHub can return both
+   `CheckRun` and `StatusContext` objects. Validate the provider-specific shape,
+   then normalize every accepted entry to the internal fields `name`, `status`,
+   `conclusion`, and `detailsUrl` before classification.
 
     - If `statusCheckRollup` is `null`, the key is absent, or the array is empty (`[]`): respond with "\u23f3 No CI checks have run yet on this PR. Wait for checks to start and re-invoke `/cg-verify-pr`." and halt.
-    - Before classification, require every entry to be a **well-shaped check object** with a non-empty `name`, a recognized `status` (`COMPLETED`, `IN_PROGRESS`, `QUEUED`, or `EXPECTED`), a recognized `conclusion` (`SUCCESS`, `NEUTRAL`, `SKIPPED`, `CANCELLED`, `ACTION_REQUIRED`, `STALE`, `FAILURE`, `TIMED_OUT`, or `null`), and a `detailsUrl` key whose value is either a string or `null`. If any entry is malformed or uses an unknown value, halt with: "CI check metadata is malformed or uses an unknown status/conclusion. Manual diagnosis is required; no check may drive an auto-fix." Do not classify or mutate from unvalidated metadata.
+    - A `CheckRun` is well-shaped only with a non-empty string `name`, a recognized
+      `status` (`COMPLETED`, `IN_PROGRESS`, `QUEUED`, or `EXPECTED`), a recognized
+      `conclusion` (`SUCCESS`, `NEUTRAL`, `SKIPPED`, `CANCELLED`,
+      `ACTION_REQUIRED`, `STALE`, `FAILURE`, `TIMED_OUT`, or `null`), and a
+      `detailsUrl` key whose value is a string or `null`.
+    - A `StatusContext` is well-shaped only with a non-empty string `context`, a
+      recognized `state` (`SUCCESS`, `FAILURE`, `ERROR`, `PENDING`, or `EXPECTED`),
+      and a `targetUrl` key whose value is a string or `null`. Normalize it as:
+      `context` to `name`; `targetUrl` to `detailsUrl`; `SUCCESS` to
+      `COMPLETED/SUCCESS`; `FAILURE` or `ERROR` to `COMPLETED/FAILURE`; `PENDING`
+      to `IN_PROGRESS/null`; and `EXPECTED` to `EXPECTED/null`.
+    - Reject every other `__typename` and every malformed or unknown provider value.
+      Halt with: "CI check metadata is malformed or uses an unknown
+      status/conclusion. Manual diagnosis is required; no check may drive an
+      auto-fix." Do not classify or mutate from unvalidated metadata. Classification
+      below uses only the normalized list.
 
 2. Classify overall status:
    - **All passing** (all `conclusion` values are `SUCCESS`, `NEUTRAL`, or `SKIPPED`):

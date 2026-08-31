@@ -9,6 +9,7 @@ import ast
 import copy
 from decimal import Decimal
 import doctest
+import errno
 import hashlib
 import json
 import os
@@ -1609,6 +1610,30 @@ def test_secure_read_oserror_is_controlled_and_preserves_bytes(
         capsys,
         "read",
         "simulated",
+    )
+
+
+@pytest.mark.parametrize("error_number", [errno.ENOTDIR, errno.ELOOP])
+def test_secure_read_link_oserrors_use_stable_unsafe_link_classification(
+    valid_registry_root: Path,
+    capsys: Any,
+    monkeypatch: pytest.MonkeyPatch,
+    error_number: int,
+) -> None:
+    monkeypatch.setattr(
+        registry.secure_fs,
+        "secure_read_bytes",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(
+            OSError(error_number, os.strerror(error_number))
+        ),
+    )
+
+    _assert_failure(
+        valid_registry_root,
+        ["state"],
+        capsys,
+        "unsafe",
+        "link",
     )
 
 

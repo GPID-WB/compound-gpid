@@ -19,6 +19,7 @@ import argparse
 import copy
 from datetime import date
 from decimal import Decimal
+import errno
 import hashlib
 import json
 from pathlib import Path
@@ -357,6 +358,12 @@ def load_registry(root: Path) -> Tuple[JsonObject, bytes]:
             )
         ) from error
     except OSError as error:
+        if error.errno in {errno.ELOOP, errno.ENOTDIR}:
+            raise RegistryError(
+                "Secure registry read rejected an unsafe link or file state: {}".format(
+                    error
+                )
+            ) from error
         raise RegistryError("Could not read registry: {}".format(error)) from error
 
     if len(source) > MAX_REGISTRY_BYTES:

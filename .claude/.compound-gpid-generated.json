@@ -385,7 +385,7 @@
       "path": ".claude/commands/cg-verify-pr.md",
       "source": ".github/prompts/cg-verify-pr.prompt.md",
       "kind": "command",
-      "sha256": "3751963bec6cd7a4b1d148920098977e2f5887f5f91e709f9a1bceb69515f27b",
+      "sha256": "1d0474c3c38ab06a9d0ac36b5f459bd4f9d97598a8bec27d889c66ed13a25dbb",
       "executable": false
     },
     {

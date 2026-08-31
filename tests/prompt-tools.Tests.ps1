@@ -5950,11 +5950,19 @@ Describe "cg-verify-pr.prompt.md - structure" {
     }
 
     It "validates check object shapes and closed status/conclusion values before classification" {
-        ($content -match 'well-shaped check objects|well-shaped.*check') | Should -Be $true
-        ($content -match 'recognized.*status') | Should -Be $true
-        ($content -match 'recognized.*conclusion') | Should -Be $true
-        ($content -match 'unknown status/conclusion') | Should -Be $true
+        ($content -match '`CheckRun` is well-shaped') | Should -Be $true
+        ($content -match '(?s)recognized.*`status`') | Should -Be $true
+        ($content -match '(?s)recognized.*`conclusion`') | Should -Be $true
+        ($content -match 'unknown\s+status/conclusion') | Should -Be $true
         ($content -match 'Do not classify or mutate') | Should -Be $true
+    }
+
+    It "validates and normalizes GitHub StatusContext entries" {
+        ($content -match '`StatusContext`') | Should -Be $true
+        ($content -match 'recognized `state`') | Should -Be $true
+        ($content -match '`targetUrl` to `detailsUrl`') | Should -Be $true
+        ($content -match '`ERROR` to `COMPLETED/FAILURE`|`FAILURE` or `ERROR` to `COMPLETED/FAILURE`') | Should -Be $true
+        ($content -match 'Classification\s+below uses only the normalized list') | Should -Be $true
     }
 
     It "resolves baseRefName before fetch, merge-base, rebase, or preflight" {
