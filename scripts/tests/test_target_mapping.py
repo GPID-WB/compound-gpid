@@ -96,6 +96,15 @@ class TestTargetMappingSchema:
             assert isinstance(units, list), f"{target['id']}: missing installUnits"
             assert units, f"{target['id']}: empty installUnits"
 
+    def test_source_marker_is_not_an_output_or_install_path(self) -> None:
+        data = _load_repo_mapping()
+        marker = ".compound-gpid-source.json"
+        for target in data["targets"]:
+            assert all(marker not in path for path in target["outputPaths"].values())
+            for unit in target["installUnits"]:
+                assert marker not in unit["source"]
+                assert marker not in unit["target"]
+
     def test_opencode_config_install_unit_has_manual_snippet(self) -> None:
         data = _load_repo_mapping()
         opencode = next(t for t in data["targets"] if t["id"] == "opencode")
