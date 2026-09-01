@@ -93,6 +93,10 @@ Mismatched fields are reported explicitly.
 
 Both are ignored by git; only `active-manifest.json` is committed.
 
+Project skill selection uses `selectedProjectSkills` with a one-to-one explicit
+capability mapping. Use `/cg-skill activate` and `/cg-skill deactivate` instead
+of editing that mapping or generated projections manually.
+
 ## Usage
 
 ```text

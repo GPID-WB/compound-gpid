@@ -440,6 +440,11 @@ tag, and observed successful tag-site deployment, run:
 .\create-release.ps1 -Tag <tag> -Name "<name>" -NotesFile RELEASE_NOTES.md
 ```
 
+The script must also create or verify the release-attestation entry for the exact
+tag after the published release is confirmed. Treat an attestation failure as a
+failed release workflow even if the GitHub API record already exists; do not
+fabricate or edit the attestation manually.
+
 Draft releases are not supported by this durable publication flow. Do not pass
 `-Draft`; halt if a draft is requested.
 Add `-Prerelease` whenever `<prerelease>` is `true`. Four-component tags always

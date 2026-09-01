@@ -57,7 +57,9 @@ executed**.
 Commands, skills, agents, instructions, and shared support files form a
 deterministic, target-local dependency closure. Generated runtime references
 are rewritten from canonical `.github/` roots to the target's mapped roots, and
-generation fails if a required dependency is unresolved or unsafe. The fixed
+generation fails if a required dependency is unresolved or unsafe. The `cg`
+suite includes the public `/cg-skill` command plus its complete atomic
+skill-management workflow bundle. Generated trees must never be patched by hand. The fixed
 support roots are listed in [Native Target Packaging](reference.md#native-target-packaging).
 
 ### Generated-tree ownership

@@ -36,6 +36,25 @@ Describe "cg-render-doc.prompt.md - generated views routing" {
     }
 }
 
+Describe "cg-skill public dispatcher migration" {
+    $prompt = Join-Path $repoRoot ".github\prompts\cg-skill.prompt.md"
+    $content = if (Test-Path $prompt) { Get-Content $prompt -Raw -Encoding UTF8 } else { "" }
+
+    It "ships one public cg-skill prompt and removes old prompts" {
+        Test-Path $prompt | Should -Be $true
+        Test-Path (Join-Path $repoRoot ".github\prompts\cg-find-skill.prompt.md") | Should -Be $false
+        Test-Path (Join-Path $repoRoot ".github\prompts\cg-import-skill.prompt.md") | Should -Be $false
+    }
+
+    It "uses descriptor dispatch and plan/apply safety" {
+        ($content -match 'cg-skill-management') | Should -Be $true
+        ($content -match 'cg-skill --project-root \. --format json') | Should -Be $true
+        ($content -match 'Mutating operations plan by default') | Should -Be $true
+        ($content -match 'Never add, infer, reuse, or modify an apply digest') | Should -Be $true
+        ($content -match 'Do not accept a role override') | Should -Be $true
+    }
+}
+
 # ---------------------------------------------------------------------------
 # cg-review.prompt.md must NOT have a tools: restriction
 # ---------------------------------------------------------------------------

@@ -9,7 +9,7 @@
       "supportedPlatforms": ["copilot", "claude-code", "codex", "opencode", "kilo"],
       "sourceProvenance": "canonical/.github",
       "activationCost": "low",
-      "taskTriggers": ["/cg-find-skill", "r-syntax", "language=r"],
+      "taskTriggers": ["/cg-skill find", "r-syntax", "language=r"],
       "configSelectors": [{"field": "language", "operator": "contains", "value": "r"}]
     },
     {
@@ -19,7 +19,7 @@
       "supportedPlatforms": ["copilot", "claude-code", "codex", "opencode", "kilo"],
       "sourceProvenance": "canonical/.github",
       "activationCost": "low",
-      "taskTriggers": ["/cg-find-skill", "language=python"],
+      "taskTriggers": ["/cg-skill find", "language=python"],
       "configSelectors": [{"field": "language", "operator": "contains", "value": "python"}]
     },
     {
@@ -29,7 +29,7 @@
       "supportedPlatforms": ["copilot", "claude-code", "codex", "opencode", "kilo"],
       "sourceProvenance": "canonical/.github",
       "activationCost": "low",
-      "taskTriggers": ["/cg-find-skill", "language=stata"],
+      "taskTriggers": ["/cg-skill find", "language=stata"],
       "configSelectors": [{"field": "language", "operator": "contains", "value": "stata"}]
     },
     {
@@ -39,7 +39,7 @@
       "supportedPlatforms": ["copilot", "claude-code", "codex", "opencode", "kilo"],
       "sourceProvenance": "canonical/.github",
       "activationCost": "low",
-      "taskTriggers": ["/cg-find-skill", "language=powershell"],
+      "taskTriggers": ["/cg-skill find", "language=powershell"],
       "configSelectors": [{"field": "language", "operator": "contains", "value": "powershell"}]
     },
     {
@@ -49,7 +49,7 @@
       "supportedPlatforms": ["copilot", "claude-code", "codex", "opencode", "kilo"],
       "sourceProvenance": "canonical/.github",
       "activationCost": "low",
-      "taskTriggers": ["/cg-find-skill", "pester"],
+      "taskTriggers": ["/cg-skill find", "pester"],
       "configSelectors": []
     },
     {
@@ -59,7 +59,7 @@
       "supportedPlatforms": ["copilot", "claude-code", "codex", "opencode", "kilo"],
       "sourceProvenance": "canonical/.github",
       "activationCost": "low",
-      "taskTriggers": ["/cg-find-skill", "git-workflow", "commit"],
+      "taskTriggers": ["/cg-skill find", "git-workflow", "commit"],
       "configSelectors": []
     },
     {
@@ -69,7 +69,7 @@
       "supportedPlatforms": ["copilot", "claude-code", "codex", "opencode", "kilo"],
       "sourceProvenance": "canonical/.github",
       "activationCost": "low",
-      "taskTriggers": ["/cg-find-skill", "render-doc", "publish-markdown"],
+      "taskTriggers": ["/cg-skill find", "render-doc", "publish-markdown"],
       "configSelectors": []
     },
     {
@@ -79,7 +79,7 @@
       "supportedPlatforms": ["copilot", "claude-code", "codex", "opencode", "kilo"],
       "sourceProvenance": "canonical/.github",
       "activationCost": "low",
-      "taskTriggers": ["/cg-find-skill", "wb-report-writing", "report-writing"],
+      "taskTriggers": ["/cg-skill find", "wb-report-writing", "report-writing"],
       "configSelectors": []
     },
     {
@@ -100,6 +100,16 @@
       "sourceProvenance": "canonical/.github",
       "activationCost": "low",
       "taskTriggers": ["/cg-compound", "/cr-compound", "compound", "compound-docs"],
+      "configSelectors": []
+    },
+    {
+      "id": "skill-management",
+      "owningModule": "cap-skill-management",
+      "supportedSuites": ["cg"],
+      "supportedPlatforms": ["copilot", "claude-code", "codex", "opencode", "kilo"],
+      "sourceProvenance": "canonical/.github",
+      "activationCost": "medium",
+      "taskTriggers": ["/cg-skill", "skill-management", "skill lifecycle"],
       "configSelectors": []
     },
     {
@@ -270,8 +280,8 @@
     {
       "id": "cap-skill-management",
       "layer": "capability",
-      "displayName": "Internal skill management",
-      "description": "Private skill-management contracts, ownership, dispatcher support, and focused lifecycle workflow resources before public release.",
+      "displayName": "Skill management",
+      "description": "Public descriptor-driven skill lifecycle workflows, contracts, security controls, and dispatcher support.",
       "dependsOn": ["kernel"],
       "ownedAssets": [
         ".github/skills/cg-skill-management/",
@@ -291,7 +301,8 @@
         "cap-render-doc",
         "cap-wb-report-writing",
         "cap-review-agents",
-        "cap-compound-docs"
+        "cap-compound-docs",
+        "cap-skill-management"
       ],
       "ownedAssets": [
         ".github/prompts/cg-*.prompt.md",

@@ -618,7 +618,7 @@ def route_capability(
             capability_id,
             message=f"Unknown capability id: '{capability_id}'.",
             remedy=(
-                "Check the available capabilities with `cg-find-skill` and use "
+                "Check the available capabilities with `cg-skill find` and use "
                 "a declared capability id."
             ),
         )

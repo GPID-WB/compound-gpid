@@ -1,0 +1,13 @@
+{
+  "schema": "cg-skill-operation-descriptor-v1",
+  "operation": "audit",
+  "version": 1,
+  "state": "active",
+  "roles": ["consumer"],
+  "phases": ["read"],
+  "handler": "skill_management.operations.audit:handle",
+  "contract": ".kilo/shared/skill-management/contracts/audit-v1.schema.json",
+  "workflow": ".kilo/skills/cg-skill-management/workflows/audit.md",
+  "documentation": "docs/skills/management/commands/audit.md",
+  "tests": ["scripts/tests/test_skill_management_audit.py"]
+}

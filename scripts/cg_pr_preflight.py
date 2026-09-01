@@ -72,6 +72,7 @@ NATIVE_PYTEST_FILES = (
     "scripts/tests/test_skill_management_audit.py",
     "scripts/tests/test_skill_management_removal.py",
     "scripts/tests/test_skill_management_release_attestation.py",
+    "scripts/tests/test_skill_management_migration.py",
     "scripts/tests/test_skill_management_completeness.py",
     "scripts/tests/test_cg_pr_preflight.py",
     "scripts/tests/test_project_manifest.py",

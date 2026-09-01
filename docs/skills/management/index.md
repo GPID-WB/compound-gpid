@@ -1,12 +1,11 @@
 # Skill Management
 
-This candidate guide documents the private descriptor-driven skill lifecycle. It
-is intentionally absent from public navigation until the complete pre-removal
-gate passes.
+This guide documents the public descriptor-driven skill lifecycle available
+through `/cg-skill` and the `cg-skill` shell command.
 
 The [operation descriptors](../../../.github/shared/skill-management/operations/help.json)
 define operation identity, role, phase, workflow, contract, tests, and command
-page. The [private dispatcher](../../../scripts/cg_skill.py) loads only complete
+page. The [dispatcher](../../../scripts/cg_skill.py) loads only complete
 active descriptors.
 
 ## Choose a Path

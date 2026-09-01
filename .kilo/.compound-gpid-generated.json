@@ -256,13 +256,6 @@
       "executable": false
     },
     {
-      "path": ".kilo/commands/cg-find-skill.md",
-      "source": ".github/prompts/cg-find-skill.prompt.md",
-      "kind": "command",
-      "sha256": "e4834752f600df3d38f8fcb466b037b30045f509470b2805e8aa3c59615cdcc6",
-      "executable": false
-    },
-    {
       "path": ".kilo/commands/cg-fix-problems.md",
       "source": ".github/prompts/cg-fix-problems.prompt.md",
       "kind": "command",
@@ -291,13 +284,6 @@
       "executable": false
     },
     {
-      "path": ".kilo/commands/cg-import-skill.md",
-      "source": ".github/prompts/cg-import-skill.prompt.md",
-      "kind": "command",
-      "sha256": "46674e5194a59d634cec9fad92cca1e664a39c43122af294b008bcdd85ed9dfa",
-      "executable": false
-    },
-    {
       "path": ".kilo/commands/cg-issues.md",
       "source": ".github/prompts/cg-issues.prompt.md",
       "kind": "command",
@@ -322,7 +308,7 @@
       "path": ".kilo/commands/cg-release.md",
       "source": ".github/prompts/cg-release.prompt.md",
       "kind": "command",
-      "sha256": "a285f3b4fa11090209c9184839806c1b153a282f156839d4b10dc9ea6c7cd09c",
+      "sha256": "f59210256b0173cb0b2b3a28233af6f4b693978153a087e3d9682c08366840d7",
       "executable": false
     },
     {
@@ -365,6 +351,13 @@
       "source": ".github/prompts/cg-setup.prompt.md",
       "kind": "command",
       "sha256": "b4c1f1ebb7893729bf4f2d52291c34140b3d6f16f9f9c8e367519ccfe7134586",
+      "executable": false
+    },
+    {
+      "path": ".kilo/commands/cg-skill.md",
+      "source": ".github/prompts/cg-skill.prompt.md",
+      "kind": "command",
+      "sha256": "ed84cb6264175bf7e2bddf4e656d05cfcf7960f0e2dfb1f42102cf09181b1da4",
       "executable": false
     },
     {
@@ -518,7 +511,7 @@
       "path": ".kilo/shared/context-loading.contract.md",
       "source": ".github/shared/context-loading.contract.md",
       "kind": "shared",
-      "sha256": "ab623c6a3a1d4c2bdc0bd3019d520c1772149d044bfdde4e29b4dc70dc1b4f01",
+      "sha256": "404193056e0fdc3f4b40b50ffbc5a856370cf61ceb2edd61c27cc4e0a5ceb581",
       "executable": false
     },
     {
@@ -554,6 +547,237 @@
       "source": ".github/shared/review-routing.contract.md",
       "kind": "shared",
       "sha256": "a69a44806364bd7a495e922e881534dfa4e71effac8004be3933994278251dbc",
+      "executable": false
+    },
+    {
+      "path": ".kilo/shared/skill-management/contracts/activate-v1.schema.json",
+      "source": ".github/shared/skill-management/contracts/activate-v1.schema.json",
+      "kind": "shared",
+      "sha256": "281a75f3d7222fa5de81d45a977a6ed775a0fb0c33f6a16270ccd5b7ad7e47c2",
+      "executable": false
+    },
+    {
+      "path": ".kilo/shared/skill-management/contracts/audit-v1.schema.json",
+      "source": ".github/shared/skill-management/contracts/audit-v1.schema.json",
+      "kind": "shared",
+      "sha256": "23c511431baf418156b5eed023372567ea773b1476071b9eb1aea83af957e1a3",
+      "executable": false
+    },
+    {
+      "path": ".kilo/shared/skill-management/contracts/create-v1.schema.json",
+      "source": ".github/shared/skill-management/contracts/create-v1.schema.json",
+      "kind": "shared",
+      "sha256": "0d3ac2e0fbd96253f840c92ff283b95ec9aa0dff89afa5013d98f37233f35035",
+      "executable": false
+    },
+    {
+      "path": ".kilo/shared/skill-management/contracts/deactivate-v1.schema.json",
+      "source": ".github/shared/skill-management/contracts/deactivate-v1.schema.json",
+      "kind": "shared",
+      "sha256": "b71d0fef06724250a0168709fd6c6c30c8b0e600b57ca2bf71c3dfdef3c3c18e",
+      "executable": false
+    },
+    {
+      "path": ".kilo/shared/skill-management/contracts/deprecate-v1.schema.json",
+      "source": ".github/shared/skill-management/contracts/deprecate-v1.schema.json",
+      "kind": "shared",
+      "sha256": "42beac0b3ca4d2f3663a3dbc7297c35f59931ac00be7b7194fe86e162bddc43d",
+      "executable": false
+    },
+    {
+      "path": ".kilo/shared/skill-management/contracts/find-v1.schema.json",
+      "source": ".github/shared/skill-management/contracts/find-v1.schema.json",
+      "kind": "shared",
+      "sha256": "7990c458505f12383dadda86471d930db987c37f4a74cde88ecc34fac8256189",
+      "executable": false
+    },
+    {
+      "path": ".kilo/shared/skill-management/contracts/help-v1.schema.json",
+      "source": ".github/shared/skill-management/contracts/help-v1.schema.json",
+      "kind": "shared",
+      "sha256": "78f93eabf20d67875979f96f3194910028892a875ce83506653722c768167a26",
+      "executable": false
+    },
+    {
+      "path": ".kilo/shared/skill-management/contracts/import-v1.schema.json",
+      "source": ".github/shared/skill-management/contracts/import-v1.schema.json",
+      "kind": "shared",
+      "sha256": "afa9a3249c1507ba98ab8ebfc257e5a3363dc6160154c7680255816eeedf9d70",
+      "executable": false
+    },
+    {
+      "path": ".kilo/shared/skill-management/contracts/info-v1.schema.json",
+      "source": ".github/shared/skill-management/contracts/info-v1.schema.json",
+      "kind": "shared",
+      "sha256": "085e018fe25a7d7d323210de4070ad05ecd9715c84ad03980ebb16f9e5cab915",
+      "executable": false
+    },
+    {
+      "path": ".kilo/shared/skill-management/contracts/migration-v1.schema.json",
+      "source": ".github/shared/skill-management/contracts/migration-v1.schema.json",
+      "kind": "shared",
+      "sha256": "71956559effa7db4177b8d819be11387a221268f9c017dfbc221dcd866e45365",
+      "executable": false
+    },
+    {
+      "path": ".kilo/shared/skill-management/contracts/operation-descriptor-v1.schema.json",
+      "source": ".github/shared/skill-management/contracts/operation-descriptor-v1.schema.json",
+      "kind": "shared",
+      "sha256": "d6d8284ae49daa7e3c6a44cd45092dec3679cbed4426f0657ade98743397dc96",
+      "executable": false
+    },
+    {
+      "path": ".kilo/shared/skill-management/contracts/plan-v1.schema.json",
+      "source": ".github/shared/skill-management/contracts/plan-v1.schema.json",
+      "kind": "shared",
+      "sha256": "f908acf768c884ff8142c94e6c63037353672d5298645494fb1c00f7a3c05142",
+      "executable": false
+    },
+    {
+      "path": ".kilo/shared/skill-management/contracts/project-registry-v1.schema.json",
+      "source": ".github/shared/skill-management/contracts/project-registry-v1.schema.json",
+      "kind": "shared",
+      "sha256": "f2f278c7f535407b92b740f8bd4ed4f5d3abf452c4a525e8abfdc769f0a720ab",
+      "executable": false
+    },
+    {
+      "path": ".kilo/shared/skill-management/contracts/provenance-v1.schema.json",
+      "source": ".github/shared/skill-management/contracts/provenance-v1.schema.json",
+      "kind": "shared",
+      "sha256": "cfe1ef1ecf01824ba89c2637ef5065e20830e195b99206d4650df0e540db9824",
+      "executable": false
+    },
+    {
+      "path": ".kilo/shared/skill-management/contracts/release-attestation-v1.schema.json",
+      "source": ".github/shared/skill-management/contracts/release-attestation-v1.schema.json",
+      "kind": "shared",
+      "sha256": "736a9719a4d058c3ab18f1fe5812c226bcac6b0102f7d3457be889bab8b935ad",
+      "executable": false
+    },
+    {
+      "path": ".kilo/shared/skill-management/contracts/remove-v1.schema.json",
+      "source": ".github/shared/skill-management/contracts/remove-v1.schema.json",
+      "kind": "shared",
+      "sha256": "bf324af22b7713f33e3575e6a62a30854ee10d1939427535b1166657f1ff31d7",
+      "executable": false
+    },
+    {
+      "path": ".kilo/shared/skill-management/contracts/request-v1.schema.json",
+      "source": ".github/shared/skill-management/contracts/request-v1.schema.json",
+      "kind": "shared",
+      "sha256": "50b813c4fedfba537bf6bb56cbb9397858c1d3919620e7da2f46fd66bb56ec2c",
+      "executable": false
+    },
+    {
+      "path": ".kilo/shared/skill-management/contracts/result-v1.schema.json",
+      "source": ".github/shared/skill-management/contracts/result-v1.schema.json",
+      "kind": "shared",
+      "sha256": "3ab6dcb415b0252f190b70fd06d23d4f2decb782b6b07911c0a97654a4066263",
+      "executable": false
+    },
+    {
+      "path": ".kilo/shared/skill-management/contracts/schema-subset-v1.schema.json",
+      "source": ".github/shared/skill-management/contracts/schema-subset-v1.schema.json",
+      "kind": "shared",
+      "sha256": "cef35e9549c1f2cc42ab42cca5e07f7a1beba2f77658060e5c9e68722f7a3e00",
+      "executable": false
+    },
+    {
+      "path": ".kilo/shared/skill-management/contracts/update-v1.schema.json",
+      "source": ".github/shared/skill-management/contracts/update-v1.schema.json",
+      "kind": "shared",
+      "sha256": "682e306c525d46670111fa90bf651968ed65050fae2b7b2ec098843195d99b93",
+      "executable": false
+    },
+    {
+      "path": ".kilo/shared/skill-management/contracts/validate-v1.schema.json",
+      "source": ".github/shared/skill-management/contracts/validate-v1.schema.json",
+      "kind": "shared",
+      "sha256": "f7285c5c9c301ccf449579ed8566a1a9f7beaf5823ac46550f80406a7b37459e",
+      "executable": false
+    },
+    {
+      "path": ".kilo/shared/skill-management/operations/activate.json",
+      "source": ".github/shared/skill-management/operations/activate.json",
+      "kind": "shared",
+      "sha256": "6e4f0e5c5797999f5252f5372fde0285cb3749dddeb6f7b50ee0be2c570dc276",
+      "executable": false
+    },
+    {
+      "path": ".kilo/shared/skill-management/operations/audit.json",
+      "source": ".github/shared/skill-management/operations/audit.json",
+      "kind": "shared",
+      "sha256": "128013cb3b65f3461403f5cccc0f417006b0a8e5ed923c7bfc6ddf20edd680c3",
+      "executable": false
+    },
+    {
+      "path": ".kilo/shared/skill-management/operations/create.json",
+      "source": ".github/shared/skill-management/operations/create.json",
+      "kind": "shared",
+      "sha256": "1e1dbdc87af3d11df6a06ada96596599939f03c58e983881db108bca7794d7ac",
+      "executable": false
+    },
+    {
+      "path": ".kilo/shared/skill-management/operations/deactivate.json",
+      "source": ".github/shared/skill-management/operations/deactivate.json",
+      "kind": "shared",
+      "sha256": "7aeb9ed0baf469b99f96508449e34d36cce0617cb49ba6c97a80c84b81f69034",
+      "executable": false
+    },
+    {
+      "path": ".kilo/shared/skill-management/operations/deprecate.json",
+      "source": ".github/shared/skill-management/operations/deprecate.json",
+      "kind": "shared",
+      "sha256": "dd4480d920e3281896553f6a1990e05c6721fe3ab778c4b8534d24c906eeb650",
+      "executable": false
+    },
+    {
+      "path": ".kilo/shared/skill-management/operations/find.json",
+      "source": ".github/shared/skill-management/operations/find.json",
+      "kind": "shared",
+      "sha256": "8f48b0256e7e1aaf86af49fbc6b1c5e1d72af527d391cd069ae78634ac93ba7b",
+      "executable": false
+    },
+    {
+      "path": ".kilo/shared/skill-management/operations/help.json",
+      "source": ".github/shared/skill-management/operations/help.json",
+      "kind": "shared",
+      "sha256": "3dfba115e65c641f56e3e76a9dae38230f71d8f472701874dbc3ceb6f5ff0097",
+      "executable": false
+    },
+    {
+      "path": ".kilo/shared/skill-management/operations/import.json",
+      "source": ".github/shared/skill-management/operations/import.json",
+      "kind": "shared",
+      "sha256": "7613c60832dacc02c1ac1cd9e9d28c0d31bc5adea613be8d79eedd79224f8cd3",
+      "executable": false
+    },
+    {
+      "path": ".kilo/shared/skill-management/operations/info.json",
+      "source": ".github/shared/skill-management/operations/info.json",
+      "kind": "shared",
+      "sha256": "0cebca301ebcdef416438da81961961297cbafff15b99e89f688cba0097ea6e4",
+      "executable": false
+    },
+    {
+      "path": ".kilo/shared/skill-management/operations/remove.json",
+      "source": ".github/shared/skill-management/operations/remove.json",
+      "kind": "shared",
+      "sha256": "58a10171bfa0b86be19a5e87a16fce36a01dbcd627cc2dcac27827c8587bfca3",
+      "executable": false
+    },
+    {
+      "path": ".kilo/shared/skill-management/operations/update.json",
+      "source": ".github/shared/skill-management/operations/update.json",
+      "kind": "shared",
+      "sha256": "1d7169e7bbd2348c1d2a69d6d2f6c32573aa057a0be4de2ca3e643e5b10e12d2",
+      "executable": false
+    },
+    {
+      "path": ".kilo/shared/skill-management/operations/validate.json",
+      "source": ".github/shared/skill-management/operations/validate.json",
+      "kind": "shared",
+      "sha256": "4e4ba97b04e3ebb74fc07136e2121f4fefa8f1fd93cf11488c30a959ded13ee6",
       "executable": false
     },
     {
@@ -680,6 +904,146 @@
       "source": ".github/skills/cg-skill-git-workflow/workflows/pr-template.md",
       "kind": "skill-resource",
       "sha256": "eeaec451a5449f06e9e492cef1552ae102668d7303aae08913fecde132095321",
+      "executable": false
+    },
+    {
+      "path": ".kilo/skills/cg-skill-management/SKILL.md",
+      "source": ".github/skills/cg-skill-management/SKILL.md",
+      "kind": "skill",
+      "sha256": "85b2857b94b2481c1cbce88112b0bc2e3dfaff1f2f3d8f46b433a512e23dacf4",
+      "executable": false
+    },
+    {
+      "path": ".kilo/skills/cg-skill-management/templates/example.md",
+      "source": ".github/skills/cg-skill-management/templates/example.md",
+      "kind": "skill-resource",
+      "sha256": "b2566e5165916599a39b43278f4cd2003475acdd5e8b0249fb6bf63ac38d42d1",
+      "executable": false
+    },
+    {
+      "path": ".kilo/skills/cg-skill-management/templates/reference.md",
+      "source": ".github/skills/cg-skill-management/templates/reference.md",
+      "kind": "skill-resource",
+      "sha256": "62789ffc60ee9b8cb529d93adfcfa1766c4ab0ebabc7e9d5620218d91e187be5",
+      "executable": false
+    },
+    {
+      "path": ".kilo/skills/cg-skill-management/templates/resource.json",
+      "source": ".github/skills/cg-skill-management/templates/resource.json",
+      "kind": "skill-resource",
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "executable": false
+    },
+    {
+      "path": ".kilo/skills/cg-skill-management/templates/resource.svg",
+      "source": ".github/skills/cg-skill-management/templates/resource.svg",
+      "kind": "skill-resource",
+      "sha256": "bf38cccc60a21efeaa003ea8245c8bab328b4951487df734502616725cf3669f",
+      "executable": false
+    },
+    {
+      "path": ".kilo/skills/cg-skill-management/templates/resource.txt",
+      "source": ".github/skills/cg-skill-management/templates/resource.txt",
+      "kind": "skill-resource",
+      "sha256": "bb74d63ac3f2f2f14bb22cb7100c795fa165b19a04dd300bfcbde8d43019c6d5",
+      "executable": false
+    },
+    {
+      "path": ".kilo/skills/cg-skill-management/templates/skill.md.txt",
+      "source": ".github/skills/cg-skill-management/templates/skill.md.txt",
+      "kind": "skill-resource",
+      "sha256": "a963876622577eb7b9cd44f129f8bd7cd43dd1fbacfb3bafd5e04065306d831f",
+      "executable": false
+    },
+    {
+      "path": ".kilo/skills/cg-skill-management/templates/workflow.md",
+      "source": ".github/skills/cg-skill-management/templates/workflow.md",
+      "kind": "skill-resource",
+      "sha256": "dc8e0dc9600fe90b835eddf403c93abba1883372db9f6a92e6350ec6e33eeae5",
+      "executable": false
+    },
+    {
+      "path": ".kilo/skills/cg-skill-management/workflows/activate.md",
+      "source": ".github/skills/cg-skill-management/workflows/activate.md",
+      "kind": "skill-resource",
+      "sha256": "dea12c6aafe06ea3448a43aa1b1d03784bd4d115ee733fdbd87192165429974e",
+      "executable": false
+    },
+    {
+      "path": ".kilo/skills/cg-skill-management/workflows/audit.md",
+      "source": ".github/skills/cg-skill-management/workflows/audit.md",
+      "kind": "skill-resource",
+      "sha256": "4fdfc632cdb321a37351faae0616cd5fd86e2e32374701f3c9e0b7df8eace8ba",
+      "executable": false
+    },
+    {
+      "path": ".kilo/skills/cg-skill-management/workflows/create.md",
+      "source": ".github/skills/cg-skill-management/workflows/create.md",
+      "kind": "skill-resource",
+      "sha256": "b804403081e3bc33474c70c22c814fcdd495c5acf735383005b9c1edb607c18c",
+      "executable": false
+    },
+    {
+      "path": ".kilo/skills/cg-skill-management/workflows/deactivate.md",
+      "source": ".github/skills/cg-skill-management/workflows/deactivate.md",
+      "kind": "skill-resource",
+      "sha256": "e28ae37f11a8b17ae6f79dbfbf07715d7dc1083549be5231372437975195de19",
+      "executable": false
+    },
+    {
+      "path": ".kilo/skills/cg-skill-management/workflows/deprecate.md",
+      "source": ".github/skills/cg-skill-management/workflows/deprecate.md",
+      "kind": "skill-resource",
+      "sha256": "c0b17a2594112d03019adb7d4e2af4fcb9b654971dbd2f1c4692a7d07d639470",
+      "executable": false
+    },
+    {
+      "path": ".kilo/skills/cg-skill-management/workflows/find.md",
+      "source": ".github/skills/cg-skill-management/workflows/find.md",
+      "kind": "skill-resource",
+      "sha256": "fa7a48f8f5e2a38f73450602b92a50cafbf1cfa03bd2beb87c6ac09dcd90a094",
+      "executable": false
+    },
+    {
+      "path": ".kilo/skills/cg-skill-management/workflows/help.md",
+      "source": ".github/skills/cg-skill-management/workflows/help.md",
+      "kind": "skill-resource",
+      "sha256": "99867c5196dd70f0fea5cde5115b5d3ba0d3c36a1e6a4717566efa7cdd0eee8e",
+      "executable": false
+    },
+    {
+      "path": ".kilo/skills/cg-skill-management/workflows/import.md",
+      "source": ".github/skills/cg-skill-management/workflows/import.md",
+      "kind": "skill-resource",
+      "sha256": "e8a101444756b76cf7ce57eae5c8b07a158b5a3bea4378612709a78e882b371d",
+      "executable": false
+    },
+    {
+      "path": ".kilo/skills/cg-skill-management/workflows/info.md",
+      "source": ".github/skills/cg-skill-management/workflows/info.md",
+      "kind": "skill-resource",
+      "sha256": "adcb69a16ec3f7a36147ba75805c95ad8b68ddf3603d6b8d7d5129bb2eebc016",
+      "executable": false
+    },
+    {
+      "path": ".kilo/skills/cg-skill-management/workflows/remove.md",
+      "source": ".github/skills/cg-skill-management/workflows/remove.md",
+      "kind": "skill-resource",
+      "sha256": "6dadb68bbdb5b8882baea77a46a16b816e8a6dde78061d4117258bd683b2c236",
+      "executable": false
+    },
+    {
+      "path": ".kilo/skills/cg-skill-management/workflows/update.md",
+      "source": ".github/skills/cg-skill-management/workflows/update.md",
+      "kind": "skill-resource",
+      "sha256": "8f18f63c6e55a1673ace177c51c9940ec08ecacfee1bfa863150bb0e92150d5a",
+      "executable": false
+    },
+    {
+      "path": ".kilo/skills/cg-skill-management/workflows/validate.md",
+      "source": ".github/skills/cg-skill-management/workflows/validate.md",
+      "kind": "skill-resource",
+      "sha256": "d01bdc7a3054587c3220280f87389fd881bfda2a2fd4ddf766876f5bf4fd4a30",
       "executable": false
     },
     {

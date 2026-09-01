@@ -1,0 +1,13 @@
+{
+  "schema": "cg-skill-operation-descriptor-v1",
+  "operation": "update",
+  "version": 1,
+  "state": "active",
+  "roles": ["consumer", "maintainer"],
+  "phases": ["plan", "apply"],
+  "handler": "skill_management.operations.update:handle",
+  "contract": ".agents/shared/skill-management/contracts/update-v1.schema.json",
+  "workflow": ".agents/skills/cg-skill-management/workflows/update.md",
+  "documentation": "docs/skills/management/commands/update.md",
+  "tests": ["scripts/tests/test_skill_management_update.py"]
+}

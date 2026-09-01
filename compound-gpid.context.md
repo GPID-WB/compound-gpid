@@ -334,6 +334,9 @@ rules that help Copilot produce accurate outputs across all prompts and sessions
 - `scripts/cg_projection_benchmark.py` records the before-state baseline matrix
   (`.cg-docs/cost/skill-loading-baseline.json` / `.md`); unavailable required
   host evidence is a blocking `unavailable`, never a zero.
+- `/cg-skill <operation>` is the only public skill-management namespace. The
+  `cg` suite selects `cap-skill-management`; mutating operations always plan
+  before digest-bound apply, and generated projections are never edited by hand.
 
 ## Wiki Configuration
 

@@ -607,7 +607,7 @@ class TestRealRepoRegistry:
         assert "unowned: 0" in captured.out
         assert "multi-owned: 0" in captured.out
 
-    def test_internal_skill_management_module_has_no_public_capability_or_suite_edge(
+    def test_public_skill_management_module_has_capability_and_cg_suite_edge(
         self,
     ) -> None:
         registry, error = validator.load_registry(REPO_ROOT)
@@ -622,11 +622,15 @@ class TestRealRepoRegistry:
             ".github/skills/cg-skill-management/",
             ".github/shared/skill-management/",
         ]
-        assert not any(
-            capability.get("owningModule") == "cap-skill-management"
-            for capability in registry["capabilities"]
+        capability = next(
+            item
+            for item in registry["capabilities"]
+            if item.get("owningModule") == "cap-skill-management"
         )
+        assert capability["id"] == "skill-management"
+        assert capability["supportedSuites"] == ["cg"]
+        assert capability["configSelectors"] == []
         suite_cg = next(
             item for item in registry["modules"] if item["id"] == "suite-cg"
         )
-        assert "cap-skill-management" not in suite_cg["dependsOn"]
+        assert "cap-skill-management" in suite_cg["dependsOn"]

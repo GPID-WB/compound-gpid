@@ -27,9 +27,7 @@ status: active
 
 ### Deviations
 
-- User-approved operation-order change on 2026-09-01: create and push an
-  intermediate pre-removal checkpoint before `/cg-review`. This preserves the
-  Plan's exact-tree CI boundary; it does not waive V21 or C17.
+- None.
 
 ### Accepted Exceptions
 
@@ -104,7 +102,8 @@ status: active
 - Phase 6, Step 17: immutable-ID deprecation and reference-safe removal.
 - Phase 6 completed on 2026-09-01.
 - Phase 7, Step 18: isolated candidate documentation and descriptor-backed completeness.
-- Phase 7 stopped before Step 19 public migration because exact-tree pre-removal CI evidence is unavailable.
+- Phase 7, Step 19: pre-removal CI passed, then public `/cg-skill` registration and old-command removal were staged together.
+- Phase 7, Step 20: release-attestation integration and final-tree local gates completed.
 
 ### Evidence
 
@@ -124,14 +123,19 @@ status: active
 | V16 | passed | 6 focused audit tests passed; 90 combined Step 16 tests passed with 2 platform skips |
 | V17 | passed | 8 focused removal tests passed; 12 removal/attestation tests passed |
 | V18 | passed | 15 documentation/descriptor completeness tests passed |
-| V19 | partial | Candidate pages and site checks pass; public navigation is intentionally not staged |
-| V21 | retrying | Exact-tree CI run 33558695577 failed one cross-platform message-contract test; targeted fix and local full native gate passed |
+| V19 | passed | Public documentation, navigation, wrapper help, and 68-page site checks passed |
+| V20 | passed | 6 migration tests plus 72 target drift, mapping, and closure tests passed; active old-name roadmap reference was updated through `@cg-roadmap` |
+| V21 | passed | Pre-removal exact-tree CI run 33559916774 passed on Windows, macOS, Ubuntu, Python 3.8, and Windows/macOS Pester |
+| V22 | passed | Final-tree local committed full native preflight passed |
+| V23 | passed | Focused final Pester gates passed; full safe runner: 2,623 passed, 0 failed, 2 skipped, `filteredFiles: null` |
+| V24 | pending | Final-tree exact-SHA cross-platform CI will run after the authorized checkpoint push |
+| V25 | pending | Generated dry-run passes; final-tree CI record remains pending |
 | Phase 2 gate | passed | Safe Pester runner: 2,606 passed, 0 failed, 2 skipped, `filteredFiles: null` |
 | Phase 3 gate | passed | Safe Pester runner: 2,616 passed, 0 failed, 2 skipped, `filteredFiles: null` |
 | Phase 4 gate | passed | Safe Pester runner: 2,616 passed, 0 failed, 2 skipped, `filteredFiles: null` |
 | Phase 5 gate | passed | Safe Pester runner: 2,616 passed, 0 failed, 2 skipped, `filteredFiles: null` |
 | Phase 6 gate | passed | Safe Pester runner: 2,616 passed, 0 failed, 2 skipped, `filteredFiles: null` |
-| Phase 7 local gate | passed | Focused `model-assignments`, `install`, `bash-scripts`, and `parity` runs passed; full safe runner: 2,616 passed, 0 failed, 2 skipped, `filteredFiles: null` |
+| Phase 7 local gate | passed | Focused `model-assignments`, `prompt-tools`, `install`, `bash-scripts`, `parity`, `create-release`, and `docs-automation` runs passed; full safe runner: 2,623 passed, 0 failed, 2 skipped, `filteredFiles: null` |
 
 ### Constraints
 
@@ -150,31 +154,32 @@ status: active
 | C14 | passed | Immutable identifier and no-reuse lifecycle tests passed |
 | C15 | passed | Attestation, grace, migration, ancestry, and zero-reference rescan tests passed |
 | C16 | passed | Modified and user-owned projection preservation tests passed |
-| C17 | blocked | Ordering is preserved; public registration/removal cannot start before exact-tree pre-removal CI |
+| C17 | passed | Pre-removal CI passed before public registration and old-command removal were staged together |
+| C18 | passed | Active roots use `/cg-skill`; legacy names remain only in migration and historical evidence |
 | C19 | passed | All Pester evidence used only the safe runner through execution subagents |
 | C20 | passed | Generated target changes were produced only by the canonical generator |
 | C21 | passed | Audit/update tests reject generic mutable update discovery |
 | C22 | passed | Exact desired-path, digest, ownership, and bundle-inventory tests passed |
+| C23 | pending | Pre-removal platform proof passed; final-tree exact-SHA CI remains pending |
 
 ### Deviations
 
-- None.
+- User-approved operation-order change on 2026-09-01: create and push
+  intermediate checkpoints before `/cg-review`. This preserves the Plan's
+  exact-tree CI boundaries; it does not waive V21, V24, C17, or C23.
 
-### Blocked Stop
+### Gate Recovery
 
-- The only successful branch CI run is for SHA `6c3467b060bd83c8a4bd0731d3e213033d769aad`, before the Phase 2-7 candidate changes and before the Ubuntu/Python 3.8 jobs existed.
-- The user authorized an intermediate checkpoint commit and push. Phase 7 will
-  resume only after exact-tree CI completes successfully.
 - Exact-tree CI run 33558695577 failed because the bundle validator reported
   `link or reparse point` while the established test contract requires the
   explicit term `symlink`. The corrected message passed 14 focused packaging
-  tests and the local full native gate; a second exact-tree CI run is pending.
-- Step 19 public registration, old-command removal, V20-V25 final evidence, and plan completion remain blocked.
+  tests and the local full native gate.
+- Exact-tree CI run 33559916774 passed after the fix and authorized Step 19.
 
 ### Remaining Uncertainty
 
-- Actual Python 3.8 runtime execution remains a final CI requirement.
-- Exact-tree Windows, macOS, Linux, and Python 3.8 CI evidence is unavailable.
+- Final-tree Windows, macOS, Linux, and Python 3.8 CI evidence is pending the
+  authorized final checkpoint push.
 
 ### Final Status
 

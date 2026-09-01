@@ -1,8 +1,7 @@
 # Migrate to `cg-skill`
 
-The public migration is an immediate replacement with no compatibility aliases.
-Use this map only after the release notes confirm that the staged final-tree gate
-passed.
+The public migration is complete and has no compatibility aliases. Replace old
+invocations immediately; the retired prompt and wrappers are not shipped.
 
 | Previous command | Replacement |
 | --- | --- |

@@ -9,8 +9,8 @@
 #   1b. Verifies Python is available (required for Python-backed cg-* commands).
 #   2. Tests that directory junctions can be created on this machine.
 #   3. Creates .cmd wrappers in bin\ and adds bin\ to the user PATH
-#      so cg-link, cg-unlink, cg-update, cg-index, cg-render-artifact, and
-#      cg-token-audit are available from any terminal.
+#      so cg-link, cg-unlink, cg-update, cg-skill, cg-index,
+#      cg-render-artifact, and cg-token-audit are available from any terminal.
 #   4. Initializes .cg-version with "latest" (if not already set).
 #
 # To uninstall (removes PATH registration and legacy profile functions while
@@ -231,6 +231,16 @@ if (-not (Test-Path $binDir)) {
     New-Item -ItemType Directory -Path $binDir -Force | Out-Null
 }
 
+# Remove retired skill command wrappers during an upgrade. These names are not
+# compatibility aliases; all skill lifecycle traffic now uses cg-skill.
+foreach ($retired in @("cg-find-skill", "cg-find-skill.cmd")) {
+    $retiredPath = Join-Path $binDir $retired
+    if (Test-Path -LiteralPath $retiredPath) {
+        Remove-Item -LiteralPath $retiredPath -Force
+        Write-Host "  Removed retired wrapper: $retired" -ForegroundColor DarkGray
+    }
+}
+
 # Write the three .cmd wrappers (overwrite on upgrade to pick up latest content).
 # %~dp0 resolves to the directory containing the .cmd file at call time,
 # so the wrappers work regardless of which path the user cloned to.
@@ -326,6 +336,24 @@ if (Test-Path $cgTokenAuditCmdSrc) {
     Write-Warning "  bin\cg-token-audit.cmd not found in installation -- skipping cg-token-audit wrapper."
 }
 
+# Verify cg-skill.cmd exists in bin/ as the committed source of truth. Its
+# Python resolver is intentionally not duplicated in this installer.
+$cgSkillCmdSrc = Join-Path $CompoundGpidDir "bin\cg-skill.cmd"
+$cgSkillCmdDst = Join-Path $binDir "cg-skill.cmd"
+if (Test-Path $cgSkillCmdSrc) {
+    $cgSkillSrcFull = [System.IO.Path]::GetFullPath($cgSkillCmdSrc)
+    $cgSkillDstFull = [System.IO.Path]::GetFullPath($cgSkillCmdDst)
+    if ($cgSkillSrcFull -ieq $cgSkillDstFull) {
+        Write-Host "  Already present: cg-skill in $binDir" -ForegroundColor DarkGray
+    } else {
+        Copy-Item -Path $cgSkillCmdSrc -Destination $cgSkillCmdDst -Force
+        Write-Host "  Copied:  cg-skill in $binDir" -ForegroundColor DarkGray
+    }
+} else {
+    Write-Error "Skill-management launcher source is missing: $cgSkillCmdSrc. Run cg-update --fix and retry installation."
+    exit 1
+}
+
 # Copy the certified Kilo launcher from the committed source of truth.
 $cgKiloCmdSrc = Join-Path $CompoundGpidDir "bin\cg-kilo.cmd"
 $cgKiloCmdDst = Join-Path $binDir "cg-kilo.cmd"
@@ -381,7 +409,7 @@ try {
     Write-Warning "  You may manually remove the old Compound GPID functions from: $PROFILE"
 }
 
-Write-Host "  Registered: cg-link, cg-unlink, cg-update, cg-kilo, cg-index, cg-render-artifact, cg-publish-markdown, cg-token-audit" -ForegroundColor DarkGray
+Write-Host "  Registered: cg-link, cg-unlink, cg-update, cg-kilo, cg-skill, cg-index, cg-render-artifact, cg-publish-markdown, cg-token-audit" -ForegroundColor DarkGray
 
 # -----------------------------------------------------------------------
 # Step 4: Initialize .cg-version
@@ -417,6 +445,7 @@ Write-Host "  cg-link    -- Link current project to Compound GPID  (run from pro
 Write-Host "  cg-unlink  -- Unlink current project                 (run from project root)"
 Write-Host "  cg-update  -- Pull latest updates                    (run from anywhere)"
 Write-Host "  cg-kilo    -- Certified contained Kilo launch         (run from project root)"
+Write-Host "  cg-skill   -- Manage the complete skill lifecycle     (run from project root)"
 Write-Host '  cg-update <version>  -- Pin to a specific release (e.g. cg-update v0.2.0)'
 Write-Host "  cg-update latest     -- Unpin and return to tracking main"
 Write-Host "  cg-update --list     -- Browse available releases"

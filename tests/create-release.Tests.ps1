@@ -379,6 +379,18 @@ Describe "create-release.ps1 - native packaging preflight" {
         $scriptContent | Should -Match 'Remove-Item -LiteralPath \$preflightRoot -Recurse -Force'
     }
 
+    It "writes reviewed post-release skill attestation for existing and new releases" {
+        $scriptContent | Should -Match 'scripts/cg_release_attestation\.py'
+        $scriptContent | Should -Match '--review-reference "release=\$headCommit"'
+        ([regex]::Matches($scriptContent, 'Write-CgReleaseAttestation')).Count | Should -Be 3
+        $existingIndex = $scriptContent.IndexOf('if ($null -ne $existingRelease)')
+        $createIndex = $scriptContent.IndexOf('# Create the release')
+        $existingBlock = $scriptContent.Substring($existingIndex, $createIndex - $existingIndex)
+        ($existingBlock -match 'Write-CgReleaseAttestation') | Should -Be $true
+        $createBlock = $scriptContent.Substring($createIndex)
+        ($createBlock -match 'Write-CgReleaseAttestation') | Should -Be $true
+    }
+
     It "executes a failing preflight without reaching credentials or the API" {
         $notesPath = Join-Path $TestDrive "release-preflight-notes.md"
         Set-Content -Path $notesPath -Value "notes" -Encoding UTF8

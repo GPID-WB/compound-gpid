@@ -592,6 +592,38 @@ Describe "install.ps1 - cg-token-audit.cmd copy" {
     }
 }
 
+Describe "install.ps1 - cg-skill.cmd copy" {
+    Context "single source of truth" {
+        BeforeAll {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $cmdFile = Join-Path $repoRoot "bin\cg-skill.cmd"
+            $content = Get-Content $cmdFile -Raw -Encoding UTF8
+            $installContent = Get-Content (Join-Path $repoRoot "install.ps1") -Raw -Encoding UTF8
+        }
+
+        It "cg-skill.cmd exists in the committed bin directory" {
+            Test-Path $cmdFile | Should -Be $true
+        }
+
+        It "guards every Python probe with a where pre-check" {
+            ($content -match 'where python3\s+>nul') | Should -Be $true
+            ($content -match 'where python\s+>nul') | Should -Be $true
+            ($content -match 'where py\s+>nul') | Should -Be $true
+        }
+
+        It "uses for /f version checks and calls cg_skill.py" {
+            ($content -match 'for /f') | Should -Be $true
+            ($content -match 'cg_skill\.py') | Should -Be $true
+            ($content -match 'call %PYTHON_CMD%') | Should -Be $true
+        }
+
+        It "is registered by install.ps1" {
+            ($installContent -match 'cgSkillCmdSrc.*cg-skill\.cmd') | Should -Be $true
+            ($installContent -match 'Copy-Item.*cgSkillCmdSrc') | Should -Be $true
+        }
+    }
+}
+
 Describe "install.ps1 - cg-render-artifact.cmd copy" {
     Context "single source of truth" {
         It "cg-render-artifact.cmd exists in the committed bin/ directory" {

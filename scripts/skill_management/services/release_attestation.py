@@ -21,7 +21,7 @@ ATTESTATION_ROOT = ".github/shared/skill-management/release-attestations"
 _REPARSE_POINT_FLAG = 0x400
 _FULL_SHA = re.compile(r"^[0-9a-f]{40}$")
 _TAG_VERSION = re.compile(
-    r"^v([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([A-Za-z0-9.-]+))?(?:\+([A-Za-z0-9.-]+))?$"
+    r"^v([0-9]+)\.([0-9]+)\.([0-9]+)(?:\.([0-9]+)|-([A-Za-z0-9.-]+))?(?:\+([A-Za-z0-9.-]+))?$"
 )
 
 
@@ -182,6 +182,13 @@ def load_release_attestations(source_root: Path) -> Tuple[Mapping[str, Any], ...
             raise ReleaseAttestationError(
                 f"Release attestation is invalid: {relative}: {findings[0].code}"
             )
+        if any(
+            contracts.OPERATION_PATTERN.fullmatch(str(identifier)) is None
+            for identifier in value["deprecationRecordDigests"]
+        ):
+            raise ReleaseAttestationError(
+                f"Release attestation has an invalid skill identifier: {relative}"
+            )
         tag = str(value["releaseTag"])
         if entry.name != f"{tag}.json":
             raise ReleaseAttestationError(
@@ -197,17 +204,142 @@ def load_release_attestations(source_root: Path) -> Tuple[Mapping[str, Any], ...
     return tuple(sorted(loaded, key=lambda item: _version_key(str(item["releaseTag"]))))
 
 
-def _version_key(tag: str) -> Tuple[int, int, int, int, str]:
+def _version_key(tag: str) -> Tuple[int, int, int, int, int, str]:
     match = _TAG_VERSION.fullmatch(tag)
     if match is None:
         raise ReleaseAttestationError(f"Release tag is not supported: {tag}")
-    prerelease = match.group(4)
+    development = match.group(4)
+    prerelease = match.group(5)
     return (
         int(match.group(1)),
         int(match.group(2)),
         int(match.group(3)),
-        0 if prerelease else 1,
+        0 if development or prerelease else 1,
+        int(development) if development else 0,
         prerelease or "",
+    )
+
+
+def build_release_attestation(
+    source_root: Path, tag: str, review_reference: str
+) -> Mapping[str, Any]:
+    """Build and validate immutable evidence for one published annotated tag."""
+    root = Path(source_root).resolve(strict=True)
+    if _TAG_VERSION.fullmatch(tag) is None:
+        raise ReleaseAttestationError(f"Release tag is not supported: {tag}")
+    try:
+        provenance.validate_audit_metadata("release-attestation", review_reference)
+    except provenance.ProvenanceValidationError as error:
+        raise ReleaseAttestationError(str(error)) from error
+
+    object_sha = _git(root, ("rev-parse", f"refs/tags/{tag}"))
+    if _git(root, ("cat-file", "-t", f"refs/tags/{tag}")) != "tag":
+        raise ReleaseAttestationError(
+            f"Release attestation requires an annotated tag: {tag}"
+        )
+    commit_sha = _git(root, ("rev-parse", f"refs/tags/{tag}^{{commit}}"))
+    remote_object, remote_commit = _remote_tag_identity(root, tag)
+    if object_sha != remote_object or commit_sha != remote_commit:
+        raise ReleaseAttestationError(
+            f"Local and remote release tag identities disagree: {tag}"
+        )
+
+    payload_path = f"releases/{tag}.json"
+    tagged_payload = _git_bytes(root, f"{commit_sha}:{payload_path}")
+    try:
+        live_payload = secure_fs.secure_read_bytes(
+            root,
+            PurePosixPath(payload_path),
+            reject_hardlinks=True,
+            max_bytes=contracts.MAX_CONTRACT_BYTES,
+        )
+        payload_value = json.loads(tagged_payload.decode("utf-8"))
+    except (OSError, ValueError, UnicodeError, json.JSONDecodeError) as error:
+        raise ReleaseAttestationError(
+            f"Immutable release payload is invalid: {payload_path}"
+        ) from error
+    if live_payload != tagged_payload or not isinstance(payload_value, dict) or payload_value.get(
+        "tag"
+    ) != tag:
+        raise ReleaseAttestationError(
+            f"Live and tagged immutable release payloads disagree: {tag}"
+        )
+
+    provenance_root = ".github/shared/skill-management/provenance"
+    output = _git(
+        root,
+        ("ls-tree", "-r", "--name-only", commit_sha, "--", provenance_root),
+    )
+    digests: Dict[str, str] = {}
+    for relative in sorted(line for line in output.splitlines() if line.endswith(".json")):
+        try:
+            record = json.loads(_git_bytes(root, f"{commit_sha}:{relative}").decode("utf-8"))
+        except (UnicodeError, json.JSONDecodeError) as error:
+            raise ReleaseAttestationError(
+                f"Tagged provenance record is invalid: {relative}"
+            ) from error
+        if not isinstance(record, dict) or record.get("lifecycle") != "deprecated":
+            continue
+        identifier = record.get("skillId")
+        digest = record.get("deprecatedRecordDigest")
+        if not isinstance(identifier, str) or not isinstance(digest, str) or re.fullmatch(
+            r"[0-9a-f]{64}", digest
+        ) is None:
+            raise ReleaseAttestationError(
+                f"Deprecated tagged provenance is incomplete: {relative}"
+            )
+        if identifier in digests and digests[identifier] != digest:
+            raise ReleaseAttestationError(
+                f"Duplicate deprecation identity in tagged provenance: {identifier}"
+            )
+        digests[identifier] = digest
+
+    value: Mapping[str, Any] = {
+        "schema": "cg-skill-release-attestation-v1",
+        "schemaVersion": 1,
+        "releaseTag": tag,
+        "tagRefObjectSha": object_sha,
+        "peeledCommitSha": commit_sha,
+        "releasePayloadSha256": hashlib.sha256(tagged_payload).hexdigest(),
+        "deprecationRecordDigests": dict(sorted(digests.items())),
+        "reviewReference": review_reference,
+    }
+    findings = contracts.validate_instance(value, _attestation_schema())
+    if findings:
+        raise ReleaseAttestationError(
+            f"Generated release attestation is invalid: {findings[0].code}"
+        )
+    return value
+
+
+def write_release_attestation(
+    source_root: Path, tag: str, review_reference: str
+) -> Path:
+    """Securely write one immutable attestation, or accept identical bytes."""
+    root = Path(source_root).resolve(strict=True)
+    value = build_release_attestation(root, tag, review_reference)
+    content = contracts.canonical_json_bytes(value) + b"\n"
+    relative = PurePosixPath(ATTESTATION_ROOT) / f"{tag}.json"
+    try:
+        existing = secure_fs.secure_read_bytes(
+            root,
+            relative,
+            reject_hardlinks=True,
+            max_bytes=contracts.MAX_CONTRACT_BYTES,
+        )
+    except FileNotFoundError:
+        existing = None
+    if existing is not None:
+        if existing != content:
+            raise ReleaseAttestationError(
+                f"Immutable release attestation already exists with different bytes: {tag}"
+            )
+        return root / relative
+    return secure_fs.secure_write_bytes(
+        root,
+        relative,
+        content,
+        expected_state=secure_fs.ExpectedFileState(False),
     )
 
 

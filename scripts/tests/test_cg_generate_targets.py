@@ -229,21 +229,22 @@ class TestScanCanonicalAssets:
                 "skill-management/contracts/common.json"
             )
 
-    def test_default_source_generation_excludes_internal_management_module(
+    def test_default_cg_generation_includes_public_management_module(
         self,
     ) -> None:
         repository_root = Path(__file__).resolve().parents[2]
         assets = gen.scan_canonical_assets(repository_root)
-        assert not any(
-            item["relative_path"].startswith(
-                (
-                    ".github/skills/cg-skill-management/",
-                    ".github/shared/skill-management/",
-                )
-            )
+        paths = {
+            item["relative_path"]
             for category in assets.values()
             for item in category
+        }
+        assert ".github/skills/cg-skill-management/SKILL.md" in paths
+        assert (
+            ".github/shared/skill-management/contracts/result-v1.schema.json"
+            in paths
         )
+        assert ".github/shared/skill-management/operations/help.json" in paths
 
     @pytest.mark.usefixtures("require_symlink_support")
     def test_shared_leaf_swap_is_rejected_at_the_secure_read_boundary(

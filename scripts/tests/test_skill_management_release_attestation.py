@@ -8,6 +8,7 @@ from pathlib import Path
 
 import pytest
 
+import cg_release_attestation
 from skill_management.services import release_attestation
 
 
@@ -173,6 +174,77 @@ def test_moved_remote_tag_blocks_plugin_grace(tmp_path: Path) -> None:
             ".github/shared/skill-management/provenance/demo-skill.json",
             ".github/skills/demo-skill",
         )
+
+
+def test_post_release_attestation_binds_tag_payload_and_deprecation(
+    tmp_path: Path,
+) -> None:
+    root, _remote, digest = _plugin_grace_repo(tmp_path)
+
+    value = release_attestation.build_release_attestation(
+        root, "v1.1.0", "review=" + "f" * 40
+    )
+
+    assert value["releaseTag"] == "v1.1.0"
+    assert value["tagRefObjectSha"] == _git(root, "rev-parse", "refs/tags/v1.1.0")
+    assert value["peeledCommitSha"] == _git(root, "rev-parse", "v1.1.0^{commit}")
+    assert value["deprecationRecordDigests"] == {"demo-skill": digest}
+    assert value["releasePayloadSha256"] == hashlib.sha256(
+        (root / "releases/v1.1.0.json").read_bytes()
+    ).hexdigest()
+
+
+def test_post_release_attestation_write_is_deterministic_and_idempotent(
+    tmp_path: Path,
+) -> None:
+    root, _remote, _digest = _plugin_grace_repo(tmp_path)
+    review = "review=" + "f" * 40
+    (
+        root
+        / ".github/shared/skill-management/release-attestations/v1.1.0.json"
+    ).unlink()
+
+    first = release_attestation.write_release_attestation(root, "v1.1.0", review)
+    first_bytes = first.read_bytes()
+    second = release_attestation.write_release_attestation(root, "v1.1.0", review)
+
+    assert second == first
+    assert second.read_bytes() == first_bytes
+    assert json.loads(first_bytes)["schema"] == "cg-skill-release-attestation-v1"
+
+
+def test_post_release_cli_writes_reviewed_attestation(tmp_path: Path) -> None:
+    root, _remote, _digest = _plugin_grace_repo(tmp_path)
+    (
+        root
+        / ".github/shared/skill-management/release-attestations/v1.1.0.json"
+    ).unlink()
+
+    exit_code = cg_release_attestation.main(
+        [
+            "--root",
+            str(root),
+            "--tag",
+            "v1.1.0",
+            "--review-reference",
+            "review=" + "f" * 40,
+        ]
+    )
+
+    assert exit_code == 0
+    assert (
+        root
+        / ".github/shared/skill-management/release-attestations/v1.1.0.json"
+    ).is_file()
+
+
+def test_release_version_order_accepts_four_component_prereleases() -> None:
+    assert release_attestation._version_key("v1.2.3.9001") > release_attestation._version_key(  # pylint: disable=protected-access
+        "v1.2.3.9000"  # pylint: disable=protected-access
+    )
+    assert release_attestation._version_key("v1.2.3") > release_attestation._version_key(  # pylint: disable=protected-access
+        "v1.2.3.9001"  # pylint: disable=protected-access
+    )
 
 
 def test_project_grace_uses_earliest_containing_commit_and_later_descendant(

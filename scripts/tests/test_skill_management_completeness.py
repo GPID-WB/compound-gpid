@@ -30,7 +30,6 @@ OPERATIONS = (
     "validate",
 )
 CANDIDATE_ROOT = REPO_ROOT / "docs/skills/management"
-CANDIDATE_MANIFEST = CANDIDATE_ROOT / "candidates.json"
 PUBLIC_NAVIGATION = REPO_ROOT / "docs/navigation.json"
 OLD_COMMANDS = ("/cg-find-skill", "/cg-import-skill")
 PHASE_EVIDENCE_PYTEST_FILES = frozenset(
@@ -129,12 +128,11 @@ def _one_operation_root(tmp_path: Path, operation: str = "find") -> Path:
     return tmp_path
 
 
-def _candidate_pages(root: Path = REPO_ROOT) -> tuple[dict, ...]:
-    manifest = json.loads(
-        (root / "docs/skills/management/candidates.json").read_text(encoding="utf-8")
-    )
-    assert manifest["schemaVersion"] == "compound-gpid-docs-candidates-v1"
-    return tuple(manifest["pages"])
+def _management_pages(root: Path = REPO_ROOT) -> tuple[dict, ...]:
+    navigation = json.loads((root / "docs/navigation.json").read_text(encoding="utf-8"))
+    groups = [group for group in navigation["groups"] if group["title"] == "Skill Management"]
+    assert len(groups) == 1
+    return tuple({**page, "file": "docs/" + page["file"]} for page in groups[0]["pages"])
 
 
 def _slugify(value: str) -> str:
@@ -192,8 +190,8 @@ def test_every_registered_operation_through_phase_6_is_complete() -> None:
     assert contracts.descriptor_completeness_findings(REPO_ROOT) == ()
 
 
-def test_candidate_manifest_has_unique_complete_metadata_and_exact_page_inventory() -> None:
-    pages = _candidate_pages()
+def test_public_navigation_has_unique_complete_metadata_and_exact_page_inventory() -> None:
+    pages = _management_pages()
     ids = [page["id"] for page in pages]
     files = [page["file"] for page in pages]
     markdown = sorted(
@@ -213,7 +211,7 @@ def test_candidate_manifest_has_unique_complete_metadata_and_exact_page_inventor
 
 
 def test_operation_page_identity_roles_phases_and_options_come_from_descriptors() -> None:
-    pages = {page["file"]: page for page in _candidate_pages()}
+    pages = {page["file"]: page for page in _management_pages()}
     records, findings = contracts.discover_operation_descriptors(REPO_ROOT)
     assert findings == ()
 
@@ -287,10 +285,10 @@ def test_executable_help_matches_descriptor_roles_phases_and_page_paths() -> Non
     ]
 
 
-def test_candidate_links_resolve_and_every_page_is_reachable_from_index() -> None:
-    candidate_files = {page["file"] for page in _candidate_pages()}
-    graph = {relative: set() for relative in candidate_files}
-    for relative in sorted(candidate_files):
+def test_public_management_links_resolve_and_every_page_is_reachable_from_index() -> None:
+    management_files = {page["file"] for page in _management_pages()}
+    graph = {relative: set() for relative in management_files}
+    for relative in sorted(management_files):
         path = REPO_ROOT / relative
         content = path.read_text(encoding="utf-8")
         for href in _markdown_links(content):
@@ -299,7 +297,7 @@ def test_candidate_links_resolve_and_every_page_is_reachable_from_index() -> Non
             target = (path.parent / target_text).resolve() if target_text else path
             assert target.is_file(), (relative, href)
             target_relative = target.relative_to(REPO_ROOT).as_posix()
-            if target_relative in candidate_files:
+            if target_relative in management_files:
                 graph[relative].add(target_relative)
             if fragment and target.suffix == ".md":
                 headings = {
@@ -319,22 +317,19 @@ def test_candidate_links_resolve_and_every_page_is_reachable_from_index() -> Non
             continue
         reached.add(relative)
         pending.extend(sorted(graph[relative] - reached))
-    assert reached == candidate_files
+    assert reached == management_files
 
 
-def test_candidates_remain_unlinked_and_old_names_stay_in_migration_only() -> None:
+def test_public_command_replaces_old_surfaces_and_keeps_migration_text() -> None:
     public = json.loads(PUBLIC_NAVIGATION.read_text(encoding="utf-8"))
     public_pages = [page for group in public["groups"] for page in group["pages"]]
-    candidate_pages = _candidate_pages()
-    assert {page["id"] for page in candidate_pages}.isdisjoint(
-        {page["id"] for page in public_pages}
-    )
-    assert {page["file"][len("docs/") :] for page in candidate_pages}.isdisjoint(
-        {page["file"] for page in public_pages}
-    )
+    management_pages = _management_pages()
+    assert {page["id"] for page in management_pages} <= {
+        page["id"] for page in public_pages
+    }
 
     occurrences = {name: [] for name in OLD_COMMANDS}
-    for page in candidate_pages:
+    for page in management_pages:
         content = (REPO_ROOT / page["file"]).read_text(encoding="utf-8")
         for old_name in OLD_COMMANDS:
             if old_name in content:
@@ -344,10 +339,13 @@ def test_candidates_remain_unlinked_and_old_names_stay_in_migration_only() -> No
     }
     for old_name in OLD_COMMANDS:
         stem = old_name[1:]
-        assert (REPO_ROOT / f".github/prompts/{stem}.prompt.md").is_file()
+        assert not (REPO_ROOT / f".github/prompts/{stem}.prompt.md").exists()
         if old_name == "/cg-find-skill":
-            assert (REPO_ROOT / f"bin/{stem}").is_file()
-            assert (REPO_ROOT / f"bin/{stem}.cmd").is_file()
+            assert not (REPO_ROOT / f"bin/{stem}").exists()
+            assert not (REPO_ROOT / f"bin/{stem}.cmd").exists()
+    assert (REPO_ROOT / ".github/prompts/cg-skill.prompt.md").is_file()
+    assert (REPO_ROOT / "bin/cg-skill").is_file()
+    assert (REPO_ROOT / "bin/cg-skill.cmd").is_file()
 
 
 def test_result_code_table_matches_stable_implementation_codes() -> None:

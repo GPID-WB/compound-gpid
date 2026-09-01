@@ -1,6 +1,6 @@
 {
   "schemaVersion": "compound-gpid-active-state-v1",
-  "updatedAt": "2026-09-01T21:12:59Z",
+  "updatedAt": "2026-09-01T22:23:14Z",
   "workflow": "/cg-work",
   "status": "active",
   "branch": "scalable-skill-management-suite",
@@ -26,15 +26,21 @@
     {"id": "V16", "status": "passed", "artifact": "scripts/tests/test_skill_management_audit.py"},
     {"id": "V17", "status": "passed", "artifact": "scripts/tests/test_skill_management_removal.py"},
     {"id": "V18", "status": "passed", "artifact": "scripts/tests/test_skill_management_completeness.py"},
-    {"id": "V19", "status": "partial", "artifact": "docs/skills/management/candidates.json"},
-    {"id": "V21", "status": "retrying", "artifact": "https://github.com/GPID-WB/compound-gpid/actions/runs/33558695577"}
+    {"id": "V19", "status": "passed", "artifact": "docs/navigation.json"},
+    {"id": "V20", "status": "passed", "artifact": "scripts/tests/test_skill_management_migration.py"},
+    {"id": "V21", "status": "passed", "artifact": "https://github.com/GPID-WB/compound-gpid/actions/runs/33559916774"},
+    {"id": "V22", "status": "passed", "artifact": "scripts/cg_pr_preflight.py"},
+    {"id": "V23", "status": "passed", "artifact": "tests/last-run.json"},
+    {"id": "V24", "status": "pending", "artifact": null},
+    {"id": "V25", "status": "pending", "artifact": "scripts/cg_generate_targets.py"}
   ],
   "unresolvedDecisions": [],
   "artifactRefs": [
     {"kind": "plan", "path": ".cg-docs/plans/2026-08-28-scalable-skill-management-suite.md", "status": "active"},
-    {"kind": "work-report", "path": ".cg-docs/work-reports/2026-08-28-scalable-skill-management-suite.md", "status": "phase-7-blocked"},
+    {"kind": "work-report", "path": ".cg-docs/work-reports/2026-08-28-scalable-skill-management-suite.md", "status": "phase-7-final-ci-pending"},
     {"kind": "ci-run", "path": "https://github.com/GPID-WB/compound-gpid/actions/runs/33499411742", "status": "stale-sha"},
-    {"kind": "ci-run", "path": "https://github.com/GPID-WB/compound-gpid/actions/runs/33558695577", "status": "failed-fix-pending"}
+    {"kind": "ci-run", "path": "https://github.com/GPID-WB/compound-gpid/actions/runs/33558695577", "status": "failed-recovered"},
+    {"kind": "ci-run", "path": "https://github.com/GPID-WB/compound-gpid/actions/runs/33559916774", "status": "pre-removal-passed"}
   ],
   "nextCommand": "/cg-work phase7"
 }

@@ -362,6 +362,27 @@ Describe "cg-brain-init registration parity" {
     }
 }
 
+Describe "cg-skill registration parity" {
+    $installPs1 = Get-Content (Join-Path $repoRoot "install.ps1") -Raw -Encoding UTF8
+    $installSh = Get-Content (Join-Path $repoRoot "scripts/install.sh") -Raw -Encoding UTF8
+
+    It "ships both public lifecycle wrappers" {
+        Test-Path (Join-Path $repoRoot "bin/cg-skill") | Should -Be $true
+        Test-Path (Join-Path $repoRoot "bin/cg-skill.cmd") | Should -Be $true
+    }
+
+    It "registers cg-skill in both installers" {
+        ($installPs1 -match 'cg-skill\.cmd') | Should -Be $true
+        ($installSh -match 'CG_SKILL_SRC') | Should -Be $true
+        ($installSh -match 'cg-skill') | Should -Be $true
+    }
+
+    It "removes the retired discovery wrapper in both installers" {
+        ($installPs1 -match 'Removed retired wrapper') | Should -Be $true
+        ($installSh -match 'rm -f.*cg-find-skill') | Should -Be $true
+    }
+}
+
 Describe "Kilo coexistence launcher parity" {
     It "registers the certified launcher on Windows and POSIX" {
         $installPs1 = Get-Content (Join-Path $repoRoot "install.ps1") -Raw -Encoding UTF8

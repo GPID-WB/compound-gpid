@@ -56,14 +56,28 @@ def _expected_paths(root: Path) -> frozenset[str]:
 
 
 def _committed_generated_files(root: Path, tree_paths: list[str]) -> set[str]:
-    """Return the set of committed files in generated tree directories."""
+    """Return tracked and untracked generated files present in the worktree."""
     result = subprocess.run(
-        ["git", "ls-files", "--", *tree_paths],
+        [
+            "git",
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "--",
+            *tree_paths,
+        ],
         capture_output=True, text=True, cwd=str(root), timeout=30, check=False,
     )
     if result.returncode != 0:
         pytest.fail(f"Could not list committed generated files: {result.stderr}")
-    return {line.strip() for line in result.stdout.splitlines() if line.strip()}
+    return {
+        line.strip()
+        for line in result.stdout.splitlines()
+        if line.strip()
+        and (root / line.strip()).is_file()
+        and not (root / line.strip()).is_symlink()
+    }
 
 
 def _read_git_blob_bytes(root: Path, rel_path: str) -> bytes:

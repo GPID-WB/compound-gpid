@@ -1,0 +1,47 @@
+{
+  "$schema": "compound-gpid-schema-subset-v1",
+  "$id": "cg-skill-request-v1",
+  "type": "object",
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "cg-skill-request-v1"
+    },
+    "operation": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "phase": {
+      "type": "string",
+      "enum": [
+        "read",
+        "plan",
+        "apply"
+      ]
+    },
+    "root": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sourceRoot": {
+      "type": "string",
+      "minLength": 1
+    },
+    "planDigest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "arguments": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "required": [
+    "schema",
+    "operation",
+    "phase",
+    "root",
+    "arguments"
+  ],
+  "additionalProperties": false
+}

@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""cg-import-skill — Quarantined external-skill importer for Compound GPID.
+"""Legacy backend for quarantined external-skill import in Compound GPID.
 
-Implements the ``/cg-import-skill`` command with two explicit modes:
+The public ``/cg-skill import`` operation supersedes this backend's old prompt
+surface and uses two explicit scopes:
 
 * **review** mode (consumer project): accepts a pinned commit from an
   allowlisted HTTPS repository, fetches the content into a quarantined
@@ -37,7 +38,7 @@ import sys
 
 if sys.version_info < (3, 8):
     print(
-        f"cg-import-skill requires Python 3.8+; found {sys.version.split()[0]}",
+        f"cg-skill import requires Python 3.8+; found {sys.version.split()[0]}",
         file=sys.stderr,
     )
     sys.exit(1)

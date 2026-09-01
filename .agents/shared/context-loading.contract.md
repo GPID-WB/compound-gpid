@@ -75,8 +75,9 @@ selected closure. Run the leak check to verify:
 python scripts/cg_skill_catalog.py --check-leaks
 ```
 
-The stable `/cg-*` and `/cr-*` workflow namespaces are preserved; only the
-action-first discovery namespace `/cg-find-skill` is added.
+The stable `/cg-*` and `/cr-*` workflow namespaces are preserved. Skill
+discovery and lifecycle management use the action-first `/cg-skill <operation>`
+namespace.
 
 ## Artifact Rules
 

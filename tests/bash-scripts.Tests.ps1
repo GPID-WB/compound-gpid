@@ -75,7 +75,7 @@ Describe "bash-scripts - scripts exist with executable bit" {
 # bin/ wrappers exist with executable bit
 # ---------------------------------------------------------------------------
 Describe "bash-scripts - bin/ wrappers exist with executable bit" {
-    $wrappers = @("bin/cg-link", "bin/cg-unlink", "bin/cg-update", "bin/cg-kilo", "bin/cg-index", "bin/cg-token-audit", "bin/cg-render-artifact", "bin/cg-publish-markdown")
+    $wrappers = @("bin/cg-link", "bin/cg-unlink", "bin/cg-update", "bin/cg-kilo", "bin/cg-skill", "bin/cg-index", "bin/cg-token-audit", "bin/cg-render-artifact", "bin/cg-publish-markdown")
 
     foreach ($wrapper in $wrappers) {
         $wrapperPath = Join-Path $repoRoot $wrapper
@@ -128,6 +128,7 @@ Describe "install.sh - script structure" {
         $content | Should -Match 'cg-link'
         $content | Should -Match 'cg-unlink'
         $content | Should -Match 'cg-update'
+        $content | Should -Match 'cg-skill'
         $content | Should -Match 'cg-index'
         $content | Should -Match 'cg-token-audit'
         $content | Should -Match 'cg-render-artifact'
@@ -625,6 +626,7 @@ Describe "bash-scripts - bin/cg-publish-markdown wrapper content" {
 
 Describe "bash-scripts - Python-backed wrappers enforce Python 3.8+" {
     $wrappers = @(
+        "cg-skill",
         "cg-index",
         "cg-brain-init",
         "cg-token-audit",
