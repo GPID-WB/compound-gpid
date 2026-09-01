@@ -1,0 +1,53 @@
+{
+  "$schema": "compound-gpid-schema-subset-v1",
+  "$id": "cg-skill-release-attestation-v1",
+  "type": "object",
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "cg-skill-release-attestation-v1"
+    },
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "releaseTag": {
+      "type": "string",
+      "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+(?:[-+][A-Za-z0-9.-]+)?$"
+    },
+    "tagRefObjectSha": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "peeledCommitSha": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "releasePayloadSha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "deprecationRecordDigests": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{64}$"
+      }
+    },
+    "reviewReference": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "required": [
+    "schema",
+    "schemaVersion",
+    "releaseTag",
+    "tagRefObjectSha",
+    "peeledCommitSha",
+    "releasePayloadSha256",
+    "deprecationRecordDigests",
+    "reviewReference"
+  ],
+  "additionalProperties": false
+}

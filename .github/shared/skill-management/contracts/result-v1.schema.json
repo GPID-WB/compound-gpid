@@ -1,0 +1,160 @@
+{
+  "$schema": "compound-gpid-schema-subset-v1",
+  "$id": "cg-skill-result-v1",
+  "type": "object",
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "cg-skill-result-v1"
+    },
+    "ok": {
+      "type": "boolean"
+    },
+    "exitCode": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 8
+    },
+    "operation": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "phase": {
+      "type": "string",
+      "enum": [
+        "read",
+        "plan",
+        "apply"
+      ]
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "consumer",
+        "maintainer",
+        "automation"
+      ]
+    },
+    "changed": {
+      "type": "boolean"
+    },
+    "manifestHealth": {
+      "type": "string",
+      "enum": [
+        "fresh",
+        "missing",
+        "stale",
+        "invalid"
+      ]
+    },
+    "planDigest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "actions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/action"
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/finding"
+      }
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "required": [
+    "schema",
+    "ok",
+    "exitCode",
+    "operation",
+    "phase",
+    "role",
+    "changed",
+    "actions",
+    "findings",
+    "data"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "action": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "create-directory",
+            "write-file",
+            "delete-file",
+            "update-registry",
+            "update-config",
+            "update-manifest",
+            "generate-targets",
+            "publish-projection",
+            "write-tombstone",
+            "verify"
+          ]
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "digest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "required": [
+        "kind",
+        "path",
+        "description"
+      ],
+      "additionalProperties": false
+    },
+    "finding": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$"
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "error",
+            "warning",
+            "info"
+          ]
+        },
+        "path": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "remediation": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "code",
+        "severity",
+        "path",
+        "message",
+        "remediation"
+      ],
+      "additionalProperties": false
+    }
+  }
+}
