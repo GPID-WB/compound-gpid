@@ -35,12 +35,19 @@ if sys.version_info < (3, 8):
 import argparse
 import functools
 import json
+import os
 import re
+import stat
+import unicodedata
 from fnmatch import fnmatchcase
 from pathlib import Path, PurePosixPath
-from typing import Dict, Iterable, List, Optional, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Tuple
+
+import secure_fs
+from skill_management import paths as path_policy
 
 MODULE_REGISTRY_PATH = ".github/shared/module-registry.json"
+MAX_VALIDATOR_ASSET_BYTES = 4 * 1024 * 1024
 VALID_LAYERS = {"kernel", "capability", "suite"}
 VALID_SCHEMA_VERSIONS = {1, 2}
 VALID_ACTIVATION_COSTS = {"low", "medium", "high"}
@@ -63,6 +70,12 @@ _ALLOWED_DEPENDENCY_LAYERS = {
 }
 
 MODULE_ID_PATTERN = re.compile(r"^[a-z][a-z0-9-]*$")
+WINDOWS_RESERVED_NAMES = {
+    "con", "prn", "aux", "nul",
+    *(f"com{i}" for i in range(1, 10)),
+    *(f"lpt{i}" for i in range(1, 10)),
+}
+_REPARSE_POINT_FLAG = 0x400
 
 # ---------------------------------------------------------------------------
 # Canonical asset enumeration (mirrors cg_generate_targets.py)
@@ -82,22 +95,19 @@ def _canonical_categories(root: Path) -> Dict[str, List[str]]:
     agent_globs = [".github/agents/*.agent.md"]
     skill_globs = [".github/skills/*/SKILL.md"]
     instruction_globs = [".github/instructions/*.instructions.md"]
-    shared_globs = [".github/shared/*"]
     for category, globs in (
         ("prompts", prompt_globs),
         ("agents", agent_globs),
         ("skills", skill_globs),
         ("instructions", instruction_globs),
-        ("shared", shared_globs),
     ):
         for pattern in globs:
             for path in sorted(root.glob(pattern)):
                 rel = path.relative_to(root).as_posix()
                 if category == "prompts" and rel in assets["prompts"]:
                     continue
-                if category == "shared" and path.name.startswith("."):
-                    continue
                 assets[category].append(rel)
+    assets["shared"] = inventory_shared_assets(root)
     return assets
 
 
@@ -114,31 +124,56 @@ def canonical_assets(root: Path) -> List[str]:
     return sorted(collected)
 
 
-def _normalize_path(path: str) -> str:
+def normalize_canonical_path(path: str) -> str:
     """Normalize to a POSIX, '.'-free, repository-relative path."""
-    value = PurePosixPath(path.replace("\\", "/")).as_posix()
-    return value.lstrip("./")
+    return path_policy.normalize_canonical_path(path)
 
 
-def _glob_match(pattern: str, asset: str) -> bool:
+def glob_match(pattern: str, asset: str) -> bool:
     """Return whether an owned-assets glob pattern matches a canonical asset.
 
     Directory patterns are given with a trailing '/'; they match any asset at
     or below the directory. File patterns use per-component fnmatch semantics
     so '*' never crosses a '/' boundary.
     """
-    is_dir = pattern.endswith("/")
-    pattern = _normalize_path(pattern)
-    asset = _normalize_path(asset)
-    pparts = PurePosixPath(pattern).parts
-    aparts = PurePosixPath(asset).parts
-    if len(aparts) < len(pparts):
-        return False
-    if len(aparts) == len(pparts) and not is_dir:
-        return all(fnmatchcase(ac, pc) for pc, ac in zip(pparts, aparts))
-    if is_dir:
-        return all(fnmatchcase(ac, pc) for pc, ac in zip(pparts, aparts))
-    return False
+    return path_policy.glob_match(pattern, asset)
+
+
+def _glob_match(pattern: str, asset: str) -> bool:
+    """Compatibility alias for callers migrating to :func:`glob_match`."""
+    return glob_match(pattern, asset)
+
+
+def portable_path_key(value: str) -> Tuple[str, ...]:
+    """Return a case-insensitive Unicode-normalized portable path key."""
+    return path_policy.portable_path_key(value)
+
+
+def validate_repo_relative_path(label: str, value: Any) -> List[str]:
+    """Validate one portable POSIX repository-relative path."""
+    return path_policy.validate_repo_relative_path(label, value)
+
+
+def _is_link_or_reparse(metadata: os.stat_result) -> bool:
+    return stat.S_ISLNK(metadata.st_mode) or bool(
+        getattr(metadata, "st_file_attributes", 0) & _REPARSE_POINT_FLAG
+    )
+
+
+def inventory_shared_assets(root: Path) -> List[str]:
+    """Recursively inventory regular shared files without following links."""
+    return path_policy.inventory_shared_assets(root)
+
+
+@functools.lru_cache(maxsize=4096)
+def _read_asset_text(root: Path, relative_path: str) -> str:
+    content = secure_fs.secure_read_bytes(
+        root,
+        PurePosixPath(relative_path),
+        reject_hardlinks=True,
+        max_bytes=MAX_VALIDATOR_ASSET_BYTES,
+    )
+    return content.decode("utf-8")
 
 
 def _frontmatter_owner(content: str) -> Optional[str]:
@@ -167,9 +202,11 @@ def load_registry(root: Path) -> Tuple[Optional[dict], Optional[str]]:
     if not path.exists():
         return None, f"Module registry not found at: {MODULE_REGISTRY_PATH}"
     try:
-        data = json.loads(path.read_text(encoding="utf-8"))
+        data = json.loads(_read_asset_text(root, MODULE_REGISTRY_PATH))
     except json.JSONDecodeError as exc:
         return None, f"Module registry is malformed JSON: {exc}"
+    except (OSError, UnicodeDecodeError, ValueError) as exc:
+        return None, f"Module registry cannot be read safely: {exc}"
     if not isinstance(data, dict):
         return None, "Module registry must be a JSON object"
     return data, None
@@ -399,30 +436,33 @@ def check_layer_rules(registry: dict) -> List[str]:
 def _first_cycle(adjacency: Dict[str, List[str]]) -> Optional[List[str]]:
     """Return one cycle in the dependency graph, or None if acyclic."""
     WHITE, GRAY, BLACK = 0, 1, 2
-    color: Dict[str, int] = {}
-    stack: List[str] = []
-    cycle_path: List[str] = []
-
-    def visit(node: str) -> bool:
-        color[node] = GRAY
-        stack.append(node)
-        for neighbor in adjacency.get(node, []):
-            if neighbor not in color:
-                color[neighbor] = WHITE
-            if color[neighbor] == GRAY:
-                start = stack.index(neighbor)
-                cycle_path.extend(stack[start:] + [neighbor])
-                return True
-            if color[neighbor] == WHITE and visit(neighbor):
-                return True
-        stack.pop()
-        color[node] = BLACK
-        return False
-
-    for node in adjacency:
-        if color.get(node, WHITE) == WHITE:
-            if visit(node):
-                return cycle_path
+    color: Dict[str, int] = {node: WHITE for node in adjacency}
+    for start in sorted(adjacency):
+        if color.get(start, WHITE) != WHITE:
+            continue
+        path: List[str] = []
+        positions: Dict[str, int] = {}
+        frames: List[Tuple[str, int]] = [(start, 0)]
+        while frames:
+            node, neighbor_index = frames[-1]
+            if color.get(node, WHITE) == WHITE:
+                color[node] = GRAY
+                positions[node] = len(path)
+                path.append(node)
+            neighbors = sorted(adjacency.get(node, []))
+            if neighbor_index >= len(neighbors):
+                frames.pop()
+                color[node] = BLACK
+                positions.pop(node, None)
+                path.pop()
+                continue
+            neighbor = neighbors[neighbor_index]
+            frames[-1] = (node, neighbor_index + 1)
+            neighbor_color = color.get(neighbor, WHITE)
+            if neighbor_color == GRAY:
+                return path[positions[neighbor]:] + [neighbor]
+            if neighbor_color == WHITE:
+                frames.append((neighbor, 0))
     return None
 
 
@@ -493,8 +533,9 @@ def check_frontmatter_ownership(root: Path, registry: dict, assets: Iterable[str
         if not path.exists():
             continue
         try:
-            content = path.read_text(encoding="utf-8")
-        except (OSError, UnicodeDecodeError):
+            content = _read_asset_text(root, asset)
+        except (OSError, UnicodeDecodeError, ValueError) as read_error:
+            errors.append(f"cannot read canonical asset safely: {asset}: {read_error}")
             continue
         declared = _frontmatter_owner(content)
         if declared is not None and declared != expected:
@@ -565,7 +606,7 @@ def _module_by_id(registry: dict, module_id: str) -> Optional[dict]:
     return None
 
 
-def _resolve_asset_owner(registry: dict, asset: str) -> Optional[str]:
+def resolve_asset_owner(registry: dict, asset: str) -> Optional[str]:
     """Map a canonical path to its owning module via registry ownedAssets globs."""
     owners: List[str] = []
     for module in registry.get("modules", []):
@@ -585,7 +626,7 @@ def _owner_map(registry: dict, assets: Iterable[str]) -> Dict[str, Optional[str]
     """Build asset -> owning module (single-owner) once, for O(1) lookups."""
     mapping: Dict[str, Optional[str]] = {}
     for asset in assets:
-        mapping[asset] = _resolve_asset_owner(registry, asset)
+        mapping[asset] = resolve_asset_owner(registry, asset)
     return mapping
 
 
@@ -716,11 +757,15 @@ def _module_references(
                 # declarations, not runtime references.
                 continue
             try:
-                content = _strip_fenced_code(path.read_text(encoding="utf-8"))
-            except (OSError, UnicodeDecodeError):
-                continue
+                content = _strip_fenced_code(_read_asset_text(root, canonical))
+            except (OSError, UnicodeDecodeError, ValueError) as read_error:
+                raise ValueError(
+                    f"cannot read canonical asset safely: {canonical}: {read_error}"
+                ) from read_error
             for match in CANONICAL_RUNTIME_PATH_PATTERN.finditer(content):
-                reference = ".github/" + match.group(0).removeprefix(".github/").rstrip(".,;:")
+                reference = match.group(0).rstrip(".,;:")
+                if not reference.startswith(".github/"):
+                    reference = ".github/" + reference
                 owner = owners.get(reference)
                 if owner:
                     referenced.setdefault(reference, []).append(owner)
@@ -760,9 +805,11 @@ def _module_name_references(
             if canonical.endswith("module-registry.json"):
                 continue
             try:
-                content = _strip_fenced_code(path.read_text(encoding="utf-8"))
-            except (OSError, UnicodeDecodeError):
-                continue
+                content = _strip_fenced_code(_read_asset_text(root, canonical))
+            except (OSError, UnicodeDecodeError, ValueError) as read_error:
+                raise ValueError(
+                    f"cannot read canonical asset safely: {canonical}: {read_error}"
+                ) from read_error
             for name_re in name_patterns:
                 for name_match in name_re.finditer(content):
                     reference = _resolve_name_reference(registry, name_match.group(0), asset_set)
@@ -779,6 +826,7 @@ def check_cross_suite_references(root: Path) -> List[str]:
     or transitively via kernel/capability packs). Also fails on cycles/layer
     violations and on references outside the referencing module's closure.
     """
+    _read_asset_text.cache_clear()
     registry, error = load_registry(root)
     if error:
         return [error]
@@ -793,12 +841,24 @@ def check_cross_suite_references(root: Path) -> List[str]:
         for module in registry.get("modules", [])
         if isinstance(module, dict) and module.get("layer") == "suite"
     )
-    assets = list(canonical_assets(root))
+    try:
+        assets = list(canonical_assets(root))
+    except (OSError, ValueError) as validation_error:
+        return errors + [str(validation_error)]
     owner_map = _owner_map(registry, assets)
     for suite_id in suites:
         closure = _reference_closure(registry, suite_id)
-        refs = dict(_module_references(root, registry, suite_id, owner_map, assets))
-        for reference, ref_owners in _module_name_references(root, registry, suite_id, owner_map, assets).items():
+        try:
+            refs = dict(
+                _module_references(root, registry, suite_id, owner_map, assets)
+            )
+            name_refs = _module_name_references(
+                root, registry, suite_id, owner_map, assets
+            )
+        except (OSError, UnicodeDecodeError, ValueError) as read_error:
+            errors.append(str(read_error))
+            continue
+        for reference, ref_owners in name_refs.items():
             refs.setdefault(reference, []).extend(ref_owners)
         for target, ref_owners in sorted(refs.items()):
             owner = sorted(set(ref_owners))[0] if ref_owners else None
@@ -822,6 +882,7 @@ def check_cross_suite_references(root: Path) -> List[str]:
 def check_unresolved_dependencies(root: Path) -> List[str]:
     """Phase 2 Step 4: any canonical path referenced by an asset not in the
     referencing module's transitive dependency closure is an error."""
+    _read_asset_text.cache_clear()
     registry, error = load_registry(root)
     if error:
         return [error]
@@ -830,12 +891,21 @@ def check_unresolved_dependencies(root: Path) -> List[str]:
     if errors:
         return errors
     errors.extend(check_layer_rules(registry))
+    try:
+        assets = list(canonical_assets(root))
+    except (OSError, ValueError) as validation_error:
+        return errors + [str(validation_error)]
+    owner_map = _owner_map(registry, assets)
     for module in registry.get("modules", []):
         if not isinstance(module, dict):
             continue
         mid = module.get("id")
         closure = _reference_closure(registry, mid)
-        refs = _module_references(root, registry, mid)
+        try:
+            refs = _module_references(root, registry, mid, owner_map, assets)
+        except (OSError, UnicodeDecodeError, ValueError) as read_error:
+            errors.append(str(read_error))
+            continue
         for target, owners in sorted(refs.items()):
             owner = sorted(set(owners))[0] if owners else None
             if owner is None or owner == mid or owner in closure:
@@ -854,6 +924,7 @@ def check_unresolved_dependencies(root: Path) -> List[str]:
 
 def check_ownership(root: Path) -> List[str]:
     """Run schema + ownership checks. Return error messages (empty = valid)."""
+    _read_asset_text.cache_clear()
     registry, error = load_registry(root)
     if error:
         return [error]
@@ -862,7 +933,10 @@ def check_ownership(root: Path) -> List[str]:
     if errors:
         return errors
     errors.extend(check_no_physical_relocation(root))
-    assets = canonical_assets(root)
+    try:
+        assets = canonical_assets(root)
+    except (OSError, ValueError) as validation_error:
+        return errors + [str(validation_error)]
     errors.extend(check_owned_assets_exist(registry, assets))
     errors.extend(check_ownership_closure(registry, assets))
     errors.extend(check_frontmatter_ownership(root, registry, assets))
@@ -876,6 +950,7 @@ def check_dependencies(root: Path) -> List[str]:
     V4: dependency graph acyclic and cross-suite-safe; every canonical runtime
     reference within the referencing module's transitive dependency closure.
     """
+    _read_asset_text.cache_clear()
     registry, error = load_registry(root)
     if error:
         return [error]
@@ -891,6 +966,7 @@ def check_dependencies(root: Path) -> List[str]:
 def check_cross_suite(root: Path) -> List[str]:
     """V9: verify no direct cross-suite dependency (cr-* <-> cg-* without a
     shared capability pack) and acyclic/layer-safe dependency graph."""
+    _read_asset_text.cache_clear()
     registry, error = load_registry(root)
     if error:
         return [error]

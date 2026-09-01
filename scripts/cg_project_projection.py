@@ -196,7 +196,7 @@ def validate_declared_roots(mapping: dict[str, Any]) -> None:
         if roots is None:
             gtp = target.get("generatedTreePath")
             if gtp is not None:
-                errors = generator._validate_repo_relative_path(  # pylint: disable=protected-access
+                errors = generator.validate_repo_relative_path(
                     f"targets[{tid}].generatedTreePath", gtp
                 )
                 if errors:
@@ -213,7 +213,7 @@ def validate_declared_roots(mapping: dict[str, Any]) -> None:
                     f"targets[{tid}].projectRoots.{kind} must be an array"
                 )
             for index, value in enumerate(entries):
-                errors = generator._validate_repo_relative_path(  # pylint: disable=protected-access
+                errors = generator.validate_repo_relative_path(
                     f"targets[{tid}].projectRoots.{kind}[{index}]", value
                 )
                 if errors:
@@ -1007,7 +1007,7 @@ def _staged_entries_from_generation(
     for relative, expected_sha in planned.items():
         if not _is_safe_relative(relative):
             raise ProjectionError(f"journal planned destination is unsafe: {relative!r}")
-        errors = generator._validate_repo_relative_path(  # pylint: disable=protected-access
+        errors = generator.validate_repo_relative_path(
             f"journal planned destination", relative
         )
         if errors:

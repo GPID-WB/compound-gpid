@@ -213,13 +213,13 @@ def _catalog_records(root: Path, closure_globs: list[str], registry: dict) -> li
     rows: list[dict[str, Any]] = []
     for skill in audit.scan_skill_metadata(root):
         candidate = f".github/skills/{skill['id']}/SKILL.md"
-        selected = any(validator._glob_match(pattern, candidate) for pattern in closure_globs)
+        selected = any(validator.glob_match(pattern, candidate) for pattern in closure_globs)
         owner = None
         for module in registry.get("modules", []):
             if not isinstance(module, dict):
                 continue
             if any(
-                isinstance(pattern, str) and validator._glob_match(pattern, candidate)
+                isinstance(pattern, str) and validator.glob_match(pattern, candidate)
                 for pattern in module.get("ownedAssets", [])
             ):
                 owner = module.get("id")

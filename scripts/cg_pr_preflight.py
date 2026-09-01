@@ -53,6 +53,8 @@ NATIVE_PYTEST_FILES = (
     "scripts/tests/test_kilo_coexistence.py",
     "scripts/tests/test_kilo_copy.py",
     "scripts/tests/test_link_projection_order.py",
+    "scripts/tests/test_skill_management_contracts.py",
+    "scripts/tests/test_skill_management_dispatch.py",
     "scripts/tests/test_cg_pr_preflight.py",
     "scripts/tests/test_project_manifest.py",
     "scripts/tests/test_project_projection.py",

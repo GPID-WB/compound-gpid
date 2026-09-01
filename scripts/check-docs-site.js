@@ -59,8 +59,30 @@ async function validateMarkdownLinks(files) {
 
 async function validateSkillsCatalog() {
   const canonicalRoot = path.join(root, ".github", "skills");
+  const registry = JSON.parse(await readFile(path.join(root, ".github", "shared", "module-registry.json"), "utf8"));
+  const modules = new Map(registry.modules.map((module) => [module.id, module]));
+  const loadable = new Set();
+  const visit = (moduleId) => {
+    if (loadable.has(moduleId)) return;
+    loadable.add(moduleId);
+    for (const dependency of modules.get(moduleId)?.dependsOn || []) visit(dependency);
+  };
+  for (const module of registry.modules.filter((item) => item.layer === "suite")) visit(module.id);
+  for (const capability of registry.capabilities || []) visit(capability.owningModule);
+  const ownedPatterns = [...loadable]
+    .flatMap((moduleId) => modules.get(moduleId)?.ownedAssets || []);
+  const isOwned = (pattern, candidate) => {
+    const directory = pattern.endsWith("/");
+    const escaped = pattern.replace(/[.+^${}()|[\]\\]/g, "\\$&")
+      .replaceAll("*", "[^/]*").replaceAll("?", "[^/]");
+    return new RegExp(`^${escaped}${directory ? ".*" : ""}$`).test(candidate);
+  };
   const canonical = new Set((await readdir(canonicalRoot, { withFileTypes: true }))
     .filter((entry) => entry.isDirectory() && entry.name.startsWith("cg-skill-"))
+    .filter((entry) => {
+      const candidate = `.github/skills/${entry.name}/SKILL.md`;
+      return ownedPatterns.some((pattern) => isOwned(pattern, candidate));
+    })
     .map((entry) => entry.name));
   const catalogFiles = ["analysis.md", "development.md", "institutional.md"]
     .map((file) => path.join(docsRoot, "skills", file));

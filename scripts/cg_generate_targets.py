@@ -34,6 +34,7 @@ import json
 import os
 import re
 import stat
+import subprocess
 import unicodedata
 import urllib.parse
 from dataclasses import dataclass
@@ -41,6 +42,7 @@ from pathlib import Path, PurePosixPath
 from typing import Any, Dict, Iterable, Mapping, Optional, Sequence, Tuple
 
 import secure_fs
+from skill_management import paths as path_policy
 
 TARGET_MAPPING_PATH = ".github/shared/target-mapping.json"
 
@@ -57,6 +59,10 @@ def _get_parse_frontmatter():
 
 OWNERSHIP_MANIFEST_NAME = ".compound-gpid-generated.json"
 MAX_OWNERSHIP_MANIFEST_BYTES = 8 * 1024 * 1024
+MAX_SHARED_FILE_BYTES = 4 * 1024 * 1024
+MAX_SHARED_TOTAL_BYTES = 64 * 1024 * 1024
+MAX_SHARED_FILES = 5000
+MAX_SHARED_DEPTH = 32
 OWNERSHIP_POLICY_VERSION = 1
 SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 
@@ -156,41 +162,24 @@ class TargetCommitPlan:
     manifest_expected_state: secure_fs.ExpectedFileState
 
 
-def _portable_path_key(value: str) -> tuple[str, ...]:
+def portable_path_key(value: str) -> tuple[str, ...]:
     """Return a case-insensitive, Unicode-normalized Windows-portable key."""
-    return tuple(
-        unicodedata.normalize("NFC", part).casefold().rstrip(". ")
-        for part in PurePosixPath(value).parts
-    )
+    return path_policy.portable_path_key(value)
+
+
+def validate_repo_relative_path(label: str, value: Any) -> list[str]:
+    """Validate a portable POSIX repository-relative path."""
+    return path_policy.validate_repo_relative_path(label, value)
+
+
+def _portable_path_key(value: str) -> tuple[str, ...]:
+    """Compatibility alias for callers migrating to :func:`portable_path_key`."""
+    return portable_path_key(value)
 
 
 def _validate_repo_relative_path(label: str, value: Any) -> list[str]:
-    """Validate a portable POSIX repository-relative path."""
-    if not isinstance(value, str):
-        return [f"{label}: must be a string"]
-    if not value:
-        return [f"{label}: must not be empty"]
-    errors: list[str] = []
-    if "\x00" in value:
-        errors.append(f"{label}: must not contain NUL")
-    if "\\" in value:
-        errors.append(f"{label}: must use POSIX '/' separators")
-    if value.startswith(("/", "//", "\\\\")) or re.match(r"^[A-Za-z]:", value):
-        errors.append(f"{label}: must be repository-relative, not absolute, drive-qualified, or UNC")
-    parts = value.replace("\\", "/").split("/")
-    if any(part in ("", ".", "..") for part in parts):
-        errors.append(f"{label}: must not contain empty, '.', or traversal components")
-    for part in parts:
-        portable = unicodedata.normalize("NFC", part).casefold().rstrip(". ")
-        forbidden = sorted({character for character in part if ord(character) < 32 or character in '<>:"|?*'})
-        if forbidden:
-            rendered = ", ".join(repr(character) for character in forbidden)
-            errors.append(f"{label}: component '{part}' contains Windows-forbidden characters: {rendered}")
-        if part.endswith((".", " ")):
-            errors.append(f"{label}: component '{part}' has a trailing dot or space")
-        if portable.split(".", 1)[0] in WINDOWS_RESERVED_NAMES:
-            errors.append(f"{label}: component '{part}' is a Windows reserved name")
-    return errors
+    """Compatibility alias for callers migrating to the public path helper."""
+    return validate_repo_relative_path(label, value)
 
 
 def _is_within(path: str, parent: str) -> bool:
@@ -449,11 +438,13 @@ def build_generation_plan(
         raise MappingValidationError("target-mapping.json validation failed:\n- " + "\n- ".join(errors))
     validate_mapping_paths(root, mapping)
     by_target: dict[str, TargetResult] = {}
+    lookups = _build_asset_lookup(assets)
     for target in mapping["targets"]:
         if target.get("generatedTreePath") is None:
             continue
+        render_context = (lookups, _runtime_destination_map(target, assets))
         rendered = tuple(sorted(
-            (_render_output_entry(target, entry, assets)
+            (_render_output_entry(target, entry, assets, render_context)
              for entry in build_output_manifest(target, assets)),
             key=lambda entry: entry.destination,
         ))
@@ -482,21 +473,18 @@ def _validate_output_namespace(
             raise PathSafetyError("; ".join(errors))
         paths.append((_portable_path_key(entry.destination), entry))
 
-    for index, (first_key, first) in enumerate(paths):
-        for second_key, second in paths[index + 1:]:
-            if first_key == second_key:
-                raise ValueError(
-                    f"{target_id} output namespace collision: "
-                    f"{first.destination} and {second.destination}"
-                )
-            if (
-                first_key == second_key[:len(first_key)]
-                or second_key == first_key[:len(second_key)]
-            ):
-                raise ValueError(
-                    f"{target_id} output file/directory namespace conflict: "
-                    f"{first.destination} and {second.destination}"
-                )
+    ordered = sorted(paths, key=lambda item: item[0])
+    for (first_key, first), (second_key, second) in zip(ordered, ordered[1:]):
+        if first_key == second_key:
+            raise ValueError(
+                f"{target_id} output namespace collision: "
+                f"{first.destination} and {second.destination}"
+            )
+        if first_key == second_key[:len(first_key)]:
+            raise ValueError(
+                f"{target_id} output file/directory namespace conflict: "
+                f"{first.destination} and {second.destination}"
+            )
 
 
 # ---------------------------------------------------------------------------
@@ -526,10 +514,6 @@ def _registry_owned_skill_dir_names(root: Path) -> Optional[set[str]]:
     registry = _load_module_registry(root)
     if registry is None:
         return None
-    try:
-        import cg_validate_modules as module_validator
-    except ImportError:
-        return None
     skills_dir = root / ".github/skills"
     names: set[str] = set()
     if not skills_dir.is_dir():
@@ -543,7 +527,7 @@ def _registry_owned_skill_dir_names(root: Path) -> Optional[set[str]]:
         candidate = f".github/skills/{entry.name}/SKILL.md"
         if any(
             isinstance(pattern, str)
-            and module_validator._glob_match(pattern, candidate)
+            and path_policy.glob_match(pattern, candidate)
             for module in registry.get("modules", [])
             if isinstance(module, dict)
             for pattern in module.get("ownedAssets", [])
@@ -560,28 +544,29 @@ def _registry_owned_skill_dir_names(root: Path) -> Optional[set[str]]:
 def _loadable_owned_asset_globs(root: Path, active_suites: Optional[Sequence[str]]) -> Optional[set[str]]:
     """Return owned-asset glob patterns loadable under the active suites.
 
-    When ``active_suites`` is None (no context-budget filtering requested),
-    returns None so the generator scans all registry-owned assets. Otherwise
-    derives the loadable module set via cg_context_budget and returns the
-    union of their owned-asset globs. A missing registry or unknown suite name
-    with filtering requested raises so the operator cannot silently produce an
-    unenforced or empty tree.
+    With a module registry, omitted suites mean all public suites (cg and cr),
+    not every internal module. Repositories without a registry retain the
+    legacy unfiltered fixture behavior. Explicit suites derive the loadable
+    module set through cg_context_budget.
     """
-    if active_suites is None:
+    registry = _load_module_registry(root)
+    if active_suites is None and (
+        registry is None or registry.get("schemaVersion") != 2
+    ):
         return None
+    selected_suites = tuple(active_suites) if active_suites is not None else ("cg", "cr")
     try:
         import cg_context_budget as context
     except ImportError as exc:
         raise ValueError(
             "cg_context_budget.py is required when --active-suites is used"
         ) from exc
-    registry = _load_module_registry(root)
     if registry is None:
         raise ValueError(
             "--active-suites requires module-registry.json at .github/shared; "
             "refusing to generate an unfiltered or empty tree"
         )
-    loadable = context.loadable_modules(registry, list(active_suites))
+    loadable = context.loadable_modules(registry, list(selected_suites))
     ids = {module["id"] for module in loadable}
     return set(context.loadable_asset_globs(registry, ids))
 
@@ -623,12 +608,8 @@ def scan_canonical_assets(
     def _is_loadable(rel_path: str) -> bool:
         if loadable_filter is None:
             return True
-        try:
-            import cg_validate_modules as module_validator
-        except ImportError:
-            return True
         return any(
-            module_validator._glob_match(pattern, rel_path)  # pylint: disable=protected-access
+            path_policy.glob_match(pattern, rel_path)
             for pattern in loadable_filter
         )
 
@@ -649,18 +630,9 @@ def scan_canonical_assets(
         (CANONICAL_SKILLS_GLOB, "skills"),
         (CANONICAL_INSTRUCTIONS_GLOB, "instructions"),
         (".github/prompts/*.md", "prompt_support"),
-        (".github/shared/*", "shared"),
     ]:
         for path in sorted(root.glob(pattern)):
             if category == "prompt_support" and path.name.endswith(".prompt.md"):
-                continue
-            if category == "shared" and path.name.startswith("."):
-                continue
-            if category == "shared" and path.name == "module-registry.json":
-                # The module registry is canonical-source tooling data whose
-                # body contains glob patterns (e.g. ".github/skills/cg-skill-r-*/")
-                # that the runtime-dependency rewriter would misread. It is not
-                # a per-platform runtime shared asset.
                 continue
             if path.is_symlink():
                 raise ValueError(f"Canonical asset is a symlink: {path.relative_to(root)}")
@@ -678,6 +650,59 @@ def scan_canonical_assets(
                 "body": content,
                 "filename": path.name,
             })
+
+    shared_paths = path_policy.inventory_shared_assets(
+        root,
+        include_globs=loadable_filter,
+        max_files=MAX_SHARED_FILES,
+        max_depth=MAX_SHARED_DEPTH,
+    )
+    if len(shared_paths) > MAX_SHARED_FILES:
+        raise ValueError(
+            f"Canonical shared inventory exceeds {MAX_SHARED_FILES} files"
+        )
+    total_shared_bytes = 0
+    for relative_path in shared_paths:
+        if relative_path == ".github/shared/module-registry.json":
+            # Registry glob declarations are canonical tooling data, not runtime
+            # shared content, and must not be dependency-rewritten.
+            continue
+        if not _is_loadable(relative_path):
+            continue
+        relative = PurePosixPath(relative_path)
+        if len(relative.parts) > MAX_SHARED_DEPTH:
+            raise ValueError(
+                f"Canonical shared path exceeds depth {MAX_SHARED_DEPTH}: {relative_path}"
+            )
+        path = root / Path(*relative.parts)
+        content_bytes = secure_fs.secure_read_bytes(
+            root,
+            relative,
+            reject_hardlinks=True,
+            max_bytes=MAX_SHARED_FILE_BYTES,
+        )
+        total_shared_bytes += len(content_bytes)
+        if total_shared_bytes > MAX_SHARED_TOTAL_BYTES:
+            raise ValueError(
+                f"Canonical shared content exceeds {MAX_SHARED_TOTAL_BYTES} bytes"
+            )
+        try:
+            content = content_bytes.decode("utf-8-sig")
+        except UnicodeDecodeError as error:
+            raise ValueError(
+                f"Canonical shared file is not valid UTF-8: {relative_path}"
+            ) from error
+        frontmatter = _get_parse_frontmatter()(content, source=path)
+        shared_relative_path = path.relative_to(root / ".github/shared").as_posix()
+        assets["shared"].append({
+            "path": str(path),
+            "relative_path": relative_path,
+            "frontmatter": frontmatter,
+            "body": content,
+            "content": content_bytes,
+            "filename": path.name,
+            "category_relative_path": shared_relative_path,
+        })
 
     owned_skill_names = _registry_owned_skill_dir_names(root)
     if owned_skill_names is None:
@@ -712,9 +737,14 @@ def scan_canonical_assets(
         if skill_root not in scanned_skill_roots:
             raise ValueError(f"Canonical skill is missing regular SKILL.md: {skill_root.name}")
 
+    git_executables = _git_executable_paths(root)
     for skill in assets["skills"]:
         skill_root = Path(skill["path"]).parent
-        skill["bundle_files"] = _inventory_skill_bundle(root, skill_root)
+        skill["bundle_files"] = _inventory_skill_bundle(
+            root,
+            skill_root,
+            git_executables=git_executables,
+        )
         skill_file = next(
             item for item in skill["bundle_files"]
             if item["bundle_relative_path"] == "SKILL.md"
@@ -729,7 +759,48 @@ def scan_canonical_assets(
     return assets
 
 
-def _inventory_skill_bundle(root: Path, skill_root: Path) -> list[dict[str, Any]]:
+def _git_executable_paths(root: Path) -> Optional[set[str]]:
+    """Return executable paths from the Git index, or None outside Git."""
+    try:
+        top_level = subprocess.run(
+            ["git", "-C", str(root), "rev-parse", "--show-toplevel"],
+            capture_output=True,
+            text=True,
+            timeout=20,
+            check=False,
+            stdin=subprocess.DEVNULL,
+        )
+        if (
+            top_level.returncode != 0
+            or Path(top_level.stdout.strip()).resolve(strict=True) != root.resolve(strict=True)
+        ):
+            return None
+        result = subprocess.run(
+            ["git", "-C", str(root), "ls-files", "--stage", "--", ".github/skills"],
+            capture_output=True,
+            text=True,
+            timeout=20,
+            check=False,
+            stdin=subprocess.DEVNULL,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    if result.returncode != 0:
+        return None
+    executable = set()
+    for line in result.stdout.splitlines():
+        metadata, separator, path = line.partition("\t")
+        if separator and metadata.split(" ", 1)[0] == "100755":
+            executable.add(path.replace("\\", "/"))
+    return executable
+
+
+def _inventory_skill_bundle(
+    root: Path,
+    skill_root: Path,
+    *,
+    git_executables: Optional[set[str]] = None,
+) -> list[dict[str, Any]]:
     """Inventory regular files below a skill without following filesystem links."""
     files: list[dict[str, Any]] = []
 
@@ -754,12 +825,18 @@ def _inventory_skill_bundle(root: Path, skill_root: Path) -> list[dict[str, Any]
                             f"Skill bundle contains Python cache artifact: {relative}"
                         )
                     mode = entry.stat(follow_symlinks=False).st_mode
+                    source_relative = path.relative_to(root).as_posix()
+                    executable = (
+                        source_relative in git_executables
+                        if git_executables is not None
+                        else bool(mode & 0o111)
+                    )
                     files.append({
                         "path": str(path),
-                        "relative_path": path.relative_to(root).as_posix(),
+                        "relative_path": source_relative,
                         "bundle_relative_path": relative,
                         "content": _skill_bundle_content(path),
-                        "executable": bool(mode & 0o111),
+                        "executable": executable,
                     })
                 else:
                     raise ValueError(f"Skill bundle contains non-regular special entry: {relative}")
@@ -919,7 +996,10 @@ def _manifest_passthrough(
     destination_root = target["outputPaths"][root_name]
     return [
         {
-            "path": f"{destination_root}/{asset['filename']}",
+            "path": (
+                f"{destination_root}/"
+                f"{asset.get('category_relative_path', asset['filename'])}"
+            ),
             "source": asset["relative_path"],
             "type": kind,
         }
@@ -1048,7 +1128,8 @@ def _runtime_destination_map(
             f"{paths['instructions']}/{instruction['filename']}"
         )
     for shared in assets["shared"]:
-        destinations[shared["relative_path"]] = f"{paths['shared']}/{shared['filename']}"
+        relative = shared.get("category_relative_path", shared["filename"])
+        destinations[shared["relative_path"]] = f"{paths['shared']}/{relative}"
     for skill in assets["skills"]:
         skill_name = Path(skill["relative_path"]).parent.name
         for item in skill["bundle_files"]:
@@ -1063,9 +1144,11 @@ def _rewrite_runtime_dependencies(
     target: dict[str, Any],
     assets: dict[str, list[dict[str, Any]]],
     source_identity: str,
+    destinations: Optional[Mapping[str, str]] = None,
 ) -> str:
     """Rewrite exact canonical runtime dependencies, rejecting unsafe or missing ones."""
-    destinations = _runtime_destination_map(target, assets)
+    if destinations is None:
+        destinations = _runtime_destination_map(target, assets)
 
     def replace(match: re.Match[str]) -> str:
         raw = match.group(0).rstrip(".,;:")
@@ -1102,9 +1185,16 @@ def _render_output_entry(
     target: dict[str, Any],
     manifest_entry: dict[str, str],
     assets: dict[str, list[dict[str, Any]]],
+    render_context: Optional[
+        Tuple[dict[str, dict[str, dict[str, Any]]], Mapping[str, str]]
+    ] = None,
 ) -> OutputEntry:
     """Render one manifest entry into final bytes without filesystem writes."""
-    lookups = _build_asset_lookup(assets)
+    if render_context is None:
+        lookups = _build_asset_lookup(assets)
+        destinations = _runtime_destination_map(target, assets)
+    else:
+        lookups, destinations = render_context
     kind = manifest_entry["type"]
     source_identity = manifest_entry["source"]
     source = None
@@ -1140,8 +1230,10 @@ def _render_output_entry(
         text = _emit_agent(source, target)
     elif kind == "fallback-agent":
         text = _emit_fallback_agent(source, target)
-    elif kind in ("prompt-support", "instruction", "shared"):
+    elif kind in ("prompt-support", "instruction"):
         text = source["body"]
+    elif kind == "shared":
+        content = source.get("content", source["body"].encode("utf-8"))
     elif kind == "root-adapter":
         text = _emit_root_adapter(target)
     elif kind == "config":
@@ -1149,14 +1241,22 @@ def _render_output_entry(
     else:
         raise ValueError(f"Unsupported output type: {kind}")
 
-    if kind != "skill-resource":
+    if kind not in ("skill-resource", "shared"):
         if kind in ("command", "skill", "agent", "fallback-agent",
-                    "prompt-support", "instruction", "shared"):
-            text = _rewrite_runtime_dependencies(text, target, assets, source_identity)
+                    "prompt-support", "instruction"):
+            text = _rewrite_runtime_dependencies(
+                text, target, assets, source_identity, destinations
+            )
         content = text.encode("utf-8")
-    elif source_identity.casefold().endswith((".md", ".markdown")):
+    elif source_identity.casefold().endswith((".md", ".markdown")) or (
+        kind == "shared"
+        and source_identity.startswith(".github/shared/skill-management/operations/")
+        and source_identity.casefold().endswith(".json")
+    ):
         text = content.decode("utf-8")
-        text = _rewrite_runtime_dependencies(text, target, assets, source_identity)
+        text = _rewrite_runtime_dependencies(
+            text, target, assets, source_identity, destinations
+        )
         content = text.encode("utf-8")
     executable = bool(source.get("executable", False)) if source is not None else False
     return OutputEntry(

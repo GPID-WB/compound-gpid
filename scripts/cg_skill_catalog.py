@@ -151,7 +151,7 @@ def _find_owner(
 ) -> Optional[str]:
     """Find the owning module for a skill path via glob matching."""
     for pattern, module_id in owner_index.items():
-        if validator._glob_match(pattern, skill_path):
+        if validator.glob_match(pattern, skill_path):
             return module_id
     return None
 
@@ -197,7 +197,7 @@ def build_catalog(
         owner = _find_owner(skill_path, owner_idx)
         capability = cap_by_module.get(owner, {}) if owner else {}
         selected = any(
-            validator._glob_match(pattern, skill_path)
+            validator.glob_match(pattern, skill_path)
             for pattern in closure_globs
         )
         inactive_reason = None
@@ -530,13 +530,13 @@ def check_inventory_leaks(
     all_assets = validator.canonical_assets(root)
     active_assets = [
         a for a in all_assets
-        if any(validator._glob_match(pattern, a) for pattern in closure_globs)
+        if any(validator.glob_match(pattern, a) for pattern in closure_globs)
     ]
 
     # Read each active asset and check for references to inactive assets
     inactive_assets = [
         a for a in all_assets
-        if not any(validator._glob_match(pattern, a) for pattern in closure_globs)
+        if not any(validator.glob_match(pattern, a) for pattern in closure_globs)
     ]
     inactive_set = set(inactive_assets)
 
