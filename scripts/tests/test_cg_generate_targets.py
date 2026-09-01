@@ -7,7 +7,9 @@ from __future__ import annotations
 
 import json
 import hashlib
+import os
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -118,6 +120,22 @@ def _make_fixture_repo(tmp_path: Path) -> Path:
 
 
 class TestScanCanonicalAssets:
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "../escape",
+            "/absolute",
+            "C:/drive",
+            "folder/CON.txt",
+            "folder/trailing. ",
+            "folder/bad:name",
+        ],
+    )
+    def test_portable_path_policy_rejects_cross_platform_hazards(
+        self, value: str
+    ) -> None:
+        assert gen.validate_repo_relative_path("fixture", value)
+
     def test_finds_prompts(self, tmp_path: Path) -> None:
         root = _make_fixture_repo(tmp_path)
         assets = gen.scan_canonical_assets(root)
@@ -162,6 +180,175 @@ class TestScanCanonicalAssets:
 
         with pytest.raises(ValueError, match=r"cache|\.pyc"):
             gen.scan_canonical_assets(root)
+
+    def test_nested_shared_resources_are_recursive_and_path_preserving(
+        self, tmp_path: Path
+    ) -> None:
+        root = _make_fixture_repo(tmp_path)
+        contract_source = _write(
+            root / ".github/shared/skill-management/contracts/common.json",
+            '{"kind":"contract"}\n',
+        )
+        _write(
+            root / ".github/shared/skill-management/operations/common.json",
+            '{"contract":".github/shared/skill-management/contracts/common.json",'
+            '"workflow":".github/skills/cg-skill-test/workflows/common.md"}\n',
+        )
+        _write(
+            root / ".github/skills/cg-skill-test/workflows/common.md",
+            "# Common workflow\n",
+        )
+
+        assets = gen.scan_canonical_assets(root)
+        plan = gen.build_generation_plan(root, gen.load_target_mapping(root), assets)
+
+        for target_id, shared_root in {
+            "claude-code": ".claude/shared",
+            "codex": ".agents/shared",
+            "opencode": ".opencode/shared",
+            "kilo": ".kilo/shared",
+        }.items():
+            entries = {
+                entry.destination: entry
+                for entry in plan.by_target[target_id].entries
+                if entry.kind == "shared"
+            }
+            contract = f"{shared_root}/skill-management/contracts/common.json"
+            operation = f"{shared_root}/skill-management/operations/common.json"
+            assert entries[contract].content == contract_source.read_bytes()
+            operation_text = entries[operation].content.decode("utf-8")
+            assert f'{shared_root}/skill-management/contracts/common.json' in operation_text
+            skill_root = {
+                "claude-code": ".claude/skills",
+                "codex": ".agents/skills",
+                "opencode": ".opencode/skills",
+                "kilo": ".kilo/skills",
+            }[target_id]
+            assert f'{skill_root}/cg-skill-test/workflows/common.md' in operation_text
+            assert entries[contract].source.endswith(
+                "skill-management/contracts/common.json"
+            )
+
+    def test_default_source_generation_excludes_internal_management_module(
+        self,
+    ) -> None:
+        repository_root = Path(__file__).resolve().parents[2]
+        assets = gen.scan_canonical_assets(repository_root)
+        assert not any(
+            item["relative_path"].startswith(
+                (
+                    ".github/skills/cg-skill-management/",
+                    ".github/shared/skill-management/",
+                )
+            )
+            for category in assets.values()
+            for item in category
+        )
+
+    @pytest.mark.usefixtures("require_symlink_support")
+    def test_shared_leaf_swap_is_rejected_at_the_secure_read_boundary(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        root = _make_fixture_repo(tmp_path)
+        target = _write(
+            root / ".github/shared/skill-management/contracts/common.json",
+            '{"kind":"contract"}\n',
+        )
+        outside = _write(tmp_path / "outside-secret.json", "secret\n")
+        original = gen.secure_fs.secure_read_bytes
+        swapped = False
+
+        def swap_then_read(read_root, relative_path, **kwargs):
+            nonlocal swapped
+            if str(relative_path).replace("\\", "/").endswith(
+                "skill-management/contracts/common.json"
+            ) and not swapped:
+                target.unlink()
+                target.symlink_to(outside)
+                swapped = True
+            return original(read_root, relative_path, **kwargs)
+
+        monkeypatch.setattr(gen.secure_fs, "secure_read_bytes", swap_then_read)
+        with pytest.raises((OSError, ValueError), match="link|reparse|safe|regular"):
+            gen.scan_canonical_assets(root)
+
+    @pytest.mark.usefixtures("require_symlink_support")
+    def test_nested_shared_directory_link_is_rejected_without_following(
+        self, tmp_path: Path
+    ) -> None:
+        root = _make_fixture_repo(tmp_path)
+        outside = tmp_path / "outside"
+        outside.mkdir()
+        _write(outside / "secret.json", "secret\n")
+        link = root / ".github/shared/skill-management"
+        link.symlink_to(outside, target_is_directory=True)
+
+        with pytest.raises(ValueError, match="link|reparse"):
+            gen.scan_canonical_assets(root)
+
+    @pytest.mark.skipif(
+        os.name == "nt",
+        reason="NTFS maps colon paths to alternate data streams",
+    )
+    def test_unsafe_nested_shared_path_is_rejected(self, tmp_path: Path) -> None:
+        root = _make_fixture_repo(tmp_path)
+        unsafe = root / ".github/shared/skill-management/contracts/bad:name.json"
+        try:
+            _write(unsafe, "{}\n")
+        except OSError:
+            pytest.skip("host filesystem cannot create the unsafe path fixture")
+
+        with pytest.raises(ValueError, match="forbidden|portable|unsafe"):
+            gen.scan_canonical_assets(root)
+
+    def test_nested_hidden_shared_artifact_is_rejected(self, tmp_path: Path) -> None:
+        root = _make_fixture_repo(tmp_path)
+        _write(
+            root / ".github/shared/skill-management/contracts/.local.json",
+            "{}\n",
+        )
+        with pytest.raises(ValueError, match="local artifact"):
+            gen.scan_canonical_assets(root)
+
+    def test_inactive_shared_directory_is_not_traversed_or_counted(
+        self, tmp_path: Path
+    ) -> None:
+        root = _make_fixture_repo(tmp_path)
+        _write(root / ".github/shared/inactive/.local.json", "{}\n")
+        selected = gen.path_policy.inventory_shared_assets(
+            root,
+            include_globs=(".github/shared/runtime-contract.md",),
+            max_files=1,
+            max_depth=1,
+        )
+        assert selected == [".github/shared/runtime-contract.md"]
+        with pytest.raises(ValueError, match="local artifact"):
+            gen.path_policy.inventory_shared_assets(
+                root,
+                include_globs=(".github/shared/inactive/",),
+            )
+
+    def test_git_index_is_the_portable_executable_source(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        root = tmp_path.resolve()
+        calls = []
+
+        def run(arguments, **_kwargs):
+            calls.append(arguments)
+            if "--show-toplevel" in arguments:
+                return SimpleNamespace(returncode=0, stdout=str(root), stderr="")
+            return SimpleNamespace(
+                returncode=0,
+                stdout="100755 abcdef 0\t.github/skills/example/scripts/run.sh\n",
+                stderr="",
+            )
+
+        monkeypatch.setattr(gen.subprocess, "run", run)
+        assert gen._git_executable_paths(root) == {  # pylint: disable=protected-access
+            ".github/skills/example/scripts/run.sh"
+        }
+        assert len(calls) == 2
 
 
 class TestDryRun:

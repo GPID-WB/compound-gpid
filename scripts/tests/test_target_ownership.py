@@ -146,6 +146,25 @@ def test_manifest_entries_record_destination_source_kind_hash_and_executable(tmp
     assert script["executable"] is (os.name != "nt")
 
 
+def test_manifest_records_path_preserved_nested_shared_source(tmp_path: Path) -> None:
+    root = _fixture_repo(tmp_path)
+    _write(
+        root / ".github/shared/skill-management/contracts/request-v1.schema.json",
+        b'{"schema":"fixture"}\n',
+    )
+
+    assert _generate(root) == 0
+
+    entry = _manifest_entry(
+        root,
+        ".claude/shared/skill-management/contracts/request-v1.schema.json",
+    )
+    assert entry["source"] == (
+        ".github/shared/skill-management/contracts/request-v1.schema.json"
+    )
+    assert entry["kind"] == "shared"
+
+
 @pytest.mark.parametrize(
     "mutate",
     [

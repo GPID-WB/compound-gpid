@@ -100,7 +100,22 @@ def _relative_inventory(root: Path) -> set[str]:
 
 
 def _canonical_skills(root: Path = REPO_ROOT) -> tuple[Path, ...]:
+    if root == REPO_ROOT:
+        assets = gen.scan_canonical_assets(root, active_suites=("cg", "cr"))
+        return tuple(
+            sorted(Path(item["path"]).parent for item in assets["skills"])
+        )
     return tuple(sorted(path for path in (root / ".github/skills").glob("*") if path.is_dir()))
+
+
+def test_internal_management_skill_is_not_in_current_public_generated_trees() -> None:
+    management = "cg-skill-management"
+    assert (REPO_ROOT / ".github/skills" / management / "SKILL.md").is_file()
+    for skill_root in TARGET_SKILL_ROOTS.values():
+        generated = REPO_ROOT / skill_root / management
+        assert not generated.exists() or not any(
+            path.is_file() for path in generated.rglob("*")
+        )
 
 
 def _local_markdown_targets(markdown: Path, bundle_root: Path) -> tuple[Path, ...]:

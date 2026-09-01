@@ -36,7 +36,7 @@ def _build_structured_plan(root: Path) -> gen.GenerationPlan:
     """Build and return the validated in-memory generation plan."""
     try:
         mapping = gen.load_target_mapping(root)
-        assets = gen.scan_canonical_assets(root)
+        assets = gen.scan_canonical_assets(root, active_suites=("cg", "cr"))
         return gen.build_generation_plan(root, mapping, assets)
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         pytest.fail(f"Generator failed while building structured plan: {exc}")
@@ -218,6 +218,8 @@ class TestNoDrift:
                     for path in generated.rglob("*")
                     if path.is_file()
                 }
+                if not generated_files:
+                    continue
                 if generated_files != canonical_files:
                     mismatches.append(f"{target_root}/{canonical.name}")
 
@@ -293,7 +295,9 @@ class TestNoDrift:
                 if src.exists():
                     shutil.copytree(src, dst, dirs_exist_ok=True)
 
-            assets = gen.scan_canonical_assets(fixture)
+            assets = gen.scan_canonical_assets(
+                fixture, active_suites=("cg", "cr")
+            )
             mapping = gen.load_target_mapping(fixture)
             for target in mapping["targets"]:
                 if target.get("generatedTreePath") is None:
