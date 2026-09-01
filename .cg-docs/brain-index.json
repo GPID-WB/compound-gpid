@@ -1,5 +1,5 @@
 {
-  "edge_count": 322,
+  "edge_count": 327,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -473,6 +473,12 @@
       "edge_type": "decided_from",
       "source": ".cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md",
       "target": ".cg-docs/brainstorms/2026-08-13-skill-loading-architecture-context-efficiency.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-08-28-scalable-skill-management-suite.md",
+      "target": ".cg-docs/brainstorms/2026-08-28-scalable-skill-management-suite.md",
       "target_missing": false
     },
     {
@@ -1418,6 +1424,18 @@
       "target_missing": false
     },
     {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-08-28-scalable-skill-management-suite-review.md",
+      "target": ".cg-docs/plans/2026-08-28-scalable-skill-management-suite.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-08-28-scalable-skill-management-suite-verify-review.md",
+      "target": ".cg-docs/reviews/2026-08-28-scalable-skill-management-suite-review.md",
+      "target_missing": false
+    },
+    {
       "edge_type": "references",
       "source": ".cg-docs/solutions/environment-issues/2026-06-23-cross-agent-adapters-are-opt-in-source-packages.md",
       "target": ".cg-docs/plans/2026-06-23-cross-agent-packaging-adapters.md",
@@ -1778,6 +1796,12 @@
       "target_missing": false
     },
     {
+      "edge_type": "references",
+      "source": ".cg-docs/brainstorms/2026-08-28-scalable-skill-management-suite.md",
+      "target": ".cg-docs/plans/2026-08-28-scalable-skill-management-suite.md",
+      "target_missing": false
+    },
+    {
       "edge_type": "implements",
       "source": ".cg-docs/plans/2026-04-06-review-finding-status-tracking.md",
       "target": "roadmap.json#review-finding-status-tracking",
@@ -1931,6 +1955,12 @@
       "edge_type": "implements",
       "source": ".cg-docs/plans/2026-07-30-user-selected-model-advisory-routing.md",
       "target": "roadmap.json#user-selected-execution-with-advisory-model-and-effort-routing",
+      "target_missing": false
+    },
+    {
+      "edge_type": "implements",
+      "source": ".cg-docs/plans/2026-08-28-scalable-skill-management-suite.md",
+      "target": "roadmap.json#scalable-skill-management-suite",
       "target_missing": false
     }
   ],
@@ -3540,6 +3570,39 @@
       ]
     },
     {
+      "date": "2026-08-28",
+      "entity_type": "brainstorm",
+      "path": ".cg-docs/brainstorms/2026-08-28-scalable-skill-management-suite.md",
+      "slug": "2026-08-28-scalable-skill-management-suite",
+      "status": "decided",
+      "summary": "<!-- Valid status values: decided, in-progress, abandoned -->",
+      "tags": [
+        "skills",
+        "architecture",
+        "lifecycle",
+        "security",
+        "registry",
+        "manifests",
+        "projections",
+        "cross-platform",
+        "documentation",
+        "testing"
+      ],
+      "title": "Scalable Skill Management Suite",
+      "top_keywords": [
+        "cg-skill",
+        "cg-skill-management",
+        "phase",
+        "help",
+        "/cg-skill",
+        "skill.md",
+        "skill",
+        "security",
+        "release",
+        "tests"
+      ]
+    },
+    {
       "date": "2026-04-23",
       "entity_type": "review",
       "path": ".cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md",
@@ -3765,7 +3828,7 @@
         "powershell",
         "batch-wrappers"
       ],
-      "title": "Fix CLM/OneDrive profile dot-source error — batch wrappers + C:\\\\WBG install",
+      "title": "Fix CLM/OneDrive profile dot-source error — batch wrappers + C:\\WBG install",
       "top_keywords": [
         "install.ps1",
         ".cmd",
@@ -6932,6 +6995,39 @@
         "cg_kilo_preflight.py",
         "last-run.json",
         "head"
+      ]
+    },
+    {
+      "date": "2026-08-28",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-08-28-scalable-skill-management-suite.md",
+      "slug": "2026-08-28-scalable-skill-management-suite",
+      "status": "active",
+      "summary": "Build one role-gated `/cg-skill` command that manages the complete skill lifecycle without becoming one large prompt or Python script. Use explicit operation descriptors, workflows, contracts, and modules; reuse focused domain services; support permanent and project-specific skills; and verify every selected platform through deterministic, fail-closed plan/apply transactions.",
+      "tags": [
+        "skills",
+        "architecture",
+        "lifecycle",
+        "security",
+        "registry",
+        "manifests",
+        "projections",
+        "cross-platform",
+        "documentation",
+        "testing"
+      ],
+      "title": "Scalable Skill Management Suite",
+      "top_keywords": [
+        "test scenarios",
+        "cg-skill-management",
+        "implement",
+        "phase",
+        "selectedprojectskills",
+        "cg-skill",
+        "test_project_projection.py",
+        "test_project_manifest.py",
+        "project-local",
+        "scripts/skill_management/services/provenance.py"
       ]
     },
     {
@@ -10829,6 +10925,50 @@
       ]
     },
     {
+      "date": "2026-08-30",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-08-28-scalable-skill-management-suite-review.md",
+      "slug": "2026-08-28-scalable-skill-management-suite-review",
+      "status": "",
+      "summary": "**Requested mode**: `mode:verify` **Resolved mode**: `full` -- no prior standard review had fixed findings, so verification mode fell back to deterministic schema/security-risk routing. **Files reviewed**: 34 changed and untracked files **Findings**: 37 (P0: 3, P1: 18, P2: 14, P3: 2)",
+      "tags": [],
+      "title": "2026-08-28-scalable-skill-management-suite-review",
+      "top_keywords": [
+        "contracts.py",
+        "cg_validate_modules.py",
+        "cg_generate_targets.py",
+        "cg_skill.py",
+        "review",
+        "recursionerror",
+        "scripts/cg_generate_targets.py:689",
+        "scripts/skill_management/contracts.py:607",
+        "2026-08-28-scalable-skill-management-suite.md",
+        "context.py"
+      ]
+    },
+    {
+      "date": "2026-08-31",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-08-28-scalable-skill-management-suite-verify-review.md",
+      "slug": "2026-08-28-scalable-skill-management-suite-verify-review",
+      "status": "",
+      "summary": "**Review mode**: light verification **Parent review**: `.cg-docs/reviews/2026-08-28-scalable-skill-management-suite-review.md` **Files reviewed**: current changed and untracked Phase 1 implementation files **Findings**: 15 (P0: 3, P1: 11, P2: 1)",
+      "tags": [],
+      "title": "2026-08-28-scalable-skill-management-suite-verify-review",
+      "top_keywords": [
+        "contracts.py",
+        "verification",
+        "2026-08-28-scalable-skill-management-suite-review.md",
+        "cg_skill.py",
+        "phase",
+        "review",
+        "automation",
+        "suppressed",
+        "sourcerevision",
+        "scalable"
+      ]
+    },
+    {
       "date": "2026-08-17",
       "entity_type": "solution",
       "path": ".cg-docs/solutions/architecture/2026-08-17-capability-router-hard-stop.md",
@@ -13047,6 +13187,97 @@
         "2026-08-06-kilo-agent-skill-parsing-failures.md",
         "2026-08-11-windows-link-kilo-copy-directory-parse-failure.md",
         "skills"
+      ]
+    },
+    {
+      "date": "2026-08-21",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/bugs/2026-08-21-cg-link-singular-platform-flag.md",
+      "slug": "2026-08-21-cg-link-singular-platform-flag",
+      "status": "",
+      "summary": "On version `v1.2.0.9006`, running `cg-link --platform kilo` produced warnings that `--platform` and `kilo` were unrecognized, then linked every supported platform instead of only Kilo.",
+      "tags": [
+        "cg-link",
+        "platform",
+        "platforms",
+        "kilo",
+        "argument-parser",
+        "bash",
+        "powershell"
+      ],
+      "title": "cg-link ignored singular --platform flag",
+      "top_keywords": [
+        "--platform",
+        "cg-link",
+        "platform",
+        "test",
+        "edge-case-gap",
+        "cg-link --platform kilo",
+        "--platforms",
+        "kilo",
+        "singular",
+        "ignored"
+      ]
+    },
+    {
+      "date": "2026-08-26",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/bugs/2026-08-26-release-drift-ignore-checks-spawn-thousands-of-git-processes.md",
+      "slug": "2026-08-26-release-drift-ignore-checks-spawn-thousands-of-git-processes",
+      "status": "",
+      "summary": "The `/cg-release` packaging gate took more than 20 minutes in the full workflow. The native packaging test portion alone took 405.57 seconds, delaying release confirmation and increasing the chance that the shell timeout would trigger a redundant rerun.",
+      "tags": [
+        "release",
+        "performance",
+        "git",
+        "check-ignore",
+        "subprocess",
+        "drift-gate",
+        "prerelease"
+      ],
+      "title": "Release drift ignore checks spawn thousands of Git processes",
+      "top_keywords": [
+        "release",
+        "git",
+        "test",
+        "dev",
+        "missing-test",
+        "prerelease -> dev",
+        "drift",
+        "ignore",
+        "thousands",
+        "spawn"
+      ]
+    },
+    {
+      "date": "2026-08-31",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/bugs/2026-08-31-trust-anchor-captured-byte-dispatch.md",
+      "slug": "2026-08-31-trust-anchor-captured-byte-dispatch",
+      "status": "",
+      "summary": "The private skill-management dispatcher used local Git origin and branch data to grant maintainer authority. A fixture could create unrelated history, assign the canonical origin string, create a local `origin/main` reference, and receive the maintainer role. Handler dispatch had a second boundary error. The dispatcher imported a module and only then checked `module.__file__`. Python executes module-level code during import, so a wrong, linked, swapped, or preloaded module could run before the origin check rejected it. Module validation also inventoried files safely and then reopened their pathnames for content scans.",
+      "tags": [
+        "security",
+        "trust-anchor",
+        "dynamic-dispatch",
+        "nofollow",
+        "hardlink",
+        "toctou",
+        "git",
+        "contracts"
+      ],
+      "title": "Trusted dispatch requires immutable anchors and captured bytes",
+      "top_keywords": [
+        "bytes",
+        "immutable",
+        "captured",
+        "trusted",
+        "dispatch",
+        "requires",
+        "anchors",
+        "consumer",
+        "problem",
+        "root"
       ]
     },
     {
@@ -18525,6 +18756,50 @@
     {
       "date": "",
       "entity_type": "feature",
+      "path": "roadmap.json#scalable-skill-management-suite",
+      "slug": "scalable-skill-management-suite",
+      "status": "active",
+      "summary": "Scalable Skill Management Suite",
+      "tags": [],
+      "title": "Scalable Skill Management Suite",
+      "top_keywords": [
+        "scalable skill management suite\nmilestone",
+        "skills enhancement\nobjective",
+        "scalable",
+        "skill",
+        "management",
+        "suite",
+        "skills",
+        "feature",
+        "milestone",
+        "enhancement"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#project-authored-skills",
+      "slug": "project-authored-skills",
+      "status": "idea",
+      "summary": "Project-authored skills",
+      "tags": [],
+      "title": "Project-authored skills",
+      "top_keywords": [
+        "skills enhancement\nobjective",
+        "skills",
+        "project-authored",
+        "feature",
+        "milestone",
+        "enhancement",
+        "objective",
+        "deepen",
+        "language",
+        "analytical"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
       "path": "roadmap.json#skill-description-consistency-audit",
       "slug": "skill-description-consistency-audit",
       "status": "idea",
@@ -21427,13 +21702,13 @@
       ]
     }
   ],
-  "entity_count": 747,
-  "generated": "2026-08-21",
+  "entity_count": 756,
+  "generated": "2026-08-31",
   "schema_version": "0.2.0",
-  "topic_count": 6,
+  "topic_count": 5,
   "topics": [
     {
-      "entity_count": 517,
+      "entity_count": 528,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -21487,6 +21762,7 @@
         ".cg-docs/brainstorms/2026-08-02-cr-work-gpt-5-6-luna.md",
         ".cg-docs/brainstorms/2026-08-12-automated-documentation-deployment.md",
         ".cg-docs/brainstorms/2026-08-13-skill-loading-architecture-context-efficiency.md",
+        ".cg-docs/brainstorms/2026-08-28-scalable-skill-management-suite.md",
         ".cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-gsd-2-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-superpowers-full-review.md",
@@ -21603,6 +21879,7 @@
         ".cg-docs/plans/2026-08-12-automated-documentation-deployment.md",
         ".cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md",
         ".cg-docs/plans/2026-08-21-pr-ci-preflight-and-kilo-capability-gates.md",
+        ".cg-docs/plans/2026-08-28-scalable-skill-management-suite.md",
         ".cg-docs/plans/phase2-model-governance-cleanup.md",
         ".cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md",
         ".cg-docs/reviews/2026-04-01-cg-strategy-and-roadmap-fix-review.md",
@@ -21805,6 +22082,7 @@
         ".cg-docs/solutions/bugs/2026-06-12-roadmap-milestone-missing-objective-field.md",
         ".cg-docs/solutions/bugs/2026-06-25-install-self-copy-wrapper-crash.md",
         ".cg-docs/solutions/bugs/2026-07-16-update-legacy-profile-wrapper-remediation.md",
+        ".cg-docs/solutions/bugs/2026-08-01-secure-publication-rollback-must-not-clobber.md",
         ".cg-docs/solutions/bugs/2026-08-03-generic-publisher-secure-deletion-and-cross-platform-gates.md",
         ".cg-docs/solutions/bugs/2026-08-04-evidence-capture-axe-audit-call-site-wiring.md",
         ".cg-docs/solutions/bugs/2026-08-05-kilo-markdown-source-permission.md",
@@ -21812,6 +22090,9 @@
         ".cg-docs/solutions/bugs/2026-08-11-windows-link-kilo-copy-directory-parse-failure.md",
         ".cg-docs/solutions/bugs/2026-08-14-pages-immutable-ref-gate-rejects-dev-series-pre-release-tags.md",
         ".cg-docs/solutions/bugs/2026-08-20-kilo-cross-adapter-skill-autodiscovery.md",
+        ".cg-docs/solutions/bugs/2026-08-21-cg-link-singular-platform-flag.md",
+        ".cg-docs/solutions/bugs/2026-08-26-release-drift-ignore-checks-spawn-thousands-of-git-processes.md",
+        ".cg-docs/solutions/bugs/2026-08-31-trust-anchor-captured-byte-dispatch.md",
         ".cg-docs/solutions/build-errors/2026-03-04-get-item-target-is-string-array.md",
         ".cg-docs/solutions/build-errors/2026-03-04-powershell-dollar-dollar-is-not-pid.md",
         ".cg-docs/solutions/build-errors/2026-03-13-backslash-quote-in-powershell-string-breaks-percent-operator.md",
@@ -21832,6 +22113,7 @@
         ".cg-docs/solutions/environment-issues/2026-06-06-codex-claude-code-cg-prompt-dispatch-adapter.md",
         ".cg-docs/solutions/environment-issues/2026-06-23-cross-agent-adapters-are-opt-in-source-packages.md",
         ".cg-docs/solutions/environment-issues/2026-07-03-cross-agent-native-platform-trees-require-generator-drift-tests-consistent-python.md",
+        ".cg-docs/solutions/environment-issues/2026-08-14-kilo-contained-launch-and-no-follow-copy.md",
         ".cg-docs/solutions/environment-issues/2026-08-17-manifest-driven-install-gate-prevents-junction-conflicts.md",
         ".cg-docs/solutions/git-workflows/2026-03-04-git-pull-stderr-swallowed-by-redirect.md",
         ".cg-docs/solutions/git-workflows/2026-03-05-ps51-stderr-stop-terminates-on-git-informational-output.md",
@@ -21848,11 +22130,13 @@
         ".cg-docs/solutions/git-workflows/2026-08-21-pr-ci-preflight-native-target-kilo-capability-gates.md",
         ".cg-docs/solutions/performance-issues/2026-03-18-grp-precomputation-for-multi-aggregation.md",
         ".cg-docs/solutions/performance-issues/2026-04-07-model-audit-classification.md",
+        ".cg-docs/solutions/security/2026-08-17-tar-slip-toctou-dos-quarantine-pipeline.md",
         ".cg-docs/solutions/testing-patterns/2026-03-02-prompt-file-permission-guardrails.md",
         ".cg-docs/solutions/testing-patterns/2026-03-04-add-if-missing-creates-duplicate-config-headers.md",
         ".cg-docs/solutions/testing-patterns/2026-03-04-pester-3-vs-5-windows-compatibility.md",
         ".cg-docs/solutions/testing-patterns/2026-03-04-pester-testdrive-follows-junctions-freezes-vscode.md",
         ".cg-docs/solutions/testing-patterns/2026-03-13-regression-test-trycatch-guard-clm-environment.md",
+        ".cg-docs/solutions/testing-patterns/2026-03-17-httpx-async-client-asgi-transport.md",
         ".cg-docs/solutions/testing-patterns/2026-03-19-testing-powershell-switch-parameters.md",
         ".cg-docs/solutions/testing-patterns/2026-03-30-derived-invariant-validation-in-schema-tests.md",
         ".cg-docs/solutions/testing-patterns/2026-03-30-do-not-delegate-file-write-guardrail.md",
@@ -21892,6 +22176,7 @@
         ".cg-docs/solutions/testing-patterns/2026-05-06-cross-prompt-user-journey-must-be-validated-end-to-end.md",
         ".cg-docs/solutions/testing-patterns/2026-05-06-html-comment-as-fix-never-executed.md",
         ".cg-docs/solutions/testing-patterns/2026-05-06-pester-caret-anchor-requires-multiline-flag.md",
+        ".cg-docs/solutions/testing-patterns/2026-05-07-ps51-python-c-heredoc-unreliable-use-temp-file.md",
         ".cg-docs/solutions/testing-patterns/2026-05-12-source-scanning-regression-guard-for-scripting-anti-patterns.md",
         ".cg-docs/solutions/testing-patterns/2026-05-13-ci-bypass-flag-force-yes-interactive-scripts.md",
         ".cg-docs/solutions/testing-patterns/2026-05-13-cross-script-parity-tests-ps1-sh.md",
@@ -21930,6 +22215,7 @@
         ".cg-docs/solutions/testing-patterns/2026-06-23-token-dashboard-regression-check.md",
         ".cg-docs/solutions/testing-patterns/2026-07-24-cross-file-contract-state-must-align-docs-validator-tests.md",
         ".cg-docs/solutions/testing-patterns/2026-07-24-positive-validator-fixtures-must-avoid-placeholder-evidence.md",
+        ".cg-docs/solutions/testing-patterns/2026-07-28-handle-relative-filesystem-mutations-and-real-boundary-tests.md",
         ".cg-docs/solutions/testing-patterns/2026-07-29-get-toolslist-over-tools-regex.md",
         ".cg-docs/solutions/testing-patterns/2026-07-29-pester-context-scope-frontmatter-guard.md",
         ".cg-docs/solutions/testing-patterns/2026-07-30-review-routing-contract-changes-must-update-all-entry-points-and-coverage-layers.md",
@@ -21962,7 +22248,7 @@
       "slug": "roadmap-json-test-scenarios-prompt-tools-tests-ps1"
     },
     {
-      "entity_count": 151,
+      "entity_count": 153,
       "entity_paths": [
         "roadmap.json#cg-fix-problems-agent",
         "roadmap.json#cg-fix-problems-prompt",
@@ -21983,6 +22269,8 @@
         "roadmap.json#structural-pester-crash-prevention",
         "roadmap.json#r-dialect-skills-architecture",
         "roadmap.json#tidymodels-addition",
+        "roadmap.json#scalable-skill-management-suite",
+        "roadmap.json#project-authored-skills",
         "roadmap.json#skill-description-consistency-audit",
         "roadmap.json#testing-skill-python",
         "roadmap.json#testing-skill-stata",
@@ -22142,23 +22430,6 @@
       ],
       "label": "Expand Compound Research / Responsible Research Partner\nObjective / Measurement",
       "slug": "expand-compound-research-responsible-research-partner-objective-measurement"
-    },
-    {
-      "entity_count": 5,
-      "entity_paths": [
-        ".cg-docs/solutions/bugs/2026-08-01-secure-publication-rollback-must-not-clobber.md",
-        ".cg-docs/solutions/security/2026-08-17-tar-slip-toctou-dos-quarantine-pipeline.md",
-        ".cg-docs/solutions/testing-patterns/2026-03-17-httpx-async-client-asgi-transport.md",
-        ".cg-docs/solutions/testing-patterns/2026-05-07-ps51-python-c-heredoc-unreliable-use-temp-file.md",
-        ".cg-docs/solutions/testing-patterns/2026-07-28-handle-relative-filesystem-mutations-and-real-boundary-tests.md"
-      ],
-      "keywords": [
-        "tests",
-        "root",
-        "related"
-      ],
-      "label": "Tests / Root / Related",
-      "slug": "tests-root-related"
     },
     {
       "entity_count": 4,

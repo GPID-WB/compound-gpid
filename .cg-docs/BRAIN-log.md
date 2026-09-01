@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-08-21 · 589 artifacts (newest first) + 158 roadmap features_
+_Generated 2026-08-31 · 596 artifacts (newest first) + 160 roadmap features_
 
 ## undated
 
@@ -127,12 +127,38 @@ _Generated 2026-08-21 · 589 artifacts (newest first) + 158 roadmap features_
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
 
+## 2026-08-31
+
+- **[2026-08-28-scalable-skill-management-suite-verify-review](.cg-docs/reviews/2026-08-28-scalable-skill-management-suite-verify-review.md)** · `review` · _—_ · `2026-08-31`
+  > **Review mode**: light verification **Parent review**: `.cg-docs/reviews/2026-08-28-scalable-skill-management-suite-r…
+- **[Trusted dispatch requires immutable anchors and captured bytes](.cg-docs/solutions/bugs/2026-08-31-trust-anchor-captured-byte-dispatch.md)** · `solution` · _—_ · `2026-08-31`
+  > The private skill-management dispatcher used local Git origin and branch data to grant maintainer authority. A fixtur…
+
+## 2026-08-30
+
+- **[2026-08-28-scalable-skill-management-suite-review](.cg-docs/reviews/2026-08-28-scalable-skill-management-suite-review.md)** · `review` · _—_ · `2026-08-30`
+  > **Requested mode**: `mode:verify` **Resolved mode**: `full` -- no prior standard review had fixed findings, so verifi…
+
+## 2026-08-28
+
+- **[Scalable Skill Management Suite](.cg-docs/brainstorms/2026-08-28-scalable-skill-management-suite.md)** · `brainstorm` · _decided_ · `2026-08-28`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[Scalable Skill Management Suite](.cg-docs/plans/2026-08-28-scalable-skill-management-suite.md)** · `plan` · _active_ · `2026-08-28`
+  > Build one role-gated `/cg-skill` command that manages the complete skill lifecycle without becoming one large prompt …
+
+## 2026-08-26
+
+- **[Release drift ignore checks spawn thousands of Git processes](.cg-docs/solutions/bugs/2026-08-26-release-drift-ignore-checks-spawn-thousands-of-git-processes.md)** · `solution` · _—_ · `2026-08-26`
+  > The `/cg-release` packaging gate took more than 20 minutes in the full workflow. The native packaging test portion al…
+
 ## 2026-08-21
 
 - **[2026-08-21-pr-ci-preflight-and-kilo-capability-gates-verify-review](.cg-docs/reviews/2026-08-21-pr-ci-preflight-and-kilo-capability-gates-verify-review.md)** · `review` · _—_ · `2026-08-21`
   > - **Review mode**: verify (light-only) - **Parent review**: `.cg-docs/reviews/2026-08-13-manifest-driven-skill-loadin…
 - **[Authoritative PR preflight prevents native-target and Kilo capability reruns](.cg-docs/solutions/git-workflows/2026-08-21-pr-ci-preflight-native-target-kilo-capability-gates.md)** · `solution` · _—_ · `2026-08-21`
   > PR #141 exposed several failures that local guidance did not catch before a remote run: interpreter cache files could…
+- **[cg-link ignored singular --platform flag](.cg-docs/solutions/bugs/2026-08-21-cg-link-singular-platform-flag.md)** · `solution` · _—_ · `2026-08-21`
+  > On version `v1.2.0.9006`, running `cg-link --platform kilo` produced warnings that `--platform` and `kilo` were unrec…
 - **[Prevent PR CI reruns with native-target and Kilo capability preflights](.cg-docs/plans/2026-08-21-pr-ci-preflight-and-kilo-capability-gates.md)** · `plan` · _completed_ · `2026-08-21`
   > Make `/cg-commit-push-pr` and `/cg-verify-pr` stop release-critical native-target, module-closure, Kilo-host, PR-base…
 
@@ -1422,7 +1448,7 @@ _Generated 2026-08-21 · 589 artifacts (newest first) + 158 roadmap features_
   > On WBG enterprise machines, calling `[Environment]::GetEnvironmentVariable` or `[Environment]::SetEnvironmentVariable…
 - **[Fix CLM/OneDrive profile dot-source error](.cg-docs/brainstorms/2026-03-13-clm-onedrive-install-fix.md)** · `brainstorm` · _decided_ · `2026-03-13`
   > After a OneDrive Documents folder redirection was pushed to World Bank machines, `$PROFILE` now resolves to an OneDri…
-- **[Fix CLM/OneDrive profile dot-source error — batch wrappers + C:\\WBG install](.cg-docs/plans/2026-03-13-clm-onedrive-install-fix.md)** · `plan` · _completed_ · `2026-03-13`
+- **[Fix CLM/OneDrive profile dot-source error — batch wrappers + C:\WBG install](.cg-docs/plans/2026-03-13-clm-onedrive-install-fix.md)** · `plan` · _completed_ · `2026-03-13`
   > Replace the broken `$PROFILE`-based command registration with `.cmd` batch wrappers on PATH, and change the default i…
 - **[Regression test for try/catch control-flow guards when script cannot be executed](.cg-docs/solutions/testing-patterns/2026-03-13-regression-test-trycatch-guard-clm-environment.md)** · `solution` · _—_ · `2026-03-13`
   > A PS5.1 bug (`ErrorActionPreference=Stop` promoting git stderr to a terminating error) was fixed in `update.ps1` by w…
@@ -1663,6 +1689,8 @@ _Generated 2026-08-21 · 589 artifacts (newest first) + 158 roadmap features_
   > Planning-stage test strategy + human review facilitation
 - **[PR verification pipeline \(E2E smoke tests, parity checks, CONTRIBUTING.md\)](roadmap.json#pr-verification-pipeline)** · `feature` · _done_ · `—`
   > PR verification pipeline (E2E smoke tests, parity checks, CONTRIBUTING.md)
+- **[Project-authored skills](roadmap.json#project-authored-skills)** · `feature` · _idea_ · `—`
+  > Project-authored skills
 - **[compound-gpid.context.md file and Step 0 integration in all prompts](roadmap.json#project-context-file)** · `feature` · _done_ · `—`
   > compound-gpid.context.md file and Step 0 integration in all prompts
 - **[Project scanner agent for deep project analysis](roadmap.json#project-scanner-agent)** · `feature` · _done_ · `—`
@@ -1697,6 +1725,8 @@ _Generated 2026-08-21 · 589 artifacts (newest first) + 158 roadmap features_
   > Roadmap visualization agent + /cg-roadmap-view prompt
 - **[Runtime model-catalog introspection across platforms](roadmap.json#runtime-model-catalog-introspection-across-platforms)** · `feature` · _idea_ · `—`
   > Runtime model-catalog introspection across platforms
+- **[Scalable Skill Management Suite](roadmap.json#scalable-skill-management-suite)** · `feature` · _active_ · `—`
+  > Scalable Skill Management Suite
 - **[Schema bypass for compound-gpid repo in /cg-resume](roadmap.json#schema-bypass-in-cg-resume)** · `feature` · _done_ · `—`
   > Schema bypass for compound-gpid repo in /cg-resume
 - **[Consent-based handoff from /cg-setup to /cg-workflow-builder](roadmap.json#setup-workflow-builder-handoff)** · `feature` · _idea_ · `—`
