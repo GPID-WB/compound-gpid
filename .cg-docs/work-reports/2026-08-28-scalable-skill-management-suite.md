@@ -125,7 +125,7 @@ status: active
 | V17 | passed | 8 focused removal tests passed; 12 removal/attestation tests passed |
 | V18 | passed | 15 documentation/descriptor completeness tests passed |
 | V19 | partial | Candidate pages and site checks pass; public navigation is intentionally not staged |
-| V21 | blocked | Local native preflight and full Pester pass, but no CI run exists for the uncommitted candidate tree |
+| V21 | retrying | Exact-tree CI run 33558695577 failed one cross-platform message-contract test; targeted fix and local full native gate passed |
 | Phase 2 gate | passed | Safe Pester runner: 2,606 passed, 0 failed, 2 skipped, `filteredFiles: null` |
 | Phase 3 gate | passed | Safe Pester runner: 2,616 passed, 0 failed, 2 skipped, `filteredFiles: null` |
 | Phase 4 gate | passed | Safe Pester runner: 2,616 passed, 0 failed, 2 skipped, `filteredFiles: null` |
@@ -165,6 +165,10 @@ status: active
 - The only successful branch CI run is for SHA `6c3467b060bd83c8a4bd0731d3e213033d769aad`, before the Phase 2-7 candidate changes and before the Ubuntu/Python 3.8 jobs existed.
 - The user authorized an intermediate checkpoint commit and push. Phase 7 will
   resume only after exact-tree CI completes successfully.
+- Exact-tree CI run 33558695577 failed because the bundle validator reported
+  `link or reparse point` while the established test contract requires the
+  explicit term `symlink`. The corrected message passed 14 focused packaging
+  tests and the local full native gate; a second exact-tree CI run is pending.
 - Step 19 public registration, old-command removal, V20-V25 final evidence, and plan completion remain blocked.
 
 ### Remaining Uncertainty

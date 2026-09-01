@@ -562,7 +562,7 @@ def inventory_bundle(
             metadata = entry.stat(follow_symlinks=False)
             if _is_link_or_reparse(metadata):
                 raise BundleValidationError(
-                    f"Skill bundle contains a link or reparse point: {bundle_path}"
+                    f"Skill bundle contains a symlink or reparse point: {bundle_path}"
                 )
             if stat.S_ISDIR(metadata.st_mode):
                 if entry.name == "__pycache__":
