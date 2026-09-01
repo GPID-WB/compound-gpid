@@ -1,25 +1,22 @@
 {
   "schemaVersion": "compound-gpid-active-state-v1",
-  "updatedAt": "2026-08-21T20:25:47Z",
+  "updatedAt": "2026-08-30T12:40:15Z",
   "workflow": "/cg-work",
-  "status": "completed",
-  "branch": "fix-kilo-skills-issue",
-  "plan": ".cg-docs/plans/2026-08-21-pr-ci-preflight-and-kilo-capability-gates.md",
-  "executionReport": ".cg-docs/work-reports/2026-08-21-pr-ci-preflight-and-kilo-capability-gates.md",
-  "currentPhase": 6,
+  "status": "handoff",
+  "branch": "scalable-skill-management-suite",
+  "plan": ".cg-docs/plans/2026-08-28-scalable-skill-management-suite.md",
+  "executionReport": ".cg-docs/work-reports/2026-08-28-scalable-skill-management-suite.md",
+  "currentPhase": 2,
   "evidenceStatus": [
-    {"id": "V1", "status": "passed", "artifact": "preflight prepare origin/main; native pytest + 3 module validators"},
-    {"id": "V2", "status": "passed", "artifact": "Phase 2 focused suites + native preflight boundary"},
-    {"id": "V3", "status": "passed", "artifact": "Kilo adapter/workflow contracts + deterministic tests + focused Pester artifact"},
-    {"id": "V4", "status": "passed", "artifact": "prompt-tools Pester + prepare preflight boundary"},
-    {"id": "V5", "status": "passed", "artifact": "verify prompt-tools Pester + prepare preflight boundary"},
-    {"id": "V6", "status": "passed", "artifact": "committed drift + PR #141 remote CI green"},
-    {"id": "V7", "status": "passed", "artifact": "execution report complete"}
+    {"id": "V1", "status": "passed", "artifact": "scripts/tests/test_skill_management_contracts.py"},
+    {"id": "V2", "status": "passed", "artifact": "scripts/tests/test_cg_generate_targets.py"},
+    {"id": "V3", "status": "passed", "artifact": "scripts/cg_validate_modules.py"},
+    {"id": "V4", "status": "passed", "artifact": "scripts/tests/test_skill_management_dispatch.py"}
   ],
   "unresolvedDecisions": [],
   "artifactRefs": [
-    {"kind": "plan", "path": ".cg-docs/plans/2026-08-21-pr-ci-preflight-and-kilo-capability-gates.md", "status": "active"},
-    {"kind": "execution-report", "path": ".cg-docs/work-reports/2026-08-21-pr-ci-preflight-and-kilo-capability-gates.md", "status": "active"}
+    {"kind": "plan", "path": ".cg-docs/plans/2026-08-28-scalable-skill-management-suite.md", "status": "active"},
+    {"kind": "work-report", "path": ".cg-docs/work-reports/2026-08-28-scalable-skill-management-suite.md", "status": "phase-1-complete"}
   ],
-  "nextCommand": "/cg-compound"
+  "nextCommand": "/cg-work phase2"
 }

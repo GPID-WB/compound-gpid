@@ -195,6 +195,19 @@
           "plan": null
         },
         {
+          "id": "scalable-skill-management-suite",
+          "title": "Scalable Skill Management Suite",
+          "status": "active",
+          "plan": ".cg-docs/plans/2026-08-28-scalable-skill-management-suite.md"
+        },
+        {
+          "id": "project-authored-skills",
+          "title": "Project-authored skills",
+          "description": "Add future `/cg-skill create --scope project` support for project-owned skills without upstream import provenance, with a distinct provenance and approval model.",
+          "status": "idea",
+          "plan": null
+        },
+        {
           "id": "skill-description-consistency-audit",
           "title": "Skill discovery metadata and trigger-quality audit",
           "description": "Audit and improve every canonical Compound GPID skill's discovery metadata so relevant skills activate reliably without increasing always-loaded context or causing false-positive activation. Define a project-owned description contract covering WHAT the skill enables, WHEN it must load, concrete file types and user scenarios, likely user vocabulary, important positive triggers, and explicit near-miss or should-not-trigger boundaries where needed. Establish reasonable minimum and maximum description lengths as one part of quality rather than treating length as the objective. Inventory all canonical skills, classify internal versus user-facing discovery behavior, and update descriptions without changing skill semantics. Add deterministic validation for name/folder alignment, required namespace, description presence and bounds, duplicate identities, catalog parity, and cross-platform generated metadata parity. Add behavioral discovery probes for representative positive requests, negative requests, adjacent-skill ambiguity, language/dialect routing, and internal-only skills. Coordinate with progressive disclosure, SkillOpt research, documentation catalogs, and target generation, but keep SkillOpt as a separate later optimization mechanism. Success means users and agents can predict why a skill loads, relevant skills are discoverable using natural user wording, unrelated skills do not activate, and all four supported platforms expose equivalent metadata.",
