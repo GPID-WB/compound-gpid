@@ -19,6 +19,26 @@ if (-not $script:OnMacOS) {
     return
 }
 
+Describe "bash wrappers - hybrid Copilot skill projection" {
+    $hybridRepoRoot = if ($env:CG_TEST_ROOT) { $env:CG_TEST_ROOT } else { Split-Path $PSScriptRoot -Parent }
+    $linkContent = Get-Content (Join-Path $hybridRepoRoot "scripts/link.sh") -Raw -Encoding UTF8
+    $unlinkContent = Get-Content (Join-Path $hybridRepoRoot "scripts/unlink.sh") -Raw -Encoding UTF8
+
+    It "link delegates Copilot skills only to manifest projection" {
+        $linkContent | Should -Match 'COPILOT_PROJECTED_CATEGORIES="skills"'
+        $linkContent | Should -Match 'Copilot skills projected by manifest'
+        $linkContent | Should -Not -Match "'copilot\|directory\|\.github/skills\|\.github/skills\|link-directory\|'"
+        $linkContent | Should -Match 'cg_project_projection\.py'
+        $linkContent | Should -Match '\-\-sync'
+    }
+
+    It "unlink leaves the real parent and removes checksum-owned files" {
+        $unlinkContent | Should -Not -Match "'\.github/skills\|directory\|\.github/skills\|copilot'"
+        $unlinkContent | Should -Match 'cg_project_projection\.py'
+        $unlinkContent | Should -Match '\-\-unlink'
+    }
+}
+
 $repoRoot = if ($env:CG_TEST_ROOT) { $env:CG_TEST_ROOT } else { Split-Path $PSScriptRoot -Parent }
 
 # ---------------------------------------------------------------------------

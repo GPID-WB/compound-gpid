@@ -322,7 +322,7 @@
       "path": ".claude/commands/cg-release.md",
       "source": ".github/prompts/cg-release.prompt.md",
       "kind": "command",
-      "sha256": "da4311aee476acd1412cbf55948068bd0608e9d876bb965d93c778d710d778e4",
+      "sha256": "feb12b7ce6a343671e7893f8ae239d08474cce3398e601cc98c2e957f08f1484",
       "executable": false
     },
     {
@@ -560,14 +560,14 @@
       "path": ".claude/shared/target-mapping.json",
       "source": ".github/shared/target-mapping.json",
       "kind": "shared",
-      "sha256": "ac6a2ad2ced44c7d99ffa05d4e962d349fe870152bc21263a692ae919367deec",
+      "sha256": "46b47adf93a379104605d0621dfbf52431271bb1ffa1097f36c7c9f6ed29dc43",
       "executable": false
     },
     {
       "path": ".claude/shared/vendor-policy.json",
       "source": ".github/shared/vendor-policy.json",
       "kind": "shared",
-      "sha256": "12670cfe9582750acd6871c9132e6cba78a764e952a35e7b24b8eafa0c08c12d",
+      "sha256": "3d4ccc01d3af57ef02497c0346c015ea9ba384a093580debfae08b072af18d6f",
       "executable": false
     },
     {

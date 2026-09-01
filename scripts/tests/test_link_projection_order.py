@@ -63,6 +63,28 @@ def test_shell_projects_before_local_kilo_preflight() -> None:
     assert 'projection_root="$(platform_generated_tree "$platform")"' in content
 
 
+def test_both_link_wrappers_leave_copilot_skills_to_projection() -> None:
+    powershell = (REPO_ROOT / "scripts/link.ps1").read_text(encoding="utf-8")
+    shell = (REPO_ROOT / "scripts/link.sh").read_text(encoding="utf-8")
+
+    assert "projectedCategories" in powershell
+    assert "projectedCategories" in shell
+    assert "Copilot skills" in powershell
+    assert "Copilot skills" in shell
+
+
+def test_both_update_wrappers_sync_the_exact_projection_plan() -> None:
+    powershell = (REPO_ROOT / "scripts/update.ps1").read_text(encoding="utf-8")
+    shell = (REPO_ROOT / "scripts/update.sh").read_text(encoding="utf-8")
+
+    assert "Invoke-CgProjection" in powershell
+    assert "-Mode sync" in powershell
+    assert "cg_project_projection.py" in shell
+    assert "--sync" in shell
+    assert "synced and verified" in powershell
+    assert "synced and verified" in shell
+
+
 @pytest.mark.skipif(os.name == "nt", reason="macOS/Linux link.sh integration")
 @pytest.mark.parametrize(
     ("local_config", "required_instruction", "excluded_instruction"),

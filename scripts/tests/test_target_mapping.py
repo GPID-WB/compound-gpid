@@ -46,10 +46,15 @@ class TestTargetMappingSchema:
         ids = {t["id"] for t in data["targets"]}
         assert ids == {"copilot", "claude-code", "codex", "opencode", "kilo"}
 
-    def test_copilot_has_null_generated_tree_path(self) -> None:
+    def test_copilot_has_skill_only_projection_mode(self) -> None:
         data = _load_repo_mapping()
         copilot = next(t for t in data["targets"] if t["id"] == "copilot")
         assert copilot["generatedTreePath"] is None
+        assert copilot["projectedCategories"] == ["skills"]
+        assert copilot["projectRoots"]["managed"] == [".github/skills"]
+        assert not any(
+            unit["target"] == ".github/skills" for unit in copilot["installUnits"]
+        )
 
     def test_non_copilot_targets_have_generated_tree_path(self) -> None:
         data = _load_repo_mapping()
@@ -227,6 +232,14 @@ class TestTargetMappingValidation:
         broken["targets"][0]["installUnits"][0]["strategy"] = "unknown"
         errors = gen.validate_target_mapping(broken)
         assert any("installUnits" in e and "strategy" in e for e in errors)
+
+    def test_projected_categories_reject_unknown_or_duplicate_values(self) -> None:
+        data = _load_repo_mapping()
+        copilot = data["targets"][0]
+        copilot["projectedCategories"] = ["skills", "prompts"]
+        assert any("projectedCategories" in error for error in gen.validate_target_mapping(data))
+        copilot["projectedCategories"] = ["skills", "skills"]
+        assert any("projectedCategories" in error for error in gen.validate_target_mapping(data))
 
     def test_schema_version_other_than_one_fails(self) -> None:
         data = _load_repo_mapping()

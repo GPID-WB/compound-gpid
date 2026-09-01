@@ -264,6 +264,30 @@ class TestCapabilityResolution:
         assert "cap-language-r" not in cg_ids
         assert "cap-language-r" in cr_ids
 
+    def test_explicit_only_capability_is_never_selector_derived(self, tmp_path: Path) -> None:
+        registry = self._v2_registry()
+        registry["modules"].append({
+            "id": "cap-opt-in", "layer": "capability", "displayName": "Opt in",
+            "description": "opt in", "dependsOn": ["kernel"], "ownedAssets": [],
+        })
+        registry["capabilities"].append({
+            "id": "opt-in", "owningModule": "cap-opt-in",
+            "activationMode": "explicit-only", "supportedSuites": ["cg"],
+            "supportedPlatforms": ["kilo"], "sourceProvenance": "canonical/.github",
+            "activationCost": "low", "taskTriggers": ["manual"],
+            "configSelectors": [{"field": "language", "operator": "contains", "value": "r"}],
+        })
+
+        derived = budget.capability_ids_by_selector(registry, {"language": "r"}, ["cg"])
+        implicit = budget.loadable_module_ids(registry, ["cg"], config={"language": "r"})
+        explicit = budget.loadable_module_ids(
+            registry, ["cg"], config={"language": "r"}, capabilities=["opt-in"]
+        )
+
+        assert "opt-in" not in derived
+        assert "cap-opt-in" not in implicit
+        assert "cap-opt-in" in explicit
+
 
 class TestRealRepo:
     def test_real_registry_cg_minus_cr_detects_cr_excluded(self) -> None:
@@ -341,15 +365,17 @@ class TestInactiveAssetExclusion:
                 {"id": "research-output", "owningModule": "cap-research-output",
                  "supportedSuites": ["cr"], "supportedPlatforms": ["kilo"],
                  "sourceProvenance": "canonical/.github", "activationCost": "high",
-                 "taskTriggers": [], "configSelectors": []},
+                 "taskTriggers": ["/cr-work"], "configSelectors": []},
             ],
             "modules": [
                 {"id": "kernel", "layer": "kernel", "displayName": "K", "description": "k",
                  "dependsOn": [], "ownedAssets": []},
                 {"id": "cap-research-output", "layer": "capability", "displayName": "RO",
                  "description": "ro", "dependsOn": ["kernel"], "ownedAssets": []},
-                {"id": "suite-cg", "layer": "suite", "displayName": "CG", "description": "cg",
-                 "dependsOn": ["kernel"], "ownedAssets": []},
+            {"id": "suite-cg", "layer": "suite", "displayName": "CG", "description": "cg",
+             "dependsOn": ["kernel"], "ownedAssets": []},
+            {"id": "suite-cr", "layer": "suite", "displayName": "CR", "description": "cr",
+             "dependsOn": ["kernel", "cap-research-output"], "ownedAssets": []},
             ],
         }
         manifest = {

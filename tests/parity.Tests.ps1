@@ -386,3 +386,27 @@ Describe "Kilo coexistence launcher parity" {
         $worker | Should -Match 'subprocess\.run'
     }
 }
+
+Describe "hybrid Copilot skill projection parity" {
+    $mapping = Get-Content (Join-Path $repoRoot ".github/shared/target-mapping.json") -Raw -Encoding UTF8 | ConvertFrom-Json
+    $copilot = @($mapping.targets | Where-Object { $_.id -eq "copilot" })[0]
+    $linkPs1 = Get-Content (Join-Path $repoRoot "scripts/link.ps1") -Raw -Encoding UTF8
+    $linkSh = Get-Content (Join-Path $repoRoot "scripts/link.sh") -Raw -Encoding UTF8
+    $unlinkPs1 = Get-Content (Join-Path $repoRoot "scripts/unlink.ps1") -Raw -Encoding UTF8
+    $unlinkSh = Get-Content (Join-Path $repoRoot "scripts/unlink.sh") -Raw -Encoding UTF8
+
+    It "reserves the same Copilot skill root on Windows and POSIX" {
+        @($copilot.projectedCategories)[0] | Should -Be "skills"
+        @($copilot.projectRoots.managed)[0] | Should -Be ".github/skills"
+        @($copilot.installUnits | Where-Object { $_.target -eq ".github/skills" }).Count | Should -Be 0
+        $linkPs1 | Should -Match 'projectedCategories'
+        $linkSh | Should -Match 'COPILOT_PROJECTED_CATEGORIES="skills"'
+    }
+
+    It "delegates checksum-owned unlink on both platforms" {
+        $unlinkPs1 | Should -Match 'Invoke-CgProjection'
+        $unlinkPs1 | Should -Match 'Mode unlink'
+        $unlinkSh | Should -Match 'cg_project_projection\.py'
+        $unlinkSh | Should -Match '\-\-unlink'
+    }
+}

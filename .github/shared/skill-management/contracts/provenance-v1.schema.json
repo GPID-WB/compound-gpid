@@ -54,6 +54,14 @@
         "$ref": "#/$defs/migration"
       }
     },
+    "successorId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "deprecatedRecordDigest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
     "tombstone": {
       "$ref": "#/$defs/tombstone"
     }
@@ -142,6 +150,32 @@
           "type": "string",
           "pattern": "^[0-9a-f]{64}$"
         },
+        "policyDigest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "reviewEvidenceDigest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "diffDigest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "diff": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/diffEntry"
+          }
+        },
+        "successorId": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$"
+        },
+        "recordDigest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
         "approval": {
           "$ref": "#/$defs/approval"
         }
@@ -151,6 +185,44 @@
         "event",
         "bundleDigest",
         "approval"
+      ],
+      "additionalProperties": false
+    },
+    "diffEntry": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "change": {
+          "type": "string",
+          "enum": [
+            "added",
+            "modified",
+            "removed"
+          ]
+        },
+        "beforeSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "afterSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "beforeSize": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "afterSize": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "path",
+        "change"
       ],
       "additionalProperties": false
     },

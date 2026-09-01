@@ -169,6 +169,24 @@ def _attestation() -> dict:
     }
 
 
+def _migration() -> dict:
+    return {
+        "schema": "cg-skill-migration-v1",
+        "schemaVersion": 1,
+        "id": "example-to-next",
+        "skillId": "example",
+        "edits": [
+            {
+                "path": "docs/example.md",
+                "expectedSha256": "a" * 64,
+                "replacement": "Use next.\n",
+            }
+        ],
+        "reviewer": "maintainer",
+        "approvalReference": "review=" + "b" * 40,
+    }
+
+
 @pytest.mark.parametrize(
     "name",
     [
@@ -180,6 +198,7 @@ def _attestation() -> dict:
         "project-registry-v1.schema.json",
         "provenance-v1.schema.json",
         "release-attestation-v1.schema.json",
+        "migration-v1.schema.json",
     ],
 )
 def test_each_contract_is_valid_in_the_closed_schema_subset(name: str) -> None:
@@ -204,6 +223,7 @@ def test_each_contract_is_accepted_by_the_committed_meta_contract() -> None:
         ("project-registry-v1.schema.json", _project_registry()),
         ("provenance-v1.schema.json", _provenance()),
         ("release-attestation-v1.schema.json", _attestation()),
+        ("migration-v1.schema.json", _migration()),
     ],
 )
 def test_valid_contract_fixtures_pass(name: str, value: dict) -> None:

@@ -22,6 +22,11 @@
         "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
         "name": { "type": "string" },
         "generatedTreePath": { "type": ["string", "null"], "pattern": "^(?![A-Za-z]:)(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[^\\u0000\\\\]+$" },
+        "projectedCategories": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["skills"] },
+          "uniqueItems": true
+        },
         "capabilities": {
           "type": "object",
           "required": ["supportsNativeCommands", "supportsNativeSkills", "supportsNativeSubagents", "supportsMultiVendorModels", "requiresRootAdapter"],
@@ -62,7 +67,8 @@
         "installUnits": {
           "type": "array",
           "items": { "$ref": "#/definitions/installUnit" }
-        }
+        },
+        "projectRoots": { "$ref": "#/definitions/projectRoots" }
       },
       "additionalProperties": false
     },
@@ -84,6 +90,14 @@
           "else": { "properties": { "type": { "const": "file" } } }
         }
       ]
+    },
+    "projectRoots": {
+      "type": "object",
+      "properties": {
+        "managed": { "type": "array", "items": { "$ref": "#/definitions/repoPath" } },
+        "optionalUser": { "type": "array", "items": { "$ref": "#/definitions/repoPath" } }
+      },
+      "additionalProperties": false
     },
     "repoPath": {
       "type": "string",

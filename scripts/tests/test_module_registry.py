@@ -11,6 +11,7 @@ from pathlib import Path
 import pytest
 
 import cg_validate_modules as validator
+from skill_management.services import registry as registry_service
 
 
 def _write_json(path: Path, payload: dict) -> None:
@@ -151,6 +152,19 @@ class TestRegistrySchema:
 
 
 class TestOwnershipClosure:
+    def test_public_registry_owner_matching_agrees_with_validator(
+        self, tmp_path: Path
+    ) -> None:
+        _minimal_assets(tmp_path)
+        data = _default_registry()
+        _registry(tmp_path, data)
+        asset = ".github/skills/cg-skill-r-analytical/SKILL.md"
+
+        assert registry_service.matching_asset_owners(data, asset) == (
+            "cap-language-r",
+        )
+        assert validator.resolve_asset_owner(data, asset) == "cap-language-r"
+
     def test_asset_owned_by_two_modules_is_error(self, tmp_path: Path) -> None:
         _minimal_assets(tmp_path)
         registry = _default_registry()
@@ -555,6 +569,19 @@ class TestCapabilitySchema:
         _registry(tmp_path, registry)
         errors = validator.validate_registry_schema(registry)
         assert any("activationCost" in error for error in errors)
+
+    def test_optional_explicit_only_activation_mode_validates(self, tmp_path: Path) -> None:
+        _minimal_assets(tmp_path)
+        registry = self._v2_registry()
+        registry["capabilities"][0]["activationMode"] = "explicit-only"
+        assert validator.validate_registry_schema(registry) == []
+
+    def test_unknown_activation_mode_fails(self, tmp_path: Path) -> None:
+        _minimal_assets(tmp_path)
+        registry = self._v2_registry()
+        registry["capabilities"][0]["activationMode"] = "selector-derived"
+        errors = validator.validate_registry_schema(registry)
+        assert any("activationMode" in error for error in errors)
 
     def test_missing_config_selectors_fails(self, tmp_path: Path) -> None:
         _minimal_assets(tmp_path)

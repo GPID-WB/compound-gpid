@@ -16,6 +16,27 @@ if (-not $script:OnWindows) {
     return
 }
 
+Describe "unlink.ps1 - hybrid Copilot skill projection" {
+    BeforeAll {
+        $repoRoot = Split-Path $PSScriptRoot -Parent
+        $mapping = Get-Content (Join-Path $repoRoot ".github\shared\target-mapping.json") -Raw -Encoding UTF8 | ConvertFrom-Json
+        $copilot = @($mapping.targets | Where-Object { $_.id -eq "copilot" })[0]
+        $unlinkContent = Get-Content (Join-Path $repoRoot "scripts\unlink.ps1") -Raw -Encoding UTF8
+    }
+
+    It "leaves the real Copilot skills parent out of link-unit deletion" {
+        @($copilot.projectedCategories)[0] | Should -Be "skills"
+        @($copilot.installUnits | Where-Object { $_.target -eq ".github/skills" }).Count | Should -Be 0
+    }
+
+    It "delegates owned bundle removal to the projection worker" {
+        $unlinkContent | Should -Match 'projection-ownership.json'
+        $unlinkContent | Should -Match 'Invoke-CgProjection'
+        $unlinkContent | Should -Match 'Mode unlink'
+        $unlinkContent | Should -Match 'checksum-owned manifest projection files'
+    }
+}
+
 Describe "unlink.ps1 - pre-condition checks" {
     Context "when .github does not exist" {
         It "does not use .github absence as the global unlink gate" {

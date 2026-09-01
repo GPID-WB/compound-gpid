@@ -51,10 +51,11 @@ _scripts_dir = str(Path(__file__).parent)
 if _scripts_dir not in sys.path:
     sys.path.insert(0, _scripts_dir)
 
-import cg_audit_context as audit  # noqa: E402
 import cg_context_budget as budget  # noqa: E402
 import cg_project_manifest as pm  # noqa: E402
 import cg_validate_modules as validator  # noqa: E402
+from skill_management.services import catalog as catalog_service  # noqa: E402
+from skill_management.services import registry as registry_service  # noqa: E402
 
 ACTIVE_MANIFEST_PATH = ".compound-gpid/active-manifest.json"
 MODULE_REGISTRY_PATH = ".github/shared/module-registry.json"
@@ -65,8 +66,7 @@ MODULE_REGISTRY_PATH = ".github/shared/module-registry.json"
 # ---------------------------------------------------------------------------
 
 
-class CatalogError(ValueError):
-    """Raised when catalog or routing cannot proceed."""
+CatalogError = catalog_service.CatalogError
 
 
 def _load_manifest(root: Path, *, skip_stale_check: bool = False) -> dict[str, Any]:
@@ -81,79 +81,51 @@ def _load_manifest(root: Path, *, skip_stale_check: bool = False) -> dict[str, A
     comparison is skipped.  Useful for testing and when the caller already
     knows the manifest is fresh.
     """
-    path = root / ACTIVE_MANIFEST_PATH
-    if not path.exists():
-        raise CatalogError(
-            f"Active manifest not found at {ACTIVE_MANIFEST_PATH}. "
-            "Run `cg-link` or `cg-update` to generate the manifest before querying the catalog."
-        )
-    try:
-        data = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
-        raise CatalogError(f"Active manifest is unreadable or malformed: {exc}")
-
-    errors = pm.validate_manifest(data)
-    if errors:
-        raise CatalogError(
-            "Active manifest is structurally invalid:\n  - " + "\n  - ".join(errors)
-        )
-
-    if not skip_stale_check:
-        stale = pm.manifest_stale(data, pm.resolve_active_manifest(root))
-        if stale:
+    if skip_stale_check:
+        path = root / ACTIVE_MANIFEST_PATH
+        if not path.exists():
             raise CatalogError(
-                "Active manifest is stale (changed: "
-                + ", ".join(stale)
-                + "). Run `cg-update` to regenerate before querying the catalog."
+                f"Active manifest not found at {ACTIVE_MANIFEST_PATH}. "
+                + catalog_service.MISSING_REMEDIATION,
+                manifest_health="missing",
             )
-    return data
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            raise CatalogError(f"Active manifest is unreadable or malformed: {exc}") from exc
+        errors = pm.validate_manifest(data)
+        if errors:
+            raise CatalogError(
+                "Active manifest is structurally invalid:\n  - " + "\n  - ".join(errors)
+            )
+        return data
+    status = catalog_service.inspect_manifest(root, root)
+    if status.health == "missing":
+        raise CatalogError(
+            f"Active manifest not found at {ACTIVE_MANIFEST_PATH}. {status.remediation}",
+            manifest_health="missing",
+        )
+    if status.health == "stale":
+        raise CatalogError(
+            "Active manifest is stale (changed: "
+            + ", ".join(status.stale_fields)
+            + f"). {status.remediation}",
+            manifest_health="stale",
+        )
+    assert status.committed is not None
+    return dict(status.committed)
 
 
 def _load_registry(root: Path) -> dict:
-    data, error = validator.load_registry(root)
-    if error:
-        raise CatalogError(f"Module registry error: {error}")
-    return data
+    try:
+        return registry_service.load_registry_snapshot(root).to_dict()
+    except registry_service.RegistryValidationError as error:
+        raise CatalogError(f"Module registry error: {error}") from error
 
 
 # ---------------------------------------------------------------------------
 # Catalog row construction
 # ---------------------------------------------------------------------------
-
-
-def _capability_index(registry: dict) -> dict[str, dict]:
-    """Map module id -> capability record (for owning modules that have one)."""
-    result: dict[str, dict] = {}
-    for cap in registry.get("capabilities", []):
-        if not isinstance(cap, dict):
-            continue
-        owner = cap.get("owningModule")
-        if owner:
-            result[owner] = cap
-    return result
-
-
-def _owner_index(registry: dict) -> dict[str, str]:
-    """Map canonical asset path pattern -> owning module id."""
-    result: dict[str, str] = {}
-    for module in registry.get("modules", []):
-        if not isinstance(module, dict):
-            continue
-        mid = module.get("id")
-        for pattern in module.get("ownedAssets", []):
-            if isinstance(pattern, str):
-                result[pattern] = mid
-    return result
-
-
-def _find_owner(
-    skill_path: str, owner_index: dict[str, str]
-) -> Optional[str]:
-    """Find the owning module for a skill path via glob matching."""
-    for pattern, module_id in owner_index.items():
-        if validator.glob_match(pattern, skill_path):
-            return module_id
-    return None
 
 
 def build_catalog(
@@ -175,54 +147,7 @@ def build_catalog(
         manifest = _load_manifest(root)
     if registry is None:
         registry = _load_registry(root)
-
-    closure = set(manifest["selection"]["moduleClosure"])
-    closure_globs = sorted(budget.loadable_asset_globs(registry, closure))
-    cap_by_module = _capability_index(registry)
-    owner_idx = _owner_index(registry)
-
-    # Determine inactive reasons per capability module
-    inactive_reasons: dict[str, str] = {}
-    for module in registry.get("modules", []):
-        if not isinstance(module, dict):
-            continue
-        mid = module.get("id")
-        if mid and mid not in closure:
-            # Find why it's inactive: derive from suite/config selection
-            inactive_reasons[mid] = f"module '{mid}' not in selected closure"
-
-    rows: list[dict[str, Any]] = []
-    for skill in audit.scan_skill_metadata(root):
-        skill_path = skill["path"]
-        owner = _find_owner(skill_path, owner_idx)
-        capability = cap_by_module.get(owner, {}) if owner else {}
-        selected = any(
-            validator.glob_match(pattern, skill_path)
-            for pattern in closure_globs
-        )
-        inactive_reason = None
-        if not selected and owner:
-            inactive_reason = inactive_reasons.get(owner, f"module '{owner}' not activated")
-
-        rows.append({
-            "id": skill["id"],
-            "purpose": skill.get("description", ""),
-            "capability": capability.get("id") if capability else None,
-            "available": selected,
-            "activationCost": capability.get("activationCost") if capability else None,
-            "sourcePath": skill_path,
-            "sourceProvenance": capability.get("sourceProvenance") if capability else None,
-            "eligibility": {
-                "supportedSuites": capability.get("supportedSuites", []),
-                "supportedPlatforms": capability.get("supportedPlatforms", []),
-            } if capability else None,
-            "inactiveReason": inactive_reason,
-            "importStatus": "canonical",
-            "owner": owner,
-            "supportedPlatforms": capability.get("supportedPlatforms", []) if capability else [],
-            "taskTriggers": capability.get("taskTriggers", []) if capability else [],
-        })
-    return sorted(rows, key=lambda r: r["id"])
+    return catalog_service.build_catalog_rows(root, manifest, registry)
 
 
 # ---------------------------------------------------------------------------
@@ -243,31 +168,17 @@ def filter_catalog(
     provenance: Optional[str] = None,
 ) -> List[dict[str, Any]]:
     """Apply composable filters to catalog rows."""
-    result = list(rows)
-    if id_query:
-        q = id_query.lower()
-        result = [r for r in result if q in r["id"].lower() or q in r.get("purpose", "").lower()]
-    if capability:
-        result = [r for r in result if r.get("capability") == capability]
-    if suite:
-        result = [
-            r for r in result
-            if r.get("eligibility") and suite in r["eligibility"].get("supportedSuites", [])
-        ]
-    if platform:
-        result = [
-            r for r in result
-            if r.get("eligibility") and platform in r["eligibility"].get("supportedPlatforms", [])
-        ]
-    if available is not None:
-        result = [r for r in result if r["available"] == available]
-    if cost:
-        result = [r for r in result if r.get("activationCost") == cost]
-    if owner:
-        result = [r for r in result if r.get("owner") == owner]
-    if provenance:
-        result = [r for r in result if r.get("sourceProvenance") == provenance]
-    return result
+    return catalog_service.filter_catalog_rows(
+        rows,
+        id_query=id_query,
+        capability=capability,
+        suite=suite,
+        platform=platform,
+        available=available,
+        cost=cost,
+        owner=owner,
+        provenance=provenance,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -275,10 +186,12 @@ def filter_catalog(
 # ---------------------------------------------------------------------------
 
 
-COMPACT_FIELDS = ("id", "purpose", "capability", "available", "activationCost")
+COMPACT_FIELDS = (
+    "id", "purpose", "capability", "available", "activationCost", "lifecycle"
+)
 FULL_EXTRA_FIELDS = (
     "sourcePath", "sourceProvenance", "eligibility", "inactiveReason",
-    "importStatus", "owner", "supportedPlatforms", "taskTriggers",
+    "importStatus", "owner", "supportedPlatforms", "taskTriggers", "successorId",
 )
 
 
@@ -354,47 +267,7 @@ def format_json(rows: List[dict[str, Any]], compact: bool = False) -> str:
 # ---------------------------------------------------------------------------
 
 
-class RouteResult:
-    """Structured result from the capability router."""
-
-    def __init__(
-        self,
-        *,
-        found: bool,
-        capability_id: Optional[str] = None,
-        inactive_reason: Optional[str] = None,
-        selector: Optional[str] = None,
-        remedy: Optional[str] = None,
-        message: str = "",
-    ) -> None:
-        self.found = found
-        self.capability_id = capability_id
-        self.inactive_reason = inactive_reason
-        self.selector = selector
-        self.remedy = remedy
-        self.message = message
-
-    def to_dict(self) -> dict[str, Any]:
-        return {
-            "found": self.found,
-            "capabilityId": self.capability_id,
-            "inactiveReason": self.inactive_reason,
-            "selector": self.selector,
-            "remedy": self.remedy,
-            "message": self.message,
-        }
-
-    def __str__(self) -> str:
-        if self.found:
-            return f"Capability '{self.capability_id}' is active and available."
-        parts = [self.message]
-        if self.inactive_reason:
-            parts.append(f"Reason: {self.inactive_reason}")
-        if self.selector:
-            parts.append(f"Selector: {self.selector}")
-        if self.remedy:
-            parts.append(f"Remedy: {self.remedy}")
-        return "\n".join(parts)
+RouteResult = catalog_service.RouteResult
 
 
 def route_capability(
@@ -420,68 +293,8 @@ def route_capability(
         manifest = _load_manifest(root)
     if registry is None:
         registry = _load_registry(root)
-
-    closure = set(manifest["selection"]["moduleClosure"])
-
-    # Find the capability record by id
-    cap_record = None
-    for cap in registry.get("capabilities", []):
-        if isinstance(cap, dict) and cap.get("id") == capability_id:
-            cap_record = cap
-            break
-
-    if cap_record is None:
-        return RouteResult(
-            found=False,
-            capability_id=capability_id,
-            message=f"Unknown capability id: '{capability_id}'.",
-            remedy="Check the available capabilities with `cg-find-skill` and use a declared capability id.",
-        )
-
-    owner_module = cap_record.get("owningModule")
-    is_active = owner_module in closure
-
-    if is_active:
-        return RouteResult(found=True, capability_id=capability_id)
-
-    # Determine why it's inactive
-    selectors = cap_record.get("configSelectors", [])
-    supported_suites = cap_record.get("supportedSuites", [])
-    active_suites = manifest["selection"].get("suites", [])
-
-    if selectors:
-        selector_desc = "; ".join(
-            f"{s.get('field', '?')} {s.get('operator', '?')} {s.get('value', '?')}"
-            for s in selectors if isinstance(s, dict)
-        )
-        inactive_reason = (
-            f"config selector(s) did not match: {selector_desc}"
-        )
-        remedy = (
-            f"Add the appropriate field value to compound-gpid.local.md "
-            f"(e.g. {selector_desc}) and run `cg-update`."
-        )
-    elif supported_suites:
-        inactive_reason = (
-            f"supported suite(s) {supported_suites} not in active suites {active_suites}"
-        )
-        remedy = (
-            f"Add one of {supported_suites} to the `suites:` field in "
-            f"compound-gpid.local.md and run `cg-update`."
-        )
-    else:
-        inactive_reason = f"module '{owner_module}' not in selected closure"
-        remedy = "Run `cg-update` to regenerate the projection."
-
-    return RouteResult(
-        found=False,
-        capability_id=capability_id,
-        inactive_reason=inactive_reason,
-        selector=selectors[0] if selectors else None,
-        remedy=remedy,
-        message=(
-            f"Capability '{capability_id}' is declared but not active in the current manifest."
-        ),
+    return catalog_service.route_capability(
+        root, capability_id, manifest, registry
     )
 
 

@@ -100,7 +100,14 @@ def _parse_scalar_value(value: str, line_number: int, errors: list[str], field_n
         )
 
 
-def _parse_flow_list(value: str, line_number: int, errors: list[str], field_name: str) -> list[str]:
+def _parse_flow_list(
+    value: str,
+    line_number: int,
+    errors: list[str],
+    field_name: str,
+    *,
+    allow_empty: bool = False,
+) -> list[str]:
     """Parse an inline flow list of quoted or ASCII identifier values."""
     if not (value.startswith("[") and value.endswith("]")):
         errors.append(
@@ -108,6 +115,8 @@ def _parse_flow_list(value: str, line_number: int, errors: list[str], field_name
         )
         return []
     inner = value[1:-1]
+    if not inner.strip() and allow_empty:
+        return []
     items: list[str] = []
     seen: set[str] = set()
     for raw in inner.split(","):
@@ -204,7 +213,13 @@ def parse_strict_config(text: str) -> StrictConfig:
             if not value:
                 result.errors.append(f"line {line_number}: {key} must not be empty")
                 continue
-            items = _parse_flow_list(value, line_number, result.errors, key)
+            items = _parse_flow_list(
+                value,
+                line_number,
+                result.errors,
+                key,
+                allow_empty=key == "capabilities",
+            )
             if key == "suites":
                 result.suites = items
             else:

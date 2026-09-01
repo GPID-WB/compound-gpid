@@ -11,6 +11,10 @@ from pathlib import Path
 import pytest
 
 import cg_project_manifest as manifest
+from scripts.tests.test_project_skill_registry import (
+    add_project_skill,
+    write_project_overlay,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -59,7 +63,9 @@ def _registry() -> dict:
             {"id": "cap-language-python", "layer": "capability", "displayName": "Py", "description": "p",
              "dependsOn": ["kernel"], "ownedAssets": []},
             {"id": "suite-cg", "layer": "suite", "displayName": "CG", "description": "cg",
-             "dependsOn": ["kernel"], "ownedAssets": [".github/prompts/cg-*.prompt.md"]},
+              "dependsOn": ["kernel"], "ownedAssets": [".github/prompts/cg-*.prompt.md"]},
+            {"id": "suite-cr", "layer": "suite", "displayName": "CR", "description": "cr",
+             "dependsOn": ["kernel"], "ownedAssets": []},
         ],
     }
 
@@ -67,7 +73,11 @@ def _registry() -> dict:
 def _repo_root(tmp_path: Path) -> Path:
     _write_json(tmp_path / ".github/shared/module-registry.json", _registry())
     _write_json(tmp_path / ".github/shared/target-mapping.json", _target_mapping())
-    _create_file(tmp_path, ".github/skills/cg-skill-r-analytical/SKILL.md", "---\ndescription: R\n---\nbody\n")
+    _create_file(
+        tmp_path,
+        ".github/skills/cg-skill-r-analytical/SKILL.md",
+        "---\nname: cg-skill-r-analytical\ndescription: \"R\"\n---\nbody\n",
+    )
     _create_file(tmp_path, ".github/prompts/cg-work.prompt.md", "---\ndescription: work\n---\nbody\n")
     _create_file(tmp_path, "compound-gpid.local.md", (
         "---\nlanguage: \"both\"\nproject-type: \"tool\"\nreview-depth: \"thorough\"\n"
@@ -90,6 +100,11 @@ class TestResolution:
         assert selection["registryDigest"]
         assert selection["desiredPlanDigest"]
         assert resolved["catalogRecords"]
+        r_record = next(
+            row for row in resolved["catalogRecords"]
+            if row["id"] == "cg-skill-r-analytical"
+        )
+        assert r_record["capability"] == "r"
 
     def test_separate_source_root_bootstraps_fresh_consumer(self, tmp_path: Path) -> None:
         source_root = _repo_root(tmp_path / "source")
@@ -212,6 +227,52 @@ class TestResolution:
         assert eligibility["platforms"] == ["copilot", "kilo"]
         assert eligibility["allEligible"] is True
 
+    def test_two_project_skills_select_exactly_one_bundle(self, tmp_path: Path) -> None:
+        source = _repo_root(tmp_path / "source")
+        project = tmp_path / "consumer"
+        project.mkdir()
+        first = add_project_skill(project, "local-one")
+        second = add_project_skill(project, "local-two")
+        write_project_overlay(project, [first, second])
+        _create_file(
+            project,
+            "compound-gpid.local.md",
+            '---\nlanguage: "r"\nsuites: [cg]\n'
+            'capabilities: [project-skill-local-one]\n---\n# config\n',
+        )
+
+        resolved = manifest.resolve_active_manifest(
+            project, source_root=source, platforms=["copilot", "kilo"]
+        )
+
+        assert resolved["selection"]["selectedProjectSkills"] == {
+            "project-skill-local-one": "local-one"
+        }
+        assert resolved["selection"]["projectRegistryDigest"]
+        assert resolved["selection"]["provenanceDigest"]
+        assert resolved["selection"]["catalogDigest"]
+        rows = {row["id"]: row for row in resolved["catalogRecords"]}
+        assert rows["local-one"]["available"] is True
+        assert rows["local-two"]["available"] is False
+
+    def test_project_skill_is_not_activated_by_suite_eligibility(self, tmp_path: Path) -> None:
+        source = _repo_root(tmp_path / "source")
+        project = tmp_path / "consumer"
+        project.mkdir()
+        record = add_project_skill(project, "local-one")
+        write_project_overlay(project, [record])
+        _create_file(
+            project,
+            "compound-gpid.local.md",
+            '---\nlanguage: "r"\nsuites: [cg]\n---\n# config\n',
+        )
+
+        resolved = manifest.resolve_active_manifest(project, source_root=source)
+
+        assert resolved["selection"]["selectedProjectSkills"] == {}
+        row = next(item for item in resolved["catalogRecords"] if item["id"] == "local-one")
+        assert row["available"] is False
+
 
 class TestDeterminismAndStaleness:
     def test_independent_runs_byte_stable(self, tmp_path: Path) -> None:
@@ -300,6 +361,19 @@ class TestValidation:
         assert any("must be an integer" in error for error in errors)
         assert any("must be a list of strings" in error for error in errors)
         assert any("64-char hex digest" in error for error in errors)
+
+    def test_selected_project_skills_must_be_one_to_one(self, tmp_path: Path) -> None:
+        root = _repo_root(tmp_path)
+        resolved = manifest.resolve_active_manifest(root)
+        resolved["selection"]["selectedProjectSkills"] = {
+            "project-skill-one": "one",
+            "project-skill-two": "one",
+        }
+
+        errors = manifest.validate_manifest(resolved)
+
+        assert any("one unique bundle" in error for error in errors)
+        assert any("keys must match" in error for error in errors)
 
     def test_invalid_ownership_shape_fails(self) -> None:
         assert manifest.validate_ownership_state("not-an-object")

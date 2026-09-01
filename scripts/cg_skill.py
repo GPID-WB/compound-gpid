@@ -5,9 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
-import os
 import re
-import stat
 import sys
 import types
 from pathlib import Path, PurePosixPath
@@ -19,10 +17,8 @@ from skill_management.context import ContextDiscoveryError, discover_context
 from skill_management.planning import OperationOutcome, result_envelope
 
 
-OPERATIONS_ROOT = PurePosixPath(".github/shared/skill-management/operations")
-CONTRACTS_ROOT = PurePosixPath(".github/shared/skill-management/contracts")
-OPERATION_PATTERN = re.compile(r"^[a-z][a-z0-9-]*$")
-_REPARSE_POINT_FLAG = 0x400
+CONTRACTS_ROOT = contracts.CONTRACTS_ROOT
+OPERATION_PATTERN = contracts.OPERATION_PATTERN
 RUNTIME_ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -75,102 +71,24 @@ def _error_result(
     )
 
 
-def _is_regular_file(path: Path) -> bool:
-    try:
-        metadata = os.lstat(str(path))
-    except OSError:
-        return False
-    return not (
-        stat.S_ISLNK(metadata.st_mode)
-        or bool(getattr(metadata, "st_file_attributes", 0) & _REPARSE_POINT_FLAG)
-    ) and stat.S_ISREG(metadata.st_mode)
-
-
-def _root_relative_file(root: Path, relative: str, *, max_bytes: int = 4 * 1024 * 1024) -> Path:
-    pure = PurePosixPath(relative)
-    if pure.is_absolute() or any(part in ("", ".", "..") for part in pure.parts):
-        raise ValueError(f"Descriptor path is unsafe: {relative!r}")
-    path = root.joinpath(*pure.parts)
-    try:
-        path.resolve(strict=False).relative_to(root.resolve(strict=True))
-    except (OSError, ValueError) as error:
-        raise ValueError(f"Descriptor path escapes source_root: {relative!r}") from error
-    try:
-        secure_fs.secure_read_bytes(root, pure, max_bytes=max_bytes)
-    except (OSError, ValueError) as error:
-        raise ValueError(
-            f"Descriptor path is missing or not a confined regular file: {relative}"
-        ) from error
-    return path
-
-
 def _load_contract_relative(root: Path, relative: PurePosixPath) -> dict:
     content = secure_fs.secure_read_bytes(
         root,
         relative,
+        reject_hardlinks=True,
         max_bytes=contracts.MAX_CONTRACT_BYTES,
     )
     return contracts.load_contract_bytes(content, source=relative.as_posix())
 
 
 def _load_descriptor(source_root: Path, operation: str) -> Tuple[dict, dict]:
-    descriptor_relative = OPERATIONS_ROOT / f"{operation}.json"
     try:
-        descriptor = _load_contract_relative(source_root, descriptor_relative)
+        record = contracts.load_operation_descriptor(source_root, operation)
     except FileNotFoundError:
         raise FileNotFoundError(operation) from None
-    descriptor_schema = _load_contract_relative(
-        source_root,
-        CONTRACTS_ROOT / "operation-descriptor-v1.schema.json",
-    )
-    findings = contracts.validate_instance(descriptor, descriptor_schema)
-    if findings:
-        details = "; ".join(f"{item.path}: {item.code}" for item in findings)
-        raise ValueError(f"Operation descriptor is invalid: {details}")
-    if descriptor.get("operation") != operation:
-        raise ValueError("Operation descriptor identity does not match its filename")
-    expected_handler = f"skill_management.operations.{operation.replace('-', '_')}:handle"
-    if descriptor.get("handler") != expected_handler:
-        raise ValueError(
-            "Operation descriptor handler must match its operation identity"
-        )
-
-    for field in ("workflow", "documentation"):
-        _root_relative_file(source_root, descriptor[field])
-    for test_path in descriptor["tests"]:
-        _root_relative_file(source_root, test_path)
-    contract_relative = PurePosixPath(descriptor["contract"])
-    if contract_relative.name != f"{operation}-v1.schema.json":
-        raise ValueError("Operation descriptor contract filename must match operation")
-    operation_contract_path = _root_relative_file(
-        source_root,
-        descriptor["contract"],
-        max_bytes=contracts.MAX_CONTRACT_BYTES,
-    )
-    operation_contract = _load_contract_relative(
-        source_root,
-        PurePosixPath(descriptor["contract"]),
-    )
-    schema_findings = contracts.validate_schema_definition(operation_contract)
-    if schema_findings:
-        details = "; ".join(
-            f"{item.path}: {item.code}" for item in schema_findings
-        )
-        raise ValueError(f"Operation contract is invalid: {details}")
-    contract_id = operation_contract.get("$id")
-    if not isinstance(contract_id, str) or not contract_id.startswith(
-        f"cg-skill-{operation}-"
-    ):
-        raise ValueError("Operation contract $id must match operation identity")
-    definitions = operation_contract.get("$defs")
-    if not isinstance(definitions, dict) or not all(
-        isinstance(definitions.get(name), dict)
-        for name in ("arguments", "resultData")
-    ):
-        raise ValueError(
-            "Operation contract must define $defs.arguments and $defs.resultData"
-        )
-    return descriptor, operation_contract
+    except contracts.DescriptorValidationError as error:
+        raise ValueError(str(error)) from error
+    return dict(record.descriptor), dict(record.contract)
 
 
 def _validate_request(source_root: Path, request: Mapping[str, Any]) -> None:
@@ -304,14 +222,24 @@ def _root_operation_schema(schema: Mapping[str, Any], identifier: str) -> dict:
     rooted = dict(schema)
     rooted["$schema"] = contracts.SCHEMA_DIALECT
     rooted["$id"] = identifier
+    if isinstance(schema.get("$defs"), dict):
+        rooted["$defs"] = dict(schema["$defs"])
     return rooted
 
 
-def _load_handler(source_root: Path, operation: str):
+def _load_handler(
+    source_root: Path,
+    operation: str,
+    handler_spec: Optional[str] = None,
+):
     """Load one handler from validated, captured source bytes."""
-    module_name = f"skill_management.operations.{operation.replace('-', '_')}"
+    if handler_spec is None:
+        operation_module = operation.replace("-", "_")
+    else:
+        operation_module = contracts.operation_handler_module(operation, handler_spec)
+    module_name = f"skill_management.operations.{operation_module}"
     relative = PurePosixPath(
-        f"scripts/skill_management/operations/{operation.replace('-', '_')}.py"
+        f"scripts/skill_management/operations/{operation_module}.py"
     )
     content = secure_fs.secure_read_bytes(
         source_root,
@@ -515,7 +443,11 @@ def _dispatch(
         request["planDigest"] = plan_digest
     try:
         _validate_request(discovered.source_root, request)
-        handler = _load_handler(discovered.source_root, operation)
+        handler = _load_handler(
+            discovered.source_root,
+            operation,
+            str(descriptor["handler"]),
+        )
         outcome = handler(context=discovered, request=request)
         if not isinstance(outcome, OperationOutcome):
             raise TypeError("Operation handler must return OperationOutcome")

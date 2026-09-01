@@ -171,12 +171,18 @@ def _fake_loader(
     calls: list[str],
     root: Path,
     handler: Optional[Callable[..., OperationOutcome]] = None,
-) -> Callable[[Path, str], object]:
+) -> Callable[..., object]:
     def default_handler(**_: object) -> OperationOutcome:
         return OperationOutcome(data={"value": "ok"})
 
-    def load_handler(source_root: Path, operation: str) -> object:
+    def load_handler(
+        source_root: Path,
+        operation: str,
+        handler_spec: Optional[str] = None,
+    ) -> object:
         assert source_root == root
+        if handler_spec is not None:
+            assert handler_spec.startswith("skill_management.operations.")
         calls.append(f"skill_management.operations.{operation}")
         return handler or default_handler
 

@@ -322,7 +322,7 @@
       "path": ".kilo/commands/cg-release.md",
       "source": ".github/prompts/cg-release.prompt.md",
       "kind": "command",
-      "sha256": "69343cf861b06b2335379256a11a1241f5295050e881da869aaa1dcf96423c9e",
+      "sha256": "a285f3b4fa11090209c9184839806c1b153a282f156839d4b10dc9ea6c7cd09c",
       "executable": false
     },
     {
@@ -567,14 +567,14 @@
       "path": ".kilo/shared/target-mapping.json",
       "source": ".github/shared/target-mapping.json",
       "kind": "shared",
-      "sha256": "ac6a2ad2ced44c7d99ffa05d4e962d349fe870152bc21263a692ae919367deec",
+      "sha256": "46b47adf93a379104605d0621dfbf52431271bb1ffa1097f36c7c9f6ed29dc43",
       "executable": false
     },
     {
       "path": ".kilo/shared/vendor-policy.json",
       "source": ".github/shared/vendor-policy.json",
       "kind": "shared",
-      "sha256": "12670cfe9582750acd6871c9132e6cba78a764e952a35e7b24b8eafa0c08c12d",
+      "sha256": "3d4ccc01d3af57ef02497c0346c015ea9ba384a093580debfae08b072af18d6f",
       "executable": false
     },
     {

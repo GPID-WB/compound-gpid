@@ -16,6 +16,107 @@ if (-not $script:OnWindows) {
     return
 }
 
+Describe "link.ps1 - hybrid Copilot skill projection" {
+    BeforeAll {
+        $repoRoot = Split-Path $PSScriptRoot -Parent
+        $mapping = Get-Content (Join-Path $repoRoot ".github\shared\target-mapping.json") -Raw -Encoding UTF8 | ConvertFrom-Json
+        $copilot = @($mapping.targets | Where-Object { $_.id -eq "copilot" })[0]
+        $linkContent = Get-Content (Join-Path $repoRoot "scripts\link.ps1") -Raw -Encoding UTF8
+    }
+
+    It "declares skills as the only projected Copilot category" {
+        @($copilot.projectedCategories).Count | Should -Be 1
+        @($copilot.projectedCategories)[0] | Should -Be "skills"
+        @($copilot.projectRoots.managed).Count | Should -Be 1
+        @($copilot.projectRoots.managed)[0] | Should -Be ".github/skills"
+    }
+
+    It "does not install a whole Copilot skills junction" {
+        @($copilot.installUnits | Where-Object { $_.target -eq ".github/skills" }).Count | Should -Be 0
+        $linkContent | Should -Match 'projectedCategories'
+        $linkContent | Should -Match 'Copilot skills projected by manifest'
+        $linkContent | Should -Match 'Invoke-CgProjection'
+    }
+
+    It "keeps every non-skill Copilot install unit on its existing topology" {
+        $directoryTargets = @($copilot.installUnits | Where-Object { $_.type -eq "directory" } | ForEach-Object { $_.target })
+        $directoryTargets | Should -Contain ".github/prompts"
+        $directoryTargets | Should -Contain ".github/agents"
+        $directoryTargets | Should -Contain ".github/instructions"
+        $directoryTargets | Should -Contain ".github/shared"
+        @($copilot.installUnits | Where-Object { $_.target -eq ".github/copilot-instructions.md" }).Count | Should -Be 1
+    }
+
+    It "migrates only the exact managed skills junction and preserves a user bundle" {
+        $project = Join-Path $TestDrive "copilot-projected-migration"
+        $github = Join-Path $project ".github"
+        $skills = Join-Path $github "skills"
+        New-Item -ItemType Directory -Path $project, $github -Force | Out-Null
+        Set-Content -LiteralPath (Join-Path $project "compound-gpid.local.md") -Value @(
+            "---",
+            'language: "python"',
+            "suites: [cg]",
+            "---",
+            "# Copilot migration fixture"
+        )
+        New-Item -ItemType Junction -Path $skills -Value (Join-Path $repoRoot ".github\skills") | Out-Null
+        $oldSkipUpdate = $env:CG_SKIP_UPDATE
+        Push-Location $project
+        try {
+            $env:CG_SKIP_UPDATE = "1"
+            & (Join-Path $repoRoot "scripts\link.ps1") -RawArgs @("--platforms", "copilot", "--yes")
+            (Get-Item -LiteralPath $skills -Force).LinkType | Should -BeNullOrEmpty
+            Test-Path -LiteralPath (Join-Path $skills "cg-skill-setup\SKILL.md") | Should -Be $true
+
+            $userSkill = Join-Path $skills "user-owned\SKILL.md"
+            New-Item -ItemType Directory -Path (Split-Path $userSkill -Parent) -Force | Out-Null
+            Set-Content -LiteralPath $userSkill -Value "# User owned"
+            & (Join-Path $repoRoot "scripts\link.ps1") -RawArgs @("--platforms=copilot", "--yes")
+            (Get-Content -LiteralPath $userSkill -Raw).Trim() | Should -Be "# User owned"
+        } finally {
+            try { & (Join-Path $repoRoot "scripts\unlink.ps1") -RawArgs @("--yes") } catch { }
+            Pop-Location
+            $env:CG_SKIP_UPDATE = $oldSkipUpdate
+        }
+    }
+
+    It "rejects a user-owned skills junction without removing its target" {
+        $project = Join-Path $TestDrive "copilot-user-junction"
+        $outside = Join-Path $TestDrive "copilot-user-skills"
+        $github = Join-Path $project ".github"
+        $skills = Join-Path $github "skills"
+        New-Item -ItemType Directory -Path $project, $outside, $github -Force | Out-Null
+        Set-Content -LiteralPath (Join-Path $outside "sentinel.txt") -Value "preserve"
+        Set-Content -LiteralPath (Join-Path $project "compound-gpid.local.md") -Value @(
+            "---",
+            'language: "python"',
+            "suites: [cg]",
+            "---",
+            "# Copilot user-link fixture"
+        )
+        New-Item -ItemType Junction -Path $skills -Value $outside | Out-Null
+        $oldSkipUpdate = $env:CG_SKIP_UPDATE
+        Push-Location $project
+        try {
+            $env:CG_SKIP_UPDATE = "1"
+            $scriptPath = Join-Path $repoRoot "scripts\link.ps1"
+            $command = "& '$scriptPath' -RawArgs @('--platforms','copilot','--yes')"
+            & powershell.exe -NoProfile -ExecutionPolicy Bypass -Command $command 2>$null | Out-Null
+            $LASTEXITCODE | Should -Not -Be 0
+            (Get-Item -LiteralPath $skills -Force).LinkType | Should -Be "Junction"
+            (Get-Content -LiteralPath (Join-Path $outside "sentinel.txt") -Raw).Trim() | Should -Be "preserve"
+        } finally {
+            Pop-Location
+            $item = Get-Item -LiteralPath $skills -Force -ErrorAction SilentlyContinue
+            if ($item -and $item.LinkType -eq "Junction") { [System.IO.Directory]::Delete($item.FullName) }
+            Push-Location $project
+            try { & (Join-Path $repoRoot "scripts\unlink.ps1") -RawArgs @("--yes") } catch { }
+            Pop-Location
+            $env:CG_SKIP_UPDATE = $oldSkipUpdate
+        }
+    }
+}
+
 Describe "link.ps1 - pre-condition checks" {
     Context "compound-gpid global clone detection" {
         It "passes when install path exists" {

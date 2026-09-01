@@ -131,6 +131,7 @@
             "update-manifest",
             "generate-targets",
             "publish-projection",
+            "apply-migration",
             "write-tombstone",
             "verify"
           ]

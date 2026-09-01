@@ -43,6 +43,7 @@ from typing import Any, Dict, Iterable, Mapping, Optional, Sequence, Tuple
 
 import secure_fs
 from skill_management import paths as path_policy
+from skill_management.services import bundles as bundle_service
 
 TARGET_MAPPING_PATH = ".github/shared/target-mapping.json"
 
@@ -70,8 +71,8 @@ CANONICAL_PROMPTS_GLOB = ".github/prompts/*.prompt.md"
 CANONICAL_AGENTS_GLOB = ".github/agents/*.agent.md"
 CANONICAL_SKILLS_GLOB = ".github/skills/*/SKILL.md"
 CANONICAL_INSTRUCTIONS_GLOB = ".github/instructions/*.instructions.md"
-MARKDOWN_LINK_PATTERN = re.compile(r"!?\[[^\]]*\]\(\s*<?([^\s)>]+)>?(?:\s+[^)]*)?\)")
-MARKDOWN_REFERENCE_PATTERN = re.compile(r"^\s*\[[^\]]+\]:\s*<?([^\s>]+)>?", re.MULTILINE)
+MARKDOWN_LINK_PATTERN = bundle_service.MARKDOWN_LINK_PATTERN
+MARKDOWN_REFERENCE_PATTERN = bundle_service.MARKDOWN_REFERENCE_PATTERN
 CANONICAL_RUNTIME_PATH_PATTERN = re.compile(
     r"(?<![A-Za-z0-9_.-])\.github/(prompts|skills|agents|instructions|shared)/"
     r"[^\s`'\"<>)/][^\s`'\"<>)]*"
@@ -88,6 +89,7 @@ REQUIRED_FORMAT_FIELDS = {"commandFormat", "skillFormat", "agentFormat"}
 REQUIRED_OUTPUT_PATH_FIELDS = {"commands", "skills", "agents", "instructions", "shared"}
 VALID_INSTALL_UNIT_TYPES = {"directory", "file"}
 VALID_INSTALL_UNIT_STRATEGIES = {"link-directory", "copy-directory", "managed-copy", "generated-copy", "config-copy-or-snippet"}
+VALID_PROJECTED_CATEGORIES = {"skills"}
 TARGET_ID_PATTERN = re.compile(r"^[a-z][a-z0-9-]*$")
 WINDOWS_RESERVED_NAMES = {
     "con", "prn", "aux", "nul",
@@ -115,6 +117,8 @@ class OutputEntry:
     content: bytes
     sha256: str
     executable: bool
+    origin: str = "plugin-canonical"
+    provenance_identity: str = "canonical/.github"
 
 
 @dataclass(frozen=True)
@@ -291,8 +295,23 @@ def _validate_project_roots(prefix: str, project_roots: Any) -> list[str]:
             errors.extend(_validate_repo_relative_path(
                 f"{prefix}.projectRoots.{kind}[{i}]", value
             ))
-            if isinstance(value, str) and _is_within(value, ".github"):
-                errors.append(f"{prefix}.projectRoots.{kind}[{i}]: managed/optional user roots must be outside canonical .github")
+    return errors
+
+
+def _validate_projected_categories(prefix: str, categories: Any) -> list[str]:
+    """Validate the optional category-level projection declaration."""
+    if categories is None:
+        return []
+    if not isinstance(categories, list) or not categories:
+        return [f"{prefix}.projectedCategories: must be a non-empty array"]
+    errors = []
+    if len(categories) != len(set(categories)):
+        errors.append(f"{prefix}.projectedCategories: entries must be unique")
+    unknown = [item for item in categories if item not in VALID_PROJECTED_CATEGORIES]
+    if unknown:
+        errors.append(
+            f"{prefix}.projectedCategories: unsupported categories {unknown!r}"
+        )
     return errors
 
 
@@ -351,6 +370,11 @@ def validate_target_mapping(data: dict[str, Any]) -> list[str]:
         errors.extend(_validate_output_paths(prefix, target.get("outputPaths", {})))
         errors.extend(_validate_install_units(prefix, target.get("installUnits")))
         errors.extend(_validate_project_roots(prefix, target.get("projectRoots")))
+        errors.extend(
+            _validate_projected_categories(
+                prefix, target.get("projectedCategories")
+            )
+        )
 
         gtp = target.get("generatedTreePath")
         if gtp is not None and not isinstance(gtp, str):
@@ -381,6 +405,26 @@ def validate_target_mapping(data: dict[str, Any]) -> list[str]:
                         errors.append(f"{first_label} and {second_label}: portable path collision")
                     elif first_key == second_key[:len(first_key)] or second_key == first_key[:len(second_key)]:
                         errors.append(f"{first_label} and {second_label}: file/directory prefix conflict")
+
+        projected_categories = target.get("projectedCategories")
+        if isinstance(projected_categories, list):
+            roots = target.get("projectRoots", {})
+            managed = roots.get("managed", []) if isinstance(roots, dict) else []
+            expected_roots = [
+                target.get("outputPaths", {}).get(category)
+                for category in projected_categories
+            ]
+            if managed != expected_roots:
+                errors.append(
+                    f"{prefix}.projectRoots.managed: must exactly match projected category roots"
+                )
+        elif isinstance(target.get("projectRoots"), dict):
+            for kind in ("managed", "optionalUser"):
+                for root_value in target["projectRoots"].get(kind, []):
+                    if isinstance(root_value, str) and _is_within(root_value, ".github"):
+                        errors.append(
+                            f"{prefix}.projectRoots.{kind}: .github roots require projectedCategories"
+                        )
 
         if isinstance(gtp, str) and isinstance(target.get("installUnits"), list):
             for unit_index, unit in enumerate(target["installUnits"]):
@@ -440,7 +484,10 @@ def build_generation_plan(
     by_target: dict[str, TargetResult] = {}
     lookups = _build_asset_lookup(assets)
     for target in mapping["targets"]:
-        if target.get("generatedTreePath") is None:
+        if (
+            target.get("generatedTreePath") is None
+            and not target.get("projectedCategories")
+        ):
             continue
         render_context = (lookups, _runtime_destination_map(target, assets))
         rendered = tuple(sorted(
@@ -449,9 +496,10 @@ def build_generation_plan(
             key=lambda entry: entry.destination,
         ))
         _validate_output_namespace(target["id"], rendered)
-        by_target[target["id"]] = TargetResult(
-            target["id"], target["generatedTreePath"], rendered
-        )
+        target_root = target.get("generatedTreePath")
+        if target_root is None:
+            target_root = target["projectRoots"]["managed"][0]
+        by_target[target["id"]] = TargetResult(target["id"], target_root, rendered)
     entries = tuple(sorted(
         (entry for result in by_target.values() for entry in result.entries),
         key=lambda entry: entry.destination,
@@ -649,6 +697,8 @@ def scan_canonical_assets(
                 "frontmatter": fm,
                 "body": content,
                 "filename": path.name,
+                "origin": "plugin-canonical",
+                "provenance_identity": "canonical/.github",
             })
 
     shared_paths = path_policy.inventory_shared_assets(
@@ -750,6 +800,8 @@ def scan_canonical_assets(
             if item["bundle_relative_path"] == "SKILL.md"
         )
         skill["executable"] = skill_file["executable"]
+        skill["origin"] = "plugin-canonical"
+        skill["provenance_identity"] = "canonical/.github"
         _validate_bundle_markdown_references(skill["bundle_files"])
 
     for category in required_roots:
@@ -802,130 +854,219 @@ def _inventory_skill_bundle(
     git_executables: Optional[set[str]] = None,
 ) -> list[dict[str, Any]]:
     """Inventory regular files below a skill without following filesystem links."""
-    files: list[dict[str, Any]] = []
+    source_path = skill_root.relative_to(root).as_posix()
+    inventory = bundle_service.inventory_bundle(
+        root,
+        source_path,
+        origin="plugin-canonical",
+        executable_paths=tuple(git_executables) if git_executables is not None else None,
+        validate_frontmatter=False,
+    )
+    return [
+        {
+            "path": str(root / item.source_path),
+            "relative_path": item.source_path,
+            "bundle_relative_path": item.bundle_path,
+            "content": bundle_service.normalized_content(item),
+            "executable": item.executable,
+            "origin": inventory.origin,
+            "provenance_identity": "canonical/.github",
+        }
+        for item in inventory.files
+    ]
 
-    def visit(directory: Path) -> None:
-        with os.scandir(str(directory)) as entries:
-            for entry in sorted(entries, key=lambda item: item.name):
-                path = Path(entry.path)
-                relative = path.relative_to(skill_root).as_posix()
-                if entry.is_symlink():
-                    raise ValueError(f"Skill bundle contains symlink entry: {relative}")
-                if entry.is_dir(follow_symlinks=False):
-                    if entry.name == "__pycache__":
-                        # Python bytecode caches are local interpreter artifacts,
-                        # never canonical skill bundle content. They appear when
-                        # a validator module is imported during local test runs
-                        # and must not leak into generated trees or manifests.
-                        continue
-                    visit(path)
-                elif entry.is_file(follow_symlinks=False):
-                    if _is_python_cache_path(relative):
-                        raise ValueError(
-                            f"Skill bundle contains Python cache artifact: {relative}"
-                        )
-                    mode = entry.stat(follow_symlinks=False).st_mode
-                    source_relative = path.relative_to(root).as_posix()
-                    executable = (
-                        source_relative in git_executables
-                        if git_executables is not None
-                        else bool(mode & 0o111)
-                    )
-                    files.append({
-                        "path": str(path),
-                        "relative_path": source_relative,
-                        "bundle_relative_path": relative,
-                        "content": _skill_bundle_content(path),
-                        "executable": executable,
-                    })
-                else:
-                    raise ValueError(f"Skill bundle contains non-regular special entry: {relative}")
 
-    visit(skill_root)
-    return sorted(files, key=lambda item: item["bundle_relative_path"])
+def skill_asset_from_inventory(
+    inventory: bundle_service.BundleInventory,
+    *,
+    provenance_identity: str,
+    supported_platforms: Optional[Sequence[str]] = None,
+) -> dict[str, Any]:
+    """Convert one validated bundle inventory to renderer-neutral skill data.
+
+    Args:
+        inventory: Complete canonical or project bundle inventory.
+        provenance_identity: Stable redacted provenance identity.
+        supported_platforms: Optional platform eligibility restriction.
+
+    Returns:
+        A skill asset accepted by the existing target renderer.
+
+    Raises:
+        ValueError: If the inventory has no UTF-8 ``SKILL.md`` file.
+
+    Example:
+        ``skill_asset_from_inventory(project_bundle, provenance_identity="repo@sha")``
+    """
+    bundle_files = []
+    skill_content = None
+    for item in inventory.files:
+        content = bundle_service.normalized_content(item)
+        if item.bundle_path == "SKILL.md":
+            try:
+                skill_content = content.decode("utf-8")
+            except UnicodeDecodeError as error:
+                raise ValueError(
+                    f"Skill entry is not valid UTF-8: {item.source_path}"
+                ) from error
+        bundle_files.append(
+            {
+                "path": item.source_path,
+                "relative_path": item.source_path,
+                "bundle_relative_path": item.bundle_path,
+                "content": content,
+                "executable": item.executable,
+                "origin": inventory.origin,
+                "provenance_identity": provenance_identity,
+            }
+        )
+    if skill_content is None:
+        raise ValueError(f"Skill bundle has no SKILL.md: {inventory.source_path}")
+    skill_file = next(
+        item for item in bundle_files if item["bundle_relative_path"] == "SKILL.md"
+    )
+    return {
+        "path": str(Path(inventory.source_path) / "SKILL.md"),
+        "relative_path": f"{inventory.source_path}/SKILL.md",
+        "frontmatter": dict(inventory.frontmatter),
+        "body": skill_content,
+        "filename": "SKILL.md",
+        "bundle_files": bundle_files,
+        "executable": skill_file["executable"],
+        "origin": inventory.origin,
+        "provenance_identity": provenance_identity,
+        "supported_platforms": (
+            tuple(supported_platforms) if supported_platforms is not None else None
+        ),
+    }
+
+
+def add_bundle_inventories(
+    assets: dict[str, list[dict[str, Any]]],
+    inventories: Sequence[bundle_service.BundleInventory],
+    *,
+    provenance_identities: Mapping[str, str],
+    supported_platforms: Mapping[str, Sequence[str]],
+) -> dict[str, list[dict[str, Any]]]:
+    """Return detached renderer assets with validated bundles added.
+
+    Args:
+        assets: Existing canonical renderer asset inventory.
+        inventories: Additional source-neutral bundle inventories.
+        provenance_identities: Stable identity by bundle identifier.
+        supported_platforms: Eligibility set by bundle identifier.
+
+    Returns:
+        Detached assets with a deterministic combined skill list.
+
+    Raises:
+        ValueError: If source or destination identities collide portably.
+
+    Example:
+        ``combined = add_bundle_inventories(canonical, project_bundles, ...)``
+    """
+    result = {key: list(value) for key, value in assets.items()}
+    skills = list(result.get("skills", []))
+    seen = {
+        path_policy.portable_path_key(Path(item["relative_path"]).parent.name):
+        item["relative_path"]
+        for item in skills
+    }
+    for inventory in inventories:
+        key = path_policy.portable_path_key(inventory.identifier)
+        if key in seen:
+            raise ValueError(
+                "Skill output identity collision between origins: "
+                f"{seen[key]} and {inventory.source_path}"
+            )
+        identity = provenance_identities.get(inventory.identifier)
+        if not identity:
+            raise ValueError(
+                f"Missing provenance identity for bundle {inventory.identifier}"
+            )
+        asset = skill_asset_from_inventory(
+            inventory,
+            provenance_identity=identity,
+            supported_platforms=supported_platforms.get(inventory.identifier, ()),
+        )
+        skills.append(asset)
+        seen[key] = asset["relative_path"]
+    result["skills"] = sorted(skills, key=lambda item: item["relative_path"])
+    return result
+
+
+def replace_bundle_inventories(
+    assets: dict[str, list[dict[str, Any]]],
+    inventories: Sequence[bundle_service.BundleInventory],
+    *,
+    provenance_identities: Mapping[str, str],
+    supported_platforms: Mapping[str, Sequence[str]],
+) -> dict[str, list[dict[str, Any]]]:
+    """Replace selected canonical skill assets with staged inventories.
+
+    This is the pure counterpart to canonical lifecycle publication. It lets
+    manifest and projection planning render exact future bytes before source
+    files are live while retaining the existing platform renderer.
+    """
+    identifiers = {item.identifier for item in inventories}
+    detached = {key: list(value) for key, value in assets.items()}
+    detached["skills"] = [
+        item
+        for item in detached.get("skills", [])
+        if Path(item["relative_path"]).parent.name not in identifiers
+    ]
+    return add_bundle_inventories(
+        detached,
+        inventories,
+        provenance_identities=provenance_identities,
+        supported_platforms=supported_platforms,
+    )
 
 
 def _skill_bundle_content(path: Path) -> bytes:
-    """Read one skill resource with deterministic Markdown line endings."""
+    """Compatibility shim for shared deterministic bundle normalization."""
     content = path.read_bytes()
-    if path.suffix.casefold() not in {".md", ".markdown"}:
-        return content
-    try:
-        text = content.decode("utf-8")
-    except UnicodeDecodeError as exc:
-        raise ValueError(f"Markdown file is not valid UTF-8: {path}") from exc
-    return text.replace("\r\n", "\n").replace("\r", "\n").encode("utf-8")
+    file = bundle_service.BundleFile(
+        path.as_posix(),
+        path.name,
+        content,
+        hashlib.sha256(content).hexdigest(),
+        False,
+    )
+    return bundle_service.normalized_content(file)
 
 
 def _validate_bundle_markdown_references(
     bundle_files: list[dict[str, Any]],
 ) -> None:
     """Validate local Markdown references against files in one skill bundle."""
-    included = {item["bundle_relative_path"] for item in bundle_files}
-    for item in bundle_files:
-        if not item["bundle_relative_path"].casefold().endswith((".md", ".markdown")):
-            continue
-        try:
-            text = item["content"].decode("utf-8")
-        except UnicodeDecodeError as exc:
-            raise ValueError(
-                f"Markdown file is not valid UTF-8: {item['relative_path']}"
-            ) from exc
-        text = _strip_fenced_code(text)
-        references = MARKDOWN_LINK_PATTERN.findall(text)
-        references.extend(MARKDOWN_REFERENCE_PATTERN.findall(text))
-        source_relative = PurePosixPath(item["bundle_relative_path"])
-        for raw_reference in references:
-            reference = urllib.parse.unquote(raw_reference).split("#", 1)[0].split("?", 1)[0]
-            if not reference or reference.startswith("#"):
-                continue
-            parsed = urllib.parse.urlsplit(reference)
-            if parsed.scheme or parsed.netloc:
-                continue
-            if reference.startswith(("/", "\\")) or re.match(r"^[A-Za-z]:", reference):
-                raise ValueError(
-                    f"Markdown reference escapes skill bundle: {item['relative_path']} -> {raw_reference}"
-                )
-            parts: list[str] = []
-            escaped = False
-            for part in source_relative.parent.joinpath(PurePosixPath(reference.replace("\\", "/"))).parts:
-                if part in ("", "."):
-                    continue
-                if part == "..":
-                    if not parts:
-                        escaped = True
-                        break
-                    parts.pop()
-                else:
-                    parts.append(part)
-            resolved = PurePosixPath(*parts).as_posix()
-            if escaped:
-                raise ValueError(
-                    f"Markdown reference escapes skill bundle: {item['relative_path']} -> {raw_reference}"
-                )
-            if resolved not in included:
-                raise ValueError(
-                    f"Markdown reference is missing from skill bundle: {item['relative_path']} -> {raw_reference}"
-                )
+    files = tuple(
+        bundle_service.BundleFile(
+            item["relative_path"],
+            item["bundle_relative_path"],
+            item["content"],
+            hashlib.sha256(item["content"]).hexdigest(),
+            bool(item.get("executable", False)),
+        )
+        for item in bundle_files
+    )
+    inventory = bundle_service.BundleInventory(
+        "fixture",
+        ".github/skills/fixture",
+        "plugin-canonical",
+        {},
+        files,
+        "0" * 64,
+    )
+    issues = bundle_service.validate_markdown_references(inventory)
+    if issues:
+        issue = issues[0]
+        raise ValueError(f"{issue.message}: {issue.path}")
 
 
 def _strip_fenced_code(text: str) -> str:
-    """Remove closed or unterminated Markdown fenced code blocks."""
-    output: list[str] = []
-    fence_character: Optional[str] = None
-    fence_length = 0
-    for line in text.splitlines(keepends=True):
-        match = re.match(r"^[ \t]{0,3}(`{3,}|~{3,})", line)
-        if fence_character is None:
-            if match:
-                fence_character = match.group(1)[0]
-                fence_length = len(match.group(1))
-            else:
-                output.append(line)
-        elif match and match.group(1)[0] == fence_character and len(match.group(1)) >= fence_length:
-            fence_character = None
-            fence_length = 0
-    return "".join(output)
+    """Compatibility shim for the shared Markdown reference service."""
+    return bundle_service.strip_fenced_code(text)
 
 
 def load_target_mapping(root: Path) -> dict[str, Any]:
@@ -955,6 +1096,9 @@ def _manifest_skills(target: dict[str, Any], skills: list[dict[str, Any]]) -> li
     skill_dir = target.get("outputPaths", {}).get("skills", "")
     entries: list[dict[str, str]] = []
     for skill in skills:
+        supported = skill.get("supported_platforms")
+        if supported is not None and target["id"] not in supported:
+            continue
         skill_name = Path(skill["relative_path"]).parent.name
         bundle_files = skill.get("bundle_files")
         if bundle_files is None:
@@ -1019,26 +1163,35 @@ def build_output_manifest(
     output_paths = target.get("outputPaths", {})
     gtp = target.get("generatedTreePath")
 
-    if gtp is None:
+    projected_categories = target.get("projectedCategories")
+    if gtp is None and not projected_categories:
         return manifest
 
-    manifest.extend(_manifest_commands(target, assets["prompts"]))
-    manifest.extend(_manifest_skills(target, assets["skills"]))
-    manifest.extend(_manifest_agents(target, assets["agents"]))
-    manifest.extend(_manifest_passthrough(
-        target, assets["prompt_support"], "commands", "prompt-support"
+    categories = set(projected_categories or (
+        "commands", "skills", "agents", "instructions", "shared"
     ))
-    manifest.extend(_manifest_passthrough(
-        target, assets["instructions"], "instructions", "instruction"
-    ))
-    manifest.extend(_manifest_passthrough(
-        target, assets["shared"], "shared", "shared"
-    ))
+    if "commands" in categories:
+        manifest.extend(_manifest_commands(target, assets["prompts"]))
+        manifest.extend(_manifest_passthrough(
+            target, assets["prompt_support"], "commands", "prompt-support"
+        ))
+    if "skills" in categories:
+        manifest.extend(_manifest_skills(target, assets["skills"]))
+    if "agents" in categories:
+        manifest.extend(_manifest_agents(target, assets["agents"]))
+    if "instructions" in categories:
+        manifest.extend(_manifest_passthrough(
+            target, assets["instructions"], "instructions", "instruction"
+        ))
+    if "shared" in categories:
+        manifest.extend(_manifest_passthrough(
+            target, assets["shared"], "shared", "shared"
+        ))
 
-    if output_paths.get("rootAdapter"):
+    if not projected_categories and output_paths.get("rootAdapter"):
         manifest.append({"path": output_paths["rootAdapter"], "source": "adapter", "type": "root-adapter"})
 
-    if output_paths.get("config"):
+    if not projected_categories and output_paths.get("config"):
         manifest.append({"path": output_paths["config"], "source": "target-mapping", "type": "config"})
 
     return manifest
@@ -1131,6 +1284,9 @@ def _runtime_destination_map(
         relative = shared.get("category_relative_path", shared["filename"])
         destinations[shared["relative_path"]] = f"{paths['shared']}/{relative}"
     for skill in assets["skills"]:
+        supported = skill.get("supported_platforms")
+        if supported is not None and target["id"] not in supported:
+            continue
         skill_name = Path(skill["relative_path"]).parent.name
         for item in skill["bundle_files"]:
             destinations[item["relative_path"]] = (
@@ -1172,8 +1328,14 @@ def _rewrite_runtime_dependencies(
         return destination + suffix
 
     rewritten = CANONICAL_RUNTIME_PATH_PATTERN.sub(replace, text)
-    unresolved = CANONICAL_RUNTIME_PATH_PATTERN.search(rewritten)
-    if unresolved:
+    for unresolved in CANONICAL_RUNTIME_PATH_PATTERN.finditer(rewritten):
+        raw = unresolved.group(0).rstrip(".,;:")
+        decoded = urllib.parse.unquote(raw)
+        # Hybrid Copilot projection deliberately keeps non-skill topology at
+        # canonical .github paths. An exact identity destination is resolved,
+        # even though its rendered text still contains the canonical path.
+        if destinations.get(decoded) == decoded:
+            continue
         raise ValueError(
             f"unresolved canonical runtime dependency in {source_identity}: "
             f"{unresolved.group(0)}"
@@ -1259,10 +1421,17 @@ def _render_output_entry(
         )
         content = text.encode("utf-8")
     executable = bool(source.get("executable", False)) if source is not None else False
+    origin = str(source.get("origin", "plugin-canonical")) if source is not None else "plugin-canonical"
+    provenance_identity = (
+        str(source.get("provenance_identity", "canonical/.github"))
+        if source is not None
+        else "canonical/.github"
+    )
     return OutputEntry(
         target["id"], str(PurePosixPath(manifest_entry["path"])),
         str(PurePosixPath(source_identity)), kind, content,
-        hashlib.sha256(content).hexdigest(), executable,
+        hashlib.sha256(content).hexdigest(), executable, origin,
+        provenance_identity,
     )
 
 

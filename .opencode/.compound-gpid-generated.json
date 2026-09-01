@@ -322,7 +322,7 @@
       "path": ".opencode/commands/cg-release.md",
       "source": ".github/prompts/cg-release.prompt.md",
       "kind": "command",
-      "sha256": "1d9b0834752aa9943c791a1747ca3c5db6563a0adda6a0f22499ec96a163a436",
+      "sha256": "b23f9cfc22f8876a9187adf90ed705640ece90e5a1a4d2518a2d144bbaa3131f",
       "executable": false
     },
     {
@@ -567,14 +567,14 @@
       "path": ".opencode/shared/target-mapping.json",
       "source": ".github/shared/target-mapping.json",
       "kind": "shared",
-      "sha256": "ac6a2ad2ced44c7d99ffa05d4e962d349fe870152bc21263a692ae919367deec",
+      "sha256": "46b47adf93a379104605d0621dfbf52431271bb1ffa1097f36c7c9f6ed29dc43",
       "executable": false
     },
     {
       "path": ".opencode/shared/vendor-policy.json",
       "source": ".github/shared/vendor-policy.json",
       "kind": "shared",
-      "sha256": "12670cfe9582750acd6871c9132e6cba78a764e952a35e7b24b8eafa0c08c12d",
+      "sha256": "3d4ccc01d3af57ef02497c0346c015ea9ba384a093580debfae08b072af18d6f",
       "executable": false
     },
     {

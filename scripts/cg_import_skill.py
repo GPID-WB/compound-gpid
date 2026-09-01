@@ -15,8 +15,8 @@ Implements the ``/cg-import-skill`` command with two explicit modes:
 
 Both modes require a full immutable SHA, normalized approved upstream
 skill-root descendant, no redirects, no shell interpolation, no interactive
-credentials, disabled hooks/submodules/LFS smudging, and a network-free
-runtime result after the initial ``git archive`` fetch.
+credentials, nonrecursive public GitHub tree/blob traversal, and a network-free
+apply after quarantined admission.
 
 Usage:
     python scripts/cg_import_skill.py \\
@@ -50,6 +50,7 @@ import os
 import re
 import subprocess
 from pathlib import Path, PurePosixPath
+import stat
 from typing import Any, Dict, List, Optional, Tuple
 
 _scripts_dir = str(Path(__file__).parent)
@@ -69,6 +70,23 @@ from cg_vendor_policy import (
     check_identifier_collision,
     normalize_identifier,
 )
+import secure_fs
+from skill_management.providers.github import (
+    AcquisitionLimits,
+    GitHubAcquisitionError,
+    GitHubProvider,
+    normalize_public_github_origin,
+    normalize_source_path,
+)
+from skill_management import planning as lifecycle_planning
+from skill_management.context import (
+    discover_context,
+    require_maintainer_write_context,
+)
+from skill_management.services import admission as common_admission
+from skill_management.services import bundles as bundle_service
+from skill_management.services import maintenance as maintenance_service
+from skill_management.services import provenance as provenance_service
 
 # ── Constants ────────────────────────────────────────────────────────────────
 
@@ -123,7 +141,7 @@ def parse_import_spec(spec: str) -> Tuple[str, str, str]:
     return repo_url, sha, skill_path
 
 
-# ── Git archive fetch ────────────────────────────────────────────────────────
+# ── Bounded GitHub provider fetch ───────────────────────────────────────────
 
 def fetch_to_quarantine(
     repo_url: str,
@@ -132,141 +150,39 @@ def fetch_to_quarantine(
     quarantine_dir: Path,
     policy: Dict[str, Any],
 ) -> Tuple[bool, str, List[str]]:
-    """Fetch the pinned content into the quarantine directory.
-
-    Uses ``git archive --remote`` or ``git clone --depth 1`` + extraction.
-    On Windows, uses ``git archive`` with piped tar extraction.
-
-    Returns (ok, message, fetched_files).
-    """
-    errors: List[str] = []
-    fetched_files: List[str] = []
-
-    # Create quarantine directory
-    quarantine_dir.mkdir(parents=True, exist_ok=True)
-
-    # Use git archive to fetch pinned content
+    """Fetch exact GitHub blobs under canonical limits into new quarantine."""
+    limits = AcquisitionLimits(
+        max_metadata_bytes=int(policy.get("maxProviderMetadataBytes", 1024 * 1024)),
+        max_tree_depth=int(policy.get("maxProviderTreeDepth", 16)),
+        max_entries=int(policy.get("maxFileCount", 64)),
+        max_file_bytes=int(policy.get("maxFileSizeBytes", 262144)),
+        max_total_bytes=int(policy.get("maxBundleSizeBytes", 1048576)),
+    )
     try:
-        # Try git archive first (works with GitHub for some repos)
-        result = subprocess.run(
-            [
-                "git", "archive",
-                f"--remote={repo_url}",
-                sha,
-                skill_path,
-            ],
-            capture_output=True,
-            timeout=120,
-            env=_SAFE_GIT_ENV,
-        )
-        if result.returncode == 0:
-            # Extract tar to quarantine with member validation (tar-slip prevention)
-            import tarfile
-            import io
-
-            tar_data = result.stdout
-            if not tar_data:
-                return False, "git archive returned empty output", []
-
-            # Write to skill subdirectory in quarantine
-            dest = quarantine_dir / PurePosixPath(skill_path).name
-            dest.mkdir(parents=True, exist_ok=True)
-
-            with tarfile.open(fileobj=io.BytesIO(tar_data), mode="r:") as tar:
-                dest_real = os.path.realpath(str(dest))
-                safe_members = []
-                for member in tar.getmembers():
-                    member_dest = os.path.realpath(
-                        os.path.join(str(dest), member.name)
-                    )
-                    if not member_dest.startswith(dest_real + os.sep) and member_dest != dest_real:
-                        return False, f"Tar path traversal detected: {member.name}", []
-                    if member.issym() or member.islnk():
-                        return False, f"Symlink/hardlink in archive: {member.name}", []
-                    safe_members.append(member)
-                tar.extractall(path=str(dest), members=safe_members)
-
-            # Collect extracted files
-            for item in dest.rglob("*"):
-                if item.is_file():
-                    fetched_files.append(str(item.relative_to(quarantine_dir)))
-
-            return True, f"Fetched {len(fetched_files)} files", fetched_files
-    except subprocess.TimeoutExpired:
-        return False, "git archive timed out (120s)", []
-    except FileNotFoundError:
-        return False, "git not found on PATH", []
-
-    # Fallback: shallow clone + extract
-    clone_dir = quarantine_dir / "_clone_tmp"
-    try:
-        # Shallow clone with no checkout
-        result = subprocess.run(
-            [
-                "git", "clone",
-                "--depth=1",
-                "--no-checkout",
-                "--no-tags",
-                "--no-recurse-submodules",
-                "--config", "core.hooksPath=/dev/null",
-                "--config", "credential.helper=",
-                repo_url,
-                str(clone_dir),
-            ],
-            capture_output=True,
-            text=True,
-            timeout=120,
-            env=_SAFE_GIT_ENV,
-        )
-        if result.returncode != 0:
-            return False, f"Clone failed: {result.stderr.strip()}", []
-
-        # Checkout specific SHA (detached HEAD)
-        result = subprocess.run(
-            ["git", "checkout", sha, "--", skill_path],
-            capture_output=True,
-            text=True,
-            cwd=str(clone_dir),
-            timeout=30,
-            env=_SAFE_GIT_ENV,
-        )
-        if result.returncode != 0:
-            return False, f"Checkout of {sha} failed: {result.stderr.strip()}", []
-
-        # Copy to quarantine
-        source = clone_dir / skill_path
-        if not source.exists():
-            return False, f"Skill path not found after checkout: {skill_path}", []
-
-        dest = quarantine_dir / PurePosixPath(skill_path).name
-        dest.mkdir(parents=True, exist_ok=True)
-
-        import shutil
-        if source.is_dir():
-            for item in source.rglob("*"):
-                if item.is_file() and not item.is_symlink():
-                    rel = item.relative_to(source)
-                    target = dest / rel
-                    target.parent.mkdir(parents=True, exist_ok=True)
-                    shutil.copy2(str(item), str(target))
-                    fetched_files.append(str(target.relative_to(quarantine_dir)))
-        else:
-            target = dest / source.name
-            shutil.copy2(str(source), str(target))
-            fetched_files.append(str(target.relative_to(quarantine_dir)))
-
-        return True, f"Fetched {len(fetched_files)} files via clone", fetched_files
-
-    except subprocess.TimeoutExpired:
-        return False, "Clone timed out", []
-    finally:
-        # Clean up clone directory
-        if clone_dir.exists():
-            import shutil
-            try:
-                shutil.rmtree(str(clone_dir))
-            except OSError:
-                pass
+        acquired = GitHubProvider().acquire(repo_url, sha, skill_path, limits)
+        quarantine_dir.mkdir(parents=True, exist_ok=False)
+        metadata = os.lstat(str(quarantine_dir))
+        if stat.S_ISLNK(metadata.st_mode) or bool(
+            getattr(metadata, "st_file_attributes", 0) & 0x400
+        ) or not stat.S_ISDIR(metadata.st_mode):
+            return False, "Quarantine directory is a link or reparse point", []
+        skill_name = PurePosixPath(skill_path).name
+        fetched_files = []
+        for item in acquired.files:
+            relative = PurePosixPath(skill_name) / item.path
+            secure_fs.secure_write_bytes(
+                quarantine_dir,
+                relative,
+                item.content,
+                executable=False,
+                expected_state=secure_fs.ExpectedFileState.absent(),
+            )
+            fetched_files.append(relative.as_posix())
+        return True, f"Fetched {len(fetched_files)} verified Git blobs", fetched_files
+    except FileExistsError:
+        return False, "Quarantine destination already exists; preserve and reconcile it", []
+    except (GitHubAcquisitionError, OSError, ValueError) as error:
+        return False, f"Bounded GitHub acquisition failed: {error}", []
 
 
 # ── Quarantine metadata ──────────────────────────────────────────────────────
@@ -396,84 +312,119 @@ def register_vendor_skill(
     license_id: str = "",
     reviewer: str = "",
     approval_ref: str = "",
+    owner: str = "",
+    capability: str = "",
+    suites: Tuple[str, ...] = ("cg", "cr"),
+    platforms: Tuple[str, ...] = (
+        "copilot",
+        "claude-code",
+        "codex",
+        "opencode",
+        "kilo",
+    ),
+    activation_cost: str = "high",
+    triggers: Tuple[str, ...] = (),
+    selectors: Tuple[Dict[str, str], ...] = (),
+    apply_digest: str = "",
 ) -> Tuple[bool, str]:
-    """Register an approved quarantined bundle in the canonical source.
+    """Plan or apply legacy vendor input through the common lifecycle service.
 
-    Only callable in vendor mode from a verified canonical source checkout.
-    Copies the non-executable bundle into ``.github/skills/`` and registers
-    provenance in the module registry.
-
-    Returns (ok, message).
+    The compatibility entry performs no direct source or registry writes. With
+    no ``apply_digest`` it stores and returns a reviewable plan. With a digest it
+    recomputes and applies that exact plan through the held-lock transaction.
     """
-    # Verify canonical source
-    ok, reason = verify_canonical_source_checkout(source_checkout, policy)
-    if not ok:
-        return False, f"Not a verified canonical source checkout: {reason}"
-
-    # Load registry
-    registry_path = source_checkout / _REGISTRY_PATH
+    del policy
     try:
-        registry = json.loads(registry_path.read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, OSError) as exc:
-        return False, f"Cannot load module registry: {exc}"
-
-    # Determine destination
-    managed_root = source_checkout / policy.get("managedSkillRoot", ".github/skills/")
-    skill_name = PurePosixPath(skill_path).name
-    dest = managed_root / skill_name
-
-    # Check for collisions
-    existing_ids = {
-        cap["id"] for cap in registry.get("capabilities", [])
-    }
-    collision_ok, collision_reason = check_identifier_collision(
-        skill_name, existing_ids
-    )
-    if not collision_ok:
-        return False, collision_reason
-
-    # Check destination does not exist
-    if dest.exists():
-        return False, f"Destination already exists: {dest.relative_to(source_checkout)}"
-
-    # Copy from quarantine to managed root
-    import shutil
-    managed_root.mkdir(parents=True, exist_ok=True)
-
-    # Find the skill content in quarantine
-    quarantine_skill = quarantine_dir / skill_name
-    if not quarantine_skill.exists():
-        # Try finding any directory in quarantine
-        dirs = [d for d in quarantine_dir.iterdir() if d.is_dir() and d.name != "_clone_tmp"]
-        if len(dirs) == 1:
-            quarantine_skill = dirs[0]
-        else:
-            return False, f"Cannot locate skill content in quarantine"
-
-    shutil.copytree(str(quarantine_skill), str(dest))
-
-    # Add provenance entry to registry (vendor-imports section)
-    if "vendorImports" not in registry:
-        registry["vendorImports"] = []
-
-    registry["vendorImports"].append({
-        "skillName": skill_name,
-        "sourceRepository": repo_url,
-        "sourceCommitSha": sha,
-        "sourcePath": skill_path,
-        "importedAt": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "license": license_id,
-        "reviewer": reviewer,
-        "approvalRef": approval_ref,
-        "localPath": f".github/skills/{skill_name}/",
-    })
-
-    # Write updated registry
-    registry_path.write_text(
-        json.dumps(registry, indent=2) + "\n", encoding="utf-8"
-    )
-
-    return True, f"Vendored {skill_name} to .github/skills/{skill_name}/"
+        root = Path(source_checkout).resolve(strict=True)
+        context = discover_context(
+            root,
+            root,
+            invocation_path=root,
+            trusted_source_root=root,
+        )
+        require_maintainer_write_context(context)
+        normalized_origin = normalize_public_github_origin(repo_url)
+        normalized_path = normalize_source_path(skill_path)
+        if not owner or not capability or not triggers:
+            raise ValueError(
+                "Legacy vendor mode requires explicit owner, capability, and triggers"
+            )
+        common_policy = common_admission.load_admission_policy(root)
+        if not common_admission.repository_allowed_for_plugin(
+            normalized_origin, common_policy
+        ):
+            raise common_admission.AdmissionPolicyError(
+                "Plugin repository is not on the canonical allowlist"
+            )
+        skill_name = PurePosixPath(normalized_path).name
+        quarantine_skill = Path(quarantine_dir) / skill_name
+        if not quarantine_skill.is_dir():
+            candidates = [
+                item
+                for item in Path(quarantine_dir).iterdir()
+                if item.is_dir() and item.name != "_clone_tmp"
+            ]
+            if len(candidates) != 1:
+                raise ValueError("Cannot locate one quarantined skill bundle")
+            quarantine_skill = candidates[0]
+        candidate = bundle_service.inventory_bundle(
+            quarantine_skill.parent,
+            quarantine_skill.name,
+            origin="plugin-canonical",
+        )
+        admitted = common_admission.admit_bundle(
+            quarantine_skill, license_id, common_policy
+        )
+        if not admitted.ok:
+            first = admitted.findings[0]
+            raise common_admission.AdmissionPolicyError(
+                f"Plugin admission rejected {first.path or 'bundle'}: {first.code}"
+            )
+        metadata = maintenance_service.CapabilityMetadata(
+            capability,
+            owner,
+            tuple(suites),
+            tuple(platforms),
+            activation_cost,
+            tuple(triggers),
+            tuple(dict(item) for item in selectors),
+        )
+        evidence_digest = hashlib.sha256(admitted.evidence_bytes).hexdigest()
+        record = provenance_service.provenance_record(
+            candidate.identifier,
+            "plugin-canonical",
+            normalized_origin,
+            normalized_path,
+            sha,
+            candidate.digest,
+            "imported",
+            reviewer,
+            approval_ref,
+            policy_digest=common_policy.digest,
+            review_evidence_digest=evidence_digest,
+        )
+        plan = maintenance_service.plan_canonical_add(
+            root,
+            root,
+            candidate,
+            metadata,
+            record,
+            operation="import",
+            role=context.role,
+            policy_digest=common_policy.digest,
+            review_evidence_digest=evidence_digest,
+            license_id=license_id,
+        )
+        if not apply_digest:
+            stored = lifecycle_planning.store_plan(root, plan)
+            return True, (
+                f"Planned plugin vendoring for {skill_name}; "
+                f"apply with digest {stored.digest}"
+            )
+        result = lifecycle_planning.apply_plan(root, plan, apply_digest)
+        return True, f"Plugin vendoring {result.state}: {skill_name}"
+    except (OSError, ValueError, PermissionError) as error:
+        return False, f"Common plugin vendoring failed: {error}"
 
 
 # ── Main import workflow ─────────────────────────────────────────────────────
@@ -489,6 +440,20 @@ def run_import(
     license_id: str = "",
     reviewer: str = "",
     approval_ref: str = "",
+    owner: str = "",
+    capability: str = "",
+    suites: Tuple[str, ...] = ("cg", "cr"),
+    platforms: Tuple[str, ...] = (
+        "copilot",
+        "claude-code",
+        "codex",
+        "opencode",
+        "kilo",
+    ),
+    activation_cost: str = "high",
+    triggers: Tuple[str, ...] = (),
+    selectors: Tuple[Dict[str, str], ...] = (),
+    apply_digest: str = "",
 ) -> Tuple[bool, str]:
     """Execute the full import workflow.
 
@@ -523,14 +488,21 @@ def run_import(
         quarantine_base = root / policy.get(
             "quarantineDirectoryName", ".compound-gpid/quarantine"
         )
+    quarantine_base = Path(quarantine_base)
+    if not quarantine_base.is_absolute():
+        quarantine_base = root / quarantine_base
+    quarantine_base = Path(os.path.abspath(str(quarantine_base)))
+    try:
+        quarantine_base.relative_to(root)
+        secure_fs.revalidate_destination_ancestors(
+            root, quarantine_base / "candidate"
+        )
+    except (ValueError, secure_fs.SecureMutationError) as exc:
+        return False, f"Quarantine path must be confined under project root: {exc}"
     quarantine_dir = quarantine_base / f"{sha[:12]}_{PurePosixPath(skill_path).name}"
 
-    if quarantine_dir.exists():
-        import shutil
-        try:
-            shutil.rmtree(str(quarantine_dir))
-        except OSError as exc:
-            return False, f"Cannot clean quarantine: {exc}"
+    if quarantine_dir.exists() or quarantine_dir.is_symlink():
+        return False, "Quarantine destination already exists; preserve and reconcile it"
 
     # Step 5: Fetch to quarantine
     ok, msg, fetched_files = fetch_to_quarantine(
@@ -559,7 +531,7 @@ def run_import(
     review_path = review_dir / f"{slug}-review.md"
     review_path.write_text(review_diff, encoding="utf-8")
 
-    if not admission.ok:
+    if not admission.ok and mode != "vendor":
         return False, (
             f"Admission failed with {len(admission.errors)} error(s), "
             f"{len(admission.secret_findings)} secret finding(s), "
@@ -567,7 +539,9 @@ def run_import(
             f"Review: {review_path}"
         )
 
-    # Step 9: Vendor mode — register if approved
+    # Step 9: Vendor mode re-admits through the common canonical service. The
+    # legacy result above remains review context and cannot approve or block the
+    # common plugin-scope plan.
     if mode == "vendor":
         ok, msg = register_vendor_skill(
             source_checkout=root,
@@ -579,10 +553,18 @@ def run_import(
             license_id=license_id,
             reviewer=reviewer,
             approval_ref=approval_ref,
+            owner=owner,
+            capability=capability,
+            suites=suites,
+            platforms=platforms,
+            activation_cost=activation_cost,
+            triggers=triggers,
+            selectors=selectors,
+            apply_digest=apply_digest,
         )
         if not ok:
             return False, f"Vendor registration failed: {msg}"
-        return True, f"Vendored successfully. {msg}"
+        return True, msg
 
     # Review mode: quarantine only
     return True, (
@@ -618,6 +600,22 @@ def main() -> None:
     parser.add_argument("--license", type=str, default="", help="License identifier.")
     parser.add_argument("--reviewer", type=str, default="", help="Reviewer identity.")
     parser.add_argument("--approval-ref", type=str, default="", help="Approval reference.")
+    parser.add_argument("--owner", type=str, default="", help="Explicit owner module.")
+    parser.add_argument("--capability", type=str, default="", help="Explicit capability id.")
+    parser.add_argument("--suites", default="cg,cr", help="Comma-separated suite eligibility.")
+    parser.add_argument(
+        "--platforms",
+        default="copilot,claude-code,codex,opencode,kilo",
+        help="Comma-separated platform eligibility.",
+    )
+    parser.add_argument(
+        "--activation-cost",
+        choices=["low", "medium", "high"],
+        default="high",
+    )
+    parser.add_argument("--triggers", default="", help="Comma-separated task triggers.")
+    parser.add_argument("--selectors", default="[]", help="Strict selector JSON array.")
+    parser.add_argument("--apply", default="", help="Apply one reviewed plan digest.")
     args = parser.parse_args()
 
     if not args.import_spec:
@@ -646,6 +644,20 @@ def main() -> None:
         print(f"Error: {exc}", file=sys.stderr)
         sys.exit(2)
 
+    try:
+        selector_value = json.loads(args.selectors)
+        if not isinstance(selector_value, list) or any(
+            not isinstance(item, dict)
+            or set(item) != {"field", "operator", "value"}
+            or any(not isinstance(value, str) or not value for value in item.values())
+            for item in selector_value
+        ):
+            raise ValueError("selectors must contain field/operator/value objects")
+        selectors = tuple(dict(item) for item in selector_value)
+    except (json.JSONDecodeError, ValueError) as error:
+        print(f"Error: invalid --selectors: {error}", file=sys.stderr)
+        sys.exit(2)
+
     ok, msg = run_import(
         repo_url=repo_url,
         sha=sha,
@@ -656,6 +668,18 @@ def main() -> None:
         license_id=args.license,
         reviewer=args.reviewer,
         approval_ref=args.approval_ref,
+        owner=args.owner,
+        capability=args.capability,
+        suites=tuple(item.strip() for item in args.suites.split(",") if item.strip()),
+        platforms=tuple(
+            item.strip() for item in args.platforms.split(",") if item.strip()
+        ),
+        activation_cost=args.activation_cost,
+        triggers=tuple(
+            item.strip() for item in args.triggers.split(",") if item.strip()
+        ),
+        selectors=selectors,
+        apply_digest=args.apply,
     )
 
     if ok:

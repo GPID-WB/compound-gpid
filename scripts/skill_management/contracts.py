@@ -11,6 +11,10 @@ from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 from typing import Any, Dict, Iterable, Mapping, Optional, Sequence, Tuple
 
+import secure_fs
+
+from skill_management import paths as path_policy
+
 
 SCHEMA_DIALECT = "compound-gpid-schema-subset-v1"
 ALLOWED_SCHEMA_KEYWORDS = frozenset(
@@ -64,6 +68,7 @@ ACTION_KINDS = (
     "update-manifest",
     "generate-targets",
     "publish-projection",
+    "apply-migration",
     "write-tombstone",
     "verify",
 )
@@ -97,6 +102,9 @@ MAX_VALUE_STRING_LENGTH = 1024 * 1024
 MAX_VALUE_ARRAY_ITEMS = 10000
 MAX_PATTERN_LENGTH = 512
 _REPARSE_POINT_FLAG = 0x400
+OPERATIONS_ROOT = PurePosixPath(".github/shared/skill-management/operations")
+CONTRACTS_ROOT = PurePosixPath(".github/shared/skill-management/contracts")
+OPERATION_PATTERN = re.compile(r"^[a-z][a-z0-9-]*$")
 _WINDOWS_RESERVED_NAMES = {
     "CON",
     "PRN",
@@ -105,6 +113,23 @@ _WINDOWS_RESERVED_NAMES = {
     *(f"COM{index}" for index in range(1, 10)),
     *(f"LPT{index}" for index in range(1, 10)),
 }
+
+
+def operation_handler_module(operation: str, handler: str) -> str:
+    """Validate and return one descriptor-bound focused handler module.
+
+    The regular module is the operation identifier with underscores. A
+    ``_skill`` suffix is also permitted for Python-keyword operation names such
+    as ``import``. No descriptor can select another operation or package.
+    """
+    base = operation.replace("-", "_")
+    match = re.fullmatch(
+        r"skill_management\.operations\.([a-z][a-z0-9_]*):handle",
+        handler,
+    )
+    if match is None or match.group(1) not in {base, f"{base}_skill"}:
+        raise ValueError("Operation descriptor handler does not match its operation identity.")
+    return match.group(1)
 
 
 @dataclass(frozen=True, order=True)
@@ -128,6 +153,30 @@ class ContractFinding:
         }
 
 
+@dataclass(frozen=True)
+class OperationDescriptor:
+    """One complete validated operation descriptor and operation contract."""
+
+    operation: str
+    descriptor: Mapping[str, Any]
+    contract: Mapping[str, Any]
+
+
+class DescriptorValidationError(ValueError):
+    """Raised when an operation descriptor is invalid or incomplete."""
+
+    def __init__(self, code: str, path: str, message: str) -> None:
+        super().__init__(message)
+        self.code = code
+        self.path = path
+
+
+def _is_link_or_reparse(metadata: os.stat_result) -> bool:
+    return stat.S_ISLNK(metadata.st_mode) or bool(
+        getattr(metadata, "st_file_attributes", 0) & _REPARSE_POINT_FLAG
+    )
+
+
 def _finding(
     path: str,
     code: str,
@@ -140,6 +189,21 @@ def _finding(
 
 def _sorted(findings: Iterable[ContractFinding]) -> Tuple[ContractFinding, ...]:
     return tuple(sorted(findings, key=lambda item: (item.path, item.code)))
+
+
+def sort_findings(findings: Iterable[ContractFinding]) -> Tuple[ContractFinding, ...]:
+    """Sort common result findings by severity, path, and stable code."""
+    severity_order = {"error": 0, "warning": 1, "info": 2}
+    return tuple(
+        sorted(
+            findings,
+            key=lambda item: (
+                severity_order.get(item.severity, len(severity_order)),
+                item.path,
+                item.code,
+            ),
+        )
+    )
 
 
 def _pointer(path: str, token: object) -> str:
@@ -1036,6 +1100,10 @@ def _action_path_invariants(actions: Any, path: str) -> Sequence[ContractFinding
 
 
 def _action_path_allowed(kind: str, value: str) -> bool:
+    if kind == "apply-migration":
+        return value != "roadmap.json" and not value.startswith(
+            (".cg-docs/", "releases/")
+        )
     exact = {
         "update-config": {"compound-gpid.local.md"},
         "update-registry": {
@@ -1261,6 +1329,8 @@ def _provenance_invariants(provenance: Mapping[str, Any]) -> Sequence[ContractFi
                 _finding("/history", "provenance.sequence", "History sequence values must be contiguous and append-only.", "Number history entries from 1 in stored order.")
             )
     lifecycle = provenance.get("lifecycle")
+    successor_id = provenance.get("successorId")
+    deprecated_digest = provenance.get("deprecatedRecordDigest")
     skill_id = provenance.get("skillId")
     if isinstance(skill_id, str) and len(skill_id) > 80:
         findings.append(
@@ -1275,6 +1345,34 @@ def _provenance_invariants(provenance: Mapping[str, Any]) -> Sequence[ContractFi
         findings.append(
             _finding("/tombstone", "provenance.tombstone-required", "Removed skills require an immutable tombstone.", "Add the removal tombstone before marking the skill removed.")
         )
+    if lifecycle in {"deprecated", "removed"}:
+        if not isinstance(successor_id, str):
+            findings.append(
+                _finding(
+                    "/successorId",
+                    "provenance.successor-required",
+                    "Deprecated and removed skills require a successor.",
+                    "Record one current same-origin successor.",
+                )
+            )
+        if not isinstance(deprecated_digest, str):
+            findings.append(
+                _finding(
+                    "/deprecatedRecordDigest",
+                    "provenance.deprecation-digest-required",
+                    "Deprecated and removed skills require an immutable record digest.",
+                    "Store the digest of the exact reviewed deprecation record.",
+                )
+            )
+    elif successor_id is not None or deprecated_digest is not None:
+        findings.append(
+            _finding(
+                "/lifecycle",
+                "provenance.deprecation-state",
+                "Current provenance cannot contain deprecation metadata.",
+                "Remove deprecation metadata or use deprecated lifecycle state.",
+            )
+        )
     tombstone = provenance.get("tombstone")
     if lifecycle == "removed" and isinstance(tombstone, dict):
         if tombstone.get("skillId") != provenance.get("skillId"):
@@ -1284,6 +1382,17 @@ def _provenance_invariants(provenance: Mapping[str, Any]) -> Sequence[ContractFi
                     "provenance.tombstone-identity",
                     "Tombstone identity must match the provenance skillId.",
                     "Set tombstone.skillId to the immutable skillId.",
+                )
+            )
+        if isinstance(deprecated_digest, str) and tombstone.get(
+            "recordDigest"
+        ) != deprecated_digest:
+            findings.append(
+                _finding(
+                    "/tombstone/recordDigest",
+                    "provenance.tombstone-record",
+                    "Tombstone recordDigest must preserve the deprecation record digest.",
+                    "Copy the exact deprecatedRecordDigest into the tombstone.",
                 )
             )
         successor = tombstone.get("successorId")
@@ -1331,6 +1440,27 @@ def _provenance_invariants(provenance: Mapping[str, Any]) -> Sequence[ContractFi
                         "Append the lifecycle event before changing the stored lifecycle.",
                     )
                 )
+            if lifecycle in {"deprecated", "removed"} and isinstance(
+                deprecated_digest, str
+            ):
+                terminal = next(
+                    (
+                        item
+                        for item in history
+                        if isinstance(item, dict)
+                        and item.get("event") == "deprecated"
+                    ),
+                    None,
+                )
+                if terminal is None or terminal.get("recordDigest") != deprecated_digest:
+                    findings.append(
+                        _finding(
+                            "/history",
+                            "provenance.deprecation-record",
+                            "Deprecation history must preserve the exact record digest.",
+                            "Append one digest-bound deprecation event before removal.",
+                        )
+                    )
             if lifecycle == "removed" and isinstance(tombstone, dict):
                 latest_commit = latest.get("commit")
                 if (
@@ -1433,3 +1563,401 @@ def validate_contract_file(path: Path) -> Tuple[ContractFinding, ...]:
             _finding("", "schema.read", str(error), "Repair the contract as bounded regular UTF-8 JSON."),
         )
     return validate_schema_definition(schema)
+
+
+def _read_root_file(
+    source_root: Path,
+    relative: PurePosixPath,
+    *,
+    label: str,
+    max_bytes: int = MAX_CONTRACT_BYTES,
+) -> bytes:
+    errors = path_policy.validate_repo_relative_path(label, relative.as_posix())
+    if errors:
+        raise DescriptorValidationError(
+            "descriptor.invalid", relative.as_posix(), "; ".join(errors)
+        )
+    try:
+        return secure_fs.secure_read_bytes(
+            source_root,
+            relative,
+            reject_hardlinks=True,
+            max_bytes=max_bytes,
+        )
+    except (OSError, ValueError) as error:
+        raise DescriptorValidationError(
+            "descriptor.incomplete",
+            relative.as_posix(),
+            f"Declared {label} is missing or unsafe: {relative.as_posix()}: {error}",
+        ) from error
+
+
+def load_operation_descriptor(
+    source_root: Path, operation: str
+) -> OperationDescriptor:
+    """Load one complete active descriptor without importing its handler.
+
+    Args:
+        source_root: Canonical Compound GPID source root.
+        operation: Lowercase operation identifier.
+
+    Returns:
+        Validated descriptor and operation contract.
+
+    Raises:
+        FileNotFoundError: If no descriptor exists for the operation.
+        DescriptorValidationError: If any declaration is invalid or incomplete.
+
+    Example:
+        ``record = load_operation_descriptor(root, "find")``
+    """
+    if OPERATION_PATTERN.fullmatch(operation) is None:
+        raise DescriptorValidationError(
+            "descriptor.invalid", "/operation", "Operation identifier is invalid."
+        )
+    root = Path(source_root).resolve()
+    descriptor_relative = OPERATIONS_ROOT / f"{operation}.json"
+    try:
+        descriptor_bytes = secure_fs.secure_read_bytes(
+            root,
+            descriptor_relative,
+            reject_hardlinks=True,
+            max_bytes=MAX_CONTRACT_BYTES,
+        )
+    except FileNotFoundError:
+        raise
+    except (OSError, ValueError) as error:
+        raise DescriptorValidationError(
+            "descriptor.invalid",
+            descriptor_relative.as_posix(),
+            f"Operation descriptor cannot be read safely: {error}",
+        ) from error
+    try:
+        descriptor = load_contract_bytes(
+            descriptor_bytes, source=descriptor_relative.as_posix()
+        )
+        descriptor_schema = load_contract_bytes(
+            _read_root_file(
+                root,
+                CONTRACTS_ROOT / "operation-descriptor-v1.schema.json",
+                label="descriptor meta-contract",
+            ),
+            source=(CONTRACTS_ROOT / "operation-descriptor-v1.schema.json").as_posix(),
+        )
+    except ValueError as error:
+        raise DescriptorValidationError(
+            "descriptor.invalid", descriptor_relative.as_posix(), str(error)
+        ) from error
+    descriptor_findings = validate_instance(descriptor, descriptor_schema)
+    if descriptor_findings:
+        detail = "; ".join(
+            f"{finding.path}: {finding.code}" for finding in descriptor_findings
+        )
+        raise DescriptorValidationError(
+            "descriptor.invalid",
+            descriptor_relative.as_posix(),
+            f"Operation descriptor is invalid: {detail}",
+        )
+    if descriptor.get("operation") != operation:
+        raise DescriptorValidationError(
+            "descriptor.invalid",
+            descriptor_relative.as_posix(),
+            "Operation descriptor identity does not match its filename.",
+        )
+    try:
+        module_name = operation_handler_module(operation, str(descriptor.get("handler", "")))
+    except ValueError as error:
+        raise DescriptorValidationError(
+            "descriptor.invalid",
+            descriptor_relative.as_posix(),
+            str(error),
+        ) from error
+    handler_relative = PurePosixPath(
+        f"scripts/skill_management/operations/{module_name}.py"
+    )
+    _read_root_file(root, handler_relative, label="handler")
+    _read_root_file(
+        root,
+        PurePosixPath(descriptor["workflow"]),
+        label="workflow",
+        max_bytes=4 * 1024 * 1024,
+    )
+    _read_root_file(
+        root,
+        PurePosixPath(descriptor["documentation"]),
+        label="documentation",
+        max_bytes=4 * 1024 * 1024,
+    )
+    tests = descriptor["tests"]
+    if tests != sorted(tests):
+        raise DescriptorValidationError(
+            "descriptor.invalid",
+            descriptor_relative.as_posix(),
+            "Operation descriptor test declarations must use lexical order.",
+        )
+    for test_path in tests:
+        _read_root_file(
+            root, PurePosixPath(test_path), label="test", max_bytes=4 * 1024 * 1024
+        )
+    contract_relative = PurePosixPath(descriptor["contract"])
+    if contract_relative.name != f"{operation}-v1.schema.json":
+        raise DescriptorValidationError(
+            "descriptor.invalid",
+            contract_relative.as_posix(),
+            "Operation contract filename does not match the operation.",
+        )
+    try:
+        operation_contract = load_contract_bytes(
+            _read_root_file(root, contract_relative, label="operation contract"),
+            source=contract_relative.as_posix(),
+        )
+    except ValueError as error:
+        raise DescriptorValidationError(
+            "descriptor.invalid", contract_relative.as_posix(), str(error)
+        ) from error
+    schema_findings = validate_schema_definition(operation_contract)
+    if schema_findings:
+        detail = "; ".join(
+            f"{finding.path}: {finding.code}" for finding in schema_findings
+        )
+        raise DescriptorValidationError(
+            "descriptor.invalid",
+            contract_relative.as_posix(),
+            f"Operation contract is invalid: {detail}",
+        )
+    contract_id = operation_contract.get("$id")
+    if not isinstance(contract_id, str) or not contract_id.startswith(
+        f"cg-skill-{operation}-"
+    ):
+        raise DescriptorValidationError(
+            "descriptor.invalid",
+            contract_relative.as_posix(),
+            "Operation contract identity does not match the operation.",
+        )
+    definitions = operation_contract.get("$defs")
+    if not isinstance(definitions, dict) or not all(
+        isinstance(definitions.get(name), dict)
+        for name in ("arguments", "resultData")
+    ):
+        raise DescriptorValidationError(
+            "descriptor.invalid",
+            contract_relative.as_posix(),
+            "Operation contract must define arguments and resultData schemas.",
+        )
+    return OperationDescriptor(operation, descriptor, operation_contract)
+
+
+def _validate_operation_documentation(
+    operation: str,
+    descriptor: Mapping[str, Any],
+    argument_schema: Mapping[str, Any],
+    relative: PurePosixPath,
+    content: bytes,
+) -> None:
+    """Validate descriptor identity and contract grammar in one command page."""
+    try:
+        text = content.decode("utf-8")
+    except UnicodeDecodeError as error:
+        raise DescriptorValidationError(
+            "descriptor.documentation",
+            relative.as_posix(),
+            "Operation documentation must be valid UTF-8.",
+        ) from error
+
+    expected_heading = f"# `cg-skill {operation}`"
+    lines = text.splitlines()
+    if not lines or lines[0] != expected_heading:
+        raise DescriptorValidationError(
+            "descriptor.documentation",
+            relative.as_posix(),
+            f"Operation documentation must start with {expected_heading!r}.",
+        )
+    if len(lines) < 3 or not lines[2].strip() or lines[2].lstrip().startswith("#"):
+        raise DescriptorValidationError(
+            "descriptor.documentation",
+            relative.as_posix(),
+            "Operation documentation must include a focused description after its H1.",
+        )
+
+    role_text = ", ".join(f"`{role}`" for role in descriptor["roles"])
+    phase_text = ", ".join(f"`{phase}`" for phase in descriptor["phases"])
+    required_markers = (
+        f"**Roles:** {role_text}",
+        f"**Phases:** {phase_text}",
+        "## Synopsis",
+        "## Options",
+        "## Examples",
+        "## Lifecycle Effect",
+        "## Results",
+    )
+    missing_markers = [marker for marker in required_markers if marker not in text]
+    if missing_markers:
+        raise DescriptorValidationError(
+            "descriptor.documentation",
+            relative.as_posix(),
+            "Operation documentation is missing required markers: "
+            + ", ".join(missing_markers),
+        )
+
+    properties = argument_schema.get("properties", {})
+    if not isinstance(properties, dict):
+        properties = {}
+    expected_options = {
+        "--" + str(name).replace("_", "-")
+        for name in properties
+        if name != "positionals"
+    }
+    if "apply" in descriptor["phases"]:
+        expected_options.add("--apply")
+    documented_options = set(re.findall(r"(?<![a-z0-9-])--[a-z][a-z0-9-]*", text))
+    missing_options = sorted(expected_options - documented_options)
+    if missing_options:
+        raise DescriptorValidationError(
+            "descriptor.documentation",
+            relative.as_posix(),
+            "Operation documentation is missing contract options: "
+            + ", ".join(missing_options),
+        )
+
+    example_pattern = re.compile(
+        rf"^python scripts/cg_skill\.py .*\b{re.escape(operation)}(?:\s|$)",
+        re.MULTILINE,
+    )
+    if example_pattern.search(text) is None:
+        raise DescriptorValidationError(
+            "descriptor.documentation",
+            relative.as_posix(),
+            "Operation documentation must include an executable private-CLI example.",
+        )
+
+
+def discover_operation_descriptors(
+    source_root: Path,
+) -> Tuple[Tuple[OperationDescriptor, ...], Tuple[ContractFinding, ...]]:
+    """Discover all complete active operation descriptors in lexical order.
+
+    Args:
+        source_root: Canonical Compound GPID source root.
+
+    Returns:
+        Tuple of valid descriptor records and deterministic findings.
+
+    Example:
+        ``records, findings = discover_operation_descriptors(root)``
+    """
+    root = Path(source_root).resolve()
+    directory = root.joinpath(*OPERATIONS_ROOT.parts)
+    try:
+        metadata = os.lstat(str(directory))
+    except OSError as error:
+        finding = ContractFinding(
+            OPERATIONS_ROOT.as_posix(),
+            "descriptor.incomplete",
+            "error",
+            f"Operation descriptor directory is missing: {error}",
+            "Create the canonical operations directory and complete descriptors.",
+        )
+        return (), (finding,)
+    if _is_link_or_reparse(metadata) or not stat.S_ISDIR(metadata.st_mode):
+        finding = ContractFinding(
+            OPERATIONS_ROOT.as_posix(),
+            "descriptor.invalid",
+            "error",
+            "Operation descriptor directory is a link, reparse point, or non-directory.",
+            "Replace it with one real canonical directory.",
+        )
+        return (), (finding,)
+    operation_names = []
+    findings = []
+    with os.scandir(str(directory)) as entries:
+        ordered = sorted(entries, key=lambda item: item.name)
+    seen_paths = {}
+    for entry in ordered:
+        entry_metadata = entry.stat(follow_symlinks=False)
+        relative = f"{OPERATIONS_ROOT.as_posix()}/{entry.name}"
+        key = path_policy.portable_path_key(relative)
+        prior = seen_paths.get(key)
+        if prior is not None:
+            findings.append(
+                ContractFinding(
+                    relative,
+                    "descriptor.invalid",
+                    "error",
+                    f"Operation descriptor path collides portably with {prior}.",
+                    "Use one lowercase portable descriptor filename.",
+                )
+            )
+            continue
+        seen_paths[key] = relative
+        if (
+            _is_link_or_reparse(entry_metadata)
+            or not stat.S_ISREG(entry_metadata.st_mode)
+            or not entry.name.endswith(".json")
+        ):
+            findings.append(
+                ContractFinding(
+                    relative,
+                    "descriptor.invalid",
+                    "error",
+                    "Operation descriptor entry must be one regular JSON file.",
+                    "Remove non-JSON, linked, or non-regular operation entries.",
+                )
+            )
+            continue
+        operation_names.append(entry.name[:-5])
+    records = []
+    for operation in operation_names:
+        try:
+            record = load_operation_descriptor(root, operation)
+            documentation_relative = PurePosixPath(record.descriptor["documentation"])
+            documentation_bytes = _read_root_file(
+                root,
+                documentation_relative,
+                label="documentation",
+                max_bytes=4 * 1024 * 1024,
+            )
+            _validate_operation_documentation(
+                operation,
+                record.descriptor,
+                record.contract["$defs"]["arguments"],
+                documentation_relative,
+                documentation_bytes,
+            )
+            records.append(record)
+        except (FileNotFoundError, DescriptorValidationError) as error:
+            if isinstance(error, DescriptorValidationError):
+                code = error.code
+                path = error.path
+                message = str(error)
+            else:
+                code = "descriptor.incomplete"
+                path = f"{OPERATIONS_ROOT.as_posix()}/{operation}.json"
+                message = str(error)
+            findings.append(
+                ContractFinding(
+                    path,
+                    code,
+                    "error",
+                    message,
+                    "Add or repair the descriptor, workflow, handler, contract, tests, and documentation page together.",
+                )
+            )
+    return tuple(records), sort_findings(findings)
+
+
+def descriptor_completeness_findings(
+    source_root: Path,
+) -> Tuple[ContractFinding, ...]:
+    """Return completeness findings for every registered operation.
+
+    Args:
+        source_root: Canonical Compound GPID source root.
+
+    Returns:
+        Empty tuple when every operation is complete.
+
+    Example:
+        ``assert not descriptor_completeness_findings(root)``
+    """
+    _, findings = discover_operation_descriptors(source_root)
+    return findings

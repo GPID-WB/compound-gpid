@@ -235,6 +235,8 @@ jobs:
             backend_marker: backend_windows
           - os: macos-14
             backend_marker: backend_posix
+          - os: ubuntu-24.04
+            backend_marker: backend_posix
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
         with:
@@ -319,6 +321,29 @@ jobs:
             publisher-results.xml
             publisher-backend-results.xml
           if-no-files-found: ignore
+
+  python38-compat:
+    name: Python 3.8 skill-management compatibility
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0
+        with:
+          python-version: "3.8"
+      - name: Install Python 3.8 test dependencies
+        run: python -m pip install pytest pyyaml
+      - name: Run contracts, planning, registry, admission, generation, and projection tests
+        run: >-
+          python -m pytest
+          scripts/tests/test_skill_management_contracts.py
+          scripts/tests/test_skill_management_planning.py
+          scripts/tests/test_project_skill_registry.py
+          scripts/tests/test_import_skill.py
+          scripts/tests/test_cg_generate_targets.py
+          scripts/tests/test_project_projection.py
+          -q
 
   test:
     name: Pester on ${{ matrix.os }}

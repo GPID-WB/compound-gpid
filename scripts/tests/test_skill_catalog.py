@@ -14,6 +14,7 @@ from pathlib import Path
 import pytest
 
 import cg_skill_catalog as catalog
+from skill_management.services import catalog as catalog_service
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -88,12 +89,16 @@ def _manifest() -> dict:
             "configSchemaVersion": None,
             "registryDigest": "b" * 64,
             "registrySchemaVersion": 2,
+            "projectRegistryDigest": "d" * 64,
+            "provenanceDigest": "e" * 64,
             "sourceRevision": "2026-01-01T00:00:00+00:00@000000000000",
             "suites": ["cg"],
             "capabilities": [],
             "derivedCapabilities": ["r"],
             "moduleClosure": ["kernel", "cap-language-r", "suite-cg"],
+            "selectedProjectSkills": {},
             "platforms": ["copilot", "kilo"],
+            "catalogDigest": "f" * 64,
             "desiredPlanDigest": "c" * 64,
         },
         "platformEligibility": {"platforms": ["copilot", "kilo"], "capabilities": [], "allEligible": True},
@@ -108,15 +113,18 @@ def _fixture_root(tmp_path: Path) -> Path:
     _write_json(tmp_path / ".github/shared/target-mapping.json", _target_mapping())
     _write(
         tmp_path / ".github/skills/cg-skill-r-analytical/SKILL.md",
-        "---\ndescription: R analytical patterns\n---\nbody\n",
+        "---\nname: cg-skill-r-analytical\n"
+        "description: \"R analytical patterns\"\n---\nbody\n",
     )
     _write(
         tmp_path / ".github/skills/cg-skill-python-best-practices/SKILL.md",
-        "---\ndescription: Python best practices\n---\nbody\n",
+        "---\nname: cg-skill-python-best-practices\n"
+        "description: \"Python best practices\"\n---\nbody\n",
     )
     _write(
         tmp_path / ".github/skills/cr-skill-publication-output/SKILL.md",
-        "---\ndescription: Publication output\n---\nbody\n",
+        "---\nname: cr-skill-publication-output\n"
+        "description: \"Publication output\"\n---\nbody\n",
     )
     _write(
         tmp_path / ".github/prompts/cg-work.prompt.md",
@@ -136,6 +144,21 @@ def _fixture_root(tmp_path: Path) -> Path:
 
 
 class TestCatalogBuild:
+    def test_legacy_builder_delegates_to_catalog_service(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        root = _fixture_root(tmp_path)
+        expected = [{"id": "delegated"}]
+        calls = []
+
+        def build_rows(*args, **kwargs):
+            calls.append((args, kwargs))
+            return expected
+
+        monkeypatch.setattr(catalog_service, "build_catalog_rows", build_rows)
+        assert catalog.build_catalog(root, _manifest(), _registry()) == expected
+        assert len(calls) == 1
+
     def test_build_catalog_returns_all_skills(self, tmp_path: Path) -> None:
         root = _fixture_root(tmp_path)
         manifest = _manifest()

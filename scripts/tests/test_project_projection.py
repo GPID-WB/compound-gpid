@@ -68,9 +68,13 @@ def _real_registry(root: Path) -> None:
         "capabilities": [
             {"id": "r", "owningModule": "cap-language-r", "supportedSuites": ["cg", "cr"],
              "supportedPlatforms": ["kilo", "opencode", "claude-code", "codex", "copilot"],
+             "sourceProvenance": "canonical/.github", "activationCost": "low",
+             "taskTriggers": ["language=r"],
              "configSelectors": [{"field": "language", "operator": "contains", "value": "r"}]},
             {"id": "python", "owningModule": "cap-language-python",
              "supportedSuites": ["cg", "cr"], "supportedPlatforms": ["kilo"],
+             "sourceProvenance": "canonical/.github", "activationCost": "low",
+             "taskTriggers": ["language=python"],
              "configSelectors": [{"field": "language", "operator": "contains", "value": "python"}]},
         ],
         "modules": [
@@ -140,6 +144,12 @@ def _small_mapping(root: Path) -> None:
         }
         if gtp:
             target["projectRoots"] = {"managed": [gtp], "optionalUser": []}
+        elif tid == "copilot":
+            target["projectedCategories"] = ["skills"]
+            target["projectRoots"] = {
+                "managed": [".github/skills"],
+                "optionalUser": [],
+            }
         targets.append(target)
     _write_json(root / ".github/shared/target-mapping.json", {
         "schemaVersion": 1,
@@ -153,9 +163,9 @@ def _canonical_assets(root: Path) -> None:
     _write(root / ".github/prompts/cr-work.prompt.md", "---\ndescription: cr work\n---\nbody\n")
     _write(root / ".github/agents/cg-agent.agent.md", "---\ndescription: agent\n---\nbody\n")
     _write(root / ".github/agents/cr-agent.agent.md", "---\ndescription: cr agent\n---\nbody\n")
-    _write(root / ".github/skills/cg-skill-r-analytical/SKILL.md", "---\ndescription: R\n---\nbody\n")
-    _write(root / ".github/skills/cg-skill-python-core/SKILL.md", "---\ndescription: Py\n---\nbody\n")
-    _write(root / ".github/skills/cr-skill-evidence/SKILL.md", "---\ndescription: CR\n---\nbody\n")
+    _write(root / ".github/skills/cg-skill-r-analytical/SKILL.md", '---\nname: cg-skill-r-analytical\ndescription: "R"\n---\nbody\n')
+    _write(root / ".github/skills/cg-skill-python-core/SKILL.md", '---\nname: cg-skill-python-core\ndescription: "Py"\n---\nbody\n')
+    _write(root / ".github/skills/cr-skill-evidence/SKILL.md", '---\nname: cr-skill-evidence\ndescription: "CR"\n---\nbody\n')
     _write(root / ".github/instructions/r.instructions.md", "# R\n")
     _write(root / ".github/shared/context-loading.contract.md", "# ctx\n")
 
@@ -328,7 +338,7 @@ class TestClosureFiltering:
         root, manifest = _repo_root(tmp_path, platforms="kilo", suites="[cg]")
         _write(
             root / ".github/skills/cr-skill-unowned/SKILL.md",
-            "---\ndescription: unowned\n---\nbody\n",
+            '---\nname: cr-skill-unowned\ndescription: "unowned"\n---\nbody\n',
         )
 
         with pytest.raises((projection.ProjectionError, ValueError), match="Unowned|unowned|ownership"):
@@ -417,11 +427,10 @@ class TestSynchronizer:
         original = managed.read_bytes()
         managed.write_bytes(b"user-modified-content")
         second = projection.build_projection_plan(root, projection.load_active_manifest(root))
-        ownership = projection.publish_projection(root, second)
-        # The user's edit is preserved AND it is dropped from the new ownership
-        # map (so it can never be silently deleted later).
+        with pytest.raises(projection.ProjectionError, match="modified|collision"):
+            projection.publish_projection(root, second)
+        # The user's edit is preserved and blocks apply before any partial write.
         assert managed.read_bytes() == b"user-modified-content"
-        assert ".kilo/commands/cg-work.md" not in ownership.get("entries", {})
         # The original content never reappears over the user's edit.
         assert managed.read_bytes() != original
 
@@ -680,11 +689,10 @@ class TestInterruptionRecovery:
         destination.parent.mkdir(parents=True, exist_ok=True)
         destination.write_bytes(b"user-authored-content")
         plan = projection.build_projection_plan(root, projection.load_active_manifest(root))
-        ownership = projection.publish_projection(root, plan)
+        with pytest.raises(projection.ProjectionError, match="user-owned|collision"):
+            projection.publish_projection(root, plan)
         assert destination.read_bytes() == b"user-authored-content"
-        warnings = ownership.get("warnings", [])
-        assert any("user-owned" in warning for warning in warnings)
-        assert ".kilo/commands/cg-work.md" not in ownership.get("entries", {})
+        assert not (root / ".kilo/agents/cg-agent.md").exists()
 
 
 class TestVerifyDrift:
@@ -730,6 +738,26 @@ class TestVerifyDrift:
         projection._write_managed_json(root, projection.OWNERSHIP_STATE_PATH, ownership)
         assert projection.verify_projection(root) == []
 
+    def test_malformed_ownership_is_an_error_not_empty_state(self, tmp_path: Path) -> None:
+        root, _ = _repo_root(tmp_path, platforms="kilo")
+        path = root / projection.OWNERSHIP_STATE_PATH
+        path.write_text("{ malformed", encoding="utf-8")
+
+        problems = projection.verify_projection(root)
+
+        assert any("malformed" in problem for problem in problems)
+
+    def test_unexpected_file_in_managed_bundle_fails_exact_plan(self, tmp_path: Path) -> None:
+        root, _ = _repo_root(tmp_path, platforms="kilo")
+        plan = projection.build_projection_plan(root, projection.load_active_manifest(root))
+        projection.publish_projection(root, plan)
+        unexpected = root / ".kilo/skills/cg-skill-r-analytical/unexpected.txt"
+        unexpected.write_text("unexpected\n", encoding="utf-8")
+
+        problems = projection.verify_projection(root, plan)
+
+        assert any("unexpected file" in problem for problem in problems)
+
 
 class TestRealRepo:
     def test_real_repo_plan_resolves(self) -> None:
@@ -739,16 +767,20 @@ class TestRealRepo:
         assert plan.platforms
         assert plan.entries
 
-    def test_python_only_cg_kilo_plan_resolves(self) -> None:
+    def test_python_only_cg_kilo_plan_resolves(self, tmp_path: Path) -> None:
         config = '---\nlanguage: "python"\nsuites: [cg]\n---\n# config\n'
+        project = tmp_path / "consumer"
+        project.mkdir()
+        (project / "compound-gpid.local.md").write_text(config, encoding="utf-8")
         manifest = manifest_module.resolve_active_manifest(
-            REPO_ROOT,
-            config_text=config,
+            project,
             platforms=["kilo"],
             source_root=REPO_ROOT,
         )
 
-        plan = projection.build_projection_plan(REPO_ROOT, manifest)
+        plan = projection.build_projection_plan(
+            REPO_ROOT, manifest, project_root=project
+        )
         destinations = {entry.destination for entry in plan.entries}
 
         assert ".kilo/commands/cg-fixbug.md" in destinations
@@ -791,21 +823,22 @@ class TestManifestFreshness:
         projection.build_projection_plan(root, manifest)
 
 
-class TestCopilotExclusion:
-    def test_copilot_only_selection_fails_early(self, tmp_path: Path) -> None:
+class TestCopilotProjection:
+    def test_copilot_only_selection_builds_skill_plan(self, tmp_path: Path) -> None:
         root = tmp_path / "source"
         _real_registry(root)
         _small_mapping(root)
         _canonical_assets(root)
         _write(root / "compound-gpid.local.md", '---\nlanguage: "r"\nsuites: [cg]\n---\n# config\n')
         manifest = manifest_module.resolve_active_manifest(root, platforms=["copilot"])
-        with pytest.raises(projection.ProjectionError, match="no platforms with a generated projection tree"):
-            projection.build_projection_plan(root, manifest)
+        plan = projection.build_projection_plan(root, manifest)
+        assert plan.platforms == ("copilot",)
+        assert all(entry.destination.startswith(".github/skills/") for entry in plan.entries)
 
-    def test_copilot_is_excluded_from_projected_platforms(self, tmp_path: Path) -> None:
+    def test_copilot_is_included_with_native_projected_platforms(self, tmp_path: Path) -> None:
         root, manifest = _repo_root(tmp_path, platforms="kilo,opencode,copilot")
         plan = projection.build_projection_plan(root, manifest)
-        assert set(plan.platforms) == {"kilo", "opencode"}
+        assert set(plan.platforms) == {"kilo", "opencode", "copilot"}
 
 
 class TestStateDirContainment:
@@ -869,9 +902,9 @@ class TestCliPipeline:
         problems = projection.verify_projection(root)
         assert problems == []
 
-    def test_cli_verify_fresh_project_is_noop(self, tmp_path: Path) -> None:
+    def test_cli_verify_unpublished_project_fails_exact_plan(self, tmp_path: Path) -> None:
         root, _ = _repo_root(tmp_path, platforms="kilo")
-        assert projection.main(["--project-root", str(root), "--verify"]) == 0
+        assert projection.main(["--project-root", str(root), "--verify"]) == 1
 
     def test_sync_consumer_projection_returns_ownership_and_plan(self, tmp_path: Path) -> None:
         root, _ = _repo_root(tmp_path, platforms="kilo,opencode")

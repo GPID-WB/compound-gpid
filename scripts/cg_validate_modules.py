@@ -45,6 +45,7 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 import secure_fs
 from skill_management import paths as path_policy
+from skill_management.services import bundles as bundle_service
 
 MODULE_REGISTRY_PATH = ".github/shared/module-registry.json"
 MAX_VALIDATOR_ASSET_BYTES = 4 * 1024 * 1024
@@ -332,6 +333,12 @@ def validate_capability_records(registry: dict, module_ids: set[str]) -> List[st
         elif _layer_of(registry, owning) != "capability":
             errors.append(f"{prefix}: owningModule '{owning}' must be a capability-layer module")
 
+        activation_mode = capability.get("activationMode")
+        if activation_mode is not None and activation_mode != "explicit-only":
+            errors.append(
+                f"{prefix}: activationMode must be 'explicit-only' when present"
+            )
+
         supported = capability.get("supportedSuites", [])
         if not isinstance(supported, list) or not supported:
             errors.append(f"{prefix}: supportedSuites must be a non-empty list")
@@ -608,18 +615,10 @@ def _module_by_id(registry: dict, module_id: str) -> Optional[dict]:
 
 def resolve_asset_owner(registry: dict, asset: str) -> Optional[str]:
     """Map a canonical path to its owning module via registry ownedAssets globs."""
-    owners: List[str] = []
-    for module in registry.get("modules", []):
-        if not isinstance(module, dict):
-            continue
-        mid = module.get("id")
-        for pattern in module.get("ownedAssets", []):
-            if isinstance(pattern, str) and _glob_match(pattern, asset):
-                owners.append(mid)
-    unique = sorted(set(owners))
-    if len(unique) == 1:
-        return unique[0]
-    return None
+    from skill_management.services.registry import matching_asset_owners
+
+    owners = matching_asset_owners(registry, asset)
+    return owners[0] if len(owners) == 1 else None
 
 
 def _owner_map(registry: dict, assets: Iterable[str]) -> Dict[str, Optional[str]]:
@@ -705,22 +704,8 @@ def _resolve_name_reference(
 
 
 def _strip_fenced_code(text: str) -> str:
-    """Remove closed or unterminated Markdown fenced code blocks."""
-    output: list[str] = []
-    fence_character: Optional[str] = None
-    fence_length = 0
-    for line in text.splitlines(keepends=True):
-        match = re.match(r"^[ \t]{0,3}(`{3,}|~{3,})", line)
-        if fence_character is None:
-            if match:
-                fence_character = match.group(1)[0]
-                fence_length = len(match.group(1))
-            else:
-                output.append(line)
-        elif match and match.group(1)[0] == fence_character and len(match.group(1)) >= fence_length:
-            fence_character = None
-            fence_length = 0
-    return "".join(output)
+    """Compatibility shim for the shared fenced-example reference contract."""
+    return bundle_service.strip_fenced_code(text)
 
 
 def _module_references(

@@ -192,7 +192,6 @@ add_units_for_platform() {
         copilot)
             printf '%s\n' \
                 'copilot|directory|.github/prompts|.github/prompts|link-directory|' \
-                'copilot|directory|.github/skills|.github/skills|link-directory|' \
                 'copilot|directory|.github/agents|.github/agents|link-directory|' \
                 'copilot|directory|.github/instructions|.github/instructions|link-directory|' \
                 'copilot|directory|.github/shared|.github/shared|link-directory|' \
@@ -857,6 +856,9 @@ fi
 
 MANIFEST_DRIVEN="false"
 [ -f "$PROJECT_ROOT/compound-gpid.local.md" ] && MANIFEST_DRIVEN="true"
+# target-mapping projectedCategories delegates Copilot skills to the Python
+# projection worker. Every non-skill Copilot install unit keeps its old topology.
+COPILOT_PROJECTED_CATEGORIES="skills"
 
 # Resolve strict manifest inputs before any consumer cleanup or installation.
 # Registry/catalog data comes from the Compound GPID source; project selection
@@ -888,6 +890,11 @@ while IFS='|' read -r platform unit_type source_rel target_rel strategy snippet;
     if [ -n "$(platform_generated_tree "$platform")" ]; then GENERATED_PROJECTED="true"; fi
     if [ "$MANIFEST_DRIVEN" = "true" ] && [ "$GENERATED_PROJECTED" = "true" ] && [ "$unit_type" = "directory" ]; then
         print_gray "$target_rel - projected by manifest (legacy install skipped)"
+        continue
+    fi
+    if [ "$MANIFEST_DRIVEN" = "true" ] && [ "$target_rel" = ".github/skills" ] &&
+       [ "$COPILOT_PROJECTED_CATEGORIES" = "skills" ]; then
+        print_gray "$target_rel - Copilot skills projected by manifest"
         continue
     fi
     if [ "$unit_type" = "directory" ]; then

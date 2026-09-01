@@ -105,6 +105,9 @@ pr-result.txt
 .compound-gpid/quarantine/
 .compound-gpid/retired/
 .compound-gpid/vendor-reviews/
+.compound-gpid/skill-plans/
+.compound-gpid/skill-transactions/
+.compound-gpid/skill-transaction.lock
 .compound-gpid/*.tmp
 .compound-gpid/*.bak
 
