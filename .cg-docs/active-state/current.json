@@ -1,6 +1,6 @@
 {
   "schemaVersion": "compound-gpid-active-state-v1",
-  "updatedAt": "2026-09-01T22:23:14Z",
+  "updatedAt": "2026-09-01T22:37:08Z",
   "workflow": "/cg-work",
   "status": "active",
   "branch": "scalable-skill-management-suite",
@@ -31,8 +31,8 @@
     {"id": "V21", "status": "passed", "artifact": "https://github.com/GPID-WB/compound-gpid/actions/runs/33559916774"},
     {"id": "V22", "status": "passed", "artifact": "scripts/cg_pr_preflight.py"},
     {"id": "V23", "status": "passed", "artifact": "tests/last-run.json"},
-    {"id": "V24", "status": "pending", "artifact": null},
-    {"id": "V25", "status": "pending", "artifact": "scripts/cg_generate_targets.py"}
+    {"id": "V24", "status": "retrying", "artifact": "https://github.com/GPID-WB/compound-gpid/actions/runs/33566241615"},
+    {"id": "V25", "status": "retrying", "artifact": "scripts/cg_generate_targets.py"}
   ],
   "unresolvedDecisions": [],
   "artifactRefs": [
@@ -40,7 +40,8 @@
     {"kind": "work-report", "path": ".cg-docs/work-reports/2026-08-28-scalable-skill-management-suite.md", "status": "phase-7-final-ci-pending"},
     {"kind": "ci-run", "path": "https://github.com/GPID-WB/compound-gpid/actions/runs/33499411742", "status": "stale-sha"},
     {"kind": "ci-run", "path": "https://github.com/GPID-WB/compound-gpid/actions/runs/33558695577", "status": "failed-recovered"},
-    {"kind": "ci-run", "path": "https://github.com/GPID-WB/compound-gpid/actions/runs/33559916774", "status": "pre-removal-passed"}
+    {"kind": "ci-run", "path": "https://github.com/GPID-WB/compound-gpid/actions/runs/33559916774", "status": "pre-removal-passed"},
+    {"kind": "ci-run", "path": "https://github.com/GPID-WB/compound-gpid/actions/runs/33566241615", "status": "failed-fix-pending"}
   ],
   "nextCommand": "/cg-work phase7"
 }

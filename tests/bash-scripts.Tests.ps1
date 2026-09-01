@@ -176,6 +176,7 @@ Describe "install.sh - PATH block is idempotent" {
         Copy-Item -Path (Join-Path $repoRoot "bin/cg-render-artifact") -Destination (Join-Path $tmpInstallBin "cg-render-artifact") -Force
         Copy-Item -Path (Join-Path $repoRoot "bin/cg-publish-markdown") -Destination (Join-Path $tmpInstallBin "cg-publish-markdown") -Force
         Copy-Item -Path (Join-Path $repoRoot "bin/cg-kilo") -Destination (Join-Path $tmpInstallBin "cg-kilo") -Force
+        Copy-Item -Path (Join-Path $repoRoot "bin/cg-skill") -Destination (Join-Path $tmpInstallBin "cg-skill") -Force
 
         try {
             # First run — use temp install dir

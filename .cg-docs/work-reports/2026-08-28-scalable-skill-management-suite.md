@@ -128,8 +128,8 @@ status: active
 | V21 | passed | Pre-removal exact-tree CI run 33559916774 passed on Windows, macOS, Ubuntu, Python 3.8, and Windows/macOS Pester |
 | V22 | passed | Final-tree local committed full native preflight passed |
 | V23 | passed | Focused final Pester gates passed; full safe runner: 2,623 passed, 0 failed, 2 skipped, `filteredFiles: null` |
-| V24 | pending | Final-tree exact-SHA cross-platform CI will run after the authorized checkpoint push |
-| V25 | pending | Generated dry-run passes; final-tree CI record remains pending |
+| V24 | retrying | Final-tree CI run 33566241615 exposed macOS wrapper/install fixture and Windows generated line-ending contracts; targeted fixes pass locally |
+| V25 | retrying | LF-stable target resources were regenerated; drift, packaging, generation, and dry-run checks pass locally |
 | Phase 2 gate | passed | Safe Pester runner: 2,606 passed, 0 failed, 2 skipped, `filteredFiles: null` |
 | Phase 3 gate | passed | Safe Pester runner: 2,616 passed, 0 failed, 2 skipped, `filteredFiles: null` |
 | Phase 4 gate | passed | Safe Pester runner: 2,616 passed, 0 failed, 2 skipped, `filteredFiles: null` |
@@ -160,7 +160,7 @@ status: active
 | C20 | passed | Generated target changes were produced only by the canonical generator |
 | C21 | passed | Audit/update tests reject generic mutable update discovery |
 | C22 | passed | Exact desired-path, digest, ownership, and bundle-inventory tests passed |
-| C23 | pending | Pre-removal platform proof passed; final-tree exact-SHA CI remains pending |
+| C23 | retrying | Pre-removal platform proof passed; corrected final-tree exact-SHA CI is pending |
 
 ### Deviations
 
@@ -175,11 +175,17 @@ status: active
   explicit term `symlink`. The corrected message passed 14 focused packaging
   tests and the local full native gate.
 - Exact-tree CI run 33559916774 passed after the fix and authorized Step 19.
+- Final-tree CI run 33566241615 then found that `bin/cg-skill` lacked executable
+  mode, the isolated installer fixture omitted that required wrapper, and
+  generated `.svg`/`.txt` template bytes were not LF-pinned on Windows. The
+  fixture, mode, and `.gitattributes` rules were corrected; 179 focused Python
+  generation/drift/packaging tests, target dry-run, and focused `bash-scripts`
+  Pester pass locally.
 
 ### Remaining Uncertainty
 
 - Final-tree Windows, macOS, Linux, and Python 3.8 CI evidence is pending the
-  authorized final checkpoint push.
+  corrected checkpoint push.
 
 ### Final Status
 
