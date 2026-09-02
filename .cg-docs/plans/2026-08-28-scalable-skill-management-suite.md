@@ -1,7 +1,8 @@
 ---
 date: 2026-08-28
 title: "Scalable Skill Management Suite"
-status: active
+status: completed
+completed-date: 2026-09-01
 scope: "Deep"
 brainstorm: ".cg-docs/brainstorms/2026-08-28-scalable-skill-management-suite.md"
 language: "both"
@@ -10,8 +11,7 @@ deviation-policy: "ask"
 execution-report: ".cg-docs/work-reports/2026-08-28-scalable-skill-management-suite.md"
 artifact-schema-version: 1
 phases: 7
-completed-phases: [1, 2, 3, 4, 5, 6]
-current-phase: 7
+completed-phases: [1, 2, 3, 4, 5, 6, 7]
 tags: [skills, architecture, lifecycle, security, registry, manifests, projections, cross-platform, documentation, testing]
 ---
 
