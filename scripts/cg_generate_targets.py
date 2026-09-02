@@ -46,6 +46,7 @@ from skill_management import paths as path_policy
 from skill_management.services import bundles as bundle_service
 
 TARGET_MAPPING_PATH = ".github/shared/target-mapping.json"
+MODULE_REGISTRY_PATH = ".github/shared/module-registry.json"
 
 
 @functools.lru_cache(maxsize=1)
@@ -60,6 +61,8 @@ def _get_parse_frontmatter():
 
 OWNERSHIP_MANIFEST_NAME = ".compound-gpid-generated.json"
 MAX_OWNERSHIP_MANIFEST_BYTES = 8 * 1024 * 1024
+MAX_CANONICAL_ASSET_BYTES = 4 * 1024 * 1024
+MAX_CANONICAL_CONTROL_BYTES = 4 * 1024 * 1024
 MAX_SHARED_FILE_BYTES = 4 * 1024 * 1024
 MAX_SHARED_TOTAL_BYTES = 64 * 1024 * 1024
 MAX_SHARED_FILES = 5000
@@ -166,6 +169,15 @@ class TargetCommitPlan:
     manifest_expected_state: secure_fs.ExpectedFileState
 
 
+@dataclass(frozen=True)
+class CanonicalControlSnapshot:
+    """Canonical generator controls captured through secure file handles."""
+
+    target_mapping: dict[str, Any]
+    target_mapping_content: bytes
+    module_registry: Optional[dict[str, Any]]
+
+
 def portable_path_key(value: str) -> tuple[str, ...]:
     """Return a case-insensitive, Unicode-normalized Windows-portable key."""
     return path_policy.portable_path_key(value)
@@ -197,6 +209,15 @@ def _is_python_cache_path(value: str) -> bool:
     """Return whether a path names a Python interpreter cache artifact."""
     parts = PurePosixPath(value.replace("\\", "/")).parts
     return "__pycache__" in parts or parts[-1].casefold().endswith(".pyc")
+
+
+def _decode_canonical_text(content: bytes) -> str:
+    """Decode captured UTF-8 text and normalize all line endings to LF."""
+    return (
+        content.decode("utf-8-sig", errors="strict")
+        .replace("\r\n", "\n")
+        .replace("\r", "\n")
+    )
 
 
 def _validate_capabilities(prefix: str, caps: Any) -> list[str]:
@@ -539,19 +560,28 @@ def _validate_output_namespace(
 # Canonical asset scanning
 # ---------------------------------------------------------------------------
 
-def _load_module_registry(root: Path) -> Optional[dict]:
-    """Return parsed module-registry.json, or None when absent or unreadable."""
-    path = root / ".github/shared/module-registry.json"
-    if not path.exists():
+def _load_module_registry(root: Path) -> Optional[dict[str, Any]]:
+    """Return a securely captured module registry, or ``None`` when absent."""
+    try:
+        content = secure_fs.secure_read_bytes(
+            root,
+            MODULE_REGISTRY_PATH,
+            reject_hardlinks=True,
+            max_bytes=MAX_CANONICAL_CONTROL_BYTES,
+        )
+    except FileNotFoundError:
         return None
     try:
-        data = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
+        data = json.loads(content.decode("utf-8", errors="strict"))
+    except (UnicodeDecodeError, json.JSONDecodeError):
         return None
     return data if isinstance(data, dict) else None
 
 
-def _registry_owned_skill_dir_names(root: Path) -> Optional[set[str]]:
+def _registry_owned_skill_dir_names(
+    root: Path,
+    registry: Optional[dict[str, Any]],
+) -> Optional[set[str]]:
     """Return skill directory names owned by a registered module.
 
     Returns None when the module registry is absent (caller falls back to the
@@ -559,7 +589,6 @@ def _registry_owned_skill_dir_names(root: Path) -> Optional[set[str]]:
     skill directory containing ``SKILL.md`` must match a registry ``ownedAssets``
     pattern; only registered directories are returned for active-suite filtering.
     """
-    registry = _load_module_registry(root)
     if registry is None:
         return None
     skills_dir = root / ".github/skills"
@@ -589,7 +618,10 @@ def _registry_owned_skill_dir_names(root: Path) -> Optional[set[str]]:
     return names
 
 
-def _loadable_owned_asset_globs(root: Path, active_suites: Optional[Sequence[str]]) -> Optional[set[str]]:
+def _loadable_owned_asset_globs(
+    active_suites: Optional[Sequence[str]],
+    registry: Optional[dict[str, Any]],
+) -> Optional[set[str]]:
     """Return owned-asset glob patterns loadable under the active suites.
 
     With a module registry, omitted suites mean all public suites (cg and cr),
@@ -597,7 +629,6 @@ def _loadable_owned_asset_globs(root: Path, active_suites: Optional[Sequence[str
     legacy unfiltered fixture behavior. Explicit suites derive the loadable
     module set through cg_context_budget.
     """
-    registry = _load_module_registry(root)
     if active_suites is None and (
         registry is None or registry.get("schemaVersion") != 2
     ):
@@ -623,6 +654,7 @@ def scan_canonical_assets(
     root: Path,
     active_suites: Optional[Sequence[str]] = None,
     loadable_globs: Optional[Iterable[str]] = None,
+    control_snapshot: Optional[CanonicalControlSnapshot] = None,
 ) -> dict[str, list[dict[str, Any]]]:
     """Scan .github/ canonical assets and return structured metadata.
 
@@ -648,10 +680,24 @@ def scan_canonical_assets(
         "shared": [],
     }
 
+    module_registry = (
+        control_snapshot.module_registry
+        if control_snapshot is not None
+        else _load_module_registry(root)
+    )
+    captured_controls = (
+        {TARGET_MAPPING_PATH: control_snapshot.target_mapping_content}
+        if control_snapshot is not None
+        else {}
+    )
+
     if loadable_globs is not None:
         loadable_filter = set(loadable_globs)
     else:
-        loadable_filter = _loadable_owned_asset_globs(root, active_suites)
+        loadable_filter = _loadable_owned_asset_globs(
+            active_suites,
+            module_registry,
+        )
 
     def _is_loadable(rel_path: str) -> bool:
         if loadable_filter is None:
@@ -686,20 +732,30 @@ def scan_canonical_assets(
                 raise ValueError(f"Canonical asset is a symlink: {path.relative_to(root)}")
             if not stat.S_ISREG(path.lstat().st_mode):
                 raise ValueError(f"Canonical asset is not a regular file: {path.relative_to(root)}")
-            content = path.read_text(encoding="utf-8-sig")
-            fm = _get_parse_frontmatter()(content, source=path)
             rel = str(path.relative_to(root)).replace("\\", "/")
             if not _is_loadable(rel):
                 continue
-            assets[category].append({
+            asset = {
                 "path": str(path),
                 "relative_path": rel,
-                "frontmatter": fm,
-                "body": content,
                 "filename": path.name,
                 "origin": "plugin-canonical",
                 "provenance_identity": "canonical/.github",
-            })
+            }
+            if category != "skills":
+                content_bytes = secure_fs.secure_read_bytes(
+                    root,
+                    PurePosixPath(rel),
+                    reject_hardlinks=True,
+                    max_bytes=MAX_CANONICAL_ASSET_BYTES,
+                )
+                content = _decode_canonical_text(content_bytes)
+                asset["frontmatter"] = _get_parse_frontmatter()(
+                    content,
+                    source=path,
+                )
+                asset["body"] = content
+            assets[category].append(asset)
 
     shared_paths = path_policy.inventory_shared_assets(
         root,
@@ -725,19 +781,21 @@ def scan_canonical_assets(
                 f"Canonical shared path exceeds depth {MAX_SHARED_DEPTH}: {relative_path}"
             )
         path = root / Path(*relative.parts)
-        content_bytes = secure_fs.secure_read_bytes(
-            root,
-            relative,
-            reject_hardlinks=True,
-            max_bytes=MAX_SHARED_FILE_BYTES,
-        )
+        content_bytes = captured_controls.get(relative_path)
+        if content_bytes is None:
+            content_bytes = secure_fs.secure_read_bytes(
+                root,
+                relative,
+                reject_hardlinks=True,
+                max_bytes=MAX_SHARED_FILE_BYTES,
+            )
         total_shared_bytes += len(content_bytes)
         if total_shared_bytes > MAX_SHARED_TOTAL_BYTES:
             raise ValueError(
                 f"Canonical shared content exceeds {MAX_SHARED_TOTAL_BYTES} bytes"
             )
         try:
-            content = content_bytes.decode("utf-8-sig")
+            content = _decode_canonical_text(content_bytes)
         except UnicodeDecodeError as error:
             raise ValueError(
                 f"Canonical shared file is not valid UTF-8: {relative_path}"
@@ -749,12 +807,12 @@ def scan_canonical_assets(
             "relative_path": relative_path,
             "frontmatter": frontmatter,
             "body": content,
-            "content": content_bytes,
+            "content": content.encode("utf-8"),
             "filename": path.name,
             "category_relative_path": shared_relative_path,
         })
 
-    owned_skill_names = _registry_owned_skill_dir_names(root)
+    owned_skill_names = _registry_owned_skill_dir_names(root, module_registry)
     if owned_skill_names is None:
         print(
             "[deprecation] module-registry.json not found; falling back to "
@@ -799,6 +857,15 @@ def scan_canonical_assets(
             item for item in skill["bundle_files"]
             if item["bundle_relative_path"] == "SKILL.md"
         )
+        skill_content = skill_file["content"].decode(
+            "utf-8-sig",
+            errors="strict",
+        )
+        skill["frontmatter"] = _get_parse_frontmatter()(
+            skill_content,
+            source=Path(skill["path"]),
+        )
+        skill["body"] = skill_content
         skill["executable"] = skill_file["executable"]
         skill["origin"] = "plugin-canonical"
         skill["provenance_identity"] = "canonical/.github"
@@ -1069,12 +1136,53 @@ def _strip_fenced_code(text: str) -> str:
     return bundle_service.strip_fenced_code(text)
 
 
-def load_target_mapping(root: Path) -> dict[str, Any]:
-    """Load target-mapping.json from .github/shared/."""
+def _load_target_mapping_snapshot(root: Path) -> tuple[dict[str, Any], bytes]:
+    """Securely capture and parse target-mapping.json exactly once."""
     mapping_path = root / TARGET_MAPPING_PATH
-    if not mapping_path.exists():
-        raise FileNotFoundError(f"Target mapping not found at: {mapping_path}")
-    return json.loads(mapping_path.read_text(encoding="utf-8"))
+    try:
+        content = secure_fs.secure_read_bytes(
+            root,
+            TARGET_MAPPING_PATH,
+            reject_hardlinks=True,
+            max_bytes=MAX_CANONICAL_CONTROL_BYTES,
+        )
+    except FileNotFoundError as error:
+        raise FileNotFoundError(
+            f"Target mapping not found at: {mapping_path}"
+        ) from error
+    return json.loads(content.decode("utf-8", errors="strict")), content
+
+
+def load_target_mapping(root: Path) -> dict[str, Any]:
+    """Load target-mapping.json from securely captured canonical bytes."""
+    mapping, _content = _load_target_mapping_snapshot(root)
+    return mapping
+
+
+def capture_canonical_controls(root: Path) -> CanonicalControlSnapshot:
+    """Capture controls once for parsing, selection, and target rendering."""
+    target_mapping, target_mapping_content = _load_target_mapping_snapshot(root)
+    return CanonicalControlSnapshot(
+        target_mapping,
+        target_mapping_content,
+        _load_module_registry(root),
+    )
+
+
+def load_generation_inputs(
+    root: Path,
+    active_suites: Optional[Sequence[str]] = None,
+    loadable_globs: Optional[Iterable[str]] = None,
+) -> tuple[dict[str, Any], dict[str, list[dict[str, Any]]]]:
+    """Capture and parse all canonical generation inputs without reopening them."""
+    controls = capture_canonical_controls(root)
+    assets = scan_canonical_assets(
+        root,
+        active_suites=active_suites,
+        loadable_globs=loadable_globs,
+        control_snapshot=controls,
+    )
+    return controls.target_mapping, assets
 
 
 # ---------------------------------------------------------------------------
@@ -1902,12 +2010,16 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         return 2
 
     try:
-        target_mapping = load_target_mapping(root)
+        controls = capture_canonical_controls(root)
+        target_mapping = controls.target_mapping
     except FileNotFoundError as e:
         print(f"Error: {e}", file=sys.stderr)
         return 1
     except json.JSONDecodeError as e:
         print(f"Error: target-mapping.json is malformed: {e}", file=sys.stderr)
+        return 1
+    except (OSError, UnicodeDecodeError) as e:
+        print(f"Error: target-mapping.json is unsafe or unreadable: {e}", file=sys.stderr)
         return 1
 
     errors = validate_target_mapping(target_mapping)
@@ -1926,7 +2038,11 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         active_suites = [item.strip() for item in args.active_suites.split(",") if item.strip()]
 
     try:
-        assets = scan_canonical_assets(root, active_suites=active_suites)
+        assets = scan_canonical_assets(
+            root,
+            active_suites=active_suites,
+            control_snapshot=controls,
+        )
         generation_plan = build_generation_plan(root, target_mapping, assets)
     except (ValueError, OSError) as e:
         print(f"Error: {e}", file=sys.stderr)
