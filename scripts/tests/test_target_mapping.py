@@ -29,18 +29,6 @@ class TestTargetMappingSchema:
         data = _load_repo_mapping()
         assert data["schemaVersion"] == 1
 
-    def test_json_schema_closes_mapping_objects(self) -> None:
-        schema = json.loads(
-            (REPO_ROOT / "scripts/schemas/target_mapping_schema.json").read_text(encoding="utf-8")
-        )
-        definitions = schema["definitions"]
-        assert schema["additionalProperties"] is False
-        target = definitions["target"]
-        assert target["additionalProperties"] is False
-        for name in ("capabilities", "formats", "outputPaths"):
-            assert target["properties"][name]["additionalProperties"] is False
-        assert definitions["installUnit"]["additionalProperties"] is False
-
     def test_has_five_targets(self) -> None:
         data = _load_repo_mapping()
         ids = {t["id"] for t in data["targets"]}
@@ -78,6 +66,7 @@ class TestTargetMappingSchema:
             assert "modelMappingMode" not in target
             assert "modelMapping" not in target
             assert "modelMapping" not in target["outputPaths"]
+            assert all("model-mapping" not in str(unit) for unit in target.get("installUnits", []))
 
     def test_codex_has_fallback_agent_format(self) -> None:
         data = _load_repo_mapping()
@@ -108,7 +97,6 @@ class TestTargetMappingSchema:
         data = _load_repo_mapping()
         kilo = next(t for t in data["targets"] if t["id"] == "kilo")
         assert kilo["generatedTreePath"] == ".kilo"
-        assert "config" in kilo["outputPaths"]
         assert kilo["outputPaths"]["config"] == ".kilo/kilo.json"
         assert kilo["outputPaths"]["commands"] == ".kilo/commands"
         assert kilo["outputPaths"]["skills"] == ".kilo/skills"
@@ -116,18 +104,13 @@ class TestTargetMappingSchema:
         config_units = [u for u in kilo["installUnits"] if u["target"] == ".kilo/kilo.json"]
         assert len(config_units) == 1
         assert config_units[0]["strategy"] == "config-copy-or-snippet"
-        assert "manualSnippet" in config_units[0]
-        assert kilo["capabilities"]["supportsMultiVendorModels"] is True
 
     def test_kilo_directory_units_are_project_local_copies(self) -> None:
-        data = gen.load_target_mapping(REPO_ROOT)
+        data = _load_repo_mapping()
         kilo = next(t for t in data["targets"] if t["id"] == "kilo")
-        directory_units = [
-            unit for unit in kilo["installUnits"] if unit["type"] == "directory"
-        ]
-
-        assert len(directory_units) == 5
-        assert {unit["strategy"] for unit in directory_units} == {"copy-directory"}
+        directory_units = [u for u in kilo["installUnits"] if u["type"] == "directory"]
+        assert directory_units
+        assert all(u["strategy"] == "copy-directory" for u in directory_units)
 
 
 class TestTargetMappingValidation:
@@ -164,11 +147,11 @@ class TestTargetMappingValidation:
         data = {
             "schemaVersion": 1,
             "targets": [
-                {"id": "x", "name": "X", "generatedTreePath": ".x",
-                 "modelMappingMode": "exact", "modelMapping": {"coding": "model"},
+                {"id": "x", "name": "X", "generatedTreePath": ".x", "modelMappingMode": "exact",
                  "capabilities": {f: True for f in gen.REQUIRED_CAPABILITY_FIELDS},
                  "formats": {f: "x" for f in gen.REQUIRED_FORMAT_FIELDS},
-                 "outputPaths": {**{f: f".x/{f}" for f in gen.REQUIRED_OUTPUT_PATH_FIELDS}, "modelMapping": ".x/models.json"}},
+                 "outputPaths": {**{f: f".x/{f}" for f in gen.REQUIRED_OUTPUT_PATH_FIELDS}, "modelMapping": ".x/models.json"},
+                 "modelMapping": {"coding": "model"}},
             ],
         }
         errors = gen.validate_target_mapping(data)

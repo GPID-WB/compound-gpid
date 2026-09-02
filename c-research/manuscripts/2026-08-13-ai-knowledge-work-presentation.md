@@ -1,7 +1,9 @@
 ---
 date: 2026-08-13
 title: "AI and the Conditions for Verifiable Knowledge Work"
-status: draft-for-owner-review
+status: superseded
+superseded-by: "c-research/manuscripts/2026-08-26-ai-knowledge-work-presentation-practitioner-tour.md"
+last-revised: 2026-08-26
 plan: ".cg-docs/plans/2026-08-13-ai-knowledge-work-presentation-production.md"
 brainstorm: ".cg-docs/brainstorms/2026-08-13-ai-knowledge-work-presentation.md"
 task-type: "Writing"
@@ -22,11 +24,13 @@ This document is designed to support two uses:
 2. An email-ready narrative. The email section can be circulated without the
    slides or the speaker's oral explanation.
 
-The main presentation is conceptual first. The technical appendix contains the
-repository map, named files, and implementation examples.
+This is the earlier 30-minute conceptual presentation. The revised
+practitioner-first manuscript is now the delivery source for the deck. The
+technical appendix remains useful for lineage, repository mapping, and
+implementation examples.
 
 Evidence tags such as `[C003]` refer to the verified or abstained claim records
-in `.cg-docs/research/evidence/claim-evidence-matrix.yaml`. The labels are
+in `c-research/evidence/claim-evidence-matrix.yaml`. The labels are
 included so a reader can distinguish documented facts from interpretation and
 future proposals.
 
@@ -782,7 +786,7 @@ compound-gpid/
 │   │   ├── evidence/
 │   │   ├── scoping/ai-knowledge-work-presentation.md
 │   │   └── normative-decisions/ai-knowledge-work-presentation.md
-│   └── manuscript/
+│   └── manuscripts/
 │       └── 2026-08-13-ai-knowledge-work-presentation.md
 ├── research_evidence/
 │   ├── README.md
@@ -1066,14 +1070,14 @@ solves it.
 
 | ID | Source | Origin and authority |
 |---|---|---|
-| S001 | [Compound Research extension](../../brainstorms/2026-05-13-compound-research-extension.md) | Repo-local; SHA-256 recorded in the provenance ledger. |
-| S002 | [CR Evidence and Provenance Spine](../../plans/2026-07-30-cr-evidence-provenance-spine.md) | Repo-local; SHA-256 recorded in the provenance ledger. |
-| S003 | [CR Evidence and Provenance skill](../../../.github/skills/cr-skill-evidence-provenance/SKILL.md) | Repo-local; SHA-256 recorded in the provenance ledger. |
-| S004 | [CR Local Evidence Workbench brainstorm](../../brainstorms/2026-08-12-cr-local-evidence-workbench.md) | Repo-local; SHA-256 recorded in the provenance ledger. |
-| S005 | [Research Evidence Workbench README](../../../research_evidence/README.md) | Repo-local; SHA-256 recorded in the provenance ledger. |
-| S006 | [claims.py](../../../research_evidence/src/research_evidence/claims.py) | Repo-local implementation source; SHA-256 recorded in the provenance ledger. |
-| S007 | [evidence.py](../../../research_evidence/src/research_evidence/evidence.py) | Repo-local implementation source; SHA-256 recorded in the provenance ledger. |
-| S008 | [schemas.py](../../../research_evidence/src/research_evidence/schemas.py) | Repo-local implementation source; SHA-256 recorded in the provenance ledger. |
+| S001 | [Compound Research extension](../../.cg-docs/brainstorms/2026-05-13-compound-research-extension.md) | Repo-local; SHA-256 recorded in the provenance ledger. |
+| S002 | [CR Evidence and Provenance Spine](../../.cg-docs/plans/2026-07-30-cr-evidence-provenance-spine.md) | Repo-local; SHA-256 recorded in the provenance ledger. |
+| S003 | [CR Evidence and Provenance skill](../../.github/skills/cr-skill-evidence-provenance/SKILL.md) | Repo-local; SHA-256 recorded in the provenance ledger. |
+| S004 | [CR Local Evidence Workbench brainstorm](../../.cg-docs/brainstorms/2026-08-12-cr-local-evidence-workbench.md) | Repo-local; SHA-256 recorded in the provenance ledger. |
+| S005 | [Research Evidence Workbench README](../../research_evidence/README.md) | Repo-local; SHA-256 recorded in the provenance ledger. |
+| S006 | [claims.py](../../research_evidence/src/research_evidence/claims.py) | Repo-local implementation source; SHA-256 recorded in the provenance ledger. |
+| S007 | [evidence.py](../../research_evidence/src/research_evidence/evidence.py) | Repo-local implementation source; SHA-256 recorded in the provenance ledger. |
+| S008 | [schemas.py](../../research_evidence/src/research_evidence/schemas.py) | Repo-local implementation source; SHA-256 recorded in the provenance ledger. |
 | S009 | AI-DQSS `README.md` in the approved local sibling repository `AI-work/ai-dq-assessor/` | External-opt-in local source; SHA-256 recorded in the provenance ledger. |
 | S010 | AI-DQSS `DOCUMENTATION.md` in the approved local sibling repository `AI-work/ai-dq-assessor/` | External-opt-in local source; SHA-256 recorded in the provenance ledger. |
 
@@ -1088,8 +1092,8 @@ solves it.
 | C017 | Epistemic instability from stochastic generation | Abstained conceptual framing; no measured demonstration claimed |
 
 The full claim records, locators, quotations, source hashes, and verification
-notes are maintained in `.cg-docs/research/evidence/claim-evidence-matrix.yaml`
-and `.cg-docs/research/evidence/provenance-ledger.yaml`. The original source
+notes are maintained in `c-research/evidence/claim-evidence-matrix.yaml`
+and `c-research/evidence/provenance-ledger.yaml`. The original source
 files remain authoritative.
 
 ## Appendix H. Open questions for the conversation

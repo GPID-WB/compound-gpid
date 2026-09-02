@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="AI and the conditions for verifiable knowledge work. A 30-minute presentation about LLMs, evidence, provenance, AI-DQSS, and research interfaces.">
-  <meta name="presentation-source" content="../.cg-docs/research/manuscript/2026-08-13-ai-knowledge-work-presentation.md">
+  <meta name="description" content="A 15-minute practitioner tour of the Compound Research workflow for applied poverty, inequality, and welfare research.">
+  <meta name="presentation-source" content="../c-research/manuscripts/2026-08-26-ai-knowledge-work-presentation-practitioner-tour.md">
   <meta name="presentation-derived" content="true">
-  <title>AI and the Conditions for Verifiable Knowledge Work</title>
+  <title>AI and Research</title>
   <link rel="stylesheet" href="vendor/reveal.js/reveal.css">
   <style>
     :root {
@@ -44,8 +44,8 @@
     }
 
     .reveal {
-      font-family: var(--body);
       color: var(--ink);
+      font-family: var(--body);
       font-size: 32px;
     }
 
@@ -84,10 +84,10 @@
       text-transform: none;
     }
 
-    .reveal h1 { font-size: 2.5em; line-height: 1.02; }
-    .reveal h2 { font-size: 1.65em; line-height: 1.08; }
-    .reveal h3 { font-size: 0.86em; line-height: 1.15; }
-    .reveal p, .reveal li { line-height: 1.34; }
+    .reveal h1 { font-size: 2.45em; line-height: 1.02; }
+    .reveal h2 { font-size: 1.6em; line-height: 1.08; }
+    .reveal h3 { font-size: 0.84em; line-height: 1.12; }
+    .reveal p, .reveal li { line-height: 1.32; }
     .reveal strong { color: var(--teal); }
     .reveal em { color: var(--coral); }
 
@@ -97,216 +97,24 @@
     .tag,
     .label {
       font-family: var(--body);
-      font-size: 0.39em;
+      font-size: 0.38em;
       font-weight: 700;
       letter-spacing: 0.09em;
       line-height: 1.2;
       text-transform: uppercase;
     }
 
-    .eyebrow { color: var(--coral); margin-bottom: 26px; }
+    .eyebrow { color: var(--coral); margin-bottom: 24px; }
     .slide-index { color: var(--muted); position: absolute; right: 76px; top: 48px; }
     .source-note { color: var(--muted); letter-spacing: 0.025em; text-transform: none; }
     .source-note a { color: var(--teal); }
-    .tag { color: var(--teal); background: var(--teal-soft); padding: 7px 11px; border-radius: 999px; display: inline-block; }
-    .label { color: var(--muted); margin-bottom: 9px; }
-
-    .title-slide {
-      display: flex !important;
-      align-items: center;
-      background: linear-gradient(125deg, rgba(216, 232, 226, 0.5), transparent 58%);
-    }
-
-    .title-slide::after {
-      content: "";
-      position: absolute;
-      right: 7%;
-      bottom: 8%;
-      width: 23%;
-      height: 33%;
-      border: 1px solid rgba(11, 98, 95, 0.28);
-      border-radius: 50% 42% 54% 38%;
-      transform: rotate(-18deg);
-    }
-
-    .title-lockup { width: 72%; position: relative; z-index: 1; }
-    .title-lockup h1 { max-width: 920px; margin-bottom: 32px; }
-    .title-lockup .subtitle { max-width: 650px; color: var(--muted); font-size: 0.73em; line-height: 1.35; }
-    .title-lockup .rule { margin: 34px 0 18px; width: 210px; }
+    .label { color: var(--muted); margin-bottom: 8px; }
+    .small { font-size: 0.55em; }
+    .tiny { font-size: 0.42em; }
+    .lede { max-width: 1060px; color: var(--muted); font-size: 0.72em; }
 
     .rule { height: 1px; background: var(--line); margin: 24px 0; }
     .rule.teal { background: var(--teal); height: 3px; }
-    .rule.coral { background: var(--coral); height: 3px; }
-
-    .lede { max-width: 1040px; color: var(--muted); font-size: 0.75em; }
-    .lede strong { color: var(--ink); }
-    .small { font-size: 0.55em; }
-    .tiny { font-size: 0.42em; }
-
-    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 44px; align-items: start; }
-    .two-col.wide-left { grid-template-columns: 1.2fr 0.8fr; }
-    .two-col.wide-right { grid-template-columns: 0.8fr 1.2fr; }
-    .stack { display: grid; gap: 18px; }
-
-    .workflow {
-      display: flex;
-      align-items: center;
-      gap: 0;
-      margin: 72px 0 34px;
-      flex-wrap: nowrap;
-    }
-    .workflow .step {
-      min-width: 132px;
-      padding: 18px 13px;
-      border: 1px solid var(--line);
-      background: rgba(255, 255, 255, 0.34);
-      text-align: center;
-      font-family: var(--display);
-      font-size: 0.63em;
-      line-height: 1.05;
-    }
-    .workflow .step:nth-child(3), .workflow .step:nth-child(6) { border-color: var(--teal); background: var(--teal-soft); }
-    .workflow .arrow { padding: 0 9px; color: var(--coral); font-size: 0.8em; }
-
-    .contrast {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0;
-      margin-top: 48px;
-      border-top: 3px solid var(--ink);
-    }
-    .contrast > div { padding: 26px 28px 20px; min-height: 290px; }
-    .contrast > div:first-child { background: rgba(255, 255, 255, 0.32); border-right: 1px solid var(--line); }
-    .contrast > div:last-child { background: var(--coral-soft); }
-    .contrast h3 { margin-bottom: 22px; }
-    .contrast p { font-size: 0.59em; margin-bottom: 16px; }
-
-    .threat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 34px; }
-    .threat {
-      min-height: 190px;
-      padding: 22px 24px;
-      background: rgba(255, 255, 255, 0.36);
-      border-left: 5px solid var(--teal);
-      box-shadow: 0 8px 20px var(--shadow);
-    }
-    .threat:nth-child(2) { border-color: var(--coral); }
-    .threat:nth-child(3) { border-color: var(--ochre); }
-    .threat:nth-child(4) { border-color: var(--ink); }
-    .threat h3 { margin-bottom: 12px; }
-    .threat p { font-size: 0.52em; color: var(--muted); margin-bottom: 0; }
-
-    .quote {
-      margin: 58px 0 28px;
-      max-width: 1080px;
-      padding: 28px 34px;
-      border-left: 5px solid var(--coral);
-      background: rgba(255, 255, 255, 0.42);
-      font-family: var(--display);
-      font-size: 0.91em;
-      line-height: 1.18;
-    }
-
-    .caveat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin-top: 28px; border-top: 3px solid var(--ink); }
-    .caveat-grid > div { padding: 22px 26px; min-height: 342px; }
-    .caveat-grid .can { background: var(--teal-soft); border-right: 1px solid rgba(11, 98, 95, 0.3); }
-    .caveat-grid .cannot { background: var(--coral-soft); }
-    .caveat-grid h3 { margin-bottom: 20px; }
-    .caveat-grid ul { padding-left: 23px; margin-bottom: 0; }
-    .caveat-grid li { font-size: 0.49em; margin-bottom: 11px; }
-
-    .pipeline {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      align-items: stretch;
-      gap: 0;
-      margin: 52px 0 30px;
-    }
-    .pipeline .node {
-      position: relative;
-      min-height: 142px;
-      padding: 19px 14px;
-      background: rgba(255, 255, 255, 0.42);
-      border: 1px solid var(--line);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      font-family: var(--display);
-      font-size: 0.54em;
-      line-height: 1.1;
-    }
-    .pipeline .node:not(:last-child)::after {
-      content: "";
-      position: absolute;
-      z-index: 2;
-      right: -16px;
-      top: 50%;
-      width: 29px;
-      height: 1px;
-      background: var(--coral);
-    }
-    .pipeline .node:not(:last-child)::before {
-      content: "";
-      position: absolute;
-      z-index: 2;
-      right: -16px;
-      top: calc(50% - 4px);
-      width: 8px;
-      height: 8px;
-      border-top: 2px solid var(--coral);
-      border-right: 2px solid var(--coral);
-      transform: rotate(45deg);
-    }
-    .pipeline .node:nth-child(1), .pipeline .node:nth-child(4) { background: var(--paper-deep); }
-    .pipeline .node:nth-child(2), .pipeline .node:nth-child(5) { background: var(--teal-soft); }
-    .pipeline .node:nth-child(3), .pipeline .node:nth-child(6) { background: var(--coral-soft); }
-
-    .lineage {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 18px;
-      margin-top: 44px;
-    }
-    .lineage-card { min-height: 286px; padding: 25px 24px 20px; background: rgba(255, 255, 255, 0.38); border-top: 5px solid var(--teal); }
-    .lineage-card:nth-child(2) { border-color: var(--coral); }
-    .lineage-card:nth-child(3) { border-color: var(--ochre); }
-    .lineage-card .date { color: var(--muted); font-size: 0.43em; letter-spacing: 0.05em; text-transform: uppercase; }
-    .lineage-card h3 { margin: 14px 0 16px; }
-    .lineage-card p { color: var(--muted); font-size: 0.48em; }
-
-    .stage-flow { display: flex; align-items: center; margin-top: 42px; }
-    .stage-flow .stage { flex: 1; min-height: 118px; padding: 18px 15px; background: rgba(255,255,255,0.42); border: 1px solid var(--line); font-size: 0.5em; text-align: center; display: flex; align-items: center; justify-content: center; }
-    .stage-flow .stage:nth-child(2), .stage-flow .stage:nth-child(5) { background: var(--teal-soft); }
-    .stage-flow .stage:nth-child(3), .stage-flow .stage:nth-child(6) { background: var(--coral-soft); }
-    .stage-flow .connector { width: 30px; height: 1px; background: var(--coral); position: relative; }
-    .stage-flow .connector::after { content: ""; position: absolute; right: 0; top: -4px; width: 8px; height: 8px; border-top: 2px solid var(--coral); border-right: 2px solid var(--coral); transform: rotate(45deg); }
-
-    .control-list { display: grid; gap: 13px; margin-top: 28px; }
-    .control { display: grid; grid-template-columns: 34px 1fr; gap: 13px; align-items: start; }
-    .control .mark { width: 30px; height: 30px; border-radius: 50%; color: var(--paper); background: var(--teal); display: grid; place-items: center; font-size: 0.5em; font-weight: 700; }
-    .control:nth-child(2) .mark { background: var(--coral); }
-    .control:nth-child(3) .mark { background: var(--ochre); }
-    .control p { font-size: 0.55em; margin: 3px 0 0; color: var(--muted); }
-
-    .universe {
-      display: grid;
-      grid-template-columns: 0.9fr 1.1fr;
-      gap: 34px;
-      align-items: center;
-      margin-top: 54px;
-    }
-    .universe .big-question { font-family: var(--display); font-size: 1.5em; line-height: 1.08; }
-    .universe .big-question span { color: var(--coral); }
-    .universe .split { border-left: 1px solid var(--line); padding-left: 30px; }
-    .universe .split p { font-size: 0.56em; color: var(--muted); }
-    .universe .split strong { font-size: 1.05em; }
-
-    .interface-map { margin-top: 40px; display: grid; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 14px; }
-    .interface-map .map-item { padding: 22px; min-height: 126px; background: rgba(255,255,255,0.4); border: 1px solid var(--line); font-size: 0.5em; display: flex; align-items: center; justify-content: center; text-align: center; }
-    .interface-map .query { grid-column: 1 / 4; background: var(--teal-soft); border-color: var(--teal); font-family: var(--display); font-size: 0.72em; }
-    .interface-map .claim { background: var(--coral-soft); border-color: var(--coral); }
-    .interface-map .approved { background: var(--paper-deep); border-color: var(--ochre); }
-    .interface-map .history { color: var(--muted); }
 
     .footer {
       position: absolute;
@@ -320,17 +128,786 @@
       font-size: 0.35em;
       letter-spacing: 0.025em;
     }
-    .footer .accent { color: var(--coral); font-weight: 700; }
 
-    .closing {
+    .footer .accent { color: var(--coral); font-weight: 700; }
+    .footer a { color: var(--teal); text-decoration: none; }
+
+    .title-slide {
+      display: flex !important;
+      align-items: center;
+      background: linear-gradient(125deg, rgba(216, 232, 226, 0.58), transparent 62%);
+    }
+
+    .title-slide::after {
+      content: "";
+      position: absolute;
+      right: 8%;
+      bottom: 10%;
+      width: 25%;
+      height: 35%;
+      border: 1px solid rgba(11, 98, 95, 0.28);
+      border-radius: 50% 42% 54% 38%;
+      transform: rotate(-18deg);
+    }
+
+    .title-lockup { width: 76%; position: relative; z-index: 1; }
+    .title-lockup h1 { max-width: 900px; margin-bottom: 26px; }
+    .title-lockup .subtitle { max-width: 760px; color: var(--muted); font-size: 0.76em; line-height: 1.3; }
+    .title-lockup .rule { margin: 32px 0 17px; width: 210px; }
+
+    .outline-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 9px;
+      max-width: 980px;
+      margin: 35px 0 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: outline;
+    }
+
+    .outline-list li {
+      display: grid;
+      grid-template-columns: 48px 1fr;
+      gap: 15px;
+      align-items: center;
+      min-height: 72px;
+      padding: 11px 17px;
+      border-left: 5px solid var(--ink);
+      background: rgba(255, 255, 255, 0.42);
+      font-family: var(--display);
+      font-size: 0.75em;
+      line-height: 1.1;
+      counter-increment: outline;
+    }
+
+    .outline-list li::before {
+      content: counter(outline, decimal-leading-zero);
+      color: var(--muted);
+      font-family: var(--body);
+      font-size: 0.53em;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+
+    .risk-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-top: 34px;
+    }
+
+    .risk {
+      min-height: 190px;
+      padding: 22px 24px 20px;
+      background: rgba(255, 255, 255, 0.4);
+      border-top: 5px solid var(--teal);
+      box-shadow: 0 8px 20px var(--shadow);
+    }
+
+    .risk:nth-child(2) { border-color: var(--coral); }
+    .risk:nth-child(3) { border-color: var(--ochre); }
+    .risk:nth-child(4) { border-color: var(--ink); }
+    .risk .number { color: var(--muted); font-size: 0.42em; letter-spacing: 0.08em; }
+    .risk h3 { margin: 11px 0 12px; }
+    .risk p { color: var(--muted); font-size: 0.5em; margin-bottom: 0; }
+
+    .help-table,
+    .task-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 34px;
+      font-size: 0.48em;
+    }
+
+    .help-table th,
+    .help-table td,
+    .task-table th,
+    .task-table td {
+      padding: 14px 17px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      line-height: 1.2;
+    }
+
+    .help-table th,
+    .task-table th {
+      color: var(--teal);
+      text-align: left;
+      font-family: var(--display);
+      font-size: 1.16em;
+      font-weight: 600;
+    }
+
+    .help-table td:last-child { color: var(--muted); }
+
+    .loop {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin: 92px 0 40px;
+    }
+
+    .loop .step {
+      flex: 1;
+      min-width: 0;
+      padding: 21px 12px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.4);
+      text-align: center;
+      font-family: var(--display);
+      font-size: 0.64em;
+      line-height: 1.05;
+    }
+
+    .loop .step:nth-child(1) { border-top: 4px solid var(--teal); }
+    .loop .step:nth-child(2) { border-top: 4px solid var(--coral); }
+    .loop .step:nth-child(3) { border-top: 4px solid var(--ochre); }
+    .loop .step:nth-child(4) { border-top: 4px solid var(--ink); }
+    .loop .step:nth-child(5) { border-top: 4px solid var(--teal); }
+    .loop .arrow { padding: 0 9px; color: var(--coral); font-size: 0.8em; }
+
+    .loop-caption {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+      color: var(--muted);
+      font-size: 0.48em;
+      text-align: center;
+    }
+
+    .lifecycle-detail-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 31px;
+    }
+
+    .lifecycle-detail-item {
+      min-height: 133px;
+      padding: 16px 17px 14px;
+      border: 1px solid var(--line);
+      border-top: 4px solid var(--ink);
+      background: rgba(255, 255, 255, 0.42);
+    }
+
+    .lifecycle-detail-item .detail-number {
+      color: var(--muted);
+      font-size: 0.39em;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+
+    .lifecycle-detail-item h3 { margin: 8px 0 9px; font-size: 0.67em; }
+    .lifecycle-detail-item p { color: var(--muted); font-size: 0.43em; line-height: 1.2; margin: 0; }
+
+    .mapping-grid {
+      display: grid;
+      grid-template-columns: 145px repeat(8, minmax(0, 1fr));
+      gap: 7px;
+      margin-top: 28px;
+    }
+
+    .mapping-corner,
+    .mapping-label {
+      min-height: 76px;
+      padding: 12px 13px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .mapping-corner {
+      border-left: 5px solid var(--ink);
+      background: var(--paper-deep);
+    }
+
+    .mapping-corner span,
+    .mapping-label span {
+      color: var(--muted);
+      font-size: 0.36em;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+
+    .mapping-corner strong,
+    .mapping-label strong {
+      margin-top: 7px;
+      font-family: var(--display);
+      font-size: 0.58em;
+      line-height: 1.05;
+    }
+
+    .mapping-label.command-label { border-left: 5px solid var(--teal); background: var(--teal-soft); }
+    .mapping-label.task-label { border-left: 5px solid var(--coral); background: var(--coral-soft); }
+
+    .mapping-stage,
+    .mapping-cell {
+      min-width: 0;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.42);
+    }
+
+    .mapping-stage {
+      min-height: 76px;
+      padding: 10px 7px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .mapping-stage .stage-number { color: var(--muted); font-size: 0.35em; font-weight: 700; letter-spacing: 0.08em; }
+    .mapping-stage strong { margin-top: 7px; font-family: var(--display); font-size: 0.48em; line-height: 1.05; }
+
+    .mapping-cell {
+      min-height: 88px;
+      padding: 9px;
+      display: flex;
+      align-items: center;
+    }
+
+    .mapping-cell.task-cell { min-height: 176px; align-items: stretch; flex-direction: column; gap: 6px; }
+
+    .mapping-chip {
+      width: 100%;
+      padding: 9px 7px;
+      border-left: 3px solid var(--ink);
+      background: rgba(255, 255, 255, 0.55);
+      color: var(--ink);
+      font-family: var(--display);
+      font-size: 0.4em;
+      line-height: 1.08;
+      text-align: center;
+    }
+
+    .mapping-chip.command { border-color: var(--teal); background: var(--teal-soft); }
+    .mapping-chip.task { border-color: var(--coral); background: var(--coral-soft); }
+    .mapping-chip.shared { border-style: dashed; color: var(--muted); font-family: var(--body); font-size: 0.36em; }
+    .mapping-chip .map-arrow { display: block; color: var(--muted); font-family: var(--mono); font-size: 0.82em; margin-top: 4px; }
+
+    .mapping-note {
+      grid-column: 2 / 10;
+      margin-top: 9px;
+      padding: 12px 16px;
+      border-left: 4px solid var(--coral);
+      background: rgba(255, 255, 255, 0.42);
+      color: var(--muted);
+      font-size: 0.43em;
+      line-height: 1.2;
+    }
+
+    .mapping-note strong { color: var(--teal); }
+
+    .layer-rule {
+      margin-top: 23px;
+      padding: 14px 19px;
+      border-left: 4px solid var(--coral);
+      background: rgba(255, 255, 255, 0.42);
+      color: var(--muted);
+      font-size: 0.51em;
+      line-height: 1.22;
+    }
+
+    .layer-rule strong { color: var(--teal); }
+
+    .example-layout {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 25px;
+      align-items: stretch;
+      margin-top: 42px;
+    }
+
+    .example-brief {
+      padding: 25px 26px;
+      border-top: 5px solid var(--coral);
+      background: var(--coral-soft);
+    }
+
+    .example-brief .label { margin-bottom: 17px; }
+    .example-question { font-family: var(--display); font-size: 0.98em; line-height: 1.13; }
+    .example-brief p { color: var(--muted); font-size: 0.49em; margin: 22px 0 0; }
+
+    .example-map { display: grid; gap: 10px; }
+
+    .example-row {
+      display: grid;
+      grid-template-columns: 125px 1fr;
+      gap: 15px;
+      align-items: center;
+      min-height: 86px;
+      padding: 14px 17px;
+      border-left: 5px solid var(--teal);
+      background: rgba(255, 255, 255, 0.42);
+    }
+
+    .example-row:nth-child(2) { border-color: var(--coral); background: var(--coral-soft); }
+    .example-row:nth-child(3) { border-color: var(--ochre); background: var(--paper-deep); }
+    .example-key { color: var(--muted); font-size: 0.41em; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+    .example-value { color: var(--ink); font-family: var(--display); font-size: 0.72em; line-height: 1.08; }
+    .example-note { color: var(--muted); font-size: 0.42em; margin-top: 6px; }
+    .example-command-path { font-family: var(--mono); font-size: 0.42em; line-height: 1.35; }
+    .example-command-path strong { color: var(--teal); }
+    .example-command-path span { color: var(--coral); }
+
+    .brainstorm-input {
+      margin-top: 31px;
+      padding: 21px 25px;
+      border-left: 5px solid var(--coral);
+      background: rgba(255, 255, 255, 0.42);
+    }
+
+    .brainstorm-input .input-label {
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 0.41em;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      margin-bottom: 13px;
+    }
+
+    .brainstorm-input p {
+      max-width: 1190px;
+      margin: 0;
+      font-family: var(--display);
+      font-size: 0.78em;
+      line-height: 1.16;
+    }
+
+    .classification-strip {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 13px;
+      margin-top: 17px;
+    }
+
+    .classification-box {
+      min-height: 101px;
+      padding: 15px 17px;
+      border-top: 4px solid var(--ink);
+      background: rgba(255, 255, 255, 0.42);
+    }
+
+    .classification-box:nth-child(2) { border-color: var(--teal); background: var(--teal-soft); }
+    .classification-box:nth-child(3) { border-color: var(--ochre); background: var(--paper-deep); }
+    .classification-box .box-label {
+      color: var(--muted);
+      font-size: 0.39em;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+
+    .classification-box h3 { margin: 9px 0 0; font-size: 0.69em; }
+    .classification-box p { color: var(--muted); font-size: 0.41em; line-height: 1.18; margin: 7px 0 0; }
+
+    .brainstorm-output {
+      display: grid;
+      grid-template-columns: 0.92fr 1.08fr;
+      gap: 18px;
+      margin-top: 25px;
+    }
+
+    .question-list,
+    .approach-list { display: grid; gap: 8px; }
+
+    .question-item {
+      display: grid;
+      grid-template-columns: 27px 1fr;
+      gap: 9px;
+      align-items: start;
+      min-height: 48px;
+      padding: 9px 11px;
+      border-left: 4px solid var(--teal);
+      background: rgba(255, 255, 255, 0.42);
+    }
+
+    .question-item:nth-child(2) { border-color: var(--coral); }
+    .question-item:nth-child(3) { border-color: var(--ochre); }
+    .question-item:nth-child(4) { border-color: var(--ink); }
+    .question-item:nth-child(5) { border-color: var(--teal); }
+    .question-item .number {
+      width: 25px;
+      height: 25px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: var(--paper);
+      background: var(--teal);
+      font-size: 0.42em;
+      font-weight: 700;
+    }
+
+    .question-item:nth-child(2) .number { background: var(--coral); }
+    .question-item:nth-child(3) .number { background: var(--ochre); color: var(--ink); }
+    .question-item:nth-child(4) .number { background: var(--ink); }
+    .question-item p { color: var(--muted); font-size: 0.4em; line-height: 1.18; margin: 2px 0 0; }
+
+    .approach-item {
+      padding: 11px 14px;
+      border-left: 4px solid var(--coral);
+      background: var(--coral-soft);
+    }
+
+    .approach-item:nth-child(2) { border-color: var(--teal); background: var(--teal-soft); }
+    .approach-item:nth-child(3) { border-color: var(--ochre); background: var(--paper-deep); }
+    .approach-item h3 { margin: 0 0 5px; font-size: 0.6em; }
+    .approach-item p { color: var(--muted); font-size: 0.38em; line-height: 1.16; margin: 0; }
+
+    .recommendation {
+      margin-top: 9px;
+      padding: 12px 15px;
+      border: 1px solid var(--teal);
+      background: rgba(216, 232, 226, 0.72);
+      color: var(--muted);
+      font-size: 0.42em;
+      line-height: 1.2;
+    }
+
+    .recommendation strong { color: var(--teal); }
+
+    .command-slide h2 { max-width: 1000px; }
+
+    .command-layout {
+      display: grid;
+      grid-template-columns: 0.86fr 1.14fr;
+      gap: 28px;
+      margin-top: 42px;
+    }
+
+    .command-name {
+      color: var(--teal);
+      font-family: var(--mono);
+      font-size: 0.95em;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+
+    .command-purpose {
+      max-width: 430px;
+      font-family: var(--display);
+      font-size: 1.12em;
+      line-height: 1.1;
+    }
+
+    .command-panel {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .command-box {
+      min-height: 218px;
+      padding: 21px 22px;
+      border-top: 5px solid var(--coral);
+      background: rgba(255, 255, 255, 0.42);
+    }
+
+    .command-box:last-child { border-color: var(--teal); background: var(--teal-soft); }
+    .command-box h3 { margin-bottom: 13px; }
+    .command-box p { color: var(--muted); font-size: 0.51em; margin-bottom: 0; }
+
+    .task-table { margin-top: 22px; font-size: 0.38em; }
+    .task-table th, .task-table td { padding: 9px 10px; }
+    .task-table th { font-size: 1.08em; }
+    .task-table td:first-child { color: var(--teal); font-weight: 700; white-space: nowrap; }
+    .task-table td:last-child { color: var(--muted); white-space: nowrap; }
+
+    .route {
+      margin-top: 36px;
+      border-left: 4px solid var(--teal);
+      background: rgba(255, 255, 255, 0.42);
+      padding: 19px 25px;
+      font-family: var(--mono);
+      font-size: 0.48em;
+      line-height: 1.55;
+    }
+
+    .route span { color: var(--coral); }
+
+    .capability-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 30px;
+    }
+
+    .capability {
+      min-height: 140px;
+      padding: 18px 20px;
+      border-left: 5px solid var(--teal);
+      background: rgba(255, 255, 255, 0.4);
+    }
+
+    .capability:nth-child(2) { border-color: var(--coral); }
+    .capability:nth-child(3) { border-color: var(--ochre); }
+    .capability:nth-child(4) { border-color: var(--ink); }
+    .capability h3 { margin-bottom: 8px; }
+    .capability p { color: var(--muted); font-size: 0.46em; margin-bottom: 0; }
+
+    .agent-route-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 27px;
+      font-size: 0.37em;
+    }
+
+    .agent-route-table th,
+    .agent-route-table td {
+      padding: 8px 14px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      line-height: 1.17;
+      text-align: left;
+    }
+
+    .agent-route-table th {
+      color: var(--teal);
+      font-family: var(--display);
+      font-size: 1.18em;
+      font-weight: 600;
+    }
+
+    .agent-route-table th:first-child,
+    .agent-route-table td:first-child { width: 28%; }
+    .agent-route-table td:first-child { color: var(--ink); font-family: var(--display); font-size: 1.08em; font-weight: 600; }
+    .agent-route-table td:last-child { color: var(--ink); }
+    .agent-route-table code { color: var(--coral); font-family: var(--mono); font-size: 0.94em; }
+    .agent-route-table .agent-condition { display: block; color: var(--muted); font-family: var(--body); font-size: 0.9em; margin-top: 3px; }
+
+    .agent-route-note {
+      margin-top: 15px;
+      padding: 10px 15px;
+      border-left: 4px solid var(--teal);
+      background: rgba(255, 255, 255, 0.42);
+      color: var(--muted);
+      font-size: 0.45em;
+      line-height: 1.2;
+    }
+
+    .agent-route-note strong { color: var(--teal); }
+
+    .pcc-intro {
+      max-width: 980px;
+      margin: 28px 0 28px;
+      padding: 22px 27px;
+      border-left: 5px solid var(--coral);
+      background: rgba(255, 255, 255, 0.42);
+      font-family: var(--display);
+      font-size: 0.88em;
+      line-height: 1.15;
+    }
+
+    .pcc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .pcc-box {
+      min-height: 205px;
+      padding: 21px 24px;
+      background: var(--teal-soft);
+      border-top: 5px solid var(--teal);
+    }
+
+    .pcc-box:last-child { background: var(--coral-soft); border-color: var(--coral); }
+    .pcc-box h3 { margin-bottom: 12px; }
+    .pcc-box p { color: var(--muted); font-size: 0.48em; margin-bottom: 0; }
+
+    .trace-layout {
+      display: grid;
+      grid-template-columns: 1fr 56px 1fr 56px 1fr;
+      gap: 12px;
+      align-items: stretch;
+      margin: 36px 0 20px;
+    }
+
+    .trace-card {
+      min-height: 326px;
+      padding: 22px 23px 20px;
+      border: 1px solid var(--line);
+    }
+
+    .trace-card.source-card { border-top: 5px solid var(--ink); background: var(--paper-deep); }
+    .trace-card.claim-card { border-top: 5px solid var(--coral); background: var(--coral-soft); }
+    .trace-card.prose-card { border-top: 5px solid var(--teal); background: var(--teal-soft); }
+    .trace-kicker { color: var(--muted); font-size: 0.38em; font-weight: 700; letter-spacing: 0.08em; }
+    .trace-card h3 { margin: 10px 0 10px; }
+    .trace-card > p { color: var(--muted); font-size: 0.47em; line-height: 1.2; margin-bottom: 0; }
+
+    .paper-page {
+      margin-top: 19px;
+      padding: 13px 14px 12px;
+      border: 1px solid var(--line);
+      background: var(--paper);
+    }
+
+    .page-meta { color: var(--muted); font-family: var(--mono); font-size: 0.38em; margin-bottom: 10px; }
+    .paper-lines { display: grid; gap: 6px; }
+    .paper-line { height: 8px; background: rgba(24, 37, 34, 0.18); }
+    .paper-line.short { width: 68%; }
+    .paper-line.highlighted { width: 92%; height: 25px; border-left: 4px solid var(--ochre); background: rgba(201, 147, 56, 0.38); }
+    .locator { margin-top: 10px; color: var(--ink); font-family: var(--mono); font-size: 0.38em; font-weight: 700; }
+
+    .trace-arrow {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: var(--coral);
+    }
+
+    .trace-arrow strong { font-size: 1.05em; line-height: 1; }
+    .trace-arrow span { color: var(--muted); font-size: 0.34em; font-weight: 700; letter-spacing: 0.06em; text-align: center; text-transform: uppercase; }
+
+    .claim-quote {
+      margin-top: 25px;
+      padding: 18px 18px 16px;
+      border-left: 4px solid var(--coral);
+      background: rgba(255, 255, 255, 0.45);
+      font-family: var(--display);
+      font-size: 0.78em;
+      line-height: 1.15;
+    }
+
+    .claim-id { margin-top: 19px; color: var(--muted); font-family: var(--mono); font-size: 0.38em; }
+
+    .review-paragraph {
+      margin-top: 24px !important;
+      padding: 18px 18px 20px;
+      border-left: 4px solid var(--teal);
+      background: rgba(255, 255, 255, 0.45);
+      color: var(--ink) !important;
+      font-family: var(--display);
+      font-size: 0.72em !important;
+      line-height: 1.18 !important;
+    }
+
+    .claim-marker { color: var(--teal); font-family: var(--mono); font-size: 0.72em; font-weight: 700; white-space: nowrap; }
+    .review-return { margin-top: 19px; color: var(--muted); font-family: var(--mono); font-size: 0.38em; line-height: 1.3; }
+
+    .trace-principle {
+      padding: 13px 18px;
+      border-left: 4px solid var(--ochre);
+      background: rgba(255, 255, 255, 0.42);
+      color: var(--muted);
+      font-size: 0.5em;
+      line-height: 1.2;
+    }
+
+    .trace-principle strong { color: var(--teal); }
+    .trace-attribution { margin-top: 14px; color: var(--muted); font-size: 0.46em; line-height: 1.2; }
+    .trace-attribution strong { color: var(--coral); }
+
+    .normative-layout {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 28px;
+      align-items: start;
+      margin-top: 35px;
+    }
+
+    .normative-steps {
+      display: grid;
+      gap: 10px;
+    }
+
+    .normative-step {
+      display: grid;
+      grid-template-columns: 35px 1fr;
+      gap: 13px;
+      align-items: center;
+      min-height: 55px;
+      padding: 10px 14px;
+      background: rgba(255, 255, 255, 0.42);
+      border-left: 4px solid var(--teal);
+    }
+
+    .normative-step:nth-child(2) { border-color: var(--coral); }
+    .normative-step:nth-child(3) { border-color: var(--ochre); }
+    .normative-step:nth-child(4) { border-color: var(--ink); }
+    .normative-step:nth-child(5) { border-color: var(--teal); }
+    .normative-step .number {
+      width: 29px;
+      height: 29px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: var(--paper);
+      background: var(--teal);
+      font-size: 0.5em;
+      font-weight: 700;
+    }
+
+    .normative-step:nth-child(2) .number { background: var(--coral); }
+    .normative-step:nth-child(3) .number { background: var(--ochre); color: var(--ink); }
+    .normative-step:nth-child(4) .number { background: var(--ink); }
+    .normative-step p { color: var(--muted); font-size: 0.49em; margin: 0; }
+
+    .start-box {
+      padding: 27px 26px;
+      background: var(--teal-soft);
+      border-top: 5px solid var(--teal);
+    }
+
+    .start-box .command-name { font-size: 0.68em; margin-bottom: 15px; }
+    .start-box h3 { margin-bottom: 14px; }
+    .start-box p { color: var(--muted); font-size: 0.52em; margin-bottom: 0; }
+
+    .conclusion {
       display: flex !important;
       flex-direction: column;
       justify-content: center;
-      background: linear-gradient(130deg, rgba(216, 232, 226, 0.55), rgba(243, 217, 206, 0.4));
+      background: linear-gradient(130deg, rgba(216, 232, 226, 0.58), rgba(243, 217, 206, 0.42));
     }
-    .closing h2 { max-width: 870px; font-size: 2em; }
-    .closing .closing-line { max-width: 830px; color: var(--muted); font-size: 0.74em; }
-    .closing .question { max-width: 980px; margin-top: 42px; padding: 25px 30px; border-left: 5px solid var(--teal); background: rgba(255,255,255,0.45); font-family: var(--display); font-size: 0.82em; }
+
+    .conclusion h2 { max-width: 900px; margin-bottom: 18px; }
+
+    .conclusion-statement {
+      max-width: 900px;
+      margin-bottom: 32px;
+      padding: 18px 24px;
+      border-left: 5px solid var(--coral);
+      background: rgba(255, 255, 255, 0.44);
+      font-family: var(--display);
+      font-size: 0.95em;
+      line-height: 1.15;
+    }
+
+    .next-focus-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      max-width: 1180px;
+      margin-bottom: 26px;
+    }
+
+    .next-focus {
+      min-height: 125px;
+      padding: 18px 20px;
+      border-top: 5px solid var(--teal);
+      background: rgba(255, 255, 255, 0.42);
+    }
+
+    .next-focus:nth-child(2) { border-color: var(--coral); background: var(--coral-soft); }
+    .next-focus:nth-child(3) { border-color: var(--ochre); background: var(--paper-deep); }
+    .next-focus h3 { margin-bottom: 10px; }
+    .next-focus p { color: var(--muted); font-size: 0.48em; line-height: 1.2; margin: 0; }
+
+    .conclusion-cta {
+      max-width: 1080px;
+      padding: 15px 20px;
+      border-left: 5px solid var(--teal);
+      background: rgba(255, 255, 255, 0.46);
+      color: var(--muted);
+      font-size: 0.55em;
+      line-height: 1.3;
+    }
+
+    .conclusion-cta strong { color: var(--teal); }
 
     .notes-link { color: var(--teal); text-decoration: none; }
 
@@ -342,59 +919,27 @@
       .footer { left: 42px; right: 42px; bottom: 18px; }
       .title-lockup { width: 100%; }
       .title-slide::after { right: 4%; width: 32%; }
-      .workflow { margin-top: 48px; }
-      .workflow .step { min-width: 100px; font-size: 0.52em; }
-      .pipeline { grid-template-columns: repeat(3, 1fr); row-gap: 26px; }
-      .pipeline .node:nth-child(3)::after { display: none; }
-      .lineage { gap: 10px; }
-      .lineage-card { padding: 18px; min-height: 260px; }
-      .stage-flow .stage { font-size: 0.42em; }
-    }
-
-    @media (max-width: 700px) {
-      .reveal { font-size: 24px; }
-      .reveal .slides section { padding: 42px 24px 44px; }
-      .reveal .slides section::before { left: 24px; top: 24px; width: 34px; }
-      .slide-index { right: 24px; top: 32px; }
-      .footer { left: 24px; right: 24px; font-size: 0.31em; }
-      .reveal h1 { font-size: 2.05em; }
-      .reveal h2 { font-size: 1.45em; }
-      .lede { font-size: 0.66em; }
-      .two-col, .two-col.wide-left, .two-col.wide-right { display: block; }
-      .two-col > * + * { margin-top: 18px; }
-      .workflow { margin-top: 38px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-      .workflow .step { min-width: 0; padding: 13px 8px; font-size: 0.52em; }
-      .workflow .arrow { display: none; }
-      .threat-grid { grid-template-columns: 1fr; gap: 10px; margin-top: 22px; }
-      .threat { min-height: 0; padding: 13px 15px; }
-      .threat h3 { font-size: 0.72em; margin-bottom: 7px; }
-      .threat p { font-size: 0.43em; }
-      .contrast, .caveat-grid { grid-template-columns: 1fr; margin-top: 24px; }
-      .contrast > div, .caveat-grid > div { min-height: 0; padding: 17px 18px; }
-      .contrast > div:first-child, .caveat-grid .can { border-right: 0; border-bottom: 1px solid var(--line); }
-      .contrast p, .caveat-grid li { font-size: 0.44em; margin-bottom: 8px; }
-      .caveat-grid ul { padding-left: 18px; }
-      .quote { margin: 30px 0 20px; padding: 20px 21px; font-size: 0.75em; }
-      .pipeline { grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 28px; }
-      .pipeline .node { min-height: 78px; padding: 12px 8px; font-size: 0.42em; }
-      .pipeline .node::before, .pipeline .node::after { display: none; }
-      .lineage { grid-template-columns: 1fr; gap: 10px; margin-top: 24px; }
-      .lineage-card { min-height: 0; padding: 15px 17px; }
-      .lineage-card h3 { margin: 8px 0; font-size: 0.86em; }
-      .lineage-card p { font-size: 0.43em; margin-bottom: 0; }
-      .stage-flow { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 28px; }
-      .stage-flow .stage { min-height: 62px; padding: 12px 8px; font-size: 0.42em; }
-      .stage-flow .connector { display: none; }
-      .universe { display: block; margin-top: 28px; }
-      .universe .big-question { font-size: 1.15em; margin-bottom: 22px; }
-      .universe .split { border-left: 0; border-top: 1px solid var(--line); padding: 20px 0 0; }
-      .universe .split p { font-size: 0.46em; }
-      .interface-map { grid-template-columns: 1fr; gap: 8px; margin-top: 24px; }
-      .interface-map .map-item { min-height: 55px; padding: 12px; font-size: 0.43em; }
-      .interface-map .query { grid-column: 1; font-size: 0.62em; }
-      .closing h2 { font-size: 1.55em; }
-      .closing .closing-line { font-size: 0.57em; }
-      .closing .question { margin-top: 22px; padding: 17px 19px; font-size: 0.62em; }
+      .outline-list { gap: 9px 15px; margin-top: 35px; }
+      .outline-list li { min-height: 76px; grid-template-columns: 37px 1fr; padding: 11px 12px; font-size: 0.64em; }
+      .loop { margin-top: 60px; }
+      .task-table { font-size: 0.34em; }
+      .trace-layout { grid-template-columns: 1fr 36px 1fr 36px 1fr; gap: 7px; }
+      .trace-card { padding: 17px 15px; }
+      .trace-card h3 { font-size: 0.72em; }
+      .claim-quote { font-size: 0.65em; }
+      .review-paragraph { font-size: 0.6em !important; }
+      .mapping-grid { grid-template-columns: 115px repeat(8, minmax(0, 1fr)); gap: 4px; }
+      .mapping-corner, .mapping-label { padding: 10px 8px; }
+      .mapping-chip { padding: 8px 4px; font-size: 0.36em; }
+      .mapping-chip.shared { font-size: 0.32em; }
+      .lifecycle-detail-grid { grid-template-columns: repeat(2, 1fr); }
+      .brainstorm-output { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .classification-strip { gap: 8px; }
+      .classification-box { padding: 12px 13px; }
+      .brainstorm-input p { font-size: 0.68em; }
+      .agent-route-table { font-size: 0.31em; margin-top: 19px; }
+      .agent-route-table th, .agent-route-table td { padding: 6px 7px; }
+      .agent-route-note { font-size: 0.38em; margin-top: 10px; }
     }
 
     @media print {
@@ -404,300 +949,538 @@
   </style>
 </head>
 <body>
-  <main class="reveal" aria-label="AI and the Conditions for Verifiable Knowledge Work presentation">
+  <main class="reveal" aria-label="AI and Research presentation">
     <div class="slides">
-      <section class="title-slide" data-background-color="#f5f0e7" aria-label="Title">
-        <span class="slide-index">01 / 12</span>
+      <section class="title-slide" aria-label="Title">
+        <span class="slide-index">01 / 21</span>
         <div class="title-lockup">
-          <div class="eyebrow">AI for Data x Compound Research</div>
-          <h1>AI and the conditions for verifiable knowledge work</h1>
-          <p class="subtitle">From resource to claim to composition</p>
+          <div class="eyebrow">Compound GPID research suite</div>
+          <h1>AI and Research</h1>
+          <p class="subtitle">A guide for using the Compound-GPID plug in for research</p>
           <div class="rule coral"></div>
-          <p class="source-note">A 30-minute research conversation for the AI for Data team and Development Research Group.</p>
+          <p class="source-note">A practitioner guide to the research workflow, task types, evidence, and human decisions.</p>
         </div>
-        <div class="footer"><span>Derived presentation surface</span><span class="accent">Markdown remains authoritative</span></div>
+        <div class="footer"><span>Research workflow briefing</span><span class="accent">AI and Research</span></div>
         <aside class="notes">
-          Research has always involved a movement from sources to notes, from notes to claims, and from claims to a paper, report, or decision. LLMs change the cost and speed of every part of that process. They also change the risk: language can arrive before its source, its uncertainty, or its reasoning has been made visible.
-          <br><br>
-          The question today is not whether LLMs are useful. They clearly are. The question is what has to surround them if the output is going to become part of research or institutional knowledge.
+          This presentation introduces the Compound-GPID research plug in: what problem it addresses, how it organizes research work, and where human judgment remains essential.
         </aside>
       </section>
 
-      <section aria-label="The ordinary research workflow">
-        <span class="slide-index">02 / 12</span>
-        <div class="eyebrow">The problem</div>
-        <h2>The ordinary research workflow has a hidden control system</h2>
-        <div class="workflow" aria-label="Ordinary research workflow">
-          <div class="step">Question</div><div class="arrow">&rarr;</div>
-          <div class="step">Search</div><div class="arrow">&rarr;</div>
-          <div class="step">Read</div><div class="arrow">&rarr;</div>
-          <div class="step">Compare</div><div class="arrow">&rarr;</div>
-          <div class="step">Interpret</div><div class="arrow">&rarr;</div>
-          <div class="step">Write</div>
-        </div>
-        <div class="two-col wide-right">
-          <p class="lede"><strong>A literature review is not only a search for text.</strong> It is a series of judgments about relevance, context, support, disagreement, and what can responsibly be carried into composition.</p>
-          <div class="stack small"><span class="tag">memory</span><span class="tag">judgment</span><span class="tag">return to the source</span></div>
-        </div>
-        <div class="footer"><span>Source, note, interpretation, composition</span><span class="accent">The controls are mostly informal</span></div>
+      <section class="outline-slide" aria-label="Outline">
+        <span class="slide-index">02 / 21</span>
+        <div class="eyebrow">The route</div>
+        <h2>Outline</h2>
+        <ol class="outline-list">
+          <li>AI and Research</li>
+          <li>The workflow, tasks, and the research lifecycle</li>
+          <li>A quick example</li>
+          <li>The commands</li>
+          <li>Literature reviews, evidence, and PCCs</li>
+          <li>On human decision-making</li>
+        </ol>
+        <div class="footer"><span>Six questions for the conversation</span><span class="accent">A short practitioner tour</span></div>
         <aside class="notes">
-          A literature review is not only a search for text. It is a series of judgments. A researcher decides which sources matter, reads enough context to understand a passage, records what the passage supports, compares it with other sources, and then writes a composition that is supposed to remain answerable to the sources.
-          <br><br>
-          Much of this control system is informal. It lives in notes, habits, source folders, citation managers, and the researcher's ability to return to a page months later. It is imperfect, but the researcher can usually distinguish a source, a note, an interpretation, and a final sentence.
-          <br><br>
-          An answer-first LLM interface compresses these steps into one fluent response. That is useful for exploration. But if the compressed steps are not recovered and recorded, the output can look more settled than the underlying process was.
+          We will move through six parts. We begin with the problem AI creates for research, then connect the familiar workflow to the research lifecycle and task types. We will use one concrete research question as a quick example, review the commands, discuss literature reviews, evidence, and Proof Carrying Claims, and close with human decision-making.
         </aside>
       </section>
 
-      <section aria-label="Answer first AI contrast">
-        <span class="slide-index">03 / 12</span>
-        <div class="eyebrow">The problem</div>
-        <h2>What changes when the answer arrives first?</h2>
-        <div class="contrast">
-          <div>
-            <div class="label">Ordinary workflow</div>
-            <h3>Source before claim</h3>
-            <p>Notes preserve some uncertainty.</p>
-            <p>Re-reading is part of the work.</p>
-            <p>Composition follows analysis.</p>
-          </div>
-          <div>
-            <div class="label">Answer-first AI workflow</div>
-            <h3>Claim may appear before source</h3>
-            <p>Fluency can hide uncertainty.</p>
-            <p>Source context may shrink to a snippet.</p>
-            <p>Analysis and composition can happen together.</p>
-          </div>
+      <section aria-label="Research risks">
+        <span class="slide-index">03 / 21</span>
+        <div class="eyebrow">Why the workflow matters</div>
+        <h2>What can go wrong when AI enters research?</h2>
+        <div class="risk-grid">
+          <div class="risk"><div class="number">01 / SOURCE</div><h3>Source detachment</h3><p>A claim may lose the source, context, or passage that should support it.</p></div>
+          <div class="risk"><div class="number">02 / STABILITY</div><h3>Unstable output</h3><p>The same task can produce different emphases or omissions while the prose still sounds certain.</p></div>
+          <div class="risk"><div class="number">03 / SELECTION</div><h3>Hidden selection</h3><p>The system may choose one source or interpretation without showing what it left out.</p></div>
+          <div class="risk"><div class="number">04 / AUTHORITY</div><h3>Fluency travels</h3><p>Polished language can make a weakly supported claim easier to repeat.</p></div>
         </div>
-        <p class="lede" style="margin-top: 30px;">The risk is not only a false statement. It is a changed <strong>order of operations</strong>.</p>
-        <div class="footer"><span>From "What can I responsibly say?"</span><span class="accent">to "Can I defend this answer?"</span></div>
+        <p class="lede" style="margin-top: 26px;"><strong>The workflow is protecting the route from evidence to claim.</strong> It is not trying to remove useful AI assistance.</p>
+        <div class="footer"><span>Applied poverty, inequality, and welfare research</span><span class="accent">Language is not evidence by itself</span></div>
         <aside class="notes">
-          An LLM can make the final form of knowledge appear early. Before we have settled the source, the context, the comparison, or the uncertainty, we may already have a paragraph that sounds ready to use.
+          AI can make research faster. It can also make an unsupported statement look ready for a paper, a brief, or a poverty-monitoring discussion before anyone has checked the source, the context, or the reasoning behind it.
           <br><br>
-          That reverses the normal burden of the research process. Instead of asking "What can I responsibly say from these sources?" we are tempted to ask "Can I find a source that makes this answer defensible?"
+          The risks are straightforward. A claim can become detached from its source. A repeated generation can produce a different emphasis or omission, while the prose still sounds certain. The system can select one source or interpretation without showing what it left out. And once polished language enters a report, people may repeat it because it reads well rather than because its support is clear.
           <br><br>
-          The framework proposed here is an attempt to restore the order of operations without giving up the speed of AI-assisted exploration.
+          These are reasons to keep the route from evidence to claim visible, not reasons to stop using AI.
         </aside>
       </section>
 
-      <section aria-label="Four epistemological threats">
-        <span class="slide-index">04 / 12</span>
-        <div class="eyebrow">The problem</div>
-        <h2>Four epistemological threats</h2>
-        <div class="threat-grid">
-          <div class="threat"><h3>01 &nbsp; Source detachment</h3><p>A claim may have no recoverable source, or the source may not support what the claim says.</p></div>
-          <div class="threat"><h3>02 &nbsp; Epistemic instability</h3><p>The same prompt and source context can yield different claims, omissions, or emphases across runs.</p></div>
-          <div class="threat"><h3>03 &nbsp; Selection opacity</h3><p>The system can choose one passage or interpretation from many plausible alternatives without showing the choice.</p></div>
-          <div class="threat"><h3>04 &nbsp; Amplified composition</h3><p>Once a plausible sentence enters a report, fluency can make it easier to repeat than to question.</p></div>
-        </div>
-        <p class="source-note" style="margin-top: 22px;">A seed and low temperature improve control; they do not guarantee identical output across providers, revisions, or serving environments.</p>
-        <div class="footer"><span>Randomness is one threat, not the whole problem</span><span class="accent">Fluency can acquire authority too early</span></div>
+      <section aria-label="Where AI helps researchers">
+        <span class="slide-index">04 / 21</span>
+        <div class="eyebrow">Useful assistance</div>
+        <h2>Where AI can help a researcher</h2>
+        <table class="help-table">
+          <thead><tr><th>AI can help with</th><th>A researcher still decides</th></tr></thead>
+          <tbody>
+            <tr><td>Finding and sorting relevant material</td><td>Whether the material is relevant and authoritative</td></tr>
+            <tr><td>Comparing passages, definitions, or methods</td><td>Whether the comparison is fair</td></tr>
+            <tr><td>Summarizing a document or a result</td><td>Whether the summary preserves the qualification</td></tr>
+            <tr><td>Suggesting questions, mechanisms, or specifications</td><td>Which question or specification is defensible</td></tr>
+            <tr><td>Drafting alternative wording</td><td>What can be responsibly stated</td></tr>
+          </tbody>
+        </table>
+        <p class="lede" style="margin-top: 30px;"><strong>AI helps with research effort.</strong> Researchers retain research authority.</p>
+        <div class="footer"><span>Use AI to reduce friction</span><span class="accent">Keep judgment visible</span></div>
         <aside class="notes">
-          First, source detachment. A fluent claim may have no recoverable source, or the cited source may not support what the claim says. This is the problem most people call hallucination, but the broader issue is loss of the source-to-claim connection.
+          For global poverty measurement, AI can help locate definitions across technical documents, compare how a measure is described, summarize a long report, or suggest questions for a literature review. It can help organize the work that surrounds research judgment.
           <br><br>
-          Second, epistemic instability. LLMs commonly generate by sampling from a distribution of possible continuations. The same prompt and source context can therefore yield different claims, omissions, or emphases across runs. One sampled answer is an event in a generation process, not automatically a stable research object.
-          <br><br>
-          This is not a claim that randomness makes every output false. It changes the burden of proof. We need to know whether the variation matters, which parts of the output are stable, and which generation settings and model versions were used. AI-DQSS documents a seed setting that may be dropped when the provider does not support it.
-          <br><br>
-          Third, selection opacity. The system may choose one source passage, one interpretation, or one caveat from many plausible alternatives without making that choice visible. Retrieval is not neutral simply because it is automated.
-          <br><br>
-          Fourth, amplified composition. Once a plausible sentence enters a report, memo, or institutional workflow, its fluency makes it easier to repeat than to question.
+          It cannot decide that a source is authoritative for the question, that a method identifies a causal effect, or that a sentence is ready to publish. AI helps with research effort; researchers retain research authority.
         </aside>
       </section>
 
-      <section aria-label="The stable research object">
-        <span class="slide-index">05 / 12</span>
-        <div class="eyebrow">The framework</div>
-        <h2>The stable object is not the answer</h2>
-        <div class="quote">A generated answer is a proposal.<br><span style="color: var(--teal);">A verified claim/evidence record is a research object.</span></div>
-        <div class="two-col wide-left">
-          <p class="lede">The primary product should be a structured, inspectable record: a narrow claim, its source and version, a locator, evidence, the relationship between evidence and claim, a verification result, and a review decision.</p>
-          <div class="control-list">
-            <div class="control"><div class="mark">1</div><p>Generation can suggest.</p></div>
-            <div class="control"><div class="mark">2</div><p>Verification can check source linkage.</p></div>
-            <div class="control"><div class="mark">3</div><p>People decide what can be reused.</p></div>
-          </div>
+      <section aria-label="The familiar Compound GPID workflow">
+        <span class="slide-index">05 / 21</span>
+        <div class="eyebrow">Shared ground</div>
+        <h2>The workflow you already know</h2>
+        <div class="loop" aria-label="Brainstorm, plan, work, review, compound">
+          <div class="step">Brainstorm</div><div class="arrow">-&gt;</div>
+          <div class="step">Plan</div><div class="arrow">-&gt;</div>
+          <div class="step">Work</div><div class="arrow">-&gt;</div>
+          <div class="step">Review</div><div class="arrow">-&gt;</div>
+          <div class="step">Compound</div>
         </div>
-        <div class="footer"><span>Generation remains useful</span><span class="accent">Authority is not automatic</span></div>
-        <aside class="notes">
-          The proposal is to stop treating the generated paragraph as the primary product. The primary product should be a structured, inspectable record: a claim stated narrowly enough to examine; the source and source version it refers to; the locator that takes us back to the passage; the verbatim quotation or other evidence; the relationship between evidence and claim; the verification result; and the review decision that determines whether the record can be reused.
-          <br><br>
-          Generation remains useful. It can suggest a claim, find a passage, propose a comparison, or help a researcher see a pattern. But it does not get to decide that the proposal has become knowledge.
-        </aside>
-      </section>
-
-      <section aria-label="Caveat checkpoint">
-        <span class="slide-index">06 / 12</span>
-        <div class="eyebrow">The framework</div>
-        <h2>What this framework can and cannot establish</h2>
-        <div class="caveat-grid">
-          <div class="can">
-            <h3>It can help establish</h3>
-            <ul><li>A claim has a recoverable source</li><li>A quotation matches a source unit</li><li>Source version and review state are visible</li><li>A proposal was generated under a recorded process</li><li>Unresolved or stale evidence remains visible</li></ul>
-          </div>
-          <div class="cannot">
-            <h3>It cannot establish by itself</h3>
-            <ul><li>The source is true or authoritative in every sense</li><li>The claim has causal validity</li><li>The interpretation is the only reasonable one</li><li>The model's output is fully reproducible</li><li>A normative judgment is justified</li></ul>
-          </div>
-        </div>
-        <p class="lede" style="margin-top: 22px;">This is a <strong>control system for provenance, review, and composition</strong> -- not a truth machine.</p>
-        <div class="footer"><span>Keep this boundary visible</span><span class="accent">Source linkage is not truth</span></div>
-        <aside class="notes">
-          This is the boundary that should remain visible throughout the presentation. Quote and locator verification can establish that a quotation is linked to a particular source. It cannot establish that the source is correct, that the research design identifies a causal effect, or that a policy judgment is normatively right.
-          <br><br>
-          Likewise, recording a seed, temperature, model, and prompt improves reproducibility. It does not turn a generative process into a proof. The framework is a control system for provenance, review, and composition. It is not a truth machine.
-        </aside>
-      </section>
-
-      <section aria-label="Resource to composition pipeline">
-        <span class="slide-index">07 / 12</span>
-        <div class="eyebrow">The framework</div>
-        <h2>From resource to atomic claim and back to composition</h2>
-        <div class="pipeline" aria-label="Evidence control loop">
-          <div class="node">Original<br>resource</div>
-          <div class="node">Parsed source<br>unit + locator</div>
-          <div class="node">Candidate evidence<br>+ atomic claim</div>
-          <div class="node">Quote / locator<br>verification</div>
-          <div class="node">Human review<br>+ approval</div>
-          <div class="node">Analysis<br>+ composition</div>
-        </div>
-        <div class="two-col">
-          <p class="lede"><strong>Original resources remain authoritative.</strong> Parsed text, OCR, indexes, embeddings, and browser views are aids to finding and inspecting them.</p>
-          <p class="lede"><strong>Generation may be probabilistic.</strong> Authority is earned through inspection, explicit state, and review.</p>
-        </div>
-        <div class="footer"><span>Analysis produces the evidence base</span><span class="accent">Composition comes after review</span></div>
-        <aside class="notes">
-          The process begins with the original resource. That resource remains the authority. Parsed text, OCR, indexes, embeddings, and browser views are aids to finding and inspecting it.
-          <br><br>
-          The resource is divided into source units with stable, explainable locators. From those units we can retrieve candidate passages and propose evidence. The claim is atomic: one statement that can be supported, contradicted, or left unresolved. If a sentence contains several independent assertions, it should be split rather than treated as one smooth block.
-          <br><br>
-          The system then checks the quote and locator against the original source and records the result. A researcher reviews the evidence and decides whether it is approved for downstream analysis or composition. Only then does the process return to writing.
-          <br><br>
-          This is an analysis/composition split. Analysis produces and verifies the claim/evidence base. Composition uses approved records. The point is not to remove interpretation. Interpretation is essential to research. The point is to make the move from evidence to interpretation visible.
-        </aside>
-      </section>
-
-      <section aria-label="Compound Research approach">
-        <span class="slide-index">08 / 12</span>
-        <div class="eyebrow">Technical lineage / 01</div>
-        <h2>The original Compound Research/plugin approach</h2>
-        <div class="stage-flow" aria-label="Compound Research workflow">
-          <div class="stage">Brainstorm</div><div class="connector"></div><div class="stage">Plan</div><div class="connector"></div><div class="stage">Work</div><div class="connector"></div><div class="stage">Review</div><div class="connector"></div><div class="stage">Compound</div>
-        </div>
-        <div class="two-col wide-left" style="margin-top: 46px;">
-          <p class="lede">The key move was not a particular model. It was to treat research reasoning as something that should leave an inspectable trail: why a model was chosen, what evidence informed a specification, which assumptions mattered, and what was learned for the next task.</p>
-          <div class="stack"><span class="tag">reasoning trail</span><span class="tag">reusable knowledge</span><span class="tag">evidence before composition</span></div>
-        </div>
-        <p class="source-note" style="margin-top: 30px;">The earliest recoverable Compound Research brainstorm is dated 2026-05-13. The provenance spine is dated 2026-07-30. `Suggestions-For-CR.md` remains unavailable.</p>
-        <div class="footer"><span>Workflow and reasoning foundation</span><span class="accent">Not a particular estimator</span></div>
-        <aside class="notes">
-          The first stage was the Compound GPID approach itself. The plugin began as a structured workflow for data science work: brainstorm the problem, plan the work, execute it, review it, and capture what was learned. Compound Research adapted that workflow to economics and econometrics research.
-          <br><br>
-          The key move was not a particular model. It was to treat research reasoning as something that should leave an inspectable trail: why a model was chosen, what evidence informed a specification, which assumptions mattered, and what was learned for the next task.
-          <br><br>
-          The evidence and provenance spine then made one part of that philosophy more explicit. It separated analysis from composition, kept the original document as the authority, made the local corpus the default, and treated an uncited or unverifiable substantive claim as a blocking research-integrity problem.
-          <br><br>
-          The exact origin of every idea is not fully recoverable. The referenced Suggestions-For-CR.md design note is not present in the current repository, so its contents are not represented here.
-        </aside>
-      </section>
-
-      <section aria-label="AI-DQSS approach">
-        <span class="slide-index">09 / 12</span>
-        <div class="eyebrow">Technical lineage / 02</div>
-        <h2>AI-DQSS: separate the stages, then verify the words</h2>
-        <div class="stage-flow" aria-label="AI-DQSS pipeline">
-          <div class="stage">Parse</div><div class="connector"></div><div class="stage">Index</div><div class="connector"></div><div class="stage">Retrieve</div><div class="connector"></div><div class="stage">Rerank</div><div class="connector"></div><div class="stage">Assess</div><div class="connector"></div><div class="stage">Verify</div>
-        </div>
-        <div class="two-col" style="margin-top: 44px;">
-          <div class="stack">
-            <span class="tag">WBG data quality self-assessment</span>
-            <p class="lede">AI-DQSS assesses data products, processes, and systems against 13 data quality principles and produces drafts for human review.</p>
-          </div>
-          <div class="stack small">
-            <p><strong>Stable citation IDs</strong><br><span style="color: var(--muted);">Every parsed text segment gets an address.</span></p>
-            <p><strong>Local filtering</strong><br><span style="color: var(--muted);">Retrieval and reranking narrow the evidence.</span></p>
-            <p><strong>Quotation verification</strong><br><span style="color: var(--muted);">The final words are checked against source documents.</span></p>
-          </div>
-        </div>
-        <div class="footer"><span>Procedural exemplar</span><span class="accent">Not a research-compliance template</span></div>
-        <aside class="notes">
-          AI-DQSS is a data quality self-assessment system developed by the AI for Data team. Its purpose is specific: assess data products, processes, and systems against the World Bank Group's 13 data quality principles and produce a draft assessment report for human review.
-          <br><br>
-          Its procedural lesson is broader than that domain. Documents are parsed and assigned stable citation IDs. Local dense and sparse retrieval narrows the corpus. A reranker selects stronger candidate passages. An LLM assesses the requirements and drafts narrative. A verification step checks quoted passages against the source before the report is exported.
-          <br><br>
-          The important design choice is separation. Finding a passage, ranking a passage, writing an assessment, and checking a quotation are different stages with different responsibilities.
-          <br><br>
-          The Compound Research work does not copy the 13-pillar assessment structure or turn research into a compliance report. It carries forward the useful pattern: source units with addresses, staged retrieval, structured evidence, and independent checking.
-        </aside>
-      </section>
-
-      <section aria-label="Current research evidence workbench">
-        <span class="slide-index">10 / 12</span>
-        <div class="eyebrow">Technical lineage / 03</div>
-        <h2>The current local-first research evidence workbench</h2>
-        <div class="lineage">
-          <div class="lineage-card"><div class="date">Boundary</div><h3>Original authority</h3><p>Original resources remain authoritative. Browser views and indexes are derived aids.</p></div>
-          <div class="lineage-card"><div class="date">State</div><h3>Candidate != approved</h3><p>Model proposals remain candidates until source-linked verification and researcher review succeed.</p></div>
-          <div class="lineage-card"><div class="date">Lifecycle</div><h3>Stale means re-verify</h3><p>Source changes invalidate affected records rather than silently preserving old approval.</p></div>
-        </div>
-        <div class="two-col" style="margin-top: 32px;">
-          <p class="lede">Local-first, project-contained, offline during normal processing, and loopback-only for the browser service.</p>
-          <p class="lede">Deterministic lexical retrieval is the baseline. Optional model profiles are explicit and candidate-only.</p>
-        </div>
-        <div class="footer"><span>AI-DQSS procedure + CR claim/evidence model</span><span class="accent">Uncertainty becomes visible state</span></div>
-        <aside class="notes">
-          The current research_evidence package is the executable boundary for this approach. It is local-first, project-contained, offline during normal processing, and loopback-only for its browser service.
-          <br><br>
-          It supports the resource lifecycle rather than assuming that a corpus never changes. Resources receive identities and hashes. Parsed units receive typed locators. When a source changes or disappears, affected evidence and claims become stale and must be re-verified before they can return to approved use.
-          <br><br>
-          The baseline retrieval path is deterministic lexical search. Optional dense, sparse, and reranking profiles are explicit, inventory-controlled, and candidate-only until they meet their activation and benchmark conditions. A model may propose a claim or evidence record, but that record remains a candidate.
-          <br><br>
-          Canonical state is written as readable, diffable YAML. The browser interface is a management surface, not the authority. The package combines AI-DQSS's staged evidence procedure with Compound Research's claim/evidence, review, and knowledge-compounding workflow.
-        </aside>
-      </section>
-
-      <section aria-label="Source universe">
-        <span class="slide-index">11 / 12</span>
-        <div class="eyebrow">The next questions</div>
-        <h2>The next bottleneck is the universe of sources</h2>
-        <div class="universe">
-          <div class="big-question">Known corpus:<br><span>can we verify</span><br>the claim?</div>
-          <div class="split"><p><strong>Source universe:</strong><br>did we find the right evidence at all?</p><p>The current workbench starts with a local corpus by design. Research usually begins before the corpus exists.</p><p>A credible discovery layer needs both search and a record of scope, coverage, exclusions, versions, and unresolved gaps.</p></div>
-        </div>
+        <div class="loop-caption"><span>Clarify the task</span><span>Decide the route</span><span>Do the work</span><span>Check it</span><span>Retain the lesson</span></div>
         <div class="rule teal"></div>
-        <p class="lede">This is not simply a request for a bigger search box. Ranking changes what becomes visible.</p>
-        <div class="footer"><span>Verification is not coverage</span><span class="accent">Discovery has its own provenance problem</span></div>
+        <p class="lede">The important feature is that the reasoning and the checks are part of the work, rather than something reconstructed after the result is finished.</p>
+        <div class="footer"><span>Compound Research extends this structure</span><span class="accent">Reasoning leaves a trail</span></div>
         <aside class="notes">
-          The current workbench starts with a repository-local corpus by design. That is a useful boundary for verification, privacy, and reproducibility. But research usually begins before the corpus exists.
+          This is the workflow many of you already know. First, make the question and the constraints clear. Then make a plan that someone else can inspect. Do the work against that plan. Review the result. Finally, retain the lesson so that the next project does not start from zero.
           <br><br>
-          The next problem is source discovery: finding the relevant literature and institutional material in a universe of sources, while recording what was searched, what was excluded, and why.
-          <br><br>
-          This is not simply a request for a bigger search box. A retrieval system can favor highly cited or familiar sources. It can miss work that uses different language. It can return relevant passages from sources that are not appropriate for the question. It can also make the researcher forget that the corpus was selected by a system with its own coverage and ranking behavior.
+          The important feature is not the names of the steps. It is that the reasoning and the checks are part of the work, rather than something reconstructed after the result is finished. Compound Research extends this structure to research questions, evidence, methods, and claims.
         </aside>
       </section>
 
-      <section class="closing" aria-label="Literature review as a research interface">
-        <span class="slide-index">12 / 12</span>
-        <div class="eyebrow">The next questions</div>
-        <h2>Literature review as a research interface</h2>
-        <div class="interface-map" aria-label="Proposed research interface">
-          <div class="map-item query">Question / claim</div>
-          <div class="map-item">Source candidates<br>and passages</div>
-          <div class="map-item claim">Supports / contradicts / unresolved</div>
-          <div class="map-item history">Search history<br>and exclusions</div>
-          <div class="map-item approved">Approved evidence<br>&rarr; composition</div>
+      <section aria-label="The three research layers">
+        <span class="slide-index">06 / 21</span>
+        <div class="eyebrow">The research module</div>
+        <h2>The lifecycle works at two levels</h2>
+        <p class="lede" style="margin-bottom: 0;">The same eight stages organize the whole research process and locate each piece of work.</p>
+        <div class="mapping-grid" aria-label="Commands and task types mapped to the research lifecycle">
+          <div class="mapping-corner"><span>MACRO</span><strong>Research lifecycle</strong></div>
+          <div class="mapping-stage"><span class="stage-number">01</span><strong>Scope</strong></div>
+          <div class="mapping-stage"><span class="stage-number">02</span><strong>Evidence</strong></div>
+          <div class="mapping-stage"><span class="stage-number">03</span><strong>Theory</strong></div>
+          <div class="mapping-stage"><span class="stage-number">04</span><strong>Method</strong></div>
+          <div class="mapping-stage"><span class="stage-number">05</span><strong>Execute</strong></div>
+          <div class="mapping-stage"><span class="stage-number">06</span><strong>Verify</strong></div>
+          <div class="mapping-stage"><span class="stage-number">07</span><strong>Communicate</strong></div>
+          <div class="mapping-stage"><span class="stage-number">08</span><strong>Maintain</strong></div>
+
+          <div class="mapping-label command-label"><span>MICRO / HOW</span><strong>Workflow commands</strong></div>
+          <div class="mapping-cell"><div class="mapping-chip command">Brainstorm</div></div>
+          <div class="mapping-cell"><div class="mapping-chip shared">Shared safeguard</div></div>
+          <div class="mapping-cell"><div class="mapping-chip shared">Task-specific</div></div>
+          <div class="mapping-cell"><div class="mapping-chip command">Plan</div></div>
+          <div class="mapping-cell"><div class="mapping-chip command">Work</div></div>
+          <div class="mapping-cell"><div class="mapping-chip command">Review</div></div>
+          <div class="mapping-cell"><div class="mapping-chip shared">Task-specific</div></div>
+          <div class="mapping-cell"><div class="mapping-chip command">Compound</div></div>
+
+          <div class="mapping-label task-label"><span>WHAT</span><strong>Task types</strong></div>
+          <div class="mapping-cell task-cell"><div class="mapping-chip task">Research Scoping</div></div>
+          <div class="mapping-cell task-cell"><div class="mapping-chip task">EDA<span class="map-arrow">Evidence -&gt; Execute</span></div></div>
+          <div class="mapping-cell task-cell"><div class="mapping-chip task">Theory/Modeling</div><div class="mapping-chip task">Specification Analysis<span class="map-arrow">Theory -&gt; Method</span></div></div>
+          <div class="mapping-cell task-cell"><div class="mapping-chip task">Measurement/Classification</div><div class="mapping-chip task">ML/Prediction</div><div class="mapping-chip task">Implementation<span class="map-arrow">Method -&gt; Execute</span></div></div>
+          <div class="mapping-cell task-cell"></div>
+          <div class="mapping-cell task-cell"><div class="mapping-chip shared">Shared safeguard</div></div>
+          <div class="mapping-cell task-cell"><div class="mapping-chip task">Tables/Figures</div><div class="mapping-chip task">Writing</div></div>
+          <div class="mapping-cell task-cell"><div class="mapping-chip task">Reproducibility</div></div>
+
+          <div class="mapping-note"><strong>How to read it:</strong> across the top is the macro lifecycle. Read down a column to see its command mapping and the task types that primarily live there. Arrows show tasks that span stages; evidence and verification are shared safeguards.</div>
         </div>
-        <p class="closing-line">Avenues for exploration, not a finished product roadmap.</p>
-        <div class="question">How do we make AI-assisted research more useful without making its authority invisible?</div>
-        <div class="footer"><span>AI for Data x DRG research</span><span class="accent">From answer-first to evidence-first</span></div>
+        <div class="footer"><span>Commands organize the work; task types locate the work</span><span class="accent">The lifecycle connects them</span></div>
         <aside class="notes">
-          Imagine a literature-review interface organized around the researcher's claims rather than around a blank document. The researcher could ask a question, inspect candidate sources, compare passages side by side, save atomic claims, record whether sources support or contradict one another, and keep unresolved items visible.
+          The previous slide showed the workflow you already know. This slide makes the two levels of the lifecycle visible.
           <br><br>
-          The interface could show a reading trail: which searches produced a source, which passages were selected, what was rejected, and which source versions were used. It could help a researcher move between a claim and its context without pretending that relevance is the same as truth.
+          At the macro level, the lifecycle describes the whole research process: Scope, Evidence, Theory, Method, Execute, Verify, Communicate, and Maintain.
           <br><br>
-          This is an avenue for exploration rather than a finished product roadmap. The questions are how to discover sources without hiding selection effects, how to represent disagreement and uncertainty, how to measure retrieval quality for development research, and how to divide labor between researchers and models.
+          At the micro level, the familiar commands map onto the stages they primarily serve: Brainstorm to Scope, Plan to Method, Work to Execute, Review to Verify, and Compound to Maintain. These commands tell us how the work moves.
           <br><br>
-          The opportunity is to explore the next interface together while keeping one principle fixed: AI can help produce proposals, but knowledge should remain traceable to sources and accountable to human judgment.
+          Task types provide a second mapping. Research Scoping belongs to Scope. Theory/Modeling belongs to Theory. Measurement and prediction belong mainly to Method. Writing and Tables/Figures belong to Communicate. Reproducibility belongs to Maintain.
+          <br><br>
+          Some task types span two stages, so the slide shows arrows: EDA runs from Evidence to Execute, Specification Analysis from Theory to Method, and Implementation from Method to Execute. Evidence and verification are also shared safeguards across all tasks.
+          <br><br>
+          Classification happens in /cr-brainstorm, where the researcher confirms or corrects the proposed type.
+          <br><br>
+          The point is not that each task follows a different command sequence. The same command sequence organizes every task. The task type tells the workflow which part of the lifecycle needs the most specialized guidance.
+        </aside>
+      </section>
+
+      <section aria-label="Research lifecycle stages">
+        <span class="slide-index">07 / 21</span>
+        <div class="eyebrow">Where research responsibilities sit</div>
+        <h2>The research lifecycle</h2>
+        <div class="lifecycle-detail-grid">
+          <div class="lifecycle-detail-item"><div class="detail-number">01</div><h3>Scope</h3><p>Define the question, population, decision context, and choices that need a person.</p></div>
+          <div class="lifecycle-detail-item"><div class="detail-number">02</div><h3>Evidence</h3><p>Establish the sources, data, and provenance that support important claims.</p></div>
+          <div class="lifecycle-detail-item"><div class="detail-number">03</div><h3>Theory</h3><p>Explain the mechanism, model, or identification argument behind the work.</p></div>
+          <div class="lifecycle-detail-item"><div class="detail-number">04</div><h3>Method</h3><p>Choose how the question will be measured, estimated, compared, or tested.</p></div>
+          <div class="lifecycle-detail-item"><div class="detail-number">05</div><h3>Execute</h3><p>Carry out the planned work and record what happens, including deviations.</p></div>
+          <div class="lifecycle-detail-item"><div class="detail-number">06</div><h3>Verify</h3><p>Check evidence, assumptions, diagnostics, uncertainty, and limitations.</p></div>
+          <div class="lifecycle-detail-item"><div class="detail-number">07</div><h3>Communicate</h3><p>Turn reviewed findings into prose, tables, figures, or a briefing.</p></div>
+          <div class="lifecycle-detail-item"><div class="detail-number">08</div><h3>Maintain</h3><p>Preserve sources, versions, code, decisions, and lessons for later recovery.</p></div>
+        </div>
+        <p class="layer-rule"><strong>The lifecycle is the coverage:</strong> a task may focus on one stage, but responsible research keeps the other safeguards visible.</p>
+        <div class="footer"><span>Eight responsibilities, one research process</span><span class="accent">The stages are the spine</span></div>
+        <aside class="notes">
+          The lifecycle is not another command sequence. It is a checklist of what responsible research needs to cover.
+          <br><br>
+          Scope asks what question we are answering and which choices matter. Evidence asks what supports the claims. Theory and method explain the reasoning and the way the question will be tested. Execute is the work itself. Verify checks whether the result is supported and whether its limitations are visible. Communicate turns reviewed findings into outputs. Maintain preserves the sources, decisions, and records so the work can be recovered later.
+          <br><br>
+          A task can focus on one stage without making the other responsibilities disappear. The task type tells us where the emphasis is; the lifecycle tells us what the whole process must protect.
+        </aside>
+      </section>
+
+      <section aria-label="Research task types">
+        <span class="slide-index">08 / 21</span>
+        <div class="eyebrow">What kind of work is this?</div>
+        <h2>Task types describe the work</h2>
+        <table class="task-table">
+          <thead><tr><th>Task type</th><th>Plain-language question</th><th>Primary focus</th></tr></thead>
+          <tbody>
+            <tr><td>Research Scoping</td><td>What question and decision context are we framing?</td><td>Scope</td></tr>
+            <tr><td>Theory/Modeling</td><td>What economic model or identification argument are we using?</td><td>Theory</td></tr>
+            <tr><td>Specification Analysis</td><td>Which variables, forms, or comparisons test the idea?</td><td>Theory -&gt; Method</td></tr>
+            <tr><td>Measurement/Classification</td><td>How should an index, threshold, or label be constructed and checked?</td><td>Method</td></tr>
+            <tr><td>ML/Prediction</td><td>How can we predict, and how should prediction be evaluated?</td><td>Method</td></tr>
+            <tr><td>Implementation</td><td>How do we code a method already chosen?</td><td>Method -&gt; Execute</td></tr>
+            <tr><td>EDA</td><td>What does the data show before formal analysis?</td><td>Evidence -&gt; Execute</td></tr>
+            <tr><td>Tables/Figures</td><td>How should results be shown for publication or discussion?</td><td>Communicate</td></tr>
+            <tr><td>Writing</td><td>How should evidence and results be explained?</td><td>Communicate</td></tr>
+            <tr><td>Reproducibility</td><td>Can another researcher recover the environment and result?</td><td>Maintain</td></tr>
+          </tbody>
+        </table>
+        <p class="layer-rule"><strong>These are categories of work, not a sequence:</strong> one project can contain several task types.</p>
+        <div class="footer"><span>Classification describes the current work</span><span class="accent">It is not a grade</span></div>
+        <aside class="notes">
+          These ten categories answer a different question from the lifecycle. They describe the kind of work being done, not the quality of the work and not a fixed order.
+          <br><br>
+          A global poverty project might include Research Scoping at the beginning, Measurement and EDA in the middle, Implementation for an estimator, Tables and Figures for results, Writing for the report, and Reproducibility for handoff. A single project can therefore contain several task types.
+          <br><br>
+          The classification tells the system which guidance and review surfaces are most relevant to the current task. It does not remove the shared lifecycle safeguards.
+        </aside>
+      </section>
+
+      <section aria-label="Example research scoping task">
+        <span class="slide-index">09 / 21</span>
+        <div class="eyebrow">Putting the layers together</div>
+        <h2>Example of one task</h2>
+        <div class="brainstorm-input">
+          <div class="input-label">Prompt sent to /cr-brainstorm</div>
+          <p>Given that people live in households rather than independently, is there a more reliable way to compare living standards across countries than GNI per capita? Household size differs substantially across countries, and economies of scale and household public goods matter. Consider the square-root allocation rule as a candidate.</p>
+        </div>
+        <div class="classification-strip">
+          <div class="classification-box"><div class="box-label">Provisional task type</div><h3>Research Scoping</h3><p>The request asks to frame an open question before choosing a measure.</p></div>
+          <div class="classification-box"><div class="box-label">Primary lifecycle stage</div><h3>Scope</h3><p>Later work may move into Measurement/Classification and EDA.</p></div>
+          <div class="classification-box"><div class="box-label">Human checkpoint</div><h3>Confirm or correct</h3><p>The researcher decides whether this is the right classification.</p></div>
+        </div>
+        <p class="layer-rule"><strong>Then the flow continues:</strong> after confirmation, `/cr-brainstorm` asks clarifying questions, compares approaches, recommends a next step, and waits for approval before the approach is treated as decided.</p>
+        <div class="footer"><span>Classification is a proposal, not a verdict</span><span class="accent">The next slide shows the questions</span></div>
+        <aside class="notes">
+          Here is the actual task we want to show. The submitted prompt is: "/cr-brainstorm Given that people don't live independently, but they live in households, is there a more reliable way to compare living standards across countries, than using GNI per capita? Per capita assumes that people live independently. This question is more relevant because household size differs a lot across countries. There is a literature about using the square-root allocation rule for allocating household consumption to account for economies of scale and household public goods when distributing welfare within a household. Brainstorm an approach to this open research question."
+          <br><br>
+          The provisional classification is Research Scoping because the request is to brainstorm an approach to an open question before a measure or method has been selected. The researcher confirms or corrects that classification. A likely later task would be Measurement/Classification, but that is not the classification of this first brainstorm.
+          <br><br>
+          This is still the familiar command workflow. Brainstorm names the command, Research Scoping names the task, and Scope names its primary place in the lifecycle. The next slide shows what the brainstorm asks and what it might recommend.
+          <br><br>
+          The full wording of the research question is kept in the manuscript as the example input. This slide is an illustrative dry run, not a claim that this study has already been conducted.
+        </aside>
+      </section>
+
+      <section aria-label="Illustrative brainstorm output">
+        <span class="slide-index">10 / 21</span>
+        <div class="eyebrow">What happens next</div>
+        <h2>Questions first, then bounded approaches</h2>
+        <div class="brainstorm-output">
+          <div class="question-list">
+            <div class="question-item"><div class="number">1</div><p>What decision should this comparison inform: global monitoring, country ranking, poverty measurement, or welfare analysis?</p></div>
+            <div class="question-item"><div class="number">2</div><p>What is the unit of analysis: household, person, or country average?</p></div>
+            <div class="question-item"><div class="number">3</div><p>Which survey, PPP, GNI, household-size, and time-series sources are comparable?</p></div>
+            <div class="question-item"><div class="number">4</div><p>What would "more reliable" mean: a better welfare concept, stable rankings, or external validity?</p></div>
+            <div class="question-item"><div class="number">5</div><p>Which within-household assumptions and alternative allocation rules should be tested?</p></div>
+          </div>
+          <div class="approach-list">
+            <div class="approach-item"><h3>A. Equivalized survey welfare</h3><p>Harmonize household consumption with PPP; compare per-capita and square-root welfare, plus one alternative. Transparent, but dependent on cross-country survey comparability.</p></div>
+            <div class="approach-item"><h3>B. Validation and sensitivity</h3><p>Measure how levels and country rankings change across allocation rules, then compare them with selected external welfare indicators. More informative, but the validation target is itself a judgment.</p></div>
+            <div class="approach-item"><h3>C. Distributional comparison</h3><p>Report distributions, quantiles, poverty, and inequality rather than only one country average. More honest about heterogeneity, but less simple and more data-intensive.</p></div>
+            <div class="recommendation"><strong>Working recommendation:</strong> begin with a bounded measurement study. Keep GNI per capita as a benchmark, treat the square-root rule as a candidate rather than a default, and report how levels, rankings, and distributions change across defensible alternatives.</div>
+          </div>
+        </div>
+        <div class="footer"><span>Illustrative brainstorm output</span><span class="accent">Recommendation still needs approval</span></div>
+        <aside class="notes">
+          These are the follow-up questions the scoping skill is designed to surface. They clarify the decision context, the unit of analysis, the available and comparable evidence, the meaning of reliability, and the assumptions that have distributional consequences.
+          <br><br>
+          The brainstorm would then compare approaches rather than jumping directly to the square-root rule. The first approach is a transparent equivalence-scale comparison. The second adds sensitivity and an explicit validation discussion. The third asks whether a single average is too narrow and keeps the distribution visible.
+          <br><br>
+          The working recommendation is deliberately modest: run a bounded measurement study, retain GNI as a benchmark, treat square-root allocation as a candidate, and report sensitivity across alternatives. The workflow then applies its devil's-advocate check: challenge the question, simplicity, effort-value, and fit with the project focus. This is a recommendation for the next research step, not an automatic decision. The researcher still challenges it, approves or revises it, or asks for another approach before the brainstorm is saved and handed off to /cr-plan.
+        </aside>
+      </section>
+
+      <section class="command-slide" aria-label="Research brainstorm command">
+        <span class="slide-index">11 / 21</span>
+        <div class="eyebrow">Command 01 / Scope</div>
+        <h2>Make the research question workable</h2>
+        <div class="command-layout">
+          <div><div class="command-name">/cr-brainstorm</div><div class="command-purpose">Clarify the question and act as a sparring partner: ask questions that flesh out ideas before choosing the method.</div></div>
+          <div class="command-panel">
+            <div class="command-box"><h3>Leaves behind</h3><p>A scoped research brief, a task type, assumptions, alternatives, and an explicit decision record where needed.</p></div>
+            <div class="command-box"><h3>Researcher decides</h3><p>What the question means, what population or comparison matters, and which value-laden choices are acceptable.</p></div>
+          </div>
+        </div>
+        <div class="footer"><span>Start when the question is still fuzzy</span><span class="accent">Clarify before calculating</span></div>
+        <aside class="notes">
+          Use /cr-brainstorm when the question is still fuzzy. It begins by reading the project context, then identifies which of the ten research task types best matches the request. The researcher confirms or corrects that classification.
+          <br><br>
+          For research work, the command also surfaces decisions that should not be smuggled in as technical defaults. Depending on the task, that may include a sample restriction, a threshold, a weighting rule, an outlier policy, or the language used to describe who gains and who loses.
+          <br><br>
+          The output is not code and it is not a final method. It is a clearer question, a named task type, a scoping record, and a visible list of decisions that need to be made.
+        </aside>
+      </section>
+
+      <section class="command-slide" aria-label="Research plan command">
+        <span class="slide-index">12 / 21</span>
+        <div class="eyebrow">Command 02 / Method</div>
+        <h2>Turn the question into a research plan</h2>
+        <div class="command-layout">
+          <div><div class="command-name">/cr-plan</div><div class="command-purpose">Turn a clarified question into steps and checks.</div></div>
+          <div class="command-panel">
+            <div class="command-box"><h3>Leaves behind</h3><p>A plan with task type, files or data, assumptions, evidence requirements, test scenarios, and acceptance criteria.</p></div>
+            <div class="command-box"><h3>Researcher decides</h3><p>Which design is proportionate, which alternatives matter, and what counts as a credible answer.</p></div>
+          </div>
+        </div>
+        <div class="footer"><span>Make the route inspectable</span><span class="accent">A plan includes its checks</span></div>
+        <aside class="notes">
+          Use /cr-plan after the brainstorm. The plan records what will be done, in what order, and how the result will be checked. For a global poverty question, that could mean identifying the source documentation, defining the comparison, checking the relevant data, documenting a methodological choice, and stating what evidence would be enough to support the final paragraph or table.
+          <br><br>
+          The plan carries the task type forward. That lets later steps prepare the right evidence and review surfaces instead of treating every research request as the same kind of job.
+          <br><br>
+          The plan is a commitment to a method and a verification path, not a guarantee that the initial design will survive contact with the data.
+        </aside>
+      </section>
+
+      <section class="command-slide" aria-label="Research work command">
+        <span class="slide-index">13 / 21</span>
+        <div class="eyebrow">Command 03 / Execute</div>
+        <h2>Do the work with research-integrity gates</h2>
+        <div class="command-layout">
+          <div><div class="command-name">/cr-work</div><div class="command-purpose">Execute the plan, one step at a time, with safeguards active.</div></div>
+          <div class="command-panel">
+            <div class="command-box"><h3>Leaves behind</h3><p>Working outputs, evidence artifacts, run records, and a report of what was completed or blocked.</p></div>
+            <div class="command-box"><h3>Researcher decides</h3><p>Whether assumptions are plausible, whether a deviation is acceptable, and whether the result answers the question.</p></div>
+          </div>
+        </div>
+        <div class="footer"><span>Evidence is recorded while work happens</span><span class="accent">Do not reconstruct it later</span></div>
+        <aside class="notes">
+          Use /cr-work to carry out the plan or a named phase. It keeps the research checks active during execution. If the work uses randomness, a seed must be recorded. If it makes a substantive claim, the source and evidence must be recorded. If it implements a derived model, the derivation and code must be compared. If the work reaches a consequential normative choice, the decision gate is revisited rather than silently defaulted.
+          <br><br>
+          The exact checks depend on the task type, but the principle is stable: a result should leave enough evidence for someone else to inspect how it was produced.
+        </aside>
+      </section>
+
+      <section class="command-slide" aria-label="Research review command">
+        <span class="slide-index">14 / 21</span>
+        <div class="eyebrow">Command 04 / Verify</div>
+        <h2>Bring the right reviewers to the result</h2>
+        <div class="command-layout">
+          <div><div class="command-name">/cr-review</div><div class="command-purpose">Review the work through research and engineering lenses matched to the task.</div></div>
+          <div class="command-panel">
+            <div class="command-box"><h3>Leaves behind</h3><p>Prioritized findings, unresolved risks, and a decision about what must change before the result is used.</p></div>
+            <div class="command-box"><h3>Researcher decides</h3><p>How to respond to a finding and whether the remaining limitations are acceptable for the audience and purpose.</p></div>
+          </div>
+        </div>
+        <div class="footer"><span>Review is matched to the claim</span><span class="accent">Not a generic last read</span></div>
+        <aside class="notes">
+          Use /cr-review when the work needs a deliberate check. The command combines shared reviewers for code quality, testing, reproducibility, data quality, performance, architecture, documentation, and version control with research reviewers for integrity, provenance, identification, econometrics, machine learning, measurement, writing, publication output, or replication.
+          <br><br>
+          The task type helps determine which research reviewer is relevant. A measurement task needs attention to weighting, thresholds, clusters, and comparability. A causal design needs identification diagnostics. A writing task needs a provenance and argument check. Review is therefore not a generic last read. It is a check chosen for the kind of claim being made.
+        </aside>
+      </section>
+
+      <section class="command-slide" aria-label="Research compound command">
+        <span class="slide-index">15 / 21</span>
+        <div class="eyebrow">Command 05 / Maintain</div>
+        <h2>Retain the lesson</h2>
+        <div class="command-layout">
+          <div><div class="command-name">/cr-compound</div><div class="command-purpose">Capture a verified research lesson for future work.</div></div>
+          <div class="command-panel">
+            <div class="command-box"><h3>Leaves behind</h3><p>A dated solution note with the problem, approach, reason it works, failure modes, and references.</p></div>
+            <div class="command-box"><h3>Researcher decides</h3><p>Whether the lesson is general enough to reuse and where it should not be applied.</p></div>
+          </div>
+        </div>
+        <div class="footer"><span>Turn experience into institutional memory</span><span class="accent">Keep the limits attached</span></div>
+        <aside class="notes">
+          Use /cr-compound after a research problem has been solved and checked. It captures the reasoning, not only the final answer. The note records what was unclear, what approach worked, why it worked, and when it would fail.
+          <br><br>
+          That matters for applied research because a decision about a poverty line, a survey-weighted estimate, a data restriction, or a literature-search strategy can otherwise disappear into one project folder. A compound note makes the lesson available to the next researcher, with its limits attached.
+        </aside>
+      </section>
+
+      <section aria-label="Task classification and routing">
+        <span class="slide-index">16 / 21</span>
+        <div class="eyebrow">How routing works</div>
+        <h2>Where classification happens</h2>
+        <div class="route">
+          <strong>/cr-brainstorm</strong><br>
+          identify the task type <span>-&gt;</span> researcher confirms or corrects it<br><br>
+          <strong>/cr-plan</strong><br>
+          record the type <span>-&gt;</span> design the evidence and checks<br><br>
+          <strong>/cr-work + /cr-review</strong><br>
+          load the relevant skills, gates, and reviewers
+        </div>
+        <p class="lede" style="margin-top: 28px;"><strong>Classification routes the work.</strong></p>
+        <div class="footer"><span>Proposed early, confirmed by a person</span><span class="accent">Routing is not ranking</span></div>
+        <aside class="notes">
+          The decision is made in /cr-brainstorm, after the project bearings are clear and before the clarifying questions and approach are finalized. The command proposes a task type from the fixed taxonomy. The researcher confirms or corrects it.
+          <br><br>
+          The selected type is then carried into the plan. During work, it determines which research safeguards and method guidance matter. During review, it helps select the relevant research agents. The shared evidence, normative, and integrity checks still apply across the task types.
+          <br><br>
+          This is routing, not automation of judgment. If a request changes, the task type can be reconsidered. If a task combines kinds of work, the plan should say which part is being addressed and what additional checks are needed.
+        </aside>
+      </section>
+
+      <section aria-label="Research skills and agents">
+        <span class="slide-index">17 / 21</span>
+        <div class="eyebrow">After classification</div>
+        <h2>The work after task classification</h2>
+        <p class="lede" style="margin-bottom: 0;">Once the task type is confirmed, the workflow brings in the agents most relevant to that kind of work.</p>
+        <table class="agent-route-table" aria-label="Research task types and their agents">
+          <thead><tr><th>Task type</th><th>Agents for this task type</th></tr></thead>
+          <tbody>
+            <tr><td>Research Scoping</td><td><code>@cr-specification-analysis</code><br><code>@cr-provenance-audit</code></td></tr>
+            <tr><td>Theory/Modeling</td><td><code>@cr-identification-audit</code><br><code>@cr-econometric-reasoning</code><br><code>@cg-adversarial</code></td></tr>
+            <tr><td>Specification Analysis</td><td><code>@cr-specification-analysis</code></td></tr>
+            <tr><td>EDA</td><td><code>@cg-performance</code><br><code>@cg-data-quality</code><span class="agent-condition">shared reviewers; no dedicated CR EDA agent yet</span></td></tr>
+            <tr><td>Implementation</td><td><code>@cg-performance</code>, <code>@cr-ml-methodology</code>, <code>@cr-specification-analysis</code>, <code>@cr-publication-output</code><span class="agent-condition">publication-output agent when output-producing code is present</span></td></tr>
+            <tr><td>ML/Prediction</td><td><code>@cr-ml-methodology</code><br><code>@cr-specification-analysis</code><br><code>@cg-performance</code></td></tr>
+            <tr><td>Writing</td><td><code>@cr-academic-writing</code><br><code>@cr-provenance-audit</code></td></tr>
+            <tr><td>Tables/Figures</td><td><code>@cr-publication-output</code><br><code>@cg-documentation</code><span class="agent-condition">documentation agent when exported functions are present</span></td></tr>
+            <tr><td>Reproducibility</td><td><code>@cr-replication-package</code></td></tr>
+            <tr><td>Measurement/Classification</td><td><code>@cr-measurement-integrity</code></td></tr>
+          </tbody>
+        </table>
+        <p class="agent-route-note"><strong>Across the route:</strong> `@cr-research-integrity` and the shared `cg` reviewers remain available when the review scope calls for them.</p>
+        <div class="footer"><span>Task type selects the relevant review surface</span><span class="accent">The route assembles the expertise</span></div>
+        <aside class="notes">
+          This is what happens after task classification. The left column lists the ten kinds of research work. The right column shows the agents the review route brings in for each kind.
+          <br><br>
+          For example, a theory or modeling task brings identification and econometric reasoning into the review. A measurement task brings measurement integrity. A writing task brings academic writing and provenance. EDA uses shared performance and data-quality reviewers because there is not yet a dedicated CR EDA reviewer.
+          <br><br>
+          Some agents are conditional. Implementation may need publication-output review when the code produces tables or figures. Tables and Figures may need documentation review when the file defines exported functions. The shared research-integrity and cg reviewers remain available across the route.
+        </aside>
+      </section>
+
+      <section aria-label="Proof Carrying Claim">
+        <span class="slide-index">18 / 21</span>
+        <div class="eyebrow">The claim itself</div>
+        <h2>Proof Carrying Claim: when does it apply?</h2>
+        <div class="pcc-intro"><strong>Trigger:</strong> any substantive claim intended for reuse. It is most visible in <em>Communicate</em>, especially <em>Writing</em>, but it can originate in evidence, theory, measurement, EDA, or data work.</div>
+        <div class="pcc-grid">
+          <div class="pcc-box"><h3>Literature claim</h3><p>Source, version, locator, quotation, relationship between evidence and claim, and review state.</p></div>
+          <div class="pcc-box"><h3>Data finding</h3><p>Data source, definition, sample, method or code, run record, diagnostic, and review state.</p></div>
+        </div>
+        <p class="source-note" style="margin-top: 22px;">PCC is a traceability idea, not a guarantee that the claim is true.</p>
+        <div class="footer"><span>Do not let important claims travel alone</span><span class="accent">Support travels with the claim</span></div>
+        <aside class="notes">
+          Proof Carrying Claim is not a separate task type. It is a rule that applies whenever research produces a substantive claim intended for reuse.
+          <br><br>
+          It is most visible in the Communicate part of the lifecycle, especially in a Writing task, because that is where a claim enters a report, paper, or briefing. But the claim record is assembled upstream, and the same rule applies to a data finding, a measurement choice, a theory statement, an EDA result, or a specification claim.
+          <br><br>
+          An important claim should not travel alone. It should bring the evidence and the checks that let another person inspect it.
+          <br><br>
+          For a literature claim about global poverty measurement, that might be the source document, its version, the page or paragraph locator, the quotation, the relationship between the quotation and the claim, and the review state. For a data finding, the corresponding support might be the data source and variable definition, the sample restriction, the specification or code, the run record, the diagnostic, and the review state.
+          <br><br>
+          The word proof needs a boundary here. The plugin can verify that a quotation matches a source unit or that a record satisfies an approval rule. That does not prove that the source is true, that a causal interpretation is identified, or that a policy conclusion is normatively correct.
+        </aside>
+      </section>
+
+      <section aria-label="Source to prose">
+        <span class="slide-index">19 / 21</span>
+        <div class="eyebrow">From evidence to communication</div>
+        <h2>From source to written prose</h2>
+        <p class="lede">One simple trace: a sentence in a literature review points to an atomic claim, and the claim points back to a precise place in the paper.</p>
+        <div class="trace-layout" aria-label="Paper location to atomic claim to literature review paragraph">
+          <div class="trace-card source-card">
+            <div class="trace-kicker">1 / SOURCE</div>
+            <h3>Long research paper</h3>
+            <p>Many pages of text, tables, qualifications, and references.</p>
+            <div class="paper-page">
+              <div class="page-meta">Illustrative passage / paper</div>
+              <div class="paper-lines"><div class="paper-line"></div><div class="paper-line short"></div><div class="paper-line highlighted"></div><div class="paper-line"></div></div>
+              <div class="locator">p. 15 / paragraph 3</div>
+            </div>
+          </div>
+          <div class="trace-arrow"><span>extract</span><strong>-&gt;</strong></div>
+          <div class="trace-card claim-card">
+            <div class="trace-kicker">2 / CLAIM</div>
+            <h3>Atomic claim</h3>
+            <p>One statement, kept small enough to examine and reuse.</p>
+            <div class="claim-quote">Household size and economies of scale affect how per-capita measures represent living standards.</div>
+            <div class="claim-id">claim-042 / source: p. 15, paragraph 3</div>
+          </div>
+          <div class="trace-arrow"><span>write from</span><strong>-&gt;</strong></div>
+          <div class="trace-card prose-card">
+            <div class="trace-kicker">3 / COMPOSITION</div>
+            <h3>Literature review paragraph</h3>
+            <p class="review-paragraph">Because household size and economies of scale vary across countries, per-capita comparisons may not fully capture differences in living standards. <span class="claim-marker">[claim-042]</span></p>
+            <div class="review-return">Trace back: claim-042<br>-&gt; paper / p. 15 / paragraph 3</div>
+          </div>
+        </div>
+        <div class="trace-principle"><strong>The point of the procedure:</strong> every important sentence can return to its claim, and every claim can return to its location in the paper.</div>
+        <p class="trace-attribution"><strong>Rafael's Data Quality Assessment work used this basic approach:</strong> break a long document into addressable text segments so a written statement can be returned to its source.</p>
+        <div class="footer"><span>Original resources remain authoritative</span><span class="accent">A model may propose; review decides what travels</span></div>
+        <aside class="notes">
+          This slide is deliberately simple. Imagine a research paper with many pages of text. The procedure extracts an atomic claim from that text and preserves its location: for example, page 15, paragraph 3.
+          <br><br>
+          Later, when we write a literature review, a sentence or paragraph can point to the atomic claim, and the claim can point back to the exact place in the paper. The reader does not have to search the whole paper to recover the support.
+          <br><br>
+          This is the basic approach used by Rafael in the Data Quality Assessment work: long documents were divided into addressable text segments so drafted statements could be returned to their sources.
+          <br><br>
+          The plugin supports the link by keeping source segments addressable and keeping the claim record distinct from the prose. This is a slight oversimplification of the full evidence workflow, chosen to make the core idea visible.
+        </aside>
+      </section>
+
+      <section aria-label="Normative decisions">
+        <span class="slide-index">20 / 21</span>
+        <div class="eyebrow">Human decisions</div>
+        <h2>Normative decisions remain human decisions</h2>
+        <div class="normative-layout">
+          <div class="normative-steps">
+            <div class="normative-step"><div class="number">1</div><p>Identify the consequential choice.</p></div>
+            <div class="normative-step"><div class="number">2</div><p>State defensible options and consequences.</p></div>
+            <div class="normative-step"><div class="number">3</div><p>Ask the human decision-maker.</p></div>
+            <div class="normative-step"><div class="number">4</div><p>Record the decision and its scope.</p></div>
+            <div class="normative-step"><div class="number">5</div><p>Recheck it when the output or context changes.</p></div>
+          </div>
+          <div class="start-box"><div class="command-name">/cr-brainstorm</div><h3>Where to begin</h3><p>State the research question, let the workflow propose the task type, correct it when needed, and make the decisions that matter visible before the work begins.</p></div>
+        </div>
+        <div class="footer"><span>Thresholds, weights, samples, and framing can carry consequences</span><span class="accent">Make the choice visible</span></div>
+        <aside class="notes">
+          A normative decision is a choice about what should count, who is included, how burdens or benefits are described, or which comparison should anchor the argument. In applied poverty and inequality research, examples can include a threshold, a weighting rule, a sample restriction, an outlier policy, or the language used to describe distributional effects.
+          <br><br>
+          The workflow does not hide these choices inside a prompt or a model. The research scoping rules provide a bounded checklist for the task type. If an existing decision record covers the same study, category, context, and option, the workflow can reuse it. If it does not, the workflow stops and presents defensible options and their consequences to a human. The decision is recorded with a stable ID, its scope, the person or role who decided, the justification, and the date.
+          <br><br>
+          The practical starting point is /cr-brainstorm: state the research question, let the workflow identify the likely task type, correct it if needed, and make the consequential choices visible before the work begins.
+        </aside>
+      </section>
+
+      <section class="conclusion" aria-label="Conclusion">
+        <span class="slide-index">21 / 21</span>
+        <div class="eyebrow">Conclusion / Next steps</div>
+        <h2>This plug-in is for us.</h2>
+        <p class="conclusion-statement">It should support effective and responsible AI use in research.</p>
+        <div class="next-focus-grid">
+          <div class="next-focus"><h3>Improve existing skills</h3><p>Refine the guidance that researchers already use and make it more useful in practice.</p></div>
+          <div class="next-focus"><h3>Add new skills</h3><p>Extend the research support as new needs, methods, and evidence standards emerge.</p></div>
+          <div class="next-focus"><h3>Bring in source discovery</h3><p>Connect external tools such as OpenAlex to support literature review and source discovery.</p></div>
+        </div>
+        <div class="conclusion-cta"><strong>Use the plug-in and send feature requests.</strong> We can make it useful for you. I will send around instructions on installation, getting started, and submitting feature requests.</div>
+        <div class="footer"><span>Built for the research community</span><span class="accent">Try it, then tell us what is missing</span></div>
+        <aside class="notes">
+          The final point is simple: this plug-in is for us. It should support effective and responsible AI use in research, and it should improve through actual use.
+          <br><br>
+          The next priorities are to improve the skills that already exist, add new skills where researchers need them, and bring in external source-discovery tools such as OpenAlex to make literature review more useful.
+          <br><br>
+          Please use it and send feature requests. The only way to make the plug-in useful for you is to learn from the work you are actually trying to do. I will send around instructions on installation, getting started, and submitting feature requests.
         </aside>
       </section>
     </div>
@@ -706,7 +1489,6 @@
   <script src="vendor/reveal.js/reveal.js"></script>
   <script src="vendor/reveal.js/notes.js"></script>
   <script>
-    const narrowViewport = window.innerWidth < 700;
     const deck = new Reveal({
       controls: true,
       controlsLayout: "edges",
@@ -716,9 +1498,9 @@
       slideNumber: "c/t",
       transition: "fade",
       backgroundTransition: "fade",
-      width: narrowViewport ? 390 : 1600,
-      height: narrowViewport ? 844 : 900,
-      margin: narrowViewport ? 0.045 : 0.06,
+      width: 1600,
+      height: 900,
+      margin: 0.06,
       minScale: 0.1,
       maxScale: 2.0,
       keyboard: true,

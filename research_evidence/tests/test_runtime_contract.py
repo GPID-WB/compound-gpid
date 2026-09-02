@@ -50,6 +50,7 @@ def test_settings_confine_resources_to_project(tmp_path: Path) -> None:
     resources = tmp_path / "resources"
     resources.mkdir()
     settings = RuntimeSettings.from_paths(tmp_path, resources)
+    assert settings.evidence_root == tmp_path / "c-research" / "evidence"
     assert settings.validate_resource_path(Path("notes.md")) == resources / "notes.md"
 
     with pytest.raises(PathPolicyError, match="inside the configured resources root"):
@@ -57,6 +58,18 @@ def test_settings_confine_resources_to_project(tmp_path: Path) -> None:
 
     with pytest.raises(PathPolicyError, match="existing regular directory"):
         RuntimeSettings.from_paths(tmp_path, tmp_path / "missing")
+
+
+def test_settings_reject_symlinked_evidence_ancestor(tmp_path: Path) -> None:
+    """Reject a c-research parent that redirects evidence outside the project."""
+    resources = tmp_path / "resources"
+    resources.mkdir()
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (tmp_path / "c-research").symlink_to(outside, target_is_directory=True)
+
+    with pytest.raises(PathPolicyError, match="ancestors"):
+        RuntimeSettings.from_paths(tmp_path, resources)
 
 
 def test_settings_reject_urls_and_remote_bind_hosts(tmp_path: Path) -> None:

@@ -1,6 +1,6 @@
 # 🧠 Project Brain
 
-_Generated 2026-08-13 · 717 entities · 5 topics · 311 edges_
+_Generated 2026-09-02 · 728 entities · 4 topics · 316 edges_
 
 ## How to Use
 
@@ -13,31 +13,30 @@ _Generated 2026-08-13 · 717 entities · 5 topics · 311 edges_
 
 | # | Topic | Entities | File |
 |---|-------|----------|------|
-| 1 | [Roadmap.Json / Test Scenarios / Cg-Work](BRAIN-01.md#roadmap-json-test-scenarios-cg-work) | 508 | BRAIN-01.md |
-| 2 | [Architecture Research Objective / Workflow Maturity Objective / Ongoing Ideas Objective](BRAIN-02.md#architecture-research-objective-workflow-maturity-objective-ongoing-ideas-objective) | 142 | BRAIN-02.md |
-| 3 | [Expand Compound Research / Responsible Research Partner Objective / Research](BRAIN-02.md#expand-compound-research-responsible-research-partner-objective-research) | 8 | BRAIN-02.md |
-| 4 | [Tests / Filesystem / Python](BRAIN-02.md#tests-filesystem-python) | 4 | BRAIN-02.md |
-| 5 | [Secure_Fs.Py / Validation / Parser.Py](BRAIN-02.md#secure-fs-py-validation-parser-py) | 3 | BRAIN-02.md |
+| 1 | [Roadmap.Json / Test Scenarios / Cg-Work](BRAIN-01.md#roadmap-json-test-scenarios-cg-work) | 516 | BRAIN-01.md |
+| 2 | [Architecture Research Objective / Workflow Maturity Objective / Ongoing Ideas Objective](BRAIN-02.md#architecture-research-objective-workflow-maturity-objective-ongoing-ideas-objective) | 145 | BRAIN-02.md |
+| 3 | [Expand Compound Research / Responsible Research Partner Objective / Research](BRAIN-02.md#expand-compound-research-responsible-research-partner-objective-research) | 9 | BRAIN-02.md |
+| 4 | [Secure_Fs.Py / Validation / Parser.Py](BRAIN-02.md#secure-fs-py-validation-parser-py) | 3 | BRAIN-02.md |
 
 ## Entity Summary
 
 | Type | Count |
 |------|-------|
-| brainstorm | 55 |
-| feature | 150 |
-| plan | 115 |
-| review | 170 |
-| solution | 212 |
+| brainstorm | 58 |
+| feature | 154 |
+| plan | 117 |
+| review | 171 |
+| solution | 213 |
 | strategy | 15 |
 
-_52 entities not assigned to any topic_
+_55 entities not assigned to any topic_
 
 ## Relationship Summary
 
 | Edge Type | Count |
 |-----------|-------|
-| decided_from | 79 |
-| implements | 27 |
+| decided_from | 81 |
+| implements | 29 |
 | references | 58 |
-| reviews | 92 |
+| reviews | 93 |
 | verifies | 55 |

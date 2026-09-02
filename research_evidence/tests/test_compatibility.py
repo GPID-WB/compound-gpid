@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
 import yaml
 
 from research_evidence.compatibility import (
@@ -39,6 +40,9 @@ def test_missing_origin_is_unresolved(tmp_path: Path) -> None:
 
 def test_converted_only_verification_is_flagged(tmp_path: Path) -> None:
     """Require original verification when legacy evidence cites converted text only."""
+    resources = tmp_path / "resources"
+    resources.mkdir()
+    (resources / "paper.md").write_text("paper", encoding="utf-8")
     result = migrate_legacy_record(
         {
             "id": "legacy-3",
@@ -51,6 +55,45 @@ def test_converted_only_verification_is_flagged(tmp_path: Path) -> None:
     assert result.disposition == MigrationDisposition.LOCAL_REVIEW_REQUIRED
     assert result.reason == "legacy-converted-authority"
     assert result.eligible_for_approval is False
+
+
+@pytest.mark.parametrize(
+    "relative_path",
+    ["resources/missing.md", "resources/directory", "resources/data.csv"],
+)
+def test_invalid_local_paths_are_not_eligible(
+    tmp_path: Path,
+    relative_path: str,
+) -> None:
+    """Reject missing, directory, and unsupported local resource records."""
+    resources = tmp_path / "resources"
+    resources.mkdir()
+    (resources / "directory").mkdir()
+
+    result = migrate_legacy_record(
+        {"origin": "repo-local", "original_path": relative_path},
+        resources,
+    )
+
+    assert result.disposition == MigrationDisposition.UNRESOLVED
+    assert result.reason == "invalid-local-path"
+
+
+def test_symlinked_local_resource_is_not_eligible(tmp_path: Path) -> None:
+    """Reject a local record whose resource path aliases another file."""
+    resources = tmp_path / "resources"
+    resources.mkdir()
+    outside = tmp_path / "outside.md"
+    outside.write_text("outside", encoding="utf-8")
+    (resources / "linked.md").symlink_to(outside)
+
+    result = migrate_legacy_record(
+        {"origin": "repo-local", "original_path": "resources/linked.md"},
+        resources,
+    )
+
+    assert result.disposition == MigrationDisposition.UNRESOLVED
+    assert result.reason == "invalid-local-path"
 
 
 def test_external_quarantine_persists_read_only_across_reload(tmp_path: Path) -> None:

@@ -7,7 +7,8 @@ and file structure. Use the focused [Commands](reference/commands.md),
 
 > See [Workflow](workflow.md) for a full explanation of each prompt step. See [Modular Guide](modular-guide.md) for choosing between the technical (`/cg-*`) and research (`/cr-*`) suites, capability packs, module preferences, and extension rules. See [Installation](installation.md) for setup instructions. See [Context Files](context-files.md) for a detailed guide to `copilot-instructions.md`, `compound-gpid.md`, `compound-gpid.context.md`, and the generated native platform trees (`.claude/`, `.agents/`, `.opencode/`, `.kilo/`). See [Troubleshooting](troubleshooting.md) for known issues.
 
-Compound GPID generates native platform trees for Claude Code, Codex, OpenCode, and Kilo from the canonical `.github/` source. The trees are committed,
+Compound GPID generates native platform trees for Claude Code, Codex, OpenCode,
+and Kilo from the canonical `.github/` source. The trees are committed,
 release-validated, and distributed through merge-safe per-platform install units.
 `cg-link` links all supported platforms by default; use `--platforms` to narrow
 the install to a comma-separated list. The `adapters/` directory contains
@@ -41,9 +42,8 @@ tree; unresolved or unsafe canonical runtime references fail generation.
 ### Ownership manifest schema
 
 The fixed manifests are `.claude/.compound-gpid-generated.json`,
-`.agents/.compound-gpid-generated.json`,
-`.opencode/.compound-gpid-generated.json`, and
-`.kilo/.compound-gpid-generated.json`. Their schema is:
+`.agents/.compound-gpid-generated.json`, and
+`.opencode/.compound-gpid-generated.json`. Their schema is:
 
 ```json
 {
@@ -85,7 +85,7 @@ release gate: `create-release.ps1` runs mapping, path-safety, packaging,
 ownership, closure, determinism, drift, and platform suites before reading
 credentials or calling GitHub.
 
-A real CLI smoke run with `claude`, `codex`, `opencode`, or `kilo` is optional,
+A real CLI smoke run with `claude`, `codex`, or `opencode` is optional,
 additional runtime evidence only. CLI availability is reported separately;
 missing real CLI evidence never skips or weakens deterministic isolated
 closure, and documentation must not imply runtime proof that was not run.
@@ -160,54 +160,54 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 
 ---
 
+## CR Commands
+
+These prompts are available when the research module is enabled for the
+project.
+
+| Prompt | Model | Purpose |
+|--------|-------|---------|
+| `/cr-brainstorm` | Copilot model picker | Clarify fuzzy research requirements, classify the CR task type, and surface normative decisions for human approval. |
+| `/cr-plan` | Copilot model picker | Create a research implementation plan with CR task typing, evidence requirements, and verification gates. |
+| `/cr-work` | Copilot model picker | Execute a CR plan step by step with research-integrity gates and active-state handoff support. |
+| `/cr-review` | Copilot model picker | Run research-mode review routing across engineering and CR-specific review agents. |
+| `/cr-compound` | Copilot model picker | Capture reusable CR learnings after verified research workflow work. |
+
+Native-target mapping note: CR prompts do not assign an execution model. The
+active platform picker or platform configuration remains authoritative;
+generated target trees do not create a runtime fallback or model switch.
+
+---
+
 ## Copilot Chat Prompts
 
 <!-- cg:auto:commands -->
-| Prompt | Purpose |
-|--------|---------|
-| `/cg-setup` | Configure a new project or load context for a returning project. |
-| `/cg-strategy` | Structure or rethink the project vision and roadmap; dispatches roadmap writes. |
-| `/cg-ideate` | Generate, critique, and filter possible next work when the task is not yet selected. |
-| `/cg-brainstorm [--no-branch]` | Clarify fuzzy requirements, assess scope, check prior brainstorms, and challenge proposed approaches. |
-| `/cg-plan [--no-phases] [deviate:<policy>]` | Create a researched implementation plan with phases and a completion contract. |
-| `/cg-plan-review` | Review implementation plans for risks, over-engineering, missing edge cases, and flawed assumptions. |
-| `/cg-work [phaseX] [review:<mode>] [deviate:<policy>]` | Execute a plan against its completion contract, record evidence, and update roadmap state. |
-| `/cg-fixbug` | Structured bug-fix workflow: intake, expected-behavior source at Step 1.5, reproduce, test-gap classification at Step 2.5, diagnose, fix with red-green proof, verify, document. |
-| `/cg-review [light\|standard\|data-risk\|architecture\|full] [--report-only\|mode:autofix\|mode:verify]` | Run routed code review and produce prioritized P0/P1/P2/P3 findings. |
-| `/cg-fix-triage` | Apply review findings from saved reports by priority or finding ID. |
-| `/cg-fix-problems` | Interactive VS Code diagnostics fixer. Scans all workspace files for errors, warnings, and info diagnostics, lets the user select scope and severity, then applies fixes. Dispatches @cg-fix-problems agent. |
-| `/cg-compound` | Capture a verified solved problem as reusable knowledge in `.cg-docs/solutions/`. Offers `.github/` instruction or skill update suggestions; the user applies those changes manually. |
-| `/cg-compound-refresh` | Audit and refresh .cg-docs/solutions/ for staleness, drift, and consolidation opportunities. |
-| `/cg-brain-rebuild` | Rebuild the project knowledge brain (BRAIN.md + indexes). |
-| `/cg-resume` | Load context and resume interrupted work. Use at the start of a session to pick up where you left off. |
-| `/cg-diagnose` | Diagnose VS Code crashes. Inspects logs, classifies the crash category, checks for uncommitted work, and recommends recovery steps. |
-| `/cg-roadmap-view` | Visualize the project roadmap in chat. Supports flags: --milestone, --tasks, --detail, --status, --wip, --plan, --help. Dispatches @cg-roadmap-view agent for rendering. |
-| `/cg-token-audit` | Analyze Compound GPID token/context usage and suggest capability- and effort-aware workflow choices. |
-| `/cg-wiki` | Manage the project wiki: status, init, rebuild, restructure, or convert. |
-| `/cg-issues` | Manage GitHub Issues linked to roadmap work items. Modes: status (default, read-only), backfill, link, adopt, setup. |
-| `/cg-commit-push-pr` | Stage changes into logical commits, push, and open a PR with plan-driven description. |
-| `/cg-verify-pr` | Check CI status on current PR, classify failures, and auto-fix with review agents. Use --propose for observe-only diagnosis. |
-| `/cg-devtag` | Create a dev tag (v<MAJOR>.<MINOR>.<PATCH>.9000+) on the current branch and push it to origin. Enables end-to-end installation testing via cg-update before an official release. Developer-only. |
-| `/cg-review-repos` | Review external repos for features to integrate into compound-gpid. Developer-only. |
-
-### Research Suite Commands
-
-These commands are owned by `suite-cr` and are available when `suites:` in
-`compound-gpid.local.md` includes `cr`. The research suite composes shared
-language, review, knowledge, and publication capabilities without depending on
-the technical command suite.
-
-| Prompt | Purpose |
-|--------|---------|
-| `/cr-brainstorm` | Scope a research question, classify the task, inventory evidence, and surface normative decisions for human approval. |
-| `/cr-plan` | Create a phased research plan with integrity, provenance, method, verification, and communication gates. |
-| `/cr-work [phaseX]` | Execute a research plan while maintaining evidence, specification, seed, derivation, and implementation records. |
-| `/cr-review` | Classify the research task and conditionally dispatch research integrity, provenance, method, measurement, writing, output, and replication reviewers. |
-| `/cr-compound` | Capture a verified research lesson and rebuild the project Brain without treating generated views as authority. |
-
-The research lifecycle is `Scope -> Evidence -> Theory -> Method -> Execute ->
-Verify -> Communicate -> Maintain`. Use `/cr-review`, not `/cg-review`, for
-research-domain agent routing.
+| Prompt | Model | Purpose |
+|--------|-------|---------|
+| `/cg-setup` | Claude Haiku 4.5 | Configure a new project or load context for a returning project. |
+| `/cg-strategy` | Copilot model picker | Structure or rethink the project vision and roadmap; dispatches roadmap writes. |
+| `/cg-ideate` | Copilot model picker | Generate, critique, and filter possible next work when the task is not yet selected. |
+| `/cg-brainstorm [--no-branch]` | Copilot model picker | Clarify fuzzy requirements, assess scope, check prior brainstorms, and challenge proposed approaches. |
+| `/cg-plan [--no-phases] [deviate:<policy>]` | Copilot model picker | Create a researched implementation plan with phases and a completion contract. |
+| `/cg-plan-review` | Copilot model picker | Review implementation plans for risks, over-engineering, missing edge cases, and flawed assumptions. |
+| `/cg-work [phaseX] [review:<mode>] [deviate:<policy>]` | GPT-5.3-Codex | Execute a plan against its completion contract, record evidence, and update roadmap state. |
+| `/cg-fixbug` | GPT-5.3-Codex | Structured bug-fix workflow: intake, expected-behavior source at Step 1.5, reproduce, test-gap classification at Step 2.5, diagnose, fix with red-green proof, verify, document. |
+| `/cg-review [light\|standard\|data-risk\|architecture\|research\|full] [--report-only\|mode:autofix\|mode:verify]` | GPT-5.4 | Run routed code review and produce prioritized P0/P1/P2/P3 findings. |
+| `/cg-fix-triage` | GPT-5.3-Codex | Apply review findings from saved reports by priority or finding ID. |
+| `/cg-fix-problems` | GPT-5.3-Codex | Interactive VS Code diagnostics fixer. Scans all workspace files for errors, warnings, and info diagnostics, lets the user select scope and severity, then applies fixes. Dispatches @cg-fix-problems agent. |
+| `/cg-compound` | GPT-5.4 | Capture a verified solved problem as reusable knowledge in `.cg-docs/solutions/`. Offers `.github/` instruction or skill update suggestions; the user applies those changes manually. |
+| `/cg-compound-refresh` | GPT-5.4 | Audit and refresh .cg-docs/solutions/ for staleness, drift, and consolidation opportunities. |
+| `/cg-brain-rebuild` | GPT-5.4 | Rebuild the project knowledge brain (BRAIN.md + indexes). |
+| `/cg-resume` | Claude Haiku 4.5 | Load context and resume interrupted work. Use at the start of a session to pick up where you left off. |
+| `/cg-diagnose` | GPT-5.3-Codex | Diagnose VS Code crashes. Inspects logs, classifies the crash category, checks for uncommitted work, and recommends recovery steps. |
+| `/cg-roadmap-view` | Claude Haiku 4.5 | Visualize the project roadmap in chat. Supports flags: --milestone, --tasks, --detail, --status, --wip, --plan, --help. Dispatches @cg-roadmap-view agent for rendering. |
+| `/cg-token-audit` | Claude Haiku 4.5 | Analyze Compound GPID token/context usage and suggest cost-efficient workflow choices. |
+| `/cg-wiki` | GPT-5.4 | Manage the project wiki: status, init, rebuild, restructure, or convert. |
+| `/cg-issues` | Claude Haiku 4.5 | Manage GitHub Issues linked to roadmap work items. Modes: status (default, read-only), backfill, link, adopt, setup. |
+| `/cg-commit-push-pr` | GPT-5.3-Codex | Stage changes into logical commits, push, and open a PR with plan-driven description. |
+| `/cg-verify-pr` | GPT-5.3-Codex | Check CI status on current PR, classify failures, and auto-fix with review agents. Use --propose for observe-only diagnosis. |
+| `/cg-devtag` | Claude Haiku 4.5 | Create a dev tag (v<MAJOR>.<MINOR>.<PATCH>.9000+) on the current branch and push it to origin. Enables end-to-end installation testing via cg-update before an official release. Developer-only. |
+| `/cg-review-repos` | Copilot model picker | Review external repos for features to integrate into compound-gpid. Developer-only. |
 
 ### `cg-index --brain` — Diagnostic Warnings
 
@@ -255,7 +255,7 @@ cg-token-audit --root . --output-dir .cg-docs/cost --format both --recommendatio
 python scripts/cg_audit_context.py [--root PATH] [--output-dir PATH] [--format json|md|both] [--baseline context-audit.json] [--recommendations] [--token-output-dir PATH] [--no-token-artifacts]
 ```
 
-Inventories context-contributing files, estimates token burden with a chars/4 heuristic, checks executable model metadata and advisory provenance, detects duplicate paragraph blocks, and benchmarks the tracked `/cg-*` workflows plus Knowledge Brain/context lookup behavior.
+Inventories context-contributing files, estimates token burden with a chars/4 heuristic, counts prompt and agent references, inventories model declarations, detects duplicate paragraph blocks, and benchmarks the tracked `/cg-*` workflows plus Knowledge Brain/context lookup behavior.
 
 Use `--baseline` with a previous `context-audit.json` to render before/after benchmark deltas. Use `--recommendations` to also write `.cg-docs/cost/token-advice.md`. The token regression check reports `baseline` when no previous comparable audit is supplied, `pass` when a comparable run has no deterministic guardrail failures, and `fail` when guardrail failures are present.
 
@@ -271,7 +271,7 @@ Workflow baseline artifacts:
 | `.cg-docs/token/workflow-costs.csv` | Spreadsheet-friendly workflow rows for tracked workflows. |
 | `.cg-docs/token/large-context-warnings.md` | Large prompt/instruction/skill and repeated-context warnings without copying large bodies. |
 
-Model-advisory guardrails report executable model metadata, invalid advisory provenance or effort labels, missing user-control language, and stale stage coverage. Runtime-only quantities such as command-output size, picker availability, and summary size remain explicit observed/not_observed fields until instrumentation exists.
+Model-governance guardrails report unknown or stale model names, missing catalog assignments, invalid roles, OpenAI-first violations, support gaps, and model-guide drift. Runtime-only quantities such as command-output size and summary size remain explicit observed/not_observed fields until instrumentation exists.
 
 Exit codes: `0` success, `1` fatal error, `2` missing or invalid project root.
 <!-- cg:auto:end -->
@@ -293,7 +293,7 @@ audit. Keep non-blocking issues in
 `.cg-docs/cost/token-optimization-follow-ups.md` so release blockers and future
 cleanup stay separate.
 
-> **Model guidance**: See [Model Guide](model-guide.md) for stage capability profiles, effort suggestions, provenance, and user-controlled selection.
+> **Model selection**: See [Model Guide](model-guide.md) for model selection guidance and escalation criteria.
 
 > **Project Charter**: All `/cg-*` prompts automatically read `compound-gpid.md` at session start (if it exists). If missing, prompts remind you to run `/cg-setup` to optionally create one. Prompts work without a charter — the reminder is advisory.
 
@@ -304,15 +304,14 @@ cleanup stay separate.
 ### Plugin Development (developer-only)
 
 > **Consumer project users**: The prompts below are for compound-gpid maintenance
-> only. `/cg-release` and `/cg-review-repos` appear in your autocomplete because
-> they are distributed via junctions, but they **will not run** outside the
-> compound-gpid repo — Step 0 stops them immediately. Do not use these prompts in
-> consumer projects.
+> only. `/cg-review-repos` appears in your autocomplete because it is distributed
+> via junctions, but it **will not run** outside the compound-gpid repo — Step 0
+> stops it immediately. Do not use these prompts in consumer projects.
 
-| Prompt | Purpose | Distribution |
-|--------|---------|-------------|
-| `/cg-release` | Create a GitHub Release for compound-gpid. Detects next semver tag, drafts release notes from `.cg-docs/`, checks `SCHEMA_VERSION`, and publishes to GitHub Releases. | **Distributed** via junctions to consumer projects, but Step 0 stops execution immediately if not run inside compound-gpid. |
-| `/cg-review-repos [--full]` | Review external repos for features to integrate into compound-gpid. Default (delta) mode reviews only releases newer than the last review. `--full` performs a deep initial assessment of all repos — required before delta mode can be used. Updates `.cg-docs/competitive-reviews/repos.json` after each run. | **Distributed** via junctions to consumer projects, but Step 0 stops execution immediately if not run inside compound-gpid. |
+| Prompt | Model | Purpose | Distribution |
+|--------|-------|---------|-------------|
+| `/cg-release` | Claude Sonnet 4.6 | Create a GitHub Release for compound-gpid. Detects next semver tag, drafts release notes from `.cg-docs/`, checks `SCHEMA_VERSION`, and publishes to GitHub Releases. | **Not distributed** — lives at the `compound-gpid` repo root only. |
+| `/cg-review-repos [--full]` | Copilot model picker | Review external repos for features to integrate into compound-gpid. Default (delta) mode reviews only releases newer than the last review. `--full` performs a deep initial assessment of all repos — required before delta mode can be used. Updates `.cg-docs/competitive-reviews/repos.json` after each run. | **Distributed** via junctions to consumer projects, but Step 0 stops execution immediately if not run inside compound-gpid. |
 
 ### Competitive Review System
 
@@ -361,41 +360,53 @@ Per-repo `lastReviewDate` fields are the durable record of individual repo revie
 
 ## Review Agents
 
-| Agent | Focus |
-|-------|-------|
-| `cg-code-quality` | Style, linting, DRY, naming |
-| `cg-testing` | Coverage, edge cases, test quality |
-| `cg-documentation` | roxygen2/docstrings/do-file headers, README, comments |
-| `cg-version-control` | Commit hygiene, branching, secrets |
-| `cg-reproducibility` | Lockfiles, relative paths, seeds, repkit |
-| `cg-performance` | Vectorization, memory, algorithm complexity |
-| `cg-architecture` | Project structure, modularity, dependencies |
-| `cg-data-quality` | Input validation, types, missing values |
-| `cg-learnings-researcher` | Cross-reference past solutions (`full` / `thorough` alias only) |
-| `cg-adversarial` | Adversarial testing: edge cases, data corruption, security (`full` / `thorough` alias only) |
+| Agent | Focus | Model |
+|-------|-------|-------|
+| `cg-code-quality` | Style, linting, DRY, naming | GPT-5.3-Codex |
+| `cg-testing` | Coverage, edge cases, test quality | GPT-5.3-Codex |
+| `cg-documentation` | roxygen2/docstrings/do-file headers, README, comments | Claude Haiku 4.5 |
+| `cg-version-control` | Commit hygiene, branching, secrets | Claude Haiku 4.5 |
+| `cg-reproducibility` | Lockfiles, relative paths, seeds, repkit | Claude Haiku 4.5 |
+| `cg-performance` | Vectorization, memory, algorithm complexity | GPT-5.4 |
+| `cg-architecture` | Project structure, modularity, dependencies | GPT-5.4 |
+| `cg-data-quality` | Input validation, types, missing values | GPT-5.4 |
+| `cr-academic-writing` | Reviews academic writing quality in economics research: argument flow, notation, section structure, and citation completeness | GPT-5.4 |
+| `cr-econometric-reasoning` | Reviews structural econometric logic: theory consistency, functional forms, and estimation strategy | GPT-5.4 |
+| `cr-identification-audit` | Audits identification strategies against required empirical diagnostics | GPT-5.4 |
+| `cr-mathematical-verification` | Symbolically verifies derivations against implementation variables and formulas | GPT-5.4 |
+| `cr-ml-methodology` | Audits ML methodology, validation design, leakage, and economic interpretation | GPT-5.4 |
+| `cr-measurement-integrity` | Audits measurement/classification integrity: weighting disclosure, rank stability, cluster validity, and comparability artifacts | GPT-5.4 |
+| `cr-publication-output` | Reviews publication-quality tables and figures for correctness and submission readiness | GPT-5.4 |
+| `cr-provenance-audit` | Verifies evidence provenance, citation locators, and claim-to-source traceability for CR outputs | GPT-5.4 |
+| `cr-replication-package` | Audits replication-package completeness: archive structure, dependency locks, seed registry, documentation, and path portability | GPT-5.4 |
+| `cr-research-integrity` | Detects silent research correctness failures such as code-math mismatch and undocumented specification searching | GPT-5.4 |
+| `cr-specification-analysis` | Audits theory-data dialogue and specification choice documentation | GPT-5.4 |
+| `cg-learnings-researcher` | Cross-reference past solutions (`full` / `thorough` alias only) | Claude Haiku 4.5 |
+| `cg-adversarial` | Adversarial testing: edge cases, data corruption, security (`full` / `thorough` alias only) | GPT-5.4 |
 
 > Review agents are primarily dispatched by `/cg-review`. `/cg-verify-pr` also dispatches `@cg-testing` (test failure analysis) and `@cg-code-quality` (build error analysis) as part of CI triage. Agents are NOT user-invokable and do not appear in the Copilot Chat agent dropdown.
 
-### Research Review Agents
+> ℹ️ For model selection guidance and escalation criteria, see [Model Guide](model-guide.md).
 
-Research agents are owned by `suite-cr` and dispatched conditionally by
-`/cr-review`. They are not imported into `/cg-review`.
+---
 
-| Agent | Focus |
-|-------|-------|
-| `cr-research-integrity` | P0 silent research errors and integrity gates |
-| `cr-provenance-audit` | Claim-evidence traceability and citation provenance |
-| `cr-mathematical-verification` | Derivation-to-code consistency |
-| `cr-identification-audit` | Identification strategy and required diagnostics |
-| `cr-econometric-reasoning` | Structural and econometric model logic |
-| `cr-ml-methodology` | Validation design, leakage, inference, and interpretation |
-| `cr-specification-analysis` | Theory-data implications and specification discipline |
-| `cr-measurement-integrity` | Indicator, threshold, clustering, and comparability integrity |
-| `cr-academic-writing` | Economics-paper structure, notation, and citations |
-| `cr-publication-output` | Publication tables, figures, notes, and deterministic output |
-| `cr-replication-package` | Replication archive completeness, safety, and portability |
+## Responsible Research Lifecycle
 
-> ℹ️ For stage capability guidance and user-controlled effort selection, see [Model Guide](model-guide.md).
+All `/cr-*` tasks run inside a single eight-stage lifecycle spine:
+`Scope → Evidence → Theory → Method → Execute → Verify → Communicate → Maintain`
+(defined in `cr-skill-research-workflow`). Task types enter at their primary
+stage; Scope, Evidence, and Verify apply to every task. Method-specific flows are
+expressed as **method packs** under this spine, sharing its
+Scope/Evidence/Normative/Verify/Communicate stages:
+
+| Pack | Theory / Method skill | Verify agent(s) |
+|------|-----------------------|-----------------|
+| Structural | `cr-skill-structural-econometrics` | `cr-econometric-reasoning`, `cr-identification-audit` |
+| ML | `cr-skill-ml-economics` | `cr-ml-methodology` |
+| Measurement | `cr-skill-measurement` | `cr-measurement-integrity` |
+
+`/cr-review` dispatch is the single source of routing truth; the lifecycle and
+method packs are an additive orientation layer over it (no routing change).
 
 ### Review Routing Rules
 
@@ -577,7 +588,7 @@ Run `/cg-setup` in Copilot Chat after running `cg-link`. The prompt asks:
 - **Review depth**: Light, standard, or thorough (`thorough` is treated as the `full` route)
 - **Project charter** (optional): project name, objective, deliverables, constraints
 
-This creates `compound-gpid.local.md` (gitignored, user-specific config), optionally
+This creates `compound-gpid.local.md` (committed, shared project config), optionally
 `compound-gpid.md` (committed, shared project charter), and optionally `compound-gpid.context.md`
 (committed, growing project knowledge base) in your project root, and scaffolds the `.cg-docs/` directory.
 
@@ -620,12 +631,24 @@ your-project/
 ├── .claude/                  # Claude Code install units: commands/skills/agents linked; root files copied if managed
 ├── .agents/                  # Codex install units: commands/skills/subagents linked; root files copied if managed
 ├── .opencode/                # OpenCode install units: commands/skills/agents linked; config copied if managed
-├── .kilo/                    # Kilo install units: commands/skills/agent linked; config copied if managed
 ├── .compound-gpid/managed-files.json  # sidecar checksums for copied strict config/root files
 ├── compound-gpid.md          # Project charter (4 sections: Objective, Key Deliverables, Constraints, Current Focus). YAML: project-name, team, created, last-reviewed. Committed -- shared.
 ├── compound-gpid.context.md  # Growing project knowledge base (data sources, domain vocab, workspace notes). Committed -- institutional memory.
-├── compound-gpid.local.md    # Your user config (gitignored)
+├── compound-gpid.local.md    # Shared project config (committed)
 ├── roadmap.json              # Milestone & feature tracker (committed)
+├── data/                     # Project-owned research inputs; not created by Compound GPID
+├── c-research/               # CR research outputs, created when the cr suite is active
+│   ├── evidence/
+│   ├── manuscripts/
+│   ├── normative-decisions/
+│   ├── scoping/
+│   ├── derivations/
+│   ├── specifications/
+│   ├── results/
+│   ├── replication/
+│   ├── eda/
+│   ├── measurement/
+│   └── vintages/
 └── .cg-docs/                 # Compound GPID knowledge base (committed -- institutional memory)
     ├── archive/              # Archived charter sections removed by the user (not loaded at session start)
     ├── brainstorms/          # /cg-brainstorm outputs
@@ -647,6 +670,14 @@ your-project/
 
 `.cg-docs/inbox/` is only a holding area. Do not treat files there as approved
 roadmap items until a separate strategy or roadmap session promotes them.
+
+`c-research/` is the canonical project-level home for CR research outputs. It
+is organized by artifact type and is used by both human researchers and CR
+workflows. Inputs and data remain separate under project-owned locations such
+as `data/`; Compound GPID does not create or migrate data there. The
+`.cg-docs/evidence-fixtures/` publishing fixtures and generated
+`.cg-docs/views/` remain shared Compound GPID infrastructure and do not move
+into `c-research/`.
 
 ---
 
@@ -685,65 +716,3 @@ Phased plans (created with `/cg-plan` when the user requests phases) carry addit
 | `phases` | integer | `/cg-plan` Step 3.5 | (not read at runtime — informational only for human readers) | **Convenience hint** — may become stale if phases are restructured. The authoritative phase count is always derived by counting `## Phase` headers in the document body. Never use this field as the source of truth for validation. |
 | `completed-phases` | YAML flow sequence of unquoted integers, e.g. `[1, 2]` | `/cg-work` Step 2.5 | `/cg-work` Step 1.2, `/cg-resume` Step 2a | **Authoritative completion record.** Written first at phase boundary (before `current-phase`). A plan with a non-empty list and `status: active` is "paused between phases" — this is the normal cross-session state. |
 | `current-phase` | integer | `/cg-work` Step 2.5 | (informational only) | Written after `completed-phases`. Set to N+1 after completing phase N; removed when the final phase completes. |
-
-## Local Research Evidence Workbench
-
-The research suite uses the dedicated `research_evidence/` Python subproject as
-the executable evidence/provenance spine. Start or resume it through the
-existing `/cr-work [phaseX]` launcher; v1 does not add a separate
-`/cr-evidence` command.
-
-```text
-resource -> source version/unit -> local retrieval -> candidate claim/evidence
--> original-authority verification -> approved claim/evidence matrix
-```
-
-### Setup and runtime
-
-From the repository root:
-
-```text
-uv sync --project research_evidence
-uv run --project research_evidence research-evidence --help
-uv run --project research_evidence pytest research_evidence/tests -q
-```
-
-The supported Python range is `>=3.11,<3.14`, and `research_evidence/uv.lock`
-is committed. Normal processing is local-only, loopback-only, and offline. It
-does not perform internet search, URL fetching, external API model execution,
-hidden downloads, telemetry, or external fallback. Model/OCR acquisition is a
-separate setup decision; normal loaders use verified local caches only.
-
-### Canonical state and review
-
-Original files remain authoritative. Canonical YAML under
-`.cg-docs/research/evidence/` stores provenance, source versions, source units,
-claims, evidence, analysis links, review history, dependency inventory, and
-transaction journals. SQLite indexes, converted/OCR text, API responses, and
-browser views are derived and rebuildable. Mutations use revisions, locks,
-prepare/commit/abort markers, conflict records, and recovery.
-
-High confidence requires a matching source hash/version, resolvable typed
-locator, exact normalized quote, successful original-authority verification,
-and researcher approval. Stale, ambiguous, fuzzy-only, inaccessible,
-OCR-derived, table/equation, conflicting, and legacy cases stay flagged or
-abstained. Candidate local retrieval/model proposals never approve themselves.
-
-Legacy `origin: external-opt-in` records are preserved read-only in
-`external-quarantine.yaml`; they are not fetched, indexed, or eligible for
-approval. A copied local original requires a new local source-version record and
-verification event.
-
-The Phase 4 FastAPI service and responsive browser page are derived local
-management surfaces. They expose scan/search/context, candidate evidence,
-review actions, history, recovery, run status, and dependency caveats. Browser
-state is never canonical, and rendered source content contains no external
-links or requests.
-
-### Supported formats and v1 non-goals
-
-PDF, DOCX, Markdown, LaTeX, and HTML produce typed deterministic source units.
-Scanned PDFs use an explicit local OCR capability with capped confidence and
-original-page verification. Internet research, literature prose generation,
-external APIs, hosted deployment, multi-user collaboration, citation-manager
-integration, and automatic conflict resolution remain out of scope for v1.

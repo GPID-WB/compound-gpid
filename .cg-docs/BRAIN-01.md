@@ -1,10 +1,10 @@
 # 🧠 Project Brain — Part 1
 
-_Generated 2026-08-13_
+_Generated 2026-09-02_
 
 ## Roadmap.Json / Test Scenarios / Cg-Work
 
-_Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 414 entities
+_Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 416 entities
 
 - **[Rename prompts, agents, and skills with cg- prefix; add WIP banner and manual](.cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md)** · `brainstorm` · _decided_ · `2026-03-02`
   > The project's prompts, agents, and skills lack a consistent naming prefix, making it unclear which files belong to th…
@@ -108,6 +108,8 @@ _Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 414 entities
   > <!-- Valid status values: decided, in-progress, abandoned -->
 - **[CR Local Evidence Workbench for Verifiable Research Claims](.cg-docs/brainstorms/2026-08-12-cr-local-evidence-workbench.md)** · `brainstorm` · _decided_ · `2026-08-12`
   > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[Separate CR Research Outputs from Compound GPID Documentation](.cg-docs/brainstorms/2026-09-02-c-research-artifact-boundary.md)** · `brainstorm` · _decided_ · `2026-09-02`
+  > <!-- Valid status values: decided, in-progress, abandoned --> <!-- Created 2026-09-02. -->
 - **[2026-04-23-compound-engineering-full-review](.cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md)** · `review` · _—_ · `2026-04-23`
   > Compound Engineering is the most architecturally similar project to compound-gpid. It follows an identical philosophy…
 - **[2026-04-23-gsd-2-full-review](.cg-docs/competitive-reviews/2026-04-23-gsd-2-full-review.md)** · `review` · _—_ · `2026-04-23`
@@ -336,6 +338,8 @@ _Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 414 entities
   > <!-- Created 2026-08-12. Revision 2 addresses the plan-review findings. -->
 - **[CR Local Evidence Workbench for Verifiable Research Claims](.cg-docs/plans/2026-08-12-cr-local-evidence-workbench.md)** · `plan` · _active_ · `2026-08-12`
   > <!-- Created 2026-08-12. Follow-up plan: the predecessor plan remains completed historical work. -->
+- **[Root-Level c-research Output Workspace and Migration](.cg-docs/plans/2026-09-02-c-research-output-workspace-migration.md)** · `plan` · _completed_ · `2026-09-02`
+  > <!-- Created 2026-09-02. -->
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
 - **[2026-03-30-fix-triage-prompt-review](.cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md)** · `review` · _—_ · `—`
@@ -640,6 +644,8 @@ _Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 414 entities
   > **Review mode**: light verification
 - **[2026-08-11-kilo-agent-parsing-linker-copy-directory-review](.cg-docs/reviews/2026-08-11-kilo-agent-parsing-linker-copy-directory-review.md)** · `review` · _—_ · `2026-08-11`
   > **Review mode**: full **Files reviewed**: 3 (`scripts/link.ps1`, `tests/link.Tests.ps1`, `scripts/tests/test_target_m…
+- **[2026-09-02-c-research-output-workspace-migration-review](.cg-docs/reviews/2026-09-02-c-research-output-workspace-migration-review.md)** · `review` · _—_ · `2026-09-02`
+  > **Review mode:** full
 - **[Broken relative links in deeply-nested skill files pointing to repo root](.cg-docs/solutions/bugs/2026-03-18-broken-relative-links-in-nested-skill-files.md)** · `solution` · _—_ · `2026-03-18`
   > A cross-reference link in `r-analytical-anti-patterns.md` read: This path resolves *relative to the file's location*,…
 - **[Unclosed code fence in Markdown skill files silently corrupts downstream rendering](.cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md)** · `solution` · _—_ · `2026-03-18`
@@ -732,6 +738,8 @@ _Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 414 entities
   > Running install.ps1 on a canonical install layout failed during wrapper registration with:
 - **[Updater remediation for legacy CLM-prone PowerShell profile wrappers](.cg-docs/solutions/bugs/2026-07-16-update-legacy-profile-wrapper-remediation.md)** · `solution` · _—_ · `2026-07-16`
   > On enterprise Windows machines using Constrained Language Mode (CLM), an old Compound GPID profile function such as `…
+- **[Secure publication and rollback must not clobber concurrent filesystem changes](.cg-docs/solutions/bugs/2026-08-01-secure-publication-rollback-must-not-clobber.md)** · `solution` · _—_ · `2026-08-01`
+  > The shared artifact and generated-target writer already pinned parent directories, but several operations could still…
 - **[Generic publisher deletion commit points and cross-platform release gates](.cg-docs/solutions/bugs/2026-08-03-generic-publisher-secure-deletion-and-cross-platform-gates.md)** · `solution` · _—_ · `2026-08-03`
   > The generic Markdown publisher passed its initial implementation gates, but verification found four closure gaps: - P…
 - **[Evidence capture must pass the bundled axe source at the audit call site](.cg-docs/solutions/bugs/2026-08-04-evidence-capture-axe-audit-call-site-wiring.md)** · `solution` · _—_ · `2026-08-04`
@@ -744,6 +752,8 @@ _Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 414 entities
   > The Compound GPID issue readiness validator (`scripts/issues/readiness.py`) documents an exit-code contract: 0 = read…
 - **[Windows cg-link Kilo parse failures — enforce copy-directory instead of junctions](.cg-docs/solutions/bugs/2026-08-11-windows-link-kilo-copy-directory-parse-failure.md)** · `solution` · _—_ · `2026-08-11`
   > Opening a project in VS Code or Positron with the Compound GPID plugin installed (v1.1.9+) reported the same error fo…
+- **[Secure c-research migration and research-output boundary](.cg-docs/solutions/bugs/2026-09-02-c-research-migration-security-and-boundary.md)** · `solution` · _—_ · `2026-09-02`
+  > Moving Compound Research outputs from `.cg-docs/research/` to the root-level `c-research/` workspace exposed several …
 - **[Get-Item .Target property is string\[\] in PowerShell 5.1, not a scalar string](.cg-docs/solutions/build-errors/2026-03-04-get-item-target-is-string-array.md)** · `solution` · _—_ · `2026-03-04`
   > Code that checks whether a junction points to a specific directory passed all unit tests but produced confusing resul…
 - **[$$  is not a process ID in PowerShell](.cg-docs/solutions/build-errors/2026-03-04-powershell-dollar-dollar-is-not-pid.md)** · `solution` · _—_ · `2026-03-04`
@@ -820,19 +830,13 @@ _Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 414 entities
   > VS Code froze completely and required a force-quit — reproducibly, every time the workspace was opened. The freeze ha…
 - **[Regression test for try/catch control-flow guards when script cannot be executed](.cg-docs/solutions/testing-patterns/2026-03-13-regression-test-trycatch-guard-clm-environment.md)** · `solution` · _—_ · `2026-03-13`
   > A PS5.1 bug (`ErrorActionPreference=Stop` promoting git stderr to a terminating error) was fixed in `update.ps1` by w…
+- **[httpx.AsyncClient requires ASGITransport for FastAPI async tests](.cg-docs/solutions/testing-patterns/2026-03-17-httpx-async-client-asgi-transport.md)** · `solution` · _—_ · `2026-03-17`
+  > FastAPI async endpoint tests using `httpx.AsyncClient(app=app, ...)` fail or emit deprecation warnings on httpx ≥ 0.2…
 - **[Testing PowerShell \[switch\] parameters: magic-string API tests pass for the wrong reasons](.cg-docs/solutions/testing-patterns/2026-03-19-testing-powershell-switch-parameters.md)** · `solution` · _—_ · `2026-03-19`
   > After refactoring `update.ps1` to replace the magic string `--list` with a proper `[switch]$List` parameter, the exis…
 - **[Validate derived state against stored state in schema tests](.cg-docs/solutions/testing-patterns/2026-03-30-derived-invariant-validation-in-schema-tests.md)** · `solution` · _—_ · `2026-03-30`
   > `Test-RoadmapSchema` validated that `milestone.status` was a member of the allowed enum (`planned`, `in-progress`, `d…
 - **[Do NOT delegate file-writing steps in AI workflow prompts](.cg-docs/solutions/testing-patterns/2026-03-30-do-not-delegate-file-write-guardrail.md)** · `solution` · _—_ · `2026-03-30`
   > A multi-step AI workflow prompt (`cg-review.prompt.md`) contained a step (Step 3.5) that was supposed to write the re…
-- **[Test the interface contract between chained prompts \(review -> fix-triage pipeline\)](.cg-docs/solutions/testing-patterns/2026-03-30-prompt-pipeline-contract-testing.md)** · `solution` · _—_ · `2026-03-30`
-  > When two prompts are designed to work in sequence — the OUTPUT of one prompt is the INPUT of a follow-up prompt — the…
-- **[Test prompt frontmatter tools: list to guard against silent write failures](.cg-docs/solutions/testing-patterns/2026-03-30-test-prompt-frontmatter-tools-list.md)** · `solution` · _—_ · `2026-03-30`
-  > VS Code Copilot prompt files support a `tools:` key in their YAML frontmatter that restricts which tools the agent ma…
-- **[Invoke-Pester on full test directory with -PassThru pipeline crashes VS Code](.cg-docs/solutions/testing-patterns/2026-04-02-invoke-pester-full-suite-passthru-crashes-vscode.md)** · `solution` · _—_ · `2026-04-02`
-  > VS Code crashes and requires a manual restart when the agent (or user) runs Pester against the entire `tests/` direct…
-- **[AI agent repeats Pester crash pattern despite documented rules — documentation alone is insufficient](.cg-docs/solutions/testing-patterns/2026-04-06-ai-agent-ignores-pester-rules-despite-documentation.md)** · `solution` · _—_ · `2026-04-06`
-  > VS Code was crashed **multiple times in a single session** by the AI agent running forbidden Pester patterns — even t…
 
 _…continues in [BRAIN-02.md](BRAIN-02.md)_

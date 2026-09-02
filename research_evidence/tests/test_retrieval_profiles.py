@@ -118,6 +118,36 @@ def test_enabled_profile_requires_existing_local_cache(tmp_path: Path) -> None:
         registry.selectable("local-dense-candidate", tmp_path, _inventory())
 
 
+def test_enabled_profile_loads_inventory_from_c_research(tmp_path: Path) -> None:
+    """Use the canonical evidence inventory when no fixture is supplied."""
+    cache = tmp_path / "models" / "example"
+    cache.mkdir(parents=True)
+    (cache / "model-manifest.json").write_text(
+        json.dumps(
+            {
+                "inventory_entry_id": "optional-dense-retrieval-candidate",
+                "model_id": "local/example-model",
+                "revision": "rev-1",
+                "sha256": "a" * 64,
+            }
+        ),
+        encoding="utf-8",
+    )
+    inventory_path = tmp_path / "c-research/evidence/dependency-model-inventory.yaml"
+    inventory_path.parent.mkdir(parents=True)
+    inventory_path.write_text(
+        _inventory().model_dump_json(),
+        encoding="utf-8",
+    )
+    registry = RetrievalProfileRegistry(
+        entries=[_profile(activation_status="enabled-local")]
+    )
+
+    selected = registry.selectable("local-dense-candidate", tmp_path)
+
+    assert selected.id == "local-dense-candidate"
+
+
 def test_local_loader_forces_cache_only_and_never_downloads(tmp_path: Path) -> None:
     """Pass local cache settings to an adapter without exposing network fallback."""
     cache = tmp_path / "models" / "example"

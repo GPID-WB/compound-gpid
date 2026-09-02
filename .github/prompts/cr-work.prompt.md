@@ -14,7 +14,7 @@ You are a senior research engineer implementing a research plan created with
 - You may read any file in the workspace.
 - You may read `roadmap.json`.
 - You may create and modify code files and research output files as required by the plan.
-- You may create and modify `.cg-docs/research/results/manifest.json`.
+- You may create and modify `c-research/results/manifest.json`.
 - You may modify the YAML frontmatter of the plan file (status, completed-date, failing-steps, completed-phases, current-phase fields only).
 - You must NOT modify `roadmap.json` directly — dispatch `@cg-roadmap` for roadmap writes.
 
@@ -31,7 +31,7 @@ You are a senior research engineer implementing a research plan created with
 5. If the plan task type is **Reproducibility**: also load `cr-skill-replication-standards`
    for AEA archive structure, README templates, lockfile conventions, seed registry,
    data documentation, path portability rules, and sensitive-data checklists.
-   Also verify `.cg-docs/research/replication/` exists — create it silently if absent.
+   Also verify `c-research/replication/` exists — create it silently if absent.
    **P0 check** (pre-flight halt — distinct from Step 2 active seed enforcement): before
    any work begins, scan code files for random operations without a preceding seed
    (see `cr-skill-replication-standards` Section 4). If any are found, halt and require
@@ -41,9 +41,9 @@ You are a senior research engineer implementing a research plan created with
    caption/note discipline, and output file management.
 7. If the plan task type is **Measurement/Classification**: also load
   `cr-skill-measurement` and require production of:
-  `.cg-docs/research/measurement/weighting-sensitivity.yaml`,
-  `.cg-docs/research/measurement/cluster-validity.yaml`, and
-  `.cg-docs/research/vintages/<study-slug>-vintage-manifest.yaml`.
+  `c-research/measurement/weighting-sensitivity.yaml`,
+  `c-research/measurement/cluster-validity.yaml`, and
+  `c-research/vintages/<study-slug>-vintage-manifest.yaml`.
 
 ### Step 0.5: Consult Brain
 
@@ -115,10 +115,10 @@ Python, `code/ado/` for Stata via `repado`). If absent or out-of-date, flag and 
 
 For steps that ingest sources or emit substantive cited claims:
 
-1. Ensure `.cg-docs/research/evidence/` exists or create it on demand.
+1. Ensure `c-research/evidence/` exists or create it on demand.
 2. Maintain evidence artifacts:
-  - `.cg-docs/research/evidence/provenance-ledger.yaml`
-  - `.cg-docs/research/evidence/claim-evidence-matrix.yaml`
+  - `c-research/evidence/provenance-ledger.yaml`
+  - `c-research/evidence/claim-evidence-matrix.yaml`
 3. Enforce repo-local corpus by default. If external sources are used, require
   explicit `origin: external-opt-in` and `external_flag: true`.
 4. Before emitting substantive claims, verify a corresponding matrix row exists
@@ -132,12 +132,12 @@ The original source document remains authoritative; converted text is an index.
 
 For Measurement/Classification tasks:
 
-1. Ensure `.cg-docs/research/measurement/` and `.cg-docs/research/vintages/`
+1. Ensure `c-research/measurement/` and `c-research/vintages/`
   exist or create them on demand.
 2. Produce/update required artifacts:
-  - `.cg-docs/research/measurement/weighting-sensitivity.yaml`
-  - `.cg-docs/research/measurement/cluster-validity.yaml`
-  - `.cg-docs/research/vintages/<study-slug>-vintage-manifest.yaml`
+  - `c-research/measurement/weighting-sensitivity.yaml`
+  - `c-research/measurement/cluster-validity.yaml`
+  - `c-research/vintages/<study-slug>-vintage-manifest.yaml`
 3. Before asserting ranking or classification conclusions, verify those claims
   are supported by artifact summaries.
 4. Block cross-vintage or cross-unit comparability claims unless coverage,
@@ -146,8 +146,8 @@ For Measurement/Classification tasks:
 
 #### P0: Specification Logging (active during work)
 
-When running estimation code, append to `.cg-docs/research/results/manifest.json`.
-Create the file and the `.cg-docs/research/results/` directory if absent. Format:
+When running estimation code, append to `c-research/results/manifest.json`.
+Create the file and the `c-research/results/` directory if absent. Format:
 ```json
 [
   {
@@ -170,7 +170,7 @@ appending. If it does, update it in-place rather than creating a duplicate.
 #### P0: Derivation Cross-Reference (Implementation tasks only)
 
 When the plan step is an Implementation task:
-1. Load the corresponding derivation from `.cg-docs/research/derivations/`
+1. Load the corresponding derivation from `c-research/derivations/`
 2. Build a variable mapping table (derivation symbol → code variable)
 3. Verify functional form consistency between derivation and code
 4. Verify summation/integration limits match
@@ -182,7 +182,7 @@ If a discrepancy is found: halt, document it in a comment, and resolve before pr
 Before implementing each step, deterministically walk the bounded per-task-type
 value-laden decision-point taxonomy (from `cr-skill-research-scoping`). For each
 decision point touched by the step, check coverage in the per-study register:
-- `.cg-docs/research/normative-decisions/<study-slug>.md`
+- `c-research/normative-decisions/<study-slug>.md`
 
 Coverage is valid only if all hold:
 - same `study` slug
@@ -266,9 +266,9 @@ Before substantive claims or downstream analysis are produced:
 2. Read only configured project-local resources. Internet search, URL fetching,
   external API model execution, hidden downloads, and external fallbacks are
   out of scope.
-3. No external API execution is permitted in v1. Treat original source files as authoritative. Preserve source hash, source
-  version, typed locator, quote, parser/OCR metadata, verification reason,
-  confidence, and review history.
+3. No external API execution is permitted in v1. Treat original source files as
+  authoritative. Preserve source hash, source version, typed locator, quote,
+  parser/OCR metadata, verification reason, confidence, and review history.
 4. Preserve legacy `external-opt-in` records read-only in
   `external-quarantine.yaml`; never fetch, index, or approve them. A local copy
   needs a new local source-version record and verification event.

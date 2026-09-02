@@ -28,6 +28,34 @@ def test_transaction_commits_multiple_yaml_files_and_review_history(tmp_path: Pa
     assert list((store.journal_root).glob("*-commit.yaml"))
 
 
+def test_artifact_store_rejects_symlinked_journal_ancestor(tmp_path: Path) -> None:
+    """Do not create transaction state through a linked runs directory."""
+    root = tmp_path / "evidence"
+    root.mkdir()
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (root / "runs").symlink_to(outside, target_is_directory=True)
+
+    with pytest.raises(ValueError, match="unsafe component"):
+        ArtifactStore(root)
+
+
+def test_artifact_store_lock_rejects_replaced_journal_ancestor(
+    tmp_path: Path,
+) -> None:
+    """Do not follow a runs symlink introduced after store construction."""
+    root = tmp_path / "evidence"
+    store = ArtifactStore(root)
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (root / "runs").rename(root / "runs-original")
+    (root / "runs").symlink_to(outside, target_is_directory=True)
+
+    with pytest.raises(OSError):
+        with store._exclusive_lock():
+            pass
+
+
 def test_revision_conflict_writes_a_deterministic_conflict_record(tmp_path: Path) -> None:
     """Reject stale writers and preserve a machine-readable conflict record."""
     store = ArtifactStore(tmp_path / "evidence")

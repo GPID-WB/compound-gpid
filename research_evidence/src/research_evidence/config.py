@@ -8,6 +8,7 @@ from typing import Optional, Union
 from urllib.parse import urlsplit
 
 from .errors import PathPolicyError
+from .filesystem import validate_path_components
 
 SUPPORTED_MINIMUM = (3, 11)
 SUPPORTED_EXCLUSIVE_MAXIMUM = (3, 14)
@@ -140,9 +141,13 @@ class RuntimeSettings:
         resources = _validate_directory(resources, "Resources root")
         if not resources.is_relative_to(project):
             raise PathPolicyError("Resources root must be inside the project root.")
-        evidence = project / ".cg-docs" / "research" / "evidence"
-        if evidence.exists() and evidence.is_symlink():
-            raise PathPolicyError("Evidence root cannot be a symbolic link.")
+        evidence = project / "c-research" / "evidence"
+        try:
+            validate_path_components(evidence)
+        except OSError as error:
+            raise PathPolicyError(
+                "Evidence root and its ancestors must not contain links."
+            ) from error
         return cls(project, resources, evidence, bind_host)
 
     def validate_resource_path(self, relative_path: Union[str, PurePath]) -> Path:

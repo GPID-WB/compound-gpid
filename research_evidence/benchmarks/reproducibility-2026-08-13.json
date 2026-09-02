@@ -6,7 +6,7 @@
   },
   "created": "2026-08-13",
   "environment": {
-    "os": "macOS-26.6.1-arm64-64bit",
+    "os": "macOS-26.6.2-arm64-arm-64bit",
     "package_version": "0.1.0",
     "python": "3.11.15",
     "sqlite": "3.53.1"

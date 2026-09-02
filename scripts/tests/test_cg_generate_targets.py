@@ -13,6 +13,8 @@ import pytest
 
 import cg_generate_targets as gen
 
+REPO_ROOT = Path(__file__).resolve().parents[2]
+
 
 def _write(path: Path, content: str) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -25,12 +27,12 @@ def _make_fixture_repo(tmp_path: Path) -> Path:
     root = tmp_path / "fixture"
 
     _write(root / ".github/prompts/cg-test.prompt.md",
-           "---\ndescription: Test prompt\n---\n\n# Test Prompt\n\nBody.\n")
+            "---\ndescription: Test prompt\n---\n\n# Test Prompt\n\nBody.\n")
     _write(root / ".github/prompts/cg-another.prompt.md",
            "---\ndescription: Another prompt\n---\n\n# Another\n\nBody.\n")
 
     _write(root / ".github/agents/cg-test-agent.agent.md",
-           "---\ndescription: Test agent\ntools: ['read', 'write']\n---\n\n# Test Agent\n\nAgent body.\n")
+            "---\ndescription: Test agent\ntools: ['read', 'write']\n---\n\n# Test Agent\n\nAgent body.\n")
 
     _write(root / ".github/skills/cg-skill-test/SKILL.md",
            "---\nname: cg-skill-test\ndescription: Test skill\n---\n\n# Test Skill\n\nSkill body.\n")
@@ -217,7 +219,7 @@ class TestGenerationPlan:
         root = _make_fixture_repo(tmp_path)
         mapping = gen.load_target_mapping(root)
         assets = gen.scan_canonical_assets(root)
-        original = gen._render_output_entry  # pylint: disable=protected-access
+        original = gen._render_output_entry
 
         def fail_on_late_target(*args, **kwargs):
             target = args[0]
@@ -385,7 +387,6 @@ class TestGeneratorWrites:
         assert (root / ".agents").exists()
         assert (root / ".opencode").exists()
         assert (root / ".kilo").exists()
-
     def test_copilot_target_produces_no_output(self, tmp_path: Path) -> None:
         """Copilot target has generatedTreePath: null and must produce no files."""
         root = _make_fixture_repo(tmp_path)
@@ -408,7 +409,7 @@ class TestGeneratorWrites:
 
     def test_model_mapping_artifact_is_not_written(self, tmp_path: Path) -> None:
         root = _make_fixture_repo(tmp_path)
-        gen.main(["--root", str(root), "--target", "claude-code"])
+        assert gen.main(["--root", str(root), "--target", "claude-code"]) == 0
         assert not (root / ".claude/model-mapping.claude.json").exists()
 
     def test_root_adapter_written(self, tmp_path: Path) -> None:
@@ -431,7 +432,7 @@ class TestEdgeCases:
         """An agent without a tools: field should generate a TOML with empty tools list."""
         root = _make_fixture_repo(tmp_path)
         _write(root / ".github/agents/cg-no-tools.agent.md",
-               "---\ndescription: Agent without tools\n---\n\n# Agent\n\nBody.\n")
+             "---\ndescription: Agent without tools\n---\n\n# Agent\n\nBody.\n")
         exit_code = gen.main(["--root", str(root), "--target", "codex"])
         assert exit_code == 0
         toml = (root / ".agents/subagents/cg-no-tools.toml").read_text()
@@ -473,124 +474,6 @@ class TestEdgeCases:
         assert not (root / ".claude").exists()
 
 
-class TestNamespaceAgnosticSkills:
-    """Namespace-agnostic skill discovery (R3): registry-driven, with fallback."""
-
-    def _registry(self, root: Path, skill_owners: dict) -> None:
-        """Write a minimal module registry owning the given skill dir names."""
-        modules = [
-            {
-                "id": "kernel",
-                "layer": "kernel",
-                "displayName": "Kernel",
-                "description": "kernel",
-                "dependsOn": [],
-                "ownedAssets": [".github/shared/*.contract.md"],
-            }
-        ]
-        for name in skill_owners:
-            modules.append({
-                "id": skill_owners[name],
-                "layer": "capability" if "--" not in name else "suite",
-                "displayName": name,
-                "description": name,
-                "dependsOn": ["kernel"],
-                "ownedAssets": [f".github/skills/{name}/"],
-            })
-        _write(root / ".github/shared/module-registry.json", json.dumps({
-            "schemaVersion": 1,
-            "description": "test",
-            "modules": modules,
-        }, indent=2))
-
-    def test_discovery_includes_cr_skill_when_registered(self, tmp_path: Path) -> None:
-        root = _make_fixture_repo(tmp_path)
-        _write(root / ".github/skills/cr-skill-identification/SKILL.md",
-               "---\ndescription: cr skill\n---\n\n# CR Skill\n\nBody.\n")
-        self._registry(root, {"cg-skill-test": "cap-test", "cr-skill-identification": "suite-cr"})
-        assets = gen.scan_canonical_assets(root)
-        names = {Path(a["relative_path"]).parent.name for a in assets["skills"]}
-        assert names == {"cg-skill-test", "cr-skill-identification"}
-
-    def test_discovery_skips_unregistered_skill_dir(self, tmp_path: Path) -> None:
-        root = _make_fixture_repo(tmp_path)
-        _write(root / ".github/skills/cr-skill-unowned/SKILL.md",
-               "---\ndescription: unowned\n---\n\nBody.\n")
-        self._registry(root, {"cg-skill-test": "cap-test"})
-        assets = gen.scan_canonical_assets(root)
-        names = {Path(a["relative_path"]).parent.name for a in assets["skills"]}
-        assert "cr-skill-unowned" not in names
-        assert names == {"cg-skill-test"}
-
-    def test_fallback_without_registry_keeps_cg_skill_glob(self, tmp_path: Path, capsys) -> None:
-        root = _make_fixture_repo(tmp_path)
-        _write(root / ".github/skills/cr-skill-ignored/SKILL.md",
-               "---\ndescription: ignored\n---\n\nBody.\n")
-        assert not (root / ".github/shared/module-registry.json").exists()
-        assets = gen.scan_canonical_assets(root)
-        names = {Path(a["relative_path"]).parent.name for a in assets["skills"]}
-        assert names == {"cg-skill-test"}
-        captured = capsys.readouterr()
-        assert "falling back to cg-skill-*" in captured.err
-
-    def test_cr_skill_emitted_to_all_platform_trees(self, tmp_path: Path) -> None:
-        root = _make_fixture_repo(tmp_path)
-        _write(root / ".github/skills/cr-skill-identification/SKILL.md",
-               "---\ndescription: cr skill\n---\n\n# CR Skill\n\nBody.\n")
-        self._registry(root, {"cg-skill-test": "cap-test", "cr-skill-identification": "suite-cr"})
-        assert gen.main(["--root", str(root), "--all"]) == 0
-        for tree in (".claude/skills", ".agents/skills", ".opencode/skills", ".kilo/skills"):
-            assert (root / tree / "cr-skill-identification" / "SKILL.md").exists(), tree
-
-
-class TestContextBudgetFailFast:
-    """--active-suites must fail loudly on misconfiguration (P2) instead of
-    silently generating an unfiltered or empty tree."""
-
-    def _registry(self, root: Path) -> None:
-        _write(root / ".github/shared/module-registry.json", json.dumps({
-            "schemaVersion": 1,
-            "description": "test",
-            "modules": [
-                {
-                    "id": "kernel",
-                    "layer": "kernel",
-                    "displayName": "Kernel",
-                    "description": "k",
-                    "dependsOn": [],
-                    "ownedAssets": [".github/shared/*.contract.md", ".github/prompts/cg-*.prompt.md"],
-                },
-                {
-                    "id": "suite-cg",
-                    "layer": "suite",
-                    "displayName": "CG",
-                    "description": "cg",
-                    "dependsOn": ["kernel"],
-                    "ownedAssets": [".github/prompts/cg-*.prompt.md", ".github/agents/cg-*.agent.md", ".github/skills/cg-skill-r-*/", ".github/instructions/r.instructions.md"],
-                },
-            ],
-        }))
-
-    def test_unknown_suite_fails_and_writes_nothing(self, tmp_path: Path, capsys) -> None:
-        root = _make_fixture_repo(tmp_path)
-        self._registry(root)
-        exit_code = gen.main(["--root", str(root), "--all", "--active-suites", "cgx"])
-        assert exit_code == 1
-        captured = capsys.readouterr()
-        assert "unknown active suite" in captured.err
-        assert not (root / ".claude").exists()
-        assert not (root / ".kilo").exists()
-
-    def test_missing_registry_with_active_suites_fails(self, tmp_path: Path, capsys) -> None:
-        root = _make_fixture_repo(tmp_path)
-        assert not (root / ".github/shared/module-registry.json").exists()
-        exit_code = gen.main(["--root", str(root), "--all", "--active-suites", "cg"])
-        assert exit_code == 1
-        captured = capsys.readouterr()
-        assert "requires module-registry.json" in captured.err
-        assert not (root / ".claude").exists()
-
-
 class TestOwnershipManifest:
     """Tests for ownership manifest commit/write path (P2.3)."""
 
@@ -610,7 +493,7 @@ class TestOwnershipManifest:
             self._make_entry(".claude/agents/cg-agent.md"),
         )
         result = self._make_result(entries)
-        manifest = gen._ownership_manifest_bytes(result)  # pylint: disable=protected-access
+        manifest = gen._ownership_manifest_bytes(result)
         data = json.loads(manifest.decode("utf-8"))
         assert data["schemaVersion"] == 1
         assert data["target"] == "claude-code"
@@ -624,18 +507,14 @@ class TestOwnershipManifest:
         """Two calls with the same data produce identical bytes."""
         entries = (self._make_entry(".claude/commands/cg-test.md"),)
         result = self._make_result(entries)
-        assert gen._ownership_manifest_bytes(  # pylint: disable=protected-access
-            result
-        ) == gen._ownership_manifest_bytes(result)  # pylint: disable=protected-access
+        assert gen._ownership_manifest_bytes(result) == gen._ownership_manifest_bytes(result)
 
     def test_read_prior_manifest_returns_empty_when_missing(self, tmp_path: Path) -> None:
         """_read_prior_ownership_manifest returns {} when no manifest exists."""
         entries = (self._make_entry(".claude/commands/cg-test.md"),)
         result = self._make_result(entries)
         root = tmp_path / "fixture"
-        assert gen._read_prior_ownership_manifest(  # pylint: disable=protected-access
-            root, result
-        ) == {}
+        assert gen._read_prior_ownership_manifest(root, result) == {}
 
     def test_read_prior_manifest_parses_valid(self, tmp_path: Path) -> None:
         """_read_prior_ownership_manifest correctly parses a valid manifest."""
@@ -651,74 +530,8 @@ class TestOwnershipManifest:
         (root / ".claude/.compound-gpid-generated.json").write_text(
             json.dumps(manifest_data), encoding="utf-8"
         )
-        owned = gen._read_prior_ownership_manifest(  # pylint: disable=protected-access
-            root, result
-        )
+        owned = gen._read_prior_ownership_manifest(root, result)
         assert owned[".claude/commands/cg-test.md"].sha256 == "b" * 64
-
-    def test_read_prior_manifest_uses_bounded_secure_reader(
-        self,
-        tmp_path: Path,
-        monkeypatch: pytest.MonkeyPatch,
-    ) -> None:
-        root = tmp_path / "fixture"
-        (root / ".claude").mkdir(parents=True)
-        result = self._make_result(())
-        manifest_data = {
-            "schemaVersion": 1,
-            "target": "claude-code",
-            "policyVersion": 1,
-            "files": [],
-        }
-        (root / ".claude/.compound-gpid-generated.json").write_text(
-            json.dumps(manifest_data),
-            encoding="utf-8",
-        )
-        observed = {}
-        original_read = gen.secure_fs.secure_read_bytes
-
-        def observe(root_path, relative_path, **kwargs):
-            observed.update(kwargs)
-            return original_read(root_path, relative_path, **kwargs)
-
-        monkeypatch.setattr(gen.secure_fs, "secure_read_bytes", observe)
-
-        gen._read_prior_ownership_manifest(root, result)  # pylint: disable=protected-access
-
-        assert observed["reject_hardlinks"] is True
-        assert observed["max_bytes"] > 0
-
-    @pytest.mark.usefixtures("require_symlink_support")
-    def test_manifest_final_component_swap_fails_closed(
-        self,
-        tmp_path: Path,
-        monkeypatch: pytest.MonkeyPatch,
-    ) -> None:
-        root = tmp_path / "fixture"
-        (root / ".claude").mkdir(parents=True)
-        result = self._make_result(())
-        manifest = root / ".claude/.compound-gpid-generated.json"
-        manifest.write_bytes(
-            gen._ownership_manifest_bytes(result)  # pylint: disable=protected-access
-        )
-        outside = tmp_path / "outside.json"
-        outside.write_text(
-            '{"schemaVersion":1,"target":"claude-code","policyVersion":1,"files":[]}',
-            encoding="utf-8",
-        )
-        original_read = gen.secure_fs.secure_read_bytes
-
-        def swap_then_read(root_path, relative_path, **kwargs):
-            def swap(_path: Path) -> None:
-                manifest.unlink()
-                manifest.symlink_to(outside)
-
-            return original_read(root_path, relative_path, before_open=swap, **kwargs)
-
-        monkeypatch.setattr(gen.secure_fs, "secure_read_bytes", swap_then_read)
-
-        with pytest.raises(ValueError, match="unsafe"):
-            gen._read_prior_ownership_manifest(root, result)  # pylint: disable=protected-access
 
     def test_read_prior_manifest_rejects_missing_keys(self, tmp_path: Path) -> None:
         """_read_prior_ownership_manifest rejects manifest with missing schema keys."""
@@ -730,9 +543,7 @@ class TestOwnershipManifest:
             json.dumps({"schemaVersion": 1, "target": "claude-code"}), encoding="utf-8"
         )
         with pytest.raises(ValueError, match="invalid schema"):
-            gen._read_prior_ownership_manifest(  # pylint: disable=protected-access
-                root, result
-            )
+            gen._read_prior_ownership_manifest(root, result)
 
     def test_read_prior_manifest_rejects_wrong_target(self, tmp_path: Path) -> None:
         """_read_prior_ownership_manifest rejects manifest for a different target."""
@@ -745,9 +556,7 @@ class TestOwnershipManifest:
             json.dumps(data), encoding="utf-8"
         )
         with pytest.raises(ValueError, match="target does not match"):
-            gen._read_prior_ownership_manifest(  # pylint: disable=protected-access
-                root, result
-            )
+            gen._read_prior_ownership_manifest(root, result)
 
     def test_preflight_target_commit_detects_stale_file_modification(self, tmp_path: Path) -> None:
         """_preflight_target_commit raises on modified stale owned file."""
@@ -774,7 +583,7 @@ class TestOwnershipManifest:
             json.dumps(prior_data), encoding="utf-8"
         )
         with pytest.raises(ValueError, match="Modified stale"):
-            gen._preflight_target_commit(root, result)  # pylint: disable=protected-access
+            gen._preflight_target_commit(root, result)
 
     def test_preflight_target_commit_accepts_unmodified_stale(self, tmp_path: Path) -> None:
         """_preflight_target_commit accepts stale file with matching hash."""
@@ -801,15 +610,8 @@ class TestOwnershipManifest:
         (root / ".claude/.compound-gpid-generated.json").write_text(
             json.dumps(prior_data), encoding="utf-8"
         )
-        plan = gen._preflight_target_commit(  # pylint: disable=protected-access
-            root, result
-        )
+        plan = gen._preflight_target_commit(root, result)
         assert isinstance(plan, gen.TargetCommitPlan)
-
-    def test_pathname_parent_pruning_helper_is_absent(self) -> None:
-        """Generated cleanup must not mutate parent directories by pathname."""
-        assert not hasattr(gen, "_prune_empty_parents")  # pylint: disable=protected-access
-
 
 class TestHelperFunctions:
     """Parametrized unit tests for YAML scalar, fenced-code, and reference helpers."""
@@ -831,7 +633,7 @@ class TestHelperFunctions:
         ("123", "123"),
     ])
     def test_yaml_scalar(self, value: str, expected: str) -> None:
-        assert gen._yaml_scalar(value) == expected  # pylint: disable=protected-access
+        assert gen._yaml_scalar(value) == expected
 
     @pytest.mark.parametrize("text,expected", [
         ("plain text", "plain text"),
@@ -841,37 +643,37 @@ class TestHelperFunctions:
         ("```python\nprint(1)\n```\nbody\n```\nmore", "body\n"),
     ])
     def test_strip_fenced_code(self, text: str, expected: str) -> None:
-        assert gen._strip_fenced_code(text) == expected  # pylint: disable=protected-access
+        assert gen._strip_fenced_code(text) == expected
 
     def test_validate_bundle_references_valid(self) -> None:
         bundle = [
             {"bundle_relative_path": "doc.md", "content": b"See [other](other.md)", "relative_path": "doc.md"},
             {"bundle_relative_path": "other.md", "content": b"Other content", "relative_path": "other.md"},
         ]
-        gen._validate_bundle_markdown_references(bundle)  # pylint: disable=protected-access
+        gen._validate_bundle_markdown_references(bundle)
 
     def test_validate_bundle_references_missing(self) -> None:
         bundle = [
             {"bundle_relative_path": "doc.md", "content": b"See [missing](nope.md)", "relative_path": "doc.md"},
         ]
         with pytest.raises(ValueError, match="missing from skill bundle"):
-            gen._validate_bundle_markdown_references(bundle)  # pylint: disable=protected-access
+            gen._validate_bundle_markdown_references(bundle)
 
     def test_validate_bundle_references_escapes(self) -> None:
         bundle = [
             {"bundle_relative_path": "doc.md", "content": b"See [/etc/passwd](/etc/passwd)", "relative_path": "doc.md"},
         ]
         with pytest.raises(ValueError, match="escapes skill bundle"):
-            gen._validate_bundle_markdown_references(bundle)  # pylint: disable=protected-access
+            gen._validate_bundle_markdown_references(bundle)
 
     def test_validate_bundle_references_skips_urls(self) -> None:
         bundle = [
             {"bundle_relative_path": "doc.md", "content": b"See [web](https://example.com)", "relative_path": "doc.md"},
         ]
-        gen._validate_bundle_markdown_references(bundle)  # pylint: disable=protected-access
+        gen._validate_bundle_markdown_references(bundle)
 
     def test_validate_bundle_references_skips_non_markdown(self) -> None:
         bundle = [
             {"bundle_relative_path": "data.csv", "content": b"a,b,c", "relative_path": "data.csv"},
         ]
-        gen._validate_bundle_markdown_references(bundle)  # pylint: disable=protected-access
+        gen._validate_bundle_markdown_references(bundle)

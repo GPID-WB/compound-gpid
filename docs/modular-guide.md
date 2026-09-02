@@ -60,13 +60,20 @@ Example:
 suites: [cg, cr]
 ```
 
-Generator-level enforcement: `python scripts/cg_generate_targets.py --all --active-suites cg`
-emits only CG plus shared assets, while `--active-suites cg,cr` emits both suites
-and their dependency closure. Characterization and drift tests enforce the
-expected inventory without documentation depending on brittle file counts. The
-context loader (`.github/shared/context-loading.contract.md`,
-canonical source; copied to each platform tree) follows the same rule at
-instruction level.
+The native trees in the Compound GPID source repository are a shared,
+all-suite distribution baseline. `cg-link` and `cg-update` share those trees
+across linked projects, so they must not rewrite the global tree for one
+consumer's local `suites:` choice. Instead, the generated root instructions and
+workflow prompts use `suites:` to determine which workflow is eligible in that
+project; inactive-suite commands are not treated as active workflow routes.
+
+Maintainers can still produce an isolated filtered tree with
+`python scripts/cg_generate_targets.py --all --active-suites cg` (or
+`cg,cr`) for packaging or inspection. This option is explicit and does not
+change the shared install baseline. Characterization and drift tests enforce
+the all-suite baseline, while the context loader
+(`.github/shared/context-loading.contract.md`, canonical source; copied to each
+platform tree) documents the project-level eligibility rule.
 
 ## Migration from the legacy single-suite package
 

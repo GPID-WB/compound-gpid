@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-08-13 · 567 artifacts (newest first) + 150 roadmap features_
+_Generated 2026-09-02 · 574 artifacts (newest first) + 154 roadmap features_
 
 ## undated
 
@@ -127,8 +127,28 @@ _Generated 2026-08-13 · 567 artifacts (newest first) + 150 roadmap features_
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
 
+## 2026-09-02
+
+- **[2026-09-02-c-research-output-workspace-migration-review](.cg-docs/reviews/2026-09-02-c-research-output-workspace-migration-review.md)** · `review` · _—_ · `2026-09-02`
+  > **Review mode:** full
+- **[Root-Level c-research Output Workspace and Migration](.cg-docs/plans/2026-09-02-c-research-output-workspace-migration.md)** · `plan` · _completed_ · `2026-09-02`
+  > <!-- Created 2026-09-02. -->
+- **[Secure c-research migration and research-output boundary](.cg-docs/solutions/bugs/2026-09-02-c-research-migration-security-and-boundary.md)** · `solution` · _—_ · `2026-09-02`
+  > Moving Compound Research outputs from `.cg-docs/research/` to the root-level `c-research/` workspace exposed several …
+- **[Separate CR Research Outputs from Compound GPID Documentation](.cg-docs/brainstorms/2026-09-02-c-research-artifact-boundary.md)** · `brainstorm` · _decided_ · `2026-09-02`
+  > <!-- Valid status values: decided, in-progress, abandoned --> <!-- Created 2026-09-02. -->
+
+## 2026-08-26
+
+- **[AI and Research: A Practitioner Tour of the Compound Research Workflow](.cg-docs/brainstorms/2026-08-26-ai-knowledge-work-presentation-practitioner-tour.md)** · `brainstorm` · _decided_ · `2026-08-26`
+  > <!-- Created 2026-08-26. -->
+
 ## 2026-08-13
 
+- **[AI and the Conditions for Verifiable Knowledge Work](.cg-docs/brainstorms/2026-08-13-ai-knowledge-work-presentation.md)** · `brainstorm` · _decided_ · `2026-08-13`
+  > <!-- Created 2026-08-13. -->
+- **[AI and the Conditions for Verifiable Knowledge Work Presentation](.cg-docs/plans/2026-08-13-ai-knowledge-work-presentation-production.md)** · `plan` · _active_ · `2026-08-13`
+  > <!-- Created 2026-08-13. -->
 - **[Final Local Evidence Workbench Review](.cg-docs/reviews/2026-08-12-cr-local-evidence-workbench-revised-review.md)** · `review` · _—_ · `2026-08-13`
   > - Unrecognized invocation arguments `deep rigorous` were ignored. - Configured `review-depth: thorough` and security/…
 - **[Release-gate fixtures must mirror runtime commands and derived evidence hashes](.cg-docs/solutions/testing-patterns/2026-08-13-release-gate-fixtures-and-derived-evidence-hashes.md)** · `solution` · _—_ · `2026-08-13`
@@ -1516,6 +1536,8 @@ _Generated 2026-08-13 · 567 artifacts (newest first) + 150 roadmap features_
   > CR Measurement/Classification research archetype
 - **[P0 comparability controls for measurement and indicator work](roadmap.json#cr-measurement-comparability-controls)** · `feature` · _done_ · `—`
   > P0 comparability controls for measurement and indicator work
+- **[Baseline model-catalog coverage for remaining CR prompts](roadmap.json#cr-prompt-model-catalog-baseline)** · `feature` · _idea_ · `—`
+  > Baseline model-catalog coverage for remaining CR prompts
 - **[Responsible lifecycle and method-pack retrofit](roadmap.json#cr-responsible-lifecycle-method-packs)** · `feature` · _done_ · `—`
   > Responsible lifecycle and method-pack retrofit
 - **[Research scoping and normative-decision gates](roadmap.json#cr-scoping-and-normative-gates)** · `feature` · _done_ · `—`
@@ -1524,6 +1546,8 @@ _Generated 2026-08-13 · 567 artifacts (newest first) + 150 roadmap features_
   > Validate the Measurement archetype with a second use case
 - **[Team-level evidence library](roadmap.json#cr-team-evidence-library)** · `feature` · _idea_ · `—`
   > Team-level evidence library
+- **[Assign GPT-5.6 Luna to /cr-work with native-target governance](roadmap.json#cr-work-gpt-5-6-luna-model-governance)** · `feature` · _done_ · `—`
+  > Assign GPT-5.6 Luna to /cr-work with native-target governance
 - **[Cross-model review — adversarial model diversity](roadmap.json#cross-model-adversarial-review)** · `feature` · _idea_ · `—`
   > Cross-model review — adversarial model diversity
 - **[Append-only DECISIONS.md register for methodology and architecture choices \[from GSD\]](roadmap.json#decisions-register)** · `feature` · _idea_ · `—`
@@ -1620,6 +1644,8 @@ _Generated 2026-08-13 · 567 artifacts (newest first) + 150 roadmap features_
   > roadmap.json schema validation after @cg-roadmap writes
 - **[Roadmap visualization agent + /cg-roadmap-view prompt](roadmap.json#roadmap-visualization-agent-prompt)** · `feature` · _done_ · `—`
   > Roadmap visualization agent + /cg-roadmap-view prompt
+- **[Root-level c-research output workspace and migration](roadmap.json#root-level-c-research-output-workspace-and-migration)** · `feature` · _done_ · `—`
+  > Root-level c-research output workspace and migration
 - **[Runtime model-catalog introspection across platforms](roadmap.json#runtime-model-catalog-introspection-across-platforms)** · `feature` · _idea_ · `—`
   > Runtime model-catalog introspection across platforms
 - **[Schema bypass for compound-gpid repo in /cg-resume](roadmap.json#schema-bypass-in-cg-resume)** · `feature` · _done_ · `—`
@@ -1634,8 +1660,10 @@ _Generated 2026-08-13 · 567 artifacts (newest first) + 150 roadmap features_
   > Shrink always-on context
 - **[Side-idea capture during brainstorming \(save to roadmap\)](roadmap.json#side-idea-capture-in-brainstorm)** · `feature` · _done_ · `—`
   > Side-idea capture during brainstorming (save to roadmap)
-- **[Skill discovery metadata and trigger-quality audit](roadmap.json#skill-description-consistency-audit)** · `feature` · _idea_ · `—`
-  > Skill discovery metadata and trigger-quality audit
+- **[Skill description consistency audit and optimization](roadmap.json#skill-description-consistency-audit)** · `feature` · _idea_ · `—`
+  > Skill description consistency audit and optimization
+- **[Skill description length cap with test enforcement \[from CE\]](roadmap.json#skill-description-length-cap)** · `feature` · _idea_ · `—`
+  > Skill description length cap with test enforcement [from CE]
 - **[SkillOpt-based improvement of existing skills](roadmap.json#skillopt-existing-skills-improvement)** · `feature` · _idea_ · `—`
   > SkillOpt-based improvement of existing skills
 - **[Skip high-confidence setup questions based on scanner results](roadmap.json#skip-irrelevant-setup-questions)** · `feature` · _done_ · `—`

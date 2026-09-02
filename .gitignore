@@ -44,8 +44,8 @@ research_evidence/.evidence-index/
 research_evidence/.runtime/
 
 # Research evidence derived state; canonical YAML remains version-controlled
-.cg-docs/research/evidence/derived/
-.cg-docs/research/evidence/index/
+c-research/evidence/derived/
+c-research/evidence/index/
 
 # Testing & profiling
 .pytest_cache/

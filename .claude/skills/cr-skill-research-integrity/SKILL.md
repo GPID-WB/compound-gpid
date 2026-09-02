@@ -23,14 +23,14 @@ derivation. Variable names, functional forms, or operations diverge between the
 LaTeX/markdown derivation and the code.
 
 **Detection patterns**:
-1. Read the derivation file in `.cg-docs/research/derivations/`
+1. Read the derivation file in `c-research/derivations/`
 2. Build a variable mapping table: derivation symbol → code variable name
 3. Check that each transformation in the derivation has a corresponding code operation
 4. Check functional forms: `log(x)` in derivation means `log(x)` in code — not `log(x+1)`
 5. Check summation limits: if derivation sums over `i=1..N`, code must loop or vectorize over the same index
 
 **Remediation**:
-- Create a variable mapping table in `.cg-docs/research/specifications/`
+- Create a variable mapping table in `c-research/specifications/`
 - Add inline comments in the code linking each computation to the derivation equation number
 - If a simplification was made (e.g., numerical approximation), document it explicitly
 
@@ -50,7 +50,7 @@ preferred result without disclosing the search process. Creates spurious
 false-discovery rates.
 
 **Detection patterns**:
-1. Read `.cg-docs/research/results/manifest.json`
+1. Read `c-research/results/manifest.json`
 2. Count the total number of estimation runs logged
 3. Compare against the number of specifications reported in the paper/output
 4. If (logged runs) > (reported specs) by a large margin: flag for review
@@ -108,7 +108,7 @@ Scan code files for these functions/patterns WITHOUT a preceding seed:
 
 **Remediation**:
 1. Add `set.seed(<n>)` / `np.random.seed(<n>)` / `set seed <n>` immediately before the first random call in each code block
-2. Choose seed values deliberately (e.g., 42, 12345) — document why in `.cg-docs/research/results/manifest.json`
+2. Choose seed values deliberately (e.g., 42, 12345) — document why in `c-research/results/manifest.json`
 3. For bootstrap: set seed once before the bootstrap call, not inside the bootstrap function
 
 ---
@@ -192,7 +192,7 @@ across units without harmonized definitions, stable coverage, or explicit
 change attribution.
 
 **Detection patterns**:
-1. Check `.cg-docs/research/vintages/` for vintage manifests tied to the study.
+1. Check `c-research/vintages/` for vintage manifests tied to the study.
 2. Verify over-time comparisons record coverage and method changes.
 3. Verify cross-unit comparisons document harmonized definitions/coverage.
 4. Flag as P0 when comparisons are asserted without attribution artifacts.
@@ -210,7 +210,7 @@ change attribution.
 stable findings without validity/stability evidence.
 
 **Detection patterns**:
-1. Check `.cg-docs/research/measurement/cluster-validity.yaml` exists.
+1. Check `c-research/measurement/cluster-validity.yaml` exists.
 2. Verify selected `k` plus validity indices are recorded.
 3. Verify stability metrics are present for the selected solution.
 4. Flag as P0 when classification claims lack any validity artifact.
@@ -232,7 +232,7 @@ register.
 **Detection patterns**:
 1. Identify consequential choices that can change ranking, threshold
    classification, or distributional interpretation.
-2. Check `.cg-docs/research/normative-decisions/<study-slug>.md` for a matching
+2. Check `c-research/normative-decisions/<study-slug>.md` for a matching
    entry with a stable `ND-<study-slug>-NNN` ID.
 3. Verify required fields are present: `study`, `plan`, `applies_to`,
    `defensible_options`, `consequences`, `decided_by`, `decision`,
@@ -259,7 +259,7 @@ to a verifiable source record in the provenance ledger and converted evidence
 artifacts.
 
 **Detection patterns**:
-1. Check `.cg-docs/research/evidence/provenance-ledger.yaml` for the cited source.
+1. Check `c-research/evidence/provenance-ledger.yaml` for the cited source.
 2. Confirm `source_id` exists and `original_path` is resolvable.
 3. Verify claimed locator maps to converted evidence content.
 4. Flag if DOI/quote/page is asserted without resolvable source linkage.
@@ -279,7 +279,7 @@ without a verified row in the claim-evidence matrix.
 **Detection patterns**:
 1. Scan substantive claims in outputs or summaries.
 2. Verify each claim appears in
-   `.cg-docs/research/evidence/claim-evidence-matrix.yaml`.
+   `c-research/evidence/claim-evidence-matrix.yaml`.
 3. Require `status: verified` for publishable assertions.
 4. Flag claims with missing entries or non-verified status as P0.
 

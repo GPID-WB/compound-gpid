@@ -29,7 +29,7 @@ Before running any EDA, write down:
 3. What would "inconsistent" look like?
 4. What action will I take for each outcome?
 
-Store EDA outputs in `.cg-docs/research/eda/YYYY-MM-DD-[topic].md` with
+Store EDA outputs in `c-research/eda/YYYY-MM-DD-[topic].md` with
 the question-result-action structure above.
 
 **EDA roadmap** for a typical structural model:
@@ -297,6 +297,9 @@ Each restriction should have an economic or data-quality justification.
 ```
 
 Store the R/Stata code for each step in `data/clean/sample-restrictions.R`.
+This is a project convention for preprocessing code, not a license to store
+raw or derived datasets in `c-research/`; research outputs remain under their
+artifact-type directory and data inputs remain outside that workspace.
 Never apply restrictions silently in the middle of analysis code.
 
 ```r

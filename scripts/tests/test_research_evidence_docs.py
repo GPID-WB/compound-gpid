@@ -11,6 +11,7 @@ def _corpus() -> str:
     """Load canonical evidence documentation surfaces as one lower-case corpus."""
     paths = (
         REPO_ROOT / "README.md",
+        REPO_ROOT / "c-research/README.md",
         REPO_ROOT / "docs/reference.md",
         REPO_ROOT / "research_evidence/README.md",
         REPO_ROOT / ".github/skills/cr-skill-evidence-provenance/SKILL.md",
@@ -25,6 +26,8 @@ def test_documentation_describes_local_evidence_operating_boundary() -> None:
     corpus = _corpus()
     for term in (
         "research_evidence",
+        "c-research/evidence",
+        "manuscripts/",
         "local-only",
         "original files remain authoritative",
         "canonical yaml",

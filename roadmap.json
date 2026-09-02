@@ -61,6 +61,13 @@
           "title": "CR Local Evidence Workbench for Verifiable Research Claims",
           "status": "done",
           "plan": ".cg-docs/plans/2026-08-12-cr-local-evidence-workbench-revised.md"
+        },
+        {
+          "id": "root-level-c-research-output-workspace-and-migration",
+          "title": "Root-level c-research output workspace and migration",
+          "description": "Separate canonical research-question and study outputs from Compound GPID process documentation. Create an artifact-type-organized root-level c-research/ workspace when the cr suite is active; keep data/ and other inputs separate; migrate legacy research outputs into the root-level c-research/ workspace; update canonical CR references, setup scaffolding, tests, documentation, and generated targets; preserve shared .cg-docs/ records, evidence-fixtures/, inbox/, and generated views.",
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-09-02-c-research-output-workspace-migration.md"
         }
       ]
     },
@@ -202,8 +209,7 @@
         },
         {
           "id": "skill-description-consistency-audit",
-          "title": "Skill discovery metadata and trigger-quality audit",
-          "description": "Audit and improve every canonical Compound GPID skill's discovery metadata so relevant skills activate reliably without increasing always-loaded context or causing false-positive activation. Define a project-owned description contract covering WHAT the skill enables, WHEN it must load, concrete file types and user scenarios, likely user vocabulary, important positive triggers, and explicit near-miss or should-not-trigger boundaries where needed. Establish reasonable minimum and maximum description lengths as one part of quality rather than treating length as the objective. Inventory all canonical skills, classify internal versus user-facing discovery behavior, and update descriptions without changing skill semantics. Add deterministic validation for name/folder alignment, required namespace, description presence and bounds, duplicate identities, catalog parity, and cross-platform generated metadata parity. Add behavioral discovery probes for representative positive requests, negative requests, adjacent-skill ambiguity, language/dialect routing, and internal-only skills. Coordinate with progressive disclosure, SkillOpt research, documentation catalogs, and target generation, but keep SkillOpt as a separate later optimization mechanism. Success means users and agents can predict why a skill loads, relevant skills are discoverable using natural user wording, unrelated skills do not activate, and all four supported platforms expose equivalent metadata.",
+          "title": "Skill description consistency audit and optimization",
           "status": "idea",
           "plan": null
         },
@@ -244,6 +250,12 @@
           "id": "exemplar-source-pack-schema",
           "title": "Reusable report source provenance and verification",
           "description": "Extend the completed World Bank report-writing source-pack foundation into a reusable provenance and verification contract for high-stakes institutional claims. Preserve existing source identity, approval status, terminology dependencies, exact evidence paths, source hierarchy, citation placeholders, visible verification markers, and fixed validator artifacts. Add claim-to-source traceability, immutable or versioned source identity where available, retrieval and last-verified dates, source reachability checks where network policy permits, stale-source handling, explicit unavailable/unknown outcomes, and evidence that a cited source actually supports the attributed claim rather than merely having a valid URL or repository path. Define boundaries for public versus internal or restricted sources and prevent confidential claims or search terms from being sent to external services without approval. Integrate source verification into `cg-skill-wb-report-writing` and related writing workflows instead of adding a generic always-active verification agent. Distinguish source existence, source accessibility, citation correctness, factual support, and final human acceptance as separate states. Success means every material statistic, method, regulatory statement, or institutional claim can be traced to approved evidence with honest unresolved markers, while the system never invents sources, silently treats URL shape as factual verification, or exposes restricted material.",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "skill-description-length-cap",
+          "title": "Skill description length cap with test enforcement [from CE]",
           "status": "idea",
           "plan": null
         }
@@ -917,7 +929,7 @@
       "id": "token-optimization-model-governance",
       "title": "Token Optimization & Model Governance",
       "objective": "Reduce AI-credit cost and context burden by auditing token usage, defining model tiers with escalation rules, shrinking always-on context, splitting large prompts into thin entrypoints, adding stage-specific context contracts, and making review cheaper with deterministic pre-checks.",
-      "status": "planned",
+      "status": "in-progress",
       "features": [
         {
           "id": "token-audit-context-model",
@@ -993,6 +1005,20 @@
           "id": "token-optimization-compound",
           "title": "Capture the learning",
           "description": "After the optimization cycle is validated, capture the reusable lesson through the Compound GPID knowledge workflow. Produces: .cg-docs/solutions/ entry documenting the optimization pattern, updated Knowledge Brain artifacts, guidance for future prompt/agent/skill/model-governance changes.",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "cr-work-gpt-5-6-luna-model-governance",
+          "title": "Assign GPT-5.6 Luna to /cr-work with native-target governance",
+          "description": "Assign GPT-5.6 Luna to the canonical /cr-work prompt, register the research-execution role in model governance, generate target-appropriate Codex and Claude mappings while preserving OpenCode inheritance, and synchronize documentation and tests without changing other assignments.",
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-08-02-cr-work-gpt-5-6-luna-plan.md"
+        },
+        {
+          "id": "cr-prompt-model-catalog-baseline",
+          "title": "Baseline model-catalog coverage for remaining CR prompts",
+          "description": "Establish baseline model-catalog coverage for /cr-brainstorm, /cr-plan, /cr-review, and /cr-compound so the model audit distinguishes intentional existing CR catalog debt from new routing changes. This is separate from the current /cr-work GPT-5.6 Luna plan and covers catalog roles, documentation synchronization, and scoped audit coverage.",
           "status": "idea",
           "plan": null
         }

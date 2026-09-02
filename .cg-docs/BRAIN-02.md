@@ -1,11 +1,19 @@
 # 🧠 Project Brain — Part 2
 
-_Generated 2026-08-13_
+_Generated 2026-09-02_
 
 ## Roadmap.Json / Test Scenarios / Cg-Work _(continued from Part 1)_
 
-_Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 94 entities
+_Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 100 entities
 
+- **[Test the interface contract between chained prompts \(review -> fix-triage pipeline\)](.cg-docs/solutions/testing-patterns/2026-03-30-prompt-pipeline-contract-testing.md)** · `solution` · _—_ · `2026-03-30`
+  > When two prompts are designed to work in sequence — the OUTPUT of one prompt is the INPUT of a follow-up prompt — the…
+- **[Test prompt frontmatter tools: list to guard against silent write failures](.cg-docs/solutions/testing-patterns/2026-03-30-test-prompt-frontmatter-tools-list.md)** · `solution` · _—_ · `2026-03-30`
+  > VS Code Copilot prompt files support a `tools:` key in their YAML frontmatter that restricts which tools the agent ma…
+- **[Invoke-Pester on full test directory with -PassThru pipeline crashes VS Code](.cg-docs/solutions/testing-patterns/2026-04-02-invoke-pester-full-suite-passthru-crashes-vscode.md)** · `solution` · _—_ · `2026-04-02`
+  > VS Code crashes and requires a manual restart when the agent (or user) runs Pester against the entire `tests/` direct…
+- **[AI agent repeats Pester crash pattern despite documented rules — documentation alone is insufficient](.cg-docs/solutions/testing-patterns/2026-04-06-ai-agent-ignores-pester-rules-despite-documentation.md)** · `solution` · _—_ · `2026-04-06`
+  > VS Code was crashed **multiple times in a single session** by the AI agent running forbidden Pester patterns — even t…
 - **[Four Pester test quality patterns: shared helpers, anchored regex, non-empty value checks, and named-criteria guards](.cg-docs/solutions/testing-patterns/2026-04-07-pester-test-quality-patterns.md)** · `solution` · _—_ · `2026-04-07`
   > Surfaced during the 2026-04-07 model-audit light review (P1.1, P2.1, P3.1–P3.4). All four patterns apply broadly to a…
 - **[Cross-cutting enumeration propagation: quality gate inversion and the full-audit pattern](.cg-docs/solutions/testing-patterns/2026-04-08-cross-cutting-enumeration-propagation-audit.md)** · `solution` · _—_ · `2026-04-08`
@@ -70,6 +78,8 @@ _Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 94 entities
   > During fix-triage for the roadmap-visualization review, finding P2.15 required migrating `cg-ideate.prompt.md` to dis…
 - **[Pester write-guard regex with ^ always false without \(?m\) — silent false-positive](.cg-docs/solutions/testing-patterns/2026-05-06-pester-caret-anchor-requires-multiline-flag.md)** · `solution` · _—_ · `2026-05-06`
   > A write-guard test for `cg-roadmap-view.agent.md` was written as: This test **always passes** — not because the agent…
+- **[PS 5.1 `python -c` here-string unreliable — write temp .py file for Pester Python tests](.cg-docs/solutions/testing-patterns/2026-05-07-ps51-python-c-heredoc-unreliable-use-temp-file.md)** · `solution` · _—_ · `2026-05-07`
+  > Passing multi-line Python code to `python -c` via a PowerShell here-string (`@"..."@`) in Pester tests produces unrel…
 - **[Source-scanning regression guard for PowerShell scripting anti-patterns](.cg-docs/solutions/testing-patterns/2026-05-12-source-scanning-regression-guard-for-scripting-anti-patterns.md)** · `solution` · _—_ · `2026-05-12`
   > A scripting anti-pattern (`Read-Host ""`) was introduced during a feature addition to `scripts/link.ps1`. The anti-pa…
 - **[CI bypass flag pattern: \[switch\]$Force / --yes for interactive scripts](.cg-docs/solutions/testing-patterns/2026-05-13-ci-bypass-flag-force-yes-interactive-scripts.md)** · `solution` · _—_ · `2026-05-13`
@@ -146,6 +156,8 @@ _Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 94 entities
   > The Phase 1 World Bank report-writing skill shipped with a valid thin router, shared references, deterministic Python…
 - **[Positive validator fixtures must avoid placeholder evidence once validation tightens](.cg-docs/solutions/testing-patterns/2026-07-24-positive-validator-fixtures-must-avoid-placeholder-evidence.md)** · `solution` · _—_ · `2026-07-24`
   > The World Bank report-writing validator was tightened to reject placeholder hosts like `example.org` in approved sour…
+- **[Filesystem race fixes require handle-relative mutation and real boundary tests](.cg-docs/solutions/testing-patterns/2026-07-28-handle-relative-filesystem-mutations-and-real-boundary-tests.md)** · `solution` · _—_ · `2026-07-28`
+  > The native target generator validated destination ancestors, hashes, and ownership before writing or deleting generat…
 - **[Use Get-ToolsList helper over regex for YAML tools-array assertions](.cg-docs/solutions/testing-patterns/2026-07-29-get-toolslist-over-tools-regex.md)** · `solution` · _—_ · `2026-07-29`
   > Agent frontmatter files declare a `tools:` array. Tests often assert the presence or absence of specific tools using …
 - **[Guard Get-Frontmatter at Context scope to prevent silent test-block crashes](.cg-docs/solutions/testing-patterns/2026-07-29-pester-context-scope-frontmatter-guard.md)** · `solution` · _—_ · `2026-07-29`
@@ -200,7 +212,7 @@ _Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 94 entities
 _Keywords: `architecture research
 objective` · `workflow maturity
 objective` · `ongoing ideas
-objective`_ · 142 entities
+objective`_ · 145 entities
 
 - **[@cg-fix-problems agent \(auto-dispatched by /cg-work\)](roadmap.json#cg-fix-problems-agent)** · `feature` · _done_ · `—`
   > @cg-fix-problems agent (auto-dispatched by /cg-work)
@@ -240,8 +252,8 @@ objective`_ · 142 entities
   > R dialect skills architecture (collapse, data.table, tidyverse)
 - **[tidymodels addition to cg-skill-r-analytical](roadmap.json#tidymodels-addition)** · `feature` · _idea_ · `—`
   > tidymodels addition to cg-skill-r-analytical
-- **[Skill discovery metadata and trigger-quality audit](roadmap.json#skill-description-consistency-audit)** · `feature` · _idea_ · `—`
-  > Skill discovery metadata and trigger-quality audit
+- **[Skill description consistency audit and optimization](roadmap.json#skill-description-consistency-audit)** · `feature` · _idea_ · `—`
+  > Skill description consistency audit and optimization
 - **[Testing skill for Python \(pytest/parametrize/monkeypatch\)](roadmap.json#testing-skill-python)** · `feature` · _idea_ · `—`
   > Testing skill for Python (pytest/parametrize/monkeypatch)
 - **[Testing skill for Stata \(assert-based/reprun\)](roadmap.json#testing-skill-stata)** · `feature` · _done_ · `—`
@@ -254,6 +266,8 @@ objective`_ · 142 entities
   > Shared sensitive-data and output-hygiene contract
 - **[Reusable report source provenance and verification](roadmap.json#exemplar-source-pack-schema)** · `feature` · _idea_ · `—`
   > Reusable report source provenance and verification
+- **[Skill description length cap with test enforcement \[from CE\]](roadmap.json#skill-description-length-cap)** · `feature` · _idea_ · `—`
+  > Skill description length cap with test enforcement [from CE]
 - **[Slim project-specific copilot-instructions.md \(generated by cg-link/cg-setup\)](roadmap.json#slim-copilot-instructions)** · `feature` · _done_ · `—`
   > Slim project-specific copilot-instructions.md (generated by cg-link/cg-setup)
 - **[compound-gpid.context.md file and Step 0 integration in all prompts](roadmap.json#project-context-file)** · `feature` · _done_ · `—`
@@ -458,6 +472,10 @@ objective`_ · 142 entities
   > Benchmark before and after
 - **[Capture the learning](roadmap.json#token-optimization-compound)** · `feature` · _idea_ · `—`
   > Capture the learning
+- **[Assign GPT-5.6 Luna to /cr-work with native-target governance](roadmap.json#cr-work-gpt-5-6-luna-model-governance)** · `feature` · _done_ · `—`
+  > Assign GPT-5.6 Luna to /cr-work with native-target governance
+- **[Baseline model-catalog coverage for remaining CR prompts](roadmap.json#cr-prompt-model-catalog-baseline)** · `feature` · _idea_ · `—`
+  > Baseline model-catalog coverage for remaining CR prompts
 - **[Workflow suitability criteria and non-goals](roadmap.json#workflow-suitability-criteria)** · `feature` · _idea_ · `—`
   > Workflow suitability criteria and non-goals
 - **[Project scanner workflow-evidence analysis](roadmap.json#project-scanner-workflow-evidence)** · `feature` · _idea_ · `—`
@@ -490,7 +508,7 @@ objective`_ · 142 entities
 ## Expand Compound Research / Responsible Research Partner Objective / Research
 
 _Keywords: `expand compound research` · `responsible research partner
-objective` · `research`_ · 8 entities
+objective` · `research`_ · 9 entities
 
 - **[CR evidence and provenance spine with repo-local corpus default](roadmap.json#cr-evidence-provenance-spine)** · `feature` · _done_ · `—`
   > CR evidence and provenance spine with repo-local corpus default
@@ -508,19 +526,8 @@ objective` · `research`_ · 8 entities
   > Team-level evidence library
 - **[CR Local Evidence Workbench for Verifiable Research Claims](roadmap.json#cr-local-evidence-workbench-for-verifiable-research-claims)** · `feature` · _done_ · `—`
   > CR Local Evidence Workbench for Verifiable Research Claims
-
-## Tests / Filesystem / Python
-
-_Keywords: `tests` · `filesystem` · `python`_ · 4 entities
-
-- **[Secure publication and rollback must not clobber concurrent filesystem changes](.cg-docs/solutions/bugs/2026-08-01-secure-publication-rollback-must-not-clobber.md)** · `solution` · _—_ · `2026-08-01`
-  > The shared artifact and generated-target writer already pinned parent directories, but several operations could still…
-- **[httpx.AsyncClient requires ASGITransport for FastAPI async tests](.cg-docs/solutions/testing-patterns/2026-03-17-httpx-async-client-asgi-transport.md)** · `solution` · _—_ · `2026-03-17`
-  > FastAPI async endpoint tests using `httpx.AsyncClient(app=app, ...)` fail or emit deprecation warnings on httpx ≥ 0.2…
-- **[PS 5.1 `python -c` here-string unreliable — write temp .py file for Pester Python tests](.cg-docs/solutions/testing-patterns/2026-05-07-ps51-python-c-heredoc-unreliable-use-temp-file.md)** · `solution` · _—_ · `2026-05-07`
-  > Passing multi-line Python code to `python -c` via a PowerShell here-string (`@"..."@`) in Pester tests produces unrel…
-- **[Filesystem race fixes require handle-relative mutation and real boundary tests](.cg-docs/solutions/testing-patterns/2026-07-28-handle-relative-filesystem-mutations-and-real-boundary-tests.md)** · `solution` · _—_ · `2026-07-28`
-  > The native target generator validated destination ancestors, hashes, and ownership before writing or deleting generat…
+- **[Root-level c-research output workspace and migration](roadmap.json#root-level-c-research-output-workspace-and-migration)** · `feature` · _done_ · `—`
+  > Root-level c-research output workspace and migration
 
 ## Secure_Fs.Py / Validation / Parser.Py
 

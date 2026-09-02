@@ -283,4 +283,4 @@ presentation narrative is locked:
 - `ND-ai-knowledge-work-presentation-003`: comparison baseline used to explain
   progress and the future direction.
 
-See `.cg-docs/research/normative-decisions/ai-knowledge-work-presentation.md`.
+See `c-research/normative-decisions/ai-knowledge-work-presentation.md`.

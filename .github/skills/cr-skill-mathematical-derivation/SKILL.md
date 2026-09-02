@@ -204,7 +204,7 @@ conditions for MLE/GMM.
 
 ## 6. Code-Math Variable Mapping
 
-Every derivation file in `.cg-docs/research/derivations/` should include a
+Every derivation file in `c-research/derivations/` should include a
 variable mapping table linking math symbols to code variables. This is the
 primary input for `@cr-mathematical-verification`.
 
@@ -227,7 +227,7 @@ primary input for `@cr-mathematical-verification`.
 
 ## 7. Derivation File Organization
 
-Store derivations in `.cg-docs/research/derivations/`. Each file should:
+Store derivations in `c-research/derivations/`. Each file should:
 
 **Frontmatter**:
 ```yaml
@@ -262,6 +262,6 @@ See [Equation (3)](../derivations/wage-mle.md#eq:foc-beta) for the FOC.
 | Inconsistent notation across sections | Ambiguity; code-math mismatch | Use notation table at top of file |
 | Undocumented simplifications | e.g., "I dropped the constant" — silent change | Add footnote: "The term $C$ drops out because..." |
 | No variable mapping table | `@cr-mathematical-verification` cannot audit | Always include Section 6 table |
-| Writing derivations in comments only | Not searchable; no LaTeX rendering | Use `.cg-docs/research/derivations/` |
+| Writing derivations in comments only | Not searchable; no LaTeX rendering | Use `c-research/derivations/` |
 | Equations numbered "by feel" | Hard to cross-reference | Number only equations that are cited |
 | Mixing proof and implementation in same file | Hard to audit independently | Separate `.tex` derivation from `.R`/`.py` code |

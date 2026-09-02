@@ -58,7 +58,7 @@ The original source file is the authority.
 ## Provenance Ledger Schema
 
 Path:
-- `.cg-docs/research/evidence/provenance-ledger.yaml`
+- `c-research/evidence/provenance-ledger.yaml`
 
 Schema:
 ```yaml
@@ -69,7 +69,7 @@ sources:
     year: 2020
     origin: repo-local
     original_path: "data/refs/source.pdf"
-    converted_path: ".cg-docs/research/evidence/converted/source.md"
+    converted_path: "c-research/evidence/converted/source.md"
     conversion_tool: "markitdown@x.y"
     sha256: "<hash-of-original>"
     external_flag: false
@@ -83,7 +83,7 @@ Required fields: `id`, `origin`, `original_path`, `sha256`, `external_flag`.
 ## Claim-Evidence Matrix Schema
 
 Path:
-- `.cg-docs/research/evidence/claim-evidence-matrix.yaml`
+- `c-research/evidence/claim-evidence-matrix.yaml`
 
 Schema:
 ```yaml
@@ -148,9 +148,9 @@ Thorough:
 ## Artifact Layout
 
 Evidence artifacts live under:
-- `.cg-docs/research/evidence/provenance-ledger.yaml`
-- `.cg-docs/research/evidence/claim-evidence-matrix.yaml`
-- `.cg-docs/research/evidence/converted/`
+- `c-research/evidence/provenance-ledger.yaml`
+- `c-research/evidence/claim-evidence-matrix.yaml`
+- `c-research/evidence/converted/`
 
 Create directories on demand during `/cr-work` when absent.
 

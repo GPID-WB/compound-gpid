@@ -1,5 +1,5 @@
 {
-  "edge_count": 311,
+  "edge_count": 316,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -473,6 +473,18 @@
       "edge_type": "decided_from",
       "source": ".cg-docs/plans/2026-08-12-cr-local-evidence-workbench.md",
       "target": ".cg-docs/brainstorms/2026-08-12-cr-local-evidence-workbench.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-08-13-ai-knowledge-work-presentation-production.md",
+      "target": ".cg-docs/brainstorms/2026-08-13-ai-knowledge-work-presentation.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-09-02-c-research-output-workspace-migration.md",
+      "target": ".cg-docs/brainstorms/2026-09-02-c-research-artifact-boundary.md",
       "target_missing": false
     },
     {
@@ -1358,6 +1370,12 @@
       "target_missing": false
     },
     {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-09-02-c-research-output-workspace-migration-review.md",
+      "target": ".cg-docs/plans/2026-09-02-c-research-output-workspace-migration.md",
+      "target_missing": false
+    },
+    {
       "edge_type": "references",
       "source": ".cg-docs/solutions/environment-issues/2026-06-23-cross-agent-adapters-are-opt-in-source-packages.md",
       "target": ".cg-docs/plans/2026-06-23-cross-agent-packaging-adapters.md",
@@ -1863,8 +1881,20 @@
     },
     {
       "edge_type": "implements",
+      "source": ".cg-docs/plans/2026-08-02-cr-work-gpt-5-6-luna-plan.md",
+      "target": "roadmap.json#cr-work-gpt-5-6-luna-model-governance",
+      "target_missing": false
+    },
+    {
+      "edge_type": "implements",
       "source": ".cg-docs/plans/2026-08-12-cr-local-evidence-workbench.md",
       "target": "roadmap.json#cr-local-evidence-workbench-for-verifiable-research-claims",
+      "target_missing": false
+    },
+    {
+      "edge_type": "implements",
+      "source": ".cg-docs/plans/2026-09-02-c-research-output-workspace-migration.md",
+      "target": "roadmap.json#root-level-c-research-output-workspace-and-migration",
       "target_missing": false
     }
   ],
@@ -3443,6 +3473,100 @@
         "verifiable research claims",
         "world bank",
         "verification"
+      ]
+    },
+    {
+      "date": "2026-08-13",
+      "entity_type": "brainstorm",
+      "path": ".cg-docs/brainstorms/2026-08-13-ai-knowledge-work-presentation.md",
+      "slug": "2026-08-13-ai-knowledge-work-presentation",
+      "status": "decided",
+      "summary": "<!-- Created 2026-08-13. -->",
+      "tags": [
+        "ai",
+        "llms",
+        "knowledge-work",
+        "epistemology",
+        "evidence",
+        "provenance",
+        "ai-dqss",
+        "research-interface",
+        "presentation"
+      ],
+      "title": "AI and the Conditions for Verifiable Knowledge Work",
+      "top_keywords": [
+        "slide",
+        "appendix",
+        "compound research",
+        "concern",
+        "research",
+        "suggestions-for-cr.md",
+        "evidence",
+        "skill.md",
+        "readme.md",
+        "source"
+      ]
+    },
+    {
+      "date": "2026-08-26",
+      "entity_type": "brainstorm",
+      "path": ".cg-docs/brainstorms/2026-08-26-ai-knowledge-work-presentation-practitioner-tour.md",
+      "slug": "2026-08-26-ai-knowledge-work-presentation-practitioner-tour",
+      "status": "decided",
+      "summary": "<!-- Created 2026-08-26. -->",
+      "tags": [
+        "research",
+        "writing",
+        "presentation",
+        "ai",
+        "compound-research",
+        "poverty",
+        "inequality",
+        "welfare",
+        "evidence",
+        "provenance"
+      ],
+      "title": "AI and Research: A Practitioner Tour of the Compound Research Workflow",
+      "top_keywords": [
+        "research",
+        "/cr-brainstorm",
+        "cr",
+        "/cr-plan",
+        "research scoping",
+        "/cr-work",
+        "/cr-review",
+        "/cr-compound",
+        "practitioner tour",
+        "compound research workflow"
+      ]
+    },
+    {
+      "date": "2026-09-02",
+      "entity_type": "brainstorm",
+      "path": ".cg-docs/brainstorms/2026-09-02-c-research-artifact-boundary.md",
+      "slug": "2026-09-02-c-research-artifact-boundary",
+      "status": "decided",
+      "summary": "<!-- Valid status values: decided, in-progress, abandoned --> <!-- Created 2026-09-02. -->",
+      "tags": [
+        "compound-research",
+        "file-structure",
+        "artifact-boundary",
+        "module-activation",
+        "migration",
+        "research-outputs"
+      ],
+      "title": "Separate CR Research Outputs from Compound GPID Documentation",
+      "top_keywords": [
+        "c-research/",
+        "cr",
+        ".cg-docs/",
+        ".cg-docs/research/",
+        "approach",
+        "migration",
+        "canonical",
+        "relocation",
+        "data/",
+        "evidence-fixtures/"
       ]
     },
     {
@@ -6814,6 +6938,66 @@
         "verification",
         "tests",
         "browser"
+      ]
+    },
+    {
+      "date": "2026-08-13",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-08-13-ai-knowledge-work-presentation-production.md",
+      "slug": "2026-08-13-ai-knowledge-work-presentation-production",
+      "status": "active",
+      "summary": "<!-- Created 2026-08-13. -->",
+      "tags": [
+        "research",
+        "writing",
+        "presentation",
+        "ai",
+        "knowledge-work",
+        "evidence",
+        "provenance",
+        "ai-dqss"
+      ],
+      "title": "AI and the Conditions for Verifiable Knowledge Work Presentation",
+      "top_keywords": [
+        "suggestions-for-cr.md",
+        "get_errors",
+        "narrative",
+        ".cg-docs/research/manuscript/2026-08-13-ai-knowledge-work-presentation.md",
+        "2026-08-13-ai-knowledge-work-presentation.md",
+        "phase",
+        "roadmap.json",
+        "test scenarios",
+        "presentation",
+        "presentation/ai-knowledge-work-presentation.html"
+      ]
+    },
+    {
+      "date": "2026-09-02",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-09-02-c-research-output-workspace-migration.md",
+      "slug": "2026-09-02-c-research-output-workspace-migration",
+      "status": "completed",
+      "summary": "<!-- Created 2026-09-02. -->",
+      "tags": [
+        "compound-research",
+        "file-structure",
+        "artifact-boundary",
+        "module-activation",
+        "migration",
+        "research-outputs"
+      ],
+      "title": "Root-Level c-research Output Workspace and Migration",
+      "top_keywords": [
+        "c-research/",
+        ".cg-docs/",
+        ".cg-docs/research/",
+        "data/",
+        "cr",
+        "test scenarios",
+        "phase",
+        "migration",
+        "c-research/evidence/",
+        "readme.md"
       ]
     },
     {
@@ -10513,6 +10697,28 @@
       ]
     },
     {
+      "date": "2026-09-02",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-09-02-c-research-output-workspace-migration-review.md",
+      "slug": "2026-09-02-c-research-output-workspace-migration-review",
+      "status": "",
+      "summary": "**Review mode:** full",
+      "tags": [],
+      "title": "2026-09-02-c-research-output-workspace-migration-review",
+      "top_keywords": [
+        "scripts/cg_migrate_research_layout.py",
+        "cg_migrate_research_layout.py",
+        "roadmap.json",
+        "review",
+        "c-research/",
+        ".cg-docs/views/**",
+        ".cg-docs/",
+        "c-research/evidence",
+        ".cg-docs/research/",
+        "scripts/update.ps1"
+      ]
+    },
+    {
       "date": "2026-03-17",
       "entity_type": "solution",
       "path": ".cg-docs/solutions/bugs/2026-03-17-run-in-threadpool-does-not-bypass-gil.md",
@@ -12579,6 +12785,39 @@
         "--platforms kilo --yes",
         ".gitignore",
         "remove-item -recurse"
+      ]
+    },
+    {
+      "date": "2026-09-02",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/bugs/2026-09-02-c-research-migration-security-and-boundary.md",
+      "slug": "2026-09-02-c-research-migration-security-and-boundary",
+      "status": "",
+      "summary": "Moving Compound Research outputs from `.cg-docs/research/` to the root-level `c-research/` workspace exposed several correctness and safety failures: - A symlinked `.cg-docs/` ancestor could expose an external source tree to the migrator. - A dangling destination symlink could make `Path.exists()` return false and redirect an ordinary copy outside the repository. - `copy2()` followed by `unlink()` was vulnerable to destination races, source replacement, partial publication, and source loss after a concurrent change. - Apply mode could remove legacy files while live operational references still pointed at the old path. - Any regular file under an accepted legacy artifact directory could be moved,...",
+      "tags": [
+        "c-research",
+        "migration",
+        "filesystem",
+        "security",
+        "symlink",
+        "toctou",
+        "evidence",
+        "provenance",
+        "suites",
+        "generated-targets"
+      ],
+      "title": "Secure c-research migration and research-output boundary",
+      "top_keywords": [
+        "c-research/",
+        "migration",
+        "c-research",
+        ".cg-docs/",
+        "data/",
+        "boundary",
+        "evidence",
+        "secure",
+        "research-output",
+        "source"
       ]
     },
     {
@@ -16658,10 +16897,10 @@
         "filesystem",
         "tests",
         "mutation",
+        "handle-relative",
         "real",
         "boundary",
         "race",
-        "handle-relative",
         "fixes",
         "require",
         "root"
@@ -17474,6 +17713,28 @@
     {
       "date": "",
       "entity_type": "feature",
+      "path": "roadmap.json#root-level-c-research-output-workspace-and-migration",
+      "slug": "root-level-c-research-output-workspace-and-migration",
+      "status": "done",
+      "summary": "Root-level c-research output workspace and migration",
+      "tags": [],
+      "title": "Root-level c-research output workspace and migration",
+      "top_keywords": [
+        "responsible research partner\nobjective",
+        "expand compound research",
+        "root-level",
+        "c-research",
+        "workspace",
+        "migration",
+        "research",
+        "responsible",
+        "partner",
+        "feature"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
       "path": "roadmap.json#cg-fix-problems-agent",
       "slug": "cg-fix-problems-agent",
       "status": "done",
@@ -17895,16 +18156,16 @@
       "path": "roadmap.json#skill-description-consistency-audit",
       "slug": "skill-description-consistency-audit",
       "status": "idea",
-      "summary": "Skill discovery metadata and trigger-quality audit",
+      "summary": "Skill description consistency audit and optimization",
       "tags": [],
-      "title": "Skill discovery metadata and trigger-quality audit",
+      "title": "Skill description consistency audit and optimization",
       "top_keywords": [
         "skills enhancement\nobjective",
         "skill",
-        "discovery",
-        "metadata",
-        "trigger-quality",
+        "description",
+        "consistency",
         "audit",
+        "optimization",
         "skills",
         "feature",
         "milestone",
@@ -18041,6 +18302,28 @@
         "feature",
         "milestone",
         "enhancement"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#skill-description-length-cap",
+      "slug": "skill-description-length-cap",
+      "status": "idea",
+      "summary": "Skill description length cap with test enforcement [from CE]",
+      "tags": [],
+      "title": "Skill description length cap with test enforcement [from CE]",
+      "top_keywords": [
+        "skills enhancement\nobjective",
+        "skill",
+        "description",
+        "length",
+        "cap",
+        "test",
+        "enforcement",
+        "skills",
+        "feature",
+        "milestone"
       ]
     },
     {
@@ -20290,6 +20573,50 @@
     {
       "date": "",
       "entity_type": "feature",
+      "path": "roadmap.json#cr-work-gpt-5-6-luna-model-governance",
+      "slug": "cr-work-gpt-5-6-luna-model-governance",
+      "status": "done",
+      "summary": "Assign GPT-5.6 Luna to /cr-work with native-target governance",
+      "tags": [],
+      "title": "Assign GPT-5.6 Luna to /cr-work with native-target governance",
+      "top_keywords": [
+        "token optimization",
+        "model governance\nobjective",
+        "governance",
+        "assign",
+        "gpt-5",
+        "luna",
+        "cr-work",
+        "native-target",
+        "context",
+        "token"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#cr-prompt-model-catalog-baseline",
+      "slug": "cr-prompt-model-catalog-baseline",
+      "status": "idea",
+      "summary": "Baseline model-catalog coverage for remaining CR prompts",
+      "tags": [],
+      "title": "Baseline model-catalog coverage for remaining CR prompts",
+      "top_keywords": [
+        "token optimization",
+        "model governance\nobjective",
+        "prompts",
+        "baseline",
+        "model-catalog",
+        "coverage",
+        "remaining",
+        "context",
+        "token",
+        "model"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
       "path": "roadmap.json#workflow-suitability-criteria",
       "slug": "workflow-suitability-criteria",
       "status": "idea",
@@ -20596,13 +20923,13 @@
       ]
     }
   ],
-  "entity_count": 717,
-  "generated": "2026-08-13",
+  "entity_count": 728,
+  "generated": "2026-09-02",
   "schema_version": "0.2.0",
-  "topic_count": 5,
+  "topic_count": 4,
   "topics": [
     {
-      "entity_count": 508,
+      "entity_count": 516,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -20655,6 +20982,7 @@
         ".cg-docs/brainstorms/2026-08-02-completion-dossier-and-curated-artifact-themes.md",
         ".cg-docs/brainstorms/2026-08-02-cr-work-gpt-5-6-luna.md",
         ".cg-docs/brainstorms/2026-08-12-cr-local-evidence-workbench.md",
+        ".cg-docs/brainstorms/2026-09-02-c-research-artifact-boundary.md",
         ".cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-gsd-2-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-superpowers-full-review.md",
@@ -20769,6 +21097,7 @@
         ".cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline.md",
         ".cg-docs/plans/2026-08-12-cr-local-evidence-workbench-revised.md",
         ".cg-docs/plans/2026-08-12-cr-local-evidence-workbench.md",
+        ".cg-docs/plans/2026-09-02-c-research-output-workspace-migration.md",
         ".cg-docs/plans/phase2-model-governance-cleanup.md",
         ".cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md",
         ".cg-docs/reviews/2026-04-01-cg-strategy-and-roadmap-fix-review.md",
@@ -20921,6 +21250,7 @@
         ".cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review.md",
         ".cg-docs/reviews/2026-08-03-generic-markdown-reference-publishing-core-v2-verify-review.md",
         ".cg-docs/reviews/2026-08-11-kilo-agent-parsing-linker-copy-directory-review.md",
+        ".cg-docs/reviews/2026-09-02-c-research-output-workspace-migration-review.md",
         ".cg-docs/solutions/bugs/2026-03-18-broken-relative-links-in-nested-skill-files.md",
         ".cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md",
         ".cg-docs/solutions/bugs/2026-03-19-explicit-unpin-does-not-persist-missing-state-file-write.md",
@@ -20967,12 +21297,14 @@
         ".cg-docs/solutions/bugs/2026-06-12-roadmap-milestone-missing-objective-field.md",
         ".cg-docs/solutions/bugs/2026-06-25-install-self-copy-wrapper-crash.md",
         ".cg-docs/solutions/bugs/2026-07-16-update-legacy-profile-wrapper-remediation.md",
+        ".cg-docs/solutions/bugs/2026-08-01-secure-publication-rollback-must-not-clobber.md",
         ".cg-docs/solutions/bugs/2026-08-03-generic-publisher-secure-deletion-and-cross-platform-gates.md",
         ".cg-docs/solutions/bugs/2026-08-04-evidence-capture-axe-audit-call-site-wiring.md",
         ".cg-docs/solutions/bugs/2026-08-05-kilo-markdown-source-permission.md",
         ".cg-docs/solutions/bugs/2026-08-06-compound-gpid-local-md-gitignored-missing-in-worktrees.md",
         ".cg-docs/solutions/bugs/2026-08-10-typed-invalid-gh-cli-payloads-crash-exit-code-contract.md",
         ".cg-docs/solutions/bugs/2026-08-11-windows-link-kilo-copy-directory-parse-failure.md",
+        ".cg-docs/solutions/bugs/2026-09-02-c-research-migration-security-and-boundary.md",
         ".cg-docs/solutions/build-errors/2026-03-04-get-item-target-is-string-array.md",
         ".cg-docs/solutions/build-errors/2026-03-04-powershell-dollar-dollar-is-not-pid.md",
         ".cg-docs/solutions/build-errors/2026-03-13-backslash-quote-in-powershell-string-breaks-percent-operator.md",
@@ -21011,6 +21343,7 @@
         ".cg-docs/solutions/testing-patterns/2026-03-04-pester-3-vs-5-windows-compatibility.md",
         ".cg-docs/solutions/testing-patterns/2026-03-04-pester-testdrive-follows-junctions-freezes-vscode.md",
         ".cg-docs/solutions/testing-patterns/2026-03-13-regression-test-trycatch-guard-clm-environment.md",
+        ".cg-docs/solutions/testing-patterns/2026-03-17-httpx-async-client-asgi-transport.md",
         ".cg-docs/solutions/testing-patterns/2026-03-19-testing-powershell-switch-parameters.md",
         ".cg-docs/solutions/testing-patterns/2026-03-30-derived-invariant-validation-in-schema-tests.md",
         ".cg-docs/solutions/testing-patterns/2026-03-30-do-not-delegate-file-write-guardrail.md",
@@ -21050,6 +21383,7 @@
         ".cg-docs/solutions/testing-patterns/2026-05-06-cross-prompt-user-journey-must-be-validated-end-to-end.md",
         ".cg-docs/solutions/testing-patterns/2026-05-06-html-comment-as-fix-never-executed.md",
         ".cg-docs/solutions/testing-patterns/2026-05-06-pester-caret-anchor-requires-multiline-flag.md",
+        ".cg-docs/solutions/testing-patterns/2026-05-07-ps51-python-c-heredoc-unreliable-use-temp-file.md",
         ".cg-docs/solutions/testing-patterns/2026-05-12-source-scanning-regression-guard-for-scripting-anti-patterns.md",
         ".cg-docs/solutions/testing-patterns/2026-05-13-ci-bypass-flag-force-yes-interactive-scripts.md",
         ".cg-docs/solutions/testing-patterns/2026-05-13-cross-script-parity-tests-ps1-sh.md",
@@ -21088,6 +21422,7 @@
         ".cg-docs/solutions/testing-patterns/2026-06-23-token-dashboard-regression-check.md",
         ".cg-docs/solutions/testing-patterns/2026-07-24-cross-file-contract-state-must-align-docs-validator-tests.md",
         ".cg-docs/solutions/testing-patterns/2026-07-24-positive-validator-fixtures-must-avoid-placeholder-evidence.md",
+        ".cg-docs/solutions/testing-patterns/2026-07-28-handle-relative-filesystem-mutations-and-real-boundary-tests.md",
         ".cg-docs/solutions/testing-patterns/2026-07-29-get-toolslist-over-tools-regex.md",
         ".cg-docs/solutions/testing-patterns/2026-07-29-pester-context-scope-frontmatter-guard.md",
         ".cg-docs/solutions/testing-patterns/2026-07-30-review-routing-contract-changes-must-update-all-entry-points-and-coverage-layers.md",
@@ -21122,7 +21457,7 @@
       "slug": "roadmap-json-test-scenarios-cg-work"
     },
     {
-      "entity_count": 142,
+      "entity_count": 145,
       "entity_paths": [
         "roadmap.json#cg-fix-problems-agent",
         "roadmap.json#cg-fix-problems-prompt",
@@ -21150,6 +21485,7 @@
         "roadmap.json#skillopt-existing-skills-improvement",
         "roadmap.json#shared-writing-guardrails-contract",
         "roadmap.json#exemplar-source-pack-schema",
+        "roadmap.json#skill-description-length-cap",
         "roadmap.json#slim-copilot-instructions",
         "roadmap.json#project-context-file",
         "roadmap.json#cg-compound-context-enrichment",
@@ -21252,6 +21588,8 @@
         "roadmap.json#review-deterministic-first",
         "roadmap.json#token-benchmark-before-after",
         "roadmap.json#token-optimization-compound",
+        "roadmap.json#cr-work-gpt-5-6-luna-model-governance",
+        "roadmap.json#cr-prompt-model-catalog-baseline",
         "roadmap.json#workflow-suitability-criteria",
         "roadmap.json#project-scanner-workflow-evidence",
         "roadmap.json#compound-workflow-contract",
@@ -21276,7 +21614,7 @@
       "slug": "architecture-research-objective-workflow-maturity-objective-ongoing-ideas-objective"
     },
     {
-      "entity_count": 8,
+      "entity_count": 9,
       "entity_paths": [
         "roadmap.json#cr-evidence-provenance-spine",
         "roadmap.json#cr-measurement-classification-archetype",
@@ -21285,7 +21623,8 @@
         "roadmap.json#cr-responsible-lifecycle-method-packs",
         "roadmap.json#cr-second-measurement-use-case-validation",
         "roadmap.json#cr-team-evidence-library",
-        "roadmap.json#cr-local-evidence-workbench-for-verifiable-research-claims"
+        "roadmap.json#cr-local-evidence-workbench-for-verifiable-research-claims",
+        "roadmap.json#root-level-c-research-output-workspace-and-migration"
       ],
       "keywords": [
         "expand compound research",
@@ -21294,22 +21633,6 @@
       ],
       "label": "Expand Compound Research / Responsible Research Partner\nObjective / Research",
       "slug": "expand-compound-research-responsible-research-partner-objective-research"
-    },
-    {
-      "entity_count": 4,
-      "entity_paths": [
-        ".cg-docs/solutions/bugs/2026-08-01-secure-publication-rollback-must-not-clobber.md",
-        ".cg-docs/solutions/testing-patterns/2026-03-17-httpx-async-client-asgi-transport.md",
-        ".cg-docs/solutions/testing-patterns/2026-05-07-ps51-python-c-heredoc-unreliable-use-temp-file.md",
-        ".cg-docs/solutions/testing-patterns/2026-07-28-handle-relative-filesystem-mutations-and-real-boundary-tests.md"
-      ],
-      "keywords": [
-        "tests",
-        "filesystem",
-        "python"
-      ],
-      "label": "Tests / Filesystem / Python",
-      "slug": "tests-filesystem-python"
     },
     {
       "entity_count": 3,

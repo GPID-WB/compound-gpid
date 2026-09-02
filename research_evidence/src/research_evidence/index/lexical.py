@@ -8,6 +8,7 @@ import sqlite3
 import threading
 from typing import Optional
 
+from ..filesystem import validate_path_components
 from ..schemas import SourceUnit, TypedLocator
 
 _TOKEN_PATTERN = re.compile(r"[\w]+(?:[-'][\w]+)*", re.UNICODE)
@@ -43,7 +44,9 @@ class LexicalIndex:
             ``LexicalIndex(tmp_path / "index.sqlite")``.
         """
         self.path = Path(path)
-        self.path.parent.mkdir(parents=True, exist_ok=True)
+        self._validate_storage_path(create_parent=True)
+        if self.path.exists() and not self.path.is_file():
+            raise ValueError("Lexical index path must be a regular file.")
         self._lock = threading.RLock()
         self.connection = sqlite3.connect(self.path, check_same_thread=False)
         self.connection.execute("PRAGMA journal_mode=WAL")
@@ -84,6 +87,7 @@ class LexicalIndex:
             ``index.rebuild(parsed.units)`` creates a clean lexical baseline.
         """
         with self._lock:
+            self._validate_storage_path()
             self.connection.execute("DELETE FROM source_units")
             self.connection.execute("DELETE FROM source_units_fts")
             self._insert_units(units)
@@ -102,6 +106,7 @@ class LexicalIndex:
             ``index.upsert(changed_units)`` updates an incremental slice.
         """
         with self._lock:
+            self._validate_storage_path()
             self._insert_units(units)
             self.connection.commit()
 
@@ -119,6 +124,7 @@ class LexicalIndex:
             ``index.replace_units([old_id], [new_unit])`` updates one resource.
         """
         with self._lock:
+            self._validate_storage_path()
             self._remove_ids(old_source_unit_ids)
             self._insert_units(units)
             self.connection.commit()
@@ -136,6 +142,7 @@ class LexicalIndex:
             ``index.remove([deleted_unit_id])`` removes one deleted unit.
         """
         with self._lock:
+            self._validate_storage_path()
             self._remove_ids(source_unit_ids)
             self.connection.commit()
 
@@ -156,6 +163,7 @@ class LexicalIndex:
             ``index.search("weighted poverty")`` returns matching units.
         """
         with self._lock:
+            self._validate_storage_path()
             if limit <= 0:
                 raise ValueError("Search limit must be positive.")
             tokens = _TOKEN_PATTERN.findall(query)
@@ -191,6 +199,7 @@ class LexicalIndex:
             ``index.get("source-unit:...")`` retrieves source context.
         """
         with self._lock:
+            self._validate_storage_path()
             row = self.connection.execute(
                 """
                 SELECT source_version_id, locator_json, text, heading_path,
@@ -237,6 +246,7 @@ class LexicalIndex:
             ``index.metadata(unit_id)["review_required"]`` gates review display.
         """
         with self._lock:
+            self._validate_storage_path()
             row = self.connection.execute(
                 """
                 SELECT source_version_id, unit_type, review_required, parser_metadata_json
@@ -266,6 +276,7 @@ class LexicalIndex:
             ``index.manifest()["raw_text_logging"]`` is always ``False``.
         """
         with self._lock:
+            self._validate_storage_path()
             count = self.connection.execute("SELECT COUNT(*) FROM source_units").fetchone()[0]
         return {
             "schema_version": _INDEX_SCHEMA,
@@ -288,6 +299,17 @@ class LexicalIndex:
         """
         with self._lock:
             self.connection.close()
+
+    def _validate_storage_path(self, *, create_parent: bool = False) -> None:
+        """Validate the SQLite path immediately before filesystem use."""
+        try:
+            validate_path_components(self.path.parent)
+            if create_parent:
+                self.path.parent.mkdir(parents=True, exist_ok=True)
+            validate_path_components(self.path.parent, require_directory=True)
+            validate_path_components(self.path)
+        except OSError as error:
+            raise ValueError("Lexical index path contains an unsafe component.") from error
 
     def _ensure_schema(self) -> None:
         """Create the current derived schema or migrate an older Phase 1 schema."""

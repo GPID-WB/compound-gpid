@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from research_evidence.index.lexical import LexicalIndex
 from research_evidence.parsers.markdown import parse_markdown
 
@@ -33,3 +35,28 @@ def test_equal_lexical_results_use_source_unit_id_tie_breaking(tmp_path: Path) -
     second = [unit.source_unit_id for unit in index.search("Alpha")]
     assert first == second == sorted(first)
     index.close()
+
+
+def test_lexical_index_rejects_symlinked_parent(tmp_path: Path) -> None:
+    """Do not open a derived SQLite index through a linked directory."""
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    linked_parent = tmp_path / "index"
+    linked_parent.symlink_to(outside, target_is_directory=True)
+
+    with pytest.raises(ValueError, match="unsafe component"):
+        LexicalIndex(linked_parent / "lexical.sqlite")
+
+
+def test_lexical_index_rechecks_parent_before_operation(tmp_path: Path) -> None:
+    """Reject a parent replaced by a symlink after index construction."""
+    parent = tmp_path / "index"
+    index = LexicalIndex(parent / "lexical.sqlite")
+    index.close()
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    parent.rename(tmp_path / "index-original")
+    parent.symlink_to(outside, target_is_directory=True)
+
+    with pytest.raises(ValueError, match="unsafe component"):
+        index.manifest()

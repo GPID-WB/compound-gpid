@@ -11,6 +11,10 @@ import yaml
 
 from .transactions import ArtifactStore, TransactionResult
 
+SUPPORTED_LOCAL_EXTENSIONS = frozenset(
+    {".pdf", ".docx", ".md", ".markdown", ".tex", ".latex", ".html", ".htm"}
+)
+
 
 class MigrationDisposition(str, Enum):
     """Classify how one predecessor record is handled in v1.
@@ -58,13 +62,18 @@ class MigrationResult:
 
 def _safe_local_path(value: object, resources_root: Path) -> bool:
     """Return whether a legacy local path remains under the resource root."""
-    if not isinstance(value, str) or not value or "\\" in value:
+    if not isinstance(value, str) or not value or "\\" in value or "\x00" in value:
         return False
     path = PurePosixPath(value)
     if path.is_absolute() or ".." in path.parts:
         return False
-    candidate = (resources_root / path).resolve(strict=False)
-    return candidate.is_relative_to(resources_root.resolve())
+    candidate = resources_root / path
+    if candidate.is_symlink() or not candidate.is_file():
+        return False
+    if candidate.suffix.lower() not in SUPPORTED_LOCAL_EXTENSIONS:
+        return False
+    resolved = candidate.resolve(strict=True)
+    return resolved.is_relative_to(resources_root.resolve())
 
 
 def migrate_legacy_record(

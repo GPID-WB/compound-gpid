@@ -29,5 +29,8 @@ def _load_shared_secure_fs() -> ModuleType:
 _shared = _load_shared_secure_fs()
 ExpectedFileState: Any = _shared.ExpectedFileState
 SecureMutationError: Any = _shared.SecureMutationError
+supports_secure_dir_fd: Any = _shared.supports_secure_dir_fd
 secure_read_bytes: Any = _shared.secure_read_bytes
 secure_write_bytes: Any = _shared.secure_write_bytes
+open_relative_parent: Any = _shared.open_relative_parent
+validate_path_components: Any = _shared.validate_path_components

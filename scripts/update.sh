@@ -347,10 +347,11 @@ if [[ "$VERSION_MODE" == "latest" ]]; then
             print_green "Already up to date."
         fi
 
-        # --- Regenerate platform trees after pull (source repo only) ---
+        # --- Regenerate the shared all-suite platform baseline after pull ---
         # If this is the compound-gpid source repo, regenerate .claude/, .agents/,
-        # and .opencode/ from the updated .github/ canonical assets so linked
-        # consumer projects see fresh platform trees via their symlinks/junctions.
+        # and .opencode/ from the updated .github/ canonical assets. Linked
+        # consumer projects share this baseline; their suites: setting controls
+        # workflow eligibility and must not filter the global tree per consumer.
         TARGET_MAPPING="$COMPOUND_GPID_DIR/.github/shared/target-mapping.json"
         GENERATOR_SCRIPT="$COMPOUND_GPID_DIR/scripts/cg_generate_targets.py"
         if [[ ! -f "$TARGET_MAPPING" ]]; then
@@ -524,6 +525,22 @@ if [[ "${CG_INTERNAL_CALL:-}" != "1" ]] && \
     fi
 fi
 
+# Apply the research migration for native-target-only projects that do not have
+# a .github link. The structural block above handles linked projects.
+if [[ ! -d "$CWD_GITHUB" ]]; then
+    CWD_ROOT="$(pwd)"
+    LEGACY_RESEARCH_ROOT="$CWD_ROOT/.cg-docs/research"
+    RESEARCH_MIGRATION_SCRIPT="$COMPOUND_GPID_DIR/scripts/cg_migrate_research_layout.py"
+    if [[ -e "$LEGACY_RESEARCH_ROOT" || -L "$LEGACY_RESEARCH_ROOT" ]]; then
+        if [[ ! -f "$RESEARCH_MIGRATION_SCRIPT" ]]; then
+            print_error "Research-layout migration helper not found at: $RESEARCH_MIGRATION_SCRIPT"
+            exit 1
+        fi
+        print_gray "Migrating legacy CR research outputs to c-research/..."
+        "$PYTHON_CMD" "$RESEARCH_MIGRATION_SCRIPT" --root "$CWD_ROOT"
+    fi
+fi
+
 printf '\n'
 
 # ---------------------------------------------------------------------------
@@ -582,5 +599,21 @@ if [[ -d "$CWD_GITHUB" ]]; then
             rmdir "$OLD_DOCS_DIR"
             print_gray "Removed empty docs/ directory."
         fi
+    fi
+
+    # -----------------------------------------------------------------------
+    # Structural migration: legacy CR outputs -> c-research/
+    # -----------------------------------------------------------------------
+    # Use the shared Python helper so Windows and macOS apply the same
+    # conflict-safe, idempotent research-output migration.
+    LEGACY_RESEARCH_ROOT="$CWD_ROOT/.cg-docs/research"
+    RESEARCH_MIGRATION_SCRIPT="$COMPOUND_GPID_DIR/scripts/cg_migrate_research_layout.py"
+    if [[ -e "$LEGACY_RESEARCH_ROOT" || -L "$LEGACY_RESEARCH_ROOT" ]]; then
+        if [[ ! -f "$RESEARCH_MIGRATION_SCRIPT" ]]; then
+            print_error "Research-layout migration helper not found at: $RESEARCH_MIGRATION_SCRIPT"
+            exit 1
+        fi
+        print_gray "Migrating legacy CR research outputs to c-research/..."
+        "$PYTHON_CMD" "$RESEARCH_MIGRATION_SCRIPT" --root "$CWD_ROOT"
     fi
 fi

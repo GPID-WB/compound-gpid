@@ -7,13 +7,14 @@ from enum import Enum
 import hashlib
 import os
 from pathlib import Path
+import stat
 from typing import Iterable, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from .config import RuntimeSettings
 from .errors import PathPolicyError
-from .hashing import file_identity, sha256_file
+from .filesystem import secure_read_bytes
 
 SUPPORTED_RESOURCE_EXTENSIONS = frozenset(
     {".pdf", ".docx", ".md", ".markdown", ".tex", ".latex", ".html", ".htm"}
@@ -197,16 +198,21 @@ def _iter_entries(root: Path) -> Iterable[Path]:
 def _observe_file(path: Path, root: Path) -> ResourceObservation:
     """Hash and record one supported regular file."""
     relative_path = path.relative_to(root).as_posix()
-    metadata = path.stat()
-    identity = file_identity(path)
+    before = os.lstat(path)
+    if not stat.S_ISREG(before.st_mode) or stat.S_ISLNK(before.st_mode):
+        raise PathPolicyError(f"Resource must be a regular non-link file: {path}")
+    content = secure_read_bytes(root, relative_path, reject_hardlinks=True)
+    after = os.lstat(path)
+    if (before.st_dev, before.st_ino) != (after.st_dev, after.st_ino):
+        raise PathPolicyError(f"Resource changed during observation: {path}")
     return ResourceObservation(
         resource_id=_resource_id(relative_path),
         relative_path=relative_path,
-        sha256=sha256_file(path),
-        size=metadata.st_size,
-        mtime_ns=metadata.st_mtime_ns,
-        device=identity.device,
-        inode=identity.inode,
+        sha256=hashlib.sha256(content).hexdigest(),
+        size=after.st_size,
+        mtime_ns=after.st_mtime_ns,
+        device=after.st_dev,
+        inode=after.st_ino,
         suffix=path.suffix.lower(),
     )
 

@@ -57,7 +57,7 @@ runtime network access remains disabled.
 ## Dependency inventory
 
 Every package, parser, executable, model, and weight distribution is recorded in
-`.cg-docs/research/evidence/dependency-model-inventory.yaml` before activation.
+`c-research/evidence/dependency-model-inventory.yaml` before activation.
 Inventory entries disclose exact versions, source, license/access terms, network
 behavior, telemetry notes, platform support, enterprise-review status, rationale,
 and caveats. `candidate` and `blocked` entries cannot run. A restricted component
@@ -72,7 +72,7 @@ research_evidence/
 ├── src/research_evidence/
 └── tests/
 
-.cg-docs/research/evidence/
+c-research/evidence/
 ├── provenance-ledger.yaml
 ├── source-records.yaml
 ├── evidence-records.yaml

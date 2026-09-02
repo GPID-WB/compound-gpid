@@ -75,10 +75,10 @@ and continue.
      All *task-type-conditional* agents belong in Step 3 only. -->
 **Conditionally dispatch (file-presence)**:
 - **@cr-mathematical-verification** — symbolic checks against derivation files
-  (dispatch only if `.cg-docs/research/derivations/` contains `.tex` or `.md` files;
+  (dispatch only if `c-research/derivations/` contains `.tex` or `.md` files;
   if absent, skip and note: '@cr-mathematical-verification skipped — no derivation files found')
 - **@cr-provenance-audit** — source and citation provenance checks
-  (dispatch when `.cg-docs/research/evidence/` exists, or when task type is Writing
+  (dispatch when `c-research/evidence/` exists, or when task type is Writing
   or Tables/Figures; otherwise skip and note: '@cr-provenance-audit skipped — no evidence artifacts found')
 
 **Conditionally dispatch based on task type** (see Step 3 task-type table):
@@ -145,7 +145,7 @@ context-scan all reviewed files for `feols`, `ivreg`, `ivreghdfe`, `rdrobust`, `
 
 **Measurement dispatch scope (always applies)**: Dispatch `@cr-measurement-integrity`
 when task type is `Measurement/Classification`, or when reviewed/changed files
-intersect `.cg-docs/research/measurement/` or `.cg-docs/research/vintages/`.
+intersect `c-research/measurement/` or `c-research/vintages/`.
 Do not dispatch based only on repository-wide directory presence. If skipped,
 note: '@cr-measurement-integrity skipped — no measurement artifacts in scope'.
 
@@ -236,7 +236,7 @@ If no P0 errors are open AND the task type is Theory/Modeling or Implementation:
 
 ## Local Evidence Workbench Review Surface
 
-When `research_evidence/` or `.cg-docs/research/evidence/` is in scope, audit
+When `research_evidence/` or `c-research/evidence/` is in scope, audit
 the workbench boundary explicitly:
 
 - Confirm the configured corpus is repository-local and that no internet search,

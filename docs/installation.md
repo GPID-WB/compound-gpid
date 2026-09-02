@@ -124,9 +124,10 @@ and creates three config files:
 
 > **Suite selection**: `/cg-setup` records active suites in
 > `compound-gpid.local.md`. An absent `suites:` field defaults to `[cg]` for
-> backward compatibility. The generator filters each native tree to the active
-> suites, their transitive capability dependencies, and the kernel. See the
-> [Modular Guide](modular-guide.md).
+> backward compatibility. Linked projects share the global all-suite native
+> target baseline; `suites:` controls workflow eligibility and instruction-level
+> loading for that project. Maintainers can request an isolated filtered build
+> with `--active-suites`. See the [Modular Guide](modular-guide.md).
 
 ---
 

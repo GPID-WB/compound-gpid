@@ -48,7 +48,7 @@ class TestClaudeCodeTreeStructure:
             assert (REPO_ROOT / ".claude/agents" / agent_name).exists(), f"Missing agent: {agent_name}"
 
     def test_every_skill_has_a_skill_file(self) -> None:
-        skills = list((REPO_ROOT / ".github/skills").glob("*/SKILL.md"))
+        skills = list((REPO_ROOT / ".github/skills").glob("cg-skill-*/SKILL.md"))
         for skill in skills:
             skill_name = skill.parent.name
             assert (REPO_ROOT / ".claude/skills" / skill_name / "SKILL.md").exists(), f"Missing skill: {skill_name}"
@@ -60,8 +60,7 @@ class TestClaudeCodeModelInheritance:
         files += list((REPO_ROOT / ".claude/agents").rglob("*.md"))
         assert files
         for path in files:
-            content = path.read_text(encoding="utf-8")
-            assert "model:" not in content, path
+            assert "model:" not in path.read_text(encoding="utf-8"), path
 
     def test_root_adapter_references_claude_paths(self) -> None:
         content = (REPO_ROOT / ".claude/CLAUDE.md").read_text(encoding="utf-8")

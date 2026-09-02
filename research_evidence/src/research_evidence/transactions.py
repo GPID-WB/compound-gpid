@@ -4,7 +4,10 @@ from __future__ import annotations
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime, timezone
-import fcntl
+try:
+    import fcntl
+except ImportError:  # pragma: no cover - Windows uses the validated fallback.
+    fcntl = None
 import hashlib
 import json
 import os
@@ -14,7 +17,14 @@ import uuid
 
 import yaml
 
-from .filesystem import ExpectedFileState, secure_read_bytes, secure_write_bytes
+from .filesystem import (
+    ExpectedFileState,
+    open_relative_parent,
+    secure_read_bytes,
+    secure_write_bytes,
+    supports_secure_dir_fd,
+    validate_path_components,
+)
 from .schemas import canonical_yaml
 
 
@@ -110,7 +120,7 @@ class ArtifactStore:
         A store with journal and staging subdirectories.
 
     Example:
-        ``store = ArtifactStore(Path(".cg-docs/research/evidence"))``.
+        ``store = ArtifactStore(Path("c-research/evidence"))``.
     """
 
     def __init__(self, root: Path) -> None:
@@ -126,15 +136,33 @@ class ArtifactStore:
             ``ArtifactStore(tmp_path / "evidence")`` prepares a test store.
         """
         self.root = Path(root)
-        if self.root.exists() and self.root.is_symlink():
-            raise ValueError("Evidence root cannot be a symbolic link.")
-        self.root.mkdir(parents=True, exist_ok=True)
+        try:
+            validate_path_components(self.root)
+            self.root.mkdir(parents=True, exist_ok=True)
+            validate_path_components(self.root, require_directory=True)
+        except OSError as error:
+            raise ValueError("Evidence root and its ancestors must be regular directories.") from error
         self.journal_root = self.root / "runs" / "journal"
-        self.journal_root.mkdir(parents=True, exist_ok=True)
+        try:
+            validate_path_components(self.journal_root)
+            self.journal_root.mkdir(parents=True, exist_ok=True)
+            validate_path_components(self.journal_root, require_directory=True)
+        except OSError as error:
+            raise ValueError("Evidence journal path contains an unsafe component.") from error
         self.staging_root = self.journal_root / "staging"
-        self.staging_root.mkdir(parents=True, exist_ok=True)
+        try:
+            validate_path_components(self.staging_root)
+            self.staging_root.mkdir(parents=True, exist_ok=True)
+            validate_path_components(self.staging_root, require_directory=True)
+        except OSError as error:
+            raise ValueError("Evidence staging path contains an unsafe component.") from error
         self._lock_path = self.journal_root / ".lock"
         self._revision_path = self.root / ".revision"
+        try:
+            validate_path_components(self._lock_path)
+            validate_path_components(self._revision_path)
+        except OSError as error:
+            raise ValueError("Evidence state contains an unsafe path component.") from error
 
     def current_revision(self) -> int:
         """Read the current aggregate revision, defaulting to zero.
@@ -241,12 +269,31 @@ class ArtifactStore:
     @contextmanager
     def _exclusive_lock(self) -> Iterator[None]:
         """Hold the project evidence lock across one mutation or recovery."""
-        with self._lock_path.open("a+", encoding="ascii") as handle:
-            fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
+        if not supports_secure_dir_fd() or fcntl is None:
             try:
-                yield
-            finally:
-                fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+                validate_path_components(self._lock_path)
+                with self._lock_path.open("a+", encoding="ascii") as handle:
+                    yield
+            except OSError as error:
+                raise ValueError("Evidence lock path contains an unsafe component.") from error
+            return
+        relative = self._lock_path.relative_to(self.root).as_posix()
+        parent_fd, name = open_relative_parent(self.root, relative, create=True)
+        try:
+            lock_fd = os.open(
+                name,
+                os.O_RDWR | os.O_CREAT | getattr(os, "O_NOFOLLOW", 0),
+                0o600,
+                dir_fd=parent_fd,
+            )
+            with os.fdopen(lock_fd, "a+", encoding="ascii") as handle:
+                fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
+                try:
+                    yield
+                finally:
+                    fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+        finally:
+            os.close(parent_fd)
 
     def _write_atomic(self, path: Path, content: bytes) -> None:
         """Write bytes through the repository's handle-relative secure writer."""

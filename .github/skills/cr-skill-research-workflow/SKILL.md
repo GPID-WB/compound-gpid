@@ -3,7 +3,7 @@ name: cr-skill-research-workflow
 module: research
 description: "Overarching conventions for the compound-research workflow loop.
   Covers research task taxonomy (10 types), Research Integrity Priority System
-  (P0–P3), active P0 detection mechanisms, verification chain, .cg-docs/research/
+  (P0–P3), active P0 detection mechanisms, verification chain, c-research/
   layout, reasoning-trail documentation, and PhD student scaffolding conventions.
   ALWAYS load for any /cr-* command."
 ---
@@ -167,7 +167,7 @@ Before executing any code involving randomness, check for an explicit seed:
 **If missing**: halt, add seed, log seed value in the specification manifest.
 
 ### 2. Specification Logging
-When running estimation code, append to `.cg-docs/research/results/manifest.json`.
+When running estimation code, append to `c-research/results/manifest.json`.
 The file contains an array of objects — one entry per estimation run:
 ```json
 [
@@ -182,7 +182,7 @@ halt and resolve the path before writing the entry.
 **Idempotency**: check whether an entry with the same (`file`, `date`) already exists before
 appending. If it does, update it rather than creating a duplicate — prevents manifest pollution
 on re-runs.
-Create the file and `.cg-docs/research/results/` directory if absent.
+Create the file and `c-research/results/` directory if absent.
 This enables specification-search detection during review.
 
 <!-- The manifest schema above is mirrored in cr-work.prompt.md under
@@ -190,7 +190,7 @@ This enables specification-search detection during review.
 
 ### 3. Derivation Cross-Reference
 When implementing from a derivation, load the corresponding
-`.cg-docs/research/derivations/*.tex` or `.md` file and verify:
+`c-research/derivations/*.tex` or `.md` file and verify:
 - Variable names match between derivation and code
 - Functional forms are identical (not just equivalent)
 - Summation/integration limits match
@@ -215,10 +215,10 @@ When a causal identification strategy is claimed, check for the required diagnos
 
 ---
 
-## `.cg-docs/research/` Directory Layout
+## `c-research/` Directory Layout
 
 ```
-.cg-docs/research/
+c-research/
 ├── evidence/
 │   ├── provenance-ledger.yaml     # Source authority map + origin flags
 │   ├── claim-evidence-matrix.yaml # Claim verification matrix
@@ -233,7 +233,7 @@ When a causal identification strategy is claimed, check for the required diagnos
 ├── specifications/     # Spec memos: what models were tested and why
 ├── results/
 │   └── manifest.json  # Auto-appended by /cr-work on every estimation run
-├── manuscript/         # Working paper drafts, sections
+├── manuscripts/        # Working paper drafts, sections
 └── replication/        # Journal submission replication materials
 ```
 
@@ -245,7 +245,7 @@ Evidence corpus policy:
 ### Normative-Decision Entry Schema
 
 Per-study register path:
-- `.cg-docs/research/normative-decisions/<study-slug>.md`
+- `c-research/normative-decisions/<study-slug>.md`
 
 Entry template:
 ```markdown
@@ -262,7 +262,7 @@ Entry template:
 - decided_on: YYYY-MM-DD
 ```
 
-Created by `/cg-setup` when `modules:` includes `research`.
+Created by `/cg-setup` when `suites:` includes `cr`.
 
 ## Local Evidence Workbench Boundary
 
@@ -290,7 +290,7 @@ Every research artifact must record the *why*, not just the *what*:
 3. **Data decision**: Why this sample? What observations are excluded and why?
 4. **Specification choice**: If this specification was selected from alternatives, document the selection criterion.
 
-Use the `.cg-docs/research/specifications/` directory for decision memos.
+Use the `c-research/specifications/` directory for decision memos.
 
 ---
 

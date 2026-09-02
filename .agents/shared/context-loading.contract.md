@@ -34,10 +34,12 @@ skip it. For example, with `suites: [cg]` only, files owned by the research suit
 into routine sessions; the same applies to the technical suite when it is inactive.
 
 - Active suites plus their transitive dependencies plus kernel form the loadable set.
-- Generator-level filtering (a code-enforced, testable mechanism) is the enforceable
-  layer; this instruction-level rule is a compliance guideline for AI agents and is
-  NOT programmatically verifiable by automated tests. Do not claim automated
-  verification of this instruction.
+- Generator-level filtering is available as an explicit isolated-build option.
+	The linked native trees are shared all-suite distribution baselines, so
+	`cg-update` must not filter the global tree for one consumer. The project-level
+	`suites:` rule is an instruction/eligibility contract for AI agents and is NOT
+	programmatically verifiable by automated tests. Do not claim automated
+	verification of this instruction.
 - When `suites:` is absent, the default is `[cg]` (backward compatible).
 
 ## Artifact Rules

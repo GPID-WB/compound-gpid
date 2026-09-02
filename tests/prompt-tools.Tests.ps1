@@ -2626,6 +2626,27 @@ Describe "cg-setup.prompt.md - Mode B returning project" {
     }
 }
 
+Describe "cg-setup.prompt.md - active suite configuration" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-setup.prompt.md"
+    $templateFile = Join-Path $repoRoot ".github\prompts\setup-templates.md"
+    $promptContent = Get-Content $promptFile -Raw -Encoding UTF8
+    $templateContent = Get-Content $templateFile -Raw -Encoding UTF8
+
+    It "includes active suites in the local config template" {
+        ($templateContent -match '(?m)^suites:') | Should -Be $true
+    }
+
+    It "offers research-capable suite choices during setup" {
+        ($promptContent -match '(?i)active suites') | Should -Be $true
+        ($promptContent -match 'suites: \[cr\]') | Should -Be $true
+        ($promptContent -match 'suites: \[cg, cr\]') | Should -Be $true
+    }
+
+    It "allows returning projects to update active suites" {
+        ($promptContent -match '(?i)language, project type, or review depth.*active suites') | Should -Be $true
+    }
+}
+
 # ---------------------------------------------------------------------------
 # setup-templates.md - Charter Quality Gate section (Phase 2)
 # ---------------------------------------------------------------------------

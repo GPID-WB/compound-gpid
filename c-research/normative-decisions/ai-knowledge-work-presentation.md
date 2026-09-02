@@ -17,10 +17,10 @@ owner before the corresponding narrative is treated as approved.
 - study: ai-knowledge-work-presentation
 - plan: none (brainstorm)
 - applies_to:
-  - .cg-docs/research/scoping/ai-knowledge-work-presentation.md
+  - c-research/scoping/ai-knowledge-work-presentation.md
   - .cg-docs/brainstorms/2026-08-13-ai-knowledge-work-presentation.md
   - .cg-docs/plans/2026-08-13-ai-knowledge-work-presentation-production.md
-  - .cg-docs/research/manuscript/2026-08-13-ai-knowledge-work-presentation.md
+  - c-research/manuscripts/2026-08-13-ai-knowledge-work-presentation.md
   - presentation opening, epistemological-threats section, and conclusion
 - category: framing language for winners, losers, and burden allocation
 - choice: How should the presentation describe the risk created by LLMs and assign responsibility for managing it? This includes whether stochastic generation is presented as a direct epistemic threat, a shared workflow risk, or a condition whose consequences depend on controls around the model.
@@ -39,10 +39,10 @@ owner before the corresponding narrative is treated as approved.
 - study: ai-knowledge-work-presentation
 - plan: none (brainstorm)
 - applies_to:
-  - .cg-docs/research/scoping/ai-knowledge-work-presentation.md
+  - c-research/scoping/ai-knowledge-work-presentation.md
   - .cg-docs/brainstorms/2026-08-13-ai-knowledge-work-presentation.md
   - .cg-docs/plans/2026-08-13-ai-knowledge-work-presentation-production.md
-  - .cg-docs/research/manuscript/2026-08-13-ai-knowledge-work-presentation.md
+  - c-research/manuscripts/2026-08-13-ai-knowledge-work-presentation.md
   - slide narrative, technical lineage, and emailed version
 - category: uncertainty caveats foregrounded versus deferred
 - choice: How prominently should the presentation display limits on verification, lineage, model performance, generation repeatability, and the current implementation?
@@ -61,10 +61,10 @@ owner before the corresponding narrative is treated as approved.
 - study: ai-knowledge-work-presentation
 - plan: none (brainstorm)
 - applies_to:
-  - .cg-docs/research/scoping/ai-knowledge-work-presentation.md
+  - c-research/scoping/ai-knowledge-work-presentation.md
   - .cg-docs/brainstorms/2026-08-13-ai-knowledge-work-presentation.md
   - .cg-docs/plans/2026-08-13-ai-knowledge-work-presentation-production.md
-  - .cg-docs/research/manuscript/2026-08-13-ai-knowledge-work-presentation.md
+  - c-research/manuscripts/2026-08-13-ai-knowledge-work-presentation.md
   - technical lineage and future-directions section
 - category: comparison baseline chosen for narrative interpretation
 - choice: What should count as the main comparison when explaining the evolution and the next step?

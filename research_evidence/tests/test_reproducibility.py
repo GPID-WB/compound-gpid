@@ -22,7 +22,11 @@ def test_committed_reproducibility_manifest_matches_recomputed_result(tmp_path: 
         lockfile=Path(__file__).resolve().parents[1] / "uv.lock",
         output_dir=tmp_path,
     )
-    assert all(artifact[key] == value for key, value in expected.items())
+    deterministic_keys = set(expected) - {"environment"}
+    assert all(artifact[key] == expected[key] for key in deterministic_keys)
+    environment = artifact["environment"]
+    assert set(environment) == {"python", "os", "sqlite", "package_version"}
+    assert all(isinstance(value, str) and value for value in environment.values())
 
 
 def test_repeatability_manifest_compares_ids_rankings_yaml_and_lockfile(tmp_path: Path) -> None:

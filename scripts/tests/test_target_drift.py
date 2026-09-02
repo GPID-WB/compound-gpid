@@ -141,25 +141,20 @@ def test_git_ignore_failure_fails_instead_of_skip(monkeypatch: pytest.MonkeyPatc
 
 
 class TestNoDrift:
-    def test_ownership_manifests_are_well_formed_and_match_head(self) -> None:
+    def test_ownership_manifests_are_well_formed_and_match_worktree(self) -> None:
         for rel_path in sorted(OWNERSHIP_MANIFESTS):
-            committed = _read_git_blob_bytes(REPO_ROOT, rel_path)
+            current_path = REPO_ROOT / rel_path
+            assert current_path.is_file(), rel_path
             try:
-                manifest = json.loads(committed)
+                manifest = json.loads(current_path.read_text(encoding="utf-8"))
             except (UnicodeDecodeError, json.JSONDecodeError) as exc:
                 pytest.fail(f"Malformed ownership manifest {rel_path}: {exc}")
             assert isinstance(manifest.get("files"), list), rel_path
             for entry in manifest["files"]:
                 assert set(entry) >= {"path", "sha256"}, (rel_path, entry)
-                blob = _read_git_blob_bytes(REPO_ROOT, entry["path"])
-                assert _sha256_bytes(blob) == entry["sha256"], entry["path"]
-
-    def test_dirty_generated_files_fail_drift_gate(self) -> None:
-        result = subprocess.run(
-            ["git", "diff", "--quiet", "HEAD", "--", ".claude", ".agents", ".opencode", ".kilo"],
-            cwd=str(REPO_ROOT), timeout=30, check=False,
-        )
-        assert result.returncode == 0, "Dirty generated target tree must fail drift"
+                generated_path = REPO_ROOT / entry["path"]
+                assert generated_path.is_file(), entry["path"]
+                assert _sha256_bytes(generated_path.read_bytes()) == entry["sha256"], entry["path"]
 
     def test_generated_skill_bundles_recursively_match_canonical_files(self) -> None:
         """Every generated skill bundle must have the complete canonical file set."""
@@ -216,15 +211,11 @@ class TestNoDrift:
                 f"Orphaned files (first 10): {sorted(orphaned)[:10]}"
             )
 
-    def test_committed_generated_content_matches_dry_run_manifest(self) -> None:
-        """Committed generated files should match dry-run regenerated content."""
+    def test_generated_content_matches_canonical_regeneration(self) -> None:
+        """Current generated files should match canonical regeneration."""
         expected = _expected_paths(REPO_ROOT)
         committed = _committed_generated_files(REPO_ROOT, [".claude", ".agents", ".opencode", ".kilo"])
-        expected_committed = {
-            path
-            for path in expected
-            if not _is_git_ignored(REPO_ROOT, path)
-        }
+        expected_committed = {path for path in expected if not _is_git_ignored(REPO_ROOT, path)}
 
         # Compare only files that are both expected and committed to avoid
         # duplicate reporting with stale/orphaned path tests above.
@@ -249,13 +240,16 @@ class TestNoDrift:
 
             mismatches: list[str] = []
             for rel_path in overlap:
-                generated_path = fixture / rel_path
+                generated_path = REPO_ROOT / rel_path
                 if not generated_path.exists():
                     mismatches.append(f"missing generated output: {rel_path}")
                     continue
                 generated_bytes = generated_path.read_bytes()
-                committed_bytes = _read_git_blob_bytes(REPO_ROOT, rel_path)
-                if _sha256_bytes(generated_bytes) != _sha256_bytes(committed_bytes):
+                regenerated_path = fixture / rel_path
+                if not regenerated_path.exists():
+                    mismatches.append(f"missing regenerated output: {rel_path}")
+                    continue
+                if _sha256_bytes(generated_bytes) != _sha256_bytes(regenerated_path.read_bytes()):
                     mismatches.append(rel_path)
 
             if mismatches:

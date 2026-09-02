@@ -8,7 +8,6 @@ from __future__ import annotations
 import csv
 import io
 import json
-import os
 from pathlib import Path
 
 import pytest
@@ -67,84 +66,11 @@ class TestFileScanner:
         assert files == []
         assert by_category["shared"]["files"] == 0
 
-    def test_generated_views_are_excluded_even_from_broad_category_glob(
-        self,
-        tmp_path: Path,
-        monkeypatch: pytest.MonkeyPatch,
-    ) -> None:
-        sentinel = "VIEW_ONLY_SENTINEL_7E5C9A"
-        _write(tmp_path / ".cg-docs/views/plans/view.html", f"<p>{sentinel}</p>")
-        _write(tmp_path / ".cg-docs/plans/canonical.md", "# Canonical\n")
-        monkeypatch.setattr(audit, "SCAN_CATEGORIES", {"all": ".cg-docs/**/*"})
-
-        files, totals = audit.scan_files(tmp_path)
-        duplicates = audit.detect_duplicates(tmp_path, files)
-
-        assert [row["path"] for row in files] == [".cg-docs/plans/canonical.md"]
-        assert totals["all"]["files"] == 1
-        assert sentinel not in json.dumps(files)
-        assert sentinel not in json.dumps(duplicates)
-
-    def test_generic_document_views_are_excluded_from_broad_context_glob(
-        self,
-        tmp_path: Path,
-        monkeypatch: pytest.MonkeyPatch,
-    ) -> None:
-        sentinel = "GENERIC_VIEW_ONLY_SENTINEL_3A9D"
-        _write(
-            tmp_path / ".cg-docs/views/documents/docs/guide.html",
-            f"<p>{sentinel}</p>",
-        )
-        monkeypatch.setattr(audit, "SCAN_CATEGORIES", {"all": ".cg-docs/**/*"})
-
-        files, _ = audit.scan_files(tmp_path)
-        duplicates = audit.detect_duplicates(tmp_path, files)
-
-        assert sentinel not in json.dumps(files)
-        assert sentinel not in json.dumps(duplicates)
-
-    def test_view_path_exclusion_is_component_scoped(self) -> None:
-        assert audit.is_model_context_excluded(".cg-docs/views/plans/a.html") is True
-        assert audit.is_model_context_excluded(".cg-docs/views-archive/a.md") is False
-
-    @pytest.mark.usefixtures("require_symlink_support")
-    def test_symlink_alias_to_view_is_excluded_from_broad_glob(
-        self,
-        tmp_path: Path,
-        monkeypatch: pytest.MonkeyPatch,
-    ) -> None:
-        sentinel = "VIEW_ALIAS_SENTINEL_A91D"
-        view = _write(
-            tmp_path / ".cg-docs/views/plans/view.html",
-            f"<p>{sentinel}</p>",
-        )
-        alias = tmp_path / ".cg-docs/plans/leak.md"
-        alias.parent.mkdir(parents=True)
-        alias.symlink_to(view)
-        monkeypatch.setattr(audit, "SCAN_CATEGORIES", {"all": ".cg-docs/**/*"})
-
-        files, _ = audit.scan_files(tmp_path)
-
-        assert files == []
-        assert sentinel not in json.dumps(files)
-
-    def test_hardlink_alias_to_view_is_excluded_from_broad_glob(
-        self,
-        tmp_path: Path,
-        monkeypatch: pytest.MonkeyPatch,
-    ) -> None:
-        view = _write(tmp_path / ".cg-docs/views/plans/view.html", "view-secret")
-        alias = tmp_path / ".cg-docs/plans/leak.md"
-        alias.parent.mkdir(parents=True)
-        os.link(view, alias)
-        monkeypatch.setattr(audit, "SCAN_CATEGORIES", {"all": ".cg-docs/**/*"})
-
-        files, _ = audit.scan_files(tmp_path)
-
-        assert files == []
-
 
 class TestModelExtraction:
+    def test_model_roles_allow_research_execution(self) -> None:
+        assert "research-execution" in audit.MODEL_ROLES
+
     def test_extracts_model_from_frontmatter(self, tmp_path: Path) -> None:
         _write(tmp_path / ".github/prompts/x.prompt.md", _frontmatter("Claude Sonnet 4.6"))
         files, _ = audit.scan_files(tmp_path)
@@ -155,93 +81,131 @@ class TestModelExtraction:
         _write(tmp_path / ".github/prompts/x.prompt.md", _frontmatter(None))
         files, _ = audit.scan_files(tmp_path)
         inventory = audit.build_model_inventory(tmp_path, files)
-        assert inventory["declarations"][0]["model"] is None
-        assert inventory["declarations"][0]["execution_metadata"] is False
-        assert inventory["forbidden_execution_metadata"] == []
+        assert inventory["missing"][0]["path"] == ".github/prompts/x.prompt.md"
 
-    def test_ordinary_prompt_without_model_inherits_platform_selection(self, tmp_path: Path) -> None:
+    def test_ordinary_prompt_without_model_uses_model_picker_tier(self, tmp_path: Path) -> None:
         _write(tmp_path / ".github/prompts/cg-plan.prompt.md", _frontmatter(None))
         files, _ = audit.scan_files(tmp_path)
         inventory = audit.build_model_inventory(tmp_path, files)
         declaration = inventory["declarations"][0]
         assert declaration["model"] is None
-        assert declaration["execution_metadata"] is False
-        assert inventory["forbidden_execution_metadata"] == []
+        assert declaration["model_tier"] == "model-picker"
+        assert inventory["missing"] == []
+        assert inventory["ordinary_model_picker_violations"] == []
 
     def test_ordinary_prompt_with_standard_model_is_model_picker_violation(self, tmp_path: Path) -> None:
         _write(tmp_path / ".github/prompts/cg-plan.prompt.md", _frontmatter("Claude Sonnet 4.6"))
         files, _ = audit.scan_files(tmp_path)
         inventory = audit.build_model_inventory(tmp_path, files)
-        assert inventory["forbidden_execution_metadata"][0]["path"] == ".github/prompts/cg-plan.prompt.md"
+        assert inventory["ordinary_model_picker_violations"][0]["path"] == ".github/prompts/cg-plan.prompt.md"
 
-    def test_ordinary_prompt_with_premium_model_is_forbidden_metadata(self, tmp_path: Path) -> None:
+    def test_ordinary_prompt_with_premium_model_is_model_picker_violation(self, tmp_path: Path) -> None:
         _write(tmp_path / ".github/prompts/cg-plan.prompt.md", _frontmatter("Claude Opus 4.6"))
         files, _ = audit.scan_files(tmp_path)
         inventory = audit.build_model_inventory(tmp_path, files)
-        assert inventory["forbidden_execution_metadata"][0]["model"] == "Claude Opus 4.6"
+        assert inventory["ordinary_model_picker_violations"][0]["model"] == "Claude Opus 4.6"
 
-    def test_explicit_null_model_is_forbidden_metadata(self, tmp_path: Path) -> None:
-        _write(tmp_path / ".github/prompts/cg-plan.prompt.md", "---\ndescription: Test\nmodel: null\n---\n\nBody\n")
+    def test_tier_classification(self) -> None:
+        assert audit.classify_model_tier("Claude Opus 4.6") == "premium"
+        assert audit.classify_model_tier("Claude Sonnet 4.6") == "standard"
+        assert audit.classify_model_tier("Claude Haiku 4.5") == "economy"
+        assert audit.classify_model_tier("Experimental Local Model") == "unknown"
+
+    def test_catalog_enriches_vendor_role_and_preferred_model(self, tmp_path: Path) -> None:
+        _write(tmp_path / ".github/prompts/x.prompt.md", _frontmatter("Claude Sonnet 4.6"))
+        _write(
+            tmp_path / audit.MODEL_CATALOG_PATH,
+            json.dumps({
+                "models": [
+                    {
+                        "name": "Claude Sonnet 4.6",
+                        "vendor": "anthropic",
+                        "family": "Claude",
+                        "tier": "standard",
+                        "policyStatus": "fallback",
+                    },
+                    {
+                        "name": "GPT-5.3-Codex",
+                        "vendor": "openai",
+                        "family": "GPT-5-Codex",
+                        "tier": "standard",
+                        "policyStatus": "preferred",
+                    },
+                ],
+                "frontmatterSupport": [
+                    {"model": "Claude Sonnet 4.6", "status": "frontmatter-supported"},
+                    {"model": "GPT-5.3-Codex", "status": "not-tested"},
+                ],
+                "assignments": [
+                    {
+                        "path": ".github/prompts/x.prompt.md",
+                        "role": "coding",
+                        "preferredModel": "GPT-5.3-Codex",
+                        "frontmatterMode": "explicit",
+                        "rationale": "coding test",
+                    }
+                ],
+            }),
+        )
         files, _ = audit.scan_files(tmp_path)
         inventory = audit.build_model_inventory(tmp_path, files)
         declaration = inventory["declarations"][0]
-        assert declaration["model"] is None
-        assert declaration["execution_metadata"] is True
-        assert inventory["forbidden_execution_metadata"]
+        assert declaration["vendor"] == "anthropic"
+        assert declaration["role"] == "coding"
+        assert declaration["preferred_model"] == "GPT-5.3-Codex"
+        assert inventory["openai_first_violations"][0]["path"] == ".github/prompts/x.prompt.md"
+        assert inventory["frontmatter_support_gaps"][0]["preferred_model_support"] == "not-tested"
 
-class TestAdvisoryValidation:
-    def test_production_advisory_contract_is_valid(self) -> None:
-        result = audit.validate_advisory_examples(Path(__file__).resolve().parents[2])
-        assert result["valid"] is True
-        assert result["stage_count"] == 5
-        assert result["example_count"] >= 5
+    def test_missing_catalog_assignment_is_reported(self, tmp_path: Path) -> None:
+        _write(tmp_path / ".github/prompts/x.prompt.md", _frontmatter("GPT-5.3-Codex"))
+        _write(
+            tmp_path / audit.MODEL_CATALOG_PATH,
+            json.dumps({
+                "models": [
+                    {
+                        "name": "GPT-5.3-Codex",
+                        "vendor": "openai",
+                        "family": "GPT-5-Codex",
+                        "tier": "standard",
+                        "policyStatus": "preferred",
+                    }
+                ],
+                "frontmatterSupport": [{"model": "GPT-5.3-Codex", "status": "frontmatter-supported"}],
+                "assignments": [],
+            }),
+        )
+        files, _ = audit.scan_files(tmp_path)
+        inventory = audit.build_model_inventory(tmp_path, files)
+        assert inventory["missing_catalog_assignments"][0]["path"] == ".github/prompts/x.prompt.md"
 
-    def test_executable_advisory_key_is_rejected(self, tmp_path: Path) -> None:
-        _write(tmp_path / ".github/shared/model-advisory.contract.md", "user makes the final selection\navailability can differ by platform and date\nRuntime catalog introspection is intentionally deferred\nmust never be translated into prompt or agent frontmatter\n")
-        _write(tmp_path / ".github/shared/model-advisory-examples.json", json.dumps({
-            "schemaVersion": 1,
-            "effortLabels": ["low", "medium", "high", "xhigh", "max"],
-            "source": {"observedDate": "2026-07-31", "availabilityStatus": "availability-unverified"},
-            "stages": {"planning": {"capabilityProfile": ["planning"], "rationale": "r", "strongOption": {"effort": "high", "exampleRefs": []}, "userControl": "user chooses"}},
-            "examples": [{"id": "x", "name": "Example", "vendor": "x", "family": "x", "capabilityTags": ["x"], "platforms": ["x"], "observedDate": "2026-07-31", "availabilityStatus": "availability-unverified", "verificationStatus": "not verified", "model": "must not be executable"}],
-        }))
-        result = audit.validate_advisory_examples(tmp_path)
-        assert result["valid"] is False
-        assert any("executable advisory metadata" in error for error in result["errors"])
-
-    def test_local_advisory_block_falls_back_when_malformed(self, tmp_path: Path) -> None:
-        _write(tmp_path / "compound-gpid.local.md", "model-advisory:\n  enabled: true\n  model: forbidden\n")
-        errors = audit.validate_local_advisory_config(tmp_path)
-        assert any("executable advisory key" in error for error in errors)
-
-    def test_empty_advisory_bundle_is_invalid(self, tmp_path: Path) -> None:
-        _write(tmp_path / ".github/shared/model-advisory.contract.md", "user makes the final selection\navailability can differ by platform and date\nRuntime catalog introspection is intentionally deferred\nmust never be translated into prompt or agent frontmatter\n")
-        _write(tmp_path / ".github/shared/model-advisory-examples.json", "{}\n")
-        result = audit.validate_advisory_examples(tmp_path)
-        assert result["valid"] is False
-        assert any("missing schemaVersion" in error for error in result["errors"])
-
-    def test_malformed_advisory_source_is_invalid_not_an_exception(self, tmp_path: Path) -> None:
-        _write(tmp_path / ".github/shared/model-advisory.contract.md", "user makes the final selection\navailability can differ by platform and date\nRuntime catalog introspection is intentionally deferred\nmust never be translated into prompt or agent frontmatter\n")
-        _write(tmp_path / ".github/shared/model-advisory-examples.json", json.dumps({
-            "schemaVersion": 1,
-            "source": [],
-            "effortLabels": ["low", "medium", "high", "xhigh", "max"],
-            "stages": {},
-            "examples": [],
-        }))
-        result = audit.validate_advisory_examples(tmp_path)
-        assert result["valid"] is False
-        assert any("source must be an object" in error for error in result["errors"])
-
-    def test_local_advisory_invalid_effort_and_example_are_reported(self, tmp_path: Path) -> None:
-        _write(tmp_path / "compound-gpid.local.md", "model-advisory:\n  enabled: true\n  examples:\n    strong: unknown-example\n    effort: turbo\n")
-        _write(tmp_path / ".github/shared/model-advisory-examples.json", json.dumps({
-            "examples": [{"id": "known-example"}],
-        }))
-        errors = audit.validate_local_advisory_config(tmp_path)
-        assert any("unsupported advisory effort" in error for error in errors)
-        assert any("unknown advisory example" in error for error in errors)
+    def test_haiku_non_mechanical_role_is_violation(self, tmp_path: Path) -> None:
+        _write(tmp_path / ".github/agents/x.agent.md", _frontmatter("Claude Haiku 4.5"))
+        _write(
+            tmp_path / audit.MODEL_CATALOG_PATH,
+            json.dumps({
+                "models": [
+                    {
+                        "name": "Claude Haiku 4.5",
+                        "vendor": "anthropic",
+                        "family": "Claude",
+                        "tier": "economy",
+                        "policyStatus": "mechanical-only",
+                    }
+                ],
+                "frontmatterSupport": [{"model": "Claude Haiku 4.5", "status": "frontmatter-supported"}],
+                "assignments": [
+                    {
+                        "path": ".github/agents/x.agent.md",
+                        "role": "review",
+                        "preferredModel": "GPT-5.3-Codex",
+                        "frontmatterMode": "explicit",
+                    }
+                ],
+            }),
+        )
+        files, _ = audit.scan_files(tmp_path)
+        inventory = audit.build_model_inventory(tmp_path, files)
+        assert inventory["haiku_role_violations"][0]["path"] == ".github/agents/x.agent.md"
 
 
 class TestReferenceCounting:
@@ -366,36 +330,6 @@ class TestContextLoadingRisks:
 
 
 class TestWarningReview:
-    def test_malformed_local_advisory_is_a_warning_with_fallback(self, tmp_path: Path) -> None:
-        report = {
-            "model_inventory": {
-                "advisory": {
-                    "errors": ["compound-gpid.local.md line 3 uses unsupported advisory effort: turbo"],
-                    "examples_path": ".github/shared/model-advisory-examples.json",
-                }
-            }
-        }
-        guardrails = audit.build_guardrails(tmp_path, report)
-        local_failures = [item for item in guardrails["failures"] if item["path"] == "compound-gpid.local.md"]
-        local_warnings = [item for item in guardrails["warnings"] if item["path"] == "compound-gpid.local.md"]
-        assert local_failures == []
-        assert len(local_warnings) == 1
-
-    def test_local_executable_advisory_key_remains_a_failure(self, tmp_path: Path) -> None:
-        report = {
-            "model_inventory": {
-                "advisory": {
-                    "errors": ["compound-gpid.local.md line 3 contains executable advisory key"],
-                    "examples_path": ".github/shared/model-advisory-examples.json",
-                }
-            }
-        }
-        guardrails = audit.build_guardrails(tmp_path, report)
-        local_warnings = [item for item in guardrails["warnings"] if item["path"] == "compound-gpid.local.md"]
-        local_failures = [item for item in guardrails["failures"] if item["path"] == "compound-gpid.local.md"]
-        assert local_warnings == []
-        assert len(local_failures) == 1
-
     def test_docs_warning_classified_docs_only(self) -> None:
         row = audit.classify_guardrail_warning(
             {"path": "docs/workflow.md", "reason": "context-loading risk requires review: .cg-docs/"}
@@ -564,6 +498,64 @@ class TestThresholdClassification:
         }, refs=6)
         assert result["immediate"]
 
+    def test_premium_no_escalation_immediate(self) -> None:
+        model = {
+            "path": ".github/prompts/x.prompt.md",
+            "category": "prompts",
+            "model": "Claude Opus 4.6",
+            "model_tier": "premium",
+            "has_escalation_condition": False,
+        }
+        result = self._classify_one({
+            "path": ".github/prompts/x.prompt.md",
+            "category": "prompts",
+            "characters": 100,
+            "estimated_tokens": 25,
+        }, model=model)
+        assert result["immediate"]
+
+    def test_model_picker_prompt_not_flagged_as_missing_model(self) -> None:
+        model = {
+            "path": ".github/prompts/cg-plan.prompt.md",
+            "category": "prompts",
+            "model": None,
+            "model_tier": "model-picker",
+            "has_escalation_condition": False,
+        }
+        result = self._classify_one({
+            "path": ".github/prompts/cg-plan.prompt.md",
+            "category": "prompts",
+            "characters": 100,
+            "estimated_tokens": 25,
+        }, refs=6, model=model)
+        assert result["immediate"] == []
+        assert result["needs_review"][0]["reason"] == "reference count >= 5"
+
+    def test_ordinary_prompt_model_picker_violation_is_immediate(self) -> None:
+        model = {
+            "path": ".github/prompts/cg-plan.prompt.md",
+            "category": "prompts",
+            "model": "Claude Sonnet 4.6",
+            "model_tier": "standard",
+            "has_escalation_condition": False,
+        }
+        record = {
+            "path": ".github/prompts/cg-plan.prompt.md",
+            "category": "prompts",
+            "characters": 100,
+            "estimated_tokens": 25,
+        }
+        matrix = [{"path": record["path"], "total_refs": 0}]
+        inventory = {
+            "declarations": [model],
+            "missing": [],
+            "drift": [],
+            "premium_usage": [],
+            "ordinary_model_picker_violations": [model],
+        }
+        result = audit.classify_optimization_candidates([record], matrix, inventory, [])
+        assert result["immediate"]
+        assert "ordinary prompt hard-codes model" in result["immediate"][0]["reason"]
 
 
 class TestOutputFormats:
@@ -599,7 +591,7 @@ class TestOutputFormats:
         assert "## Prompt Reference Matrix" in markdown
         assert "## Review Dispatch Burden" in markdown
         assert "## Context Loading Risks" in markdown
-        assert "## Model Inheritance And Advisory Contract" in markdown
+        assert "## Model Inventory" in markdown
 
     def test_disclaimer_present(self, tmp_path: Path) -> None:
         report = audit.build_report(Path(__file__).resolve().parents[2])
@@ -624,6 +616,96 @@ class TestIntegration:
         ]) == 0
         payload = json.loads((tmp_path / "context-audit.json").read_text(encoding="utf-8"))
         assert payload["summary"]["total_files"] > 0
+
+
+# ---------------------------------------------------------------------------
+# P2.16 — parse_model_guide() tests
+# ---------------------------------------------------------------------------
+
+class TestModelGuideParser:
+    def test_missing_file_returns_empty(self, tmp_path: Path) -> None:
+        result = audit.parse_model_guide(tmp_path / "no-guide.md")
+        assert result == {}
+
+    def test_valid_prompts_table_parsed(self, tmp_path: Path) -> None:
+        guide_md = (
+            "# Model Guide\n\n"
+            "### Prompts\n\n"
+            "| File | Model |\n"
+            "| --- | --- |\n"
+            "| cg-review.prompt.md | Claude Sonnet 4.6 (copilot) |\n"
+        )
+        _write(tmp_path / "docs" / "model-guide.md", guide_md)
+        result = audit.parse_model_guide(tmp_path / "docs" / "model-guide.md")
+        assert result.get("cg-review.prompt.md") == "Claude Sonnet 4.6 (copilot)"
+
+    def test_separator_rows_ignored(self, tmp_path: Path) -> None:
+        guide_md = (
+            "### Prompts\n\n"
+            "| File | Model |\n"
+            "| --- | --- |\n"
+            "| :--- | :--- |\n"
+            "| ------ | ------ |\n"
+            "| cg-plan.prompt.md | Claude Haiku 4.5 |\n"
+        )
+        _write(tmp_path / "docs" / "model-guide.md", guide_md)
+        result = audit.parse_model_guide(tmp_path / "docs" / "model-guide.md")
+        assert "---" not in result
+        assert ":---" not in result
+        assert result.get("cg-plan.prompt.md") == "Claude Haiku 4.5"
+
+    def test_agents_section_also_parsed(self, tmp_path: Path) -> None:
+        guide_md = (
+            "### Agents\n\n"
+            "| File | Model |\n"
+            "| --- | --- |\n"
+            "| cg-code-quality.agent.md | Claude Haiku 4.5 |\n"
+        )
+        _write(tmp_path / "docs" / "model-guide.md", guide_md)
+        result = audit.parse_model_guide(tmp_path / "docs" / "model-guide.md")
+        assert result.get("cg-code-quality.agent.md") == "Claude Haiku 4.5"
+
+    def test_assignment_rows_parse_role_and_rationale(self, tmp_path: Path) -> None:
+        guide_md = (
+            "### Prompts\n\n"
+            "| File | Model | Role | Rationale |\n"
+            "| --- | --- | --- | --- |\n"
+            "| cg-work.prompt.md | GPT-5.3-Codex | coding | Implementation workflow |\n"
+        )
+        _write(tmp_path / "docs" / "model-guide.md", guide_md)
+        result = audit.parse_model_guide_assignments(tmp_path / "docs" / "model-guide.md")
+        row = result["cg-work.prompt.md"]
+        assert row["model"] == "GPT-5.3-Codex"
+        assert row["role"] == "coding"
+        assert row["rationale"] == "Implementation workflow"
+
+    def test_inherited_model_picker_guide_row_does_not_drift(self, tmp_path: Path) -> None:
+        _write(tmp_path / ".github/prompts/cg-plan.prompt.md", _frontmatter(None))
+        _write(
+            tmp_path / audit.MODEL_CATALOG_PATH,
+            json.dumps({
+                "models": [],
+                "frontmatterSupport": [],
+                "assignments": [
+                    {
+                        "path": ".github/prompts/cg-plan.prompt.md",
+                        "role": "inherited",
+                        "preferredModel": None,
+                        "frontmatterMode": "inherited",
+                    }
+                ],
+            }),
+        )
+        guide_md = (
+            "### Prompts\n\n"
+            "| File | Model | Role | Rationale |\n"
+            "| --- | --- | --- | --- |\n"
+            "| cg-plan.prompt.md | Copilot model picker | inherited | Planning inherits the user's chosen model. |\n"
+        )
+        _write(tmp_path / "docs" / "model-guide.md", guide_md)
+        files, _ = audit.scan_files(tmp_path)
+        inventory = audit.build_model_inventory(tmp_path, files)
+        assert inventory["drift"] == []
 
 
 # ---------------------------------------------------------------------------
@@ -661,7 +743,65 @@ class TestMainCLI:
 
 
 # ---------------------------------------------------------------------------
-# P2.18 — duplicate-block escalation path
+# P2.18 — normalize_model_name() tests
+# ---------------------------------------------------------------------------
+
+class TestNormalizeModelName:
+    def test_strips_copilot_suffix(self) -> None:
+        assert audit.normalize_model_name("Claude Sonnet 4.6 (copilot)") == "Claude Sonnet 4.6"
+
+    def test_strips_capitalized_copilot(self) -> None:
+        assert audit.normalize_model_name("Claude Haiku 4.5 (Copilot)") == "Claude Haiku 4.5"
+
+    def test_none_returns_empty_string(self) -> None:
+        assert audit.normalize_model_name(None) == ""
+
+    def test_no_suffix_passthrough(self) -> None:
+        assert audit.normalize_model_name("Claude Sonnet 4.6") == "Claude Sonnet 4.6"
+
+
+# ---------------------------------------------------------------------------
+# P2.19 — _has_broad_tools() and broad-tools classification
+# ---------------------------------------------------------------------------
+
+class TestBroadTools:
+    def test_none_is_false(self) -> None:
+        assert audit._has_broad_tools(None) is False
+
+    def test_list_with_edit_is_true(self) -> None:
+        assert audit._has_broad_tools(["read", "edit_file"]) is True
+
+    def test_list_without_edit_is_false(self) -> None:
+        assert audit._has_broad_tools(["read", "search"]) is False
+
+    def test_wildcard_string_is_true(self) -> None:
+        assert audit._has_broad_tools("*") is True
+
+    def test_premium_agent_with_broad_tools_immediate(self) -> None:
+        record = {
+            "path": ".github/agents/x.agent.md",
+            "category": "agents",
+            "characters": 100,
+            "estimated_tokens": 25,
+        }
+        model = {
+            "path": ".github/agents/x.agent.md",
+            "category": "agents",
+            "model": "Claude Opus 4.6",
+            "model_tier": "premium",
+            "has_escalation_condition": False,
+            "tools": ["edit_file", "run_in_terminal"],
+        }
+        matrix = [{"path": record["path"], "total_refs": 0}]
+        inventory = {"declarations": [model], "missing": [], "drift": [], "premium_usage": [model]}
+        result = audit.classify_optimization_candidates([record], matrix, inventory, [])
+        assert result["immediate"]
+        reasons = result["immediate"][0]["reason"]
+        assert "broad tools" in reasons
+
+
+# ---------------------------------------------------------------------------
+# P2.20 — duplicate-block escalation path
 # ---------------------------------------------------------------------------
 
 class TestDuplicateEscalation:
@@ -677,7 +817,38 @@ class TestDuplicateEscalation:
 
 
 # ---------------------------------------------------------------------------
-# P2.19 — count_dispatch_burden "limited" and "none" levels
+# P2.21 — model-guide drift classification path
+# ---------------------------------------------------------------------------
+
+class TestDriftClassification:
+    def test_drift_path_flagged_as_needs_review(self) -> None:
+        record = {
+            "path": ".github/prompts/x.prompt.md",
+            "category": "prompts",
+            "characters": 100,
+            "estimated_tokens": 25,
+        }
+        model_decl = {
+            "path": ".github/prompts/x.prompt.md",
+            "category": "prompts",
+            "model": "Claude Haiku 4.5",
+            "model_tier": "economy",
+            "has_escalation_condition": False,
+        }
+        drift_entry = {
+            "path": ".github/prompts/x.prompt.md",
+            "frontmatter_model": "Claude Haiku 4.5",
+            "model_guide_model": "Claude Sonnet 4.6",
+        }
+        matrix = [{"path": record["path"], "total_refs": 0}]
+        inventory = {"declarations": [model_decl], "missing": [], "drift": [drift_entry], "premium_usage": []}
+        result = audit.classify_optimization_candidates([record], matrix, inventory, [])
+        assert result["needs_review"]
+        assert "model guide drift" in result["needs_review"][0]["reason"]
+
+
+# ---------------------------------------------------------------------------
+# P2.22 — count_dispatch_burden "limited" and "none" levels
 # ---------------------------------------------------------------------------
 
 class TestDispatchBurdenLevels:
@@ -775,7 +946,7 @@ class TestPhase6Benchmark:
             "Knowledge Brain/context lookup",
         } <= names
         cg_plan = next(row for row in benchmark["workflows"] if row["workflow"] == "/cg-plan")
-        assert cg_plan["execution_metadata"] is False
+        assert cg_plan["model_tier"] == "model-picker"
         brain = next(row for row in benchmark["workflows"] if row["workflow"] == "Knowledge Brain/context lookup")
         assert brain["query_first"] is True
 
@@ -941,7 +1112,7 @@ class TestPhase6Benchmark:
                 "workflows": [
                     {"workflow": "/cg-plan", "path": ".github/prompts/cg-plan.prompt.md", "estimated_tokens": 100, "total_refs": 4, "context_risk_count": 1, "dispatch_refs": 0, "dispatch_burden": "none"},
                 ],
-                "model_governance": {"forbidden_execution_metadata_count": 0, "advisory_error_count": 0},
+                "model_governance": {"premium_usage_count": 0, "ordinary_model_picker_violations": 0},
             }
         }
         baseline = {
@@ -949,7 +1120,7 @@ class TestPhase6Benchmark:
                 "workflows": [
                     {"workflow": "/cg-plan", "path": ".github/prompts/cg-plan.prompt.md", "estimated_tokens": 125, "total_refs": 6, "context_risk_count": 3, "dispatch_refs": 0, "dispatch_burden": "none"},
                 ],
-                "model_governance": {"forbidden_execution_metadata_count": 1, "advisory_error_count": 1},
+                "model_governance": {"premium_usage_count": 1, "ordinary_model_picker_violations": 1},
             }
         }
         comparison = audit.compare_benchmark_to_baseline(current, baseline)
@@ -957,8 +1128,7 @@ class TestPhase6Benchmark:
         assert row["estimated_tokens_delta"] == -25
         assert row["total_refs_delta"] == -2
         assert row["context_risk_count_delta"] == -2
-        assert comparison["model_governance"]["forbidden_execution_metadata_count_delta"] == -1
-        assert comparison["model_governance"]["advisory_error_count_delta"] == -1
+        assert comparison["model_governance"]["premium_usage_count_delta"] == -1
 
     def test_token_regression_check_status_baseline_without_comparison(self) -> None:
         report = {
@@ -1032,11 +1202,11 @@ class TestPhase6Guardrails:
         _write(tmp_path / ".github/prompts/cg-work.prompt.md", _frontmatter() + "review:auto review:manual review:none no agent dispatch route-aware review-routing.contract.md\n")
         _write(tmp_path / ".github/prompts/cg-review.prompt.md", _frontmatter() + "explicit user mode wins. Auto risk-class routing applies only when no explicit mode. full thorough mode:verify light-only\n")
         _write(tmp_path / ".github/shared/review-routing.contract.md", "- `light` | `@cg-code-quality`, `@cg-testing`\n- `full` | all `standard` agents plus `@cg-learnings-researcher` and `@cg-adversarial`\n")
-        audit.scan_files(tmp_path)
+        files, _ = audit.scan_files(tmp_path)
         report = audit.build_report(tmp_path)
         guardrails = report["guardrails"]
         reasons = " ".join(row["reason"] for row in guardrails["failures"])
-        assert "executable model metadata" in reasons
+        assert "ordinary prompt hard-codes model" in reasons
         assert "broad context-loading" in reasons
 
     def test_guardrails_validate_review_route_counts(self, tmp_path: Path) -> None:

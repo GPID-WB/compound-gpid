@@ -13,11 +13,13 @@ You are configuring Compound GPID for this project. You help the user set langua
 - You may create or overwrite `compound-gpid.md` in the project root.
 - You may create `compound-gpid.context.md` in the project root.
 - You may create `roadmap.json` in the project root.
-- You may create new files and directories under `.cg-docs/`.
+- You may create new files and directories under `.cg-docs/`, and under the
+  project-root `c-research/` output workspace when the `cr` suite is active.
 - You may append lines to `.Rbuildignore`.
 - You may remove an uncommented `compound-gpid.local.md` rule from `.gitignore`; no other `.gitignore` change is permitted.
 - You must not modify any other existing file.
-- You must not create files outside the project root or `.cg-docs/`.
+- You must not create files outside the project root, `.cg-docs/`, or the
+  conditionally active `c-research/` output workspace.
 
 ## Process
 
@@ -93,7 +95,7 @@ If `compound-gpid.context.md` does not exist: > "Folder descriptions cannot be s
 
 #### A5. Scaffold `.cg-docs/` structure
 
-Using the **.cg-docs/ Directory Scaffold** from `setup-templates.md`, create the listed directories and `.gitkeep` files if they do not already exist.
+Using the **.cg-docs/ Directory Scaffold** from `setup-templates.md`, create the listed directories and `.gitkeep` files if they do not already exist. If `suites:` includes `cr`, also create the root-level `c-research/` scaffold from the **c-research Directory Scaffold**. Never place data or source inputs in that scaffold.
 
 #### A5.5. Keep `compound-gpid.local.md` version-controlled
 
@@ -262,6 +264,17 @@ If the user selects **R**, **Both**, or **All**: ask a follow-up before Question
 > 2. **Standard** — All 8 review agents. Best for most work. *(recommended)*
 > 3. **Thorough** — All 8 agents + cross-referencing past learnings. Best for major features.
 
+**Question 3.5 — Active suites**
+
+> Which workflow suites should this project activate?
+>
+> 1. **Technical only** — `suites: [cg]` (default)
+> 2. **Research only** — `suites: [cr]`
+> 3. **Technical + research** — `suites: [cg, cr]`
+
+The `cr` choice controls creation of the root-level `c-research/` research
+output workspace. It does not move or create project data.
+
 **(Full fallback only — skip this write if entering at Q4)** Write `compound-gpid.local.md` using the **compound-gpid.local.md Template** from `setup-templates.md`.
 
 The template may include the optional `model-advisory` block. Explain that it
@@ -310,7 +323,7 @@ including the `compound-gpid.context.md` template. Continue silently.
 
 #### B1. Read existing config
 
-Read `compound-gpid.local.md` and report current settings (language, project type, review depth).
+Read `compound-gpid.local.md` and report current settings (language, project type, review depth, and active suites).
 
 #### B1.1. Read project charter
 
@@ -355,7 +368,7 @@ If `<folder>/_wiki.yml` exists: skip silently.
 
 #### B1.2. Scaffold any missing `.cg-docs/` directories
 
-Using the **Mode B: Missing Directories Scaffold** from `setup-templates.md`, create any missing directories (with `.gitkeep`), without touching existing files.
+Using the **Mode B: Missing Directories Scaffold** from `setup-templates.md`, create any missing directories (with `.gitkeep`), without touching existing files. When `suites:` includes `cr`, also create any missing root-level `c-research/` artifact directories. If `cr` is not active, do not create new research directories; never delete an existing `c-research/` workspace.
 
 #### B1.2.5. Check for `roadmap.json`
 
@@ -387,9 +400,9 @@ If blockers were found and fixed in this step (the charter was rewritten), skip 
 
 Ask:
 
-> Would you like to update any configuration (language, project type, or review depth)?
+> Would you like to update any configuration (language, project type, or review depth, and active suites)?
 
-- If yes: ask the relevant questions (only those the user wants to change). Before rewriting `compound-gpid.local.md`, read the existing file and carry forward the `cg-schema-version` value unchanged. Only update the fields the user requested to change. Then rewrite `compound-gpid.local.md`.
+- If yes: ask the relevant questions (only those the user wants to change). Before rewriting `compound-gpid.local.md`, read the existing file and carry forward the `cg-schema-version` value unchanged. Only update the fields the user requested to change. Then rewrite `compound-gpid.local.md`. If active suites change, scaffold newly enabled `c-research/` directories but never delete an existing research workspace when `cr` is disabled.
 - If no: continue to B4.5.
 
 #### B4.5. Offer to update project charter

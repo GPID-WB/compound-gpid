@@ -218,7 +218,12 @@ class RetrievalProfileRegistry(BaseModel):
             raise ProfileUnavailableError(f"retrieval profile {profile_id!r} has no model cache")
         root = Path(project_root).resolve()
         if inventory is None:
-            inventory_path = root / ".cg-docs" / "research" / "evidence" / "dependency-model-inventory.yaml"
+            inventory_path = (
+                root
+                / "c-research"
+                / "evidence"
+                / "dependency-model-inventory.yaml"
+            )
             try:
                 inventory = load_inventory(inventory_path)
             except (InventoryValidationError, OSError) as error:

@@ -34,8 +34,9 @@ Compound GPID uses a **global clone + per-project junction** model on Windows:
 | Path | Purpose | Committed? |
 |------|---------|-----------|
 | `compound-gpid.md` | Project charter: objectives, deliverables, constraints, current focus | Yes |
-| `compound-gpid.local.md` | Per-user config: language, review depth | No (gitignored) |
+| `compound-gpid.local.md` | Shared config: language, review depth, and active suites | Yes (committed) |
 | `.cg-docs/` | Brainstorms, plans, captured solutions | Yes |
+| `c-research/` | Root-level CR research outputs, created when `cr` is active | Yes |
 | `roadmap.json` | Milestone/feature tracking (future) | Yes |
 
 ## Optional Model Advisory Preferences
@@ -172,9 +173,13 @@ If the `.cg-docs/` directory doesn't exist, create the full structure:
         └── .gitkeep
 ```
 
-If the research suite is enabled (`suites:` includes `cr`), also create the
-research directories under `.cg-docs/research/` (for example,
-`derivations/`, `specifications/`, and implementation artifacts).
+If the research suite is enabled (`suites:` includes `cr`), create the
+root-level `c-research/` artifact-type directories (`evidence/`,
+`manuscripts/`, `normative-decisions/`, `scoping/`, `derivations/`,
+`specifications/`, `results/`, `replication/`, `eda/`, `measurement/`, and
+`vintages/`). These are research outputs only; keep data and other inputs
+outside the tree. If `cr` is disabled later, preserve an existing
+`c-research/` workspace and its contents.
 
 ### Step 6: Confirm
 
