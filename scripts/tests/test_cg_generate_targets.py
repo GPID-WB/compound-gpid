@@ -8,6 +8,7 @@ from __future__ import annotations
 import json
 import hashlib
 import os
+from collections import Counter
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -119,6 +120,66 @@ def _make_fixture_repo(tmp_path: Path) -> Path:
     return root
 
 
+def _install_fixture_registry(root: Path) -> Path:
+    """Add a minimal registry that owns the fixture skill bundle."""
+    return _write(
+        root / gen.MODULE_REGISTRY_PATH,
+        json.dumps({
+            "schemaVersion": 1,
+            "description": "fixture registry",
+            "modules": [{
+                "id": "kernel",
+                "layer": "kernel",
+                "displayName": "Kernel",
+                "description": "fixture",
+                "dependsOn": [],
+                "ownedAssets": [".github/skills/cg-skill-test/"],
+            }],
+        }),
+    )
+
+
+_CANONICAL_SECURITY_CASES = (
+    ("prompt", ".github/prompts/cg-test.prompt.md"),
+    ("agent", ".github/agents/cg-test-agent.agent.md"),
+    ("skill", ".github/skills/cg-skill-test/SKILL.md"),
+    ("instruction", ".github/instructions/python.instructions.md"),
+    ("module registry", gen.MODULE_REGISTRY_PATH),
+    ("target mapping", gen.TARGET_MAPPING_PATH),
+)
+
+
+def _read_security_case(root: Path, case: str) -> str:
+    """Read one canonical class through its production generator boundary."""
+    if case == "module registry":
+        registry = gen._load_module_registry(root)  # pylint: disable=protected-access
+        assert registry is not None
+        return str(registry["description"])
+    if case == "target mapping":
+        return str(gen.load_target_mapping(root)["description"])
+    if case == "skill":
+        files = gen._inventory_skill_bundle(  # pylint: disable=protected-access
+            root,
+            root / ".github/skills/cg-skill-test",
+        )
+        skill = next(
+            item for item in files if item["bundle_relative_path"] == "SKILL.md"
+        )
+        return skill["content"].decode("utf-8")
+    assets = gen.scan_canonical_assets(root)
+    category = {
+        "prompt": "prompts",
+        "agent": "agents",
+        "instruction": "instructions",
+    }[case]
+    relative_path = dict(_CANONICAL_SECURITY_CASES)[case]
+    asset = next(
+        item for item in assets[category]
+        if item["relative_path"] == relative_path
+    )
+    return str(asset["body"])
+
+
 class TestScanCanonicalAssets:
     @pytest.mark.parametrize(
         "value",
@@ -185,7 +246,7 @@ class TestScanCanonicalAssets:
         self, tmp_path: Path
     ) -> None:
         root = _make_fixture_repo(tmp_path)
-        contract_source = _write(
+        _write(
             root / ".github/shared/skill-management/contracts/common.json",
             '{"kind":"contract"}\n',
         )
@@ -215,7 +276,7 @@ class TestScanCanonicalAssets:
             }
             contract = f"{shared_root}/skill-management/contracts/common.json"
             operation = f"{shared_root}/skill-management/operations/common.json"
-            assert entries[contract].content == contract_source.read_bytes()
+            assert entries[contract].content == b'{"kind":"contract"}\n'
             operation_text = entries[operation].content.decode("utf-8")
             assert f'{shared_root}/skill-management/contracts/common.json' in operation_text
             skill_root = {
@@ -350,6 +411,217 @@ class TestScanCanonicalAssets:
             ".github/skills/example/scripts/run.sh"
         }
         assert len(calls) == 2
+
+
+class TestCanonicalCaptureSecurity:
+    def test_captured_text_is_lf_normalized_and_binary_resource_is_exact(
+        self,
+        tmp_path: Path,
+    ) -> None:
+        root = _make_fixture_repo(tmp_path)
+        _install_fixture_registry(root)
+        text_paths = (
+            ".github/prompts/cg-test.prompt.md",
+            ".github/agents/cg-test-agent.agent.md",
+            ".github/skills/cg-skill-test/SKILL.md",
+            ".github/instructions/python.instructions.md",
+            ".github/shared/runtime-contract.md",
+            gen.TARGET_MAPPING_PATH,
+        )
+        for relative_path in text_paths:
+            path = root / relative_path
+            content = path.read_bytes().replace(b"\r\n", b"\n")
+            path.write_bytes(content.replace(b"\n", b"\r\n") + b"\r\n")
+        binary = b"\x00\xff\r\n\xfeopaque\rbytes"
+        binary_path = root / ".github/skills/cg-skill-test/assets/blob.bin"
+        binary_path.parent.mkdir(parents=True)
+        binary_path.write_bytes(binary)
+
+        mapping, assets = gen.load_generation_inputs(root)
+        plan = gen.build_generation_plan(root, mapping, assets)
+        entries = plan.by_target["kilo"].entries
+
+        for relative_path in text_paths:
+            entry = next(item for item in entries if item.source == relative_path)
+            assert b"\r" not in entry.content
+            assert entry.sha256 == hashlib.sha256(entry.content).hexdigest()
+        binary_entry = next(
+            item for item in entries
+            if item.source == ".github/skills/cg-skill-test/assets/blob.bin"
+        )
+        assert binary_entry.content == binary
+        assert binary_entry.sha256 == hashlib.sha256(binary).hexdigest()
+
+    @pytest.mark.parametrize(("case", "relative_path"), _CANONICAL_SECURITY_CASES)
+    def test_leaf_replacement_after_capture_cannot_change_parsed_bytes(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        case: str,
+        relative_path: str,
+    ) -> None:
+        root = _make_fixture_repo(tmp_path)
+        _install_fixture_registry(root)
+        target = root / relative_path
+        marker = f"POST-CAPTURE-{case}"
+        original = gen.secure_fs.secure_read_bytes
+        swapped = False
+
+        def capture_then_swap(read_root, read_relative, **kwargs):
+            nonlocal swapped
+            content = original(read_root, read_relative, **kwargs)
+            if str(read_relative).replace("\\", "/") == relative_path and not swapped:
+                target.write_text(marker, encoding="utf-8")
+                swapped = True
+            return content
+
+        monkeypatch.setattr(gen.secure_fs, "secure_read_bytes", capture_then_swap)
+
+        captured = _read_security_case(root, case)
+
+        assert swapped is True
+        assert marker not in captured
+
+    @pytest.mark.parametrize(("case", "relative_path"), _CANONICAL_SECURITY_CASES)
+    @pytest.mark.usefixtures("require_symlink_support")
+    def test_leaf_link_swap_is_rejected_at_the_secure_read_boundary(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        case: str,
+        relative_path: str,
+    ) -> None:
+        root = _make_fixture_repo(tmp_path)
+        _install_fixture_registry(root)
+        target = root / relative_path
+        outside = _write(tmp_path / f"outside-{case}.txt", "outside bytes\n")
+        original = gen.secure_fs.secure_read_bytes
+        swapped = False
+
+        def swap_then_read(read_root, read_relative, **kwargs):
+            nonlocal swapped
+
+            def swap(_path: Path) -> None:
+                nonlocal swapped
+                target.unlink()
+                target.symlink_to(outside)
+                swapped = True
+
+            if str(read_relative).replace("\\", "/") == relative_path and not swapped:
+                return original(
+                    read_root,
+                    read_relative,
+                    before_open=swap,
+                    **kwargs,
+                )
+            return original(read_root, read_relative, **kwargs)
+
+        monkeypatch.setattr(gen.secure_fs, "secure_read_bytes", swap_then_read)
+
+        with pytest.raises((OSError, ValueError), match="link|reparse|safe|regular"):
+            _read_security_case(root, case)
+
+        assert swapped is True
+
+    @pytest.mark.backend_posix
+    @pytest.mark.skipif(
+        not gen.secure_fs.supports_secure_dir_fd(),
+        reason="requires POSIX pinned no-follow directory handles",
+    )
+    @pytest.mark.parametrize(("case", "relative_path"), _CANONICAL_SECURITY_CASES)
+    def test_ancestor_swap_reads_only_bytes_from_the_pinned_parent(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        case: str,
+        relative_path: str,
+    ) -> None:
+        root = _make_fixture_repo(tmp_path)
+        _install_fixture_registry(root)
+        target = root / relative_path
+        original_parent = target.parent
+        moved_parent = original_parent.with_name(original_parent.name + "-captured")
+        outside_parent = tmp_path / f"outside-{case}"
+        outside_parent.mkdir()
+        outside_marker = f"OUTSIDE-{case}"
+        _write(outside_parent / target.name, outside_marker)
+        original = gen.secure_fs.secure_read_bytes
+        swapped = False
+
+        def swap_then_read(read_root, read_relative, **kwargs):
+            nonlocal swapped
+
+            def swap(_path: Path) -> None:
+                nonlocal swapped
+                original_parent.rename(moved_parent)
+                original_parent.symlink_to(outside_parent, target_is_directory=True)
+                swapped = True
+
+            if str(read_relative).replace("\\", "/") == relative_path and not swapped:
+                return original(
+                    read_root,
+                    read_relative,
+                    before_open=swap,
+                    **kwargs,
+                )
+            return original(read_root, read_relative, **kwargs)
+
+        monkeypatch.setattr(gen.secure_fs, "secure_read_bytes", swap_then_read)
+
+        captured = _read_security_case(root, case)
+
+        assert swapped is True
+        assert outside_marker not in captured
+
+    @pytest.mark.parametrize(("case", "relative_path"), _CANONICAL_SECURITY_CASES)
+    def test_hard_link_is_rejected_before_parse_or_render(
+        self,
+        tmp_path: Path,
+        case: str,
+        relative_path: str,
+    ) -> None:
+        root = _make_fixture_repo(tmp_path)
+        _install_fixture_registry(root)
+        target = root / relative_path
+        alias = tmp_path / f"hard-link-{case}"
+        try:
+            os.link(target, alias)
+        except OSError as error:
+            pytest.skip(f"host does not permit hard links: {error}")
+
+        with pytest.raises((OSError, ValueError), match="multiple hard links"):
+            _read_security_case(root, case)
+
+    def test_generation_captures_each_asset_and_control_once(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        root = _make_fixture_repo(tmp_path)
+        _install_fixture_registry(root)
+        original_mapping = (root / gen.TARGET_MAPPING_PATH).read_bytes()
+        original = gen.secure_fs.secure_read_bytes
+        calls = Counter()
+
+        def observe(read_root, relative_path, **kwargs):
+            normalized = str(relative_path).replace("\\", "/")
+            calls[normalized] += 1
+            assert kwargs["reject_hardlinks"] is True
+            assert 0 < kwargs["max_bytes"] <= gen.MAX_CANONICAL_CONTROL_BYTES
+            return original(read_root, relative_path, **kwargs)
+
+        monkeypatch.setattr(gen.secure_fs, "secure_read_bytes", observe)
+
+        mapping, assets = gen.load_generation_inputs(root)
+        plan = gen.build_generation_plan(root, mapping, assets)
+
+        for _case, relative_path in _CANONICAL_SECURITY_CASES:
+            assert calls[relative_path] == 1
+        rendered_mapping = next(
+            entry for entry in plan.by_target["kilo"].entries
+            if entry.source == gen.TARGET_MAPPING_PATH
+        )
+        assert rendered_mapping.content == original_mapping
 
 
 class TestDryRun:
