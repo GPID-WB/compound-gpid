@@ -103,6 +103,11 @@ Check if `compound-gpid.local.md` already exists in the project root.
 
 ### Step 3: Write Config
 
+Ask Question 3.5 before writing the config, then substitute the selected value
+for the `suites:` placeholder. The written frontmatter must contain exactly
+`[cg]`, `[cr]`, or `[cg, cr]`; select `[cr]` or `[cg, cr]` whenever the project
+requires research workflows.
+
 Create `compound-gpid.local.md` in the project root with the following format:
 
 ```markdown

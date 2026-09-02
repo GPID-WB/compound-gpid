@@ -154,7 +154,7 @@
       "path": ".agents/commands/cg-setup.md",
       "source": ".github/prompts/cg-setup.prompt.md",
       "kind": "command",
-      "sha256": "d923efdf745d79da2223dfc28e5d2a77a829c0bab03fa31f14ffa0a9270dbae8",
+      "sha256": "9d8e607ed85ecd78412ed494d24ad95749c107ed0cf87d9196a772d5b619cdb4",
       "executable": false
     },
     {
@@ -238,7 +238,7 @@
       "path": ".agents/commands/setup-templates.md",
       "source": ".github/prompts/setup-templates.md",
       "kind": "prompt-support",
-      "sha256": "57eeb04d47c18d75ab69df5bc4e1a16b4dc278879ae25874e3fc930e571223f0",
+      "sha256": "fa015b1f7d17c562836be9ec691b744661678f36242be59cf43c0987e27db4dc",
       "executable": false
     },
     {
@@ -945,7 +945,7 @@
       "path": ".agents/skills/cg-skill-setup/SKILL.md",
       "source": ".github/skills/cg-skill-setup/SKILL.md",
       "kind": "skill",
-      "sha256": "6271c6c54fea342186b8ff2216a22cb585ce8ac2089b55e18364d6995aab330b",
+      "sha256": "50d1fdef3af10b9fb39b3a41c50caa30b4dadd04fcdcdb07b0327f699c290687",
       "executable": false
     },
     {

@@ -2642,8 +2642,18 @@ Describe "cg-setup.prompt.md - active suite configuration" {
         ($promptContent -match 'suites: \[cg, cr\]') | Should -Be $true
     }
 
+    It "asks for active suites in the normal new-project configuration flow" {
+        $a2Section = [regex]::Match($promptContent, '(?s)#### A2\. Confidence-based configuration.*?(?=#### A3)').Value
+        ($a2Section -match '(?i)active suites') | Should -Be $true
+    }
+
+    It "writes the selected suite value instead of the template default" {
+        ($templateContent -match '(?m)^suites: \[<cg\|cr\|cg, cr>\]$') | Should -Be $true
+        ($promptContent -match '(?i)replace the `suites:` placeholder with the exact value selected') | Should -Be $true
+    }
+
     It "allows returning projects to update active suites" {
-        ($promptContent -match '(?i)language, project type, or review depth.*active suites') | Should -Be $true
+        ($promptContent -match '(?i)Would you like to update any configuration.*active suites') | Should -Be $true
     }
 }
 

@@ -350,7 +350,7 @@
       "path": ".opencode/commands/cg-setup.md",
       "source": ".github/prompts/cg-setup.prompt.md",
       "kind": "command",
-      "sha256": "635f1737e4cf796f4601f83c7b04cbd6426b489b59d8069cfa3bcda12870739b",
+      "sha256": "e46c2d44db26acc84a1d9cf034ad06dffeb04134f79728b56128f8675d6136f0",
       "executable": false
     },
     {
@@ -434,7 +434,7 @@
       "path": ".opencode/commands/setup-templates.md",
       "source": ".github/prompts/setup-templates.md",
       "kind": "prompt-support",
-      "sha256": "57eeb04d47c18d75ab69df5bc4e1a16b4dc278879ae25874e3fc930e571223f0",
+      "sha256": "fa015b1f7d17c562836be9ec691b744661678f36242be59cf43c0987e27db4dc",
       "executable": false
     },
     {
@@ -1050,7 +1050,7 @@
       "path": ".opencode/skills/cg-skill-setup/SKILL.md",
       "source": ".github/skills/cg-skill-setup/SKILL.md",
       "kind": "skill",
-      "sha256": "1ce61d430236766535ce53dc2b0fb6c547365e0942c23d3aa8c0247113132ca0",
+      "sha256": "e660ef01c0ba00e698e2089050bcdb5c4d238094e342228269fca681af7ed26f",
       "executable": false
     },
     {

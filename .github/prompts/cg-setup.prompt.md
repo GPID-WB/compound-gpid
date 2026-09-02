@@ -51,10 +51,11 @@ Using the scanner's `## Setup Recommendations` table and the **Confidence-action
 - **R dialect** (if language is R, Both, or All): Ask "Which R dialect? 1. data.table + collapse (default), 2. tidyverse." Set `r-syntax` accordingly in `compound-gpid.local.md`.
 - **Project type**: Same logic using Q2 menu as fallback.
 - **Review depth**: Always ask using Q3 from Fallback: Manual Questions (not detectable from files).
+- **Active suites**: Ask Question 3.5 from Fallback: Manual Questions now, before writing the config, even when the scanner succeeds. If the project requires research workflows, select `[cr]` or `[cg, cr]` so the `cr` suite is active.
 
 If the `## Setup Recommendations` table is absent from the scanner report, treat all language/project-type fields as `ask` confidence and use the full Fallback: Manual Questions (Q1–Q3) for configuration.
 
-Write `compound-gpid.local.md` using the **compound-gpid.local.md Template** from `setup-templates.md`.
+Write `compound-gpid.local.md` using the **compound-gpid.local.md Template** from `setup-templates.md`. Replace the `suites:` placeholder with the exact value selected in Question 3.5 (`[cg]`, `[cr]`, or `[cg, cr]`); never leave the template default or silently omit `cr` when research is required.
 
 #### A3. Render charter draft
 
@@ -264,7 +265,7 @@ If the user selects **R**, **Both**, or **All**: ask a follow-up before Question
 > 2. **Standard** — All 8 review agents. Best for most work. *(recommended)*
 > 3. **Thorough** — All 8 agents + cross-referencing past learnings. Best for major features.
 
-**Question 3.5 — Active suites**
+**Question 3.5 — Active workflow suites**
 
 > Which workflow suites should this project activate?
 >
@@ -398,11 +399,22 @@ If blockers were found and fixed in this step (the charter was rewritten), skip 
 
 #### B4. Offer to update config
 
+At the start of returning-project configuration, confirm the active suites even
+when no other settings need changing:
+
+> Which workflow suites should this project activate? The current value is
+> `<current suites>`. Keep it, or choose an option from Question 3.5.
+
+If the current config has no `suites:` field, treat it as `[cg]` until the user
+chooses otherwise. If research workflows are required, the user must choose
+`[cr]` or `[cg, cr]`.
+
 Ask:
 
-> Would you like to update any configuration (language, project type, or review depth, and active suites)?
+> Would you like to update any configuration (language, project type, review depth, and active suites)?
 
-- If yes: ask the relevant questions (only those the user wants to change). Before rewriting `compound-gpid.local.md`, read the existing file and carry forward the `cg-schema-version` value unchanged. Only update the fields the user requested to change. Then rewrite `compound-gpid.local.md`. If active suites change, scaffold newly enabled `c-research/` directories but never delete an existing research workspace when `cr` is disabled.
+- If yes: ask the relevant questions (only those the user wants to change). Before rewriting `compound-gpid.local.md`, read the existing file and carry forward the `cg-schema-version` value unchanged. Only update the fields the user requested to change. Then rewrite `compound-gpid.local.md`, including the exact selected `suites:` value. If active suites change, scaffold newly enabled `c-research/` directories but never delete an existing research workspace when `cr` is disabled.
+- If no: preserve the existing suite selection, but if `suites:` is absent, write `suites: [cg]` so the config is explicit and ready for a later research-suite selection.
 - If no: continue to B4.5.
 
 #### B4.5. Offer to update project charter
