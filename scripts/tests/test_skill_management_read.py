@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import json
+import subprocess
+import sys
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any, Mapping
@@ -300,27 +302,31 @@ def test_invalid_manifest_fails_closed(tmp_path: Path) -> None:
 
 def test_invalid_manifest_dispatch_result_preserves_contract_exit_code(
     tmp_path: Path,
-    capsys: pytest.CaptureFixture,
 ) -> None:
     root = _root(tmp_path)
     _write(root / MANIFEST_PATH, "{not-json\n")
 
-    exit_code = cg_skill.main(
+    completed = subprocess.run(
         [
+            sys.executable,
+            str(REPO_ROOT / "scripts/cg_skill.py"),
             "--project-root",
             str(root),
             "--source-root",
-            str(root),
+            str(REPO_ROOT),
             "--format",
             "json",
             "find",
         ],
-        invocation_path=root,
-        runtime_root=root,
+        cwd=root,
+        capture_output=True,
+        text=True,
+        timeout=30,
+        check=False,
     )
-    payload = json.loads(capsys.readouterr().out)
+    payload = json.loads(completed.stdout)
 
-    assert exit_code == contracts.EXIT_CONTRACT
+    assert completed.returncode == contracts.EXIT_CONTRACT
     assert payload["exitCode"] == contracts.EXIT_CONTRACT
     assert payload["manifestHealth"] == "invalid"
     assert payload["findings"][0]["code"] == "catalog.invalid-input"

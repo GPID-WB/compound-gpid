@@ -3,7 +3,9 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import subprocess
+import sys
 from pathlib import Path
 from typing import Callable, Optional
 
@@ -94,6 +96,24 @@ def _repository(
     _git(root, "add", ".")
     _git(root, "commit", "-m", "fixture")
     _git(root, "update-ref", "refs/remotes/origin/main", "HEAD")
+    return root
+
+
+def _consumer_repository(tmp_path: Path, name: str = "consumer") -> Path:
+    """Create a consumer Git project without canonical installation assets."""
+    root = tmp_path / name
+    root.mkdir()
+    _git(root, "init")
+    _git(root, "config", "user.email", "tests@example.test")
+    _git(root, "config", "user.name", "Tests")
+    _git(root, "checkout", "-b", "feature/consumer")
+    _write(root / "compound-gpid.md", "# Consumer fixture\n")
+    _write(
+        root / "compound-gpid.local.md",
+        '---\nlanguage: "python"\nsuites: [cg]\n---\n# Consumer config\n',
+    )
+    _git(root, "add", ".")
+    _git(root, "commit", "-m", "consumer fixture")
     return root
 
 
@@ -189,6 +209,98 @@ def _fake_loader(
     return load_handler
 
 
+def _isolated_dispatch_runtime(tmp_path: Path) -> Path:
+    """Create one runnable dispatcher installation below a fixture root."""
+    root = _repository(tmp_path)
+    scripts = root / "scripts"
+    scripts.mkdir(exist_ok=True)
+    shutil.copy2(REPO_ROOT / "scripts/cg_skill.py", scripts / "cg_skill.py")
+    shutil.copy2(REPO_ROOT / "scripts/secure_fs.py", scripts / "secure_fs.py")
+    shutil.copytree(
+        REPO_ROOT / "scripts/skill_management",
+        scripts / "skill_management",
+        dirs_exist_ok=True,
+        ignore=shutil.ignore_patterns("__pycache__", "*.pyc"),
+    )
+    _descriptor(root)
+    return root
+
+
+def _handler_importing_helper(root: Path, marker: Path, helper: str) -> None:
+    _write(
+        root / "scripts/skill_management/operations/echo.py",
+        "from pathlib import Path\n"
+        f"Path({str(marker)!r}).write_text('handler', encoding='utf-8')\n"
+        f"from skill_management.operations.{helper} import VALUE\n"
+        "from skill_management.planning import OperationOutcome\n"
+        "def handle(**kwargs):\n"
+        "    return OperationOutcome(data={'value': VALUE})\n",
+    )
+
+
+def _run_isolated_dispatch(root: Path) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        [
+            sys.executable,
+            str(root / "scripts/cg_skill.py"),
+            "--project-root",
+            str(root),
+            "--source-root",
+            str(root),
+            "--format",
+            "json",
+            "echo",
+            "--message",
+            "hello",
+        ],
+        cwd=root,
+        capture_output=True,
+        text=True,
+        timeout=30,
+        check=False,
+    )
+
+
+def _run_preloaded_dispatch(
+    root: Path, module_name: str, module_path: Path
+) -> subprocess.CompletedProcess[str]:
+    arguments = [
+        "--project-root",
+        str(root),
+        "--source-root",
+        str(root),
+        "--format",
+        "json",
+        "echo",
+        "--message",
+        "hello",
+    ]
+    program = (
+        "import runpy, sys, types\n"
+        f"sys.path.insert(0, {str(root / 'scripts')!r})\n"
+        f"module = types.ModuleType({module_name!r})\n"
+        f"module.__file__ = {str(module_path)!r}\n"
+        f"sys.modules[{module_name!r}] = module\n"
+        f"sys.argv = [{str(root / 'scripts/cg_skill.py')!r}, *{arguments!r}]\n"
+        f"runpy.run_path({str(root / 'scripts/cg_skill.py')!r}, run_name='__main__')\n"
+    )
+    return subprocess.run(
+        [sys.executable, "-c", program],
+        cwd=root,
+        capture_output=True,
+        text=True,
+        timeout=30,
+        check=False,
+    )
+
+
+def _installed_wrapper_command() -> list[str]:
+    """Return the platform command for the installed public wrapper."""
+    if os.name == "nt":
+        return ["cmd.exe", "/d", "/c", str(REPO_ROOT / "bin/cg-skill.cmd")]
+    return [str(REPO_ROOT / "bin/cg-skill")]
+
+
 def test_unknown_operation_returns_usage_without_import(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture
 ) -> None:
@@ -282,27 +394,231 @@ def test_operation_contract_identity_must_match_descriptor_operation(
     assert calls == []
 
 
-def test_handler_hardlink_is_rejected_before_module_code_executes(
+def test_installed_wrapper_help_uses_trusted_source_for_consumer_project(
     tmp_path: Path,
 ) -> None:
-    root = _repository(tmp_path)
-    _descriptor(root)
-    marker = tmp_path / "executed.txt"
-    outside = tmp_path / "outside-handler.py"
+    project = _consumer_repository(tmp_path)
+
+    completed = subprocess.run(
+        [
+            *_installed_wrapper_command(),
+            "--project-root",
+            ".",
+            "--format",
+            "json",
+            "help",
+        ],
+        cwd=project,
+        capture_output=True,
+        text=True,
+        timeout=30,
+        check=False,
+    )
+    payload = json.loads(completed.stdout)
+
+    assert completed.returncode == 0, completed.stderr
+    assert payload["ok"] is True
+    assert payload["operation"] == "help"
+    assert payload["role"] == "consumer"
+    assert "help" in {
+        record["operation"] for record in payload["data"]["operations"]
+    }
+    assert not (project / ".github").exists()
+
+
+def test_explicit_source_root_still_must_match_runtime_root(
+    tmp_path: Path, capsys: pytest.CaptureFixture
+) -> None:
+    runtime = _repository(tmp_path, "runtime")
+    project = _consumer_repository(tmp_path)
+
+    exit_code = cg_skill.main(
+        [
+            "--project-root",
+            str(project),
+            "--source-root",
+            str(project),
+            "--format",
+            "json",
+            "help",
+        ],
+        invocation_path=project,
+        runtime_root=runtime,
+    )
+    payload = json.loads(capsys.readouterr().out)
+
+    assert exit_code == 3
+    assert payload["findings"][0]["code"] == "context.untrusted-source"
+
+
+@pytest.mark.usefixtures("require_symlink_support")
+def test_linked_helper_is_rejected_before_any_module_side_effect(
+    tmp_path: Path,
+) -> None:
+    root = _isolated_dispatch_runtime(tmp_path)
+    handler_marker = tmp_path / "handler-executed.txt"
+    helper_marker = tmp_path / "helper-executed.txt"
+    helper_name = "_dispatch_linked_helper"
+    _handler_importing_helper(root, handler_marker, helper_name)
+    outside = tmp_path / "outside-linked-helper.py"
     outside.write_text(
         "from pathlib import Path\n"
-        f"Path({str(marker)!r}).write_text('executed', encoding='utf-8')\n"
-        "def handle(**kwargs):\n    return None\n",
+        f"Path({str(helper_marker)!r}).write_text('helper', encoding='utf-8')\n"
+        "VALUE = 'untrusted'\n",
         encoding="utf-8",
     )
-    handler_path = root / "scripts/skill_management/operations/echo.py"
-    handler_path.unlink()
+    helper_path = root / f"scripts/skill_management/operations/{helper_name}.py"
+    helper_path.symlink_to(outside)
+
+    completed = _run_isolated_dispatch(root)
+    payload = json.loads(completed.stdout)
+
+    assert completed.returncode == 1
+    assert payload["findings"][0]["code"] == "internal.dispatch"
+    assert not handler_marker.exists()
+    assert not helper_marker.exists()
+
+
+def test_hard_linked_helper_is_rejected_before_any_module_side_effect(
+    tmp_path: Path,
+) -> None:
+    root = _isolated_dispatch_runtime(tmp_path)
+    handler_marker = tmp_path / "handler-executed.txt"
+    helper_marker = tmp_path / "helper-executed.txt"
+    helper_name = "_dispatch_hardlink_helper"
+    _handler_importing_helper(root, handler_marker, helper_name)
+    outside = tmp_path / "outside-hardlink-helper.py"
+    outside.write_text(
+        "from pathlib import Path\n"
+        f"Path({str(helper_marker)!r}).write_text('helper', encoding='utf-8')\n"
+        "VALUE = 'untrusted'\n",
+        encoding="utf-8",
+    )
+    helper_path = root / f"scripts/skill_management/operations/{helper_name}.py"
     try:
-        os.link(outside, handler_path)
+        os.link(outside, helper_path)
     except OSError:
         pytest.skip("hard-link creation is unavailable")
-    with pytest.raises((OSError, ValueError), match="link|regular|safe"):
-        cg_skill._load_handler(root, "echo")  # pylint: disable=protected-access
+
+    completed = _run_isolated_dispatch(root)
+    payload = json.loads(completed.stdout)
+
+    assert completed.returncode == 1
+    assert payload["findings"][0]["code"] == "internal.dispatch"
+    assert not handler_marker.exists()
+    assert not helper_marker.exists()
+
+
+def test_wrong_root_preloaded_helper_is_rejected_before_disk_code_executes(
+    tmp_path: Path,
+) -> None:
+    root = _isolated_dispatch_runtime(tmp_path)
+    handler_marker = tmp_path / "handler-executed.txt"
+    helper_marker = tmp_path / "helper-executed.txt"
+    helper_name = "_dispatch_preloaded_helper"
+    module_name = f"skill_management.operations.{helper_name}"
+    _handler_importing_helper(root, handler_marker, helper_name)
+    helper_path = root / f"scripts/skill_management/operations/{helper_name}.py"
+    helper_path.write_text(
+        "from pathlib import Path\n"
+        f"Path({str(helper_marker)!r}).write_text('helper', encoding='utf-8')\n"
+        "VALUE = 'untrusted'\n",
+        encoding="utf-8",
+    )
+
+    completed = _run_preloaded_dispatch(
+        root,
+        module_name,
+        tmp_path / "wrong-root" / f"{helper_name}.py",
+    )
+    payload = json.loads(completed.stdout)
+
+    assert completed.returncode == 1
+    assert payload["findings"][0]["code"] == "internal.dispatch"
+    assert not handler_marker.exists()
+    assert not helper_marker.exists()
+
+
+def test_helper_swap_after_capture_executes_only_captured_bytes(tmp_path: Path) -> None:
+    root = _isolated_dispatch_runtime(tmp_path)
+    helper_marker = tmp_path / "swapped-helper-executed.txt"
+    helper_name = "_dispatch_swapped_helper"
+    helper_relative = f"scripts/skill_management/operations/{helper_name}.py"
+    _write(
+        root / "scripts/skill_management/operations/echo.py",
+        f"from skill_management.operations.{helper_name} import VALUE\n"
+        "from skill_management.planning import OperationOutcome\n"
+        "def handle(**kwargs):\n"
+        "    return OperationOutcome(data={'value': VALUE})\n",
+    )
+    _write(root / helper_relative, "VALUE = 'captured'\n")
+    arguments = [
+        "--project-root",
+        str(root),
+        "--source-root",
+        str(root),
+        "--format",
+        "json",
+        "echo",
+        "--message",
+        "hello",
+    ]
+    malicious = (
+        "from pathlib import Path\n"
+        f"Path({str(helper_marker)!r}).write_text('helper', encoding='utf-8')\n"
+        "VALUE = 'swapped'\n"
+    )
+    program = (
+        "import runpy, sys\n"
+        "from pathlib import Path\n"
+        f"sys.path.insert(0, {str(root / 'scripts')!r})\n"
+        "import secure_fs\n"
+        "original = secure_fs.secure_read_bytes\n"
+        "def swapping(root_path, relative, **kwargs):\n"
+        "    content = original(root_path, relative, **kwargs)\n"
+        f"    if relative.as_posix() == {helper_relative!r}:\n"
+        f"        Path(root_path, *relative.parts).write_text({malicious!r}, encoding='utf-8')\n"
+        "    return content\n"
+        "secure_fs.secure_read_bytes = swapping\n"
+        f"sys.argv = [{str(root / 'scripts/cg_skill.py')!r}, *{arguments!r}]\n"
+        f"runpy.run_path({str(root / 'scripts/cg_skill.py')!r}, run_name='__main__')\n"
+    )
+
+    completed = subprocess.run(
+        [sys.executable, "-c", program],
+        cwd=root,
+        capture_output=True,
+        text=True,
+        timeout=30,
+        check=False,
+    )
+    payload = json.loads(completed.stdout)
+
+    assert completed.returncode == 0
+    assert payload["data"] == {"value": "captured"}
+    assert not helper_marker.exists()
+
+
+def test_unselected_operation_source_remains_lazy(tmp_path: Path) -> None:
+    root = _isolated_dispatch_runtime(tmp_path)
+    marker = tmp_path / "unselected-executed.txt"
+    _write(
+        root / "scripts/skill_management/operations/echo.py",
+        "from skill_management.planning import OperationOutcome\n"
+        "def handle(**kwargs):\n"
+        "    return OperationOutcome(data={'value': 'selected'})\n",
+    )
+    _write(
+        root / "scripts/skill_management/operations/unselected.py",
+        "from pathlib import Path\n"
+        f"Path({str(marker)!r}).write_text('unselected', encoding='utf-8')\n",
+    )
+
+    completed = _run_isolated_dispatch(root)
+    payload = json.loads(completed.stdout)
+
+    assert completed.returncode == 0
+    assert payload["data"] == {"value": "selected"}
     assert not marker.exists()
 
 
@@ -499,7 +815,14 @@ def test_linked_valid_global_source_remains_consumer(tmp_path: Path) -> None:
         origin="https://github.com/example/consumer.git",
     )
     source = _repository(tmp_path, "source")
-    discovered = context.discover_context(project, source, invocation_path=project)
+    discovered = context.discover_context(
+        project,
+        source,
+        invocation_path=project,
+        trusted_source_root=source,
+    )
+    assert discovered.project_root == project.resolve()
+    assert discovered.source_root == source.resolve()
     assert discovered.role == "consumer"
     assert any("same" in reason.lower() for reason in discovered.write_context_errors)
 
