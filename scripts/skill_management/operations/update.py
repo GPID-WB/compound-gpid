@@ -78,7 +78,9 @@ def handle(*, context: Any, request: Mapping[str, Any]) -> planning.OperationOut
         provenance.validate_audit_metadata(approver, review_reference)
         policy = admission.load_admission_policy(context.source_root)
         repository = str(source.get("repository", ""))
-        source_path = str(source.get("path", ""))
+        source_path = admission.require_allowed_source_path(
+            str(source.get("path", "")), policy
+        )
         if origin_scope == "plugin-canonical":
             require_maintainer_write_context(context)
             if not admission.repository_allowed_for_plugin(repository, policy):

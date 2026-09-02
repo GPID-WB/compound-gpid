@@ -128,10 +128,10 @@ def _git_bytes(root: Path, object_path: str) -> bytes:
 
 
 def _attestation_schema() -> Dict[str, Any]:
-    path = Path(__file__).resolve().parents[3] / (
-        ".github/shared/skill-management/contracts/release-attestation-v1.schema.json"
+    return contracts.load_contract(
+        Path(__file__).resolve().parents[3],
+        contracts.CONTRACTS_ROOT / "release-attestation-v1.schema.json",
     )
-    return contracts.load_contract(path)
 
 
 def load_release_attestations(source_root: Path) -> Tuple[Mapping[str, Any], ...]:

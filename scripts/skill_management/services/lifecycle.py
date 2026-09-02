@@ -3,11 +3,13 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import stat
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
-from skill_management import contracts, planning
+from skill_management import contracts, paths as path_policy, planning
 from skill_management.context import CANONICAL_SOURCE_ORIGIN
 from skill_management.services import (
     bundles,
@@ -459,10 +461,10 @@ def plan_deprecation(
 
 
 def _migration_schema() -> Dict[str, Any]:
-    path = Path(__file__).resolve().parents[3] / (
-        ".github/shared/skill-management/contracts/migration-v1.schema.json"
+    return contracts.load_contract(
+        Path(__file__).resolve().parents[3],
+        contracts.CONTRACTS_ROOT / "migration-v1.schema.json",
     )
-    return contracts.load_contract(path)
 
 
 def load_migrations(
@@ -475,7 +477,7 @@ def load_migrations(
     schema = _migration_schema()
     records = []
     seen_ids = set()
-    seen_edits = set()
+    seen_edits = {}  # type: Dict[Tuple[str, ...], str]
     for relative in sorted(paths):
         try:
             content = runtime.read_optional_bytes(
@@ -509,11 +511,13 @@ def load_migrations(
         seen_ids.add(migration_id)
         for edit in value["edits"]:
             edit_path = str(edit["path"])
-            if edit_path in seen_edits:
+            portable = path_policy.portable_path_key(edit_path)
+            prior = seen_edits.get(portable)
+            if prior is not None:
                 raise LifecyclePlanningError(
-                    f"Migration path appears more than once: {edit_path}"
+                    f"Migration paths collide portably: {prior} and {edit_path}"
                 )
-            seen_edits.add(edit_path)
+            seen_edits[portable] = edit_path
         records.append(
             MigrationRecord(relative, value, hashlib.sha256(content).hexdigest())
         )
@@ -523,30 +527,49 @@ def load_migrations(
 def _migration_actions(
     project_root: Path,
     migrations: Sequence[MigrationRecord],
-    protected_paths: Sequence[str],
 ) -> Tuple[planning.PlannedAction, ...]:
     actions = []
-    protected = set(protected_paths)
     for migration in migrations:
         for edit in migration.value["edits"]:
             path = str(edit["path"])
-            if path == "roadmap.json" or path.startswith((".cg-docs/", "releases/")):
+            if not contracts.migration_path_allowed(path):
                 raise LifecyclePlanningError(
-                    f"Migration cannot edit read-only roadmap or historical evidence: {path}"
+                    "Migration can edit only bounded project documentation or "
+                    f"reference text files: {path}"
                 )
-            if path in protected:
+            try:
+                current = runtime.read_optional_bytes(
+                    project_root,
+                    path,
+                    max_bytes=references.MAX_REFERENCE_FILE_BYTES,
+                )
+            except (OSError, ValueError) as error:
                 raise LifecyclePlanningError(
-                    f"Migration cannot replace lifecycle-managed state: {path}"
-                )
-            current = runtime.read_optional_bytes(project_root, path)
+                    f"Migration source path is not bounded regular text: {path}: {error}"
+                ) from error
             if current is None:
                 raise LifecyclePlanningError(f"Migration source path is missing: {path}")
+            try:
+                current.decode("utf-8-sig")
+                metadata = os.lstat(project_root / PurePosixPath(path))
+            except (OSError, UnicodeError) as error:
+                raise LifecyclePlanningError(
+                    f"Migration source path is not bounded regular UTF-8 text: {path}: {error}"
+                ) from error
+            if stat.S_IMODE(metadata.st_mode) & 0o111:
+                raise LifecyclePlanningError(
+                    f"Migration cannot edit an executable file: {path}"
+                )
             expected = str(edit["expectedSha256"])
             if hashlib.sha256(current).hexdigest() != expected:
                 raise LifecyclePlanningError(
                     f"Migration source digest is stale: {path}"
                 )
             replacement = str(edit["replacement"]).encode("utf-8")
+            if len(replacement) > references.MAX_REFERENCE_FILE_BYTES:
+                raise LifecyclePlanningError(
+                    f"Migration replacement exceeds the reference byte ceiling: {path}"
+                )
             if replacement == current:
                 raise LifecyclePlanningError(f"Migration has no byte change: {path}")
             actions.append(
@@ -887,15 +910,7 @@ def plan_removal(
                     ),
                 )
             )
-    protected_paths = [
-        registry.MODULE_REGISTRY_PATH,
-        registry.PROJECT_REGISTRY_PATH,
-        provenance_path,
-        runtime.CONFIG_PATH,
-        runtime.ACTIVE_MANIFEST_PATH,
-        runtime.OWNERSHIP_PATH,
-    ]
-    migration_actions = _migration_actions(project, migrations, protected_paths)
+    migration_actions = _migration_actions(project, migrations)
     actions = list(migration_actions) + actions
     config = runtime.read_optional_bytes(
         project, runtime.CONFIG_PATH, max_bytes=contracts.MAX_CONTRACT_BYTES

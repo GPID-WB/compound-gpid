@@ -9,7 +9,7 @@ import stat
 import unicodedata
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
-from typing import Any, Dict, Iterable, Mapping, Optional, Sequence, Tuple
+from typing import Any, Dict, FrozenSet, Iterable, Mapping, Optional, Sequence, Tuple
 
 import secure_fs
 
@@ -101,6 +101,9 @@ MAX_VALIDATION_FINDINGS = 1000
 MAX_VALUE_STRING_LENGTH = 1024 * 1024
 MAX_VALUE_ARRAY_ITEMS = 10000
 MAX_PATTERN_LENGTH = 512
+MAX_PATTERN_PARSE_DEPTH = 32
+MAX_PATTERN_PARSE_NODES = MAX_PATTERN_LENGTH * 3
+MAX_PATTERN_REPEAT = 1000000
 _REPARSE_POINT_FLAG = 0x400
 OPERATIONS_ROOT = PurePosixPath(".github/shared/skill-management/operations")
 CONTRACTS_ROOT = PurePosixPath(".github/shared/skill-management/contracts")
@@ -113,6 +116,21 @@ _WINDOWS_RESERVED_NAMES = {
     *(f"COM{index}" for index in range(1, 10)),
     *(f"LPT{index}" for index in range(1, 10)),
 }
+_MIGRATION_REFERENCE_ROOTS = frozenset(
+    {"docs", "documentation", "reference", "references", "source", "src"}
+)
+_MIGRATION_REFERENCE_FILES = frozenset(
+    {
+        "changelog.md",
+        "code_of_conduct.md",
+        "contributing.md",
+        "readme.md",
+        "readme.txt",
+        "security.md",
+        "support.md",
+    }
+)
+_MIGRATION_REFERENCE_SUFFIXES = frozenset({".markdown", ".md", ".txt"})
 
 
 def operation_handler_module(operation: str, handler: str) -> str:
@@ -211,8 +229,43 @@ def _pointer(path: str, token: object) -> str:
     return f"{path}/{value}" if path else f"/{value}"
 
 
+def _valid_unicode_scalar(value: str) -> bool:
+    return not any(0xD800 <= ord(character) <= 0xDFFF for character in value)
+
+
+def _json_key_finding(path: str, key: Any) -> Optional[ContractFinding]:
+    if not isinstance(key, str):
+        return _finding(
+            path,
+            "contract.json-key",
+            f"JSON object key must be a string, not {type(key).__name__}.",
+            "Use string keys for every JSON object.",
+        )
+    if len(key) > MAX_VALUE_STRING_LENGTH:
+        return _finding(
+            path,
+            "contract.json-key-budget",
+            "JSON object key exceeds the validation length budget.",
+            "Use a shorter object key.",
+        )
+    if not _valid_unicode_scalar(key):
+        return _finding(
+            path,
+            "contract.json-key-unicode",
+            "JSON object key contains an invalid Unicode surrogate.",
+            "Use valid Unicode scalar values in every object key.",
+        )
+    return None
+
+
 def canonical_json_bytes(value: Any) -> bytes:
     """Serialize one JSON value to deterministic UTF-8 bytes."""
+    findings = _json_value_findings(value, keys_only=True)
+    if findings:
+        details = "; ".join(
+            f"{finding.path or '<root>'}: {finding.code}" for finding in findings
+        )
+        raise ValueError(f"Value is not bounded scalar JSON: {details}")
     return json.dumps(
         value,
         ensure_ascii=False,
@@ -227,6 +280,10 @@ def _reject_json_constant(value: str) -> None:
 
 
 def _reject_duplicate_members(pairs: Sequence[Tuple[str, Any]]) -> dict:
+    for key, _ in pairs:
+        key_finding = _json_key_finding("", key)
+        if key_finding is not None:
+            raise ValueError(f"{key_finding.code}: {key_finding.message}")
     result = {}
     for key, value in pairs:
         if key in result:
@@ -243,22 +300,16 @@ def _strict_json_loads(content: str) -> Any:
     )
 
 
-def load_contract(path: Path) -> dict:
-    """Load one bounded regular JSON contract without following its leaf."""
-    contract_path = Path(path)
-    metadata = os.lstat(str(contract_path))
-    if stat.S_ISLNK(metadata.st_mode) or bool(
-        getattr(metadata, "st_file_attributes", 0) & _REPARSE_POINT_FLAG
-    ):
-        raise ValueError(f"Contract path is a link or reparse point: {contract_path}")
-    if not stat.S_ISREG(metadata.st_mode):
-        raise ValueError(f"Contract path is not a regular file: {contract_path}")
-    if metadata.st_size > MAX_CONTRACT_BYTES:
-        raise ValueError(f"Contract exceeds {MAX_CONTRACT_BYTES} bytes: {contract_path}")
-    try:
-        return load_contract_bytes(contract_path.read_bytes(), source=str(contract_path))
-    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as error:
-        raise ValueError(f"Contract is not valid UTF-8 JSON: {contract_path}") from error
+def load_contract(root: Path, relative_path: PurePosixPath) -> dict:
+    """Capture and strictly decode one bounded root-relative JSON contract."""
+    relative = PurePosixPath(secure_fs.normalize_relative_path(relative_path))
+    content = secure_fs.secure_read_bytes(
+        Path(root),
+        relative,
+        reject_hardlinks=True,
+        max_bytes=MAX_CONTRACT_BYTES,
+    )
+    return load_contract_bytes(content, source=relative.as_posix())
 
 
 def load_contract_bytes(content: bytes, *, source: str = "<contract>") -> dict:
@@ -303,22 +354,367 @@ def _resolve_local_reference(root: Mapping[str, Any], reference: str) -> Any:
     return current
 
 
+@dataclass(frozen=True)
+class _RegexNode:
+    kind: str
+    children: Tuple["_RegexNode", ...] = ()
+    characters: Optional[FrozenSet[str]] = None
+    minimum: int = 1
+    maximum: Optional[int] = 1
+
+
+class _RegexSubsetError(ValueError):
+    pass
+
+
+class _RegexSubsetParser:
+    """Parse the small regular-expression grammar accepted by contracts."""
+
+    def __init__(self, pattern: str) -> None:
+        self.pattern = pattern
+        self.index = 0
+        self.nodes = 0
+
+    def parse(self) -> _RegexNode:
+        node = self._parse_expression(0)
+        if self.index != len(self.pattern):
+            raise _RegexSubsetError("pattern syntax is outside the parsed subset")
+        return node
+
+    def _node(
+        self,
+        kind: str,
+        children: Tuple[_RegexNode, ...] = (),
+        *,
+        characters: Optional[FrozenSet[str]] = None,
+        minimum: int = 1,
+        maximum: Optional[int] = 1,
+    ) -> _RegexNode:
+        self.nodes += 1
+        if self.nodes > MAX_PATTERN_PARSE_NODES:
+            raise _RegexSubsetError(
+                f"pattern exceeds {MAX_PATTERN_PARSE_NODES} parsed nodes"
+            )
+        return _RegexNode(kind, children, characters, minimum, maximum)
+
+    def _parse_expression(self, depth: int) -> _RegexNode:
+        branches = [self._parse_sequence(depth)]
+        while self.index < len(self.pattern) and self.pattern[self.index] == "|":
+            self.index += 1
+            branches.append(self._parse_sequence(depth))
+        if len(branches) == 1:
+            return branches[0]
+        return self._node("alternative", tuple(branches))
+
+    def _parse_sequence(self, depth: int) -> _RegexNode:
+        terms = []
+        while self.index < len(self.pattern):
+            if self.pattern[self.index] in ")|":
+                break
+            term = self._parse_atom(depth)
+            bounds = self._parse_quantifier()
+            if bounds is not None:
+                term = self._node(
+                    "repeat",
+                    (term,),
+                    minimum=bounds[0],
+                    maximum=bounds[1],
+                )
+                if (
+                    self.index < len(self.pattern)
+                    and self.pattern[self.index] in "?+"
+                ):
+                    raise _RegexSubsetError(
+                        "lazy and possessive quantifiers are not supported"
+                    )
+            terms.append(term)
+        return self._node("sequence", tuple(terms))
+
+    def _parse_atom(self, depth: int) -> _RegexNode:
+        character = self.pattern[self.index]
+        if character in "*+?" or (
+            character == "{" and self._braced_quantifier(self.index) is not None
+        ):
+            raise _RegexSubsetError("a quantifier must follow one supported atom")
+        if character == "(":
+            if depth >= MAX_PATTERN_PARSE_DEPTH:
+                raise _RegexSubsetError(
+                    f"pattern exceeds {MAX_PATTERN_PARSE_DEPTH} nested groups"
+                )
+            self.index += 1
+            if self.index < len(self.pattern) and self.pattern[self.index] == "?":
+                if self.pattern.startswith("?:", self.index):
+                    self.index += 2
+                elif self.pattern.startswith("?P=", self.index):
+                    raise _RegexSubsetError("backreferences are not supported")
+                else:
+                    raise _RegexSubsetError("group extensions are not supported")
+            child = self._parse_expression(depth + 1)
+            if self.index >= len(self.pattern) or self.pattern[self.index] != ")":
+                raise _RegexSubsetError("pattern syntax is outside the parsed subset")
+            self.index += 1
+            return self._node("group", (child,))
+        if character == "[":
+            return self._parse_character_class()
+        if character == "\\":
+            return self._parse_escape()
+        self.index += 1
+        if character in "^$":
+            return self._node("zero-width")
+        if character == ".":
+            return self._node("atom")
+        return self._node("atom", characters=frozenset((character,)))
+
+    def _parse_escape(self) -> _RegexNode:
+        self.index += 1
+        if self.index >= len(self.pattern):
+            raise _RegexSubsetError("pattern syntax is outside the parsed subset")
+        escaped = self.pattern[self.index]
+        self.index += 1
+        if escaped.isdigit():
+            raise _RegexSubsetError("backreferences are not supported")
+        if escaped in "AZbB":
+            return self._node("zero-width")
+        if escaped in "dDsSwW":
+            return self._node("atom")
+        controls = {
+            "a": "\a",
+            "f": "\f",
+            "n": "\n",
+            "r": "\r",
+            "t": "\t",
+            "v": "\v",
+        }
+        if escaped in controls:
+            return self._node("atom", characters=frozenset((controls[escaped],)))
+        if escaped.isalpha():
+            raise _RegexSubsetError(
+                "escape sequences outside the subset are not supported"
+            )
+        return self._node("atom", characters=frozenset((escaped,)))
+
+    def _parse_character_class(self) -> _RegexNode:
+        self.index += 1
+        negated = self.index < len(self.pattern) and self.pattern[self.index] == "^"
+        if negated:
+            self.index += 1
+        items = []  # type: list[Optional[str]]
+        first = True
+        while self.index < len(self.pattern):
+            character = self.pattern[self.index]
+            if character == "]" and not first:
+                self.index += 1
+                return self._node(
+                    "atom",
+                    characters=None if negated else _class_characters(items),
+                )
+            if character == "\\":
+                items.append(self._parse_class_escape())
+            else:
+                items.append(character)
+                self.index += 1
+            first = False
+        raise _RegexSubsetError("pattern syntax is outside the parsed subset")
+
+    def _parse_class_escape(self) -> Optional[str]:
+        self.index += 1
+        if self.index >= len(self.pattern):
+            raise _RegexSubsetError("pattern syntax is outside the parsed subset")
+        escaped = self.pattern[self.index]
+        self.index += 1
+        controls = {
+            "a": "\a",
+            "b": "\b",
+            "f": "\f",
+            "n": "\n",
+            "r": "\r",
+            "t": "\t",
+            "v": "\v",
+        }
+        if escaped in controls:
+            return controls[escaped]
+        if escaped.isalnum():
+            return None
+        return escaped
+
+    def _parse_quantifier(self) -> Optional[Tuple[int, Optional[int]]]:
+        if self.index >= len(self.pattern):
+            return None
+        character = self.pattern[self.index]
+        if character == "*":
+            self.index += 1
+            return (0, None)
+        if character == "+":
+            self.index += 1
+            return (1, None)
+        if character == "?":
+            self.index += 1
+            return (0, 1)
+        parsed = self._braced_quantifier(self.index)
+        if parsed is None:
+            return None
+        end, minimum, maximum = parsed
+        if minimum > MAX_PATTERN_REPEAT or (
+            maximum is not None and maximum > MAX_PATTERN_REPEAT
+        ):
+            raise _RegexSubsetError(f"repeat count exceeds {MAX_PATTERN_REPEAT}")
+        if maximum is not None and minimum > maximum:
+            raise _RegexSubsetError("pattern syntax is outside the parsed subset")
+        self.index = end
+        return (minimum, maximum)
+
+    def _braced_quantifier(
+        self, start: int
+    ) -> Optional[Tuple[int, int, Optional[int]]]:
+        if self.pattern[start] != "{":
+            return None
+        end = self.pattern.find("}", start + 1)
+        if end < 0:
+            return None
+        content = self.pattern[start + 1 : end]
+        if content.isdigit():
+            count = int(content)
+            return (end + 1, count, count)
+        if content.count(",") != 1:
+            return None
+        lower, upper = content.split(",")
+        if (lower and not lower.isdigit()) or (upper and not upper.isdigit()):
+            return None
+        if not lower and not upper:
+            return None
+        minimum = int(lower) if lower else 0
+        maximum = int(upper) if upper else None
+        return (end + 1, minimum, maximum)
+
+
+def _class_characters(items: Sequence[Optional[str]]) -> Optional[FrozenSet[str]]:
+    characters = set()
+    index = 0
+    while index < len(items):
+        if (
+            index + 2 < len(items)
+            and items[index] is not None
+            and items[index + 1] == "-"
+            and items[index + 2] is not None
+        ):
+            start = ord(items[index])
+            end = ord(items[index + 2])
+            if end < start or end - start > 255:
+                return None
+            characters.update(chr(value) for value in range(start, end + 1))
+            index += 3
+            continue
+        item = items[index]
+        if item is None:
+            return None
+        characters.add(item)
+        index += 1
+    return frozenset(characters)
+
+
+def _regex_nullable(node: _RegexNode) -> bool:
+    if node.kind == "zero-width":
+        return True
+    if node.kind == "atom":
+        return False
+    if node.kind == "sequence":
+        return all(_regex_nullable(child) for child in node.children)
+    if node.kind == "alternative":
+        return any(_regex_nullable(child) for child in node.children)
+    if node.kind == "group":
+        return _regex_nullable(node.children[0])
+    if node.kind == "repeat":
+        return node.minimum == 0 or _regex_nullable(node.children[0])
+    return True
+
+
+def _regex_first_characters(node: _RegexNode) -> Optional[FrozenSet[str]]:
+    if node.kind == "zero-width":
+        return frozenset()
+    if node.kind == "atom":
+        return node.characters
+    if node.kind in ("group", "repeat"):
+        return _regex_first_characters(node.children[0])
+    characters = set()
+    if node.kind == "alternative":
+        children = node.children
+    elif node.kind == "sequence":
+        children = node.children
+    else:
+        return None
+    for child in children:
+        child_characters = _regex_first_characters(child)
+        if child_characters is None:
+            return None
+        characters.update(child_characters)
+        if node.kind == "sequence" and not _regex_nullable(child):
+            break
+    return frozenset(characters)
+
+
+def _contains_regex_kind(node: _RegexNode, kind: str) -> bool:
+    return node.kind == kind or any(
+        _contains_regex_kind(child, kind) for child in node.children
+    )
+
+
+def _nested_repeats(node: _RegexNode) -> Tuple[_RegexNode, ...]:
+    repeats = []
+    for child in node.children:
+        if child.kind == "repeat":
+            repeats.append(child)
+        repeats.extend(_nested_repeats(child))
+    return tuple(repeats)
+
+
+def _has_disjoint_repeat_delimiter(
+    body: _RegexNode, repeats: Sequence[_RegexNode]
+) -> bool:
+    # A fixed first token makes each iteration distinct only when no nested
+    # repetition can consume that token.
+    terms = body.children if body.kind == "sequence" else (body,)
+    delimiter = None  # type: Optional[FrozenSet[str]]
+    for term in terms:
+        if term.kind == "zero-width":
+            continue
+        if term.kind != "atom" or term.characters is None:
+            return False
+        delimiter = term.characters
+        break
+    if not delimiter:
+        return False
+    for repeat in repeats:
+        repeated = _regex_first_characters(repeat.children[0])
+        if repeated is None or not repeated or delimiter.intersection(repeated):
+            return False
+    return True
+
+
+def _regex_tree_reason(node: _RegexNode) -> Optional[str]:
+    if node.kind == "repeat" and (
+        node.maximum is None or node.maximum > 1
+    ) and node.children[0].kind == "group":
+        body = node.children[0].children[0]
+        if _contains_regex_kind(body, "alternative"):
+            return "repeated alternation groups are not supported"
+        repeats = _nested_repeats(body)
+        if repeats and not _has_disjoint_repeat_delimiter(body, repeats):
+            return "nested quantified groups are not supported"
+    for child in node.children:
+        reason = _regex_tree_reason(child)
+        if reason is not None:
+            return reason
+    return None
+
+
 def _unsafe_pattern_reason(pattern: str) -> Optional[str]:
     if len(pattern) > MAX_PATTERN_LENGTH:
         return f"pattern exceeds {MAX_PATTERN_LENGTH} characters"
-    if re.search(r"\\[1-9]", pattern):
-        return "backreferences are not supported"
-    if any(token in pattern for token in ("(?=", "(?!", "(?<=", "(?<!", "(?P")):
-        return "lookarounds and named groups are not supported"
-    for match in re.finditer(r"\((?:\?:)?([^)]*)\)([+*]|\{)", pattern):
-        content = match.group(1)
-        if "|" in content:
-            return "repeated alternation groups are not supported"
-        if re.search(r"[+*]|\{[0-9]+,?", content) and re.match(
-            r"^\[[^]]+\]", content
-        ) is None:
-            return "nested quantified groups are not supported"
-    return None
+    try:
+        tree = _RegexSubsetParser(pattern).parse()
+    except _RegexSubsetError as error:
+        return str(error)
+    return _regex_tree_reason(tree)
 
 
 def _reference_chain_error(root: Mapping[str, Any], reference: str) -> Optional[str]:
@@ -355,6 +751,9 @@ def validate_schema_definition(schema: Any) -> Tuple[ContractFinding, ...]:
                 "Use an object containing $schema and $id.",
             ),
         )
+    json_findings = _json_value_findings(schema)
+    if json_findings:
+        return json_findings
 
     node_count = [0]
 
@@ -588,11 +987,16 @@ def validate_schema_definition(schema: Any) -> Tuple[ContractFinding, ...]:
 
         if "pattern" in node:
             pattern = node["pattern"]
-            try:
-                if not isinstance(pattern, str):
-                    raise TypeError
-                re.compile(pattern)
-            except (TypeError, re.error):
+            pattern_error = not isinstance(pattern, str)
+            unsafe_reason = None  # type: Optional[str]
+            if isinstance(pattern, str):
+                unsafe_reason = _unsafe_pattern_reason(pattern)
+                if unsafe_reason is None:
+                    try:
+                        re.compile(pattern)
+                    except (re.error, OverflowError, RecursionError):
+                        pattern_error = True
+            if pattern_error:
                 findings.append(
                     _finding(
                         _pointer(path, "pattern"),
@@ -601,17 +1005,16 @@ def validate_schema_definition(schema: Any) -> Tuple[ContractFinding, ...]:
                         "Use a Python-compatible regular expression.",
                     )
                 )
-            else:
-                unsafe_reason = _unsafe_pattern_reason(pattern)
-                if unsafe_reason is not None:
-                    findings.append(
-                        _finding(
-                            _pointer(path, "pattern"),
-                            "schema.unsafe-pattern",
-                            f"Pattern is outside the safe subset: {unsafe_reason}.",
-                            "Use a bounded pattern without backreferences, lookarounds, or nested quantifiers.",
-                        )
+            elif unsafe_reason is not None:
+                findings.append(
+                    _finding(
+                        _pointer(path, "pattern"),
+                        "schema.unsafe-pattern",
+                        f"Pattern is outside the safe subset: {unsafe_reason}.",
+                        "Use a bounded pattern without backreferences, "
+                        "lookarounds, or nested quantifiers.",
                     )
+                )
 
         for keyword in ("minLength", "maxLength", "minItems", "maxItems"):
             if keyword in node and (
@@ -695,11 +1098,9 @@ def _matches_type(value: Any, type_name: str) -> bool:
     return False
 
 
-def _valid_unicode_scalar(value: str) -> bool:
-    return not any(0xD800 <= ord(character) <= 0xDFFF for character in value)
-
-
-def _json_value_findings(value: Any) -> Tuple[ContractFinding, ...]:
+def _json_value_findings(
+    value: Any, *, keys_only: bool = False
+) -> Tuple[ContractFinding, ...]:
     findings = []  # type: list[ContractFinding]
     stack = [(value, "", 0, frozenset())]
     nodes = 0
@@ -716,6 +1117,8 @@ def _json_value_findings(value: Any) -> Tuple[ContractFinding, ...]:
                 )
             )
             break
+        if keys_only and not isinstance(current, (dict, list, tuple)):
+            continue
         if current is None or isinstance(current, bool) or type(current) is int:
             continue
         if isinstance(current, float):
@@ -749,7 +1152,9 @@ def _json_value_findings(value: Any) -> Tuple[ContractFinding, ...]:
                     )
                 )
             continue
-        if isinstance(current, list):
+        if isinstance(current, (list, tuple)) and (
+            keys_only or isinstance(current, list)
+        ):
             identity = id(current)
             if identity in ancestors:
                 findings.append(
@@ -787,22 +1192,26 @@ def _json_value_findings(value: Any) -> Tuple[ContractFinding, ...]:
                     )
                 )
                 continue
-            invalid_keys = [key for key in current if not isinstance(key, str)]
-            for key in invalid_keys:
-                findings.append(
-                    _finding(
-                        path,
-                        "contract.json-key",
-                        f"JSON object key must be a string, not {type(key).__name__}.",
-                        "Use string keys for every JSON object.",
+            valid_keys = []
+            for key in current:
+                key_finding = _json_key_finding(path, key)
+                if key_finding is None:
+                    valid_keys.append(key)
+                else:
+                    findings.append(key_finding)
+                    if len(findings) >= MAX_VALIDATION_FINDINGS:
+                        valid_keys = []
+                        break
+            next_ancestors = ancestors | {identity}
+            for key in sorted(valid_keys, reverse=True):
+                stack.append(
+                    (
+                        current[key],
+                        _pointer(path, key),
+                        depth + 1,
+                        next_ancestors,
                     )
                 )
-            next_ancestors = ancestors | {identity}
-            for key in sorted(
-                (key for key in current if isinstance(key, str)),
-                reverse=True,
-            ):
-                stack.append((current[key], _pointer(path, key), depth + 1, next_ancestors))
             continue
         findings.append(
             _finding(
@@ -989,6 +1398,8 @@ def validate_instance(instance: Any, schema: Mapping[str, Any]) -> Tuple[Contrac
             findings.extend(_portable_path_findings(source.get("path"), "/source/path"))
     if schema_id == "cg-skill-release-attestation-v1" and isinstance(instance, dict):
         findings.extend(_attestation_invariants(instance))
+    if schema_id == "cg-skill-migration-v1" and isinstance(instance, dict):
+        findings.extend(_migration_invariants(instance))
     return _sorted(findings)
 
 
@@ -1068,10 +1479,7 @@ def _action_path_invariants(actions: Any, path: str) -> Sequence[ContractFinding
         item_path = f"{path}/{index}/path"
         findings.extend(_portable_path_findings(value, item_path))
         if isinstance(value, str):
-            key = tuple(
-                unicodedata.normalize("NFC", part).casefold().rstrip(". ")
-                for part in PurePosixPath(value.replace("\\", "/")).parts
-            )
+            key = path_policy.portable_path_key(value.replace("\\", "/"))
             prior = seen.get(key)
             if prior is not None:
                 findings.append(
@@ -1099,11 +1507,63 @@ def _action_path_invariants(actions: Any, path: str) -> Sequence[ContractFinding
     return findings
 
 
+def migration_path_allowed(value: str) -> bool:
+    """Return whether a removal migration may edit one project reference file."""
+    if path_policy.validate_repo_relative_path("migration path", value):
+        return False
+    key = path_policy.portable_path_key(value)
+    if not key or any(part.startswith(".") for part in key):
+        return False
+    if len(key) == 1:
+        return key[0] in _MIGRATION_REFERENCE_FILES
+    return (
+        key[0] in _MIGRATION_REFERENCE_ROOTS
+        and PurePosixPath(key[-1]).suffix in _MIGRATION_REFERENCE_SUFFIXES
+    )
+
+
+def _migration_invariants(migration: Mapping[str, Any]) -> Sequence[ContractFinding]:
+    findings = []  # type: list[ContractFinding]
+    seen = {}  # type: Dict[Tuple[str, ...], str]
+    edits = migration.get("edits")
+    if not isinstance(edits, list):
+        return findings
+    for index, edit in enumerate(edits):
+        if not isinstance(edit, dict):
+            continue
+        value = edit.get("path")
+        item_path = f"/edits/{index}/path"
+        findings.extend(_portable_path_findings(value, item_path))
+        if not isinstance(value, str):
+            continue
+        key = path_policy.portable_path_key(value.replace("\\", "/"))
+        prior = seen.get(key)
+        if prior is not None:
+            findings.append(
+                _finding(
+                    item_path,
+                    "contract.path-collision",
+                    f"Migration path collides portably with {prior!r}.",
+                    "Use one portable path identity per migration.",
+                )
+            )
+        else:
+            seen[key] = value
+        if not migration_path_allowed(value):
+            findings.append(
+                _finding(
+                    item_path,
+                    "contract.action-root",
+                    f"Removal migration cannot target {value!r}.",
+                    "Use a bounded project documentation or reference text file.",
+                )
+            )
+    return findings
+
+
 def _action_path_allowed(kind: str, value: str) -> bool:
     if kind == "apply-migration":
-        return value != "roadmap.json" and not value.startswith(
-            (".cg-docs/", "releases/")
-        )
+        return migration_path_allowed(value)
     exact = {
         "update-config": {"compound-gpid.local.md"},
         "update-registry": {
@@ -1530,10 +1990,12 @@ def validate_project_registry(
     canonical_capabilities: Iterable[str] = (),
 ) -> Tuple[ContractFinding, ...]:
     """Validate project records and reject canonical identifier shadowing."""
-    contract_path = Path(__file__).resolve().parents[2] / (
-        ".github/shared/skill-management/contracts/project-registry-v1.schema.json"
+    source_root = Path(__file__).resolve().parents[2]
+    contract = load_contract(
+        source_root,
+        CONTRACTS_ROOT / "project-registry-v1.schema.json",
     )
-    findings = list(validate_instance(registry, load_contract(contract_path)))
+    findings = list(validate_instance(registry, contract))
     canonical_id_set = {value.casefold() for value in canonical_ids}
     canonical_capability_set = {value.casefold() for value in canonical_capabilities}
     records = registry.get("records", []) if isinstance(registry, dict) else []
@@ -1554,10 +2016,12 @@ def validate_project_registry(
     return _sorted(findings)
 
 
-def validate_contract_file(path: Path) -> Tuple[ContractFinding, ...]:
+def validate_contract_file(
+    root: Path, relative_path: PurePosixPath
+) -> Tuple[ContractFinding, ...]:
     """Load and meta-validate one contract file in the closed dialect."""
     try:
-        schema = load_contract(path)
+        schema = load_contract(root, relative_path)
     except (OSError, ValueError) as error:
         return (
             _finding("", "schema.read", str(error), "Repair the contract as bounded regular UTF-8 JSON."),
@@ -1618,12 +2082,7 @@ def load_operation_descriptor(
     root = Path(source_root).resolve()
     descriptor_relative = OPERATIONS_ROOT / f"{operation}.json"
     try:
-        descriptor_bytes = secure_fs.secure_read_bytes(
-            root,
-            descriptor_relative,
-            reject_hardlinks=True,
-            max_bytes=MAX_CONTRACT_BYTES,
-        )
+        descriptor = load_contract(root, descriptor_relative)
     except FileNotFoundError:
         raise
     except (OSError, ValueError) as error:
@@ -1633,18 +2092,11 @@ def load_operation_descriptor(
             f"Operation descriptor cannot be read safely: {error}",
         ) from error
     try:
-        descriptor = load_contract_bytes(
-            descriptor_bytes, source=descriptor_relative.as_posix()
+        descriptor_schema = load_contract(
+            root,
+            CONTRACTS_ROOT / "operation-descriptor-v1.schema.json",
         )
-        descriptor_schema = load_contract_bytes(
-            _read_root_file(
-                root,
-                CONTRACTS_ROOT / "operation-descriptor-v1.schema.json",
-                label="descriptor meta-contract",
-            ),
-            source=(CONTRACTS_ROOT / "operation-descriptor-v1.schema.json").as_posix(),
-        )
-    except ValueError as error:
+    except (OSError, ValueError) as error:
         raise DescriptorValidationError(
             "descriptor.invalid", descriptor_relative.as_posix(), str(error)
         ) from error
@@ -1707,11 +2159,8 @@ def load_operation_descriptor(
             "Operation contract filename does not match the operation.",
         )
     try:
-        operation_contract = load_contract_bytes(
-            _read_root_file(root, contract_relative, label="operation contract"),
-            source=contract_relative.as_posix(),
-        )
-    except ValueError as error:
+        operation_contract = load_contract(root, contract_relative)
+    except (OSError, ValueError) as error:
         raise DescriptorValidationError(
             "descriptor.invalid", contract_relative.as_posix(), str(error)
         ) from error

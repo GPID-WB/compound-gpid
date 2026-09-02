@@ -14,13 +14,15 @@ from typing import Any, Callable, Dict, Iterable, Mapping, Optional, Sequence, T
 
 import secure_fs
 
+from . import paths as path_policy
 from .contracts import (
     ContractFinding,
+    CONTRACTS_ROOT,
     EXIT_CONTRACT,
     EXIT_SUCCESS,
     canonical_json_bytes,
-    sort_findings,
     load_contract,
+    sort_findings,
     validate_instance,
 )
 from .locking import project_lifecycle_lock
@@ -276,10 +278,10 @@ def _plan_envelope(plan: LifecyclePlan) -> Dict[str, Any]:
 
 
 def _validate_plan_envelope(envelope: Mapping[str, Any]) -> None:
-    schema_path = Path(__file__).resolve().parents[2] / (
-        ".github/shared/skill-management/contracts/plan-v1.schema.json"
+    schema = load_contract(
+        Path(__file__).resolve().parents[2],
+        CONTRACTS_ROOT / "plan-v1.schema.json",
     )
-    schema = load_contract(schema_path)
     findings = validate_instance(dict(envelope), schema)
     if findings:
         detail = "; ".join(
@@ -367,7 +369,7 @@ def _ordered_mutations(plan: LifecyclePlan) -> Tuple[ExpectedMutation, ...]:
     mutations = []
     for _index, mutation in ordered:
         assert mutation is not None
-        key = tuple(part.casefold().rstrip(". ") for part in PurePosixPath(mutation.path).parts)
+        key = path_policy.portable_path_key(mutation.path)
         if key in paths:
             raise PlanningError(f"Lifecycle plan mutates one path more than once: {mutation.path}")
         paths.add(key)
@@ -586,7 +588,7 @@ def _validate_journal(journal: Any, *, expected_id: Optional[str] = None) -> Dic
             normalized = secure_fs.normalize_relative_path(path)
         except (TypeError, ValueError, OSError) as error:
             raise JournalValidationError(f"Lifecycle journal action {index} path is unsafe") from error
-        key = tuple(part.casefold().rstrip(". ") for part in PurePosixPath(normalized).parts)
+        key = path_policy.portable_path_key(normalized)
         if key in seen:
             raise JournalValidationError("Lifecycle journal has colliding action paths")
         seen.add(key)

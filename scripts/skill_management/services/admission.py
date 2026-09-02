@@ -17,6 +17,8 @@ from skill_management import contracts
 from skill_management import paths as path_policy
 from skill_management.providers.github import AcquisitionLimits
 from skill_management.providers.github import AcquiredBundle
+from skill_management.providers.github import GitHubAcquisitionError
+from skill_management.providers.github import normalize_source_path
 from skill_management.services import bundles
 
 
@@ -114,6 +116,23 @@ def _positive_integer(value: Any, field: str) -> int:
     return value
 
 
+def _normalized_allowed_roots(value: Any) -> Tuple[str, ...]:
+    roots = _tuple_of_strings(value, "allowedUpstreamSkillRoots")
+    normalized = []  # type: List[str]
+    for root in roots:
+        try:
+            normalized.append(normalize_source_path(root))
+        except GitHubAcquisitionError as error:
+            raise AdmissionPolicyError(
+                "vendor-policy.json allowedUpstreamSkillRoots contains an invalid root"
+            ) from error
+    if len(set(normalized)) != len(normalized):
+        raise AdmissionPolicyError(
+            "vendor-policy.json allowedUpstreamSkillRoots must be unique after normalization"
+        )
+    return tuple(normalized)
+
+
 def load_admission_policy(source_root: Path) -> AdmissionPolicy:
     """Load and strictly validate the committed canonical security policy."""
     root = Path(source_root).resolve(strict=True)
@@ -194,9 +213,7 @@ def load_admission_policy(source_root: Path) -> AdmissionPolicy:
         allowed_repositories=_tuple_of_strings(
             value["allowedRepositoryIdentities"], "allowedRepositoryIdentities"
         ),
-        allowed_roots=_tuple_of_strings(
-            value["allowedUpstreamSkillRoots"], "allowedUpstreamSkillRoots"
-        ),
+        allowed_roots=_normalized_allowed_roots(value["allowedUpstreamSkillRoots"]),
         max_bundle_bytes=_positive_integer(value["maxBundleSizeBytes"], "maxBundleSizeBytes"),
         max_files=_positive_integer(value["maxFileCount"], "maxFileCount"),
         max_file_bytes=_positive_integer(value["maxFileSizeBytes"], "maxFileSizeBytes"),
@@ -227,6 +244,25 @@ def repository_allowed_for_plugin(origin: str, policy: AdmissionPolicy) -> bool:
     """Return whether normalized plugin vendoring origin is allowlisted."""
     normalized = origin.rstrip("/").casefold()
     return any(normalized == item.rstrip("/").casefold() for item in policy.allowed_repositories)
+
+
+def require_allowed_source_path(source_path: str, policy: AdmissionPolicy) -> str:
+    """Return a normalized source path that is below one approved skill root."""
+    try:
+        normalized = normalize_source_path(source_path)
+    except GitHubAcquisitionError as error:
+        raise AdmissionPolicyError("Upstream skill source path is invalid") from error
+    source_parts = PurePosixPath(normalized).parts
+    for root in policy.allowed_roots:
+        root_parts = PurePosixPath(root).parts
+        if (
+            len(source_parts) > len(root_parts)
+            and source_parts[:len(root_parts)] == root_parts
+        ):
+            return normalized
+    raise AdmissionPolicyError(
+        "Upstream skill source path is not below an allowed upstream skill root"
+    )
 
 
 def _is_link_or_reparse(metadata: os.stat_result) -> bool:
@@ -584,6 +620,7 @@ def materialize_quarantine(
     """Write only confined quarantine/evidence and run strict local admission."""
     if _REVIEW_SCOPE.fullmatch(review_scope) is None:
         raise AdmissionPolicyError("Admission review scope is invalid")
+    require_allowed_source_path(acquired.source_path, policy)
     project = Path(project_root).resolve(strict=True)
     identifier = PurePosixPath(acquired.source_path).name
     key = quarantine_key(acquired.origin, acquired.commit, acquired.source_path)
@@ -690,6 +727,7 @@ def load_quarantined_candidate(
     """Re-admit exact existing quarantine/evidence without network acquisition."""
     if _REVIEW_SCOPE.fullmatch(review_scope) is None:
         raise AdmissionPolicyError("Admission review scope is invalid")
+    source_path = require_allowed_source_path(source_path, policy)
     project = Path(project_root).resolve(strict=True)
     key = quarantine_key(origin, commit, source_path)
     identifier = PurePosixPath(source_path).name

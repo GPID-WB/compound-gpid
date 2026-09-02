@@ -69,6 +69,7 @@ def handle(*, context: Any, request: Mapping[str, Any]) -> planning.OperationOut
         if scope not in {"project", "plugin"}:
             raise ValueError("import scope must be project or plugin")
         policy = admission.load_admission_policy(context.source_root)
+        source_path = admission.require_allowed_source_path(source_path, policy)
         if scope == "plugin":
             require_maintainer_write_context(context)
             if not admission.repository_allowed_for_plugin(origin, policy):

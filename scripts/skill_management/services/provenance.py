@@ -406,10 +406,10 @@ def _validate_history(record: Mapping[str, Any]) -> None:
 
 
 def _provenance_schema() -> Dict[str, Any]:
-    schema_path = Path(__file__).resolve().parents[3] / (
-        ".github/shared/skill-management/contracts/provenance-v1.schema.json"
+    return contracts.load_contract(
+        Path(__file__).resolve().parents[3],
+        contracts.CONTRACTS_ROOT / "provenance-v1.schema.json",
     )
-    return contracts.load_contract(schema_path)
 
 
 def build_provenance_snapshot(
@@ -576,10 +576,10 @@ def load_provenance_snapshot(
             f"{PROVENANCE_ROOT} must be one real directory, not a link or reparse point."
         )
 
-    schema_path = Path(__file__).resolve().parents[3] / (
-        ".github/shared/skill-management/contracts/provenance-v1.schema.json"
+    schema = contracts.load_contract(
+        Path(__file__).resolve().parents[3],
+        contracts.CONTRACTS_ROOT / "provenance-v1.schema.json",
     )
-    schema = contracts.load_contract(schema_path)
     loaded = []
     digest_rows = []
     seen_paths = {}

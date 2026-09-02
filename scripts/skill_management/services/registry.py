@@ -685,10 +685,10 @@ def build_combined_registry_snapshot(
         raise RegistryValidationError("Future project bundle identifiers are duplicated")
     if len(provenance_by_id) != len(provenance_records):
         raise RegistryValidationError("Future provenance identifiers are duplicated")
-    schema_path = Path(__file__).resolve().parents[3] / (
-        ".github/shared/skill-management/contracts/provenance-v1.schema.json"
+    provenance_schema = contracts.load_contract(
+        Path(__file__).resolve().parents[3],
+        contracts.CONTRACTS_ROOT / "provenance-v1.schema.json",
     )
-    provenance_schema = contracts.load_contract(schema_path)
     canonical_portable = {
         path_policy.portable_path_key(identifier): identifier
         for identifier in canonical_ids
