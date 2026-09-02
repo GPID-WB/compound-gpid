@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-08-31 · 596 artifacts (newest first) + 160 roadmap features_
+_Generated 2026-09-02 · 598 artifacts (newest first) + 160 roadmap features_
 
 ## undated
 
@@ -127,6 +127,16 @@ _Generated 2026-08-31 · 596 artifacts (newest first) + 160 roadmap features_
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
 
+## 2026-09-02
+
+- **[Captured-byte trust must cover the complete dependency closure](.cg-docs/solutions/bugs/2026-09-02-captured-byte-trust-must-cover-dependency-closure.md)** · `solution` · _—_ · `2026-09-02`
+  > A dynamic Python dispatcher captured and validated the selected operation file before execution. The handler still im…
+
+## 2026-09-01
+
+- **[2026-08-28-scalable-skill-management-suite-verify-review-2](.cg-docs/reviews/2026-08-28-scalable-skill-management-suite-verify-review-2.md)** · `review` · _—_ · `2026-09-01`
+  > **Review mode**: light verification **Parent review**: `.cg-docs/reviews/2026-08-28-scalable-skill-management-suite-r…
+
 ## 2026-08-31
 
 - **[2026-08-28-scalable-skill-management-suite-verify-review](.cg-docs/reviews/2026-08-28-scalable-skill-management-suite-verify-review.md)** · `review` · _—_ · `2026-08-31`
@@ -143,7 +153,7 @@ _Generated 2026-08-31 · 596 artifacts (newest first) + 160 roadmap features_
 
 - **[Scalable Skill Management Suite](.cg-docs/brainstorms/2026-08-28-scalable-skill-management-suite.md)** · `brainstorm` · _decided_ · `2026-08-28`
   > <!-- Valid status values: decided, in-progress, abandoned -->
-- **[Scalable Skill Management Suite](.cg-docs/plans/2026-08-28-scalable-skill-management-suite.md)** · `plan` · _active_ · `2026-08-28`
+- **[Scalable Skill Management Suite](.cg-docs/plans/2026-08-28-scalable-skill-management-suite.md)** · `plan` · _completed_ · `2026-08-28`
   > Build one role-gated `/cg-skill` command that manages the complete skill lifecycle without becoming one large prompt …
 
 ## 2026-08-26
@@ -1725,7 +1735,7 @@ _Generated 2026-08-31 · 596 artifacts (newest first) + 160 roadmap features_
   > Roadmap visualization agent + /cg-roadmap-view prompt
 - **[Runtime model-catalog introspection across platforms](roadmap.json#runtime-model-catalog-introspection-across-platforms)** · `feature` · _idea_ · `—`
   > Runtime model-catalog introspection across platforms
-- **[Scalable Skill Management Suite](roadmap.json#scalable-skill-management-suite)** · `feature` · _active_ · `—`
+- **[Scalable Skill Management Suite](roadmap.json#scalable-skill-management-suite)** · `feature` · _done_ · `—`
   > Scalable Skill Management Suite
 - **[Schema bypass for compound-gpid repo in /cg-resume](roadmap.json#schema-bypass-in-cg-resume)** · `feature` · _done_ · `—`
   > Schema bypass for compound-gpid repo in /cg-resume

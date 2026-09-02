@@ -1,5 +1,5 @@
 {
-  "edge_count": 327,
+  "edge_count": 328,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -1427,6 +1427,12 @@
       "edge_type": "reviews",
       "source": ".cg-docs/reviews/2026-08-28-scalable-skill-management-suite-review.md",
       "target": ".cg-docs/plans/2026-08-28-scalable-skill-management-suite.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-08-28-scalable-skill-management-suite-verify-review-2.md",
+      "target": ".cg-docs/reviews/2026-08-28-scalable-skill-management-suite-review.md",
       "target_missing": false
     },
     {
@@ -7002,7 +7008,7 @@
       "entity_type": "plan",
       "path": ".cg-docs/plans/2026-08-28-scalable-skill-management-suite.md",
       "slug": "2026-08-28-scalable-skill-management-suite",
-      "status": "active",
+      "status": "completed",
       "summary": "Build one role-gated `/cg-skill` command that manages the complete skill lifecycle without becoming one large prompt or Python script. Use explicit operation descriptors, workflows, contracts, and modules; reuse focused domain services; support permanent and project-specific skills; and verify every selected platform through deterministic, fail-closed plan/apply transactions.",
       "tags": [
         "skills",
@@ -10947,6 +10953,28 @@
       ]
     },
     {
+      "date": "2026-09-01",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-08-28-scalable-skill-management-suite-verify-review-2.md",
+      "slug": "2026-08-28-scalable-skill-management-suite-verify-review-2",
+      "status": "",
+      "summary": "**Review mode**: light verification **Parent review**: `.cg-docs/reviews/2026-08-28-scalable-skill-management-suite-review.md` **Files reviewed**: current branch against `main`, plus completion metadata **Findings**: 10 (P0: 2, P1: 7, P2: 1)",
+      "tags": [],
+      "title": "2026-08-28-scalable-skill-management-suite-verify-review-2",
+      "top_keywords": [
+        "contracts.py",
+        "verification",
+        "2026-08-28-scalable-skill-management-suite-review.md",
+        "cg_skill.py",
+        "review",
+        "skill",
+        "evidence",
+        "suite",
+        "allowedupstreamskillroots",
+        "ca0891b"
+      ]
+    },
+    {
       "date": "2026-08-31",
       "entity_type": "review",
       "path": ".cg-docs/reviews/2026-08-28-scalable-skill-management-suite-verify-review.md",
@@ -13278,6 +13306,37 @@
         "consumer",
         "problem",
         "root"
+      ]
+    },
+    {
+      "date": "2026-09-02",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/bugs/2026-09-02-captured-byte-trust-must-cover-dependency-closure.md",
+      "slug": "2026-09-02-captured-byte-trust-must-cover-dependency-closure",
+      "status": "",
+      "summary": "A dynamic Python dispatcher captured and validated the selected operation file before execution. The handler still imported shared operation helpers, services, and providers through Python's normal importer. A linked, hard-linked, swapped, or preloaded helper could therefore execute module-level code even though the handler leaf was trusted. The same fix pattern exposed a second regression in target generation. Replacing `read_text()` with captured raw bytes removed Python's universal-newline normalization. Generated text could retain CRLF on Windows and violate the deterministic LF output contract.",
+      "tags": [
+        "security",
+        "dynamic-dispatch",
+        "imports",
+        "captured-bytes",
+        "nofollow",
+        "hardlink",
+        "toctou",
+        "line-endings"
+      ],
+      "title": "Captured-byte trust must cover the complete dependency closure",
+      "top_keywords": [
+        "exec()",
+        "trust",
+        "complete",
+        "dependency",
+        "closure",
+        "must",
+        "captured-byte",
+        "cover",
+        "root",
+        "skill_management"
       ]
     },
     {
@@ -18758,7 +18817,7 @@
       "entity_type": "feature",
       "path": "roadmap.json#scalable-skill-management-suite",
       "slug": "scalable-skill-management-suite",
-      "status": "active",
+      "status": "done",
       "summary": "Scalable Skill Management Suite",
       "tags": [],
       "title": "Scalable Skill Management Suite",
@@ -21702,13 +21761,13 @@
       ]
     }
   ],
-  "entity_count": 756,
-  "generated": "2026-08-31",
+  "entity_count": 758,
+  "generated": "2026-09-02",
   "schema_version": "0.2.0",
-  "topic_count": 5,
+  "topic_count": 6,
   "topics": [
     {
-      "entity_count": 528,
+      "entity_count": 530,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -22071,6 +22130,7 @@
         ".cg-docs/solutions/bugs/2026-05-19-cg-compound-wiki-update-silently-skipped-all-manual-pages.md",
         ".cg-docs/solutions/bugs/2026-05-19-python-try-except-scope-traps-cleanup-and-missing-importerror.md",
         ".cg-docs/solutions/bugs/2026-05-20-fix-helper-written-but-not-wired-into-call-site.md",
+        ".cg-docs/solutions/bugs/2026-05-20-optim-hessian-returns-negative-ll-hessian-must-be-positive-definite.md",
         ".cg-docs/solutions/bugs/2026-05-22-bash-heredoc-multiline-compound-command-invalid-syntax.md",
         ".cg-docs/solutions/bugs/2026-06-05-cg-index-cmd-python3-stderr-leak.md",
         ".cg-docs/solutions/bugs/2026-06-10-brain-renderer-multiline-label-breaks-pipe-table.md",
@@ -22093,6 +22153,7 @@
         ".cg-docs/solutions/bugs/2026-08-21-cg-link-singular-platform-flag.md",
         ".cg-docs/solutions/bugs/2026-08-26-release-drift-ignore-checks-spawn-thousands-of-git-processes.md",
         ".cg-docs/solutions/bugs/2026-08-31-trust-anchor-captured-byte-dispatch.md",
+        ".cg-docs/solutions/bugs/2026-09-02-captured-byte-trust-must-cover-dependency-closure.md",
         ".cg-docs/solutions/build-errors/2026-03-04-get-item-target-is-string-array.md",
         ".cg-docs/solutions/build-errors/2026-03-04-powershell-dollar-dollar-is-not-pid.md",
         ".cg-docs/solutions/build-errors/2026-03-13-backslash-quote-in-powershell-string-breaks-percent-operator.md",
@@ -22446,6 +22507,21 @@
       ],
       "label": "Scripts/Cg_Kilo_Preflight.Py / Link.Sh / Cg_Kilo_Preflight.Py",
       "slug": "scripts-cg-kilo-preflight-py-link-sh-cg-kilo-preflight-py"
+    },
+    {
+      "entity_count": 3,
+      "entity_paths": [
+        ".cg-docs/reviews/2026-08-28-scalable-skill-management-suite-review.md",
+        ".cg-docs/reviews/2026-08-28-scalable-skill-management-suite-verify-review-2.md",
+        ".cg-docs/reviews/2026-08-28-scalable-skill-management-suite-verify-review.md"
+      ],
+      "keywords": [
+        "contracts.py",
+        "cg_skill.py",
+        "cg_generate_targets.py"
+      ],
+      "label": "Contracts.Py / Cg_Skill.Py / Cg_Generate_Targets.Py",
+      "slug": "contracts-py-cg-skill-py-cg-generate-targets-py"
     },
     {
       "entity_count": 3,

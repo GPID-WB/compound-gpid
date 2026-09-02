@@ -337,6 +337,12 @@ rules that help Copilot produce accurate outputs across all prompts and sessions
 - `/cg-skill <operation>` is the only public skill-management namespace. The
   `cg` suite selects `cap-skill-management`; mutating operations always plan
   before digest-bound apply, and generated projections are never edited by hand.
+- **Captured dynamic Python execution includes the dependency closure**: securing
+  only the selected handler is insufficient because its imports resolve and
+  execute code again. Capture and validate all repository-local dependencies
+  before execution. When replacing text reads with byte capture, restore required
+  UTF-8 and LF normalization explicitly while preserving opaque resources byte
+  for byte. See `.cg-docs/solutions/bugs/2026-09-02-captured-byte-trust-must-cover-dependency-closure.md`.
 
 ## Wiki Configuration
 

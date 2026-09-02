@@ -80,5 +80,6 @@ Regression tests prove these boundaries:
 - `.cg-docs/solutions/testing-patterns/2026-07-28-handle-relative-filesystem-mutations-and-real-boundary-tests.md`
 - `.cg-docs/solutions/bugs/2026-08-01-secure-publication-rollback-must-not-clobber.md`
 - `.cg-docs/solutions/testing-patterns/2026-07-24-cross-file-contract-state-must-align-docs-validator-tests.md`
+- `.cg-docs/solutions/bugs/2026-09-02-captured-byte-trust-must-cover-dependency-closure.md`
 - `.cg-docs/reviews/2026-08-28-scalable-skill-management-suite-review.md`
 - `.cg-docs/reviews/2026-08-28-scalable-skill-management-suite-verify-review.md`
