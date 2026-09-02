@@ -7,6 +7,8 @@ import shutil
 from pathlib import Path
 from types import SimpleNamespace
 
+import pytest
+
 from skill_management import planning
 from skill_management.operations import create, import_skill, update
 from skill_management.providers.github import AcquiredBundle, AcquiredFile
@@ -30,7 +32,9 @@ from scripts.tests.test_skill_management_vendor import (
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
-def _project(tmp_path: Path) -> tuple[Path, Path]:
+def _project(
+    tmp_path: Path, source_path: str = "skills/demo"
+) -> tuple[Path, Path]:
     source = tmp_path / "source"
     _real_registry(source)
     _small_mapping(source)
@@ -60,7 +64,7 @@ def _project(tmp_path: Path) -> tuple[Path, Path]:
         source,
         inventory,
         origin="https://github.com/outside/public-skills",
-        source_path="skills/demo",
+        source_path=source_path,
         commit="a" * 40,
         suites=("cg",),
         platforms=("kilo",),
@@ -72,7 +76,10 @@ def _project(tmp_path: Path) -> tuple[Path, Path]:
 
 
 def _acquired(
-    *, commit: str = "b" * 40, secret: bool = False
+    *,
+    commit: str = "b" * 40,
+    secret: bool = False,
+    source_path: str = "skills/demo",
 ) -> AcquiredBundle:
     skill = b'---\nname: demo\ndescription: "Imported demo v2"\n---\n# Demo v2\n'
     if secret:
@@ -87,7 +94,7 @@ def _acquired(
     return AcquiredBundle(
         "https://github.com/outside/public-skills",
         commit,
-        "skills/demo",
+        source_path,
         tuple(files),
         "d" * 64,
     )
@@ -206,7 +213,56 @@ def test_update_rejects_new_secret_without_mutating_live_bundle(
     assert (project / ".compound-gpid/skills/demo/SKILL.md").read_bytes() == before
 
 
-def test_policy_change_after_plan_makes_update_stale(
+@pytest.mark.parametrize(
+    "source_path",
+    ("outside/demo", "skills-archive/demo", "skills"),
+)
+def test_update_rejects_disallowed_root_before_provider_access(
+    tmp_path: Path, monkeypatch, source_path: str
+) -> None:
+    source, project = _project(tmp_path, source_path)
+
+    class Provider:
+        called = False
+
+        def acquire(self, *_args, **_kwargs):
+            Provider.called = True
+            raise AssertionError("provider must not be called")
+
+    monkeypatch.setattr(update, "GitHubProvider", Provider)
+    outcome = update.handle(
+        context=_context(source, project),
+        request={"phase": "plan", "arguments": _arguments()},
+    )
+
+    assert outcome.exit_code == 5
+    assert outcome.findings
+    assert "allowed upstream skill root" in outcome.findings[0].message
+    assert Provider.called is False
+
+
+def test_update_normalizes_nested_allowed_path_before_provider_access(
+    tmp_path: Path, monkeypatch
+) -> None:
+    source, project = _project(tmp_path, "skills//nested/./demo/")
+    requested_paths = []
+
+    class Provider:
+        def acquire(self, _origin, _commit, source_path, _limits):
+            requested_paths.append(source_path)
+            return _acquired(source_path=source_path)
+
+    monkeypatch.setattr(update, "GitHubProvider", Provider)
+    outcome = update.handle(
+        context=_context(source, project),
+        request={"phase": "plan", "arguments": _arguments()},
+    )
+
+    assert not outcome.findings
+    assert requested_paths == ["skills/nested/demo"]
+
+
+def test_allowed_root_policy_change_blocks_update_apply(
     tmp_path: Path, monkeypatch
 ) -> None:
     source, project = _project(tmp_path)
@@ -223,7 +279,7 @@ def test_policy_change_after_plan_makes_update_stale(
     )
     policy_path = source / ".github/shared/vendor-policy.json"
     policy = json.loads(policy_path.read_text("utf-8"))
-    policy["maxBundleSizeBytes"] -= 1
+    policy["allowedUpstreamSkillRoots"] = [".github/skills/"]
     policy_path.write_text(json.dumps(policy, indent=2) + "\n", encoding="utf-8")
 
     applied = update.handle(
@@ -234,7 +290,8 @@ def test_policy_change_after_plan_makes_update_stale(
             "planDigest": planned.plan_digest,
         },
     )
-    assert applied.findings
+    assert applied.exit_code == 5
+    assert "allowed upstream skill root" in applied.findings[0].message
     assert not (project / ".compound-gpid/skills/demo/references/new.md").exists()
 
 

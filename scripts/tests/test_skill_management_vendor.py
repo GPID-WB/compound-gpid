@@ -5,6 +5,8 @@ import hashlib
 import json
 from pathlib import Path
 
+import pytest
+
 from skill_management.operations import import_skill
 from skill_management.providers.github import AcquiredBundle, AcquiredFile
 from scripts.tests.test_skill_management_create import (
@@ -14,7 +16,9 @@ from scripts.tests.test_skill_management_create import (
 )
 
 
-def _acquired(commit: str = "b" * 40) -> AcquiredBundle:
+def _acquired(
+    commit: str = "b" * 40, source_path: str = "skills/vendored-demo"
+) -> AcquiredBundle:
     content = b'---\nname: vendored-demo\ndescription: "Vendored demo"\n---\n# Demo\n'
     object_id = hashlib.sha1(
         b"blob " + str(len(content)).encode("ascii") + b"\0" + content
@@ -22,7 +26,7 @@ def _acquired(commit: str = "b" * 40) -> AcquiredBundle:
     return AcquiredBundle(
         "https://github.com/kilo-org/kilocode",
         commit,
-        "skills/vendored-demo",
+        source_path,
         (AcquiredFile("SKILL.md", content, object_id, len(content), "100644"),),
         "c" * 64,
     )
@@ -124,6 +128,103 @@ def test_plugin_vendoring_rejects_consumer_and_outside_allowlist(
     assert blocked.findings
     assert blocked.exit_code == 5
     assert "allowlist" in blocked.findings[0].message.casefold()
+
+
+@pytest.mark.parametrize(
+    "source_path",
+    ("outside/vendored-demo", "skills-archive/vendored-demo", "skills"),
+)
+def test_plugin_vendoring_rejects_disallowed_root_before_provider_access(
+    tmp_path: Path, monkeypatch, source_path: str
+) -> None:
+    root = _canonical_root(tmp_path)
+
+    class Provider:
+        called = False
+
+        def acquire(self, *_args, **_kwargs):
+            Provider.called = True
+            raise AssertionError("provider must not be called")
+
+    monkeypatch.setattr(import_skill, "GitHubProvider", Provider)
+    arguments = _arguments(
+        positionals=[
+            "https://github.com/Kilo-Org/kilocode",
+            source_path,
+            "b" * 40,
+        ]
+    )
+    outcome = import_skill.handle(
+        context=_context(root),
+        request={"phase": "plan", "arguments": arguments},
+    )
+
+    assert outcome.exit_code == 5
+    assert outcome.findings
+    assert "allowed upstream skill root" in outcome.findings[0].message
+    assert Provider.called is False
+
+
+def test_plugin_vendoring_normalizes_nested_allowed_path_before_provider_access(
+    tmp_path: Path, monkeypatch
+) -> None:
+    root = _canonical_root(tmp_path)
+    requested_paths = []
+
+    class Provider:
+        def acquire(self, _origin, _commit, source_path, _limits):
+            requested_paths.append(source_path)
+            return _acquired(source_path=source_path)
+
+    monkeypatch.setattr(import_skill, "GitHubProvider", Provider)
+    arguments = _arguments(
+        positionals=[
+            "https://github.com/Kilo-Org/kilocode",
+            "skills//nested/./vendored-demo/",
+            "b" * 40,
+        ]
+    )
+    outcome = import_skill.handle(
+        context=_context(root),
+        request={"phase": "plan", "arguments": arguments},
+    )
+
+    assert not outcome.findings
+    assert requested_paths == ["skills/nested/vendored-demo"]
+
+
+def test_plugin_vendoring_apply_revalidates_changed_allowed_roots(
+    tmp_path: Path, monkeypatch
+) -> None:
+    root = _canonical_root(tmp_path)
+
+    class Provider:
+        def acquire(self, *_args, **_kwargs):
+            return _acquired()
+
+    monkeypatch.setattr(import_skill, "GitHubProvider", Provider)
+    arguments = _arguments()
+    planned = import_skill.handle(
+        context=_context(root),
+        request={"phase": "plan", "arguments": arguments},
+    )
+    policy_path = root / ".github/shared/vendor-policy.json"
+    policy = json.loads(policy_path.read_text("utf-8"))
+    policy["allowedUpstreamSkillRoots"] = [".github/skills/"]
+    policy_path.write_text(json.dumps(policy, indent=2) + "\n", encoding="utf-8")
+
+    applied = import_skill.handle(
+        context=_context(root),
+        request={
+            "phase": "apply",
+            "arguments": arguments,
+            "planDigest": planned.plan_digest,
+        },
+    )
+
+    assert applied.exit_code == 5
+    assert "allowed upstream skill root" in applied.findings[0].message
+    assert not (root / ".github/skills/vendored-demo").exists()
 
 
 def test_project_plan_digest_cannot_be_reused_for_plugin_vendoring(

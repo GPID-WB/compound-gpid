@@ -7,6 +7,8 @@ import shutil
 from pathlib import Path
 from types import SimpleNamespace
 
+import pytest
+
 from skill_management import planning
 from skill_management.operations import import_skill
 from skill_management.providers.github import AcquiredBundle, AcquiredFile
@@ -16,6 +18,9 @@ from scripts.tests.test_project_projection import (
     _real_registry,
     _small_mapping,
 )
+
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
 def _roots(tmp_path: Path) -> tuple[Path, Path]:
@@ -29,6 +34,40 @@ def _roots(tmp_path: Path) -> tuple[Path, Path]:
         '---\nlanguage: "r"\nsuites: [cg]\n---\n# project\n', encoding="utf-8"
     )
     return source, project
+
+
+def _install_policy(source: Path) -> None:
+    shutil.copy2(
+        REPO_ROOT / ".github/shared/vendor-policy.json",
+        source / ".github/shared/vendor-policy.json",
+    )
+
+
+def _import_arguments(source_path: str) -> dict:
+    return {
+        "positionals": [
+            "https://github.com/outside/public-skills",
+            source_path,
+            "a" * 40,
+        ],
+        "license": "MIT",
+        "platforms": "kilo",
+        "suites": "cg",
+    }
+
+
+def _acquired_bundle(source_path: str) -> AcquiredBundle:
+    content = b'---\nname: demo\ndescription: "Demo"\n---\n# Demo\n'
+    object_id = hashlib.sha1(
+        b"blob " + str(len(content)).encode("ascii") + b"\0" + content
+    ).hexdigest()
+    return AcquiredBundle(
+        "https://github.com/outside/public-skills",
+        "a" * 40,
+        source_path,
+        (AcquiredFile("SKILL.md", content, object_id, len(content), "100644"),),
+        "c" * 64,
+    )
 
 
 def _candidate(tmp_path: Path) -> bundles.BundleInventory:
@@ -46,21 +85,8 @@ def test_import_operation_plan_writes_only_quarantine_evidence_and_plan(
     tmp_path: Path, monkeypatch
 ) -> None:
     source, project = _roots(tmp_path)
-    shutil.copy2(
-        Path(__file__).resolve().parents[2] / ".github/shared/vendor-policy.json",
-        source / ".github/shared/vendor-policy.json",
-    )
-    content = b'---\nname: demo\ndescription: "Demo"\n---\n# Demo\n'
-    object_id = hashlib.sha1(
-        b"blob " + str(len(content)).encode("ascii") + b"\0" + content
-    ).hexdigest()
-    acquired = AcquiredBundle(
-        "https://github.com/outside/public-skills",
-        "a" * 40,
-        "skills/demo",
-        (AcquiredFile("SKILL.md", content, object_id, len(content), "100644"),),
-        "c" * 64,
-    )
+    _install_policy(source)
+    acquired = _acquired_bundle("skills/demo")
 
     class Provider:
         def acquire(self, *_args, **_kwargs):
@@ -68,16 +94,7 @@ def test_import_operation_plan_writes_only_quarantine_evidence_and_plan(
 
     monkeypatch.setattr(import_skill, "GitHubProvider", Provider)
     context = SimpleNamespace(project_root=project, source_root=source, role="consumer")
-    arguments = {
-        "positionals": [
-            "https://github.com/outside/public-skills",
-            "skills/demo",
-            "a" * 40,
-        ],
-        "license": "MIT",
-        "platforms": "kilo",
-        "suites": "cg",
-    }
+    arguments = _import_arguments("skills/demo")
     outcome = import_skill.handle(
         context=context,
         request={"phase": "plan", "arguments": arguments},
@@ -103,6 +120,101 @@ def test_import_operation_plan_writes_only_quarantine_evidence_and_plan(
     assert not applied.findings
     assert applied.data["status"] == "committed"
     assert (project / ".compound-gpid/project-skill-registry.json").is_file()
+
+
+@pytest.mark.parametrize(
+    "source_path",
+    ("outside/demo", "skills-archive/demo", "skills"),
+)
+def test_project_import_rejects_disallowed_root_before_provider_access(
+    tmp_path: Path, monkeypatch, source_path: str
+) -> None:
+    source, project = _roots(tmp_path)
+    _install_policy(source)
+
+    class Provider:
+        called = False
+
+        def acquire(self, *_args, **_kwargs):
+            Provider.called = True
+            raise AssertionError("provider must not be called")
+
+    monkeypatch.setattr(import_skill, "GitHubProvider", Provider)
+    outcome = import_skill.handle(
+        context=SimpleNamespace(
+            project_root=project, source_root=source, role="consumer"
+        ),
+        request={"phase": "plan", "arguments": _import_arguments(source_path)},
+    )
+
+    assert outcome.exit_code == 5
+    assert outcome.findings
+    assert "allowed upstream skill root" in outcome.findings[0].message
+    assert Provider.called is False
+
+
+def test_project_import_normalizes_nested_allowed_path_before_provider_access(
+    tmp_path: Path, monkeypatch
+) -> None:
+    source, project = _roots(tmp_path)
+    _install_policy(source)
+    requested_paths = []
+
+    class Provider:
+        def acquire(self, _origin, _commit, source_path, _limits):
+            requested_paths.append(source_path)
+            return _acquired_bundle(source_path)
+
+    monkeypatch.setattr(import_skill, "GitHubProvider", Provider)
+    outcome = import_skill.handle(
+        context=SimpleNamespace(
+            project_root=project, source_root=source, role="consumer"
+        ),
+        request={
+            "phase": "plan",
+            "arguments": _import_arguments("skills//nested/./demo/"),
+        },
+    )
+
+    assert not outcome.findings
+    assert requested_paths == ["skills/nested/demo"]
+
+
+def test_project_import_apply_revalidates_changed_allowed_roots(
+    tmp_path: Path, monkeypatch
+) -> None:
+    source, project = _roots(tmp_path)
+    _install_policy(source)
+
+    class Provider:
+        def acquire(self, *_args, **_kwargs):
+            return _acquired_bundle("skills/demo")
+
+    monkeypatch.setattr(import_skill, "GitHubProvider", Provider)
+    context = SimpleNamespace(
+        project_root=project, source_root=source, role="consumer"
+    )
+    arguments = _import_arguments("skills/demo")
+    planned = import_skill.handle(
+        context=context, request={"phase": "plan", "arguments": arguments}
+    )
+    policy_path = source / ".github/shared/vendor-policy.json"
+    policy = json.loads(policy_path.read_text("utf-8"))
+    policy["allowedUpstreamSkillRoots"] = [".github/skills/"]
+    policy_path.write_text(json.dumps(policy, indent=2) + "\n", encoding="utf-8")
+
+    applied = import_skill.handle(
+        context=context,
+        request={
+            "phase": "apply",
+            "arguments": arguments,
+            "planDigest": planned.plan_digest,
+        },
+    )
+
+    assert applied.exit_code == 5
+    assert "allowed upstream skill root" in applied.findings[0].message
+    assert not (project / ".compound-gpid/project-skill-registry.json").exists()
 
 
 def test_import_is_inactive_then_activate_and_deactivate_use_one_transaction(

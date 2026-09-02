@@ -56,6 +56,29 @@ def test_invalid_policy_schema_and_plugin_origin_confusion_fail_closed(tmp_path:
 
 
 @pytest.mark.parametrize(
+    "source_path",
+    ("outside/demo", "skills-archive/demo", "skills"),
+)
+def test_allowed_source_path_requires_a_strict_component_descendant(
+    source_path: str,
+) -> None:
+    policy = admission.load_admission_policy(REPO_ROOT)
+
+    with pytest.raises(admission.AdmissionPolicyError, match="allowed upstream"):
+        admission.require_allowed_source_path(source_path, policy)
+
+
+def test_allowed_source_path_returns_one_normalized_nested_descendant() -> None:
+    policy = admission.load_admission_policy(REPO_ROOT)
+
+    normalized = admission.require_allowed_source_path(
+        "skills//nested/./demo/", policy
+    )
+
+    assert normalized == "skills/nested/demo"
+
+
+@pytest.mark.parametrize(
     "filename",
     ["data.csv", "data.dta", "data.sav", "data.rds", "data.parquet", "data.feather", "data.db", "data.sqlite", "archive.zip", ".env"],
 )
