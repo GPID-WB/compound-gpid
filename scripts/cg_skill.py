@@ -3,23 +3,330 @@
 from __future__ import annotations
 
 import argparse
+import ast
+from contextlib import contextmanager
+import hashlib
+import importlib
+import importlib.abc
+import importlib.util
 import json
 import math
 import re
 import sys
-import types
 from pathlib import Path, PurePosixPath
-from typing import Any, Mapping, Optional, Sequence, Tuple
+from typing import Any, Dict, Iterator, Mapping, Optional, Sequence, Tuple
 
 import secure_fs
-from skill_management import contracts
-from skill_management.context import ContextDiscoveryError, discover_context
-from skill_management.planning import OperationOutcome, result_envelope
 
 
-CONTRACTS_ROOT = contracts.CONTRACTS_ROOT
-OPERATION_PATTERN = contracts.OPERATION_PATTERN
 RUNTIME_ROOT = Path(__file__).resolve().parents[1]
+_MAX_TRUSTED_MODULE_BYTES = 4 * 1024 * 1024
+_TRUST_ANCHOR_MODULES = frozenset({"secure_fs"})
+_SECURE_FS_MODULE = secure_fs
+_TRUSTED_MODULES = {}  # type: Dict[str, Tuple[object, Path, str]]
+
+
+class _CapturedModule:
+    """One repository-local module bound to captured source bytes."""
+
+    def __init__(
+        self,
+        name: str,
+        relative: PurePosixPath,
+        content: bytes,
+        is_package: bool,
+    ) -> None:
+        self.name = name
+        self.relative = relative
+        self.content = content
+        self.is_package = is_package
+        self.digest = hashlib.sha256(content).hexdigest()
+        self.defined_names = set()  # type: set[str]
+
+
+class _CapturedSourceGraph(importlib.abc.MetaPathFinder, importlib.abc.Loader):
+    """Capture and import one complete repository-local dependency closure."""
+
+    def __init__(self, root: Path) -> None:
+        self.root = Path(root).resolve(strict=True)
+        self.modules = {}  # type: Dict[str, _CapturedModule]
+        self.package_names = set()  # type: set[str]
+
+    def prepare(self, module_name: str) -> None:
+        """Capture and validate all local imports reachable from one module."""
+        if not self._capture_if_local(module_name):
+            raise ImportError(f"Trusted module is not installed: {module_name}.")
+        self._verify_preloaded_modules()
+
+    def prepare_many(self, module_names: Sequence[str]) -> None:
+        """Capture and validate the union of multiple local import closures."""
+        for module_name in module_names:
+            if not self._capture_if_local(module_name):
+                raise ImportError(f"Trusted module is not installed: {module_name}.")
+        self._verify_preloaded_modules()
+
+    def find_spec(
+        self,
+        fullname: str,
+        path: Optional[Sequence[str]],
+        target: Optional[object] = None,
+    ):
+        """Return captured specs and block uncaptured internal package imports."""
+        del path, target
+        captured = self.modules.get(fullname)
+        if captured is not None:
+            return importlib.util.spec_from_loader(
+                fullname,
+                self,
+                origin=str(self.root.joinpath(*captured.relative.parts)),
+                is_package=captured.is_package,
+            )
+        if fullname == "skill_management" or fullname.startswith(
+            "skill_management."
+        ):
+            raise ImportError(
+                f"Internal module was not in the captured dependency closure: {fullname}."
+            )
+        if any(fullname.startswith(f"{name}.") for name in self.package_names):
+            raise ImportError(
+                f"Internal package import was not captured: {fullname}."
+            )
+        return None
+
+    def create_module(self, spec: object) -> None:
+        """Use Python's standard module allocation for captured modules."""
+        del spec
+        return None
+
+    def exec_module(self, module: object) -> None:
+        """Execute only the source bytes captured during graph preparation."""
+        module_name = vars(module).get("__name__")
+        if not isinstance(module_name, str) or module_name not in self.modules:
+            raise ImportError("Captured loader received an unknown module.")
+        captured = self.modules[module_name]
+        source_path = self.root.joinpath(*captured.relative.parts)
+        namespace = vars(module)
+        namespace["__file__"] = str(source_path)
+        if captured.is_package:
+            namespace["__path__"] = [str(source_path.parent)]
+        code = compile(
+            captured.content,
+            captured.relative.as_posix(),
+            "exec",
+            dont_inherit=True,
+        )
+        exec(code, namespace)  # pylint: disable=exec-used
+        _TRUSTED_MODULES[module_name] = (
+            module,
+            self.root,
+            captured.digest,
+        )
+
+    @contextmanager
+    def active(self) -> Iterator[None]:
+        """Install this graph for one bounded import or handler execution."""
+        self._verify_preloaded_modules()
+        if sys.modules.get("secure_fs") is not _SECURE_FS_MODULE:
+            raise ImportError("The secure filesystem trust anchor was replaced.")
+        sys.meta_path.insert(0, self)
+        try:
+            yield
+        finally:
+            if self in sys.meta_path:
+                sys.meta_path.remove(self)
+
+    def _capture_if_local(self, module_name: str) -> bool:
+        if not module_name or module_name in _TRUST_ANCHOR_MODULES:
+            return False
+        if module_name in self.modules:
+            return True
+        source = self._read_module_source(module_name)
+        if source is None:
+            return False
+        relative, content, is_package = source
+        captured = _CapturedModule(module_name, relative, content, is_package)
+        self.modules[module_name] = captured
+        if is_package:
+            self.package_names.add(module_name)
+
+        parent = module_name.rpartition(".")[0]
+        if parent and not self._capture_if_local(parent):
+            raise ImportError(f"Internal package is incomplete: {parent}.")
+
+        tree = compile(
+            content,
+            relative.as_posix(),
+            "exec",
+            ast.PyCF_ONLY_AST,
+            dont_inherit=True,
+        )
+        captured.defined_names = self._module_defined_names(tree)
+        self._reject_dynamic_imports(captured, tree)
+        self._capture_imports(captured, tree)
+        return True
+
+    def _read_module_source(
+        self, module_name: str
+    ) -> Optional[Tuple[PurePosixPath, bytes, bool]]:
+        parts = module_name.split(".")
+        package_relative = PurePosixPath("scripts", *parts, "__init__.py")
+        module_relative = PurePosixPath(
+            "scripts", *parts[:-1], f"{parts[-1]}.py"
+        )
+        for relative, is_package in (
+            (package_relative, True),
+            (module_relative, False),
+        ):
+            try:
+                content = secure_fs.secure_read_bytes(
+                    self.root,
+                    relative,
+                    reject_hardlinks=True,
+                    max_bytes=_MAX_TRUSTED_MODULE_BYTES,
+                )
+            except FileNotFoundError:
+                continue
+            return relative, content, is_package
+        return None
+
+    def _capture_imports(self, captured: _CapturedModule, tree: ast.AST) -> None:
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                for alias in node.names:
+                    local = self._capture_if_local(alias.name)
+                    if alias.name.startswith("skill_management") and not local:
+                        raise ImportError(
+                            f"Internal import is not installed: {alias.name}."
+                        )
+                continue
+            if not isinstance(node, ast.ImportFrom):
+                continue
+            if node.level:
+                package = (
+                    captured.name
+                    if captured.is_package
+                    else captured.name.rpartition(".")[0]
+                )
+                requested = "." * node.level + (node.module or "")
+                try:
+                    base = importlib.util.resolve_name(requested, package)
+                except (ImportError, ValueError) as error:
+                    raise ImportError(
+                        f"Invalid relative import in {captured.name}."
+                    ) from error
+            else:
+                base = node.module or ""
+            if not base:
+                continue
+            base_is_local = self._capture_if_local(base)
+            if (node.level or base.startswith("skill_management")) and not base_is_local:
+                raise ImportError(f"Internal import is not installed: {base}.")
+            if not base_is_local or not self.modules[base].is_package:
+                continue
+            for alias in node.names:
+                if alias.name == "*":
+                    continue
+                candidate = f"{base}.{alias.name}"
+                if self._capture_if_local(candidate):
+                    continue
+                if alias.name not in self.modules[base].defined_names:
+                    raise ImportError(
+                        f"Internal package member is not installed: {candidate}."
+                    )
+
+    @staticmethod
+    def _module_defined_names(tree: ast.AST) -> set[str]:
+        names = set()  # type: set[str]
+        body = getattr(tree, "body", ())
+        for node in body:
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                names.add(node.name)
+            elif isinstance(node, (ast.Assign, ast.AnnAssign)):
+                targets = node.targets if isinstance(node, ast.Assign) else (node.target,)
+                for target in targets:
+                    if isinstance(target, ast.Name):
+                        names.add(target.id)
+            elif isinstance(node, ast.Import):
+                for alias in node.names:
+                    names.add(alias.asname or alias.name.partition(".")[0])
+            elif isinstance(node, ast.ImportFrom):
+                for alias in node.names:
+                    if alias.name != "*":
+                        names.add(alias.asname or alias.name)
+        return names
+
+    @staticmethod
+    def _reject_dynamic_imports(captured: _CapturedModule, tree: ast.AST) -> None:
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call):
+                continue
+            function = node.func
+            if isinstance(function, ast.Name) and function.id == "__import__":
+                raise ImportError(
+                    f"Dynamic internal import is forbidden in {captured.name}."
+                )
+            if isinstance(function, ast.Attribute) and function.attr == "import_module":
+                raise ImportError(
+                    f"Dynamic internal import is forbidden in {captured.name}."
+                )
+
+    def _verify_preloaded_modules(self) -> None:
+        for name, captured in self.modules.items():
+            existing = sys.modules.get(name)
+            if existing is None:
+                continue
+            trusted = _TRUSTED_MODULES.get(name)
+            if trusted is None or trusted[0] is not existing:
+                raise ImportError(f"Untrusted preloaded internal module: {name}.")
+            if trusted[1] != self.root or trusted[2] != captured.digest:
+                raise ImportError(f"Preloaded internal module has wrong root: {name}.")
+
+
+class _BoundTrustedHandler:
+    """Keep the captured graph active for deferred handler imports."""
+
+    def __init__(self, graph: _CapturedSourceGraph, handler: object) -> None:
+        self.graph = graph
+        self.handler = handler
+
+    def __call__(self, **kwargs: object) -> object:
+        with self.graph.active():
+            return self.handler(**kwargs)  # type: ignore[operator]
+
+
+contracts = None
+ContextDiscoveryError = None
+discover_context = None
+OperationOutcome = None
+result_envelope = None
+_BOOTSTRAP_ERROR = None  # type: Optional[BaseException]
+try:
+    _bootstrap_graph = _CapturedSourceGraph(RUNTIME_ROOT)
+    _bootstrap_graph.prepare_many(
+        (
+            "skill_management.contracts",
+            "skill_management.context",
+            "skill_management.planning",
+        )
+    )
+    with _bootstrap_graph.active():
+        contracts = importlib.import_module("skill_management.contracts")
+        context_module = importlib.import_module("skill_management.context")
+        planning_module = importlib.import_module("skill_management.planning")
+    ContextDiscoveryError = context_module.ContextDiscoveryError
+    discover_context = context_module.discover_context
+    OperationOutcome = planning_module.OperationOutcome
+    result_envelope = planning_module.result_envelope
+except BaseException as error:  # Fail closed; main emits a stable redacted envelope.
+    _BOOTSTRAP_ERROR = error
+
+
+if contracts is not None:
+    CONTRACTS_ROOT = contracts.CONTRACTS_ROOT
+    OPERATION_PATTERN = contracts.OPERATION_PATTERN
+else:
+    CONTRACTS_ROOT = PurePosixPath(".github/shared/skill-management/contracts")
+    OPERATION_PATTERN = re.compile(r"^[a-z][a-z0-9-]*$")
 
 
 class UsageError(ValueError):
@@ -72,13 +379,7 @@ def _error_result(
 
 
 def _load_contract_relative(root: Path, relative: PurePosixPath) -> dict:
-    content = secure_fs.secure_read_bytes(
-        root,
-        relative,
-        reject_hardlinks=True,
-        max_bytes=contracts.MAX_CONTRACT_BYTES,
-    )
-    return contracts.load_contract_bytes(content, source=relative.as_posix())
+    return contracts.load_contract(root, relative)
 
 
 def _load_descriptor(source_root: Path, operation: str) -> Tuple[dict, dict]:
@@ -232,32 +533,20 @@ def _load_handler(
     operation: str,
     handler_spec: Optional[str] = None,
 ):
-    """Load one handler from validated, captured source bytes."""
+    """Load one handler from a complete captured internal source closure."""
     if handler_spec is None:
         operation_module = operation.replace("-", "_")
     else:
         operation_module = contracts.operation_handler_module(operation, handler_spec)
     module_name = f"skill_management.operations.{operation_module}"
-    relative = PurePosixPath(
-        f"scripts/skill_management/operations/{operation_module}.py"
-    )
-    content = secure_fs.secure_read_bytes(
-        source_root,
-        relative,
-        reject_hardlinks=True,
-        max_bytes=1024 * 1024,
-    )
-    source_name = relative.as_posix()
-    code = compile(content, source_name, "exec", dont_inherit=True)
-    module = types.ModuleType(module_name)
-    module.__file__ = str(source_root.joinpath(*relative.parts))
-    module.__package__ = "skill_management.operations"
-    module.__spec__ = None
-    exec(code, module.__dict__)  # pylint: disable=exec-used
-    handler = getattr(module, "handle", None)
+    graph = _CapturedSourceGraph(source_root)
+    graph.prepare(module_name)
+    with graph.active():
+        module = importlib.import_module(module_name)
+    handler = vars(module).get("handle")
     if not callable(handler):
         raise TypeError("Operation module must define callable handle")
-    return handler
+    return _BoundTrustedHandler(graph, handler)
 
 
 def _dispatch(
@@ -279,9 +568,14 @@ def _dispatch(
         )
 
     try:
+        source_root = (
+            Path(arguments.source_root)
+            if arguments.source_root is not None
+            else runtime_root
+        )
         discovered = discover_context(
             Path(arguments.project_root),
-            Path(arguments.source_root) if arguments.source_root else None,
+            source_root,
             invocation_path=invocation_path,
             trusted_source_root=runtime_root,
         )
@@ -518,6 +812,52 @@ def _emit(result: Mapping[str, Any], output_format: str) -> None:
     stream.write(_render_human(result))
 
 
+def _bootstrap_failure_result() -> dict:
+    """Return the stable fail-closed result used before trusted imports exist."""
+    return {
+        "schema": "cg-skill-result-v1",
+        "ok": False,
+        "exitCode": 1,
+        "operation": "unknown",
+        "phase": "read",
+        "role": "consumer",
+        "changed": False,
+        "actions": [],
+        "findings": [
+            {
+                "code": "internal.dispatch",
+                "severity": "error",
+                "path": "/handler",
+                "message": "The trusted dispatcher runtime could not be loaded safely.",
+                "remediation": (
+                    "Inspect the trusted dispatcher installation and rerun the command."
+                ),
+            }
+        ],
+        "data": {},
+    }
+
+
+def _emit_bootstrap_failure(result: Mapping[str, Any], output_format: str) -> None:
+    """Render a bootstrap failure without importing internal serialization code."""
+    if output_format == "json":
+        rendered = json.dumps(
+            result,
+            ensure_ascii=False,
+            allow_nan=False,
+            separators=(",", ":"),
+            sort_keys=True,
+        )
+        sys.stdout.write(rendered + "\n")
+        return
+    finding = result["findings"][0]
+    sys.stderr.write(
+        "ERROR: unknown (consumer, read)\n"
+        f"ERROR [{finding['code']}] {finding['path']}: {finding['message']}\n"
+        f"Remediation: {finding['remediation']}\n"
+    )
+
+
 def main(
     argv: Optional[Sequence[str]] = None,
     *,
@@ -534,6 +874,10 @@ def main(
         if value.startswith("--format="):
             output_format = value.partition("=")[2]
             break
+    if _BOOTSTRAP_ERROR is not None:
+        result = _bootstrap_failure_result()
+        _emit_bootstrap_failure(result, output_format)
+        return 1
     try:
         arguments = _parser().parse_args(raw_arguments)
     except UsageError as error:
@@ -551,8 +895,15 @@ def main(
     trusted_runtime = Path(runtime_root) if runtime_root is not None else RUNTIME_ROOT
     trusted_runtime = trusted_runtime.resolve(strict=True)
     try:
-        result = _dispatch(arguments, invocation_path, trusted_runtime)
-        contracts.canonical_json_bytes(result)
+        if runtime_root is None or trusted_runtime == RUNTIME_ROOT:
+            with _bootstrap_graph.active():
+                result = _dispatch(arguments, invocation_path, trusted_runtime)
+                contracts.canonical_json_bytes(result)
+        else:
+            # The injectable root is an in-process test seam. Production CLI
+            # dispatch always uses the captured runtime graph above.
+            result = _dispatch(arguments, invocation_path, trusted_runtime)
+            contracts.canonical_json_bytes(result)
     except Exception:
         result = _error_result(
             "unknown",
