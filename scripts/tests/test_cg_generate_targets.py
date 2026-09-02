@@ -67,6 +67,47 @@ def _generated_command_body(content: bytes) -> bytes:
     return body
 
 
+def _worktree_output_matches(
+    entry: gen.OutputEntry,
+    current_bytes: bytes,
+    copilot_destinations: set[str],
+) -> bool:
+    """Compare planned output without treating canonical checkout EOLs as drift."""
+    if current_bytes == entry.content:
+        return True
+    if (
+        entry.target_id != "copilot"
+        or entry.destination not in copilot_destinations
+    ):
+        return False
+    if entry.destination != entry.source:
+        return False
+    if not gen.bundle_service.is_normalized_markdown_path(entry.source):
+        return False
+    if b"\r" in entry.content:
+        return False
+    return current_bytes == entry.content.replace(b"\n", b"\r\n")
+
+
+def _worktree_output_mismatches(
+    root: Path,
+    entries: tuple[gen.OutputEntry, ...],
+    copilot_destinations: set[str],
+) -> list[str]:
+    """Return missing or byte-mismatched outputs from the release parity gate."""
+    mismatches = []
+    for entry in entries:
+        output_path = root / entry.destination
+        if not output_path.is_file():
+            mismatches.append(f"missing:{entry.destination}")
+            continue
+        if not _worktree_output_matches(
+            entry, output_path.read_bytes(), copilot_destinations
+        ):
+            mismatches.append(f"content:{entry.destination}")
+    return mismatches
+
+
 def _make_fixture_repo(tmp_path: Path) -> Path:
     """Create a minimal fixture repo with .github/ canonical assets."""
     root = tmp_path / "fixture"
@@ -814,6 +855,93 @@ class TestGenerationPlan:
                 assert SOURCE_MARKER not in unit["source"], target["id"]
                 assert SOURCE_MARKER not in unit["target"], target["id"]
 
+    @pytest.mark.parametrize(
+        ("path", "expected"),
+        [
+            ("SKILL.md", True),
+            ("references/GUIDE.MARKDOWN", True),
+            ("resources/config.json", False),
+            ("resources/opaque.bin", False),
+        ],
+    )
+    def test_markdown_normalization_path_contract(
+        self, path: str, expected: bool
+    ) -> None:
+        assert gen.bundle_service.is_normalized_markdown_path(path) is expected
+
+    def test_bundle_normalization_preserves_opaque_crlf_bytes(self) -> None:
+        markdown = gen.bundle_service.BundleFile(
+            "skill/guide.md",
+            "guide.md",
+            b"first\r\nsecond\r\n",
+            "a" * 64,
+            False,
+        )
+        opaque = gen.bundle_service.BundleFile(
+            "skill/opaque.bin",
+            "opaque.bin",
+            b"first\r\nsecond\r\n",
+            "b" * 64,
+            False,
+        )
+
+        assert gen.bundle_service.normalized_content(markdown) == b"first\nsecond\n"
+        assert gen.bundle_service.normalized_content(opaque) == opaque.content
+
+    def test_release_parity_accepts_only_copilot_self_projection_crlf(
+        self, tmp_path: Path
+    ) -> None:
+        def planned(target: str, destination: str, source: str) -> gen.OutputEntry:
+            return gen.OutputEntry(
+                target_id=target,
+                destination=destination,
+                source=source,
+                kind="skill-resource",
+                content=b"first\nsecond\n",
+                sha256="a" * 64,
+                executable=False,
+            )
+
+        markdown_path = ".github/skills/example/references/guide.md"
+        markdown = planned("copilot", markdown_path, markdown_path)
+        opaque_path = ".github/skills/example/resources/opaque.bin"
+        opaque = planned("copilot", opaque_path, opaque_path)
+        relocated = planned(
+            "copilot",
+            ".github/skills/copy/references/guide.md",
+            markdown_path,
+        )
+        generated = planned(
+            "codex",
+            ".agents/skills/example/references/guide.md",
+            markdown_path,
+        )
+        entries = (markdown, opaque, relocated, generated)
+        copilot_destinations = {
+            markdown.destination,
+            opaque.destination,
+            relocated.destination,
+        }
+        for entry in entries:
+            output = tmp_path / entry.destination
+            output.parent.mkdir(parents=True, exist_ok=True)
+            output.write_bytes(b"first\r\nsecond\r\n")
+
+        assert (tmp_path / markdown.destination).read_bytes() != markdown.content
+        assert _worktree_output_mismatches(
+            tmp_path, entries, copilot_destinations
+        ) == [
+            f"content:{opaque.destination}",
+            f"content:{relocated.destination}",
+            f"content:{generated.destination}",
+        ]
+        assert not _worktree_output_matches(
+            markdown, b"first\r\nsecond\n", copilot_destinations
+        )
+        assert not _worktree_output_matches(
+            markdown, b"first\rsecond\r", copilot_destinations
+        )
+
     def test_real_repository_working_tree_matches_current_plan(self) -> None:
         plan = gen.build_generation_plan(
             REPO_ROOT,
@@ -821,6 +949,9 @@ class TestGenerationPlan:
             gen.scan_canonical_assets(REPO_ROOT),
         )
         planned_entries = {entry.destination: entry for entry in plan.entries}
+        copilot_destinations = {
+            entry.destination for entry in plan.by_target["copilot"].entries
+        }
         assert set(plan.by_target) == EXPECTED_PLAN_TARGETS
 
         expected_manifest_bytes = {}
@@ -866,13 +997,9 @@ class TestGenerationPlan:
         )
         assert all(body == canonical_body for body in normalized_bodies.values())
 
-        output_mismatches = []
-        for entry in plan.entries:
-            output_path = REPO_ROOT / entry.destination
-            if not output_path.is_file():
-                output_mismatches.append(f"missing:{entry.destination}")
-            elif output_path.read_bytes() != entry.content:
-                output_mismatches.append(f"content:{entry.destination}")
+        output_mismatches = _worktree_output_mismatches(
+            REPO_ROOT, plan.entries, copilot_destinations
+        )
 
         manifest_mismatches = []
         disk_manifest_paths = {}

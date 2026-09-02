@@ -636,6 +636,21 @@ def inventory_bundle(
     )
 
 
+def is_normalized_markdown_path(path: str) -> bool:
+    """Return whether bundle generation normalizes the path's line endings.
+
+    Args:
+        path: Bundle-relative or repository-relative path.
+
+    Returns:
+        ``True`` for Markdown resources normalized to UTF-8 with LF endings.
+
+    Example:
+        ``is_normalized_markdown_path("references/guide.md")``
+    """
+    return PurePosixPath(path).suffix.casefold() in {".md", ".markdown"}
+
+
 def normalized_content(file: BundleFile) -> bytes:
     """Return generator-compatible bytes for one inventoried bundle file.
 
@@ -651,7 +666,7 @@ def normalized_content(file: BundleFile) -> bytes:
     Example:
         ``content = normalized_content(bundle.files[0])``
     """
-    if not file.bundle_path.casefold().endswith((".md", ".markdown")):
+    if not is_normalized_markdown_path(file.bundle_path):
         return file.content
     try:
         text = file.content.decode("utf-8")
