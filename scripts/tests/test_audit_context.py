@@ -459,6 +459,18 @@ class TestWarningReview:
         )
         assert row["classification"] == "accept"
 
+    def test_compound_gpid_rd_prompt_warning_classified_accept(self) -> None:
+        row = audit.classify_guardrail_warning(
+            {
+                "path": ".github/prompts/cg-compound-gpid-rd.prompt.md",
+                "reason": (
+                    "context-loading risk requires review: "
+                    "compound-gpid.context.md"
+                ),
+            }
+        )
+        assert row["classification"] == "accept"
+
     def test_high_frequency_prompt_warning_classified_fix(self) -> None:
         row = audit.classify_guardrail_warning(
             {"path": ".github/prompts/cg-work.prompt.md", "reason": "high-frequency prompt estimated tokens > 5000"}

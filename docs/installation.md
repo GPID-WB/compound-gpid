@@ -270,6 +270,23 @@ cg-update
 
 This resets any accidental local changes and then pulls the latest version. Linked directory units update instantly through symlinks/junctions. Copied managed files in the current project are refreshed through `.compound-gpid/managed-files.json` only when their checksum still matches the managed copy.
 
+### Refreshing existing consumer projects
+
+The root `.compound-gpid-source.json` marker belongs only to the Compound GPID
+source checkout. It is not projected or installed in consumer projects.
+
+- **Legacy links**: run `cg-update`. Existing directory links receive the fixed
+  command immediately. Run `cg-link --platforms <platforms>` only to recreate or
+  repair old links.
+- **Kilo managed copies**: run `cg-update` from the consumer project so managed
+  `.kilo/` files refresh. If the project predates managed-file tracking, run
+  `cg-link --platforms kilo` once after the update.
+- **Manifest projections**: run `cg-update` to refresh checksum-owned projected
+  files. Rerun `cg-link --platforms <platforms>` after a platform-selection or
+  install-unit change.
+
+Restart VS Code or Positron after a refresh so the host reloads command files.
+
 ---
 
 ## Version Pinning

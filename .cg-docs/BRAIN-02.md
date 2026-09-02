@@ -4,8 +4,16 @@ _Generated 2026-09-02_
 
 ## Roadmap.Json / Test Scenarios / Prompt-Tools.Tests.Ps1 _(continued from Part 1)_
 
-_Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 111 entities
+_Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 115 entities
 
+- **[git merge-base can return multiple ancestors — always take the first line](.cg-docs/solutions/git-workflows/2026-05-14-git-merge-base-multiple-ancestors-take-first-line.md)** · `solution` · _—_ · `2026-05-14`
+  > Scripts and prompt instructions that compute the branch point with: assume `git merge-base` returns exactly one hash.…
+- **[Use git rev-parse for repo detection; guard against detached HEAD state](.cg-docs/solutions/git-workflows/2026-05-18-git-rev-parse-for-repo-detection-detached-head-guard.md)** · `solution` · _—_ · `2026-05-18`
+  > Two prompts (`/cg-brainstorm` and `/cg-plan`) used `git branch --show-current` as a proxy for detecting whether the w…
+- **[Merge strategy for generated Brain files and additive CI matrix conflicts](.cg-docs/solutions/git-workflows/2026-08-11-merge-generated-brain-files-and-additive-ci-conflicts.md)** · `solution` · _—_ · `2026-08-11`
+  > Merging `origin/main` into `refactor-modular-plugin` produced 7 conflicting files: - `.github/workflows/tests.yml` — …
+- **[Verified Pages artifacts and immutable release-tag gates](.cg-docs/solutions/git-workflows/2026-08-13-verified-pages-artifact-and-release-tag-gates.md)** · `solution` · _—_ · `2026-08-13`
+  > An automated documentation workflow needs two independent guarantees: 1. The Pages deploy job must publish exactly th…
 - **[Authoritative PR preflight prevents native-target and Kilo capability reruns](.cg-docs/solutions/git-workflows/2026-08-21-pr-ci-preflight-native-target-kilo-capability-gates.md)** · `solution` · _—_ · `2026-08-21`
   > PR #141 exposed several failures that local guidance did not catch before a remote run: interpreter cache files could…
 - **[Pre-compute GRP once for blocks with multiple aggregations over the same grouping](.cg-docs/solutions/performance-issues/2026-03-18-grp-precomputation-for-multi-aggregation.md)** · `solution` · _—_ · `2026-03-18`
@@ -234,7 +242,7 @@ _Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 11
 _Keywords: `architecture research
 objective` · `ongoing ideas
 objective` · `workflow maturity
-objective`_ · 153 entities
+objective`_ · 154 entities
 
 - **[@cg-fix-problems agent \(auto-dispatched by /cg-work\)](roadmap.json#cg-fix-problems-agent)** · `feature` · _done_ · `—`
   > @cg-fix-problems agent (auto-dispatched by /cg-work)
@@ -360,6 +368,8 @@ objective`_ · 153 entities
   > Brainstorm depth overhaul — grill-me mode + grill-with-docs skill
 - **[/cg-confidence — honest confidence/assumptions/unknowns assessment](roadmap.json#cg-confidence-prompt)** · `feature` · _idea_ · `—`
   > /cg-confidence — honest confidence/assumptions/unknowns assessment
+- **[Rename repository review command and add registry management flags](roadmap.json#rename-repository-review-command-and-add-registry-management-flags)** · `feature` · _done_ · `—`
+  > Rename repository review command and add registry management flags
 - **[roadmap.json schema validation after @cg-roadmap writes](roadmap.json#roadmap-schema-validation)** · `feature` · _idea_ · `—`
   > roadmap.json schema validation after @cg-roadmap writes
 - **[Required frontmatter field checks from /cg-plan output](roadmap.json#plan-frontmatter-checks)** · `feature` · _idea_ · `—`

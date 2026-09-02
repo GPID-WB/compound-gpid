@@ -75,25 +75,104 @@ Report the resolved base in later commit and PR summaries. Every changed-file co
 
 ### Step 1.5: Regenerate Platform Trees (Compound GPID source repo only)
 
-> **Self-check**: This step only applies when this repository IS the compound-gpid
-> source repo. Check if `.kilo/shared/target-mapping.json` exists AND
-> `scripts/cg_generate_targets.py` exists. If only one exists, halt because the
-> source-repository generation contract is incomplete. If both are absent, skip
-> this step silently because this is a consumer project.
+> **Source identity invariant**: Determine source identity from Git provenance,
+> not from worktree path existence. Set `$isCompoundGpidSource` exactly once in
+> this step, retain that one decision for the full invocation, and never recompute
+> it after generation, staging, or commits.
 
-If both files exist:
+1. Resolve the repository and source-contract identities before inspecting them:
+   - Resolve `$repoRoot` with `git rev-parse --show-toplevel`, `$initialHead` with
+     `git rev-parse --verify HEAD^{commit}`, and `$resolvedBaseCommit` with
+     `git rev-parse --verify $baseBranch^{commit}`. Check each exit code and
+     output. A failure, malformed object ID, or ambiguous result is a hard stop.
+   - Set `$sourceMarkerPath` from `$repoRoot` and the root component
+     `".compound-gpid-source.json"`.
+   - Construct `$canonicalMappingPath` from `$repoRoot` and the separate root
+     components `".github"`, `"shared"`, and `"target-mapping.json"`. Keep the
+     components separate so target generation cannot rewrite this source identity
+     into an adapter-local mapping path.
+   - Set `$generatorPath` from `$repoRoot`, `"scripts"`, and
+     `"cg_generate_targets.py"`.
+   - Use repository-relative forms of these three paths for all Git commands.
 
-1. Resolve a working Python command using the platform's normal launcher order
-   (`python3`, `python`, then `py`) and verify that `--version` starts with
-   `Python`. Store it as `$pythonCommand`. If no valid Python command is found,
-   halt before Step 2.
-2. Run the generator unconditionally before staging:
+2. Inspect Git provenance for each of the three repository-relative paths:
+   - Inspect `$initialHead` and `$resolvedBaseCommit` with `git ls-tree
+     --full-tree <commit> -- <path>`. Inspect the current index with `git ls-files
+     --stage -- <path>` and parse the mode, object ID, and stage number. For each
+     present index object ID, run `git cat-file -t <object-id>` and require exactly
+     `blob`. A successful empty result means that path is absent from that
+     provenance source.
+   - Before a present result can count as evidence or authorize reading or
+     executing the marker, mapping, or generator, require every initial-HEAD and
+     base tree entry to have object type exactly `blob` and mode exactly `100644`
+     or `100755`. Require every present index entry to be stage 0, have object type
+     exactly `blob`, and have mode exactly `100644` or `100755`. Mode `120000`,
+     symbolic-link entries, gitlinks, trees, and all other modes or object types
+     are hard stops, including in a repository that would otherwise be classified
+     as a consumer.
+   - Any nonzero Git inspection exit, malformed output, duplicate result,
+     unresolved merge-stage entry, unexpected object type, or other Git
+     inspection ambiguity is a hard stop. Never convert inspection failure into
+     consumer classification.
+   - `$markerEvidence` is true only when the root marker is tracked in
+     `$initialHead`, the current stage-0 index, or `$resolvedBaseCommit`.
+   - `$bootstrapSourceEvidence` is true only when both canonical contract paths,
+     `$canonicalMappingPath` and `$generatorPath`, each have tracked evidence in
+     `$initialHead`, the current stage-0 index, or `$resolvedBaseCommit`.
+   - Set `$isCompoundGpidSource = $markerEvidence -or
+      $bootstrapSourceEvidence` exactly once. Do not use worktree existence, any
+      adapter-local mapping, a generated ownership manifest, a link target, or a
+      managed copy as source evidence.
+   - Git absence and physical worktree presence cannot coexist as positive source
+     evidence: a physical path is checked only after the retained Git-based source
+     decision is true. It can validate or reject the source contract, but it can
+     never make a Git-absent path present and can never classify an ordinary
+     consumer as the source repository.
+
+3. If `$isCompoundGpidSource` is false, this is a consumer repository. Skip all
+   remaining generation and source-only preflight work in this step without
+   error, retain the false decision, and also skip Step 4.5 without error.
+
+4. If `$isCompoundGpidSource` is true, validate the complete current source
+   contract before resolving Python:
+   - Require exactly one stage-0 index entry for `$canonicalMappingPath` and
+     `$generatorPath`. Require exactly one stage-0 index entry for
+     `$sourceMarkerPath` unless this invocation is the initial marker bootstrap
+     described below. A missing stage-0 entry is a staged deletion and is a hard
+     stop even when a worktree file remains after `git rm --cached`. This cached
+     deletion rule applies independently to the marker, canonical mapping, and
+     generator. Each required entry must already have passed the exact `blob` and
+     `100644`/`100755` checks above.
+   - The only stage-0 exception is the initial untracked marker bootstrap:
+     `$markerEvidence` is false, `$bootstrapSourceEvidence` is true, and
+     `git status --porcelain=v1 --untracked-files=all --
+     .compound-gpid-source.json` reports exactly the untracked root marker. This
+     exception lets this source checkout introduce the marker in its first
+     marker commit; it does not apply when any initial-HEAD, index, or base marker
+     evidence exists.
+   - Require the marker, canonical mapping, and generator to exist physically as
+     regular non-link files under `$repoRoot`. Reject symbolic links, junctions,
+     reparse points, non-regular files, and paths that resolve outside
+     `$repoRoot`. A missing physical file is an unstaged deletion and is a hard
+     stop.
+   - Parse the marker as UTF-8 JSON. Require exactly the top-level keys
+     `schemaVersion` and `kind`, require integer `schemaVersion == 1`, and require
+     string `kind == "compound-gpid-source"`. Malformed JSON, extra or missing
+     keys, wrong types, or wrong values are a hard stop.
+   - Report staged deletion and unstaged deletion separately, but halt before
+     generation for either state.
+
+5. Resolve a working Python command using the platform's normal launcher order
+    (`python3`, `python`, then `py`) and verify that `--version` starts with
+    `Python`. Store it as `$pythonCommand`. If no valid Python command is found,
+    halt before Step 2.
+6. Run the generator unconditionally before staging:
 
     > **execution_subagent query**: "In the repo root, run
     > `<pythonCommand> scripts/cg_generate_targets.py --all`. Report the output and exit
     > code. If the exit code is non-zero, report the full stderr."
 
-3. If generation succeeds:
+7. If generation succeeds:
     - Rerun `git status --short` and replace the Step 1 inventory with this
       refreshed output. This is the only inventory Step 2 may use, so newly
       generated and untracked files cannot be omitted from staging.
@@ -102,12 +181,12 @@ If both files exist:
       canonical source changes.
     - Inform the user: "Platform trees regenerated and the staging inventory
       refreshed. Generated files will be included in the commit."
-4. If generation fails:
+8. If generation fails:
     - **Halt before Step 2.** Report the command output and exit code. Do not
       classify, stage, commit, push, or claim regenerated targets until generation
       succeeds. Existing generated trees remain untouched and usable because the
       generator validates and renders the complete plan before committing it.
-5. Run these local CI-equivalent gates before Step 2:
+9. Run these local CI-equivalent gates before Step 2:
     - Dispatch an `execution_subagent` query through the platform's safe execution mechanism to run in the repository root:
       ```
       <pythonCommand> scripts/cg_pr_preflight.py --phase prepare --base $baseBranch --run-native-target
@@ -199,8 +278,22 @@ For each confirmed commit group, in order:
 
 ### Step 4.5: Post-Commit Generated Drift Gate
 
-Before any push, if this is the Compound GPID source repository, dispatch an
-`execution_subagent` query through the platform's safe execution mechanism to run:
+Use the retained `$isCompoundGpidSource` decision from Step 1.5. Never reclassify
+the repository from the post-commit worktree or an adapter-local mapping.
+
+- If the retained decision is false, skip this source-only gate without error.
+- If the retained decision is true, resolve committed `HEAD` and inspect all
+  three source-contract paths with `git ls-tree --full-tree HEAD -- <path>`.
+  Require the root marker, canonical mapping, and generator to each exist in
+  committed `HEAD` as exactly one object of type `blob` and mode `100644` or
+  `100755`. A missing path, mode `120000`, link-mode entry, malformed output,
+  nonzero exit, or ambiguous Git result halts before push.
+- Read the marker from committed `HEAD`, not from an uncommitted worktree file,
+  and rerun the exact marker JSON validation from Step 1.5. A malformed or
+  changed committed marker halts before push.
+- After all three committed paths and the committed marker are valid, dispatch
+  an `execution_subagent` query through the platform's safe execution mechanism
+  to rerun the committed preflight:
 
 ```
 <pythonCommand> scripts/cg_pr_preflight.py --phase committed --base $baseBranch --run-native-target

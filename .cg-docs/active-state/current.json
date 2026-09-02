@@ -1,6 +1,6 @@
 {
   "schemaVersion": "compound-gpid-active-state-v1",
-  "updatedAt": "2026-09-01T23:39:45Z",
+  "updatedAt": "2026-09-02T10:44:54Z",
   "workflow": "/cg-work",
   "status": "completed",
   "branch": "scalable-skill-management-suite",
@@ -44,5 +44,5 @@
     {"kind": "ci-run", "path": "https://github.com/GPID-WB/compound-gpid/actions/runs/33566241615", "status": "failed-recovered"},
     {"kind": "ci-run", "path": "https://github.com/GPID-WB/compound-gpid/actions/runs/33567608454", "status": "final-tree-passed"}
   ],
-  "nextCommand": "/cg-review mode:verify"
+  "nextCommand": "/cg-verify-pr"
 }

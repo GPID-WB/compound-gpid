@@ -317,6 +317,8 @@ def test_workflow_delegates_native_selection_and_preserves_context() -> None:
 
 
 def test_native_target_owns_deterministic_kilo_and_preflight_tests() -> None:
+    assert "scripts/tests/test_commit_push_pr_source_detection.py" in preflight.NATIVE_PYTEST_FILES
+    assert "scripts/tests/test_cg_compound_gpid_rd_registry.py" in preflight.NATIVE_PYTEST_FILES
     assert "scripts/tests/test_kilo_coexistence.py" in preflight.NATIVE_PYTEST_FILES
     assert "scripts/tests/test_kilo_copy.py" in preflight.NATIVE_PYTEST_FILES
     assert "scripts/tests/test_link_projection_order.py" in preflight.NATIVE_PYTEST_FILES

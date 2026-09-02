@@ -1,5 +1,5 @@
 {
-  "edge_count": 328,
+  "edge_count": 332,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -473,6 +473,12 @@
       "edge_type": "decided_from",
       "source": ".cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md",
       "target": ".cg-docs/brainstorms/2026-08-13-skill-loading-architecture-context-efficiency.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-08-28-compound-gpid-rd-command.md",
+      "target": ".cg-docs/brainstorms/2026-08-28-compound-gpid-rd-command.md",
       "target_missing": false
     },
     {
@@ -1400,6 +1406,12 @@
       "target_missing": false
     },
     {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review-3.md",
+      "target": ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-review.md",
+      "target_missing": false
+    },
+    {
       "edge_type": "reviews",
       "source": ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review.md",
       "target": ".cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md",
@@ -1421,6 +1433,12 @@
       "edge_type": "verifies",
       "source": ".cg-docs/reviews/2026-08-21-pr-ci-preflight-and-kilo-capability-gates-verify-review.md",
       "target": ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-phase5-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-08-28-compound-gpid-rd-command-review.md",
+      "target": ".cg-docs/plans/2026-08-28-compound-gpid-rd-command.md",
       "target_missing": false
     },
     {
@@ -1799,6 +1817,12 @@
       "edge_type": "references",
       "source": ".cg-docs/brainstorms/2026-08-12-automated-documentation-deployment.md",
       "target": ".cg-docs/plans/2026-08-12-automated-documentation-deployment.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/brainstorms/2026-08-28-compound-gpid-rd-command.md",
+      "target": ".cg-docs/plans/2026-08-28-compound-gpid-rd-command.md",
       "target_missing": false
     },
     {
@@ -3573,6 +3597,34 @@
         "[cg]",
         "skill",
         "context"
+      ]
+    },
+    {
+      "date": "2026-08-28",
+      "entity_type": "brainstorm",
+      "path": ".cg-docs/brainstorms/2026-08-28-compound-gpid-rd-command.md",
+      "slug": "2026-08-28-compound-gpid-rd-command",
+      "status": "decided",
+      "summary": "<!-- Valid status values: decided, in-progress, abandoned -->",
+      "tags": [
+        "competitive-analysis",
+        "command-design",
+        "registry",
+        "github",
+        "developer-workflow"
+      ],
+      "title": "Rename repository review command and add registry management flags",
+      "top_keywords": [
+        "registry",
+        "/cg-review-repos",
+        "repos.json",
+        "cg-review-repos",
+        "approach",
+        "--add",
+        "command",
+        "rename",
+        "management",
+        "utility"
       ]
     },
     {
@@ -7001,6 +7053,34 @@
         "cg_kilo_preflight.py",
         "last-run.json",
         "head"
+      ]
+    },
+    {
+      "date": "2026-08-28",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-08-28-compound-gpid-rd-command.md",
+      "slug": "2026-08-28-compound-gpid-rd-command",
+      "status": "completed",
+      "summary": "Replace the developer-only `/cg-review-repos` command with `/cg-compound-gpid-rd`, preserve its full and delta review behavior, and add safe `--add <URL>` and confirmed `--remove <id>` registry operations through a small deterministic utility. Keep `.github/` canonical, regenerate every native platform tree, and remove the old live command without changing historical artifacts or the registry schema.",
+      "tags": [
+        "competitive-analysis",
+        "command-design",
+        "python",
+        "powershell",
+        "generated-targets"
+      ],
+      "title": "Rename repository review command and add registry management flags",
+      "top_keywords": [
+        "test scenarios",
+        "run-tests.ps1",
+        ".github/",
+        "registry",
+        "prompt-tools.tests.ps1",
+        "test_cg_compound_gpid_rd_registry.py",
+        "cg-review-repos",
+        "last-run.json",
+        "utility",
+        "--add <url>"
       ]
     },
     {
@@ -10865,6 +10945,28 @@
       ]
     },
     {
+      "date": "2026-08-28",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review-3.md",
+      "slug": "2026-08-13-manifest-driven-skill-loading-verify-review-3",
+      "status": "",
+      "summary": "**Review mode**: light (`mode:verify`) **Parent review**: `.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-review.md` **Findings**: 18 (P0: 4, P1: 7, P2: 6, P3: 1)",
+      "tags": [],
+      "title": "2026-08-13-manifest-driven-skill-loading-verify-review-3",
+      "top_keywords": [
+        "cg_compound_gpid_rd_registry.py",
+        "cg-compound-gpid-rd",
+        "cg-compound-gpid-rd.prompt.md",
+        "verification",
+        "scripts/cg_compound_gpid_rd_registry.py:333",
+        "scripts/cg_compound_gpid_rd_registry.py:505",
+        "2026-08-13-manifest-driven-skill-loading-review.md",
+        "test_cg_compound_gpid_rd_registry.py",
+        "review",
+        "max_registry_bytes"
+      ]
+    },
+    {
       "date": "2026-08-13",
       "entity_type": "review",
       "path": ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review.md",
@@ -10928,6 +11030,28 @@
         "scripts/tests/test_project_projection.py",
         "cg-verify-pr.prompt.md",
         "test_project_projection.py"
+      ]
+    },
+    {
+      "date": "2026-08-28",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-08-28-compound-gpid-rd-command-review.md",
+      "slug": "2026-08-28-compound-gpid-rd-command-review",
+      "status": "",
+      "summary": "**Review mode**: full (auto-routed security-risk) **Files reviewed**: canonical prompt, registry utility, tests, audit allowlist, current documentation, generated command trees and ownership manifests **Findings**: 22 (P0: 4, P1: 8, P2: 8, P3: 2)",
+      "tags": [],
+      "title": "2026-08-28-compound-gpid-rd-command-review",
+      "top_keywords": [
+        "cg_compound_gpid_rd_registry.py",
+        "cg-compound-gpid-rd",
+        "cg-compound-gpid-rd.prompt.md",
+        "test_cg_compound_gpid_rd_registry.py",
+        "review",
+        "dev",
+        "scripts/cg_compound_gpid_rd_registry.py:333",
+        "scripts/cg_compound_gpid_rd_registry.py:505",
+        "command",
+        "passed"
       ]
     },
     {
@@ -13790,6 +13914,36 @@
         "object",
         "leakage",
         "prevents"
+      ]
+    },
+    {
+      "date": "2026-08-28",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/data-quality/2026-08-28-exact-json-registry-mutation-boundaries.md",
+      "slug": "2026-08-28-exact-json-registry-mutation-boundaries",
+      "status": "",
+      "summary": "A deterministic JSON registry utility preserved unknown fields structurally but decoded unknown numbers as binary floats. A value such as `0.123456789012345678901234567890` was rounded during a later add or remove. `1e400` became infinity and could make success serialization fail after the registry mutation committed. Three related boundaries were incomplete: - The size limit applied to source bytes, not the larger rendered result. - Deep JSON and large integer parser paths could escape as raw exceptions. - Writer-failure tests replaced the secure writer instead of injecting failure at its final publication boundary.",
+      "tags": [
+        "json",
+        "decimal",
+        "registry",
+        "secure-fs",
+        "atomic-write",
+        "validation",
+        "pytest"
+      ],
+      "title": "Secure registry mutation requires exact JSON and pre-commit output validation",
+      "top_keywords": [
+        "decimal",
+        "json",
+        "registry",
+        "validation",
+        ".cg-docs/reviews/2026-08-28-compound-gpid-rd-command-review.md",
+        "exact",
+        "secure",
+        "mutation",
+        "pre-commit",
+        "requires"
       ]
     },
     {
@@ -19761,6 +19915,28 @@
     {
       "date": "",
       "entity_type": "feature",
+      "path": "roadmap.json#rename-repository-review-command-and-add-registry-management-flags",
+      "slug": "rename-repository-review-command-and-add-registry-management-flags",
+      "status": "done",
+      "summary": "Rename repository review command and add registry management flags",
+      "tags": [],
+      "title": "Rename repository review command and add registry management flags",
+      "top_keywords": [
+        "competitive prompt enhancements\nobjective",
+        "review",
+        "rename",
+        "repository",
+        "command",
+        "registry",
+        "management",
+        "flags",
+        "competitive",
+        "feature"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
       "path": "roadmap.json#roadmap-schema-validation",
       "slug": "roadmap-schema-validation",
       "status": "idea",
@@ -21761,13 +21937,13 @@
       ]
     }
   ],
-  "entity_count": 758,
+  "entity_count": 764,
   "generated": "2026-09-02",
   "schema_version": "0.2.0",
   "topic_count": 6,
   "topics": [
     {
-      "entity_count": 530,
+      "entity_count": 535,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -21821,6 +21997,7 @@
         ".cg-docs/brainstorms/2026-08-02-cr-work-gpt-5-6-luna.md",
         ".cg-docs/brainstorms/2026-08-12-automated-documentation-deployment.md",
         ".cg-docs/brainstorms/2026-08-13-skill-loading-architecture-context-efficiency.md",
+        ".cg-docs/brainstorms/2026-08-28-compound-gpid-rd-command.md",
         ".cg-docs/brainstorms/2026-08-28-scalable-skill-management-suite.md",
         ".cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-gsd-2-full-review.md",
@@ -21938,6 +22115,7 @@
         ".cg-docs/plans/2026-08-12-automated-documentation-deployment.md",
         ".cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md",
         ".cg-docs/plans/2026-08-21-pr-ci-preflight-and-kilo-capability-gates.md",
+        ".cg-docs/plans/2026-08-28-compound-gpid-rd-command.md",
         ".cg-docs/plans/2026-08-28-scalable-skill-management-suite.md",
         ".cg-docs/plans/phase2-model-governance-cleanup.md",
         ".cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md",
@@ -22094,7 +22272,9 @@
         ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-phase3-review.md",
         ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-phase3-verify-review.md",
         ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review-2.md",
+        ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review-3.md",
         ".cg-docs/reviews/2026-08-21-pr-ci-preflight-and-kilo-capability-gates-verify-review.md",
+        ".cg-docs/reviews/2026-08-28-compound-gpid-rd-command-review.md",
         ".cg-docs/solutions/bugs/2026-03-18-broken-relative-links-in-nested-skill-files.md",
         ".cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md",
         ".cg-docs/solutions/bugs/2026-03-19-explicit-unpin-does-not-persist-missing-state-file-write.md",
@@ -22167,6 +22347,7 @@
         ".cg-docs/solutions/data-quality/2026-04-17-yaml-single-quote-values-retain-apostrophes-in-ps-regex-capture.md",
         ".cg-docs/solutions/data-quality/2026-05-14-yaml-frontmatter-allowlist-validation-pattern.md",
         ".cg-docs/solutions/data-quality/2026-05-20-welfare-column-three-step-guard-existence-na-positivity.md",
+        ".cg-docs/solutions/data-quality/2026-08-28-exact-json-registry-mutation-boundaries.md",
         ".cg-docs/solutions/environment-issues/2026-03-02-skill-vs-prompt-slash-command.md",
         ".cg-docs/solutions/environment-issues/2026-03-13-troubleshooting-doc-structure-readme-vs-manual.md",
         ".cg-docs/solutions/environment-issues/2026-04-24-multi-day-vscode-session-accumulates-listeners-crashes.md",
@@ -22309,7 +22490,7 @@
       "slug": "roadmap-json-test-scenarios-prompt-tools-tests-ps1"
     },
     {
-      "entity_count": 153,
+      "entity_count": 154,
       "entity_paths": [
         "roadmap.json#cg-fix-problems-agent",
         "roadmap.json#cg-fix-problems-prompt",
@@ -22373,6 +22554,7 @@
         "roadmap.json#auto-knowledge-extraction-after-work",
         "roadmap.json#brainstorm-depth-grill-mode",
         "roadmap.json#cg-confidence-prompt",
+        "roadmap.json#rename-repository-review-command-and-add-registry-management-flags",
         "roadmap.json#roadmap-schema-validation",
         "roadmap.json#plan-frontmatter-checks",
         "roadmap.json#work-completion-verification",

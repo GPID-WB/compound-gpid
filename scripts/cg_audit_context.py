@@ -256,7 +256,7 @@ ACCEPT_WARNING_PATHS = {
     ".github/agents/cg-learnings-researcher.agent.md",
     ".github/prompts/cg-compound-refresh.prompt.md",
     ".github/prompts/cg-issues.prompt.md",
-    ".github/prompts/cg-review-repos.prompt.md",
+    ".github/prompts/cg-compound-gpid-rd.prompt.md",
     ".github/prompts/cg-setup.prompt.md",
     ".github/prompts/cg-strategy.prompt.md",
     ".github/prompts/cg-token-audit.prompt.md",

@@ -5,8 +5,8 @@ Run from repo root:
 """
 from __future__ import annotations
 
-import json
 import hashlib
+import json
 import os
 from collections import Counter
 from pathlib import Path
@@ -17,10 +17,54 @@ import pytest
 import cg_generate_targets as gen
 
 
+REPO_ROOT = Path(__file__).resolve().parents[2]
+RENAMED_COMMAND_PATHS = {
+    "claude-code": ".claude/commands/cg-compound-gpid-rd.md",
+    "codex": ".agents/commands/cg-compound-gpid-rd.md",
+    "opencode": ".opencode/commands/cg-compound-gpid-rd.md",
+    "kilo": ".kilo/commands/cg-compound-gpid-rd.md",
+}
+OLD_COMMAND_PATHS = {
+    "claude-code": ".claude/commands/cg-review-repos.md",
+    "codex": ".agents/commands/cg-review-repos.md",
+    "opencode": ".opencode/commands/cg-review-repos.md",
+    "kilo": ".kilo/commands/cg-review-repos.md",
+}
+ARGUMENT_BLOCK_SUFFIXES = {
+    "opencode": (
+        b"\n## OpenCode Invocation Arguments\n\n"
+        b"User-provided slash-command arguments:\n\n"
+        b"```text\n$ARGUMENTS\n```\n"
+    ),
+    "kilo": (
+        b"\n## Invocation Arguments\n\n"
+        b"User-provided slash-command arguments:\n\n"
+        b"```text\n$ARGUMENTS\n```\n"
+    ),
+}
+COMMIT_PUSH_COMMAND_PATHS = {
+    "claude-code": ".claude/commands/cg-commit-push-pr.md",
+    "codex": ".agents/commands/cg-commit-push-pr.md",
+    "opencode": ".opencode/commands/cg-commit-push-pr.md",
+    "kilo": ".kilo/commands/cg-commit-push-pr.md",
+}
+EXPECTED_PLAN_TARGETS = set(COMMIT_PUSH_COMMAND_PATHS) | {"copilot"}
+SOURCE_MARKER = ".compound-gpid-source.json"
+
+
 def _write(path: Path, content: str) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(content, encoding="utf-8")
     return path
+
+
+def _generated_command_body(content: bytes) -> bytes:
+    """Return exact generated command bytes after YAML frontmatter."""
+    prefix, opening, remainder = content.partition(b"---\n")
+    assert opening and not prefix, "Generated command must start with YAML frontmatter"
+    _frontmatter, closing, body = remainder.partition(b"---\n\n")
+    assert closing, "Generated command must close YAML frontmatter"
+    return body
 
 
 def _make_fixture_repo(tmp_path: Path) -> Path:
@@ -718,6 +762,190 @@ class TestGenerationPlan:
         assert result.target_ids == (target_id,)
         for entry in plan.by_target[target_id].entries:
             assert (root / entry.destination).read_bytes() == entry.content
+
+    def test_generated_commit_commands_exactly_match_canonical_body(self) -> None:
+        plan = gen.build_generation_plan(
+            REPO_ROOT,
+            gen.load_target_mapping(REPO_ROOT),
+            gen.scan_canonical_assets(REPO_ROOT),
+        )
+        planned_entries = {entry.destination: entry for entry in plan.entries}
+        canonical_body = _generated_command_body(
+            (REPO_ROOT / ".github/prompts/cg-commit-push-pr.prompt.md").read_bytes()
+        )
+        forbidden_adapter_mappings = (
+            ".claude/shared/target-mapping.json",
+            ".agents/shared/target-mapping.json",
+            ".opencode/shared/target-mapping.json",
+            ".kilo/shared/target-mapping.json",
+        )
+
+        assert set(plan.by_target) == EXPECTED_PLAN_TARGETS
+        for target_id, command_path in COMMIT_PUSH_COMMAND_PATHS.items():
+            body = _generated_command_body(planned_entries[command_path].content)
+            expected_argument_blocks = int(target_id in ARGUMENT_BLOCK_SUFFIXES)
+            assert body.count(b"$ARGUMENTS") == expected_argument_blocks, target_id
+            if expected_argument_blocks:
+                suffix = ARGUMENT_BLOCK_SUFFIXES[target_id]
+                assert body.endswith(suffix), target_id
+                body = body[:-len(suffix)]
+            assert body == canonical_body, target_id
+
+            command = body.decode("utf-8")
+            assert SOURCE_MARKER in command, target_id
+            assert '`".github"`, `"shared"`, and `"target-mapping.json"`' in command, target_id
+            assert "Set `$isCompoundGpidSource` exactly once" in command, target_id
+            assert "never recompute" in command, target_id
+            for adapter_mapping in forbidden_adapter_mappings:
+                assert adapter_mapping not in command, (target_id, adapter_mapping)
+
+    def test_source_marker_is_absent_from_generation_plan_and_install_units(self) -> None:
+        mapping = gen.load_target_mapping(REPO_ROOT)
+        plan = gen.build_generation_plan(
+            REPO_ROOT,
+            mapping,
+            gen.scan_canonical_assets(REPO_ROOT),
+        )
+
+        assert all(SOURCE_MARKER not in entry.destination for entry in plan.entries)
+        assert all(SOURCE_MARKER not in entry.source for entry in plan.entries)
+        for target in mapping["targets"]:
+            for unit in target["installUnits"]:
+                assert SOURCE_MARKER not in unit["source"], target["id"]
+                assert SOURCE_MARKER not in unit["target"], target["id"]
+
+    def test_real_repository_working_tree_matches_current_plan(self) -> None:
+        plan = gen.build_generation_plan(
+            REPO_ROOT,
+            gen.load_target_mapping(REPO_ROOT),
+            gen.scan_canonical_assets(REPO_ROOT),
+        )
+        planned_entries = {entry.destination: entry for entry in plan.entries}
+        assert set(plan.by_target) == EXPECTED_PLAN_TARGETS
+
+        expected_manifest_bytes = {}
+        expected_manifest_paths = {}
+        for target_id in RENAMED_COMMAND_PATHS:
+            result = plan.by_target[target_id]
+            manifest_path = f"{result.target_root}/{gen.OWNERSHIP_MANIFEST_NAME}"
+            manifest_bytes = gen._ownership_manifest_bytes(  # pylint: disable=protected-access
+                result
+            )
+            manifest = json.loads(manifest_bytes.decode("utf-8"))
+            expected_manifest_bytes[target_id] = (manifest_path, manifest_bytes)
+            expected_manifest_paths[target_id] = {
+                item["path"] for item in manifest["files"]
+            }
+
+        normalized_bodies = {}
+        for target_id, new_path in RENAMED_COMMAND_PATHS.items():
+            old_path = OLD_COMMAND_PATHS[target_id]
+            assert new_path in planned_entries, new_path
+            assert old_path not in planned_entries, old_path
+            assert new_path in expected_manifest_paths[target_id], new_path
+            assert old_path not in expected_manifest_paths[target_id], old_path
+
+            command_entry = planned_entries[new_path]
+            assert command_entry.kind == "command", new_path
+            body = _generated_command_body(command_entry.content)
+            expected_argument_blocks = int(target_id in ARGUMENT_BLOCK_SUFFIXES)
+            assert body.count(b"$ARGUMENTS") == expected_argument_blocks, target_id
+            if expected_argument_blocks:
+                suffix = ARGUMENT_BLOCK_SUFFIXES[target_id]
+                assert body.endswith(suffix), target_id
+                body = body[:-len(suffix)]
+            body = body.replace(
+                new_path.encode("utf-8"),
+                b".github/prompts/cg-compound-gpid-rd.prompt.md",
+            )
+            normalized_bodies[target_id] = body
+
+        assert len(set(normalized_bodies.values())) == 1
+        canonical_body = _generated_command_body(
+            (REPO_ROOT / ".github/prompts/cg-compound-gpid-rd.prompt.md").read_bytes()
+        )
+        assert all(body == canonical_body for body in normalized_bodies.values())
+
+        output_mismatches = []
+        for entry in plan.entries:
+            output_path = REPO_ROOT / entry.destination
+            if not output_path.is_file():
+                output_mismatches.append(f"missing:{entry.destination}")
+            elif output_path.read_bytes() != entry.content:
+                output_mismatches.append(f"content:{entry.destination}")
+
+        manifest_mismatches = []
+        disk_manifest_paths = {}
+        malformed_manifests = []
+        for target_id, (manifest_path, expected_bytes) in expected_manifest_bytes.items():
+            disk_path = REPO_ROOT / manifest_path
+            if not disk_path.is_file():
+                manifest_mismatches.append(f"missing:{manifest_path}")
+                disk_manifest_paths[target_id] = set()
+                continue
+
+            disk_bytes = disk_path.read_bytes()
+            if disk_bytes != expected_bytes:
+                manifest_mismatches.append(f"content:{manifest_path}")
+            try:
+                disk_manifest = json.loads(disk_bytes.decode("utf-8"))
+                disk_manifest_paths[target_id] = {
+                    item["path"] for item in disk_manifest["files"]
+                }
+            except (KeyError, TypeError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+                malformed_manifests.append(f"{manifest_path}:{exc}")
+                disk_manifest_paths[target_id] = set()
+
+        missing_new_disk_paths = sorted(
+            path for path in RENAMED_COMMAND_PATHS.values()
+            if not (REPO_ROOT / path).is_file()
+        )
+        present_old_disk_paths = sorted(
+            path for path in OLD_COMMAND_PATHS.values()
+            if (REPO_ROOT / path).exists()
+        )
+        missing_new_manifest_paths = sorted(
+            path for target_id, path in RENAMED_COMMAND_PATHS.items()
+            if path not in disk_manifest_paths[target_id]
+        )
+        present_old_manifest_paths = sorted(
+            path for target_id, path in OLD_COMMAND_PATHS.items()
+            if path in disk_manifest_paths[target_id]
+        )
+
+        drift = []
+        if output_mismatches:
+            drift.append(
+                f"planned output byte mismatches ({len(output_mismatches)}): "
+                f"{output_mismatches}"
+            )
+        if manifest_mismatches:
+            drift.append(
+                f"ownership manifest byte mismatches ({len(manifest_mismatches)}): "
+                f"{manifest_mismatches}"
+            )
+        if malformed_manifests:
+            drift.append(f"malformed ownership manifests: {malformed_manifests}")
+        if missing_new_disk_paths:
+            drift.append(f"new command paths missing from disk: {missing_new_disk_paths}")
+        if present_old_disk_paths:
+            drift.append(f"old command paths still on disk: {present_old_disk_paths}")
+        if missing_new_manifest_paths:
+            drift.append(
+                "new command paths missing from disk manifests: "
+                f"{missing_new_manifest_paths}"
+            )
+        if present_old_manifest_paths:
+            drift.append(
+                "old command paths still in disk manifests: "
+                f"{present_old_manifest_paths}"
+            )
+
+        assert not drift, (
+            "Current generated working tree does not match the current generator plan.\n"
+            "Run: python scripts/cg_generate_targets.py --all\n- "
+            + "\n- ".join(drift)
+        )
 
 
 class TestMetadataSerialization:

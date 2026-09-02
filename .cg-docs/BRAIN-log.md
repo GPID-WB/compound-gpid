@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-09-02 · 598 artifacts (newest first) + 160 roadmap features_
+_Generated 2026-09-02 · 603 artifacts (newest first) + 161 roadmap features_
 
 ## undated
 
@@ -151,10 +151,20 @@ _Generated 2026-09-02 · 598 artifacts (newest first) + 160 roadmap features_
 
 ## 2026-08-28
 
+- **[2026-08-13-manifest-driven-skill-loading-verify-review-3](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review-3.md)** · `review` · _—_ · `2026-08-28`
+  > **Review mode**: light (`mode:verify`) **Parent review**: `.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-…
+- **[2026-08-28-compound-gpid-rd-command-review](.cg-docs/reviews/2026-08-28-compound-gpid-rd-command-review.md)** · `review` · _—_ · `2026-08-28`
+  > **Review mode**: full (auto-routed security-risk) **Files reviewed**: canonical prompt, registry utility, tests, audi…
+- **[Rename repository review command and add registry management flags](.cg-docs/brainstorms/2026-08-28-compound-gpid-rd-command.md)** · `brainstorm` · _decided_ · `2026-08-28`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[Rename repository review command and add registry management flags](.cg-docs/plans/2026-08-28-compound-gpid-rd-command.md)** · `plan` · _completed_ · `2026-08-28`
+  > Replace the developer-only `/cg-review-repos` command with `/cg-compound-gpid-rd`, preserve its full and delta review…
 - **[Scalable Skill Management Suite](.cg-docs/brainstorms/2026-08-28-scalable-skill-management-suite.md)** · `brainstorm` · _decided_ · `2026-08-28`
   > <!-- Valid status values: decided, in-progress, abandoned -->
 - **[Scalable Skill Management Suite](.cg-docs/plans/2026-08-28-scalable-skill-management-suite.md)** · `plan` · _completed_ · `2026-08-28`
   > Build one role-gated `/cg-skill` command that manages the complete skill lifecycle without becoming one large prompt …
+- **[Secure registry mutation requires exact JSON and pre-commit output validation](.cg-docs/solutions/data-quality/2026-08-28-exact-json-registry-mutation-boundaries.md)** · `solution` · _—_ · `2026-08-28`
+  > A deterministic JSON registry utility preserved unknown fields structurally but decoded unknown numbers as binary flo…
 
 ## 2026-08-26
 
@@ -1721,6 +1731,8 @@ _Generated 2026-09-02 · 598 artifacts (newest first) + 160 roadmap features_
   > R dialect skills architecture (collapse, data.table, tidyverse)
 - **[Reduce token cost via prompt prose compression and Step 0 dedup](roadmap.json#reduce-token-cost-late-sequence-content)** · `feature` · _done_ · `—`
   > Reduce token cost via prompt prose compression and Step 0 dedup
+- **[Rename repository review command and add registry management flags](roadmap.json#rename-repository-review-command-and-add-registry-management-flags)** · `feature` · _done_ · `—`
+  > Rename repository review command and add registry management flags
 - **[Make review cheaper with deterministic checks first](roadmap.json#review-deterministic-first)** · `feature` · _idea_ · `—`
   > Make review cheaper with deterministic checks first
 - **[Per-finding status tracking in review files](roadmap.json#review-finding-status-tracking)** · `feature` · _done_ · `—`

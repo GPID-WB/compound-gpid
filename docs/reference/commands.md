@@ -45,9 +45,15 @@ commands are available when `suites:` includes `cr`.
 | Run task-aware research and engineering review | `/cr-review` |
 | Capture a verified research lesson | `/cr-compound` |
 
-Developer-only commands include `/cg-devtag`, `/cg-review-repos`, and the
+Developer-only commands include `/cg-devtag`, `/cg-compound-gpid-rd`, and the
 compound-gpid-only `/cg-release` workflow. They are not normal consumer-project
-steps.
+steps. `/cg-compound-gpid-rd` has four forms: delta
+(`/cg-compound-gpid-rd`), full (`/cg-compound-gpid-rd --full`), add
+(`/cg-compound-gpid-rd --add <URL>`), and remove
+(`/cg-compound-gpid-rd --remove <id>`). `rd` means `research-development`, and
+its current scope is public GitHub repository research for Compound GPID
+maintainers. Its development-repository guardrail stops it before registry,
+network, utility, or write operations in consumer projects.
 
 ## Shell commands
 

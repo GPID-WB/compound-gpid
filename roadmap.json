@@ -432,7 +432,7 @@
       "id": "competitive-prompt-enhancements",
       "title": "Competitive Prompt Enhancements",
       "objective": "Adopt the highest-value patterns identified in the April 2026 competitive review of compound-engineering, superpowers, and GSD-2 — focusing on traceability, inline quality gates, structured debugging, and knowledge capture improvements across workflow prompts.",
-      "status": "planned",
+      "status": "in-progress",
       "features": [
         {
           "id": "brainstorm-plan-id-traceability",
@@ -489,6 +489,12 @@
           "description": "Cross-cutting prompt that can be invoked at any stage. Reports: confidence level in the current approach, explicit assumptions being made, unknowns that remain unresolved, and what new information would change the conclusion. Complements /cg-review (which finds problems) with epistemic self-awareness (what we don't know we don't know).",
           "status": "idea",
           "plan": null
+        },
+        {
+          "id": "rename-repository-review-command-and-add-registry-management-flags",
+          "title": "Rename repository review command and add registry management flags",
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-08-28-compound-gpid-rd-command.md"
         }
       ]
     },

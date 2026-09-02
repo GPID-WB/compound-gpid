@@ -52,3 +52,4 @@ Race tests inject replacements at `_before_secure_replace` and `_before_secure_u
 - `.cg-docs/solutions/bugs/2026-06-11-llm-prose-only-syscall-is-unenforceable.md`
 - `.cg-docs/reviews/2026-07-28-canonical-native-packaging-foundation-verify-review.md`
 - `.cg-docs/solutions/bugs/2026-08-31-trust-anchor-captured-byte-dispatch.md` -- extends the same identity rule to reads, dynamic code execution, and Git authority
+- `.cg-docs/solutions/data-quality/2026-08-28-exact-json-registry-mutation-boundaries.md` - uses the real final secure-write hook to prove rollback and byte preservation
