@@ -15,7 +15,7 @@ uninstall procedures. New users should follow the shorter
 ## Windows installation
 
 > **Requirements**: Windows 10/11, PowerShell 5.1+, git, **Python 3.8+**.
-> Python is required by the `cg-index` knowledge indexer, the `cg-token-audit` context/model audit, and the repo-local summary tools. Install from [python.org](https://www.python.org/downloads/) or via winget: `winget install Python.Python.3.11`. The Windows Store Python stub is not sufficient — install real Python and ensure `python`, `python3`, or `py` is on your PATH. If Python is not installed, `install.ps1` will stop with an error and print install instructions. See [Python not found](troubleshooting.md#python-not-found) in Troubleshooting if you run into issues.
+> Python is required by `cg-skill`, the `cg-index` knowledge indexer, the `cg-token-audit` context/model audit, and the repo-local summary tools. Install from [python.org](https://www.python.org/downloads/) or via winget: `winget install Python.Python.3.11`. The Windows Store Python stub is not sufficient — install real Python and ensure `python`, `python3`, or `py` is on your PATH. If Python is not installed, `install.ps1` will stop with an error and print install instructions. See [Python not found](troubleshooting.md#python-not-found) in Troubleshooting if you run into issues.
 >
 > | Environment | Recommended path | Why |
 > |-------------|-----------------|-----|
@@ -48,7 +48,7 @@ git clone https://github.com/GPID-WB/compound-gpid.git "$env:USERPROFILE\.compou
 & "$env:USERPROFILE\.compound-gpid\install.ps1"
 ```
 
-This creates batch wrappers for `cg-link`, `cg-unlink`, `cg-update`, `cg-index`, `cg-brain-init`, `cg-render-artifact`, `cg-publish-markdown`, and `cg-token-audit` in the `bin\` subdirectory of your install location and adds that directory to your PATH. Python 3.8+ powers Brainstorm/Plan validation and HTML rendering through `cg-render-artifact`, plus secure generic Markdown publication through `cg-publish-markdown` with the `reference` theme. It also writes `.cg-version` (set to `latest`) in the install directory so version preference is immediately available. The `cg-index query` mode provides budgeted local Brain retrieval; `cg-token-audit` writes both legacy `.cg-docs/cost/` reports and additive `.cg-docs/token/` dashboard/regression artifacts.
+This creates batch wrappers for `cg-link`, `cg-unlink`, `cg-update`, `cg-skill`, `cg-index`, `cg-brain-init`, `cg-render-artifact`, `cg-publish-markdown`, and `cg-token-audit` in the `bin\` subdirectory of your install location and adds that directory to your PATH. Python 3.8+ powers the skill lifecycle, Brainstorm/Plan validation, and HTML rendering through `cg-render-artifact`, plus secure generic Markdown publication through `cg-publish-markdown` with the `reference` theme. It also writes `.cg-version` (set to `latest`) in the install directory so version preference is immediately available. The `cg-index query` mode provides budgeted local Brain retrieval; `cg-token-audit` writes both legacy `.cg-docs/cost/` reports and additive `.cg-docs/token/` dashboard/regression artifacts.
 
 > ⚠️ **IMPORTANT — After install, restart both your terminal and VS Code / Positron:**
 > - **Terminal restart**: the PATH change only takes effect in new processes — `cg-link` will not be found until the terminal is restarted.
@@ -164,7 +164,7 @@ bash ~/.compound-gpid/scripts/install.sh
 ```
 
 This:
-- Creates or refreshes bash wrappers (`cg-link`, `cg-unlink`, `cg-update`, `cg-index`, `cg-brain-init`, `cg-render-artifact`, `cg-publish-markdown`, `cg-token-audit`) in `~/.compound-gpid/bin/`; Python 3.8+ provides Brainstorm/Plan validation, HTML rendering, and generic Markdown publication with the `reference` theme, and the same `bin/` directory also contains repo-local summary wrappers such as `cg-test-summary`, `cg-diff-summary`, `cg-log-summary`, `cg-tree-summary`, and `cg-problems-summary`
+- Creates or refreshes bash wrappers (`cg-link`, `cg-unlink`, `cg-update`, `cg-skill`, `cg-index`, `cg-brain-init`, `cg-render-artifact`, `cg-publish-markdown`, `cg-token-audit`) in `~/.compound-gpid/bin/`; Python 3.8+ provides skill lifecycle management, Brainstorm/Plan validation, HTML rendering, and generic Markdown publication with the `reference` theme, and the same `bin/` directory also contains repo-local summary wrappers such as `cg-test-summary`, `cg-diff-summary`, `cg-log-summary`, `cg-tree-summary`, and `cg-problems-summary`
 - Adds that directory to your PATH via `~/.zshrc` (or `~/.bashrc` for bash users)
 - Writes `.cg-version` (set to `latest`) in the install directory
 

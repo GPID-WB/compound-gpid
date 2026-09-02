@@ -67,13 +67,6 @@
       "executable": false
     },
     {
-      "path": ".agents/commands/cg-find-skill.md",
-      "source": ".github/prompts/cg-find-skill.prompt.md",
-      "kind": "command",
-      "sha256": "428f4271fdcadd1feca89960f7d3708edc37703c299e748b14fa8fda30cf596c",
-      "executable": false
-    },
-    {
       "path": ".agents/commands/cg-fix-problems.md",
       "source": ".github/prompts/cg-fix-problems.prompt.md",
       "kind": "command",
@@ -102,13 +95,6 @@
       "executable": false
     },
     {
-      "path": ".agents/commands/cg-import-skill.md",
-      "source": ".github/prompts/cg-import-skill.prompt.md",
-      "kind": "command",
-      "sha256": "718630a09fc56af0e5a09aa6c57ec45101462da8c0772859357274d487db2341",
-      "executable": false
-    },
-    {
       "path": ".agents/commands/cg-issues.md",
       "source": ".github/prompts/cg-issues.prompt.md",
       "kind": "command",
@@ -133,7 +119,7 @@
       "path": ".agents/commands/cg-release.md",
       "source": ".github/prompts/cg-release.prompt.md",
       "kind": "command",
-      "sha256": "da4311aee476acd1412cbf55948068bd0608e9d876bb965d93c778d710d778e4",
+      "sha256": "0f33de3e654cc56221492719e670c17cef71a87b2486e1c80357855e26c0bb36",
       "executable": false
     },
     {
@@ -169,6 +155,13 @@
       "source": ".github/prompts/cg-setup.prompt.md",
       "kind": "command",
       "sha256": "4f31cfbd70d8098de1149d63b04b5f1a6388022170918aab182791710a8e911a",
+      "executable": false
+    },
+    {
+      "path": ".agents/commands/cg-skill.md",
+      "source": ".github/prompts/cg-skill.prompt.md",
+      "kind": "command",
+      "sha256": "178c9695e7b68d64fd59789d61d202cb974a21d835a19247092f1cde0d9277da",
       "executable": false
     },
     {
@@ -315,7 +308,7 @@
       "path": ".agents/shared/context-loading.contract.md",
       "source": ".github/shared/context-loading.contract.md",
       "kind": "shared",
-      "sha256": "ab623c6a3a1d4c2bdc0bd3019d520c1772149d044bfdde4e29b4dc70dc1b4f01",
+      "sha256": "404193056e0fdc3f4b40b50ffbc5a856370cf61ceb2edd61c27cc4e0a5ceb581",
       "executable": false
     },
     {
@@ -354,6 +347,237 @@
       "executable": false
     },
     {
+      "path": ".agents/shared/skill-management/contracts/activate-v1.schema.json",
+      "source": ".github/shared/skill-management/contracts/activate-v1.schema.json",
+      "kind": "shared",
+      "sha256": "281a75f3d7222fa5de81d45a977a6ed775a0fb0c33f6a16270ccd5b7ad7e47c2",
+      "executable": false
+    },
+    {
+      "path": ".agents/shared/skill-management/contracts/audit-v1.schema.json",
+      "source": ".github/shared/skill-management/contracts/audit-v1.schema.json",
+      "kind": "shared",
+      "sha256": "23c511431baf418156b5eed023372567ea773b1476071b9eb1aea83af957e1a3",
+      "executable": false
+    },
+    {
+      "path": ".agents/shared/skill-management/contracts/create-v1.schema.json",
+      "source": ".github/shared/skill-management/contracts/create-v1.schema.json",
+      "kind": "shared",
+      "sha256": "0d3ac2e0fbd96253f840c92ff283b95ec9aa0dff89afa5013d98f37233f35035",
+      "executable": false
+    },
+    {
+      "path": ".agents/shared/skill-management/contracts/deactivate-v1.schema.json",
+      "source": ".github/shared/skill-management/contracts/deactivate-v1.schema.json",
+      "kind": "shared",
+      "sha256": "b71d0fef06724250a0168709fd6c6c30c8b0e600b57ca2bf71c3dfdef3c3c18e",
+      "executable": false
+    },
+    {
+      "path": ".agents/shared/skill-management/contracts/deprecate-v1.schema.json",
+      "source": ".github/shared/skill-management/contracts/deprecate-v1.schema.json",
+      "kind": "shared",
+      "sha256": "42beac0b3ca4d2f3663a3dbc7297c35f59931ac00be7b7194fe86e162bddc43d",
+      "executable": false
+    },
+    {
+      "path": ".agents/shared/skill-management/contracts/find-v1.schema.json",
+      "source": ".github/shared/skill-management/contracts/find-v1.schema.json",
+      "kind": "shared",
+      "sha256": "7990c458505f12383dadda86471d930db987c37f4a74cde88ecc34fac8256189",
+      "executable": false
+    },
+    {
+      "path": ".agents/shared/skill-management/contracts/help-v1.schema.json",
+      "source": ".github/shared/skill-management/contracts/help-v1.schema.json",
+      "kind": "shared",
+      "sha256": "78f93eabf20d67875979f96f3194910028892a875ce83506653722c768167a26",
+      "executable": false
+    },
+    {
+      "path": ".agents/shared/skill-management/contracts/import-v1.schema.json",
+      "source": ".github/shared/skill-management/contracts/import-v1.schema.json",
+      "kind": "shared",
+      "sha256": "afa9a3249c1507ba98ab8ebfc257e5a3363dc6160154c7680255816eeedf9d70",
+      "executable": false
+    },
+    {
+      "path": ".agents/shared/skill-management/contracts/info-v1.schema.json",
+      "source": ".github/shared/skill-management/contracts/info-v1.schema.json",
+      "kind": "shared",
+      "sha256": "085e018fe25a7d7d323210de4070ad05ecd9715c84ad03980ebb16f9e5cab915",
+      "executable": false
+    },
+    {
+      "path": ".agents/shared/skill-management/contracts/migration-v1.schema.json",
+      "source": ".github/shared/skill-management/contracts/migration-v1.schema.json",
+      "kind": "shared",
+      "sha256": "71956559effa7db4177b8d819be11387a221268f9c017dfbc221dcd866e45365",
+      "executable": false
+    },
+    {
+      "path": ".agents/shared/skill-management/contracts/operation-descriptor-v1.schema.json",
+      "source": ".github/shared/skill-management/contracts/operation-descriptor-v1.schema.json",
+      "kind": "shared",
+      "sha256": "d6d8284ae49daa7e3c6a44cd45092dec3679cbed4426f0657ade98743397dc96",
+      "executable": false
+    },
+    {
+      "path": ".agents/shared/skill-management/contracts/plan-v1.schema.json",
+      "source": ".github/shared/skill-management/contracts/plan-v1.schema.json",
+      "kind": "shared",
+      "sha256": "f908acf768c884ff8142c94e6c63037353672d5298645494fb1c00f7a3c05142",
+      "executable": false
+    },
+    {
+      "path": ".agents/shared/skill-management/contracts/project-registry-v1.schema.json",
+      "source": ".github/shared/skill-management/contracts/project-registry-v1.schema.json",
+      "kind": "shared",
+      "sha256": "f2f278c7f535407b92b740f8bd4ed4f5d3abf452c4a525e8abfdc769f0a720ab",
+      "executable": false
+    },
+    {
+      "path": ".agents/shared/skill-management/contracts/provenance-v1.schema.json",
+      "source": ".github/shared/skill-management/contracts/provenance-v1.schema.json",
+      "kind": "shared",
+      "sha256": "cfe1ef1ecf01824ba89c2637ef5065e20830e195b99206d4650df0e540db9824",
+      "executable": false
+    },
+    {
+      "path": ".agents/shared/skill-management/contracts/release-attestation-v1.schema.json",
+      "source": ".github/shared/skill-management/contracts/release-attestation-v1.schema.json",
+      "kind": "shared",
+      "sha256": "736a9719a4d058c3ab18f1fe5812c226bcac6b0102f7d3457be889bab8b935ad",
+      "executable": false
+    },
+    {
+      "path": ".agents/shared/skill-management/contracts/remove-v1.schema.json",
+      "source": ".github/shared/skill-management/contracts/remove-v1.schema.json",
+      "kind": "shared",
+      "sha256": "bf324af22b7713f33e3575e6a62a30854ee10d1939427535b1166657f1ff31d7",
+      "executable": false
+    },
+    {
+      "path": ".agents/shared/skill-management/contracts/request-v1.schema.json",
+      "source": ".github/shared/skill-management/contracts/request-v1.schema.json",
+      "kind": "shared",
+      "sha256": "50b813c4fedfba537bf6bb56cbb9397858c1d3919620e7da2f46fd66bb56ec2c",
+      "executable": false
+    },
+    {
+      "path": ".agents/shared/skill-management/contracts/result-v1.schema.json",
+      "source": ".github/shared/skill-management/contracts/result-v1.schema.json",
+      "kind": "shared",
+      "sha256": "3ab6dcb415b0252f190b70fd06d23d4f2decb782b6b07911c0a97654a4066263",
+      "executable": false
+    },
+    {
+      "path": ".agents/shared/skill-management/contracts/schema-subset-v1.schema.json",
+      "source": ".github/shared/skill-management/contracts/schema-subset-v1.schema.json",
+      "kind": "shared",
+      "sha256": "cef35e9549c1f2cc42ab42cca5e07f7a1beba2f77658060e5c9e68722f7a3e00",
+      "executable": false
+    },
+    {
+      "path": ".agents/shared/skill-management/contracts/update-v1.schema.json",
+      "source": ".github/shared/skill-management/contracts/update-v1.schema.json",
+      "kind": "shared",
+      "sha256": "682e306c525d46670111fa90bf651968ed65050fae2b7b2ec098843195d99b93",
+      "executable": false
+    },
+    {
+      "path": ".agents/shared/skill-management/contracts/validate-v1.schema.json",
+      "source": ".github/shared/skill-management/contracts/validate-v1.schema.json",
+      "kind": "shared",
+      "sha256": "f7285c5c9c301ccf449579ed8566a1a9f7beaf5823ac46550f80406a7b37459e",
+      "executable": false
+    },
+    {
+      "path": ".agents/shared/skill-management/operations/activate.json",
+      "source": ".github/shared/skill-management/operations/activate.json",
+      "kind": "shared",
+      "sha256": "1f7eaa2f6d8b64c3ab01117e4770d88daa891c8ac1a75dc42c62ad03c2a6e742",
+      "executable": false
+    },
+    {
+      "path": ".agents/shared/skill-management/operations/audit.json",
+      "source": ".github/shared/skill-management/operations/audit.json",
+      "kind": "shared",
+      "sha256": "4a39588e4f74926e7a80ddb06c22f10ce38bb88b44eea2cb011c5843f42db487",
+      "executable": false
+    },
+    {
+      "path": ".agents/shared/skill-management/operations/create.json",
+      "source": ".github/shared/skill-management/operations/create.json",
+      "kind": "shared",
+      "sha256": "b002f2730f793d0f992c3f2d07a6f849519583f0b9426eda5ddb0e3954b2ba9a",
+      "executable": false
+    },
+    {
+      "path": ".agents/shared/skill-management/operations/deactivate.json",
+      "source": ".github/shared/skill-management/operations/deactivate.json",
+      "kind": "shared",
+      "sha256": "ceb18d8ab9c0a7a3e8c3ed2adaab1b4f8787c28a9ec3c6193cbd286243a864dc",
+      "executable": false
+    },
+    {
+      "path": ".agents/shared/skill-management/operations/deprecate.json",
+      "source": ".github/shared/skill-management/operations/deprecate.json",
+      "kind": "shared",
+      "sha256": "870cba402f9ce591fdba1fc7d10000c1ee410c2528f81c82dbc16a0440ce400e",
+      "executable": false
+    },
+    {
+      "path": ".agents/shared/skill-management/operations/find.json",
+      "source": ".github/shared/skill-management/operations/find.json",
+      "kind": "shared",
+      "sha256": "bd9feab14f4c7bdccb75d747854a6f4bf4e9ac4827c2bcf4872dd2d8be25546d",
+      "executable": false
+    },
+    {
+      "path": ".agents/shared/skill-management/operations/help.json",
+      "source": ".github/shared/skill-management/operations/help.json",
+      "kind": "shared",
+      "sha256": "a0be1f3cde513529a3328be709e2ffd3201f236d705fc90f33c3b9daf3a58062",
+      "executable": false
+    },
+    {
+      "path": ".agents/shared/skill-management/operations/import.json",
+      "source": ".github/shared/skill-management/operations/import.json",
+      "kind": "shared",
+      "sha256": "3f988217c2dcfd29421912726d1a52e854a02d567f59dca00730285095505bc5",
+      "executable": false
+    },
+    {
+      "path": ".agents/shared/skill-management/operations/info.json",
+      "source": ".github/shared/skill-management/operations/info.json",
+      "kind": "shared",
+      "sha256": "f49ef40e53d41fe84807209a00b2b0ddfa3e0a00cee0cab866ce3ef32f3c2b9a",
+      "executable": false
+    },
+    {
+      "path": ".agents/shared/skill-management/operations/remove.json",
+      "source": ".github/shared/skill-management/operations/remove.json",
+      "kind": "shared",
+      "sha256": "9408d98cbdd634378245232607247dd95d58481fa91ea542c6afc045c05c40c1",
+      "executable": false
+    },
+    {
+      "path": ".agents/shared/skill-management/operations/update.json",
+      "source": ".github/shared/skill-management/operations/update.json",
+      "kind": "shared",
+      "sha256": "55fa2bc534365101a4cb25c0f112acc391e7332fdca5700c5c35bf9561214e32",
+      "executable": false
+    },
+    {
+      "path": ".agents/shared/skill-management/operations/validate.json",
+      "source": ".github/shared/skill-management/operations/validate.json",
+      "kind": "shared",
+      "sha256": "f8a0e1724a863bea07b2ac829f30297bff5719c5ad927820959a059289dabfd0",
+      "executable": false
+    },
+    {
       "path": ".agents/shared/snapshot-research-modes.json",
       "source": ".github/shared/snapshot-research-modes.json",
       "kind": "shared",
@@ -364,14 +588,14 @@
       "path": ".agents/shared/target-mapping.json",
       "source": ".github/shared/target-mapping.json",
       "kind": "shared",
-      "sha256": "ac6a2ad2ced44c7d99ffa05d4e962d349fe870152bc21263a692ae919367deec",
+      "sha256": "46b47adf93a379104605d0621dfbf52431271bb1ffa1097f36c7c9f6ed29dc43",
       "executable": false
     },
     {
       "path": ".agents/shared/vendor-policy.json",
       "source": ".github/shared/vendor-policy.json",
       "kind": "shared",
-      "sha256": "12670cfe9582750acd6871c9132e6cba78a764e952a35e7b24b8eafa0c08c12d",
+      "sha256": "3d4ccc01d3af57ef02497c0346c015ea9ba384a093580debfae08b072af18d6f",
       "executable": false
     },
     {
@@ -575,6 +799,146 @@
       "source": ".github/skills/cg-skill-git-workflow/workflows/pr-template.md",
       "kind": "skill-resource",
       "sha256": "eeaec451a5449f06e9e492cef1552ae102668d7303aae08913fecde132095321",
+      "executable": false
+    },
+    {
+      "path": ".agents/skills/cg-skill-management/SKILL.md",
+      "source": ".github/skills/cg-skill-management/SKILL.md",
+      "kind": "skill",
+      "sha256": "85b2857b94b2481c1cbce88112b0bc2e3dfaff1f2f3d8f46b433a512e23dacf4",
+      "executable": false
+    },
+    {
+      "path": ".agents/skills/cg-skill-management/templates/example.md",
+      "source": ".github/skills/cg-skill-management/templates/example.md",
+      "kind": "skill-resource",
+      "sha256": "b2566e5165916599a39b43278f4cd2003475acdd5e8b0249fb6bf63ac38d42d1",
+      "executable": false
+    },
+    {
+      "path": ".agents/skills/cg-skill-management/templates/reference.md",
+      "source": ".github/skills/cg-skill-management/templates/reference.md",
+      "kind": "skill-resource",
+      "sha256": "62789ffc60ee9b8cb529d93adfcfa1766c4ab0ebabc7e9d5620218d91e187be5",
+      "executable": false
+    },
+    {
+      "path": ".agents/skills/cg-skill-management/templates/resource.json",
+      "source": ".github/skills/cg-skill-management/templates/resource.json",
+      "kind": "skill-resource",
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "executable": false
+    },
+    {
+      "path": ".agents/skills/cg-skill-management/templates/resource.svg",
+      "source": ".github/skills/cg-skill-management/templates/resource.svg",
+      "kind": "skill-resource",
+      "sha256": "bf38cccc60a21efeaa003ea8245c8bab328b4951487df734502616725cf3669f",
+      "executable": false
+    },
+    {
+      "path": ".agents/skills/cg-skill-management/templates/resource.txt",
+      "source": ".github/skills/cg-skill-management/templates/resource.txt",
+      "kind": "skill-resource",
+      "sha256": "bb74d63ac3f2f2f14bb22cb7100c795fa165b19a04dd300bfcbde8d43019c6d5",
+      "executable": false
+    },
+    {
+      "path": ".agents/skills/cg-skill-management/templates/skill.md.txt",
+      "source": ".github/skills/cg-skill-management/templates/skill.md.txt",
+      "kind": "skill-resource",
+      "sha256": "a963876622577eb7b9cd44f129f8bd7cd43dd1fbacfb3bafd5e04065306d831f",
+      "executable": false
+    },
+    {
+      "path": ".agents/skills/cg-skill-management/templates/workflow.md",
+      "source": ".github/skills/cg-skill-management/templates/workflow.md",
+      "kind": "skill-resource",
+      "sha256": "dc8e0dc9600fe90b835eddf403c93abba1883372db9f6a92e6350ec6e33eeae5",
+      "executable": false
+    },
+    {
+      "path": ".agents/skills/cg-skill-management/workflows/activate.md",
+      "source": ".github/skills/cg-skill-management/workflows/activate.md",
+      "kind": "skill-resource",
+      "sha256": "dea12c6aafe06ea3448a43aa1b1d03784bd4d115ee733fdbd87192165429974e",
+      "executable": false
+    },
+    {
+      "path": ".agents/skills/cg-skill-management/workflows/audit.md",
+      "source": ".github/skills/cg-skill-management/workflows/audit.md",
+      "kind": "skill-resource",
+      "sha256": "4fdfc632cdb321a37351faae0616cd5fd86e2e32374701f3c9e0b7df8eace8ba",
+      "executable": false
+    },
+    {
+      "path": ".agents/skills/cg-skill-management/workflows/create.md",
+      "source": ".github/skills/cg-skill-management/workflows/create.md",
+      "kind": "skill-resource",
+      "sha256": "b804403081e3bc33474c70c22c814fcdd495c5acf735383005b9c1edb607c18c",
+      "executable": false
+    },
+    {
+      "path": ".agents/skills/cg-skill-management/workflows/deactivate.md",
+      "source": ".github/skills/cg-skill-management/workflows/deactivate.md",
+      "kind": "skill-resource",
+      "sha256": "e28ae37f11a8b17ae6f79dbfbf07715d7dc1083549be5231372437975195de19",
+      "executable": false
+    },
+    {
+      "path": ".agents/skills/cg-skill-management/workflows/deprecate.md",
+      "source": ".github/skills/cg-skill-management/workflows/deprecate.md",
+      "kind": "skill-resource",
+      "sha256": "c0b17a2594112d03019adb7d4e2af4fcb9b654971dbd2f1c4692a7d07d639470",
+      "executable": false
+    },
+    {
+      "path": ".agents/skills/cg-skill-management/workflows/find.md",
+      "source": ".github/skills/cg-skill-management/workflows/find.md",
+      "kind": "skill-resource",
+      "sha256": "fa7a48f8f5e2a38f73450602b92a50cafbf1cfa03bd2beb87c6ac09dcd90a094",
+      "executable": false
+    },
+    {
+      "path": ".agents/skills/cg-skill-management/workflows/help.md",
+      "source": ".github/skills/cg-skill-management/workflows/help.md",
+      "kind": "skill-resource",
+      "sha256": "99867c5196dd70f0fea5cde5115b5d3ba0d3c36a1e6a4717566efa7cdd0eee8e",
+      "executable": false
+    },
+    {
+      "path": ".agents/skills/cg-skill-management/workflows/import.md",
+      "source": ".github/skills/cg-skill-management/workflows/import.md",
+      "kind": "skill-resource",
+      "sha256": "e8a101444756b76cf7ce57eae5c8b07a158b5a3bea4378612709a78e882b371d",
+      "executable": false
+    },
+    {
+      "path": ".agents/skills/cg-skill-management/workflows/info.md",
+      "source": ".github/skills/cg-skill-management/workflows/info.md",
+      "kind": "skill-resource",
+      "sha256": "adcb69a16ec3f7a36147ba75805c95ad8b68ddf3603d6b8d7d5129bb2eebc016",
+      "executable": false
+    },
+    {
+      "path": ".agents/skills/cg-skill-management/workflows/remove.md",
+      "source": ".github/skills/cg-skill-management/workflows/remove.md",
+      "kind": "skill-resource",
+      "sha256": "6dadb68bbdb5b8882baea77a46a16b816e8a6dde78061d4117258bd683b2c236",
+      "executable": false
+    },
+    {
+      "path": ".agents/skills/cg-skill-management/workflows/update.md",
+      "source": ".github/skills/cg-skill-management/workflows/update.md",
+      "kind": "skill-resource",
+      "sha256": "8f18f63c6e55a1673ace177c51c9940ec08ecacfee1bfa863150bb0e92150d5a",
+      "executable": false
+    },
+    {
+      "path": ".agents/skills/cg-skill-management/workflows/validate.md",
+      "source": ".github/skills/cg-skill-management/workflows/validate.md",
+      "kind": "skill-resource",
+      "sha256": "d01bdc7a3054587c3220280f87389fd881bfda2a2fd4ddf766876f5bf4fd4a30",
       "executable": false
     },
     {

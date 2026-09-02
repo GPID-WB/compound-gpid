@@ -1942,4 +1942,14 @@ Describe "update.ps1 - manifest projection recovery" {
         $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\update.ps1") -Raw -Encoding UTF8
         $content | Should -Match 'blocked by manifest projection failure'
     }
+
+    It "uses the same exact sync worker for hybrid Copilot bundles" {
+        $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\update.ps1") -Raw -Encoding UTF8
+        $mapping = Get-Content (Join-Path $PSScriptRoot "..\.github\shared\target-mapping.json") -Raw -Encoding UTF8 | ConvertFrom-Json
+        $copilot = @($mapping.targets | Where-Object { $_.id -eq "copilot" })[0]
+        @($copilot.projectedCategories)[0] | Should -Be "skills"
+        $content | Should -Match 'Invoke-CgProjection'
+        $content | Should -Match 'Mode sync'
+        $content | Should -Match 'updateIsSourceInstall'
+    }
 }

@@ -314,6 +314,8 @@ rules that help Copilot produce accurate outputs across all prompts and sessions
 
 - **Offline fixtures that mimic an external CLI must be verbatim mirrors of the CLI's wire format**: a fixture hand-crafting "nicer" keys (e.g., `headRef` instead of gh's `headRefName`) silently loses data when real CLI output is copied in, and an empty fixture array hides the drift (no test covers it). Document the convention in the fixture paragraph and align `FixtureClient` parsing with `GhCliClient` key-for-key, including author `{"login": ...}` normalization. See `.cg-docs/solutions/testing-patterns/2026-08-10-gh-cli-fixture-json-keys-must-match-client-parsing.md`.
 
+- **Trusted dynamic dispatch must bind authority and execution to immutable identities**: Mutable Git origin strings, branch names, and local remote refs are not authority. Require ancestry from an immutable canonical commit or equivalent external anchor. For dynamic Python handlers, read once through a root-anchored no-follow handle with hard-link rejection, then compile and execute the captured bytes; import-then-check executes untrusted module code too early. Reuse the same captured-byte rule for validator content scans. See `.cg-docs/solutions/bugs/2026-08-31-trust-anchor-captured-byte-dispatch.md`.
+
 ### Strict project config and capability selection (manifest-driven)
 
 - `compound-gpid.local.md` now uses a strict restricted grammar (UTF-8 no BOM,
@@ -332,6 +334,15 @@ rules that help Copilot produce accurate outputs across all prompts and sessions
 - `scripts/cg_projection_benchmark.py` records the before-state baseline matrix
   (`.cg-docs/cost/skill-loading-baseline.json` / `.md`); unavailable required
   host evidence is a blocking `unavailable`, never a zero.
+- `/cg-skill <operation>` is the only public skill-management namespace. The
+  `cg` suite selects `cap-skill-management`; mutating operations always plan
+  before digest-bound apply, and generated projections are never edited by hand.
+- **Captured dynamic Python execution includes the dependency closure**: securing
+  only the selected handler is insufficient because its imports resolve and
+  execute code again. Capture and validate all repository-local dependencies
+  before execution. When replacing text reads with byte capture, restore required
+  UTF-8 and LF normalization explicitly while preserving opaque resources byte
+  for byte. See `.cg-docs/solutions/bugs/2026-09-02-captured-byte-trust-must-cover-dependency-closure.md`.
 
 ## Wiki Configuration
 

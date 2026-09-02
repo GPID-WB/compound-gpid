@@ -235,6 +235,16 @@ foreach ($candidate in @("python3", "python", "py")) {
 if (-not $pythonCommand) {
     throw "Native packaging preflight requires Python (checked: python3, python, py)."
 }
+
+function Write-CgReleaseAttestation {
+    & $pythonCommand (Join-Path $PSScriptRoot "scripts/cg_release_attestation.py") `
+        --root $PSScriptRoot `
+        --tag $Tag `
+        --review-reference "release=$headCommit"
+    if ($LASTEXITCODE -ne 0) {
+        throw "Post-release skill attestation failed with exit code $LASTEXITCODE."
+    }
+}
 $preflightRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("compound-gpid-release-" + [System.Guid]::NewGuid().ToString("N"))
 try {
     & git -c core.autocrlf=false clone --quiet --no-hardlinks --no-checkout $PSScriptRoot $preflightRoot
@@ -432,6 +442,7 @@ if ($null -ne $existingRelease) {
     }
     Assert-CgRemoteReleaseLineage -ExpectedCommit $headCommit -Branch $releaseBranch
     Assert-CgRemoteTagCommit -ReleaseTag $Tag -ExpectedCommit $headCommit
+    Write-CgReleaseAttestation
     "EXISTS|$($existingRelease.id)|$($existingRelease.html_url)" | Set-Content $resultFile
     exit 0
 }
@@ -469,6 +480,7 @@ try {
         (ConvertTo-CgNormalizedReleaseText $response.body) -ne (ConvertTo-CgNormalizedReleaseText $notes)) {
         throw "GitHub API response does not match the requested immutable release metadata."
     }
+    Write-CgReleaseAttestation
 } catch {
     if ($response -and $response.id) {
         Invoke-RestMethod -Uri "https://api.github.com/repos/GPID-WB/compound-gpid/releases/$($response.id)" -Method Delete -Headers $headers

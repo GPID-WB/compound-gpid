@@ -51,6 +51,8 @@ if _scripts_dir not in sys.path:
 
 import cg_audit_context as audit  # noqa: E402
 import cg_context_budget as budget  # noqa: E402
+from skill_management.services import catalog as catalog_service  # noqa: E402
+from skill_management.services import registry as registry_service  # noqa: E402
 
 MODULE_REGISTRY_PATH = ".github/shared/module-registry.json"
 LOCAL_CONFIG_PATH = "compound-gpid.local.md"
@@ -78,20 +80,25 @@ def source_revision(root: Path) -> str:
     A non-git root records ``"unknown-revision"`` (never wall-clock time) so
     independent resolver runs remain byte-comparable.
     """
-    head_sha = subprocess.run(
-        ["git", "-C", str(root), "rev-parse", "HEAD"],
-        capture_output=True,
-        text=True,
-        timeout=10,
-        check=False,
-    )
-    head_time = subprocess.run(
-        ["git", "-C", str(root), "show", "-s", "--format=%cI", "HEAD"],
-        capture_output=True,
-        text=True,
-        timeout=10,
-        check=False,
-    )
+    try:
+        head_sha = subprocess.run(
+            ["git", "-C", str(root), "rev-parse", "HEAD"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+        if head_sha.returncode != 0 or not head_sha.stdout.strip():
+            return "unknown-revision"
+        head_time = subprocess.run(
+            ["git", "-C", str(root), "show", "-s", "--format=%cI", "HEAD"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return "unknown-revision"
     if head_sha.returncode == 0 and head_time.returncode == 0:
         sha = head_sha.stdout.strip()
         stamp = head_time.stdout.strip()
@@ -130,25 +137,20 @@ def canonical_platform_ids(root: Path) -> list[str]:
 
 
 def _load_registry(root: Path) -> dict:
-    path = root / MODULE_REGISTRY_PATH
-    if not path.exists():
-        raise ManifestResolutionError(f"{MODULE_REGISTRY_PATH} not found at {root}")
     try:
-        data = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
-        raise ManifestResolutionError(f"{MODULE_REGISTRY_PATH} is malformed: {exc}") from exc
-    if not isinstance(data, dict):
-        raise ManifestResolutionError("module registry must be a JSON object")
-    return data
+        return registry_service.load_registry_snapshot(root).to_dict()
+    except registry_service.RegistryValidationError as exc:
+        raise ManifestResolutionError(str(exc)) from exc
 
 
 def registry_digest(root: Path) -> tuple[str, Optional[int]]:
     """Return (sha256 of registry bytes, schemaVersion) for staleness checks."""
-    path = root / MODULE_REGISTRY_PATH
-    data = path.read_bytes()
-    registry = json.loads(data.decode("utf-8"))
-    version = registry.get("schemaVersion") if isinstance(registry, dict) else None
-    return _sha256_bytes(data), version
+    try:
+        snapshot = registry_service.load_registry_snapshot(root)
+    except registry_service.RegistryValidationError as exc:
+        raise ManifestResolutionError(str(exc)) from exc
+    version = snapshot.registry.get("schemaVersion")
+    return snapshot.digest, version if isinstance(version, int) else None
 
 
 def config_digest(config_text: str) -> str:
@@ -156,10 +158,22 @@ def config_digest(config_text: str) -> str:
     return _sha256_bytes(config_text.encode("utf-8"))
 
 
-def desired_plan_digest(closure_ids: list[str], globs: list[str], platforms: list[str]) -> str:
+def desired_plan_digest(
+    closure_ids: list[str],
+    globs: list[str],
+    platforms: list[str],
+    selected_project_skills: Optional[dict[str, str]] = None,
+    project_bundle_records: Optional[list[dict[str, str]]] = None,
+) -> str:
     """Deterministic digest of the desired projection plan inputs."""
     canonical = json.dumps(
-        {"closure": closure_ids, "globs": globs, "platforms": platforms},
+        {
+            "closure": closure_ids,
+            "globs": globs,
+            "platforms": platforms,
+            "selectedProjectSkills": selected_project_skills or {},
+            "projectBundles": project_bundle_records or [],
+        },
         sort_keys=True,
         separators=(",", ":"),
     )
@@ -171,7 +185,13 @@ def _capability_records(registry: dict) -> list[dict]:
     return [cap for cap in capabilities if isinstance(cap, dict)] if isinstance(capabilities, list) else []
 
 
-def _platform_eligibility(registry: dict, closure_ids: set[str], platforms: list[str]) -> dict[str, Any]:
+def _platform_eligibility(
+    registry: dict,
+    closure_ids: set[str],
+    platforms: list[str],
+    project_records: Optional[list[dict[str, Any]]] = None,
+    selected_project_skills: Optional[dict[str, str]] = None,
+) -> dict[str, Any]:
     """Per-capability and per-platform eligibility for the selected closure."""
     records = _capability_records(registry)
     capabilities_used: dict[str, Any] = {}
@@ -192,6 +212,19 @@ def _platform_eligibility(registry: dict, closure_ids: set[str], platforms: list
             "eligiblePlatforms": sorted(p for p in platforms if p in supported_set),
             "ineligiblePlatforms": sorted(p for p in platforms if p not in supported_set),
         })
+    selected_projects = selected_project_skills or {}
+    for record in sorted(project_records or [], key=lambda item: item["capability"]):
+        capability_id = record["capability"]
+        if selected_projects.get(capability_id) != record["id"]:
+            continue
+        supported_set = set(record["supportedPlatforms"])
+        rows.append({
+            "id": capability_id,
+            "module": "project-local",
+            "supportedPlatforms": list(record["supportedPlatforms"]),
+            "eligiblePlatforms": [p for p in platforms if p in supported_set],
+            "ineligiblePlatforms": [p for p in platforms if p not in supported_set],
+        })
     return {
         "platforms": list(platforms),
         "capabilities": rows,
@@ -202,37 +235,30 @@ def _platform_eligibility(registry: dict, closure_ids: set[str], platforms: list
     }
 
 
-def _catalog_records(root: Path, closure_globs: list[str], registry: dict) -> list[dict[str, Any]]:
-    """Compact manifest-backed catalog records (id, purpose, capability, cost)."""
-    import cg_validate_modules as validator
-
-    capability_by_module = {
-        cap.get("owningModule"): cap
-        for cap in _capability_records(registry)
-    }
-    rows: list[dict[str, Any]] = []
-    for skill in audit.scan_skill_metadata(root):
-        candidate = f".github/skills/{skill['id']}/SKILL.md"
-        selected = any(validator._glob_match(pattern, candidate) for pattern in closure_globs)
-        owner = None
-        for module in registry.get("modules", []):
-            if not isinstance(module, dict):
-                continue
-            if any(
-                isinstance(pattern, str) and validator._glob_match(pattern, candidate)
-                for pattern in module.get("ownedAssets", [])
-            ):
-                owner = module.get("id")
-                break
-        capability = capability_by_module.get(owner)
-        rows.append({
-            "id": skill["id"],
-            "purpose": skill["description"],
-            "capability": owner,
-            "available": selected,
-            "activationCost": capability.get("activationCost") if capability else None,
-        })
-    return sorted(rows, key=lambda row: row["id"])
+def _catalog_records(
+    root: Path,
+    closure_ids: list[str],
+    registry: dict,
+    *,
+    project_snapshot: Optional[registry_service.CombinedRegistrySnapshot] = None,
+    selected_project_skills: Optional[dict[str, str]] = None,
+) -> list[dict[str, Any]]:
+    """Build compact records through the canonical catalog service."""
+    try:
+        manifest = {
+            "selection": {
+                "moduleClosure": closure_ids,
+                "selectedProjectSkills": selected_project_skills or {},
+            }
+        }
+        return catalog_service.manifest_catalog_records(
+            root,
+            manifest,
+            registry,
+            project_snapshot=project_snapshot,
+        )
+    except catalog_service.CatalogError as exc:
+        raise ManifestResolutionError(str(exc)) from exc
 
 
 def resolve_active_manifest(
@@ -240,6 +266,7 @@ def resolve_active_manifest(
     config_text: Optional[str] = None,
     platforms: Optional[list[str]] = None,
     source_root: Optional[Path] = None,
+    combined_snapshot: Optional[registry_service.CombinedRegistrySnapshot] = None,
 ) -> dict[str, Any]:
     """Resolve the canonical active manifest. Side-effect-free.
 
@@ -270,7 +297,21 @@ def resolve_active_manifest(
             f"({SUPPORTED_CONFIG_SCHEMA_VERSION}); migrate explicitly before strict resolution"
         )
 
-    registry = _load_registry(source_root)
+    if combined_snapshot is None:
+        try:
+            combined_snapshot = registry_service.load_combined_registry_snapshot(
+                root, source_root
+            )
+        except registry_service.RegistryValidationError as exc:
+            raise ManifestResolutionError(str(exc)) from exc
+    elif (
+        combined_snapshot.project_root != root
+        or combined_snapshot.canonical.source_root != source_root
+    ):
+        raise ManifestResolutionError(
+            "Injected combined registry snapshot does not match resolver roots"
+        )
+    registry = combined_snapshot.canonical.to_dict()
     available_platforms = canonical_platform_ids(source_root)
     selected_platforms = list(platforms) if platforms is not None else list(available_platforms)
     unknown_platforms = [p for p in selected_platforms if p not in available_platforms]
@@ -283,24 +324,74 @@ def resolve_active_manifest(
     suites = parsed.suites or ["cg"]  # only a genuinely absent suites field defaults
     settings = parsed.settings
     explicit = list(parsed.capabilities)
-    known_capability_ids = {cap.get("id") for cap in _capability_records(registry)}
+    canonical_capability_ids = {
+        cap.get("id") for cap in _capability_records(registry)
+    }
+    project_capability_by_id = {
+        record["capability"]: record
+        for record in combined_snapshot.project_records
+    }
+    known_capability_ids = canonical_capability_ids | set(project_capability_by_id)
     unknown_capabilities = [c for c in explicit if c not in known_capability_ids]
     if unknown_capabilities:
         raise ManifestResolutionError(
             f"unknown explicit capability id(s): {', '.join(sorted(unknown_capabilities))}"
         )
 
+    canonical_explicit = [
+        capability for capability in explicit
+        if capability in canonical_capability_ids
+    ]
+    try:
+        selected_project_skills = combined_snapshot.select_project_skills(
+            tuple(explicit), tuple(suites), tuple(selected_platforms)
+        )
+    except registry_service.RegistryValidationError as exc:
+        raise ManifestResolutionError(str(exc)) from exc
+
     try:
         loadable_ids = budget.loadable_module_ids(
-            registry, suites, config=settings, capabilities=explicit
+            registry, suites, config=settings, capabilities=canonical_explicit
         )
     except ValueError as exc:
         raise ManifestResolutionError(str(exc)) from exc
     closure_ids = sorted(loadable_ids)
     closure_globs = sorted(budget.loadable_asset_globs(registry, loadable_ids))
     derived_ids = budget.capability_ids_by_selector(registry, settings, suites)
-    registry_hash, registry_schema = registry_digest(source_root)
+    registry_hash = combined_snapshot.canonical_digest
+    registry_version = combined_snapshot.canonical.registry.get("schemaVersion")
+    registry_schema = registry_version if isinstance(registry_version, int) else None
 
+    catalog_records = _catalog_records(
+        source_root,
+        closure_ids,
+        registry,
+        project_snapshot=combined_snapshot,
+        selected_project_skills=selected_project_skills,
+    )
+    project_bundle_records = [
+        {
+            "id": str(record["id"]),
+            "capability": str(record["capability"]),
+            "bundleDigest": str(record["bundleDigest"]),
+            "provenanceId": str(record["provenanceId"]),
+        }
+        for record in combined_snapshot.project_records
+    ]
+    selected_project_bundle_records = [
+        record for record in project_bundle_records
+        if selected_project_skills.get(record["capability"]) == record["id"]
+    ]
+    catalog_digest = _sha256_bytes(
+        json.dumps(
+            {
+                "records": catalog_records,
+                "projectBundles": project_bundle_records,
+            },
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+    )
     manifest: dict[str, Any] = {
         "header": HEADER,
         "schemaVersion": 1,
@@ -310,21 +401,37 @@ def resolve_active_manifest(
             "configSchemaVersion": config_schema_version,
             "registryDigest": registry_hash,
             "registrySchemaVersion": registry_schema,
+            "projectRegistryDigest": combined_snapshot.project_registry_digest,
+            "provenanceDigest": combined_snapshot.provenance_digest,
             "sourceRevision": source_revision(source_root),
             "suites": suites,
             "capabilities": explicit,
             "derivedCapabilities": derived_ids,
             "moduleClosure": closure_ids,
+            "selectedProjectSkills": selected_project_skills,
             "platforms": selected_platforms,
-            "desiredPlanDigest": desired_plan_digest(closure_ids, closure_globs, selected_platforms),
+            "catalogDigest": catalog_digest,
+            "desiredPlanDigest": desired_plan_digest(
+                closure_ids,
+                closure_globs,
+                selected_platforms,
+                selected_project_skills,
+                selected_project_bundle_records,
+            ),
         },
-        "platformEligibility": _platform_eligibility(registry, loadable_ids, selected_platforms),
+        "platformEligibility": _platform_eligibility(
+            registry,
+            loadable_ids,
+            selected_platforms,
+            project_records=[dict(record) for record in combined_snapshot.project_records],
+            selected_project_skills=selected_project_skills,
+        ),
         "certifiedKiloLaunchRequired": False,
         "certifiedKiloLaunchNote": (
             "Set by cg-link/cg-update preflight; True requires the certified "
             "`cg-kilo` launcher for combined Kilo+Codex configurations."
         ),
-        "catalogRecords": _catalog_records(source_root, closure_globs, registry),
+        "catalogRecords": catalog_records,
     }
     return manifest
 
@@ -341,9 +448,13 @@ def immutable_selection_fields(manifest: dict[str, Any]) -> dict[str, Any]:
         "configDigest": selection.get("configDigest"),
         "registryDigest": selection.get("registryDigest"),
         "registrySchemaVersion": selection.get("registrySchemaVersion"),
+        "projectRegistryDigest": selection.get("projectRegistryDigest"),
+        "provenanceDigest": selection.get("provenanceDigest"),
         "sourceRevision": selection.get("sourceRevision"),
         "moduleClosure": selection.get("moduleClosure"),
+        "selectedProjectSkills": selection.get("selectedProjectSkills"),
         "platforms": selection.get("platforms"),
+        "catalogDigest": selection.get("catalogDigest"),
         "desiredPlanDigest": selection.get("desiredPlanDigest"),
     }
 
@@ -375,8 +486,10 @@ def validate_manifest(manifest: Any) -> list[str]:
         errors.append("selection must be an object")
         return errors
     for field in (
-        "configDigest", "registryDigest", "registrySchemaVersion", "sourceRevision",
-        "suites", "moduleClosure", "platforms", "desiredPlanDigest",
+        "configDigest", "registryDigest", "registrySchemaVersion",
+        "projectRegistryDigest", "provenanceDigest", "sourceRevision",
+        "suites", "moduleClosure", "selectedProjectSkills", "platforms",
+        "catalogDigest", "desiredPlanDigest",
     ):
         if field not in selection:
             errors.append(f"selection missing {field}")
@@ -386,6 +499,15 @@ def validate_manifest(manifest: Any) -> list[str]:
         errors.append("selection.registryDigest must be a string")
     if "registrySchemaVersion" in selection and not isinstance(selection["registrySchemaVersion"], int):
         errors.append("selection.registrySchemaVersion must be an integer")
+    for field in (
+        "projectRegistryDigest", "provenanceDigest", "catalogDigest"
+    ):
+        if field in selection and not (
+            isinstance(selection[field], str)
+            and len(selection[field]) == 64
+            and all(char in "0123456789abcdef" for char in selection[field])
+        ):
+            errors.append(f"selection.{field} must be a 64-char hex digest")
     if "desiredPlanDigest" in selection and not (
         isinstance(selection["desiredPlanDigest"], str)
         and len(selection["desiredPlanDigest"]) == 64
@@ -398,6 +520,25 @@ def validate_manifest(manifest: Any) -> list[str]:
             continue
         if not isinstance(value, list) or any(not isinstance(item, str) for item in value):
             errors.append(f"selection.{field} must be a list of strings")
+    selected_projects = selection.get("selectedProjectSkills")
+    if selected_projects is not None and (
+        not isinstance(selected_projects, dict)
+        or any(
+            not isinstance(key, str) or not isinstance(value, str)
+            for key, value in selected_projects.items()
+        )
+    ):
+        errors.append("selection.selectedProjectSkills must be a string map")
+    elif isinstance(selected_projects, dict):
+        if len(set(selected_projects.values())) != len(selected_projects):
+            errors.append(
+                "selection.selectedProjectSkills must map one capability to one unique bundle"
+            )
+        for capability, identifier in selected_projects.items():
+            if capability != f"project-skill-{identifier}":
+                errors.append(
+                    "selection.selectedProjectSkills keys must match project-skill-<bundle-id>"
+                )
     return errors
 
 

@@ -7,17 +7,17 @@ source.
 
 ## Overview
 
-The `/cg-import-skill` command provides two modes:
+The `/cg-skill import` operation provides two scopes:
 
-| Mode | Who uses it | What it does |
+| Scope | Who uses it | What it does |
 |------|-------------|--------------|
-| `review` | Consumer projects | Quarantines content and produces a review diff |
-| `vendor` | Maintainers (canonical source checkout) | Quarantines, reviews, and registers approved content |
+| `project` | Consumer projects | Quarantines content, produces evidence, and plans an inactive project record |
+| `plugin` | Maintainers (canonical source checkout) | Quarantines, reviews, and plans approved canonical vendoring |
 
 ## Usage
 
 ```
-/cg-import-skill <repo-url>@<full-sha> <path> [--mode review|vendor]
+/cg-skill import <repo-url> <path> <full-sha> --license <id> [--scope project|plugin]
 ```
 
 ### Arguments
@@ -25,25 +25,25 @@ The `/cg-import-skill` command provides two modes:
 - **repo-url**: HTTPS URL of the source repository (must be on the allowlist)
 - **full-sha**: Full 40-character immutable commit SHA (no short SHAs, branches, or tags)
 - **path**: Path to the skill root within the repository (e.g., `.github/skills/skill-name/`)
-- **mode**: `review` (default) or `vendor`
+- **scope**: `project` (default) or maintainer-only `plugin`
 
 ### Examples
 
 Consumer project — quarantine for review:
 ```
-/cg-import-skill https://github.com/Kilo-Org/kilocode@abc123def456... .github/skills/cg-skill-example/
+/cg-skill import https://github.com/Kilo-Org/kilocode .github/skills/cg-skill-example abc123def456abc123def456abc123def456abcd --license MIT
 ```
 
 Maintainer — vendor after approval:
 ```
-/cg-import-skill https://github.com/Kilo-Org/kilocode@abc123def456... .github/skills/cg-skill-example/ --mode vendor
+/cg-skill import https://github.com/Kilo-Org/kilocode .github/skills/cg-skill-example abc123def456abc123def456abc123def456abcd --license MIT --scope plugin --owner cap-example --capability example --suites cg --platforms copilot,kilo --activation-cost low --triggers example --selectors "[]" --approver maintainer --review-reference review=1111111111111111111111111111111111111111
 ```
 
 ## Workflow
 
 ### 1. Consumer Review
 
-1. Run `/cg-import-skill <spec>` in your consumer project.
+1. Run `/cg-skill import <repository> <path> <full-sha> --license <id>` in your consumer project.
 2. The importer fetches pinned content into `.compound-gpid/quarantine/`.
 3. Admission checks run: file extensions, path safety, symlinks, secrets, prompt-injection, frontmatter, binary content.
 4. A deterministic review diff is saved to `.compound-gpid/vendor-reviews/`.
@@ -52,7 +52,7 @@ Maintainer — vendor after approval:
 ### 2. Maintainer Vendor
 
 1. Switch to the Compound GPID canonical source checkout.
-2. Run `/cg-import-skill <spec> --mode vendor`.
+2. Run `/cg-skill import <arguments> --scope plugin` with all required canonical metadata.
 3. Same quarantine and admission as review mode.
 4. After approval, the bundle is copied to `.github/skills/` with provenance registration.
 5. The module registry is updated with vendor import metadata.
@@ -94,23 +94,13 @@ The vendor policy is defined in `.github/shared/vendor-policy.json`:
 
 ## Vendor Registration
 
-Approved imports are registered in the module registry under `vendorImports`:
+Approved plugin imports receive canonical provenance and a capability record:
 
 ```json
 {
-  "vendorImports": [
-    {
-      "skillName": "skill-name",
-      "sourceRepository": "https://github.com/...",
-      "sourceCommitSha": "abc123...",
-      "sourcePath": ".github/skills/skill-name/",
-      "importedAt": "2026-08-17T00:00:00Z",
-      "license": "MIT",
-      "reviewer": "maintainer@example.com",
-      "approvalRef": "approval-001",
-      "localPath": ".github/skills/skill-name/"
-    }
-  ]
+  "id": "example",
+  "owningModule": "cap-example",
+  "sourceProvenance": "vendor/https://github.com/example/skills@<full-sha>"
 }
 ```
 
@@ -120,4 +110,7 @@ Approved imports are registered in the module registry under `vendorImports`:
 - No remote runtime fetching or network execution
 - No semantic rewrites of imported skills (mechanical namespace/path rewrites only)
 - No public marketplace — only approved allowlisted repositories
-- Vendor mode requires verified canonical source checkout
+- Plugin scope requires a verified canonical feature-branch checkout
+
+See the complete [import operation](management/commands/import.md),
+[security controls](management/security.md), and [migration guide](management/migration.md).

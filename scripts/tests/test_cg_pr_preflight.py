@@ -322,6 +322,8 @@ def test_native_target_owns_deterministic_kilo_and_preflight_tests() -> None:
     assert "scripts/tests/test_kilo_coexistence.py" in preflight.NATIVE_PYTEST_FILES
     assert "scripts/tests/test_kilo_copy.py" in preflight.NATIVE_PYTEST_FILES
     assert "scripts/tests/test_link_projection_order.py" in preflight.NATIVE_PYTEST_FILES
+    assert "scripts/tests/test_skill_management_contracts.py" in preflight.NATIVE_PYTEST_FILES
+    assert "scripts/tests/test_skill_management_dispatch.py" in preflight.NATIVE_PYTEST_FILES
     assert "scripts/tests/test_cg_pr_preflight.py" in preflight.NATIVE_PYTEST_FILES
     assert "scripts/tests/test_project_manifest.py" in preflight.NATIVE_PYTEST_FILES
     assert "scripts/tests/test_project_projection.py" in preflight.NATIVE_PYTEST_FILES

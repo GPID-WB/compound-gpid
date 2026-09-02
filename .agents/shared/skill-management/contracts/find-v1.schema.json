@@ -1,0 +1,73 @@
+{
+  "$schema": "compound-gpid-schema-subset-v1",
+  "$id": "cg-skill-find-v1",
+  "$defs": {
+    "arguments": {
+      "type": "object",
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "exact": {"type": "boolean"},
+        "capability": {"type": "string", "minLength": 1},
+        "suite": {"type": "string", "minLength": 1},
+        "platform": {"type": "string", "minLength": 1},
+        "available": {"type": "boolean"},
+        "unavailable": {"type": "boolean"},
+        "cost": {"type": "string", "enum": ["low", "medium", "high"]},
+        "owner": {"type": "string", "minLength": 1},
+        "provenance": {"type": "string", "minLength": 1},
+        "full": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    },
+    "resultData": {
+      "type": "object",
+      "properties": {
+        "manifestHealth": {"type": "string", "enum": ["fresh", "missing", "stale", "invalid"]},
+        "prospective": {"type": "boolean"},
+        "remediation": {"type": "string", "minLength": 1},
+        "records": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {"type": "string", "minLength": 1},
+              "purpose": {"type": "string"},
+              "capability": {"type": "string", "minLength": 1},
+              "availability": {"type": "string", "enum": ["active", "inactive", "prospective"]},
+              "manifestHealth": {"type": "string", "enum": ["fresh", "missing", "stale", "invalid"]},
+              "activationCost": {"type": "string", "enum": ["low", "medium", "high"]},
+              "origin": {"type": "string", "enum": ["plugin-canonical", "project-imported"]},
+              "lifecycle": {"type": "string", "enum": ["current", "deprecated", "removed"]},
+              "successorId": {"type": "string", "minLength": 1},
+              "owner": {"type": "string", "minLength": 1},
+              "sourcePath": {"type": "string", "minLength": 1},
+              "provenanceIdentity": {"type": "string", "minLength": 1},
+              "selectors": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "field": {"type": "string", "minLength": 1},
+                    "operator": {"type": "string", "minLength": 1},
+                    "value": {"type": "string", "minLength": 1}
+                  },
+                  "required": ["field", "operator", "value"],
+                  "additionalProperties": false
+                }
+              },
+              "supportedSuites": {"type": "array", "items": {"type": "string"}},
+              "supportedPlatforms": {"type": "array", "items": {"type": "string"}},
+              "inactiveReason": {"type": "string", "minLength": 1},
+              "prospectiveReason": {"type": "string", "minLength": 1},
+              "taskTriggers": {"type": "array", "items": {"type": "string"}}
+            },
+            "required": ["id", "purpose", "availability", "manifestHealth", "origin", "lifecycle"],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": ["manifestHealth", "prospective", "remediation", "records"],
+      "additionalProperties": false
+    }
+  }
+}

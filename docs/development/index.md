@@ -126,6 +126,13 @@ passes `-Prerelease` to `create-release.ps1`. Three-component tags remain the
 stable channel. Published release tags and immutable payloads must not be
 deleted or reused.
 
+After GitHub release publication, `create-release.ps1` runs
+`scripts/cg_release_attestation.py`. It records the annotated tag object, peeled
+commit, immutable payload SHA-256, and every tagged deprecation-record digest in
+`.github/shared/skill-management/release-attestations/<tag>.json`. This reviewed
+post-release artifact provides future plugin-removal grace evidence and must not
+be edited or backfilled by hand.
+
 Stable releases must be prepared from a clean `main` checkout matching
 `origin/main`. Four-component prereleases must be prepared directly from a
 clean `dev` checkout matching `origin/dev`; their exact tag remains eligible for

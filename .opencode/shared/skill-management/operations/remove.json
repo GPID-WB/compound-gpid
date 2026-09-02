@@ -1,0 +1,13 @@
+{
+  "schema": "cg-skill-operation-descriptor-v1",
+  "operation": "remove",
+  "version": 1,
+  "state": "active",
+  "roles": ["consumer"],
+  "phases": ["plan", "apply"],
+  "handler": "skill_management.operations.remove:handle",
+  "contract": ".opencode/shared/skill-management/contracts/remove-v1.schema.json",
+  "workflow": ".opencode/skills/cg-skill-management/workflows/remove.md",
+  "documentation": "docs/skills/management/commands/remove.md",
+  "tests": ["scripts/tests/test_skill_management_removal.py"]
+}

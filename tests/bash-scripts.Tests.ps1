@@ -19,6 +19,26 @@ if (-not $script:OnMacOS) {
     return
 }
 
+Describe "bash wrappers - hybrid Copilot skill projection" {
+    $hybridRepoRoot = if ($env:CG_TEST_ROOT) { $env:CG_TEST_ROOT } else { Split-Path $PSScriptRoot -Parent }
+    $linkContent = Get-Content (Join-Path $hybridRepoRoot "scripts/link.sh") -Raw -Encoding UTF8
+    $unlinkContent = Get-Content (Join-Path $hybridRepoRoot "scripts/unlink.sh") -Raw -Encoding UTF8
+
+    It "link delegates Copilot skills only to manifest projection" {
+        $linkContent | Should -Match 'COPILOT_PROJECTED_CATEGORIES="skills"'
+        $linkContent | Should -Match 'Copilot skills projected by manifest'
+        $linkContent | Should -Not -Match "'copilot\|directory\|\.github/skills\|\.github/skills\|link-directory\|'"
+        $linkContent | Should -Match 'cg_project_projection\.py'
+        $linkContent | Should -Match '\-\-sync'
+    }
+
+    It "unlink leaves the real parent and removes checksum-owned files" {
+        $unlinkContent | Should -Not -Match "'\.github/skills\|directory\|\.github/skills\|copilot'"
+        $unlinkContent | Should -Match 'cg_project_projection\.py'
+        $unlinkContent | Should -Match '\-\-unlink'
+    }
+}
+
 $repoRoot = if ($env:CG_TEST_ROOT) { $env:CG_TEST_ROOT } else { Split-Path $PSScriptRoot -Parent }
 
 # ---------------------------------------------------------------------------
@@ -55,7 +75,7 @@ Describe "bash-scripts - scripts exist with executable bit" {
 # bin/ wrappers exist with executable bit
 # ---------------------------------------------------------------------------
 Describe "bash-scripts - bin/ wrappers exist with executable bit" {
-    $wrappers = @("bin/cg-link", "bin/cg-unlink", "bin/cg-update", "bin/cg-kilo", "bin/cg-index", "bin/cg-token-audit", "bin/cg-render-artifact", "bin/cg-publish-markdown")
+    $wrappers = @("bin/cg-link", "bin/cg-unlink", "bin/cg-update", "bin/cg-kilo", "bin/cg-skill", "bin/cg-index", "bin/cg-token-audit", "bin/cg-render-artifact", "bin/cg-publish-markdown")
 
     foreach ($wrapper in $wrappers) {
         $wrapperPath = Join-Path $repoRoot $wrapper
@@ -108,6 +128,7 @@ Describe "install.sh - script structure" {
         $content | Should -Match 'cg-link'
         $content | Should -Match 'cg-unlink'
         $content | Should -Match 'cg-update'
+        $content | Should -Match 'cg-skill'
         $content | Should -Match 'cg-index'
         $content | Should -Match 'cg-token-audit'
         $content | Should -Match 'cg-render-artifact'
@@ -155,6 +176,7 @@ Describe "install.sh - PATH block is idempotent" {
         Copy-Item -Path (Join-Path $repoRoot "bin/cg-render-artifact") -Destination (Join-Path $tmpInstallBin "cg-render-artifact") -Force
         Copy-Item -Path (Join-Path $repoRoot "bin/cg-publish-markdown") -Destination (Join-Path $tmpInstallBin "cg-publish-markdown") -Force
         Copy-Item -Path (Join-Path $repoRoot "bin/cg-kilo") -Destination (Join-Path $tmpInstallBin "cg-kilo") -Force
+        Copy-Item -Path (Join-Path $repoRoot "bin/cg-skill") -Destination (Join-Path $tmpInstallBin "cg-skill") -Force
 
         try {
             # First run — use temp install dir
@@ -605,6 +627,7 @@ Describe "bash-scripts - bin/cg-publish-markdown wrapper content" {
 
 Describe "bash-scripts - Python-backed wrappers enforce Python 3.8+" {
     $wrappers = @(
+        "cg-skill",
         "cg-index",
         "cg-brain-init",
         "cg-token-audit",

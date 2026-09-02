@@ -923,10 +923,17 @@ $installedEntries = New-Object System.Collections.ArrayList
 # junction/copy first would make the no-follow synchronizer reject the root
 # (link/reparse destination). Copilot (canonical .github) and legacy
 # (non-manifest) consumers keep the legacy junction/copy path.
+# Copilot skills are the hybrid exception: target-mapping projectedCategories
+# delegates only that category to the Python projection worker, while prompts,
+# agents, instructions, and shared keep their existing install topology.
 
 foreach ($target in $targets) {
     Write-Host "Linking $($target.name)..." -ForegroundColor DarkGray
     $nativeProjected = ($null -ne $target.generatedTreePath)
+    $projectedCategories = @()
+    if ($target.PSObject.Properties.Name -contains "projectedCategories") {
+        $projectedCategories = @($target.projectedCategories)
+    }
     foreach ($unit in @($target.installUnits)) {
         $targetRel = ConvertTo-CgSlashPath ([string]$unit.target)
         $rootName = Get-CgTargetRoot -RelativePath $targetRel
@@ -935,6 +942,11 @@ foreach ($target in $targets) {
         if ($manifestDriven -and $nativeProjected -and
             ([string]$unit.type -eq "directory")) {
             Write-Host "  $targetRel - projected by manifest (legacy install skipped)" -ForegroundColor DarkGray
+            continue
+        }
+        if ($manifestDriven -and $targetRel -eq ".github/skills" -and
+            "skills" -in $projectedCategories) {
+            Write-Host "  $targetRel - Copilot skills projected by manifest" -ForegroundColor DarkGray
             continue
         }
 

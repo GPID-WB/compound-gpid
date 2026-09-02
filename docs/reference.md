@@ -174,12 +174,10 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | `/cg-compound` | Capture a solved problem as reusable knowledge. Offers canonical .github/ updates; the user applies them manually after fixing a non-trivial issue. |
 | `/cg-devtag` | Create a dev tag (v&lt;MAJOR&gt;.&lt;MINOR&gt;.&lt;PATCH&gt;.9000+) on the current branch and push it to origin. Enables end-to-end installation testing via cg-update before an official release. Developer-only. |
 | `/cg-diagnose` | Diagnose VS Code crashes. Inspects logs, classifies the crash category, checks for uncommitted work, and recommends recovery steps. |
-| `/cg-find-skill` | Discover skills and capabilities from the manifest-backed catalog. |
 | `/cg-fix-problems` | Interactive VS Code diagnostics fixer. Scans all workspace files for errors, warnings, and info diagnostics, lets the user select scope and severity, then applies fixes. Dispatches @cg-fix-problems agent. |
 | `/cg-fix-triage` | Apply review findings from a saved review report. Fixes all findings or a subset by ID/priority. |
 | `/cg-fixbug` | Structured bug-fix workflow: establish the expected-behavior source in Step 1.5, perform test-gap classification in Step 2.5, and require red-green proof. |
 | `/cg-ideate` | Generate, critique, and filter improvement ideas for the project. Use before /cg-brainstorm when you want to discover what to work on next. |
-| `/cg-import-skill` | Import an external skill into Compound GPID with quarantine, security scanning, and approval workflow. |
 | `/cg-issues` | Manage GitHub Issues linked to roadmap work items. Modes: status (default, read-only), backfill, link, adopt, setup. |
 | `/cg-plan-review` | Review an implementation plan for risks, over-engineering, missing edge cases, and flawed assumptions. Use after /cg-plan or on any existing plan. |
 | `/cg-plan` | Create a structured implementation plan with research. Use after brainstorming or when requirements are clear. |
@@ -189,6 +187,7 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | `/cg-review` | Run multi-agent code review on recent changes. Produces prioritized P0/P1/P2/P3 findings. |
 | `/cg-roadmap-view` | Visualize the project roadmap in chat. Supports flags: --milestone, --tasks, --detail, --status, --wip, --plan, --help. Dispatches @cg-roadmap-view agent for rendering. |
 | `/cg-setup` | Configure Compound GPID for this project and load context for returning projects. |
+| `/cg-skill` | Discover, import, validate, activate, update, audit, deprecate, and remove skills through one lifecycle command. |
 | `/cg-strategy` | Strategic project visioning and direction-setting. Use when you have a full project in mind to structure, or when you need to rethink direction mid-project. Dispatches @cg-roadmap for all roadmap writes. |
 | `/cg-token-audit` | Analyze Compound GPID token/context usage and suggest cost-efficient workflow choices. |
 | `/cg-verify-pr` | Check CI status on current PR, classify failures, and auto-fix with review agents. Use --propose for observe-only diagnosis. |

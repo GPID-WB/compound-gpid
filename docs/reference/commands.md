@@ -29,6 +29,7 @@ commands are available when `suites:` includes `cr`.
 | Diagnose an IDE crash | `/cg-diagnose` |
 | View roadmap progress | `/cg-roadmap-view` |
 | Audit token and context usage | `/cg-token-audit` |
+| Manage the complete skill lifecycle | `/cg-skill <operation>` |
 | Manage a project wiki | `/cg-wiki` |
 | Link optional GitHub Issues | `/cg-issues` |
 | Commit, push, and open a PR | `/cg-commit-push-pr` |
@@ -70,6 +71,7 @@ network, utility, or write operations in consumer projects.
 | `cg-render-artifact --validate-only <source>` | Validate one artifact without writing HTML |
 | `cg-render-artifact --check <source>` | Report its derived view as missing, stale, or current |
 | `cg-token-audit` | Generate context, model-governance, and token artifacts |
+| `cg-skill <operation>` | Run deterministic skill discovery and lifecycle operations |
 | `cg-test-summary` | Summarize an existing `tests/last-run.json`; does not run tests |
 | `cg-diff-summary` | Summarize changed files, hunks, and risk tags |
 | `cg-log-summary` | Summarize branch-local first-parent commits |
@@ -85,3 +87,5 @@ See [Complete Reference](../reference.md) for flags, models, output schemas,
 warnings, routing, configuration fields, and command behavior. See
 [Workflow Overview](../workflows/index.md) to choose a command by situation.
 See the [Modular Guide](../modular-guide.md) for suite activation and boundaries.
+See [Skill Management](../skills/management/index.md) for operation grammar,
+roles, plan/apply behavior, security controls, and migration.

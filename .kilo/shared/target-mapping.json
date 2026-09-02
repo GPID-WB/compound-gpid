@@ -6,6 +6,7 @@
       "id": "copilot",
       "name": "GitHub Copilot",
       "generatedTreePath": null,
+      "projectedCategories": ["skills"],
       "capabilities": {
         "supportsNativeCommands": true,
         "supportsNativeSkills": true,
@@ -26,12 +27,11 @@
         "shared": ".github/shared"
       },
       "projectRoots": {
-        "managed": [],
+        "managed": [".github/skills"],
         "optionalUser": []
       },
       "installUnits": [
         { "type": "directory", "source": ".github/prompts", "target": ".github/prompts", "strategy": "link-directory" },
-        { "type": "directory", "source": ".github/skills", "target": ".github/skills", "strategy": "link-directory" },
         { "type": "directory", "source": ".github/agents", "target": ".github/agents", "strategy": "link-directory" },
         { "type": "directory", "source": ".github/instructions", "target": ".github/instructions", "strategy": "link-directory" },
         { "type": "directory", "source": ".github/shared", "target": ".github/shared", "strategy": "link-directory" },

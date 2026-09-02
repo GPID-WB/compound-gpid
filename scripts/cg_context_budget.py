@@ -181,6 +181,8 @@ def _capability_eligible(capability: dict, active_suites: list[str], config: Opt
     Suite-eligibility capabilities activate when any of their ``supportedSuites``
     is among the user-facing active suite names.
     """
+    if capability.get("activationMode") == "explicit-only":
+        return False
     supported = {s for s in capability.get("supportedSuites", []) if isinstance(s, str)}
     suite_ok = bool(supported & set(active_suites))
     selectors = capability.get("configSelectors")
@@ -378,6 +380,8 @@ def filtered_manifest(
     active_suites: list[str],
     config: Optional[dict] = None,
     capabilities: Optional[list[str]] = None,
+    project_snapshot: Optional[Any] = None,
+    platforms: Optional[list[str]] = None,
 ) -> dict:
     """Produce the filtered asset manifest (module ids + loadable globs).
 
@@ -387,12 +391,34 @@ def filtered_manifest(
     resolution artifact is ``.compound-gpid/active-manifest.json`` (see
     ``cg_project_manifest.py`` and ``docs/configuration.md``).
     """
-    loadable = loadable_modules(registry, active_suites, config=config, capabilities=capabilities)
+    explicit = capabilities or []
+    project_capabilities = {
+        str(record["capability"])
+        for record in getattr(project_snapshot, "project_records", ())
+    }
+    canonical_explicit = [
+        capability for capability in explicit
+        if capability not in project_capabilities
+    ]
+    loadable = loadable_modules(
+        registry,
+        active_suites,
+        config=config,
+        capabilities=canonical_explicit,
+    )
     ids = {m["id"] for m in loadable}
+    selected_projects = {}
+    if project_snapshot is not None:
+        selected_projects = project_snapshot.select_project_skills(
+            tuple(explicit),
+            tuple(active_suites),
+            tuple(platforms or ("copilot", "claude-code", "codex", "opencode", "kilo")),
+        )
     return {
         "schemaVersion": 2,
         "activeSuites": active_suites,
         "capabilities": capabilities or [],
+        "selectedProjectSkills": selected_projects,
         "loadableModules": sorted(ids),
         "loadableAssetGlobs": loadable_asset_globs(registry, ids),
     }
@@ -403,6 +429,7 @@ def main(argv: Optional[list[str]] = None) -> int:
         description="Compute the context-budget filtered asset manifest."
     )
     parser.add_argument("--root", default=".", help="Project root directory (default: .)")
+    parser.add_argument("--source-root", default=None, help="Canonical source root (default: project root)")
     parser.add_argument("--config", default=LOCAL_CONFIG_PATH, help="Relative path to compound-gpid.local.md")
     parser.add_argument("--output", default=None, help="Write filtered manifest JSON to this path")
     args = parser.parse_args(argv)
@@ -412,8 +439,11 @@ def main(argv: Optional[list[str]] = None) -> int:
         print(f"Error: project root does not exist or is not a directory: {root}", file=sys.stderr)
         return 2
 
+    source_root = Path(args.source_root).resolve() if args.source_root else root
     try:
-        registry = load_registry(root)
+        from skill_management.services import registry as registry_service
+        combined = registry_service.load_combined_registry_snapshot(root, source_root)
+        registry = combined.canonical.to_dict()
     except FileNotFoundError:
         print(f"Error: {MODULE_REGISTRY_PATH} not found at {root}", file=sys.stderr)
         return 1
@@ -450,7 +480,13 @@ def main(argv: Optional[list[str]] = None) -> int:
     else:  # pragma: no cover - standard environment always ships parsing_utils
         active = read_active_suites(config_text)
     try:
-        manifest = filtered_manifest(registry, active, config=settings, capabilities=explicit)
+        manifest = filtered_manifest(
+            registry,
+            active,
+            config=settings,
+            capabilities=explicit,
+            project_snapshot=combined,
+        )
     except ValueError as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 1

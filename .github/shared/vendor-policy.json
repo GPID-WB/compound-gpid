@@ -18,8 +18,42 @@
     ".yml",
     ".yaml",
     ".txt",
-    ".csv"
+    ".svg"
   ],
+  "blockedDataFileExtensions": [
+    ".csv",
+    ".tsv",
+    ".dta",
+    ".sav",
+    ".rds",
+    ".rdata",
+    ".parquet",
+    ".feather",
+    ".db",
+    ".sqlite",
+    ".sqlite3",
+    ".zip",
+    ".tar",
+    ".gz",
+    ".7z"
+  ],
+  "blockedCredentialFileNames": [
+    ".env",
+    ".npmrc",
+    ".pypirc",
+    "credentials",
+    "credentials.json"
+  ],
+  "opaqueFileExtensions": [
+    ".svg"
+  ],
+  "approvedNonDataResourceClasses": [
+    "diagram",
+    "prompt-fixture",
+    "template"
+  ],
+  "maxProviderMetadataBytes": 1048576,
+  "maxProviderTreeDepth": 16,
   "blockedFileExtensions": [
     ".exe",
     ".bat",

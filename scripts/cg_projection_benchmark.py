@@ -115,8 +115,8 @@ PROFILES: list[dict[str, Any]] = [
         "suites": ["cg"],
         "capabilities": ["python"],
         "config": {"language": "r"},
-        "requestedCommand": "/cg-find-skill",
-        "expectedRoute": "cg-find-skill",
+        "requestedCommand": "/cg-skill find",
+        "expectedRoute": "cg-skill find",
         "expectedCatalogSummary": "python capability active; stata/powershell inactive",
         "expectedHardStop": "stata capability inactive: remove intent or add capability (run cg-link/cg-update to regenerate)",
         "expectedInventoryIncludes": ["kernel", "suite-cg", "cap-language-python", "cap-language-r"],
@@ -242,7 +242,7 @@ def _advertised_skill_metadata(
     selected: list[dict[str, Any]] = []
     for row in skill_rows:
         candidate = f".github/skills/{row['id']}/SKILL.md"
-        matched = any(validator._glob_match(pattern, candidate) for pattern in selected_globs)
+        matched = any(validator.glob_match(pattern, candidate) for pattern in selected_globs)
         if matched:
             selected.append({
                 "id": row["id"],
@@ -290,7 +290,7 @@ def _skill_owner(registry: dict, skill_path: str) -> Optional[str]:
         if not isinstance(module, dict):
             continue
         if any(
-            isinstance(pattern, str) and validator._glob_match(pattern, skill_path)
+            isinstance(pattern, str) and validator.glob_match(pattern, skill_path)
             for pattern in module.get("ownedAssets", [])
         ):
             return module.get("id")
@@ -354,7 +354,7 @@ def run_task_oracle(
         if not isinstance(module, dict) or module.get("id") not in id_set:
             continue
         for pattern in module.get("ownedAssets", []):
-            if isinstance(pattern, str) and validator._glob_match(pattern, route_file):
+            if isinstance(pattern, str) and validator.glob_match(pattern, route_file):
                 route_ok = True
     checks.append({
         "name": f"route {route}",
@@ -383,7 +383,7 @@ def run_task_oracle(
                 for candidate_row in skill_rows:
                     candidate = f".github/skills/{candidate_row['id']}/SKILL.md"
                     if any(
-                        isinstance(pattern, str) and validator._glob_match(pattern, candidate)
+                        isinstance(pattern, str) and validator.glob_match(pattern, candidate)
                         for pattern in module.get("ownedAssets", [])
                     ):
                         excluded_ids.add(candidate_row["id"])

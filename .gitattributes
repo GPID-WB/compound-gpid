@@ -7,6 +7,8 @@
 *.ps1           text eol=lf
 *.sh            text eol=lf
 bin/cg-*        text eol=lf
+**/cg-skill-management/templates/*.svg text eol=lf
+**/cg-skill-management/templates/*.txt text eol=lf
 *.yml           text eol=lf
 *.yaml          text eol=lf
 *.html          text eol=lf

@@ -62,7 +62,7 @@ compat_platform_for_target() {
 
 all_unit_targets() {
     printf '%s\n' \
-        '.github/prompts|directory|.github/prompts|copilot' '.github/skills|directory|.github/skills|copilot' '.github/agents|directory|.github/agents|copilot' '.github/instructions|directory|.github/instructions|copilot' '.github/shared|directory|.github/shared|copilot' '.github/copilot-instructions.md|file||copilot' \
+        '.github/prompts|directory|.github/prompts|copilot' '.github/agents|directory|.github/agents|copilot' '.github/instructions|directory|.github/instructions|copilot' '.github/shared|directory|.github/shared|copilot' '.github/copilot-instructions.md|file||copilot' \
         '.claude/commands|directory|.claude/commands|claude-code' '.claude/skills|directory|.claude/skills|claude-code' '.claude/agents|directory|.claude/agents|claude-code' '.claude/instructions|directory|.claude/instructions|claude-code' '.claude/shared|directory|.claude/shared|claude-code' '.claude/CLAUDE.md|file||claude-code' \
         '.agents/commands|directory|.agents/commands|codex' '.agents/skills|directory|.agents/skills|codex' '.agents/subagents|directory|.agents/subagents|codex' '.agents/instructions|directory|.agents/instructions|codex' '.agents/shared|directory|.agents/shared|codex' '.agents/AGENTS.md|file||codex' \
         '.opencode/commands|directory|.opencode/commands|opencode' '.opencode/skills|directory|.opencode/skills|opencode' '.opencode/agents|directory|.opencode/agents|opencode' '.opencode/instructions|directory|.opencode/instructions|opencode' '.opencode/shared|directory|.opencode/shared|opencode' '.opencode/AGENTS.md|file||opencode' '.opencode/opencode.json|file||opencode' \

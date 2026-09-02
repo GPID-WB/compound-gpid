@@ -17,6 +17,7 @@ The catalog currently contains canonical skills across both suites:
 - Analysis and economics skills (including the R family `cg-skill-r-*`).
 - Development, testing, reproducibility, and platform skills.
 - Institutional knowledge and documentation skills.
+- Skill lifecycle management through `/cg-skill`.
 - Research suite skills (`cr-skill-*`): identification, measurement,
   econometrics, provenance, replication, publication output, and more.
 
@@ -64,3 +65,4 @@ supporting files; this known packaging gap is recorded in the
 - [Commands](../reference/commands.md)
 - [Agents](../reference/agents.md)
 - [Configuration](../configuration/index.md)
+- [Skill Management](management/index.md)

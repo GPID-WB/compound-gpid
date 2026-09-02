@@ -1846,37 +1846,43 @@ def build_token_efficiency_recommendations(report: dict[str, Any]) -> list[dict[
 
 def _deterministic_generated_stamp(root: Path) -> str:
     """Return a deterministic generated stamp when git metadata is available."""
-    git_dir = subprocess.run(
-        ["git", "-C", str(root), "rev-parse", "--git-dir"],
-        capture_output=True,
-        text=True,
-        timeout=10,
-        check=False,
-    )
+    try:
+        git_dir = subprocess.run(
+            ["git", "-C", str(root), "rev-parse", "--git-dir"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return "unknown-revision"
     if git_dir.returncode != 0:
-        return datetime.now().isoformat(timespec="seconds")
+        return "unknown-revision"
 
-    head_sha = subprocess.run(
-        ["git", "-C", str(root), "rev-parse", "HEAD"],
-        capture_output=True,
-        text=True,
-        timeout=10,
-        check=False,
-    )
-    head_time = subprocess.run(
-        ["git", "-C", str(root), "show", "-s", "--format=%cI", "HEAD"],
-        capture_output=True,
-        text=True,
-        timeout=10,
-        check=False,
-    )
+    try:
+        head_sha = subprocess.run(
+            ["git", "-C", str(root), "rev-parse", "HEAD"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+        head_time = subprocess.run(
+            ["git", "-C", str(root), "show", "-s", "--format=%cI", "HEAD"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return "unknown-revision"
     if head_sha.returncode == 0 and head_time.returncode == 0:
         sha = head_sha.stdout.strip()
         commit_time = head_time.stdout.strip()
         if sha and commit_time:
             return f"{commit_time}@{sha[:12]}"
 
-    return datetime.now().isoformat(timespec="seconds")
+    return "unknown-revision"
 
 
 def build_report(root: Path) -> dict[str, Any]:

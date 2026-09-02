@@ -15,12 +15,12 @@ Known issues and step-by-step fixes for Compound GPID.
 Python is required but not found (checked: python3, python, py).
 ```
 
-**Windows symptom** (when running `cg-index` or `cg-token-audit` directly):
+**Windows symptom** (when running `cg-skill`, `cg-index`, or `cg-token-audit` directly):
 ```
 ERROR: Python is not available (checked: python3, python, py).
 ```
 
-**Cause**: `cg-index` (`scripts/cg_index.py`) is the knowledge indexer that powers `cg-learnings-researcher` tiered retrieval and the `/cg-compound` workflow. `cg-token-audit` runs the Python context/model audit that powers `/cg-token-audit`. Both require Python 3.8+. Compound GPID probes `python3`, then `python`, then `py` and accepts the first real Python executable whose `--version` output starts with `Python`. On Windows, `python3` in a fresh install may point to a Windows Store stub that opens the Store App instead of running Python; the wrappers reject that stub.
+**Cause**: `cg-skill` runs the descriptor-driven skill lifecycle. `cg-index` (`scripts/cg_index.py`) is the knowledge indexer that powers `cg-learnings-researcher` tiered retrieval and the `/cg-compound` workflow. `cg-token-audit` runs the Python context/model audit that powers `/cg-token-audit`. All require Python 3.8+. Compound GPID probes `python3`, then `python`, then `py` and accepts the first real Python executable whose `--version` output starts with `Python`. On Windows, `python3` in a fresh install may point to a Windows Store stub that opens the Store App instead of running Python; the wrappers reject that stub.
 
 **Fix (Windows)**:
 ```powershell
@@ -137,7 +137,7 @@ $env:PATH -split ';' | Select-String 'compound'
 ```powershell
 Get-ChildItem "C:\WBG\.compound-gpid\bin"   # adjust path if needed
 # Should list: cg-link.cmd, cg-unlink.cmd, cg-update.cmd, cg-kilo.cmd, cg-index.cmd,
-# cg-brain-init.cmd, cg-token-audit.cmd
+# cg-brain-init.cmd, cg-skill.cmd, cg-token-audit.cmd
 ```
 
 > **PATH length truncation**: If `C:\WBG\.compound-gpid\bin` is present in the registry

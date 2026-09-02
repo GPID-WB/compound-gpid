@@ -1,5 +1,5 @@
 {
-  "edge_count": 326,
+  "edge_count": 332,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -479,6 +479,12 @@
       "edge_type": "decided_from",
       "source": ".cg-docs/plans/2026-08-28-compound-gpid-rd-command.md",
       "target": ".cg-docs/brainstorms/2026-08-28-compound-gpid-rd-command.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-08-28-scalable-skill-management-suite.md",
+      "target": ".cg-docs/brainstorms/2026-08-28-scalable-skill-management-suite.md",
       "target_missing": false
     },
     {
@@ -1436,6 +1442,24 @@
       "target_missing": false
     },
     {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-08-28-scalable-skill-management-suite-review.md",
+      "target": ".cg-docs/plans/2026-08-28-scalable-skill-management-suite.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-08-28-scalable-skill-management-suite-verify-review-2.md",
+      "target": ".cg-docs/reviews/2026-08-28-scalable-skill-management-suite-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-08-28-scalable-skill-management-suite-verify-review.md",
+      "target": ".cg-docs/reviews/2026-08-28-scalable-skill-management-suite-review.md",
+      "target_missing": false
+    },
+    {
       "edge_type": "references",
       "source": ".cg-docs/solutions/environment-issues/2026-06-23-cross-agent-adapters-are-opt-in-source-packages.md",
       "target": ".cg-docs/plans/2026-06-23-cross-agent-packaging-adapters.md",
@@ -1802,6 +1826,12 @@
       "target_missing": false
     },
     {
+      "edge_type": "references",
+      "source": ".cg-docs/brainstorms/2026-08-28-scalable-skill-management-suite.md",
+      "target": ".cg-docs/plans/2026-08-28-scalable-skill-management-suite.md",
+      "target_missing": false
+    },
+    {
       "edge_type": "implements",
       "source": ".cg-docs/plans/2026-04-06-review-finding-status-tracking.md",
       "target": "roadmap.json#review-finding-status-tracking",
@@ -1955,6 +1985,12 @@
       "edge_type": "implements",
       "source": ".cg-docs/plans/2026-07-30-user-selected-model-advisory-routing.md",
       "target": "roadmap.json#user-selected-execution-with-advisory-model-and-effort-routing",
+      "target_missing": false
+    },
+    {
+      "edge_type": "implements",
+      "source": ".cg-docs/plans/2026-08-28-scalable-skill-management-suite.md",
+      "target": "roadmap.json#scalable-skill-management-suite",
       "target_missing": false
     }
   ],
@@ -3589,6 +3625,39 @@
         "rename",
         "management",
         "utility"
+      ]
+    },
+    {
+      "date": "2026-08-28",
+      "entity_type": "brainstorm",
+      "path": ".cg-docs/brainstorms/2026-08-28-scalable-skill-management-suite.md",
+      "slug": "2026-08-28-scalable-skill-management-suite",
+      "status": "decided",
+      "summary": "<!-- Valid status values: decided, in-progress, abandoned -->",
+      "tags": [
+        "skills",
+        "architecture",
+        "lifecycle",
+        "security",
+        "registry",
+        "manifests",
+        "projections",
+        "cross-platform",
+        "documentation",
+        "testing"
+      ],
+      "title": "Scalable Skill Management Suite",
+      "top_keywords": [
+        "cg-skill",
+        "cg-skill-management",
+        "phase",
+        "help",
+        "/cg-skill",
+        "skill.md",
+        "skill",
+        "security",
+        "release",
+        "tests"
       ]
     },
     {
@@ -7012,6 +7081,39 @@
         "last-run.json",
         "utility",
         "--add <url>"
+      ]
+    },
+    {
+      "date": "2026-08-28",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-08-28-scalable-skill-management-suite.md",
+      "slug": "2026-08-28-scalable-skill-management-suite",
+      "status": "completed",
+      "summary": "Build one role-gated `/cg-skill` command that manages the complete skill lifecycle without becoming one large prompt or Python script. Use explicit operation descriptors, workflows, contracts, and modules; reuse focused domain services; support permanent and project-specific skills; and verify every selected platform through deterministic, fail-closed plan/apply transactions.",
+      "tags": [
+        "skills",
+        "architecture",
+        "lifecycle",
+        "security",
+        "registry",
+        "manifests",
+        "projections",
+        "cross-platform",
+        "documentation",
+        "testing"
+      ],
+      "title": "Scalable Skill Management Suite",
+      "top_keywords": [
+        "test scenarios",
+        "cg-skill-management",
+        "implement",
+        "phase",
+        "selectedprojectskills",
+        "cg-skill",
+        "test_project_projection.py",
+        "test_project_manifest.py",
+        "project-local",
+        "scripts/skill_management/services/provenance.py"
       ]
     },
     {
@@ -10945,11 +11047,77 @@
         "cg-compound-gpid-rd.prompt.md",
         "test_cg_compound_gpid_rd_registry.py",
         "review",
+        "dev",
         "scripts/cg_compound_gpid_rd_registry.py:333",
         "scripts/cg_compound_gpid_rd_registry.py:505",
         "command",
-        "passed",
-        "dev"
+        "passed"
+      ]
+    },
+    {
+      "date": "2026-08-30",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-08-28-scalable-skill-management-suite-review.md",
+      "slug": "2026-08-28-scalable-skill-management-suite-review",
+      "status": "",
+      "summary": "**Requested mode**: `mode:verify` **Resolved mode**: `full` -- no prior standard review had fixed findings, so verification mode fell back to deterministic schema/security-risk routing. **Files reviewed**: 34 changed and untracked files **Findings**: 37 (P0: 3, P1: 18, P2: 14, P3: 2)",
+      "tags": [],
+      "title": "2026-08-28-scalable-skill-management-suite-review",
+      "top_keywords": [
+        "contracts.py",
+        "cg_validate_modules.py",
+        "cg_generate_targets.py",
+        "cg_skill.py",
+        "review",
+        "recursionerror",
+        "scripts/cg_generate_targets.py:689",
+        "scripts/skill_management/contracts.py:607",
+        "2026-08-28-scalable-skill-management-suite.md",
+        "context.py"
+      ]
+    },
+    {
+      "date": "2026-09-01",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-08-28-scalable-skill-management-suite-verify-review-2.md",
+      "slug": "2026-08-28-scalable-skill-management-suite-verify-review-2",
+      "status": "",
+      "summary": "**Review mode**: light verification **Parent review**: `.cg-docs/reviews/2026-08-28-scalable-skill-management-suite-review.md` **Files reviewed**: current branch against `main`, plus completion metadata **Findings**: 10 (P0: 2, P1: 7, P2: 1)",
+      "tags": [],
+      "title": "2026-08-28-scalable-skill-management-suite-verify-review-2",
+      "top_keywords": [
+        "contracts.py",
+        "verification",
+        "2026-08-28-scalable-skill-management-suite-review.md",
+        "cg_skill.py",
+        "review",
+        "skill",
+        "evidence",
+        "suite",
+        "allowedupstreamskillroots",
+        "ca0891b"
+      ]
+    },
+    {
+      "date": "2026-08-31",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-08-28-scalable-skill-management-suite-verify-review.md",
+      "slug": "2026-08-28-scalable-skill-management-suite-verify-review",
+      "status": "",
+      "summary": "**Review mode**: light verification **Parent review**: `.cg-docs/reviews/2026-08-28-scalable-skill-management-suite-review.md` **Files reviewed**: current changed and untracked Phase 1 implementation files **Findings**: 15 (P0: 3, P1: 11, P2: 1)",
+      "tags": [],
+      "title": "2026-08-28-scalable-skill-management-suite-verify-review",
+      "top_keywords": [
+        "contracts.py",
+        "verification",
+        "2026-08-28-scalable-skill-management-suite-review.md",
+        "cg_skill.py",
+        "phase",
+        "review",
+        "automation",
+        "suppressed",
+        "sourcerevision",
+        "scalable"
       ]
     },
     {
@@ -13231,6 +13399,68 @@
         "ignore",
         "thousands",
         "spawn"
+      ]
+    },
+    {
+      "date": "2026-08-31",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/bugs/2026-08-31-trust-anchor-captured-byte-dispatch.md",
+      "slug": "2026-08-31-trust-anchor-captured-byte-dispatch",
+      "status": "",
+      "summary": "The private skill-management dispatcher used local Git origin and branch data to grant maintainer authority. A fixture could create unrelated history, assign the canonical origin string, create a local `origin/main` reference, and receive the maintainer role. Handler dispatch had a second boundary error. The dispatcher imported a module and only then checked `module.__file__`. Python executes module-level code during import, so a wrong, linked, swapped, or preloaded module could run before the origin check rejected it. Module validation also inventoried files safely and then reopened their pathnames for content scans.",
+      "tags": [
+        "security",
+        "trust-anchor",
+        "dynamic-dispatch",
+        "nofollow",
+        "hardlink",
+        "toctou",
+        "git",
+        "contracts"
+      ],
+      "title": "Trusted dispatch requires immutable anchors and captured bytes",
+      "top_keywords": [
+        "bytes",
+        "immutable",
+        "captured",
+        "trusted",
+        "dispatch",
+        "requires",
+        "anchors",
+        "consumer",
+        "problem",
+        "root"
+      ]
+    },
+    {
+      "date": "2026-09-02",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/bugs/2026-09-02-captured-byte-trust-must-cover-dependency-closure.md",
+      "slug": "2026-09-02-captured-byte-trust-must-cover-dependency-closure",
+      "status": "",
+      "summary": "A dynamic Python dispatcher captured and validated the selected operation file before execution. The handler still imported shared operation helpers, services, and providers through Python's normal importer. A linked, hard-linked, swapped, or preloaded helper could therefore execute module-level code even though the handler leaf was trusted. The same fix pattern exposed a second regression in target generation. Replacing `read_text()` with captured raw bytes removed Python's universal-newline normalization. Generated text could retain CRLF on Windows and violate the deterministic LF output contract.",
+      "tags": [
+        "security",
+        "dynamic-dispatch",
+        "imports",
+        "captured-bytes",
+        "nofollow",
+        "hardlink",
+        "toctou",
+        "line-endings"
+      ],
+      "title": "Captured-byte trust must cover the complete dependency closure",
+      "top_keywords": [
+        "exec()",
+        "trust",
+        "complete",
+        "dependency",
+        "closure",
+        "must",
+        "captured-byte",
+        "cover",
+        "root",
+        "skill_management"
       ]
     },
     {
@@ -18739,6 +18969,50 @@
     {
       "date": "",
       "entity_type": "feature",
+      "path": "roadmap.json#scalable-skill-management-suite",
+      "slug": "scalable-skill-management-suite",
+      "status": "done",
+      "summary": "Scalable Skill Management Suite",
+      "tags": [],
+      "title": "Scalable Skill Management Suite",
+      "top_keywords": [
+        "scalable skill management suite\nmilestone",
+        "skills enhancement\nobjective",
+        "scalable",
+        "skill",
+        "management",
+        "suite",
+        "skills",
+        "feature",
+        "milestone",
+        "enhancement"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#project-authored-skills",
+      "slug": "project-authored-skills",
+      "status": "idea",
+      "summary": "Project-authored skills",
+      "tags": [],
+      "title": "Project-authored skills",
+      "top_keywords": [
+        "skills enhancement\nobjective",
+        "skills",
+        "project-authored",
+        "feature",
+        "milestone",
+        "enhancement",
+        "objective",
+        "deepen",
+        "language",
+        "analytical"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
       "path": "roadmap.json#skill-description-consistency-audit",
       "slug": "skill-description-consistency-audit",
       "status": "idea",
@@ -21663,13 +21937,13 @@
       ]
     }
   ],
-  "entity_count": 755,
-  "generated": "2026-08-28",
+  "entity_count": 764,
+  "generated": "2026-09-02",
   "schema_version": "0.2.0",
-  "topic_count": 5,
+  "topic_count": 6,
   "topics": [
     {
-      "entity_count": 529,
+      "entity_count": 535,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -21724,6 +21998,7 @@
         ".cg-docs/brainstorms/2026-08-12-automated-documentation-deployment.md",
         ".cg-docs/brainstorms/2026-08-13-skill-loading-architecture-context-efficiency.md",
         ".cg-docs/brainstorms/2026-08-28-compound-gpid-rd-command.md",
+        ".cg-docs/brainstorms/2026-08-28-scalable-skill-management-suite.md",
         ".cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-gsd-2-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-superpowers-full-review.md",
@@ -21841,6 +22116,7 @@
         ".cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md",
         ".cg-docs/plans/2026-08-21-pr-ci-preflight-and-kilo-capability-gates.md",
         ".cg-docs/plans/2026-08-28-compound-gpid-rd-command.md",
+        ".cg-docs/plans/2026-08-28-scalable-skill-management-suite.md",
         ".cg-docs/plans/phase2-model-governance-cleanup.md",
         ".cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md",
         ".cg-docs/reviews/2026-04-01-cg-strategy-and-roadmap-fix-review.md",
@@ -22034,6 +22310,7 @@
         ".cg-docs/solutions/bugs/2026-05-19-cg-compound-wiki-update-silently-skipped-all-manual-pages.md",
         ".cg-docs/solutions/bugs/2026-05-19-python-try-except-scope-traps-cleanup-and-missing-importerror.md",
         ".cg-docs/solutions/bugs/2026-05-20-fix-helper-written-but-not-wired-into-call-site.md",
+        ".cg-docs/solutions/bugs/2026-05-20-optim-hessian-returns-negative-ll-hessian-must-be-positive-definite.md",
         ".cg-docs/solutions/bugs/2026-05-22-bash-heredoc-multiline-compound-command-invalid-syntax.md",
         ".cg-docs/solutions/bugs/2026-06-05-cg-index-cmd-python3-stderr-leak.md",
         ".cg-docs/solutions/bugs/2026-06-10-brain-renderer-multiline-label-breaks-pipe-table.md",
@@ -22055,6 +22332,8 @@
         ".cg-docs/solutions/bugs/2026-08-20-kilo-cross-adapter-skill-autodiscovery.md",
         ".cg-docs/solutions/bugs/2026-08-21-cg-link-singular-platform-flag.md",
         ".cg-docs/solutions/bugs/2026-08-26-release-drift-ignore-checks-spawn-thousands-of-git-processes.md",
+        ".cg-docs/solutions/bugs/2026-08-31-trust-anchor-captured-byte-dispatch.md",
+        ".cg-docs/solutions/bugs/2026-09-02-captured-byte-trust-must-cover-dependency-closure.md",
         ".cg-docs/solutions/build-errors/2026-03-04-get-item-target-is-string-array.md",
         ".cg-docs/solutions/build-errors/2026-03-04-powershell-dollar-dollar-is-not-pid.md",
         ".cg-docs/solutions/build-errors/2026-03-13-backslash-quote-in-powershell-string-breaks-percent-operator.md",
@@ -22076,6 +22355,7 @@
         ".cg-docs/solutions/environment-issues/2026-06-06-codex-claude-code-cg-prompt-dispatch-adapter.md",
         ".cg-docs/solutions/environment-issues/2026-06-23-cross-agent-adapters-are-opt-in-source-packages.md",
         ".cg-docs/solutions/environment-issues/2026-07-03-cross-agent-native-platform-trees-require-generator-drift-tests-consistent-python.md",
+        ".cg-docs/solutions/environment-issues/2026-08-14-kilo-contained-launch-and-no-follow-copy.md",
         ".cg-docs/solutions/environment-issues/2026-08-17-manifest-driven-install-gate-prevents-junction-conflicts.md",
         ".cg-docs/solutions/git-workflows/2026-03-04-git-pull-stderr-swallowed-by-redirect.md",
         ".cg-docs/solutions/git-workflows/2026-03-05-ps51-stderr-stop-terminates-on-git-informational-output.md",
@@ -22210,7 +22490,7 @@
       "slug": "roadmap-json-test-scenarios-prompt-tools-tests-ps1"
     },
     {
-      "entity_count": 152,
+      "entity_count": 154,
       "entity_paths": [
         "roadmap.json#cg-fix-problems-agent",
         "roadmap.json#cg-fix-problems-prompt",
@@ -22231,6 +22511,8 @@
         "roadmap.json#structural-pester-crash-prevention",
         "roadmap.json#r-dialect-skills-architecture",
         "roadmap.json#tidymodels-addition",
+        "roadmap.json#scalable-skill-management-suite",
+        "roadmap.json#project-authored-skills",
         "roadmap.json#skill-description-consistency-audit",
         "roadmap.json#testing-skill-python",
         "roadmap.json#testing-skill-stata",
@@ -22407,6 +22689,21 @@
       ],
       "label": "Scripts/Cg_Kilo_Preflight.Py / Link.Sh / Cg_Kilo_Preflight.Py",
       "slug": "scripts-cg-kilo-preflight-py-link-sh-cg-kilo-preflight-py"
+    },
+    {
+      "entity_count": 3,
+      "entity_paths": [
+        ".cg-docs/reviews/2026-08-28-scalable-skill-management-suite-review.md",
+        ".cg-docs/reviews/2026-08-28-scalable-skill-management-suite-verify-review-2.md",
+        ".cg-docs/reviews/2026-08-28-scalable-skill-management-suite-verify-review.md"
+      ],
+      "keywords": [
+        "contracts.py",
+        "cg_skill.py",
+        "cg_generate_targets.py"
+      ],
+      "label": "Contracts.Py / Cg_Skill.Py / Cg_Generate_Targets.Py",
+      "slug": "contracts-py-cg-skill-py-cg-generate-targets-py"
     },
     {
       "entity_count": 3,

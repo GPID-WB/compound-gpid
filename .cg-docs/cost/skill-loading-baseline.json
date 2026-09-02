@@ -4,7 +4,7 @@
     "python scripts/cg_audit_context.py --format both"
   ],
   "disclaimer": "Token estimates are heuristic (chars/4) and intended for directional baseline use; they are not evidence of token savings. Unavailable required host evidence is a blocking 'unavailable' result, never a zero.",
-  "generated": "2026-08-14T13:33:35-04:00@bcd1dd70a317",
+  "generated": "2026-09-01T17:13:48-04:00@7fb1afaff8db",
   "kind": "skill-loading-baseline",
   "measurementPolicy": {
     "tokenEstimate": "chars/4 heuristic",
@@ -17,7 +17,7 @@
   },
   "profiles": [
     {
-      "advertisedSkillCount": 24,
+      "advertisedSkillCount": 25,
       "capabilities": [],
       "config": {
         "language": "both"
@@ -25,10 +25,10 @@
       "contextAudit": {
         "guardrailFailureCount": 1,
         "requestedCommand": "/cg-work",
-        "totalSourceEstimatedTokens": 667212,
-        "totalSourceFiles": 161,
+        "totalSourceEstimatedTokens": 719387,
+        "totalSourceFiles": 228,
         "workflowAvailable": true,
-        "workflowEstimatedTokens": 5315,
+        "workflowEstimatedTokens": 5319,
         "workflowTotalRefs": 57
       },
       "description": "Technical-only project: only the /cg-* suite is selected.",
@@ -40,7 +40,7 @@
         "config": {
           "language": "both"
         },
-        "digest": "63609222648f1d61e450e51f18ae5a1a7e2188fd615deb460e4f7d25830f3fc9",
+        "digest": "b9a9e71cbd486f0522f612d695b86666150ae3f13b897e79a24aadfea0200200",
         "loadableAssetGlobs": [
           ".github/agents/cg-adversarial.agent.md",
           ".github/agents/cg-architecture.agent.md",
@@ -70,13 +70,16 @@
           ".github/shared/model-advisory-examples.json",
           ".github/shared/module-registry.json",
           ".github/shared/retrieval-backends.json",
+          ".github/shared/skill-management/",
           ".github/shared/snapshot-research-modes.json",
           ".github/shared/target-mapping.json",
+          ".github/shared/vendor-policy.json",
           ".github/skills/cg-skill-brain-query/",
           ".github/skills/cg-skill-brainstorming/",
           ".github/skills/cg-skill-compound-docs/",
           ".github/skills/cg-skill-fix-triage-migrate/",
           ".github/skills/cg-skill-git-workflow/",
+          ".github/skills/cg-skill-management/",
           ".github/skills/cg-skill-pester-safety/",
           ".github/skills/cg-skill-project-scanner/",
           ".github/skills/cg-skill-python-best-practices/",
@@ -99,6 +102,7 @@
           "cap-pester-safety",
           "cap-render-doc",
           "cap-review-agents",
+          "cap-skill-management",
           "cap-wb-report-writing",
           "kernel",
           "suite-cg"
@@ -118,29 +122,29 @@
       "sourceInventory": {
         "byCategory": {
           "agents": {
-            "characters": 184191,
-            "estimated_tokens": 46039,
+            "characters": 184814,
+            "estimated_tokens": 46194,
             "files": 28
           },
           "brain": {
-            "characters": 390442,
-            "estimated_tokens": 97610,
+            "characters": 406167,
+            "estimated_tokens": 101541,
             "files": 4
           },
           "brain_index": {
-            "characters": 866686,
-            "estimated_tokens": 216671,
+            "characters": 908045,
+            "estimated_tokens": 227011,
             "files": 1
           },
           "context": {
-            "characters": 78614,
-            "estimated_tokens": 19653,
+            "characters": 82657,
+            "estimated_tokens": 20664,
             "files": 1
           },
           "docs": {
-            "characters": 357075,
-            "estimated_tokens": 89255,
-            "files": 37
+            "characters": 417584,
+            "estimated_tokens": 104375,
+            "files": 68
           },
           "instructions": {
             "characters": 26301,
@@ -148,24 +152,24 @@
             "files": 6
           },
           "prompts": {
-            "characters": 315554,
-            "estimated_tokens": 78877,
-            "files": 31
+            "characters": 342985,
+            "estimated_tokens": 85733,
+            "files": 32
           },
           "roadmap": {
-            "characters": 92616,
-            "estimated_tokens": 23154,
+            "characters": 94391,
+            "estimated_tokens": 23597,
             "files": 1
           },
           "shared": {
-            "characters": 61855,
-            "estimated_tokens": 15460,
-            "files": 12
+            "characters": 118673,
+            "estimated_tokens": 29650,
+            "files": 46
           },
           "skills": {
-            "characters": 294102,
-            "estimated_tokens": 73512,
-            "files": 39
+            "characters": 294621,
+            "estimated_tokens": 73641,
+            "files": 40
           },
           "template": {
             "characters": 1633,
@@ -173,9 +177,9 @@
             "files": 1
           }
         },
-        "totalCharacters": 2669069,
-        "totalEstimatedTokens": 667212,
-        "totalFiles": 161
+        "totalCharacters": 2877871,
+        "totalEstimatedTokens": 719387,
+        "totalFiles": 228
       },
       "suites": [
         "cg"
@@ -213,7 +217,7 @@
             "ok": true
           },
           {
-            "detail": "24 selected skills advertised",
+            "detail": "25 selected skills advertised",
             "name": "catalog does not advertise inactive skill bodies",
             "ok": true
           }
@@ -230,8 +234,8 @@
       "contextAudit": {
         "guardrailFailureCount": 1,
         "requestedCommand": "/cr-work",
-        "totalSourceEstimatedTokens": 667212,
-        "totalSourceFiles": 161,
+        "totalSourceEstimatedTokens": 719387,
+        "totalSourceFiles": 228,
         "workflowAvailable": false,
         "workflowEstimatedTokens": null,
         "workflowTotalRefs": null
@@ -245,7 +249,7 @@
         "config": {
           "language": "both"
         },
-        "digest": "7415bb2d8938efa851142cbe6337a56711dbdcb6f6a9eda31f459abbbfe44c63",
+        "digest": "be9122ae40efbf5e9768fdf469a6636d8c563eb170612ad3b000dd4c6e38a2f7",
         "loadableAssetGlobs": [
           ".github/agents/cg-adversarial.agent.md",
           ".github/agents/cg-architecture.agent.md",
@@ -273,6 +277,7 @@
           ".github/shared/retrieval-backends.json",
           ".github/shared/snapshot-research-modes.json",
           ".github/shared/target-mapping.json",
+          ".github/shared/vendor-policy.json",
           ".github/skills/cg-skill-brain-query/",
           ".github/skills/cg-skill-compound-docs/",
           ".github/skills/cg-skill-git-workflow/",
@@ -330,29 +335,29 @@
       "sourceInventory": {
         "byCategory": {
           "agents": {
-            "characters": 184191,
-            "estimated_tokens": 46039,
+            "characters": 184814,
+            "estimated_tokens": 46194,
             "files": 28
           },
           "brain": {
-            "characters": 390442,
-            "estimated_tokens": 97610,
+            "characters": 406167,
+            "estimated_tokens": 101541,
             "files": 4
           },
           "brain_index": {
-            "characters": 866686,
-            "estimated_tokens": 216671,
+            "characters": 908045,
+            "estimated_tokens": 227011,
             "files": 1
           },
           "context": {
-            "characters": 78614,
-            "estimated_tokens": 19653,
+            "characters": 82657,
+            "estimated_tokens": 20664,
             "files": 1
           },
           "docs": {
-            "characters": 357075,
-            "estimated_tokens": 89255,
-            "files": 37
+            "characters": 417584,
+            "estimated_tokens": 104375,
+            "files": 68
           },
           "instructions": {
             "characters": 26301,
@@ -360,24 +365,24 @@
             "files": 6
           },
           "prompts": {
-            "characters": 315554,
-            "estimated_tokens": 78877,
-            "files": 31
+            "characters": 342985,
+            "estimated_tokens": 85733,
+            "files": 32
           },
           "roadmap": {
-            "characters": 92616,
-            "estimated_tokens": 23154,
+            "characters": 94391,
+            "estimated_tokens": 23597,
             "files": 1
           },
           "shared": {
-            "characters": 61855,
-            "estimated_tokens": 15460,
-            "files": 12
+            "characters": 118673,
+            "estimated_tokens": 29650,
+            "files": 46
           },
           "skills": {
-            "characters": 294102,
-            "estimated_tokens": 73512,
-            "files": 39
+            "characters": 294621,
+            "estimated_tokens": 73641,
+            "files": 40
           },
           "template": {
             "characters": 1633,
@@ -385,9 +390,9 @@
             "files": 1
           }
         },
-        "totalCharacters": 2669069,
-        "totalEstimatedTokens": 667212,
-        "totalFiles": 161
+        "totalCharacters": 2877871,
+        "totalEstimatedTokens": 719387,
+        "totalFiles": 228
       },
       "suites": [
         "cr"
@@ -434,7 +439,7 @@
       }
     },
     {
-      "advertisedSkillCount": 39,
+      "advertisedSkillCount": 40,
       "capabilities": [],
       "config": {
         "language": "both"
@@ -442,10 +447,10 @@
       "contextAudit": {
         "guardrailFailureCount": 1,
         "requestedCommand": "/cg-work",
-        "totalSourceEstimatedTokens": 667212,
-        "totalSourceFiles": 161,
+        "totalSourceEstimatedTokens": 719387,
+        "totalSourceFiles": 228,
         "workflowAvailable": true,
-        "workflowEstimatedTokens": 5315,
+        "workflowEstimatedTokens": 5319,
         "workflowTotalRefs": 57
       },
       "description": "Mixed project: both the /cg-* and /cr-* suites are selected.",
@@ -457,7 +462,7 @@
         "config": {
           "language": "both"
         },
-        "digest": "758a3d0c6fefeaddd27233bd9953815b2f2f2b7d15238a6788f44318e70026d7",
+        "digest": "3b17c8cff1bc83e85b5e7538aa6313c21900994fe2d18c5a348345d70aaaa666",
         "loadableAssetGlobs": [
           ".github/agents/cg-adversarial.agent.md",
           ".github/agents/cg-architecture.agent.md",
@@ -491,13 +496,16 @@
           ".github/shared/model-advisory-examples.json",
           ".github/shared/module-registry.json",
           ".github/shared/retrieval-backends.json",
+          ".github/shared/skill-management/",
           ".github/shared/snapshot-research-modes.json",
           ".github/shared/target-mapping.json",
+          ".github/shared/vendor-policy.json",
           ".github/skills/cg-skill-brain-query/",
           ".github/skills/cg-skill-brainstorming/",
           ".github/skills/cg-skill-compound-docs/",
           ".github/skills/cg-skill-fix-triage-migrate/",
           ".github/skills/cg-skill-git-workflow/",
+          ".github/skills/cg-skill-management/",
           ".github/skills/cg-skill-pester-safety/",
           ".github/skills/cg-skill-project-scanner/",
           ".github/skills/cg-skill-python-best-practices/",
@@ -537,6 +545,7 @@
           "cap-render-doc",
           "cap-research-output",
           "cap-review-agents",
+          "cap-skill-management",
           "cap-wb-report-writing",
           "kernel",
           "suite-cg",
@@ -558,29 +567,29 @@
       "sourceInventory": {
         "byCategory": {
           "agents": {
-            "characters": 184191,
-            "estimated_tokens": 46039,
+            "characters": 184814,
+            "estimated_tokens": 46194,
             "files": 28
           },
           "brain": {
-            "characters": 390442,
-            "estimated_tokens": 97610,
+            "characters": 406167,
+            "estimated_tokens": 101541,
             "files": 4
           },
           "brain_index": {
-            "characters": 866686,
-            "estimated_tokens": 216671,
+            "characters": 908045,
+            "estimated_tokens": 227011,
             "files": 1
           },
           "context": {
-            "characters": 78614,
-            "estimated_tokens": 19653,
+            "characters": 82657,
+            "estimated_tokens": 20664,
             "files": 1
           },
           "docs": {
-            "characters": 357075,
-            "estimated_tokens": 89255,
-            "files": 37
+            "characters": 417584,
+            "estimated_tokens": 104375,
+            "files": 68
           },
           "instructions": {
             "characters": 26301,
@@ -588,24 +597,24 @@
             "files": 6
           },
           "prompts": {
-            "characters": 315554,
-            "estimated_tokens": 78877,
-            "files": 31
+            "characters": 342985,
+            "estimated_tokens": 85733,
+            "files": 32
           },
           "roadmap": {
-            "characters": 92616,
-            "estimated_tokens": 23154,
+            "characters": 94391,
+            "estimated_tokens": 23597,
             "files": 1
           },
           "shared": {
-            "characters": 61855,
-            "estimated_tokens": 15460,
-            "files": 12
+            "characters": 118673,
+            "estimated_tokens": 29650,
+            "files": 46
           },
           "skills": {
-            "characters": 294102,
-            "estimated_tokens": 73512,
-            "files": 39
+            "characters": 294621,
+            "estimated_tokens": 73641,
+            "files": 40
           },
           "template": {
             "characters": 1633,
@@ -613,9 +622,9 @@
             "files": 1
           }
         },
-        "totalCharacters": 2669069,
-        "totalEstimatedTokens": 667212,
-        "totalFiles": 161
+        "totalCharacters": 2877871,
+        "totalEstimatedTokens": 719387,
+        "totalFiles": 228
       },
       "suites": [
         "cg",
@@ -644,7 +653,7 @@
             "ok": true
           },
           {
-            "detail": "39 selected skills advertised",
+            "detail": "40 selected skills advertised",
             "name": "catalog does not advertise inactive skill bodies",
             "ok": true
           }
@@ -653,7 +662,7 @@
       }
     },
     {
-      "advertisedSkillCount": 21,
+      "advertisedSkillCount": 22,
       "capabilities": [
         "python"
       ],
@@ -662,9 +671,9 @@
       },
       "contextAudit": {
         "guardrailFailureCount": 1,
-        "requestedCommand": "/cg-find-skill",
-        "totalSourceEstimatedTokens": 667212,
-        "totalSourceFiles": 161,
+        "requestedCommand": "/cg-skill find",
+        "totalSourceEstimatedTokens": 719387,
+        "totalSourceFiles": 228,
         "workflowAvailable": false,
         "workflowEstimatedTokens": null,
         "workflowTotalRefs": null
@@ -672,7 +681,7 @@
       "description": "Technical project with an explicit additive python capability and an R language selector.",
       "expectedCatalogSummary": "python capability active; stata/powershell inactive",
       "expectedHardStop": "stata capability inactive: remove intent or add capability (run cg-link/cg-update to regenerate)",
-      "expectedRoute": "cg-find-skill",
+      "expectedRoute": "cg-skill find",
       "generatedInventory": {
         "capabilities": [
           "python"
@@ -680,7 +689,7 @@
         "config": {
           "language": "r"
         },
-        "digest": "b18d29fbfd0bf21eaa878d2c11f5342ade6daed187e49899f8f30297ac0612de",
+        "digest": "9085d85fdd76931d1d4d17f54d6106f34cde50d409c68c612f30b71b795ad3da",
         "loadableAssetGlobs": [
           ".github/agents/cg-adversarial.agent.md",
           ".github/agents/cg-architecture.agent.md",
@@ -708,13 +717,16 @@
           ".github/shared/model-advisory-examples.json",
           ".github/shared/module-registry.json",
           ".github/shared/retrieval-backends.json",
+          ".github/shared/skill-management/",
           ".github/shared/snapshot-research-modes.json",
           ".github/shared/target-mapping.json",
+          ".github/shared/vendor-policy.json",
           ".github/skills/cg-skill-brain-query/",
           ".github/skills/cg-skill-brainstorming/",
           ".github/skills/cg-skill-compound-docs/",
           ".github/skills/cg-skill-fix-triage-migrate/",
           ".github/skills/cg-skill-git-workflow/",
+          ".github/skills/cg-skill-management/",
           ".github/skills/cg-skill-pester-safety/",
           ".github/skills/cg-skill-project-scanner/",
           ".github/skills/cg-skill-python-best-practices/",
@@ -733,6 +745,7 @@
           "cap-pester-safety",
           "cap-render-doc",
           "cap-review-agents",
+          "cap-skill-management",
           "cap-wb-report-writing",
           "kernel",
           "suite-cg"
@@ -748,33 +761,33 @@
       "hostProcedure": "python scripts/cg_projection_benchmark.py --profiles capability-python --validate",
       "id": "capability-python",
       "oracleStatus": "passed",
-      "requestedCommand": "/cg-find-skill",
+      "requestedCommand": "/cg-skill find",
       "sourceInventory": {
         "byCategory": {
           "agents": {
-            "characters": 184191,
-            "estimated_tokens": 46039,
+            "characters": 184814,
+            "estimated_tokens": 46194,
             "files": 28
           },
           "brain": {
-            "characters": 390442,
-            "estimated_tokens": 97610,
+            "characters": 406167,
+            "estimated_tokens": 101541,
             "files": 4
           },
           "brain_index": {
-            "characters": 866686,
-            "estimated_tokens": 216671,
+            "characters": 908045,
+            "estimated_tokens": 227011,
             "files": 1
           },
           "context": {
-            "characters": 78614,
-            "estimated_tokens": 19653,
+            "characters": 82657,
+            "estimated_tokens": 20664,
             "files": 1
           },
           "docs": {
-            "characters": 357075,
-            "estimated_tokens": 89255,
-            "files": 37
+            "characters": 417584,
+            "estimated_tokens": 104375,
+            "files": 68
           },
           "instructions": {
             "characters": 26301,
@@ -782,24 +795,24 @@
             "files": 6
           },
           "prompts": {
-            "characters": 315554,
-            "estimated_tokens": 78877,
-            "files": 31
+            "characters": 342985,
+            "estimated_tokens": 85733,
+            "files": 32
           },
           "roadmap": {
-            "characters": 92616,
-            "estimated_tokens": 23154,
+            "characters": 94391,
+            "estimated_tokens": 23597,
             "files": 1
           },
           "shared": {
-            "characters": 61855,
-            "estimated_tokens": 15460,
-            "files": 12
+            "characters": 118673,
+            "estimated_tokens": 29650,
+            "files": 46
           },
           "skills": {
-            "characters": 294102,
-            "estimated_tokens": 73512,
-            "files": 39
+            "characters": 294621,
+            "estimated_tokens": 73641,
+            "files": 40
           },
           "template": {
             "characters": 1633,
@@ -807,9 +820,9 @@
             "files": 1
           }
         },
-        "totalCharacters": 2669069,
-        "totalEstimatedTokens": 667212,
-        "totalFiles": 161
+        "totalCharacters": 2877871,
+        "totalEstimatedTokens": 719387,
+        "totalFiles": 228
       },
       "suites": [
         "cg"
@@ -853,11 +866,11 @@
           },
           {
             "detail": "",
-            "name": "route cg-find-skill",
+            "name": "route cg-skill find",
             "ok": true
           },
           {
-            "detail": "21 selected skills advertised",
+            "detail": "22 selected skills advertised",
             "name": "catalog does not advertise inactive skill bodies",
             "ok": true
           }
@@ -867,5 +880,5 @@
     }
   ],
   "schemaVersion": 1,
-  "sourceRevision": "2026-08-14T13:33:35-04:00@bcd1dd70a317"
+  "sourceRevision": "2026-09-01T17:13:48-04:00@7fb1afaff8db"
 }

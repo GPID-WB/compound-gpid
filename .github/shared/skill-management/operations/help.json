@@ -1,0 +1,13 @@
+{
+  "schema": "cg-skill-operation-descriptor-v1",
+  "operation": "help",
+  "version": 1,
+  "state": "active",
+  "roles": ["consumer"],
+  "phases": ["read"],
+  "handler": "skill_management.operations.help:handle",
+  "contract": ".github/shared/skill-management/contracts/help-v1.schema.json",
+  "workflow": ".github/skills/cg-skill-management/workflows/help.md",
+  "documentation": "docs/skills/management/commands/help.md",
+  "tests": ["scripts/tests/test_skill_management_read.py"]
+}

@@ -59,8 +59,30 @@ async function validateMarkdownLinks(files) {
 
 async function validateSkillsCatalog() {
   const canonicalRoot = path.join(root, ".github", "skills");
+  const registry = JSON.parse(await readFile(path.join(root, ".github", "shared", "module-registry.json"), "utf8"));
+  const modules = new Map(registry.modules.map((module) => [module.id, module]));
+  const loadable = new Set();
+  const visit = (moduleId) => {
+    if (loadable.has(moduleId)) return;
+    loadable.add(moduleId);
+    for (const dependency of modules.get(moduleId)?.dependsOn || []) visit(dependency);
+  };
+  for (const module of registry.modules.filter((item) => item.layer === "suite")) visit(module.id);
+  for (const capability of registry.capabilities || []) visit(capability.owningModule);
+  const ownedPatterns = [...loadable]
+    .flatMap((moduleId) => modules.get(moduleId)?.ownedAssets || []);
+  const isOwned = (pattern, candidate) => {
+    const directory = pattern.endsWith("/");
+    const escaped = pattern.replace(/[.+^${}()|[\]\\]/g, "\\$&")
+      .replaceAll("*", "[^/]*").replaceAll("?", "[^/]");
+    return new RegExp(`^${escaped}${directory ? ".*" : ""}$`).test(candidate);
+  };
   const canonical = new Set((await readdir(canonicalRoot, { withFileTypes: true }))
     .filter((entry) => entry.isDirectory() && entry.name.startsWith("cg-skill-"))
+    .filter((entry) => {
+      const candidate = `.github/skills/${entry.name}/SKILL.md`;
+      return ownedPatterns.some((pattern) => isOwned(pattern, candidate));
+    })
     .map((entry) => entry.name));
   const catalogFiles = ["analysis.md", "development.md", "institutional.md"]
     .map((file) => path.join(docsRoot, "skills", file));
@@ -75,10 +97,36 @@ async function validateSkillsCatalog() {
     return [...content.matchAll(/^\| `cg-skill-[a-z-]+` \|/gm)].length;
   }));
   if (missing.length || unknown.length || catalog.size !== canonical.size
-    || catalogMatches.length !== canonical.size || categoryCounts.join(",") !== "8,9,7") {
+    || catalogMatches.length !== canonical.size || categoryCounts.join(",") !== "8,10,7") {
     throw new Error(`Skills catalog drift. Missing: ${missing.join(", ") || "none"}. Unknown: ${unknown.join(", ") || "none"}.`);
   }
   for (const skill of canonical) await access(path.join(canonicalRoot, skill, "SKILL.md"), constants.R_OK);
+}
+
+async function loadCandidatePages() {
+  const manifestPath = path.join(docsRoot, "skills", "management", "candidates.json");
+  let manifest;
+  try {
+    manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+  } catch (error) {
+    if (error.code === "ENOENT") return [];
+    throw error;
+  }
+  if (manifest.schemaVersion !== "compound-gpid-docs-candidates-v1"
+      || !Array.isArray(manifest.pages)) {
+    throw new Error("Unexpected candidate documentation manifest schema.");
+  }
+  const ids = manifest.pages.map((page) => page.id);
+  const files = manifest.pages.map((page) => page.file);
+  if (new Set(ids).size !== ids.length) throw new Error("Candidate documentation page IDs must be unique.");
+  if (new Set(files).size !== files.length) throw new Error("Candidate documentation files must be unique.");
+  for (const page of manifest.pages) {
+    if (!page.title || !page.description) throw new Error(`Candidate metadata is incomplete for ${page.id}.`);
+    if (!page.file.startsWith("docs/skills/management/") || !page.file.endsWith(".md") || page.file.includes("..")) {
+      throw new Error(`Candidate documentation file is unsafe: ${page.file}`);
+    }
+  }
+  return manifest.pages;
 }
 
 (async () => {
@@ -97,10 +145,16 @@ async function validateSkillsCatalog() {
     throw new Error("Documentation navigation must contain audience-oriented groups.");
   }
   const pages = manifest.groups.flatMap((group) => group.pages || []);
+  const candidatePages = await loadCandidatePages();
   const ids = pages.map((page) => page.id);
   const pageFiles = pages.map((page) => page.file);
   if (new Set(ids).size !== ids.length) throw new Error("Documentation page IDs must be unique.");
   if (new Set(pageFiles).size !== pageFiles.length) throw new Error("Documentation files must appear only once in navigation.");
+  const candidateIds = new Set(candidatePages.map((page) => page.id));
+  const candidateFiles = new Set(candidatePages.map((page) => page.file));
+  if (ids.some((id) => candidateIds.has(id)) || pageFiles.some((file) => candidateFiles.has(`docs/${file}`))) {
+    throw new Error("Candidate documentation must remain outside public navigation until migration.");
+  }
   for (const page of pages) {
     if (!/^[a-z0-9-]+$/.test(page.id)) throw new Error(`Documentation page ID is unsafe: ${page.id}`);
     if (!/^[a-z0-9][a-z0-9./-]*\.md$/.test(page.file) || page.file.includes("..")) {
@@ -120,7 +174,8 @@ async function validateSkillsCatalog() {
 
   const markdownFiles = (await walkMarkdown(docsRoot)).sort();
   const represented = new Set(pageFiles.map((file) => path.normalize(path.join(docsRoot, file))));
-  const orphaned = markdownFiles.filter((file) => !represented.has(file));
+  const candidates = new Set(candidatePages.map((page) => path.normalize(path.join(root, page.file))));
+  const orphaned = markdownFiles.filter((file) => !represented.has(file) && !candidates.has(file));
   const missing = [...represented].filter((file) => !markdownFiles.includes(file));
   if (orphaned.length || missing.length) {
     throw new Error(`Navigation coverage failed. Orphaned: ${orphaned.map((file) => path.relative(root, file)).join(", ") || "none"}. Missing: ${missing.map((file) => path.relative(root, file)).join(", ") || "none"}.`);
@@ -129,6 +184,10 @@ async function validateSkillsCatalog() {
   for (const page of pages) {
     if (!page.title || !page.description) throw new Error(`Navigation metadata is incomplete for ${page.id}.`);
     const content = await readFile(path.join(docsRoot, page.file), "utf8");
+    if (!/^\uFEFF?#\s+\S/m.test(content)) throw new Error(`${page.file} must have a level-one heading.`);
+  }
+  for (const page of candidatePages) {
+    const content = await readFile(path.join(root, page.file), "utf8");
     if (!/^\uFEFF?#\s+\S/m.test(content)) throw new Error(`${page.file} must have a level-one heading.`);
   }
 

@@ -1,11 +1,21 @@
 # 🧠 Project Brain — Part 2
 
-_Generated 2026-08-28_
+_Generated 2026-09-02_
 
 ## Roadmap.Json / Test Scenarios / Prompt-Tools.Tests.Ps1 _(continued from Part 1)_
 
-_Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 110 entities
+_Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 115 entities
 
+- **[git merge-base can return multiple ancestors — always take the first line](.cg-docs/solutions/git-workflows/2026-05-14-git-merge-base-multiple-ancestors-take-first-line.md)** · `solution` · _—_ · `2026-05-14`
+  > Scripts and prompt instructions that compute the branch point with: assume `git merge-base` returns exactly one hash.…
+- **[Use git rev-parse for repo detection; guard against detached HEAD state](.cg-docs/solutions/git-workflows/2026-05-18-git-rev-parse-for-repo-detection-detached-head-guard.md)** · `solution` · _—_ · `2026-05-18`
+  > Two prompts (`/cg-brainstorm` and `/cg-plan`) used `git branch --show-current` as a proxy for detecting whether the w…
+- **[Merge strategy for generated Brain files and additive CI matrix conflicts](.cg-docs/solutions/git-workflows/2026-08-11-merge-generated-brain-files-and-additive-ci-conflicts.md)** · `solution` · _—_ · `2026-08-11`
+  > Merging `origin/main` into `refactor-modular-plugin` produced 7 conflicting files: - `.github/workflows/tests.yml` — …
+- **[Verified Pages artifacts and immutable release-tag gates](.cg-docs/solutions/git-workflows/2026-08-13-verified-pages-artifact-and-release-tag-gates.md)** · `solution` · _—_ · `2026-08-13`
+  > An automated documentation workflow needs two independent guarantees: 1. The Pages deploy job must publish exactly th…
+- **[Authoritative PR preflight prevents native-target and Kilo capability reruns](.cg-docs/solutions/git-workflows/2026-08-21-pr-ci-preflight-native-target-kilo-capability-gates.md)** · `solution` · _—_ · `2026-08-21`
+  > PR #141 exposed several failures that local guidance did not catch before a remote run: interpreter cache files could…
 - **[Pre-compute GRP once for blocks with multiple aggregations over the same grouping](.cg-docs/solutions/performance-issues/2026-03-18-grp-precomputation-for-multi-aggregation.md)** · `solution` · _—_ · `2026-03-18`
   > A common pattern in GPID welfare code computes several statistics by region in consecutive calls: Each call passes `g…
 - **[Full model audit — classification methodology and results](.cg-docs/solutions/performance-issues/2026-04-07-model-audit-classification.md)** · `solution` · _applied_ · `2026-04-07`
@@ -232,7 +242,7 @@ _Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 11
 _Keywords: `architecture research
 objective` · `ongoing ideas
 objective` · `workflow maturity
-objective`_ · 152 entities
+objective`_ · 154 entities
 
 - **[@cg-fix-problems agent \(auto-dispatched by /cg-work\)](roadmap.json#cg-fix-problems-agent)** · `feature` · _done_ · `—`
   > @cg-fix-problems agent (auto-dispatched by /cg-work)
@@ -272,6 +282,10 @@ objective`_ · 152 entities
   > R dialect skills architecture (collapse, data.table, tidyverse)
 - **[tidymodels addition to cg-skill-r-analytical](roadmap.json#tidymodels-addition)** · `feature` · _idea_ · `—`
   > tidymodels addition to cg-skill-r-analytical
+- **[Scalable Skill Management Suite](roadmap.json#scalable-skill-management-suite)** · `feature` · _done_ · `—`
+  > Scalable Skill Management Suite
+- **[Project-authored skills](roadmap.json#project-authored-skills)** · `feature` · _idea_ · `—`
+  > Project-authored skills
 - **[Skill discovery metadata and trigger-quality audit](roadmap.json#skill-description-consistency-audit)** · `feature` · _idea_ · `—`
   > Skill discovery metadata and trigger-quality audit
 - **[Testing skill for Python \(pytest/parametrize/monkeypatch\)](roadmap.json#testing-skill-python)** · `feature` · _idea_ · `—`
@@ -571,6 +585,17 @@ _Keywords: `scripts/cg_kilo_preflight.py` · `link.sh` · `cg_kilo_preflight.py`
   > **Review mode**: full (auto-routed security/architecture/install changes) **Files reviewed**: Phase 1 implementation,…
 - **[2026-08-13-manifest-driven-skill-loading-verify-review](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review.md)** · `review` · _—_ · `2026-08-13`
   > **Review mode**: verify (light) **Parent review**: `.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-review.…
+
+## Contracts.Py / Cg_Skill.Py / Cg_Generate_Targets.Py
+
+_Keywords: `contracts.py` · `cg_skill.py` · `cg_generate_targets.py`_ · 3 entities
+
+- **[2026-08-28-scalable-skill-management-suite-review](.cg-docs/reviews/2026-08-28-scalable-skill-management-suite-review.md)** · `review` · _—_ · `2026-08-30`
+  > **Requested mode**: `mode:verify` **Resolved mode**: `full` -- no prior standard review had fixed findings, so verifi…
+- **[2026-08-28-scalable-skill-management-suite-verify-review-2](.cg-docs/reviews/2026-08-28-scalable-skill-management-suite-verify-review-2.md)** · `review` · _—_ · `2026-09-01`
+  > **Review mode**: light verification **Parent review**: `.cg-docs/reviews/2026-08-28-scalable-skill-management-suite-r…
+- **[2026-08-28-scalable-skill-management-suite-verify-review](.cg-docs/reviews/2026-08-28-scalable-skill-management-suite-verify-review.md)** · `review` · _—_ · `2026-08-31`
+  > **Review mode**: light verification **Parent review**: `.cg-docs/reviews/2026-08-28-scalable-skill-management-suite-r…
 
 ## Secure_Fs.Py / Validation / Parser.Py
 
