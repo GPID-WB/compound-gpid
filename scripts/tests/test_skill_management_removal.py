@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import subprocess
 from pathlib import Path
 from types import SimpleNamespace
@@ -11,8 +12,13 @@ import pytest
 
 from skill_management import planning
 from skill_management.operations import deprecate, remove
-from skill_management.services import bundles, lifecycle, registry, runtime
+from skill_management.services import bundles, lifecycle, references, registry, runtime
 from scripts.tests.test_skill_management_project_lifecycle import _roots
+from scripts.tests.test_skill_management_contracts import (
+    PORTABLE_PROTECTED_MIGRATION_ALIASES,
+    PROTECTED_MIGRATION_PATHS,
+    SUPPORTED_MIGRATION_PATHS,
+)
 from scripts.tests.test_skill_management_create import (
     _arguments as create_arguments,
     _canonical_root,
@@ -134,6 +140,134 @@ def _migration(project: Path, expected: bytes) -> Path:
     }
     path.write_text(json.dumps(value, sort_keys=True) + "\n", encoding="utf-8")
     return path
+
+
+def _migration_record(path: str, current: bytes) -> lifecycle.MigrationRecord:
+    value = {
+        "id": "demo-to-next",
+        "edits": [
+            {
+                "path": path,
+                "expectedSha256": hashlib.sha256(current).hexdigest(),
+                "replacement": "Use next-skill.\n",
+            }
+        ],
+    }
+    return lifecycle.MigrationRecord("migration.json", value, "f" * 64)
+
+
+@pytest.mark.parametrize(
+    "path", PROTECTED_MIGRATION_PATHS + PORTABLE_PROTECTED_MIGRATION_ALIASES
+)
+def test_migration_planning_rejects_protected_targets_without_writing(
+    tmp_path: Path, path: str
+) -> None:
+    current = b"Use demo-skill.\n"
+    target = tmp_path / path
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_bytes(current)
+
+    with pytest.raises(lifecycle.LifecyclePlanningError, match="bounded project"):
+        lifecycle._migration_actions(  # pylint: disable=protected-access
+            tmp_path, (_migration_record(path, current),)
+        )
+
+    assert target.read_bytes() == current
+
+
+@pytest.mark.parametrize("path", SUPPORTED_MIGRATION_PATHS)
+def test_migration_planning_allows_normal_documentation_and_references(
+    tmp_path: Path, path: str
+) -> None:
+    current = b"Use demo-skill.\n"
+    target = tmp_path / path
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_bytes(current)
+
+    actions = lifecycle._migration_actions(  # pylint: disable=protected-access
+        tmp_path, (_migration_record(path, current),)
+    )
+
+    assert len(actions) == 1
+    assert actions[0].path == path
+    assert actions[0].mutation is not None
+    assert actions[0].mutation.before == current
+    assert target.read_bytes() == current
+
+
+@pytest.mark.skipif(os.name == "nt", reason="POSIX executable mode assertion")
+def test_migration_planning_rejects_executable_document_without_writing(
+    tmp_path: Path,
+) -> None:
+    current = b"Use demo-skill.\n"
+    target = tmp_path / "docs/use.md"
+    target.parent.mkdir(parents=True)
+    target.write_bytes(current)
+    target.chmod(0o755)
+
+    with pytest.raises(lifecycle.LifecyclePlanningError, match="executable"):
+        lifecycle._migration_actions(  # pylint: disable=protected-access
+            tmp_path, (_migration_record("docs/use.md", current),)
+        )
+
+    assert target.read_bytes() == current
+
+
+@pytest.mark.parametrize(
+    "current",
+    (
+        b"\xff\xfe",
+        b"x" * (references.MAX_REFERENCE_FILE_BYTES + 1),
+    ),
+    ids=("non-utf8", "oversized"),
+)
+def test_migration_planning_rejects_unbounded_or_non_text_document_without_writing(
+    tmp_path: Path, current: bytes
+) -> None:
+    target = tmp_path / "docs/use.md"
+    target.parent.mkdir(parents=True)
+    target.write_bytes(current)
+
+    with pytest.raises(lifecycle.LifecyclePlanningError, match="bounded regular"):
+        lifecycle._migration_actions(  # pylint: disable=protected-access
+            tmp_path, (_migration_record("docs/use.md", current),)
+        )
+
+    assert target.read_bytes() == current
+
+
+def test_migration_loading_rejects_portable_unicode_path_aliases(
+    tmp_path: Path,
+) -> None:
+    migration_root = tmp_path / "migrations"
+    migration_root.mkdir()
+    paths = ("docs/Caf\u00e9.md", "DOCS/Cafe\u0301.md")
+    for index, path in enumerate(paths):
+        value = {
+            "schema": "cg-skill-migration-v1",
+            "schemaVersion": 1,
+            "id": f"demo-to-next-{index}",
+            "skillId": "demo-skill",
+            "edits": [
+                {
+                    "path": path,
+                    "expectedSha256": "a" * 64,
+                    "replacement": "Use next-skill.\n",
+                }
+            ],
+            "reviewer": "project-reviewer",
+            "approvalReference": "review=" + "d" * 40,
+        }
+        (migration_root / f"{index}.json").write_text(
+            json.dumps(value) + "\n", encoding="utf-8"
+        )
+
+    with pytest.raises(lifecycle.LifecyclePlanningError, match="collide portably"):
+        lifecycle.load_migrations(
+            tmp_path,
+            tuple(f"migrations/{index}.json" for index in range(2)),
+            "demo-skill",
+        )
 
 
 def test_deprecation_rejects_self_cross_origin_and_cycles(tmp_path: Path) -> None:

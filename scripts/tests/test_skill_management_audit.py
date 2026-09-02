@@ -142,8 +142,8 @@ def test_audit_is_read_only_and_has_no_mutable_update_filter(
         if path.is_file()
     }
     schema = contracts.load_contract(
-        Path(__file__).resolve().parents[2]
-        / ".github/shared/skill-management/contracts/audit-v1.schema.json"
+        Path(__file__).resolve().parents[2],
+        contracts.CONTRACTS_ROOT / "audit-v1.schema.json",
     )
 
     assert before == after

@@ -129,6 +129,28 @@ def test_noop_transaction_commits_without_live_mutation(tmp_path: Path) -> None:
     assert not (project / "compound-gpid.local.md").exists()
 
 
+def test_lifecycle_plan_rejects_portable_unicode_mutation_aliases() -> None:
+    actions = tuple(
+        planning.PlannedAction(
+            "apply-migration",
+            path,
+            "Apply a reviewed reference migration.",
+            planning.ExpectedMutation(path, b"old", b"new", "source"),
+        )
+        for path in ("docs/Caf\u00e9.md", "DOCS/Cafe\u0301.md")
+    )
+    plan = planning.LifecyclePlan(
+        "remove",
+        "consumer",
+        {"skillId": "demo-skill"},
+        planning.PlanBindings.fixture(),
+        actions,
+    )
+
+    with pytest.raises(planning.PlanningError, match="more than once"):
+        planning._ordered_mutations(plan)  # pylint: disable=protected-access
+
+
 def test_crash_before_commit_point_discards_staging_on_recovery(tmp_path: Path) -> None:
     project = tmp_path / "project"
     project.mkdir()
