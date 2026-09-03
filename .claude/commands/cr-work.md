@@ -24,9 +24,16 @@ You are a senior research engineer implementing a research plan created with
 2. Load `.claude/shared/context-loading.contract.md` and apply Stage 0/1/2 first. Do not read full `compound-gpid.context.md` by default; if needed, search relevant headings/snippets and state `Context expansion: reading <artifact/section> because <reason>.`
 3. **Always load**: `cr-skill-research-workflow`, `cr-skill-research-integrity`,
    `cr-skill-research-scoping`, and `cr-skill-evidence-provenance`.
-4. If the plan task type is **Implementation**: also load `cr-skill-mathematical-derivation`
+4. If the plan task type is **ML/Prediction**: also load `cr-skill-ml-economics`.
+  After activation, read only the one or two references needed for the task;
+  do not load all eight references. Route by goal, data structure, and
+  language rather than reading the complete reference directory.
+5. If the plan task type is **Implementation** and the implementation contains
+  ML work: also load `cr-skill-ml-economics`, then select only the relevant
+  implementation and method references. Do not load all eight references.
+6. If the plan task type is **Implementation**: also load `cr-skill-mathematical-derivation`
    for code-math variable mapping conventions and derivation file standards.
-5. If the plan task type is **Reproducibility**: also load `cr-skill-replication-standards`
+7. If the plan task type is **Reproducibility**: also load `cr-skill-replication-standards`
    for AEA archive structure, README templates, lockfile conventions, seed registry,
    data documentation, path portability rules, and sensitive-data checklists.
    Also verify `c-research/replication/` exists — create it silently if absent.
@@ -34,10 +41,10 @@ You are a senior research engineer implementing a research plan created with
    any work begins, scan code files for random operations without a preceding seed
    (see `cr-skill-replication-standards` Section 4). If any are found, halt and require
    seeds to be added before proceeding.
-6. If the plan task type is **Tables/Figures**: also load `cr-skill-publication-output`
+8. If the plan task type is **Tables/Figures**: also load `cr-skill-publication-output`
    for regression table patterns, LaTeX table conventions, figure output standards,
    caption/note discipline, and output file management.
-7. If the plan task type is **Measurement/Classification**: also load
+9. If the plan task type is **Measurement/Classification**: also load
   `cr-skill-measurement` and require production of:
   `c-research/measurement/weighting-sensitivity.yaml`,
   `c-research/measurement/cluster-validity.yaml`, and
@@ -95,19 +102,31 @@ research-specific enforcement:
 
 #### P0: Seed Enforcement (active during work)
 
-Before executing any code that involves randomness, check for an explicit seed:
-- R: `set.seed(<n>)` immediately before the random block
-- Python: `np.random.seed(<n>)` or `random.seed(<n>)` before the random block; also add
-  `torch.manual_seed(<n>)` when using PyTorch and `tensorflow.random.set_seed(<n>)` when using
-  TensorFlow — both must be set when both frameworks are imported
-- Stata: `set seed <n>` before the random block
+Before executing any code that involves randomness, classify whether the
+operation is stochastic. Deterministic operations do not need an invented seed;
+record their deterministic parameters instead.
+- R: use `set.seed(<n>)` immediately before `sample()`, bootstrap, randomized
+  resampling, or a stochastic engine. Deterministic splitters and deterministic
+  fits do not require `set.seed()`.
+- Python: accept `random_state=<n>` or `seed=<n>` on the stochastic estimator,
+  splitter, search, or randomized decomposition; `np.random.seed(<n>)` or
+  `random.seed(<n>)` also satisfies the global-RNG case. Deterministic splitters
+  with `shuffle=False` do not require a seed.
+- Stata: `set seed <n>` before the random block.
+- PyTorch: add `torch.manual_seed(<n>)` and, for CUDA, the documented CUDA
+  seed/determinism settings. TensorFlow/Keras requires its documented seed
+  helper when those frameworks are imported.
 
-**If seed is missing**: halt, add the seed, document it in the specification manifest.
+**If a stochastic seed is missing**: halt, add the seed, and document it in the
+specification manifest. Do not add a random-state argument to a deterministic
+splitter that does not support it.
 **Seed value**: use a deterministic value (e.g., 42, 12345) and note it in comments.
 
 **Lockfile verification**: Before running estimation, confirm the environment lockfile is
-committed and current (`renv.lock` for R, `requirements.txt` / `pyproject.toml` / `uv.lock` for
-Python, `code/ado/` for Stata via `repado`). If absent or out-of-date, flag and halt.
+committed and current (`renv.lock` for R; `uv.lock` or `poetry.lock` for Python;
+or exact/hash-pinned requirements verified as such; `pyproject.toml` alone is
+project metadata, not a lockfile; `code/ado/` for Stata via `repado`). If absent
+or out-of-date, flag and halt.
 
 #### P0: Evidence and Provenance Enforcement (active during work)
 
@@ -161,19 +180,31 @@ All four fields (`date`, `description`, `file`, `seed`) are **required**.
 **Idempotency**: check whether an entry with the same (`file`, `date`) already exists before
 appending. If it does, update it in-place rather than creating a duplicate.
 
+For `ML/Prediction` or ML implementation work, also create or update
+`c-research/specifications/<study-slug>-ml.md` before fitting or tuning. The ML
+specification/search ledger must record the goal and estimand or prediction
+target, target population, candidate models and features, preprocessing,
+split/resampling design, loss and metrics, tuning/search space and trial count,
+selection rule, seed, weights, and whether the final test set was inspected.
+Record manual fit loops and alternative feature, split, metric, or outcome
+branches as search candidates too.
+
 <!-- Manifest schema is also documented in cr-skill-research-workflow/SKILL.md
      Section "Active P0 Detection Mechanisms > 2. Specification Logging".
      Keep both in sync when modifying the schema. -->
 
-#### P0: Derivation Cross-Reference (Implementation tasks only)
+#### P0: Derivation Cross-Reference (Implementation tasks with derivations only)
 
-When the plan step is an Implementation task:
+When the plan step is an Implementation task and the plan or code declares a
+derivation artifact under `c-research/derivations/`:
 1. Load the corresponding derivation from `c-research/derivations/`
 2. Build a variable mapping table (derivation symbol → code variable)
 3. Verify functional form consistency between derivation and code
 4. Verify summation/integration limits match
 
 If a discrepancy is found: halt, document it in a comment, and resolve before proceeding.
+For ML implementation with no declared or detected derivation artifact, skip
+this derivation load and apply the ML skill's method and implementation checks.
 
 #### P0: Normative-Decision Gate (active during work)
 

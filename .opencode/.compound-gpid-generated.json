@@ -168,7 +168,7 @@
       "path": ".opencode/agents/cr-ml-methodology.md",
       "source": ".github/agents/cr-ml-methodology.agent.md",
       "kind": "agent",
-      "sha256": "33e3b0f165f44294a5cb5215fcf89921be71f413ee05bbf97bcb088904dbed9e",
+      "sha256": "dc149badc34028d13ddb023bc74ea4f510abf71daf6297d4d769bcbfb665b310",
       "executable": false
     },
     {
@@ -413,14 +413,14 @@
       "path": ".opencode/commands/cr-review.md",
       "source": ".github/prompts/cr-review.prompt.md",
       "kind": "command",
-      "sha256": "233746d5f608c2592e2d9b8d4fccd2a93b41a0652852e127245f2de8e49847bb",
+      "sha256": "bc36d4c368595053c7f39f6ee06f3865464869ca900bdb4de1b84888da0313d9",
       "executable": false
     },
     {
       "path": ".opencode/commands/cr-work.md",
       "source": ".github/prompts/cr-work.prompt.md",
       "kind": "command",
-      "sha256": "547888624f30d17328a612a2ed0e30407531ae241ab62a494dd01231fa0b6cdc",
+      "sha256": "ab4b70efdda17c5cc67cb6683fe349e19f082ab2fbcc82e66e3eeb82e88a14e3",
       "executable": false
     },
     {
@@ -2030,7 +2030,63 @@
       "path": ".opencode/skills/cr-skill-ml-economics/SKILL.md",
       "source": ".github/skills/cr-skill-ml-economics/SKILL.md",
       "kind": "skill",
-      "sha256": "a932b38c28e3614e200ace0fd16e070c94c9dbeb7690b241f1aa7710e8cb4e4b",
+      "sha256": "78243475aec72741e70a8a0408dfc95f81082ffbbb34b0b9e776c576c0419209",
+      "executable": false
+    },
+    {
+      "path": ".opencode/skills/cr-skill-ml-economics/references/econometric-causal-ml.md",
+      "source": ".github/skills/cr-skill-ml-economics/references/econometric-causal-ml.md",
+      "kind": "skill-resource",
+      "sha256": "522dc0f52f856a891510a288f143a995f071c49ca3f4f155cef0028f572431b0",
+      "executable": false
+    },
+    {
+      "path": ".opencode/skills/cr-skill-ml-economics/references/foundations-and-esl.md",
+      "source": ".github/skills/cr-skill-ml-economics/references/foundations-and-esl.md",
+      "kind": "skill-resource",
+      "sha256": "6397b6a9b9429efaffc2084b9c2462ed06e61afd54502a317415bbe9be61e7c5",
+      "executable": false
+    },
+    {
+      "path": ".opencode/skills/cr-skill-ml-economics/references/high-dimensional-and-regularized-methods.md",
+      "source": ".github/skills/cr-skill-ml-economics/references/high-dimensional-and-regularized-methods.md",
+      "kind": "skill-resource",
+      "sha256": "ccf308e6f658ced5c52b5ed5488872529b418a9c61fe80d3390973c69cbb5a5e",
+      "executable": false
+    },
+    {
+      "path": ".opencode/skills/cr-skill-ml-economics/references/implementation-python-scikit-learn.md",
+      "source": ".github/skills/cr-skill-ml-economics/references/implementation-python-scikit-learn.md",
+      "kind": "skill-resource",
+      "sha256": "b60f5388c902fcd6f44b71331d0f31eb1673c378073381a8af09a534ba654ebf",
+      "executable": false
+    },
+    {
+      "path": ".opencode/skills/cr-skill-ml-economics/references/implementation-r-tidymodels.md",
+      "source": ".github/skills/cr-skill-ml-economics/references/implementation-r-tidymodels.md",
+      "kind": "skill-resource",
+      "sha256": "1ed8bf398e2269cd2696204d7109edcfc4362fe6e8023af5dd405d63700a54bb",
+      "executable": false
+    },
+    {
+      "path": ".opencode/skills/cr-skill-ml-economics/references/splitting-resampling-and-evaluation.md",
+      "source": ".github/skills/cr-skill-ml-economics/references/splitting-resampling-and-evaluation.md",
+      "kind": "skill-resource",
+      "sha256": "2750a6046d41c34d405f8778022c844b75d8a66cbcc587e9bf2dabc5099d247a",
+      "executable": false
+    },
+    {
+      "path": ".opencode/skills/cr-skill-ml-economics/references/survey-panel-and-target-population.md",
+      "source": ".github/skills/cr-skill-ml-economics/references/survey-panel-and-target-population.md",
+      "kind": "skill-resource",
+      "sha256": "cf6ba79a2181548a540127d105e2c5341d05437b067f035843886925783aa5e1",
+      "executable": false
+    },
+    {
+      "path": ".opencode/skills/cr-skill-ml-economics/references/trees-ensembles-and-interpretation.md",
+      "source": ".github/skills/cr-skill-ml-economics/references/trees-ensembles-and-interpretation.md",
+      "kind": "skill-resource",
+      "sha256": "3ff698f00771c892eaed3a5492575debe61460bb2cd87e5e4b4e94b0c1fc0526",
       "executable": false
     },
     {
@@ -2058,7 +2114,7 @@
       "path": ".opencode/skills/cr-skill-research-integrity/SKILL.md",
       "source": ".github/skills/cr-skill-research-integrity/SKILL.md",
       "kind": "skill",
-      "sha256": "8048ac681013be4fd7b871d4e515539478c7434998863fefc19498589c124cfb",
+      "sha256": "bcd786bb7d40ebb01c2b25f418c0281d184fa62e04866b5e242c4d58a64ca98b",
       "executable": false
     },
     {

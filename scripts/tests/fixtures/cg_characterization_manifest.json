@@ -118,7 +118,7 @@
     {
       "path": ".claude/agents/cr-ml-methodology.md",
       "kind": "agent",
-      "sha256": "3e1527970ea1fe9c42faaed7785517f38a619e4ae4642b2e901d8211820e75b5"
+      "sha256": "42bfd5e00c7d87aee5800affaf3089d736ecdb9b4c224ac5747c151e7450f30c"
     },
     {
       "path": ".claude/agents/cr-provenance-audit.md",
@@ -248,7 +248,7 @@
     {
       "path": ".claude/commands/cg-setup.md",
       "kind": "command",
-      "sha256": "b45c8e295c964826af3a09e3711671f6ecd437fa4ad77c7be29a647e270523e4"
+      "sha256": "e9e3b725d9f04b99698aa0f68b67a6989d84f57d62785254f937b58a85dd49f6"
     },
     {
       "path": ".claude/commands/cg-strategy.md",
@@ -293,12 +293,12 @@
     {
       "path": ".claude/commands/cr-review.md",
       "kind": "command",
-      "sha256": "e502ab0f6d5cee126b4e8f0b5c421703730d65cada66930739c9f46aee0b6d56"
+      "sha256": "824b3efda9c1060c6478f843c9d3a27127fb7ac0d8c39e73c9e83369ec82adfc"
     },
     {
       "path": ".claude/commands/cr-work.md",
       "kind": "command",
-      "sha256": "938846793da6453b209e7eb6579115ab7c48811d56effd345ec297c9a472f1d0"
+      "sha256": "189cf7c784ddd16d8950f4c38fae5f3c97bea5b1869e5474a160bd28313fb7ae"
     },
     {
       "path": ".claude/commands/resume-templates.md",
@@ -308,7 +308,7 @@
     {
       "path": ".claude/commands/setup-templates.md",
       "kind": "prompt-support",
-      "sha256": "57eeb04d47c18d75ab69df5bc4e1a16b4dc278879ae25874e3fc930e571223f0"
+      "sha256": "fa015b1f7d17c562836be9ec691b744661678f36242be59cf43c0987e27db4dc"
     },
     {
       "path": ".claude/instructions/latex.instructions.md",
@@ -743,7 +743,7 @@
     {
       "path": ".claude/skills/cg-skill-setup/SKILL.md",
       "kind": "skill",
-      "sha256": "58a1dcac4dda722d2deabd6adeeac94fc0e35f7fbcde6f82fa300fc0150fad6d"
+      "sha256": "1551194eecf0cbf8fb5bc188ffcbaa4694057eb47cdf9b70d2a6f312963a5d84"
     },
     {
       "path": ".claude/skills/cg-skill-stata-best-practices/SKILL.md",
@@ -1443,7 +1443,47 @@
     {
       "path": ".claude/skills/cr-skill-ml-economics/SKILL.md",
       "kind": "skill",
-      "sha256": "a932b38c28e3614e200ace0fd16e070c94c9dbeb7690b241f1aa7710e8cb4e4b"
+      "sha256": "78243475aec72741e70a8a0408dfc95f81082ffbbb34b0b9e776c576c0419209"
+    },
+    {
+      "path": ".claude/skills/cr-skill-ml-economics/references/econometric-causal-ml.md",
+      "kind": "skill-resource",
+      "sha256": "522dc0f52f856a891510a288f143a995f071c49ca3f4f155cef0028f572431b0"
+    },
+    {
+      "path": ".claude/skills/cr-skill-ml-economics/references/foundations-and-esl.md",
+      "kind": "skill-resource",
+      "sha256": "6397b6a9b9429efaffc2084b9c2462ed06e61afd54502a317415bbe9be61e7c5"
+    },
+    {
+      "path": ".claude/skills/cr-skill-ml-economics/references/high-dimensional-and-regularized-methods.md",
+      "kind": "skill-resource",
+      "sha256": "ccf308e6f658ced5c52b5ed5488872529b418a9c61fe80d3390973c69cbb5a5e"
+    },
+    {
+      "path": ".claude/skills/cr-skill-ml-economics/references/implementation-python-scikit-learn.md",
+      "kind": "skill-resource",
+      "sha256": "b60f5388c902fcd6f44b71331d0f31eb1673c378073381a8af09a534ba654ebf"
+    },
+    {
+      "path": ".claude/skills/cr-skill-ml-economics/references/implementation-r-tidymodels.md",
+      "kind": "skill-resource",
+      "sha256": "1ed8bf398e2269cd2696204d7109edcfc4362fe6e8023af5dd405d63700a54bb"
+    },
+    {
+      "path": ".claude/skills/cr-skill-ml-economics/references/splitting-resampling-and-evaluation.md",
+      "kind": "skill-resource",
+      "sha256": "2750a6046d41c34d405f8778022c844b75d8a66cbcc587e9bf2dabc5099d247a"
+    },
+    {
+      "path": ".claude/skills/cr-skill-ml-economics/references/survey-panel-and-target-population.md",
+      "kind": "skill-resource",
+      "sha256": "cf6ba79a2181548a540127d105e2c5341d05437b067f035843886925783aa5e1"
+    },
+    {
+      "path": ".claude/skills/cr-skill-ml-economics/references/trees-ensembles-and-interpretation.md",
+      "kind": "skill-resource",
+      "sha256": "3ff698f00771c892eaed3a5492575debe61460bb2cd87e5e4b4e94b0c1fc0526"
     },
     {
       "path": ".claude/skills/cr-skill-publication-output/SKILL.md",
@@ -1463,7 +1503,7 @@
     {
       "path": ".claude/skills/cr-skill-research-integrity/SKILL.md",
       "kind": "skill",
-      "sha256": "8048ac681013be4fd7b871d4e515539478c7434998863fefc19498589c124cfb"
+      "sha256": "bcd786bb7d40ebb01c2b25f418c0281d184fa62e04866b5e242c4d58a64ca98b"
     },
     {
       "path": ".claude/skills/cr-skill-research-scoping/SKILL.md",
@@ -1600,7 +1640,7 @@
     {
       "path": ".agents/commands/cg-setup.md",
       "kind": "command",
-      "sha256": "d923efdf745d79da2223dfc28e5d2a77a829c0bab03fa31f14ffa0a9270dbae8"
+      "sha256": "9d8e607ed85ecd78412ed494d24ad95749c107ed0cf87d9196a772d5b619cdb4"
     },
     {
       "path": ".agents/commands/cg-strategy.md",
@@ -1645,12 +1685,12 @@
     {
       "path": ".agents/commands/cr-review.md",
       "kind": "command",
-      "sha256": "e186a81bb0fd31d75eb80d8ccc2d2f315966f8376a1a1ab12e1c4f10e804ca4b"
+      "sha256": "5ee95a9d163d43e4c1af63da6f2f3d1dac33d9c1deb3b7f7dd03f6c51bed84a6"
     },
     {
       "path": ".agents/commands/cr-work.md",
       "kind": "command",
-      "sha256": "a1e0122f843d1936d42ad7ffa4bd302374091b91200c9c6df65f897b0ac5869d"
+      "sha256": "13d5c7fd90ec39494534008439d4424691615296c72ebd5dc328d68a241955bc"
     },
     {
       "path": ".agents/commands/resume-templates.md",
@@ -1660,7 +1700,7 @@
     {
       "path": ".agents/commands/setup-templates.md",
       "kind": "prompt-support",
-      "sha256": "57eeb04d47c18d75ab69df5bc4e1a16b4dc278879ae25874e3fc930e571223f0"
+      "sha256": "fa015b1f7d17c562836be9ec691b744661678f36242be59cf43c0987e27db4dc"
     },
     {
       "path": ".agents/instructions/latex.instructions.md",
@@ -2165,7 +2205,7 @@
     {
       "path": ".agents/skills/cg-skill-setup/SKILL.md",
       "kind": "skill",
-      "sha256": "6271c6c54fea342186b8ff2216a22cb585ce8ac2089b55e18364d6995aab330b"
+      "sha256": "50d1fdef3af10b9fb39b3a41c50caa30b4dadd04fcdcdb07b0327f699c290687"
     },
     {
       "path": ".agents/skills/cg-skill-stata-best-practices/SKILL.md",
@@ -2880,7 +2920,7 @@
     {
       "path": ".agents/skills/cr-ml-methodology.md",
       "kind": "fallback-agent",
-      "sha256": "8d85bb284ba45890b201995c646717d9b3a824ebfeaaae1a76e522ed8c2ad8ff"
+      "sha256": "8a08a169873433011d78c16d5470741179d7b86890b9638092129d13d4109a3e"
     },
     {
       "path": ".agents/skills/cr-provenance-audit.md",
@@ -2930,7 +2970,47 @@
     {
       "path": ".agents/skills/cr-skill-ml-economics/SKILL.md",
       "kind": "skill",
-      "sha256": "a932b38c28e3614e200ace0fd16e070c94c9dbeb7690b241f1aa7710e8cb4e4b"
+      "sha256": "78243475aec72741e70a8a0408dfc95f81082ffbbb34b0b9e776c576c0419209"
+    },
+    {
+      "path": ".agents/skills/cr-skill-ml-economics/references/econometric-causal-ml.md",
+      "kind": "skill-resource",
+      "sha256": "522dc0f52f856a891510a288f143a995f071c49ca3f4f155cef0028f572431b0"
+    },
+    {
+      "path": ".agents/skills/cr-skill-ml-economics/references/foundations-and-esl.md",
+      "kind": "skill-resource",
+      "sha256": "6397b6a9b9429efaffc2084b9c2462ed06e61afd54502a317415bbe9be61e7c5"
+    },
+    {
+      "path": ".agents/skills/cr-skill-ml-economics/references/high-dimensional-and-regularized-methods.md",
+      "kind": "skill-resource",
+      "sha256": "ccf308e6f658ced5c52b5ed5488872529b418a9c61fe80d3390973c69cbb5a5e"
+    },
+    {
+      "path": ".agents/skills/cr-skill-ml-economics/references/implementation-python-scikit-learn.md",
+      "kind": "skill-resource",
+      "sha256": "b60f5388c902fcd6f44b71331d0f31eb1673c378073381a8af09a534ba654ebf"
+    },
+    {
+      "path": ".agents/skills/cr-skill-ml-economics/references/implementation-r-tidymodels.md",
+      "kind": "skill-resource",
+      "sha256": "1ed8bf398e2269cd2696204d7109edcfc4362fe6e8023af5dd405d63700a54bb"
+    },
+    {
+      "path": ".agents/skills/cr-skill-ml-economics/references/splitting-resampling-and-evaluation.md",
+      "kind": "skill-resource",
+      "sha256": "2750a6046d41c34d405f8778022c844b75d8a66cbcc587e9bf2dabc5099d247a"
+    },
+    {
+      "path": ".agents/skills/cr-skill-ml-economics/references/survey-panel-and-target-population.md",
+      "kind": "skill-resource",
+      "sha256": "cf6ba79a2181548a540127d105e2c5341d05437b067f035843886925783aa5e1"
+    },
+    {
+      "path": ".agents/skills/cr-skill-ml-economics/references/trees-ensembles-and-interpretation.md",
+      "kind": "skill-resource",
+      "sha256": "3ff698f00771c892eaed3a5492575debe61460bb2cd87e5e4b4e94b0c1fc0526"
     },
     {
       "path": ".agents/skills/cr-skill-publication-output/SKILL.md",
@@ -2950,7 +3030,7 @@
     {
       "path": ".agents/skills/cr-skill-research-integrity/SKILL.md",
       "kind": "skill",
-      "sha256": "8048ac681013be4fd7b871d4e515539478c7434998863fefc19498589c124cfb"
+      "sha256": "bcd786bb7d40ebb01c2b25f418c0281d184fa62e04866b5e242c4d58a64ca98b"
     },
     {
       "path": ".agents/skills/cr-skill-research-scoping/SKILL.md",
@@ -3095,7 +3175,7 @@
     {
       "path": ".agents/subagents/cr-ml-methodology.toml",
       "kind": "agent",
-      "sha256": "cbe20cedfdb6d1740c26ec5664125434dbbea1782e2467b788c42884b5738210"
+      "sha256": "b9e1c827a1c93e6a66816cab34b1739b034e766896d36ad86ec0ca207d30d668"
     },
     {
       "path": ".agents/subagents/cr-provenance-audit.toml",
@@ -3242,7 +3322,7 @@
     {
       "path": ".opencode/agents/cr-ml-methodology.md",
       "kind": "agent",
-      "sha256": "33e3b0f165f44294a5cb5215fcf89921be71f413ee05bbf97bcb088904dbed9e"
+      "sha256": "dc149badc34028d13ddb023bc74ea4f510abf71daf6297d4d769bcbfb665b310"
     },
     {
       "path": ".opencode/agents/cr-provenance-audit.md",
@@ -3372,7 +3452,7 @@
     {
       "path": ".opencode/commands/cg-setup.md",
       "kind": "command",
-      "sha256": "635f1737e4cf796f4601f83c7b04cbd6426b489b59d8069cfa3bcda12870739b"
+      "sha256": "e46c2d44db26acc84a1d9cf034ad06dffeb04134f79728b56128f8675d6136f0"
     },
     {
       "path": ".opencode/commands/cg-strategy.md",
@@ -3417,12 +3497,12 @@
     {
       "path": ".opencode/commands/cr-review.md",
       "kind": "command",
-      "sha256": "233746d5f608c2592e2d9b8d4fccd2a93b41a0652852e127245f2de8e49847bb"
+      "sha256": "bc36d4c368595053c7f39f6ee06f3865464869ca900bdb4de1b84888da0313d9"
     },
     {
       "path": ".opencode/commands/cr-work.md",
       "kind": "command",
-      "sha256": "547888624f30d17328a612a2ed0e30407531ae241ab62a494dd01231fa0b6cdc"
+      "sha256": "ab4b70efdda17c5cc67cb6683fe349e19f082ab2fbcc82e66e3eeb82e88a14e3"
     },
     {
       "path": ".opencode/commands/resume-templates.md",
@@ -3432,7 +3512,7 @@
     {
       "path": ".opencode/commands/setup-templates.md",
       "kind": "prompt-support",
-      "sha256": "57eeb04d47c18d75ab69df5bc4e1a16b4dc278879ae25874e3fc930e571223f0"
+      "sha256": "fa015b1f7d17c562836be9ec691b744661678f36242be59cf43c0987e27db4dc"
     },
     {
       "path": ".opencode/instructions/latex.instructions.md",
@@ -3872,7 +3952,7 @@
     {
       "path": ".opencode/skills/cg-skill-setup/SKILL.md",
       "kind": "skill",
-      "sha256": "1ce61d430236766535ce53dc2b0fb6c547365e0942c23d3aa8c0247113132ca0"
+      "sha256": "e660ef01c0ba00e698e2089050bcdb5c4d238094e342228269fca681af7ed26f"
     },
     {
       "path": ".opencode/skills/cg-skill-stata-best-practices/SKILL.md",
@@ -4572,7 +4652,47 @@
     {
       "path": ".opencode/skills/cr-skill-ml-economics/SKILL.md",
       "kind": "skill",
-      "sha256": "a932b38c28e3614e200ace0fd16e070c94c9dbeb7690b241f1aa7710e8cb4e4b"
+      "sha256": "78243475aec72741e70a8a0408dfc95f81082ffbbb34b0b9e776c576c0419209"
+    },
+    {
+      "path": ".opencode/skills/cr-skill-ml-economics/references/econometric-causal-ml.md",
+      "kind": "skill-resource",
+      "sha256": "522dc0f52f856a891510a288f143a995f071c49ca3f4f155cef0028f572431b0"
+    },
+    {
+      "path": ".opencode/skills/cr-skill-ml-economics/references/foundations-and-esl.md",
+      "kind": "skill-resource",
+      "sha256": "6397b6a9b9429efaffc2084b9c2462ed06e61afd54502a317415bbe9be61e7c5"
+    },
+    {
+      "path": ".opencode/skills/cr-skill-ml-economics/references/high-dimensional-and-regularized-methods.md",
+      "kind": "skill-resource",
+      "sha256": "ccf308e6f658ced5c52b5ed5488872529b418a9c61fe80d3390973c69cbb5a5e"
+    },
+    {
+      "path": ".opencode/skills/cr-skill-ml-economics/references/implementation-python-scikit-learn.md",
+      "kind": "skill-resource",
+      "sha256": "b60f5388c902fcd6f44b71331d0f31eb1673c378073381a8af09a534ba654ebf"
+    },
+    {
+      "path": ".opencode/skills/cr-skill-ml-economics/references/implementation-r-tidymodels.md",
+      "kind": "skill-resource",
+      "sha256": "1ed8bf398e2269cd2696204d7109edcfc4362fe6e8023af5dd405d63700a54bb"
+    },
+    {
+      "path": ".opencode/skills/cr-skill-ml-economics/references/splitting-resampling-and-evaluation.md",
+      "kind": "skill-resource",
+      "sha256": "2750a6046d41c34d405f8778022c844b75d8a66cbcc587e9bf2dabc5099d247a"
+    },
+    {
+      "path": ".opencode/skills/cr-skill-ml-economics/references/survey-panel-and-target-population.md",
+      "kind": "skill-resource",
+      "sha256": "cf6ba79a2181548a540127d105e2c5341d05437b067f035843886925783aa5e1"
+    },
+    {
+      "path": ".opencode/skills/cr-skill-ml-economics/references/trees-ensembles-and-interpretation.md",
+      "kind": "skill-resource",
+      "sha256": "3ff698f00771c892eaed3a5492575debe61460bb2cd87e5e4b4e94b0c1fc0526"
     },
     {
       "path": ".opencode/skills/cr-skill-publication-output/SKILL.md",
@@ -4592,7 +4712,7 @@
     {
       "path": ".opencode/skills/cr-skill-research-integrity/SKILL.md",
       "kind": "skill",
-      "sha256": "8048ac681013be4fd7b871d4e515539478c7434998863fefc19498589c124cfb"
+      "sha256": "bcd786bb7d40ebb01c2b25f418c0281d184fa62e04866b5e242c4d58a64ca98b"
     },
     {
       "path": ".opencode/skills/cr-skill-research-scoping/SKILL.md",
@@ -4739,7 +4859,7 @@
     {
       "path": ".kilo/agents/cr-ml-methodology.md",
       "kind": "agent",
-      "sha256": "33e3b0f165f44294a5cb5215fcf89921be71f413ee05bbf97bcb088904dbed9e"
+      "sha256": "dc149badc34028d13ddb023bc74ea4f510abf71daf6297d4d769bcbfb665b310"
     },
     {
       "path": ".kilo/agents/cr-provenance-audit.md",
@@ -4869,7 +4989,7 @@
     {
       "path": ".kilo/commands/cg-setup.md",
       "kind": "command",
-      "sha256": "77477f281f38df6fb2d5cb8755565d0cebf47cf7a03bc5837c03e14a6a7a41d5"
+      "sha256": "ab9871b2a2048d579e8ab11ef09eb5afb8bb384777b9134eeae34e15e96570c2"
     },
     {
       "path": ".kilo/commands/cg-strategy.md",
@@ -4914,12 +5034,12 @@
     {
       "path": ".kilo/commands/cr-review.md",
       "kind": "command",
-      "sha256": "d894fe751e9d66dedab4b76150d4494513705c9792b3aef7af8755d659b21aab"
+      "sha256": "79850fe95945c71eb8d3730be23f364a34a5c54071844eae895f928451af8130"
     },
     {
       "path": ".kilo/commands/cr-work.md",
       "kind": "command",
-      "sha256": "3a572731e8a462ef6e49db4c7ffc28a235ba7b9afbcced0667066ea7fea2f718"
+      "sha256": "6824d3203b5d3a275493f4f61527030f245aed849e89287dc2f64d0204da0bc7"
     },
     {
       "path": ".kilo/commands/resume-templates.md",
@@ -4929,7 +5049,7 @@
     {
       "path": ".kilo/commands/setup-templates.md",
       "kind": "prompt-support",
-      "sha256": "57eeb04d47c18d75ab69df5bc4e1a16b4dc278879ae25874e3fc930e571223f0"
+      "sha256": "fa015b1f7d17c562836be9ec691b744661678f36242be59cf43c0987e27db4dc"
     },
     {
       "path": ".kilo/instructions/latex.instructions.md",
@@ -5369,7 +5489,7 @@
     {
       "path": ".kilo/skills/cg-skill-setup/SKILL.md",
       "kind": "skill",
-      "sha256": "b2bb253db50e2984a27f14dcef3b84395f8f38c89398dcd8025e2e14bfb38b0b"
+      "sha256": "7968188e6c295f322a19f5983968c08880bec4548f672db5d54a416dcfb40c89"
     },
     {
       "path": ".kilo/skills/cg-skill-stata-best-practices/SKILL.md",
@@ -6069,7 +6189,47 @@
     {
       "path": ".kilo/skills/cr-skill-ml-economics/SKILL.md",
       "kind": "skill",
-      "sha256": "a932b38c28e3614e200ace0fd16e070c94c9dbeb7690b241f1aa7710e8cb4e4b"
+      "sha256": "78243475aec72741e70a8a0408dfc95f81082ffbbb34b0b9e776c576c0419209"
+    },
+    {
+      "path": ".kilo/skills/cr-skill-ml-economics/references/econometric-causal-ml.md",
+      "kind": "skill-resource",
+      "sha256": "522dc0f52f856a891510a288f143a995f071c49ca3f4f155cef0028f572431b0"
+    },
+    {
+      "path": ".kilo/skills/cr-skill-ml-economics/references/foundations-and-esl.md",
+      "kind": "skill-resource",
+      "sha256": "6397b6a9b9429efaffc2084b9c2462ed06e61afd54502a317415bbe9be61e7c5"
+    },
+    {
+      "path": ".kilo/skills/cr-skill-ml-economics/references/high-dimensional-and-regularized-methods.md",
+      "kind": "skill-resource",
+      "sha256": "ccf308e6f658ced5c52b5ed5488872529b418a9c61fe80d3390973c69cbb5a5e"
+    },
+    {
+      "path": ".kilo/skills/cr-skill-ml-economics/references/implementation-python-scikit-learn.md",
+      "kind": "skill-resource",
+      "sha256": "b60f5388c902fcd6f44b71331d0f31eb1673c378073381a8af09a534ba654ebf"
+    },
+    {
+      "path": ".kilo/skills/cr-skill-ml-economics/references/implementation-r-tidymodels.md",
+      "kind": "skill-resource",
+      "sha256": "1ed8bf398e2269cd2696204d7109edcfc4362fe6e8023af5dd405d63700a54bb"
+    },
+    {
+      "path": ".kilo/skills/cr-skill-ml-economics/references/splitting-resampling-and-evaluation.md",
+      "kind": "skill-resource",
+      "sha256": "2750a6046d41c34d405f8778022c844b75d8a66cbcc587e9bf2dabc5099d247a"
+    },
+    {
+      "path": ".kilo/skills/cr-skill-ml-economics/references/survey-panel-and-target-population.md",
+      "kind": "skill-resource",
+      "sha256": "cf6ba79a2181548a540127d105e2c5341d05437b067f035843886925783aa5e1"
+    },
+    {
+      "path": ".kilo/skills/cr-skill-ml-economics/references/trees-ensembles-and-interpretation.md",
+      "kind": "skill-resource",
+      "sha256": "3ff698f00771c892eaed3a5492575debe61460bb2cd87e5e4b4e94b0c1fc0526"
     },
     {
       "path": ".kilo/skills/cr-skill-publication-output/SKILL.md",
@@ -6089,7 +6249,7 @@
     {
       "path": ".kilo/skills/cr-skill-research-integrity/SKILL.md",
       "kind": "skill",
-      "sha256": "8048ac681013be4fd7b871d4e515539478c7434998863fefc19498589c124cfb"
+      "sha256": "bcd786bb7d40ebb01c2b25f418c0281d184fa62e04866b5e242c4d58a64ca98b"
     },
     {
       "path": ".kilo/skills/cr-skill-research-scoping/SKILL.md",

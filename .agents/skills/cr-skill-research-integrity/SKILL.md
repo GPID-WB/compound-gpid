@@ -98,16 +98,26 @@ forests, train/test split) without an explicit random seed. Results change on
 every run, preventing exact reproducibility.
 
 **Detection patterns**:
-Scan code files for these functions/patterns WITHOUT a preceding seed:
+Scan code files for stochastic functions or configurations WITHOUT a preceding
+seed. First determine whether the operation actually randomizes. A deterministic
+splitter or estimator does not require an invented seed.
 
 | Language | Random Functions to Check | Seed Function |
 |----------|--------------------------|---------------|
-| R | `sample()`, `rnorm()`, `runif()`, `boot()`, `cv.glm()`, `randomForest()`, `sample_n()`, `createFolds()` | `set.seed(N)` |
-| Python | `np.random.*`, `random.*`, `sklearn.model_selection.*`, `torch.*`, `keras.*` | `rng = np.random.default_rng(N)` (modern, preferred) or `np.random.seed(N)` (legacy, accepted) |
+| R | `sample()`, `rnorm()`, `runif()`, `boot()`, `cv.glm()`, `cv.glmnet()`, `randomForest()`, `sample_n()`, randomized resampling, or stochastic engines | `set.seed(N)` |
+| Python | `np.random.*`, `random.*`, randomized search, `shuffle=True`, randomized SVD, stochastic estimators, `torch.*`, or `keras.*` | `random_state=N`, estimator `seed=N`, `rng = np.random.default_rng(N)` (modern, preferred), or `np.random.seed(N)` (legacy, accepted) |
 | Stata | `bootstrap`, `simulate`, `permute` | `set seed N` |
 
+`KFold`, `GroupKFold`, `StratifiedKFold`, `TimeSeriesSplit`, and equivalent
+splitters with `shuffle=False` are deterministic for fixed input ordering and
+do not require `random_state`. `RidgeCV`, `glmnet()`, and other deterministic
+fits likewise do not need a seed unless their configured engine or resampling
+path introduces randomness. Record the splitter parameters and input ordering.
+
 **Remediation**:
-1. Add `set.seed(<n>)` / `np.random.seed(<n>)` / `set seed <n>` immediately before the first random call in each code block
+1. Add `set.seed(<n>)`, `random_state=<n>`, estimator `seed=<n>`,
+   `np.random.seed(<n>)`, or `set seed <n>` immediately before or on the first
+   stochastic call in each code block
 2. Choose seed values deliberately (e.g., 42, 12345) — document why in `c-research/results/manifest.json`
 3. For bootstrap: set seed once before the bootstrap call, not inside the bootstrap function
 

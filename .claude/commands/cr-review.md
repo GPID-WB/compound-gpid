@@ -123,11 +123,17 @@ Based on the task type identified in the plan:
 | Measurement/Classification | @cr-measurement-integrity |
 | Tables/Figures | @cr-publication-output, @cg-documentation *(dispatch @cg-documentation only if the file defines exported functions)* |
 | EDA | @cg-performance, @cg-data-quality *(No CR agent — @cr-eda-reviewer planned for future phase)* |
-| Implementation | @cg-performance, @cr-ml-methodology, @cr-specification-analysis, @cr-publication-output *(if output-producing calls found — the agent's skip guard prevents spurious findings on files with no output code)* |
+| Implementation | @cg-performance, @cr-specification-analysis, @cr-publication-output *(if output-producing calls found — the agent's skip guard prevents spurious findings on files with no output code)*; @cr-ml-methodology only when ML signals are present |
 | Research Scoping | @cr-specification-analysis, @cr-provenance-audit |
 
 For thorough review depth: also dispatch @cg-learnings-researcher to cross-reference
 past solutions in `.cg-docs/solutions/`.
+
+For `Implementation`, dispatch `@cr-ml-methodology` only when the plan or
+reviewed files contain ML signals such as `LASSO`, `ridge`, `elastic net`,
+`RandomForest`, boosting, `Pipeline`, `tidymodels`, `DoubleML`, causal forests,
+cross-fitting, model tuning, or prediction/evaluation code. Generic estimator
+implementation without those signals does not activate the ML reviewer.
 
 **Mixed-format files**: If the submitted file has extension `.Rnw`, `.qmd`, `.Rmd`,
 or `.ipynb` (files combining prose and code), dispatch **both** `@cr-academic-writing`
