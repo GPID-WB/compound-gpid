@@ -258,6 +258,12 @@
           "title": "Skill description length cap with test enforcement [from CE]",
           "status": "idea",
           "plan": null
+        },
+        {
+          "id": "cr-ml-skill-redesign-for-econometricians",
+          "title": "CR ML Skill Redesign for Econometricians",
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-09-03-cr-ml-skill-redesign.md"
         }
       ]
     },
