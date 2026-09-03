@@ -1,31 +1,28 @@
 {
   "schemaVersion": "compound-gpid-active-state-v1",
-  "updatedAt": "2026-09-02T19:20:00Z",
+  "updatedAt": "2026-09-03T14:01:11Z",
   "workflow": "/cr-work",
   "status": "complete",
-  "branch": "research/ai-knowledge-work-presentation",
-  "plan": ".cg-docs/plans/2026-09-02-c-research-output-workspace-migration.md",
-  "executionReport": ".cg-docs/work-reports/2026-09-02-c-research-output-workspace-migration.md",
-  "currentPhase": 7,
+  "branch": "feat/cr-ml-skill-redesign",
+  "plan": ".cg-docs/plans/2026-09-03-cr-ml-skill-redesign.md",
+  "executionReport": ".cg-docs/work-reports/2026-09-03-cr-ml-skill-redesign.md",
+  "currentPhase": null,
   "evidenceStatus": [
-    {"id": "V1", "status": "passed", "artifact": "c-research README and path-contract tests"},
-    {"id": "V2", "status": "passed", "artifact": "Migration inventory and 29 focused layout tests; real check is up-to-date"},
-    {"id": "V3", "status": "passed", "artifact": "Setup c-research scaffold contract tests"},
-    {"id": "V4", "status": "passed", "artifact": "Cross-platform migration hook contract tests"},
-    {"id": "V5", "status": "passed", "artifact": "Canonical 21-slide manuscript, retained superseded alternate, and legacy root removed"},
-    {"id": "V6", "status": "passed", "artifact": "Active source scan and evidence docs contract"},
-    {"id": "V7", "status": "passed", "artifact": "Evidence runtime containment and 122 package tests"},
-    {"id": "V8", "status": "passed", "artifact": "Final Brain rebuild: 727 entities, 5 topics, 316 edges; exclusion, scanner, and docs tests"},
-    {"id": "V9", "status": "passed", "artifact": "1,222 generated files; target drift, characterization, platform, and mapping tests green"},
-    {"id": "V10", "status": "passed", "artifact": "Strict migration classification, race fixtures, and zero operational stale paths"},
-    {"id": "V11", "status": "passed", "artifact": "Protected fixtures, inbox, views, and legacy-root audit"},
-    {"id": "V12", "status": "passed", "artifact": "890 repository pytest, 122 evidence pytest, 2,446 safe Pester, migration check, diagnostics, and diff check"}
+    {"id": "V1", "status": "passed", "artifact": "Phase 1 focused pytest slice"},
+    {"id": "V2", "status": "passed", "artifact": "Phase 1 focused pytest slice"},
+    {"id": "V3", "status": "passed", "artifact": "Phase 2 focused pytest slice"},
+    {"id": "V4", "status": "passed", "artifact": "Phase 3 complete CR ML pytest contract"},
+    {"id": "V5", "status": "passed", "artifact": "CR routing and baseline tests"},
+    {"id": "V6", "status": "passed", "artifact": "scripts/tests/fixtures/cr_ml_skill_evaluation.json"},
+    {"id": "V7", "status": "passed", "artifact": "target packaging and drift tests"},
+    {"id": "V8", "status": "passed", "artifact": "frontmatter and documentation tests"},
+    {"id": "V9", "status": "passed", "artifact": "context audit"},
+    {"id": "V10", "status": "passed", "artifact": "tests/last-run.json"}
   ],
   "unresolvedDecisions": [],
   "artifactRefs": [
-    {"kind": "plan", "path": ".cg-docs/plans/2026-09-02-c-research-output-workspace-migration.md", "status": "completed"},
-    {"kind": "execution-report", "path": ".cg-docs/work-reports/2026-09-02-c-research-output-workspace-migration.md", "status": "completed"},
-    {"kind": "review", "path": ".cg-docs/reviews/2026-09-02-c-research-output-workspace-migration-review.md", "status": "all-fixed"}
+    {"kind": "plan", "path": ".cg-docs/plans/2026-09-03-cr-ml-skill-redesign.md", "status": "completed"},
+    {"kind": "execution-report", "path": ".cg-docs/work-reports/2026-09-03-cr-ml-skill-redesign.md", "status": "handoff"}
   ],
-  "nextCommand": "/cg-compound"
+  "nextCommand": "/cg-review data-risk"
 }
