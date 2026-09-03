@@ -214,9 +214,9 @@ function generateCommandTable(root, prefix) {
   if (files.length === 0) fail(`no canonical '${prefix}*.prompt.md' prompts found`);
   const rows = files.map((file) => {
     const command = `/${path.basename(file, ".prompt.md")}`;
-    return `| \`${command}\` | ${escapeCell(promptDescription(path.join(promptsDir, file)))} |`;
+    return `| \`${command}\` | Copilot model picker | ${escapeCell(promptDescription(path.join(promptsDir, file)))} |`;
   });
-  return `| Prompt | Purpose |\n|--------|---------|\n${rows.join("\n")}\n`;
+  return `| Prompt | Model | Purpose |\n|--------|-------|---------|\n${rows.join("\n")}\n`;
 }
 
 // ---------------------------------------------------------------------------
@@ -345,7 +345,7 @@ function runRebuild(root, { check = false, all = false, verifyFingerprint = null
   for (const page of pages) {
     if (page.ownership !== "auto") continue;
     const target = resolveInside(root, path.join("docs", page.file));
-    const docsDir = path.join(root, "docs");
+    const docsDir = fs.realpathSync(path.join(root, "docs"));
     if (path.dirname(target) !== docsDir) fail(`auto page '${page.id}' must live in docs/ root`);
     for (const section of page.sections) {
       if (!OWNERS[section]) fail(`declared managed section '${section}' on '${page.id}' has no recognized owner`);

@@ -164,35 +164,35 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 ## Copilot Chat Prompts
 
 <!-- cg:auto:commands -->
-| Prompt | Purpose |
-|--------|---------|
-| `/cg-brain-rebuild` | Rebuild the project knowledge brain (BRAIN.md + indexes). |
-| `/cg-brainstorm` | Brainstorm answers about what to build and how. Use when requirements are fuzzy. |
-| `/cg-commit-push-pr` | Stage changes into logical commits, push, and open a PR with plan-driven description. |
-| `/cg-compound-gpid-rd` | Research public GitHub repos for features to integrate into Compound GPID and manage the review registry. Developer-only. |
-| `/cg-compound-refresh` | Audit and refresh .cg-docs/solutions/ for staleness, drift, and consolidation opportunities. |
-| `/cg-compound` | Capture a solved problem as reusable knowledge. Offers canonical .github/ updates; the user applies them manually after fixing a non-trivial issue. |
-| `/cg-devtag` | Create a dev tag (v&lt;MAJOR&gt;.&lt;MINOR&gt;.&lt;PATCH&gt;.9000+) on the current branch and push it to origin. Enables end-to-end installation testing via cg-update before an official release. Developer-only. |
-| `/cg-diagnose` | Diagnose VS Code crashes. Inspects logs, classifies the crash category, checks for uncommitted work, and recommends recovery steps. |
-| `/cg-fix-problems` | Interactive VS Code diagnostics fixer. Scans all workspace files for errors, warnings, and info diagnostics, lets the user select scope and severity, then applies fixes. Dispatches @cg-fix-problems agent. |
-| `/cg-fix-triage` | Apply review findings from a saved review report. Fixes all findings or a subset by ID/priority. |
-| `/cg-fixbug` | Structured bug-fix workflow: establish the expected-behavior source in Step 1.5, perform test-gap classification in Step 2.5, and require red-green proof. |
-| `/cg-ideate` | Generate, critique, and filter improvement ideas for the project. Use before /cg-brainstorm when you want to discover what to work on next. |
-| `/cg-issues` | Manage GitHub Issues linked to roadmap work items. Modes: status (default, read-only), backfill, link, adopt, setup. |
-| `/cg-plan-review` | Review an implementation plan for risks, over-engineering, missing edge cases, and flawed assumptions. Use after /cg-plan or on any existing plan. |
-| `/cg-plan` | Create a structured implementation plan with research. Use after brainstorming or when requirements are clear. |
-| `/cg-release` | Create a GitHub Release for compound-gpid. Detects the next semver tag from git history, drafts curated release notes, checks SCHEMA_VERSION, confirms with the user, and publishes. Developer-only — guarded to the compound-gpid repo; Step 0 stops execution in consumer projects. |
-| `/cg-render-doc` | Render a workflow artifact or generic Markdown document to curated HTML. Routes typed artifacts to cg-render-artifact and generic documents to cg-publish-markdown. Supports --theme selection (reference or editorial). |
-| `/cg-resume` | Load context and resume interrupted work. Use at the start of a session to pick up where you left off. |
-| `/cg-review` | Run multi-agent code review on recent changes. Produces prioritized P0/P1/P2/P3 findings. |
-| `/cg-roadmap-view` | Visualize the project roadmap in chat. Supports flags: --milestone, --tasks, --detail, --status, --wip, --plan, --help. Dispatches @cg-roadmap-view agent for rendering. |
-| `/cg-setup` | Configure Compound GPID for this project and load context for returning projects. |
-| `/cg-skill` | Discover, import, validate, activate, update, audit, deprecate, and remove skills through one lifecycle command. |
-| `/cg-strategy` | Strategic project visioning and direction-setting. Use when you have a full project in mind to structure, or when you need to rethink direction mid-project. Dispatches @cg-roadmap for all roadmap writes. |
-| `/cg-token-audit` | Analyze Compound GPID token/context usage and suggest cost-efficient workflow choices. |
-| `/cg-verify-pr` | Check CI status on current PR, classify failures, and auto-fix with review agents. Use --propose for observe-only diagnosis. |
-| `/cg-wiki` | Manage the project wiki: initialize, rebuild pages, restructure sections, check status, or convert to GitHub Wiki format. |
-| `/cg-work` | Implement a /cg-plan plan. Supports /cg-work [phaseX], review, and deviate controls. |
+| Prompt | Model | Purpose |
+|--------|-------|---------|
+| `/cg-brain-rebuild` | Copilot model picker | Rebuild the project knowledge brain (BRAIN.md + indexes). |
+| `/cg-brainstorm` | Copilot model picker | Brainstorm answers about what to build and how. Use when requirements are fuzzy. |
+| `/cg-commit-push-pr` | Copilot model picker | Stage changes into logical commits, push, and open a PR with plan-driven description. |
+| `/cg-compound-gpid-rd` | Copilot model picker | Research public GitHub repos for features to integrate into Compound GPID and manage the review registry. Developer-only. |
+| `/cg-compound-refresh` | Copilot model picker | Audit and refresh .cg-docs/solutions/ for staleness, drift, and consolidation opportunities. |
+| `/cg-compound` | Copilot model picker | Capture a solved problem as reusable knowledge. Offers canonical .github/ updates; the user applies them manually after fixing a non-trivial issue. |
+| `/cg-devtag` | Copilot model picker | Create a dev tag (v&lt;MAJOR&gt;.&lt;MINOR&gt;.&lt;PATCH&gt;.9000+) on the current branch and push it to origin. Enables end-to-end installation testing via cg-update before an official release. Developer-only. |
+| `/cg-diagnose` | Copilot model picker | Diagnose VS Code crashes. Inspects logs, classifies the crash category, checks for uncommitted work, and recommends recovery steps. |
+| `/cg-fix-problems` | Copilot model picker | Interactive VS Code diagnostics fixer. Scans all workspace files for errors, warnings, and info diagnostics, lets the user select scope and severity, then applies fixes. Dispatches @cg-fix-problems agent. |
+| `/cg-fix-triage` | Copilot model picker | Apply review findings from a saved review report. Fixes all findings or a subset by ID/priority. |
+| `/cg-fixbug` | Copilot model picker | Structured bug-fix workflow: establish the expected-behavior source in Step 1.5, perform test-gap classification in Step 2.5, and require red-green proof. |
+| `/cg-ideate` | Copilot model picker | Generate, critique, and filter improvement ideas for the project. Use before /cg-brainstorm when you want to discover what to work on next. |
+| `/cg-issues` | Copilot model picker | Manage GitHub Issues linked to roadmap work items. Modes: status (default, read-only), backfill, link, adopt, setup. |
+| `/cg-plan-review` | Copilot model picker | Review an implementation plan for risks, over-engineering, missing edge cases, and flawed assumptions. Use after /cg-plan or on any existing plan. |
+| `/cg-plan` | Copilot model picker | Create a structured implementation plan with research. Use after brainstorming or when requirements are clear. |
+| `/cg-release` | Copilot model picker | Create a GitHub Release for compound-gpid. Detects the next semver tag from git history, drafts curated release notes, checks SCHEMA_VERSION, confirms with the user, and publishes. Developer-only — guarded to the compound-gpid repo; Step 0 stops execution in consumer projects. |
+| `/cg-render-doc` | Copilot model picker | Render a workflow artifact or generic Markdown document to curated HTML. Routes typed artifacts to cg-render-artifact and generic documents to cg-publish-markdown. Supports --theme selection (reference or editorial). |
+| `/cg-resume` | Copilot model picker | Load context and resume interrupted work. Use at the start of a session to pick up where you left off. |
+| `/cg-review` | Copilot model picker | Run multi-agent code review on recent changes. Produces prioritized P0/P1/P2/P3 findings. |
+| `/cg-roadmap-view` | Copilot model picker | Visualize the project roadmap in chat. Supports flags: --milestone, --tasks, --detail, --status, --wip, --plan, --help. Dispatches @cg-roadmap-view agent for rendering. |
+| `/cg-setup` | Copilot model picker | Configure Compound GPID for this project and load context for returning projects. |
+| `/cg-skill` | Copilot model picker | Discover, import, validate, activate, update, audit, deprecate, and remove skills through one lifecycle command. |
+| `/cg-strategy` | Copilot model picker | Strategic project visioning and direction-setting. Use when you have a full project in mind to structure, or when you need to rethink direction mid-project. Dispatches @cg-roadmap for all roadmap writes. |
+| `/cg-token-audit` | Copilot model picker | Analyze Compound GPID token/context usage and suggest cost-efficient workflow choices. |
+| `/cg-verify-pr` | Copilot model picker | Check CI status on current PR, classify failures, and auto-fix with review agents. Use --propose for observe-only diagnosis. |
+| `/cg-wiki` | Copilot model picker | Manage the project wiki: initialize, rebuild pages, restructure sections, check status, or convert to GitHub Wiki format. |
+| `/cg-work` | Copilot model picker | Implement a /cg-plan plan. Supports /cg-work [phaseX], review, and deviate controls. |
 <!-- cg:auto:end -->
 
 ### `/cg-commit-push-pr` Base And Preflight Contract
@@ -266,13 +266,13 @@ language, review, knowledge, and publication capabilities without depending on
 the technical command suite.
 
 <!-- cg:auto:research-commands -->
-| Prompt | Purpose |
-|--------|---------|
-| `/cr-brainstorm` | Research brainstorm — clarify fuzzy research requirements. Classifies task type (theory, EDA, implementation, ML, writing, etc.) and guides methodology decisions. Use for economics and econometrics research tasks. |
-| `/cr-compound` | Research compound — capture a solved research problem for future reuse. Extends /cg-compound with research-specific categories: identification, specification, derivation, ml-methodology, reproducibility. |
-| `/cr-plan` | Research plan — structured implementation plan for research tasks. Use after /cr-brainstorm to create concrete steps. |
-| `/cr-review` | Research review — multi-agent code and methodology review. Orchestrates cg-* agents (code quality, testing, reproducibility) and cr-* agents (research integrity, mathematical verification, identification audit, econometric reasoning). Produces prioritized P0/P1/P2/P3 findings. |
-| `/cr-work` | Research work — implement a research plan step by step. Supports /cr-work [phaseX]. Enforces P0 seed, provenance, and specification logging requirements. |
+| Prompt | Model | Purpose |
+|--------|-------|---------|
+| `/cr-brainstorm` | Copilot model picker | Research brainstorm — clarify fuzzy research requirements. Classifies task type (theory, EDA, implementation, ML, writing, etc.) and guides methodology decisions. Use for economics and econometrics research tasks. |
+| `/cr-compound` | Copilot model picker | Research compound — capture a solved research problem for future reuse. Extends /cg-compound with research-specific categories: identification, specification, derivation, ml-methodology, reproducibility. |
+| `/cr-plan` | Copilot model picker | Research plan — structured implementation plan for research tasks. Use after /cr-brainstorm to create concrete steps. |
+| `/cr-review` | Copilot model picker | Research review — multi-agent code and methodology review. Orchestrates cg-* agents (code quality, testing, reproducibility) and cr-* agents (research integrity, mathematical verification, identification audit, econometric reasoning). Produces prioritized P0/P1/P2/P3 findings. |
+| `/cr-work` | Copilot model picker | Research work — implement a research plan step by step. Supports /cr-work [phaseX]. Enforces P0 seed, provenance, and specification logging requirements. |
 <!-- cg:auto:end -->
 
 The research lifecycle is `Scope -> Evidence -> Theory -> Method -> Execute ->

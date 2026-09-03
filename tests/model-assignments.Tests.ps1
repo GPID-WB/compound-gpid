@@ -177,7 +177,7 @@ Describe "docs/reference.md - ordinary prompt model picker sync" {
         "/cg-ideate",
         "/cg-plan",
         "/cg-plan-review",
-        "/cg-review-repos",
+        "/cg-compound-gpid-rd",
         "/cg-strategy"
     )
 

@@ -59,6 +59,7 @@ def _run_isolated_update(tmp_path: Path, failure: str) -> tuple[subprocess.Compl
     python_body = (
         "#!/bin/sh\n"
         "[ \"$1\" = '--version' ] && { printf '%s\\n' 'Python 3.11.0'; exit 0; }\n"
+        "[ \"$1\" = '-c' ] && exit 0\n"
         "exit 9\n"
     )
     if failure == "Python unavailable":
