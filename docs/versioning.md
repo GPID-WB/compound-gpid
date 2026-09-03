@@ -249,19 +249,48 @@ If missing or corrupted, delete it and run `cg-update` — it defaults to `lates
 
 ---
 
-## Dev tags (maintainer-only)
+## Four-component prerelease tags (maintainer-only)
 
-Dev tags follow the convention `v<MAJOR>.<MINOR>.<PATCH>.<DEV>` where DEV starts at 9000 (e.g. `v0.1.0.9000`, `v0.1.0.9001`). They are used to test a pre-release commit end-to-end via `cg-update` **before** merging to `main` and cutting an official release.
+Prerelease tags follow the convention `v<MAJOR>.<MINOR>.<PATCH>.<BUILD>` where
+BUILD starts at 9000 (for example, `v1.2.0.9000` and `v1.2.0.9001`). They let
+maintainers publish an installable GitHub prerelease and test the complete
+release path through `cg-update` before promoting a stable three-component
+release.
 
-**Dev tags are invisible to regular users:**
+**Prerelease tags stay out of the stable update channel:**
 
 - `cg-update --list` shows only 3-component release tags.
-- The "Newer release available" hint is never triggered by a dev tag.
+- The "Newer release available" hint is never triggered by a prerelease tag.
 - `cg-update` (bare) and `cg-update latest` pull `main` and are unaware of any tags.
+- Testers can install a known prerelease explicitly with `cg-update v1.2.0.9008`.
 
-### Creating a dev tag
+### Publishing an installable prerelease
 
-Use the `/cg-devtag` prompt in Copilot Chat — it auto-increments from the latest dev tag for the current base version, confirms with you, and pushes:
+From a clean `dev` checkout whose `HEAD` matches `origin/dev`, run:
+
+```text
+/cg-release v1.2.0.9008
+```
+
+The release workflow creates the durable payload, exact tag, immutable Pages
+deployment, and GitHub Release record. A four-component tag is automatically
+marked as a GitHub prerelease. It is accepted by both new-release and
+`--resume` flows. Stable three-component releases remain restricted to a clean,
+up-to-date `main` checkout.
+
+Published prerelease tags are immutable release records. Do not delete or reuse
+them; increment the build component for the next candidate.
+
+Only repository administrators can create release-shaped `v*` tags. The `dev`
+branch rejects deletion and force-pushes, and published tags reject every update
+or deletion. The release flow does not publish drafts because its durable
+payload and Pages deployment are public before the GitHub Release API record.
+
+### Creating a temporary dev tag
+
+Use `/cg-devtag` only for temporary branch testing that does not create a GitHub
+Release. It auto-increments from the latest dev tag for the current base
+version, confirms with you, and pushes:
 
 ```
 /cg-devtag
@@ -274,7 +303,7 @@ git tag v0.1.0.9000
 git push origin v0.1.0.9000
 ```
 
-### Testing with a dev tag
+### Testing with a prerelease or temporary dev tag
 
 From any linked project:
 
@@ -284,9 +313,11 @@ cg-update v0.1.0.9000
 
 This checks out the tagged commit in the global clone. All linked projects immediately see the new code via junctions.
 
-### Cleaning up
+### Cleaning up temporary tags
 
-After testing, delete the dev tag locally and from the remote:
+Delete a tag only when it was created temporarily with `/cg-devtag` and never
+published as a GitHub Release. After testing, delete that temporary tag locally
+and from the remote:
 
 ```powershell
 git tag -d v0.1.0.9000

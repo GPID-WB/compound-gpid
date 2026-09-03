@@ -9,7 +9,7 @@
 #   1b. Verifies Python is available (required for cg-index and cg-token-audit).
 #   2. Tests that symlinks can be created on this machine.
 #   3. Creates bash wrappers in bin/ and adds bin/ to PATH via shell profile
-#      so cg-link, cg-unlink, cg-update are available from any terminal.
+#      so cg-link, cg-unlink, cg-update, and cg-skill are available from any terminal.
 #   4. Initializes .cg-version with "latest" (if not already set).
 #
 # Options:
@@ -206,6 +206,10 @@ print_gray "Creating cg-* commands in bin/..."
 BIN_DIR="$COMPOUND_GPID_DIR/bin"
 mkdir -p "$BIN_DIR"
 
+# Remove the retired discovery wrappers during upgrade. No compatibility alias
+# is retained after the public cg-skill migration.
+rm -f "$BIN_DIR/cg-find-skill" "$BIN_DIR/cg-find-skill.cmd"
+
 for cmd in link unlink update; do
     WRAPPER="$BIN_DIR/cg-$cmd"
     cat > "$WRAPPER" <<EOF
@@ -218,6 +222,38 @@ EOF
     chmod +x "$WRAPPER"
     print_gray "Created: $WRAPPER"
 done
+
+# cg-kilo is committed as the certified contained-launch source of truth.
+CG_KILO_SRC="$COMPOUND_GPID_DIR/bin/cg-kilo"
+CG_KILO_DST="$BIN_DIR/cg-kilo"
+if [[ ! -f "$CG_KILO_SRC" ]]; then
+    print_error "Certified Kilo launcher source is missing: $CG_KILO_SRC"
+    printf 'Run cg-update --fix and retry installation.\n' >&2
+    exit 1
+fi
+if [[ "$CG_KILO_SRC" != "$CG_KILO_DST" ]]; then
+    cp "$CG_KILO_SRC" "$CG_KILO_DST"
+else
+    print_gray "Already present: $CG_KILO_DST"
+fi
+chmod +x "$CG_KILO_DST"
+print_gray "Registered: $BIN_DIR/cg-kilo"
+
+# cg-skill is committed as the descriptor-driven lifecycle source of truth.
+CG_SKILL_SRC="$COMPOUND_GPID_DIR/bin/cg-skill"
+CG_SKILL_DST="$BIN_DIR/cg-skill"
+if [[ ! -f "$CG_SKILL_SRC" ]]; then
+    print_error "Skill-management launcher source is missing: $CG_SKILL_SRC"
+    printf 'Run cg-update --fix and retry installation.\n' >&2
+    exit 1
+fi
+if [[ "$CG_SKILL_SRC" != "$CG_SKILL_DST" ]]; then
+    cp "$CG_SKILL_SRC" "$CG_SKILL_DST"
+else
+    print_gray "Already present: $CG_SKILL_DST"
+fi
+chmod +x "$CG_SKILL_DST"
+print_gray "Registered: $BIN_DIR/cg-skill"
 
 # cg-index calls Python directly (not a .sh script), so it's generated
 # separately rather than inside the loop above.
@@ -443,6 +479,8 @@ printf '  cg-update  -- Pull latest updates                    (run from anywher
 printf '  cg-update <version>  -- Pin to a specific release (e.g. cg-update v0.2.0)\n'
 printf '  cg-update latest     -- Unpin and return to tracking main\n'
 printf '  cg-update --list     -- Browse available releases\n'
+printf '  cg-kilo    -- Certified contained Kilo launch (run from project root)\n'
+printf '  cg-skill   -- Manage the complete skill lifecycle (run from project root)\n'
 printf '  cg-render-artifact   -- Render or validate one workflow artifact\n'
 printf '  cg-publish-markdown  -- Publish one generic Markdown document\n'
 printf '  cg-token-audit       -- Analyze token/context usage  (run from project root)\n'

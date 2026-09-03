@@ -9,7 +9,7 @@ It maps Compound GPID `/cg-*` commands to native Claude Code paths.
 
 ## Skills
 
-Load skill files from `.claude/skills/*/SKILL.md`.
+Load skill files from `.claude/skills/*-skill-*/SKILL.md`.
 
 ## Agents
 

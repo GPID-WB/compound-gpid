@@ -10,6 +10,7 @@
   },
   "scripts": {
     "capture": "node scripts/evidence/capture.js",
-    "test": "node --test scripts/evidence/tests/*.test.js"
+    "test": "node --test scripts/evidence/tests/*.test.js",
+    "test:docs-automation": "node --test scripts/tests/rebuild-docs.test.js scripts/tests/generate-whats-new.test.js"
   }
 }

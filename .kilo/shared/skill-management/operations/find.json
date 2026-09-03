@@ -1,0 +1,13 @@
+{
+  "schema": "cg-skill-operation-descriptor-v1",
+  "operation": "find",
+  "version": 1,
+  "state": "active",
+  "roles": ["consumer"],
+  "phases": ["read"],
+  "handler": "skill_management.operations.find:handle",
+  "contract": ".kilo/shared/skill-management/contracts/find-v1.schema.json",
+  "workflow": ".kilo/skills/cg-skill-management/workflows/find.md",
+  "documentation": "docs/skills/management/commands/find.md",
+  "tests": ["scripts/tests/test_skill_management_read.py"]
+}

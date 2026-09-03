@@ -1,5 +1,5 @@
 ---
-description: "Implement a /cg-plan plan. Supports phaseX, review, deviate controls."
+description: "Implement a /cg-plan plan. Supports /cg-work [phaseX], review, and deviate controls."
 ---
 
 # Work

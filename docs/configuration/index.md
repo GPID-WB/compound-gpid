@@ -55,6 +55,10 @@ or raw secrets in any context file.
 skill, instruction, and shared contract to exactly one module. Modules form
 three layers:
 
+The `cg` suite includes the public `skill-management` capability. Use
+`/cg-skill help` to inspect lifecycle operations. Project skills stay inactive
+until their explicit capability is selected and the manifest is regenerated.
+
 | Layer | Responsibility |
 |---|---|
 | Kernel | Lifecycle contracts, context loading, target mapping, and core infrastructure |

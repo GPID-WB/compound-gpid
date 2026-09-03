@@ -367,6 +367,23 @@ Describe "update.ps1 - manifest-managed platform file refresh" {
     }
 }
 
+Describe "update.ps1 - Kilo coexistence preflight" {
+    It "runs the shared Kilo preflight helper for linked local skills" {
+        $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\update.ps1") -Raw -Encoding UTF8
+        $content | Should -Match 'Invoke-CgKiloPreflight'
+        $content | Should -Match 'RequireCoexistence'
+        $content | Should -Match 'LocalOnly'
+        $content | Should -Match 'cg-kilo'
+    }
+
+    It "does not mutate the caller environment for containment" {
+        $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\cg_kilo_preflight.py") -Raw -Encoding UTF8
+        $content | Should -Match 'environment = os\.environ\.copy\(\)'
+        $content | Should -Match 'KILO_DISABLE_EXTERNAL_SKILLS'
+        $content | Should -Match 'subprocess\.run'
+    }
+}
+
 Describe "update.ps1 - executable generation failure boundary" {
     It "exits before managed-file refresh when target mapping is missing" {
         $installRoot = Join-Path $TestDrive "isolated-update-install"
@@ -1926,5 +1943,28 @@ function cg-update { & "C:\WBG\.compound-gpid\scripts\update.ps1" @other }
 
             (Get-Content -Path $profilePath -Raw -Encoding UTF8) | Should -Be $expectedProfileContent
         }
+    }
+}
+
+Describe "update.ps1 - manifest projection recovery" {
+    It "syncs and verifies the projection for consumer projects" {
+        $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\update.ps1") -Raw -Encoding UTF8
+        $content | Should -Match 'Invoke-CgProjection'
+        $content | Should -Match 'Project projection synced and verified'
+    }
+
+    It "blocks update on projection failure" {
+        $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\update.ps1") -Raw -Encoding UTF8
+        $content | Should -Match 'blocked by manifest projection failure'
+    }
+
+    It "uses the same exact sync worker for hybrid Copilot bundles" {
+        $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\update.ps1") -Raw -Encoding UTF8
+        $mapping = Get-Content (Join-Path $PSScriptRoot "..\.github\shared\target-mapping.json") -Raw -Encoding UTF8 | ConvertFrom-Json
+        $copilot = @($mapping.targets | Where-Object { $_.id -eq "copilot" })[0]
+        @($copilot.projectedCategories)[0] | Should -Be "skills"
+        $content | Should -Match 'Invoke-CgProjection'
+        $content | Should -Match 'Mode sync'
+        $content | Should -Match 'updateIsSourceInstall'
     }
 }

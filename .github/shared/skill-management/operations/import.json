@@ -1,0 +1,18 @@
+{
+  "schema": "cg-skill-operation-descriptor-v1",
+  "operation": "import",
+  "version": 1,
+  "state": "active",
+  "roles": ["consumer"],
+  "phases": ["plan", "apply"],
+  "handler": "skill_management.operations.import_skill:handle",
+  "contract": ".github/shared/skill-management/contracts/import-v1.schema.json",
+  "workflow": ".github/skills/cg-skill-management/workflows/import.md",
+  "documentation": "docs/skills/management/commands/import.md",
+  "tests": [
+    "scripts/tests/test_skill_management_github_provider.py",
+    "scripts/tests/test_skill_management_project_lifecycle.py",
+    "scripts/tests/test_skill_management_security.py",
+    "scripts/tests/test_skill_management_vendor.py"
+  ]
+}

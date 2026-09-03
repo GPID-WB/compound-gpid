@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "tag": "v1.2.0.9007",
+  "publishedAt": "2026-08-25T00:08:05Z",
+  "releaseDate": "2026-08-24",
+  "name": "v1.2.0.9007 - Kilo compatibility, CI preflight, and secure dev prereleases",
+  "url": "https://github.com/GPID-WB/compound-gpid/releases/tag/v1.2.0.9007",
+  "sourceUrl": "https://github.com/GPID-WB/compound-gpid/tree/v1.2.0.9007",
+  "sections": [
+    {
+      "kind": "new",
+      "title": "Kilo compatibility, CI preflight, and secure dev prereleases",
+      "entries": [
+        "Localize Codex, Claude Code, and OpenCode compatibility skills under the project trust boundary with checksum-managed mirrors and safe migration.",
+        "Add one authoritative PR preflight for native targets, module validation, exact base selection, and bounded CI repair.",
+        "Restore four-component GitHub prereleases directly from dev with a read-only tag build and protected-main Pages deployment controller."
+      ]
+    },
+    {
+      "kind": "fixed",
+      "title": "Release, linker, projection, and CI corrections",
+      "entries": [
+        "Restore explicit and resumed vX.Y.Z.build releases, force four-component tags to prerelease status, and preserve stable releases on main.",
+        "Accept singular --platform aliases, reject symlinked generation roots, and make Kilo-dependent CI paths portable.",
+        "Exclude bytecode caches and stale manifest paths from generated bundles and restore registry-aware skill scanning."
+      ]
+    },
+    {
+      "kind": "internal",
+      "title": "Release integrity and regression coverage",
+      "entries": [
+        "Validate complete release payload sets, public release parity, exact tag and branch lineage, Pages artifacts, and API metadata before publication.",
+        "Add immutable release-tag, admin-only tag-creation, and protected-dev repository rulesets, plus semantic release-policy tests.",
+        "Expand parser, linter, linker, containment, migration, and cross-platform release coverage across all generated adapters."
+      ]
+    }
+  ]
+}

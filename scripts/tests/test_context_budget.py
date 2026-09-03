@@ -151,6 +151,144 @@ class TestActiveSuites:
         assert not cr_prompt
 
 
+class TestCapabilityResolution:
+    def _v2_registry(self) -> dict:
+        return {
+            "schemaVersion": 2,
+            "description": "v2 capability registry",
+            "capabilities": [
+                {"id": "r", "owningModule": "cap-language-r", "supportedSuites": ["cg", "cr"],
+                 "supportedPlatforms": ["kilo"], "sourceProvenance": "canonical/.github",
+                 "activationCost": "low", "taskTriggers": ["language=r"],
+                 "configSelectors": [{"field": "language", "operator": "contains", "value": "r"}]},
+                {"id": "python", "owningModule": "cap-language-python", "supportedSuites": ["cg", "cr"],
+                 "supportedPlatforms": ["kilo"], "sourceProvenance": "canonical/.github",
+                 "activationCost": "low", "taskTriggers": ["language=python"],
+                 "configSelectors": [{"field": "language", "operator": "contains", "value": "python"}]},
+                {"id": "stata", "owningModule": "cap-language-stata", "supportedSuites": ["cg", "cr"],
+                 "supportedPlatforms": ["kilo"], "sourceProvenance": "canonical/.github",
+                 "activationCost": "low", "taskTriggers": ["language=stata"],
+                 "configSelectors": [{"field": "language", "operator": "contains", "value": "stata"}]},
+            ],
+            "modules": [
+                {"id": "kernel", "layer": "kernel", "displayName": "Kernel", "description": "k",
+                 "dependsOn": [], "ownedAssets": [".github/shared/*.contract.md"]},
+                {"id": "cap-language-r", "layer": "capability", "displayName": "R", "description": "r",
+                 "dependsOn": ["kernel"], "ownedAssets": [".github/skills/cg-skill-r-*/"]},
+                {"id": "cap-language-python", "layer": "capability", "displayName": "Py", "description": "py",
+                 "dependsOn": ["kernel"], "ownedAssets": []},
+                {"id": "cap-language-stata", "layer": "capability", "displayName": "Stata", "description": "s",
+                 "dependsOn": ["kernel"], "ownedAssets": []},
+                {"id": "suite-cg", "layer": "suite", "displayName": "CG", "description": "cg",
+                 "dependsOn": ["kernel"], "ownedAssets": [".github/prompts/cg-*.prompt.md"]},
+                {"id": "suite-cr", "layer": "suite", "displayName": "CR", "description": "cr",
+                 "dependsOn": ["kernel"], "ownedAssets": [".github/prompts/cr-*.prompt.md"]},
+            ],
+        }
+
+    def test_language_selector_derives_only_matching_pack(self, tmp_path: Path) -> None:
+        registry = budget.load_registry(tmp_path, self._v2_registry())
+        ids = budget.loadable_module_ids(registry, ["cg"], config={"language": "r"})
+        assert "cap-language-r" in ids
+        assert "cap-language-python" not in ids
+        assert "cap-language-stata" not in ids
+
+    def test_language_both_derives_all_languages(self, tmp_path: Path) -> None:
+        registry = budget.load_registry(tmp_path, self._v2_registry())
+        ids = budget.loadable_module_ids(registry, ["cg"], config={"language": "both"})
+        for module_id in ("cap-language-r", "cap-language-python", "cap-language-stata"):
+            assert module_id in ids
+
+    def test_absent_config_derives_all_languages_legacy(self, tmp_path: Path) -> None:
+        registry = budget.load_registry(tmp_path, self._v2_registry())
+        ids = budget.loadable_module_ids(registry, ["cg"])
+        for module_id in ("cap-language-r", "cap-language-python", "cap-language-stata"):
+            assert module_id in ids
+
+    def test_explicit_capability_augments_derived_baseline(self, tmp_path: Path) -> None:
+        registry = budget.load_registry(tmp_path, self._v2_registry())
+        ids = budget.loadable_module_ids(
+            registry, ["cg"], config={"language": "r"}, capabilities=["python"]
+        )
+        assert "cap-language-r" in ids
+        assert "cap-language-python" in ids
+        assert "cap-language-stata" not in ids
+
+    def test_explicit_capability_cannot_subtract(self, tmp_path: Path) -> None:
+        registry = budget.load_registry(tmp_path, self._v2_registry())
+        # A capability like "r" adds to, but never removes, the derived baseline
+        # (all languages under absent config), so stata remains present.
+        ids = budget.loadable_module_ids(registry, ["cg"], capabilities=["r"])
+        assert {"cap-language-r", "cap-language-stata", "cap-language-python"} <= ids
+
+    def test_unknown_explicit_capability_fails_closed(self, tmp_path: Path) -> None:
+        registry = budget.load_registry(tmp_path, self._v2_registry())
+        with pytest.raises(ValueError, match="unknown explicit capability"):
+            budget.loadable_module_ids(registry, ["cg"], capabilities=["not-a-cap"])
+
+    def test_derived_capability_ids_ordered(self, tmp_path: Path) -> None:
+        registry = budget.load_registry(tmp_path, self._v2_registry())
+        derived = budget.capability_ids_by_selector(
+            registry, {"language": "r"}, ["cg"]
+        )
+        assert derived == ["r"]
+
+    def test_empty_selector_capability_activates_only_for_supported_suite(self, tmp_path: Path) -> None:
+        registry = self._v2_registry()
+        registry["modules"].append({
+            "id": "cap-research-output", "layer": "capability", "displayName": "RO",
+            "description": "research output", "dependsOn": ["kernel"], "ownedAssets": [],
+        })
+        registry["capabilities"].append({
+            "id": "research-output", "owningModule": "cap-research-output",
+            "supportedSuites": ["cr"], "supportedPlatforms": ["kilo"],
+            "sourceProvenance": "canonical/.github", "activationCost": "high",
+            "taskTriggers": ["/cr-work"], "configSelectors": [],
+        })
+        registry = budget.load_registry(tmp_path, registry)
+        cg_ids = budget.loadable_module_ids(registry, ["cg"])
+        cr_ids = budget.loadable_module_ids(registry, ["cr"])
+        assert "cap-research-output" not in cg_ids
+        assert "cap-research-output" in cr_ids
+        derived_cr = budget.capability_ids_by_selector(registry, {}, ["cr"])
+        assert "research-output" in derived_cr
+
+    def test_selector_capability_respects_supported_suites(self, tmp_path: Path) -> None:
+        registry = self._v2_registry()
+        for capability in registry["capabilities"]:
+            if capability["id"] == "r":
+                capability["supportedSuites"] = ["cr"]
+        registry = budget.load_registry(tmp_path, registry)
+        cg_ids = budget.loadable_module_ids(registry, ["cg"], config={"language": "r"})
+        cr_ids = budget.loadable_module_ids(registry, ["cr"], config={"language": "r"})
+        assert "cap-language-r" not in cg_ids
+        assert "cap-language-r" in cr_ids
+
+    def test_explicit_only_capability_is_never_selector_derived(self, tmp_path: Path) -> None:
+        registry = self._v2_registry()
+        registry["modules"].append({
+            "id": "cap-opt-in", "layer": "capability", "displayName": "Opt in",
+            "description": "opt in", "dependsOn": ["kernel"], "ownedAssets": [],
+        })
+        registry["capabilities"].append({
+            "id": "opt-in", "owningModule": "cap-opt-in",
+            "activationMode": "explicit-only", "supportedSuites": ["cg"],
+            "supportedPlatforms": ["kilo"], "sourceProvenance": "canonical/.github",
+            "activationCost": "low", "taskTriggers": ["manual"],
+            "configSelectors": [{"field": "language", "operator": "contains", "value": "r"}],
+        })
+
+        derived = budget.capability_ids_by_selector(registry, {"language": "r"}, ["cg"])
+        implicit = budget.loadable_module_ids(registry, ["cg"], config={"language": "r"})
+        explicit = budget.loadable_module_ids(
+            registry, ["cg"], config={"language": "r"}, capabilities=["opt-in"]
+        )
+
+        assert "opt-in" not in derived
+        assert "cap-opt-in" not in implicit
+        assert "cap-opt-in" in explicit
+
+
 class TestRealRepo:
     def test_real_registry_cg_minus_cr_detects_cr_excluded(self) -> None:
         # With the real registry but only the cg suite active, cr-* assets are
@@ -200,3 +338,68 @@ class TestRealRepo:
         assets = gen.scan_canonical_assets(fixture, active_suites=["cg", "cr"])
         assert any(a["relative_path"].startswith(".github/prompts/cr-") for a in assets["prompts"])
         assert any(a["relative_path"].startswith(".github/skills/cr-skill-") for a in assets["skills"])
+
+
+# ---------------------------------------------------------------------------
+# Step 10: Inactive asset path exclusion and catalog routing integration
+# ---------------------------------------------------------------------------
+
+
+class TestInactiveAssetExclusion:
+    def test_inactive_module_assets_excluded_from_loadable_globs(self, tmp_path: Path) -> None:
+        """Assets owned by inactive modules must not appear in loadable globs."""
+        registry = budget.load_registry(tmp_path, _minimal_registry(CR_SUITE))
+        loadable = budget.loadable_module_ids(registry, ["cg"])
+        globs = budget.loadable_asset_globs(registry, loadable)
+        cr_glob = any("cr-" in g for g in globs)
+        assert not cr_glob
+
+    def test_catalog_router_inactive_capability_has_remedy(self, tmp_path: Path) -> None:
+        """The capability router returns actionable remedy for inactive capabilities."""
+        import cg_skill_catalog as catalog
+
+        registry = {
+            "schemaVersion": 2,
+            "description": "test",
+            "capabilities": [
+                {"id": "research-output", "owningModule": "cap-research-output",
+                 "supportedSuites": ["cr"], "supportedPlatforms": ["kilo"],
+                 "sourceProvenance": "canonical/.github", "activationCost": "high",
+                 "taskTriggers": ["/cr-work"], "configSelectors": []},
+            ],
+            "modules": [
+                {"id": "kernel", "layer": "kernel", "displayName": "K", "description": "k",
+                 "dependsOn": [], "ownedAssets": []},
+                {"id": "cap-research-output", "layer": "capability", "displayName": "RO",
+                 "description": "ro", "dependsOn": ["kernel"], "ownedAssets": []},
+            {"id": "suite-cg", "layer": "suite", "displayName": "CG", "description": "cg",
+             "dependsOn": ["kernel"], "ownedAssets": []},
+            {"id": "suite-cr", "layer": "suite", "displayName": "CR", "description": "cr",
+             "dependsOn": ["kernel", "cap-research-output"], "ownedAssets": []},
+            ],
+        }
+        manifest = {
+            "header": "compound-gpid-active-manifest-v1",
+            "schemaVersion": 1,
+            "generated": "test",
+            "selection": {
+                "configDigest": "a" * 64,
+                "configSchemaVersion": None,
+                "registryDigest": "b" * 64,
+                "registrySchemaVersion": 2,
+                "sourceRevision": "test",
+                "suites": ["cg"],
+                "capabilities": [],
+                "derivedCapabilities": [],
+                "moduleClosure": ["kernel", "suite-cg"],
+                "platforms": ["kilo"],
+                "desiredPlanDigest": "c" * 64,
+            },
+            "platformEligibility": {"platforms": ["kilo"], "capabilities": [], "allEligible": True},
+            "certifiedKiloLaunchRequired": False,
+            "catalogRecords": [],
+        }
+        result = catalog.route_capability(tmp_path, "research-output", manifest, registry)
+        assert not result.found
+        assert result.remedy is not None
+        assert "cg-update" in result.remedy or "suites" in result.remedy

@@ -34,10 +34,15 @@ class TestTargetMappingSchema:
         ids = {t["id"] for t in data["targets"]}
         assert ids == {"copilot", "claude-code", "codex", "opencode", "kilo"}
 
-    def test_copilot_has_null_generated_tree_path(self) -> None:
+    def test_copilot_has_skill_only_projection_mode(self) -> None:
         data = _load_repo_mapping()
         copilot = next(t for t in data["targets"] if t["id"] == "copilot")
         assert copilot["generatedTreePath"] is None
+        assert copilot["projectedCategories"] == ["skills"]
+        assert copilot["projectRoots"]["managed"] == [".github/skills"]
+        assert not any(
+            unit["target"] == ".github/skills" for unit in copilot["installUnits"]
+        )
 
     def test_non_copilot_targets_have_generated_tree_path(self) -> None:
         data = _load_repo_mapping()
@@ -85,6 +90,15 @@ class TestTargetMappingSchema:
             assert isinstance(units, list), f"{target['id']}: missing installUnits"
             assert units, f"{target['id']}: empty installUnits"
 
+    def test_source_marker_is_not_an_output_or_install_path(self) -> None:
+        data = _load_repo_mapping()
+        marker = ".compound-gpid-source.json"
+        for target in data["targets"]:
+            assert all(marker not in path for path in target["outputPaths"].values())
+            for unit in target["installUnits"]:
+                assert marker not in unit["source"]
+                assert marker not in unit["target"]
+
     def test_opencode_config_install_unit_has_manual_snippet(self) -> None:
         data = _load_repo_mapping()
         opencode = next(t for t in data["targets"] if t["id"] == "opencode")
@@ -111,6 +125,17 @@ class TestTargetMappingSchema:
         directory_units = [u for u in kilo["installUnits"] if u["type"] == "directory"]
         assert directory_units
         assert all(u["strategy"] == "copy-directory" for u in directory_units)
+
+    def test_codex_directories_remain_link_directory(self) -> None:
+        data = gen.load_target_mapping(REPO_ROOT)
+        codex = next(t for t in data["targets"] if t["id"] == "codex")
+        directories = [
+            unit for unit in codex["installUnits"]
+            if unit["type"] == "directory"
+        ]
+        assert len(directories) == 5
+        assert {unit["strategy"] for unit in directories} == {"link-directory"}
+        assert any(unit["target"] == ".agents/skills" for unit in directories)
 
 
 class TestTargetMappingValidation:
@@ -199,6 +224,14 @@ class TestTargetMappingValidation:
         broken["targets"][0]["installUnits"][0]["strategy"] = "unknown"
         errors = gen.validate_target_mapping(broken)
         assert any("installUnits" in e and "strategy" in e for e in errors)
+
+    def test_projected_categories_reject_unknown_or_duplicate_values(self) -> None:
+        data = _load_repo_mapping()
+        copilot = data["targets"][0]
+        copilot["projectedCategories"] = ["skills", "prompts"]
+        assert any("projectedCategories" in error for error in gen.validate_target_mapping(data))
+        copilot["projectedCategories"] = ["skills", "skills"]
+        assert any("projectedCategories" in error for error in gen.validate_target_mapping(data))
 
     def test_schema_version_other_than_one_fails(self) -> None:
         data = _load_repo_mapping()

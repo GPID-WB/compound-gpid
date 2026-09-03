@@ -1,0 +1,48 @@
+{
+  "$schema": "compound-gpid-schema-subset-v1",
+  "$id": "cg-skill-update-v1",
+  "$defs": {
+    "diffEntry": {
+      "type": "object",
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "change": {"type": "string", "enum": ["added", "modified", "removed"]},
+        "beforeSha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "afterSha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "beforeSize": {"type": "integer", "minimum": 0},
+        "afterSize": {"type": "integer", "minimum": 0}
+      },
+      "required": ["path", "change"],
+      "additionalProperties": false
+    },
+    "arguments": {
+      "type": "object",
+      "properties": {
+        "positionals": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1},
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "license": {"type": "string", "minLength": 1},
+        "approver": {"type": "string", "minLength": 1},
+        "review_reference": {"type": "string", "minLength": 1}
+      },
+      "required": ["positionals", "license", "approver", "review_reference"],
+      "additionalProperties": false
+    },
+    "resultData": {
+      "type": "object",
+      "properties": {
+        "status": {"type": "string", "enum": ["planned", "committed", "blocked", "unchanged"]},
+        "skillId": {"type": "string"},
+        "origin": {"type": "string"},
+        "reviewEvidence": {"type": "string"},
+        "diffDigest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "diff": {"type": "array", "items": {"$ref": "#/$defs/diffEntry"}}
+      },
+      "required": ["status", "skillId", "origin", "reviewEvidence", "diffDigest", "diff"],
+      "additionalProperties": false
+    }
+  }
+}

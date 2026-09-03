@@ -1,5 +1,5 @@
 ---
-description: "Research plan — structured implementation plan for research tasks. Use after /cr-brainstorm to create concrete steps."
+description: "Research plan \u2014 structured implementation plan for research tasks. Use after /cr-brainstorm to create concrete steps."
 ---
 
 # Research Plan

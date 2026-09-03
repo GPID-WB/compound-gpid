@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-09-02 · 574 artifacts (newest first) + 154 roadmap features_
+_Generated 2026-09-02 · 603 artifacts (newest first) + 161 roadmap features_
 
 ## undated
 
@@ -129,39 +129,124 @@ _Generated 2026-09-02 · 574 artifacts (newest first) + 154 roadmap features_
 
 ## 2026-09-02
 
-- **[2026-09-02-c-research-output-workspace-migration-review](.cg-docs/reviews/2026-09-02-c-research-output-workspace-migration-review.md)** · `review` · _—_ · `2026-09-02`
-  > **Review mode:** full
-- **[Root-Level c-research Output Workspace and Migration](.cg-docs/plans/2026-09-02-c-research-output-workspace-migration.md)** · `plan` · _completed_ · `2026-09-02`
-  > <!-- Created 2026-09-02. -->
-- **[Secure c-research migration and research-output boundary](.cg-docs/solutions/bugs/2026-09-02-c-research-migration-security-and-boundary.md)** · `solution` · _—_ · `2026-09-02`
-  > Moving Compound Research outputs from `.cg-docs/research/` to the root-level `c-research/` workspace exposed several …
-- **[Separate CR Research Outputs from Compound GPID Documentation](.cg-docs/brainstorms/2026-09-02-c-research-artifact-boundary.md)** · `brainstorm` · _decided_ · `2026-09-02`
-  > <!-- Valid status values: decided, in-progress, abandoned --> <!-- Created 2026-09-02. -->
+- **[Captured-byte trust must cover the complete dependency closure](.cg-docs/solutions/bugs/2026-09-02-captured-byte-trust-must-cover-dependency-closure.md)** · `solution` · _—_ · `2026-09-02`
+  > A dynamic Python dispatcher captured and validated the selected operation file before execution. The handler still im…
+
+## 2026-09-01
+
+- **[2026-08-28-scalable-skill-management-suite-verify-review-2](.cg-docs/reviews/2026-08-28-scalable-skill-management-suite-verify-review-2.md)** · `review` · _—_ · `2026-09-01`
+  > **Review mode**: light verification **Parent review**: `.cg-docs/reviews/2026-08-28-scalable-skill-management-suite-r…
+
+## 2026-08-31
+
+- **[2026-08-28-scalable-skill-management-suite-verify-review](.cg-docs/reviews/2026-08-28-scalable-skill-management-suite-verify-review.md)** · `review` · _—_ · `2026-08-31`
+  > **Review mode**: light verification **Parent review**: `.cg-docs/reviews/2026-08-28-scalable-skill-management-suite-r…
+- **[Trusted dispatch requires immutable anchors and captured bytes](.cg-docs/solutions/bugs/2026-08-31-trust-anchor-captured-byte-dispatch.md)** · `solution` · _—_ · `2026-08-31`
+  > The private skill-management dispatcher used local Git origin and branch data to grant maintainer authority. A fixtur…
+
+## 2026-08-30
+
+- **[2026-08-28-scalable-skill-management-suite-review](.cg-docs/reviews/2026-08-28-scalable-skill-management-suite-review.md)** · `review` · _—_ · `2026-08-30`
+  > **Requested mode**: `mode:verify` **Resolved mode**: `full` -- no prior standard review had fixed findings, so verifi…
+
+## 2026-08-28
+
+- **[2026-08-13-manifest-driven-skill-loading-verify-review-3](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review-3.md)** · `review` · _—_ · `2026-08-28`
+  > **Review mode**: light (`mode:verify`) **Parent review**: `.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-…
+- **[2026-08-28-compound-gpid-rd-command-review](.cg-docs/reviews/2026-08-28-compound-gpid-rd-command-review.md)** · `review` · _—_ · `2026-08-28`
+  > **Review mode**: full (auto-routed security-risk) **Files reviewed**: canonical prompt, registry utility, tests, audi…
+- **[Rename repository review command and add registry management flags](.cg-docs/brainstorms/2026-08-28-compound-gpid-rd-command.md)** · `brainstorm` · _decided_ · `2026-08-28`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[Rename repository review command and add registry management flags](.cg-docs/plans/2026-08-28-compound-gpid-rd-command.md)** · `plan` · _completed_ · `2026-08-28`
+  > Replace the developer-only `/cg-review-repos` command with `/cg-compound-gpid-rd`, preserve its full and delta review…
+- **[Scalable Skill Management Suite](.cg-docs/brainstorms/2026-08-28-scalable-skill-management-suite.md)** · `brainstorm` · _decided_ · `2026-08-28`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[Scalable Skill Management Suite](.cg-docs/plans/2026-08-28-scalable-skill-management-suite.md)** · `plan` · _completed_ · `2026-08-28`
+  > Build one role-gated `/cg-skill` command that manages the complete skill lifecycle without becoming one large prompt …
+- **[Secure registry mutation requires exact JSON and pre-commit output validation](.cg-docs/solutions/data-quality/2026-08-28-exact-json-registry-mutation-boundaries.md)** · `solution` · _—_ · `2026-08-28`
+  > A deterministic JSON registry utility preserved unknown fields structurally but decoded unknown numbers as binary flo…
 
 ## 2026-08-26
 
-- **[AI and Research: A Practitioner Tour of the Compound Research Workflow](.cg-docs/brainstorms/2026-08-26-ai-knowledge-work-presentation-practitioner-tour.md)** · `brainstorm` · _decided_ · `2026-08-26`
-  > <!-- Created 2026-08-26. -->
+- **[Release drift ignore checks spawn thousands of Git processes](.cg-docs/solutions/bugs/2026-08-26-release-drift-ignore-checks-spawn-thousands-of-git-processes.md)** · `solution` · _—_ · `2026-08-26`
+  > The `/cg-release` packaging gate took more than 20 minutes in the full workflow. The native packaging test portion al…
+
+## 2026-08-21
+
+- **[2026-08-21-pr-ci-preflight-and-kilo-capability-gates-verify-review](.cg-docs/reviews/2026-08-21-pr-ci-preflight-and-kilo-capability-gates-verify-review.md)** · `review` · _—_ · `2026-08-21`
+  > - **Review mode**: verify (light-only) - **Parent review**: `.cg-docs/reviews/2026-08-13-manifest-driven-skill-loadin…
+- **[Authoritative PR preflight prevents native-target and Kilo capability reruns](.cg-docs/solutions/git-workflows/2026-08-21-pr-ci-preflight-native-target-kilo-capability-gates.md)** · `solution` · _—_ · `2026-08-21`
+  > PR #141 exposed several failures that local guidance did not catch before a remote run: interpreter cache files could…
+- **[cg-link ignored singular --platform flag](.cg-docs/solutions/bugs/2026-08-21-cg-link-singular-platform-flag.md)** · `solution` · _—_ · `2026-08-21`
+  > On version `v1.2.0.9006`, running `cg-link --platform kilo` produced warnings that `--platform` and `kilo` were unrec…
+- **[Prevent PR CI reruns with native-target and Kilo capability preflights](.cg-docs/plans/2026-08-21-pr-ci-preflight-and-kilo-capability-gates.md)** · `plan` · _completed_ · `2026-08-21`
+  > Make `/cg-commit-push-pr` and `/cg-verify-pr` stop release-critical native-target, module-closure, Kilo-host, PR-base…
+
+## 2026-08-20
+
+- **[Kilo cross-adapter skill auto-discovery resolves linked skills outside project](.cg-docs/solutions/bugs/2026-08-20-kilo-cross-adapter-skill-autodiscovery.md)** · `solution` · _—_ · `2026-08-20`
+  > Kilo in VS Code on Windows and Positron on macOS repeatedly reported:
+
+## 2026-08-17
+
+- **[2026-08-13-manifest-driven-skill-loading-phase5-review](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-phase5-review.md)** · `review` · _—_ · `2026-08-17`
+  > **Review mode**: full (auto-routed: security-risk — vendor policy, import pipeline, admission checks) **Files reviewe…
+- **[2026-08-13-manifest-driven-skill-loading-phase5-verify-review](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-phase5-verify-review.md)** · `review` · _—_ · `2026-08-17`
+  > **Review mode**: verify (light depth) **Parent review**: `.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-p…
+- **[2026-08-17-capability-router-hard-stop](.cg-docs/solutions/architecture/2026-08-17-capability-router-hard-stop.md)** · `solution` · _—_ · `2026-08-17`
+  > When a command explicitly requests a capability (by id, task trigger, or skill reference) that is not active in the p…
+- **[2026-08-17-manifest-catalog-staleness-testing](.cg-docs/solutions/testing-patterns/2026-08-17-manifest-catalog-staleness-testing.md)** · `solution` · _—_ · `2026-08-17`
+  > The `cg_skill_catalog.py` catalog has a staleness guard that compares the on-disk manifest's immutable selection fiel…
+- **[2026-08-17-phase4-verify-review](.cg-docs/reviews/2026-08-17-phase4-verify-review.md)** · `review` · _—_ · `2026-08-17`
+  > 11 files changed, 1546 insertions, 452 deletions across Phase 4 implementation.
+- **[Journal security hardening patterns for atomic file publication](.cg-docs/solutions/testing-patterns/2026-08-17-journal-security-hardening-patterns.md)** · `solution` · _—_ · `2026-08-17`
+  > The journaled projection synchronizer writes a `projection-journal.json` with a `transactionId` (32-hex) and records …
+- **[Manifest-driven install gate prevents junction conflicts with projection synchronizer](.cg-docs/solutions/environment-issues/2026-08-17-manifest-driven-install-gate-prevents-junction-conflicts.md)** · `solution` · _—_ · `2026-08-17`
+  > `link.ps1`/`link.sh` create directory junctions for `.agents/*`, `.claude/*`, `.opencode/*` installUnits before the p…
+- **[Tar-slip, TOCTOU, and DoS fixes in quarantined import pipeline](.cg-docs/solutions/security/2026-08-17-tar-slip-toctou-dos-quarantine-pipeline.md)** · `solution` · _—_ · `2026-08-17`
+  > The `/cg-import-skill` importer had three security vulnerabilities discovered during code review: 1. **Tar path trave…
+- **[Windows long-path prefix required for staged file publication](.cg-docs/solutions/bugs/2026-08-17-windows-long-path-staged-publication.md)** · `solution` · _—_ · `2026-08-17`
+  > The manifest-driven projection synchronizer (`cg_project_projection.py`) stages files under `<project>/.compound-gpid…
+
+## 2026-08-15
+
+- **[2026-08-13-manifest-driven-skill-loading-phase3-verify-review](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-phase3-verify-review.md)** · `review` · _—_ · `2026-08-15`
+  > **Review mode**: verify (light) **Parent review**: `.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-phase3-…
+
+## 2026-08-14
+
+- **[2026-08-13-manifest-driven-skill-loading-phase3-review](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-phase3-review.md)** · `review` · _—_ · `2026-08-14`
+  > **Review mode**: auto -> full (Phase 3, steps 6-8: secure materialized projection) **Files reviewed**: 21 changed fil…
+- **[2026-08-13-manifest-driven-skill-loading-verify-review-2](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review-2.md)** · `review` · _—_ · `2026-08-14`
+  > **Review mode**: verify (light-only) **Files reviewed**: Phase 2 diff (registry v2 + capability resolution + strict c…
+- **[Capability suite-eligibility namespace mismatch makes activation dead code](.cg-docs/solutions/bugs/2026-08-14-capability-eligibility-namespace-mismatch.md)** · `solution` · _—_ · `2026-08-14`
+  > The v2 module registry introduced `capabilities[]` records with `supportedSuites` (user-facing names like `cg`/`cr`) …
+- **[Kilo coexistence requires a certified contained launch and no-follow local copies](.cg-docs/solutions/environment-issues/2026-08-14-kilo-contained-launch-and-no-follow-copy.md)** · `solution` · _—_ · `2026-08-14`
+  > When Kilo, Codex, and Claude-compatible roots coexist in one project, Kilo can discover skills outside the project-lo…
+- **[Pages immutable-ref gate rejects dev-series pre-release tags \(v1.2.0.900x\)](.cg-docs/solutions/bugs/2026-08-14-pages-immutable-ref-gate-rejects-dev-series-pre-release-tags.md)** · `solution` · _—_ · `2026-08-14`
+  > The tag-triggered Pages deployment failed for the pre-release release `v1.2.0.9004`. Running [31748306075](https://gi…
 
 ## 2026-08-13
 
-- **[AI and the Conditions for Verifiable Knowledge Work](.cg-docs/brainstorms/2026-08-13-ai-knowledge-work-presentation.md)** · `brainstorm` · _decided_ · `2026-08-13`
-  > <!-- Created 2026-08-13. -->
-- **[AI and the Conditions for Verifiable Knowledge Work Presentation](.cg-docs/plans/2026-08-13-ai-knowledge-work-presentation-production.md)** · `plan` · _active_ · `2026-08-13`
-  > <!-- Created 2026-08-13. -->
-- **[Final Local Evidence Workbench Review](.cg-docs/reviews/2026-08-12-cr-local-evidence-workbench-revised-review.md)** · `review` · _—_ · `2026-08-13`
-  > - Unrecognized invocation arguments `deep rigorous` were ignored. - Configured `review-depth: thorough` and security/…
-- **[Release-gate fixtures must mirror runtime commands and derived evidence hashes](.cg-docs/solutions/testing-patterns/2026-08-13-release-gate-fixtures-and-derived-evidence-hashes.md)** · `solution` · _—_ · `2026-08-13`
-  > The final release gate reported two failures in `test_release_gate_targets.py`: - The checkout-mismatch test expected…
+- **[2026-08-12-automated-documentation-deployment-review](.cg-docs/reviews/2026-08-12-automated-documentation-deployment-review.md)** · `review` · _—_ · `2026-08-13`
+  > - Documentation generators, validation, release-payload contract, Pages and rebuild workflows. - Canonical prompts/ag…
+- **[2026-08-13-manifest-driven-skill-loading-review](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-review.md)** · `review` · _—_ · `2026-08-13`
+  > **Review mode**: full (auto-routed security/architecture/install changes) **Files reviewed**: Phase 1 implementation,…
+- **[2026-08-13-manifest-driven-skill-loading-verify-review](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review.md)** · `review` · _—_ · `2026-08-13`
+  > **Review mode**: verify (light) **Parent review**: `.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-review.…
+- **[Manifest-driven skill loading and project-local platform projections](.cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md)** · `plan` · _active_ · `2026-08-13`
+  > Replace all-skill, shared-install runtime exposure with a strict, committed per-project manifest and an atomically pu…
+- **[Manifest-driven skill loading for context efficiency](.cg-docs/brainstorms/2026-08-13-skill-loading-architecture-context-efficiency.md)** · `brainstorm` · _decided_ · `2026-08-13`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[Verified Pages artifacts and immutable release-tag gates](.cg-docs/solutions/git-workflows/2026-08-13-verified-pages-artifact-and-release-tag-gates.md)** · `solution` · _—_ · `2026-08-13`
+  > An automated documentation workflow needs two independent guarantees: 1. The Pages deploy job must publish exactly th…
 
 ## 2026-08-12
 
-- **[CR Local Evidence Workbench for Verifiable Research Claims](.cg-docs/brainstorms/2026-08-12-cr-local-evidence-workbench.md)** · `brainstorm` · _decided_ · `2026-08-12`
-  > <!-- Valid status values: decided, in-progress, abandoned -->
-- **[CR Local Evidence Workbench for Verifiable Research Claims](.cg-docs/plans/2026-08-12-cr-local-evidence-workbench.md)** · `plan` · _active_ · `2026-08-12`
-  > <!-- Created 2026-08-12. Follow-up plan: the predecessor plan remains completed historical work. -->
-- **[CR Local Evidence Workbench for Verifiable Research Claims \(Revised\)](.cg-docs/plans/2026-08-12-cr-local-evidence-workbench-revised.md)** · `plan` · _completed_ · `2026-08-12`
-  > <!-- Created 2026-08-12. Revision 2 addresses the plan-review findings. -->
+- **[Automated Documentation Deployment and What's New Page](.cg-docs/brainstorms/2026-08-12-automated-documentation-deployment.md)** · `brainstorm` · _decided_ · `2026-08-12`
+  > The Compound GPID documentation site (https://gpid-wb.github.io/compound-gpid/) is deployed via GitHub Actions from `…
+- **[Automated Documentation Deployment and What's New Page](.cg-docs/plans/2026-08-12-automated-documentation-deployment.md)** · `plan` · _active_ · `2026-08-12`
+  > Keep the public documentation site current from reviewed canonical sources and publish a deterministic, release-backe…
 
 ## 2026-08-11
 
@@ -1383,7 +1468,7 @@ _Generated 2026-09-02 · 574 artifacts (newest first) + 154 roadmap features_
   > On WBG enterprise machines, calling `[Environment]::GetEnvironmentVariable` or `[Environment]::SetEnvironmentVariable…
 - **[Fix CLM/OneDrive profile dot-source error](.cg-docs/brainstorms/2026-03-13-clm-onedrive-install-fix.md)** · `brainstorm` · _decided_ · `2026-03-13`
   > After a OneDrive Documents folder redirection was pushed to World Bank machines, `$PROFILE` now resolves to an OneDri…
-- **[Fix CLM/OneDrive profile dot-source error — batch wrappers + C:\\WBG install](.cg-docs/plans/2026-03-13-clm-onedrive-install-fix.md)** · `plan` · _completed_ · `2026-03-13`
+- **[Fix CLM/OneDrive profile dot-source error — batch wrappers + C:\WBG install](.cg-docs/plans/2026-03-13-clm-onedrive-install-fix.md)** · `plan` · _completed_ · `2026-03-13`
   > Replace the broken `$PROFILE`-based command registration with `.cmd` batch wrappers on PATH, and change the default i…
 - **[Regression test for try/catch control-flow guards when script cannot be executed](.cg-docs/solutions/testing-patterns/2026-03-13-regression-test-trycatch-guard-clm-environment.md)** · `solution` · _—_ · `2026-03-13`
   > A PS5.1 bug (`ErrorActionPreference=Stop` promoting git stderr to a terminating error) was fixed in `update.ps1` by w…
@@ -1440,6 +1525,10 @@ _Generated 2026-09-02 · 574 artifacts (newest first) + 154 roadmap features_
 
 ## Roadmap Features
 
+- **[Active-manifest install/update and cross-platform parity matrix](roadmap.json#active-manifest-install-update-parity-matrix)** · `feature` · _planned_ · `—`
+  > Active-manifest install/update and cross-platform parity matrix
+- **[Generate platform adapters from the active manifest](roadmap.json#active-manifest-platform-adapters)** · `feature` · _planned_ · `—`
+  > Generate platform adapters from the active manifest
 - **[Adding hooks to streamline process](roadmap.json#adding-hooks-to-streamline-process)** · `feature` · _idea_ · `—`
   > Adding hooks to streamline process
 - **[Update custom agents for model and tool governance](roadmap.json#agent-model-tool-governance)** · `feature` · _idea_ · `—`
@@ -1456,7 +1545,9 @@ _Generated 2026-09-02 · 574 artifacts (newest first) + 154 roadmap features_
   > Auto-triggered skills via expanded applyTo hook patterns [from SP]
 - **[Auto-update Current Focus when a milestone completes \(/cg-work or /cg-resume detects staleness\)](roadmap.json#auto-update-current-focus-on-milestone-completion)** · `feature` · _done_ · `—`
   > Auto-update Current Focus when a milestone completes (/cg-work or /cg-resume detects staleness)
-- **[Automatic post-PR CI verification and universal PR targeting](roadmap.json#automatic-post-pr-verification-handoff)** · `feature` · _idea_ · `—`
+- **[Automated Documentation Deployment and What's New Page](roadmap.json#automated-documentation-deployment-and-whats-new-page)** · `feature` · _active_ · `—`
+  > Automated Documentation Deployment and What's New Page
+- **[Automatic post-PR CI verification and universal PR targeting](roadmap.json#automatic-post-pr-verification-handoff)** · `feature` · _done_ · `—`
   > Automatic post-PR CI verification and universal PR targeting
 - **[Autonomous pipeline command /cg-autopilot \(blocked on workflow research + hooks evaluation\)](roadmap.json#autonomous-pipeline-autopilot)** · `feature` · _idea_ · `—`
   > Autonomous pipeline command /cg-autopilot (blocked on workflow research + hooks evaluation)
@@ -1486,6 +1577,8 @@ _Generated 2026-09-02 · 574 artifacts (newest first) + 154 roadmap features_
   > Generic Markdown publishing skill and deterministic HTML views
 - **[Canonical-to-Native Packaging Foundation](roadmap.json#canonical-to-native-packaging-foundation)** · `feature` · _done_ · `—`
   > Canonical-to-Native Packaging Foundation
+- **[Capability profiles and active project-manifest resolution](roadmap.json#capability-profile-manifest-resolution)** · `feature` · _planned_ · `—`
+  > Capability profiles and active project-manifest resolution
 - **[CE-inspired improvements integration \(P0 severity, new prompts, smart workflows\)](roadmap.json#ce-improvements-integration)** · `feature` · _done_ · `—`
   > CE-inspired improvements integration (P0 severity, new prompts, smart workflows)
 - **[/cg-commit-push-pr — logical commit splitting, push, and PR creation](roadmap.json#cg-commit-push-pr)** · `feature` · _done_ · `—`
@@ -1530,14 +1623,10 @@ _Generated 2026-09-02 · 574 artifacts (newest first) + 154 roadmap features_
   > CR asset classification mapping
 - **[CR evidence and provenance spine with repo-local corpus default](roadmap.json#cr-evidence-provenance-spine)** · `feature` · _done_ · `—`
   > CR evidence and provenance spine with repo-local corpus default
-- **[CR Local Evidence Workbench for Verifiable Research Claims](roadmap.json#cr-local-evidence-workbench-for-verifiable-research-claims)** · `feature` · _done_ · `—`
-  > CR Local Evidence Workbench for Verifiable Research Claims
 - **[CR Measurement/Classification research archetype](roadmap.json#cr-measurement-classification-archetype)** · `feature` · _done_ · `—`
   > CR Measurement/Classification research archetype
 - **[P0 comparability controls for measurement and indicator work](roadmap.json#cr-measurement-comparability-controls)** · `feature` · _done_ · `—`
   > P0 comparability controls for measurement and indicator work
-- **[Baseline model-catalog coverage for remaining CR prompts](roadmap.json#cr-prompt-model-catalog-baseline)** · `feature` · _idea_ · `—`
-  > Baseline model-catalog coverage for remaining CR prompts
 - **[Responsible lifecycle and method-pack retrofit](roadmap.json#cr-responsible-lifecycle-method-packs)** · `feature` · _done_ · `—`
   > Responsible lifecycle and method-pack retrofit
 - **[Research scoping and normative-decision gates](roadmap.json#cr-scoping-and-normative-gates)** · `feature` · _done_ · `—`
@@ -1546,14 +1635,14 @@ _Generated 2026-09-02 · 574 artifacts (newest first) + 154 roadmap features_
   > Validate the Measurement archetype with a second use case
 - **[Team-level evidence library](roadmap.json#cr-team-evidence-library)** · `feature` · _idea_ · `—`
   > Team-level evidence library
-- **[Assign GPT-5.6 Luna to /cr-work with native-target governance](roadmap.json#cr-work-gpt-5-6-luna-model-governance)** · `feature` · _done_ · `—`
-  > Assign GPT-5.6 Luna to /cr-work with native-target governance
 - **[Cross-model review — adversarial model diversity](roadmap.json#cross-model-adversarial-review)** · `feature` · _idea_ · `—`
   > Cross-model review — adversarial model diversity
 - **[Append-only DECISIONS.md register for methodology and architecture choices \[from GSD\]](roadmap.json#decisions-register)** · `feature` · _idea_ · `—`
   > Append-only DECISIONS.md register for methodology and architecture choices [from GSD]
 - **[Dual-audience Brainstorm and Plan artifacts with human-readable HTML](roadmap.json#dual-audience-brainstorm-and-plan-artifacts-with-human-readable-html)** · `feature` · _done_ · `—`
   > Dual-audience Brainstorm and Plan artifacts with human-readable HTML
+- **[Dual-Deployment: Dev Branch Docs at /dev/](roadmap.json#dual-deployment-dev-branch-docs-at-dev)** · `feature` · _idea_ · `—`
+  > Dual-Deployment: Dev Branch Docs at /dev/
 - **[.cg-docs/evals/ scaffold with probe-and-check pairs](roadmap.json#evals-scaffold)** · `feature` · _idea_ · `—`
   > .cg-docs/evals/ scaffold with probe-and-check pairs
 - **[Evaluate GitHub Copilot hooks for compound-gpid](roadmap.json#evaluate-copilot-hooks)** · `feature` · _idea_ · `—`
@@ -1584,6 +1673,12 @@ _Generated 2026-09-02 · 574 artifacts (newest first) + 154 roadmap features_
   > Include /ce:ideate-style prompt from compound-engineering-plugin
 - **[Inline self-review checklist at end of /cg-brainstorm and /cg-plan \[from SP\]](roadmap.json#inline-self-review-brainstorm-plan)** · `feature` · _idea_ · `—`
   > Inline self-review checklist at end of /cg-brainstorm and /cg-plan [from SP]
+- **[Narrow mandatory base capabilities with generated enforcement](roadmap.json#mandatory-base-capabilities-generated-enforcement)** · `feature` · _planned_ · `—`
+  > Narrow mandatory base capabilities with generated enforcement
+- **[Manifest-backed skills discovery catalog and /cg-skills](roadmap.json#manifest-backed-skills-discovery-catalog)** · `feature` · _idea_ · `—`
+  > Manifest-backed skills discovery catalog and /cg-skills
+- **[Fail-closed manifest and skill-integrity validation](roadmap.json#manifest-integrity-fail-closed-validation)** · `feature` · _planned_ · `—`
+  > Fail-closed manifest and skill-integrity validation
 - **[Add mattpocock/skills to competitive review sources](roadmap.json#mattpocock-skills-review-source)** · `feature` · _idea_ · `—`
   > Add mattpocock/skills to competitive review sources
 - **[Add model-policy tests](roadmap.json#model-policy-tests)** · `feature` · _idea_ · `—`
@@ -1614,6 +1709,8 @@ _Generated 2026-09-02 · 574 artifacts (newest first) + 154 roadmap features_
   > Planning-stage test strategy + human review facilitation
 - **[PR verification pipeline \(E2E smoke tests, parity checks, CONTRIBUTING.md\)](roadmap.json#pr-verification-pipeline)** · `feature` · _done_ · `—`
   > PR verification pipeline (E2E smoke tests, parity checks, CONTRIBUTING.md)
+- **[Project-authored skills](roadmap.json#project-authored-skills)** · `feature` · _idea_ · `—`
+  > Project-authored skills
 - **[compound-gpid.context.md file and Step 0 integration in all prompts](roadmap.json#project-context-file)** · `feature` · _done_ · `—`
   > compound-gpid.context.md file and Step 0 integration in all prompts
 - **[Project scanner agent for deep project analysis](roadmap.json#project-scanner-agent)** · `feature` · _done_ · `—`
@@ -1628,10 +1725,14 @@ _Generated 2026-09-02 · 574 artifacts (newest first) + 154 roadmap features_
   > Update prompt frontmatter model and agent choices
 - **[Split large prompts into thin entrypoints and on-demand skills](roadmap.json#prompt-skill-split)** · `feature` · _idea_ · `—`
   > Split large prompts into thin entrypoints and on-demand skills
+- **[Quarantined external-skill vendoring workflow](roadmap.json#quarantined-external-skill-vendoring)** · `feature` · _active_ · `—`
+  > Quarantined external-skill vendoring workflow
 - **[R dialect skills architecture \(collapse, data.table, tidyverse\)](roadmap.json#r-dialect-skills-architecture)** · `feature` · _done_ · `—`
   > R dialect skills architecture (collapse, data.table, tidyverse)
 - **[Reduce token cost via prompt prose compression and Step 0 dedup](roadmap.json#reduce-token-cost-late-sequence-content)** · `feature` · _done_ · `—`
   > Reduce token cost via prompt prose compression and Step 0 dedup
+- **[Rename repository review command and add registry management flags](roadmap.json#rename-repository-review-command-and-add-registry-management-flags)** · `feature` · _done_ · `—`
+  > Rename repository review command and add registry management flags
 - **[Make review cheaper with deterministic checks first](roadmap.json#review-deterministic-first)** · `feature` · _idea_ · `—`
   > Make review cheaper with deterministic checks first
 - **[Per-finding status tracking in review files](roadmap.json#review-finding-status-tracking)** · `feature` · _done_ · `—`
@@ -1644,10 +1745,10 @@ _Generated 2026-09-02 · 574 artifacts (newest first) + 154 roadmap features_
   > roadmap.json schema validation after @cg-roadmap writes
 - **[Roadmap visualization agent + /cg-roadmap-view prompt](roadmap.json#roadmap-visualization-agent-prompt)** · `feature` · _done_ · `—`
   > Roadmap visualization agent + /cg-roadmap-view prompt
-- **[Root-level c-research output workspace and migration](roadmap.json#root-level-c-research-output-workspace-and-migration)** · `feature` · _done_ · `—`
-  > Root-level c-research output workspace and migration
 - **[Runtime model-catalog introspection across platforms](roadmap.json#runtime-model-catalog-introspection-across-platforms)** · `feature` · _idea_ · `—`
   > Runtime model-catalog introspection across platforms
+- **[Scalable Skill Management Suite](roadmap.json#scalable-skill-management-suite)** · `feature` · _done_ · `—`
+  > Scalable Skill Management Suite
 - **[Schema bypass for compound-gpid repo in /cg-resume](roadmap.json#schema-bypass-in-cg-resume)** · `feature` · _done_ · `—`
   > Schema bypass for compound-gpid repo in /cg-resume
 - **[Consent-based handoff from /cg-setup to /cg-workflow-builder](roadmap.json#setup-workflow-builder-handoff)** · `feature` · _idea_ · `—`
@@ -1660,10 +1761,8 @@ _Generated 2026-09-02 · 574 artifacts (newest first) + 154 roadmap features_
   > Shrink always-on context
 - **[Side-idea capture during brainstorming \(save to roadmap\)](roadmap.json#side-idea-capture-in-brainstorm)** · `feature` · _done_ · `—`
   > Side-idea capture during brainstorming (save to roadmap)
-- **[Skill description consistency audit and optimization](roadmap.json#skill-description-consistency-audit)** · `feature` · _idea_ · `—`
-  > Skill description consistency audit and optimization
-- **[Skill description length cap with test enforcement \[from CE\]](roadmap.json#skill-description-length-cap)** · `feature` · _idea_ · `—`
-  > Skill description length cap with test enforcement [from CE]
+- **[Skill discovery metadata and trigger-quality audit](roadmap.json#skill-description-consistency-audit)** · `feature` · _idea_ · `—`
+  > Skill discovery metadata and trigger-quality audit
 - **[SkillOpt-based improvement of existing skills](roadmap.json#skillopt-existing-skills-improvement)** · `feature` · _idea_ · `—`
   > SkillOpt-based improvement of existing skills
 - **[Skip high-confidence setup questions based on scanner results](roadmap.json#skip-irrelevant-setup-questions)** · `feature` · _done_ · `—`

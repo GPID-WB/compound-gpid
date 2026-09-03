@@ -22,21 +22,12 @@ double-quoted string, per the repository coding guidelines:
 description: "Reviews code for quality and best practices."
 ```
 
-**Agent files** (`.kilo/agents/*.md`) — double-quoted is preferred; any
-parse-safe scalar is accepted:
-
-- double-quoted (`"..."`) -- required when the text contains a colon, `#`, or
-  other YAML-significant characters
-- single-quoted (`'...'`)
-- a block scalar with a valid header (`>`, `|`, `>-`, `|+`, `>2-`, ...)
-- a safe unquoted plain scalar: alphanumeric plus spaces, `.`, `/`, `-`, `_`;
-  not a YAML reserved word (`true`/`false`/`null`/`yes`/`no`/`on`/`off`)
+**Agent files** (`.kilo/agents/*.md`) -- descriptions MUST also be
+double-quoted. The same rule applies to every shipped adapter tree.
 
 ```yaml
-# Agent: preferred
+# Agent: required
 description: "Reviews code for quality and best practices."
-# Agent: also valid (safe plain scalar, emitted by the tree generator)
-description: Reviews code for quality and best practices
 # WRONG (any file): colon-space, or a malformed block-scalar header, breaks parsing
 description: Migration mode for /cg-fix-triage. Adds findings: tracking
 description: >invalid
@@ -45,12 +36,8 @@ description: >invalid
 **Why**: An unquoted value containing a colon followed by a space makes YAML
 treat the text after the colon as a new mapping key, silently corrupting or
 failing the frontmatter -- this was the direct cause of the original
-cg-skill-fix-triage-migrate parse failure. Skill files enforce double quotes
-per the repository coding guidelines. Agent files accept any parse-safe scalar
-because the platform-tree generator emits unquoted simple scalars for them; the
-accepted set mirrors `cg_generate_targets._yaml_scalar`'s policy so generated
-trees pass by construction and the linter never false-positives on valid
-generated output.
+cg-skill-fix-triage-migrate parse failure. The platform-tree generator now
+always emits quoted descriptions so generated trees pass by construction.
 
 ### Rule 2: ASCII-Only Frontmatter (MANDATORY)
 
@@ -71,7 +58,7 @@ parser may fail on BOM-prefixed files.
 ### Rule 4: Required Fields
 
 **Agent files** (`.kilo/agents/*.md`):
-- `description` (required) — double-quoted or parse-safe scalar (see Rule 1)
+- `description` (required) -- double-quoted string
 - `mode` (required) — one of `subagent`, `primary`, `all`
 
 **Skill files** (`.kilo/skills/*/SKILL.md`):
@@ -91,11 +78,18 @@ C3 A2 E2 82 AC E2 80 9C ->  -   (was en-dash)
 C3 A2 E2 82 AC E2 84 A2 ->  '   (was curly apostrophe)
 ```
 
+### Rule 6: LF Line Endings (MANDATORY)
+
+All shipped agent and skill markdown must use LF line endings. Git attributes
+cannot prevent OneDrive or another cloud-sync client from rewriting a working
+copy to CRLF, so the parser remains tolerant while the release gate rejects
+non-normalized source files.
+
 ## Validation Script
 
 The validator ships as a matched pair so it runs on every platform with no
 extra install (macOS/Linux use the system shell; Windows uses built-in
-PowerShell). Both entries run the same five rules and report identical results.
+PowerShell). Both entries run the same six rules and report identical results.
 
 ```bash
 # macOS / Linux (bash; also works in Git Bash on Windows)

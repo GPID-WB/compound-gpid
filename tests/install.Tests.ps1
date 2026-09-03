@@ -496,6 +496,40 @@ Describe "install.ps1 - cg-brain-init.cmd copy" {
     }
 }
 
+Describe "install.ps1 - cg-kilo.cmd copy" {
+    Context "single source of truth" {
+        It "cg-kilo.cmd exists in the committed bin/ directory" {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            Test-Path (Join-Path $repoRoot "bin\cg-kilo.cmd") | Should -Be $true
+        }
+
+        It "cg-kilo.cmd guards every Python probe with a where pre-check" {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $content = Get-Content (Join-Path $repoRoot "bin\cg-kilo.cmd") -Raw
+            ($content -match 'for /f') | Should -Be $true
+            ($content -match 'where python3\s+>nul') | Should -Be $true
+            ($content -match 'where python\s+>nul') | Should -Be $true
+            ($content -match 'where py\s+>nul') | Should -Be $true
+        }
+
+        It "cg-kilo.cmd invokes the preflight worker and forwards arguments" {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $content = Get-Content (Join-Path $repoRoot "bin\cg-kilo.cmd") -Raw
+            ($content -match 'cg_kilo_preflight\.py') | Should -Be $true
+            ($content -match '--launch') | Should -Be $true
+            ($content -match '%\*') | Should -Be $true
+            ($content -match 'exit /b %ERRORLEVEL%') | Should -Be $true
+        }
+
+        It "install.ps1 copies the committed cg-kilo.cmd" {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $installScript = Get-Content (Join-Path $repoRoot "install.ps1") -Raw
+            ($installScript -match 'cgKiloCmdSrc.*cg-kilo\.cmd') | Should -Be $true
+            ($installScript -match 'Copy-Item.*cgKiloCmdSrc') | Should -Be $true
+        }
+    }
+}
+
 Describe "install.ps1 - cg-token-audit.cmd copy" {
     Context "single source of truth" {
         It "cg-token-audit.cmd exists in the committed bin/ directory" {
@@ -554,6 +588,38 @@ Describe "install.ps1 - cg-token-audit.cmd copy" {
                     }
                 }
             } | Should -Not -Throw
+        }
+    }
+}
+
+Describe "install.ps1 - cg-skill.cmd copy" {
+    Context "single source of truth" {
+        BeforeAll {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $cmdFile = Join-Path $repoRoot "bin\cg-skill.cmd"
+            $content = Get-Content $cmdFile -Raw -Encoding UTF8
+            $installContent = Get-Content (Join-Path $repoRoot "install.ps1") -Raw -Encoding UTF8
+        }
+
+        It "cg-skill.cmd exists in the committed bin directory" {
+            Test-Path $cmdFile | Should -Be $true
+        }
+
+        It "guards every Python probe with a where pre-check" {
+            ($content -match 'where python3\s+>nul') | Should -Be $true
+            ($content -match 'where python\s+>nul') | Should -Be $true
+            ($content -match 'where py\s+>nul') | Should -Be $true
+        }
+
+        It "uses for /f version checks and calls cg_skill.py" {
+            ($content -match 'for /f') | Should -Be $true
+            ($content -match 'cg_skill\.py') | Should -Be $true
+            ($content -match 'call %PYTHON_CMD%') | Should -Be $true
+        }
+
+        It "is registered by install.ps1" {
+            ($installContent -match 'cgSkillCmdSrc.*cg-skill\.cmd') | Should -Be $true
+            ($installContent -match 'Copy-Item.*cgSkillCmdSrc') | Should -Be $true
         }
     }
 }

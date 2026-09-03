@@ -384,9 +384,11 @@ def test_ci_and_release_gates_include_the_cr_ml_contract() -> None:
     """The focused CR ML contract runs in CI and release preflight."""
     ci = (REPO_ROOT / ".github/workflows/tests.yml").read_text(encoding="utf-8")
     release = (REPO_ROOT / "create-release.ps1").read_text(encoding="utf-8")
+    preflight = (REPO_ROOT / "scripts/cg_pr_preflight.py").read_text(encoding="utf-8")
 
-    assert "scripts/tests/test_cr_ml_skill.py" in ci
-    assert "scripts/tests/test_cr_ml_skill.py" in release
+    assert "scripts/cg_pr_preflight.py" in ci
+    assert "scripts/cg_pr_preflight.py" in release
+    assert "scripts/tests/test_cr_ml_skill.py" in preflight
 
 
 def test_semantic_ml_safeguards_are_present() -> None:

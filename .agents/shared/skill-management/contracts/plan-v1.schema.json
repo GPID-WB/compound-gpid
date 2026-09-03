@@ -1,0 +1,196 @@
+{
+  "$schema": "compound-gpid-schema-subset-v1",
+  "$id": "cg-skill-plan-v1",
+  "type": "object",
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "cg-skill-plan-v1"
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "operation": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "phase": {
+      "type": "string",
+      "const": "plan"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "consumer",
+        "maintainer"
+      ]
+    },
+    "projectRoot": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sourceRoot": {
+      "type": "string",
+      "minLength": 1
+    },
+    "arguments": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "bindings": {
+      "$ref": "#/$defs/bindings"
+    },
+    "actions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/action"
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/finding"
+      }
+    }
+  },
+  "required": [
+    "schema",
+    "digest",
+    "operation",
+    "phase",
+    "role",
+    "projectRoot",
+    "sourceRoot",
+    "arguments",
+    "bindings",
+    "actions",
+    "findings"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "bindings": {
+      "type": "object",
+      "properties": {
+        "sourceRevision": {
+          "type": "string",
+          "minLength": 1
+        },
+        "configurationDigest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "canonicalRegistryDigest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "projectRegistryDigest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "manifestDigest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "provenanceDigest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "referencesDigest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "bundleInventoryDigest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "required": [
+        "sourceRevision",
+        "configurationDigest",
+        "canonicalRegistryDigest",
+        "projectRegistryDigest",
+        "manifestDigest",
+        "provenanceDigest",
+        "referencesDigest",
+        "bundleInventoryDigest"
+      ],
+      "additionalProperties": false
+    },
+    "action": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "create-directory",
+            "write-file",
+            "delete-file",
+            "update-registry",
+            "update-config",
+            "update-manifest",
+            "generate-targets",
+            "publish-projection",
+            "apply-migration",
+            "write-tombstone",
+            "verify"
+          ]
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "digest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "required": [
+        "kind",
+        "path",
+        "description"
+      ],
+      "additionalProperties": false
+    },
+    "finding": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$"
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "error",
+            "warning",
+            "info"
+          ]
+        },
+        "path": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "remediation": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "code",
+        "severity",
+        "path",
+        "message",
+        "remediation"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

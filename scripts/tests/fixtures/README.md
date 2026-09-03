@@ -1,26 +1,13 @@
-# Characterization fixture
+# Test fixtures
 
 <!-- Created 2026-09-03. -->
 
-`cg_characterization_manifest.json` is a repository-wide generated-target
-baseline, so a CR ML bundle update also changes its platform entries. Before
-the CR ML redesign, these twelve generated paths already had hashes that did
-not match the committed fixture at `HEAD`:
+Generated-target parity is owned by `scripts/tests/test_target_drift.py` and the
+committed native ownership manifests. The latest `dev` architecture removes
+the duplicate `cg_characterization_manifest.json` snapshot, so generated files
+must be checked through the authoritative target-drift and generator tests.
 
-- `.claude/commands/cg-setup.md`
-- `.claude/commands/setup-templates.md`
-- `.claude/skills/cg-skill-setup/SKILL.md`
-- `.agents/commands/cg-setup.md`
-- `.agents/commands/setup-templates.md`
-- `.agents/skills/cg-skill-setup/SKILL.md`
-- `.opencode/commands/cg-setup.md`
-- `.opencode/commands/setup-templates.md`
-- `.opencode/skills/cg-skill-setup/SKILL.md`
-- `.kilo/commands/cg-setup.md`
-- `.kilo/commands/setup-templates.md`
-- `.kilo/skills/cg-skill-setup/SKILL.md`
+The CR ML routing fixture remains:
 
-They are refreshed here because the characterization test requires one exact
-manifest for all generated assets. This is baseline repair, not a CR ML
-behavior change; the entries should be isolated in a future characterization
-maintenance change if the repository adopts per-feature manifests.
+- `cr_ml_skill_evaluation.json` records representative route-to-reference
+	cases and required semantic safeguards for the CR ML contract.

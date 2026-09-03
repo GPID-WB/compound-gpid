@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "tag": "v1.2.0.9006",
+  "publishedAt": "2026-08-21T14:30:11Z",
+  "releaseDate": "2026-08-21",
+  "name": "v1.2.0.9006 - Manifest-driven skill loading, certified contained launcher, and quarantined skill importing",
+  "url": "https://github.com/GPID-WB/compound-gpid/releases/tag/v1.2.0.9006",
+  "sourceUrl": "https://github.com/GPID-WB/compound-gpid/tree/v1.2.0.9006",
+  "sections": [
+    {
+      "kind": "new",
+      "title": "New capabilities",
+      "entries": [
+        "Certified contained launcher with POSIX and Windows launchers, process-scoped containment, and inventory-version-executable-digest evidence. Host and projection coexistence preflight integrated into link and update lifecycle with typed exit codes. Checksum-owned copy synchronization replaces recursive copying, preserving user bytes and deleting stale files only when ownership checksums match.",
+        "Projection planner and journaled synchronizer with staged inventory, checksum-gated ownership, stale removal, and crash recovery wired into link/update/unlink. Active project manifest resolver producing immutable selection fields, platform eligibility, catalog records, and desired-plan digest. Deterministic skill-loading projection baseline with executable task oracles and blocking unavailable-host evidence.",
+        "Static manifest-backed skill catalog with compact, full, and JSON output and a staleness hard-stop. Structured capability router hard-stop for inactive capabilities plus inventory leak detection across inactive assets. Versioned module-registry capabilities with config-selector and suite-eligibility activation and strict migration.",
+        "Two-mode quarantined importer supporting review and vendor flows with git archive/clone fetch, quarantine metadata, deterministic review diff, and provenance-backed vendor registration. Policy engine enforces repository allowlist, path safety, secret scanning, prompt-injection and license checks, bundle limits, and collision detection. Shared vendor-policy.json admission rules registered as a kernel owned asset."
+      ]
+    },
+    {
+      "kind": "fixed",
+      "title": "CI, certification, and synchronization fixes",
+      "entries": [
+        "Enforce local generated target preflight in CI. Exclude the Kilo host from E2E link calls on Windows and macOS and seed the certified launcher into install test fixtures. Resolve post-merge CI failures covering characterization drift, navigation orphan, and missing executable bit.",
+        "Regenerate committed target trees for new prompt and vendor-policy files across all platforms. Register the importing guide in docs navigation and update the prompt-file count sentinel."
+      ]
+    },
+    {
+      "kind": "internal",
+      "title": "Documentation, reviews, and knowledge capture",
+      "entries": [
+        "Add the manifest-driven skill-loading plan defining the seven-phase project-local projection architecture. Record phase-one through phase-five execution evidence, reviews, verification, and fix-triage convergence in active state and work reports.",
+        "Capture phase-two, phase-three, and phase-four knowledge for catalog staleness testing, capability-router hard-stop, install gates, and journal security. Document the certified launch boundary, the contained launcher command, and installation output for local diagnostic separation.",
+        "Add the import-skill command, Kilo adapter, and importing guide covering workflow, security checks, quarantine, and vendor registration. Add tests covering contained-launcher behavior and safe copy for local, Codex, Claude, mixed-root, and ineffective-control cases.",
+        "Rebuild knowledge indexes and refresh topic, entity, and relationship counts."
+      ]
+    }
+  ]
+}

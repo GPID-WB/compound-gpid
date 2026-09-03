@@ -146,3 +146,4 @@ and diff hygiene. Windows runtime collision tests remain required on Windows CI.
 - `.cg-docs/solutions/bugs/2026-05-20-python-path-startswith-bypass-use-relative-to.md` — component-aware path containment before handle pinning
 - `.cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-verify-review-5.md` — findings and triage ledger that exposed the boundary regressions
 - `.cg-docs/solutions/bugs/2026-08-03-generic-publisher-secure-deletion-and-cross-platform-gates.md` — follow-up commit-point, canonical-identity, and supported-backend CI gate pattern
+- `.cg-docs/solutions/testing-patterns/2026-08-17-journal-security-hardening-patterns.md` — journal-level path-traversal prevention extending the secure publication foundation

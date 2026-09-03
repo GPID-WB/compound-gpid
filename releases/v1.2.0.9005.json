@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "tag": "v1.2.0.9005",
+  "publishedAt": "2026-08-14T21:17:57Z",
+  "releaseDate": "2026-08-14",
+  "name": "v1.2.0.9005 - Pages immutable-ref gate accepts dev-series pre-release tags",
+  "url": "https://github.com/GPID-WB/compound-gpid/releases/tag/v1.2.0.9005",
+  "sourceUrl": "https://github.com/GPID-WB/compound-gpid/tree/v1.2.0.9005",
+  "sections": [
+    {
+      "kind": "fixed",
+      "title": "Pages immutable-ref gate accepts dev-series pre-release tags",
+      "entries": [
+        "Pages immutable-ref gate now accepts dev-series pre-release tags (v1.2.0.900x) instead of rejecting them",
+        "Dev-series pre-release tag commits now resolve on the dev lineage"
+      ]
+    },
+    {
+      "kind": "internal",
+      "title": "Internal and workflow improvements",
+      "entries": [
+        "Documented the pages immutable-ref gate dev-series rejection behavior and recorded a solution entry"
+      ]
+    }
+  ]
+}

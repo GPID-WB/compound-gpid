@@ -6,6 +6,7 @@
       "id": "copilot",
       "name": "GitHub Copilot",
       "generatedTreePath": null,
+      "projectedCategories": ["skills"],
       "capabilities": {
         "supportsNativeCommands": true,
         "supportsNativeSkills": true,
@@ -25,9 +26,12 @@
         "instructions": ".github/instructions",
         "shared": ".github/shared"
       },
+      "projectRoots": {
+        "managed": [".github/skills"],
+        "optionalUser": []
+      },
       "installUnits": [
         { "type": "directory", "source": ".github/prompts", "target": ".github/prompts", "strategy": "link-directory" },
-        { "type": "directory", "source": ".github/skills", "target": ".github/skills", "strategy": "link-directory" },
         { "type": "directory", "source": ".github/agents", "target": ".github/agents", "strategy": "link-directory" },
         { "type": "directory", "source": ".github/instructions", "target": ".github/instructions", "strategy": "link-directory" },
         { "type": "directory", "source": ".github/shared", "target": ".github/shared", "strategy": "link-directory" },
@@ -57,6 +61,10 @@
         "instructions": ".claude/instructions",
         "shared": ".claude/shared",
         "rootAdapter": ".claude/CLAUDE.md"
+      },
+      "projectRoots": {
+        "managed": [".claude"],
+        "optionalUser": []
       },
       "installUnits": [
         { "type": "directory", "source": ".claude/commands", "target": ".claude/commands", "strategy": "link-directory" },
@@ -92,6 +100,10 @@
         "shared": ".agents/shared",
         "rootAdapter": ".agents/AGENTS.md"
       },
+      "projectRoots": {
+        "managed": [".agents"],
+        "optionalUser": []
+      },
       "installUnits": [
         { "type": "directory", "source": ".agents/commands", "target": ".agents/commands", "strategy": "link-directory" },
         { "type": "directory", "source": ".agents/skills", "target": ".agents/skills", "strategy": "link-directory" },
@@ -125,6 +137,10 @@
         "shared": ".opencode/shared",
         "rootAdapter": ".opencode/AGENTS.md",
         "config": ".opencode/opencode.json"
+      },
+      "projectRoots": {
+        "managed": [".opencode"],
+        "optionalUser": []
       },
       "installUnits": [
         { "type": "directory", "source": ".opencode/commands", "target": ".opencode/commands", "strategy": "link-directory" },
@@ -166,6 +182,10 @@
         "shared": ".kilo/shared",
         "rootAdapter": ".kilo/AGENTS.md",
         "config": ".kilo/kilo.json"
+      },
+      "projectRoots": {
+        "managed": [".kilo"],
+        "optionalUser": []
       },
       "installUnits": [
         { "type": "directory", "source": ".kilo/commands", "target": ".kilo/commands", "strategy": "copy-directory" },

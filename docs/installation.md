@@ -15,7 +15,7 @@ uninstall procedures. New users should follow the shorter
 ## Windows installation
 
 > **Requirements**: Windows 10/11, PowerShell 5.1+, git, **Python 3.8+**.
-> Python is required by the `cg-index` knowledge indexer, the `cg-token-audit` context/model audit, and the repo-local summary tools. Install from [python.org](https://www.python.org/downloads/) or via winget: `winget install Python.Python.3.11`. The Windows Store Python stub is not sufficient — install real Python and ensure `python`, `python3`, or `py` is on your PATH. If Python is not installed, `install.ps1` will stop with an error and print install instructions. See [Python not found](troubleshooting.md#python-not-found) in Troubleshooting if you run into issues.
+> Python is required by `cg-skill`, the `cg-index` knowledge indexer, the `cg-token-audit` context/model audit, and the repo-local summary tools. Install from [python.org](https://www.python.org/downloads/) or via winget: `winget install Python.Python.3.11`. The Windows Store Python stub is not sufficient — install real Python and ensure `python`, `python3`, or `py` is on your PATH. If Python is not installed, `install.ps1` will stop with an error and print install instructions. See [Python not found](troubleshooting.md#python-not-found) in Troubleshooting if you run into issues.
 >
 > | Environment | Recommended path | Why |
 > |-------------|-----------------|-----|
@@ -48,7 +48,7 @@ git clone https://github.com/GPID-WB/compound-gpid.git "$env:USERPROFILE\.compou
 & "$env:USERPROFILE\.compound-gpid\install.ps1"
 ```
 
-This creates batch wrappers for `cg-link`, `cg-unlink`, `cg-update`, `cg-index`, `cg-brain-init`, `cg-render-artifact`, `cg-publish-markdown`, and `cg-token-audit` in the `bin\` subdirectory of your install location and adds that directory to your PATH. Python 3.8+ powers Brainstorm/Plan validation and HTML rendering through `cg-render-artifact`, plus secure generic Markdown publication through `cg-publish-markdown` with the `reference` theme. It also writes `.cg-version` (set to `latest`) in the install directory so version preference is immediately available. The `cg-index query` mode provides budgeted local Brain retrieval; `cg-token-audit` writes both legacy `.cg-docs/cost/` reports and additive `.cg-docs/token/` dashboard/regression artifacts.
+This creates batch wrappers for `cg-link`, `cg-unlink`, `cg-update`, `cg-skill`, `cg-index`, `cg-brain-init`, `cg-render-artifact`, `cg-publish-markdown`, and `cg-token-audit` in the `bin\` subdirectory of your install location and adds that directory to your PATH. Python 3.8+ powers the skill lifecycle, Brainstorm/Plan validation, and HTML rendering through `cg-render-artifact`, plus secure generic Markdown publication through `cg-publish-markdown` with the `reference` theme. It also writes `.cg-version` (set to `latest`) in the install directory so version preference is immediately available. The `cg-index query` mode provides budgeted local Brain retrieval; `cg-token-audit` writes both legacy `.cg-docs/cost/` reports and additive `.cg-docs/token/` dashboard/regression artifacts.
 
 > ⚠️ **IMPORTANT — After install, restart both your terminal and VS Code / Positron:**
 > - **Terminal restart**: the PATH change only takes effect in new processes — `cg-link` will not be found until the terminal is restarted.
@@ -65,7 +65,7 @@ From your project root:
 cg-link
 ```
 
-This links Compound GPID install units for all supported platforms by default: GitHub Copilot (`.github/`), Claude Code (`.claude/`), Codex (`.agents/`), OpenCode (`.opencode/`), and Kilo (`.kilo/`). Directory units are junctions on Windows. Strict config/root-adapter files are copied only when managed by Compound GPID, so existing user-owned files are preserved.
+This links Compound GPID install units for all supported platforms by default: GitHub Copilot (`.github/`), Claude Code (`.claude/`), Codex (`.agents/`), OpenCode (`.opencode/`), and Kilo (`.kilo/`). Kilo runtime directories are project-local managed copies; other directory units are junctions on Windows. Strict config/root-adapter files are copied only when managed by Compound GPID, so existing user-owned files are preserved.
 
 > **Platform selection**: To install only specific platforms, pass `--platforms`:
 > ```powershell
@@ -75,6 +75,15 @@ This links Compound GPID install units for all supported platforms by default: G
 > ```
 > Default (`cg-link` with no flag) links all supported platforms. See [Context
 > Files](context-files.md) for details on generated native platform trees.
+
+> **Kilo + Codex/Claude coexistence**: when a project contains Kilo plus a
+> Codex or Claude skill root, direct Kilo editor/CLI launches are unsupported.
+> Run the certified launcher `cg-kilo` from the project root. It performs the
+> local projection and supported-host preflight, then sets
+> `KILO_DISABLE_EXTERNAL_SKILLS=1` only for the child Kilo process. It does not
+> modify global Kilo configuration or the caller's environment. If the host
+> version, local projection, or containment check is unsupported, `cg-link` and
+> `cg-update` fail with remediation rather than claiming coexistence support.
 
 > ⚠️ **IMPORTANT — Restart VS Code / Positron after linking.**
 > Copilot must re-index the workspace to see the newly linked prompts, skills, and agents.
@@ -122,6 +131,11 @@ and creates three config files:
 > packaging preserves their mode but never executes them. See
 > [Generated Native Platform Trees](context-files.md#generated-native-platform-trees).
 
+> **Kilo parser diagnostics**: malformed managed Kilo skill, agent, and `cg-*`
+> command frontmatter is reported as a local-content failure. Kilo's own
+> schema-validation failure is reported separately from external skill
+> discovery; one must not be used as evidence for the other.
+
 > **Suite selection**: `/cg-setup` records active suites in
 > `compound-gpid.local.md`. An absent `suites:` field defaults to `[cg]` for
 > backward compatibility. Linked projects share the global all-suite native
@@ -151,7 +165,7 @@ bash ~/.compound-gpid/scripts/install.sh
 ```
 
 This:
-- Creates or refreshes bash wrappers (`cg-link`, `cg-unlink`, `cg-update`, `cg-index`, `cg-brain-init`, `cg-render-artifact`, `cg-publish-markdown`, `cg-token-audit`) in `~/.compound-gpid/bin/`; Python 3.8+ provides Brainstorm/Plan validation, HTML rendering, and generic Markdown publication with the `reference` theme, and the same `bin/` directory also contains repo-local summary wrappers such as `cg-test-summary`, `cg-diff-summary`, `cg-log-summary`, `cg-tree-summary`, and `cg-problems-summary`
+- Creates or refreshes bash wrappers (`cg-link`, `cg-unlink`, `cg-update`, `cg-skill`, `cg-index`, `cg-brain-init`, `cg-render-artifact`, `cg-publish-markdown`, `cg-token-audit`) in `~/.compound-gpid/bin/`; Python 3.8+ provides skill lifecycle management, Brainstorm/Plan validation, HTML rendering, and generic Markdown publication with the `reference` theme, and the same `bin/` directory also contains repo-local summary wrappers such as `cg-test-summary`, `cg-diff-summary`, `cg-log-summary`, `cg-tree-summary`, and `cg-problems-summary`
 - Adds that directory to your PATH via `~/.zshrc` (or `~/.bashrc` for bash users)
 - Writes `.cg-version` (set to `latest`) in the install directory
 
@@ -167,7 +181,7 @@ From your project root:
 cg-link
 ```
 
-This links Compound GPID install units for all supported platforms by default: GitHub Copilot (`.github/`), Claude Code (`.claude/`), Codex (`.agents/`), OpenCode (`.opencode/`), and Kilo (`.kilo/`). Directory units are symlinks on macOS. Strict config/root-adapter files are copied only when managed by Compound GPID, so existing user-owned files are preserved.
+This links Compound GPID install units for all supported platforms by default: GitHub Copilot (`.github/`), Claude Code (`.claude/`), Codex (`.agents/`), OpenCode (`.opencode/`), and Kilo (`.kilo/`). Kilo runtime directories are project-local managed copies; other directory units are symlinks on macOS. Strict config/root-adapter files are copied only when managed by Compound GPID, so existing user-owned files are preserved.
 
 > **Platform selection**: To install only specific platforms:
 > ```bash
@@ -176,6 +190,11 @@ This links Compound GPID install units for all supported platforms by default: G
 > cg-link --platforms copilot,claude-code,codex,opencode,kilo
 > ```
 > Default (`cg-link` with no flag) links all supported platforms.
+
+> With Kilo and Codex/Claude roots present, launch Kilo only through
+> `cg-kilo`. The certified launcher is the supported containment boundary;
+> direct editor/CLI launches are intentionally unsupported by the coexistence
+> policy.
 
 > ⚠️ **IMPORTANT — Restart VS Code / Positron after linking.**
 > Copilot must re-index the workspace to see the newly linked prompts, skills, and agents.
@@ -251,6 +270,23 @@ cg-update
 ```
 
 This resets any accidental local changes and then pulls the latest version. Linked directory units update instantly through symlinks/junctions. Copied managed files in the current project are refreshed through `.compound-gpid/managed-files.json` only when their checksum still matches the managed copy.
+
+### Refreshing existing consumer projects
+
+The root `.compound-gpid-source.json` marker belongs only to the Compound GPID
+source checkout. It is not projected or installed in consumer projects.
+
+- **Legacy links**: run `cg-update`. Existing directory links receive the fixed
+  command immediately. Run `cg-link --platforms <platforms>` only to recreate or
+  repair old links.
+- **Kilo managed copies**: run `cg-update` from the consumer project so managed
+  `.kilo/` files refresh. If the project predates managed-file tracking, run
+  `cg-link --platforms kilo` once after the update.
+- **Manifest projections**: run `cg-update` to refresh checksum-owned projected
+  files. Rerun `cg-link --platforms <platforms>` after a platform-selection or
+  install-unit change.
+
+Restart VS Code or Positron after a refresh so the host reloads command files.
 
 ---
 

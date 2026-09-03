@@ -1,4 +1,4 @@
-﻿---
+---
 description: "Searches .cg-docs/solutions/ and .cg-docs/brainstorms/ for relevant past learnings before starting new work. Used in thorough reviews."
 tools: ['read', 'search']
 user-invocable: false

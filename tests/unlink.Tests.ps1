@@ -16,6 +16,27 @@ if (-not $script:OnWindows) {
     return
 }
 
+Describe "unlink.ps1 - hybrid Copilot skill projection" {
+    BeforeAll {
+        $repoRoot = Split-Path $PSScriptRoot -Parent
+        $mapping = Get-Content (Join-Path $repoRoot ".github\shared\target-mapping.json") -Raw -Encoding UTF8 | ConvertFrom-Json
+        $copilot = @($mapping.targets | Where-Object { $_.id -eq "copilot" })[0]
+        $unlinkContent = Get-Content (Join-Path $repoRoot "scripts\unlink.ps1") -Raw -Encoding UTF8
+    }
+
+    It "leaves the real Copilot skills parent out of link-unit deletion" {
+        @($copilot.projectedCategories)[0] | Should -Be "skills"
+        @($copilot.installUnits | Where-Object { $_.target -eq ".github/skills" }).Count | Should -Be 0
+    }
+
+    It "delegates owned bundle removal to the projection worker" {
+        $unlinkContent | Should -Match 'projection-ownership.json'
+        $unlinkContent | Should -Match 'Invoke-CgProjection'
+        $unlinkContent | Should -Match 'Mode unlink'
+        $unlinkContent | Should -Match 'checksum-owned manifest projection files'
+    }
+}
+
 Describe "unlink.ps1 - pre-condition checks" {
     Context "when .github does not exist" {
         It "does not use .github absence as the global unlink gate" {
@@ -317,6 +338,55 @@ Describe "unlink.ps1 - copy-directory managed removal" {
         # The outside file is untouched even though its checksum matched.
         (Get-Content -LiteralPath $victim -Raw).Trim() | Should -Be "must survive"
     }
+
+    It "rejects a compatibility mirror junction that resolves outside the project" {
+        $repoRoot = Split-Path $PSScriptRoot -Parent
+        $project = Join-Path $TestDrive "unlink-external-mirror-project"
+        $external = Join-Path $TestDrive "unlink-external-mirror-target"
+        $mirrorParent = Join-Path $project ".compound-gpid\kilo-compat-skills"
+        $mirror = Join-Path $mirrorParent "codex"
+        $victim = Join-Path $external "victim.txt"
+        New-Item -ItemType Directory -Path $project, $external, $mirrorParent -Force | Out-Null
+        Set-Content -LiteralPath $victim -Value "must survive"
+        $hash = (Get-FileHash -LiteralPath $victim -Algorithm SHA256).Hash.ToLowerInvariant()
+        $marker = @{ schemaVersion = 1; source = ".agents/skills"; files = @{ "victim.txt" = $hash } }
+        $utf8NoBom = New-Object -TypeName System.Text.UTF8Encoding -ArgumentList $false
+        [System.IO.File]::WriteAllText((Join-Path $external ".compound-gpid-managed-copy.json"), (($marker | ConvertTo-Json -Depth 4) + "`n"), $utf8NoBom)
+        New-Item -ItemType Junction -Path $mirror -Value $external | Out-Null
+
+        Push-Location $project
+        try {
+            & (Join-Path $repoRoot "scripts\unlink.ps1") -RawArgs @("--yes")
+            (Get-Content -LiteralPath $victim -Raw).Trim() | Should -Be "must survive"
+            (Get-Item -LiteralPath $mirror -Force).LinkType | Should -Be "Junction"
+        } finally {
+            Pop-Location
+            $item = Get-Item -LiteralPath $mirror -Force -ErrorAction SilentlyContinue
+            if ($item -and $item.LinkType -eq "Junction") { [System.IO.Directory]::Delete($item.FullName) }
+        }
+    }
+
+    It "preserves an unrelated junction whose target merely contains compound-gpid" {
+        $repoRoot = Split-Path $PSScriptRoot -Parent
+        $project = Join-Path $TestDrive "unlink-exact-ownership-project"
+        $external = Join-Path $TestDrive "my-compound-gpid-results"
+        $agents = Join-Path $project ".agents"
+        $skills = Join-Path $agents "skills"
+        New-Item -ItemType Directory -Path $project, $external, $agents -Force | Out-Null
+        Set-Content -LiteralPath (Join-Path $external "user.txt") -Value "user-owned"
+        New-Item -ItemType Junction -Path $skills -Value $external | Out-Null
+
+        Push-Location $project
+        try {
+            & (Join-Path $repoRoot "scripts\unlink.ps1") -RawArgs @("--yes")
+            (Get-Item -LiteralPath $skills -Force).LinkType | Should -Be "Junction"
+            Test-Path -LiteralPath (Join-Path $external "user.txt") | Should -Be $true
+        } finally {
+            Pop-Location
+            $item = Get-Item -LiteralPath $skills -Force -ErrorAction SilentlyContinue
+            if ($item -and $item.LinkType -eq "Junction") { [System.IO.Directory]::Delete($item.FullName) }
+        }
+    }
 }
 
 # ---------------------------------------------------------------------------
@@ -402,5 +472,18 @@ Describe "unlink.ps1 - -Force flag for non-interactive use" {
         $content | Should -Match 'target\.installUnits'
         $content | Should -Match 'ConvertTo-CgSlashPath'
         $content | Should -Match 'managed-files\.json'
+    }
+}
+
+Describe "unlink.ps1 - manifest projection unlink" {
+    It "invokes the projection unlink worker when ownership exists" {
+        $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\unlink.ps1") -Raw -Encoding UTF8
+        $content | Should -Match 'Invoke-CgProjection'
+        $content | Should -Match 'projection-ownership.json'
+    }
+
+    It "fails softly (warning) rather than deleting on worker failure" {
+        $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\unlink.ps1") -Raw -Encoding UTF8
+        $content | Should -Match 'Could not remove manifest projection files'
     }
 }

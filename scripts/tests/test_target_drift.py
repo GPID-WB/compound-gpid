@@ -16,6 +16,7 @@ import shutil
 import subprocess
 import tempfile
 from pathlib import Path
+from typing import Iterable
 
 import cg_generate_targets as gen
 
@@ -35,7 +36,7 @@ def _build_structured_plan(root: Path) -> gen.GenerationPlan:
     """Build and return the validated in-memory generation plan."""
     try:
         mapping = gen.load_target_mapping(root)
-        assets = gen.scan_canonical_assets(root)
+        assets = gen.scan_canonical_assets(root, active_suites=("cg", "cr"))
         return gen.build_generation_plan(root, mapping, assets)
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         pytest.fail(f"Generator failed while building structured plan: {exc}")
@@ -44,22 +45,46 @@ def _build_structured_plan(root: Path) -> gen.GenerationPlan:
 @functools.lru_cache(maxsize=8)
 def _expected_paths(root: Path) -> frozenset[str]:
     plan = _build_structured_plan(root)
-    return frozenset({entry.destination for entry in plan.entries} | OWNERSHIP_MANIFESTS)
+    return frozenset(
+        {
+            entry.destination
+            for entry in plan.entries
+            if entry.target_id != "copilot"
+        }
+        | OWNERSHIP_MANIFESTS
+    )
 
 
 def _committed_generated_files(root: Path, tree_paths: list[str]) -> set[str]:
-    """Return the set of committed files in generated tree directories."""
+    """Return tracked and untracked generated files present in the worktree."""
     result = subprocess.run(
-        ["git", "ls-files", "--", *tree_paths],
+        [
+            "git",
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "--",
+            *tree_paths,
+        ],
         capture_output=True, text=True, cwd=str(root), timeout=30, check=False,
     )
     if result.returncode != 0:
         pytest.fail(f"Could not list committed generated files: {result.stderr}")
-    return {line.strip() for line in result.stdout.splitlines() if line.strip()}
+    return {
+        line.strip()
+        for line in result.stdout.splitlines()
+        if line.strip()
+        and (root / line.strip()).is_file()
+        and not (root / line.strip()).is_symlink()
+    }
 
 
 def _read_git_blob_bytes(root: Path, rel_path: str) -> bytes:
-    """Read committed file bytes from HEAD."""
+    """Read tracked working-tree bytes, with HEAD fallback for missing paths."""
+    working = root / rel_path
+    if working.is_file() and not working.is_symlink():
+        return working.read_bytes()
     result = subprocess.run(
         ["git", "show", f"HEAD:{rel_path}"],
         capture_output=True,
@@ -78,19 +103,35 @@ def _sha256_bytes(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
-def _is_git_ignored(root: Path, rel_path: str) -> bool:
-    """Return True when a repository-relative path is ignored by git."""
+def _git_ignored_paths(root: Path, rel_paths: Iterable[str]) -> set[str]:
+    """Return ignored paths using one NUL-delimited Git query."""
+    paths = sorted(set(rel_paths))
+    if not paths:
+        return set()
+
     result = subprocess.run(
-        ["git", "check-ignore", "--quiet", "--", rel_path],
+        ["git", "check-ignore", "--stdin", "-z"],
+        input="".join(f"{path}\0" for path in paths),
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
         cwd=str(root),
         timeout=30,
         check=False,
     )
-    if result.returncode == 0:
-        return True
-    if result.returncode == 1:
-        return False
-    pytest.fail(f"Could not evaluate git ignore state for {rel_path}")
+    if result.returncode not in {0, 1}:
+        detail = (result.stderr or "").strip() or (
+            f"git exited with status {result.returncode}"
+        )
+        pytest.fail(f"Could not evaluate git ignore state: {detail}")
+    return {path for path in result.stdout.split("\0") if path}
+
+
+@functools.lru_cache(maxsize=8)
+def _ignored_expected_paths(root: Path) -> frozenset[str]:
+    """Return ignored generated paths, cached across drift assertions."""
+    return frozenset(_git_ignored_paths(root, _expected_paths(root)))
 
 
 @pytest.mark.parametrize(
@@ -137,24 +178,56 @@ def test_git_ignore_failure_fails_instead_of_skip(monkeypatch: pytest.MonkeyPatc
         lambda *args, **kwargs: subprocess.CompletedProcess(args[0], 128),
     )
     with pytest.raises(pytest.fail.Exception, match="ignore state"):
-        _is_git_ignored(REPO_ROOT, ".claude/missing")
+        _git_ignored_paths(REPO_ROOT, [".claude/missing"])
+
+
+def test_git_ignore_checks_are_batched(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Release drift checks should query all expected paths in one Git process."""
+    calls: list[list[str]] = []
+
+    def fake_run(command: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
+        calls.append(command)
+        assert command == ["git", "check-ignore", "--stdin", "-z"]
+        assert kwargs["input"] == ".agents/kept.md\0.kilo/ignored.md\0"
+        return subprocess.CompletedProcess(command, 0, ".kilo/ignored.md\0", "")
+
+    monkeypatch.setattr(subprocess, "run", fake_run)
+
+    ignored = _git_ignored_paths(
+        REPO_ROOT,
+        [".kilo/ignored.md", ".agents/kept.md"],
+    )
+
+    assert ignored == {".kilo/ignored.md"}
+    assert len(calls) == 1
 
 
 class TestNoDrift:
     def test_ownership_manifests_are_well_formed_and_match_worktree(self) -> None:
         for rel_path in sorted(OWNERSHIP_MANIFESTS):
-            current_path = REPO_ROOT / rel_path
-            assert current_path.is_file(), rel_path
+            committed = _read_git_blob_bytes(REPO_ROOT, rel_path)
             try:
-                manifest = json.loads(current_path.read_text(encoding="utf-8"))
+                manifest = json.loads(committed)
             except (UnicodeDecodeError, json.JSONDecodeError) as exc:
                 pytest.fail(f"Malformed ownership manifest {rel_path}: {exc}")
             assert isinstance(manifest.get("files"), list), rel_path
             for entry in manifest["files"]:
                 assert set(entry) >= {"path", "sha256"}, (rel_path, entry)
-                generated_path = REPO_ROOT / entry["path"]
-                assert generated_path.is_file(), entry["path"]
-                assert _sha256_bytes(generated_path.read_bytes()) == entry["sha256"], entry["path"]
+                blob = _read_git_blob_bytes(REPO_ROOT, entry["path"])
+                assert _sha256_bytes(blob) == entry["sha256"], entry["path"]
+
+    def test_generated_worktree_is_exact_before_commit(self) -> None:
+        """Implementation gates validate current generated bytes before commit.
+
+        Commit cleanliness is enforced by the later release gate. Requiring
+        equality with HEAD here makes a requested no-commit implementation
+        impossible even when every generated byte exactly matches the plan.
+        """
+        expected = _expected_paths(REPO_ROOT) - _ignored_expected_paths(REPO_ROOT)
+        actual = _committed_generated_files(
+            REPO_ROOT, [".claude", ".agents", ".opencode", ".kilo"]
+        )
+        assert expected == actual
 
     def test_generated_skill_bundles_recursively_match_canonical_files(self) -> None:
         """Every generated skill bundle must have the complete canonical file set."""
@@ -175,6 +248,8 @@ class TestNoDrift:
                     for path in generated.rglob("*")
                     if path.is_file()
                 }
+                if not generated_files:
+                    continue
                 if generated_files != canonical_files:
                     mismatches.append(f"{target_root}/{canonical.name}")
 
@@ -184,11 +259,7 @@ class TestNoDrift:
         """Every non-ignored expected file should exist in committed outputs."""
         expected = _expected_paths(REPO_ROOT)
         committed = _committed_generated_files(REPO_ROOT, [".claude", ".agents", ".opencode", ".kilo"])
-        expected_committed = {
-            path
-            for path in expected
-            if not _is_git_ignored(REPO_ROOT, path)
-        }
+        expected_committed = expected - _ignored_expected_paths(REPO_ROOT)
 
         missing = expected_committed - committed
         if missing:
@@ -211,11 +282,34 @@ class TestNoDrift:
                 f"Orphaned files (first 10): {sorted(orphaned)[:10]}"
             )
 
-    def test_generated_content_matches_canonical_regeneration(self) -> None:
-        """Current generated files should match canonical regeneration."""
+    def test_generated_trees_contain_no_python_cache_artifacts(self) -> None:
+        """Committed native trees must not contain interpreter cache content."""
+        committed = _committed_generated_files(
+            REPO_ROOT, [".claude", ".agents", ".opencode", ".kilo"]
+        )
+        cache_paths = [
+            path for path in committed
+            if "__pycache__" in path.split("/") or path.casefold().endswith(".pyc")
+        ]
+        assert not cache_paths, f"Generated trees contain Python cache artifacts: {cache_paths}"
+
+    def test_ownership_manifests_do_not_reference_python_cache_artifacts(self) -> None:
+        """Committed ownership manifests must exclude interpreter cache paths."""
+        cache_references = []
+        for rel_path in sorted(OWNERSHIP_MANIFESTS):
+            manifest = json.loads(_read_git_blob_bytes(REPO_ROOT, rel_path).decode("utf-8"))
+            for entry in manifest.get("files", []):
+                for key in ("path", "source"):
+                    value = entry.get(key, "")
+                    if "__pycache__" in value.split("/") or value.casefold().endswith(".pyc"):
+                        cache_references.append((rel_path, value))
+        assert not cache_references, f"Ownership manifests reference cache artifacts: {cache_references}"
+
+    def test_committed_generated_content_matches_dry_run_manifest(self) -> None:
+        """Committed generated files should match dry-run regenerated content."""
         expected = _expected_paths(REPO_ROOT)
         committed = _committed_generated_files(REPO_ROOT, [".claude", ".agents", ".opencode", ".kilo"])
-        expected_committed = {path for path in expected if not _is_git_ignored(REPO_ROOT, path)}
+        expected_committed = expected - _ignored_expected_paths(REPO_ROOT)
 
         # Compare only files that are both expected and committed to avoid
         # duplicate reporting with stale/orphaned path tests above.
@@ -231,7 +325,9 @@ class TestNoDrift:
                 if src.exists():
                     shutil.copytree(src, dst, dirs_exist_ok=True)
 
-            assets = gen.scan_canonical_assets(fixture)
+            assets = gen.scan_canonical_assets(
+                fixture, active_suites=("cg", "cr")
+            )
             mapping = gen.load_target_mapping(fixture)
             for target in mapping["targets"]:
                 if target.get("generatedTreePath") is None:
@@ -240,16 +336,13 @@ class TestNoDrift:
 
             mismatches: list[str] = []
             for rel_path in overlap:
-                generated_path = REPO_ROOT / rel_path
+                generated_path = fixture / rel_path
                 if not generated_path.exists():
                     mismatches.append(f"missing generated output: {rel_path}")
                     continue
                 generated_bytes = generated_path.read_bytes()
-                regenerated_path = fixture / rel_path
-                if not regenerated_path.exists():
-                    mismatches.append(f"missing regenerated output: {rel_path}")
-                    continue
-                if _sha256_bytes(generated_bytes) != _sha256_bytes(regenerated_path.read_bytes()):
+                committed_bytes = _read_git_blob_bytes(REPO_ROOT, rel_path)
+                if _sha256_bytes(generated_bytes) != _sha256_bytes(committed_bytes):
                     mismatches.append(rel_path)
 
             if mismatches:

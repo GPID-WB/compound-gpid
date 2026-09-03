@@ -57,7 +57,7 @@ function Get-UnlinkShUnitKeysFromSource {
     param([string]$Content)
 
     $keys = @()
-    $matches = [regex]::Matches($Content, "'([^|'`r`n]+)\|([^|'`r`n]+)'")
+    $matches = [regex]::Matches($Content, "'([^|'`r`n]+)\|([^|'`r`n]+)(?:\|[^'`r`n]*)?'")
     foreach ($match in $matches) {
         $keys += "$($match.Groups[1].Value)|$($match.Groups[2].Value)"
     }
@@ -133,6 +133,56 @@ Describe "link.ps1 <-> link.sh parity" {
         $linkPs1 | Should -Match 'checksum'
         $linkSh  | Should -Match 'sha256'
     }
+
+    It "both scripts localize compatibility skill links when Kilo is installed" {
+        foreach ($content in @($linkPs1, $linkSh)) {
+            $content | Should -Match 'kilo-compat-skills'
+            $content | Should -Match 'claude-code'
+            $content | Should -Match 'codex'
+            $content | Should -Match 'opencode'
+            $content | Should -Match 'localized for Kilo compatibility discovery'
+        }
+    }
+
+    It "both scripts enforce exact ownership and project-contained copy targets" {
+        $linkPs1 | Should -Match 'Assert-CgManagedCopyTargetSafe'
+        $linkSh | Should -Match 'os\.path\.commonpath'
+        $linkSh | Should -Match 'same_realpath'
+        $linkSh | Should -Not -Match '\[\[\s+"\$existing_target"\s+==\s+\*compound-gpid\*\s+\]\]'
+    }
+
+    It "both scripts stage compatibility links before replacing working links" {
+        $linkPs1 | Should -Match 'Set-CgJunctionTargetSafely'
+        $linkPs1 | Should -Match 'Temporary junction did not resolve'
+        $linkSh | Should -Match 'replace_symlink_safely'
+        $linkSh | Should -Match 'os\.replace\(sys\.argv\[1\], sys\.argv\[2\]\)'
+    }
+
+    It "POSIX managed-copy failures are explicitly propagated" {
+        $linkSh | Should -Match 'managed-copy synchronization failed'
+        $linkSh | Should -Match 'copy-directory installation failed'
+        $linkSh | Should -Match 'migrated legacy managed file'
+    }
+}
+
+# ---------------------------------------------------------------------------
+# cg-link singular platform flag
+# ---------------------------------------------------------------------------
+Describe "cg-link - singular --platform flag" {
+    $linkPs1 = Get-Content (Join-Path $repoRoot "scripts/link.ps1") -Raw -Encoding UTF8
+    $linkSh  = Get-Content (Join-Path $repoRoot "scripts/link.sh")  -Raw -Encoding UTF8
+
+    It "recognizes singular --platform in the PowerShell argument parser" {
+        # The singular alias must be a parser token in its own right; matching
+        # only the prefix of --platforms is insufficient.
+        $linkPs1 | Should -Match '(?m)^\s*}\s*elseif\s*\(\$arg\s+-like\s+"--platform=\*"\)'
+    }
+
+    It "recognizes singular --platform in the bash argument parser" {
+        # The macOS launcher must select only the requested platform instead of
+        # warning on --platform and falling back to the all-platform default.
+        $linkSh | Should -Match '(?m)^\s*--platform(?!s)(?:=|\|)'
+    }
 }
 
 # ---------------------------------------------------------------------------
@@ -188,6 +238,17 @@ Describe "link.ps1 <-> unlink.ps1 parity (PowerShell pair)" {
         $linkPs1 | Should -Match 'target\.installUnits'
         $unlinkPs1 | Should -Match 'target\.installUnits'
     }
+
+    It "both PowerShell scripts manage Kilo compatibility mirrors" {
+        $linkPs1 | Should -Match 'kilo-compat-skills'
+        $unlinkPs1 | Should -Match 'kilo-compat-skills'
+    }
+
+    It "unlink requires exact junction targets and rejects reparse traversal" {
+        $unlinkPs1 | Should -Match 'ExpectedTarget'
+        $unlinkPs1 | Should -Match 'Test-CgManagedCopyPathSafe'
+        $unlinkPs1 | Should -Not -Match '\*compound-gpid\*'
+    }
 }
 
 # ---------------------------------------------------------------------------
@@ -216,21 +277,31 @@ Describe "link.sh <-> unlink.sh parity (bash pair)" {
         $missingFromLink | Should -BeNullOrEmpty
         $missingFromUnlink | Should -BeNullOrEmpty
     }
+
+    It "both bash scripts manage Kilo compatibility mirrors" {
+        $linkSh | Should -Match 'kilo-compat-skills'
+        $unlinkSh | Should -Match 'kilo-compat-skills'
+    }
+
+    It "unlink.sh requires exact realpaths and project-contained targets" {
+        $unlinkSh | Should -Match 'same_realpath'
+        $unlinkSh | Should -Match 'os\.path\.commonpath'
+        $unlinkSh | Should -Not -Match '\[\[\s+"\$link_target"\s+==\s+\*compound-gpid\*\s+\]\]'
+    }
 }
 
 # ---------------------------------------------------------------------------
-# link.ps1 <-> link.sh copy-directory semantics divergence note
+# link.ps1 <-> link.sh copy-directory semantics parity note
 # ---------------------------------------------------------------------------
 Describe "link copy-directory semantics parity note" {
     $linkPs1 = Get-Content (Join-Path $repoRoot "scripts/link.ps1") -Raw -Encoding UTF8
     $linkSh  = Get-Content (Join-Path $repoRoot "scripts/link.sh")  -Raw -Encoding UTF8
 
-    It "both scripts document the copy-directory semantic divergence" {
-        # Windows link.ps1 preserves user edits + removes stale managed files;
-        # POSIX link.sh uses a wholesale overwrite. Each script must carry the
-        # matching side of the divergence note so the contract stays visible.
-        $linkPs1 | Should -Match 'copy-directory semantics: Windows preserves user edits'
-        $linkSh  | Should -Match 'copy-directory semantics: POSIX uses a wholesale overwrite'
+    It "both scripts preserve user edits through checksum-managed copies" {
+        $linkPs1 | Should -Match 'both Windows and POSIX preserve user edits'
+        $linkSh  | Should -Match 'preserve user edits, remove only unchanged stale managed files'
+        $linkPs1 | Should -Match '\.compound-gpid-managed-copy\.json'
+        $linkSh  | Should -Match '\.compound-gpid-managed-copy\.json'
     }
 }
 
@@ -288,5 +359,75 @@ Describe "cg-brain-init registration parity" {
         $installSh = Get-Content (Join-Path $repoRoot "scripts/install.sh") -Raw -Encoding UTF8
         $installSh | Should -Match 'cg-token-audit'
         $installSh | Should -Match 'cg_audit_context\.py'
+    }
+}
+
+Describe "cg-skill registration parity" {
+    $installPs1 = Get-Content (Join-Path $repoRoot "install.ps1") -Raw -Encoding UTF8
+    $installSh = Get-Content (Join-Path $repoRoot "scripts/install.sh") -Raw -Encoding UTF8
+
+    It "ships both public lifecycle wrappers" {
+        Test-Path (Join-Path $repoRoot "bin/cg-skill") | Should -Be $true
+        Test-Path (Join-Path $repoRoot "bin/cg-skill.cmd") | Should -Be $true
+    }
+
+    It "registers cg-skill in both installers" {
+        ($installPs1 -match 'cg-skill\.cmd') | Should -Be $true
+        ($installSh -match 'CG_SKILL_SRC') | Should -Be $true
+        ($installSh -match 'cg-skill') | Should -Be $true
+    }
+
+    It "removes the retired discovery wrapper in both installers" {
+        ($installPs1 -match 'Removed retired wrapper') | Should -Be $true
+        ($installSh -match 'rm -f.*cg-find-skill') | Should -Be $true
+    }
+}
+
+Describe "Kilo coexistence launcher parity" {
+    It "registers the certified launcher on Windows and POSIX" {
+        $installPs1 = Get-Content (Join-Path $repoRoot "install.ps1") -Raw -Encoding UTF8
+        $installSh = Get-Content (Join-Path $repoRoot "scripts/install.sh") -Raw -Encoding UTF8
+        $linkPs1 = Get-Content (Join-Path $repoRoot "scripts/link.ps1") -Raw -Encoding UTF8
+        $linkSh = Get-Content (Join-Path $repoRoot "scripts/link.sh") -Raw -Encoding UTF8
+        $updatePs1 = Get-Content (Join-Path $repoRoot "scripts/update.ps1") -Raw -Encoding UTF8
+        $updateSh = Get-Content (Join-Path $repoRoot "scripts/update.sh") -Raw -Encoding UTF8
+
+        $installPs1 | Should -Match 'cg-kilo'
+        $installSh | Should -Match 'cg-kilo'
+        $linkPs1 | Should -Match 'Invoke-CgKiloPreflight'
+        $linkSh | Should -Match 'run_kilo_preflight'
+        $updatePs1 | Should -Match 'Invoke-CgKiloPreflight'
+        $updateSh | Should -Match 'cg_kilo_preflight\.py'
+    }
+
+    It "uses the same process-scoped containment control" {
+        $worker = Get-Content (Join-Path $repoRoot "scripts/cg_kilo_preflight.py") -Raw -Encoding UTF8
+        $worker | Should -Match 'KILO_DISABLE_EXTERNAL_SKILLS'
+        $worker | Should -Match 'os\.environ\.copy\(\)'
+        $worker | Should -Match 'subprocess\.run'
+    }
+}
+
+Describe "hybrid Copilot skill projection parity" {
+    $mapping = Get-Content (Join-Path $repoRoot ".github/shared/target-mapping.json") -Raw -Encoding UTF8 | ConvertFrom-Json
+    $copilot = @($mapping.targets | Where-Object { $_.id -eq "copilot" })[0]
+    $linkPs1 = Get-Content (Join-Path $repoRoot "scripts/link.ps1") -Raw -Encoding UTF8
+    $linkSh = Get-Content (Join-Path $repoRoot "scripts/link.sh") -Raw -Encoding UTF8
+    $unlinkPs1 = Get-Content (Join-Path $repoRoot "scripts/unlink.ps1") -Raw -Encoding UTF8
+    $unlinkSh = Get-Content (Join-Path $repoRoot "scripts/unlink.sh") -Raw -Encoding UTF8
+
+    It "reserves the same Copilot skill root on Windows and POSIX" {
+        @($copilot.projectedCategories)[0] | Should -Be "skills"
+        @($copilot.projectRoots.managed)[0] | Should -Be ".github/skills"
+        @($copilot.installUnits | Where-Object { $_.target -eq ".github/skills" }).Count | Should -Be 0
+        $linkPs1 | Should -Match 'projectedCategories'
+        $linkSh | Should -Match 'COPILOT_PROJECTED_CATEGORIES="skills"'
+    }
+
+    It "delegates checksum-owned unlink on both platforms" {
+        $unlinkPs1 | Should -Match 'Invoke-CgProjection'
+        $unlinkPs1 | Should -Match 'Mode unlink'
+        $unlinkSh | Should -Match 'cg_project_projection\.py'
+        $unlinkSh | Should -Match '\-\-unlink'
     }
 }

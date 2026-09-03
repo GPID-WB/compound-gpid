@@ -35,7 +35,8 @@ or both suites:
 - **Research language support** — `cap-language-research` (LaTeX/math).
 - **Other shared capability packs** — Pester safety, git workflow, document
   rendering, World Bank report writing, generic review agents (`cap-review-agents`),
-  and knowledge capture (`cap-compound-docs`).
+  knowledge capture (`cap-compound-docs`), and public skill lifecycle management
+  (`cap-skill-management`).
 
 You do not need to name dependencies. Loading `/cr-work` in a project whose
 `suites:` includes `cr` automatically pulls the research suite, kernel, and every

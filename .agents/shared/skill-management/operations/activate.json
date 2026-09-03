@@ -1,0 +1,16 @@
+{
+  "schema": "cg-skill-operation-descriptor-v1",
+  "operation": "activate",
+  "version": 1,
+  "state": "active",
+  "roles": ["consumer"],
+  "phases": ["plan", "apply"],
+  "handler": "skill_management.operations.activate:handle",
+  "contract": ".agents/shared/skill-management/contracts/activate-v1.schema.json",
+  "workflow": ".agents/skills/cg-skill-management/workflows/activate.md",
+  "documentation": "docs/skills/management/commands/activate.md",
+  "tests": [
+    "scripts/tests/test_skill_management_config_editor.py",
+    "scripts/tests/test_skill_management_project_lifecycle.py"
+  ]
+}

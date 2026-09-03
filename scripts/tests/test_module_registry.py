@@ -8,7 +8,10 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 import cg_validate_modules as validator
+from skill_management.services import registry as registry_service
 
 
 def _write_json(path: Path, payload: dict) -> None:
@@ -82,6 +85,38 @@ def _registry(repo_root: Path, registry: dict) -> None:
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
+def test_cycle_detection_handles_long_graph_without_recursion() -> None:
+    adjacency = {
+        f"module-{index}": [f"module-{index + 1}"]
+        for index in range(2500)
+    }
+    adjacency["module-2500"] = []
+    assert validator._first_cycle(adjacency) is None  # pylint: disable=protected-access
+    adjacency["module-2500"] = ["module-2499"]
+    assert validator._first_cycle(adjacency) == [  # pylint: disable=protected-access
+        "module-2499",
+        "module-2500",
+        "module-2499",
+    ]
+
+
+def test_asset_read_failure_returns_validation_finding(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _minimal_assets(tmp_path)
+    _registry(tmp_path, _default_registry())
+    original = validator.secure_fs.secure_read_bytes
+
+    def fail_selected(root, relative_path, **kwargs):
+        if str(relative_path).replace("\\", "/").endswith("cg-work.prompt.md"):
+            raise validator.secure_fs.SecureMutationError("simulated path swap")
+        return original(root, relative_path, **kwargs)
+
+    monkeypatch.setattr(validator.secure_fs, "secure_read_bytes", fail_selected)
+    errors = validator.check_dependencies(tmp_path)
+    assert any("simulated path swap" in error for error in errors)
+
+
 class TestRegistrySchema:
     def test_happy_path_valid_registry_passes(self, tmp_path: Path) -> None:
         _minimal_assets(tmp_path)
@@ -117,6 +152,19 @@ class TestRegistrySchema:
 
 
 class TestOwnershipClosure:
+    def test_public_registry_owner_matching_agrees_with_validator(
+        self, tmp_path: Path
+    ) -> None:
+        _minimal_assets(tmp_path)
+        data = _default_registry()
+        _registry(tmp_path, data)
+        asset = ".github/skills/cg-skill-r-analytical/SKILL.md"
+
+        assert registry_service.matching_asset_owners(data, asset) == (
+            "cap-language-r",
+        )
+        assert validator.resolve_asset_owner(data, asset) == "cap-language-r"
+
     def test_asset_owned_by_two_modules_is_error(self, tmp_path: Path) -> None:
         _minimal_assets(tmp_path)
         registry = _default_registry()
@@ -153,6 +201,74 @@ class TestOwnershipClosure:
         _registry(tmp_path, _default_registry())
         errors = validator.check_ownership(tmp_path)
         assert any("owner" in error and "cg-work" in error for error in errors)
+
+    def test_nested_shared_resources_are_individually_owned(self, tmp_path: Path) -> None:
+        _minimal_assets(tmp_path)
+        _create_file(
+            tmp_path,
+            ".github/shared/skill-management/contracts/request-v1.schema.json",
+            "{}\n",
+        )
+        registry = _default_registry()
+        registry["modules"].append(
+            {
+                "id": "cap-skill-management",
+                "layer": "capability",
+                "displayName": "Skill management",
+                "description": "Internal skill management substrate.",
+                "dependsOn": ["kernel"],
+                "ownedAssets": [".github/shared/skill-management/"],
+            }
+        )
+        _registry(tmp_path, registry)
+
+        assert validator.check_ownership(tmp_path) == []
+        assert (
+            ".github/shared/skill-management/contracts/request-v1.schema.json"
+            in validator.canonical_assets(tmp_path)
+        )
+
+    def test_nested_shared_resource_with_multiple_owners_is_rejected(
+        self, tmp_path: Path
+    ) -> None:
+        _minimal_assets(tmp_path)
+        _create_file(
+            tmp_path,
+            ".github/shared/skill-management/contracts/request-v1.schema.json",
+            "{}\n",
+        )
+        registry = _default_registry()
+        registry["modules"][0]["ownedAssets"].append(
+            ".github/shared/skill-management/"
+        )
+        registry["modules"].append(
+            {
+                "id": "cap-skill-management",
+                "layer": "capability",
+                "displayName": "Skill management",
+                "description": "Internal skill management substrate.",
+                "dependsOn": ["kernel"],
+                "ownedAssets": [".github/shared/skill-management/"],
+            }
+        )
+        _registry(tmp_path, registry)
+
+        errors = validator.check_ownership(tmp_path)
+        assert any("more than one" in error for error in errors)
+
+    @pytest.mark.usefixtures("require_symlink_support")
+    def test_nested_shared_directory_link_is_rejected(self, tmp_path: Path) -> None:
+        _minimal_assets(tmp_path)
+        outside = tmp_path / "outside"
+        outside.mkdir()
+        _create_file(outside, "secret.json", "secret\n")
+        (tmp_path / ".github/shared/skill-management").symlink_to(
+            outside, target_is_directory=True
+        )
+        _registry(tmp_path, _default_registry())
+
+        errors = validator.check_ownership(tmp_path)
+        assert any("link" in error or "reparse" in error for error in errors)
 
 
 class TestDependencies:
@@ -390,6 +506,92 @@ class TestOwnershipReport:
         assert any("empty module" in warning for warning in warnings)
 
 
+class TestCapabilitySchema:
+    def _v2_registry(self) -> dict:
+        registry = _default_registry()
+        registry["schemaVersion"] = 2
+        registry["capabilities"] = [
+            {"id": "r", "owningModule": "cap-language-r", "supportedSuites": ["cg"],
+             "supportedPlatforms": ["copilot", "kilo"], "sourceProvenance": "canonical/.github",
+             "activationCost": "low", "taskTriggers": ["language=r"],
+             "configSelectors": [{"field": "language", "operator": "contains", "value": "r"}]},
+        ]
+        return registry
+
+    def test_v2_registry_with_valid_capability_passes(self, tmp_path: Path) -> None:
+        _minimal_assets(tmp_path)
+        _registry(tmp_path, self._v2_registry())
+        errors = validator.check_ownership(tmp_path)
+        assert errors == [], f"Validation errors: {errors}"
+
+    def test_v1_registry_without_capabilities_passes(self, tmp_path: Path) -> None:
+        _minimal_assets(tmp_path)
+        _registry(tmp_path, _default_registry())
+        errors = validator.validate_registry_schema(_default_registry())
+        assert errors == [], f"Validation errors: {errors}"
+
+    def test_duplicate_capability_id_fails(self, tmp_path: Path) -> None:
+        _minimal_assets(tmp_path)
+        registry = self._v2_registry()
+        registry["capabilities"].append(dict(registry["capabilities"][0]))
+        _registry(tmp_path, registry)
+        errors = validator.validate_registry_schema(registry)
+        assert any("duplicate capability id" in error for error in errors)
+
+    def test_unknown_owning_module_fails(self, tmp_path: Path) -> None:
+        _minimal_assets(tmp_path)
+        registry = self._v2_registry()
+        registry["capabilities"][0]["owningModule"] = "does-not-exist"
+        _registry(tmp_path, registry)
+        errors = validator.validate_registry_schema(registry)
+        assert any("owningModule 'does-not-exist'" in error for error in errors)
+
+    def test_capability_owning_module_must_be_capability_layer(self, tmp_path: Path) -> None:
+        _minimal_assets(tmp_path)
+        registry = self._v2_registry()
+        registry["capabilities"][0]["owningModule"] = "kernel"
+        _registry(tmp_path, registry)
+        errors = validator.validate_registry_schema(registry)
+        assert any("capability-layer" in error for error in errors)
+
+    def test_unknown_supported_suite_fails(self, tmp_path: Path) -> None:
+        _minimal_assets(tmp_path)
+        registry = self._v2_registry()
+        registry["capabilities"][0]["supportedSuites"] = ["research"]
+        _registry(tmp_path, registry)
+        errors = validator.validate_registry_schema(registry)
+        assert any("supported suite 'research'" in error for error in errors)
+
+    def test_invalid_activation_cost_fails(self, tmp_path: Path) -> None:
+        _minimal_assets(tmp_path)
+        registry = self._v2_registry()
+        registry["capabilities"][0]["activationCost"] = "free"
+        _registry(tmp_path, registry)
+        errors = validator.validate_registry_schema(registry)
+        assert any("activationCost" in error for error in errors)
+
+    def test_optional_explicit_only_activation_mode_validates(self, tmp_path: Path) -> None:
+        _minimal_assets(tmp_path)
+        registry = self._v2_registry()
+        registry["capabilities"][0]["activationMode"] = "explicit-only"
+        assert validator.validate_registry_schema(registry) == []
+
+    def test_unknown_activation_mode_fails(self, tmp_path: Path) -> None:
+        _minimal_assets(tmp_path)
+        registry = self._v2_registry()
+        registry["capabilities"][0]["activationMode"] = "selector-derived"
+        errors = validator.validate_registry_schema(registry)
+        assert any("activationMode" in error for error in errors)
+
+    def test_missing_config_selectors_fails(self, tmp_path: Path) -> None:
+        _minimal_assets(tmp_path)
+        registry = self._v2_registry()
+        del registry["capabilities"][0]["configSelectors"]
+        _registry(tmp_path, registry)
+        errors = validator.validate_registry_schema(registry)
+        assert any("configSelectors is required" in error for error in errors)
+
+
 class TestRealRepoRegistry:
     def test_repo_ownership_closure_is_complete(self) -> None:
         errors = validator.check_ownership(REPO_ROOT)
@@ -404,3 +606,31 @@ class TestRealRepoRegistry:
         captured = capsys.readouterr()
         assert "unowned: 0" in captured.out
         assert "multi-owned: 0" in captured.out
+
+    def test_public_skill_management_module_has_capability_and_cg_suite_edge(
+        self,
+    ) -> None:
+        registry, error = validator.load_registry(REPO_ROOT)
+        assert error is None
+        assert registry is not None
+        module = next(
+            item
+            for item in registry["modules"]
+            if item["id"] == "cap-skill-management"
+        )
+        assert module["ownedAssets"] == [
+            ".github/skills/cg-skill-management/",
+            ".github/shared/skill-management/",
+        ]
+        capability = next(
+            item
+            for item in registry["capabilities"]
+            if item.get("owningModule") == "cap-skill-management"
+        )
+        assert capability["id"] == "skill-management"
+        assert capability["supportedSuites"] == ["cg"]
+        assert capability["configSelectors"] == []
+        suite_cg = next(
+            item for item in registry["modules"] if item["id"] == "suite-cg"
+        )
+        assert "cap-skill-management" in suite_cg["dependsOn"]

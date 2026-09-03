@@ -4,6 +4,7 @@
     {
       "title": "Start",
       "pages": [
+        { "id": "whats-new", "title": "What's New", "file": "whats-new.md", "description": "Release-backed history of Compound GPID changes, newest first, from validated release payloads." },
         { "id": "philosophy", "title": "Working with AI Responsibly", "file": "philosophy.md", "description": "The epistemic risks, principles, and human responsibilities behind the plugin." },
         { "id": "getting-started", "title": "Getting Started", "file": "getting-started/index.md", "description": "Install, select suites, configure, and complete a first useful workflow." },
         { "id": "modular-guide", "title": "Modular Guide", "file": "modular-guide.md", "description": "Choose technical or research suites and understand capability composition." },
@@ -27,13 +28,49 @@
         { "id": "analytical-skills", "title": "Analysis and Economics", "file": "skills/analysis.md", "description": "R, Stata, Python, data, statistics, and visualization guidance." },
         { "id": "research-skills", "title": "Research Skills", "file": "skills/research.md", "description": "Economics and econometrics research methods, including ML and high-dimensional inference." },
         { "id": "development-skills", "title": "Development and Testing", "file": "skills/development.md", "description": "Technical development, testing, reproducibility, and platform skills." },
-        { "id": "institutional-skills", "title": "Institutional Knowledge", "file": "skills/institutional.md", "description": "Writing, project memory, documentation, and collaboration skills." }
+        { "id": "institutional-skills", "title": "Institutional Knowledge", "file": "skills/institutional.md", "description": "Writing, project memory, documentation, and collaboration skills." },
+        { "id": "importing-skills", "title": "Importing External Skills", "file": "skills/importing.md", "description": "Quarantined external-skill import with security scanning, review, and vendor registration." }
+      ]
+    },
+    {
+      "title": "Skill Management",
+      "pages": [
+        { "id": "skill-management", "title": "Skill Management", "file": "skills/management/index.md", "description": "Descriptor-driven discovery, import, activation, updates, validation, audit, and retirement." },
+        { "id": "skill-management-lifecycle", "title": "Skill Lifecycle", "file": "skills/management/lifecycle.md", "description": "States, roles, plan/apply behavior, and lifecycle safety boundaries." },
+        { "id": "skill-management-activate", "title": "`cg-skill activate`", "file": "skills/management/commands/activate.md", "description": "Plan and apply one explicit capability activation." },
+        { "id": "skill-management-audit", "title": "`cg-skill audit`", "file": "skills/management/commands/audit.md", "description": "Audit skill state, provenance, references, manifests, and projections." },
+        { "id": "skill-management-create", "title": "`cg-skill create`", "file": "skills/management/commands/create.md", "description": "Plan and create an inactive permanent plugin skill." },
+        { "id": "skill-management-deactivate", "title": "`cg-skill deactivate`", "file": "skills/management/commands/deactivate.md", "description": "Plan and apply removal of one explicit capability selection." },
+        { "id": "skill-management-deprecate", "title": "`cg-skill deprecate`", "file": "skills/management/commands/deprecate.md", "description": "Deprecate an immutable skill identifier in favor of a successor." },
+        { "id": "skill-management-find", "title": "`cg-skill find`", "file": "skills/management/commands/find.md", "description": "Search deterministic canonical and project skill metadata." },
+        { "id": "skill-management-help", "title": "`cg-skill help`", "file": "skills/management/commands/help.md", "description": "List complete descriptor-backed operations and their contracts." },
+        { "id": "skill-management-import", "title": "`cg-skill import`", "file": "skills/management/commands/import.md", "description": "Plan and apply a bounded exact-SHA skill import." },
+        { "id": "skill-management-info", "title": "`cg-skill info`", "file": "skills/management/commands/info.md", "description": "Inspect one skill by its immutable identifier." },
+        { "id": "skill-management-remove", "title": "`cg-skill remove`", "file": "skills/management/commands/remove.md", "description": "Remove only deprecated, inactive, migrated, checksum-owned skill state." },
+        { "id": "skill-management-update", "title": "`cg-skill update`", "file": "skills/management/commands/update.md", "description": "Compare and apply one immutable-SHA imported-skill update." },
+        { "id": "skill-management-validate", "title": "`cg-skill validate`", "file": "skills/management/commands/validate.md", "description": "Validate one skill or the complete selected skill set." },
+        { "id": "skill-management-consumers", "title": "Consumer Guide", "file": "skills/management/consumers/index.md", "description": "A focused path from discovery through safe project activation." },
+        { "id": "skill-management-discovery", "title": "Discover and Inspect Skills", "file": "skills/management/consumers/discovery.md", "description": "Use find, info, help, and validate without changing lifecycle state." },
+        { "id": "skill-management-project-import", "title": "Import a Project Skill", "file": "skills/management/consumers/project-import.md", "description": "Review and apply an exact-origin project import." },
+        { "id": "skill-management-activation", "title": "Activate and Deactivate Skills", "file": "skills/management/consumers/activation.md", "description": "Manage explicit capabilities through byte-preserving plans." },
+        { "id": "skill-management-availability", "title": "Understand Skill Availability", "file": "skills/management/consumers/availability.md", "description": "Interpret active, inactive, prospective, and manifest-health results." },
+        { "id": "skill-management-remediation", "title": "Remediate Skill Findings", "file": "skills/management/consumers/remediation.md", "description": "Use stable finding and exit-code contracts to recover safely." },
+        { "id": "skill-management-maintainers", "title": "Maintainer Guide", "file": "skills/management/maintainers/index.md", "description": "A focused path for permanent plugin skill maintenance." },
+        { "id": "skill-management-creation", "title": "Create a Permanent Skill", "file": "skills/management/maintainers/creation.md", "description": "Create an inactive canonical skill with explicit ownership." },
+        { "id": "skill-management-vendoring", "title": "Vendor an Imported Skill", "file": "skills/management/maintainers/vendoring.md", "description": "Apply plugin-scope admission under maintainer and allowlist controls." },
+        { "id": "skill-management-registry", "title": "Manage Registry and Capabilities", "file": "skills/management/maintainers/registry-capabilities.md", "description": "Preserve ownership, eligibility, selectors, and suite closure." },
+        { "id": "skill-management-updates", "title": "Update an Imported Skill", "file": "skills/management/maintainers/updates.md", "description": "Review an immutable-SHA diff and append provenance." },
+        { "id": "skill-management-retirement", "title": "Deprecate and Remove Skills", "file": "skills/management/maintainers/deprecation-removal.md", "description": "Use successors, grace evidence, migrations, and tombstones." },
+        { "id": "skill-management-release", "title": "Release Skill Management Changes", "file": "skills/management/maintainers/release.md", "description": "Use separate pre-removal and final-tree release gates." },
+        { "id": "skill-management-security", "title": "Skill Management Security", "file": "skills/management/security.md", "description": "Trust, quarantine, approval, provenance, and destructive controls." },
+        { "id": "skill-management-migration", "title": "Migrate to `cg-skill`", "file": "skills/management/migration.md", "description": "Immediate replacement map for the two retired command surfaces." }
       ]
     },
     {
       "title": "Operate",
       "pages": [
         { "id": "configuration", "title": "Configuration", "file": "configuration/index.md", "description": "Project settings, context files, platforms, and managed content." },
+        { "id": "strict-config", "title": "Strict Config Schema", "file": "configuration.md", "description": "Strict compound-gpid.local.md grammar, projectRoots, manifest resolver, and validation." },
         { "id": "governance", "title": "Governance and Security", "file": "governance/index.md", "description": "Operating constraints, data safeguards, review gates, and limitations." },
         { "id": "help", "title": "Help and Troubleshooting", "file": "help/index.md", "description": "Start with the shortest recovery path and escalate safely." },
         { "id": "installation", "title": "Installation Details", "file": "installation.md", "description": "Complete platform-specific installation, repair, and uninstall procedures." },

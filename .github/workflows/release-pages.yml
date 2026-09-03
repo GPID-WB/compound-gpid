@@ -1,0 +1,125 @@
+name: Deploy release documentation
+run-name: Deploy docs from ${{ github.event.workflow_run.id }}
+
+on:
+  workflow_run:
+    workflows: ["Build release documentation"]
+    types: [completed]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.event.workflow_run.conclusion == 'success'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      pages: write
+      id-token: write
+    steps:
+      - name: Check out protected deployment controller
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4.4.0
+        with:
+          node-version: "22"
+
+      - name: Download exact release documentation artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
+        with:
+          name: release-docs-site
+          path: release-artifact
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+
+      - name: Verify release tag, lineage, payload, and artifact
+        env:
+          RELEASE_TAG: ${{ github.event.workflow_run.head_branch }}
+          RELEASE_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          required_branch="main"
+          if [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            required_branch="dev"
+          elif [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Unsupported release tag: $RELEASE_TAG"
+            exit 1
+          fi
+          git fetch origin "$required_branch" "refs/tags/$RELEASE_TAG:refs/tags/$RELEASE_TAG"
+          test "$(git rev-list -n 1 "$RELEASE_TAG")" = "$RELEASE_SHA"
+          git merge-base --is-ancestor "$RELEASE_SHA" "origin/$required_branch"
+          mkdir -p release-validation/releases
+          git show "$RELEASE_SHA:releases/$RELEASE_TAG.json" > "release-validation/releases/$RELEASE_TAG.json"
+          git show "$RELEASE_SHA:releases/latest.json" > release-validation/releases/latest.json
+          git show "origin/$required_branch:releases/latest.json" > release-validation/current-latest.json
+          cmp -s "release-validation/releases/$RELEASE_TAG.json" release-validation/releases/latest.json
+          cmp -s "release-validation/releases/$RELEASE_TAG.json" release-validation/current-latest.json \
+            || { echo "Refusing to deploy an older release artifact."; exit 1; }
+          node - "$RELEASE_TAG" <<'NODE'
+          const crypto = require("node:crypto");
+          const fs = require("node:fs");
+          const path = require("node:path");
+          const tag = process.argv[2];
+          const payload = JSON.parse(fs.readFileSync(`release-validation/releases/${tag}.json`, "utf8"));
+          if (payload.tag !== tag || payload.schemaVersion !== 1 || !Array.isArray(payload.sections) || !payload.sections.length) {
+            throw new Error("Invalid durable release payload.");
+          }
+          const root = "release-artifact";
+          const docs = path.join(root, "docs");
+          const metadata = JSON.parse(fs.readFileSync(path.join(root, ".docs-build-metadata.json"), "utf8"));
+          if (metadata.schemaVersion !== 1 || !metadata.site || !metadata.site.files) {
+            throw new Error("Invalid documentation build metadata.");
+          }
+          const actual = {};
+          function walk(directory) {
+            for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+              const full = path.join(directory, entry.name);
+              if (entry.isSymbolicLink()) throw new Error(`Artifact contains symbolic link: ${full}`);
+              if (entry.isDirectory()) walk(full);
+              else if (entry.isFile()) {
+                const relative = path.relative(docs, full).split(path.sep).join("/");
+                actual[relative] = crypto.createHash("sha256").update(fs.readFileSync(full)).digest("hex");
+              }
+            }
+          }
+          walk(docs);
+          const expected = metadata.site.files;
+          const actualNames = Object.keys(actual).sort();
+          const expectedNames = Object.keys(expected).sort();
+          if (JSON.stringify(actualNames) !== JSON.stringify(expectedNames)) throw new Error("Artifact file list mismatch.");
+          for (const name of expectedNames) {
+            if (actual[name] !== expected[name]) throw new Error(`Artifact digest mismatch: ${name}`);
+          }
+          NODE
+          echo "RELEASE_BRANCH=$required_branch" >> "$GITHUB_ENV"
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b  # v5.0.0
+
+      - name: Upload verified release Pages artifact
+        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa  # v3.0.1
+        with:
+          path: release-artifact/docs
+
+      - name: Recheck release is still newest
+        run: |
+          git fetch origin "$RELEASE_BRANCH"
+          git show "origin/$RELEASE_BRANCH:releases/latest.json" > release-validation/recheck-latest.json
+          cmp -s release-validation/releases/latest.json release-validation/recheck-latest.json \
+            || { echo "A newer release payload appeared before deployment."; exit 1; }
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e  # v4.0.5

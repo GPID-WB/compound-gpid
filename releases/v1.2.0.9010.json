@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "tag": "v1.2.0.9010",
+  "publishedAt": "2026-08-26T20:18:47Z",
+  "releaseDate": "2026-08-26",
+  "name": "v1.2.0.9010 - Kilo projection linking and configuration",
+  "url": "https://github.com/GPID-WB/compound-gpid/releases/tag/v1.2.0.9010",
+  "sourceUrl": "https://github.com/GPID-WB/compound-gpid/tree/v1.2.0.9010",
+  "sections": [
+    {
+      "kind": "fixed",
+      "title": "Kilo projection linking and configuration",
+      "entries": [
+        "Aligned the CI assertion with fixbug guidance.",
+        "Excluded mutable projection state and generated projection roots from link checks.",
+        "Routed link setup through the projection-root helper.",
+        "Closed command plans correctly for single-language projections.",
+        "Allowed non-executable model advisories.",
+        "Created Kilo projection roots before preflight validation."
+      ]
+    },
+    {
+      "kind": "internal",
+      "title": "Release performance and integration",
+      "entries": [
+        "Batched generated-path ignore checks to avoid excessive Git process spawning.",
+        "Integrated the Kilo projection preflight-order changes."
+      ]
+    }
+  ]
+}

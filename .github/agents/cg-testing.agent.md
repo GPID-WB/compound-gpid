@@ -1,4 +1,4 @@
-﻿---
+---
 description: "Reviews test coverage, edge cases, test quality, and testing patterns. Trilingual R/Python/Stata."
 tools: ['read', 'search']
 user-invocable: false

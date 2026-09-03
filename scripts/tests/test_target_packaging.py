@@ -100,7 +100,22 @@ def _relative_inventory(root: Path) -> set[str]:
 
 
 def _canonical_skills(root: Path = REPO_ROOT) -> tuple[Path, ...]:
+    if root == REPO_ROOT:
+        assets = gen.scan_canonical_assets(root, active_suites=("cg", "cr"))
+        return tuple(
+            sorted(Path(item["path"]).parent for item in assets["skills"])
+        )
     return tuple(sorted(path for path in (root / ".github/skills").glob("*") if path.is_dir()))
+
+
+def test_public_management_skill_is_atomic_in_every_generated_tree() -> None:
+    management = "cg-skill-management"
+    canonical = REPO_ROOT / ".github/skills" / management
+    expected = _relative_inventory(canonical)
+    assert "SKILL.md" in expected
+    for skill_root in TARGET_SKILL_ROOTS.values():
+        generated = REPO_ROOT / skill_root / management
+        assert _relative_inventory(generated) == expected
 
 
 def _local_markdown_targets(markdown: Path, bundle_root: Path) -> tuple[Path, ...]:

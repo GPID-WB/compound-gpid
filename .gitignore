@@ -84,6 +84,7 @@ tests/*.txt
 RELEASE_NOTES.md
 release-result.txt
 pr-result.txt
+.docs-build-metadata.json
 
 # Generated artifact indexes are runtime-only; generated command/skill/agent trees stay tracked.
 .agents/model-mapping.codex.json
@@ -98,4 +99,22 @@ pr-result.txt
 # scripts/link.ps1 (and its transient .tmp-* / .bak-* siblings). These are
 # per-machine state, not generated-tree content, and must never be committed.
 **/.compound-gpid-managed-copy.json*
+
+# Project-local projection state (R5/R6): the committed active manifest is the
+# reviewable selection artifact; mutable ownership state, the publication
+# journal, and staging/quarantine/transient recovery files are per-project
+# runtime state and must never be committed.
+.compound-gpid/projection-ownership.json
+.compound-gpid/projection-transaction.json
+.compound-gpid/active/
+.compound-gpid/generations/
+.compound-gpid/staging/
+.compound-gpid/quarantine/
+.compound-gpid/retired/
+.compound-gpid/vendor-reviews/
+.compound-gpid/skill-plans/
+.compound-gpid/skill-transactions/
+.compound-gpid/skill-transaction.lock
+.compound-gpid/*.tmp
+.compound-gpid/*.bak
 

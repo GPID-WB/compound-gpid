@@ -42,6 +42,45 @@ into routine sessions; the same applies to the technical suite when it is inacti
 	verification of this instruction.
 - When `suites:` is absent, the default is `[cg]` (backward compatible).
 
+## Manifest-Aware Capability Routing
+
+When a command explicitly requests a capability (by id, task trigger, or
+skill reference) and that capability is not active in the project manifest,
+use the capability router to produce a structured hard-stop before doing any
+work:
+
+```bash
+python scripts/cg_skill_catalog.py --route <capability-id>
+```
+
+The router returns:
+- **inactiveReason**: why the capability is absent (selector mismatch, suite
+  ineligibility, or module not in closure)
+- **selector**: the authoritative config selector (field/operator/value) when
+  the capability is selector-driven
+- **remedy**: the exact `compound-gpid.local.md` field change and `cg-update`
+  command needed
+
+**Hard-stop behavior**: when the router returns `found: false`, stop before
+work. Do NOT:
+- Silently fall back to all-skill global source
+- Write a transient session projection
+- Alter configuration
+- Imply that instructions alone enforce selection
+- Continue with degraded partial output
+
+**Inactive reference leak detection**: generated targets, catalog rows, and
+adapter/config files must not contain references to assets outside the
+selected closure. Run the leak check to verify:
+
+```bash
+python scripts/cg_skill_catalog.py --check-leaks
+```
+
+The stable `/cg-*` and `/cr-*` workflow namespaces are preserved. Skill
+discovery and lifecycle management use the action-first `/cg-skill <operation>`
+namespace.
+
 ## Artifact Rules
 
 - `.cg-docs/BRAIN.md` is the small agent-facing meta-index and may be read by Brain query flows.
