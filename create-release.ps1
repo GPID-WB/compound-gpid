@@ -140,7 +140,8 @@ try {
         "scripts/tests/test_target_opencode.py",
         "scripts/tests/test_target_documentation.py",
         "scripts/tests/test_model_advisory.py",
-        "scripts/tests/test_audit_context.py"
+        "scripts/tests/test_audit_context.py",
+        "scripts/tests/test_cr_ml_skill.py"
     ) | ForEach-Object { Join-Path $preflightRoot $_ }
     Write-Host "Running native packaging release preflight for $headCommit..." -ForegroundColor Cyan
     & $pythonCommand -m pytest @preflightTests -q
