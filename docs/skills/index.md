@@ -9,6 +9,7 @@ release contains generated copies for several agent platforms.
 | Goal | Catalog |
 |---|---|
 | Analyze data, estimate models, manage surveys, calculate poverty measures, or create charts | [Analysis and Economics](analysis.md) |
+| Plan or review economics and econometrics research methods | [Research Skills](research.md) |
 | Build technical systems, test code, manage versions, or support platform tooling | [Development and Testing](development.md) |
 | Clarify requirements, retain knowledge, write institutional documents, or maintain a wiki | [Institutional Knowledge](institutional.md) |
 
@@ -54,9 +55,8 @@ leave the catalog inconsistent.
 Canonical skill directories may also contain `references/`, `workflows/`,
 `packages/`, source packs, or evaluation files. Those supporting files are the
 detailed source when a skill directs an agent to load them progressively. The
-current generated runtime mirrors include `SKILL.md` files but not all
-supporting files; this known packaging gap is recorded in the
-[documentation migration audit](../about/documentation-audit.md).
+target generator packages regular skill files recursively as atomic bundles;
+generated mirrors are derived outputs and are not additional catalog entries.
 
 ## Related pages
 

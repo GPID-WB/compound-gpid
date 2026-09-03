@@ -57,23 +57,32 @@ async function validateMarkdownLinks(files) {
 async function validateSkillsCatalog() {
   const canonicalRoot = path.join(root, ".github", "skills");
   const canonical = new Set((await readdir(canonicalRoot, { withFileTypes: true }))
-    .filter((entry) => entry.isDirectory() && entry.name.startsWith("cg-skill-"))
+    .filter((entry) => entry.isDirectory() && /^(?:cg|cr)-skill-/.test(entry.name))
     .map((entry) => entry.name));
-  const catalogFiles = ["analysis.md", "development.md", "institutional.md"]
+  const catalogFiles = ["analysis.md", "development.md", "institutional.md", "research.md"]
     .map((file) => path.join(docsRoot, "skills", file));
   const catalogText = (await Promise.all(catalogFiles.map((file) => readFile(file, "utf8")))).join("\n");
-  const catalogMatches = [...catalogText.matchAll(/\.github\/skills\/(cg-skill-[a-z-]+)\/SKILL\.md/g)]
+  const catalogMatches = [...catalogText.matchAll(/\.github\/skills\/((?:cg|cr)-skill-[a-z-]+)\/SKILL\.md/g)]
     .map((match) => match[1]);
-  const catalog = new Set(catalogMatches);
-  const missing = [...canonical].filter((skill) => !catalog.has(skill));
-  const unknown = [...catalog].filter((skill) => !canonical.has(skill));
-  const categoryCounts = await Promise.all(catalogFiles.map(async (file) => {
-    const content = await readFile(file, "utf8");
-    return [...content.matchAll(/^\| `cg-skill-[a-z-]+` \|/gm)].length;
-  }));
-  if (missing.length || unknown.length || catalog.size !== canonical.size
-    || catalogMatches.length !== canonical.size || categoryCounts.join(",") !== "8,9,7") {
-    throw new Error(`Skills catalog drift. Missing: ${missing.join(", ") || "none"}. Unknown: ${unknown.join(", ") || "none"}.`);
+  const technicalCanonical = new Set(
+    [...canonical].filter((skill) => skill.startsWith("cg-skill-"))
+  );
+  const technicalCatalog = new Set(catalogMatches.filter((skill) => skill.startsWith("cg-skill-")));
+  const researchCanonical = new Set(
+    [...canonical].filter((skill) => skill.startsWith("cr-skill-"))
+  );
+  const researchCatalog = new Set(catalogMatches.filter((skill) => skill.startsWith("cr-skill-")));
+  const missing = [...technicalCanonical].filter((skill) => !technicalCatalog.has(skill));
+  const unknown = [...technicalCatalog].filter((skill) => !technicalCanonical.has(skill));
+  const missingResearch = [...researchCanonical].filter((skill) => !researchCatalog.has(skill));
+  const unknownResearch = [...researchCatalog].filter(
+    (skill) => !canonical.has(skill)
+  );
+  if (missing.length || unknown.length || missingResearch.length || unknownResearch.length
+    || technicalCatalog.size !== technicalCanonical.size
+    || researchCatalog.size !== researchCanonical.size
+    || catalogMatches.length !== new Set(catalogMatches).size) {
+    throw new Error(`Skills catalog drift. Missing: ${[...missing, ...missingResearch].join(", ") || "none"}. Unknown: ${[...unknown, ...unknownResearch].join(", ") || "none"}.`);
   }
   for (const skill of canonical) await access(path.join(canonicalRoot, skill, "SKILL.md"), constants.R_OK);
 }

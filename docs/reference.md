@@ -408,6 +408,12 @@ Scope/Evidence/Normative/Verify/Communicate stages:
 `/cr-review` dispatch is the single source of routing truth; the lifecycle and
 method packs are an additive orientation layer over it (no routing change).
 
+The ML skill is a compact router with eight demand-loaded references. See the
+[Research Skills catalog](skills/research.md) for the ESL-led foundations,
+high-dimensional methods, split and evaluation guidance, causal ML, survey and
+panel qualifications, and R `tidymodels`/Python `scikit-learn` implementation
+references.
+
 ### Review Routing Rules
 
 `/cg-review` uses staged routing from changed-file risk signals:
