@@ -5,7 +5,8 @@
   "devDependencies": {
     "@playwright/test": "1.52.0",
     "axe-core": "4.10.3",
-    "playwright": "1.52.0"
+    "playwright": "1.52.0",
+    "reveal.js": "5.1.0"
   },
   "scripts": {
     "capture": "node scripts/evidence/capture.js",

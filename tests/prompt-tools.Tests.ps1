@@ -2646,6 +2646,37 @@ Describe "cg-setup.prompt.md - Mode B returning project" {
     }
 }
 
+Describe "cg-setup.prompt.md - active suite configuration" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-setup.prompt.md"
+    $templateFile = Join-Path $repoRoot ".github\prompts\setup-templates.md"
+    $promptContent = Get-Content $promptFile -Raw -Encoding UTF8
+    $templateContent = Get-Content $templateFile -Raw -Encoding UTF8
+
+    It "includes active suites in the local config template" {
+        ($templateContent -match '(?m)^suites:') | Should -Be $true
+    }
+
+    It "offers research-capable suite choices during setup" {
+        ($promptContent -match '(?i)active suites') | Should -Be $true
+        ($promptContent -match 'suites: \[cr\]') | Should -Be $true
+        ($promptContent -match 'suites: \[cg, cr\]') | Should -Be $true
+    }
+
+    It "asks for active suites in the normal new-project configuration flow" {
+        $a2Section = [regex]::Match($promptContent, '(?s)#### A2\. Confidence-based configuration.*?(?=#### A3)').Value
+        ($a2Section -match '(?i)active suites') | Should -Be $true
+    }
+
+    It "writes the selected suite value instead of the template default" {
+        ($templateContent -match '(?m)^suites: \[<cg\|cr\|cg, cr>\]$') | Should -Be $true
+        ($promptContent -match '(?i)replace the `suites:` placeholder with the exact value selected') | Should -Be $true
+    }
+
+    It "allows returning projects to update active suites" {
+        ($promptContent -match '(?i)Would you like to update any configuration.*active suites') | Should -Be $true
+    }
+}
+
 # ---------------------------------------------------------------------------
 # setup-templates.md - Charter Quality Gate section (Phase 2)
 # ---------------------------------------------------------------------------
@@ -8010,5 +8041,66 @@ Describe "cg-skill-wb-report-writing - guardrails and marker grammar" {
         ($terminologyContent -match '(?i)unresolved') | Should -Be $true
         ($terminologyContent -match '(?i)do not infer|do not guess') | Should -Be $true
         ($terminologyContent -match '(?i)not-required') | Should -Be $false
+    }
+}
+
+# ---------------------------------------------------------------------------
+# CR ML skill redesign - routing and methodology guardrails
+# ---------------------------------------------------------------------------
+
+Describe "CR ML skill redesign - routing and methodology guardrails" {
+    $skillContent = Get-Content (Join-Path $repoRoot ".github\skills\cr-skill-ml-economics\SKILL.md") -Raw -Encoding UTF8
+    $workContent = Get-Content (Join-Path $repoRoot ".github\prompts\cr-work.prompt.md") -Raw -Encoding UTF8
+    $agentContent = Get-Content (Join-Path $repoRoot ".github\agents\cr-ml-methodology.agent.md") -Raw -Encoding UTF8
+    $integrityContent = Get-Content (Join-Path $repoRoot ".github\skills\cr-skill-research-integrity\SKILL.md") -Raw -Encoding UTF8
+    $reviewContent = Get-Content (Join-Path $repoRoot ".github\prompts\cr-review.prompt.md") -Raw -Encoding UTF8
+
+    It "routes neural-network method selection through the foundations reference" {
+        ($skillContent -match 'Neural-network method selection') | Should -Be $true
+        ($skillContent -match 'foundations-and-esl\.md') | Should -Be $true
+    }
+
+    It "keeps selective loading explicit in the core router" {
+        ($skillContent -match 'do not load all eight') | Should -Be $true
+        ($skillContent -match 'one or two references') | Should -Be $true
+    }
+
+    It "distinguishes stochastic and deterministic seed requirements" {
+        ($workContent -match 'deterministic splitter') | Should -Be $true
+        ($workContent -match 'random_state') | Should -Be $true
+        ($agentContent -match 'shuffle=True') | Should -Be $true
+        ($integrityContent -match 'deterministic') | Should -Be $true
+        ($integrityContent -match 'splitter') | Should -Be $true
+    }
+
+    It "does not treat project metadata as a Python lockfile" {
+        ($workContent -match 'pyproject\.toml') | Should -Be $true
+        ($workContent -match 'project metadata') | Should -Be $true
+        ($workContent -match 'not a lockfile') | Should -Be $true
+    }
+
+    It "loads derivation guidance only when derivation context exists" {
+        ($workContent -match 'declared or detected.*derivation|derivation artifact') | Should -Be $true
+    }
+
+    It "caps ML references across the complete review" {
+        ($agentContent -match 'per-file/per-review') | Should -Be $true
+        ($agentContent -match 'reference budget') | Should -Be $true
+        ($agentContent -match 'cumulative') | Should -Be $true
+    }
+
+    It "makes review checks target-conditional" {
+        ($agentContent -match 'generalization target') | Should -Be $true
+        ($agentContent -match 'nested cross-validation') | Should -Be $true
+        ($agentContent -match 'positive-class') | Should -Be $true
+        ($agentContent -match 'weights are nonmissing') | Should -Be $true
+    }
+
+    It "dispatches ML review only when implementation signals are present" {
+        ($reviewContent -match 'Implementation.*cr-ml-methodology.*only when ML signals') | Should -Be $true
+        ($reviewContent -match 'ML signals') | Should -Be $true
+        ($reviewContent -match 'LASSO') | Should -Be $true
+        ($reviewContent -match 'Pipeline') | Should -Be $true
+        ($reviewContent -match 'DoubleML') | Should -Be $true
     }
 }

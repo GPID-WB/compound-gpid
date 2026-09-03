@@ -160,7 +160,7 @@ class TestReleaseGateTargets:
         content = (REPO_ROOT / ".github/prompts/cg-release.prompt.md").read_text(encoding="utf-8")
         execute = content.index("### Step 5: Create and publish the durable release source")
         before_execute = content[:execute].lower()
-        assert "native packaging" in before_execute
+        assert "authoritative complete native preflight" in before_execute
         assert "release gate" in before_execute or "preflight" in before_execute
         assert "halt" in before_execute
 

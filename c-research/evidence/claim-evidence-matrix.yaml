@@ -1,0 +1,192 @@
+# Created 2026-08-13. Presentation claim/evidence verification matrix.
+schema_version: presentation-claim-evidence-matrix-v1
+claims:
+  - id: C001
+    statement: "Compound Research adapts the Compound GPID workflow to economics and econometrics research."
+    type: methodological
+    status: verified
+    evidence:
+      - source_id: S001
+        locator: "Context"
+        quote: "The existing `compound-gpid` plugin gives data science teams a structured AI-assisted workflow"
+        supports: true
+    verified_by: presentation-source-audit
+    verified_on: 2026-08-13
+  - id: C002
+    statement: "The CR evidence/provenance spine makes substantive claims traceable to verified sources."
+    type: methodological
+    status: verified
+    evidence:
+      - source_id: S002
+        locator: "Objective"
+        quote: "Give the Compound Research (CR) module an **evidence and provenance spine** so that"
+        supports: true
+    verified_by: presentation-source-audit
+    verified_on: 2026-08-13
+  - id: C003
+    statement: "AI-DQSS is a World Bank Group data quality self-assessment tool."
+    type: methodological
+    status: verified
+    evidence:
+      - source_id: S009
+        locator: "Opening paragraph"
+        quote: "Automated data quality assessment tool for the **World Bank Group's Development Data Quality Policy**."
+        supports: true
+    verified_by: presentation-source-audit
+    verified_on: 2026-08-13
+  - id: C004
+    statement: "AI-DQSS produces drafts for human review and does not make final assessment decisions."
+    type: methodological
+    status: verified
+    evidence:
+      - source_id: S009
+        locator: "What It Does"
+        quote: "This system produces drafts for human review. It does not make final assessment decisions or replace the OCS review."
+        supports: true
+    verified_by: presentation-source-audit
+    verified_on: 2026-08-13
+  - id: C005
+    statement: "AI-DQSS separates parsing, indexing, retrieval, reranking, assessment, verification, and reporting."
+    type: methodological
+    status: verified
+    evidence:
+      - source_id: S009
+        locator: "Architecture"
+        quote: "Documents → Parse → Index → Retrieve (top-20)"
+        supports: true
+    verified_by: presentation-source-audit
+    verified_on: 2026-08-13
+  - id: C006
+    statement: "AI-DQSS assigns deterministic citation IDs to parsed text segments."
+    type: methodological
+    status: verified
+    evidence:
+      - source_id: S010
+        locator: "4.3 Citation ID Assignment"
+        quote: "Every text segment gets a unique, deterministic citation ID at parse time:"
+        supports: true
+    verified_by: presentation-source-audit
+    verified_on: 2026-08-13
+  - id: C007
+    statement: "AI-DQSS documents temperature and seed controls and warns that a provider may drop the seed."
+    type: methodological
+    status: verified
+    evidence:
+      - source_id: S009
+        locator: "Environment Variables / LLM_TEMPERATURE"
+        quote: "LLM sampling temperature (0.0 = greedy/deterministic)"
+        supports: true
+      - source_id: S009
+        locator: "Environment Variables / LLM_SEED"
+        quote: "LLM seed for reproducibility (silently dropped if unsupported by provider)"
+        supports: true
+    verified_by: presentation-source-audit
+    verified_on: 2026-08-13
+  - id: C008
+    statement: "The current package is the local-first implementation boundary for the CR claim/evidence workflow."
+    type: methodological
+    status: verified
+    evidence:
+      - source_id: S005
+        locator: "Opening paragraph"
+        quote: "This package is the local-first implementation boundary for Compound Research's"
+        supports: true
+    verified_by: presentation-source-audit
+    verified_on: 2026-08-13
+  - id: C009
+    statement: "The current package operates offline, inside the project, and through a loopback-only service during normal processing."
+    type: methodological
+    status: verified
+    evidence:
+      - source_id: S005
+        locator: "Runtime"
+        quote: "Normal processing: offline, project-contained, and loopback-only"
+        supports: true
+    verified_by: presentation-source-audit
+    verified_on: 2026-08-13
+  - id: C010
+    statement: "Optional dense, sparse, and reranking adapters remain candidate-only in the current package."
+    type: methodological
+    status: verified
+    evidence:
+      - source_id: S005
+        locator: "Format and OCR boundary"
+        quote: "Optional dense, sparse, and reranking adapters are candidate-only in Phase 3."
+        supports: true
+    verified_by: presentation-source-audit
+    verified_on: 2026-08-13
+  - id: C011
+    statement: "The current package converts untrusted model output into a source-linked candidate proposal rather than an approved claim."
+    type: methodological
+    status: verified
+    evidence:
+      - source_id: S007
+        locator: "create_candidate_proposal"
+        quote: "Convert untrusted structured output into a source-linked candidate record."
+        supports: true
+    verified_by: presentation-source-audit
+    verified_on: 2026-08-13
+  - id: C012
+    statement: "The current package creates claims after a lightweight atomicity check and starts them in candidate review state."
+    type: methodological
+    status: verified
+    evidence:
+      - source_id: S006
+        locator: "create_claim"
+        quote: "Create one candidate claim after a lightweight atomicity check."
+        supports: true
+    verified_by: presentation-source-audit
+    verified_on: 2026-08-13
+  - id: C013
+    statement: "Approved evidence requires high verification, high confidence, approval, original-authority verification, and non-stale state."
+    type: methodological
+    status: verified
+    evidence:
+      - source_id: S008
+        locator: "is_approved_evidence"
+        quote: "``True`` only for high-confidence, original-verified, approved, non-stale evidence."
+        supports: true
+    verified_by: presentation-source-audit
+    verified_on: 2026-08-13
+  - id: C014
+    statement: "The current workbench treats original resources and canonical YAML/review history as authoritative while indexes and browser views are derived."
+    type: methodological
+    status: verified
+    evidence:
+      - source_id: S005
+        locator: "API and browser boundary"
+        quote: "The browser page uses same-origin"
+        supports: true
+    verified_by: presentation-source-audit
+    verified_on: 2026-08-13
+  - id: C015
+    statement: "The current evidence workbench uses AI-DQSS as a design input without copying its assessment-specific architecture."
+    type: methodological
+    status: verified
+    evidence:
+      - source_id: S004
+        locator: "Context"
+        quote: "AI-DQSS as a design input."
+        supports: true
+    verified_by: presentation-source-audit
+    verified_on: 2026-08-13
+  - id: C016
+    statement: "The 2026-07-30 provenance plan references Suggestions-For-CR.md, but that source is unavailable in the current checkout."
+    type: methodological
+    status: verified
+    evidence:
+      - source_id: S002
+        locator: "Context / locked design decisions"
+        quote: "The design adopts the provenance ideas from"
+        supports: true
+    verification_note: "Filesystem check on 2026-08-13 found no Suggestions-For-CR.md in the workspace. The source's contents were not inspected."
+    verified_by: presentation-source-audit
+    verified_on: 2026-08-13
+  - id: C017
+    statement: "Stochastic LLM generation creates epistemic instability for knowledge work."
+    type: normative
+    status: abstained
+    evidence: []
+    verification_note: "Conceptual framing requested by the presentation owner; no controlled repeated-run evidence is claimed or included."
+    verified_by: presentation-source-audit
+    verified_on: 2026-08-13

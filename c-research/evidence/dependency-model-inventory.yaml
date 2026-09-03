@@ -1,0 +1,195 @@
+# Created 2026-08-12.
+schema_version: research-evidence-inventory-v1
+entries:
+  - id: loguru
+    kind: package
+    distribution_source: https://pypi.org/project/loguru/0.7.3/
+    exact_version_or_revision: 0.7.3
+    sha256: 31a33c10c8e1e10422bfd431aeb5d351c7cf7fa671e3c4df004162264b28220b
+    license_or_access_terms: MIT
+    restriction: ""
+    setup_network_required: true
+    runtime_network_required: false
+    telemetry_notes: No telemetry known from the pinned package metadata.
+    platform_support: [macos, windows, linux]
+    enterprise_review_status: unreviewed
+    selection_rationale: Structured local diagnostics without the standard logging module.
+    caveat_disclaimer: Local execution is not an enterprise approval.
+    activation_status: enabled-local
+    activation_acknowledged: false
+  - id: pydantic
+    kind: package
+    distribution_source: https://pypi.org/project/pydantic/2.13.4/
+    exact_version_or_revision: 2.13.4
+    sha256: 45a282cde31d808236fd7ea9d919b128653c8b38b393d1c4ab335c62924d9aba
+    license_or_access_terms: MIT
+    restriction: ""
+    setup_network_required: true
+    runtime_network_required: false
+    telemetry_notes: No telemetry known from the pinned package metadata.
+    platform_support: [macos, windows, linux]
+    enterprise_review_status: unreviewed
+    selection_rationale: Strict typed schemas at the canonical state boundary.
+    caveat_disclaimer: Local execution is not an enterprise approval.
+    activation_status: enabled-local
+    activation_acknowledged: false
+  - id: pyyaml
+    kind: package
+    distribution_source: https://pypi.org/project/PyYAML/6.0.3/
+    exact_version_or_revision: 6.0.3
+    sha256: 652cb6edd41e718550aad172851962662ff2681490a8a711af6a4d288dd96824
+    license_or_access_terms: MIT
+    restriction: ""
+    setup_network_required: true
+    runtime_network_required: false
+    telemetry_notes: No telemetry known from the pinned package metadata.
+    platform_support: [macos, windows, linux]
+    enterprise_review_status: unreviewed
+    selection_rationale: Readable deterministic YAML canonical artifacts.
+    caveat_disclaimer: Local execution is not an enterprise approval.
+    activation_status: enabled-local
+    activation_acknowledged: false
+  - id: pytest
+    kind: package
+    distribution_source: https://pypi.org/project/pytest/9.1.1/
+    exact_version_or_revision: 9.1.1
+    sha256: 37a86b45efb9a47a61a36449063e8e18d0cab3161329fc099eb21783169c4f0c
+    license_or_access_terms: MIT
+    restriction: ""
+    setup_network_required: true
+    runtime_network_required: false
+    telemetry_notes: Test-runner behavior is local; no runtime telemetry is enabled by this project.
+    platform_support: [macos, windows, linux]
+    enterprise_review_status: unreviewed
+    selection_rationale: Required development and verification test runner.
+    caveat_disclaimer: Development-only dependency; local execution is not an enterprise approval.
+    activation_status: enabled-local
+    activation_acknowledged: false
+  - id: pypdf
+    kind: package
+    distribution_source: https://pypi.org/project/pypdf/6.15.0/
+    exact_version_or_revision: 6.15.0
+    sha256: 14e001d6504822cb1ca9c7ed9a69bccb320f59b320730f55af804361abe4d5ee
+    license_or_access_terms: BSD-3-Clause
+    restriction: ""
+    setup_network_required: true
+    runtime_network_required: false
+    telemetry_notes: No telemetry known from the pinned package metadata.
+    platform_support: [macos, windows, linux]
+    enterprise_review_status: unreviewed
+    selection_rationale: Maintained local PDF text extraction with page-aware parsing.
+    caveat_disclaimer: Text extraction does not replace original-page verification; local execution is not enterprise approval.
+    activation_status: enabled-local
+    activation_acknowledged: false
+  - id: tesseract-ocr
+    kind: executable
+    distribution_source: https://github.com/tesseract-ocr/tesseract
+    exact_version_or_revision: 5.3.4
+    sha256: null
+    license_or_access_terms: Apache-2.0
+    restriction: ""
+    setup_network_required: true
+    runtime_network_required: false
+    telemetry_notes: No telemetry known; runtime process is locally allowlisted.
+    platform_support: [macos, windows, linux]
+    enterprise_review_status: unreviewed
+    selection_rationale: Candidate local OCR engine for scanned PDF page images.
+    caveat_disclaimer: Candidate only; OCR output is retrieval assistance and requires original-page verification. Local execution is not enterprise approval.
+    activation_status: candidate
+    activation_acknowledged: false
+  - id: optional-dense-retrieval-candidate
+    kind: model
+    distribution_source: not-acquired
+    exact_version_or_revision: not-acquired
+    sha256: null
+    license_or_access_terms: To be determined before selection
+    restriction: Candidate evaluation only
+    setup_network_required: true
+    runtime_network_required: false
+    telemetry_notes: Not evaluated because weights have not been acquired.
+    platform_support: [macos, windows, linux]
+    enterprise_review_status: unreviewed
+    selection_rationale: Reserve an explicit profile for local dense retrieval evaluation.
+    caveat_disclaimer: No model or weights selected; profile cannot run and lexical retrieval remains the default.
+    activation_status: candidate
+    activation_acknowledged: false
+  - id: optional-sparse-retrieval-candidate
+    kind: model
+    distribution_source: not-acquired
+    exact_version_or_revision: not-acquired
+    sha256: null
+    license_or_access_terms: To be determined before selection
+    restriction: Candidate evaluation only
+    setup_network_required: true
+    runtime_network_required: false
+    telemetry_notes: Not evaluated because weights have not been acquired.
+    platform_support: [macos, windows, linux]
+    enterprise_review_status: unreviewed
+    selection_rationale: Reserve an explicit profile for local sparse retrieval evaluation.
+    caveat_disclaimer: No model or weights selected; profile cannot run and lexical retrieval remains the default.
+    activation_status: candidate
+    activation_acknowledged: false
+  - id: optional-reranker-candidate
+    kind: model
+    distribution_source: not-acquired
+    exact_version_or_revision: not-acquired
+    sha256: null
+    license_or_access_terms: To be determined before selection
+    restriction: Candidate evaluation only
+    setup_network_required: true
+    runtime_network_required: false
+    telemetry_notes: Not evaluated because weights have not been acquired.
+    platform_support: [macos, windows, linux]
+    enterprise_review_status: unreviewed
+    selection_rationale: Reserve an explicit profile for independent local reranking evaluation.
+    caveat_disclaimer: No model or weights selected; profile cannot run and lexical retrieval remains the default.
+    activation_status: candidate
+    activation_acknowledged: false
+  - id: fastapi
+    kind: package
+    distribution_source: https://pypi.org/project/fastapi/0.141.1/
+    exact_version_or_revision: 0.141.1
+    sha256: bfb91aa2d334c61cb35ba9a116fc123b3d3df31640b801cf57a7a78ec3f603b3
+    license_or_access_terms: MIT
+    restriction: ""
+    setup_network_required: true
+    runtime_network_required: false
+    telemetry_notes: No telemetry known from the pinned package metadata.
+    platform_support: [macos, windows, linux]
+    enterprise_review_status: unreviewed
+    selection_rationale: Typed local HTTP boundary for canonical evidence state.
+    caveat_disclaimer: Binds to loopback only in this project; local execution is not enterprise approval.
+    activation_status: enabled-local
+    activation_acknowledged: false
+  - id: httpx
+    kind: package
+    distribution_source: https://pypi.org/project/httpx/0.28.1/
+    exact_version_or_revision: 0.28.1
+    sha256: d909fcccc110f8c7faf814ca82a9a4d816bc5a6dbfea25d6591d6985b8ba59ad
+    license_or_access_terms: BSD-3-Clause
+    restriction: Development/test client only
+    setup_network_required: true
+    runtime_network_required: false
+    telemetry_notes: Test client is local; no runtime telemetry is enabled by this project.
+    platform_support: [macos, windows, linux]
+    enterprise_review_status: unreviewed
+    selection_rationale: Local API integration testing without external requests.
+    caveat_disclaimer: Development/test dependency; it does not authorize external network calls.
+    activation_status: enabled-with-caveat
+    activation_acknowledged: true
+  - id: uvicorn
+    kind: package
+    distribution_source: https://pypi.org/project/uvicorn/0.52.2/
+    exact_version_or_revision: 0.52.2
+    sha256: 0b916d247cf5500b320638ea11abf0fed7f348e8e1c7fde53a0e6b6319803512
+    license_or_access_terms: BSD-3-Clause
+    restriction: ""
+    setup_network_required: true
+    runtime_network_required: false
+    telemetry_notes: No telemetry known from the pinned package metadata.
+    platform_support: [macos, windows, linux]
+    enterprise_review_status: unreviewed
+    selection_rationale: Optional local loopback ASGI server runner.
+    caveat_disclaimer: Server must be launched with a loopback bind; local execution is not enterprise approval.
+    activation_status: enabled-local
+    activation_acknowledged: false

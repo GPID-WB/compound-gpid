@@ -15,6 +15,8 @@ before planning begins.
 - You may read any file in the workspace.
 - You may read `compound-gpid.md`, `compound-gpid.local.md`, `compound-gpid.context.md`.
 - You may create brainstorm files in `.cg-docs/brainstorms/`.
+- You may create and modify the current study's outputs in
+  `c-research/scoping/` and `c-research/normative-decisions/`.
 - You may NOT modify `roadmap.json` directly — dispatch `@cg-roadmap` for roadmap writes.
 
 ## Process
@@ -64,8 +66,8 @@ Based on the confirmed task type, note which specialized skills would be loaded
 #### Step 1.2 — Scoping + Normative Decision Gate (deterministic)
 
 Load `cr-skill-research-scoping` and create/update:
-- `.cg-docs/research/scoping/<study-slug>.md`
-- `.cg-docs/research/normative-decisions/<study-slug>.md`
+- `c-research/scoping/<study-slug>.md`
+- `c-research/normative-decisions/<study-slug>.md`
 
 Before moving to Step 2, deterministically enumerate value-laden decision
 points using the bounded checklist for the confirmed task type (from

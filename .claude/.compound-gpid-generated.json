@@ -91,7 +91,7 @@
       "path": ".claude/agents/cg-reproducibility.md",
       "source": ".github/agents/cg-reproducibility.agent.md",
       "kind": "agent",
-      "sha256": "edae0d94ea712acaff34deda5613da86a5bfdb7382abb408ecefc966fbd3421e",
+      "sha256": "65d91327ea4720a3daeab8f559ca50461699717f1b9c25f04dc9459a15e4e384",
       "executable": false
     },
     {
@@ -133,77 +133,77 @@
       "path": ".claude/agents/cr-academic-writing.md",
       "source": ".github/agents/cr-academic-writing.agent.md",
       "kind": "agent",
-      "sha256": "c8934019d5899188e041351cba5be66c7f427ba5ee8bafffc3641a52bf3e88a7",
+      "sha256": "4d0c8d42d86ba3baa4b5e1dc7dcd0f038bed100cc5c6908eb526b1ec0147350a",
       "executable": false
     },
     {
       "path": ".claude/agents/cr-econometric-reasoning.md",
       "source": ".github/agents/cr-econometric-reasoning.agent.md",
       "kind": "agent",
-      "sha256": "e89388fec7a10e3007184993f6f31fd1adea644d18587ec8a329a9d7fb1d48f5",
+      "sha256": "c2f5ff0f207ce4935de268d548fd41875e978307be3827b992c17de72d726928",
       "executable": false
     },
     {
       "path": ".claude/agents/cr-identification-audit.md",
       "source": ".github/agents/cr-identification-audit.agent.md",
       "kind": "agent",
-      "sha256": "da3ef00fe40ac72e4c7bc35c17648681a6e9600220f75b5009df54c2aa19751e",
+      "sha256": "206c339dfef2028cce9a191fd2246c258f6a13d78e51bb04c13386d3b6d4de5f",
       "executable": false
     },
     {
       "path": ".claude/agents/cr-mathematical-verification.md",
       "source": ".github/agents/cr-mathematical-verification.agent.md",
       "kind": "agent",
-      "sha256": "65b6feb11ba23270f88283c5a67192b99e9dbf7aa6b9fee2ead7c204007c6b13",
+      "sha256": "c933ebf5537ab93dfd3a433e6d317f699c492598bba19108da819a47077da8cb",
       "executable": false
     },
     {
       "path": ".claude/agents/cr-measurement-integrity.md",
       "source": ".github/agents/cr-measurement-integrity.agent.md",
       "kind": "agent",
-      "sha256": "5fc8f188dba59ebdbd5dee39dc65276fa906a963e5bf9daf14c9c5eca3480643",
+      "sha256": "cf6a6cbea8bf759c10ceb385d00655105d8e32e264bf0a6525131239145e4bc3",
       "executable": false
     },
     {
       "path": ".claude/agents/cr-ml-methodology.md",
       "source": ".github/agents/cr-ml-methodology.agent.md",
       "kind": "agent",
-      "sha256": "a26a959e0bdbc166a4cba4ea8b508d2dfc55c17f629656d63da57aa4f45e0b6b",
+      "sha256": "42bfd5e00c7d87aee5800affaf3089d736ecdb9b4c224ac5747c151e7450f30c",
       "executable": false
     },
     {
       "path": ".claude/agents/cr-provenance-audit.md",
       "source": ".github/agents/cr-provenance-audit.agent.md",
       "kind": "agent",
-      "sha256": "090f3333df1eb3019569749f558e43cb0de3624155a439d1ce9538dd0f241f79",
+      "sha256": "7135a788221a312817970c45ed354480fc2d1701de115a7fa3bfe6e309ffd476",
       "executable": false
     },
     {
       "path": ".claude/agents/cr-publication-output.md",
       "source": ".github/agents/cr-publication-output.agent.md",
       "kind": "agent",
-      "sha256": "51f452d49bfea153687d1a83947310ef8ed16f6dcb40141aba2bc09d16b755fa",
+      "sha256": "afe21e0fc6e252164be24fa8a4f8677a1429308939b74df7c010bf719a6663a9",
       "executable": false
     },
     {
       "path": ".claude/agents/cr-replication-package.md",
       "source": ".github/agents/cr-replication-package.agent.md",
       "kind": "agent",
-      "sha256": "acfc079b8e2a2d3312b10d53d3a52894842d39e4e20ce06acbafd4daa874c73c",
+      "sha256": "f7196ae30a2580ebb84233506681b6ea13b53f2963f5839e48be5dd482c22400",
       "executable": false
     },
     {
       "path": ".claude/agents/cr-research-integrity.md",
       "source": ".github/agents/cr-research-integrity.agent.md",
       "kind": "agent",
-      "sha256": "ed38dadce067e929d4b96bfdafa5c269c6db3c51de2caa68bf0112200c4e6e03",
+      "sha256": "ce11bd5653d57a8675ea354a2cb11364647930ed0d57b5267a25b9a1cfa3eefd",
       "executable": false
     },
     {
       "path": ".claude/agents/cr-specification-analysis.md",
       "source": ".github/agents/cr-specification-analysis.agent.md",
       "kind": "agent",
-      "sha256": "7e821c1d5e6c3f7c146125e83c635eabd72cb5e2d0ac0f0e65f321c18afcc5a2",
+      "sha256": "3ea50efdde88434cd70fe22188e3da57b4b717ab60a9da5160e767e8214da580",
       "executable": false
     },
     {
@@ -350,7 +350,7 @@
       "path": ".claude/commands/cg-setup.md",
       "source": ".github/prompts/cg-setup.prompt.md",
       "kind": "command",
-      "sha256": "ab9e755df1a819afad0fd566c691567bccc051d5fa5e7bd3f65492374a1420dd",
+      "sha256": "cc1771a129b7e57075b79e40b89ff2a675a7ee2d3cdfc739d04e8137d1a19d41",
       "executable": false
     },
     {
@@ -399,7 +399,7 @@
       "path": ".claude/commands/cr-brainstorm.md",
       "source": ".github/prompts/cr-brainstorm.prompt.md",
       "kind": "command",
-      "sha256": "83470a6ea9c38bf52b45add8229143f5231ba00c19f0885ce5b1ecec810d055c",
+      "sha256": "69ae42da9b6a1a9602d44a150a8914bcd6474053949bfc70577fcbe6da58c854",
       "executable": false
     },
     {
@@ -413,21 +413,21 @@
       "path": ".claude/commands/cr-plan.md",
       "source": ".github/prompts/cr-plan.prompt.md",
       "kind": "command",
-      "sha256": "81aefabd02b88c259b685fd5040c6d1b779175a65437876baa8df457c6ed3cee",
+      "sha256": "b45b6e49e1e13850ec5fea5cbe34adfdb747dc03d71aa5116eb9166c7b9f7c9e",
       "executable": false
     },
     {
       "path": ".claude/commands/cr-review.md",
       "source": ".github/prompts/cr-review.prompt.md",
       "kind": "command",
-      "sha256": "0103701e4842b59069525025cd5fa8cbee112646e11db0488580330608f7fa4f",
+      "sha256": "f58198fed78d1225d4b1aa86bd92c5a4422cfc1270fcbe74a94ab1c771436565",
       "executable": false
     },
     {
       "path": ".claude/commands/cr-work.md",
       "source": ".github/prompts/cr-work.prompt.md",
       "kind": "command",
-      "sha256": "d9069247c47ef0faea43d515c4440f2796f531a15645b910d6928c3522248614",
+      "sha256": "a7d6c6bdb6a145e13434ecbbe69db58ba8b3e3173b781ec8e3368e169c21bd06",
       "executable": false
     },
     {
@@ -441,7 +441,7 @@
       "path": ".claude/commands/setup-templates.md",
       "source": ".github/prompts/setup-templates.md",
       "kind": "prompt-support",
-      "sha256": "6073fae5d5f178a973dc90ba017a6d49576e75505cd81ec06bbce01cb6f9d442",
+      "sha256": "fa015b1f7d17c562836be9ec691b744661678f36242be59cf43c0987e27db4dc",
       "executable": false
     },
     {
@@ -455,7 +455,7 @@
       "path": ".claude/instructions/math.instructions.md",
       "source": ".github/instructions/math.instructions.md",
       "kind": "instruction",
-      "sha256": "2efedd2da098e79daef7fc6cab0f6ede63fd8f83310d8f5df73c7715fb3ed5db",
+      "sha256": "41fe410e2dc39b821f61d0a9fc15bda6390ca5d5a656ab2d9287bd47f15e2416",
       "executable": false
     },
     {
@@ -504,7 +504,7 @@
       "path": ".claude/shared/context-loading.contract.md",
       "source": ".github/shared/context-loading.contract.md",
       "kind": "shared",
-      "sha256": "404193056e0fdc3f4b40b50ffbc5a856370cf61ceb2edd61c27cc4e0a5ceb581",
+      "sha256": "1a02f20f9adef1d94a42787e504e811f8b008567f29dde20a55b8f8bfa2f7c2c",
       "executable": false
     },
     {
@@ -784,7 +784,7 @@
       "path": ".claude/shared/target-mapping.json",
       "source": ".github/shared/target-mapping.json",
       "kind": "shared",
-      "sha256": "46b47adf93a379104605d0621dfbf52431271bb1ffa1097f36c7c9f6ed29dc43",
+      "sha256": "38269c5d9c5103d9189865a37f7911c76f1a8a53f5a8dc07899b25c5b9c39968",
       "executable": false
     },
     {
@@ -1428,7 +1428,7 @@
       "path": ".claude/skills/cg-skill-setup/SKILL.md",
       "source": ".github/skills/cg-skill-setup/SKILL.md",
       "kind": "skill",
-      "sha256": "1bbec9265db189709327b2d24088e26a9bfb558a02ba840430599073268bf070",
+      "sha256": "1551194eecf0cbf8fb5bc188ffcbaa4694057eb47cdf9b70d2a6f312963a5d84",
       "executable": false
     },
     {
@@ -2380,7 +2380,7 @@
       "path": ".claude/skills/cr-skill-evidence-provenance/SKILL.md",
       "source": ".github/skills/cr-skill-evidence-provenance/SKILL.md",
       "kind": "skill",
-      "sha256": "caf15be827053bb8f9f6be49f468553f84fc26dabc703023ee4085b93ebf7fe1",
+      "sha256": "96a383f50b73a42b3e5bf7a428c88aafbe5bc43db74fcfe418f44d3396cdcbb8",
       "executable": false
     },
     {
@@ -2394,21 +2394,77 @@
       "path": ".claude/skills/cr-skill-mathematical-derivation/SKILL.md",
       "source": ".github/skills/cr-skill-mathematical-derivation/SKILL.md",
       "kind": "skill",
-      "sha256": "376f30f5342598843da3d70872e5452b1453930227799f81daf914f67eb31975",
+      "sha256": "3fece1a0576fb2a6d2c9c6ceb6303feef49b4cc69c51aa4308d379fb901d53c9",
       "executable": false
     },
     {
       "path": ".claude/skills/cr-skill-measurement/SKILL.md",
       "source": ".github/skills/cr-skill-measurement/SKILL.md",
       "kind": "skill",
-      "sha256": "5ba3928b963d4f57cdd95005c926a07875434557db84a391e848559a4a5611d0",
+      "sha256": "4e1ffa49ade10a98a26429fdec48ac585c68506ace041b0df24cb2754903c86b",
       "executable": false
     },
     {
       "path": ".claude/skills/cr-skill-ml-economics/SKILL.md",
       "source": ".github/skills/cr-skill-ml-economics/SKILL.md",
       "kind": "skill",
-      "sha256": "a932b38c28e3614e200ace0fd16e070c94c9dbeb7690b241f1aa7710e8cb4e4b",
+      "sha256": "78243475aec72741e70a8a0408dfc95f81082ffbbb34b0b9e776c576c0419209",
+      "executable": false
+    },
+    {
+      "path": ".claude/skills/cr-skill-ml-economics/references/econometric-causal-ml.md",
+      "source": ".github/skills/cr-skill-ml-economics/references/econometric-causal-ml.md",
+      "kind": "skill-resource",
+      "sha256": "522dc0f52f856a891510a288f143a995f071c49ca3f4f155cef0028f572431b0",
+      "executable": false
+    },
+    {
+      "path": ".claude/skills/cr-skill-ml-economics/references/foundations-and-esl.md",
+      "source": ".github/skills/cr-skill-ml-economics/references/foundations-and-esl.md",
+      "kind": "skill-resource",
+      "sha256": "6397b6a9b9429efaffc2084b9c2462ed06e61afd54502a317415bbe9be61e7c5",
+      "executable": false
+    },
+    {
+      "path": ".claude/skills/cr-skill-ml-economics/references/high-dimensional-and-regularized-methods.md",
+      "source": ".github/skills/cr-skill-ml-economics/references/high-dimensional-and-regularized-methods.md",
+      "kind": "skill-resource",
+      "sha256": "ccf308e6f658ced5c52b5ed5488872529b418a9c61fe80d3390973c69cbb5a5e",
+      "executable": false
+    },
+    {
+      "path": ".claude/skills/cr-skill-ml-economics/references/implementation-python-scikit-learn.md",
+      "source": ".github/skills/cr-skill-ml-economics/references/implementation-python-scikit-learn.md",
+      "kind": "skill-resource",
+      "sha256": "b60f5388c902fcd6f44b71331d0f31eb1673c378073381a8af09a534ba654ebf",
+      "executable": false
+    },
+    {
+      "path": ".claude/skills/cr-skill-ml-economics/references/implementation-r-tidymodels.md",
+      "source": ".github/skills/cr-skill-ml-economics/references/implementation-r-tidymodels.md",
+      "kind": "skill-resource",
+      "sha256": "1ed8bf398e2269cd2696204d7109edcfc4362fe6e8023af5dd405d63700a54bb",
+      "executable": false
+    },
+    {
+      "path": ".claude/skills/cr-skill-ml-economics/references/splitting-resampling-and-evaluation.md",
+      "source": ".github/skills/cr-skill-ml-economics/references/splitting-resampling-and-evaluation.md",
+      "kind": "skill-resource",
+      "sha256": "2750a6046d41c34d405f8778022c844b75d8a66cbcc587e9bf2dabc5099d247a",
+      "executable": false
+    },
+    {
+      "path": ".claude/skills/cr-skill-ml-economics/references/survey-panel-and-target-population.md",
+      "source": ".github/skills/cr-skill-ml-economics/references/survey-panel-and-target-population.md",
+      "kind": "skill-resource",
+      "sha256": "cf6ba79a2181548a540127d105e2c5341d05437b067f035843886925783aa5e1",
+      "executable": false
+    },
+    {
+      "path": ".claude/skills/cr-skill-ml-economics/references/trees-ensembles-and-interpretation.md",
+      "source": ".github/skills/cr-skill-ml-economics/references/trees-ensembles-and-interpretation.md",
+      "kind": "skill-resource",
+      "sha256": "3ff698f00771c892eaed3a5492575debe61460bb2cd87e5e4b4e94b0c1fc0526",
       "executable": false
     },
     {
@@ -2422,35 +2478,35 @@
       "path": ".claude/skills/cr-skill-replication-standards/SKILL.md",
       "source": ".github/skills/cr-skill-replication-standards/SKILL.md",
       "kind": "skill",
-      "sha256": "edee223327b9e0feed251ed8a99392e1b3fc94e419869459db2fa6d39aa367ad",
+      "sha256": "c8386cc5dda2bee65a6d7ade330b8cc2e551b49f8ae7f5b6dde86e001fd17b33",
       "executable": false
     },
     {
       "path": ".claude/skills/cr-skill-research-eda/SKILL.md",
       "source": ".github/skills/cr-skill-research-eda/SKILL.md",
       "kind": "skill",
-      "sha256": "a71c45b7d18e8e6158811e33257cb3683e353bf9c9ae95c9193e79601c40d5b7",
+      "sha256": "95ce3d0f23508ebb6ba8f380ed9f0a56de74704d61a9c3c7d2631d765a08de01",
       "executable": false
     },
     {
       "path": ".claude/skills/cr-skill-research-integrity/SKILL.md",
       "source": ".github/skills/cr-skill-research-integrity/SKILL.md",
       "kind": "skill",
-      "sha256": "25d0b92ad3648b12623144ad13a82a3f66ed6e7a5b9c6f1ed1d9028c0589c9b5",
+      "sha256": "bcd786bb7d40ebb01c2b25f418c0281d184fa62e04866b5e242c4d58a64ca98b",
       "executable": false
     },
     {
       "path": ".claude/skills/cr-skill-research-scoping/SKILL.md",
       "source": ".github/skills/cr-skill-research-scoping/SKILL.md",
       "kind": "skill",
-      "sha256": "ab18f52d19559c504e0624f245ece8ae7e513df9fcfd20f9db9db6a044add79c",
+      "sha256": "acd3bfd8d2ba38fce985979cbe41ab0491bfedf03eefa3d047d1176ca21bac74",
       "executable": false
     },
     {
       "path": ".claude/skills/cr-skill-research-workflow/SKILL.md",
       "source": ".github/skills/cr-skill-research-workflow/SKILL.md",
       "kind": "skill",
-      "sha256": "3d4e6139b975cf9af1dd4b71c264736b7dec7bb0b5d0dc59ef7f1382e4533c65",
+      "sha256": "ac2a936e56bd8d00abff0cac7bcce1628ee4ddc9aa4bf710f3f6963c7f7d8788",
       "executable": false
     },
     {
@@ -2464,14 +2520,14 @@
       "path": ".claude/skills/cr-skill-symbolic-verification/SKILL.md",
       "source": ".github/skills/cr-skill-symbolic-verification/SKILL.md",
       "kind": "skill",
-      "sha256": "2760940d0df74238d8afe7f8501b2baaaa262d0392ea142c6934fa8a11be7709",
+      "sha256": "0343c88b3b758f16c530c47efe8cace1b4822d93746bf47f078ad8afea277cb3",
       "executable": false
     },
     {
       "path": ".claude/skills/cr-skill-theory-data-dialogue/SKILL.md",
       "source": ".github/skills/cr-skill-theory-data-dialogue/SKILL.md",
       "kind": "skill",
-      "sha256": "d399adb9df8f58e8e29a39422641af8d36c7554dc954574f74df6590696558d8",
+      "sha256": "c40fc81530ae7b1a68b48883262d051b07abb121ab689942b28c179b57ef5e5f",
       "executable": false
     }
   ]

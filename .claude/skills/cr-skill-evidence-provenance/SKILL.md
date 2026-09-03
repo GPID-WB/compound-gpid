@@ -58,7 +58,7 @@ The original source file is the authority.
 ## Provenance Ledger Schema
 
 Path:
-- `.cg-docs/research/evidence/provenance-ledger.yaml`
+- `c-research/evidence/provenance-ledger.yaml`
 
 Schema:
 ```yaml
@@ -69,7 +69,7 @@ sources:
     year: 2020
     origin: repo-local
     original_path: "data/refs/source.pdf"
-    converted_path: ".cg-docs/research/evidence/converted/source.md"
+    converted_path: "c-research/evidence/converted/source.md"
     conversion_tool: "markitdown@x.y"
     sha256: "<hash-of-original>"
     external_flag: false
@@ -83,7 +83,7 @@ Required fields: `id`, `origin`, `original_path`, `sha256`, `external_flag`.
 ## Claim-Evidence Matrix Schema
 
 Path:
-- `.cg-docs/research/evidence/claim-evidence-matrix.yaml`
+- `c-research/evidence/claim-evidence-matrix.yaml`
 
 Schema:
 ```yaml
@@ -148,9 +148,9 @@ Thorough:
 ## Artifact Layout
 
 Evidence artifacts live under:
-- `.cg-docs/research/evidence/provenance-ledger.yaml`
-- `.cg-docs/research/evidence/claim-evidence-matrix.yaml`
-- `.cg-docs/research/evidence/converted/`
+- `c-research/evidence/provenance-ledger.yaml`
+- `c-research/evidence/claim-evidence-matrix.yaml`
+- `c-research/evidence/converted/`
 
 Create directories on demand during `/cr-work` when absent.
 
@@ -162,3 +162,40 @@ Create directories on demand during `/cr-work` when absent.
 - Treating converted markdown as authority over original files
 - Mixing external sources into repo-local mode without explicit flags
 - Assigning `verified` without resolvable source and locator
+
+## Local Evidence Workbench (v1)
+
+The executable local evidence workbench lives in the dedicated
+`research_evidence/` Python subproject. `/cr-work` is the existing launcher for
+starting and resuming its plan phases; no separate `/cr-evidence` command is
+needed in v1.
+
+Use the workbench for the analysis/composition checkpoint:
+
+```text
+resource -> source version/unit -> local retrieval -> candidate claim/evidence
+-> original-authority verification -> approved claim/evidence matrix
+```
+
+- Start or resume from the repository root with
+  `uv run --project research_evidence research-evidence --help` and the phase
+  command recorded in the active state. Normal processing is local-only and
+  has no internet search, URL fetching, external API model execution, hidden
+  download, or external fallback.
+- Original files remain authoritative. Converted text, OCR text, indexes,
+  browser views, and API responses are derived aids. Source hash, source
+  version, typed locator, quote, verification reason, confidence, and review
+  state travel with every decision.
+- Legacy `origin: external-opt-in` rows are preserved read-only in
+  `external-quarantine.yaml`; they are not fetched, indexed, or eligible for
+  approval. A copied local original requires a new local source-version record
+  and verification event.
+- Local retrieval/model output is untrusted candidate data. Candidate records
+  require a local source-unit ID, source version, verbatim quote, relation,
+  rationale, run/profile/inventory references, and remain `candidate` until an
+  independent verifier succeeds. A paraphrase, locator ID, or model rationale
+  never promotes evidence.
+- Only high-confidence evidence with a resolvable typed locator, matching
+  original source version/hash, exact quote verification, and researcher
+  approval may enter downstream analysis or composition. Stale, ambiguous,
+  OCR-derived, table/equation, inaccessible, and legacy cases remain flagged.
