@@ -1,28 +1,31 @@
 {
   "schemaVersion": "compound-gpid-active-state-v1",
-  "updatedAt": "2026-09-03T14:01:11Z",
-  "workflow": "/cr-work",
-  "status": "complete",
-  "branch": "feat/cr-ml-skill-redesign",
-  "plan": ".cg-docs/plans/2026-09-03-cr-ml-skill-redesign.md",
-  "executionReport": ".cg-docs/work-reports/2026-09-03-cr-ml-skill-redesign.md",
-  "currentPhase": null,
+  "updatedAt": "2026-09-03T21:05:49Z",
+  "workflow": "/cg-work",
+  "status": "blocked",
+  "branch": "feat/cr-documentation",
+  "plan": ".cg-docs/plans/2026-09-03-cr-research-handbook-and-dev-preview.md",
+  "executionReport": ".cg-docs/work-reports/2026-09-03-cr-research-handbook-and-dev-preview.md",
+  "currentPhase": 5,
   "evidenceStatus": [
-    {"id": "V1", "status": "passed", "artifact": "Phase 1 focused pytest slice"},
-    {"id": "V2", "status": "passed", "artifact": "Phase 1 focused pytest slice"},
-    {"id": "V3", "status": "passed", "artifact": "Phase 2 focused pytest slice"},
-    {"id": "V4", "status": "passed", "artifact": "Phase 3 complete CR ML pytest contract"},
-    {"id": "V5", "status": "passed", "artifact": "CR routing and baseline tests"},
-    {"id": "V6", "status": "passed", "artifact": "scripts/tests/fixtures/cr_ml_skill_evaluation.json"},
-    {"id": "V7", "status": "passed", "artifact": "target packaging and drift tests"},
-    {"id": "V8", "status": "passed", "artifact": "frontmatter and documentation tests"},
-    {"id": "V9", "status": "passed", "artifact": "context audit"},
-    {"id": "V10", "status": "passed", "artifact": "tests/last-run.json"}
+    {"id": "V1", "status": "passed", "artifact": "node scripts/check-docs-site.js"},
+    {"id": "V2", "status": "passed", "artifact": "scripts/tests/research-handbook.test.js"},
+    {"id": "V3", "status": "passed", "artifact": "scripts/tests/research-handbook.test.js"},
+    {"id": "V4", "status": "passed", "artifact": "scripts/tests/assemble-docs-site.test.js"},
+    {"id": "V5", "status": "passed", "artifact": "scripts/tests/docs-preview-runtime.test.js"},
+    {"id": "V6", "status": "passed", "artifact": "tests/docs-preview.Tests.ps1"},
+    {"id": "V7", "status": "passed", "artifact": "scripts/tests/assemble-docs-site.test.js"},
+    {"id": "V8", "status": "passed", "artifact": "tests/docs-automation.Tests.ps1"},
+    {"id": "V9", "status": "passed", "artifact": "tests/last-run.json"},
+    {"id": "V10", "status": "pending", "artifact": "GitHub Actions and public /dev/ URL"}
   ],
-  "unresolvedDecisions": [],
+  "unresolvedDecisions": [
+    {"id": "D1", "summary": "Commit and push this implementation, merge it into dev, and verify GitHub Actions plus the public /dev/ preview", "blocking": true},
+    {"id": "D2", "summary": "Resolve or explicitly accept unrelated pre-existing Python CR-ML/generated-target test failures before using the full Python suite as a clean repository gate", "blocking": false}
+  ],
   "artifactRefs": [
-    {"kind": "plan", "path": ".cg-docs/plans/2026-09-03-cr-ml-skill-redesign.md", "status": "completed"},
-    {"kind": "execution-report", "path": ".cg-docs/work-reports/2026-09-03-cr-ml-skill-redesign.md", "status": "handoff"}
+    {"kind": "plan", "path": ".cg-docs/plans/2026-09-03-cr-research-handbook-and-dev-preview.md", "status": "active"},
+    {"kind": "work-report", "path": ".cg-docs/work-reports/2026-09-03-cr-research-handbook-and-dev-preview.md", "status": "active"}
   ],
-  "nextCommand": "/cg-review data-risk"
+  "nextCommand": "/cg-commit-push-pr"
 }

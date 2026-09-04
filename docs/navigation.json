@@ -12,6 +12,17 @@
       ]
     },
     {
+      "title": "Research Handbook",
+      "pages": [
+        { "id": "research", "title": "Research Handbook: Start Here", "file": "research/index.md", "description": "Activate the research suite and complete a first Compound Research workflow." },
+        { "id": "research-philosophy", "title": "Why Compound Research Exists", "file": "research/philosophy.md", "description": "Understand the evidence, uncertainty, and human responsibility behind CR." },
+        { "id": "research-first-workflow", "title": "Your First CR Workflow", "file": "research/first-workflow.md", "description": "Follow the five research commands from question to reusable lesson." },
+        { "id": "research-short-example", "title": "Short Workflow Example", "file": "research/short-example.md", "description": "See a compact Kenya extreme-precipitation workflow from activation to review." },
+        { "id": "research-lifecycle", "title": "Research Lifecycle and Task Types", "file": "research/lifecycle.md", "description": "Learn how CR stages and task types route research work." },
+        { "id": "research-evidence-boundaries", "title": "Evidence, Review, and Boundaries", "file": "research/evidence-boundaries.md", "description": "Keep claims traceable and understand what CR cannot establish." }
+      ]
+    },
+    {
       "title": "Workflows",
       "pages": [
         { "id": "workflows", "title": "Workflow Overview", "file": "workflows/index.md", "description": "Choose the shortest workflow that fits the task." },
@@ -26,7 +37,7 @@
       "pages": [
         { "id": "skills", "title": "Skills Catalog", "file": "skills/index.md", "description": "All canonical skills, availability, and maintenance rules." },
         { "id": "analytical-skills", "title": "Analysis and Economics", "file": "skills/analysis.md", "description": "R, Stata, Python, data, statistics, and visualization guidance." },
-        { "id": "research-skills", "title": "Research Skills", "file": "skills/research.md", "description": "Economics and econometrics research methods, including ML and high-dimensional inference." },
+        { "id": "research-skills", "title": "Research Skills", "file": "skills/research.md", "description": "Research methods, evidence, econometrics, machine learning, and high-dimensional inference." },
         { "id": "development-skills", "title": "Development and Testing", "file": "skills/development.md", "description": "Technical development, testing, reproducibility, and platform skills." },
         { "id": "institutional-skills", "title": "Institutional Knowledge", "file": "skills/institutional.md", "description": "Writing, project memory, documentation, and collaboration skills." },
         { "id": "importing-skills", "title": "Importing External Skills", "file": "skills/importing.md", "description": "Quarantined external-skill import with security scanning, review, and vendor registration." }

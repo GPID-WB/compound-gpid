@@ -272,6 +272,8 @@ function canonicalInputFingerprint(root) {
     "scripts/generate-whats-new.js",
     "scripts/docs-markers.js",
     "scripts/check-docs-site.js",
+    "scripts/assemble-docs-site.js",
+    ".github/workflows/docs-site-build.yml",
     ".github/workflows/doc-rebuild.yml",
     ".github/workflows/pages.yml",
     ".github/workflows/release-docs.yml",

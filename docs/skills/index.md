@@ -22,6 +22,9 @@ The catalog currently contains canonical skills across both suites:
 - Research suite skills (`cr-skill-*`): identification, measurement,
   econometrics, provenance, replication, publication output, and more.
 
+Use the [Research Handbook](../research/index.md) for the newcomer path before
+opening the detailed [Research Skills](research.md) catalog.
+
 Counts are derived from the canonical `.github/skills/` directory set, not the
 generated mirrors.
 

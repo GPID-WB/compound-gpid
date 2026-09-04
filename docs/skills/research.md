@@ -74,6 +74,7 @@ checks after changing the canonical skill.
 
 ## Related pages
 
+- [Research Handbook](../research/index.md)
 - [Skills Catalog](index.md)
 - [Research Agents](../reference/agents.md)
 - [Complete Reference](../reference.md)

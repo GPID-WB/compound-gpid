@@ -23,6 +23,11 @@ research loop.** A research task often *uses* technical capabilities (language
 skills, testing, reproducibility) without needing the full technical command
 surface.
 
+Researchers who are new to Compound GPID should start with the [Research
+Handbook](research/index.md). It explains the research rationale, suite
+activation, and first workflow before sending readers to the detailed
+references below.
+
 ## How suites compose capabilities
 
 Capability packs are reusable pieces of implementation knowledge shared by one
