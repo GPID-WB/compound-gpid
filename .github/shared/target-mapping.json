@@ -72,7 +72,7 @@
         { "type": "directory", "source": ".claude/agents", "target": ".claude/agents", "strategy": "link-directory" },
         { "type": "directory", "source": ".claude/instructions", "target": ".claude/instructions", "strategy": "link-directory" },
         { "type": "directory", "source": ".claude/shared", "target": ".claude/shared", "strategy": "link-directory" },
-         { "type": "file", "source": ".claude/CLAUDE.md", "target": ".claude/CLAUDE.md", "strategy": "managed-copy" }
+        { "type": "file", "source": ".claude/CLAUDE.md", "target": ".claude/CLAUDE.md", "strategy": "managed-copy" }
       ]
     },
     {
@@ -110,7 +110,7 @@
         { "type": "directory", "source": ".agents/subagents", "target": ".agents/subagents", "strategy": "link-directory" },
         { "type": "directory", "source": ".agents/instructions", "target": ".agents/instructions", "strategy": "link-directory" },
         { "type": "directory", "source": ".agents/shared", "target": ".agents/shared", "strategy": "link-directory" },
-         { "type": "file", "source": ".agents/AGENTS.md", "target": ".agents/AGENTS.md", "strategy": "managed-copy" }
+        { "type": "file", "source": ".agents/AGENTS.md", "target": ".agents/AGENTS.md", "strategy": "managed-copy" }
       ]
     },
     {

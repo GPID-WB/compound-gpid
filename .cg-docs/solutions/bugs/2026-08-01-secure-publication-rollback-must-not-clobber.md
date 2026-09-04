@@ -140,6 +140,7 @@ and diff hygiene. Windows runtime collision tests remain required on Windows CI.
 
 ## Related
 
+- `.cg-docs/solutions/bugs/2026-09-02-c-research-migration-security-and-boundary.md` — applies non-clobbering publication, verified deletion, and root containment to c-research migration and evidence state
 - `.cg-docs/solutions/testing-patterns/2026-07-28-handle-relative-filesystem-mutations-and-real-boundary-tests.md` — foundational handle-relative mutation and real-boundary test pattern
 - `.cg-docs/solutions/bugs/2026-05-07-python-nonatomic-path-write-use-mkstemp-replace.md` — crash-safe atomic write foundation; replacement alone does not resolve concurrent ownership
 - `.cg-docs/solutions/bugs/2026-05-20-python-path-startswith-bypass-use-relative-to.md` — component-aware path containment before handle pinning

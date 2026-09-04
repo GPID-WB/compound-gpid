@@ -482,6 +482,20 @@ Describe "bash-scripts - bin/ wrappers delegate to correct scripts" {
     }
 }
 
+Describe "bash-scripts - c-research structural migration" {
+    $content = Get-Content (Join-Path $repoRoot "scripts/update.sh") -Raw -Encoding UTF8
+
+    It "invokes the shared research-layout migration helper" {
+        ($content -match 'cg_migrate_research_layout\.py') | Should -Be $true
+        ($content -match 'PYTHON_CMD') | Should -Be $true
+        ($content -match 'c-research') | Should -Be $true
+    }
+
+    It "passes the current project root to the migration helper" {
+        ($content -match '--root "\$CWD_ROOT"') | Should -Be $true
+    }
+}
+
 Describe "bash-scripts - bin/cg-index wrapper content" {
     $wrapperPath    = Join-Path $repoRoot "bin/cg-index"
     $wrapperContent = Get-Content $wrapperPath -Raw -Encoding UTF8 -ErrorAction SilentlyContinue

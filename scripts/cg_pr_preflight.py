@@ -87,6 +87,7 @@ NATIVE_PYTEST_FILES = (
     "scripts/tests/test_config_migration.py",
     "scripts/tests/test_cg_characterization.py",
     "scripts/tests/test_cr_baseline.py",
+    "scripts/tests/test_cr_ml_skill.py",
     "scripts/tests/test_issue_readiness.py",
     "scripts/tests/test_issue_dispatch.py",
     "scripts/tests/test_frontmatter_parsing.py",

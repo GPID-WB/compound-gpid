@@ -1,0 +1,98 @@
+name: Build combined documentation
+# Created 2026-09-03.
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - '.github/prompts/**'
+      - '.github/skills/**'
+      - '.github/agents/**'
+      - 'docs/**'
+      - 'scripts/rebuild-docs.js'
+      - 'scripts/generate-whats-new.js'
+      - 'scripts/docs-markers.js'
+      - 'scripts/check-docs-site.js'
+      - 'scripts/assemble-docs-site.js'
+      - '.github/workflows/docs-site-build.yml'
+      - '.github/workflows/doc-rebuild.yml'
+      - '.github/workflows/pages.yml'
+      - '.github/workflows/release-docs.yml'
+      - '.github/workflows/release-pages.yml'
+  workflow_run:
+    workflows: ["Rebuild documentation"]
+    types: [completed]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docs-site-build
+  cancel-in-progress: true
+
+jobs:
+  build:
+    if: >-
+      (github.event_name == 'push' && github.ref == 'refs/heads/dev') ||
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out current main source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          ref: main
+          path: sources/main
+          fetch-depth: 0
+
+      - name: Check out current dev source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          ref: dev
+          path: sources/dev
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4.4.0
+        with:
+          node-version: "22"
+
+      - name: Build stable documentation source
+        run: node sources/main/scripts/rebuild-docs.js --root "$GITHUB_WORKSPACE/sources/main" --all
+
+      - name: Build development documentation source
+        run: node sources/dev/scripts/rebuild-docs.js --root "$GITHUB_WORKSPACE/sources/dev" --all
+
+      - name: Validate stable documentation source
+        run: node sources/main/scripts/check-docs-site.js --source-root "$GITHUB_WORKSPACE/sources/main" --docs-root "$GITHUB_WORKSPACE/sources/main/docs"
+
+      - name: Validate development documentation source
+        run: node sources/dev/scripts/check-docs-site.js --source-root "$GITHUB_WORKSPACE/sources/dev" --docs-root "$GITHUB_WORKSPACE/sources/dev/docs"
+
+      - name: Capture exact source commits
+        id: sources
+        run: |
+          echo "main_sha=$(git -C sources/main rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "dev_sha=$(git -C sources/dev rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Assemble complete root and dev site
+        run: |
+          node sources/dev/scripts/assemble-docs-site.js \
+            --main-root "$GITHUB_WORKSPACE/sources/main" \
+            --dev-root "$GITHUB_WORKSPACE/sources/dev" \
+            --out "$GITHUB_WORKSPACE/combined-artifact" \
+            --main-sha "${{ steps.sources.outputs.main_sha }}" \
+            --dev-sha "${{ steps.sources.outputs.dev_sha }}"
+
+          - name: Require combined build metadata
+            run: test -f combined-artifact/.docs-build-metadata.json
+
+      - name: Upload complete combined documentation artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        with:
+          name: combined-docs-site
+          path: combined-artifact/
+          retention-days: 1
+          include-hidden-files: true
+          if-no-files-found: error

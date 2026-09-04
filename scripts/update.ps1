@@ -319,10 +319,11 @@ try {
             Write-Host "Already up to date." -ForegroundColor Green
         }
 
-        # --- Regenerate platform trees after pull (source repo only) ---
+        # --- Regenerate the shared all-suite platform baseline after pull ---
         # If this is the compound-gpid source repo, regenerate .claude/, .agents/,
-        # and .opencode/ from the updated .github/ canonical assets so linked
-        # consumer projects see fresh platform trees via their junctions/symlinks.
+        # and .opencode/ from the updated .github/ canonical assets. Linked
+        # consumer projects share this baseline; their suites: setting controls
+        # workflow eligibility and must not filter the global tree per consumer.
         $targetMapping = Join-Path $CompoundGpidDir ".github/shared/target-mapping.json"
         $generatorScript = Join-Path $CompoundGpidDir "scripts/cg_generate_targets.py"
         if (-not (Test-Path $targetMapping)) {
@@ -469,7 +470,7 @@ Write-Host ""
 # Applies only when run from a linked project. Migrates docs/brainstorms/,
 # docs/plans/, docs/solutions/ to .cg-docs/ if they still exist at the old path.
 # Idempotent: safe to run multiple times across multiple projects.
-if (-not $env:CG_INTERNAL_CALL -and (Test-Path $cwdGithub)) {
+if (Test-Path $cwdGithub) {
     $cwdRoot      = Get-Location
     $cgDocsDir    = Join-Path $cwdRoot ".cg-docs"
     $dirsToMigrate = @("brainstorms", "plans", "solutions")
@@ -535,6 +536,26 @@ if (-not $env:CG_INTERNAL_CALL -and (Test-Path $cwdGithub)) {
         Write-Host ""
         Write-Host "Structural migration complete: knowledge base moved to .cg-docs/" -ForegroundColor Green
         Write-Host ""
+    }
+
+    # --- Structural migration: legacy CR outputs -> c-research/ ---
+    # Use the shared Python helper so Windows and macOS apply the same
+    # conflict-safe, idempotent research-output migration.
+    $legacyResearchRoot = Join-Path $cwdRoot ".cg-docs\research"
+    $researchMigrationScript = Join-Path $CompoundGpidDir "scripts\cg_migrate_research_layout.py"
+    $legacyResearchItem = Get-Item -LiteralPath $legacyResearchRoot -Force -ErrorAction SilentlyContinue
+    if ($legacyResearchItem -and (Test-Path $researchMigrationScript)) {
+        $researchPyCmd = Resolve-PythonCommand
+        if (-not $researchPyCmd) {
+            throw "Python is required for c-research migration but was not found (checked: python3, python, py)."
+        }
+        Write-Host "  Migrating legacy CR research outputs to c-research/..." -ForegroundColor DarkGray
+        & $researchPyCmd $researchMigrationScript --root $cwdRoot
+        if ($LASTEXITCODE -ne 0) {
+            throw "c-research structural migration failed with exit code $LASTEXITCODE"
+        }
+    } elseif ($legacyResearchItem) {
+        throw "Research-layout migration helper not found at: $researchMigrationScript"
     }
 
     # --- Schema version: stamp compound-gpid.local.md ---
@@ -615,6 +636,28 @@ To fix:
   4. Commit the change
 "@
         }
+    }
+}
+
+# Apply the research migration for native-target-only projects that do not have
+# a .github link. The linked-project block above handles the other case.
+if (-not (Test-Path $cwdGithub)) {
+    $cwdRoot = Get-Location
+    $legacyResearchRoot = Join-Path $cwdRoot ".cg-docs\research"
+    $researchMigrationScript = Join-Path $CompoundGpidDir "scripts\cg_migrate_research_layout.py"
+    $legacyResearchItem = Get-Item -LiteralPath $legacyResearchRoot -Force -ErrorAction SilentlyContinue
+    if ($legacyResearchItem -and (Test-Path $researchMigrationScript)) {
+        $researchPyCmd = Resolve-PythonCommand
+        if (-not $researchPyCmd) {
+            throw "Python is required for c-research migration but was not found (checked: python3, python, py)."
+        }
+        Write-Host "  Migrating legacy CR research outputs to c-research/..." -ForegroundColor DarkGray
+        & $researchPyCmd $researchMigrationScript --root $cwdRoot
+        if ($LASTEXITCODE -ne 0) {
+            throw "c-research structural migration failed with exit code $LASTEXITCODE"
+        }
+    } elseif ($legacyResearchItem) {
+        throw "Research-layout migration helper not found at: $researchMigrationScript"
     }
 }
 

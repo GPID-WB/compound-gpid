@@ -42,20 +42,53 @@ jobs:
           node scripts/generate-whats-new.js --validate-payload "releases/$RELEASE_TAG.json"
           node scripts/generate-whats-new.js --validate-release-set
           cmp -s "releases/$RELEASE_TAG.json" releases/latest.json
+          echo "RELEASE_BRANCH=$required_branch" >> "$GITHUB_ENV"
+
+      - name: Check out current dev source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          ref: dev
+          path: current-dev
+          fetch-depth: 0
 
       - name: Build complete documentation tree
         run: node scripts/rebuild-docs.js --all
 
-      - name: Validate documentation site
+      - name: Build current dev documentation tree
+        run: node current-dev/scripts/rebuild-docs.js --root "$GITHUB_WORKSPACE/current-dev" --all
+
+      - name: Validate tagged documentation site
         run: node scripts/check-docs-site.js
 
-      - name: Upload release documentation artifact
+      - name: Validate current dev documentation site
+        run: node current-dev/scripts/check-docs-site.js --source-root "$GITHUB_WORKSPACE/current-dev" --docs-root "$GITHUB_WORKSPACE/current-dev/docs"
+
+      - name: Assemble complete release and dev documentation artifact
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+          RELEASE_SHA: ${{ github.sha }}
+        run: |
+          dev_sha="$(git -C current-dev rev-parse HEAD)"
+          node scripts/assemble-docs-site.js \
+            --main-root "$GITHUB_WORKSPACE" \
+            --dev-root "$GITHUB_WORKSPACE/current-dev" \
+            --out "$GITHUB_WORKSPACE/combined-artifact" \
+            --main-sha "$RELEASE_SHA" \
+            --dev-sha "$dev_sha" \
+            --main-branch "$RELEASE_BRANCH" \
+            --dev-branch dev \
+            --main-ref "$RELEASE_TAG" \
+            --dev-ref dev
+
+          - name: Require combined release metadata
+            run: test -f combined-artifact/.docs-build-metadata.json
+
+      - name: Upload combined release documentation artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
           name: release-docs-site
           path: |
-            docs/
-            .docs-build-metadata.json
+            combined-artifact/
           retention-days: 1
           include-hidden-files: true
           if-no-files-found: error

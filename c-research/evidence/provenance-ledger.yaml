@@ -1,0 +1,123 @@
+# Created 2026-08-13. Presentation source authority ledger.
+schema_version: presentation-provenance-ledger-v1
+sources:
+  - id: S001
+    title: "Compound Research extension"
+    authors: []
+    year: 2026
+    origin: repo-local
+    original_path: ".cg-docs/brainstorms/2026-05-13-compound-research-extension.md"
+    converted_path: null
+    conversion_tool: "none"
+    sha256: "c395ed1198e7974cdd46e80a75a16abd087c8ad6e8d9afb0e6d299d0ea5220b7"
+    external_flag: false
+    ingested_on: 2026-08-13
+    authority_note: "Version-controlled project brainstorm."
+  - id: S002
+    title: "CR Evidence and Provenance Spine"
+    authors: []
+    year: 2026
+    origin: repo-local
+    original_path: ".cg-docs/plans/2026-07-30-cr-evidence-provenance-spine.md"
+    converted_path: null
+    conversion_tool: "none"
+    sha256: "5dbb61e9bff842d63cf9283930c697e2906f68a9f6cefa556f22a8102244a358"
+    external_flag: false
+    ingested_on: 2026-08-13
+    authority_note: "Version-controlled completed research plan."
+  - id: S003
+    title: "CR Evidence and Provenance skill"
+    authors: []
+    year: 2026
+    origin: repo-local
+    original_path: ".github/skills/cr-skill-evidence-provenance/SKILL.md"
+    converted_path: null
+    conversion_tool: "none"
+    sha256: "3ac1ee467181cf5c0084f448b8107a2d6fb0f1b6349f51199709363842e18f97"
+    external_flag: false
+    ingested_on: 2026-08-13
+    authority_note: "Version-controlled research skill."
+  - id: S004
+    title: "CR Local Evidence Workbench brainstorm"
+    authors: []
+    year: 2026
+    origin: repo-local
+    original_path: ".cg-docs/brainstorms/2026-08-12-cr-local-evidence-workbench.md"
+    converted_path: null
+    conversion_tool: "none"
+    sha256: "c3e068f8471d2fcbffd40a1bb6933a34b2186388827f32c7262bedb0cedb298c"
+    external_flag: false
+    ingested_on: 2026-08-13
+    authority_note: "Version-controlled research brainstorm."
+  - id: S005
+    title: "Research Evidence Workbench README"
+    authors: []
+    year: 2026
+    origin: repo-local
+    original_path: "research_evidence/README.md"
+    converted_path: null
+    conversion_tool: "none"
+    sha256: "a549196573651975593ffad5846477d9e783b65d89bfec1eadce8a61edf446bb"
+    external_flag: false
+    ingested_on: 2026-08-13
+    authority_note: "Version-controlled package documentation."
+  - id: S006
+    title: "Manual atomic claim and evidence constructors"
+    authors: []
+    year: 2026
+    origin: repo-local
+    original_path: "research_evidence/src/research_evidence/claims.py"
+    converted_path: null
+    conversion_tool: "none"
+    sha256: "b21e4c351e4193da481ab583ba2d070f7f15978ad436d1fc86b359e07685f8d6"
+    external_flag: false
+    ingested_on: 2026-08-13
+    authority_note: "Version-controlled implementation source."
+  - id: S007
+    title: "Candidate evidence and local claim proposal contracts"
+    authors: []
+    year: 2026
+    origin: repo-local
+    original_path: "research_evidence/src/research_evidence/evidence.py"
+    converted_path: null
+    conversion_tool: "none"
+    sha256: "0375df91ee1bbe5e190c5f81e710bad115e2d39fecd2163ffbe88856d1c8d59d"
+    external_flag: false
+    ingested_on: 2026-08-13
+    authority_note: "Version-controlled implementation source."
+  - id: S008
+    title: "Strict canonical records for evidence decisions"
+    authors: []
+    year: 2026
+    origin: repo-local
+    original_path: "research_evidence/src/research_evidence/schemas.py"
+    converted_path: null
+    conversion_tool: "none"
+    sha256: "fbb3000dc3e1059e3d2cdd500de911ad5ca0f0bd30e8f711e4b74207fd84932a"
+    external_flag: false
+    ingested_on: 2026-08-13
+    authority_note: "Version-controlled implementation source."
+  - id: S009
+    title: "AI-DQSS README"
+    authors: []
+    year: 2026
+    origin: external-opt-in
+    original_path: "/Users/zprinsloo/Library/CloudStorage/OneDrive-WBG/AI-work/ai-dq-assessor/README.md"
+    converted_path: null
+    conversion_tool: "none"
+    sha256: "47d2655a6f556c03cf55c541408c00ede63ee5df3c45a00e4ec983867d39e317"
+    external_flag: true
+    ingested_on: 2026-08-13
+    authority_note: "Explicitly approved local external repository; not part of the Compound GPID checkout."
+  - id: S010
+    title: "AI-DQSS technical documentation"
+    authors: []
+    year: 2026
+    origin: external-opt-in
+    original_path: "/Users/zprinsloo/Library/CloudStorage/OneDrive-WBG/AI-work/ai-dq-assessor/DOCUMENTATION.md"
+    converted_path: null
+    conversion_tool: "none"
+    sha256: "8b8d00ea0cf62b218c971fe32079c7a1ac7ddfc90e1a261061a02b4d9b3d6b23"
+    external_flag: true
+    ingested_on: 2026-08-13
+    authority_note: "Explicitly approved local external repository; not part of the Compound GPID checkout."

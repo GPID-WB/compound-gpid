@@ -45,6 +45,9 @@ commands are available when `suites:` includes `cr`.
 | Run task-aware research and engineering review | `/cr-review` |
 | Capture a verified research lesson | `/cr-compound` |
 
+The [Research Handbook](../research/index.md) explains when to use these
+commands and what a newcomer should expect from each handoff.
+
 Developer-only commands include `/cg-devtag`, `/cg-compound-gpid-rd`, and the
 compound-gpid-only `/cg-release` workflow. They are not normal consumer-project
 steps. `/cg-compound-gpid-rd` has four forms: delta

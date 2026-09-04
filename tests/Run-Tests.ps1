@@ -63,6 +63,7 @@ $testNames = @(
     'run-tests-runner',
     'update',
     'docs-automation',
+    'docs-preview',
     'wiki',
     'parity',   # cross-script parity: link/unlink ps1<->sh must define same dirs
     'link',     # creates junctions — must be last

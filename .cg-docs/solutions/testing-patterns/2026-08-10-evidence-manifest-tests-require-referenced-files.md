@@ -105,3 +105,4 @@ Two follow-on cleanups that became necessary after hardening:
 - `.cg-docs/solutions/testing-patterns/2026-04-15-prompt-step-silent-skip-antipattern-fallback-required.md` — the silent-skip anti-pattern in prompts (same root: soft fallback instead of loud failure).
 - `.cg-docs/solutions/bugs/2026-08-04-evidence-capture-axe-audit-call-site-wiring.md` — last-mile call-site wiring in the same browser evidence workflow.
 - `.cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-review.md` (findings P1.3, P2.3) and its verify review `2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review-2.md` (P3.1, P3.3).
+- `.cg-docs/solutions/testing-patterns/2026-08-13-release-gate-fixtures-and-derived-evidence-hashes.md` - refreshing derived view hashes and validating the complete evidence manifest

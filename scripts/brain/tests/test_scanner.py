@@ -77,6 +77,17 @@ class TestScanAllEntityTypes:
         assert len(entities) == 1
         assert entities[0].entity_type == "strategy"
 
+    def test_root_level_research_outputs_are_not_indexed(self, tmp_path: Path) -> None:
+        """Keep study outputs out of the generic Compound GPID Brain."""
+        sentinel = "ROOT_RESEARCH_OUTPUT_SENTINEL_4F21"
+        _write(tmp_path / "c-research/manuscripts/study.md", _md(sentinel))
+        _write(tmp_path / ".cg-docs/brainstorms/2026-05-19-process.md", _md("Process"))
+
+        entities = scan_all(tmp_path)
+
+        assert [entity.entity_type for entity in entities] == ["brainstorm"]
+        assert sentinel not in "\n".join(entity.text for entity in entities)
+
     def test_archive_dir_is_skipped(self, tmp_path: Path) -> None:
         _write(tmp_path / ".cg-docs/archive/old.md", _md("Old doc"))
         entities = scan_all(tmp_path)
