@@ -1,5 +1,5 @@
 {
-  "edge_count": 268,
+  "edge_count": 272,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -371,6 +371,12 @@
       "edge_type": "decided_from",
       "source": ".cg-docs/plans/2026-08-03-generic-markdown-reference-publishing-core-v2.md",
       "target": ".cg-docs/brainstorms/2026-08-02-completion-dossier-and-curated-artifact-themes.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-09-04-minimal-adaptive-grilling.md",
+      "target": ".cg-docs/brainstorms/2026-09-04-minimal-adaptive-grilling.md",
       "target_missing": false
     },
     {
@@ -1136,6 +1142,18 @@
       "target_missing": false
     },
     {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-08-11-kilo-agent-parsing-linker-copy-directory-verify-review.md",
+      "target": ".cg-docs/reviews/2026-08-11-kilo-agent-parsing-linker-copy-directory-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-09-04-minimal-adaptive-grilling-review.md",
+      "target": ".cg-docs/plans/2026-09-04-minimal-adaptive-grilling.md",
+      "target_missing": false
+    },
+    {
       "edge_type": "references",
       "source": ".cg-docs/solutions/environment-issues/2026-06-23-cross-agent-adapters-are-opt-in-source-packages.md",
       "target": ".cg-docs/plans/2026-06-23-cross-agent-packaging-adapters.md",
@@ -1469,6 +1487,12 @@
       "edge_type": "references",
       "source": ".cg-docs/brainstorms/2026-07-30-user-selected-model-advisory-routing.md",
       "target": ".cg-docs/plans/2026-07-30-user-selected-model-advisory-routing.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/brainstorms/2026-09-04-minimal-adaptive-grilling.md",
+      "target": ".cg-docs/plans/2026-09-04-minimal-adaptive-grilling.md",
       "target_missing": false
     },
     {
@@ -3000,6 +3024,36 @@
         "broader-artifact-publishing-formats-and-views",
         "/cg-compound",
         "one initiative"
+      ]
+    },
+    {
+      "date": "2026-09-04",
+      "entity_type": "brainstorm",
+      "path": ".cg-docs/brainstorms/2026-09-04-minimal-adaptive-grilling.md",
+      "slug": "2026-09-04-minimal-adaptive-grilling",
+      "status": "decided",
+      "summary": "<!-- Valid status values: decided, in-progress, abandoned -->",
+      "tags": [
+        "brainstorming",
+        "grilling",
+        "requirements",
+        "decision-tree",
+        "simplicity",
+        "workflow",
+        "external-research"
+      ],
+      "title": "Minimal adaptive grilling for the Compound GPID workflow",
+      "top_keywords": [
+        "grilling",
+        "workflow",
+        "approach",
+        "/cg-brainstorm",
+        "minimal adaptive grilling",
+        "minimal",
+        "adaptive",
+        "cg-brainstorm",
+        "cg-skill-brainstorming",
+        "decision"
       ]
     },
     {
@@ -5872,6 +5926,37 @@
         "project status",
         "cg-issues",
         "@cg-roadmap"
+      ]
+    },
+    {
+      "date": "2026-09-04",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-09-04-minimal-adaptive-grilling.md",
+      "slug": "2026-09-04-minimal-adaptive-grilling",
+      "status": "completed",
+      "summary": "Improve `/cg-brainstorm` with the smallest complete adaptive-grilling pilot. The command will discover facts before asking the user, reserve questions for material decisions, traverse only the ready frontier of a decision-dependency tree, use bounded adaptive rounds, and stop when remaining uncertainty cannot change the minimum viable solution. It will then require explicit confirmation of the minimal design before it offers any more sophisticated exploration.",
+      "tags": [
+        "brainstorming",
+        "adaptive-grilling",
+        "requirements",
+        "decision-frontier",
+        "prompts",
+        "skills",
+        "generated-targets",
+        "pester"
+      ],
+      "title": "Implement Minimal Adaptive Grilling",
+      "top_keywords": [
+        "cg-brainstorm",
+        "cg-skill-brainstorming",
+        "/cg-brainstorm",
+        "tests/last-run.json",
+        "/cg-work",
+        "test scenarios",
+        "last-run.json",
+        "scope",
+        "cg-work",
+        ".github/prompts/cg-brainstorm.prompt.md"
       ]
     },
     {
@@ -9039,6 +9124,50 @@
         "scripts/link.ps1",
         ".kilo/",
         "link.sh",
+        "review"
+      ]
+    },
+    {
+      "date": "2026-09-08",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-08-11-kilo-agent-parsing-linker-copy-directory-verify-review.md",
+      "slug": "2026-08-11-kilo-agent-parsing-linker-copy-directory-verify-review",
+      "status": "",
+      "summary": "**Review mode**: light verification **Parent review**: `.cg-docs/reviews/2026-08-11-kilo-agent-parsing-linker-copy-directory-review.md` **Files reviewed**: current Minimal Adaptive Grilling implementation paths **Findings**: 17 (P0: 0, P1: 7, P2: 9, P3: 1)",
+      "tags": [],
+      "title": "2026-08-11-kilo-agent-parsing-linker-copy-directory-verify-review",
+      "top_keywords": [
+        "cg-brainstorm",
+        "cg-brainstorm.prompt.md",
+        "dev",
+        "minimal adaptive grilling",
+        "cg-skill-brainstorming",
+        "verification",
+        "decision-template.md",
+        "prompt-tools.tests.ps1",
+        "thinking partner",
+        "2026-08-11-kilo-agent-parsing-linker-copy-directory-review.md"
+      ]
+    },
+    {
+      "date": "2026-09-08",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-09-04-minimal-adaptive-grilling-review.md",
+      "slug": "2026-09-04-minimal-adaptive-grilling-review",
+      "status": "",
+      "summary": "**Review mode**: standard **Files reviewed**: 29 implementation and workflow-record paths **Findings**: 15 (P0: 0, P1: 6, P2: 8, P3: 1)",
+      "tags": [],
+      "title": "2026-09-04-minimal-adaptive-grilling-review",
+      "top_keywords": [
+        "cg-brainstorm",
+        "cg-brainstorm.prompt.md",
+        "dev",
+        "cg-skill-brainstorming",
+        "prompt-tools.tests.ps1",
+        "decision-template.md",
+        "last-run.json",
+        "current.json",
+        "passed",
         "review"
       ]
     },
@@ -14671,6 +14800,37 @@
       ]
     },
     {
+      "date": "2026-09-08",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-09-08-fact-first-prompts-need-branch-complete-tests.md",
+      "slug": "2026-09-08-fact-first-prompts-need-branch-complete-tests",
+      "status": "",
+      "summary": "An adaptive prompt can contain all required phrases and still execute the wrong workflow. In `/cg-brainstorm`, the prior-work choice appeared before fact discovery, a rejected scope change had no complete return path, a no-path stop conflicted with an unconditional review step, and a complexity opt-in could repeat without a bound. The capture template also implied that two approaches were required after the analysis correctly selected one viable path. Broad tests did not detect these defects. Common words such as `scope`, `risk`, and `ready frontier` appeared in multiple sections, so a rule could disappear from its operational block while a whole-file...",
+      "tags": [
+        "prompt-design",
+        "pester",
+        "pytest",
+        "fact-discovery",
+        "decision-frontier",
+        "branch-completeness",
+        "indexof",
+        "generated-targets"
+      ],
+      "title": "Fact-first interactive prompts need branch-complete tests",
+      "top_keywords": [
+        "2026-04-13-prompt-step-ordering-indexof-tests.md",
+        "2026-04-20-behavioral-pester-tests-for-skill-md-files.md",
+        "2026-05-05-within-step-preflight-must-precede-offer-template.md",
+        "minimal adaptive grilling",
+        "tests",
+        "interactive",
+        "fact-first",
+        "prompts",
+        "branch-complete",
+        "scope"
+      ]
+    },
+    {
       "date": "2026-04-06",
       "entity_type": "strategy",
       "path": ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
@@ -16249,6 +16409,28 @@
         "assumptions",
         "unknowns",
         "assessment",
+        "competitive",
+        "feature",
+        "milestone"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#minimal-adaptive-grilling-for-the-compound-gpid-workflow",
+      "slug": "minimal-adaptive-grilling-for-the-compound-gpid-workflow",
+      "status": "idea",
+      "summary": "Minimal adaptive grilling for the Compound GPID workflow",
+      "tags": [],
+      "title": "Minimal adaptive grilling for the Compound GPID workflow",
+      "top_keywords": [
+        "competitive prompt enhancements\nobjective",
+        "workflow",
+        "minimal",
+        "adaptive",
+        "grilling",
+        "compound",
+        "gpid",
         "competitive",
         "feature",
         "milestone"
@@ -18015,13 +18197,13 @@
       ]
     }
   ],
-  "entity_count": 630,
-  "generated": "2026-08-11",
+  "entity_count": 636,
+  "generated": "2026-09-08",
   "schema_version": "0.2.0",
-  "topic_count": 4,
+  "topic_count": 3,
   "topics": [
     {
-      "entity_count": 443,
+      "entity_count": 452,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -18069,6 +18251,7 @@
         ".cg-docs/brainstorms/2026-07-27-canonical-native-packaging-foundation.md",
         ".cg-docs/brainstorms/2026-07-30-user-selected-model-advisory-routing.md",
         ".cg-docs/brainstorms/2026-07-31-dual-audience-workflow-artifact-rendering.md",
+        ".cg-docs/brainstorms/2026-09-04-minimal-adaptive-grilling.md",
         ".cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-gsd-2-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-superpowers-full-review.md",
@@ -18168,6 +18351,7 @@
         ".cg-docs/plans/2026-08-03-generic-markdown-reference-publishing-core-v2.md",
         ".cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline-v2.md",
         ".cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline.md",
+        ".cg-docs/plans/2026-09-04-minimal-adaptive-grilling.md",
         ".cg-docs/plans/phase2-model-governance-cleanup.md",
         ".cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md",
         ".cg-docs/reviews/2026-04-01-cg-strategy-and-roadmap-fix-review.md",
@@ -18301,6 +18485,8 @@
         ".cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review.md",
         ".cg-docs/reviews/2026-08-03-generic-markdown-reference-publishing-core-v2-verify-review.md",
         ".cg-docs/reviews/2026-08-11-kilo-agent-parsing-linker-copy-directory-review.md",
+        ".cg-docs/reviews/2026-08-11-kilo-agent-parsing-linker-copy-directory-verify-review.md",
+        ".cg-docs/reviews/2026-09-04-minimal-adaptive-grilling-review.md",
         ".cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md",
         ".cg-docs/solutions/bugs/2026-03-19-explicit-unpin-does-not-persist-missing-state-file-write.md",
         ".cg-docs/solutions/bugs/2026-03-19-persistent-state-written-before-validation-causes-corruption.md",
@@ -18343,6 +18529,7 @@
         ".cg-docs/solutions/bugs/2026-06-12-roadmap-milestone-missing-objective-field.md",
         ".cg-docs/solutions/bugs/2026-06-25-install-self-copy-wrapper-crash.md",
         ".cg-docs/solutions/bugs/2026-07-16-update-legacy-profile-wrapper-remediation.md",
+        ".cg-docs/solutions/bugs/2026-08-01-secure-publication-rollback-must-not-clobber.md",
         ".cg-docs/solutions/bugs/2026-08-03-generic-publisher-secure-deletion-and-cross-platform-gates.md",
         ".cg-docs/solutions/bugs/2026-08-04-evidence-capture-axe-audit-call-site-wiring.md",
         ".cg-docs/solutions/bugs/2026-08-05-kilo-markdown-source-permission.md",
@@ -18381,6 +18568,7 @@
         ".cg-docs/solutions/testing-patterns/2026-03-04-pester-3-vs-5-windows-compatibility.md",
         ".cg-docs/solutions/testing-patterns/2026-03-04-pester-testdrive-follows-junctions-freezes-vscode.md",
         ".cg-docs/solutions/testing-patterns/2026-03-13-regression-test-trycatch-guard-clm-environment.md",
+        ".cg-docs/solutions/testing-patterns/2026-03-17-httpx-async-client-asgi-transport.md",
         ".cg-docs/solutions/testing-patterns/2026-03-19-testing-powershell-switch-parameters.md",
         ".cg-docs/solutions/testing-patterns/2026-03-30-derived-invariant-validation-in-schema-tests.md",
         ".cg-docs/solutions/testing-patterns/2026-03-30-do-not-delegate-file-write-guardrail.md",
@@ -18420,6 +18608,7 @@
         ".cg-docs/solutions/testing-patterns/2026-05-06-cross-prompt-user-journey-must-be-validated-end-to-end.md",
         ".cg-docs/solutions/testing-patterns/2026-05-06-html-comment-as-fix-never-executed.md",
         ".cg-docs/solutions/testing-patterns/2026-05-06-pester-caret-anchor-requires-multiline-flag.md",
+        ".cg-docs/solutions/testing-patterns/2026-05-07-ps51-python-c-heredoc-unreliable-use-temp-file.md",
         ".cg-docs/solutions/testing-patterns/2026-05-12-source-scanning-regression-guard-for-scripting-anti-patterns.md",
         ".cg-docs/solutions/testing-patterns/2026-05-13-ci-bypass-flag-force-yes-interactive-scripts.md",
         ".cg-docs/solutions/testing-patterns/2026-05-13-cross-script-parity-tests-ps1-sh.md",
@@ -18450,8 +18639,10 @@
         ".cg-docs/solutions/testing-patterns/2026-06-23-token-dashboard-regression-check.md",
         ".cg-docs/solutions/testing-patterns/2026-07-24-cross-file-contract-state-must-align-docs-validator-tests.md",
         ".cg-docs/solutions/testing-patterns/2026-07-24-positive-validator-fixtures-must-avoid-placeholder-evidence.md",
+        ".cg-docs/solutions/testing-patterns/2026-07-28-handle-relative-filesystem-mutations-and-real-boundary-tests.md",
         ".cg-docs/solutions/testing-patterns/2026-07-31-advisory-inheritance-audit-and-legacy-cleanup.md",
         ".cg-docs/solutions/testing-patterns/2026-08-10-gh-cli-fixture-json-keys-must-match-client-parsing.md",
+        ".cg-docs/solutions/testing-patterns/2026-09-08-fact-first-prompts-need-branch-complete-tests.md",
         ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
         ".cg-docs/strategy/2026-04-13-workflow-automation-research.md",
         ".cg-docs/strategy/2026-04-15-move-testing-skills-to-skills-enhancement.md",
@@ -18476,7 +18667,7 @@
       "slug": "roadmap-json-cg-work-prompt-tools-tests-ps1"
     },
     {
-      "entity_count": 138,
+      "entity_count": 139,
       "entity_paths": [
         "roadmap.json#cg-fix-problems-agent",
         "roadmap.json#cg-fix-problems-prompt",
@@ -18536,6 +18727,7 @@
         "roadmap.json#auto-knowledge-extraction-after-work",
         "roadmap.json#brainstorm-depth-grill-mode",
         "roadmap.json#cg-confidence-prompt",
+        "roadmap.json#minimal-adaptive-grilling-for-the-compound-gpid-workflow",
         "roadmap.json#roadmap-schema-validation",
         "roadmap.json#plan-frontmatter-checks",
         "roadmap.json#work-completion-verification",
@@ -18624,22 +18816,6 @@
       ],
       "label": "Architecture Research\nObjective / Workflow Maturity\nObjective / Knowledge Brain\nObjective",
       "slug": "architecture-research-objective-workflow-maturity-objective-knowledge-brain-objective"
-    },
-    {
-      "entity_count": 4,
-      "entity_paths": [
-        ".cg-docs/solutions/bugs/2026-08-01-secure-publication-rollback-must-not-clobber.md",
-        ".cg-docs/solutions/testing-patterns/2026-03-17-httpx-async-client-asgi-transport.md",
-        ".cg-docs/solutions/testing-patterns/2026-05-07-ps51-python-c-heredoc-unreliable-use-temp-file.md",
-        ".cg-docs/solutions/testing-patterns/2026-07-28-handle-relative-filesystem-mutations-and-real-boundary-tests.md"
-      ],
-      "keywords": [
-        "tests",
-        "filesystem",
-        "python"
-      ],
-      "label": "Tests / Filesystem / Python",
-      "slug": "tests-filesystem-python"
     },
     {
       "entity_count": 3,

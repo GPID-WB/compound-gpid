@@ -1,11 +1,21 @@
 # 🧠 Project Brain — Part 2
 
-_Generated 2026-08-11_
+_Generated 2026-09-08_
 
 ## Roadmap.Json / Cg-Work / Prompt-Tools.Tests.Ps1 _(continued from Part 1)_
 
-_Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 39 entities
+_Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 46 entities
 
+- **[Cross-script parity tests: keeping ps1 and sh scripts in sync](.cg-docs/solutions/testing-patterns/2026-05-13-cross-script-parity-tests-ps1-sh.md)** · `solution` · _—_ · `2026-05-13`
+  > `link.ps1` and `link.sh` (and `unlink.ps1` / `unlink.sh`) must produce equivalent behaviour on Windows and macOS. Whe…
+- **[Classification steps must exhaustively cover all enum values with terminal actions](.cg-docs/solutions/testing-patterns/2026-05-14-classification-step-must-exhaustively-cover-enum-values.md)** · `solution` · _—_ · `2026-05-14`
+  > A prompt step that classifies input into one of N categories must provide a terminal action (halt or proceed) for eve…
+- **[Prompt injection via LLM-authored plan content embedded in AI-generated output](.cg-docs/solutions/testing-patterns/2026-05-14-prompt-injection-via-plan-content-in-ai-generated-output.md)** · `solution` · _—_ · `2026-05-14`
+  > A prompt reads a plan file's `## Objective` section and embeds it verbatim into AI-generated output (e.g., a PR body,…
+- **[Sibling-prompt symmetry: apply guard fixes to all prompts with the same operation](.cg-docs/solutions/testing-patterns/2026-05-14-sibling-prompt-symmetry-guard-audit.md)** · `solution` · _—_ · `2026-05-14`
+  > When a P1 review finding adds a guard to prompt A (e.g., "exit-code check after `git add`"), the fix is scoped to tha…
+- **[Write-permission mode flags must be parsed before any tool dispatch, not deferred to a later step](.cg-docs/solutions/testing-patterns/2026-05-14-write-permission-flags-must-be-parsed-before-tool-dispatch.md)** · `solution` · _—_ · `2026-05-14`
+  > A prompt's File Permissions block declared: > `--propose` mode: READ-only — no file creation, modification, git commi…
 - **[Common-word regex false positives in security and behavioral test assertions](.cg-docs/solutions/testing-patterns/2026-05-15-common-word-regex-false-positive-in-security-assertions.md)** · `solution` · _—_ · `2026-05-15`
   > After the thorough review of the `@cg-wiki` feature, a verify pass found that several new Pester tests passed trivial…
 - **[Injection scan required for every agent that reads user-adjacent files, including 'internal' cg-docs/ solution files](.cg-docs/solutions/testing-patterns/2026-05-15-injection-scan-required-for-every-agent-that-reads-user-adjacent-files.md)** · `solution` · _—_ · `2026-05-15`
@@ -52,10 +62,14 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 39 entiti
   > The Phase 1 World Bank report-writing skill shipped with a valid thin router, shared references, deterministic Python…
 - **[Positive validator fixtures must avoid placeholder evidence once validation tightens](.cg-docs/solutions/testing-patterns/2026-07-24-positive-validator-fixtures-must-avoid-placeholder-evidence.md)** · `solution` · _—_ · `2026-07-24`
   > The World Bank report-writing validator was tightened to reject placeholder hosts like `example.org` in approved sour…
+- **[Filesystem race fixes require handle-relative mutation and real boundary tests](.cg-docs/solutions/testing-patterns/2026-07-28-handle-relative-filesystem-mutations-and-real-boundary-tests.md)** · `solution` · _—_ · `2026-07-28`
+  > The native target generator validated destination ancestors, hashes, and ownership before writing or deleting generat…
 - **[Advisory inheritance audits need explicit keys and cross-platform legacy cleanup](.cg-docs/solutions/testing-patterns/2026-07-31-advisory-inheritance-audit-and-legacy-cleanup.md)** · `solution` · _—_ · `2026-07-31`
   > The user-selected model migration removed execution assignments and replaced them with advisory-only stage guidance. …
 - **[gh CLI fixture JSON keys must match what the client actually parses](.cg-docs/solutions/testing-patterns/2026-08-10-gh-cli-fixture-json-keys-must-match-client-parsing.md)** · `solution` · _—_ · `2026-08-10`
   > The readiness validator's offline fixture (`scripts/tests/fixtures/ready_issue.json`) supplies mocked GitHub state to…
+- **[Fact-first interactive prompts need branch-complete tests](.cg-docs/solutions/testing-patterns/2026-09-08-fact-first-prompts-need-branch-complete-tests.md)** · `solution` · _—_ · `2026-09-08`
+  > An adaptive prompt can contain all required phrases and still execute the wrong workflow. In `/cg-brainstorm`, the pr…
 - **[Full backlog structuring into five milestones](.cg-docs/strategy/2026-04-06-full-backlog-structuring.md)** · `strategy` · _—_ · `2026-04-06`
   > - Project charter and roadmap.json already in place. - Roadmap had 1 milestone (Quality Loop) with 6 idea-stage featu…
 - **[Workflow automation and external patterns research](.cg-docs/strategy/2026-04-13-workflow-automation-research.md)** · `strategy` · _—_ · `2026-04-13`
@@ -90,7 +104,7 @@ _Keywords: `roadmap.json` · `cg-work` · `prompt-tools.tests.ps1`_ · 39 entiti
 _Keywords: `architecture research
 objective` · `workflow maturity
 objective` · `knowledge brain
-objective`_ · 138 entities
+objective`_ · 139 entities
 
 - **[@cg-fix-problems agent \(auto-dispatched by /cg-work\)](roadmap.json#cg-fix-problems-agent)** · `feature` · _done_ · `—`
   > @cg-fix-problems agent (auto-dispatched by /cg-work)
@@ -208,6 +222,8 @@ objective`_ · 138 entities
   > Brainstorm depth overhaul — grill-me mode + grill-with-docs skill
 - **[/cg-confidence — honest confidence/assumptions/unknowns assessment](roadmap.json#cg-confidence-prompt)** · `feature` · _idea_ · `—`
   > /cg-confidence — honest confidence/assumptions/unknowns assessment
+- **[Minimal adaptive grilling for the Compound GPID workflow](roadmap.json#minimal-adaptive-grilling-for-the-compound-gpid-workflow)** · `feature` · _idea_ · `—`
+  > Minimal adaptive grilling for the Compound GPID workflow
 - **[roadmap.json schema validation after @cg-roadmap writes](roadmap.json#roadmap-schema-validation)** · `feature` · _idea_ · `—`
   > roadmap.json schema validation after @cg-roadmap writes
 - **[Required frontmatter field checks from /cg-plan output](roadmap.json#plan-frontmatter-checks)** · `feature` · _idea_ · `—`
@@ -368,19 +384,6 @@ objective`_ · 138 entities
   > Representative analytical and technical workflow pilots
 - **[Pilot evaluation gate before broader default exposure](roadmap.json#workflow-pilot-evaluation-gate)** · `feature` · _idea_ · `—`
   > Pilot evaluation gate before broader default exposure
-
-## Tests / Filesystem / Python
-
-_Keywords: `tests` · `filesystem` · `python`_ · 4 entities
-
-- **[Secure publication and rollback must not clobber concurrent filesystem changes](.cg-docs/solutions/bugs/2026-08-01-secure-publication-rollback-must-not-clobber.md)** · `solution` · _—_ · `2026-08-01`
-  > The shared artifact and generated-target writer already pinned parent directories, but several operations could still…
-- **[httpx.AsyncClient requires ASGITransport for FastAPI async tests](.cg-docs/solutions/testing-patterns/2026-03-17-httpx-async-client-asgi-transport.md)** · `solution` · _—_ · `2026-03-17`
-  > FastAPI async endpoint tests using `httpx.AsyncClient(app=app, ...)` fail or emit deprecation warnings on httpx ≥ 0.2…
-- **[PS 5.1 `python -c` here-string unreliable — write temp .py file for Pester Python tests](.cg-docs/solutions/testing-patterns/2026-05-07-ps51-python-c-heredoc-unreliable-use-temp-file.md)** · `solution` · _—_ · `2026-05-07`
-  > Passing multi-line Python code to `python -c` via a PowerShell here-string (`@"..."@`) in Pester tests produces unrel…
-- **[Filesystem race fixes require handle-relative mutation and real boundary tests](.cg-docs/solutions/testing-patterns/2026-07-28-handle-relative-filesystem-mutations-and-real-boundary-tests.md)** · `solution` · _—_ · `2026-07-28`
-  > The native target generator validated destination ancestors, hashes, and ownership before writing or deleting generat…
 
 ## Secure_Fs.Py / Validation / Parser.Py
 
