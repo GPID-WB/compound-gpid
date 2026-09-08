@@ -1,0 +1,13 @@
+{
+  "schema": "cg-skill-operation-descriptor-v1",
+  "operation": "create",
+  "version": 1,
+  "state": "active",
+  "roles": ["maintainer"],
+  "phases": ["plan", "apply"],
+  "handler": "skill_management.operations.create:handle",
+  "contract": ".opencode/shared/skill-management/contracts/create-v1.schema.json",
+  "workflow": ".opencode/skills/cg-skill-management/workflows/create.md",
+  "documentation": "docs/skills/management/commands/create.md",
+  "tests": ["scripts/tests/test_skill_management_create.py"]
+}

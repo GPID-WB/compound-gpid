@@ -1,0 +1,40 @@
+{
+  "$schema": "compound-gpid-schema-subset-v1",
+  "$id": "cg-skill-import-v1",
+  "$defs": {
+    "arguments": {
+      "type": "object",
+      "properties": {
+        "positionals": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1},
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "license": {"type": "string", "minLength": 1},
+        "suites": {"type": "string", "minLength": 1},
+        "platforms": {"type": "string", "minLength": 1},
+        "scope": {"type": "string", "enum": ["project", "plugin"]},
+        "owner": {"type": "string", "minLength": 1},
+        "capability": {"type": "string", "minLength": 1},
+        "activation_cost": {"type": "string", "enum": ["low", "medium", "high"]},
+        "triggers": {"type": "string", "minLength": 1},
+        "selectors": {"type": "string", "minLength": 2},
+        "approver": {"type": "string", "minLength": 1},
+        "review_reference": {"type": "string", "minLength": 1}
+      },
+      "required": ["positionals", "license"],
+      "additionalProperties": false
+    },
+    "resultData": {
+      "type": "object",
+      "properties": {
+        "status": {"type": "string", "enum": ["planned", "committed", "blocked"]},
+        "skillId": {"type": "string"},
+        "reviewEvidence": {"type": "string"}
+      },
+      "required": ["status", "skillId", "reviewEvidence"],
+      "additionalProperties": false
+    }
+  }
+}

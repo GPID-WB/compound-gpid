@@ -1,17 +1,17 @@
 {
   "schemaVersion": "compound-gpid-active-state-v1",
-  "updatedAt": "2026-09-08T20:18:57Z",
+  "updatedAt": "2026-09-08T21:12:08Z",
   "workflow": "/cg-work",
   "status": "completed",
-  "branch": "resilient-harpymimus",
+  "branch": "feat/minimal-adaptive-grilling",
   "plan": ".cg-docs/plans/2026-09-04-minimal-adaptive-grilling.md",
   "executionReport": ".cg-docs/work-reports/2026-09-08-minimal-adaptive-grilling.md",
   "currentPhase": null,
   "evidenceStatus": [
-    {"id": "V1", "status": "passed", "artifact": "tests/last-run.json focused prompt-tools run"},
-    {"id": "V2", "status": "passed", "artifact": "tests/last-run.json focused prompt-tools run"},
-    {"id": "V3", "status": "passed", "artifact": "target generator and 66 passed, 3 skipped focused target tests"},
-    {"id": "V4", "status": "passed", "artifact": "tests/last-run.json: 2419 passed, filteredFiles null"},
+    {"id": "V1", "status": "passed", "artifact": "tests/last-run.json full run: prompt-tools row passed"},
+    {"id": "V2", "status": "passed", "artifact": "tests/last-run.json full run: prompt-tools row passed"},
+    {"id": "V3", "status": "passed", "artifact": "target generator and 67 passed, 3 skipped focused target tests"},
+    {"id": "V4", "status": "passed", "artifact": "tests/last-run.json: 2425 passed, filteredFiles null"},
     {"id": "V5", "status": "passed", "artifact": "git diff --check and changed-path review"}
   ],
   "unresolvedDecisions": [],
@@ -21,5 +21,5 @@
     {"kind": "review", "path": ".cg-docs/reviews/2026-09-04-minimal-adaptive-grilling-review.md", "status": "open"},
     {"kind": "verification-review", "path": ".cg-docs/reviews/2026-08-11-kilo-agent-parsing-linker-copy-directory-verify-review.md", "status": "open-incomplete"}
   ],
-  "nextCommand": "/cg-fix-triage"
+  "nextCommand": "/cg-verify-pr"
 }

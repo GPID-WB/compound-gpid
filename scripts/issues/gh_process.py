@@ -1,9 +1,10 @@
 """Subprocess execution and error classification for the GitHub CLI."""
 from __future__ import annotations
 
+import os
 import re
 import subprocess
-from typing import NoReturn
+from typing import NoReturn, Optional
 
 from .contract import ApiError, ConfigError
 
@@ -24,11 +25,15 @@ _NOT_FOUND_PATTERN = re.compile(
 )
 
 
-def _default_run_gh(args: list[str]) -> subprocess.CompletedProcess:
+def _default_run_gh(
+    args: list[str], env: Optional[dict] = None
+) -> subprocess.CompletedProcess:
     """Run ``gh`` with argv-safe subprocess arguments and a fixed timeout.
 
     Args:
         args: Argument list passed to ``gh`` after the program name.
+        env: Optional environment overrides (e.g. ``{"GH_TOKEN": token}``)
+            merged over the inherited environment.
 
     Returns:
         The completed process result.
@@ -37,10 +42,13 @@ def _default_run_gh(args: list[str]) -> subprocess.CompletedProcess:
         ConfigError: When ``gh`` is not installed or the OS cannot execute it.
         ApiError: On timeout, undecodable output, or other runtime failures.
     """
+    run_env = os.environ.copy() if env else None
+    if env:
+        run_env.update(env)
     try:
         return subprocess.run(
             ["gh", *args], capture_output=True, text=True,
-            encoding="utf-8", timeout=GH_TIMEOUT_SECONDS,
+            encoding="utf-8", timeout=GH_TIMEOUT_SECONDS, env=run_env,
         )
     except FileNotFoundError as error:
         raise ConfigError(

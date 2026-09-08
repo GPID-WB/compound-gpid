@@ -1,0 +1,34 @@
+{
+  "$schema": "compound-gpid-schema-subset-v1",
+  "$id": "cg-skill-deprecate-v1",
+  "$defs": {
+    "arguments": {
+      "type": "object",
+      "properties": {
+        "positionals": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1},
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "approver": {"type": "string", "minLength": 1},
+        "review_reference": {"type": "string", "minLength": 1}
+      },
+      "required": ["positionals", "approver", "review_reference"],
+      "additionalProperties": false
+    },
+    "resultData": {
+      "type": "object",
+      "properties": {
+        "status": {"type": "string", "enum": ["planned", "committed", "blocked"]},
+        "skillId": {"type": "string"},
+        "successorId": {"type": "string"},
+        "origin": {"type": "string"},
+        "activeWarning": {"type": "boolean"},
+        "deprecatedRecordDigest": {"type": "string"}
+      },
+      "required": ["status", "skillId", "successorId", "origin", "activeWarning", "deprecatedRecordDigest"],
+      "additionalProperties": false
+    }
+  }
+}

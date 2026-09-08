@@ -112,3 +112,4 @@ tests catch it immediately.
 - [2026-04-15 — Roadmap plan linkage must be audited at completion](./2026-04-15-roadmap-plan-linkage-must-be-audited-at-completion.md)
 - [2026-04-13 — Dead step after user-wait is a session terminator](./2026-04-13-dead-step-after-wait-prompt-session-terminator.md)
 - [2026-04-23 — Verify-mode suppression must be anchored to fixed-finding scope](./2026-04-23-verify-mode-suppression-must-be-anchored-to-fixed-finding-scope.md) — same root cause: suppression/skip conditions must reference objective artifacts, not agent inference
+- [2026-08-10 — Evidence manifest tests must require referenced files to exist and be non-empty before hashing](./2026-08-10-evidence-manifest-tests-require-referenced-files.md) — the silent-skip anti-pattern in test assertions (guarded with `if (existsSync)` instead of failing loudly)

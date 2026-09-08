@@ -344,13 +344,82 @@ function Resolve-PythonCommand {
             $ver = & $candidate --version 2>&1
             $verStr = "$ver".Trim()
             if ($verStr -match '^Python\s+\d') {
-                return $candidate
+                & $candidate -c "import sys; raise SystemExit(0 if sys.version_info >= (3, 8) else 1)" 2>$null
+                if ($LASTEXITCODE -eq 0) { return $candidate }
             }
         } catch {
             continue
         }
     }
     return $null
+}
+
+function Invoke-CgKiloPreflight {
+    <#
+    .SYNOPSIS
+        Runs the certified Kilo coexistence preflight for one project.
+    .DESCRIPTION
+        The Python worker owns host discovery, local projection validation, and
+        stable status codes. This helper only resolves Python, invokes the
+        worker, and turns a failed JSON result into a terminating error so
+        link/update cannot claim a supported combined configuration.
+    .PARAMETER ProjectRoot
+        Consumer project root to validate.
+    .PARAMETER RequireCoexistence
+        Require the contained launch path for a selected Kilo+Codex/Claude link.
+    .PARAMETER LocalOnly
+        Validate the local Kilo projection without querying a host.
+    .OUTPUTS
+        PSCustomObject with the Python worker's bounded JSON result.
+    .EXAMPLE
+        Invoke-CgKiloPreflight -ProjectRoot (Get-Location).Path -LocalOnly
+    #>
+    param(
+        [Parameter(Mandatory)][string]$ProjectRoot,
+        [switch]$RequireCoexistence,
+        [switch]$LocalOnly,
+        [switch]$HostOnly
+    )
+
+    if ($RequireCoexistence -and $LocalOnly) {
+        throw "Kilo preflight cannot combine RequireCoexistence and LocalOnly."
+    }
+    if ($HostOnly -and $LocalOnly) {
+        throw "Kilo preflight cannot combine HostOnly and LocalOnly."
+    }
+    $python = Resolve-PythonCommand
+    if (-not $python) {
+        throw "Kilo preflight requires Python 3.8+ (checked: python3, python, py)."
+    }
+    $worker = Join-Path $PSScriptRoot "cg_kilo_preflight.py"
+    if (-not (Test-Path -LiteralPath $worker -PathType Leaf)) {
+        throw "Kilo preflight worker not found at: $worker"
+    }
+    $arguments = @("$worker", "--root", $ProjectRoot, "--json")
+    if ($RequireCoexistence) { $arguments += "--require-coexistence" }
+    if ($LocalOnly) { $arguments += "--local-only" }
+    if ($HostOnly) { $arguments += "--host-only" }
+
+    try {
+        $raw = (& $python @arguments | Out-String).Trim()
+    } catch {
+        throw "Kilo preflight process failed: $_"
+    }
+    $exitCode = $LASTEXITCODE
+    if ([string]::IsNullOrWhiteSpace($raw)) {
+        throw "Kilo preflight returned no result (exit code $exitCode)."
+    }
+    try {
+        $result = $raw | ConvertFrom-Json
+    } catch {
+        throw "Kilo preflight returned invalid JSON: $raw"
+    }
+    if ($exitCode -ne 0 -or [int]$result.exit_code -ne 0) {
+        $exception = New-Object System.Exception ("Kilo preflight blocked: $($result.status) - $($result.message) Remediation: $([string]$result.remediation)")
+        $exception.Data["CgExitCode"] = [int]$result.exit_code
+        throw $exception
+    }
+    return $result
 }
 
 function Get-CgFileSha256 {
@@ -786,4 +855,101 @@ function Update-CgKiloGlobalPermission {
     Set-Content -Path $KiloConfigPath -Value ($json + "`n") -Encoding UTF8
     Write-Host "  Updated kilo.jsonc markdown_source permission for: $permissionKey" -ForegroundColor DarkGray
     return $true
+}
+
+function Invoke-CgProjection {
+    <#
+    .SYNOPSIS
+        Runs the manifest-driven project-local projection pipeline.
+    .DESCRIPTION
+        Invokes scripts/cg_project_projection.py for a consumer project. Modes:
+        sync (recover + plan + publish + verify), recover (finish/roll back an
+        interrupted publication), verify (ownership check), unlink (remove only
+        checksum-owned projection files). A nonzero worker exit becomes a
+        terminating error so link/update cannot claim success before publication
+        or verification completes.
+    .PARAMETER ProjectRoot
+        Consumer project root (the projection output root).
+    .PARAMETER SourceRoot
+        Canonical .github source root (defaults to ProjectRoot).
+    .PARAMETER Mode
+        One of sync | recover | verify | unlink.
+    .OUTPUTS
+        PSCustomObject with the worker's status line.
+    .EXAMPLE
+        Invoke-CgProjection -ProjectRoot (Get-Location).Path -Mode verify
+    #>
+    param(
+        [Parameter(Mandatory)][string]$ProjectRoot,
+        [Parameter(Mandatory)][ValidateSet("sync", "recover", "verify", "unlink")][string]$Mode,
+        [string]$SourceRoot = $ProjectRoot
+    )
+
+    $python = Resolve-PythonCommand
+    if (-not $python) {
+        throw "Project projection requires Python 3.8+ (checked: python3, python, py)."
+    }
+    $worker = Join-Path $PSScriptRoot "cg_project_projection.py"
+    if (-not (Test-Path -LiteralPath $worker -PathType Leaf)) {
+        throw "Project projection worker not found at: $worker"
+    }
+    $projectionArgs = @("--project-root", $ProjectRoot, "--source-root", $SourceRoot, "--$Mode")
+    $output = & $python $worker @projectionArgs 2>&1
+    $exit = $LASTEXITCODE
+    if ($exit -ne 0) {
+        throw "Project projection ($Mode) failed with exit code ${exit}: $output"
+    }
+    return [pscustomobject]@{ Mode = $Mode; Output = ($output -join "`n") }
+}
+
+function Resolve-CgActiveManifest {
+    <#
+    .SYNOPSIS
+        Resolves (and writes) the committed active project manifest.
+    .DESCRIPTION
+        Invokes scripts/cg_project_manifest.py for a consumer project so the
+        selected platform set is persisted before projection. Migration of the
+        strict config runs first; resolution is side-effect-free except for the
+        committed manifest write plus idempotent managed-state creation. A
+        nonzero worker exit becomes a terminating error so link/update cannot
+        proceed on invalid selection.
+    .PARAMETER ProjectRoot
+        Consumer project root.
+    .PARAMETER PlatformIds
+        Comma-separated selected platform ids (default: all canonical).
+    .PARAMETER SourceRoot
+        Compound GPID source root containing the registry and canonical assets.
+    .OUTPUTS
+        PSCustomObject with the worker's status line.
+    .EXAMPLE
+        Resolve-CgActiveManifest -ProjectRoot (Get-Location).Path -SourceRoot (Split-Path $PSScriptRoot -Parent) -PlatformIds "kilo,opencode"
+    #>
+    param(
+        [Parameter(Mandatory)][string]$ProjectRoot,
+        [Parameter(Mandatory)][string]$SourceRoot,
+        [string]$PlatformIds
+    )
+
+    $python = Resolve-PythonCommand
+    if (-not $python) {
+        throw "Active manifest resolution requires Python 3.8+ (checked: python3, python, py)."
+    }
+    $worker = Join-Path $PSScriptRoot "cg_project_manifest.py"
+    if (-not (Test-Path -LiteralPath $worker -PathType Leaf)) {
+        throw "Active manifest worker not found at: $worker"
+    }
+    $manifestArgs = @(
+        "--root", $ProjectRoot,
+        "--source-root", $SourceRoot,
+        "--ensure-state"
+    )
+    if (-not [string]::IsNullOrWhiteSpace($PlatformIds)) {
+        $manifestArgs += @("--platforms", $PlatformIds)
+    }
+    $output = & $python $worker @manifestArgs 2>&1
+    $exit = $LASTEXITCODE
+    if ($exit -ne 0) {
+        throw "Active manifest resolution failed with exit code ${exit}: $output"
+    }
+    return [pscustomobject]@{ ManifestPath = (Join-Path $ProjectRoot ".compound-gpid/active-manifest.json"); Output = ($output -join "`n") }
 }

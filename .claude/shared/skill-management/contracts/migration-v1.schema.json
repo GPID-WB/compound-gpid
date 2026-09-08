@@ -1,0 +1,29 @@
+{
+  "$schema": "compound-gpid-schema-subset-v1",
+  "$id": "cg-skill-migration-v1",
+  "type": "object",
+  "properties": {
+    "schema": {"type": "string", "const": "cg-skill-migration-v1"},
+    "schemaVersion": {"type": "integer", "const": 1},
+    "id": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"},
+    "skillId": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"},
+    "edits": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {"type": "string", "minLength": 1},
+          "expectedSha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "replacement": {"type": "string"}
+        },
+        "required": ["path", "expectedSha256", "replacement"],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "reviewer": {"type": "string", "minLength": 1},
+    "approvalReference": {"type": "string", "minLength": 1}
+  },
+  "required": ["schema", "schemaVersion", "id", "skillId", "edits", "reviewer", "approvalReference"],
+  "additionalProperties": false
+}

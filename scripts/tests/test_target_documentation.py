@@ -303,6 +303,31 @@ def test_docs_do_not_claim_generated_skills_contain_only_skill_md() -> None:
             )
 
 
+MODULAR_GUIDE = REPO_ROOT / "docs/modular-guide.md"
+MODULAR_TOPICS = (
+    "choosing a suite",
+    "suites compose",
+    "module preferences",
+    "extension rules",
+    "migration",
+)
+
+
+def test_modular_guide_exists_and_covers_all_five_topics() -> None:
+    assert MODULAR_GUIDE.is_file(), "docs/modular-guide.md is missing"
+    text = MODULAR_GUIDE.read_text(encoding="utf-8").lower()
+    for topic in MODULAR_TOPICS:
+        assert topic.lower() in text, f"Modular guide missing topic: {topic!r}"
+
+
+def test_modular_guide_is_linked_from_reference_and_skills_index() -> None:
+    reference = (REPO_ROOT / "docs/reference.md").read_text(encoding="utf-8")
+    skills_index = (REPO_ROOT / "docs/skills/index.md").read_text(encoding="utf-8")
+    assert "modular-guide.md" in reference
+    assert "modular-guide.md" in skills_index
+
+
+
 @pytest.mark.parametrize("document", DOCUMENT_PATHS)
 def test_document_local_markdown_links_and_anchors_resolve(document: str) -> None:
     source = REPO_ROOT / document

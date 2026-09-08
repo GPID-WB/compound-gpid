@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "tag": "v1.2.0.9012",
+  "publishedAt": "2026-09-02T21:08:54Z",
+  "releaseDate": "2026-09-02",
+  "name": "v1.2.0.9012 - Unified skill management",
+  "url": "https://github.com/GPID-WB/compound-gpid/releases/tag/v1.2.0.9012",
+  "sourceUrl": "https://github.com/GPID-WB/compound-gpid/tree/v1.2.0.9012",
+  "sections": [
+    {
+      "kind": "new",
+      "title": "Unified skill management",
+      "entries": [
+        "Publish the unified skill-management command.",
+        "Build the skill-management lifecycle candidate.",
+        "Integrate private skill ownership and public closure filtering into generated targets.",
+        "Add private contracts, bounded validation, trusted discovery, and captured-byte dispatch."
+      ]
+    },
+    {
+      "kind": "fixed",
+      "title": "Secure lifecycle and dispatch",
+      "entries": [
+        "Handle line-ending differences in Copilot checkouts.",
+        "Harden contract, migration, regex, Unicode-key, and upstream-root boundaries.",
+        "Capture canonical assets once while preserving binary resources and normalizing declared text.",
+        "Bind dispatch execution to a captured trusted dependency closure.",
+        "Stabilize cross-platform skill-management release gates.",
+        "Preserve the defined symlink error contract."
+      ]
+    },
+    {
+      "kind": "internal",
+      "title": "Security tests and project knowledge",
+      "entries": [
+        "Merge and integrate the scalable skill-management suite.",
+        "Regenerate project knowledge, documentation, and platform targets.",
+        "Document dependency-closure trust and captured-byte execution controls.",
+        "Record completion evidence for the seven-phase implementation plan.",
+        "Test protected removal-migration targets and shared lifecycle policy.",
+        "Test upstream-root enforcement during admission and apply operations.",
+        "Test contract schema defenses and migration allowlist invariants.",
+        "Test captured asset boundaries and deterministic output handling.",
+        "Test installed and captured imports across separate trust roots.",
+        "Document immutable trust anchors and trusted dispatch guidance.",
+        "Test contracts, dispatch, packaging, public closure, and validator safety.",
+        "Document the initial scalable skill-management architecture and evidence."
+      ]
+    }
+  ]
+}

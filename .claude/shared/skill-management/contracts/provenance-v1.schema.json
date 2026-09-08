@@ -1,0 +1,283 @@
+{
+  "$schema": "compound-gpid-schema-subset-v1",
+  "$id": "cg-skill-provenance-v1",
+  "type": "object",
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "cg-skill-provenance-v1"
+    },
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "skillId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "origin": {
+      "type": "string",
+      "enum": [
+        "plugin-canonical",
+        "project-imported"
+      ]
+    },
+    "admission": {
+      "type": "string",
+      "enum": [
+        "quarantined",
+        "approved",
+        "rejected"
+      ]
+    },
+    "lifecycle": {
+      "type": "string",
+      "enum": [
+        "current",
+        "deprecated",
+        "removed"
+      ]
+    },
+    "source": {
+      "$ref": "#/$defs/source"
+    },
+    "history": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/historyEntry"
+      },
+      "minItems": 1
+    },
+    "migrations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/migration"
+      }
+    },
+    "successorId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "deprecatedRecordDigest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "tombstone": {
+      "$ref": "#/$defs/tombstone"
+    }
+  },
+  "required": [
+    "schema",
+    "schemaVersion",
+    "skillId",
+    "origin",
+    "admission",
+    "lifecycle",
+    "source",
+    "history",
+    "migrations"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "approval": {
+      "type": "object",
+      "properties": {
+        "actor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reviewReference": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "actor",
+        "reviewReference"
+      ],
+      "additionalProperties": false
+    },
+    "source": {
+      "type": "object",
+      "properties": {
+        "repository": {
+          "type": "string",
+          "pattern": "^https://github\\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+(?:\\.git)?$"
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "bundleDigest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "required": [
+        "repository",
+        "path",
+        "commit",
+        "bundleDigest"
+      ],
+      "additionalProperties": false
+    },
+    "historyEntry": {
+      "type": "object",
+      "properties": {
+        "sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "event": {
+          "type": "string",
+          "enum": [
+            "created",
+            "imported",
+            "updated",
+            "deprecated",
+            "removed"
+          ]
+        },
+        "commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "bundleDigest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "policyDigest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "reviewEvidenceDigest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "diffDigest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "diff": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/diffEntry"
+          }
+        },
+        "successorId": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$"
+        },
+        "recordDigest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "approval": {
+          "$ref": "#/$defs/approval"
+        }
+      },
+      "required": [
+        "sequence",
+        "event",
+        "bundleDigest",
+        "approval"
+      ],
+      "additionalProperties": false
+    },
+    "diffEntry": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "change": {
+          "type": "string",
+          "enum": [
+            "added",
+            "modified",
+            "removed"
+          ]
+        },
+        "beforeSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "afterSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "beforeSize": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "afterSize": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "path",
+        "change"
+      ],
+      "additionalProperties": false
+    },
+    "migration": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "planned",
+            "applied"
+          ]
+        },
+        "digest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "required": [
+        "id",
+        "status",
+        "digest"
+      ],
+      "additionalProperties": false
+    },
+    "tombstone": {
+      "type": "object",
+      "properties": {
+        "skillId": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$"
+        },
+        "removedRevision": {
+          "type": "string",
+          "minLength": 1
+        },
+        "successorId": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$"
+        },
+        "recordDigest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "required": [
+        "skillId",
+        "removedRevision",
+        "recordDigest"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

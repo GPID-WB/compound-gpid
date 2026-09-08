@@ -265,3 +265,36 @@ def test_cli_availability_reporting_is_separate_from_required_static_closure(
     assert unavailable["cliEvidence"] == "unavailable"
     assert available["cliEvidence"] == "available-not-run"
     assert "skip" not in unavailable.values()
+
+
+# ---------------------------------------------------------------------------
+# Step 10: Inactive-reference leak detection in generated targets
+# ---------------------------------------------------------------------------
+
+
+def test_generated_target_content_has_no_inactive_canonical_references(
+    tmp_path: Path,
+) -> None:
+    """All canonical .github/ references in generated target content must
+    resolve to assets within the same closure (no inactive references leak)."""
+    source = tmp_path / "source"
+    _canonical_fixture(source)
+    # Add a CR skill that is NOT in the CG closure
+    _write(
+        source,
+        ".github/skills/cr-skill-demo/SKILL.md",
+        "---\nname: cr-skill-demo\ndescription: CR skill\n---\nbody\n",
+    )
+    target = _mapping_target("kilo")
+    plan = _plan(source, target)
+
+    for entry in plan.by_target["kilo"].entries:
+        text = entry.content.decode("utf-8") if isinstance(entry.content, bytes) else entry.content
+        refs = CANONICAL_RUNTIME_REFERENCE.findall(text)
+        for ref in refs:
+            # Every reference in generated output must have been rewritten
+            # to a platform-local path; canonical .github/ refs must not leak
+            assert not ref.startswith(".github/"), (
+                f"Generated target {entry.destination} contains unresolved "
+                f"canonical reference: {ref}"
+            )

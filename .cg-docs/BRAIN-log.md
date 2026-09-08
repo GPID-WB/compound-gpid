@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-09-08 · 497 artifacts (newest first) + 139 roadmap features_
+_Generated 2026-09-08 · 608 artifacts (newest first) + 162 roadmap features_
 
 ## undated
 
@@ -94,12 +94,16 @@ _Generated 2026-09-08 · 497 artifacts (newest first) + 139 roadmap features_
   > **Review depth**: thorough **Files reviewed**: 15 **Findings**: 25 (P0: 0, P1: 3, P2: 16, P3: 6) **Mode**: autofix — …
 - **[2026-05-14-commit-push-pr-and-verify-pr-review](.cg-docs/reviews/2026-05-14-commit-push-pr-and-verify-pr-review.md)** · `review` · _—_ · `—`
   > **Branch**: `feat/cg-commit-push-pr` **Files reviewed** (10): `.github/prompts/cg-commit-push-pr.prompt.md` (NEW), `.…
+- **[2026-05-14-compound-research-phase4-skills-review](.cg-docs/reviews/2026-05-14-compound-research-phase4-skills-review.md)** · `review` · _—_ · `—`
+  > **Review depth**: thorough **Branch**: compound-research (`c9e377b`) **Files reviewed**: 109 (focused on 14 Phase 4 f…
 - **[2026-05-15-auto-generated-project-wiki-review](.cg-docs/reviews/2026-05-15-auto-generated-project-wiki-review.md)** · `review` · _—_ · `—`
   > **Review depth**: thorough **Files reviewed**: 17 (11 modified, 6 new) **Mode**: mode:autofix **Findings**: 30 (P0: 0…
 - **[2026-05-19-knowledge-brain-engine-batch-a-review](.cg-docs/reviews/2026-05-19-knowledge-brain-engine-batch-a-review.md)** · `review` · _—_ · `—`
   > **Date**: 2026-05-19 **Branch**: feat/knowledge-brain-engine (commits 11b67f8, 7b64a26, c9ba903) **Scope**: 19 change…
 - **[2026-05-19-knowledge-brain-triggers-batch-b-review](.cg-docs/reviews/2026-05-19-knowledge-brain-triggers-batch-b-review.md)** · `review` · _—_ · `—`
   > **Review depth**: thorough **Files reviewed**: 7 (`.github/prompts/cg-brain-rebuild.prompt.md`, `.github/copilot-inst…
+- **[2026-05-20-compound-research-phase5-ml-economics-review](.cg-docs/reviews/2026-05-20-compound-research-phase5-ml-economics-review.md)** · `review` · _—_ · `—`
+  > **Plan**: `2026-05-20-compound-research-phase5-ml-economics.md` **Commit**: `4fda41d` — `feat(compound-research): pha…
 - **[2026-05-20-team-brain-batch-d-review-3](.cg-docs/reviews/2026-05-20-team-brain-batch-d-review-3.md)** · `review` · _—_ · `—`
   > **Review depth**: thorough **Files reviewed**: 88 (focused on 27 Python source/test modules + `.github/` prompts) **F…
 - **[2026-06-11-github-issues-integration-review-2](.cg-docs/reviews/2026-06-11-github-issues-integration-review-2.md)** · `review` · _—_ · `—`
@@ -139,23 +143,161 @@ _Generated 2026-09-08 · 497 artifacts (newest first) + 139 roadmap features_
 - **[Minimal adaptive grilling for the Compound GPID workflow](.cg-docs/brainstorms/2026-09-04-minimal-adaptive-grilling.md)** · `brainstorm` · _decided_ · `2026-09-04`
   > <!-- Valid status values: decided, in-progress, abandoned -->
 
+## 2026-09-02
+
+- **[Captured-byte trust must cover the complete dependency closure](.cg-docs/solutions/bugs/2026-09-02-captured-byte-trust-must-cover-dependency-closure.md)** · `solution` · _—_ · `2026-09-02`
+  > A dynamic Python dispatcher captured and validated the selected operation file before execution. The handler still im…
+
+## 2026-09-01
+
+- **[2026-08-28-scalable-skill-management-suite-verify-review-2](.cg-docs/reviews/2026-08-28-scalable-skill-management-suite-verify-review-2.md)** · `review` · _—_ · `2026-09-01`
+  > **Review mode**: light verification **Parent review**: `.cg-docs/reviews/2026-08-28-scalable-skill-management-suite-r…
+
+## 2026-08-31
+
+- **[2026-08-28-scalable-skill-management-suite-verify-review](.cg-docs/reviews/2026-08-28-scalable-skill-management-suite-verify-review.md)** · `review` · _—_ · `2026-08-31`
+  > **Review mode**: light verification **Parent review**: `.cg-docs/reviews/2026-08-28-scalable-skill-management-suite-r…
+- **[Trusted dispatch requires immutable anchors and captured bytes](.cg-docs/solutions/bugs/2026-08-31-trust-anchor-captured-byte-dispatch.md)** · `solution` · _—_ · `2026-08-31`
+  > The private skill-management dispatcher used local Git origin and branch data to grant maintainer authority. A fixtur…
+
+## 2026-08-30
+
+- **[2026-08-28-scalable-skill-management-suite-review](.cg-docs/reviews/2026-08-28-scalable-skill-management-suite-review.md)** · `review` · _—_ · `2026-08-30`
+  > **Requested mode**: `mode:verify` **Resolved mode**: `full` -- no prior standard review had fixed findings, so verifi…
+
+## 2026-08-28
+
+- **[2026-08-13-manifest-driven-skill-loading-verify-review-3](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review-3.md)** · `review` · _—_ · `2026-08-28`
+  > **Review mode**: light (`mode:verify`) **Parent review**: `.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-…
+- **[2026-08-28-compound-gpid-rd-command-review](.cg-docs/reviews/2026-08-28-compound-gpid-rd-command-review.md)** · `review` · _—_ · `2026-08-28`
+  > **Review mode**: full (auto-routed security-risk) **Files reviewed**: canonical prompt, registry utility, tests, audi…
+- **[Rename repository review command and add registry management flags](.cg-docs/brainstorms/2026-08-28-compound-gpid-rd-command.md)** · `brainstorm` · _decided_ · `2026-08-28`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[Rename repository review command and add registry management flags](.cg-docs/plans/2026-08-28-compound-gpid-rd-command.md)** · `plan` · _completed_ · `2026-08-28`
+  > Replace the developer-only `/cg-review-repos` command with `/cg-compound-gpid-rd`, preserve its full and delta review…
+- **[Scalable Skill Management Suite](.cg-docs/brainstorms/2026-08-28-scalable-skill-management-suite.md)** · `brainstorm` · _decided_ · `2026-08-28`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[Scalable Skill Management Suite](.cg-docs/plans/2026-08-28-scalable-skill-management-suite.md)** · `plan` · _completed_ · `2026-08-28`
+  > Build one role-gated `/cg-skill` command that manages the complete skill lifecycle without becoming one large prompt …
+- **[Secure registry mutation requires exact JSON and pre-commit output validation](.cg-docs/solutions/data-quality/2026-08-28-exact-json-registry-mutation-boundaries.md)** · `solution` · _—_ · `2026-08-28`
+  > A deterministic JSON registry utility preserved unknown fields structurally but decoded unknown numbers as binary flo…
+
+## 2026-08-26
+
+- **[Release drift ignore checks spawn thousands of Git processes](.cg-docs/solutions/bugs/2026-08-26-release-drift-ignore-checks-spawn-thousands-of-git-processes.md)** · `solution` · _—_ · `2026-08-26`
+  > The `/cg-release` packaging gate took more than 20 minutes in the full workflow. The native packaging test portion al…
+
+## 2026-08-21
+
+- **[2026-08-21-pr-ci-preflight-and-kilo-capability-gates-verify-review](.cg-docs/reviews/2026-08-21-pr-ci-preflight-and-kilo-capability-gates-verify-review.md)** · `review` · _—_ · `2026-08-21`
+  > - **Review mode**: verify (light-only) - **Parent review**: `.cg-docs/reviews/2026-08-13-manifest-driven-skill-loadin…
+- **[Authoritative PR preflight prevents native-target and Kilo capability reruns](.cg-docs/solutions/git-workflows/2026-08-21-pr-ci-preflight-native-target-kilo-capability-gates.md)** · `solution` · _—_ · `2026-08-21`
+  > PR #141 exposed several failures that local guidance did not catch before a remote run: interpreter cache files could…
+- **[cg-link ignored singular --platform flag](.cg-docs/solutions/bugs/2026-08-21-cg-link-singular-platform-flag.md)** · `solution` · _—_ · `2026-08-21`
+  > On version `v1.2.0.9006`, running `cg-link --platform kilo` produced warnings that `--platform` and `kilo` were unrec…
+- **[Prevent PR CI reruns with native-target and Kilo capability preflights](.cg-docs/plans/2026-08-21-pr-ci-preflight-and-kilo-capability-gates.md)** · `plan` · _completed_ · `2026-08-21`
+  > Make `/cg-commit-push-pr` and `/cg-verify-pr` stop release-critical native-target, module-closure, Kilo-host, PR-base…
+
+## 2026-08-20
+
+- **[Kilo cross-adapter skill auto-discovery resolves linked skills outside project](.cg-docs/solutions/bugs/2026-08-20-kilo-cross-adapter-skill-autodiscovery.md)** · `solution` · _—_ · `2026-08-20`
+  > Kilo in VS Code on Windows and Positron on macOS repeatedly reported:
+
+## 2026-08-17
+
+- **[2026-08-13-manifest-driven-skill-loading-phase5-review](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-phase5-review.md)** · `review` · _—_ · `2026-08-17`
+  > **Review mode**: full (auto-routed: security-risk — vendor policy, import pipeline, admission checks) **Files reviewe…
+- **[2026-08-13-manifest-driven-skill-loading-phase5-verify-review](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-phase5-verify-review.md)** · `review` · _—_ · `2026-08-17`
+  > **Review mode**: verify (light depth) **Parent review**: `.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-p…
+- **[2026-08-17-capability-router-hard-stop](.cg-docs/solutions/architecture/2026-08-17-capability-router-hard-stop.md)** · `solution` · _—_ · `2026-08-17`
+  > When a command explicitly requests a capability (by id, task trigger, or skill reference) that is not active in the p…
+- **[2026-08-17-manifest-catalog-staleness-testing](.cg-docs/solutions/testing-patterns/2026-08-17-manifest-catalog-staleness-testing.md)** · `solution` · _—_ · `2026-08-17`
+  > The `cg_skill_catalog.py` catalog has a staleness guard that compares the on-disk manifest's immutable selection fiel…
+- **[2026-08-17-phase4-verify-review](.cg-docs/reviews/2026-08-17-phase4-verify-review.md)** · `review` · _—_ · `2026-08-17`
+  > 11 files changed, 1546 insertions, 452 deletions across Phase 4 implementation.
+- **[Journal security hardening patterns for atomic file publication](.cg-docs/solutions/testing-patterns/2026-08-17-journal-security-hardening-patterns.md)** · `solution` · _—_ · `2026-08-17`
+  > The journaled projection synchronizer writes a `projection-journal.json` with a `transactionId` (32-hex) and records …
+- **[Manifest-driven install gate prevents junction conflicts with projection synchronizer](.cg-docs/solutions/environment-issues/2026-08-17-manifest-driven-install-gate-prevents-junction-conflicts.md)** · `solution` · _—_ · `2026-08-17`
+  > `link.ps1`/`link.sh` create directory junctions for `.agents/*`, `.claude/*`, `.opencode/*` installUnits before the p…
+- **[Tar-slip, TOCTOU, and DoS fixes in quarantined import pipeline](.cg-docs/solutions/security/2026-08-17-tar-slip-toctou-dos-quarantine-pipeline.md)** · `solution` · _—_ · `2026-08-17`
+  > The `/cg-import-skill` importer had three security vulnerabilities discovered during code review: 1. **Tar path trave…
+- **[Windows long-path prefix required for staged file publication](.cg-docs/solutions/bugs/2026-08-17-windows-long-path-staged-publication.md)** · `solution` · _—_ · `2026-08-17`
+  > The manifest-driven projection synchronizer (`cg_project_projection.py`) stages files under `<project>/.compound-gpid…
+
+## 2026-08-15
+
+- **[2026-08-13-manifest-driven-skill-loading-phase3-verify-review](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-phase3-verify-review.md)** · `review` · _—_ · `2026-08-15`
+  > **Review mode**: verify (light) **Parent review**: `.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-phase3-…
+
+## 2026-08-14
+
+- **[2026-08-13-manifest-driven-skill-loading-phase3-review](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-phase3-review.md)** · `review` · _—_ · `2026-08-14`
+  > **Review mode**: auto -> full (Phase 3, steps 6-8: secure materialized projection) **Files reviewed**: 21 changed fil…
+- **[2026-08-13-manifest-driven-skill-loading-verify-review-2](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review-2.md)** · `review` · _—_ · `2026-08-14`
+  > **Review mode**: verify (light-only) **Files reviewed**: Phase 2 diff (registry v2 + capability resolution + strict c…
+- **[Capability suite-eligibility namespace mismatch makes activation dead code](.cg-docs/solutions/bugs/2026-08-14-capability-eligibility-namespace-mismatch.md)** · `solution` · _—_ · `2026-08-14`
+  > The v2 module registry introduced `capabilities[]` records with `supportedSuites` (user-facing names like `cg`/`cr`) …
+- **[Kilo coexistence requires a certified contained launch and no-follow local copies](.cg-docs/solutions/environment-issues/2026-08-14-kilo-contained-launch-and-no-follow-copy.md)** · `solution` · _—_ · `2026-08-14`
+  > When Kilo, Codex, and Claude-compatible roots coexist in one project, Kilo can discover skills outside the project-lo…
+- **[Pages immutable-ref gate rejects dev-series pre-release tags \(v1.2.0.900x\)](.cg-docs/solutions/bugs/2026-08-14-pages-immutable-ref-gate-rejects-dev-series-pre-release-tags.md)** · `solution` · _—_ · `2026-08-14`
+  > The tag-triggered Pages deployment failed for the pre-release release `v1.2.0.9004`. Running [31748306075](https://gi…
+
+## 2026-08-13
+
+- **[2026-08-12-automated-documentation-deployment-review](.cg-docs/reviews/2026-08-12-automated-documentation-deployment-review.md)** · `review` · _—_ · `2026-08-13`
+  > - Documentation generators, validation, release-payload contract, Pages and rebuild workflows. - Canonical prompts/ag…
+- **[2026-08-13-manifest-driven-skill-loading-review](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-review.md)** · `review` · _—_ · `2026-08-13`
+  > **Review mode**: full (auto-routed security/architecture/install changes) **Files reviewed**: Phase 1 implementation,…
+- **[2026-08-13-manifest-driven-skill-loading-verify-review](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review.md)** · `review` · _—_ · `2026-08-13`
+  > **Review mode**: verify (light) **Parent review**: `.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-review.…
+- **[Manifest-driven skill loading and project-local platform projections](.cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md)** · `plan` · _active_ · `2026-08-13`
+  > Replace all-skill, shared-install runtime exposure with a strict, committed per-project manifest and an atomically pu…
+- **[Manifest-driven skill loading for context efficiency](.cg-docs/brainstorms/2026-08-13-skill-loading-architecture-context-efficiency.md)** · `brainstorm` · _decided_ · `2026-08-13`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[Verified Pages artifacts and immutable release-tag gates](.cg-docs/solutions/git-workflows/2026-08-13-verified-pages-artifact-and-release-tag-gates.md)** · `solution` · _—_ · `2026-08-13`
+  > An automated documentation workflow needs two independent guarantees: 1. The Pages deploy job must publish exactly th…
+
+## 2026-08-12
+
+- **[Automated Documentation Deployment and What's New Page](.cg-docs/brainstorms/2026-08-12-automated-documentation-deployment.md)** · `brainstorm` · _decided_ · `2026-08-12`
+  > The Compound GPID documentation site (https://gpid-wb.github.io/compound-gpid/) is deployed via GitHub Actions from `…
+- **[Automated Documentation Deployment and What's New Page](.cg-docs/plans/2026-08-12-automated-documentation-deployment.md)** · `plan` · _active_ · `2026-08-12`
+  > Keep the public documentation site current from reviewed canonical sources and publish a deterministic, release-backe…
+
 ## 2026-08-11
 
+- **[2026-08-11-copilot-issue-implementation-pipeline-v2-phase5-review](.cg-docs/reviews/2026-08-11-copilot-issue-implementation-pipeline-v2-phase5-review.md)** · `review` · _—_ · `2026-08-11`
+  > Full-depth review (`/cg-review full`) of the Phase 5 implementation at working HEAD on branch `issue-implementation-p…
+- **[2026-08-11-copilot-issue-implementation-pipeline-v2-phase5-verify-review](.cg-docs/reviews/2026-08-11-copilot-issue-implementation-pipeline-v2-phase5-verify-review.md)** · `review` · _—_ · `2026-08-11`
+  > `/cg-review mode:verify` run after `/cg-fix-triage` on the Phase 5 dispatcher. Prior review: `.cg-docs/reviews/2026-0…
 - **[2026-08-11-kilo-agent-parsing-linker-copy-directory-review](.cg-docs/reviews/2026-08-11-kilo-agent-parsing-linker-copy-directory-review.md)** · `review` · _—_ · `2026-08-11`
   > **Review mode**: full **Files reviewed**: 3 (`scripts/link.ps1`, `tests/link.Tests.ps1`, `scripts/tests/test_target_m…
+- **[GitHub workflow_dispatch booleans fail open; verify mutation responses, not just return codes](.cg-docs/solutions/testing-patterns/2026-08-11-workflow-dispatch-boolean-fail-open-verify-mutations.md)** · `solution` · _—_ · `2026-08-11`
+  > Phase 5 of the Copilot issue-implementation pipeline introduced a `workflow_dispatch`-only dispatcher (`copilot-dispa…
+- **[Merge strategy for generated Brain files and additive CI matrix conflicts](.cg-docs/solutions/git-workflows/2026-08-11-merge-generated-brain-files-and-additive-ci-conflicts.md)** · `solution` · _—_ · `2026-08-11`
+  > Merging `origin/main` into `refactor-modular-plugin` produced 7 conflicting files: - `.github/workflows/tests.yml` — …
 - **[Windows cg-link Kilo parse failures — enforce copy-directory instead of junctions](.cg-docs/solutions/bugs/2026-08-11-windows-link-kilo-copy-directory-parse-failure.md)** · `solution` · _—_ · `2026-08-11`
   > Opening a project in VS Code or Positron with the Compound GPID plugin installed (v1.1.9+) reported the same error fo…
 
 ## 2026-08-10
 
+- **[2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review-2](.cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review-2.md)** · `review` · _—_ · `2026-08-10`
+  > **Review mode**: light (verification) **Prior review**: `.cg-docs/reviews/2026-08-03-editorial-theme-publishing-workf…
 - **[2026-08-05-copilot-issue-implementation-pipeline-v2-review](.cg-docs/reviews/2026-08-05-copilot-issue-implementation-pipeline-v2-review.md)** · `review` · _—_ · `2026-08-10`
   > This record files the actionable review evidence for PR #135 under the plan it actually reviewed. The source review w…
 - **[2026-08-05-copilot-issue-implementation-pipeline-v2-verify-review](.cg-docs/reviews/2026-08-05-copilot-issue-implementation-pipeline-v2-verify-review.md)** · `review` · _—_ · `2026-08-10`
   > This verification pass checks the twelve findings recorded in the correctly named Phase 4 parent review. It does not …
+- **[Evidence manifest tests must require referenced files to exist and be non-empty before hashing](.cg-docs/solutions/testing-patterns/2026-08-10-evidence-manifest-tests-require-referenced-files.md)** · `solution` · _—_ · `2026-08-10`
+  > The Schema 2 evidence manifest test (`scripts/evidence/tests/manifest.test.js`) verified that recorded SHA-256 hashes…
 - **[gh CLI fixture JSON keys must match what the client actually parses](.cg-docs/solutions/testing-patterns/2026-08-10-gh-cli-fixture-json-keys-must-match-client-parsing.md)** · `solution` · _—_ · `2026-08-10`
   > The readiness validator's offline fixture (`scripts/tests/fixtures/ready_issue.json`) supplies mocked GitHub state to…
 - **[Typed-invalid gh CLI JSON payloads must map to the API-error exit code, not a crash](.cg-docs/solutions/bugs/2026-08-10-typed-invalid-gh-cli-payloads-crash-exit-code-contract.md)** · `solution` · _—_ · `2026-08-10`
   > The Compound GPID issue readiness validator (`scripts/issues/readiness.py`) documents an exit-code contract: 0 = read…
+
+## 2026-08-07
+
+- **[Modular Compound GPID architecture for technical and research suites](.cg-docs/plans/2026-08-07-modular-compound-gpid.md)** · `plan` · _completed_ · `2026-08-07`
+  > Introduce a validated three-layer module registry (kernel, capability packs, suites) over the existing canonical `.gi…
 
 ## 2026-08-06
 
@@ -194,6 +336,8 @@ _Generated 2026-09-08 · 497 artifacts (newest first) + 139 roadmap features_
   > Build an independently releasable generic Markdown publisher around the existing `reference` presentation while prese…
 - **[Generic publisher deletion commit points and cross-platform release gates](.cg-docs/solutions/bugs/2026-08-03-generic-publisher-secure-deletion-and-cross-platform-gates.md)** · `solution` · _—_ · `2026-08-03`
   > The generic Markdown publisher passed its initial implementation gates, but verification found four closure gaps: - P…
+- **[Single-command model overrides need dedicated roles and baseline-aware audits](.cg-docs/solutions/testing-patterns/2026-08-03-single-command-model-overrides-need-dedicated-roles-and-baseline-audits.md)** · `solution` · _—_ · `2026-08-03`
+  > `/cr-work` needed to move from `GPT-5.3-Codex` to `GPT-5.6 Luna` without changing any other prompt or agent. The imme…
 
 ## 2026-08-02
 
@@ -203,6 +347,10 @@ _Generated 2026-09-08 · 497 artifacts (newest first) + 139 roadmap features_
   > Build an independently releasable generic Markdown publisher around the existing `reference` presentation while prese…
 - **[Generic Markdown Publishing and Curated Artifact Themes](.cg-docs/plans/2026-08-02-generic-markdown-publishing-curated-themes.md)** · `plan` · _blocked_ · `2026-08-02`
   > Extend the completed Brainstorm and Plan artifact-view system with an additive, deterministic Markdown publishing pat…
+- **[Use GPT-5.6 Luna for /cr-work](.cg-docs/brainstorms/2026-08-02-cr-work-gpt-5-6-luna.md)** · `brainstorm` · _decided_ · `2026-08-02`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[Use GPT-5.6 Luna for /cr-work](.cg-docs/plans/2026-08-02-cr-work-gpt-5-6-luna-plan.md)** · `plan` · _completed_ · `2026-08-02`
+  > Assign `GPT-5.6 Luna` to the Compound Research `/cr-work` command and carry that assignment through the canonical mod…
 - **[Workflow completion dossier and curated artifact themes](.cg-docs/brainstorms/2026-08-02-completion-dossier-and-curated-artifact-themes.md)** · `brainstorm` · _decided_ · `2026-08-02`
   > <!-- Valid status values: decided, in-progress, abandoned -->
 
@@ -219,6 +367,10 @@ _Generated 2026-09-08 · 497 artifacts (newest first) + 139 roadmap features_
   > **Review mode**: light (`mode:verify`) **Parent review**: `.cg-docs/reviews/2026-07-23-wb-report-writing-technical-me…
 - **[2026-07-23-wb-report-writing-technical-methodology-verify-review-5](.cg-docs/reviews/2026-07-23-wb-report-writing-technical-methodology-verify-review-5.md)** · `review` · _—_ · `2026-07-31`
   > **Review mode**: light (`mode:verify`) **Parent review**: `.cg-docs/reviews/2026-07-23-wb-report-writing-technical-me…
+- **[2026-07-30-cr-scoping-normative-gates-review](.cg-docs/reviews/2026-07-30-cr-scoping-normative-gates-review.md)** · `review` · _—_ · `2026-07-31`
+  > **Review mode**: research **Files reviewed**: 28 **Findings**: 5 (P0: 0, P1: 4, P2: 1, P3: 0)
+- **[2026-07-30-cr-scoping-normative-gates-review-2](.cg-docs/reviews/2026-07-30-cr-scoping-normative-gates-review-2.md)** · `review` · _—_ · `2026-07-31`
+  > **Review mode**: full (composite coverage with research agents per shared routing contract) **Files reviewed**: 643 *…
 - **[2026-07-31-dual-audience-workflow-artifact-views-v2-review](.cg-docs/reviews/2026-07-31-dual-audience-workflow-artifact-views-v2-review.md)** · `review` · _—_ · `2026-07-31`
   > **Review mode**: full, auto-routed for schema, secure-filesystem, installer, and generated-target risk.
 - **[Advisory inheritance audits need explicit keys and cross-platform legacy cleanup](.cg-docs/solutions/testing-patterns/2026-07-31-advisory-inheritance-audit-and-legacy-cleanup.md)** · `solution` · _—_ · `2026-07-31`
@@ -229,17 +381,50 @@ _Generated 2026-09-08 · 497 artifacts (newest first) + 139 roadmap features_
   > Add a deterministic, schema-aware rendering system that keeps Brainstorm and Plan Markdown authoritative while produc…
 - **[Implement Dual-Audience Workflow Artifact Views \(Revised\)](.cg-docs/plans/2026-07-31-dual-audience-workflow-artifact-views-v2.md)** · `plan` · _completed_ · `2026-07-31`
   > Add mandatory, deterministic validation for Brainstorm and Plan Markdown and an optional schema-aware renderer that p…
+- **[Modular Compound GPID architecture for technical and research suites](.cg-docs/brainstorms/2026-07-31-modular-compound-gpid-architecture.md)** · `brainstorm` · _decided_ · `2026-07-31`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[Review artifacts must use machine-readable finding maps and stable validation evidence](.cg-docs/solutions/testing-patterns/2026-07-31-review-artifacts-must-use-machine-readable-finding-maps-and-stable-validation-evidence.md)** · `solution` · _—_ · `2026-07-31`
+  > A full `/cg-review` pass over the Compound Research branch exposed two coupled contract defects in saved artifacts: -…
 
 ## 2026-07-30
 
+- **[2026-07-29-cr-module-migration-to-v1-review-2](.cg-docs/reviews/2026-07-29-cr-module-migration-to-v1-review-2.md)** · `review` · _—_ · `2026-07-30`
+  > **Review mode**: architecture **Files reviewed**: 42 **Findings**: 6 (P0: 0, P1: 2, P2: 4, P3: 0)
 - **[Adaptive project workflow capability](.cg-docs/strategy/2026-07-30-adaptive-project-workflow-capability.md)** · `strategy` · _—_ · `2026-07-30`
   > Compound GPID had 12 roadmap milestones and 117 features. Its current focus remained the Token Efficiency Core System…
+- **[CR as a responsible research partner for policy-relevant measurement work](.cg-docs/brainstorms/2026-07-30-cr-responsible-research-partner-measurement.md)** · `brainstorm` · _decided_ · `2026-07-30`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[CR Evidence & Provenance Spine \(Responsible Research Partner — Phase 1\)](.cg-docs/plans/2026-07-30-cr-evidence-provenance-spine.md)** · `plan` · _completed_ · `2026-07-30`
+  > Give the Compound Research (CR) module an **evidence and provenance spine** so that every substantive claim in a rese…
+- **[CR Measurement/Classification Archetype + Comparability Controls \(Responsible Research Partner — Phase 2\)](.cg-docs/plans/2026-07-30-cr-measurement-classification-archetype.md)** · `plan` · _completed_ · `2026-07-30`
+  > Give the Compound Research (CR) module a first-class **Measurement/Classification** research archetype — the **9th re…
+- **[CR Method-Pack Retrofit + Lifecycle Orchestration \(Responsible Research Partner — Phase 4\)](.cg-docs/plans/2026-07-30-cr-method-pack-retrofit.md)** · `plan` · _completed_ · `2026-07-30`
+  > Refactor CR's existing method-specific flows (structural econometrics, ML) into interchangeable **method packs** runn…
+- **[CR Scoping Front-End + Normative-Decision Gates \(Responsible Research Partner — Phase 3\)](.cg-docs/plans/2026-07-30-cr-scoping-normative-gates.md)** · `plan` · _completed_ · `2026-07-30`
+  > Give the Compound Research (CR) module a **scoping front-end** and a **normative-decision gate backbone**, so that co…
 - **[Implement User-Selected Models with Advisory Stage Routing](.cg-docs/plans/2026-07-30-user-selected-model-advisory-routing.md)** · `plan` · _completed_ · `2026-07-30`
   > Replace Compound GPID's model-assignment execution policy with user-selected model and reasoning configuration on eve…
+- **[Review routing contract changes must update all entry points and coverage layers](.cg-docs/solutions/testing-patterns/2026-07-30-review-routing-contract-changes-must-update-all-entry-points-and-coverage-layers.md)** · `solution` · _—_ · `2026-07-30`
+  > The research-route rollout left three different review entry points out of sync: - `.github/shared/review-routing.con…
 - **[Trusted External Capability Adoption](.cg-docs/strategy/2026-07-30-trusted-external-capability-adoption.md)** · `strategy` · _—_ · `2026-07-30`
   > Compound GPID had completed the Canonical-to-Native Packaging Foundation on 2026-07-28. The completion was merged to …
 - **[User-selected execution with advisory model and effort routing](.cg-docs/brainstorms/2026-07-30-user-selected-model-advisory-routing.md)** · `brainstorm` · _decided_ · `2026-07-30`
   > <!-- Valid status values: decided, in-progress, abandoned -->
+
+## 2026-07-29
+
+- **[2026-07-29-cr-module-migration-to-v1-review](.cg-docs/reviews/2026-07-29-cr-module-migration-to-v1-review.md)** · `review` · _complete_ · `2026-07-29`
+  > 75 files committed in `feat(cr): port compound-research intellectual content from v0.10 branch` (commit `144066f`): 9…
+- **[Compound Research module migration from v0.10 branch to v1.0 main](.cg-docs/brainstorms/2026-07-29-cr-module-migration-to-v1.md)** · `brainstorm` · _decided_ · `2026-07-29`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[Compound Research module migration to v1.0](.cg-docs/plans/2026-07-29-cr-module-migration-to-v1.md)** · `plan` · _completed_ · `2026-07-29`
+  > Port the Compound Research (CR) module — 9 agents, 12 skills, 5 prompts, 2 instruction files, and associated .cg-docs…
+- **[CR agent model strings must use GPT-5.4 — Claude Opus violates catalog policy](.cg-docs/solutions/build-errors/2026-07-29-cr-agent-model-strings-must-use-gpt-catalog-compliant.md)** · `solution` · _—_ · `2026-07-29`
+  > When the Compound Research (CR) module was ported from the `compound-research` v0.10.2 branch onto `feat/compound-res…
+- **[Guard Get-Frontmatter at Context scope to prevent silent test-block crashes](.cg-docs/solutions/testing-patterns/2026-07-29-pester-context-scope-frontmatter-guard.md)** · `solution` · _—_ · `2026-07-29`
+  > In Pester 4 test files that loop over agent/prompt files and parse frontmatter inside a `Context` block, `Get-Frontma…
+- **[Use Get-ToolsList helper over regex for YAML tools-array assertions](.cg-docs/solutions/testing-patterns/2026-07-29-get-toolslist-over-tools-regex.md)** · `solution` · _—_ · `2026-07-29`
+  > Agent frontmatter files declare a `tools:` array. Tests often assert the presence or absence of specific tools using …
 
 ## 2026-07-28
 
@@ -570,10 +755,57 @@ _Generated 2026-09-08 · 497 artifacts (newest first) + 139 roadmap features_
 - **[urllib.request follows redirects and forwards Authorization headers](.cg-docs/solutions/bugs/2026-05-26-urllib-redirect-forwards-authorization-headers.md)** · `solution` · _—_ · `2026-05-26`
   > Python's `urllib.request.urlopen` follows HTTP 3xx redirects automatically by default. When the redirected request is…
 
+## 2026-05-22
+
+- **[2026-05-22-compound-research-phase6-writing-publication-review](.cg-docs/reviews/2026-05-22-compound-research-phase6-writing-publication-review.md)** · `review` · _triaged_ · `2026-05-22`
+  > **Date**: 2026-05-22 **Branch**: `compound-research` **Commits reviewed**: `2b54b1e` (Phase 6 implementation), `de52a…
+- **[2026-05-22-compound-research-phase6-writing-publication-review-2](.cg-docs/reviews/2026-05-22-compound-research-phase6-writing-publication-review-2.md)** · `review` · _triaged_ · `2026-05-22`
+  > **Scope**: Phase 6 review-triage changes (2nd pass standard review) **Changed files**: 8 files (7 modified, 1 untrack…
+- **[2026-05-22-compound-research-phase7-reproducibility-replication-review](.cg-docs/reviews/2026-05-22-compound-research-phase7-reproducibility-replication-review.md)** · `review` · _—_ · `2026-05-22`
+  > **Review depth**: thorough **Files reviewed**: 12 (3 new, 9 modified — Phase 7 uncommitted changes) **Agents dispatch…
+- **[2026-05-22-compound-research-phase7-reproducibility-replication-review-2](.cg-docs/reviews/2026-05-22-compound-research-phase7-reproducibility-replication-review-2.md)** · `review` · _—_ · `2026-05-22`
+  > Second review pass (standard depth) run after thorough review fixes were applied. All 12 findings from the first revi…
+- **[2026-05-22-compound-research-phase8-integration-docs-review](.cg-docs/reviews/2026-05-22-compound-research-phase8-integration-docs-review.md)** · `review` · _—_ · `2026-05-22`
+  > **Commit**: `c3b4d02` — `docs(compound-research): Phase 8 integration polish & documentation` **Files reviewed**: 9 (…
+- **[2026-05-22-compound-research-phase8-integration-docs-review-2](.cg-docs/reviews/2026-05-22-compound-research-phase8-integration-docs-review-2.md)** · `review` · _—_ · `2026-05-22`
+  > **Review depth**: standard (no `compound-gpid.local.md` — defaulted) **Commit**: `4212f5f` — `fix(compound-research):…
+- **[2026-05-22-compound-research-phase9-publication-output-agent-review](.cg-docs/reviews/2026-05-22-compound-research-phase9-publication-output-agent-review.md)** · `review` · _—_ · `2026-05-22`
+  > **Review depth**: thorough **Files reviewed**: 10 (Phase 9 commit `bffb918` — `.github/agents/cr-publication-output.a…
+- **[2026-05-22-compound-research-phase9-publication-output-agent-review-2](.cg-docs/reviews/2026-05-22-compound-research-phase9-publication-output-agent-review-2.md)** · `review` · _—_ · `2026-05-22`
+  > **Review depth**: standard **Files reviewed**: 10 (commit `5068fe2` — Phase 9 review findings applied) **Findings**: …
+- **[2026-05-22-install-stale-function-migration-review](.cg-docs/reviews/2026-05-22-install-stale-function-migration-review.md)** · `review` · _open_ · `2026-05-22`
+  > **Commit**: `91d4a8c` — `fix(install): strip stale cg-* function defs from shell profile on upgrade` **Branch**: `com…
+- **[Agent dispatched for multiple task types needs an explicit execution mode guard](.cg-docs/solutions/testing-patterns/2026-05-22-multi-task-type-agent-needs-execution-mode-guard.md)** · `solution` · _—_ · `2026-05-22`
+  > `cr-academic-writing.agent.md` was updated to run for both Writing and Tables/Figures task types. The dispatch table …
+- **[Bash heredoc with multi-line || { } compound command body is invalid syntax](.cg-docs/solutions/bugs/2026-05-22-bash-heredoc-multiline-compound-command-invalid-syntax.md)** · `solution` · _—_ · `2026-05-22`
+  > `scripts/link.sh` (and later `scripts/helpers.sh`) contained an error-trap pattern that appeared reasonable but was s…
+- **[Compound Research Phase 7: Reproducibility & Replication Package](.cg-docs/plans/2026-05-22-compound-research-phase7-reproducibility-replication.md)** · `plan` · _completed_ · `2026-05-22`
+  > Create the `cr-skill-replication-standards` skill and `@cr-replication-package` agent so that the Reproducibility tas…
+- **[Compound Research Phase 8: Integration Polish & Documentation](.cg-docs/plans/2026-05-22-compound-research-phase8-integration-docs.md)** · `plan` · _completed_ · `2026-05-22`
+  > Final integration pass for the compound-research milestone: update the project charter's Current Focus (research modu…
+- **[Hoist all expensive computation \(regex, transforms\) to outer scope — not just file reads](.cg-docs/solutions/testing-patterns/2026-05-22-pester-hoist-expensive-computation-to-outer-scope.md)** · `solution` · _—_ · `2026-05-22`
+  > The 2026-05-20 solution established that `Get-Content`/`Get-Frontmatter` should be hoisted to `Context`/`Describe` sc…
+- **[Phase 6: Writing & Publication Output](.cg-docs/plans/2026-05-22-compound-research-phase6-writing-publication.md)** · `plan` · _completed_ · `2026-05-22`
+  > Build the writing and publication layer of compound-research: two domain skills (`cr-skill-academic-writing`, `cr-ski…
+- **[Phase 9: Dedicated Tables/Figures Agent](.cg-docs/plans/2026-05-22-compound-research-phase9-publication-output-agent.md)** · `plan` · _completed_ · `2026-05-22`
+  > Create a dedicated `@cr-publication-output` review agent scoped to output-producing code (regression tables, descript…
+- **[Review criteria bullets must be placed in the domain section they belong to, not the adjacent section](.cg-docs/solutions/testing-patterns/2026-05-22-review-criteria-must-be-in-correct-domain-section.md)** · `solution` · _—_ · `2026-05-22`
+  > `cr-skill-publication-output/SKILL.md` was updated with Review Criteria callout boxes in Sections 5 and 6 (for use by…
+- **[Skill/agent forbidden-pattern tables must be kept in sync](.cg-docs/solutions/testing-patterns/2026-05-22-skill-agent-forbidden-pattern-table-must-be-kept-in-sync.md)** · `solution` · _—_ · `2026-05-22`
+  > `cr-replication-package.agent.md` Check 6 (Path Portability) was updated to flag parent-traversal paths (`../`) as P1…
+- **[Test that reimplements logic with correct code masks bugs in the actual code](.cg-docs/solutions/testing-patterns/2026-05-22-test-reimplements-logic-with-correct-code-masks-bug.md)** · `solution` · _—_ · `2026-05-22`
+  > `bash-scripts.Tests.ps1` had a test for the modules-substitution logic in `update.sh` that consistently passed — even…
+
 ## 2026-05-21
 
+- **[2026-05-20-compound-research-phase5-ml-economics-review-2](.cg-docs/reviews/2026-05-20-compound-research-phase5-ml-economics-review-2.md)** · `review` · _—_ · `2026-05-21`
+  > **Review depth**: standard **Commit reviewed**: `edf342b` — feat(compound-research): apply Phase 5 ML-economics revie…
 - **[2026-05-21-knowledge-brain-engine-review](.cg-docs/reviews/2026-05-21-knowledge-brain-engine-review.md)** · `review` · _—_ · `2026-05-21`
   > **Date**: 2026-05-21 **Branch**: `feat/knowledge-brain-engine` (PR #42) **Plan**: [2026-05-20-team-brain-batch-d](.cg…
+- **[Agent 'Flag as' format drift — incremental check additions leave old-format directives](.cg-docs/solutions/testing-patterns/2026-05-21-agent-flag-as-format-drift-whole-file-audit.md)** · `solution` · _—_ · `2026-05-21`
+  > After a Phase 5 review of `cr-ml-methodology.agent.md` and `cr-specification-analysis.agent.md`, a second standard re…
+- **[mice\(m=1\) is single imputation for ML prediction — not multiple imputation](.cg-docs/solutions/data-quality/2026-05-21-mice-m1-is-single-imputation-not-multiple.md)** · `solution` · _—_ · `2026-05-21`
+  > `cr-skill-ml-economics/SKILL.md` documented the preferred missing-data strategy for MAR data as "**Multiple imputatio…
 
 ## 2026-05-20
 
@@ -585,12 +817,20 @@ _Generated 2026-09-08 · 497 artifacts (newest first) + 139 roadmap features_
   > **Review depth**: thorough **Files reviewed**: 54 (22,718 insertions / 1,584 deletions vs main) **Primary scope**: `s…
 - **[2026-05-20-team-brain-batch-d-verify-review](.cg-docs/reviews/2026-05-20-team-brain-batch-d-verify-review.md)** · `review` · _—_ · `2026-05-20`
   > **Review depth**: light (verify mode) **Prior review**: `.cg-docs/reviews/2026-05-20-team-brain-batch-d-review.md` (4…
+- **[Agent step carve-outs must not contradict the global P0 deferral policy](.cg-docs/solutions/testing-patterns/2026-05-20-agent-step-carveout-must-not-contradict-global-deferral-policy.md)** · `solution` · _—_ · `2026-05-20`
+  > `cr-econometric-reasoning.agent.md` Step 4a contained: > "If you detect a code-math mismatch, **do NOT emit P0 here**…
 - **[Boundary-stop test layout: the guarded item must live ABOVE the stop marker, not at the same level](.cg-docs/solutions/testing-patterns/2026-05-20-boundary-stop-test-must-place-config-above-stop-marker.md)** · `solution` · _—_ · `2026-05-20`
   > A test for `_find_local_config()` was written to verify that the function stops walking up the directory tree when it…
+- **[Compound Research — Phase 5: ML in Economics](.cg-docs/plans/2026-05-20-compound-research-phase5-ml-economics.md)** · `plan` · _complete_ · `2026-05-20`
+  > Create the ML domain-knowledge skill and two new research agents that give the research module ML/Prediction and Spec…
+- **[Hoist Get-Content/Get-Frontmatter to Context scope — not inside It blocks](.cg-docs/solutions/testing-patterns/2026-05-20-pester-hoist-file-reads-to-context-scope.md)** · `solution` · _—_ · `2026-05-20`
+  > Tests for a single file repeated the file read inside every `It` block: A Context block with 10 `It` tests performs 1…
 - **[Knowledge Brain Read Path — Batch C](.cg-docs/plans/2026-05-20-knowledge-brain-read-path-batch-c.md)** · `plan` · _completed_ · `2026-05-20`
   > Wire the brain read path so that every major command consults `.cg-docs/BRAIN.md` before acting, surfacing relevant i…
 - **[Knowledge Brain Read Path — Batch C Design](.cg-docs/brainstorms/2026-05-20-knowledge-brain-read-path-batch-c.md)** · `brainstorm` · _decided_ · `2026-05-20`
   > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[optim\(\) returns Hessian of negative log-likelihood — must be positive-definite at solution](.cg-docs/solutions/bugs/2026-05-20-optim-hessian-returns-negative-ll-hessian-must-be-positive-definite.md)** · `solution` · _—_ · `2026-05-20`
+  > A structural econometrics skill document stated: > "At a maximum, the Hessian of the log-likelihood must be **negativ…
 - **[Python: str.startswith\(\) for path containment allows sibling-directory bypass — use relative_to\(\)](.cg-docs/solutions/bugs/2026-05-20-python-path-startswith-bypass-use-relative-to.md)** · `solution` · _—_ · `2026-05-20`
   > `brain.scanner` contained a symlink escape guard intended to reject files whose resolved path lay outside `.cg-docs/`…
 - **[Security fix helpers written but never called from the protected call site](.cg-docs/solutions/bugs/2026-05-20-fix-helper-written-but-not-wired-into-call-site.md)** · `solution` · _—_ · `2026-05-20`
@@ -599,6 +839,8 @@ _Generated 2026-09-08 · 497 artifacts (newest first) + 139 roadmap features_
   > Batch D of the Knowledge Brain milestone (per `.cg-docs/strategy/2026-05-19-knowledge-brain.md`). Builds on the compl…
 - **[Team Brain \(Phase 2\) — Batch D implementation](.cg-docs/plans/2026-05-20-team-brain-batch-d.md)** · `plan` · _completed_ · `2026-05-20`
   > Build the cross-project knowledge sharing system for compound-gpid. When a user captures a solution via `/cg-compound…
+- **[Welfare column guard must check existence, NA, and positivity in order](.cg-docs/solutions/data-quality/2026-05-20-welfare-column-three-step-guard-existence-na-positivity.md)** · `solution` · _—_ · `2026-05-20`
+  > A welfare validation guard in a research EDA skill read: This has two silent failure modes: 1. **NA values silently b…
 
 ## 2026-05-19
 
@@ -660,6 +902,8 @@ _Generated 2026-09-08 · 497 artifacts (newest first) + 139 roadmap features_
 
 - **[2026-05-15-auto-generated-project-wiki-verify-review](.cg-docs/reviews/2026-05-15-auto-generated-project-wiki-verify-review.md)** · `review` · _—_ · `2026-05-15`
   > **Review depth**: light (forced by mode:verify) **Files reviewed**: 19 (12 modified, 7 new) **Mode**: mode:verify **P…
+- **[2026-05-15-compound-research-fix-commit-review](.cg-docs/reviews/2026-05-15-compound-research-fix-commit-review.md)** · `review` · _—_ · `2026-05-15`
+  > **Date**: 2026-05-15 **Branch**: `compound-research` **Commit**: `73e9c62` — fix(compound-research): apply phase 4 th…
 - **[Auto-generated project wiki](.cg-docs/plans/2026-05-15-auto-generated-project-wiki.md)** · `plan` · _completed_ · `2026-05-15`
   > Build a dedicated `@cg-wiki` agent and supporting infrastructure that creates and maintains a user-facing project wik…
 - **[Auto-generated project wiki \(created at /cg-setup, updated at /cg-compound\)](.cg-docs/brainstorms/2026-05-15-auto-generated-project-wiki.md)** · `brainstorm` · _decided_ · `2026-05-15`
@@ -681,10 +925,28 @@ _Generated 2026-09-08 · 497 artifacts (newest first) + 139 roadmap features_
 
 - **[2026-05-14-commit-push-pr-and-verify-pr-verify-review](.cg-docs/reviews/2026-05-14-commit-push-pr-and-verify-pr-verify-review.md)** · `review` · _—_ · `2026-05-14`
   > **Mode**: verification (following fix-triage on prior review) **Parent review**: `.cg-docs/reviews/2026-05-14-commit-…
+- **[2026-05-14-compound-research-phase1-phase2-review](.cg-docs/reviews/2026-05-14-compound-research-phase1-phase2-review.md)** · `review` · _fixed_ · `2026-05-14`
+  > **Plan**: [2026-05-14-compound-research-phase1-phase2.md](../plans/2026-05-14-compound-research-phase1-phase2.md) **R…
+- **[2026-05-14-compound-research-phase3-agents-review](.cg-docs/reviews/2026-05-14-compound-research-phase3-agents-review.md)** · `review` · _—_ · `2026-05-14`
+  > **Review depth**: standard **Files reviewed**: 9 **Findings**: 23 (P0: 0, P1: 7, P2: 11, P3: 5)
+- **[2026-05-14-compound-research-phase3-agents-thorough-review](.cg-docs/reviews/2026-05-14-compound-research-phase3-agents-thorough-review.md)** · `review` · _—_ · `2026-05-14`
+  > **Scope**: `.github/agents/cr-*.agent.md` (4 new), `.github/prompts/cr-review.prompt.md` (modified), `docs/model-guid…
 - **[Classification steps must exhaustively cover all enum values with terminal actions](.cg-docs/solutions/testing-patterns/2026-05-14-classification-step-must-exhaustively-cover-enum-values.md)** · `solution` · _—_ · `2026-05-14`
   > A prompt step that classifies input into one of N categories must provide a terminal action (halt or proceed) for eve…
 - **[Commit-push-PR and verify-PR commands](.cg-docs/brainstorms/2026-05-14-commit-push-pr-and-verify-pr-commands.md)** · `brainstorm` · _decided_ · `2026-05-14`
   > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[Compound Research roadmap structuring](.cg-docs/strategy/2026-05-14-compound-research-roadmap.md)** · `strategy` · _—_ · `2026-05-14`
+  > The compound-research brainstorm (2026-05-13) produced a comprehensive Deep-scope design for extending compound-gpid …
+- **[Compound Research — Phase 1 \(Module System\) & Phase 2 \(Research Workflow Scaffolding\)](.cg-docs/plans/2026-05-14-compound-research-phase1-phase2.md)** · `plan` · _completed_ · `2026-05-14`
+  > Build the foundation for compound-research: a module-tagging system that lets projects opt into engineering, research…
+- **[Compound Research — Phase 3: Core Research Agents](.cg-docs/plans/2026-05-14-compound-research-phase3-agents.md)** · `plan` · _completed_ · `2026-05-14`
+  > Create the four core research agents (`@cr-research-integrity`, `@cr-mathematical-verification`, `@cr-identification-…
+- **[Compound Research — Phase 4: Structural Econometrics Skills](.cg-docs/plans/2026-05-14-compound-research-phase4-skills.md)** · `plan` · _completed_ · `2026-05-14`
+  > Create the six domain-knowledge skills and two instruction files that give the research module its econometric depth.…
+- **[Depth-restricted review modes silently bypass domain-specific agents — add forced-dispatch exception for open P0s](.cg-docs/solutions/testing-patterns/2026-05-14-depth-restricted-mode-bypasses-domain-agents-need-forced-dispatch-exception.md)** · `solution` · _—_ · `2026-05-14`
+  > `/cg-review mode:verify` was designed to terminate the fix-review cycle: it runs a `light` depth pass (only `@cg-code…
+- **[Dispatch table driven by a taxonomy must cover all taxonomy entries — missing rows fall through to wrong default](.cg-docs/solutions/testing-patterns/2026-05-14-dispatch-table-must-cover-all-taxonomy-entries.md)** · `solution` · _—_ · `2026-05-14`
+  > `cr-review.prompt.md` Step 3 contained a dispatch table routing task types to research agents: `cr-skill-research-wor…
 - **[gh pr create: use --body-file not inline --body to prevent shell injection](.cg-docs/solutions/git-workflows/2026-05-14-gh-pr-create-use-body-file-not-inline-body.md)** · `solution` · _—_ · `2026-05-14`
   > A prompt using `gh pr create --title "..." --body "<plan content>"` passes the PR body inline on the command line. Wh…
 - **[git log without --first-parent double-counts upstream merge commits when measuring branch-local work](.cg-docs/solutions/git-workflows/2026-05-14-git-log-first-parent-for-branch-local-commits.md)** · `solution` · _—_ · `2026-05-14`
@@ -695,12 +957,18 @@ _Generated 2026-09-08 · 497 artifacts (newest first) + 139 roadmap features_
   > Workflow Maturity milestone nearly complete (5/7 done). v0.10.3 just released with CI bypass flags and E2E smoke test…
 - **[Prompt injection via LLM-authored plan content embedded in AI-generated output](.cg-docs/solutions/testing-patterns/2026-05-14-prompt-injection-via-plan-content-in-ai-generated-output.md)** · `solution` · _—_ · `2026-05-14`
   > A prompt reads a plan file's `## Objective` section and embeds it verbatim into AI-generated output (e.g., a PR body,…
+- **[Python regex raw-string double-backslash silently excludes literal letters](.cg-docs/solutions/bugs/2026-05-14-python-regex-raw-string-double-backslash-excludes-letters.md)** · `solution` · _—_ · `2026-05-14`
+  > `extract_fm_value` in `scripts/link.sh` silently returned `''` (empty string) for any YAML frontmatter value containi…
 - **[Sibling-prompt symmetry: apply guard fixes to all prompts with the same operation](.cg-docs/solutions/testing-patterns/2026-05-14-sibling-prompt-symmetry-guard-audit.md)** · `solution` · _—_ · `2026-05-14`
   > When a P1 review finding adds a guard to prompt A (e.g., "exit-code check after `git add`"), the fix is scoped to tha…
 - **[Two new workflow commands: /cg-commit-push-pr and /cg-verify-pr](.cg-docs/plans/2026-05-14-commit-push-pr-and-verify-pr.md)** · `plan` · _completed_ · `2026-05-14`
   > Create two new plugin-level `.prompt.md` commands distributed to all consumer projects: 1. `/cg-commit-push-pr` — Ana…
 - **[Write-permission mode flags must be parsed before any tool dispatch, not deferred to a later step](.cg-docs/solutions/testing-patterns/2026-05-14-write-permission-flags-must-be-parsed-before-tool-dispatch.md)** · `solution` · _—_ · `2026-05-14`
   > A prompt's File Permissions block declared: > `--propose` mode: READ-only — no file creation, modification, git commi…
+- **[YAML frontmatter allowlist validation pattern for module/config fields](.cg-docs/solutions/data-quality/2026-05-14-yaml-frontmatter-allowlist-validation-pattern.md)** · `solution` · _—_ · `2026-05-14`
+  > `scripts/helpers.ps1` and `scripts/link.sh` both extracted `modules:` from `compound-gpid.local.md` and passed any st…
+- **[Zero-byte/near-empty files bypass graceful-skip guards and produce false-negative clean results in scan agents](.cg-docs/solutions/bugs/2026-05-14-empty-file-bypasses-graceful-skip-produces-false-negative.md)** · `solution` · _—_ · `2026-05-14`
+  > Scan agents in this project use a graceful-skip pattern: The gap: graceful-skip is triggered by **absence** (`no file…
 
 ## 2026-05-13
 
@@ -712,6 +980,8 @@ _Generated 2026-09-08 · 497 artifacts (newest first) + 139 roadmap features_
   > Running `cg-link` on a new empty project completed the symlink/junction setup but then prompted to build the knowledg…
 - **[CI bypass flag pattern: \[switch\]$Force / --yes for interactive scripts](.cg-docs/solutions/testing-patterns/2026-05-13-ci-bypass-flag-force-yes-interactive-scripts.md)** · `solution` · _—_ · `2026-05-13`
   > PowerShell scripts (`link.ps1`, `unlink.ps1`) and bash scripts (`link.sh`, `unlink.sh`) contain interactive confirmat…
+- **[Compound Research — extension of compound-gpid for economics & econometrics research](.cg-docs/brainstorms/2026-05-13-compound-research-extension.md)** · `brainstorm` · _decided_ · `2026-05-13`
+  > The existing `compound-gpid` plugin gives data science teams a structured AI-assisted workflow (Brainstorm → Plan → W…
 - **[Cross-script parity tests: keeping ps1 and sh scripts in sync](.cg-docs/solutions/testing-patterns/2026-05-13-cross-script-parity-tests-ps1-sh.md)** · `solution` · _—_ · `2026-05-13`
   > `link.ps1` and `link.sh` (and `unlink.ps1` / `unlink.sh`) must produce equivalent behaviour on Windows and macOS. Whe…
 - **[E2E smoke test in GitHub Actions with safe Windows junction teardown](.cg-docs/solutions/git-workflows/2026-05-13-e2e-smoke-test-github-actions-windows-junction-teardown.md)** · `solution` · _—_ · `2026-05-13`
@@ -1214,7 +1484,7 @@ _Generated 2026-09-08 · 497 artifacts (newest first) + 139 roadmap features_
   > On WBG enterprise machines, calling `[Environment]::GetEnvironmentVariable` or `[Environment]::SetEnvironmentVariable…
 - **[Fix CLM/OneDrive profile dot-source error](.cg-docs/brainstorms/2026-03-13-clm-onedrive-install-fix.md)** · `brainstorm` · _decided_ · `2026-03-13`
   > After a OneDrive Documents folder redirection was pushed to World Bank machines, `$PROFILE` now resolves to an OneDri…
-- **[Fix CLM/OneDrive profile dot-source error — batch wrappers + C:\\WBG install](.cg-docs/plans/2026-03-13-clm-onedrive-install-fix.md)** · `plan` · _completed_ · `2026-03-13`
+- **[Fix CLM/OneDrive profile dot-source error — batch wrappers + C:\WBG install](.cg-docs/plans/2026-03-13-clm-onedrive-install-fix.md)** · `plan` · _completed_ · `2026-03-13`
   > Replace the broken `$PROFILE`-based command registration with `.cmd` batch wrappers on PATH, and change the default i…
 - **[Regression test for try/catch control-flow guards when script cannot be executed](.cg-docs/solutions/testing-patterns/2026-03-13-regression-test-trycatch-guard-clm-environment.md)** · `solution` · _—_ · `2026-03-13`
   > A PS5.1 bug (`ErrorActionPreference=Stop` promoting git stderr to a terminating error) was fixed in `update.ps1` by w…
@@ -1271,6 +1541,10 @@ _Generated 2026-09-08 · 497 artifacts (newest first) + 139 roadmap features_
 
 ## Roadmap Features
 
+- **[Active-manifest install/update and cross-platform parity matrix](roadmap.json#active-manifest-install-update-parity-matrix)** · `feature` · _planned_ · `—`
+  > Active-manifest install/update and cross-platform parity matrix
+- **[Generate platform adapters from the active manifest](roadmap.json#active-manifest-platform-adapters)** · `feature` · _planned_ · `—`
+  > Generate platform adapters from the active manifest
 - **[Adding hooks to streamline process](roadmap.json#adding-hooks-to-streamline-process)** · `feature` · _idea_ · `—`
   > Adding hooks to streamline process
 - **[Update custom agents for model and tool governance](roadmap.json#agent-model-tool-governance)** · `feature` · _idea_ · `—`
@@ -1287,7 +1561,9 @@ _Generated 2026-09-08 · 497 artifacts (newest first) + 139 roadmap features_
   > Auto-triggered skills via expanded applyTo hook patterns [from SP]
 - **[Auto-update Current Focus when a milestone completes \(/cg-work or /cg-resume detects staleness\)](roadmap.json#auto-update-current-focus-on-milestone-completion)** · `feature` · _done_ · `—`
   > Auto-update Current Focus when a milestone completes (/cg-work or /cg-resume detects staleness)
-- **[Automatic post-PR CI verification and universal PR targeting](roadmap.json#automatic-post-pr-verification-handoff)** · `feature` · _idea_ · `—`
+- **[Automated Documentation Deployment and What's New Page](roadmap.json#automated-documentation-deployment-and-whats-new-page)** · `feature` · _active_ · `—`
+  > Automated Documentation Deployment and What's New Page
+- **[Automatic post-PR CI verification and universal PR targeting](roadmap.json#automatic-post-pr-verification-handoff)** · `feature` · _done_ · `—`
   > Automatic post-PR CI verification and universal PR targeting
 - **[Autonomous pipeline command /cg-autopilot \(blocked on workflow research + hooks evaluation\)](roadmap.json#autonomous-pipeline-autopilot)** · `feature` · _idea_ · `—`
   > Autonomous pipeline command /cg-autopilot (blocked on workflow research + hooks evaluation)
@@ -1317,6 +1593,8 @@ _Generated 2026-09-08 · 497 artifacts (newest first) + 139 roadmap features_
   > Generic Markdown publishing skill and deterministic HTML views
 - **[Canonical-to-Native Packaging Foundation](roadmap.json#canonical-to-native-packaging-foundation)** · `feature` · _done_ · `—`
   > Canonical-to-Native Packaging Foundation
+- **[Capability profiles and active project-manifest resolution](roadmap.json#capability-profile-manifest-resolution)** · `feature` · _planned_ · `—`
+  > Capability profiles and active project-manifest resolution
 - **[CE-inspired improvements integration \(P0 severity, new prompts, smart workflows\)](roadmap.json#ce-improvements-integration)** · `feature` · _done_ · `—`
   > CE-inspired improvements integration (P0 severity, new prompts, smart workflows)
 - **[/cg-commit-push-pr — logical commit splitting, push, and PR creation](roadmap.json#cg-commit-push-pr)** · `feature` · _done_ · `—`
@@ -1349,18 +1627,38 @@ _Generated 2026-09-08 · 497 artifacts (newest first) + 139 roadmap features_
   > Command default behaviors (auto-branch, phases, autofix, context enrichment)
 - **[Compound workflow contract and .cg-docs/workflows/ schema](roadmap.json#compound-workflow-contract)** · `feature` · _idea_ · `—`
   > Compound workflow contract and .cg-docs/workflows/ schema
+- **[Context-budget enforcement design](roadmap.json#context-budget-enforcement-design)** · `feature` · _planned_ · `—`
+  > Context-budget enforcement design
 - **[Conversation audit trail across workflow stages](roadmap.json#conversation-audit-trail)** · `feature` · _idea_ · `—`
   > Conversation audit trail across workflow stages
 - **[Copilot CLI execution with worktrees \(Model C\)](roadmap.json#copilot-cli-model-c-execution)** · `feature` · _idea_ · `—`
   > Copilot CLI execution with worktrees (Model C)
 - **[copilot-instructions.md restructuring \(blocked on hooks evaluation\)](roadmap.json#copilot-instructions-restructuring)** · `feature` · _idea_ · `—`
   > copilot-instructions.md restructuring (blocked on hooks evaluation)
+- **[CR asset classification mapping](roadmap.json#cr-asset-classification-mapping)** · `feature` · _planned_ · `—`
+  > CR asset classification mapping
+- **[CR evidence and provenance spine with repo-local corpus default](roadmap.json#cr-evidence-provenance-spine)** · `feature` · _done_ · `—`
+  > CR evidence and provenance spine with repo-local corpus default
+- **[CR Measurement/Classification research archetype](roadmap.json#cr-measurement-classification-archetype)** · `feature` · _done_ · `—`
+  > CR Measurement/Classification research archetype
+- **[P0 comparability controls for measurement and indicator work](roadmap.json#cr-measurement-comparability-controls)** · `feature` · _done_ · `—`
+  > P0 comparability controls for measurement and indicator work
+- **[Responsible lifecycle and method-pack retrofit](roadmap.json#cr-responsible-lifecycle-method-packs)** · `feature` · _done_ · `—`
+  > Responsible lifecycle and method-pack retrofit
+- **[Research scoping and normative-decision gates](roadmap.json#cr-scoping-and-normative-gates)** · `feature` · _done_ · `—`
+  > Research scoping and normative-decision gates
+- **[Validate the Measurement archetype with a second use case](roadmap.json#cr-second-measurement-use-case-validation)** · `feature` · _idea_ · `—`
+  > Validate the Measurement archetype with a second use case
+- **[Team-level evidence library](roadmap.json#cr-team-evidence-library)** · `feature` · _idea_ · `—`
+  > Team-level evidence library
 - **[Cross-model review — adversarial model diversity](roadmap.json#cross-model-adversarial-review)** · `feature` · _idea_ · `—`
   > Cross-model review — adversarial model diversity
 - **[Append-only DECISIONS.md register for methodology and architecture choices \[from GSD\]](roadmap.json#decisions-register)** · `feature` · _idea_ · `—`
   > Append-only DECISIONS.md register for methodology and architecture choices [from GSD]
 - **[Dual-audience Brainstorm and Plan artifacts with human-readable HTML](roadmap.json#dual-audience-brainstorm-and-plan-artifacts-with-human-readable-html)** · `feature` · _done_ · `—`
   > Dual-audience Brainstorm and Plan artifacts with human-readable HTML
+- **[Dual-Deployment: Dev Branch Docs at /dev/](roadmap.json#dual-deployment-dev-branch-docs-at-dev)** · `feature` · _idea_ · `—`
+  > Dual-Deployment: Dev Branch Docs at /dev/
 - **[.cg-docs/evals/ scaffold with probe-and-check pairs](roadmap.json#evals-scaffold)** · `feature` · _idea_ · `—`
   > .cg-docs/evals/ scaffold with probe-and-check pairs
 - **[Evaluate GitHub Copilot hooks for compound-gpid](roadmap.json#evaluate-copilot-hooks)** · `feature` · _idea_ · `—`
@@ -1391,6 +1689,12 @@ _Generated 2026-09-08 · 497 artifacts (newest first) + 139 roadmap features_
   > Include /ce:ideate-style prompt from compound-engineering-plugin
 - **[Inline self-review checklist at end of /cg-brainstorm and /cg-plan \[from SP\]](roadmap.json#inline-self-review-brainstorm-plan)** · `feature` · _idea_ · `—`
   > Inline self-review checklist at end of /cg-brainstorm and /cg-plan [from SP]
+- **[Narrow mandatory base capabilities with generated enforcement](roadmap.json#mandatory-base-capabilities-generated-enforcement)** · `feature` · _planned_ · `—`
+  > Narrow mandatory base capabilities with generated enforcement
+- **[Manifest-backed skills discovery catalog and /cg-skills](roadmap.json#manifest-backed-skills-discovery-catalog)** · `feature` · _idea_ · `—`
+  > Manifest-backed skills discovery catalog and /cg-skills
+- **[Fail-closed manifest and skill-integrity validation](roadmap.json#manifest-integrity-fail-closed-validation)** · `feature` · _planned_ · `—`
+  > Fail-closed manifest and skill-integrity validation
 - **[Add mattpocock/skills to competitive review sources](roadmap.json#mattpocock-skills-review-source)** · `feature` · _idea_ · `—`
   > Add mattpocock/skills to competitive review sources
 - **[Minimal adaptive grilling for the Compound GPID workflow](roadmap.json#minimal-adaptive-grilling-for-the-compound-gpid-workflow)** · `feature` · _idea_ · `—`
@@ -1401,6 +1705,8 @@ _Generated 2026-09-08 · 497 artifacts (newest first) + 139 roadmap features_
   > Model-split pattern for other prompts (Haiku scan + Sonnet draft)
 - **[Define model tiers and escalation rules](roadmap.json#model-tier-definitions)** · `feature` · _idea_ · `—`
   > Define model tiers and escalation rules
+- **[Modular Compound GPID architecture for technical and research suites](roadmap.json#modular-compound-gpid-architecture-for-technical-and-research-suites)** · `feature` · _done_ · `—`
+  > Modular Compound GPID architecture for technical and research suites
 - **[Multi-folder workspace awareness in copilot-instructions.md and prompts](roadmap.json#multi-folder-workspace-awareness)** · `feature` · _done_ · `—`
   > Multi-folder workspace awareness in copilot-instructions.md and prompts
 - **[Onboarding tour prompt /cg-tour \(guided workflow walkthrough\)](roadmap.json#onboarding-tour-prompt)** · `feature` · _idea_ · `—`
@@ -1421,6 +1727,8 @@ _Generated 2026-09-08 · 497 artifacts (newest first) + 139 roadmap features_
   > Planning-stage test strategy + human review facilitation
 - **[PR verification pipeline \(E2E smoke tests, parity checks, CONTRIBUTING.md\)](roadmap.json#pr-verification-pipeline)** · `feature` · _done_ · `—`
   > PR verification pipeline (E2E smoke tests, parity checks, CONTRIBUTING.md)
+- **[Project-authored skills](roadmap.json#project-authored-skills)** · `feature` · _idea_ · `—`
+  > Project-authored skills
 - **[compound-gpid.context.md file and Step 0 integration in all prompts](roadmap.json#project-context-file)** · `feature` · _done_ · `—`
   > compound-gpid.context.md file and Step 0 integration in all prompts
 - **[Project scanner agent for deep project analysis](roadmap.json#project-scanner-agent)** · `feature` · _done_ · `—`
@@ -1435,10 +1743,14 @@ _Generated 2026-09-08 · 497 artifacts (newest first) + 139 roadmap features_
   > Update prompt frontmatter model and agent choices
 - **[Split large prompts into thin entrypoints and on-demand skills](roadmap.json#prompt-skill-split)** · `feature` · _idea_ · `—`
   > Split large prompts into thin entrypoints and on-demand skills
+- **[Quarantined external-skill vendoring workflow](roadmap.json#quarantined-external-skill-vendoring)** · `feature` · _active_ · `—`
+  > Quarantined external-skill vendoring workflow
 - **[R dialect skills architecture \(collapse, data.table, tidyverse\)](roadmap.json#r-dialect-skills-architecture)** · `feature` · _done_ · `—`
   > R dialect skills architecture (collapse, data.table, tidyverse)
 - **[Reduce token cost via prompt prose compression and Step 0 dedup](roadmap.json#reduce-token-cost-late-sequence-content)** · `feature` · _done_ · `—`
   > Reduce token cost via prompt prose compression and Step 0 dedup
+- **[Rename repository review command and add registry management flags](roadmap.json#rename-repository-review-command-and-add-registry-management-flags)** · `feature` · _done_ · `—`
+  > Rename repository review command and add registry management flags
 - **[Make review cheaper with deterministic checks first](roadmap.json#review-deterministic-first)** · `feature` · _idea_ · `—`
   > Make review cheaper with deterministic checks first
 - **[Per-finding status tracking in review files](roadmap.json#review-finding-status-tracking)** · `feature` · _done_ · `—`
@@ -1453,6 +1765,8 @@ _Generated 2026-09-08 · 497 artifacts (newest first) + 139 roadmap features_
   > Roadmap visualization agent + /cg-roadmap-view prompt
 - **[Runtime model-catalog introspection across platforms](roadmap.json#runtime-model-catalog-introspection-across-platforms)** · `feature` · _idea_ · `—`
   > Runtime model-catalog introspection across platforms
+- **[Scalable Skill Management Suite](roadmap.json#scalable-skill-management-suite)** · `feature` · _done_ · `—`
+  > Scalable Skill Management Suite
 - **[Schema bypass for compound-gpid repo in /cg-resume](roadmap.json#schema-bypass-in-cg-resume)** · `feature` · _done_ · `—`
   > Schema bypass for compound-gpid repo in /cg-resume
 - **[Consent-based handoff from /cg-setup to /cg-workflow-builder](roadmap.json#setup-workflow-builder-handoff)** · `feature` · _idea_ · `—`
@@ -1513,6 +1827,8 @@ _Generated 2026-09-08 · 497 artifacts (newest first) + 139 roadmap features_
   > Audit current context and model usage
 - **[Benchmark before and after](roadmap.json#token-benchmark-before-after)** · `feature` · _idea_ · `—`
   > Benchmark before and after
+- **[Token Efficiency vs modular priority resolution](roadmap.json#token-efficiency-vs-modular-priority-resolution)** · `feature` · _planned_ · `—`
+  > Token Efficiency vs modular priority resolution
 - **[Capture the learning](roadmap.json#token-optimization-compound)** · `feature` · _idea_ · `—`
   > Capture the learning
 - **[User-selected execution with advisory model and effort routing](roadmap.json#user-selected-execution-with-advisory-model-and-effort-routing)** · `feature` · _done_ · `—`

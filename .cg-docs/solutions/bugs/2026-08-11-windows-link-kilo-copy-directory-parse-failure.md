@@ -114,3 +114,19 @@ copies with markers, and all 17 agents pass frontmatter validation.
 - `.cg-docs/solutions/testing-patterns/2026-03-04-pester-testdrive-follows-junctions-freezes-vscode.md` — Pester `$TestDrive` junction-teardown hazard (AfterAll/AfterEach non-recursive cleanup)
 - `.cg-docs/solutions/testing-patterns/2026-04-02-invoke-pester-full-suite-passthru-crashes-vscode.md` — never pipeline Pester `-PassThru`; use the canonical runner
 - Upstream: Kilo issue #12391 / PR #12846 — external-directory symlink agent loading regression
+
+## 2026-08-20 Addendum: Cross-Adapter Auto-Discovery
+
+This fix remains correct for native `.kilo/*` units but was not sufficient when
+Codex and Kilo were installed together. Kilo also auto-discovers
+`.agents/skills`, so Codex's intentional external `link-directory` still crossed
+Kilo's project markdown boundary even though `.kilo/skills` was a real copy.
+
+The follow-up
+`.cg-docs/solutions/bugs/2026-08-20-kilo-cross-adapter-skill-autodiscovery.md`
+complements this solution by keeping `.agents/skills` linked while redirecting
+it to an adapter-specific managed mirror inside the consumer project. It does
+not supersede the Kilo `copy-directory` strategy; the local `.kilo/skills` copy
+and its marker remain required. That follow-up also brought the POSIX linker to
+the same checksum-preserving managed-copy contract instead of wholesale
+overwriting user edits.

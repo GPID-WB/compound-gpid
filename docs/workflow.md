@@ -8,6 +8,28 @@ this page when you need the full contract.
 
 ---
 
+## Modular Suites
+
+Compound GPID has two independent workflow suites over a shared kernel and
+capability layer:
+
+| Task | Suite | Entry points |
+|---|---|---|
+| Technical delivery, infrastructure, bugs, and code review | `cg` | `/cg-brainstorm`, `/cg-plan`, `/cg-work`, `/cg-review`, `/cg-compound` |
+| Research scoping, methods, evidence, replication, and publication | `cr` | `/cr-brainstorm`, `/cr-plan`, `/cr-work`, `/cr-review`, `/cr-compound` |
+
+Select them with `suites: [cg]`, `suites: [cr]`, or `suites: [cg, cr]` in
+`compound-gpid.local.md`. Missing `suites:` defaults to `[cg]`. Research tasks
+reuse shared language, review, and output capabilities but do not route through
+the technical command suite. See the [Modular Guide](modular-guide.md) for the
+registry, dependency, context-budget, and extension contracts.
+
+The research loop follows `Scope -> Evidence -> Theory -> Method -> Execute ->
+Verify -> Communicate -> Maintain`; `/cr-review` is its task-aware review entry
+point.
+
+---
+
 ## The Loop
 
 ```
@@ -19,13 +41,13 @@ Resume (re-entry at any stage)
 Roadmap View (read-only snapshot at any stage)
 ```
 
-All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are not interactive commands** — invoke a prompt, answer its questions when asked, and let it run to completion.
+The diagram shows the technical `/cg-*` loop. Research projects use the parallel
+`/cr-*` loop above. **Prompts are not interactive commands** — invoke a prompt,
+answer its questions when asked, and let it run to completion.
 
-> **Codex / Claude Code note**: The plugin is designed for GitHub Copilot. When
-> this repository is maintained from Codex or Claude Code, root `AGENTS.md`
-> provides a compatibility adapter that maps `/cg-*` requests to the matching
-> `.github/prompts/cg-*.prompt.md` file. That adapter is not part of Copilot's
-> runtime behavior.
+> **Native target note**: `.github/` is canonical for GitHub Copilot. Generated
+> `.claude/`, `.agents/`, `.opencode/`, and `.kilo/` trees provide native command,
+> skill, agent, instruction, and shared-contract layouts for the other hosts.
 
 > **Project Charter** (`compound-gpid.md`): Before any workflow step, Copilot reads your
 > project's charter to understand objective, deliverables, constraints, and current focus.
@@ -43,10 +65,10 @@ All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are n
 
 **When to use**:
 - The first time you use Compound GPID in a new project
-- When you want to update language preferences, project type, or review depth
+- When you want to update language preferences, project type, review depth, or active suites
 - When re-entering an existing project that has no `compound-gpid.md` or `compound-gpid.local.md`
 
-**What happens**: Creates `compound-gpid.md` (the project charter), `compound-gpid.local.md` (your team-shared config), and `compound-gpid.context.md` (a growing knowledge base for project-specific facts). Walks you through setting the project objective, language, project type, and review depth. Scaffolds the `.cg-docs/` directory structure (`brainstorms/`, `plans/`, `reviews/`, `strategy/`, `solutions/`, `archive/`). The `cost/` subdirectory is created automatically on the first run of the context/model audit script. The `inbox/` subdirectory is created manually as a holding area for unprocessed strategy ideas.
+**What happens**: Creates `compound-gpid.md` (the project charter), `compound-gpid.local.md` (your team-shared config), and `compound-gpid.context.md` (a growing knowledge base for project-specific facts). Walks you through setting the project objective, language, project type, review depth, and `suites:` selection. Scaffolds the `.cg-docs/` directory structure (`brainstorms/`, `plans/`, `reviews/`, `strategy/`, `solutions/`, `archive/`) plus research artifact directories when `cr` is active. The `cost/` subdirectory is created automatically on the first run of the context/model audit script. The `inbox/` subdirectory is created manually as a holding area for unprocessed strategy ideas.
 
 Mode A (first run or no config) opens with a **pre-flight health check** that silently verifies all four managed directories (`.github/prompts/`, `.github/skills/`, `.github/agents/`, `.github/instructions/`) are accessible. If any are missing the prompt stops immediately with a `cg-link` remediation message. Then `@cg-project-scanner` scans the file tree and infers language, project type, and charter-draft content from signals like `renv.lock`, `pyproject.toml`, `.do` files, and `README.md`. High-confidence detections are applied silently; medium-confidence ones are pre-filled and shown for confirmation; only genuinely unknown fields are asked. The scanner draft is displayed in a fenced code block with three options: approve as-is, walk through section by section, or start from scratch.
 
@@ -944,10 +966,10 @@ check the Copilot UI if that identity matters.
 
 **When to use**: After completing and compounding a milestone, when you are ready to publish a new version of compound-gpid to GitHub.
 
-**What happens**: Detects the latest git tag, analyzes commits since then to suggest the next semver version, reads `.cg-docs/` entries dated after the last release to draft curated release notes, checks `SCHEMA_VERSION` for structural migration warnings, presents a confirmation summary, and runs `create-release.ps1` to publish to GitHub.
+**What happens**: Reads the latest durable release payload, analyzes commits since its exact tag to suggest the next semver version, reads `.cg-docs/` entries dated after the last release to draft curated release notes, checks `SCHEMA_VERSION` for structural migration warnings, presents a confirmation summary, and runs `create-release.ps1` to publish to GitHub. Maintainers can supply an exact stable tag (`/cg-release v1.3.0`) from `main` or a four-component test-release tag (`/cg-release v1.2.0.9008`) directly from `dev`. Four-component tags are always GitHub prereleases. Tag documentation builds without Pages credentials, then a protected-main workflow verifies and deploys the prebuilt artifact before the API record is created. `--resume` follows the same branch and deployment policy.
 
 **When NOT to use**:
-- On a feature branch — merge to main first
+- On a branch other than `main` for stable releases or `dev` for four-component prereleases
 - Without reviewing and running the full test suite first
 - Without checking for open P0/P1 review findings
 
@@ -959,19 +981,21 @@ check the Copilot UI if that identity matters.
 
 **When to use**: After completing a feature or fix on a branch and you want to package the work into well-structured commits, push the branch, and open a pull request.
 
-**What happens**: Inventories staged, unstaged, and untracked changes with `git status`. Classifies files into groups (code, tests, docs, config, plans/knowledge) and proposes a logical commit split with suggested conventional commit messages. After your confirmation, executes the commits in order, pushes the branch, and opens a PR with a plan-driven description — reading `## Objective` and requirements from any `.cg-docs/plans/` files added on the branch. If `gh` CLI is not installed, degrades gracefully: completes all commits and push, then prints the manual `gh pr create` command.
+**What happens**: Accepts an optional `--base <branch>`, inventories staged, unstaged, and untracked changes with `git status`, and resolves one PR base before generation or staging. The precedence is the existing PR's `baseRefName`, then explicit `--base`, then the repository default branch; a conflict is reported and the actual existing PR base wins. The prompt classifies files into groups (code, tests, docs, config, plans/knowledge) and proposes a logical commit split with suggested conventional commit messages. After your confirmation, it executes the commits in order, pushes the branch, and opens a PR with a plan-driven description — reading `## Objective` and requirements from any `.cg-docs/plans/` files added on the branch. If `gh` CLI is not installed, the VS Code GitHub Pull Request extension remains an alternative; if that extension cannot resolve or honor the required base, the prompt halts with a `gh pr create --base <branch>` route instead of silently changing the base.
 
 **Key behaviors**:
 - `git add` exit code is checked before each commit — halts on failure rather than committing an empty or partial stage
 - Push rejections (non-fast-forward) are surfaced with clear options: rebase, `--force-with-lease`, or cancel
 - Plan content is written to a temp file and passed via `--body-file` (never inline) to prevent shell injection
+- The shared preflight runs with `--phase prepare --base <branch> --run-native-target` before staging and with `--phase committed --base <branch> --run-native-target` before push; nonzero or partial results block the operation, while a successful `generic-not-applicable` Kilo capability result remains neutral for generic behavior
+- Kilo `generic-not-applicable` is reported as a neutral capability outcome for generic behavior, not as certified-host integration evidence
 - Detached HEAD state is detected early with a clear recovery command
 - If on the default branch, warns and asks before proceeding
 - **GitHub Issues**: If features have linked GitHub issues (a `github.issueNumber` field in `roadmap.json`), adds `Refs #<number>` or `Closes #<number>` to the PR body. `Closes #` is only used when the work item is complete and you explicitly confirm. Issue closure happens through the PR merge — `/cg-commit-push-pr` never calls `gh issue close`.
 
 **Scenarios**:
 - *Normal feature work*: After `/cg-work` + `/cg-review` + `/cg-fix-triage`, run `/cg-commit-push-pr` to ship.
-- *No `gh` CLI*: Run on any machine — commit and push still happen; you get the manual PR command.
+- *No `gh` CLI*: Run on any machine — the extension path is used when it supports the required base; otherwise the workflow halts with the manual base-aware `gh` command. When no PR tool exists at all, commits and push still complete and the same command is shown at handoff.
 - *Multiple logical changes*: Files are split into up to 4 commits (feat/fix, test, docs, plans) so reviewers see a clean history.
 
 **When NOT to use**:
@@ -1029,26 +1053,32 @@ After a one-time backfill, normal use is delta-based: when new roadmap features 
 
 **When to use**: After opening a PR (via `/cg-commit-push-pr` or manually) to check CI status and auto-fix any failures.
 
-**What happens**: Reads the current branch's open PR and fetches `statusCheckRollup` from `gh`. Classifies each check conclusion into one of five buckets — passing, pending, cancelled (non-blocking), action-required/stale, or failing. For failing checks, fetches the `gh run` log, classifies the failure type (lint/type errors → `@cg-fix-problems`; test failures → `@cg-testing`; build errors → `@cg-code-quality`; platform-specific failures → manual diagnosis), and dispatches the appropriate agent. After fixes, commits as `fix(ci): <description>` and pushes. Tracks a **2-round cap** via `fix(ci):` commit count — stops after 2 rounds and asks for manual review.
+**What happens**: Reads the current branch's open PR, including its actual `baseRefName` and `statusCheckRollup`, and resolves that value as `$baseBranch` before any fetch, merge-base, rebase, changed-file comparison, preflight, or trailer history. For each failed check, reads that check's `detailsUrl`, accepts only a GitHub Actions URL containing both the exact run ID and job ID, and retrieves `gh run view <run-id> --job <job-id> --log-failed`. Missing, non-Actions, unparseable, or unavailable logs use a manual provider/UI diagnosis route and never a latest-run lookup. The prompt classifies failures (lint/type errors → `@cg-fix-problems`; test failures → `@cg-testing`; build errors → `@cg-code-quality`; platform-specific failures → manual diagnosis), then dispatches the appropriate agent only after focused local reproduction. Auto-fix stops on a dirty worktree, records a clean baseline, and creates at most one targeted `fix(ci)` commit bearing `CI-Fix-Round: <PR>/<N>` before pushing.
 
 **Key behaviors**:
 - `--propose` flag makes the prompt READ-only: diagnoses failures and proposes fixes without committing or pushing
 - All-CANCELLED check state is detected as a terminal condition (no action needed)
-- `--first-parent` is used in git log calls to count branch-local commits accurately
-- `git merge-base` output is guarded with `Select-Object -First 1` for repos with multiple merge bases
+- The actual PR `baseRefName` is mandatory; if it is unavailable, the prompt halts instead of selecting a local or remote default
+- A missing or non-Actions `detailsUrl` is reported as a manual diagnosis route; exact run/job IDs are required before reading logs
+- A pre-existing staged, unstaged, or untracked change halts auto-fix before any rebase or edit
+- `scripts/cg_pr_preflight.py` selects the focused reproduction from the resolved base and changed files; a certified-host Kilo failure is the only externally confirmed host-dependent exception
+- Kilo `generic-not-applicable` is a neutral capability outcome, not evidence of Kilo integration, and generic linker output never proves Kilo behavior
+- `CI-Fix-Round: <PR>/<N>` trailers are counted only in `$mergeBase..HEAD`; historical `fix(ci):` subjects do not count
+- Post-baseline paths are staged individually and all corrections collapse into exactly one trailer-bearing `fix(ci)` commit; `--force-with-lease` is used only after a rebase
 - Detached HEAD state halts immediately with a recovery command
-- `git add` exit code is checked before each `fix(ci):` commit
+- `git add` and `git commit` exit codes are checked before any push
+- A single non-blocking status poll runs after pushing; the triggering and refreshed exact run/job IDs remain visible
 
 **Scenarios**:
 - *CI passing*: Confirms ✅ status and offers next steps.
 - *CI failing (first round)*: Classifies failures, dispatches agents, commits fixes, pushes.
-- *CI failing (second round)*: Same as first round — 2-round cap applies.
+- *CI failing (second round)*: Same as first round — the next unused PR-scoped trailer is used.
 - *After 2 rounds*: Halts with summary — manual review required; a third automated round risks an infinite fix loop.
 - *Diagnosis only*: Run with `--propose` to see what's failing before committing to a fix.
 
 **When NOT to use**:
 - When no PR is open on the current branch — open one with `/cg-commit-push-pr` first
 - When CI is still running (pending) — wait for it to complete, then re-invoke
-- After 2 `fix(ci):` commits — automated fixing is capped; escalate manually
+- After two unique `CI-Fix-Round: <PR>/<N>` trailers in `$mergeBase..HEAD` — automated fixing is capped; escalate manually
 
-**Output**: Classification report of CI checks + (unless `--propose`) `fix(ci):` commit(s) pushed to the branch
+**Output**: Classification report of CI checks, exact run/job diagnosis, and (unless `--propose`) one targeted trailer-bearing `fix(ci)` commit pushed to the branch

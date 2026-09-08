@@ -2,14 +2,8 @@
 
 Use this path to understand Compound GPID, install it, configure one project,
 and complete a first useful workflow. The normal setup provides generated
-targets for GitHub Copilot, Claude Code, Codex, and OpenCode from one canonical
+targets for GitHub Copilot, Claude Code, Codex, OpenCode, and Kilo from one canonical
 plugin source.
-
-> **Current packaging limitation:** generated non-canonical skill mirrors
-> contain each `SKILL.md` but do not yet include every progressively loaded
-> `references/`, `workflows/`, or `packages/` file. The canonical `.github/`
-> source is complete. Teams relying on a narrowed non-Copilot installation
-> should assess this limitation before adoption.
 
 ## 1. Confirm the fit
 
@@ -82,10 +76,12 @@ In the agent chat, run:
 /cg-setup
 ```
 
-Confirm the project language, R dialect when applicable, project type, and
-review depth. Setup creates the required `.cg-docs/` structure and may create:
+Confirm the project language, R dialect when applicable, project type, review
+depth, and active suites. Choose `suites: [cg]` for technical workflows,
+`suites: [cr]` for research workflows, or `suites: [cg, cr]` for both. Setup
+creates the required `.cg-docs/` structure and may create:
 
-- `compound-gpid.local.md`: personal, gitignored settings.
+- `compound-gpid.local.md`: committed team settings, including active suites.
 - `compound-gpid.md`: optional committed project charter.
 - `compound-gpid.context.md`: optional committed project knowledge.
 
@@ -95,7 +91,8 @@ or shared files manually.
 
 ## 5. Complete a first workflow
 
-Choose a small real task whose expected result can be checked.
+Choose a small real task whose expected result can be checked. Technical work
+uses the `/cg-*` loop:
 
 ```text
 /cg-brainstorm
@@ -104,6 +101,17 @@ Choose a small real task whose expected result can be checked.
 /cg-review light
 /cg-fix-triage
 /cg-compound
+```
+
+Research work uses the parallel `/cr-*` loop, with research integrity,
+provenance, method, and publication checks owned by that suite:
+
+```text
+/cr-brainstorm
+/cr-plan
+/cr-work
+/cr-review
+/cr-compound
 ```
 
 Use `/cg-plan-review` between planning and work when the task is consequential
@@ -118,6 +126,7 @@ verification.
 ## Next pages
 
 - [Workflow Overview](../workflows/index.md) selects a route by task.
+- [Modular Guide](../modular-guide.md) explains suite selection and composition.
 - [Skills Catalog](../skills/index.md) shows the analytical and technical guidance available.
 - [Governance and Security](../governance/index.md) explains constraints and limitations.
 - [Help and Troubleshooting](../help/index.md) provides safe recovery paths.

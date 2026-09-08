@@ -7,5 +7,10 @@
     "paths": [
       ".kilo/skills"
     ]
+  },
+  "watcher": {
+    "ignore": [
+      ".compound-gpid/kilo-compat-skills/**"
+    ]
   }
 }

@@ -1,5 +1,5 @@
 ---
-description: Apply review findings from a saved review report. Fixes all findings or a subset by ID/priority.
+description: "Apply review findings from a saved review report. Fixes all findings or a subset by ID/priority."
 ---
 
 # Fix Triage

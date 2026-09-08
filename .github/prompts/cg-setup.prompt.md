@@ -131,7 +131,7 @@ Dispatch `@cg-wiki` with:
 If the wiki folder already exists and `_wiki.yml` is present with pages: skip silently — do not re-initialize.
 
 If `@cg-wiki` dispatch fails or returns an error: note:
-> "Wiki initialization skipped — run `/cg-wiki rebuild` later to set it up."
+> "Wiki initialization skipped — run `/cg-wiki init` later to set it up."
 and proceed silently.
 
 #### A5.85. Check GitHub CLI (`gh`)

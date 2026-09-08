@@ -1,0 +1,16 @@
+{
+  "schema": "cg-skill-operation-descriptor-v1",
+  "operation": "validate",
+  "version": 1,
+  "state": "active",
+  "roles": ["consumer"],
+  "phases": ["read"],
+  "handler": "skill_management.operations.validate:handle",
+  "contract": ".github/shared/skill-management/contracts/validate-v1.schema.json",
+  "workflow": ".github/skills/cg-skill-management/workflows/validate.md",
+  "documentation": "docs/skills/management/commands/validate.md",
+  "tests": [
+    "scripts/tests/test_skill_management_completeness.py",
+    "scripts/tests/test_skill_management_read.py"
+  ]
+}

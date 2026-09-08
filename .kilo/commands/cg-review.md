@@ -1,5 +1,5 @@
 ---
-description: Run multi-agent code review on recent changes. Produces prioritized P0/P1/P2/P3 findings.
+description: "Run multi-agent code review on recent changes. Produces prioritized P0/P1/P2/P3 findings."
 ---
 
 <!-- Review agents dispatched by this prompt (update this list when adding/removing agents):

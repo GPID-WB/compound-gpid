@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "compound-gpid-kilo-coexistence-v1",
+  "recordedAt": "2026-08-13T21:35:00Z",
+  "source": "embedded editor Kilo CLI characterization",
+  "containment": {
+    "environment": "KILO_DISABLE_EXTERNAL_SKILLS",
+    "value": "1",
+    "scope": "child-process-only",
+    "invocation": ["kilo", "debug", "skill"]
+  },
+  "codexPreservation": {
+    "status": "unavailable",
+    "reason": "Codex-side host inventory was not available in this Phase 1 editor-host run; this remains a blocking evidence item for the full release gate."
+  },
+  "hosts": [
+    {
+      "host": "VS Code embedded Kilo",
+      "version": "7.4.22",
+      "invocation": ["kilo", "debug", "skill"],
+      "plain": {"localSkill": true, "codexSkill": true, "claudeSkill": false},
+      "contained": {"localSkill": true, "codexSkill": false, "claudeSkill": false},
+      "status": "verified"
+    },
+    {
+      "host": "VS Code embedded Kilo (prior)",
+      "version": "7.4.21",
+      "invocation": ["kilo", "debug", "skill"],
+      "plain": {"localSkill": true, "codexSkill": true, "claudeSkill": false},
+      "contained": {"localSkill": true, "codexSkill": false, "claudeSkill": false},
+      "status": "verified"
+    },
+    {
+      "host": "Positron embedded Kilo",
+      "version": "7.4.20",
+      "invocation": ["kilo", "debug", "skill"],
+      "plain": {"localSkill": true, "codexSkill": true, "claudeSkill": false},
+      "contained": {"localSkill": true, "codexSkill": false, "claudeSkill": false},
+      "status": "verified"
+    }
+  ],
+  "limitations": [
+    "The environment variable is treated as a tested host control, not a permanent Kilo platform contract.",
+    "Kilo schema/frontmatter failures remain a separate host-content outcome from external-root discovery.",
+    "Direct editor or CLI launches remain unsupported when Codex or Claude compatibility roots are present."
+  ]
+}

@@ -57,7 +57,9 @@ executed**.
 Commands, skills, agents, instructions, and shared support files form a
 deterministic, target-local dependency closure. Generated runtime references
 are rewritten from canonical `.github/` roots to the target's mapped roots, and
-generation fails if a required dependency is unresolved or unsafe. The fixed
+generation fails if a required dependency is unresolved or unsafe. The `cg`
+suite includes the public `/cg-skill` command plus its complete atomic
+skill-management workflow bundle. Generated trees must never be patched by hand. The fixed
 support roots are listed in [Native Target Packaging](reference.md#native-target-packaging).
 
 ### Generated-tree ownership
@@ -339,7 +341,7 @@ Your edits will be silently overwritten on the next `cg-update`. If you want to 
 A stale context file is worse than no context file — it actively misleads Copilot. Review it whenever a major pipeline change happens (file renames, new datasets, schema changes). Add a quarterly `compound-gpid.context.md` review to your team's sprint rhythm.
 
 **Gitignoring `compound-gpid.context.md`**
-This file is meant to be shared — it is institutional memory for the whole team, not personal config. Only `compound-gpid.local.md` is gitignored. Make sure `.gitignore` does not accidentally exclude `compound-gpid.context.md`.
+This file is meant to be shared — it is institutional memory for the whole team. `compound-gpid.local.md` is also committed team configuration. Make sure `.gitignore` does not accidentally exclude either file.
 
 **Putting Codex / Claude compatibility rules into `.github/` files**
 The `.github/` prompt, skill, agent, and instruction files are designed for

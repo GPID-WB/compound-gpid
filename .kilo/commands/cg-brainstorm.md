@@ -1,5 +1,5 @@
 ---
-description: Brainstorm answers about what to build and how. Use when requirements are fuzzy.
+description: "Brainstorm answers about what to build and how. Use when requirements are fuzzy."
 ---
 
 # Brainstorm

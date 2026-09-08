@@ -1,6 +1,6 @@
 # 🧠 Project Brain
 
-_Generated 2026-09-08 · 636 entities · 3 topics · 272 edges_
+_Generated 2026-09-08 · 770 entities · 6 topics · 336 edges_
 
 ## How to Use
 
@@ -13,29 +13,32 @@ _Generated 2026-09-08 · 636 entities · 3 topics · 272 edges_
 
 | # | Topic | Entities | File |
 |---|-------|----------|------|
-| 1 | [Roadmap.Json / Cg-Work / Prompt-Tools.Tests.Ps1](BRAIN-01.md#roadmap-json-cg-work-prompt-tools-tests-ps1) | 452 | BRAIN-01.md |
-| 2 | [Architecture Research Objective / Workflow Maturity Objective / Knowledge Brain Objective](BRAIN-02.md#architecture-research-objective-workflow-maturity-objective-knowledge-brain-objective) | 139 | BRAIN-02.md |
-| 3 | [Secure_Fs.Py / Validation / Parser.Py](BRAIN-02.md#secure-fs-py-validation-parser-py) | 3 | BRAIN-02.md |
+| 1 | [Roadmap.Json / Test Scenarios / Prompt-Tools.Tests.Ps1](BRAIN-01.md#roadmap-json-test-scenarios-prompt-tools-tests-ps1) | 540 | BRAIN-01.md |
+| 2 | [Architecture Research Objective / Ongoing Ideas Objective / Workflow Maturity Objective](BRAIN-02.md#architecture-research-objective-ongoing-ideas-objective-workflow-maturity-objective) | 155 | BRAIN-02.md |
+| 3 | [Expand Compound Research / Responsible Research Partner Objective / Measurement](BRAIN-02.md#expand-compound-research-responsible-research-partner-objective-measurement) | 7 | BRAIN-02.md |
+| 4 | [Scripts/Cg_Kilo_Preflight.Py / Link.Sh / Cg_Kilo_Preflight.Py](BRAIN-02.md#scripts-cg-kilo-preflight-py-link-sh-cg-kilo-preflight-py) | 4 | BRAIN-02.md |
+| 5 | [Contracts.Py / Cg_Skill.Py / Cg_Generate_Targets.Py](BRAIN-02.md#contracts-py-cg-skill-py-cg-generate-targets-py) | 3 | BRAIN-02.md |
+| 6 | [Secure_Fs.Py / Validation / Parser.Py](BRAIN-02.md#secure-fs-py-validation-parser-py) | 3 | BRAIN-02.md |
 
 ## Entity Summary
 
 | Type | Count |
 |------|-------|
-| brainstorm | 50 |
-| feature | 139 |
-| plan | 99 |
-| review | 148 |
-| solution | 186 |
-| strategy | 14 |
+| brainstorm | 59 |
+| feature | 162 |
+| plan | 119 |
+| review | 186 |
+| solution | 229 |
+| strategy | 15 |
 
-_42 entities not assigned to any topic_
+_58 entities not assigned to any topic_
 
 ## Relationship Summary
 
 | Edge Type | Count |
 |-----------|-------|
-| decided_from | 63 |
-| implements | 23 |
-| references | 57 |
-| reviews | 75 |
-| verifies | 54 |
+| decided_from | 82 |
+| implements | 27 |
+| references | 63 |
+| reviews | 100 |
+| verifies | 64 |

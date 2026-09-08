@@ -1,5 +1,5 @@
 ---
-description: "Capture a solved problem as reusable knowledge. Use after fixing a non-trivial issue."
+description: "Capture a solved problem as reusable knowledge. Offers canonical .github/ updates; the user applies them manually after fixing a non-trivial issue."
 ---
 
 # Compound

@@ -51,7 +51,7 @@ You are a performance specialist for R, Python, and Stata data science projects,
 - **Stata**: Is `compress` used before saving to minimize file size? Are unused variables dropped early? Is `preserve`/`restore` used instead of reloading large datasets?
 
 ### 5. Algorithm Complexity
-- Are there O(nÂ²) or worse operations that could be O(n log n) or O(n)?
+- Are there O(n^2) or worse operations that could be O(n log n) or O(n)?
 - Are there repeated lookups that should use hash tables/keys/indices?
 - Are there nested loops over large data that could be replaced with joins?
 - Are sort operations repeated unnecessarily?
@@ -61,6 +61,12 @@ You are a performance specialist for R, Python, and Stata data science projects,
 - Is `fread()`/`scan_csv()` used with column selection?
 - Are database queries pulling only needed columns and rows?
 - Is caching used for expensive computations?
+
+### 7. Research Performance Patterns
+- For high-dimensional estimation and large-$p$ workflows, check whether feature engineering, transforms, and selection stages avoid repeated full-materialization.
+- For bootstrap and resampling pipelines, check whether repeated model fits are batched, cached, or parallelized with reproducibility-safe controls.
+- For panel and survey workflows, verify grouped statistics use efficient primitives and avoid repeated expensive joins.
+- Flag scaling risks where asymptotic complexity or repeated estimation loops will dominate runtime at production sample sizes.
 
 ## Output Format
 

@@ -10,8 +10,8 @@
 A GitHub Copilot plugin for data science teams, built on the [Compound Engineering Philosophy](https://every.to/guides/compound-engineering).
 
 > **Runtime scope**: Compound GPID supports GitHub Copilot, Claude Code, Codex,
-> and OpenCode. `.github/` is the canonical source; native platform trees
-> (`.claude/`, `.agents/`, `.opencode/`) are generated from it and distributed
+> OpenCode, and Kilo. `.github/` is the canonical source; native platform trees
+> (`.claude/`, `.agents/`, `.opencode/`, `.kilo/`) are generated from it and distributed
 > through per-platform install units. `cg-link` links all supported platforms by
 > default; use `cg-link --platforms copilot` or another comma-separated list to
 > narrow the install.
@@ -36,7 +36,8 @@ Compound GPID enforces a repeatable **Brainstorm → Plan → Work → Review �
 - **R dialect selection** — set `r-syntax: "tidyverse"` in your local config to have all R assistance use tidyverse/dplyr patterns instead of data.table/collapse. Ideal for projects with external coauthors who only know the tidyverse. See [docs/reference.md](docs/reference.md) for details.
 - **Knowledge brain** — `cg-index --brain` and `/cg-brain-rebuild` build a structured knowledge brain (`BRAIN.md`, `BRAIN-NN.md`, `BRAIN-log.md`, `brain-index.json`) by clustering `.cg-docs/` artifacts into topics and mapping typed relationships between artifacts — so every session can surface relevant past work automatically.
 - **Roadmap tracking** — `@cg-roadmap` manages a `roadmap.json` milestone and feature tracker. Brainstorm, Plan, and Work prompts hook into it automatically: brainstorms register feature ideas, plans link to features, and work marks them active — so your roadmap stays current without manual updates.
-- **Cross-platform** — native support for GitHub Copilot, Claude Code, Codex, and OpenCode from a single `.github/` source. Generated platform trees are committed, release-validated, and distributed through merge-safe per-platform install units. `cg-link` links all platforms by default.
+- **Modular suites** — a validated registry separates the kernel, reusable capability packs, the technical `/cg-*` suite, and the research `/cr-*` suite. Projects select `suites: [cg]`, `[cr]`, or `[cg, cr]` without creating cross-suite dependencies.
+- **Cross-platform** — native support for GitHub Copilot, Claude Code, Codex, OpenCode, and Kilo from a single `.github/` source. Generated platform trees are committed, release-validated, and distributed through merge-safe per-platform install units. `cg-link` links all platforms by default.
 - **Zero friction** — one global clone, per-subdirectory symlinks (junctions on Windows, symlinks on macOS), and shell commands (`cg-link`, `cg-unlink`, `cg-update`, `cg-index`, `cg-brain-init`, `cg-publish-markdown`, `cg-token-audit`) wire everything into VS Code / Positron automatically.
 - **Secure document views** — `cg-publish-markdown` turns one project-contained generic Markdown file into a deterministic, self-contained `reference` HTML view while preserving strict Brainstorm/Plan validation and excluding generated bodies from model context.
 - **Token guidance** — `/cg-token-audit` runs deterministic context/model analysis and returns compact advice on context size, review depth, and model selection without changing project files.
@@ -55,6 +56,7 @@ Compound GPID enforces a repeatable **Brainstorm → Plan → Work → Review �
 | [Workflows](docs/workflows/index.md) | Task-oriented paths from strategy through verified knowledge capture |
 | [Skills](docs/skills/index.md) | Canonical analytical, technical, testing, and institutional skill catalog |
 | [Configuration](docs/configuration/index.md) | Context files, platform targets, settings, and managed content |
+| [Modular Guide](docs/modular-guide.md) | Suite selection, capability composition, registry ownership, and extension rules |
 | [Governance](docs/governance/index.md) | Data safeguards, review gates, operating constraints, and limitations |
 | [Reference](docs/reference.md) | Complete commands, agents, schemas, configuration, and file structure |
 | [Help](docs/help/index.md) | Recovery routes and complete troubleshooting links |

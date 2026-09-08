@@ -1,5 +1,5 @@
 ---
-description: Create a structured implementation plan with research. Use after brainstorming or when requirements are clear.
+description: "Create a structured implementation plan with research. Use after brainstorming or when requirements are clear."
 ---
 
 # Plan

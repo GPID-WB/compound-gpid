@@ -1,0 +1,28 @@
+{
+  "$schema": "compound-gpid-schema-subset-v1",
+  "$id": "cg-skill-deactivate-v1",
+  "$defs": {
+    "arguments": {
+      "type": "object",
+      "properties": {
+        "positionals": {
+          "type": "array",
+          "items": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"},
+          "minItems": 1,
+          "maxItems": 1
+        }
+      },
+      "required": ["positionals"],
+      "additionalProperties": false
+    },
+    "resultData": {
+      "type": "object",
+      "properties": {
+        "status": {"type": "string", "enum": ["planned", "committed", "no-op", "blocked"]},
+        "capability": {"type": "string"}
+      },
+      "required": ["status", "capability"],
+      "additionalProperties": false
+    }
+  }
+}

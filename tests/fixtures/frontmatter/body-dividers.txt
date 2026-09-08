@@ -1,0 +1,13 @@
+---
+name: body-dividers
+description: "The second delimiter closes frontmatter."
+---
+# Body
+
+---
+
+First body divider.
+
+---
+
+Second body divider.

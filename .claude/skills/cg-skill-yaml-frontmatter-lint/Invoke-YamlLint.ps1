@@ -3,11 +3,12 @@
     Validates YAML frontmatter in .kilo/agents/*.md and .kilo/skills/*/SKILL.md files.
 .DESCRIPTION
     Checks agent and skill markdown files for YAML frontmatter conformance:
-    - Rule 1: description must be quoted or a parse-safe scalar
+    - Rule 1: description must be double-quoted
     - Rule 2: frontmatter must be ASCII-only (U+0000-U+007F)
     - Rule 3: no UTF-8 BOM
     - Rule 4: required fields present (description, mode for agents; name, description for skills)
     - Rule 5: body content has no mojibake patterns
+    - Rule 6: files use LF line endings only
 .PARAMETER Path
     Root directory to scan. Defaults to ".kilo"
 .PARAMETER Fix
@@ -53,23 +54,55 @@ function Add-Violation {
     }
 }
 
-function Test-DescriptionValid {
-    # Rule 1 (agent files): accept any description form that is valid YAML.
-    # Mirrors cg_generate_targets._yaml_scalar's unquoted-emit policy so the
-    # linter accepts the valid YAML the generator emits and only flags values
-    # that actually break parsing (colon-space, leading indicators, reserved).
-    # Skill files (.kilo/skills/*/SKILL.md) instead require a double-quoted
-    # description; see Test-SkillFile.
+function Get-DoubleQuotedDescriptionEnd {
+    param([string[]]$Lines, [int]$Index)
+    $colon = $Lines[$Index].IndexOf(':')
+    if ($colon -lt 0) { return -1 }
+    $candidate = $Lines[$Index].Substring($colon + 1).Trim()
+    if (-not $candidate.StartsWith('"')) { return -1 }
+    for ($cursor = $Index; $cursor -lt $Lines.Count; $cursor++) {
+        if ($cursor -gt $Index) { $candidate += "`n" + $Lines[$cursor] }
+        $folded = $candidate.Replace("`r", '').Replace("`n", ' ')
+        if ($folded -match '^"(?:\\.|[^"\\])*"$') { return $cursor }
+    }
+    return -1
+}
+
+function Test-DoubleQuotedDescription {
+    param([string[]]$Lines, [int]$Index)
+    return (Get-DoubleQuotedDescriptionEnd -Lines $Lines -Index $Index) -ge 0
+}
+
+function Test-RootFieldLine {
+    param([string]$Line, [string]$Key)
+    $prefix = $Key + ':'
+    if (-not $Line.StartsWith($prefix)) { return $false }
+    if ($Line.Length -eq $prefix.Length) { return $true }
+    return [char]::IsWhiteSpace($Line[$prefix.Length])
+}
+
+function Get-RootFieldIndices {
+    param([string[]]$Lines, [string]$Key, [int]$DescriptionStart = -1, [int]$DescriptionEnd = -1)
+    $indices = @()
+    for ($index = 0; $index -lt $Lines.Count; $index++) {
+        if ($DescriptionStart -ge 0 -and $DescriptionEnd -ge 0 -and $index -gt $DescriptionStart -and $index -le $DescriptionEnd) { continue }
+        if (Test-RootFieldLine -Line $Lines[$index] -Key $Key) { $indices += $index }
+    }
+    return @($indices)
+}
+
+function ConvertFrom-CgYamlScalar {
     param([string]$Value)
-    if ([string]::IsNullOrEmpty($Value)) { return $false }
-    if ($Value -match '^"(?:\\.|[^"\\])*"$' -or $Value -match "^'(?:''|[^'])*'$") { return $true }
-    if ($Value -match '^[>|](?:[1-9][-+]?|[-+][1-9]?)?$') { return $true }
-    if ($Value -match '^[A-Za-z0-9][A-Za-z0-9._ /-]*$' -and $Value.ToLower() -notin @('null','true','false','yes','no','on','off')) { return $true }
-    return $false
+    $scalar = ($Value -replace '\s+#.*$', '').Trim()
+    if ($scalar -match '^"(?:\\.|[^"\\])*"$') {
+        try { return [string]($scalar | ConvertFrom-Json) } catch { return $null }
+    }
+    if ($scalar -match "^'(?:''|[^'])*'$") { return $scalar.Substring(1, $scalar.Length - 2).Replace("''", "'") }
+    return $scalar
 }
 
 function Test-AgentFile {
-    param([string]$FilePath, [switch]$FixIssues)
+    param([string]$FilePath, [switch]$FixIssues, [switch]$RequireMode)
     $relativePath = $FilePath.Replace((Resolve-Path $Path).Path, '').TrimStart('\', '/')
     $content = [System.IO.File]::ReadAllText($FilePath, [System.Text.Encoding]::UTF8)
 
@@ -77,6 +110,9 @@ function Test-AgentFile {
     $bytes = [System.IO.File]::ReadAllBytes($FilePath)
     if ($bytes.Length -ge 3 -and $bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -and $bytes[2] -eq 0xBF) {
         Add-Violation $relativePath 1 'R3-no-bom' 'File starts with UTF-8 BOM (EF BB BF). Remove the BOM.'
+    }
+    if ($bytes -contains 13) {
+        Add-Violation $relativePath 1 'R6-lf-endings' 'File contains CR or CRLF line endings; use LF only.'
     }
 
     # Extract frontmatter
@@ -104,8 +140,9 @@ function Test-AgentFile {
     # Line-scoped: a bare 'description:' with no value is reported, and the
     # value never absorbs the next line.
     $descIdx = -1
+    $descEndIdx = -1
     for ($di = 0; $di -lt $fmLines.Count; $di++) {
-        if ($fmLines[$di].TrimStart().StartsWith('description:')) { $descIdx = $di; break }
+        if (Test-RootFieldLine -Line $fmLines[$di] -Key 'description') { $descIdx = $di; break }
     }
     if ($descIdx -ge 0) {
         $colonIdx = $fmLines[$descIdx].IndexOf(':')
@@ -113,23 +150,31 @@ function Test-AgentFile {
         if ([string]::IsNullOrEmpty($descValue)) {
             Add-Violation $relativePath ($fmStart + $descIdx) 'R1-quoted-description' 'description value is empty (expected a double-quoted or parse-safe scalar).'
         }
-        elseif (-not (Test-DescriptionValid $descValue)) {
+        elseif (-not (Test-DoubleQuotedDescription -Lines $fmLines -Index $descIdx)) {
             Add-Violation $relativePath ($fmStart + $descIdx) 'R1-quoted-description' "description value is not double-quoted: $($descValue.Substring(0, [Math]::Min(60, $descValue.Length)))..."
+        }
+        else {
+            $descEndIdx = Get-DoubleQuotedDescriptionEnd -Lines $fmLines -Index $descIdx
         }
     }
 
     # Rule 4: required fields
-    $hasDesc = $frontmatter -match '(?m)^description:'
-    $hasMode = $frontmatter -match '(?m)^mode:'
-    if (-not $hasDesc) { Add-Violation $relativePath 2 'R4-required-field' 'Missing required field: description' }
-    if (-not $hasMode) { Add-Violation $relativePath 2 'R4-required-field' 'Missing required field: mode' }
+    $descIndices = @(Get-RootFieldIndices -Lines $fmLines -Key 'description' -DescriptionStart $descIdx -DescriptionEnd $descEndIdx)
+    $modeIndices = @(Get-RootFieldIndices -Lines $fmLines -Key 'mode' -DescriptionStart $descIdx -DescriptionEnd $descEndIdx)
+    $modeIdx = if ($modeIndices.Count -gt 0) { $modeIndices[0] } else { -1 }
+    if ($descIdx -lt 0) { Add-Violation $relativePath 2 'R4-required-field' 'Missing required field: description' }
+    if ($descIndices.Count -gt 1) { Add-Violation $relativePath 2 'R4-required-field' 'Duplicate required field: description' }
+    if ($modeIndices.Count -gt 1) { Add-Violation $relativePath 2 'R4-required-field' 'Duplicate required field: mode' }
+    $modeIsDescription = $descIdx -ge 0 -and $descEndIdx -ge 0 -and $modeIdx -gt $descIdx -and $modeIdx -le $descEndIdx
+    $modeValue = if ($modeIdx -ge 0 -and -not $modeIsDescription) { ConvertFrom-CgYamlScalar -Value ($fmLines[$modeIdx].Substring($fmLines[$modeIdx].IndexOf(':') + 1)) } else { '' }
+    if ($RequireMode -and ($modeIdx -lt 0 -or $modeIndices.Count -gt 1 -or $modeIsDescription -or $modeValue -notin @('subagent', 'primary', 'all'))) { Add-Violation $relativePath 2 'R4-required-field' 'Missing required field: mode' }
 
     # Rule 5: mojibake in body
     $bodyStart = $fmMatch.Index + $fmMatch.Length
     if ($bodyStart -lt $content.Length) {
         $body = $content.Substring($bodyStart)
         $bodyLines = $body -split '\r?\n'
-        $mobiJakePattern = '[\u00e2][\u20ac\u2020]'
+        $mobiJakePattern = '[\u00e2][\u20ac\u2020]|\u00c2[\u0080-\u00FF]'
         $bodyOffset = ($content.Substring(0, $bodyStart) -split '\r?\n').Count
         for ($i = 0; $i -lt $bodyLines.Count; $i++) {
             if ($bodyLines[$i] -match $mobiJakePattern) {
@@ -148,6 +193,9 @@ function Test-SkillFile {
     $bytes = [System.IO.File]::ReadAllBytes($FilePath)
     if ($bytes.Length -ge 3 -and $bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -and $bytes[2] -eq 0xBF) {
         Add-Violation $relativePath 1 'R3-no-bom' 'File starts with UTF-8 BOM (EF BB BF). Remove the BOM.'
+    }
+    if ($bytes -contains 13) {
+        Add-Violation $relativePath 1 'R6-lf-endings' 'File contains CR or CRLF line endings; use LF only.'
     }
 
     # Extract frontmatter
@@ -175,8 +223,9 @@ function Test-SkillFile {
     # Line-scoped: a bare 'description:' with no value is reported, and the
     # value never absorbs the next line.
     $descIdx = -1
+    $descEndIdx = -1
     for ($di = 0; $di -lt $fmLines.Count; $di++) {
-        if ($fmLines[$di].TrimStart().StartsWith('description:')) { $descIdx = $di; break }
+        if (Test-RootFieldLine -Line $fmLines[$di] -Key 'description') { $descIdx = $di; break }
     }
     if ($descIdx -ge 0) {
         $colonIdx = $fmLines[$descIdx].IndexOf(':')
@@ -184,23 +233,30 @@ function Test-SkillFile {
         if ([string]::IsNullOrEmpty($descValue)) {
             Add-Violation $relativePath ($fmStart + $descIdx) 'R1-quoted-description' 'description value is empty (expected a double-quoted string for skill files).'
         }
-        elseif ($descValue -notmatch '^"(?:\\.|[^"\\])*"$') {
+        elseif (-not (Test-DoubleQuotedDescription -Lines $fmLines -Index $descIdx)) {
             Add-Violation $relativePath ($fmStart + $descIdx) 'R1-quoted-description' "description value is not double-quoted: $($descValue.Substring(0, [Math]::Min(60, $descValue.Length)))..."
+        }
+        else {
+            $descEndIdx = Get-DoubleQuotedDescriptionEnd -Lines $fmLines -Index $descIdx
         }
     }
 
     # Rule 4: required fields
-    $hasName = $frontmatter -match '(?m)^name:'
-    $hasDesc = $frontmatter -match '(?m)^description:'
-    if (-not $hasName) { Add-Violation $relativePath 2 'R4-required-field' 'Missing required field: name' }
-    if (-not $hasDesc) { Add-Violation $relativePath 2 'R4-required-field' 'Missing required field: description' }
+    $descIndices = @(Get-RootFieldIndices -Lines $fmLines -Key 'description' -DescriptionStart $descIdx -DescriptionEnd $descEndIdx)
+    $nameIndices = @(Get-RootFieldIndices -Lines $fmLines -Key 'name' -DescriptionStart $descIdx -DescriptionEnd $descEndIdx)
+    $nameIdx = if ($nameIndices.Count -gt 0) { $nameIndices[0] } else { -1 }
+    $nameIsDescription = $descIdx -ge 0 -and $descEndIdx -ge 0 -and $nameIdx -gt $descIdx -and $nameIdx -le $descEndIdx
+    if ($descIndices.Count -gt 1) { Add-Violation $relativePath 2 'R4-required-field' 'Duplicate required field: description' }
+    if ($nameIndices.Count -gt 1) { Add-Violation $relativePath 2 'R4-required-field' 'Duplicate required field: name' }
+    if ($nameIdx -lt 0 -or $nameIndices.Count -gt 1 -or $nameIsDescription) { Add-Violation $relativePath 2 'R4-required-field' 'Missing required field: name' }
+    if ($descIdx -lt 0) { Add-Violation $relativePath 2 'R4-required-field' 'Missing required field: description' }
 
     # Rule 5: mojibake in body
     $bodyStart = $fmMatch.Index + $fmMatch.Length
     if ($bodyStart -lt $content.Length) {
         $body = $content.Substring($bodyStart)
         $bodyLines = $body -split '\r?\n'
-        $mobiJakePattern = '[\u00e2][\u20ac\u2020]'
+        $mobiJakePattern = '[\u00e2][\u20ac\u2020]|\u00c2[\u0080-\u00FF]'
         $bodyOffset = ($content.Substring(0, $bodyStart) -split '\r?\n').Count
         for ($i = 0; $i -lt $bodyLines.Count; $i++) {
             if ($bodyLines[$i] -match $mobiJakePattern) {
@@ -232,12 +288,12 @@ $skillFiles = @()
 
 $agentDir = Join-Path $resolvedPath 'agents'
 if (Test-Path $agentDir) {
-    $agentFiles = Get-ChildItem (Join-Path $agentDir '*.md')
+    $agentFiles = @(Get-ChildItem (Join-Path $agentDir '*.md'))
 }
 
 $skillsDir = Join-Path $resolvedPath 'skills'
 if (Test-Path $skillsDir) {
-    $skillFiles = Get-ChildItem (Join-Path $skillsDir '*/SKILL.md') -Recurse
+    $skillFiles = @(Get-ChildItem (Join-Path $skillsDir '*/SKILL.md') -Recurse)
 }
 
 $totalFiles = $agentFiles.Count + $skillFiles.Count
@@ -249,7 +305,8 @@ if ($totalFiles -eq 0) {
 Write-Host "Checking $totalFiles files ($($agentFiles.Count) agents, $($skillFiles.Count) skills)..." -ForegroundColor Cyan
 
 foreach ($f in $agentFiles) {
-    Test-AgentFile -FilePath $f.FullName -FixIssues:$Fix
+    $requireMode = @('.kilo', '.opencode') -contains (Split-Path $resolvedPath -Leaf)
+    Test-AgentFile -FilePath $f.FullName -FixIssues:$Fix -RequireMode:$requireMode
 }
 foreach ($f in $skillFiles) {
     Test-SkillFile -FilePath $f.FullName -FixIssues:$Fix
@@ -268,6 +325,7 @@ $script:violations | ForEach-Object {
         'R3' { 'Red' }
         'R4' { 'Red' }
         'R5' { 'DarkYellow' }
+        'R6' { 'Yellow' }
         default { 'White' }
     }
     Write-Host ("  [{0}] {1}:{2} - {3}" -f $_.Rule, $_.File, $_.Line, $_.Message) -ForegroundColor $color

@@ -85,5 +85,6 @@ Regression tests cover typed-invalid issue, GraphQL, repository, PR, and
 - [New validation branch added without a test for the new code path](.cg-docs/solutions/testing-patterns/2026-04-15-new-validation-branch-requires-dedicated-test.md)
 - [PS 5.1: ConvertFrom-Json returns bare PSCustomObject for single-element arrays](.cg-docs/solutions/bugs/2026-03-30-ps51-convertfrom-json-single-element-array-coercion.md)
 - [gh CLI fixture JSON keys must match what the client parses](.cg-docs/solutions/testing-patterns/2026-08-10-gh-cli-fixture-json-keys-must-match-client-parsing.md)
+- [GitHub workflow_dispatch booleans fail open; verify mutation responses, not just return codes](.cg-docs/solutions/testing-patterns/2026-08-11-workflow-dispatch-boolean-fail-open-verify-mutations.md)
 - Contract documentation: `docs/copilot-readiness.md` (exit-code table, R020 notes)
 - Review: `.cg-docs/reviews/2026-08-05-copilot-issue-implementation-pipeline-v2-review.md`

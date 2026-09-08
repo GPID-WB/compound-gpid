@@ -1,0 +1,13 @@
+{
+  "schema": "cg-skill-operation-descriptor-v1",
+  "operation": "deprecate",
+  "version": 1,
+  "state": "active",
+  "roles": ["consumer"],
+  "phases": ["plan", "apply"],
+  "handler": "skill_management.operations.deprecate:handle",
+  "contract": ".github/shared/skill-management/contracts/deprecate-v1.schema.json",
+  "workflow": ".github/skills/cg-skill-management/workflows/deprecate.md",
+  "documentation": "docs/skills/management/commands/deprecate.md",
+  "tests": ["scripts/tests/test_skill_management_removal.py"]
+}

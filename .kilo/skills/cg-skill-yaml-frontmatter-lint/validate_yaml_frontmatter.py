@@ -9,6 +9,7 @@ rules as the PowerShell validator so both entries report identical results:
   R3  no UTF-8 BOM (EF BB BF)
   R4  required fields present (agents: description, mode; skills: name, description)
   R5  body content has no mojibake (UTF-8/Windows-1252 round-trip artifacts)
+  R6  files use LF line endings only
 
 The bash entry (Invoke-YamlLint.sh) shells out to this module. The PowerShell
 entry (Invoke-YamlLint.ps1) is a self-contained native implementation for
@@ -26,6 +27,7 @@ import os
 import re
 import sys
 from pathlib import Path
+from typing import Optional
 
 FRONTMATTER_RE = re.compile(r"---\r?\n(.+?)\r?\n---", re.DOTALL)
 DESCRIPTION_RE = re.compile(r"(?m)^description:\s*(.+)$")
@@ -45,7 +47,7 @@ BLOCK_SCALAR_RE = re.compile(r"^[>|](?:[1-9][-+]?|[-+][1-9]?)?$")
 SAFE_PLAIN_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._ /-]*$")
 RESERVED_WORDS = {"null", "true", "false", "yes", "no", "on", "off"}
 NON_ASCII_RE = re.compile(r"[^\x00-\x7f]")
-MOJIBAKE_RE = re.compile(r"[\u00e2][\u20ac\u2020]")
+MOJIBAKE_RE = re.compile(r"(?:[\u00e2][\u20ac\u2020]|\u00c2[\u0080-\u00ff])")
 
 # Non-ASCII -> ASCII replacements applied by -Fix inside frontmatter (Rule 2).
 ASCII_FIXES = {
@@ -69,7 +71,14 @@ COLOR = {
     "white": "\033[0;37m",
     "reset": "\033[0m",
 }
-RULE_COLOR = {"R1": "yellow", "R2": "yellow", "R3": "red", "R4": "red", "R5": "darkyellow"}
+RULE_COLOR = {
+    "R1": "yellow",
+    "R2": "yellow",
+    "R3": "red",
+    "R4": "red",
+    "R5": "darkyellow",
+    "R6": "yellow",
+}
 _USE_COLOR = sys.stdout.isatty()
 
 
@@ -144,13 +153,45 @@ def _description_ok(value: str) -> bool:
     return False
 
 
-def _check_file(file_path: str, root: str, is_agent: bool, fix: bool) -> tuple[list[Violation], str | None]:
+def _double_quoted_description_end(lines: list[str], index: int) -> int | None:
+    """Return the final line of a complete double-quoted YAML scalar."""
+    value = lines[index].split(":", 1)[1].strip()
+    if not value.startswith('"'):
+        return None
+    candidate = value
+    cursor = index + 1
+    while cursor <= len(lines):
+        if QUOTED_RE.match(candidate.replace("\r", "").replace("\n", " ")):
+            return cursor - 1
+        if cursor == len(lines):
+            break
+        candidate += "\n" + lines[cursor]
+        cursor += 1
+    return None
+
+
+def _double_quoted_description_ok(lines: list[str], index: int) -> bool:
+    """Return whether description is a complete double-quoted YAML scalar."""
+    return _double_quoted_description_end(lines, index) is not None
+
+
+def _check_file(
+    file_path: str,
+    root: str,
+    is_agent: bool,
+    fix: bool,
+    require_mode: Optional[bool] = None,
+) -> tuple[list[Violation], str | None]:
     """Return (violations, new_text_if_fixed_else_None) for one file."""
     violations: list[Violation] = []
     rel = _rel(file_path, root)
 
     with open(file_path, "rb") as handle:
         raw = handle.read()
+
+    non_lf_endings = b"\r" in raw
+    if non_lf_endings:
+        violations.append(Violation(rel, 1, "R6-lf-endings", "File contains CR or CRLF line endings; use LF only."))
 
     # Rule 3: no BOM
     had_bom = len(raw) >= 3 and raw[0] == 0xEF and raw[1] == 0xBB and raw[2] == 0xBF
@@ -196,7 +237,9 @@ def _check_file(file_path: str, root: str, is_agent: bool, fix: bool) -> tuple[l
     # Match line-scoped so a bare 'description:' with no value is detected (and
     # cannot absorb the next line), and reject malformed quoted values (e.g. an
     # unescaped embedded quote).
-    desc_idx = _frontmatter_line_index(fm_lines, "description")
+    desc_indices = _frontmatter_line_indices(fm_lines, "description")
+    desc_idx = desc_indices[0] if desc_indices else None
+    desc_end_idx: int | None = None
     if desc_idx is not None:
         desc_line = fm_lines[desc_idx]
         value = desc_line.split(":", 1)[1].strip() if ":" in desc_line else ""
@@ -204,24 +247,57 @@ def _check_file(file_path: str, root: str, is_agent: bool, fix: bool) -> tuple[l
             violations.append(Violation(rel, fm_start + desc_idx, "R1-quoted-description",
                                         "description value is empty (expected a double-quoted or parse-safe scalar)."))
         else:
-            if is_agent:
-                ok = _description_ok(value)
-            else:
-                ok = QUOTED_RE.match(value) is not None
+            desc_end_idx = _double_quoted_description_end(fm_lines, desc_idx)
+            ok = desc_end_idx is not None
             if not ok:
                 preview = value[:60]
                 violations.append(Violation(rel, fm_start + desc_idx, "R1-quoted-description",
                                             f"description value is not double-quoted: {preview}..."))
-                if fix and is_agent and not BLOCK_SCALAR_RE.match(value):
+                if fix and not BLOCK_SCALAR_RE.match(value):
                     fixed_lines[desc_idx] = _quote_unquoted_line(fm_lines[desc_idx])
                     was_fixed = True
 
     # Rule 4: required fields
-    if not FIELD_DESC_RE.search(frontmatter):
+    semantic_desc_indices = _outside_description(desc_indices, desc_idx, desc_end_idx)
+    if len(semantic_desc_indices) > 1:
+        violations.append(Violation(rel, 2, "R4-required-field", "Duplicate required field: description"))
+    if desc_idx is None:
         violations.append(Violation(rel, 2, "R4-required-field", "Missing required field: description"))
-    if is_agent and not FIELD_MODE_RE.search(frontmatter):
+    if require_mode is None:
+        require_mode = is_agent
+    mode_indices = _frontmatter_line_indices(fm_lines, "mode")
+    mode_indices = _outside_description(mode_indices, desc_idx, desc_end_idx)
+    mode_idx = mode_indices[0] if mode_indices else None
+    mode_is_description = (
+        desc_idx is not None
+        and desc_end_idx is not None
+        and desc_idx < (mode_idx if mode_idx is not None else -1) <= desc_end_idx
+    )
+    mode_value = (
+        _parse_yaml_scalar(fm_lines[mode_idx].partition(":")[2].strip())
+        if mode_idx is not None and not mode_is_description
+        else None
+    )
+    if len(mode_indices) > 1:
+        violations.append(Violation(rel, 2, "R4-required-field", "Duplicate required field: mode"))
+    if require_mode and (
+        mode_idx is None
+        or mode_is_description
+        or len(mode_indices) > 1
+        or mode_value not in {"subagent", "primary", "all"}
+    ):
         violations.append(Violation(rel, 2, "R4-required-field", "Missing required field: mode"))
-    if not is_agent and not FIELD_NAME_RE.search(frontmatter):
+    name_indices = _frontmatter_line_indices(fm_lines, "name")
+    name_indices = _outside_description(name_indices, desc_idx, desc_end_idx)
+    name_idx = name_indices[0] if name_indices else None
+    name_is_description = (
+        desc_idx is not None
+        and desc_end_idx is not None
+        and desc_idx < (name_idx if name_idx is not None else -1) <= desc_end_idx
+    )
+    if not is_agent and len(name_indices) > 1:
+        violations.append(Violation(rel, 2, "R4-required-field", "Duplicate required field: name"))
+    if not is_agent and (name_idx is None or name_is_description or len(name_indices) > 1):
         violations.append(Violation(rel, 2, "R4-required-field", "Missing required field: name"))
 
     # Rule 5: mojibake in body
@@ -236,14 +312,13 @@ def _check_file(file_path: str, root: str, is_agent: bool, fix: bool) -> tuple[l
                                             "Mojibake detected (UTF-8/Windows-1252 round-trip artifact)."))
 
     new_text = None
-    if fix and (was_fixed or had_bom):
+    if fix and (was_fixed or had_bom or non_lf_endings):
         new_frontmatter = "\n".join(fixed_lines)
         body_text = text[fm_match.end():]
-        eol = _detect_line_ending(raw)
-        # Reconstruct without the stripped BOM; preserve detected line endings.
-        rebuilt = f"---{eol}{new_frontmatter.replace(chr(13), '')}{eol}---{body_text}"
-        if eol == "\r\n":
-            rebuilt = rebuilt.replace("\r\n", "\n").replace("\n", "\r\n")
+        # Reconstruct without the stripped BOM and normalize to LF. Git's
+        # .gitattributes cannot prevent OneDrive from rewriting working files.
+        rebuilt = f"---\n{new_frontmatter.replace(chr(13), '')}\n---{body_text}"
+        rebuilt = rebuilt.replace("\r\n", "\n").replace("\r", "\n")
         # 'rebuilt' is built from the BOM-stripped 'text', so writing it also
         # removes a BOM even when no other fix applied (BOM-only violation).
         if rebuilt != text or had_bom:
@@ -252,12 +327,50 @@ def _check_file(file_path: str, root: str, is_agent: bool, fix: bool) -> tuple[l
     return violations, new_text
 
 
-def _frontmatter_line_index(fm_lines: list[str], key: str) -> int | None:
+def _frontmatter_line_indices(fm_lines: list[str], key: str) -> list[int]:
     prefix = f"{key}:"
+    indices: list[int] = []
     for i, line in enumerate(fm_lines):
-        if line.lstrip().startswith(prefix):
-            return i
-    return None
+        # Required metadata must be a root mapping key. Indented lookalikes can
+        # belong to block scalars or nested mappings and are not fields.
+        if line.startswith(prefix) and (
+            len(line) == len(prefix) or line[len(prefix)].isspace()
+        ):
+            indices.append(i)
+    return indices
+
+
+def _frontmatter_line_index(fm_lines: list[str], key: str) -> int | None:
+    indices = _frontmatter_line_indices(fm_lines, key)
+    return indices[0] if indices else None
+
+
+def _outside_description(
+    indices: list[int],
+    description_start: int | None,
+    description_end: int | None,
+) -> list[int]:
+    if description_start is None or description_end is None:
+        return indices
+    return [
+        index for index in indices
+        if not description_start < index <= description_end
+    ]
+
+
+def _parse_yaml_scalar(value: str) -> str | None:
+    """Decode the simple quoted/plain scalar forms used by mode metadata."""
+    scalar = re.sub(r"\s+#.*$", "", value).strip()
+    if QUOTED_RE.match(scalar):
+        try:
+            import json
+            parsed = json.loads(scalar)
+            return parsed if isinstance(parsed, str) else None
+        except (ValueError, TypeError):
+            return None
+    if SINGLE_QUOTED_RE.match(scalar):
+        return scalar[1:-1].replace("''", "'")
+    return scalar or None
 
 
 def _quote_unquoted_line(line: str) -> str:
@@ -316,8 +429,15 @@ def main(argv: list[str] | None = None) -> int:
     print(paint("cyan", f"Checking {total} files ({len(agents)} agents, {len(skills)} skills)..."))
 
     all_violations: list[Violation] = []
+    require_agent_mode = Path(path).name in (".kilo", ".opencode")
     for file_path in agents:
-        violations, new_text = _check_file(file_path, path, is_agent=True, fix=fix)
+        violations, new_text = _check_file(
+            file_path,
+            path,
+            is_agent=True,
+            fix=fix,
+            require_mode=require_agent_mode,
+        )
         all_violations.extend(violations)
         if new_text is not None:
             _write_preserve_lf(file_path, new_text)
