@@ -36,8 +36,8 @@ Describe "Combined documentation build contracts" {
     }
 
     It "executes builds without Pages credentials and uploads one combined artifact" {
-        $buildWorkflow | Should -Match 'rebuild-docs\.js --root .*sources/main.*--all'
         $buildWorkflow | Should -Match 'rebuild-docs\.js --root .*sources/dev.*--all'
+        $buildWorkflow | Should -Not -Match 'rebuild-docs\.js --root .*sources/main.*--all'
         $buildWorkflow | Should -Match 'sources/dev/scripts/check-docs-site\.js.*--legacy'
         $buildWorkflow | Should -Match 'working-directory:\s*sources/main'
         $buildWorkflow | Should -Match 'working-directory:\s*sources/dev'
@@ -51,32 +51,30 @@ Describe "Combined documentation build contracts" {
 }
 
 Describe "Protected combined Pages controller contracts" {
-    It "runs only after a successful combined build from main or dev" {
-        $pagesWorkflow | Should -Match 'workflow_run:'
-        $pagesWorkflow | Should -Match 'Build combined documentation'
-        $pagesWorkflow | Should -Match "workflow_run\.conclusion == 'success'"
-        $pagesWorkflow | Should -Match "head_branch == 'dev'"
-        $pagesWorkflow | Should -Match "head_branch == 'main'"
+    It "runs from pushes to dev" {
+        $pagesWorkflow | Should -Match 'push:'
+        $pagesWorkflow | Should -Match 'branches:\s*\[dev\]'
+        $pagesWorkflow | Should -Not -Match 'workflow_run:'
     }
 
-    It "checks out trusted main and current dev, then verifies the exact artifact" {
+    It "checks out main as content and uses dev as controller" {
         $pagesWorkflow | Should -Match 'ref:\s*main'
-        $pagesWorkflow | Should -Match 'path:\s*current-dev'
+        $pagesWorkflow | Should -Match 'path:\s*sources/main'
         $pagesWorkflow | Should -Match 'ref:\s*dev'
-        $pagesWorkflow | Should -Match 'combined-docs-site'
-        $pagesWorkflow | Should -Match 'run-id:\s*\$\{\{ github\.event\.workflow_run\.id \}\}'
-        $pagesWorkflow | Should -Match 'assemble-docs-site\.js[\s\\]+--verify'
-        $pagesWorkflow | Should -Match '--main-sha'
-        $pagesWorkflow | Should -Match '--dev-sha'
+        $pagesWorkflow | Should -Match 'scripts/assemble-docs-site\.js'
+        $pagesWorkflow | Should -Match '--main-root'
+        $pagesWorkflow | Should -Match '--dev-root'
+        $pagesWorkflow | Should -Match 'actions/upload-pages-artifact'
         $pagesWorkflow | Should -Match 'combined-artifact/site'
     }
 
     It "keeps Pages permissions in one controller and never rebuilds downloaded content" {
         $pagesWorkflow | Should -Match 'pages:\s*write'
         $pagesWorkflow | Should -Match 'id-token:\s*write'
-        $pagesWorkflow | Should -Match 'actions:\s*read'
-        $pagesWorkflow | Should -Not -Match 'rebuild-docs\.js --all'
-        $pagesWorkflow | Should -Not -Match 'assemble-docs-site\.js --main-root'
+        $pagesWorkflow | Should -Not -Match 'actions:\s*read'
+        $pagesWorkflow | Should -Match 'rebuild-docs\.js --all'
+        $pagesWorkflow | Should -Match 'assemble-docs-site\.js'
+        $pagesWorkflow | Should -Match '--main-root'
         $pagesWorkflow | Should -Match 'concurrency:\s*\r?\n\s*group:\s*pages'
         $pagesWorkflow | Should -Match 'actions/upload-pages-artifact'
         $pagesWorkflow | Should -Match 'actions/deploy-pages'

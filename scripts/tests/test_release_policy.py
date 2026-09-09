@@ -78,7 +78,7 @@ def test_release_rulesets_and_exact_run_chain_are_required() -> None:
         assert contract in script
 
 
-def test_tag_build_is_unprivileged_and_controller_is_main_owned() -> None:
+def test_tag_build_is_unprivileged_and_dev_preview_controller_is_branch_local() -> None:
     builder = _read(".github/workflows/release-docs.yml")
     controller = _read(".github/workflows/release-pages.yml")
     pages = _read(".github/workflows/pages.yml")
@@ -91,8 +91,8 @@ def test_tag_build_is_unprivileged_and_controller_is_main_owned() -> None:
     assert "Refusing to deploy an older release artifact" in controller
     assert "Recheck release is still newest" in controller
     assert "pages: write" in controller
-    assert "push:" not in pages
-    assert "workflow_dispatch:" not in pages
+    assert "push:\n    branches: [dev]" in pages
+    assert "workflow_run:" not in pages
 
 
 def test_combined_docs_build_validates_legacy_main_separately_from_dev() -> None:
@@ -106,6 +106,29 @@ def test_combined_docs_build_validates_legacy_main_separately_from_dev() -> None
         'working-directory: sources/dev\n'
         '        run: node scripts/check-docs-site.js'
     ) in workflow
+
+
+def test_combined_docs_build_does_not_rebuild_legacy_main_source() -> None:
+    workflow = _read(".github/workflows/docs-site-build.yml")
+
+    assert "sources/main/scripts/rebuild-docs.js" not in workflow
+    assert "sources/dev/scripts/rebuild-docs.js --root \"$GITHUB_WORKSPACE/sources/dev\" --all" in workflow
+
+
+def test_dev_pages_controller_is_branch_local_and_uses_main_as_content_only() -> None:
+    pages = _read(".github/workflows/pages.yml")
+
+    assert "push:\n    branches: [dev]" in pages
+    assert "workflow_run:" not in pages
+    assert "ref: dev" in pages
+    assert "ref: main" in pages
+    assert "path: sources/main" in pages
+    assert "--dev-root \"$GITHUB_WORKSPACE\"" in pages
+    assert "scripts/assemble-docs-site.js" in pages
+    assert "actions/upload-pages-artifact" in pages
+    assert "actions/deploy-pages" in pages
+    assert "run-id:" not in pages
+    assert "current-dev" not in pages
 
 
 def test_combined_docs_build_checks_metadata_as_a_workflow_step() -> None:

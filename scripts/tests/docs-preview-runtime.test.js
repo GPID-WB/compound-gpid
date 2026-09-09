@@ -61,6 +61,7 @@ test("stable root and /dev/ preview serve the same site shell at distinct paths"
         "/dev/navigation.json",
         "/dev/assets/site.css",
         "/dev/assets/site.js",
+        "/dev/research/",
         "/dev/research/index.md",
       ]) {
         const response = await fetch(`${baseUrl}${relative}`);

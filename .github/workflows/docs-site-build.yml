@@ -58,9 +58,6 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Build stable documentation source
-        run: node sources/main/scripts/rebuild-docs.js --root "$GITHUB_WORKSPACE/sources/main" --all
-
       - name: Build development documentation source
         run: node sources/dev/scripts/rebuild-docs.js --root "$GITHUB_WORKSPACE/sources/dev" --all
 

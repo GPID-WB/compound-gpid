@@ -56,32 +56,28 @@ Describe "Documentation rebuild workflow contracts" {
 }
 
 Describe "Pages exact-artifact deployment contracts" {
-    It "runs only after successful combined build completion" {
-        $pagesWorkflow | Should -Match 'workflow_run:'
-        $pagesWorkflow | Should -Match 'Build combined documentation'
-        $pagesWorkflow | Should -Match "workflow_run\.conclusion == 'success'"
-        $pagesWorkflow | Should -Match "workflow_run\.head_branch == 'main'"
-        $pagesWorkflow | Should -Match "workflow_run\.head_branch == 'dev'"
+    It "runs from pushes to dev" {
+        $pagesWorkflow | Should -Match 'push:'
+        $pagesWorkflow | Should -Match 'branches:\s*\[dev\]'
+        $pagesWorkflow | Should -Not -Match 'workflow_run:'
     }
 
-    It "downloads, verifies, and uploads the unchanged combined artifact" {
-        $downloadIndex = $pagesWorkflow.IndexOf('actions/download-artifact')
-        $verifyIndex = $pagesWorkflow.IndexOf('--verify')
-        $uploadIndex = $pagesWorkflow.IndexOf('path: combined-artifact/site')
-        $downloadIndex | Should -BeGreaterThan -1
-        $verifyIndex | Should -BeGreaterThan $downloadIndex
-        $uploadIndex | Should -BeGreaterThan $verifyIndex
-        $pagesWorkflow | Should -Match 'run-id:\s*\$\{\{ github\.event\.workflow_run\.id \}\}'
-        $pagesWorkflow | Should -Match '--main-sha'
-        $pagesWorkflow | Should -Match '--dev-sha'
+    It "builds and verifies the combined artifact with dev tooling" {
+        $pagesWorkflow | Should -Match 'scripts/rebuild-docs\.js --all'
+        $pagesWorkflow | Should -Match 'scripts/assemble-docs-site\.js'
+        $pagesWorkflow | Should -Match 'path: combined-artifact/site'
+        $pagesWorkflow | Should -Match 'path:\s*sources/main'
+        $pagesWorkflow | Should -Match '--main-root'
+        $pagesWorkflow | Should -Match '--dev-root'
+        $pagesWorkflow | Should -Not -Match 'actions/download-artifact|run-id:'
     }
 
     It "supports unprivileged tag builds through the protected workflow-run controller" {
         $releaseWorkflow | Should -Match 'tags:\s*\["v\*\.\*\.\*"\]'
         $releaseWorkflow | Should -Match 'release-docs-site'
         $releaseWorkflow | Should -Not -Match 'pages:\s*write|id-token:\s*write'
-        $pagesWorkflow | Should -Not -Match '(?m)^\s*push:\s*$'
-        $pagesWorkflow | Should -Not -Match 'workflow_dispatch:'
+        $pagesWorkflow | Should -Match '(?m)^\s*push:\s*$'
+        $pagesWorkflow | Should -Match 'branches:\s*\[dev\]'
         $releasePagesWorkflow | Should -Match 'Build release documentation'
         $releasePagesWorkflow | Should -Match 'name: Deploy release documentation'
         $releasePagesWorkflow | Should -Match 'merge-base --is-ancestor'
@@ -121,12 +117,13 @@ Describe "Pages exact-artifact deployment contracts" {
         $uploadIndex | Should -BeGreaterThan $byteMatchIndex
     }
 
-    It "never rebuilds or mutates the downloaded combined artifact" {
-        $artifactJob = [regex]::Match($pagesWorkflow, '(?s)deploy-combined-artifact:.*?(?=\n  [a-z].*?:|\z)').Value
-        $artifactJob | Should -Match '--verify'
-        $artifactJob | Should -Match 'combined-artifact/site'
-        $artifactJob | Should -Not -Match 'rebuild-docs\.js --all'
-        $artifactJob | Should -Not -Match 'generate-whats-new\.js'
+    It "does not download or rebuild a separate combined artifact" {
+        $pagesWorkflow | Should -Match 'rebuild-docs\.js --all'
+        $pagesWorkflow | Should -Match 'scripts/assemble-docs-site\.js'
+        $pagesWorkflow | Should -Match 'combined-artifact/site'
+        $pagesWorkflow | Should -Not -Match 'actions/download-artifact'
+        $pagesWorkflow | Should -Not -Match 'run-id:'
+        $pagesWorkflow | Should -Not -Match 'generate-whats-new\.js'
     }
 
     It "builds tagged code without Pages credentials and deploys only the verified prebuilt artifact" {
