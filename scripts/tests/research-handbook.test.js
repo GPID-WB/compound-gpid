@@ -25,6 +25,20 @@ async function readNavigation() {
   return JSON.parse(await readFile(path.join(root, "docs", "navigation.json"), "utf8"));
 }
 
+test("Research Handbook local links remain inside the current docs tree", async () => {
+  for (const file of Object.values(handbookFiles)) {
+    const filePath = path.join(handbookRoot, file);
+    const content = await readFile(filePath, "utf8");
+    for (const match of content.matchAll(/\[[^\]]+\]\(([^)\s]+)(?:\s+"[^"]+")?\)/g)) {
+      const href = match[1];
+      if (/^(https?:|mailto:|#)/i.test(href)) continue;
+      const target = path.resolve(path.dirname(filePath), href.split("#", 1)[0]);
+      assert.ok(target.startsWith(`${path.join(root, "docs")}${path.sep}`), `${file} escapes docs/: ${href}`);
+      await readFile(target, "utf8");
+    }
+  }
+});
+
 test("Research Handbook routes are complete and ordered", async () => {
   const navigation = await readNavigation();
   const group = navigation.groups.find((entry) => entry.title === "Research Handbook");

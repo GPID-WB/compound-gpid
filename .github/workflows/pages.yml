@@ -1,9 +1,20 @@
 name: Deploy documentation site
+# Created 2026-09-10.
 
 on:
-  workflow_run:
-    workflows: ["Build combined documentation"]
-    types: [completed]
+  push:
+    branches: [dev]
+    paths:
+      - '.github/prompts/**'
+      - '.github/skills/**'
+      - '.github/agents/**'
+      - 'docs/**'
+      - 'scripts/rebuild-docs.js'
+      - 'scripts/check-docs-site.js'
+      - 'scripts/assemble-docs-site.js'
+      - '.github/workflows/docs-site-build.yml'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -13,34 +24,27 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy-combined-artifact:
-    if: >-
-      github.event_name == 'workflow_run' &&
-      github.event.workflow_run.name == 'Build combined documentation' &&
-      github.event.workflow_run.conclusion == 'success' &&
-      (github.event.workflow_run.head_branch == 'main' ||
-       github.event.workflow_run.head_branch == 'dev')
+  deploy-dev-preview:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     permissions:
-      actions: read
       contents: read
       pages: write
       id-token: write
     steps:
-      - name: Check out trusted main controller
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
-        with:
-          ref: main
-          fetch-depth: 0
-
-      - name: Check out current dev source as data
+      - name: Check out current dev source and controller
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
         with:
           ref: dev
-          path: current-dev
+          fetch-depth: 0
+
+      - name: Check out current main source as stable content
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          ref: main
+          path: sources/main
           fetch-depth: 0
 
       - name: Set up Node
@@ -48,25 +52,23 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Download exact combined artifact
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
-        with:
-          name: combined-docs-site
-          path: combined-artifact
-          run-id: ${{ github.event.workflow_run.id }}
-          github-token: ${{ github.token }}
+      - name: Validate stable documentation source
+        working-directory: sources/main
+        run: node "$GITHUB_WORKSPACE/scripts/check-docs-site.js" --legacy
 
-      - name: Verify exact sources and combined artifact
-        env:
-          MAIN_SHA: ${{ github.sha }}
-          DEV_SHA: ${{ github.event.workflow_run.head_sha }}
+      - name: Build and validate development documentation source
         run: |
-          main_sha="$(git rev-parse HEAD)"
-          dev_sha="$(git -C current-dev rev-parse HEAD)"
+          node scripts/rebuild-docs.js --all
+          node scripts/check-docs-site.js
+
+      - name: Assemble combined documentation artifact
+        run: |
+          main_sha="$(git -C sources/main rev-parse HEAD)"
+          dev_sha="$(git rev-parse HEAD)"
           node scripts/assemble-docs-site.js \
-            --verify combined-artifact \
-            --main-root "$GITHUB_WORKSPACE" \
-            --dev-root "$GITHUB_WORKSPACE/current-dev" \
+            --main-root "$GITHUB_WORKSPACE/sources/main" \
+            --dev-root "$GITHUB_WORKSPACE" \
+            --out "$GITHUB_WORKSPACE/combined-artifact" \
             --main-sha "$main_sha" \
             --dev-sha "$dev_sha" \
             --main-branch main \
@@ -74,10 +76,24 @@ jobs:
             --main-ref main \
             --dev-ref dev
 
+      - name: Verify combined documentation artifact
+        run: |
+          node scripts/assemble-docs-site.js \
+            --verify combined-artifact \
+            --main-root "$GITHUB_WORKSPACE/sources/main" \
+            --dev-root "$GITHUB_WORKSPACE" \
+            --main-branch main \
+            --dev-branch dev \
+            --main-ref main \
+            --dev-ref dev
+
+      - name: Require combined build metadata
+        run: test -f combined-artifact/.docs-build-metadata.json
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b  # v5.0.0
 
-      - name: Upload unchanged combined Pages artifact
+      - name: Upload combined Pages artifact
         uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa  # v3.0.1
         with:
           path: combined-artifact/site

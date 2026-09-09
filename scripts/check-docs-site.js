@@ -336,17 +336,28 @@ async function loadCandidatePages() {
   if (/pages:\s*write|id-token:\s*write/.test(releaseWorkflow)) {
     throw new Error("release-docs.yml must remain unprivileged.");
   }
-  if (!/workflow_run\s*:/.test(workflow)) {
-    throw new Error("pages.yml must consume the combined build via workflow_run.");
-  }
-  const pagesContract = [
-    "Build combined documentation",
-    "actions/download-artifact",
-    "run-id:",
-    "assemble-docs-site.js",
-    "--verify",
-    "combined-artifact/site",
-  ];
+  const branchLocalPages = /push:\s*\n\s*branches:\s*\[dev\]/.test(workflow)
+    && !/workflow_run\s*:/.test(workflow);
+  const pagesContract = branchLocalPages
+    ? [
+      "push:",
+      "branches: [dev]",
+      "sources/main",
+      "scripts/assemble-docs-site.js",
+      "--main-root",
+      "--dev-root",
+      "actions/upload-pages-artifact",
+      "actions/deploy-pages",
+      "combined-artifact/site",
+    ]
+    : [
+      "Build combined documentation",
+      "actions/download-artifact",
+      "run-id:",
+      "assemble-docs-site.js",
+      "--verify",
+      "combined-artifact/site",
+    ];
   for (const token of pagesContract) {
     if (!workflow.includes(token)) throw new Error(`pages.yml must reference ${token}.`);
   }
