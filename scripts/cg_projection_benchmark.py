@@ -52,6 +52,7 @@ if _scripts_dir not in sys.path:
 
 import cg_audit_context as audit  # noqa: E402
 import cg_context_budget as budget  # noqa: E402
+from skill_management.services import registry as registry_service  # noqa: E402
 
 DISCLAIMER = (
     "Token estimates are heuristic (chars/4) and intended for directional "
@@ -74,7 +75,7 @@ PROFILES: list[dict[str, Any]] = [
         "capabilities": [],
         "config": {"language": "both"},
         "requestedCommand": "/cg-work",
-        "expectedRoute": "cg-work",
+        "expectedRoute": "suite-cg",
         "expectedCatalogSummary": "cg-* workflows active; cr-* inactive",
         "expectedHardStop": "cr-* capability inactive: add suite cr (or run cg-link/cg-update to regenerate)",
         "expectedInventoryIncludes": ["kernel", "suite-cg"],
@@ -88,7 +89,7 @@ PROFILES: list[dict[str, Any]] = [
         "capabilities": [],
         "config": {"language": "both"},
         "requestedCommand": "/cr-work",
-        "expectedRoute": "cr-work",
+        "expectedRoute": "suite-cr",
         "expectedCatalogSummary": "cr-* workflows active; cg-* inactive",
         "expectedHardStop": "cg-* capability inactive: add suite cg (or run cg-link/cg-update to regenerate)",
         "expectedInventoryIncludes": ["kernel", "suite-cr", "cap-research-output", "cap-language-research"],
@@ -102,7 +103,7 @@ PROFILES: list[dict[str, Any]] = [
         "capabilities": [],
         "config": {"language": "both"},
         "requestedCommand": "/cg-work",
-        "expectedRoute": "cg-work",
+        "expectedRoute": "suite-cg",
         "expectedCatalogSummary": "cg-* and cr-* workflows active; no inactive suite",
         "expectedHardStop": None,
         "expectedInventoryIncludes": ["kernel", "suite-cg", "suite-cr"],
@@ -116,7 +117,7 @@ PROFILES: list[dict[str, Any]] = [
         "capabilities": ["python"],
         "config": {"language": "r"},
         "requestedCommand": "/cg-skill find",
-        "expectedRoute": "cg-skill find",
+        "expectedRoute": "suite-cg",
         "expectedCatalogSummary": "python capability active; stata/powershell inactive",
         "expectedHardStop": "stata capability inactive: remove intent or add capability (run cg-link/cg-update to regenerate)",
         "expectedInventoryIncludes": ["kernel", "suite-cg", "cap-language-python", "cap-language-r"],
@@ -232,18 +233,17 @@ def _source_inventory(
 
 def _advertised_skill_metadata(
     skill_rows: Sequence[dict[str, Any]],
-    selected_globs: Sequence[str],
+    registry: dict,
+    selected_module_ids: set[str],
 ) -> list[dict[str, Any]]:
-    """Advertised skill metadata restricted to the selected inventory globs."""
-    if not selected_globs or not skill_rows:
+    """Advertised skill metadata restricted to resolved selected owners."""
+    if not selected_module_ids or not skill_rows:
         return []
-    import cg_validate_modules as validator
 
     selected: list[dict[str, Any]] = []
     for row in skill_rows:
         candidate = f".github/skills/{row['id']}/SKILL.md"
-        matched = any(validator.glob_match(pattern, candidate) for pattern in selected_globs)
-        if matched:
+        if budget.asset_is_loadable(registry, selected_module_ids, candidate):
             selected.append({
                 "id": row["id"],
                 "path": row["path"],
@@ -284,17 +284,8 @@ def _baseline_context(root: Path) -> dict[str, Any]:
 
 def _skill_owner(registry: dict, skill_path: str) -> Optional[str]:
     """Owning module of a canonical skill path (or None)."""
-    import cg_validate_modules as validator
-
-    for module in registry.get("modules", []):
-        if not isinstance(module, dict):
-            continue
-        if any(
-            isinstance(pattern, str) and validator.glob_match(pattern, skill_path)
-            for pattern in module.get("ownedAssets", [])
-        ):
-            return module.get("id")
-    return None
+    owners = registry_service.matching_asset_owners(registry, skill_path)
+    return owners[0] if len(owners) == 1 else None
 
 
 # ---------------------------------------------------------------------------
@@ -346,26 +337,26 @@ def run_task_oracle(
         })
 
     route = profile.get("expectedRoute")
-    route_file = f".github/prompts/{profile['requestedCommand'].lstrip('/')}.prompt.md"
-    import cg_validate_modules as validator
-
-    route_ok = False
-    for module in registry.get("modules", []):
-        if not isinstance(module, dict) or module.get("id") not in id_set:
-            continue
-        for pattern in module.get("ownedAssets", []):
-            if isinstance(pattern, str) and validator.glob_match(pattern, route_file):
-                route_ok = True
+    command_name = str(profile["requestedCommand"]).lstrip("/").split(maxsplit=1)[0]
+    route_file = f".github/prompts/{command_name}.prompt.md"
+    route_owners = registry_service.matching_asset_owners(registry, route_file)
+    route_owner = route_owners[0] if len(route_owners) == 1 else None
+    route_ok = (
+        (root / route_file).is_file()
+        and route_owner == route
+        and route_owner in id_set
+    )
     checks.append({
         "name": f"route {route}",
         "ok": route_ok,
-        "detail": "" if route_ok else "requested command not owned by selected closure",
+        "detail": "" if route_ok else (
+            f"requested command owner is {route_owner!r}; expected selected owner {route!r}"
+        ),
     })
 
-    selected_globs = budget.loadable_asset_globs(registry, id_set)
     if skill_rows is None:
         skill_rows = audit.scan_skill_metadata(root)
-    advertised = _advertised_skill_metadata(skill_rows, selected_globs)
+    advertised = _advertised_skill_metadata(skill_rows, registry, id_set)
     advertised_ids = {row["id"] for row in advertised}
     leak = False
     detail = f"{len(advertised_ids)} selected skills advertised"
@@ -382,10 +373,7 @@ def run_task_oracle(
                     continue
                 for candidate_row in skill_rows:
                     candidate = f".github/skills/{candidate_row['id']}/SKILL.md"
-                    if any(
-                        isinstance(pattern, str) and validator.glob_match(pattern, candidate)
-                        for pattern in module.get("ownedAssets", [])
-                    ):
+                    if registry_service.module_owns_asset(module, candidate):
                         excluded_ids.add(candidate_row["id"])
         leaked = advertised_ids & excluded_ids
         if leaked:
@@ -429,7 +417,11 @@ def collect_profile_baseline(
             "error": str(exc),
         }
         inventory_ok = False
-    selected_globs = generated.get("loadableAssetGlobs", [])
+    selected_ids = set(generated.get("loadableModuleIds", []))
+    try:
+        registry = _load_registry(root)
+    except (FileNotFoundError, json.JSONDecodeError, ValueError):
+        registry = {}
     oracle = run_task_oracle(root, profile, skill_rows=ctx["skill_rows"])
     record: dict[str, Any] = {
         "id": profile["id"],
@@ -443,7 +435,9 @@ def collect_profile_baseline(
         "expectedHardStop": profile.get("expectedHardStop"),
         "hostProcedure": profile["hostProcedure"],
         "generatedInventory": generated,
-        "advertisedSkillCount": len(_advertised_skill_metadata(ctx["skill_rows"], selected_globs)),
+        "advertisedSkillCount": len(
+            _advertised_skill_metadata(ctx["skill_rows"], registry, selected_ids)
+        ),
         "sourceInventory": _source_inventory(files=ctx["files"], by_category=ctx["by_category"]),
         "contextAudit": _context_audit_measures(root, profile, report=ctx["report"]),
     }

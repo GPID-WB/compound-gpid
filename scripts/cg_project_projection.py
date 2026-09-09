@@ -258,8 +258,13 @@ def _load_canonical_assets(
     source_root: Path, manifest: dict[str, Any]
 ) -> dict[str, list[dict[str, Any]]]:
     """Scan canonical assets filtered by the manifest's committed closure globs."""
-    globs = _manifest_closure_globs(source_root, manifest)
-    return generator.scan_canonical_assets(source_root, loadable_globs=globs)
+    closure, registry = _manifest_closure(source_root, manifest)
+    globs = budget.loadable_asset_globs(registry, closure)
+    return generator.scan_canonical_assets(
+        source_root,
+        loadable_globs=globs,
+        loadable_module_ids=closure,
+    )
 
 
 def _load_projection_assets(

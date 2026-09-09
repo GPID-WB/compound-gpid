@@ -329,8 +329,9 @@ def inventory_digest(
 
     ids = loadable_module_ids(registry, active_suites, config=config, capabilities=capabilities)
     globs = loadable_asset_globs(registry, ids)
+    exclusions = ownership_exclusions(registry, ids)
     canonical = json.dumps(
-        {"ids": sorted(ids), "globs": sorted(globs)},
+        {"ids": sorted(ids), "globs": sorted(globs), "exclusions": exclusions},
         sort_keys=True,
         separators=(",", ":"),
     )
@@ -373,6 +374,29 @@ def loadable_asset_globs(registry: dict, loadable_ids: set[str]) -> list[str]:
             if isinstance(pattern, str):
                 globs.append(pattern)
     return sorted(set(globs))
+
+
+def ownership_exclusions(
+    registry: dict, loadable_ids: set[str]
+) -> dict[str, list[str]]:
+    """Return sorted ownership exclusions for modules in one closure."""
+    result: dict[str, list[str]] = {}
+    for module in registry.get("modules", []):
+        if not isinstance(module, dict) or module.get("id") not in loadable_ids:
+            continue
+        exclusions = module.get("ownershipExclusions", [])
+        if isinstance(exclusions, list) and exclusions:
+            result[str(module["id"])] = sorted(set(exclusions))
+    return result
+
+
+def asset_is_loadable(registry: dict, loadable_ids: set[str], asset: str) -> bool:
+    """Return whether the asset's resolved owner is in the selected closure."""
+    from skill_management.services.registry import matching_asset_owners
+
+    return any(
+        owner in loadable_ids for owner in matching_asset_owners(registry, asset)
+    )
 
 
 def filtered_manifest(
@@ -421,6 +445,7 @@ def filtered_manifest(
         "selectedProjectSkills": selected_projects,
         "loadableModules": sorted(ids),
         "loadableAssetGlobs": loadable_asset_globs(registry, ids),
+        "ownershipExclusions": ownership_exclusions(registry, ids),
     }
 
 

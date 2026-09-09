@@ -622,11 +622,14 @@ def _canonical_registry_after_removal(
         retained = []
         for pattern in module.get("ownedAssets", []):
             matches_target = any(
-                registry.glob_match(pattern, item.source_path)
+                registry.ownership_pattern_matches(
+                    module, pattern, item.source_path
+                )
                 for item in inventory.files
             )
             matches_future = any(
-                registry.glob_match(pattern, path) for path in future_assets
+                registry.ownership_pattern_matches(module, pattern, path)
+                for path in future_assets
             )
             if matches_target and not matches_future:
                 continue

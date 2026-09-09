@@ -325,7 +325,6 @@ def check_inventory_leaks(
         registry = _load_registry(root)
 
     closure = set(manifest["selection"]["moduleClosure"])
-    closure_globs = sorted(budget.loadable_asset_globs(registry, closure))
     leaks: list[str] = []
 
     # Check catalog rows for inactive references
@@ -343,13 +342,13 @@ def check_inventory_leaks(
     all_assets = validator.canonical_assets(root)
     active_assets = [
         a for a in all_assets
-        if any(validator.glob_match(pattern, a) for pattern in closure_globs)
+        if budget.asset_is_loadable(registry, closure, a)
     ]
 
     # Read each active asset and check for references to inactive assets
     inactive_assets = [
         a for a in all_assets
-        if not any(validator.glob_match(pattern, a) for pattern in closure_globs)
+        if not budget.asset_is_loadable(registry, closure, a)
     ]
     inactive_set = set(inactive_assets)
 

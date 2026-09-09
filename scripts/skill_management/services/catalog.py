@@ -197,12 +197,7 @@ def build_catalog_rows(
         raise CatalogError(f"Unsupported manifest health: {manifest_health}")
     try:
         snapshot = _snapshot(Path(source_root), registry)
-        import cg_context_budget as budget
-
         closure = set(manifest.get("selection", {}).get("moduleClosure", []))
-        closure_globs = sorted(
-            budget.loadable_asset_globs(snapshot.to_dict(), closure)
-        )
         rows = []
         if project_snapshot is None:
             canonical_inventories = tuple(
@@ -224,9 +219,7 @@ def build_catalog_rows(
             if owner is None:
                 raise CatalogError(f"Canonical skill has no owner: {skill_path}")
             capability = snapshot.capability_for_owner(owner)
-            selected = any(
-                _glob_match(pattern, skill_path) for pattern in closure_globs
-            )
+            selected = owner in closure
             prospective = manifest_health != "fresh"
             if prospective:
                 availability = "prospective"
@@ -374,12 +367,6 @@ def build_catalog_rows(
 def _path_name(source_path: str) -> str:
     """Return the final POSIX path component for a canonical bundle path."""
     return source_path.rsplit("/", 1)[-1]
-
-
-def _glob_match(pattern: str, asset: str) -> bool:
-    from skill_management.paths import glob_match
-
-    return glob_match(pattern, asset)
 
 
 def resolve_catalog(context: Any) -> CatalogResolution:
