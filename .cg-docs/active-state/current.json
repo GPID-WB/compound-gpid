@@ -1,25 +1,20 @@
 {
   "schemaVersion": "compound-gpid-active-state-v1",
-  "updatedAt": "2026-09-08T21:12:08Z",
+  "updatedAt": "2026-09-09T16:32:54Z",
   "workflow": "/cg-work",
-  "status": "completed",
-  "branch": "feat/minimal-adaptive-grilling",
-  "plan": ".cg-docs/plans/2026-09-04-minimal-adaptive-grilling.md",
-  "executionReport": ".cg-docs/work-reports/2026-09-08-minimal-adaptive-grilling.md",
-  "currentPhase": null,
+  "status": "active",
+  "branch": "wealthy-salmonberry",
+  "plan": ".cg-docs/plans/2026-09-08-evidence-backed-cg-help-command.md",
+  "executionReport": ".cg-docs/work-reports/2026-09-09-evidence-backed-cg-help-command.md",
+  "currentPhase": 3,
   "evidenceStatus": [
-    {"id": "V1", "status": "passed", "artifact": "tests/last-run.json full run: prompt-tools row passed"},
-    {"id": "V2", "status": "passed", "artifact": "tests/last-run.json full run: prompt-tools row passed"},
-    {"id": "V3", "status": "passed", "artifact": "target generator and 67 passed, 3 skipped focused target tests"},
-    {"id": "V4", "status": "passed", "artifact": "tests/last-run.json: 2425 passed, filteredFiles null"},
-    {"id": "V5", "status": "passed", "artifact": "git diff --check and changed-path review"}
+    {"id": "V1", "status": "passed", "artifact": "67 passed, 1 skipped focused pytest; tests/last-run.json: 2808 total, 0 failed, unfiltered"},
+    {"id": "V2", "status": "passed", "artifact": "Catalog current; 26 focused tests passed; tests/last-run.json: 2827 total, 0 failed, unfiltered"}
   ],
   "unresolvedDecisions": [],
   "artifactRefs": [
-    {"kind": "plan", "path": ".cg-docs/plans/2026-09-04-minimal-adaptive-grilling.md", "status": "completed"},
-    {"kind": "execution-report", "path": ".cg-docs/work-reports/2026-09-08-minimal-adaptive-grilling.md", "status": "completed"},
-    {"kind": "review", "path": ".cg-docs/reviews/2026-09-04-minimal-adaptive-grilling-review.md", "status": "open"},
-    {"kind": "verification-review", "path": ".cg-docs/reviews/2026-08-11-kilo-agent-parsing-linker-copy-directory-verify-review.md", "status": "open-incomplete"}
+    {"kind": "plan", "path": ".cg-docs/plans/2026-09-08-evidence-backed-cg-help-command.md", "status": "active"},
+    {"kind": "execution-report", "path": ".cg-docs/work-reports/2026-09-09-evidence-backed-cg-help-command.md", "status": "active"}
   ],
-  "nextCommand": "/cg-verify-pr"
+  "nextCommand": "/cg-work phase3 .cg-docs/plans/2026-09-08-evidence-backed-cg-help-command.md"
 }
