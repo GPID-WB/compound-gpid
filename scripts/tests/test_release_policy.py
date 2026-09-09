@@ -93,3 +93,18 @@ def test_tag_build_is_unprivileged_and_controller_is_main_owned() -> None:
     assert "pages: write" in controller
     assert "push:" not in pages
     assert "workflow_dispatch:" not in pages
+
+
+def test_combined_docs_build_checks_metadata_as_a_workflow_step() -> None:
+    workflow = _read(".github/workflows/docs-site-build.yml")
+
+    assert (
+        "\n      - name: Require combined build metadata\n"
+        "        run: test -f combined-artifact/.docs-build-metadata.json\n"
+        in workflow
+    )
+    assert (
+        "\n          - name: Require combined build metadata\n"
+        "            run: test -f combined-artifact/.docs-build-metadata.json\n"
+        not in workflow
+    )
