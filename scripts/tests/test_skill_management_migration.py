@@ -71,7 +71,7 @@ def test_posix_wrapper_resolves_python_and_forwards_arguments() -> None:
     assert 'exec "$PYTHON_CMD" "$SCRIPT_DIR/../scripts/cg_skill.py" "$@"' in content
 
 
-def test_skill_management_is_a_public_cg_suite_capability() -> None:
+def test_skill_management_is_a_public_cross_suite_capability() -> None:
     registry = json.loads(
         (REPO_ROOT / ".github/shared/module-registry.json").read_text(encoding="utf-8")
     )
@@ -80,10 +80,30 @@ def test_skill_management_is_a_public_cg_suite_capability() -> None:
     )
     suite = next(item for item in registry["modules"] if item["id"] == "suite-cg")
     assert capability["owningModule"] == "cap-skill-management"
-    assert capability["supportedSuites"] == ["cg"]
+    assert capability["supportedSuites"] == ["cg", "cr"]
     assert capability["configSelectors"] == []
     assert "/cg-skill" in capability["taskTriggers"]
     assert "cap-skill-management" in suite["dependsOn"]
+    research_suite = next(
+        item for item in registry["modules"] if item["id"] == "suite-cr"
+    )
+    assert "cap-skill-management" in research_suite["dependsOn"]
+
+
+def test_help_metadata_migration_keeps_existing_public_skill_surfaces() -> None:
+    registry = json.loads(
+        (REPO_ROOT / ".github/shared/module-registry.json").read_text(encoding="utf-8")
+    )
+    help_module = next(item for item in registry["modules"] if item["id"] == "cap-help")
+
+    assert help_module["ownedAssets"] == [
+        ".github/shared/help-catalog.json",
+        ".github/shared/shell-commands.json",
+    ]
+    assert (REPO_ROOT / ".github/prompts/cg-skill.help.json").is_file()
+    assert (REPO_ROOT / ".github/prompts/cg-skill.prompt.md").is_file()
+    assert not (REPO_ROOT / ".github/prompts/cg-help.prompt.md").exists()
+
 
 
 def test_old_names_remain_only_in_explicit_migration_text() -> None:
@@ -108,4 +128,4 @@ def test_public_navigation_and_benchmark_use_cg_skill() -> None:
         encoding="utf-8"
     )
     assert '"requestedCommand": "/cg-skill find"' in benchmark
-    assert '"expectedRoute": "cg-skill find"' in benchmark
+    assert '"expectedRoute": "suite-cg"' in benchmark

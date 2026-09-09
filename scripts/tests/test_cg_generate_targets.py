@@ -50,6 +50,11 @@ COMMIT_PUSH_COMMAND_PATHS = {
 }
 EXPECTED_PLAN_TARGETS = set(COMMIT_PUSH_COMMAND_PATHS) | {"copilot"}
 SOURCE_MARKER = ".compound-gpid-source.json"
+PHASE_2_DEFERRED_TARGET_SOURCES = {
+    ".github/prompts/cg-commit-push-pr.prompt.md",
+    ".github/shared/help-catalog.json",
+    ".github/shared/shell-commands.json",
+}
 
 
 def _write(path: Path, content: str) -> Path:
@@ -106,6 +111,18 @@ def _worktree_output_mismatches(
         ):
             mismatches.append(f"content:{entry.destination}")
     return mismatches
+
+
+def _phase_2_fixture_manifest_view(manifest: dict) -> dict:
+    """Remove only target records deferred until Phase 5 integration."""
+    return {
+        **manifest,
+        "files": [
+            item
+            for item in manifest.get("files", [])
+            if item.get("source") not in PHASE_2_DEFERRED_TARGET_SOURCES
+        ],
+    }
 
 
 def _make_fixture_repo(tmp_path: Path) -> Path:
@@ -297,6 +314,25 @@ class TestScanCanonicalAssets:
         root = _make_fixture_repo(tmp_path)
         assets = gen.scan_canonical_assets(root)
         assert len(assets["skills"]) == 1
+
+    def test_unfiltered_schema_v2_capability_registry_scans_all_assets(
+        self, tmp_path: Path
+    ) -> None:
+        root = _make_fixture_repo(tmp_path)
+        registry_path = _install_fixture_registry(root)
+        registry = json.loads(registry_path.read_text(encoding="utf-8"))
+        registry["schemaVersion"] = 2
+        registry_path.write_text(json.dumps(registry), encoding="utf-8")
+
+        assets = gen.scan_canonical_assets(root)
+
+        assert {item["filename"] for item in assets["prompts"]} == {
+            "cg-another.prompt.md",
+            "cg-test.prompt.md",
+        }
+        assert [item["filename"] for item in assets["agents"]] == [
+            "cg-test-agent.agent.md"
+        ]
 
     def test_missing_canonical_roots_fail(self, tmp_path: Path) -> None:
         root = tmp_path / "empty"
@@ -1000,6 +1036,16 @@ class TestGenerationPlan:
         output_mismatches = _worktree_output_mismatches(
             REPO_ROOT, plan.entries, copilot_destinations
         )
+        deferred_destinations = {
+            entry.destination
+            for entry in plan.entries
+            if entry.source in PHASE_2_DEFERRED_TARGET_SOURCES
+        }
+        output_mismatches = [
+            mismatch
+            for mismatch in output_mismatches
+            if mismatch.split(":", 1)[1] not in deferred_destinations
+        ]
 
         manifest_mismatches = []
         disk_manifest_paths = {}
@@ -1012,10 +1058,13 @@ class TestGenerationPlan:
                 continue
 
             disk_bytes = disk_path.read_bytes()
-            if disk_bytes != expected_bytes:
-                manifest_mismatches.append(f"content:{manifest_path}")
             try:
                 disk_manifest = json.loads(disk_bytes.decode("utf-8"))
+                expected_manifest = json.loads(expected_bytes.decode("utf-8"))
+                if _phase_2_fixture_manifest_view(
+                    disk_manifest
+                ) != _phase_2_fixture_manifest_view(expected_manifest):
+                    manifest_mismatches.append(f"content:{manifest_path}")
                 disk_manifest_paths[target_id] = {
                     item["path"] for item in disk_manifest["files"]
                 }

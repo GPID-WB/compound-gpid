@@ -769,6 +769,19 @@ def test_consumer_is_safe_default_for_noncanonical_checkout(tmp_path: Path) -> N
     assert any("origin" in reason.lower() for reason in discovered.write_context_errors)
 
 
+def test_dispatch_context_accepts_ownership_exclusion_schema(tmp_path: Path) -> None:
+    root = _repository(tmp_path)
+    path = root / ".github/shared/module-registry.json"
+    registry = json.loads(path.read_text(encoding="utf-8"))
+    registry["modules"][-1]["ownershipExclusions"] = [
+        ".github/prompts/cg-help.prompt.md"
+    ]
+    _write(path, json.dumps(registry))
+
+    assert context._canonical_registry_valid(root)  # pylint: disable=protected-access
+
+
+
 def test_forged_origin_refs_and_registry_cannot_receive_maintainer_role(
     tmp_path: Path,
 ) -> None:

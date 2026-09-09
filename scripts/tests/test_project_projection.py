@@ -263,6 +263,27 @@ class TestPlanOnlyReadsManifest:
 
 
 class TestClosureFiltering:
+    def test_help_sidecar_metadata_is_scanned_but_not_projected(
+        self, tmp_path: Path
+    ) -> None:
+        root, manifest = _repo_root(tmp_path, platforms="kilo", suites="[cg]")
+        sidecar = root / ".github/prompts/cg-work.help.json"
+        _write(sidecar, "{}\n")
+        registry_path = root / ".github/shared/module-registry.json"
+        registry = json.loads(registry_path.read_text(encoding="utf-8"))
+        suite = next(item for item in registry["modules"] if item["id"] == "suite-cg")
+        suite["ownedAssets"].append(".github/prompts/cg-*.help.json")
+        _write_json(registry_path, registry)
+        manifest = manifest_module.resolve_active_manifest(root, platforms=["kilo"])
+
+        assets = projection._load_canonical_assets(root, manifest)
+        plan = projection.build_projection_plan(root, manifest)
+
+        assert [item["relative_path"] for item in assets["help_sidecars"]] == [
+            ".github/prompts/cg-work.help.json"
+        ]
+        assert all(not entry.source.endswith(".help.json") for entry in plan.entries)
+
     def test_distinct_inventories_per_profile(self, tmp_path: Path) -> None:
         cg_root = tmp_path / "cg"
         _real_registry(cg_root)

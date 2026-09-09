@@ -152,6 +152,53 @@ class TestRegistrySchema:
 
 
 class TestOwnershipClosure:
+    def test_ownership_exclusion_is_applied_by_service_validator_and_snapshot(
+        self, tmp_path: Path
+    ) -> None:
+        _minimal_assets(tmp_path)
+        data = _default_registry()
+        data["modules"].append(
+            {
+                "id": "cap-help",
+                "layer": "capability",
+                "displayName": "Help",
+                "description": "Shared help.",
+                "dependsOn": ["kernel"],
+                "ownedAssets": [".github/prompts/cg-help.prompt.md"],
+            }
+        )
+        suite = next(item for item in data["modules"] if item["id"] == "suite-cg")
+        suite["ownershipExclusions"] = [".github/prompts/cg-help.prompt.md"]
+        suite["dependsOn"].append("cap-help")
+        _create_file(
+            tmp_path,
+            ".github/prompts/cg-help.prompt.md",
+            "---\ndescription: help\n---\nhelp body\n",
+        )
+        _registry(tmp_path, data)
+
+        snapshot = registry_service.RegistrySnapshot.from_data(tmp_path, data)
+
+        assert registry_service.matching_asset_owners(
+            data, ".github/prompts/cg-help.prompt.md"
+        ) == ("cap-help",)
+        assert validator.resolve_asset_owner(
+            data, ".github/prompts/cg-help.prompt.md"
+        ) == "cap-help"
+        assert snapshot.owner_for_asset(
+            ".github/prompts/cg-help.prompt.md"
+        ) == "cap-help"
+        assert snapshot.to_dict()["modules"][2]["ownershipExclusions"] == [
+            ".github/prompts/cg-help.prompt.md"
+        ]
+        assert validator.check_ownership(tmp_path) == []
+
+    def test_ownership_exclusion_schema_rejects_invalid_values(self) -> None:
+        data = _default_registry()
+        data["modules"][2]["ownershipExclusions"] = "cg-help"
+        errors = validator.validate_registry_schema(data)
+        assert any("ownershipExclusions" in error for error in errors)
+
     def test_public_registry_owner_matching_agrees_with_validator(
         self, tmp_path: Path
     ) -> None:
@@ -593,6 +640,26 @@ class TestCapabilitySchema:
 
 
 class TestRealRepoRegistry:
+    def test_help_metadata_and_catalog_have_exact_capability_ownership(self) -> None:
+        registry, error = validator.load_registry(REPO_ROOT)
+        assert error is None
+        assert registry is not None
+        help_module = next(
+            item for item in registry["modules"] if item["id"] == "cap-help"
+        )
+        assert help_module["ownedAssets"] == [
+            ".github/shared/help-catalog.json",
+            ".github/shared/shell-commands.json"
+        ]
+        for suite_id in ("suite-cg", "suite-cr"):
+            suite = next(
+                item for item in registry["modules"] if item["id"] == suite_id
+            )
+            assert "cap-help" in suite["dependsOn"]
+            assert suite["help"]["metadataGlobs"]
+        assert not (REPO_ROOT / ".github/prompts/cg-help.prompt.md").exists()
+        assert not (REPO_ROOT / ".github/prompts/cg-help.help.json").exists()
+
     def test_repo_ownership_closure_is_complete(self) -> None:
         errors = validator.check_ownership(REPO_ROOT)
         assert errors == [], f"Validation errors: {errors}"
@@ -607,7 +674,7 @@ class TestRealRepoRegistry:
         assert "unowned: 0" in captured.out
         assert "multi-owned: 0" in captured.out
 
-    def test_public_skill_management_module_has_capability_and_cg_suite_edge(
+    def test_public_skill_management_module_has_cross_suite_capability_edges(
         self,
     ) -> None:
         registry, error = validator.load_registry(REPO_ROOT)
@@ -628,9 +695,13 @@ class TestRealRepoRegistry:
             if item.get("owningModule") == "cap-skill-management"
         )
         assert capability["id"] == "skill-management"
-        assert capability["supportedSuites"] == ["cg"]
+        assert capability["supportedSuites"] == ["cg", "cr"]
         assert capability["configSelectors"] == []
         suite_cg = next(
             item for item in registry["modules"] if item["id"] == "suite-cg"
         )
         assert "cap-skill-management" in suite_cg["dependsOn"]
+        suite_cr = next(
+            item for item in registry["modules"] if item["id"] == "suite-cr"
+        )
+        assert "cap-skill-management" in suite_cr["dependsOn"]

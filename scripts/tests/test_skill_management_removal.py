@@ -195,6 +195,81 @@ def test_migration_planning_allows_normal_documentation_and_references(
     assert target.read_bytes() == current
 
 
+def test_removal_does_not_retain_owner_glob_for_excluded_future_skill(
+    tmp_path: Path,
+) -> None:
+    removed = bundles.bundle_inventory_from_files(
+        "removed-skill",
+        ".github/skills/removed-skill",
+        "plugin-canonical",
+        {
+            "SKILL.md": (
+                b'---\nname: removed-skill\ndescription: "Removed."\n---\n'
+            )
+        },
+    )
+    replacement = bundles.bundle_inventory_from_files(
+        "replacement-skill",
+        ".github/skills/replacement-skill",
+        "plugin-canonical",
+        {
+            "SKILL.md": (
+                b'---\nname: replacement-skill\ndescription: "Replacement."\n---\n'
+            )
+        },
+    )
+    registry_value = {
+        "schemaVersion": 2,
+        "description": "Removal exclusion fixture.",
+        "capabilities": [],
+        "modules": [
+            {
+                "id": "kernel",
+                "layer": "kernel",
+                "displayName": "Kernel",
+                "description": "Fixture.",
+                "dependsOn": [],
+                "ownedAssets": [],
+            },
+            {
+                "id": "cap-removed",
+                "layer": "capability",
+                "displayName": "Removed",
+                "description": "Broad owner.",
+                "dependsOn": ["kernel"],
+                "ownedAssets": [".github/skills/*/"],
+                "ownershipExclusions": [
+                    ".github/skills/replacement-skill/SKILL.md"
+                ],
+            },
+            {
+                "id": "cap-replacement",
+                "layer": "capability",
+                "displayName": "Replacement",
+                "description": "Exact replacement owner.",
+                "dependsOn": ["kernel"],
+                "ownedAssets": [".github/skills/replacement-skill/"],
+            },
+        ],
+    }
+    canonical = registry.RegistrySnapshot.from_data(tmp_path, registry_value)
+    snapshot = SimpleNamespace(
+        canonical=canonical,
+        canonical_bundles=(removed, replacement),
+    )
+
+    future, _content = lifecycle._canonical_registry_after_removal(
+        snapshot, removed
+    )
+
+    owner = next(
+        module
+        for module in future.to_dict()["modules"]
+        if module["id"] == "cap-removed"
+    )
+    assert owner["ownedAssets"] == []
+
+
 @pytest.mark.skipif(os.name == "nt", reason="POSIX executable mode assertion")
 def test_migration_planning_rejects_executable_document_without_writing(
     tmp_path: Path,

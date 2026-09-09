@@ -80,6 +80,21 @@ def _local_config(suites: list[str] | None) -> str:
 
 
 class TestActiveSuites:
+    def test_ownership_exclusion_is_preserved_in_filtered_inventory(self) -> None:
+        registry = _minimal_registry()
+        suite = next(item for item in registry["modules"] if item["id"] == "suite-cg")
+        suite["ownershipExclusions"] = [".github/prompts/cg-help.prompt.md"]
+        manifest = budget.filtered_manifest(registry, ["cg"])
+
+        assert manifest["ownershipExclusions"] == {
+            "suite-cg": [".github/prompts/cg-help.prompt.md"]
+        }
+        assert not budget.asset_is_loadable(
+            registry,
+            set(manifest["loadableModules"]),
+            ".github/prompts/cg-help.prompt.md",
+        )
+
     def test_read_active_suites_defaults_to_cg(self) -> None:
         assert budget.read_active_suites(_local_config(None)) == ["cg"]
 
