@@ -740,6 +740,13 @@
           "description": "Composite Pages artifact with main docs at root and dev docs under /dev/ subdirectory. Pushes to both main and dev that touch docs/ trigger deployment with separate concurrency groups. Includes dev-mode banner for /dev/ visitors. Deferred from the automated-documentation brainstorm (2026-08-12).",
           "status": "idea",
           "plan": null
+        },
+        {
+          "id": "unified-cg-light-work-command-for-small-technical-tasks",
+          "title": "Unified /cg-light-work command for small technical tasks",
+          "description": "Add `/cg-light-work` as the unified workflow for small technical tasks. It provides bounded workspace-first discovery, strict hard safety routing, overridable size gates with approval, a standard Plan/Work Report/Review Report lifecycle, targeted light review and revalidation, and explicit compounding opt-in. Make `/cg-work` plan-only and provide a copy-ready redirect for inline tasks. Brainstorm context: `.cg-docs/brainstorms/2026-09-04-cg-light-work-unified-small-task-workflow.md`.",
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-09-04-cg-light-work-unified-small-task-workflow.md"
         }
       ]
     },
