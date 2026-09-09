@@ -323,6 +323,56 @@ class TestRealRepo:
         assert any(a["relative_path"].startswith(".github/prompts/cg-") for a in assets["prompts"])
         assert any(a["relative_path"].startswith(".github/skills/cg-skill-r-") for a in assets["skills"])
 
+    def test_generator_cg_only_includes_light_work_prompt_exactly_once(self) -> None:
+        """The CG suite owns the canonical light-work command."""
+        import cg_generate_targets as gen
+
+        assets = gen.scan_canonical_assets(REPO_ROOT, active_suites=["cg"])
+        light_work_prompts = [
+            asset["relative_path"]
+            for asset in assets["prompts"]
+            if asset["relative_path"]
+            == ".github/prompts/cg-light-work.prompt.md"
+        ]
+
+        assert light_work_prompts == [
+            ".github/prompts/cg-light-work.prompt.md"
+        ]
+
+    def test_generator_cr_only_excludes_light_work_without_reference_leaks(
+        self,
+    ) -> None:
+        """A CR-only native projection omits light-work and unresolved paths."""
+        import cg_generate_targets as gen
+
+        source = ".github/prompts/cg-light-work.prompt.md"
+        assets = gen.scan_canonical_assets(REPO_ROOT, active_suites=["cr"])
+        assert source not in {
+            asset["relative_path"] for asset in assets["prompts"]
+        }
+
+        plan = gen.build_generation_plan(
+            REPO_ROOT,
+            gen.load_target_mapping(REPO_ROOT),
+            assets,
+        )
+        for target_id, result in plan.by_target.items():
+            if target_id == "copilot":
+                continue
+            assert all(entry.source != source for entry in result.entries)
+            assert all(
+                not entry.destination.endswith("/commands/cg-light-work.md")
+                for entry in result.entries
+            )
+            for entry in result.entries:
+                assert source.encode("utf-8") not in entry.content
+                if entry.kind != "skill-resource":
+                    text = entry.content.decode("utf-8")
+                    assert not gen.CANONICAL_RUNTIME_PATH_PATTERN.search(text), (
+                        f"{entry.destination} contains an unresolved canonical "
+                        "runtime reference"
+                    )
+
     def test_generator_mixed_includes_cr_assets(self, tmp_path: Path) -> None:
         """Generator-level enforcement: mixed generation includes CR assets."""
         import cg_generate_targets as gen

@@ -48,6 +48,25 @@ COMMIT_PUSH_COMMAND_PATHS = {
     "opencode": ".opencode/commands/cg-commit-push-pr.md",
     "kilo": ".kilo/commands/cg-commit-push-pr.md",
 }
+NATIVE_TARGET_ROOTS = {
+    "claude-code": ".claude",
+    "codex": ".agents",
+    "opencode": ".opencode",
+    "kilo": ".kilo",
+}
+LIGHT_WORK_COMMAND_PATHS = {
+    target_id: f"{target_root}/commands/cg-light-work.md"
+    for target_id, target_root in NATIVE_TARGET_ROOTS.items()
+}
+WORK_COMMAND_PATHS = {
+    target_id: f"{target_root}/commands/cg-work.md"
+    for target_id, target_root in NATIVE_TARGET_ROOTS.items()
+}
+LIFECYCLE_CONTRACT_SOURCES = (
+    ".github/shared/goal-execution.contract.md",
+    ".github/shared/active-state.contract.md",
+    ".github/shared/review-routing.contract.md",
+)
 EXPECTED_PLAN_TARGETS = set(COMMIT_PUSH_COMMAND_PATHS) | {"copilot"}
 SOURCE_MARKER = ".compound-gpid-source.json"
 
@@ -65,6 +84,22 @@ def _generated_command_body(content: bytes) -> bytes:
     _frontmatter, closing, body = remainder.partition(b"---\n\n")
     assert closing, "Generated command must close YAML frontmatter"
     return body
+
+
+def _normalized_canonical_bytes(relative_path: str) -> bytes:
+    """Read canonical UTF-8 text with the generator's LF normalization."""
+    text = (REPO_ROOT / relative_path).read_bytes().decode(
+        "utf-8-sig", errors="strict"
+    )
+    return text.replace("\r\n", "\n").replace("\r", "\n").encode("utf-8")
+
+
+def _rewrite_canonical_shared_paths(content: bytes, target_root: str) -> bytes:
+    """Apply the native target's exact shared-contract path prefix."""
+    return content.replace(
+        b".github/shared/",
+        f"{target_root}/shared/".encode("utf-8"),
+    )
 
 
 def _worktree_output_matches(
@@ -839,6 +874,111 @@ class TestGenerationPlan:
             assert "never recompute" in command, target_id
             for adapter_mapping in forbidden_adapter_mappings:
                 assert adapter_mapping not in command, (target_id, adapter_mapping)
+
+    def test_light_work_and_work_commands_match_canonical_native_bodies(
+        self,
+    ) -> None:
+        plan = gen.build_generation_plan(
+            REPO_ROOT,
+            gen.load_target_mapping(REPO_ROOT),
+            gen.scan_canonical_assets(REPO_ROOT),
+        )
+        entries_by_source = {
+            (entry.target_id, entry.source): entry for entry in plan.entries
+        }
+
+        command_cases = (
+            (
+                ".github/prompts/cg-light-work.prompt.md",
+                LIGHT_WORK_COMMAND_PATHS,
+            ),
+            (".github/prompts/cg-work.prompt.md", WORK_COMMAND_PATHS),
+        )
+        for source, expected_paths in command_cases:
+            canonical_body = _generated_command_body(
+                _normalized_canonical_bytes(source)
+            )
+            normalized_native_bodies = {}
+            actual_paths = {}
+            for target_id, target_root in NATIVE_TARGET_ROOTS.items():
+                entry = entries_by_source[(target_id, source)]
+                actual_paths[target_id] = entry.destination
+                body = _generated_command_body(entry.content)
+                expected_argument_blocks = int(
+                    target_id in ARGUMENT_BLOCK_SUFFIXES
+                )
+                assert body.count(b"$ARGUMENTS") == expected_argument_blocks
+                if expected_argument_blocks:
+                    suffix = ARGUMENT_BLOCK_SUFFIXES[target_id]
+                    assert body.endswith(suffix), target_id
+                    body = body[:-len(suffix)]
+
+                expected_body = _rewrite_canonical_shared_paths(
+                    canonical_body,
+                    target_root,
+                )
+                assert body == expected_body, target_id
+                normalized_native_bodies[target_id] = body.replace(
+                    f"{target_root}/shared/".encode("utf-8"),
+                    b".github/shared/",
+                )
+                assert (REPO_ROOT / entry.destination).read_bytes() == entry.content
+
+            assert actual_paths == expected_paths
+            assert set(normalized_native_bodies.values()) == {canonical_body}
+
+    def test_lifecycle_contracts_match_canonical_native_content(self) -> None:
+        plan = gen.build_generation_plan(
+            REPO_ROOT,
+            gen.load_target_mapping(REPO_ROOT),
+            gen.scan_canonical_assets(REPO_ROOT),
+        )
+        entries_by_source = {
+            (entry.target_id, entry.source): entry for entry in plan.entries
+        }
+
+        for target_id, target_root in NATIVE_TARGET_ROOTS.items():
+            for source in LIFECYCLE_CONTRACT_SOURCES:
+                entry = entries_by_source[(target_id, source)]
+                expected_destination = source.replace(
+                    ".github/shared", f"{target_root}/shared", 1
+                )
+                expected_content = _rewrite_canonical_shared_paths(
+                    _normalized_canonical_bytes(source),
+                    target_root,
+                )
+                assert entry.destination == expected_destination
+                assert entry.content == expected_content
+                assert (REPO_ROOT / entry.destination).read_bytes() == entry.content
+
+    @pytest.mark.parametrize("target_id", tuple(NATIVE_TARGET_ROOTS))
+    def test_native_manifest_records_light_work_canonical_provenance(
+        self,
+        target_id: str,
+    ) -> None:
+        target_root = NATIVE_TARGET_ROOTS[target_id]
+        manifest_path = REPO_ROOT / target_root / gen.OWNERSHIP_MANIFEST_NAME
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        expected_sources = {
+            LIGHT_WORK_COMMAND_PATHS[target_id]: (
+                ".github/prompts/cg-light-work.prompt.md"
+            ),
+            WORK_COMMAND_PATHS[target_id]: ".github/prompts/cg-work.prompt.md",
+            **{
+                source.replace(
+                    ".github/shared", f"{target_root}/shared", 1
+                ): source
+                for source in LIFECYCLE_CONTRACT_SOURCES
+            },
+        }
+        manifest_sources = {
+            item["path"]: item["source"]
+            for item in manifest["files"]
+            if item["path"] in expected_sources
+        }
+
+        assert manifest["target"] == target_id
+        assert manifest_sources == expected_sources
 
     def test_source_marker_is_absent_from_generation_plan_and_install_units(self) -> None:
         mapping = gen.load_target_mapping(REPO_ROOT)

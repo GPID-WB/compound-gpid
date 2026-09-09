@@ -1443,31 +1443,371 @@ Describe "cg-review.prompt.md - P0 BLOCKING in report template" {
 }
 
 # ---------------------------------------------------------------------------
-# P1.30 â€” cg-work inline plan fallback
+# cg-work plan-only intake boundary
 # ---------------------------------------------------------------------------
 
-Describe "cg-work.prompt.md - inline plan fallback" {
+Describe "cg-work.prompt.md - plan-only intake boundary" {
     $promptFile = Join-Path $repoRoot ".github\prompts\cg-work.prompt.md"
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
-    It "describes lightweight inline plan fallback when no plan found" {
-        ($content -match 'lightweight inline plan') | Should -Be $true
+    It "keeps saved-Plan resolution before the inline-task redirect" {
+        $savedPlan = $content.IndexOf("Find the most recent plan")
+        $keywordMatch = $content.IndexOf("keyword-title matching")
+        $redirect = $content.IndexOf("/cg-work requires an approved saved Plan")
+        $savedPlan | Should -BeGreaterThan -1
+        $keywordMatch | Should -BeGreaterThan $savedPlan
+        $redirect | Should -BeGreaterThan $keywordMatch
     }
 
-    It "inline plan is described as 3-5 steps" {
-        ($content -match '3.5 steps') | Should -Be $true
+    It "states that cg-work requires an approved saved Plan" {
+        ($content -match '/cg-work requires an approved saved Plan') | Should -Be $true
     }
 
-    It "offers Proceed with this or run /cg-plan option" {
-        ($content -match 'Proceed with this.*cg-plan') | Should -Be $true
+    It "states that cg-work does not create inline Plans" {
+        ($content -match 'does not create inline Plans') | Should -Be $true
     }
 
-    It "skips roadmap linking Step 1.5 when using inline plan" {
-        ($content -match 'Skip Step 1\.5') | Should -Be $true
+    It "returns the exact delimited small-task redirect" {
+        ($content -match '/cg-light-work -- <verbatim user task>') | Should -Be $true
     }
 
-    It "saves inline plan to .cg-docs/plans/ before implementing" {
-        ($content -match '\.cg-docs[/\\]plans.*YYYY-MM-DD') | Should -Be $true
+    It "routes empty unmatched input to cg-plan" {
+        ($content -match 'no task payload.*`/cg-plan`') | Should -Be $true
+    }
+
+    It "does not dispatch cg-light-work from the redirect" {
+        ($content -match 'Do not dispatch `/cg-light-work`') | Should -Be $true
+    }
+
+    It "removes inline Plan creation instructions" {
+        ($content -match 'Generate a 3-5 steps lightweight inline plan') | Should -Be $false
+        ($content -match 'Proceed with this, or run `/cg-plan` first') | Should -Be $false
+    }
+}
+
+Describe "workflow guidance - cg-work plan-only boundary" {
+    $workflowFile = Join-Path $repoRoot "docs\workflow.md"
+    $referenceFile = Join-Path $repoRoot "docs\reference.md"
+    $workflow = Get-Content $workflowFile -Raw -Encoding UTF8
+    $reference = Get-Content $referenceFile -Raw -Encoding UTF8
+
+    It "removes stale cg-work scope-classification and inline-Plan guidance" {
+        ($reference -match '(?s)/cg-brainstorm.{0,80}/cg-plan.{0,80}/cg-work.{0,80}all classify the task scope') | Should -Be $false
+        ($workflow -match '(?s)/cg-work.{0,160}(?:generates?|creates?|handles?).{0,80}inline.{0,40}plan') | Should -Be $false
+        ($workflow -match '(?m)^\*\*Inline plan handling\*\*') | Should -Be $false
+    }
+}
+
+# ---------------------------------------------------------------------------
+# cg-light-work deterministic command contract
+# ---------------------------------------------------------------------------
+
+Describe "cg-light-work.prompt.md - deterministic small-task contract" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-light-work.prompt.md"
+    $content = if (Test-Path $promptFile) { Get-Content $promptFile -Raw -Encoding UTF8 } else { "" }
+
+    It "exists as a canonical command-only orchestrator" {
+        Test-Path $promptFile | Should -Be $true
+        ($content -match 'command-only orchestrator') | Should -Be $true
+        ($content -match 'broad writable lifecycle agent') | Should -Be $false
+    }
+
+    foreach ($contract in @(
+        'context-loading.contract.md',
+        'artifact-view.contract.md',
+        'goal-execution.contract.md',
+        'active-state.contract.md',
+        'review-routing.contract.md',
+        'model-advisory.contract.md'
+    )) {
+        It "references $contract" {
+            ($content -match [regex]::Escape($contract)) | Should -Be $true
+        }
+    }
+
+    foreach ($control in @('--no-branch', '--no-brain', '--no-html')) {
+        It "supports the $control control" {
+            ($content -match [regex]::Escape($control)) | Should -Be $true
+        }
+    }
+
+    It "parses controls only from the leading control segment" {
+        ($content -match 'leading control segment') | Should -Be $true
+        ($content -match '(?s)first non-control token\s+starts the task') | Should -Be $true
+    }
+
+    It "uses the delimiter to preserve all remaining task text verbatim" {
+        ($content -match '`--` ends the control segment') | Should -Be $true
+        ($content -match 'remaining text is the task verbatim') | Should -Be $true
+    }
+
+    It "warns and deduplicates repeated supported controls" {
+        ($content -match 'Warn and deduplicate repeated supported controls') | Should -Be $true
+    }
+
+    It "rejects unsupported leading controls before work" {
+        ($content -match '(?s)Reject an unsupported leading\s+`--\*` control') | Should -Be $true
+    }
+
+    It "hard-stops on an empty task" {
+        ($content -match '(?s)empty task remainder is a hard\s+stop') | Should -Be $true
+    }
+
+    It "defines literal argument examples" {
+        ($content -match 'document the --no-html option') | Should -Be $true
+        ($content -match '-- --force should remain literal') | Should -Be $true
+    }
+
+    It "requires workspace-first discovery before questions" {
+        $facts = $content.IndexOf("Workspace Facts First")
+        $questions = $content.IndexOf("Bounded Questions")
+        $facts | Should -BeGreaterThan -1
+        $questions | Should -BeGreaterThan $facts
+        ($content -match '(?s)charter.*local configuration.*git.*relevant files.*tests.*instructions.*similar') | Should -Be $true
+    }
+
+    It "runs at most one bounded Brain query" {
+        ($content -match 'at most one bounded Brain query') | Should -Be $true
+    }
+
+    It "uses a preliminary status and definitive task-local snapshot" {
+        ($content -match 'preliminary `git status --short`') | Should -Be $true
+        ($content -match 'definitive task-local snapshot') | Should -Be $true
+        ($content -match 'initial-status\.txt') | Should -Be $true
+        ($content -match 'initial-tracked\.diff') | Should -Be $true
+        ($content -match 'initial-untracked\.json') | Should -Be $true
+        ($content -match 'SHA-256') | Should -Be $true
+    }
+
+    It "defines fail-closed repository and branch handling" {
+        ($content -match '(?s)non-git workspace.*stop') | Should -Be $true
+        ($content -match '(?s)without a resolvable `HEAD`.*stop') | Should -Be $true
+        ($content -match '(?s)detached HEAD.*--no-branch') | Should -Be $true
+        ($content -match 'refs/remotes/origin/HEAD') | Should -Be $true
+        ($content -match '(?s)existing `main`.*existing `master`') | Should -Be $true
+        ($content -match 'limit the full name to 60 characters') | Should -Be $true
+    }
+
+    It "defines all dirty and branch-conflict choices" {
+        ($content -match '(?s)dirty default branch.*stash.*branch anyway.*stop') | Should -Be $true
+        ($content -match '(?s)existing feature branch.*retain') | Should -Be $true
+        ($content -match '(?s)derived name already exists.*switch') | Should -Be $true
+        ($content -match '(?s)create, switch, or stash failure.*blocks source edits') | Should -Be $true
+    }
+
+    It "handles tracked and untracked snapshot overlap separately" {
+        ($content -match '(?s)tracked-file overlap.*continue here.*standard workflow.*stop') | Should -Be $true
+        ($content -match '(?s)untracked-file overlap.*stop') | Should -Be $true
+    }
+
+    $hardGateRows = [ordered]@{
+        H1 = 'Reproducible defect, regression, or root-cause investigation -> `/cg-fixbug`'
+        H2 = 'Research, econometric, statistical, survey, poverty, welfare, weights, measurement, classification, or publication output -> `/cr-brainstorm` and `/cr-*`'
+        H3 = 'PII, secrets, credentials, auth, permissions, or security-sensitive behavior -> `/cg-brainstorm` with full safety review'
+        H4 = 'Destructive filesystem or data operation; deployment, release, install, update, link, unlink, or publishing -> `/cg-brainstorm` and the standard cycle'
+        H5 = 'Schema or data migration; public API contract; dependency change; module boundary; concurrency; broad performance architecture -> `/cg-brainstorm` and the standard cycle'
+        H6 = 'Required evidence cannot run safely or completion would use static inspection only -> standard Plan and blocked-stop handling'
+        H7 = 'Charter conflict or an unapproved protected boundary -> stop and resolve through the standard cycle'
+    }
+    foreach ($gate in $hardGateRows.Keys) {
+        It "defines the exact hard gate $gate contract" {
+            $row = "| $gate | $($hardGateRows[$gate]) |"
+            ($content -match "(?m)^$([regex]::Escape($row))$") | Should -Be $true
+        }
+    }
+
+    It "routes bug and research hard gates exactly" {
+        ($content -match '(?m)^\| H1 \|.*`/cg-fixbug`') | Should -Be $true
+        ($content -match '(?m)^\| H2 \|.*`/cr-brainstorm`') | Should -Be $true
+    }
+
+    It "routes safety architecture and unverifiable work to the standard cycle" {
+        ($content -match '(?m)^\| H3 \|.*security') | Should -Be $true
+        ($content -match '(?m)^\| H4 \|.*destructive') | Should -Be $true
+        ($content -match '(?m)^\| H5 \|.*dependency') | Should -Be $true
+        ($content -match '(?m)^\| H6 \|.*static inspection') | Should -Be $true
+        ($content -match '(?m)^\| H7 \|.*charter') | Should -Be $true
+    }
+
+    It "evaluates hard gates before size gates and fails closed on unknown risk" {
+        $hard = $content.IndexOf("H1-H7")
+        $size = $content.IndexOf("S1-S10")
+        $hard | Should -BeGreaterThan -1
+        $size | Should -BeGreaterThan $hard
+        ($content -match 'Unknown risk fails closed') | Should -Be $true
+    }
+
+    $sizeGateRows = [ordered]@{
+        S1 = 'One cohesive observable outcome and at most one user-visible behavior change'
+        S2 = 'One subsystem, package, command, component, or documentation concern'
+        S3 = 'At most 3 manually edited implementation files'
+        S4 = 'At most 3 directly coupled test, documentation, or configuration files and at most 6 manually edited non-generated files total'
+        S5 = 'At most 150 estimated non-generated changed lines, excluding formatting-only changes'
+        S6 = 'At most 6 atomic implementation steps in 1 or 2 execution phases'
+        S7 = 'Implementation and targeted verification fit within half a developer day'
+        S8 = 'At most 3 targeted verification commands and 2 targeted test files, expected at or below 10 minutes'
+        S9 = 'No new runtime or development dependency, migration, schema, public contract, or reusable abstraction layer'
+        S10 = 'No unresolved material decision after the two-round discovery budget'
+    }
+    foreach ($gate in $sizeGateRows.Keys) {
+        It "defines the exact size gate $gate contract" {
+            $row = "| $gate | $($sizeGateRows[$gate]) |"
+            ($content -match "(?m)^$([regex]::Escape($row))$") | Should -Be $true
+        }
+    }
+
+    It "makes only estimate gates overridable" {
+        ($content -match 'S1, S2, S6, S9, and S10 are structural') | Should -Be $true
+        ($content -match '(?s)Only S3-S5, S7, and S8.*estimates') | Should -Be $true
+        ($content -match 'scope: Standard') | Should -Be $true
+    }
+
+    It "limits discovery to two rounds and two independent questions per round" {
+        ($content -match '(?s)at most two discovery\s+rounds') | Should -Be $true
+        ($content -match '(?s)at most two independent questions per round') | Should -Be $true
+        ($content -match 'zero questions') | Should -Be $true
+        ($content -match 'third round.*`/cg-brainstorm`') | Should -Be $true
+    }
+
+    It "presents all ordered Plan preview sections" {
+        $previewStart = $content.IndexOf("Plan Preview And Approval")
+        $previewEnd = $content.IndexOf("Approve this /cg-light-work Plan?", $previewStart)
+        $previewStart | Should -BeGreaterThan -1
+        $previewEnd | Should -BeGreaterThan $previewStart
+        $preview = $content.Substring($previewStart, $previewEnd - $previewStart)
+        $orderedSections = @(
+            'Scope verdict', 'Outcome', 'Decisions and assumptions',
+            'In scope / Out of scope', 'Files', 'Execution',
+            'Verification Surface', 'Review and resolution',
+            'Blocked-stop conditions'
+        )
+        $previous = -1
+        foreach ($section in $orderedSections) {
+            $position = $preview.IndexOf($section)
+            $position | Should -BeGreaterThan $previous
+            $previous = $position
+        }
+    }
+
+    It "uses the exact three-choice Plan approval gate" {
+        ($content -match 'Approve this /cg-light-work Plan\?') | Should -Be $true
+        ($content -match '1\. Approve, save the Plan, and execute\.') | Should -Be $true
+        ($content -match '2\. Revise the Plan\.') | Should -Be $true
+        ($content -match '3\. Stop and use the standard workflow\.') | Should -Be $true
+    }
+
+    It "requires approved Plan persistence and validation before source edits" {
+        $approval = $content.IndexOf("Approve this /cg-light-work Plan?")
+        $persistence = $content.IndexOf("Persist the approved Plan")
+        $sourceEdits = $content.IndexOf("Begin source edits")
+        $approval | Should -BeGreaterThan -1
+        $persistence | Should -BeGreaterThan $approval
+        $sourceEdits | Should -BeGreaterThan $persistence
+        ($content -match '(?s)successful\s+canonical Markdown validation') | Should -Be $true
+    }
+
+    It "requires standard Plan Work Report and Review Report artifacts" {
+        ($content -match '(?s)standard Plan') | Should -Be $true
+        ($content -match '(?s)standard Work\s+Report') | Should -Be $true
+        ($content -match '(?s)standard Review Report') | Should -Be $true
+        ($content -match 'findings: map') | Should -Be $true
+    }
+
+    It "enforces executed evidence and two focused correction attempts" {
+        ($content -match 'executed evidence') | Should -Be $true
+        ($content -match '(?s)at most two\s+focused correction attempts') | Should -Be $true
+        ($content -match 'static inspection alone') | Should -Be $true
+    }
+
+    It "runs deterministic checks before fixed light reviewers" {
+        $checks = $content.IndexOf("Deterministic Checks First")
+        $review = $content.IndexOf("Focused Agent Review")
+        $checks | Should -BeGreaterThan -1
+        $review | Should -BeGreaterThan $checks
+        ($content -match '@cg-code-quality') | Should -Be $true
+        ($content -match '@cg-testing') | Should -Be $true
+    }
+
+    It "requires usable output from each reviewer" {
+        ($content -match '(?s)finding or explicit no-issues\s+statement') | Should -Be $true
+        ($content -match 'changed-file context') | Should -Be $true
+        ($content -match '(?s)at least two non-header lines') | Should -Be $true
+        ($content -match '(?s)Incomplete Reviews.*not run') | Should -Be $true
+    }
+
+    It "defines finding states and disposition tags" {
+        ($content -match '(?s)`open`, `fixed`, or\s+`skipped`') | Should -Be $true
+        ($content -match '(?s)`safe_auto`, `manual`, or `advisory`') | Should -Be $true
+    }
+
+    It "defines independent priority resolution rules" {
+        ($content -match 'P0 and P1.*block completion') | Should -Be $true
+        ($content -match 'unfixed P2.*explicit recorded exception.*`skipped`') | Should -Be $true
+        ($content -match 'P3.*advisory') | Should -Be $true
+        ($content -match 'Apply only.*`safe_auto`') | Should -Be $true
+    }
+
+    It "caps Review at initial and verification passes" {
+        ($content -match 'initial pass') | Should -Be $true
+        ($content -match 'verification pass') | Should -Be $true
+        ($content -match 'at most twice total') | Should -Be $true
+        ($content -match 'stable finding IDs') | Should -Be $true
+        ($content -match '(?s)third\s+pass.*standard review.*fix-triage') | Should -Be $true
+    }
+
+    It "reruns stale evidence after every Review edit" {
+        ($content -match '(?s)post-Review edit.*invalidates affected evidence') | Should -Be $true
+        ($content -match '(?s)Rerun.*syntax.*lint.*test.*parity.*diff') | Should -Be $true
+    }
+
+    It "defines the exact completion write order" {
+        $workReport = $content.IndexOf("Finalize Work Report evidence")
+        $reviewStatus = $content.IndexOf("Finalize Review finding statuses")
+        $planStatus = $content.IndexOf("Mark the Plan and Work Report completed")
+        $activeState = $content.IndexOf("Complete compact active state")
+        $roadmap = $content.IndexOf('Dispatch `@cg-roadmap`')
+        $workReport | Should -BeGreaterThan -1
+        $reviewStatus | Should -BeGreaterThan $workReport
+        $planStatus | Should -BeGreaterThan $reviewStatus
+        $activeState | Should -BeGreaterThan $planStatus
+        $roadmap | Should -BeGreaterThan $activeState
+    }
+
+    It "defines all structured summary sections" {
+        foreach ($section in @('Changes Applied', 'Review Findings', 'Resolutions', 'Verification', 'Artifacts', 'Remaining Items')) {
+            ($content -match [regex]::Escape($section)) | Should -Be $true
+        }
+    }
+
+    It "uses the exact three-choice compounding gate" {
+        ($content -match '1\. Skip compounding') | Should -Be $true
+        ($content -match '2\. Compound into this project') | Should -Be $true
+        ($content -match '3\. Compound locally and share to Team Brain') | Should -Be $true
+    }
+
+    It "forbids every permanent side effect when compounding is skipped" {
+        ($content -match 'do not write a Solution') | Should -Be $true
+        ($content -match '(?s)do not.*rebuild.*Brain') | Should -Be $true
+        ($content -match '(?s)do not.*update.*context') | Should -Be $true
+        ($content -match '(?s)do not.*update.*wiki') | Should -Be $true
+        ($content -match '(?s)do not.*push to Team Brain') | Should -Be $true
+    }
+
+    It "defines local capture and privacy-filtered Team Brain sharing" {
+        ($content -match '(?s)local\s+compounding.*standard categorized Solution') | Should -Be $true
+        ($content -match '(?s)privacy\s+filter.*cg-index --push-entry') | Should -Be $true
+    }
+
+    It "lists representative deterministic contract cases without claiming LLM execution" {
+        foreach ($case in @(
+            'automatic qualification', 'zero-question discovery', 'two-round discovery',
+            'size override', 'H1 bug route', 'H2 research route', 'scope growth',
+            'safe Review fix', 'non-convergence', 'no-learning skip',
+            'local compounding', 'privacy-blocked Team Brain sharing'
+        )) {
+            ($content -match [regex]::Escape($case)) | Should -Be $true
+        }
+        ($content -match '(?s)contract cases.*not end-to-end LLM execution tests') | Should -Be $true
     }
 }
 
