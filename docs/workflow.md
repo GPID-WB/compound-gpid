@@ -15,7 +15,7 @@ capability layer:
 
 | Task | Suite | Entry points |
 |---|---|---|
-| Technical delivery, infrastructure, bugs, and code review | `cg` | `/cg-brainstorm`, `/cg-plan`, `/cg-work`, `/cg-review`, `/cg-compound` |
+| Technical delivery, infrastructure, bugs, and code review | `cg` | `/cg-light-work`, `/cg-brainstorm`, `/cg-plan`, `/cg-work`, `/cg-fixbug`, `/cg-review`, `/cg-compound` |
 | Research scoping, methods, evidence, replication, and publication | `cr` | `/cr-brainstorm`, `/cr-plan`, `/cr-work`, `/cr-review`, `/cr-compound` |
 
 Select them with `suites: [cg]`, `suites: [cr]`, or `suites: [cg, cr]` in
@@ -143,11 +143,11 @@ Mode B (returning project with config) runs the same Charter Quality Gate silent
 - *Pre-plan clarity*: Use brainstorm to decide between two architectural approaches before writing a formal plan.
 - *Small task (Lightweight)*: The prompt keeps questioning brief and handoff to `/cg-plan` is fast.
 
-**Handoff options**: `/cg-plan` (turn into a plan), update charter, `/cg-brainstorm` again (related topic), or `/cg-work` directly (Lightweight tasks only).
+**Handoff options**: `/cg-plan` (turn into a plan), update charter, `/cg-brainstorm` again (related topic), or `/cg-light-work` for a qualified small technical task.
 
 **When NOT to use**:
 - When requirements are already well-defined — go to `/cg-plan` directly
-- For trivially small one-file changes — use `/cg-work` directly (it handles inline planning)
+- For a qualified small technical change, use `/cg-light-work`
 - For debugging a known bug — use `/cg-fixbug`
 - To repeat a brainstorm you've already done — `/cg-brainstorm` will find the prior file and offer to continue from it
 - For a half-formed strategy idea not yet ready for structured clarification — place a brief note in `.cg-docs/inbox/` instead and promote it via `/cg-strategy` when it matures
@@ -193,7 +193,7 @@ Mode B (returning project with config) runs the same Charter Quality Gate silent
 **Handoff options**: `/cg-plan-review` (challenge the plan before starting — recommended for Standard/Deep), `/cg-work` (start implementing), `/cg-brainstorm` (revisit open questions).
 
 **When NOT to use**:
-- For trivial one-file changes that take under an hour — use `/cg-work` directly (it generates an inline Lightweight plan if none exists)
+- For a qualified small technical change, use `/cg-light-work`
 - For debugging a known bug — use `/cg-fixbug`, which has its own structured flow including reproduce/verify hard stops
 - When the brainstorm used **Thinking Partner mode** (strategy/process outputs) — a Thinking Partner brainstorm produces decisions, not software plans. Consider updating `compound-gpid.md` instead
 - For emergency production hotfixes — go to `/cg-fixbug` directly to avoid the overhead of a full plan
@@ -328,21 +328,50 @@ PDF product generation, and no completion dossier.
 - *Flood of findings*: If the critic returns more than 5 P1/P2 findings, you are offered a batch-decision option — accept/defer all at once rather than going through them individually.
 
 **When NOT to use**:
-- For Lightweight tasks where you're confident the plan is correct — use `/cg-work` directly
+- For a qualified small technical task, use `/cg-light-work`
 - As a substitute for `/cg-review` — Plan Review checks the plan document; `/cg-review` checks the implemented code
 
 **Output**: Interactive findings session; no files written.
 
 ---
 
+### 2c. Light Work (`/cg-light-work`)
+
+**When to use**:
+- One small, low-risk technical task has a clear outcome and focused verification.
+- The work can pass the command's bounded qualification checks without changing security, schemas, dependencies, or destructive behavior.
+
+**What happens**: The command inspects the workspace first, asks only bounded
+questions when needed, and stops or redirects work that does not qualify. A
+reproducible bug uses `/cg-fixbug`. Research, statistical, and publication work
+uses `/cr-*`. Larger, ambiguous, security-sensitive, schema, dependency, or
+destructive work uses `/cg-brainstorm` -> `/cg-plan` -> `/cg-work`.
+
+There are two user gates. First, you approve the Plan before it is saved and
+before source edits start. After implementation and verification converge, you
+explicitly choose whether to compound the result. The command creates a standard
+Plan, Work Report, and Review Report. Compounding can add a Solution only after
+explicit opt-in; skipping it causes no permanent knowledge change.
+
+The light Review is mandatory and fixed: deterministic checks run first, then
+`@cg-code-quality` and `@cg-testing` each review the changed files. There is one
+initial pass. If Review fixes change files, there is one verification pass. The
+two-pass cap cannot be extended; unresolved or non-convergent work is redirected
+to the standard review and fix-triage cycle.
+
+**Output**: Code, tests, or documentation changes plus a saved Plan, Work Report,
+and Review Report; an optional Solution requires compounding consent.
+
+---
+
 ### 3. Work (`/cg-work`)
 
 **When to use**:
-- After `/cg-plan` has created an implementation plan
-- To implement a known Lightweight task without a prior plan (the prompt generates a brief inline plan)
+- After `/cg-plan` has created and the user has approved an implementation Plan
+- To execute a selected phase of an approved saved Plan
 - To continue an implementation that was interrupted in a previous session
 
-**What happens**: The prompt loads the most recent plan (or generates a short inline plan for Lightweight tasks when no plan file exists) and implements it step by step — writing code, tests, and documentation. **Goal-driven execution loop**: `/cg-work` reads the plan's `## Completion Contract` as its execution authority and creates a durable execution report at `.cg-docs/work-reports/YYYY-MM-DD-<plan-slug>.md` before implementation starts. Completion is only recorded when required evidence passes a strict evidence gate (an actually executed check — not static inspection alone) or an explicit accepted exception with rationale is logged in the report. Deviations, accepted exceptions, and evidence results are all recorded in the execution report. Before implementation, it builds a test index mapping each module to its test file. When work begins, the linked roadmap feature is automatically marked `active`. After all steps complete, a **mechanical self-review** (Step 3.2) scans for debug code, missing tests, broken imports, incomplete TODO markers, and hardcoded secrets. The plan file is updated to `completed` status.
+**What happens**: The prompt selects an approved saved Plan and implements it step by step, writing code, tests, and documentation. **Goal-driven execution loop**: `/cg-work` reads the Plan's `## Completion Contract` as its execution authority and creates a durable execution report at `.cg-docs/work-reports/YYYY-MM-DD-<plan-slug>.md` before implementation starts. Completion is only recorded when required evidence passes a strict evidence gate (an actually executed check, not static inspection alone) or an explicit accepted exception with rationale is logged in the report. Deviations, accepted exceptions, and evidence results are all recorded in the execution report. Before implementation, it builds a test index mapping each module to its test file. When work begins, the linked roadmap feature is automatically marked `active`. After all steps complete, a **mechanical self-review** (Step 3.2) scans for debug code, missing tests, broken imports, incomplete TODO markers, and hardcoded secrets. The Plan file is updated to `completed` status.
 
 **Deviation policy**: The active policy for the run comes from the plan's `deviation-policy` frontmatter (set when planning) unless overridden at runtime with a `deviate:` argument. Same values as `/cg-plan` above: `ask` (default, pauses before deviating), `autonomous` (deviates with audit trail), `strict` (blocked-stop on any deviation).
 
@@ -356,11 +385,10 @@ full diffs, or full review text.
 
 **Legacy plans** (no `## Completion Contract`): `/cg-work` halts and offers to generate a minimal compatibility contract for approval before proceeding.
 
-**Inline plan handling** (when no plan file is found):
-- The prompt does a keyword search across `.cg-docs/plans/` first — an existing relevant plan may not have been the most recent.
-- For requests containing words like "refactor", "replace", "migrate", or "pipeline", or touching multiple files: declines inline planning and asks you to run `/cg-plan` first.
-- For **Standard** or **Deep** scope: warns strongly that `/cg-plan` is recommended, offers to generate the inline plan anyway (not recommended).
-- For **Lightweight** scope only: generates a 3–5 step inline plan, saves it to `.cg-docs/plans/`, and asks for confirmation before proceeding.
+**Unmatched task handling** (when no valid saved Plan is selected):
+- The prompt first searches `.cg-docs/plans/` by recency and keyword-title match.
+- If task text remains unmatched, it stops without mutation and returns the copy-ready route `/cg-light-work -- <verbatim user task>`.
+- If there is no task text, it routes to `/cg-plan`. The redirect never dispatches another command automatically.
 
 **Self-review** (automatic, runs after implementation):
 The prompt scans its own output for:
@@ -375,7 +403,7 @@ The prompt scans its own output for:
 **Scenarios**:
 - *Normal implementation*: Load the plan, implement step by step, commit at each checkpoint.
 - *Resuming interrupted work*: Run `/cg-work` in a new session — it re-loads the active plan from `.cg-docs/plans/` and skips any steps already marked complete. For phased plans, run `/cg-resume` first to see which phase to continue with, then use `/cg-work phaseN`. The existing execution report is resumed (a new run/resume section is appended).
-- *Lightweight task (no prior plan)*: Describe the change; the prompt generates and confirms a 3–5 step inline plan (including a minimal completion contract) before starting.
+- *Small task (no prior Plan)*: The prompt stops and returns a copy-ready `/cg-light-work -- <verbatim user task>` route without starting it.
 - *Large refactor (Deep scope)*: Should have a phased plan from `/cg-plan`. Work through one phase at a time — run `/cg-work phase1`, then `/cg-work phase2`, etc. Each phase has its own commit checkpoint and evidence gate check.
 - *Phased plan, specific phase*: Run `/cg-work phaseN` to execute a specific phase. Phase N cannot start until phase N-1 is complete (exception: phase 1 is always allowed). The evidence gate checks only the verification rows for phase N before writing to `completed-phases`.
 - *Roadmap-linked feature*: The roadmap feature transitions automatically: idea → planned (on `/cg-plan`) → active (on `/cg-work` start) → done (when you complete the plan, after evidence gate passes).
@@ -384,8 +412,10 @@ The prompt scans its own output for:
 **Handoff options**: `/cg-review` (remains available for adversarial/cross-model review — no longer required as the default post-work step when evidence gates pass), `/cg-compound` (capture learnings), `/cg-fixbug` (discovered a bug mid-implementation), `/cg-plan` (next feature).
 
 **When NOT to use**:
-- For tasks that clearly span multiple files or days without a plan — use `/cg-plan` first. `/cg-work` will warn you if the scope looks too large for an inline plan.
+- For a qualified small technical task without a saved Plan, use `/cg-light-work`.
+- For larger, ambiguous, security-sensitive, schema, dependency, or destructive work without a saved Plan, use `/cg-brainstorm` -> `/cg-plan` -> `/cg-work`.
 - For debugging a known bug — use `/cg-fixbug`, which enforces a reproduce-before-fix discipline
+- For research, statistical, or publication work, use `/cr-*`.
 - To apply review findings — use `/cg-fix-triage`, which tracks each finding's status
 - As a replacement for `/cg-review` — never skip review for analytical code that feeds published statistics
 

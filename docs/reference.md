@@ -179,6 +179,7 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | `/cg-fixbug` | Structured bug-fix workflow: establish the expected-behavior source in Step 1.5, perform test-gap classification in Step 2.5, and require red-green proof. |
 | `/cg-ideate` | Generate, critique, and filter improvement ideas for the project. Use before /cg-brainstorm when you want to discover what to work on next. |
 | `/cg-issues` | Manage GitHub Issues linked to roadmap work items. Modes: status (default, read-only), backfill, link, adopt, setup. |
+| `/cg-light-work` | Qualify and execute one small technical task with bounded discovery, light review, and explicit compounding consent. |
 | `/cg-plan-review` | Review an implementation plan for risks, over-engineering, missing edge cases, and flawed assumptions. Use after /cg-plan or on any existing plan. |
 | `/cg-plan` | Create a structured implementation plan with research. Use after brainstorming or when requirements are clear. |
 | `/cg-release` | Create a GitHub Release for compound-gpid. Detects the next semver tag from git history, drafts curated release notes, checks SCHEMA_VERSION, confirms with the user, and publishes. Developer-only — guarded to the compound-gpid repo; Step 0 stops execution in consumer projects. |
@@ -368,7 +369,7 @@ cleanup stay separate.
 
 > **Prior-work awareness**: `/cg-brainstorm` checks `.cg-docs/brainstorms/` and `/cg-plan` checks `.cg-docs/plans/` for related prior work before starting. If a match is found, you can continue from it, follow up, or start fresh.
 
-> **Scope assessment**: `/cg-brainstorm`, `/cg-plan`, and `/cg-work` all classify the task scope (Lightweight / Standard / Deep) and adapt their behavior accordingly. `/cg-work` declines to generate inline plans for Standard/Deep tasks — use `/cg-plan` first.
+> **Task routing**: Use `/cg-light-work` only for a qualified small technical task. It requires Plan approval before source edits, writes a Plan, Work Report, and mandatory fixed light Review Report, permits at most an initial Review pass plus one verification pass after Review fixes, and compounds only after explicit opt-in. Reproducible bugs use `/cg-fixbug`; research, statistical, and publication work uses `/cr-*`; larger, ambiguous, security-sensitive, schema, dependency, or destructive work uses `/cg-brainstorm` -> `/cg-plan` -> `/cg-work`. `/cg-work` executes approved saved Plans and redirects unmatched inline tasks without dispatching them.
 
 ### Plugin Development (developer-only)
 
