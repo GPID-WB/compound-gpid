@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-09-02 · 603 artifacts (newest first) + 161 roadmap features_
+_Generated 2026-09-08 · 607 artifacts (newest first) + 162 roadmap features_
 
 ## undated
 
@@ -126,6 +126,23 @@ _Generated 2026-09-02 · 603 artifacts (newest first) + 161 roadmap features_
   > Plan: `.cg-docs/plans/2026-06-23-token-dashboard-regression-checks.md`
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
+
+## 2026-09-09
+
+- **[Validate registry identities before building derived maps](.cg-docs/solutions/data-quality/2026-09-09-validate-registry-identities-before-derived-maps.md)** · `solution` · _—_ · `2026-09-09`
+  > A workflow registry had three identity fields: `workflow_id`, `workflow`, and `path`. Validation rejected duplicate I…
+
+## 2026-09-08
+
+- **[2026-08-28-scalable-skill-management-suite-verify-review-3](.cg-docs/reviews/2026-08-28-scalable-skill-management-suite-verify-review-3.md)** · `review` · _—_ · `2026-09-08`
+  > - **Review mode**: verify (light-only) - **Parent review**: `.cg-docs/reviews/2026-08-28-scalable-skill-management-su…
+
+## 2026-09-04
+
+- **[Unified /cg-light-work command for small technical tasks](.cg-docs/plans/2026-09-04-cg-light-work-unified-small-task-workflow.md)** · `plan` · _completed_ · `2026-09-04`
+  > Add `/cg-light-work <task>` as one fail-closed workflow for qualifying small technical tasks. It must perform bounded…
+- **[Unified lightweight workflow command for small technical tasks](.cg-docs/brainstorms/2026-09-04-cg-light-work-unified-small-task-workflow.md)** · `brainstorm` · _decided_ · `2026-09-04`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
 
 ## 2026-09-02
 
@@ -1813,6 +1830,8 @@ _Generated 2026-09-02 · 603 artifacts (newest first) + 161 roadmap features_
   > Token Efficiency vs modular priority resolution
 - **[Capture the learning](roadmap.json#token-optimization-compound)** · `feature` · _idea_ · `—`
   > Capture the learning
+- **[Unified /cg-light-work command for small technical tasks](roadmap.json#unified-cg-light-work-command-for-small-technical-tasks)** · `feature` · _done_ · `—`
+  > Unified /cg-light-work command for small technical tasks
 - **[User-selected execution with advisory model and effort routing](roadmap.json#user-selected-execution-with-advisory-model-and-effort-routing)** · `feature` · _done_ · `—`
   > User-selected execution with advisory model and effort routing
 - **[Migration path from vanilla Copilot \(detect and merge existing instructions\)](roadmap.json#vanilla-copilot-migration)** · `feature` · _idea_ · `—`

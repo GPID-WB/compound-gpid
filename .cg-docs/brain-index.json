@@ -1,5 +1,5 @@
 {
-  "edge_count": 332,
+  "edge_count": 335,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -485,6 +485,12 @@
       "edge_type": "decided_from",
       "source": ".cg-docs/plans/2026-08-28-scalable-skill-management-suite.md",
       "target": ".cg-docs/brainstorms/2026-08-28-scalable-skill-management-suite.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-09-04-cg-light-work-unified-small-task-workflow.md",
+      "target": ".cg-docs/brainstorms/2026-09-04-cg-light-work-unified-small-task-workflow.md",
       "target_missing": false
     },
     {
@@ -1455,6 +1461,12 @@
     },
     {
       "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-08-28-scalable-skill-management-suite-verify-review-3.md",
+      "target": ".cg-docs/reviews/2026-08-28-scalable-skill-management-suite-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
       "source": ".cg-docs/reviews/2026-08-28-scalable-skill-management-suite-verify-review.md",
       "target": ".cg-docs/reviews/2026-08-28-scalable-skill-management-suite-review.md",
       "target_missing": false
@@ -1829,6 +1841,12 @@
       "edge_type": "references",
       "source": ".cg-docs/brainstorms/2026-08-28-scalable-skill-management-suite.md",
       "target": ".cg-docs/plans/2026-08-28-scalable-skill-management-suite.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/brainstorms/2026-09-04-cg-light-work-unified-small-task-workflow.md",
+      "target": ".cg-docs/plans/2026-09-04-cg-light-work-unified-small-task-workflow.md",
       "target_missing": false
     },
     {
@@ -3658,6 +3676,35 @@
         "security",
         "release",
         "tests"
+      ]
+    },
+    {
+      "date": "2026-09-04",
+      "entity_type": "brainstorm",
+      "path": ".cg-docs/brainstorms/2026-09-04-cg-light-work-unified-small-task-workflow.md",
+      "slug": "2026-09-04-cg-light-work-unified-small-task-workflow",
+      "status": "decided",
+      "summary": "<!-- Valid status values: decided, in-progress, abandoned -->",
+      "tags": [
+        "workflow",
+        "light-work",
+        "small-tasks",
+        "planning",
+        "review",
+        "compounding"
+      ],
+      "title": "Unified lightweight workflow command for small technical tasks",
+      "top_keywords": [
+        "/cg-work",
+        "cg-work",
+        "cg-light-work",
+        "/cg-light-work",
+        "work report",
+        "stage",
+        "review report",
+        "command",
+        "cg-brainstorm",
+        "/cg-brainstorm"
       ]
     },
     {
@@ -7114,6 +7161,35 @@
         "test_project_manifest.py",
         "project-local",
         "scripts/skill_management/services/provenance.py"
+      ]
+    },
+    {
+      "date": "2026-09-04",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-09-04-cg-light-work-unified-small-task-workflow.md",
+      "slug": "2026-09-04-cg-light-work-unified-small-task-workflow",
+      "status": "completed",
+      "summary": "Add `/cg-light-work <task>` as one fail-closed workflow for qualifying small technical tasks. It must perform bounded workspace-first discovery, save an approved standard Plan, execute with standard Work state, create and resolve a targeted light Review Report, verify the final state, and ask for explicit consent before permanent knowledge capture. Make `/cg-work` plan-only and give inline requests an exact copy-ready redirect instead of an inline Plan.",
+      "tags": [
+        "workflow",
+        "light-work",
+        "small-tasks",
+        "review",
+        "token-efficiency",
+        "generated-targets"
+      ],
+      "title": "Unified /cg-light-work command for small technical tasks",
+      "top_keywords": [
+        "/cg-work",
+        "work report",
+        "cg-work",
+        "cg-light-work",
+        "/cg-light-work",
+        "tests/last-run.json",
+        "review report",
+        "plan review",
+        "test scenarios",
+        "last-run.json"
       ]
     },
     {
@@ -11099,6 +11175,28 @@
       ]
     },
     {
+      "date": "2026-09-08",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-08-28-scalable-skill-management-suite-verify-review-3.md",
+      "slug": "2026-08-28-scalable-skill-management-suite-verify-review-3",
+      "status": "",
+      "summary": "- **Review mode**: verify (light-only) - **Parent review**: `.cg-docs/reviews/2026-08-28-scalable-skill-management-suite-review.md` - **Current Plan**: `.cg-docs/plans/2026-09-04-cg-light-work-unified-small-task-workflow.md` - **Files reviewed**: 48 changed and untracked paths - **Reviewers**: `@cg-code-quality`, `@cg-testing` - **Suppression**: none; the parent review's fixed blocks are unrelated to this change. P0/P1 and cross-file breakage remained reportable. - **Findings**: 9 (P0: 0, P1: 6, P2: 3, P3: 0)",
+      "tags": [],
+      "title": "2026-08-28-scalable-skill-management-suite-verify-review-3",
+      "top_keywords": [
+        "cg-light-work",
+        "/cg-light-work",
+        "cg-light-work.prompt.md",
+        "workflow",
+        "review",
+        "/cr-brainstorm",
+        ".tmp/",
+        "team brain",
+        "work report",
+        "cg-work"
+      ]
+    },
+    {
       "date": "2026-08-31",
       "entity_type": "review",
       "path": ".cg-docs/reviews/2026-08-28-scalable-skill-management-suite-verify-review.md",
@@ -13944,6 +14042,35 @@
         "mutation",
         "pre-commit",
         "requires"
+      ]
+    },
+    {
+      "date": "2026-09-09",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/data-quality/2026-09-09-validate-registry-identities-before-derived-maps.md",
+      "slug": "2026-09-09-validate-registry-identities-before-derived-maps",
+      "status": "",
+      "summary": "A workflow registry had three identity fields: `workflow_id`, `workflow`, and `path`. Validation rejected duplicate IDs and paths, but accepted duplicate `workflow` command names. A dictionary keyed by `workflow` was built before the validator ran, so Python kept only the last duplicate without an error. Derived high-frequency prompt checks could then omit one registered source path. The related prompt tests had a similar weakness: they checked that H/S gate row labels existed, but did not verify each row's complete route or threshold.",
+      "tags": [
+        "registry",
+        "identity",
+        "validation",
+        "derived-map",
+        "workflow-audit",
+        "regression-test"
+      ],
+      "title": "Validate registry identities before building derived maps",
+      "top_keywords": [
+        "workflow",
+        "registry",
+        "workflow_id",
+        "derived",
+        "validate",
+        "identities",
+        "building",
+        "maps",
+        "related",
+        "problem"
       ]
     },
     {
@@ -20663,6 +20790,28 @@
     {
       "date": "",
       "entity_type": "feature",
+      "path": "roadmap.json#unified-cg-light-work-command-for-small-technical-tasks",
+      "slug": "unified-cg-light-work-command-for-small-technical-tasks",
+      "status": "done",
+      "summary": "Unified /cg-light-work command for small technical tasks",
+      "tags": [],
+      "title": "Unified /cg-light-work command for small technical tasks",
+      "top_keywords": [
+        "cg-light-work",
+        "workflow maturity\nobjective",
+        "unified",
+        "command",
+        "small",
+        "technical",
+        "tasks",
+        "feature",
+        "milestone",
+        "workflow"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
       "path": "roadmap.json#brain-full-scope-indexer",
       "slug": "brain-full-scope-indexer",
       "status": "done",
@@ -21937,13 +22086,13 @@
       ]
     }
   ],
-  "entity_count": 764,
-  "generated": "2026-09-02",
+  "entity_count": 769,
+  "generated": "2026-09-08",
   "schema_version": "0.2.0",
   "topic_count": 6,
   "topics": [
     {
-      "entity_count": 535,
+      "entity_count": 539,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -21999,6 +22148,7 @@
         ".cg-docs/brainstorms/2026-08-13-skill-loading-architecture-context-efficiency.md",
         ".cg-docs/brainstorms/2026-08-28-compound-gpid-rd-command.md",
         ".cg-docs/brainstorms/2026-08-28-scalable-skill-management-suite.md",
+        ".cg-docs/brainstorms/2026-09-04-cg-light-work-unified-small-task-workflow.md",
         ".cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-gsd-2-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-superpowers-full-review.md",
@@ -22117,6 +22267,7 @@
         ".cg-docs/plans/2026-08-21-pr-ci-preflight-and-kilo-capability-gates.md",
         ".cg-docs/plans/2026-08-28-compound-gpid-rd-command.md",
         ".cg-docs/plans/2026-08-28-scalable-skill-management-suite.md",
+        ".cg-docs/plans/2026-09-04-cg-light-work-unified-small-task-workflow.md",
         ".cg-docs/plans/phase2-model-governance-cleanup.md",
         ".cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md",
         ".cg-docs/reviews/2026-04-01-cg-strategy-and-roadmap-fix-review.md",
@@ -22275,6 +22426,7 @@
         ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review-3.md",
         ".cg-docs/reviews/2026-08-21-pr-ci-preflight-and-kilo-capability-gates-verify-review.md",
         ".cg-docs/reviews/2026-08-28-compound-gpid-rd-command-review.md",
+        ".cg-docs/reviews/2026-08-28-scalable-skill-management-suite-verify-review-3.md",
         ".cg-docs/solutions/bugs/2026-03-18-broken-relative-links-in-nested-skill-files.md",
         ".cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md",
         ".cg-docs/solutions/bugs/2026-03-19-explicit-unpin-does-not-persist-missing-state-file-write.md",
@@ -22348,6 +22500,7 @@
         ".cg-docs/solutions/data-quality/2026-05-14-yaml-frontmatter-allowlist-validation-pattern.md",
         ".cg-docs/solutions/data-quality/2026-05-20-welfare-column-three-step-guard-existence-na-positivity.md",
         ".cg-docs/solutions/data-quality/2026-08-28-exact-json-registry-mutation-boundaries.md",
+        ".cg-docs/solutions/data-quality/2026-09-09-validate-registry-identities-before-derived-maps.md",
         ".cg-docs/solutions/environment-issues/2026-03-02-skill-vs-prompt-slash-command.md",
         ".cg-docs/solutions/environment-issues/2026-03-13-troubleshooting-doc-structure-readme-vs-manual.md",
         ".cg-docs/solutions/environment-issues/2026-04-24-multi-day-vscode-session-accumulates-listeners-crashes.md",
@@ -22484,13 +22637,13 @@
       "keywords": [
         "roadmap.json",
         "test scenarios",
-        "prompt-tools.tests.ps1"
+        "cg-work"
       ],
-      "label": "Roadmap.Json / Test Scenarios / Prompt-Tools.Tests.Ps1",
-      "slug": "roadmap-json-test-scenarios-prompt-tools-tests-ps1"
+      "label": "Roadmap.Json / Test Scenarios / Cg-Work",
+      "slug": "roadmap-json-test-scenarios-cg-work"
     },
     {
-      "entity_count": 154,
+      "entity_count": 155,
       "entity_paths": [
         "roadmap.json#cg-fix-problems-agent",
         "roadmap.json#cg-fix-problems-prompt",
@@ -22588,6 +22741,7 @@
         "roadmap.json#artifact-html-opt-in-default",
         "roadmap.json#automated-documentation-deployment-and-whats-new-page",
         "roadmap.json#dual-deployment-dev-branch-docs-at-dev",
+        "roadmap.json#unified-cg-light-work-command-for-small-technical-tasks",
         "roadmap.json#brain-full-scope-indexer",
         "roadmap.json#brain-topic-extraction",
         "roadmap.json#brain-relationship-detection",

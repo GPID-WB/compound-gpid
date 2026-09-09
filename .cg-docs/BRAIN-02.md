@@ -1,11 +1,17 @@
 # 🧠 Project Brain — Part 2
 
-_Generated 2026-09-02_
+_Generated 2026-09-08_
 
-## Roadmap.Json / Test Scenarios / Prompt-Tools.Tests.Ps1 _(continued from Part 1)_
+## Roadmap.Json / Test Scenarios / Cg-Work _(continued from Part 1)_
 
-_Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 115 entities
+_Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 118 entities
 
+- **[Charter drift prevention: four-section rule + archive-on-removal + staleness nudge](.cg-docs/solutions/git-workflows/2026-04-01-charter-drift-prevention.md)** · `solution` · _—_ · `2026-04-01`
+  > `compound-gpid.md` is read at the start of every Copilot session via "Step 0: Get Bearings" — it is the shared source…
+- **[gh pr create: use --body-file not inline --body to prevent shell injection](.cg-docs/solutions/git-workflows/2026-05-14-gh-pr-create-use-body-file-not-inline-body.md)** · `solution` · _—_ · `2026-05-14`
+  > A prompt using `gh pr create --title "..." --body "<plan content>"` passes the PR body inline on the command line. Wh…
+- **[git log without --first-parent double-counts upstream merge commits when measuring branch-local work](.cg-docs/solutions/git-workflows/2026-05-14-git-log-first-parent-for-branch-local-commits.md)** · `solution` · _—_ · `2026-05-14`
+  > When counting commits authored **on the current branch** since a branch point, the common pattern: silently includes …
 - **[git merge-base can return multiple ancestors — always take the first line](.cg-docs/solutions/git-workflows/2026-05-14-git-merge-base-multiple-ancestors-take-first-line.md)** · `solution` · _—_ · `2026-05-14`
   > Scripts and prompt instructions that compute the branch point with: assume `git merge-base` returns exactly one hash.…
 - **[Use git rev-parse for repo detection; guard against detached HEAD state](.cg-docs/solutions/git-workflows/2026-05-18-git-rev-parse-for-repo-detection-detached-head-guard.md)** · `solution` · _—_ · `2026-05-18`
@@ -242,7 +248,7 @@ _Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 11
 _Keywords: `architecture research
 objective` · `ongoing ideas
 objective` · `workflow maturity
-objective`_ · 154 entities
+objective`_ · 155 entities
 
 - **[@cg-fix-problems agent \(auto-dispatched by /cg-work\)](roadmap.json#cg-fix-problems-agent)** · `feature` · _done_ · `—`
   > @cg-fix-problems agent (auto-dispatched by /cg-work)
@@ -436,6 +442,8 @@ objective`_ · 154 entities
   > Automated Documentation Deployment and What's New Page
 - **[Dual-Deployment: Dev Branch Docs at /dev/](roadmap.json#dual-deployment-dev-branch-docs-at-dev)** · `feature` · _idea_ · `—`
   > Dual-Deployment: Dev Branch Docs at /dev/
+- **[Unified /cg-light-work command for small technical tasks](roadmap.json#unified-cg-light-work-command-for-small-technical-tasks)** · `feature` · _done_ · `—`
+  > Unified /cg-light-work command for small technical tasks
 - **[Full-scope indexer \(all .cg-docs/ + roadmap features\)](roadmap.json#brain-full-scope-indexer)** · `feature` · _done_ · `—`
   > Full-scope indexer (all .cg-docs/ + roadmap features)
 - **[Topic/theme extraction \(auto-cluster artifacts into concepts\)](roadmap.json#brain-topic-extraction)** · `feature` · _done_ · `—`
