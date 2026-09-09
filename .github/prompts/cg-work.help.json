@@ -1,0 +1,11 @@
+{
+  "id": "slash:cg-work", "name": "/cg-work", "kind": "slash", "ownerModule": "suite-cg", "supportedSuites": ["cg"],
+  "category": "delivery", "summary": "Implement an approved plan or one selected phase with verification gates.", "aliases": [],
+  "intents": ["implement an approved plan", "implement one plan phase"], "usage": "/cg-work [phaseX] [review] [deviate:<policy>]", "examples": ["/cg-work phase1"],
+  "prerequisites": ["A validated plan or an eligible lightweight task."], "outputs": ["Implemented changes with test and constraint evidence."],
+  "constraints": ["Stops at blocked completion evidence and respects plan boundaries."], "relatedCommands": [{"id": "slash:cg-review", "relation": "next"}],
+  "sourcePath": ".github/prompts/cg-work.prompt.md", "definitionSources": [".github/prompts/cg-work.prompt.md"], "definitionDigest": "c59ffd7d46f311b3b8d856f844957337a6f4a818b3ad2773931bd751332028c1",
+  "documentationTargets": [{"path": "docs/workflow.md", "section": "3-work-cg-work"}], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["any"],
+  "availability": {"status": "available", "evidence": [{"os": "any", "sourcePath": ".github/prompts/cg-work.prompt.md"}]},
+  "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
+}

@@ -1,0 +1,11 @@
+{
+  "id": "slash:cg-review", "name": "/cg-review", "kind": "slash", "ownerModule": "suite-cg", "supportedSuites": ["cg"],
+  "category": "assurance", "summary": "Run routed multi-agent review and save prioritized findings.", "aliases": [],
+  "intents": ["review recent code changes", "find bugs and regression risks"], "usage": "/cg-review [light|standard|data-risk|architecture|full] [mode:autofix|mode:verify]", "examples": ["/cg-review architecture"],
+  "prerequisites": ["A defined review scope or recent changes."], "outputs": ["A saved P0-P3 review report."],
+  "constraints": ["Findings are primary and tests remain separate evidence."], "relatedCommands": [{"id": "slash:cg-fix-triage", "relation": "next"}],
+  "sourcePath": ".github/prompts/cg-review.prompt.md", "definitionSources": [".github/prompts/cg-review.prompt.md"], "definitionDigest": "f7e2b7dfafdfc185b2192fbb63703ad3e0bc2b873e5f5412ad0224d848dee29a",
+  "documentationTargets": [{"path": "docs/workflow.md", "section": "5-review-cg-review"}], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["any"],
+  "availability": {"status": "available", "evidence": [{"os": "any", "sourcePath": ".github/prompts/cg-review.prompt.md"}]},
+  "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
+}

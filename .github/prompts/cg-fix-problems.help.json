@@ -1,0 +1,11 @@
+{
+  "id": "slash:cg-fix-problems", "name": "/cg-fix-problems", "kind": "slash", "ownerModule": "suite-cg", "supportedSuites": ["cg"],
+  "category": "assurance", "summary": "Inspect workspace diagnostics and apply selected editor-problem fixes.", "aliases": [],
+  "intents": ["fix editor diagnostics", "resolve workspace warnings and errors"], "usage": "/cg-fix-problems", "examples": ["/cg-fix-problems"],
+  "prerequisites": ["Workspace diagnostics are available."], "outputs": ["Selected diagnostic fixes and a concise result."],
+  "constraints": ["The user controls diagnostic scope and severity."], "relatedCommands": [{"id": "slash:cg-review", "relation": "related"}],
+  "sourcePath": ".github/prompts/cg-fix-problems.prompt.md", "definitionSources": [".github/prompts/cg-fix-problems.prompt.md"], "definitionDigest": "bcfe16f54cd49b07b2d26d410f378bc446c42d6cc09945278fd280e92a5890c7",
+  "documentationTargets": [], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["any"],
+  "availability": {"status": "conditional", "evidence": [{"os": "any", "sourcePath": ".github/prompts/cg-fix-problems.prompt.md"}]},
+  "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
+}

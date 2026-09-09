@@ -1,0 +1,11 @@
+{
+  "id": "slash:cg-commit-push-pr", "name": "/cg-commit-push-pr", "kind": "slash", "ownerModule": "suite-cg", "supportedSuites": ["cg"],
+  "category": "delivery", "summary": "Create logical commits, push the branch, and open a plan-backed pull request.", "aliases": [],
+  "intents": ["commit and open a pull request", "prepare reviewed changes for integration"], "usage": "/cg-commit-push-pr", "examples": ["/cg-commit-push-pr"],
+  "prerequisites": ["Verified changes on a feature branch."], "outputs": ["Pushed commits and a pull request URL."],
+  "constraints": ["Stops when required validation or staging checks fail."], "relatedCommands": [{"id": "slash:cg-verify-pr", "relation": "next"}],
+  "sourcePath": ".github/prompts/cg-commit-push-pr.prompt.md", "definitionSources": [".github/prompts/cg-commit-push-pr.prompt.md"], "definitionDigest": "7f814e3df88b219add1bf3307ce96eaa613b3510d2a25544b1bed7a5b3ff75ca",
+  "documentationTargets": [], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["any"],
+  "availability": {"status": "available", "evidence": [{"os": "any", "sourcePath": ".github/prompts/cg-commit-push-pr.prompt.md"}]},
+  "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
+}
