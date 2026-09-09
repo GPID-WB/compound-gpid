@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-09-02 · 603 artifacts (newest first) + 161 roadmap features_
+_Generated 2026-09-08 · 608 artifacts (newest first) + 162 roadmap features_
 
 ## undated
 
@@ -126,6 +126,22 @@ _Generated 2026-09-02 · 603 artifacts (newest first) + 161 roadmap features_
   > Plan: `.cg-docs/plans/2026-06-23-token-dashboard-regression-checks.md`
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
+
+## 2026-09-08
+
+- **[2026-08-11-kilo-agent-parsing-linker-copy-directory-verify-review](.cg-docs/reviews/2026-08-11-kilo-agent-parsing-linker-copy-directory-verify-review.md)** · `review` · _—_ · `2026-09-08`
+  > **Review mode**: light verification **Parent review**: `.cg-docs/reviews/2026-08-11-kilo-agent-parsing-linker-copy-di…
+- **[2026-09-04-minimal-adaptive-grilling-review](.cg-docs/reviews/2026-09-04-minimal-adaptive-grilling-review.md)** · `review` · _—_ · `2026-09-08`
+  > **Review mode**: standard **Files reviewed**: 29 implementation and workflow-record paths **Findings**: 15 (P0: 0, P1…
+- **[Fact-first interactive prompts need branch-complete tests](.cg-docs/solutions/testing-patterns/2026-09-08-fact-first-prompts-need-branch-complete-tests.md)** · `solution` · _—_ · `2026-09-08`
+  > An adaptive prompt can contain all required phrases and still execute the wrong workflow. In `/cg-brainstorm`, the pr…
+
+## 2026-09-04
+
+- **[Implement Minimal Adaptive Grilling](.cg-docs/plans/2026-09-04-minimal-adaptive-grilling.md)** · `plan` · _completed_ · `2026-09-04`
+  > Improve `/cg-brainstorm` with the smallest complete adaptive-grilling pilot. The command will discover facts before a…
+- **[Minimal adaptive grilling for the Compound GPID workflow](.cg-docs/brainstorms/2026-09-04-minimal-adaptive-grilling.md)** · `brainstorm` · _decided_ · `2026-09-04`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
 
 ## 2026-09-02
 
@@ -1681,6 +1697,8 @@ _Generated 2026-09-02 · 603 artifacts (newest first) + 161 roadmap features_
   > Fail-closed manifest and skill-integrity validation
 - **[Add mattpocock/skills to competitive review sources](roadmap.json#mattpocock-skills-review-source)** · `feature` · _idea_ · `—`
   > Add mattpocock/skills to competitive review sources
+- **[Minimal adaptive grilling for the Compound GPID workflow](roadmap.json#minimal-adaptive-grilling-for-the-compound-gpid-workflow)** · `feature` · _idea_ · `—`
+  > Minimal adaptive grilling for the Compound GPID workflow
 - **[Add model-policy tests](roadmap.json#model-policy-tests)** · `feature` · _idea_ · `—`
   > Add model-policy tests
 - **[Model-split pattern for other prompts \(Haiku scan + Sonnet draft\)](roadmap.json#model-split-pattern-reuse)** · `feature` · _idea_ · `—`

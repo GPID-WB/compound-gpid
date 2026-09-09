@@ -1,11 +1,15 @@
 # 🧠 Project Brain — Part 2
 
-_Generated 2026-09-02_
+_Generated 2026-09-08_
 
 ## Roadmap.Json / Test Scenarios / Prompt-Tools.Tests.Ps1 _(continued from Part 1)_
 
-_Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 115 entities
+_Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 118 entities
 
+- **[gh pr create: use --body-file not inline --body to prevent shell injection](.cg-docs/solutions/git-workflows/2026-05-14-gh-pr-create-use-body-file-not-inline-body.md)** · `solution` · _—_ · `2026-05-14`
+  > A prompt using `gh pr create --title "..." --body "<plan content>"` passes the PR body inline on the command line. Wh…
+- **[git log without --first-parent double-counts upstream merge commits when measuring branch-local work](.cg-docs/solutions/git-workflows/2026-05-14-git-log-first-parent-for-branch-local-commits.md)** · `solution` · _—_ · `2026-05-14`
+  > When counting commits authored **on the current branch** since a branch point, the common pattern: silently includes …
 - **[git merge-base can return multiple ancestors — always take the first line](.cg-docs/solutions/git-workflows/2026-05-14-git-merge-base-multiple-ancestors-take-first-line.md)** · `solution` · _—_ · `2026-05-14`
   > Scripts and prompt instructions that compute the branch point with: assume `git merge-base` returns exactly one hash.…
 - **[Use git rev-parse for repo detection; guard against detached HEAD state](.cg-docs/solutions/git-workflows/2026-05-18-git-rev-parse-for-repo-detection-detached-head-guard.md)** · `solution` · _—_ · `2026-05-18`
@@ -206,6 +210,8 @@ _Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 11
   > `/cr-work` needed to move from `GPT-5.3-Codex` to `GPT-5.6 Luna` without changing any other prompt or agent. The imme…
 - **[Evidence manifest tests must require referenced files to exist and be non-empty before hashing](.cg-docs/solutions/testing-patterns/2026-08-10-evidence-manifest-tests-require-referenced-files.md)** · `solution` · _—_ · `2026-08-10`
   > The Schema 2 evidence manifest test (`scripts/evidence/tests/manifest.test.js`) verified that recorded SHA-256 hashes…
+- **[Fact-first interactive prompts need branch-complete tests](.cg-docs/solutions/testing-patterns/2026-09-08-fact-first-prompts-need-branch-complete-tests.md)** · `solution` · _—_ · `2026-09-08`
+  > An adaptive prompt can contain all required phrases and still execute the wrong workflow. In `/cg-brainstorm`, the pr…
 - **[Full backlog structuring into five milestones](.cg-docs/strategy/2026-04-06-full-backlog-structuring.md)** · `strategy` · _—_ · `2026-04-06`
   > - Project charter and roadmap.json already in place. - Roadmap had 1 milestone (Quality Loop) with 6 idea-stage featu…
 - **[Workflow automation and external patterns research](.cg-docs/strategy/2026-04-13-workflow-automation-research.md)** · `strategy` · _—_ · `2026-04-13`
@@ -242,7 +248,7 @@ _Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 11
 _Keywords: `architecture research
 objective` · `ongoing ideas
 objective` · `workflow maturity
-objective`_ · 154 entities
+objective`_ · 155 entities
 
 - **[@cg-fix-problems agent \(auto-dispatched by /cg-work\)](roadmap.json#cg-fix-problems-agent)** · `feature` · _done_ · `—`
   > @cg-fix-problems agent (auto-dispatched by /cg-work)
@@ -368,6 +374,8 @@ objective`_ · 154 entities
   > Brainstorm depth overhaul — grill-me mode + grill-with-docs skill
 - **[/cg-confidence — honest confidence/assumptions/unknowns assessment](roadmap.json#cg-confidence-prompt)** · `feature` · _idea_ · `—`
   > /cg-confidence — honest confidence/assumptions/unknowns assessment
+- **[Minimal adaptive grilling for the Compound GPID workflow](roadmap.json#minimal-adaptive-grilling-for-the-compound-gpid-workflow)** · `feature` · _idea_ · `—`
+  > Minimal adaptive grilling for the Compound GPID workflow
 - **[Rename repository review command and add registry management flags](roadmap.json#rename-repository-review-command-and-add-registry-management-flags)** · `feature` · _done_ · `—`
   > Rename repository review command and add registry management flags
 - **[roadmap.json schema validation after @cg-roadmap writes](roadmap.json#roadmap-schema-validation)** · `feature` · _idea_ · `—`
