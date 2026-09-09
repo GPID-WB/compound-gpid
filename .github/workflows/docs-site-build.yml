@@ -65,10 +65,12 @@ jobs:
         run: node sources/dev/scripts/rebuild-docs.js --root "$GITHUB_WORKSPACE/sources/dev" --all
 
       - name: Validate stable documentation source
-        run: node sources/main/scripts/check-docs-site.js --source-root "$GITHUB_WORKSPACE/sources/main" --docs-root "$GITHUB_WORKSPACE/sources/main/docs"
+        working-directory: sources/main
+        run: node "$GITHUB_WORKSPACE/sources/dev/scripts/check-docs-site.js" --legacy
 
       - name: Validate development documentation source
-        run: node sources/dev/scripts/check-docs-site.js --source-root "$GITHUB_WORKSPACE/sources/dev" --docs-root "$GITHUB_WORKSPACE/sources/dev/docs"
+        working-directory: sources/dev
+        run: node scripts/check-docs-site.js
 
       - name: Capture exact source commits
         id: sources
