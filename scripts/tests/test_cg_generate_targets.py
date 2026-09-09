@@ -52,8 +52,6 @@ EXPECTED_PLAN_TARGETS = set(COMMIT_PUSH_COMMAND_PATHS) | {"copilot"}
 SOURCE_MARKER = ".compound-gpid-source.json"
 PHASE_2_DEFERRED_TARGET_SOURCES = {
     ".github/prompts/cg-commit-push-pr.prompt.md",
-    ".github/shared/help-catalog.json",
-    ".github/shared/shell-commands.json",
 }
 
 
@@ -769,6 +767,32 @@ class TestDryRun:
 
 
 class TestGenerationPlan:
+    @pytest.mark.parametrize("help_prompt_present", [False, True])
+    def test_help_shared_outputs_require_canonical_help_prompt(
+        self, tmp_path: Path, help_prompt_present: bool
+    ) -> None:
+        root = _make_fixture_repo(tmp_path)
+        for source in gen.DEFERRED_HELP_SHARED_SOURCES:
+            _write(root / source, "{}\n")
+        if help_prompt_present:
+            _write(
+                root / gen.CANONICAL_HELP_PROMPT_PATH,
+                "---\ndescription: Help\n---\n\n# Help\n",
+            )
+
+        plan = gen.build_generation_plan(
+            root,
+            gen.load_target_mapping(root),
+            gen.scan_canonical_assets(root),
+        )
+
+        for target_id in ("claude-code", "codex", "opencode", "kilo"):
+            sources = {entry.source for entry in plan.by_target[target_id].entries}
+            assert (
+                gen.DEFERRED_HELP_SHARED_SOURCES <= sources
+            ) is help_prompt_present
+            assert ".github/shared/runtime-contract.md" in sources
+
     def test_entries_are_sorted_and_contain_final_bytes_and_hashes(self, tmp_path: Path) -> None:
         root = _make_fixture_repo(tmp_path)
         mapping = gen.load_target_mapping(root)

@@ -47,6 +47,11 @@ from skill_management.services import bundles as bundle_service
 
 TARGET_MAPPING_PATH = ".github/shared/target-mapping.json"
 MODULE_REGISTRY_PATH = ".github/shared/module-registry.json"
+CANONICAL_HELP_PROMPT_PATH = ".github/prompts/cg-help.prompt.md"
+DEFERRED_HELP_SHARED_SOURCES = frozenset({
+    ".github/shared/help-catalog.json",
+    ".github/shared/shell-commands.json",
+})
 
 
 @functools.lru_cache(maxsize=1)
@@ -503,17 +508,20 @@ def build_generation_plan(
         raise MappingValidationError("target-mapping.json validation failed:\n- " + "\n- ".join(errors))
     validate_mapping_paths(root, mapping)
     by_target: dict[str, TargetResult] = {}
-    lookups = _build_asset_lookup(assets)
     for target in mapping["targets"]:
         if (
             target.get("generatedTreePath") is None
             and not target.get("projectedCategories")
         ):
             continue
-        render_context = (lookups, _runtime_destination_map(target, assets))
+        target_assets = _assets_for_native_target(target, assets)
+        render_context = (
+            _build_asset_lookup(target_assets),
+            _runtime_destination_map(target, target_assets),
+        )
         rendered = tuple(sorted(
-            (_render_output_entry(target, entry, assets, render_context)
-             for entry in build_output_manifest(target, assets)),
+            (_render_output_entry(target, entry, target_assets, render_context)
+             for entry in build_output_manifest(target, target_assets)),
             key=lambda entry: entry.destination,
         ))
         _validate_output_namespace(target["id"], rendered)
@@ -526,6 +534,27 @@ def build_generation_plan(
         key=lambda entry: entry.destination,
     ))
     return GenerationPlan(entries, by_target)
+
+
+def _assets_for_native_target(
+    target: dict[str, Any],
+    assets: dict[str, list[dict[str, Any]]],
+) -> dict[str, list[dict[str, Any]]]:
+    """Defer help shared outputs until the canonical help prompt exists."""
+    prompt_exists = any(
+        prompt["relative_path"] == CANONICAL_HELP_PROMPT_PATH
+        for prompt in assets["prompts"]
+    )
+    if target.get("generatedTreePath") is None or prompt_exists:
+        return assets
+
+    filtered = dict(assets)
+    filtered["shared"] = [
+        asset
+        for asset in assets["shared"]
+        if asset["relative_path"] not in DEFERRED_HELP_SHARED_SOURCES
+    ]
+    return filtered
 
 
 def _validate_output_namespace(

@@ -30,17 +30,9 @@ OWNERSHIP_MANIFESTS = {
     ".opencode/.compound-gpid-generated.json",
     ".kilo/.compound-gpid-generated.json",
 }
-PHASE_2_DEFERRED_NEW_TARGET_SOURCES = {
-    ".github/shared/help-catalog.json",
-    ".github/shared/shell-commands.json",
-}
 PHASE_2_DEFERRED_CHANGED_TARGET_SOURCES = {
     ".github/prompts/cg-commit-push-pr.prompt.md",
 }
-PHASE_2_DEFERRED_TARGET_SOURCES = (
-    PHASE_2_DEFERRED_NEW_TARGET_SOURCES
-    | PHASE_2_DEFERRED_CHANGED_TARGET_SOURCES
-)
 
 
 def _build_structured_plan(root: Path) -> gen.GenerationPlan:
@@ -61,7 +53,6 @@ def _expected_paths(root: Path) -> frozenset[str]:
             entry.destination
             for entry in plan.entries
             if entry.target_id != "copilot"
-            and entry.source not in PHASE_2_DEFERRED_NEW_TARGET_SOURCES
         }
         | OWNERSHIP_MANIFESTS
     )
@@ -215,20 +206,19 @@ def test_git_ignore_checks_are_batched(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 class TestNoDrift:
-    def test_phase_2_fixture_contract_defers_native_help_integration(self) -> None:
+    def test_generator_defers_native_help_integration_without_prompt(self) -> None:
         plan = _build_structured_plan(REPO_ROOT)
-        deferred = {
-            entry.source
-            for entry in plan.entries
-            if entry.source in PHASE_2_DEFERRED_TARGET_SOURCES
+        assets = gen.scan_canonical_assets(REPO_ROOT, active_suites=("cg", "cr"))
+        shared_sources = {
+            asset["relative_path"] for asset in assets["shared"]
         }
 
-        assert deferred == PHASE_2_DEFERRED_TARGET_SOURCES
-        assert not (REPO_ROOT / ".github/prompts/cg-help.prompt.md").exists()
-        assert all(
-            entry.destination not in _expected_paths(REPO_ROOT)
+        assert gen.DEFERRED_HELP_SHARED_SOURCES <= shared_sources
+        assert not (REPO_ROOT / gen.CANONICAL_HELP_PROMPT_PATH).exists()
+        assert not any(
+            entry.target_id != "copilot"
+            and entry.source in gen.DEFERRED_HELP_SHARED_SOURCES
             for entry in plan.entries
-            if entry.source in PHASE_2_DEFERRED_NEW_TARGET_SOURCES
         )
 
     def test_ownership_manifests_are_well_formed_and_match_worktree(self) -> None:
@@ -344,7 +334,7 @@ class TestNoDrift:
         deferred_destinations = {
             entry.destination
             for entry in _build_structured_plan(REPO_ROOT).entries
-            if entry.source in PHASE_2_DEFERRED_TARGET_SOURCES
+            if entry.source in PHASE_2_DEFERRED_CHANGED_TARGET_SOURCES
         }
         overlap = sorted(
             (expected_committed & committed)
