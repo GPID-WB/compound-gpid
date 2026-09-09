@@ -108,6 +108,16 @@ def test_combined_docs_build_validates_legacy_main_separately_from_dev() -> None
     ) in workflow
 
 
+def test_combined_docs_build_uses_dev_tooling_for_stable_source() -> None:
+    workflow = _read(".github/workflows/docs-site-build.yml")
+
+    assert (
+        'run: node sources/dev/scripts/rebuild-docs.js '
+        '--root "$GITHUB_WORKSPACE/sources/main" --all'
+    ) in workflow
+    assert "node sources/main/scripts/rebuild-docs.js" not in workflow
+
+
 def test_combined_docs_build_checks_metadata_as_a_workflow_step() -> None:
     workflow = _read(".github/workflows/docs-site-build.yml")
 

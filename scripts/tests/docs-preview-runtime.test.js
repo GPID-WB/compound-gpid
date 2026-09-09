@@ -61,6 +61,7 @@ test("stable root and /dev/ preview serve the same site shell at distinct paths"
         "/dev/navigation.json",
         "/dev/assets/site.css",
         "/dev/assets/site.js",
+        "/dev/research/",
         "/dev/research/index.md",
       ]) {
         const response = await fetch(`${baseUrl}${relative}`);
@@ -72,6 +73,8 @@ test("stable root and /dev/ preview serve the same site shell at distinct paths"
       assert.doesNotMatch(stableIndex, /dev-preview-banner/);
       assert.match(devIndex, /dev-preview-banner/);
       assert.match(devIndex, /Development preview built from/);
+      const handbookEntry = await (await fetch(`${baseUrl}/dev/research/`)).text();
+      assert.match(handbookEntry, /\.\.\/#page=research/);
       assert.match(devScript, /fetch\("navigation\.json"\)/);
       assert.match(devScript, /fetch\(config\.file\)/);
     } finally {
