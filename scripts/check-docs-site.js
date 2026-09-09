@@ -7,11 +7,13 @@ function parseArguments(argv) {
   const options = {
     sourceRoot: process.cwd(),
     docsRoot: process.env.CG_DOCS_ROOT ? path.resolve(process.env.CG_DOCS_ROOT) : null,
+    legacy: false,
   };
   for (let index = 0; index < argv.length; index += 1) {
     const argument = argv[index];
     if (argument === "--source-root") options.sourceRoot = path.resolve(argv[++index]);
     else if (argument === "--docs-root") options.docsRoot = path.resolve(argv[++index]);
+    else if (argument === "--legacy") options.legacy = true;
     else throw new Error(`Unknown argument: ${argument}`);
   }
   return options;
@@ -20,6 +22,7 @@ function parseArguments(argv) {
 const options = parseArguments(process.argv.slice(2));
 const root = options.sourceRoot;
 const docsRoot = options.docsRoot || path.join(root, "docs");
+const legacySource = options.legacy;
 
 function slugify(value) {
   return value.toLowerCase().replace(/<[^>]*>/g, "").replace(/[`*_]/g, "")
@@ -167,7 +170,7 @@ async function loadCandidatePages() {
     throw new Error("Documentation navigation must contain audience-oriented groups.");
   }
   const pages = manifest.groups.flatMap((group) => group.pages || []);
-  const candidatePages = await loadCandidatePages();
+  const candidatePages = legacySource ? [] : await loadCandidatePages();
   const ids = pages.map((page) => page.id);
   const pageFiles = pages.map((page) => page.file);
   if (new Set(ids).size !== ids.length) throw new Error("Documentation page IDs must be unique.");
@@ -188,11 +191,13 @@ async function loadCandidatePages() {
     ["workflows", "workflows/index.md"], ["skills", "skills/index.md"],
     ["configuration", "configuration/index.md"], ["governance", "governance/index.md"],
     ["help", "help/index.md"], ["reference", "reference.md"],
-    ["research", "research/index.md"], ["research-philosophy", "research/philosophy.md"],
-    ["research-first-workflow", "research/first-workflow.md"],
-    ["research-short-example", "research/short-example.md"],
-    ["research-lifecycle", "research/lifecycle.md"],
-    ["research-evidence-boundaries", "research/evidence-boundaries.md"]
+    ...(legacySource ? [] : [
+      ["research", "research/index.md"], ["research-philosophy", "research/philosophy.md"],
+      ["research-first-workflow", "research/first-workflow.md"],
+      ["research-short-example", "research/short-example.md"],
+      ["research-lifecycle", "research/lifecycle.md"],
+      ["research-evidence-boundaries", "research/evidence-boundaries.md"]
+    ])
   ]);
   for (const [id, file] of requiredRoutes) {
     const page = pages.find((entry) => entry.id === id);
@@ -228,6 +233,12 @@ async function loadCandidatePages() {
   const siteScript = await readFile(path.join(docsRoot, "assets", "site.js"), "utf8");
   for (const contract of ["navigation.json", "navigationRequest", "aria-current", "setNavigationOpen", "#{1,6}"]) {
     if (!siteScript.includes(contract)) throw new Error(`Site runtime is missing contract: ${contract}`);
+  }
+
+  if (legacySource) {
+    await validateMarkdownLinks(markdownFiles);
+    console.log(`Legacy documentation site check passed (${pages.length} navigable Markdown pages, ${manifest.groups.length} groups).`);
+    return;
   }
 
   const workflow = await readFile(path.join(root, ".github/workflows/pages.yml"), "utf8");

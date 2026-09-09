@@ -95,6 +95,19 @@ def test_tag_build_is_unprivileged_and_controller_is_main_owned() -> None:
     assert "workflow_dispatch:" not in pages
 
 
+def test_combined_docs_build_validates_legacy_main_separately_from_dev() -> None:
+    workflow = _read(".github/workflows/docs-site-build.yml")
+
+    assert (
+        'working-directory: sources/main\n'
+        '        run: node "$GITHUB_WORKSPACE/sources/dev/scripts/check-docs-site.js" --legacy'
+    ) in workflow
+    assert (
+        'working-directory: sources/dev\n'
+        '        run: node scripts/check-docs-site.js'
+    ) in workflow
+
+
 def test_combined_docs_build_checks_metadata_as_a_workflow_step() -> None:
     workflow = _read(".github/workflows/docs-site-build.yml")
 
