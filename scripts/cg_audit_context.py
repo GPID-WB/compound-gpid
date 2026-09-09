@@ -33,6 +33,7 @@ import io
 import json
 import re
 import subprocess
+from collections.abc import Mapping
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Iterable, Sequence
@@ -210,10 +211,60 @@ CONTEXT_MAINTENANCE_RE = re.compile(
     re.IGNORECASE,
 )
 
+
+def validate_workflow_registry(
+    registry: Sequence[Mapping[str, Any]],
+) -> None:
+    """Validate stable workflow registry identities before deriving maps.
+
+    Args:
+        registry: Workflow rows with ``workflow_id``, ``workflow``, and ``path``.
+
+    Raises:
+        ValueError: If a row lacks three non-empty string fields or duplicates
+            an identifier, command, or source path.
+
+    Example:
+        ``validate_workflow_registry(WORKFLOW_REGISTRY)``
+    """
+    seen_ids: set[str] = set()
+    seen_workflows: set[str] = set()
+    seen_paths: set[str] = set()
+    for index, row in enumerate(registry, start=1):
+        if not isinstance(row, Mapping):
+            raise ValueError(
+                f"Workflow registry row {index} must contain non-empty string fields"
+            )
+        values: dict[str, str] = {}
+        for key in ("workflow_id", "workflow", "path"):
+            value = row.get(key)
+            if not isinstance(value, str) or not value.strip():
+                raise ValueError(
+                    f"Workflow registry row {index} must contain non-empty string fields"
+                )
+            values[key] = value
+
+        workflow_id = values["workflow_id"]
+        if workflow_id in seen_ids:
+            raise ValueError(f"Duplicate workflow_id: {workflow_id}")
+        seen_ids.add(workflow_id)
+
+        workflow = values["workflow"]
+        if workflow in seen_workflows:
+            raise ValueError(f"Duplicate workflow command: {workflow}")
+        seen_workflows.add(workflow)
+
+        path = values["path"]
+        if path in seen_paths:
+            raise ValueError(f"Duplicate workflow path: {path}")
+        seen_paths.add(path)
+
+
 WORKFLOW_REGISTRY = (
     {"workflow_id": "cg-brainstorm", "workflow": "/cg-brainstorm", "path": ".github/prompts/cg-brainstorm.prompt.md"},
     {"workflow_id": "cg-plan", "workflow": "/cg-plan", "path": ".github/prompts/cg-plan.prompt.md"},
     {"workflow_id": "cg-work", "workflow": "/cg-work", "path": ".github/prompts/cg-work.prompt.md"},
+    {"workflow_id": "cg-light-work", "workflow": "/cg-light-work", "path": ".github/prompts/cg-light-work.prompt.md"},
     {"workflow_id": "cg-review", "workflow": "/cg-review", "path": ".github/prompts/cg-review.prompt.md"},
     {"workflow_id": "cg-fix-triage", "workflow": "/cg-fix-triage", "path": ".github/prompts/cg-fix-triage.prompt.md"},
     {"workflow_id": "cg-compound", "workflow": "/cg-compound", "path": ".github/prompts/cg-compound.prompt.md"},
@@ -221,6 +272,8 @@ WORKFLOW_REGISTRY = (
     {"workflow_id": "cg-diagnose", "workflow": "/cg-diagnose", "path": ".github/prompts/cg-diagnose.prompt.md"},
     {"workflow_id": "cg-token-audit", "workflow": "/cg-token-audit", "path": ".github/prompts/cg-token-audit.prompt.md"},
 )
+
+validate_workflow_registry(WORKFLOW_REGISTRY)
 
 BENCHMARK_PROMPTS = {
     row["workflow"]: row["path"]
@@ -233,6 +286,7 @@ ORDINARY_CONTEXT_GUARDRAIL_PROMPTS = {
     ".github/prompts/cg-brainstorm.prompt.md",
     ".github/prompts/cg-plan.prompt.md",
     ".github/prompts/cg-work.prompt.md",
+    ".github/prompts/cg-light-work.prompt.md",
     ".github/prompts/cg-review.prompt.md",
     ".github/prompts/cg-resume.prompt.md",
 }
@@ -825,9 +879,19 @@ def count_dispatch_burden(path: str, content: str) -> dict[str, Any]:
         Dict with keys: ``path``, ``dispatch_refs``, ``conditional_routing``,
         ``broad_dispatch``, ``burden_level``.
     """
-    dispatch_refs = len(set(AGENT_REF_RE.findall(content)))
-    conditional_routing = bool(CONDITIONAL_ROUTING_RE.search(content))
-    broad_dispatch = bool(BROAD_DISPATCH_RE.search(content)) and not conditional_routing
+    dispatch_content = content
+    if path == ".github/prompts/cg-light-work.prompt.md":
+        fixed_review = re.search(
+            r"(?ms)^### Stage 5:.*?(?=^### Stage 6:|\Z)",
+            content,
+        )
+        if fixed_review:
+            dispatch_content = fixed_review.group(0)
+    dispatch_refs = len(set(AGENT_REF_RE.findall(dispatch_content)))
+    conditional_routing = bool(CONDITIONAL_ROUTING_RE.search(dispatch_content))
+    broad_dispatch = (
+        bool(BROAD_DISPATCH_RE.search(dispatch_content)) and not conditional_routing
+    )
     if conditional_routing:
         burden_level = "conditional"
     elif broad_dispatch or dispatch_refs >= 8:
@@ -1089,27 +1153,6 @@ def _count_context_levels(rows: Sequence[dict[str, Any]], path: str | None = Non
         "justified": sum(1 for row in selected if row.get("level") == "justified"),
         "targeted": sum(1 for row in selected if row.get("level") == "targeted"),
     }
-
-
-def validate_workflow_registry(registry: Sequence[dict[str, str]]) -> None:
-    """Validate stable workflow registry rows.
-
-    Args:
-        registry: Sequence of dicts with ``workflow_id``, ``workflow``, and
-            ``path`` keys.
-
-    Raises:
-        ValueError: If a required key is missing or a workflow id is duplicated.
-    """
-    seen: set[str] = set()
-    for index, row in enumerate(registry, start=1):
-        for key in ("workflow_id", "workflow", "path"):
-            if not row.get(key):
-                raise ValueError(f"Workflow registry row {index} is missing {key}")
-        workflow_id = row["workflow_id"]
-        if workflow_id in seen:
-            raise ValueError(f"Duplicate workflow_id: {workflow_id}")
-        seen.add(workflow_id)
 
 
 def _observability(status: str, measurement_note: str) -> dict[str, str]:
