@@ -217,7 +217,7 @@
       "path": ".opencode/commands/cg-brainstorm.md",
       "source": ".github/prompts/cg-brainstorm.prompt.md",
       "kind": "command",
-      "sha256": "c4d49f5b3b9dc577947ee6cbcce176011bd600bdbf6672596b377beae6c63365",
+      "sha256": "fe1388cebd48b43497729d160890a6dcf33c0b09502c9de0fe8768c90f774f56",
       "executable": false
     },
     {
@@ -819,14 +819,14 @@
       "path": ".opencode/skills/cg-skill-brainstorming/SKILL.md",
       "source": ".github/skills/cg-skill-brainstorming/SKILL.md",
       "kind": "skill",
-      "sha256": "66d6b7fbe4ec9ab8a0cd4bb40de4ce110b117155c2eb3370de997713e7973e90",
+      "sha256": "90a1cd90cecbf075647bed54dbe107b0f06c142f6c599aa779161e230f84eac1",
       "executable": false
     },
     {
       "path": ".opencode/skills/cg-skill-brainstorming/references/decision-template.md",
       "source": ".github/skills/cg-skill-brainstorming/references/decision-template.md",
       "kind": "skill-resource",
-      "sha256": "e9adb7c89427786c20b098efc81984780c3351facdf534c42d3828a9a5b4ca53",
+      "sha256": "084c96f172cfc4663b34d530bde4cd963b8b9d3208dd4773de8fe1563493fbec",
       "executable": false
     },
     {
@@ -840,7 +840,7 @@
       "path": ".opencode/skills/cg-skill-brainstorming/workflows/requirement-elicitation.md",
       "source": ".github/skills/cg-skill-brainstorming/workflows/requirement-elicitation.md",
       "kind": "skill-resource",
-      "sha256": "a4fbbd206fa062ffec49f1bad8d945e7ee9170faad4d99ed47fc3e02fea25a6d",
+      "sha256": "d15cd65c8dfaf4987ac4bcdef92165a1f3f71027a8b4f49e85d91e7e3f1050c2",
       "executable": false
     },
     {

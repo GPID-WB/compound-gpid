@@ -479,7 +479,7 @@
         {
           "id": "brainstorm-depth-grill-mode",
           "title": "Brainstorm depth overhaul — grill-me mode + grill-with-docs skill",
-          "description": "Relentlessly inquisitive questioning in /cg-brainstorm until user and agent reach deep shared understanding. Inspired by mattpocock's grill-with-docs: challenge against domain glossary, sharpen fuzzy language, discuss concrete scenarios, cross-reference with code. Two modes: 'grill me' (agent questions user's idea) and 'grill with docs' (agent challenges plan against existing project knowledge/BRAIN.md). Captures resolved terminology and decisions inline.",
+          "description": "Deferred Deep-only advanced follow-up. Consider it only if evidence from the minimal adaptive grilling pilot shows repeated context loss, false completion, or decision drift. Keep persistent decision graphs, multi-session grilling, glossary or ADR behavior, and broader /cr-brainstorm sharing out of the minimal pilot.",
           "status": "idea",
           "plan": null
         },
@@ -487,6 +487,13 @@
           "id": "cg-confidence-prompt",
           "title": "/cg-confidence — honest confidence/assumptions/unknowns assessment",
           "description": "Cross-cutting prompt that can be invoked at any stage. Reports: confidence level in the current approach, explicit assumptions being made, unknowns that remain unresolved, and what new information would change the conclusion. Complements /cg-review (which finds problems) with epistemic self-awareness (what we don't know we don't know).",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "minimal-adaptive-grilling-for-the-compound-gpid-workflow",
+          "title": "Minimal adaptive grilling for the Compound GPID workflow",
+          "description": "First minimal pilot: update the existing cg-skill-brainstorming and /cg-brainstorm logic to distinguish facts from decisions and select only material decisions through a dependency frontier. Ask one question by default, with adaptive rounds capped at 2-3 independent questions. Stop interviewing when remaining uncertainties would not materially affect the minimum viable solution, confirm the minimal design, and only then offer optional added complexity. Preserve existing lifecycle gates and add no persistent decision infrastructure.",
           "status": "idea",
           "plan": null
         },

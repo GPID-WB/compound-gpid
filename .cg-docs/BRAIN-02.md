@@ -1,11 +1,15 @@
 # 🧠 Project Brain — Part 2
 
-_Generated 2026-09-08_
+_Generated 2026-09-09_
 
 ## Roadmap.Json / Test Scenarios / Cg-Work _(continued from Part 1)_
 
-_Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 118 entities
+_Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 121 entities
 
+- **[.cg-docs/ must not be gitignored — institutional knowledge must be committed](.cg-docs/solutions/git-workflows/2026-03-23-cg-docs-must-not-be-gitignored.md)** · `solution` · _—_ · `2026-03-23`
+  > `.cg-docs/` contains the primary knowledge output of the Compound Engineering workflow: brainstorms, plans, and solut…
+- **[Idempotent .gitignore block management with remove-then-rewrite](.cg-docs/solutions/git-workflows/2026-03-23-idempotent-gitignore-block-management.md)** · `solution` · _—_ · `2026-03-23`
+  > A tool (Compound GPID's `cg-link`) maintains a named section in the project's `.gitignore`. When the set of managed e…
 - **[Charter drift prevention: four-section rule + archive-on-removal + staleness nudge](.cg-docs/solutions/git-workflows/2026-04-01-charter-drift-prevention.md)** · `solution` · _—_ · `2026-04-01`
   > `compound-gpid.md` is read at the start of every Copilot session via "Step 0: Get Bearings" — it is the shared source…
 - **[gh pr create: use --body-file not inline --body to prevent shell injection](.cg-docs/solutions/git-workflows/2026-05-14-gh-pr-create-use-body-file-not-inline-body.md)** · `solution` · _—_ · `2026-05-14`
@@ -212,6 +216,8 @@ _Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 118 entities
   > `/cr-work` needed to move from `GPT-5.3-Codex` to `GPT-5.6 Luna` without changing any other prompt or agent. The imme…
 - **[Evidence manifest tests must require referenced files to exist and be non-empty before hashing](.cg-docs/solutions/testing-patterns/2026-08-10-evidence-manifest-tests-require-referenced-files.md)** · `solution` · _—_ · `2026-08-10`
   > The Schema 2 evidence manifest test (`scripts/evidence/tests/manifest.test.js`) verified that recorded SHA-256 hashes…
+- **[Fact-first interactive prompts need branch-complete tests](.cg-docs/solutions/testing-patterns/2026-09-08-fact-first-prompts-need-branch-complete-tests.md)** · `solution` · _—_ · `2026-09-08`
+  > An adaptive prompt can contain all required phrases and still execute the wrong workflow. In `/cg-brainstorm`, the pr…
 - **[Full backlog structuring into five milestones](.cg-docs/strategy/2026-04-06-full-backlog-structuring.md)** · `strategy` · _—_ · `2026-04-06`
   > - Project charter and roadmap.json already in place. - Roadmap had 1 milestone (Quality Loop) with 6 idea-stage featu…
 - **[Workflow automation and external patterns research](.cg-docs/strategy/2026-04-13-workflow-automation-research.md)** · `strategy` · _—_ · `2026-04-13`
@@ -248,7 +254,7 @@ _Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 118 entities
 _Keywords: `architecture research
 objective` · `ongoing ideas
 objective` · `workflow maturity
-objective`_ · 155 entities
+objective`_ · 156 entities
 
 - **[@cg-fix-problems agent \(auto-dispatched by /cg-work\)](roadmap.json#cg-fix-problems-agent)** · `feature` · _done_ · `—`
   > @cg-fix-problems agent (auto-dispatched by /cg-work)
@@ -374,6 +380,8 @@ objective`_ · 155 entities
   > Brainstorm depth overhaul — grill-me mode + grill-with-docs skill
 - **[/cg-confidence — honest confidence/assumptions/unknowns assessment](roadmap.json#cg-confidence-prompt)** · `feature` · _idea_ · `—`
   > /cg-confidence — honest confidence/assumptions/unknowns assessment
+- **[Minimal adaptive grilling for the Compound GPID workflow](roadmap.json#minimal-adaptive-grilling-for-the-compound-gpid-workflow)** · `feature` · _idea_ · `—`
+  > Minimal adaptive grilling for the Compound GPID workflow
 - **[Rename repository review command and add registry management flags](roadmap.json#rename-repository-review-command-and-add-registry-management-flags)** · `feature` · _done_ · `—`
   > Rename repository review command and add registry management flags
 - **[roadmap.json schema validation after @cg-roadmap writes](roadmap.json#roadmap-schema-validation)** · `feature` · _idea_ · `—`
