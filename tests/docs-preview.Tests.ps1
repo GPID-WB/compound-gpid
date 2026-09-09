@@ -38,7 +38,10 @@ Describe "Combined documentation build contracts" {
     It "executes builds without Pages credentials and uploads one combined artifact" {
         $buildWorkflow | Should -Match 'rebuild-docs\.js --root .*sources/main.*--all'
         $buildWorkflow | Should -Match 'rebuild-docs\.js --root .*sources/dev.*--all'
-        $buildWorkflow | Should -Match 'check-docs-site\.js --source-root'
+        $buildWorkflow | Should -Match 'sources/dev/scripts/check-docs-site\.js.*--legacy'
+        $buildWorkflow | Should -Match 'working-directory:\s*sources/main'
+        $buildWorkflow | Should -Match 'working-directory:\s*sources/dev'
+        $buildWorkflow | Should -Match 'run:\s*node scripts/check-docs-site\.js'
         $buildWorkflow | Should -Match 'assemble-docs-site\.js'
         $buildWorkflow | Should -Match 'combined-docs-site'
         $buildWorkflow | Should -Match '\.docs-build-metadata\.json'
