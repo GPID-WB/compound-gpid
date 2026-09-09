@@ -1,0 +1,11 @@
+{
+  "id": "slash:cg-resume", "name": "/cg-resume", "kind": "slash", "ownerModule": "suite-cg", "supportedSuites": ["cg"],
+  "category": "delivery", "summary": "Load project state and identify the correct continuation action.", "aliases": [],
+  "intents": ["resume interrupted work", "inspect current workflow state"], "usage": "/cg-resume", "examples": ["/cg-resume"],
+  "prerequisites": ["An existing Compound GPID project."], "outputs": ["A bounded work-in-progress summary and next action."],
+  "constraints": ["Reports state and does not replace the active plan or review authority."], "relatedCommands": [{"id": "slash:cg-work", "relation": "related"}],
+  "sourcePath": ".github/prompts/cg-resume.prompt.md", "definitionSources": [".github/prompts/cg-resume.prompt.md"], "definitionDigest": "37b40a1a870ec7432f40ff0345a27a37745726ea08ee35c744df1ab8d098e021",
+  "documentationTargets": [], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["any"],
+  "availability": {"status": "available", "evidence": [{"os": "any", "sourcePath": ".github/prompts/cg-resume.prompt.md"}]},
+  "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
+}

@@ -1,0 +1,143 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "compound-gpid-help-catalog-v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "generatorVersion", "sourceDigest", "suites", "commands", "workflows"],
+  "properties": {
+    "schemaVersion": {"const": 1},
+    "generatorVersion": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "sourceDigest": {"$ref": "#/$defs/digest"},
+    "suites": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/suite"}},
+    "commands": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/command"}},
+    "workflows": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/workflow"}}
+  },
+  "$defs": {
+    "digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "nonEmpty": {"type": "string", "minLength": 1},
+    "stringList": {"type": "array", "items": {"$ref": "#/$defs/nonEmpty"}, "uniqueItems": true},
+    "sourceReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sourcePath", "sourceSection"],
+      "properties": {
+        "sourcePath": {"$ref": "#/$defs/nonEmpty"},
+        "sourceSection": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"}
+      }
+    },
+    "documentationTarget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "section"],
+      "properties": {
+        "path": {"$ref": "#/$defs/nonEmpty"},
+        "section": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"}
+      }
+    },
+    "suite": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "moduleId", "displayName", "activation"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"},
+        "moduleId": {"type": "string", "pattern": "^suite-[a-z][a-z0-9-]*$"},
+        "displayName": {"$ref": "#/$defs/nonEmpty"},
+        "activation": {"$ref": "#/$defs/sourceReference"}
+      }
+    },
+    "relatedCommand": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "relation"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^(slash|shell):[a-z][a-z0-9-]*$"},
+        "relation": {"enum": ["alternative", "next", "prerequisite", "related"]}
+      }
+    },
+    "availabilityEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["os", "sourcePath"],
+      "properties": {
+        "os": {"enum": ["any", "posix", "windows"]},
+        "sourcePath": {"$ref": "#/$defs/nonEmpty"}
+      }
+    },
+    "availability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "evidence"],
+      "properties": {
+        "status": {"enum": ["available", "conditional"]},
+        "evidence": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/availabilityEvidence"}}
+      }
+    },
+    "activation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["suite", "sourcePath", "sourceSection"],
+      "properties": {
+        "suite": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"},
+        "sourcePath": {"$ref": "#/$defs/nonEmpty"},
+        "sourceSection": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"}
+      }
+    },
+    "command": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "kind", "ownerModule", "supportedSuites", "category", "summary", "aliases", "intents", "usage", "examples", "prerequisites", "outputs", "constraints", "relatedCommands", "sourcePath", "definitionSources", "definitionDigest", "documentationTargets", "supportedPlatforms", "supportedOS", "availability", "activation"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^(slash|shell):[a-z][a-z0-9-]*$"},
+        "name": {"type": "string", "pattern": "^/?[a-z][a-z0-9-]*$"},
+        "kind": {"enum": ["slash", "shell"]},
+        "ownerModule": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"},
+        "supportedSuites": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"}},
+        "category": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"},
+        "summary": {"$ref": "#/$defs/nonEmpty"},
+        "aliases": {"$ref": "#/$defs/stringList"},
+        "intents": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/nonEmpty"}, "uniqueItems": true},
+        "usage": {"$ref": "#/$defs/nonEmpty"},
+        "examples": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/nonEmpty"}, "uniqueItems": true},
+        "prerequisites": {"$ref": "#/$defs/stringList"},
+        "outputs": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/nonEmpty"}, "uniqueItems": true},
+        "constraints": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/nonEmpty"}, "uniqueItems": true},
+        "relatedCommands": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/relatedCommand"}},
+        "sourcePath": {"$ref": "#/$defs/nonEmpty"},
+        "definitionSources": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/nonEmpty"}, "uniqueItems": true},
+        "definitionDigest": {"$ref": "#/$defs/digest"},
+        "documentationTargets": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/documentationTarget"}},
+        "supportedPlatforms": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["claude-code", "codex", "copilot", "kilo", "opencode"]}},
+        "supportedOS": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["any", "posix", "windows"]}},
+        "availability": {"$ref": "#/$defs/availability"},
+        "activation": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/activation"}}
+      }
+    },
+    "workflowStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["order", "commandId", "purpose", "evidence"],
+      "properties": {
+        "order": {"type": "integer"},
+        "commandId": {"type": "string", "pattern": "^(slash|shell):[a-z][a-z0-9-]*$"},
+        "purpose": {"$ref": "#/$defs/nonEmpty"},
+        "evidence": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/sourceReference"}}
+      }
+    },
+    "workflow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "summary", "supportedSuites", "intents", "prerequisites", "steps", "sourcePath", "sourceSection"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"},
+        "title": {"$ref": "#/$defs/nonEmpty"},
+        "summary": {"$ref": "#/$defs/nonEmpty"},
+        "supportedSuites": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"}},
+        "intents": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/nonEmpty"}},
+        "prerequisites": {"$ref": "#/$defs/stringList"},
+        "steps": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/workflowStep"}},
+        "sourcePath": {"const": "docs/workflow.md"},
+        "sourceSection": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"}
+      }
+    }
+  }
+}

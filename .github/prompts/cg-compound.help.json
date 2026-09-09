@@ -1,0 +1,11 @@
+{
+  "id": "slash:cg-compound", "name": "/cg-compound", "kind": "slash", "ownerModule": "suite-cg", "supportedSuites": ["cg"],
+  "category": "knowledge", "summary": "Capture a verified solution as reusable project knowledge.", "aliases": [],
+  "intents": ["capture a solved problem", "document a reusable lesson"], "usage": "/cg-compound", "examples": ["/cg-compound"],
+  "prerequisites": ["A non-trivial problem with a verified solution."], "outputs": ["A structured solution artifact under .cg-docs/solutions/."],
+  "constraints": ["Do not document a fix before verification."], "relatedCommands": [{"id": "slash:cg-wiki", "relation": "next"}],
+  "sourcePath": ".github/prompts/cg-compound.prompt.md", "definitionSources": [".github/prompts/cg-compound.prompt.md"], "definitionDigest": "2f3017a30df1f47608745245f151b2c2ce7f63441083e57b564132c0334d83b6",
+  "documentationTargets": [{"path": "docs/workflow.md", "section": "6-compound-cg-compound"}], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["any"],
+  "availability": {"status": "available", "evidence": [{"os": "any", "sourcePath": ".github/prompts/cg-compound.prompt.md"}]},
+  "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
+}

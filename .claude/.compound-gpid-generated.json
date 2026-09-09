@@ -224,7 +224,7 @@
       "path": ".claude/commands/cg-commit-push-pr.md",
       "source": ".github/prompts/cg-commit-push-pr.prompt.md",
       "kind": "command",
-      "sha256": "1abeaf9166f58a697666ce6956c05481de36c9618d1d8cd497a5ddf09f086b8b",
+      "sha256": "7f814e3df88b219add1bf3307ce96eaa613b3510d2a25544b1bed7a5b3ff75ca",
       "executable": false
     },
     {

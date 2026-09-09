@@ -601,8 +601,8 @@
           "id": "cg-help-interactive",
           "title": "/cg-help — comprehensive interactive help system",
           "description": "Teach users how to use the plugin with context-aware guidance. Extremely powerful and comprehensive — covers all commands, workflows, decision trees. Auto-updates as features are added (generates from prompt/skill/agent metadata). Supports: 'what can I do?', 'how do I X?', 'what's the difference between X and Y?', workflow walkthroughs, and progressive disclosure for beginners vs. power users.",
-          "status": "idea",
-          "plan": null
+          "status": "active",
+          "plan": ".cg-docs/plans/2026-09-08-evidence-backed-cg-help-command.md"
         },
         {
           "id": "project-scanner-evidence-reality-gaps",

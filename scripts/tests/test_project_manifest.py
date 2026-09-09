@@ -5,6 +5,7 @@ Run from repo root:
 """
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 
@@ -87,6 +88,57 @@ def _repo_root(tmp_path: Path) -> Path:
 
 
 class TestResolution:
+    def test_ownership_exclusion_is_bound_into_manifest_inventory(
+        self, tmp_path: Path
+    ) -> None:
+        root = _repo_root(tmp_path)
+        registry_path = root / ".github/shared/module-registry.json"
+        registry = json.loads(registry_path.read_text(encoding="utf-8"))
+        suite = next(item for item in registry["modules"] if item["id"] == "suite-cg")
+        suite["ownershipExclusions"] = [".github/prompts/cg-help.prompt.md"]
+        _write_json(registry_path, registry)
+
+        resolved = manifest.resolve_active_manifest(root)
+
+        assert resolved["selection"]["ownershipExclusions"] == {
+            "suite-cg": [".github/prompts/cg-help.prompt.md"]
+        }
+        assert manifest.validate_manifest(resolved) == []
+
+    def test_legacy_manifest_defaults_missing_ownership_exclusions(
+        self, tmp_path: Path
+    ) -> None:
+        root = _repo_root(tmp_path)
+        current = manifest.resolve_active_manifest(root)
+        legacy = json.loads(json.dumps(current))
+        del legacy["selection"]["ownershipExclusions"]
+
+        assert manifest.validate_manifest(legacy) == []
+        assert manifest.immutable_selection_fields(legacy) == (
+            manifest.immutable_selection_fields(current)
+        )
+
+    def test_empty_exclusions_preserve_legacy_plan_digest(self) -> None:
+        inputs = {
+            "closure": ["kernel", "suite-cg"],
+            "globs": [".github/prompts/cg-*.prompt.md"],
+            "platforms": ["kilo"],
+            "selectedProjectSkills": {},
+            "projectBundles": [],
+        }
+        legacy_digest = hashlib.sha256(
+            json.dumps(
+                inputs, sort_keys=True, separators=(",", ":")
+            ).encode("utf-8")
+        ).hexdigest()
+
+        assert manifest.desired_plan_digest(
+            inputs["closure"],
+            inputs["globs"],
+            inputs["platforms"],
+            ownership_exclusions={},
+        ) == legacy_digest
+
     def test_resolve_produces_complete_manifest(self, tmp_path: Path) -> None:
         root = _repo_root(tmp_path)
         resolved = manifest.resolve_active_manifest(root)

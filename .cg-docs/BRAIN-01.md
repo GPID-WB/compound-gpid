@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Part 1
 
-_Generated 2026-09-08_
+_Generated 2026-09-09_
 
 ## Roadmap.Json / Test Scenarios / Prompt-Tools.Tests.Ps1
 
@@ -114,6 +114,8 @@ _Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 42
   > <!-- Valid status values: decided, in-progress, abandoned -->
 - **[Scalable Skill Management Suite](.cg-docs/brainstorms/2026-08-28-scalable-skill-management-suite.md)** · `brainstorm` · _decided_ · `2026-08-28`
   > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[Evidence-Backed /cg-help Command](.cg-docs/brainstorms/2026-09-04-cg-help-command.md)** · `brainstorm` · _decided_ · `2026-09-04`
+  > Compound GPID has an auto-generated command reference and documentation site, but it does not have an in-chat help co…
 - **[Minimal adaptive grilling for the Compound GPID workflow](.cg-docs/brainstorms/2026-09-04-minimal-adaptive-grilling.md)** · `brainstorm` · _decided_ · `2026-09-04`
   > <!-- Valid status values: decided, in-progress, abandoned -->
 - **[2026-04-23-compound-engineering-full-review](.cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md)** · `review` · _—_ · `2026-04-23`
@@ -848,7 +850,5 @@ _Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 42
   > `.cg-docs/` contains the primary knowledge output of the Compound Engineering workflow: brainstorms, plans, and solut…
 - **[Idempotent .gitignore block management with remove-then-rewrite](.cg-docs/solutions/git-workflows/2026-03-23-idempotent-gitignore-block-management.md)** · `solution` · _—_ · `2026-03-23`
   > A tool (Compound GPID's `cg-link`) maintains a named section in the project's `.gitignore`. When the set of managed e…
-- **[Charter drift prevention: four-section rule + archive-on-removal + staleness nudge](.cg-docs/solutions/git-workflows/2026-04-01-charter-drift-prevention.md)** · `solution` · _—_ · `2026-04-01`
-  > `compound-gpid.md` is read at the start of every Copilot session via "Step 0: Get Bearings" — it is the shared source…
 
 _…continues in [BRAIN-02.md](BRAIN-02.md)_

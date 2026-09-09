@@ -1,0 +1,11 @@
+{
+  "id": "slash:cg-roadmap-view", "name": "/cg-roadmap-view", "kind": "slash", "ownerModule": "suite-cg", "supportedSuites": ["cg"],
+  "category": "design", "summary": "Render a read-only view of roadmap milestones and work items.", "aliases": [],
+  "intents": ["view roadmap progress", "inspect active milestones"], "usage": "/cg-roadmap-view [--milestone|--tasks|--detail|--status|--wip|--plan|--help]", "examples": ["/cg-roadmap-view --wip"],
+  "prerequisites": ["A roadmap.json file."], "outputs": ["A read-only roadmap visualization in chat."],
+  "constraints": ["Does not modify roadmap state."], "relatedCommands": [{"id": "slash:cg-issues", "relation": "related"}],
+  "sourcePath": ".github/prompts/cg-roadmap-view.prompt.md", "definitionSources": [".github/prompts/cg-roadmap-view.prompt.md"], "definitionDigest": "c064e5707de6463e9d2e50d1ae67d5c5287b3fdfa9278fe7b493e441dfa27b15",
+  "documentationTargets": [], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["any"],
+  "availability": {"status": "available", "evidence": [{"os": "any", "sourcePath": ".github/prompts/cg-roadmap-view.prompt.md"}]},
+  "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
+}

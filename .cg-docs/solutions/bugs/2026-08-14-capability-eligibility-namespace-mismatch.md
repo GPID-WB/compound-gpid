@@ -73,3 +73,5 @@ reported `False` on the default manifest — again a silent, datum-level mismatc
 - `.cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md` (Steps 3-5)
 - `docs/configuration.md` (strict config grammar and active-manifest fields)
 - `scripts/cg_context_budget.py`, `scripts/cg_project_manifest.py`
+- `.cg-docs/solutions/testing-patterns/2026-09-09-registry-ownership-metadata-needs-consumer-closure-tests.md`
+  -- effective ownership resolution across all registry consumers

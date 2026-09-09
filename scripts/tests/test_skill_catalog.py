@@ -107,6 +107,29 @@ def _manifest() -> dict:
     }
 
 
+def _registry_with_inactive_replacement_owner() -> dict:
+    registry = _registry()
+    broad_owner = next(
+        module
+        for module in registry["modules"]
+        if module["id"] == "cap-language-r"
+    )
+    broad_owner["ownershipExclusions"] = [
+        ".github/skills/cg-skill-r-analytical/SKILL.md"
+    ]
+    registry["modules"].append(
+        {
+            "id": "cap-replacement",
+            "layer": "capability",
+            "displayName": "Replacement",
+            "description": "Inactive replacement owner.",
+            "dependsOn": ["kernel"],
+            "ownedAssets": [".github/skills/cg-skill-r-analytical/"],
+        }
+    )
+    return registry
+
+
 def _fixture_root(tmp_path: Path) -> Path:
     """Create a minimal fixture root with all required artifacts."""
     _write_json(tmp_path / ".github/shared/module-registry.json", _registry())
@@ -187,6 +210,19 @@ class TestCatalogBuild:
         cr_skill = next(r for r in rows if r["id"] == "cr-skill-publication-output")
         assert cr_skill["available"] is False
         assert cr_skill["inactiveReason"] is not None
+
+    def test_excluded_skill_uses_replacement_owner_outside_closure(
+        self, tmp_path: Path
+    ) -> None:
+        root = _fixture_root(tmp_path)
+
+        rows = catalog.build_catalog(
+            root, _manifest(), _registry_with_inactive_replacement_owner()
+        )
+
+        row = next(r for r in rows if r["id"] == "cg-skill-r-analytical")
+        assert row["owner"] == "cap-replacement"
+        assert row["available"] is False
 
     def test_full_row_has_extended_fields(self, tmp_path: Path) -> None:
         root = _fixture_root(tmp_path)
@@ -408,6 +444,22 @@ class TestInventoryLeaks:
         )
         leaks = catalog.check_inventory_leaks(root, manifest, registry)
         assert any("cr-skill-publication-output" in leak for leak in leaks)
+
+    def test_excluded_replacement_owner_is_inactive_for_leak_scan(
+        self, tmp_path: Path
+    ) -> None:
+        root = _fixture_root(tmp_path)
+        _write(
+            root / ".github/prompts/cg-work.prompt.md",
+            "---\ndescription: work\n---\n"
+            "Load `.github/skills/cg-skill-r-analytical/SKILL.md`.\n",
+        )
+
+        leaks = catalog.check_inventory_leaks(
+            root, _manifest(), _registry_with_inactive_replacement_owner()
+        )
+
+        assert any("cg-skill-r-analytical" in leak for leak in leaks)
 
 
 # ---------------------------------------------------------------------------

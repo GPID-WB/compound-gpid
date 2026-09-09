@@ -373,3 +373,9 @@ Wiki-aware prompts (`/cg-wiki`, `/cg-compound`) read these HTML comment directiv
   expected-state publication.
 - Test the real final secure-write boundary and assert exact source restoration,
   not only mocked writer failure.
+- Treat registry ownership as a consumer-closure contract: every ownership,
+  routing, activation, removal, and generation decision must use the central
+  exclusion-aware resolver. Preserve missing optional fields at legacy
+  boundaries, and use exact phase-scoped deferral sets when generated output is
+  intentionally scheduled for a later phase. See
+  `.cg-docs/solutions/testing-patterns/2026-09-09-registry-ownership-metadata-needs-consumer-closure-tests.md`.

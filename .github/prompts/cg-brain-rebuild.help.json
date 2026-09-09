@@ -1,0 +1,11 @@
+{
+  "id": "slash:cg-brain-rebuild", "name": "/cg-brain-rebuild", "kind": "slash", "ownerModule": "suite-cg", "supportedSuites": ["cg"],
+  "category": "knowledge", "summary": "Rebuild the local Knowledge Brain and its indexes.", "aliases": [],
+  "intents": ["rebuild the project brain", "refresh knowledge indexes"], "usage": "/cg-brain-rebuild", "examples": ["/cg-brain-rebuild"],
+  "prerequisites": ["A Compound GPID project with .cg-docs knowledge artifacts."], "outputs": ["Refreshed BRAIN.md and deterministic index artifacts."],
+  "constraints": ["Rebuilds derived knowledge indexes without changing source artifacts."], "relatedCommands": [{"id": "slash:cg-compound", "relation": "related"}],
+  "sourcePath": ".github/prompts/cg-brain-rebuild.prompt.md", "definitionSources": [".github/prompts/cg-brain-rebuild.prompt.md"], "definitionDigest": "2d9e7dc4af23ba03263959a51887326e649829a2b71c8e27edd734ffe0b5a9a2",
+  "documentationTargets": [], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["any"],
+  "availability": {"status": "available", "evidence": [{"os": "any", "sourcePath": ".github/prompts/cg-brain-rebuild.prompt.md"}]},
+  "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
+}

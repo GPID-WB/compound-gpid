@@ -224,7 +224,7 @@
       "path": ".opencode/commands/cg-commit-push-pr.md",
       "source": ".github/prompts/cg-commit-push-pr.prompt.md",
       "kind": "command",
-      "sha256": "1e5e3159188f7b4287ac8124afe5590e06cf54c5d6de2171f2ba8c78a225c82c",
+      "sha256": "fbc476f6fd436a9b16377b46a657d61252c0ad0a80f7fea64d07531b9edd9bad",
       "executable": false
     },
     {

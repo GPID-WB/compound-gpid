@@ -1,11 +1,13 @@
 # 🧠 Project Brain — Part 2
 
-_Generated 2026-09-08_
+_Generated 2026-09-09_
 
 ## Roadmap.Json / Test Scenarios / Prompt-Tools.Tests.Ps1 _(continued from Part 1)_
 
-_Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 118 entities
+_Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 120 entities
 
+- **[Charter drift prevention: four-section rule + archive-on-removal + staleness nudge](.cg-docs/solutions/git-workflows/2026-04-01-charter-drift-prevention.md)** · `solution` · _—_ · `2026-04-01`
+  > `compound-gpid.md` is read at the start of every Copilot session via "Step 0: Get Bearings" — it is the shared source…
 - **[gh pr create: use --body-file not inline --body to prevent shell injection](.cg-docs/solutions/git-workflows/2026-05-14-gh-pr-create-use-body-file-not-inline-body.md)** · `solution` · _—_ · `2026-05-14`
   > A prompt using `gh pr create --title "..." --body "<plan content>"` passes the PR body inline on the command line. Wh…
 - **[git log without --first-parent double-counts upstream merge commits when measuring branch-local work](.cg-docs/solutions/git-workflows/2026-05-14-git-log-first-parent-for-branch-local-commits.md)** · `solution` · _—_ · `2026-05-14`
@@ -212,6 +214,8 @@ _Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 11
   > The Schema 2 evidence manifest test (`scripts/evidence/tests/manifest.test.js`) verified that recorded SHA-256 hashes…
 - **[Fact-first interactive prompts need branch-complete tests](.cg-docs/solutions/testing-patterns/2026-09-08-fact-first-prompts-need-branch-complete-tests.md)** · `solution` · _—_ · `2026-09-08`
   > An adaptive prompt can contain all required phrases and still execute the wrong workflow. In `/cg-brainstorm`, the pr…
+- **[Registry ownership metadata needs consumer-closure tests](.cg-docs/solutions/testing-patterns/2026-09-09-registry-ownership-metadata-needs-consumer-closure-tests.md)** · `solution` · _—_ · `2026-09-09`
+  > Adding `ownershipExclusions` and the `cap-help` module passed focused schema and catalog tests, but broader verificat…
 - **[Full backlog structuring into five milestones](.cg-docs/strategy/2026-04-06-full-backlog-structuring.md)** · `strategy` · _—_ · `2026-04-06`
   > - Project charter and roadmap.json already in place. - Roadmap had 1 milestone (Quality Loop) with 6 idea-stage featu…
 - **[Workflow automation and external patterns research](.cg-docs/strategy/2026-04-13-workflow-automation-research.md)** · `strategy` · _—_ · `2026-04-13`
@@ -404,7 +408,7 @@ objective`_ · 155 entities
   > /cg-setup --refresh mode for non-destructive re-configuration
 - **[Onboarding tour prompt /cg-tour \(guided workflow walkthrough\)](roadmap.json#onboarding-tour-prompt)** · `feature` · _idea_ · `—`
   > Onboarding tour prompt /cg-tour (guided workflow walkthrough)
-- **[/cg-help — comprehensive interactive help system](roadmap.json#cg-help-interactive)** · `feature` · _idea_ · `—`
+- **[/cg-help — comprehensive interactive help system](roadmap.json#cg-help-interactive)** · `feature` · _active_ · `—`
   > /cg-help — comprehensive interactive help system
 - **[Project scanner evidence, unknowns, and intent-versus-reality gaps](roadmap.json#project-scanner-evidence-reality-gaps)** · `feature` · _idea_ · `—`
   > Project scanner evidence, unknowns, and intent-versus-reality gaps

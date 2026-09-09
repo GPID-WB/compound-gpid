@@ -7,7 +7,7 @@ from types import SimpleNamespace
 
 from skill_management import contracts
 from skill_management.operations import audit
-from skill_management.services import references, validation
+from skill_management.services import references, registry, validation
 from scripts.tests.test_skill_management_read import _commit_manifest, _context, _root
 
 
@@ -118,6 +118,49 @@ def test_validation_reports_invalid_selector_with_stable_remediation(
 
     assert any(item.code == "registry.invalid" for item in report.findings)
     assert all(item.remediation for item in report.findings)
+
+
+def test_audit_registry_ownership_exclusion_is_not_reported_as_overlap(
+    tmp_path: Path,
+) -> None:
+    value = {
+        "schemaVersion": 2,
+        "description": "audit exclusion fixture",
+        "capabilities": [],
+        "modules": [
+            {
+                "id": "kernel",
+                "layer": "kernel",
+                "displayName": "Kernel",
+                "description": "Fixture.",
+                "dependsOn": [],
+                "ownedAssets": [],
+            },
+            {
+                "id": "suite-cg",
+                "layer": "suite",
+                "displayName": "CG",
+                "description": "Fixture.",
+                "dependsOn": ["kernel"],
+                "ownedAssets": [".github/prompts/cg-*.prompt.md"],
+                "ownershipExclusions": [".github/prompts/cg-help.prompt.md"],
+            },
+            {
+                "id": "cap-help",
+                "layer": "capability",
+                "displayName": "Help",
+                "description": "Fixture.",
+                "dependsOn": ["kernel"],
+                "ownedAssets": [".github/prompts/cg-help.prompt.md"],
+            },
+        ],
+    }
+
+    snapshot = registry.RegistrySnapshot.from_data(tmp_path, value)
+
+    assert snapshot.owners_for_asset(".github/prompts/cg-help.prompt.md") == (
+        "cap-help",
+    )
 
 
 def test_audit_is_read_only_and_has_no_mutable_update_filter(

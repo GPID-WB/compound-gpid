@@ -205,6 +205,24 @@ def test_registry_snapshot_resolves_one_owner_and_capability(tmp_path: Path) -> 
         snapshot.registry["description"] = "changed"  # type: ignore[index]
 
 
+def test_registry_snapshot_preserves_ownership_exclusion_metadata(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    path = root / ".github/shared/module-registry.json"
+    value = json.loads(path.read_text(encoding="utf-8"))
+    owner = next(item for item in value["modules"] if item["id"] == "suite-cg")
+    owner["ownedAssets"] = [".github/prompts/cg-*.prompt.md"]
+    owner["ownershipExclusions"] = [".github/prompts/cg-help.prompt.md"]
+    _write_json(path, value)
+
+    snapshot = registry.load_registry_snapshot(root)
+
+    assert snapshot.to_dict()["modules"][-1]["ownershipExclusions"] == [
+        ".github/prompts/cg-help.prompt.md"
+    ]
+    assert snapshot.owner_for_asset(".github/prompts/cg-help.prompt.md") is None
+
+
+
 def test_bundle_inventory_includes_nested_resources_and_valid_links(tmp_path: Path) -> None:
     root = _root(tmp_path)
     inventory = bundles.inventory_bundle(

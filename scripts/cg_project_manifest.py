@@ -164,16 +164,20 @@ def desired_plan_digest(
     platforms: list[str],
     selected_project_skills: Optional[dict[str, str]] = None,
     project_bundle_records: Optional[list[dict[str, str]]] = None,
+    ownership_exclusions: Optional[dict[str, list[str]]] = None,
 ) -> str:
     """Deterministic digest of the desired projection plan inputs."""
+    digest_inputs = {
+        "closure": closure_ids,
+        "globs": globs,
+        "platforms": platforms,
+        "selectedProjectSkills": selected_project_skills or {},
+        "projectBundles": project_bundle_records or [],
+    }
+    if ownership_exclusions:
+        digest_inputs["ownershipExclusions"] = ownership_exclusions
     canonical = json.dumps(
-        {
-            "closure": closure_ids,
-            "globs": globs,
-            "platforms": platforms,
-            "selectedProjectSkills": selected_project_skills or {},
-            "projectBundles": project_bundle_records or [],
-        },
+        digest_inputs,
         sort_keys=True,
         separators=(",", ":"),
     )
@@ -357,6 +361,7 @@ def resolve_active_manifest(
         raise ManifestResolutionError(str(exc)) from exc
     closure_ids = sorted(loadable_ids)
     closure_globs = sorted(budget.loadable_asset_globs(registry, loadable_ids))
+    ownership_exclusions = budget.ownership_exclusions(registry, loadable_ids)
     derived_ids = budget.capability_ids_by_selector(registry, settings, suites)
     registry_hash = combined_snapshot.canonical_digest
     registry_version = combined_snapshot.canonical.registry.get("schemaVersion")
@@ -408,6 +413,7 @@ def resolve_active_manifest(
             "capabilities": explicit,
             "derivedCapabilities": derived_ids,
             "moduleClosure": closure_ids,
+            "ownershipExclusions": ownership_exclusions,
             "selectedProjectSkills": selected_project_skills,
             "platforms": selected_platforms,
             "catalogDigest": catalog_digest,
@@ -417,6 +423,7 @@ def resolve_active_manifest(
                 selected_platforms,
                 selected_project_skills,
                 selected_project_bundle_records,
+                ownership_exclusions,
             ),
         },
         "platformEligibility": _platform_eligibility(
@@ -452,6 +459,7 @@ def immutable_selection_fields(manifest: dict[str, Any]) -> dict[str, Any]:
         "provenanceDigest": selection.get("provenanceDigest"),
         "sourceRevision": selection.get("sourceRevision"),
         "moduleClosure": selection.get("moduleClosure"),
+        "ownershipExclusions": selection.get("ownershipExclusions", {}),
         "selectedProjectSkills": selection.get("selectedProjectSkills"),
         "platforms": selection.get("platforms"),
         "catalogDigest": selection.get("catalogDigest"),
@@ -539,6 +547,20 @@ def validate_manifest(manifest: Any) -> list[str]:
                 errors.append(
                     "selection.selectedProjectSkills keys must match project-skill-<bundle-id>"
                 )
+    exclusions = selection.get("ownershipExclusions")
+    if exclusions is not None and (
+        not isinstance(exclusions, dict)
+        or any(
+            not isinstance(module_id, str)
+            or not isinstance(patterns, list)
+            or patterns != sorted(set(patterns))
+            or any(not isinstance(pattern, str) for pattern in patterns)
+            for module_id, patterns in exclusions.items()
+        )
+    ):
+        errors.append(
+            "selection.ownershipExclusions must be a sorted string-list map"
+        )
     return errors
 
 

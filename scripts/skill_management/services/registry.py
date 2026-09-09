@@ -42,6 +42,54 @@ def _thaw(value: Any) -> Any:
     return value
 
 
+def ownership_pattern_matches(
+    module: Mapping[str, Any], pattern: Any, asset: str
+) -> bool:
+    """Return whether one owned-asset pattern applies after module exclusions.
+
+    Args:
+        module: One module-registry module record.
+        pattern: Candidate pattern from the module's ``ownedAssets`` list.
+        asset: Portable repository-relative canonical asset path.
+
+    Returns:
+        ``True`` when the pattern matches and no module exclusion matches.
+
+    Example:
+        ``ownership_pattern_matches(module, pattern, asset)`` preserves one
+        broad pattern only when it still owns a future asset.
+    """
+    return (
+        isinstance(pattern, str)
+        and glob_match(pattern, asset)
+        and not any(
+            isinstance(exclusion, str) and glob_match(exclusion, asset)
+            for exclusion in module.get("ownershipExclusions", [])
+        )
+    )
+
+
+def module_owns_asset(module: Mapping[str, Any], asset: str) -> bool:
+    """Return whether one module owns an asset after explicit exclusions.
+
+    Args:
+        module: One module-registry module record.
+        asset: Portable repository-relative canonical asset path.
+
+    Returns:
+        ``True`` only when an owned-assets pattern matches and no ownership
+        exclusion matches.
+
+    Example:
+        ``module_owns_asset(module, ".github/prompts/cg-work.prompt.md")``
+        resolves broad ownership without ignoring an exact exclusion.
+    """
+    return any(
+        ownership_pattern_matches(module, pattern, asset)
+        for pattern in module.get("ownedAssets", [])
+    )
+
+
 def matching_asset_owners(registry: Mapping[str, Any], asset: str) -> Tuple[str, ...]:
     """Return every module whose owned-assets patterns match one asset.
 
@@ -60,10 +108,7 @@ def matching_asset_owners(registry: Mapping[str, Any], asset: str) -> Tuple[str,
     for module in registry.get("modules", []):
         if not isinstance(module, Mapping) or not isinstance(module.get("id"), str):
             continue
-        if any(
-            isinstance(pattern, str) and glob_match(pattern, asset)
-            for pattern in module.get("ownedAssets", [])
-        ):
+        if module_owns_asset(module, asset):
             owners.add(module["id"])
     return tuple(sorted(owners))
 

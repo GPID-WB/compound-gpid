@@ -282,6 +282,38 @@ def test_create_registers_explicit_new_owner_module_without_manual_repair(
     assert owner["ownedAssets"] == [".github/skills/permanent-demo/"]
 
 
+def test_create_preserves_existing_ownership_exclusion_metadata(tmp_path: Path) -> None:
+    root = _canonical_root(tmp_path)
+    registry_path = root / ".github/shared/module-registry.json"
+    registry = json.loads(registry_path.read_text(encoding="utf-8"))
+    suite = next(item for item in registry["modules"] if item["id"] == "suite-cg")
+    suite["ownershipExclusions"] = [".github/prompts/cg-help.prompt.md"]
+    registry_path.write_text(json.dumps(registry, indent=2) + "\n", encoding="utf-8")
+    manifest = manifest_module.resolve_active_manifest(root)
+    (root / ".compound-gpid/active-manifest.json").write_text(
+        manifest_module.canonical_manifest_bytes(manifest), encoding="utf-8"
+    )
+
+    planned = _plan(root, _arguments())
+    applied = create.handle(
+        context=_context(root),
+        request={
+            "phase": "apply",
+            "arguments": _arguments(),
+            "planDigest": planned.plan_digest,
+        },
+    )
+    updated = json.loads(registry_path.read_text(encoding="utf-8"))
+    suite = next(item for item in updated["modules"] if item["id"] == "suite-cg")
+
+    assert not planned.findings
+    assert not applied.findings
+    assert suite["ownershipExclusions"] == [
+        ".github/prompts/cg-help.prompt.md"
+    ]
+
+
+
 def test_existing_capability_must_be_explicit_only_and_unselected(
     tmp_path: Path,
 ) -> None:
