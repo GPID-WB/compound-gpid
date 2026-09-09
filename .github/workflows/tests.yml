@@ -264,7 +264,12 @@ jobs:
             fi
             python scripts/cg_pr_preflight.py "${common[@]}" --base "$CG_PR_BASE_SHA"
           elif [[ -n "$CG_PUSH_BEFORE_SHA" && "$CG_PUSH_BEFORE_SHA" != "0000000000000000000000000000000000000000" ]]; then
-            python scripts/cg_pr_preflight.py "${common[@]}" --base "$CG_PUSH_BEFORE_SHA"
+            if git rev-parse --verify --quiet "${CG_PUSH_BEFORE_SHA}^{commit}" >/dev/null; then
+              python scripts/cg_pr_preflight.py "${common[@]}" --base "$CG_PUSH_BEFORE_SHA"
+            else
+              echo "Push-before revision is unavailable; requesting explicit full-gate fallback."
+              python scripts/cg_pr_preflight.py "${common[@]}" --full-gate
+            fi
           else
             echo "No usable push-before revision; requesting explicit full-gate fallback."
             python scripts/cg_pr_preflight.py "${common[@]}" --full-gate

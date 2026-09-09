@@ -28,6 +28,12 @@ TARGET_SKILL_ROOTS = {
     "opencode": ".opencode/skills",
     "kilo": ".kilo/skills",
 }
+TARGET_COMMAND_ROOTS = {
+    "claude-code": ".claude/commands",
+    "codex": ".agents/commands",
+    "opencode": ".opencode/commands",
+    "kilo": ".kilo/commands",
+}
 
 
 def _write_bytes(path: Path, content: bytes) -> Path:
@@ -189,6 +195,32 @@ def test_every_canonical_skill_recursively_matches_all_generated_targets() -> No
                 else:
                     assert hashlib.sha256(output.read_bytes()).digest() == hashlib.sha256(source.read_bytes()).digest()
                 assert _is_executable(output) == _is_executable(source)
+
+
+def test_pilot_command_and_ownership_match_current_generation_plan() -> None:
+    plan = _plan(REPO_ROOT)
+
+    for target_id, command_root in TARGET_COMMAND_ROOTS.items():
+        destination = f"{command_root}/cg-brainstorm.md"
+        result = plan.by_target[target_id]
+        entry = next(
+            item for item in result.entries if item.destination == destination
+        )
+        output = REPO_ROOT / destination
+        manifest_path = (
+            REPO_ROOT / result.target_root / gen.OWNERSHIP_MANIFEST_NAME
+        )
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        owned = next(
+            item for item in manifest["files"] if item["path"] == destination
+        )
+
+        assert entry.source == ".github/prompts/cg-brainstorm.prompt.md"
+        assert entry.kind == "command"
+        assert output.read_bytes() == entry.content
+        assert owned["source"] == entry.source
+        assert owned["kind"] == entry.kind
+        assert owned["sha256"] == entry.sha256
 
 
 def test_fixture_packages_nested_unknown_binary_and_executable_resources_in_all_targets(

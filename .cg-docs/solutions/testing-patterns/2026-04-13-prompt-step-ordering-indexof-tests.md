@@ -163,6 +163,7 @@ Describe "<prompt-file> - <invariant name>" {
 - `.cg-docs/solutions/testing-patterns/2026-03-30-prompt-pipeline-contract-testing.md` — complementary: testing interface contracts between chained prompts
 - `.cg-docs/solutions/testing-patterns/2026-04-21-prompt-step-forward-dependency-deferred-marker.md` — when a step appears before its dependency step (forward dependency); same IndexOf guard pattern applies
 - `tests/prompt-tools.Tests.ps1` — canonical location for all prompt contract and ordering tests
+- [`2026-09-08-fact-first-prompts-need-branch-complete-tests.md`](2026-09-08-fact-first-prompts-need-branch-complete-tests.md) - extends ordering checks to evidence-before-choice, complete response branches, and bounded optional loops
 
 ## Addendum: Guard `IndexOf` values before `Substring` (2026-04-21)
 

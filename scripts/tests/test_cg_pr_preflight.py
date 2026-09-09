@@ -309,6 +309,8 @@ def test_workflow_delegates_native_selection_and_preserves_context() -> None:
     assert "github.event.pull_request.base.sha" in native_block
     assert "github.event.before" in native_block
     assert "--full-gate" in native_block
+    assert "git rev-parse --verify --quiet" in native_block
+    assert "Push-before revision is unavailable" in native_block
     assert "0000000000000000000000000000000000000000" in native_block
     assert "fetch-depth: 0" in workflow
     assert "origin/HEAD" not in native_block

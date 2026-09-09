@@ -1,10 +1,10 @@
 # 🧠 Project Brain — Part 1
 
-_Generated 2026-09-02_
+_Generated 2026-09-08_
 
 ## Roadmap.Json / Test Scenarios / Prompt-Tools.Tests.Ps1
 
-_Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 420 entities
+_Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 422 entities
 
 - **[Rename prompts, agents, and skills with cg- prefix; add WIP banner and manual](.cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md)** · `brainstorm` · _decided_ · `2026-03-02`
   > The project's prompts, agents, and skills lack a consistent naming prefix, making it unclear which files belong to th…
@@ -113,6 +113,8 @@ _Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 42
 - **[Rename repository review command and add registry management flags](.cg-docs/brainstorms/2026-08-28-compound-gpid-rd-command.md)** · `brainstorm` · _decided_ · `2026-08-28`
   > <!-- Valid status values: decided, in-progress, abandoned -->
 - **[Scalable Skill Management Suite](.cg-docs/brainstorms/2026-08-28-scalable-skill-management-suite.md)** · `brainstorm` · _decided_ · `2026-08-28`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[Minimal adaptive grilling for the Compound GPID workflow](.cg-docs/brainstorms/2026-09-04-minimal-adaptive-grilling.md)** · `brainstorm` · _decided_ · `2026-09-04`
   > <!-- Valid status values: decided, in-progress, abandoned -->
 - **[2026-04-23-compound-engineering-full-review](.cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md)** · `review` · _—_ · `2026-04-23`
   > Compound Engineering is the most architecturally similar project to compound-gpid. It follows an identical philosophy…
@@ -350,6 +352,8 @@ _Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 42
   > Replace the developer-only `/cg-review-repos` command with `/cg-compound-gpid-rd`, preserve its full and delta review…
 - **[Scalable Skill Management Suite](.cg-docs/plans/2026-08-28-scalable-skill-management-suite.md)** · `plan` · _completed_ · `2026-08-28`
   > Build one role-gated `/cg-skill` command that manages the complete skill lifecycle without becoming one large prompt …
+- **[Implement Minimal Adaptive Grilling](.cg-docs/plans/2026-09-04-minimal-adaptive-grilling.md)** · `plan` · _completed_ · `2026-09-04`
+  > Improve `/cg-brainstorm` with the smallest complete adaptive-grilling pilot. The command will discover facts before a…
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
 - **[2026-03-30-fix-triage-prompt-review](.cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md)** · `review` · _—_ · `—`
@@ -654,6 +658,8 @@ _Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 42
   > **Review mode**: light verification
 - **[2026-08-11-kilo-agent-parsing-linker-copy-directory-review](.cg-docs/reviews/2026-08-11-kilo-agent-parsing-linker-copy-directory-review.md)** · `review` · _—_ · `2026-08-11`
   > **Review mode**: full **Files reviewed**: 3 (`scripts/link.ps1`, `tests/link.Tests.ps1`, `scripts/tests/test_target_m…
+- **[2026-08-11-kilo-agent-parsing-linker-copy-directory-verify-review](.cg-docs/reviews/2026-08-11-kilo-agent-parsing-linker-copy-directory-verify-review.md)** · `review` · _—_ · `2026-09-08`
+  > **Review mode**: light verification **Parent review**: `.cg-docs/reviews/2026-08-11-kilo-agent-parsing-linker-copy-di…
 - **[2026-08-13-manifest-driven-skill-loading-phase3-review](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-phase3-review.md)** · `review` · _—_ · `2026-08-14`
   > **Review mode**: auto -> full (Phase 3, steps 6-8: secure materialized projection) **Files reviewed**: 21 changed fil…
 - **[2026-08-13-manifest-driven-skill-loading-phase3-verify-review](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-phase3-verify-review.md)** · `review` · _—_ · `2026-08-15`
@@ -666,6 +672,8 @@ _Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 42
   > - **Review mode**: verify (light-only) - **Parent review**: `.cg-docs/reviews/2026-08-13-manifest-driven-skill-loadin…
 - **[2026-08-28-compound-gpid-rd-command-review](.cg-docs/reviews/2026-08-28-compound-gpid-rd-command-review.md)** · `review` · _—_ · `2026-08-28`
   > **Review mode**: full (auto-routed security-risk) **Files reviewed**: canonical prompt, registry utility, tests, audi…
+- **[2026-09-04-minimal-adaptive-grilling-review](.cg-docs/reviews/2026-09-04-minimal-adaptive-grilling-review.md)** · `review` · _—_ · `2026-09-08`
+  > **Review mode**: standard **Files reviewed**: 29 implementation and workflow-record paths **Findings**: 15 (P0: 0, P1…
 - **[Broken relative links in deeply-nested skill files pointing to repo root](.cg-docs/solutions/bugs/2026-03-18-broken-relative-links-in-nested-skill-files.md)** · `solution` · _—_ · `2026-03-18`
   > A cross-reference link in `r-analytical-anti-patterns.md` read: This path resolves *relative to the file's location*,…
 - **[Unclosed code fence in Markdown skill files silently corrupts downstream rendering](.cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md)** · `solution` · _—_ · `2026-03-18`
@@ -842,9 +850,5 @@ _Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 42
   > A tool (Compound GPID's `cg-link`) maintains a named section in the project's `.gitignore`. When the set of managed e…
 - **[Charter drift prevention: four-section rule + archive-on-removal + staleness nudge](.cg-docs/solutions/git-workflows/2026-04-01-charter-drift-prevention.md)** · `solution` · _—_ · `2026-04-01`
   > `compound-gpid.md` is read at the start of every Copilot session via "Step 0: Get Bearings" — it is the shared source…
-- **[gh pr create: use --body-file not inline --body to prevent shell injection](.cg-docs/solutions/git-workflows/2026-05-14-gh-pr-create-use-body-file-not-inline-body.md)** · `solution` · _—_ · `2026-05-14`
-  > A prompt using `gh pr create --title "..." --body "<plan content>"` passes the PR body inline on the command line. Wh…
-- **[git log without --first-parent double-counts upstream merge commits when measuring branch-local work](.cg-docs/solutions/git-workflows/2026-05-14-git-log-first-parent-for-branch-local-commits.md)** · `solution` · _—_ · `2026-05-14`
-  > When counting commits authored **on the current branch** since a branch point, the common pattern: silently includes …
 
 _…continues in [BRAIN-02.md](BRAIN-02.md)_
