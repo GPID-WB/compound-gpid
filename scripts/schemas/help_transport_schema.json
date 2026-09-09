@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "compound-gpid-help-transport-v1",
+  "oneOf": [
+    {"$ref": "#/$defs/requestPrepared"},
+    {"$ref": "#/$defs/queryCompleted"},
+    {"$ref": "#/$defs/selectionPrepared"},
+    {"$ref": "#/$defs/selectionRendered"},
+    {"$ref": "#/$defs/transportError"}
+  ],
+  "$defs": {
+    "digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "uuid": {"type": "string", "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"},
+    "qualifiedId": {"type": "string", "pattern": "^(slash|shell):[a-z][a-z0-9-]*$"},
+    "stringList": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+    "display": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["format", "content"],
+      "properties": {"format": {"const": "markdown"}, "content": {"type": "string"}}
+    },
+    "overviewData": {
+      "type": "object", "additionalProperties": false,
+      "required": ["commandIds", "workflowIds"],
+      "properties": {
+        "commandIds": {"type": "array", "items": {"$ref": "#/$defs/qualifiedId"}, "uniqueItems": true},
+        "workflowIds": {"$ref": "#/$defs/stringList"}
+      }
+    },
+    "exactData": {
+      "type": "object", "additionalProperties": false, "required": ["commandId"],
+      "properties": {"commandId": {"$ref": "#/$defs/qualifiedId"}}
+    },
+    "workflowData": {
+      "type": "object", "additionalProperties": false, "required": ["workflowId", "commandIds"],
+      "properties": {
+        "workflowId": {"type": "string", "minLength": 1},
+        "commandIds": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/qualifiedId"}, "uniqueItems": true}
+      }
+    },
+    "candidateData": {
+      "type": "object", "additionalProperties": false,
+      "required": ["commandIds", "reasons", "followUpQueries"],
+      "properties": {
+        "commandIds": {"type": "array", "minItems": 1, "maxItems": 3, "items": {"$ref": "#/$defs/qualifiedId"}, "uniqueItems": true},
+        "reasons": {"type": "array", "minItems": 1, "maxItems": 3, "items": {"type": "string", "minLength": 1}},
+        "followUpQueries": {"type": "array", "minItems": 1, "maxItems": 3, "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "unsupportedData": {
+      "type": "object", "additionalProperties": false, "required": ["reason"],
+      "properties": {"reason": {"type": "string", "minLength": 1}}
+    },
+    "errorData": {
+      "type": "object", "additionalProperties": false, "required": ["code", "message"],
+      "properties": {"code": {"type": "string", "pattern": "^[a-z][a-z0-9.-]*$"}, "message": {"type": "string", "minLength": 1}}
+    },
+    "result": {
+      "oneOf": [
+        {"$ref": "#/$defs/overviewResult"},
+        {"$ref": "#/$defs/exactResult"},
+        {"$ref": "#/$defs/workflowResult"},
+        {"$ref": "#/$defs/candidateResult"},
+        {"$ref": "#/$defs/unsupportedResult"},
+        {"$ref": "#/$defs/errorResult"}
+      ]
+    },
+    "overviewResult": {"$ref": "#/$defs/resultOverview"},
+    "exactResult": {"$ref": "#/$defs/resultExact"},
+    "workflowResult": {"$ref": "#/$defs/resultWorkflow"},
+    "candidateResult": {"$ref": "#/$defs/resultCandidates"},
+    "unsupportedResult": {"$ref": "#/$defs/resultUnsupported"},
+    "errorResult": {"$ref": "#/$defs/resultError"},
+    "resultOverview": {
+      "type": "object", "additionalProperties": false,
+      "required": ["state", "catalogDigest", "evidenceIds", "display", "warnings", "recovery", "data"],
+      "properties": {"state": {"const": "overview"}, "catalogDigest": {"$ref": "#/$defs/digest"}, "evidenceIds": {"$ref": "#/$defs/stringList"}, "display": {"$ref": "#/$defs/display"}, "warnings": {"$ref": "#/$defs/stringList"}, "recovery": {"$ref": "#/$defs/stringList"}, "data": {"$ref": "#/$defs/overviewData"}}
+    },
+    "resultExact": {
+      "type": "object", "additionalProperties": false,
+      "required": ["state", "catalogDigest", "evidenceIds", "display", "warnings", "recovery", "data"],
+      "properties": {"state": {"const": "exact"}, "catalogDigest": {"$ref": "#/$defs/digest"}, "evidenceIds": {"$ref": "#/$defs/stringList"}, "display": {"$ref": "#/$defs/display"}, "warnings": {"$ref": "#/$defs/stringList"}, "recovery": {"$ref": "#/$defs/stringList"}, "data": {"$ref": "#/$defs/exactData"}}
+    },
+    "resultWorkflow": {
+      "type": "object", "additionalProperties": false,
+      "required": ["state", "catalogDigest", "evidenceIds", "display", "warnings", "recovery", "data"],
+      "properties": {"state": {"const": "workflow"}, "catalogDigest": {"$ref": "#/$defs/digest"}, "evidenceIds": {"$ref": "#/$defs/stringList"}, "display": {"$ref": "#/$defs/display"}, "warnings": {"$ref": "#/$defs/stringList"}, "recovery": {"$ref": "#/$defs/stringList"}, "data": {"$ref": "#/$defs/workflowData"}}
+    },
+    "resultCandidates": {
+      "type": "object", "additionalProperties": false,
+      "required": ["state", "catalogDigest", "evidenceIds", "display", "warnings", "recovery", "data"],
+      "properties": {"state": {"const": "candidates"}, "catalogDigest": {"$ref": "#/$defs/digest"}, "evidenceIds": {"$ref": "#/$defs/stringList"}, "display": {"$ref": "#/$defs/display"}, "warnings": {"$ref": "#/$defs/stringList"}, "recovery": {"$ref": "#/$defs/stringList"}, "data": {"$ref": "#/$defs/candidateData"}}
+    },
+    "resultUnsupported": {
+      "type": "object", "additionalProperties": false,
+      "required": ["state", "catalogDigest", "evidenceIds", "display", "warnings", "recovery", "data"],
+      "properties": {"state": {"const": "unsupported"}, "catalogDigest": {"$ref": "#/$defs/digest"}, "evidenceIds": {"$ref": "#/$defs/stringList"}, "display": {"$ref": "#/$defs/display"}, "warnings": {"$ref": "#/$defs/stringList"}, "recovery": {"$ref": "#/$defs/stringList"}, "data": {"$ref": "#/$defs/unsupportedData"}}
+    },
+    "resultError": {
+      "type": "object", "additionalProperties": false,
+      "required": ["state", "catalogDigest", "evidenceIds", "display", "warnings", "recovery", "data"],
+      "properties": {"state": {"const": "error"}, "catalogDigest": {"$ref": "#/$defs/digest"}, "evidenceIds": {"$ref": "#/$defs/stringList"}, "display": {"$ref": "#/$defs/display"}, "warnings": {"$ref": "#/$defs/stringList"}, "recovery": {"$ref": "#/$defs/stringList"}, "data": {"$ref": "#/$defs/errorData"}}
+    },
+    "requestPrepared": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schemaVersion", "operation", "requestId", "queryPath", "maxBytes", "expiresInSeconds", "cleanupPolicy"],
+      "properties": {"schemaVersion": {"const": 1}, "operation": {"const": "request-prepared"}, "requestId": {"$ref": "#/$defs/uuid"}, "queryPath": {"type": "string", "pattern": "^\\.compound-gpid/runtime/help-requests/[0-9a-f-]+\\.query\\.txt$"}, "maxBytes": {"const": 4096}, "expiresInSeconds": {"const": 300}, "cleanupPolicy": {"const": "consume-once-and-expire"}}
+    },
+    "queryCompleted": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schemaVersion", "operation", "requestId", "result"],
+      "properties": {"schemaVersion": {"const": 1}, "operation": {"const": "query-completed"}, "requestId": {"$ref": "#/$defs/uuid"}, "result": {"$ref": "#/$defs/result"}}
+    },
+    "selectionPrepared": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schemaVersion", "operation", "requestId", "selectionToken", "selectionPath", "maxBytes", "expiresInSeconds", "cleanupPolicy", "catalogDigest", "evidenceIds", "candidateIds"],
+      "properties": {"schemaVersion": {"const": 1}, "operation": {"const": "selection-prepared"}, "requestId": {"$ref": "#/$defs/uuid"}, "selectionToken": {"type": "string", "minLength": 1}, "selectionPath": {"type": "string", "pattern": "^\\.compound-gpid/runtime/help-requests/[0-9a-f-]+\\.selection\\.json$"}, "maxBytes": {"const": 1024}, "expiresInSeconds": {"const": 300}, "cleanupPolicy": {"const": "consume-once-and-expire"}, "catalogDigest": {"$ref": "#/$defs/digest"}, "evidenceIds": {"$ref": "#/$defs/stringList"}, "candidateIds": {"type": "array", "minItems": 1, "maxItems": 3, "items": {"$ref": "#/$defs/qualifiedId"}, "uniqueItems": true}}
+    },
+    "selectionRendered": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schemaVersion", "operation", "requestId", "result"],
+      "properties": {"schemaVersion": {"const": 1}, "operation": {"const": "selection-rendered"}, "requestId": {"$ref": "#/$defs/uuid"}, "result": {"$ref": "#/$defs/result"}}
+    },
+    "transportError": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schemaVersion", "operation", "code", "message", "recovery"],
+      "properties": {"schemaVersion": {"const": 1}, "operation": {"const": "transport-error"}, "code": {"type": "string", "pattern": "^[a-z][a-z0-9.-]*$"}, "message": {"type": "string", "minLength": 1}, "recovery": {"$ref": "#/$defs/stringList"}}
+    }
+  }
+}

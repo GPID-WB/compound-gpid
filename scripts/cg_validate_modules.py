@@ -92,7 +92,11 @@ def _canonical_categories(root: Path) -> Dict[str, List[str]]:
         "instructions": [],
         "shared": [],
     }
-    prompt_globs = [".github/prompts/*.prompt.md", ".github/prompts/*.md"]
+    prompt_globs = [
+        ".github/prompts/*.prompt.md",
+        ".github/prompts/*.help.json",
+        ".github/prompts/*.md",
+    ]
     agent_globs = [".github/agents/*.agent.md"]
     skill_globs = [".github/skills/*/SKILL.md"]
     instruction_globs = [".github/instructions/*.instructions.md"]
@@ -273,6 +277,32 @@ def validate_registry_schema(registry: dict) -> List[str]:
                     continue
                 errors.append(f"{prefix}.ownedAssets[{asset_index}]: must be a non-empty string")
 
+        exclusions = module.get("ownershipExclusions", [])
+        if not isinstance(exclusions, list):
+            errors.append(f"{prefix}.ownershipExclusions: must be an array")
+        else:
+            seen_exclusions: set[Tuple[str, ...]] = set()
+            for exclusion_index, exclusion in enumerate(exclusions):
+                label = f"{prefix}.ownershipExclusions[{exclusion_index}]"
+                if not isinstance(exclusion, str) or not exclusion:
+                    errors.append(f"{label}: must be a non-empty string")
+                    continue
+                normalized = exclusion.replace("\\", "/")
+                if (
+                    normalized != exclusion
+                    or normalized.startswith("/")
+                    or any(part in {"", ".", ".."} for part in normalized.split("/"))
+                ):
+                    errors.append(f"{label}: must be a portable repository-relative glob")
+                key = portable_path_key(exclusion)
+                if key in seen_exclusions:
+                    errors.append(f"{label}: duplicates an earlier exclusion")
+                seen_exclusions.add(key)
+
+        help_metadata = module.get("help")
+        if help_metadata is not None:
+            errors.extend(_validate_module_help(prefix, help_metadata))
+
         ambiguous = module.get("ambiguous", [])
         if not isinstance(ambiguous, list):
             errors.append(f"{prefix}.ambiguous: must be an array")
@@ -291,8 +321,83 @@ def validate_registry_schema(registry: dict) -> List[str]:
         for dep in module.get("dependsOn", []):
             if isinstance(dep, str) and dep not in seen_ids:
                 errors.append(f"module '{mid}' depends on unknown module '{dep}'")
+        help_metadata = module.get("help")
+        if not isinstance(help_metadata, dict):
+            continue
+        catalog_owner = help_metadata.get("catalogOwner")
+        if catalog_owner not in seen_ids:
+            errors.append(
+                f"module '{mid}' help catalogOwner '{catalog_owner}' must name an existing module"
+            )
+        metadata_globs = help_metadata.get("metadataGlobs", [])
+        owned_assets = module.get("ownedAssets", [])
+        if isinstance(metadata_globs, list) and isinstance(owned_assets, list):
+            for metadata_glob in metadata_globs:
+                if metadata_glob not in owned_assets:
+                    errors.append(
+                        f"module '{mid}' help metadata glob {metadata_glob!r} "
+                        "must also be an ownedAssets pattern"
+                    )
+        if module.get("layer") == "suite" and not help_metadata.get("suiteId"):
+            errors.append(f"module '{mid}' suite help metadata requires suiteId")
     if registry.get("schemaVersion") == 2:
         errors.extend(validate_capability_records(registry, seen_ids))
+    return errors
+
+
+def _validate_module_help(prefix: str, value: Any) -> List[str]:
+    """Validate optional backward-compatible module help metadata."""
+    if not isinstance(value, dict):
+        return [f"{prefix}.help: must be an object"]
+    required = {
+        "metadataGlobs",
+        "commandKinds",
+        "commandPrefixes",
+        "catalogOwner",
+    }
+    allowed = required | {"suiteId", "activation"}
+    errors = [
+        f"{prefix}.help: missing required field '{field}'"
+        for field in sorted(required - set(value))
+    ]
+    errors.extend(
+        f"{prefix}.help: unknown field '{field}'"
+        for field in sorted(set(value) - allowed)
+    )
+    for field in ("metadataGlobs", "commandKinds", "commandPrefixes"):
+        items = value.get(field)
+        if not isinstance(items, list) or not items:
+            errors.append(f"{prefix}.help.{field}: must be a non-empty array")
+            continue
+        if any(not isinstance(item, str) or not item for item in items):
+            errors.append(f"{prefix}.help.{field}: entries must be non-empty strings")
+        elif items != sorted(set(items)):
+            errors.append(f"{prefix}.help.{field}: entries must be sorted and unique")
+    kinds = value.get("commandKinds", [])
+    if isinstance(kinds, list) and any(item not in {"shell", "slash"} for item in kinds):
+        errors.append(f"{prefix}.help.commandKinds: unsupported command kind")
+    catalog_owner = value.get("catalogOwner")
+    if not isinstance(catalog_owner, str) or not catalog_owner:
+        errors.append(f"{prefix}.help.catalogOwner: must be a module id")
+    suite_id = value.get("suiteId")
+    if suite_id is not None and (
+        not isinstance(suite_id, str) or not MODULE_ID_PATTERN.fullmatch(suite_id)
+    ):
+        errors.append(f"{prefix}.help.suiteId: must be a lowercase identifier")
+    activation = value.get("activation")
+    if activation is not None:
+        if not isinstance(activation, dict) or set(activation) != {
+            "sourcePath",
+            "sourceSection",
+        }:
+            errors.append(
+                f"{prefix}.help.activation: must contain only sourcePath and sourceSection"
+            )
+        elif any(
+            not isinstance(activation.get(field), str) or not activation[field]
+            for field in ("sourcePath", "sourceSection")
+        ):
+            errors.append(f"{prefix}.help.activation: values must be non-empty strings")
     return errors
 
 
@@ -498,16 +603,10 @@ def check_ownership_closure(registry: dict, assets: Iterable[str]) -> List[str]:
     """Verify every canonical asset has exactly one owning module."""
     errors: List[str] = []
     owners_by_asset: Dict[str, List[str]] = {asset: [] for asset in assets}
-    for module in registry.get("modules", []):
-        if not isinstance(module, dict):
-            continue
-        mid = module.get("id")
-        for pattern in module.get("ownedAssets", []):
-            if not isinstance(pattern, str):
-                continue
-            for asset in owners_by_asset:
-                if _glob_match(pattern, asset):
-                    owners_by_asset[asset].append(mid)
+    from skill_management.services.registry import matching_asset_owners
+
+    for asset in owners_by_asset:
+        owners_by_asset[asset].extend(matching_asset_owners(registry, asset))
     for asset in sorted(owners_by_asset):
         owners = owners_by_asset[asset]
         if not owners:
@@ -521,16 +620,10 @@ def check_frontmatter_ownership(root: Path, registry: dict, assets: Iterable[str
     """Cross-validate optional frontmatter ``owner:`` fields against the registry."""
     errors: List[str] = []
     owners_by_asset: Dict[str, List[str]] = {asset: [] for asset in assets}
-    for module in registry.get("modules", []):
-        if not isinstance(module, dict):
-            continue
-        mid = module.get("id")
-        for pattern in module.get("ownedAssets", []):
-            if not isinstance(pattern, str):
-                continue
-            for asset in owners_by_asset:
-                if _glob_match(pattern, asset):
-                    owners_by_asset[asset].append(mid)
+    from skill_management.services.registry import matching_asset_owners
+
+    for asset in owners_by_asset:
+        owners_by_asset[asset].extend(matching_asset_owners(registry, asset))
     for asset in sorted(owners_by_asset):
         owners = owners_by_asset[asset]
         if len(owners) != 1:
@@ -728,32 +821,36 @@ def _module_references(
         assets = canonical_assets(root)
         owners = _owner_map(registry, assets)
     referenced: Dict[str, List[str]] = {}
-    for pattern in module.get("ownedAssets", []):
-        if not isinstance(pattern, str):
+    from skill_management.services.registry import module_owns_asset
+
+    for canonical in assets:
+        if not module_owns_asset(module, canonical):
             continue
-        for canonical in assets:
-            if not _glob_match(pattern, canonical):
-                continue
-            path = root / canonical
-            if not path.exists():
-                continue
-            if canonical == "github/shared/module-registry.json" or canonical == ".github/shared/module-registry.json":
-                # The registry is tooling data; its ownedAssets glob strings are
-                # declarations, not runtime references.
-                continue
-            try:
-                content = _strip_fenced_code(_read_asset_text(root, canonical))
-            except (OSError, UnicodeDecodeError, ValueError) as read_error:
-                raise ValueError(
-                    f"cannot read canonical asset safely: {canonical}: {read_error}"
-                ) from read_error
-            for match in CANONICAL_RUNTIME_PATH_PATTERN.finditer(content):
-                reference = match.group(0).rstrip(".,;:")
-                if not reference.startswith(".github/"):
-                    reference = ".github/" + reference
-                owner = owners.get(reference)
-                if owner:
-                    referenced.setdefault(reference, []).append(owner)
+        path = root / canonical
+        if not path.exists():
+            continue
+        if canonical in {
+            "github/shared/module-registry.json",
+            ".github/shared/module-registry.json",
+            "github/shared/help-catalog.json",
+            ".github/shared/help-catalog.json",
+        }:
+            # Registry declarations and catalog provenance are inert tooling
+            # data, not runtime module dependencies.
+            continue
+        try:
+            content = _strip_fenced_code(_read_asset_text(root, canonical))
+        except (OSError, UnicodeDecodeError, ValueError) as read_error:
+            raise ValueError(
+                f"cannot read canonical asset safely: {canonical}: {read_error}"
+            ) from read_error
+        for match in CANONICAL_RUNTIME_PATH_PATTERN.finditer(content):
+            reference = match.group(0).rstrip(".,;:")
+            if not reference.startswith(".github/"):
+                reference = ".github/" + reference
+            owner = owners.get(reference)
+            if owner:
+                referenced.setdefault(reference, []).append(owner)
     return referenced
 
 
@@ -778,30 +875,34 @@ def _module_name_references(
     asset_set = set(assets)
     referenced: Dict[str, List[str]] = {}
     name_patterns = (AGENT_REF_PATTERN, SKILL_REF_PATTERN)
-    for pattern in module.get("ownedAssets", []):
-        if not isinstance(pattern, str):
+    from skill_management.services.registry import module_owns_asset
+
+    for canonical in assets:
+        if not module_owns_asset(module, canonical):
             continue
-        for canonical in assets:
-            if not _glob_match(pattern, canonical):
-                continue
-            path = root / canonical
-            if not path.exists():
-                continue
-            if canonical.endswith("module-registry.json"):
-                continue
-            try:
-                content = _strip_fenced_code(_read_asset_text(root, canonical))
-            except (OSError, UnicodeDecodeError, ValueError) as read_error:
-                raise ValueError(
-                    f"cannot read canonical asset safely: {canonical}: {read_error}"
-                ) from read_error
-            for name_re in name_patterns:
-                for name_match in name_re.finditer(content):
-                    reference = _resolve_name_reference(registry, name_match.group(0), asset_set)
-                    if reference:
-                        owner = owners.get(reference)
-                        if owner:
-                            referenced.setdefault(reference, []).append(owner)
+        path = root / canonical
+        if not path.exists():
+            continue
+        if canonical in {
+            "github/shared/module-registry.json",
+            ".github/shared/module-registry.json",
+            "github/shared/help-catalog.json",
+            ".github/shared/help-catalog.json",
+        }:
+            continue
+        try:
+            content = _strip_fenced_code(_read_asset_text(root, canonical))
+        except (OSError, UnicodeDecodeError, ValueError) as read_error:
+            raise ValueError(
+                f"cannot read canonical asset safely: {canonical}: {read_error}"
+            ) from read_error
+        for name_re in name_patterns:
+            for name_match in name_re.finditer(content):
+                reference = _resolve_name_reference(registry, name_match.group(0), asset_set)
+                if reference:
+                    owner = owners.get(reference)
+                    if owner:
+                        referenced.setdefault(reference, []).append(owner)
     return referenced
 
 
@@ -969,16 +1070,10 @@ def _ownership_report(root: Path, registry: dict) -> List[str]:
     lines: List[str] = ["# Module Registry Ownership Report"]
     assets = canonical_assets(root)
     owners_by_asset: Dict[str, List[str]] = {asset: [] for asset in assets}
-    for module in registry.get("modules", []):
-        if not isinstance(module, dict):
-            continue
-        mid = module.get("id")
-        for pattern in module.get("ownedAssets", []):
-            if not isinstance(pattern, str):
-                continue
-            for asset in sorted(owners_by_asset):
-                if _glob_match(pattern, asset):
-                    owners_by_asset[asset].append(mid)
+    from skill_management.services.registry import matching_asset_owners
+
+    for asset in sorted(owners_by_asset):
+        owners_by_asset[asset].extend(matching_asset_owners(registry, asset))
     lines.append("")
     lines.append("| Asset | Module |")
     lines.append("|-------|--------|")

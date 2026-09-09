@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "description": "Central module registry for Compound GPID — declares every canonical asset's owning module across three layers (kernel, capability packs, suites), structural dependency edges, and separate capability eligibility/activation records. Schema v2: a 'module' has id, layer (kernel|capability|suite), displayName, description, dependsOn (module ids in lower layers only, mandatory prerequisites only), ownedAssets (glob patterns under .github/; trailing '/' means the directory and everything below it), and an optional 'ambiguous' list. A 'capability' record declares stable id, owningModule, supportedSuites, supportedPlatforms, sourceProvenance, activationCost, taskTriggers, and configSelectors; config selectors derive baseline capabilities while explicit capabilities may extend but never subtract the derived baseline.",
+  "description": "Central module registry for Compound GPID — declares every canonical asset's owning module across three layers (kernel, capability packs, suites), structural dependency edges, and separate capability eligibility/activation records. Schema v2: a 'module' has id, layer (kernel|capability|suite), displayName, description, dependsOn (module ids in lower layers only, mandatory prerequisites only), ownedAssets (glob patterns under .github/; trailing '/' means the directory and everything below it), and optional ambiguous, ownershipExclusions, and help fields. A 'capability' record declares stable id, owningModule, supportedSuites, supportedPlatforms, sourceProvenance, activationCost, taskTriggers, and configSelectors; config selectors derive baseline capabilities while explicit capabilities may extend but never subtract the derived baseline.",
   "capabilities": [
     {
       "id": "r",
@@ -105,7 +105,7 @@
     {
       "id": "skill-management",
       "owningModule": "cap-skill-management",
-      "supportedSuites": ["cg"],
+      "supportedSuites": ["cg", "cr"],
       "supportedPlatforms": ["copilot", "claude-code", "codex", "opencode", "kilo"],
       "sourceProvenance": "canonical/.github",
       "activationCost": "medium",
@@ -153,6 +153,24 @@
         ".github/agents/cg-roadmap-view.agent.md"
       ],
       "ambiguous": []
+    },
+    {
+      "id": "cap-help",
+      "layer": "capability",
+      "displayName": "Command help evidence",
+      "description": "Shared shell-command metadata and cross-suite help ownership authority.",
+      "dependsOn": ["kernel"],
+      "ownedAssets": [
+        ".github/shared/help-catalog.json",
+        ".github/shared/shell-commands.json"
+      ],
+      "ambiguous": [],
+      "help": {
+        "metadataGlobs": [".github/shared/shell-commands.json"],
+        "commandKinds": ["shell"],
+        "commandPrefixes": ["cg-"],
+        "catalogOwner": "cap-help"
+      }
     },
     {
       "id": "cap-language-r",
@@ -296,6 +314,7 @@
       "description": "The /cg-* command orchestration surface: workflow prompts, suite-specific agents, and workflow-support skills.",
       "dependsOn": [
         "kernel",
+        "cap-help",
         "cap-pester-safety",
         "cap-git-workflow",
         "cap-render-doc",
@@ -306,6 +325,7 @@
       ],
       "ownedAssets": [
         ".github/prompts/cg-*.prompt.md",
+        ".github/prompts/cg-*.help.json",
         ".github/prompts/resume-templates.md",
         ".github/prompts/setup-templates.md",
         ".github/agents/cg-fix-problems.agent.md",
@@ -320,7 +340,18 @@
         ".github/skills/cg-skill-wiki/",
         ".github/skills/cg-skill-yaml-frontmatter-lint/"
       ],
-      "ambiguous": []
+      "ambiguous": [],
+      "help": {
+        "metadataGlobs": [".github/prompts/cg-*.help.json"],
+        "commandKinds": ["slash"],
+        "commandPrefixes": ["cg-"],
+        "catalogOwner": "cap-help",
+        "suiteId": "cg",
+        "activation": {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema"
+        }
+      }
     },
     {
       "id": "cap-research-output",
@@ -356,6 +387,9 @@
       "description": "The /cr-* command orchestration surface: research prompts, domain-specific research agents, and domain research skills.",
       "dependsOn": [
         "kernel",
+        "cap-help",
+        "cap-render-doc",
+        "cap-skill-management",
         "cap-research-output",
         "cap-language-research",
         "cap-review-agents",
@@ -363,6 +397,7 @@
       ],
       "ownedAssets": [
         ".github/prompts/cr-*.prompt.md",
+        ".github/prompts/cr-*.help.json",
         ".github/agents/cr-*.agent.md",
         ".github/skills/cr-skill-academic-writing/",
         ".github/skills/cr-skill-evidence-provenance/",
@@ -375,7 +410,18 @@
         ".github/skills/cr-skill-structural-econometrics/",
         ".github/skills/cr-skill-theory-data-dialogue/"
       ],
-      "ambiguous": []
+      "ambiguous": [],
+      "help": {
+        "metadataGlobs": [".github/prompts/cr-*.help.json"],
+        "commandKinds": ["slash"],
+        "commandPrefixes": ["cr-"],
+        "catalogOwner": "cap-help",
+        "suiteId": "cr",
+        "activation": {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema"
+        }
+      }
     }
   ]
 }

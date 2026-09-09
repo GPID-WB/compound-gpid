@@ -1,0 +1,3703 @@
+{
+  "commands": [
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
+        },
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cr"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "posix",
+            "sourcePath": "bin/cg-brain-init"
+          },
+          {
+            "os": "windows",
+            "sourcePath": "bin/cg-brain-init.cmd"
+          }
+        ],
+        "status": "conditional"
+      },
+      "category": "knowledge",
+      "constraints": [
+        "Requires explicit repository and manager identities."
+      ],
+      "definitionDigest": "dc62bcc4101700aa484e381dc966e78e200808280951174fcdeb687afc3ae858",
+      "definitionSources": [
+        "bin/cg-brain-init",
+        "bin/cg-brain-init.cmd",
+        "install.ps1",
+        "scripts/install.sh",
+        "scripts/team_brain/init.py"
+      ],
+      "documentationTargets": [],
+      "examples": [
+        "cg-brain-init --repo GPID-WB/team-brain --manager analyst"
+      ],
+      "id": "shell:cg-brain-init",
+      "intents": [
+        "initialize team brain",
+        "configure shared knowledge synchronization"
+      ],
+      "kind": "shell",
+      "name": "cg-brain-init",
+      "outputs": [
+        "Validated team Brain configuration."
+      ],
+      "ownerModule": "kernel",
+      "prerequisites": [
+        "Python 3.8+ and repository access."
+      ],
+      "relatedCommands": [
+        {
+          "id": "shell:cg-index",
+          "relation": "related"
+        }
+      ],
+      "sourcePath": "bin/cg-brain-init",
+      "summary": "Initialize a project connection to the configured team Brain repository.",
+      "supportedOS": [
+        "posix",
+        "windows"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cg",
+        "cr"
+      ],
+      "usage": "cg-brain-init --repo <owner/name> --manager <github-user>"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
+        },
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cr"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "posix",
+            "sourcePath": "bin/cg-diff-summary"
+          }
+        ],
+        "status": "conditional"
+      },
+      "category": "summaries",
+      "constraints": [
+        "POSIX only; no Windows wrapper is installed."
+      ],
+      "definitionDigest": "f1236d9b3722e6a3e61ca0d304392fcb470b7cedbee69779e66d978a70819e6b",
+      "definitionSources": [
+        "bin/cg-diff-summary",
+        "scripts/cg_summary.py",
+        "scripts/install.sh"
+      ],
+      "documentationTargets": [],
+      "examples": [
+        "cg-diff-summary"
+      ],
+      "id": "shell:cg-diff-summary",
+      "intents": [
+        "summarize git changes",
+        "reduce diff context"
+      ],
+      "kind": "shell",
+      "name": "cg-diff-summary",
+      "outputs": [
+        "A compact diff summary and full patch artifact reference."
+      ],
+      "ownerModule": "cap-help",
+      "prerequisites": [
+        "Python 3.8+ and a POSIX shell."
+      ],
+      "relatedCommands": [],
+      "sourcePath": "bin/cg-diff-summary",
+      "summary": "Create a bounded summary of the current Git diff.",
+      "supportedOS": [
+        "posix"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cg",
+        "cr"
+      ],
+      "usage": "cg-diff-summary [arguments]"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
+        },
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cr"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "posix",
+            "sourcePath": "bin/cg-index"
+          },
+          {
+            "os": "windows",
+            "sourcePath": "bin/cg-index.cmd"
+          }
+        ],
+        "status": "conditional"
+      },
+      "category": "knowledge",
+      "constraints": [
+        "Query output is budgeted and local to declared knowledge sources."
+      ],
+      "definitionDigest": "e1f7eae11c27c012da74ad341f389fa8b8407558dfff3ebb771df3e5936d4b81",
+      "definitionSources": [
+        "bin/cg-index",
+        "bin/cg-index.cmd",
+        "install.ps1",
+        "scripts/cg_index.py",
+        "scripts/install.sh"
+      ],
+      "documentationTargets": [],
+      "examples": [
+        "cg-index query --intent work --query ownership --budget 800 --format md"
+      ],
+      "id": "shell:cg-index",
+      "intents": [
+        "build knowledge indexes",
+        "query project brain context"
+      ],
+      "kind": "shell",
+      "name": "cg-index",
+      "outputs": [
+        "Deterministic Brain indexes or bounded query results."
+      ],
+      "ownerModule": "kernel",
+      "prerequisites": [
+        "Python 3.8+ and project knowledge artifacts."
+      ],
+      "relatedCommands": [
+        {
+          "id": "slash:cg-brain-rebuild",
+          "relation": "related"
+        }
+      ],
+      "sourcePath": "bin/cg-index",
+      "summary": "Build or query the bounded local Knowledge Brain index.",
+      "supportedOS": [
+        "posix",
+        "windows"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cg",
+        "cr"
+      ],
+      "usage": "cg-index query --intent <intent> --query <text> --budget <tokens> --format <json|md>"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
+        },
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cr"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "posix",
+            "sourcePath": "bin/cg-kilo"
+          },
+          {
+            "os": "windows",
+            "sourcePath": "bin/cg-kilo.cmd"
+          }
+        ],
+        "status": "conditional"
+      },
+      "category": "integration",
+      "constraints": [
+        "Direct launch is unsupported when certified containment is required."
+      ],
+      "definitionDigest": "ce28b1609365c9730dcb04957fa7f0f07a27f7d8837187586d57c0f83a1afcba",
+      "definitionSources": [
+        "bin/cg-kilo",
+        "bin/cg-kilo.cmd",
+        "install.ps1",
+        "scripts/cg_kilo_preflight.py",
+        "scripts/install.sh"
+      ],
+      "documentationTargets": [
+        {
+          "path": "docs/installation.md",
+          "section": "step-3-link-your-project-once-per-project"
+        }
+      ],
+      "examples": [
+        "cg-kilo --json"
+      ],
+      "id": "shell:cg-kilo",
+      "intents": [
+        "launch Kilo with certified containment",
+        "validate Kilo coexistence"
+      ],
+      "kind": "shell",
+      "name": "cg-kilo",
+      "outputs": [
+        "Bounded preflight evidence and optional certified host launch."
+      ],
+      "ownerModule": "cap-help",
+      "prerequisites": [
+        "Python 3.8+ and supported Kilo host infrastructure."
+      ],
+      "relatedCommands": [
+        {
+          "id": "shell:cg-link",
+          "relation": "related"
+        }
+      ],
+      "sourcePath": "bin/cg-kilo",
+      "summary": "Run the certified contained Kilo launch preflight and optional host launch.",
+      "supportedOS": [
+        "posix",
+        "windows"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cg",
+        "cr"
+      ],
+      "usage": "cg-kilo [--root <path>] [--json] [--launch] [-- <host arguments>]"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
+        },
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cr"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "posix",
+            "sourcePath": "bin/cg-link"
+          },
+          {
+            "os": "windows",
+            "sourcePath": "bin/cg-link.cmd"
+          }
+        ],
+        "status": "available"
+      },
+      "category": "lifecycle",
+      "constraints": [
+        "Fails closed on unsafe paths, invalid config, or projection conflicts."
+      ],
+      "definitionDigest": "0cd218e236996c5c2362b18b3ba50c0bc93498dcb272bbaf0517744911863e7e",
+      "definitionSources": [
+        "bin/cg-link",
+        "bin/cg-link.cmd",
+        "install.ps1",
+        "scripts/install.sh",
+        "scripts/link.ps1",
+        "scripts/link.sh"
+      ],
+      "documentationTargets": [
+        {
+          "path": "docs/installation.md",
+          "section": "step-3-link-your-project-once-per-project"
+        }
+      ],
+      "examples": [
+        "cg-link --platforms copilot,kilo"
+      ],
+      "id": "shell:cg-link",
+      "intents": [
+        "link Compound GPID to a project",
+        "select installed agent platforms"
+      ],
+      "kind": "shell",
+      "name": "cg-link",
+      "outputs": [
+        "Validated links, copies, config, manifest, and projection state."
+      ],
+      "ownerModule": "cap-help",
+      "prerequisites": [
+        "A valid Compound GPID installation and project root."
+      ],
+      "relatedCommands": [
+        {
+          "id": "shell:cg-update",
+          "relation": "related"
+        },
+        {
+          "id": "shell:cg-unlink",
+          "relation": "related"
+        }
+      ],
+      "sourcePath": "bin/cg-link",
+      "summary": "Link selected Compound GPID platform assets into a project.",
+      "supportedOS": [
+        "posix",
+        "windows"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cg",
+        "cr"
+      ],
+      "usage": "cg-link [--platforms <comma-separated-platforms>]"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
+        },
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cr"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "posix",
+            "sourcePath": "bin/cg-log-summary"
+          }
+        ],
+        "status": "conditional"
+      },
+      "category": "summaries",
+      "constraints": [
+        "POSIX only; no Windows wrapper is installed."
+      ],
+      "definitionDigest": "824dc0c3eb29a0fb07a51eb1dd67c32227aa759b48fdd9db7c0b515edf3644c0",
+      "definitionSources": [
+        "bin/cg-log-summary",
+        "scripts/cg_summary.py",
+        "scripts/install.sh"
+      ],
+      "documentationTargets": [],
+      "examples": [
+        "cg-log-summary"
+      ],
+      "id": "shell:cg-log-summary",
+      "intents": [
+        "summarize git history",
+        "reduce commit log context"
+      ],
+      "kind": "shell",
+      "name": "cg-log-summary",
+      "outputs": [
+        "A compact recent-commit summary."
+      ],
+      "ownerModule": "cap-help",
+      "prerequisites": [
+        "Python 3.8+ and a POSIX shell."
+      ],
+      "relatedCommands": [],
+      "sourcePath": "bin/cg-log-summary",
+      "summary": "Create a bounded summary of recent branch commits.",
+      "supportedOS": [
+        "posix"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cg",
+        "cr"
+      ],
+      "usage": "cg-log-summary [arguments]"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
+        },
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cr"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "posix",
+            "sourcePath": "bin/cg-problems-summary"
+          }
+        ],
+        "status": "conditional"
+      },
+      "category": "summaries",
+      "constraints": [
+        "POSIX only; no Windows wrapper is installed."
+      ],
+      "definitionDigest": "8e341265daf9930efe6bffb26ff67792a8b0304f3b8e7cb36b19f3ec6aa5847a",
+      "definitionSources": [
+        "bin/cg-problems-summary",
+        "scripts/cg_summary.py",
+        "scripts/install.sh"
+      ],
+      "documentationTargets": [],
+      "examples": [
+        "cg-problems-summary"
+      ],
+      "id": "shell:cg-problems-summary",
+      "intents": [
+        "summarize diagnostics",
+        "reduce problem output context"
+      ],
+      "kind": "shell",
+      "name": "cg-problems-summary",
+      "outputs": [
+        "A compact diagnostics summary."
+      ],
+      "ownerModule": "cap-help",
+      "prerequisites": [
+        "Python 3.8+ and a POSIX shell."
+      ],
+      "relatedCommands": [
+        {
+          "id": "slash:cg-fix-problems",
+          "relation": "related"
+        }
+      ],
+      "sourcePath": "bin/cg-problems-summary",
+      "summary": "Create a bounded summary of editor or diagnostics problem output.",
+      "supportedOS": [
+        "posix"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cg",
+        "cr"
+      ],
+      "usage": "cg-problems-summary [arguments]"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
+        },
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cr"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "posix",
+            "sourcePath": "bin/cg-publish-markdown"
+          },
+          {
+            "os": "windows",
+            "sourcePath": "bin/cg-publish-markdown.cmd"
+          }
+        ],
+        "status": "available"
+      },
+      "category": "publishing",
+      "constraints": [
+        "Brainstorm and Plan sources must use cg-render-artifact."
+      ],
+      "definitionDigest": "98dcb3a56d358dc9ad1f98c241674446c3df718d7b0866779f1e76ca1df973f6",
+      "definitionSources": [
+        "bin/cg-publish-markdown",
+        "bin/cg-publish-markdown.cmd",
+        "install.ps1",
+        "scripts/artifact_views/generic_cli.py",
+        "scripts/install.sh",
+        "scripts/publish_markdown.py"
+      ],
+      "documentationTargets": [],
+      "examples": [
+        "cg-publish-markdown --check docs/guide.md"
+      ],
+      "id": "shell:cg-publish-markdown",
+      "intents": [
+        "publish generic Markdown",
+        "check generic HTML freshness"
+      ],
+      "kind": "shell",
+      "name": "cg-publish-markdown",
+      "outputs": [
+        "Curated HTML or a deterministic validation/check result."
+      ],
+      "ownerModule": "cap-render-doc",
+      "prerequisites": [
+        "Python 3.8+ and a supported project-contained Markdown source."
+      ],
+      "relatedCommands": [
+        {
+          "id": "shell:cg-render-artifact",
+          "relation": "alternative"
+        },
+        {
+          "id": "slash:cg-render-doc",
+          "relation": "related"
+        }
+      ],
+      "sourcePath": "bin/cg-publish-markdown",
+      "summary": "Publish one generic Markdown document to deterministic curated HTML.",
+      "supportedOS": [
+        "posix",
+        "windows"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cg",
+        "cr"
+      ],
+      "usage": "cg-publish-markdown [--automatic|--validate-only|--check] [--theme <theme>] <source>"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
+        },
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cr"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "posix",
+            "sourcePath": "bin/cg-render-artifact"
+          },
+          {
+            "os": "windows",
+            "sourcePath": "bin/cg-render-artifact.cmd"
+          }
+        ],
+        "status": "available"
+      },
+      "category": "publishing",
+      "constraints": [
+        "Uses the strict typed-artifact schema and provenance contract."
+      ],
+      "definitionDigest": "c5bbbd94d59c5276a492a30daad5c2edfca6fcc8ff68087fea554c73f8ebf5ed",
+      "definitionSources": [
+        "bin/cg-render-artifact",
+        "bin/cg-render-artifact.cmd",
+        "install.ps1",
+        "scripts/artifact_views/cli.py",
+        "scripts/install.sh",
+        "scripts/render_artifact.py"
+      ],
+      "documentationTargets": [],
+      "examples": [
+        "cg-render-artifact --check .cg-docs/plans/example.md"
+      ],
+      "id": "shell:cg-render-artifact",
+      "intents": [
+        "render a plan or brainstorm",
+        "validate workflow artifact HTML"
+      ],
+      "kind": "shell",
+      "name": "cg-render-artifact",
+      "outputs": [
+        "Curated HTML or a deterministic validation/check result."
+      ],
+      "ownerModule": "cap-render-doc",
+      "prerequisites": [
+        "Python 3.8+ and a supported Plan or Brainstorm source."
+      ],
+      "relatedCommands": [
+        {
+          "id": "shell:cg-publish-markdown",
+          "relation": "alternative"
+        },
+        {
+          "id": "slash:cg-render-doc",
+          "relation": "related"
+        }
+      ],
+      "sourcePath": "bin/cg-render-artifact",
+      "summary": "Validate, render, or check one typed workflow artifact.",
+      "supportedOS": [
+        "posix",
+        "windows"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cg",
+        "cr"
+      ],
+      "usage": "cg-render-artifact [--automatic|--validate-only|--check] <source>"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
+        },
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cr"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "posix",
+            "sourcePath": "bin/cg-skill"
+          },
+          {
+            "os": "windows",
+            "sourcePath": "bin/cg-skill.cmd"
+          }
+        ],
+        "status": "available"
+      },
+      "category": "capabilities",
+      "constraints": [
+        "Maintainer mutations require role and plan-digest checks."
+      ],
+      "definitionDigest": "942b89e8830eccfc3172d58f2bfe421de7da83c6a43b481a1ba79475917d94b7",
+      "definitionSources": [
+        "bin/cg-skill",
+        "bin/cg-skill.cmd",
+        "install.ps1",
+        "scripts/cg_skill.py",
+        "scripts/install.sh"
+      ],
+      "documentationTargets": [
+        {
+          "path": "docs/skills/management/index.md",
+          "section": "common-grammar"
+        }
+      ],
+      "examples": [
+        "cg-skill --project-root . --format json find --id python"
+      ],
+      "id": "shell:cg-skill",
+      "intents": [
+        "manage skills from the terminal",
+        "inspect or validate skill state"
+      ],
+      "kind": "shell",
+      "name": "cg-skill",
+      "outputs": [
+        "A validated human or JSON lifecycle result."
+      ],
+      "ownerModule": "cap-skill-management",
+      "prerequisites": [
+        "Python 3.8+ and installed skill-management contracts."
+      ],
+      "relatedCommands": [
+        {
+          "id": "slash:cg-skill",
+          "relation": "related"
+        }
+      ],
+      "sourcePath": "bin/cg-skill",
+      "summary": "Run the descriptor-driven skill lifecycle dispatcher.",
+      "supportedOS": [
+        "posix",
+        "windows"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cg",
+        "cr"
+      ],
+      "usage": "cg-skill --project-root . --format <human|json> <operation> [arguments]"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
+        },
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cr"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "posix",
+            "sourcePath": "bin/cg-test-summary"
+          }
+        ],
+        "status": "conditional"
+      },
+      "category": "summaries",
+      "constraints": [
+        "Does not run tests and has no Windows wrapper."
+      ],
+      "definitionDigest": "5830b32b04908c16d76799b83c9e79b8fa2bfe52e397cfeadd45fe6eb15c40ee",
+      "definitionSources": [
+        "bin/cg-test-summary",
+        "scripts/cg_summary.py",
+        "scripts/install.sh"
+      ],
+      "documentationTargets": [],
+      "examples": [
+        "cg-test-summary"
+      ],
+      "id": "shell:cg-test-summary",
+      "intents": [
+        "summarize test output",
+        "reduce test log context"
+      ],
+      "kind": "shell",
+      "name": "cg-test-summary",
+      "outputs": [
+        "A compact test result summary."
+      ],
+      "ownerModule": "cap-help",
+      "prerequisites": [
+        "Python 3.8+, a POSIX shell, and existing test output."
+      ],
+      "relatedCommands": [],
+      "sourcePath": "bin/cg-test-summary",
+      "summary": "Create a bounded summary of existing test-runner output.",
+      "supportedOS": [
+        "posix"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cg",
+        "cr"
+      ],
+      "usage": "cg-test-summary [arguments]"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
+        },
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cr"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "posix",
+            "sourcePath": "bin/cg-token-audit"
+          },
+          {
+            "os": "windows",
+            "sourcePath": "bin/cg-token-audit.cmd"
+          }
+        ],
+        "status": "available"
+      },
+      "category": "assurance",
+      "constraints": [
+        "Uses bounded declared workflow and context inputs."
+      ],
+      "definitionDigest": "12e05d603240d79374240ab0a939743453d72d066510fc6d57d695cf91a9cb3b",
+      "definitionSources": [
+        "bin/cg-token-audit",
+        "bin/cg-token-audit.cmd",
+        "install.ps1",
+        "scripts/cg_audit_context.py",
+        "scripts/install.sh"
+      ],
+      "documentationTargets": [],
+      "examples": [
+        "cg-token-audit --root . --output-dir .cg-docs/cost --format both --recommendations"
+      ],
+      "id": "shell:cg-token-audit",
+      "intents": [
+        "measure token and context usage",
+        "write context budget reports"
+      ],
+      "kind": "shell",
+      "name": "cg-token-audit",
+      "outputs": [
+        "Cost, token, dashboard, and recommendation artifacts."
+      ],
+      "ownerModule": "cap-help",
+      "prerequisites": [
+        "Python 3.8+ and a Compound GPID project."
+      ],
+      "relatedCommands": [
+        {
+          "id": "slash:cg-token-audit",
+          "relation": "related"
+        }
+      ],
+      "sourcePath": "bin/cg-token-audit",
+      "summary": "Run the deterministic context and model-governance audit.",
+      "supportedOS": [
+        "posix",
+        "windows"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cg",
+        "cr"
+      ],
+      "usage": "cg-token-audit --root . --output-dir .cg-docs/cost --format both --recommendations"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
+        },
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cr"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "posix",
+            "sourcePath": "bin/cg-tree-summary"
+          }
+        ],
+        "status": "conditional"
+      },
+      "category": "summaries",
+      "constraints": [
+        "POSIX only; no Windows wrapper is installed."
+      ],
+      "definitionDigest": "6d27ef7fbdaf6788ee3719329e1fa588094fcf0e97dc17d694bd7de5c9549109",
+      "definitionSources": [
+        "bin/cg-tree-summary",
+        "scripts/cg_summary.py",
+        "scripts/install.sh"
+      ],
+      "documentationTargets": [],
+      "examples": [
+        "cg-tree-summary"
+      ],
+      "id": "shell:cg-tree-summary",
+      "intents": [
+        "summarize project files",
+        "reduce file tree context"
+      ],
+      "kind": "shell",
+      "name": "cg-tree-summary",
+      "outputs": [
+        "A compact project tree summary."
+      ],
+      "ownerModule": "cap-help",
+      "prerequisites": [
+        "Python 3.8+ and a POSIX shell."
+      ],
+      "relatedCommands": [],
+      "sourcePath": "bin/cg-tree-summary",
+      "summary": "Create a bounded summary of project tree structure.",
+      "supportedOS": [
+        "posix"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cg",
+        "cr"
+      ],
+      "usage": "cg-tree-summary [arguments]"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
+        },
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cr"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "posix",
+            "sourcePath": "bin/cg-unlink"
+          },
+          {
+            "os": "windows",
+            "sourcePath": "bin/cg-unlink.cmd"
+          }
+        ],
+        "status": "available"
+      },
+      "category": "lifecycle",
+      "constraints": [
+        "Preserves user-owned or drifted content."
+      ],
+      "definitionDigest": "7f7a5ecd85e403cc8ad304cce6a4eac6ce60e4a6d1b94db98f4bc15f8b322a05",
+      "definitionSources": [
+        "bin/cg-unlink",
+        "bin/cg-unlink.cmd",
+        "install.ps1",
+        "scripts/install.sh",
+        "scripts/unlink.ps1",
+        "scripts/unlink.sh"
+      ],
+      "documentationTargets": [
+        {
+          "path": "docs/installation.md",
+          "section": "uninstalling"
+        }
+      ],
+      "examples": [
+        "cg-unlink --yes"
+      ],
+      "id": "shell:cg-unlink",
+      "intents": [
+        "unlink Compound GPID from a project",
+        "remove managed platform assets"
+      ],
+      "kind": "shell",
+      "name": "cg-unlink",
+      "outputs": [
+        "Removed checksum-owned links and projection files with preservation warnings."
+      ],
+      "ownerModule": "cap-help",
+      "prerequisites": [
+        "A linked Compound GPID project."
+      ],
+      "relatedCommands": [
+        {
+          "id": "shell:cg-link",
+          "relation": "related"
+        }
+      ],
+      "sourcePath": "bin/cg-unlink",
+      "summary": "Remove only Compound GPID-managed project links and projections.",
+      "supportedOS": [
+        "posix",
+        "windows"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cg",
+        "cr"
+      ],
+      "usage": "cg-unlink [--yes]"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
+        },
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cr"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "posix",
+            "sourcePath": "bin/cg-update"
+          },
+          {
+            "os": "windows",
+            "sourcePath": "bin/cg-update.cmd"
+          }
+        ],
+        "status": "available"
+      },
+      "category": "lifecycle",
+      "constraints": [
+        "Repair mode can discard installation-clone changes and must be selected explicitly."
+      ],
+      "definitionDigest": "49b7bb2540999a83dd70a2c78f0cea3a8e030e4e1a897d6b76e002e4ffe5c027",
+      "definitionSources": [
+        "bin/cg-update",
+        "bin/cg-update.cmd",
+        "install.ps1",
+        "scripts/install.sh",
+        "scripts/update.ps1",
+        "scripts/update.sh"
+      ],
+      "documentationTargets": [
+        {
+          "path": "docs/versioning.md",
+          "section": "commands-in-depth"
+        }
+      ],
+      "examples": [
+        "cg-update --list"
+      ],
+      "id": "shell:cg-update",
+      "intents": [
+        "update Compound GPID",
+        "pin or repair an installation"
+      ],
+      "kind": "shell",
+      "name": "cg-update",
+      "outputs": [
+        "Updated installation and refreshed linked project state when applicable."
+      ],
+      "ownerModule": "cap-help",
+      "prerequisites": [
+        "An installed Compound GPID clone."
+      ],
+      "relatedCommands": [
+        {
+          "id": "shell:cg-link",
+          "relation": "related"
+        }
+      ],
+      "sourcePath": "bin/cg-update",
+      "summary": "Update, pin, list, or repair the Compound GPID installation.",
+      "supportedOS": [
+        "posix",
+        "windows"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cg",
+        "cr"
+      ],
+      "usage": "cg-update [<version>|latest|--list|--fix]"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "any",
+            "sourcePath": ".github/prompts/cg-brain-rebuild.prompt.md"
+          }
+        ],
+        "status": "available"
+      },
+      "category": "knowledge",
+      "constraints": [
+        "Rebuilds derived knowledge indexes without changing source artifacts."
+      ],
+      "definitionDigest": "2d9e7dc4af23ba03263959a51887326e649829a2b71c8e27edd734ffe0b5a9a2",
+      "definitionSources": [
+        ".github/prompts/cg-brain-rebuild.prompt.md"
+      ],
+      "documentationTargets": [],
+      "examples": [
+        "/cg-brain-rebuild"
+      ],
+      "id": "slash:cg-brain-rebuild",
+      "intents": [
+        "rebuild the project brain",
+        "refresh knowledge indexes"
+      ],
+      "kind": "slash",
+      "name": "/cg-brain-rebuild",
+      "outputs": [
+        "Refreshed BRAIN.md and deterministic index artifacts."
+      ],
+      "ownerModule": "suite-cg",
+      "prerequisites": [
+        "A Compound GPID project with .cg-docs knowledge artifacts."
+      ],
+      "relatedCommands": [
+        {
+          "id": "slash:cg-compound",
+          "relation": "related"
+        }
+      ],
+      "sourcePath": ".github/prompts/cg-brain-rebuild.prompt.md",
+      "summary": "Rebuild the local Knowledge Brain and its indexes.",
+      "supportedOS": [
+        "any"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cg"
+      ],
+      "usage": "/cg-brain-rebuild"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "any",
+            "sourcePath": ".github/prompts/cg-brainstorm.prompt.md"
+          }
+        ],
+        "status": "available"
+      },
+      "category": "design",
+      "constraints": [
+        "Use planning directly when requirements are already precise."
+      ],
+      "definitionDigest": "cbcdc2a8314facc96dd6ec12cff8139fb0f40b37e505c8a103d8b1ea484893fd",
+      "definitionSources": [
+        ".github/prompts/cg-brainstorm.prompt.md"
+      ],
+      "documentationTargets": [
+        {
+          "path": "docs/workflow.md",
+          "section": "1-brainstorm-cg-brainstorm"
+        }
+      ],
+      "examples": [
+        "/cg-brainstorm"
+      ],
+      "id": "slash:cg-brainstorm",
+      "intents": [
+        "clarify a fuzzy task",
+        "compare solution approaches"
+      ],
+      "kind": "slash",
+      "name": "/cg-brainstorm",
+      "outputs": [
+        "A reviewed brainstorm decision artifact."
+      ],
+      "ownerModule": "suite-cg",
+      "prerequisites": [
+        "A task or decision that needs clarification."
+      ],
+      "relatedCommands": [
+        {
+          "id": "slash:cg-plan",
+          "relation": "next"
+        }
+      ],
+      "sourcePath": ".github/prompts/cg-brainstorm.prompt.md",
+      "summary": "Clarify fuzzy requirements and select an implementation approach.",
+      "supportedOS": [
+        "any"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cg"
+      ],
+      "usage": "/cg-brainstorm"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "any",
+            "sourcePath": ".github/prompts/cg-commit-push-pr.prompt.md"
+          }
+        ],
+        "status": "available"
+      },
+      "category": "delivery",
+      "constraints": [
+        "Stops when required validation or staging checks fail."
+      ],
+      "definitionDigest": "7f814e3df88b219add1bf3307ce96eaa613b3510d2a25544b1bed7a5b3ff75ca",
+      "definitionSources": [
+        ".github/prompts/cg-commit-push-pr.prompt.md"
+      ],
+      "documentationTargets": [],
+      "examples": [
+        "/cg-commit-push-pr"
+      ],
+      "id": "slash:cg-commit-push-pr",
+      "intents": [
+        "commit and open a pull request",
+        "prepare reviewed changes for integration"
+      ],
+      "kind": "slash",
+      "name": "/cg-commit-push-pr",
+      "outputs": [
+        "Pushed commits and a pull request URL."
+      ],
+      "ownerModule": "suite-cg",
+      "prerequisites": [
+        "Verified changes on a feature branch."
+      ],
+      "relatedCommands": [
+        {
+          "id": "slash:cg-verify-pr",
+          "relation": "next"
+        }
+      ],
+      "sourcePath": ".github/prompts/cg-commit-push-pr.prompt.md",
+      "summary": "Create logical commits, push the branch, and open a plan-backed pull request.",
+      "supportedOS": [
+        "any"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cg"
+      ],
+      "usage": "/cg-commit-push-pr"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "any",
+            "sourcePath": ".github/prompts/cg-compound.prompt.md"
+          }
+        ],
+        "status": "available"
+      },
+      "category": "knowledge",
+      "constraints": [
+        "Do not document a fix before verification."
+      ],
+      "definitionDigest": "2f3017a30df1f47608745245f151b2c2ce7f63441083e57b564132c0334d83b6",
+      "definitionSources": [
+        ".github/prompts/cg-compound.prompt.md"
+      ],
+      "documentationTargets": [
+        {
+          "path": "docs/workflow.md",
+          "section": "6-compound-cg-compound"
+        }
+      ],
+      "examples": [
+        "/cg-compound"
+      ],
+      "id": "slash:cg-compound",
+      "intents": [
+        "capture a solved problem",
+        "document a reusable lesson"
+      ],
+      "kind": "slash",
+      "name": "/cg-compound",
+      "outputs": [
+        "A structured solution artifact under .cg-docs/solutions/."
+      ],
+      "ownerModule": "suite-cg",
+      "prerequisites": [
+        "A non-trivial problem with a verified solution."
+      ],
+      "relatedCommands": [
+        {
+          "id": "slash:cg-wiki",
+          "relation": "next"
+        }
+      ],
+      "sourcePath": ".github/prompts/cg-compound.prompt.md",
+      "summary": "Capture a verified solution as reusable project knowledge.",
+      "supportedOS": [
+        "any"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cg"
+      ],
+      "usage": "/cg-compound"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "any",
+            "sourcePath": ".github/prompts/cg-compound-gpid-rd.prompt.md"
+          }
+        ],
+        "status": "conditional"
+      },
+      "category": "maintenance",
+      "constraints": [
+        "Fetched web content is untrusted extraction data."
+      ],
+      "definitionDigest": "50314817d91399362f1a83d5122c90abdc6208dd56a7b7080b99b2004be9eee1",
+      "definitionSources": [
+        ".github/prompts/cg-compound-gpid-rd.prompt.md"
+      ],
+      "documentationTargets": [
+        {
+          "path": "docs/competitive-reviews.md",
+          "section": "invocation-forms"
+        }
+      ],
+      "examples": [
+        "/cg-compound-gpid-rd --full"
+      ],
+      "id": "slash:cg-compound-gpid-rd",
+      "intents": [
+        "run a competitive repository review",
+        "manage the competitive review registry"
+      ],
+      "kind": "slash",
+      "name": "/cg-compound-gpid-rd",
+      "outputs": [
+        "Competitive review reports and validated registry updates."
+      ],
+      "ownerModule": "suite-cg",
+      "prerequisites": [
+        "Run in the canonical Compound GPID repository."
+      ],
+      "relatedCommands": [],
+      "sourcePath": ".github/prompts/cg-compound-gpid-rd.prompt.md",
+      "summary": "Review registered public repositories for compatible Compound GPID features.",
+      "supportedOS": [
+        "any"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cg"
+      ],
+      "usage": "/cg-compound-gpid-rd [--full|--add <URL>|--remove <id>]"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "any",
+            "sourcePath": ".github/prompts/cg-compound-refresh.prompt.md"
+          }
+        ],
+        "status": "available"
+      },
+      "category": "knowledge",
+      "constraints": [
+        "Archives obsolete knowledge instead of deleting it."
+      ],
+      "definitionDigest": "889b20ed52fe8b208dc1c2921873db019d0b9b6f6e8f72f7da21f658582b01be",
+      "definitionSources": [
+        ".github/prompts/cg-compound-refresh.prompt.md"
+      ],
+      "documentationTargets": [],
+      "examples": [
+        "/cg-compound-refresh"
+      ],
+      "id": "slash:cg-compound-refresh",
+      "intents": [
+        "audit old solutions",
+        "refresh the knowledge base"
+      ],
+      "kind": "slash",
+      "name": "/cg-compound-refresh",
+      "outputs": [
+        "A reviewed solution refresh result."
+      ],
+      "ownerModule": "suite-cg",
+      "prerequisites": [
+        "Existing solution artifacts under .cg-docs/solutions/."
+      ],
+      "relatedCommands": [
+        {
+          "id": "slash:cg-brain-rebuild",
+          "relation": "next"
+        }
+      ],
+      "sourcePath": ".github/prompts/cg-compound-refresh.prompt.md",
+      "summary": "Audit saved solutions for staleness, drift, and consolidation.",
+      "supportedOS": [
+        "any"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cg"
+      ],
+      "usage": "/cg-compound-refresh"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "any",
+            "sourcePath": ".github/prompts/cg-devtag.prompt.md"
+          }
+        ],
+        "status": "conditional"
+      },
+      "category": "maintenance",
+      "constraints": [
+        "Developer-only and not an official release."
+      ],
+      "definitionDigest": "f745452e4d91879bf7497ae147492c1c639c257d0ba9fe24d83ce3700828eb29",
+      "definitionSources": [
+        ".github/prompts/cg-devtag.prompt.md"
+      ],
+      "documentationTargets": [],
+      "examples": [
+        "/cg-devtag"
+      ],
+      "id": "slash:cg-devtag",
+      "intents": [
+        "create a development release tag",
+        "test installation before a release"
+      ],
+      "kind": "slash",
+      "name": "/cg-devtag",
+      "outputs": [
+        "A pushed four-component development tag."
+      ],
+      "ownerModule": "suite-cg",
+      "prerequisites": [
+        "Run in the canonical repository on an eligible feature branch."
+      ],
+      "relatedCommands": [
+        {
+          "id": "slash:cg-release",
+          "relation": "related"
+        }
+      ],
+      "sourcePath": ".github/prompts/cg-devtag.prompt.md",
+      "summary": "Create and push a development tag for end-to-end installation tests.",
+      "supportedOS": [
+        "any"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cg"
+      ],
+      "usage": "/cg-devtag"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "any",
+            "sourcePath": ".github/prompts/cg-diagnose.prompt.md"
+          }
+        ],
+        "status": "conditional"
+      },
+      "category": "assurance",
+      "constraints": [
+        "Reads diagnostics and does not silently mutate project files."
+      ],
+      "definitionDigest": "dcff7ae1ad317f06632bf4078455f50ea36ab6b4d4f6bf8ac3118c429f045a31",
+      "definitionSources": [
+        ".github/prompts/cg-diagnose.prompt.md"
+      ],
+      "documentationTargets": [],
+      "examples": [
+        "/cg-diagnose"
+      ],
+      "id": "slash:cg-diagnose",
+      "intents": [
+        "diagnose a VS Code crash",
+        "inspect editor crash logs"
+      ],
+      "kind": "slash",
+      "name": "/cg-diagnose",
+      "outputs": [
+        "A classified crash diagnosis and recovery guidance."
+      ],
+      "ownerModule": "suite-cg",
+      "prerequisites": [
+        "Accessible VS Code logs on the current machine."
+      ],
+      "relatedCommands": [
+        {
+          "id": "slash:cg-resume",
+          "relation": "next"
+        }
+      ],
+      "sourcePath": ".github/prompts/cg-diagnose.prompt.md",
+      "summary": "Diagnose VS Code crashes and recommend safe recovery steps.",
+      "supportedOS": [
+        "any"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cg"
+      ],
+      "usage": "/cg-diagnose"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "any",
+            "sourcePath": ".github/prompts/cg-fix-problems.prompt.md"
+          }
+        ],
+        "status": "conditional"
+      },
+      "category": "assurance",
+      "constraints": [
+        "The user controls diagnostic scope and severity."
+      ],
+      "definitionDigest": "bcfe16f54cd49b07b2d26d410f378bc446c42d6cc09945278fd280e92a5890c7",
+      "definitionSources": [
+        ".github/prompts/cg-fix-problems.prompt.md"
+      ],
+      "documentationTargets": [],
+      "examples": [
+        "/cg-fix-problems"
+      ],
+      "id": "slash:cg-fix-problems",
+      "intents": [
+        "fix editor diagnostics",
+        "resolve workspace warnings and errors"
+      ],
+      "kind": "slash",
+      "name": "/cg-fix-problems",
+      "outputs": [
+        "Selected diagnostic fixes and a concise result."
+      ],
+      "ownerModule": "suite-cg",
+      "prerequisites": [
+        "Workspace diagnostics are available."
+      ],
+      "relatedCommands": [
+        {
+          "id": "slash:cg-review",
+          "relation": "related"
+        }
+      ],
+      "sourcePath": ".github/prompts/cg-fix-problems.prompt.md",
+      "summary": "Inspect workspace diagnostics and apply selected editor-problem fixes.",
+      "supportedOS": [
+        "any"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cg"
+      ],
+      "usage": "/cg-fix-problems"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "any",
+            "sourcePath": ".github/prompts/cg-fix-triage.prompt.md"
+          }
+        ],
+        "status": "available"
+      },
+      "category": "assurance",
+      "constraints": [
+        "Migration mode changes tracking metadata only."
+      ],
+      "definitionDigest": "827b6a6166fad6e2737d7f2aae927edd3116fc4722cbd1feb19eea9587e1d62d",
+      "definitionSources": [
+        ".github/prompts/cg-fix-triage.prompt.md"
+      ],
+      "documentationTargets": [],
+      "examples": [
+        "/cg-fix-triage P0 P1"
+      ],
+      "id": "slash:cg-fix-triage",
+      "intents": [
+        "apply code review findings",
+        "fix selected review priorities"
+      ],
+      "kind": "slash",
+      "name": "/cg-fix-triage",
+      "outputs": [
+        "Verified fixes and updated finding status."
+      ],
+      "ownerModule": "suite-cg",
+      "prerequisites": [
+        "A saved review report with open findings."
+      ],
+      "relatedCommands": [
+        {
+          "id": "slash:cg-review",
+          "relation": "next"
+        }
+      ],
+      "sourcePath": ".github/prompts/cg-fix-triage.prompt.md",
+      "summary": "Apply all or selected findings from a saved review report.",
+      "supportedOS": [
+        "any"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cg"
+      ],
+      "usage": "/cg-fix-triage [P0|P1|finding-id|--migrate]"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "any",
+            "sourcePath": ".github/prompts/cg-fixbug.prompt.md"
+          }
+        ],
+        "status": "available"
+      },
+      "category": "delivery",
+      "constraints": [
+        "Cannot proceed without reproduction and verification evidence."
+      ],
+      "definitionDigest": "377879b51a279016757f15ad9cb497ea32c49b44f79dc6d055a8712da905927f",
+      "definitionSources": [
+        ".github/prompts/cg-fixbug.prompt.md"
+      ],
+      "documentationTargets": [],
+      "examples": [
+        "/cg-fixbug"
+      ],
+      "id": "slash:cg-fixbug",
+      "intents": [
+        "fix a reproducible bug",
+        "run a red green bug workflow"
+      ],
+      "kind": "slash",
+      "name": "/cg-fixbug",
+      "outputs": [
+        "A tested fix and verified bug solution artifact."
+      ],
+      "ownerModule": "suite-cg",
+      "prerequisites": [
+        "A specific bug symptom or report."
+      ],
+      "relatedCommands": [
+        {
+          "id": "slash:cg-review",
+          "relation": "next"
+        }
+      ],
+      "sourcePath": ".github/prompts/cg-fixbug.prompt.md",
+      "summary": "Fix a reproducible bug with required red-green verification.",
+      "supportedOS": [
+        "any"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cg"
+      ],
+      "usage": "/cg-fixbug"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "any",
+            "sourcePath": ".github/prompts/cg-ideate.prompt.md"
+          }
+        ],
+        "status": "available"
+      },
+      "category": "design",
+      "constraints": [
+        "Filters ideas against project constraints and existing roadmap work."
+      ],
+      "definitionDigest": "6b2af53dcf204f65b67ef6c61aadd4b998fd5755146765b4e3f3f3dc74081af4",
+      "definitionSources": [
+        ".github/prompts/cg-ideate.prompt.md"
+      ],
+      "documentationTargets": [],
+      "examples": [
+        "/cg-ideate"
+      ],
+      "id": "slash:cg-ideate",
+      "intents": [
+        "discover what to work on next",
+        "generate project improvement ideas"
+      ],
+      "kind": "slash",
+      "name": "/cg-ideate",
+      "outputs": [
+        "A filtered and ranked list of improvement ideas."
+      ],
+      "ownerModule": "suite-cg",
+      "prerequisites": [
+        "A project that can be inspected for concrete signals."
+      ],
+      "relatedCommands": [
+        {
+          "id": "slash:cg-brainstorm",
+          "relation": "next"
+        }
+      ],
+      "sourcePath": ".github/prompts/cg-ideate.prompt.md",
+      "summary": "Discover and rank codebase-grounded project improvement ideas.",
+      "supportedOS": [
+        "any"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cg"
+      ],
+      "usage": "/cg-ideate"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "any",
+            "sourcePath": ".github/prompts/cg-issues.prompt.md"
+          }
+        ],
+        "status": "conditional"
+      },
+      "category": "integration",
+      "constraints": [
+        "Status is the default read-only mode."
+      ],
+      "definitionDigest": "a291301a46ba3b6cc5f53609c3c75afd9d4640bb69a9e5a65b36e9a0de037e3f",
+      "definitionSources": [
+        ".github/prompts/cg-issues.prompt.md"
+      ],
+      "documentationTargets": [],
+      "examples": [
+        "/cg-issues status"
+      ],
+      "id": "slash:cg-issues",
+      "intents": [
+        "link roadmap work to GitHub Issues",
+        "inspect issue synchronization status"
+      ],
+      "kind": "slash",
+      "name": "/cg-issues",
+      "outputs": [
+        "Issue status or validated issue-link mutations."
+      ],
+      "ownerModule": "suite-cg",
+      "prerequisites": [
+        "A GitHub repository and roadmap data."
+      ],
+      "relatedCommands": [
+        {
+          "id": "slash:cg-roadmap-view",
+          "relation": "related"
+        }
+      ],
+      "sourcePath": ".github/prompts/cg-issues.prompt.md",
+      "summary": "Manage GitHub Issues linked to Compound GPID roadmap work.",
+      "supportedOS": [
+        "any"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cg"
+      ],
+      "usage": "/cg-issues [status|backfill|link|adopt|setup]"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "any",
+            "sourcePath": ".github/prompts/cg-plan.prompt.md"
+          }
+        ],
+        "status": "available"
+      },
+      "category": "design",
+      "constraints": [
+        "Requires user approval for the completion contract."
+      ],
+      "definitionDigest": "8b3c0249b0bccb35f18850c0669a0692af25ac70457943ca68c5f48dae3636f3",
+      "definitionSources": [
+        ".github/prompts/cg-plan.prompt.md"
+      ],
+      "documentationTargets": [
+        {
+          "path": "docs/workflow.md",
+          "section": "2-plan-cg-plan"
+        }
+      ],
+      "examples": [
+        "/cg-plan"
+      ],
+      "id": "slash:cg-plan",
+      "intents": [
+        "create an implementation plan",
+        "turn requirements into implementation steps"
+      ],
+      "kind": "slash",
+      "name": "/cg-plan",
+      "outputs": [
+        "A validated plan with a completion contract."
+      ],
+      "ownerModule": "suite-cg",
+      "prerequisites": [
+        "Clear requirements or an approved brainstorm."
+      ],
+      "relatedCommands": [
+        {
+          "id": "slash:cg-plan-review",
+          "relation": "next"
+        }
+      ],
+      "sourcePath": ".github/prompts/cg-plan.prompt.md",
+      "summary": "Create a structured implementation plan from clear requirements.",
+      "supportedOS": [
+        "any"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cg"
+      ],
+      "usage": "/cg-plan"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "any",
+            "sourcePath": ".github/prompts/cg-plan-review.prompt.md"
+          }
+        ],
+        "status": "available"
+      },
+      "category": "design",
+      "constraints": [
+        "Reviews the plan and does not implement it."
+      ],
+      "definitionDigest": "f7c9f0e8b2a50830d44a163211f70294e075ccc3a51280a777d0f8a6357543a6",
+      "definitionSources": [
+        ".github/prompts/cg-plan-review.prompt.md"
+      ],
+      "documentationTargets": [],
+      "examples": [
+        "/cg-plan-review"
+      ],
+      "id": "slash:cg-plan-review",
+      "intents": [
+        "challenge an implementation plan",
+        "review plan completeness"
+      ],
+      "kind": "slash",
+      "name": "/cg-plan-review",
+      "outputs": [
+        "Prioritized plan findings and user decisions."
+      ],
+      "ownerModule": "suite-cg",
+      "prerequisites": [
+        "An implementation plan to review."
+      ],
+      "relatedCommands": [
+        {
+          "id": "slash:cg-work",
+          "relation": "next"
+        }
+      ],
+      "sourcePath": ".github/prompts/cg-plan-review.prompt.md",
+      "summary": "Review an implementation plan for risks, gaps, and flawed assumptions.",
+      "supportedOS": [
+        "any"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cg"
+      ],
+      "usage": "/cg-plan-review"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "any",
+            "sourcePath": ".github/prompts/cg-release.prompt.md"
+          }
+        ],
+        "status": "conditional"
+      },
+      "category": "maintenance",
+      "constraints": [
+        "Developer-only and guarded to the canonical repository."
+      ],
+      "definitionDigest": "29ee6ff862a16598beb5be818af051bb63530be44b2cf8d8d576c7708f4e5d06",
+      "definitionSources": [
+        ".github/prompts/cg-release.prompt.md"
+      ],
+      "documentationTargets": [],
+      "examples": [
+        "/cg-release"
+      ],
+      "id": "slash:cg-release",
+      "intents": [
+        "publish a Compound GPID release",
+        "prepare release notes and tag"
+      ],
+      "kind": "slash",
+      "name": "/cg-release",
+      "outputs": [
+        "A confirmed GitHub Release and tag."
+      ],
+      "ownerModule": "suite-cg",
+      "prerequisites": [
+        "Run in the canonical repository with release authority."
+      ],
+      "relatedCommands": [
+        {
+          "id": "slash:cg-devtag",
+          "relation": "related"
+        }
+      ],
+      "sourcePath": ".github/prompts/cg-release.prompt.md",
+      "summary": "Create a guarded Compound GPID GitHub Release with curated notes.",
+      "supportedOS": [
+        "any"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cg"
+      ],
+      "usage": "/cg-release [version]"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "any",
+            "sourcePath": ".github/prompts/cg-render-doc.prompt.md"
+          }
+        ],
+        "status": "available"
+      },
+      "category": "knowledge",
+      "constraints": [
+        "Theme selection is explicit and source type controls the renderer."
+      ],
+      "definitionDigest": "3f4e493790bc785c45dc1d05f30a65cd8e30d47ca51cadfeb0d3ce5f782510f1",
+      "definitionSources": [
+        ".github/prompts/cg-render-doc.prompt.md"
+      ],
+      "documentationTargets": [],
+      "examples": [
+        "/cg-render-doc docs/guide.md"
+      ],
+      "id": "slash:cg-render-doc",
+      "intents": [
+        "publish Markdown as HTML",
+        "render a plan or brainstorm"
+      ],
+      "kind": "slash",
+      "name": "/cg-render-doc",
+      "outputs": [
+        "Validated curated HTML or a check result."
+      ],
+      "ownerModule": "suite-cg",
+      "prerequisites": [
+        "A project-contained supported Markdown source."
+      ],
+      "relatedCommands": [
+        {
+          "id": "shell:cg-render-artifact",
+          "relation": "related"
+        },
+        {
+          "id": "shell:cg-publish-markdown",
+          "relation": "related"
+        }
+      ],
+      "sourcePath": ".github/prompts/cg-render-doc.prompt.md",
+      "summary": "Render a workflow artifact or Markdown document to curated HTML.",
+      "supportedOS": [
+        "any"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cg"
+      ],
+      "usage": "/cg-render-doc <source> [--theme reference|editorial]"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "any",
+            "sourcePath": ".github/prompts/cg-resume.prompt.md"
+          }
+        ],
+        "status": "available"
+      },
+      "category": "delivery",
+      "constraints": [
+        "Reports state and does not replace the active plan or review authority."
+      ],
+      "definitionDigest": "37b40a1a870ec7432f40ff0345a27a37745726ea08ee35c744df1ab8d098e021",
+      "definitionSources": [
+        ".github/prompts/cg-resume.prompt.md"
+      ],
+      "documentationTargets": [],
+      "examples": [
+        "/cg-resume"
+      ],
+      "id": "slash:cg-resume",
+      "intents": [
+        "resume interrupted work",
+        "inspect current workflow state"
+      ],
+      "kind": "slash",
+      "name": "/cg-resume",
+      "outputs": [
+        "A bounded work-in-progress summary and next action."
+      ],
+      "ownerModule": "suite-cg",
+      "prerequisites": [
+        "An existing Compound GPID project."
+      ],
+      "relatedCommands": [
+        {
+          "id": "slash:cg-work",
+          "relation": "related"
+        }
+      ],
+      "sourcePath": ".github/prompts/cg-resume.prompt.md",
+      "summary": "Load project state and identify the correct continuation action.",
+      "supportedOS": [
+        "any"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cg"
+      ],
+      "usage": "/cg-resume"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "any",
+            "sourcePath": ".github/prompts/cg-review.prompt.md"
+          }
+        ],
+        "status": "available"
+      },
+      "category": "assurance",
+      "constraints": [
+        "Findings are primary and tests remain separate evidence."
+      ],
+      "definitionDigest": "f7e2b7dfafdfc185b2192fbb63703ad3e0bc2b873e5f5412ad0224d848dee29a",
+      "definitionSources": [
+        ".github/prompts/cg-review.prompt.md"
+      ],
+      "documentationTargets": [
+        {
+          "path": "docs/workflow.md",
+          "section": "5-review-cg-review"
+        }
+      ],
+      "examples": [
+        "/cg-review architecture"
+      ],
+      "id": "slash:cg-review",
+      "intents": [
+        "review recent code changes",
+        "find bugs and regression risks"
+      ],
+      "kind": "slash",
+      "name": "/cg-review",
+      "outputs": [
+        "A saved P0-P3 review report."
+      ],
+      "ownerModule": "suite-cg",
+      "prerequisites": [
+        "A defined review scope or recent changes."
+      ],
+      "relatedCommands": [
+        {
+          "id": "slash:cg-fix-triage",
+          "relation": "next"
+        }
+      ],
+      "sourcePath": ".github/prompts/cg-review.prompt.md",
+      "summary": "Run routed multi-agent review and save prioritized findings.",
+      "supportedOS": [
+        "any"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cg"
+      ],
+      "usage": "/cg-review [light|standard|data-risk|architecture|full] [mode:autofix|mode:verify]"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "any",
+            "sourcePath": ".github/prompts/cg-roadmap-view.prompt.md"
+          }
+        ],
+        "status": "available"
+      },
+      "category": "design",
+      "constraints": [
+        "Does not modify roadmap state."
+      ],
+      "definitionDigest": "c064e5707de6463e9d2e50d1ae67d5c5287b3fdfa9278fe7b493e441dfa27b15",
+      "definitionSources": [
+        ".github/prompts/cg-roadmap-view.prompt.md"
+      ],
+      "documentationTargets": [],
+      "examples": [
+        "/cg-roadmap-view --wip"
+      ],
+      "id": "slash:cg-roadmap-view",
+      "intents": [
+        "view roadmap progress",
+        "inspect active milestones"
+      ],
+      "kind": "slash",
+      "name": "/cg-roadmap-view",
+      "outputs": [
+        "A read-only roadmap visualization in chat."
+      ],
+      "ownerModule": "suite-cg",
+      "prerequisites": [
+        "A roadmap.json file."
+      ],
+      "relatedCommands": [
+        {
+          "id": "slash:cg-issues",
+          "relation": "related"
+        }
+      ],
+      "sourcePath": ".github/prompts/cg-roadmap-view.prompt.md",
+      "summary": "Render a read-only view of roadmap milestones and work items.",
+      "supportedOS": [
+        "any"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cg"
+      ],
+      "usage": "/cg-roadmap-view [--milestone|--tasks|--detail|--status|--wip|--plan|--help]"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "any",
+            "sourcePath": ".github/prompts/cg-setup.prompt.md"
+          }
+        ],
+        "status": "available"
+      },
+      "category": "setup",
+      "constraints": [
+        "Preserves existing project and roadmap content."
+      ],
+      "definitionDigest": "3d5f766ddcc23b8a3bd34ee6c4f4aa5bafec9de78c860423f65f65809da3bdd8",
+      "definitionSources": [
+        ".github/prompts/cg-setup.prompt.md"
+      ],
+      "documentationTargets": [
+        {
+          "path": "docs/workflow.md",
+          "section": "setup-cg-setup"
+        }
+      ],
+      "examples": [
+        "/cg-setup"
+      ],
+      "id": "slash:cg-setup",
+      "intents": [
+        "configure Compound GPID",
+        "initialize a project"
+      ],
+      "kind": "slash",
+      "name": "/cg-setup",
+      "outputs": [
+        "Project charter, strict local config, and workflow directories."
+      ],
+      "ownerModule": "suite-cg",
+      "prerequisites": [
+        "Compound GPID is linked into the project."
+      ],
+      "relatedCommands": [
+        {
+          "id": "slash:cg-strategy",
+          "relation": "next"
+        }
+      ],
+      "sourcePath": ".github/prompts/cg-setup.prompt.md",
+      "summary": "Configure Compound GPID and initialize project workflow context.",
+      "supportedOS": [
+        "any"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cg"
+      ],
+      "usage": "/cg-setup"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "any",
+            "sourcePath": ".github/prompts/cg-skill.prompt.md"
+          }
+        ],
+        "status": "available"
+      },
+      "category": "capabilities",
+      "constraints": [
+        "Canonical mutations require strict maintainer authority."
+      ],
+      "definitionDigest": "178c9695e7b68d64fd59789d61d202cb974a21d835a19247092f1cde0d9277da",
+      "definitionSources": [
+        ".github/prompts/cg-skill.prompt.md"
+      ],
+      "documentationTargets": [
+        {
+          "path": "docs/skills/management/index.md",
+          "section": "operations"
+        }
+      ],
+      "examples": [
+        "/cg-skill find python"
+      ],
+      "id": "slash:cg-skill",
+      "intents": [
+        "find or manage a skill",
+        "validate skill lifecycle state"
+      ],
+      "kind": "slash",
+      "name": "/cg-skill",
+      "outputs": [
+        "A validated skill lifecycle result or mutation plan."
+      ],
+      "ownerModule": "suite-cg",
+      "prerequisites": [
+        "The skill-management capability is installed."
+      ],
+      "relatedCommands": [
+        {
+          "id": "shell:cg-skill",
+          "relation": "related"
+        }
+      ],
+      "sourcePath": ".github/prompts/cg-skill.prompt.md",
+      "summary": "Manage the complete skill lifecycle through one role-gated command.",
+      "supportedOS": [
+        "any"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cg"
+      ],
+      "usage": "/cg-skill <operation> [arguments]"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "any",
+            "sourcePath": ".github/prompts/cg-strategy.prompt.md"
+          }
+        ],
+        "status": "available"
+      },
+      "category": "design",
+      "constraints": [
+        "Roadmap writes are delegated to the roadmap authority."
+      ],
+      "definitionDigest": "fcdc54cf304074acae494922f55b43fbbe63402da3fdee854f15e33df566e325",
+      "definitionSources": [
+        ".github/prompts/cg-strategy.prompt.md"
+      ],
+      "documentationTargets": [],
+      "examples": [
+        "/cg-strategy"
+      ],
+      "id": "slash:cg-strategy",
+      "intents": [
+        "define project strategy",
+        "rethink project direction"
+      ],
+      "kind": "slash",
+      "name": "/cg-strategy",
+      "outputs": [
+        "A strategy artifact and approved charter or roadmap proposals."
+      ],
+      "ownerModule": "suite-cg",
+      "prerequisites": [
+        "A project vision or strategic decision."
+      ],
+      "relatedCommands": [
+        {
+          "id": "slash:cg-ideate",
+          "relation": "next"
+        }
+      ],
+      "sourcePath": ".github/prompts/cg-strategy.prompt.md",
+      "summary": "Structure project vision or reconsider strategic direction.",
+      "supportedOS": [
+        "any"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cg"
+      ],
+      "usage": "/cg-strategy"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "any",
+            "sourcePath": ".github/prompts/cg-token-audit.prompt.md"
+          }
+        ],
+        "status": "conditional"
+      },
+      "category": "assurance",
+      "constraints": [
+        "Stops instead of replacing unavailable tooling with broad model inspection."
+      ],
+      "definitionDigest": "b82c018350067d49ef2f213c8d9f92fdd389566e7e68bcf22b5c9d77415ac3c0",
+      "definitionSources": [
+        ".github/prompts/cg-token-audit.prompt.md"
+      ],
+      "documentationTargets": [],
+      "examples": [
+        "/cg-token-audit"
+      ],
+      "id": "slash:cg-token-audit",
+      "intents": [
+        "audit context usage",
+        "reduce token cost"
+      ],
+      "kind": "slash",
+      "name": "/cg-token-audit",
+      "outputs": [
+        "Bounded cost, token, and recommendation artifacts."
+      ],
+      "ownerModule": "suite-cg",
+      "prerequisites": [
+        "The deterministic token-audit backend is available."
+      ],
+      "relatedCommands": [
+        {
+          "id": "shell:cg-token-audit",
+          "relation": "related"
+        }
+      ],
+      "sourcePath": ".github/prompts/cg-token-audit.prompt.md",
+      "summary": "Analyze token and context usage and recommend efficient workflows.",
+      "supportedOS": [
+        "any"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cg"
+      ],
+      "usage": "/cg-token-audit"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "any",
+            "sourcePath": ".github/prompts/cg-verify-pr.prompt.md"
+          }
+        ],
+        "status": "conditional"
+      },
+      "category": "assurance",
+      "constraints": [
+        "Propose mode is observe-only."
+      ],
+      "definitionDigest": "1d0474c3c38ab06a9d0ac36b5f459bd4f9d97598a8bec27d889c66ed13a25dbb",
+      "definitionSources": [
+        ".github/prompts/cg-verify-pr.prompt.md"
+      ],
+      "documentationTargets": [],
+      "examples": [
+        "/cg-verify-pr --propose"
+      ],
+      "id": "slash:cg-verify-pr",
+      "intents": [
+        "diagnose pull request checks",
+        "fix CI failures"
+      ],
+      "kind": "slash",
+      "name": "/cg-verify-pr",
+      "outputs": [
+        "A CI diagnosis and, when allowed, verified fixes."
+      ],
+      "ownerModule": "suite-cg",
+      "prerequisites": [
+        "A current pull request with accessible checks."
+      ],
+      "relatedCommands": [
+        {
+          "id": "slash:cg-commit-push-pr",
+          "relation": "related"
+        }
+      ],
+      "sourcePath": ".github/prompts/cg-verify-pr.prompt.md",
+      "summary": "Check pull-request CI, classify failures, and apply guarded fixes.",
+      "supportedOS": [
+        "any"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cg"
+      ],
+      "usage": "/cg-verify-pr [--propose]"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "any",
+            "sourcePath": ".github/prompts/cg-wiki.prompt.md"
+          }
+        ],
+        "status": "available"
+      },
+      "category": "knowledge",
+      "constraints": [
+        "Preserves manual content outside managed section markers."
+      ],
+      "definitionDigest": "46815556cbe701ceb23850faaafea398197b77e1982a1c03e89b65dbadb0bca2",
+      "definitionSources": [
+        ".github/prompts/cg-wiki.prompt.md"
+      ],
+      "documentationTargets": [],
+      "examples": [
+        "/cg-wiki status"
+      ],
+      "id": "slash:cg-wiki",
+      "intents": [
+        "manage project wiki pages",
+        "rebuild generated wiki sections"
+      ],
+      "kind": "slash",
+      "name": "/cg-wiki",
+      "outputs": [
+        "Wiki status or controlled wiki updates."
+      ],
+      "ownerModule": "suite-cg",
+      "prerequisites": [
+        "A project wiki configuration or permission to initialize it."
+      ],
+      "relatedCommands": [
+        {
+          "id": "slash:cg-compound",
+          "relation": "related"
+        }
+      ],
+      "sourcePath": ".github/prompts/cg-wiki.prompt.md",
+      "summary": "Initialize, inspect, rebuild, restructure, or convert the project wiki.",
+      "supportedOS": [
+        "any"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cg"
+      ],
+      "usage": "/cg-wiki [status|init|rebuild|restructure|convert|help]"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "any",
+            "sourcePath": ".github/prompts/cg-work.prompt.md"
+          }
+        ],
+        "status": "available"
+      },
+      "category": "delivery",
+      "constraints": [
+        "Stops at blocked completion evidence and respects plan boundaries."
+      ],
+      "definitionDigest": "c59ffd7d46f311b3b8d856f844957337a6f4a818b3ad2773931bd751332028c1",
+      "definitionSources": [
+        ".github/prompts/cg-work.prompt.md"
+      ],
+      "documentationTargets": [
+        {
+          "path": "docs/workflow.md",
+          "section": "3-work-cg-work"
+        }
+      ],
+      "examples": [
+        "/cg-work phase1"
+      ],
+      "id": "slash:cg-work",
+      "intents": [
+        "implement an approved plan",
+        "implement one plan phase"
+      ],
+      "kind": "slash",
+      "name": "/cg-work",
+      "outputs": [
+        "Implemented changes with test and constraint evidence."
+      ],
+      "ownerModule": "suite-cg",
+      "prerequisites": [
+        "A validated plan or an eligible lightweight task."
+      ],
+      "relatedCommands": [
+        {
+          "id": "slash:cg-review",
+          "relation": "next"
+        }
+      ],
+      "sourcePath": ".github/prompts/cg-work.prompt.md",
+      "summary": "Implement an approved plan or one selected phase with verification gates.",
+      "supportedOS": [
+        "any"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cg"
+      ],
+      "usage": "/cg-work [phaseX] [review] [deviate:<policy>]"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cr"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "any",
+            "sourcePath": ".github/prompts/cr-brainstorm.prompt.md"
+          }
+        ],
+        "status": "available"
+      },
+      "category": "research",
+      "constraints": [
+        "Surfaces consequential normative choices for human approval."
+      ],
+      "definitionDigest": "76144d9af8bad97376f4977581f092a9cea4503370054d7c6a06669672f026d0",
+      "definitionSources": [
+        ".github/prompts/cr-brainstorm.prompt.md"
+      ],
+      "documentationTargets": [],
+      "examples": [
+        "/cr-brainstorm"
+      ],
+      "id": "slash:cr-brainstorm",
+      "intents": [
+        "clarify a research question",
+        "select a research methodology"
+      ],
+      "kind": "slash",
+      "name": "/cr-brainstorm",
+      "outputs": [
+        "A scoped research brainstorm artifact."
+      ],
+      "ownerModule": "suite-cr",
+      "prerequisites": [
+        "A research question or uncertain methodology choice."
+      ],
+      "relatedCommands": [
+        {
+          "id": "slash:cr-plan",
+          "relation": "next"
+        }
+      ],
+      "sourcePath": ".github/prompts/cr-brainstorm.prompt.md",
+      "summary": "Clarify fuzzy economics research requirements and methodology decisions.",
+      "supportedOS": [
+        "any"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cr"
+      ],
+      "usage": "/cr-brainstorm"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cr"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "any",
+            "sourcePath": ".github/prompts/cr-compound.prompt.md"
+          }
+        ],
+        "status": "available"
+      },
+      "category": "research",
+      "constraints": [
+        "Requires evidence before knowledge capture."
+      ],
+      "definitionDigest": "64e0d622709508f9ce55975c99144a1bb2ede35c2dbb9d0b771ea575a3522f94",
+      "definitionSources": [
+        ".github/prompts/cr-compound.prompt.md"
+      ],
+      "documentationTargets": [],
+      "examples": [
+        "/cr-compound"
+      ],
+      "id": "slash:cr-compound",
+      "intents": [
+        "capture a solved research problem",
+        "document a reusable methodology lesson"
+      ],
+      "kind": "slash",
+      "name": "/cr-compound",
+      "outputs": [
+        "A research-specific solution artifact."
+      ],
+      "ownerModule": "suite-cr",
+      "prerequisites": [
+        "A verified research solution."
+      ],
+      "relatedCommands": [
+        {
+          "id": "slash:cr-review",
+          "relation": "related"
+        }
+      ],
+      "sourcePath": ".github/prompts/cr-compound.prompt.md",
+      "summary": "Capture a verified research-method solution for future reuse.",
+      "supportedOS": [
+        "any"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cr"
+      ],
+      "usage": "/cr-compound"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cr"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "any",
+            "sourcePath": ".github/prompts/cr-plan.prompt.md"
+          }
+        ],
+        "status": "available"
+      },
+      "category": "research",
+      "constraints": [
+        "Keeps evidence, identification, and implementation requirements explicit."
+      ],
+      "definitionDigest": "566892579aac8a31c796e75b169a8061c6abc768af689837bdfb9fe0ae4994cf",
+      "definitionSources": [
+        ".github/prompts/cr-plan.prompt.md"
+      ],
+      "documentationTargets": [],
+      "examples": [
+        "/cr-plan"
+      ],
+      "id": "slash:cr-plan",
+      "intents": [
+        "create a research implementation plan",
+        "plan an econometrics analysis"
+      ],
+      "kind": "slash",
+      "name": "/cr-plan",
+      "outputs": [
+        "A research plan with integrity and verification gates."
+      ],
+      "ownerModule": "suite-cr",
+      "prerequisites": [
+        "A scoped research task or approved research brainstorm."
+      ],
+      "relatedCommands": [
+        {
+          "id": "slash:cr-work",
+          "relation": "next"
+        }
+      ],
+      "sourcePath": ".github/prompts/cr-plan.prompt.md",
+      "summary": "Create a structured implementation plan for an economics research task.",
+      "supportedOS": [
+        "any"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cr"
+      ],
+      "usage": "/cr-plan"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cr"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "any",
+            "sourcePath": ".github/prompts/cr-review.prompt.md"
+          }
+        ],
+        "status": "available"
+      },
+      "category": "research",
+      "constraints": [
+        "Silent research correctness errors are blocking P0 findings."
+      ],
+      "definitionDigest": "f0db1f243caa201b8a59ed2a9d0350d14b606d150a57d20aea9a6d0b47f5b209",
+      "definitionSources": [
+        ".github/prompts/cr-review.prompt.md"
+      ],
+      "documentationTargets": [],
+      "examples": [
+        "/cr-review"
+      ],
+      "id": "slash:cr-review",
+      "intents": [
+        "review economics research",
+        "audit research methodology and code"
+      ],
+      "kind": "slash",
+      "name": "/cr-review",
+      "outputs": [
+        "Prioritized research integrity and implementation findings."
+      ],
+      "ownerModule": "suite-cr",
+      "prerequisites": [
+        "Research code, outputs, or a defined methodology scope."
+      ],
+      "relatedCommands": [
+        {
+          "id": "slash:cr-compound",
+          "relation": "next"
+        }
+      ],
+      "sourcePath": ".github/prompts/cr-review.prompt.md",
+      "summary": "Review research code, methods, identification, and integrity risks.",
+      "supportedOS": [
+        "any"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cr"
+      ],
+      "usage": "/cr-review"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cr"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "any",
+            "sourcePath": ".github/prompts/cr-work.prompt.md"
+          }
+        ],
+        "status": "available"
+      },
+      "category": "research",
+      "constraints": [
+        "Enforces seed, provenance, and specification logging requirements."
+      ],
+      "definitionDigest": "5fb7a33dc0e0badb8a75d40c49323f5d68e9204923f412150a627f331a7d4820",
+      "definitionSources": [
+        ".github/prompts/cr-work.prompt.md"
+      ],
+      "documentationTargets": [],
+      "examples": [
+        "/cr-work phase1"
+      ],
+      "id": "slash:cr-work",
+      "intents": [
+        "implement a research plan",
+        "execute one research plan phase"
+      ],
+      "kind": "slash",
+      "name": "/cr-work",
+      "outputs": [
+        "Implemented research code and evidence artifacts."
+      ],
+      "ownerModule": "suite-cr",
+      "prerequisites": [
+        "A validated research plan."
+      ],
+      "relatedCommands": [
+        {
+          "id": "slash:cr-review",
+          "relation": "next"
+        }
+      ],
+      "sourcePath": ".github/prompts/cr-work.prompt.md",
+      "summary": "Implement a research plan with provenance and integrity controls.",
+      "supportedOS": [
+        "any"
+      ],
+      "supportedPlatforms": [
+        "claude-code",
+        "codex",
+        "copilot",
+        "kilo",
+        "opencode"
+      ],
+      "supportedSuites": [
+        "cr"
+      ],
+      "usage": "/cr-work [phaseX]"
+    }
+  ],
+  "generatorVersion": "1.0.0",
+  "schemaVersion": 1,
+  "sourceDigest": "6ff96dda91c2cf37138516bc68909cd82498211cf9680e530f1595315a3c6a78",
+  "suites": [
+    {
+      "activation": {
+        "sourcePath": "docs/configuration.md",
+        "sourceSection": "strict-configuration-schema"
+      },
+      "displayName": "Technical suite",
+      "id": "cg",
+      "moduleId": "suite-cg"
+    },
+    {
+      "activation": {
+        "sourcePath": "docs/configuration.md",
+        "sourceSection": "strict-configuration-schema"
+      },
+      "displayName": "Research suite",
+      "id": "cr",
+      "moduleId": "suite-cr"
+    }
+  ],
+  "workflows": [
+    {
+      "id": "installation-and-setup",
+      "intents": [
+        "configure a new Compound GPID project",
+        "link and initialize a project"
+      ],
+      "prerequisites": [
+        "Compound GPID is installed on the machine."
+      ],
+      "sourcePath": "docs/workflow.md",
+      "sourceSection": "the-loop",
+      "steps": [
+        {
+          "commandId": "shell:cg-link",
+          "evidence": [
+            {
+              "sourcePath": "docs/installation.md",
+              "sourceSection": "step-3-link-your-project-once-per-project"
+            }
+          ],
+          "order": 1,
+          "purpose": "Link selected platform assets."
+        },
+        {
+          "commandId": "slash:cg-setup",
+          "evidence": [
+            {
+              "sourcePath": ".github/prompts/cg-setup.prompt.md",
+              "sourceSection": "process"
+            }
+          ],
+          "order": 2,
+          "purpose": "Create or validate project configuration and context."
+        }
+      ],
+      "summary": "Link the selected platform assets, then configure the project.",
+      "supportedSuites": [
+        "cg"
+      ],
+      "title": "Install a project workflow"
+    },
+    {
+      "id": "research-delivery-loop",
+      "intents": [
+        "complete an economics research task",
+        "run the research workflow"
+      ],
+      "prerequisites": [
+        "The cr suite is active."
+      ],
+      "sourcePath": "docs/workflow.md",
+      "sourceSection": "modular-suites",
+      "steps": [
+        {
+          "commandId": "slash:cr-brainstorm",
+          "evidence": [
+            {
+              "sourcePath": ".github/prompts/cr-brainstorm.prompt.md",
+              "sourceSection": "process"
+            }
+          ],
+          "order": 1,
+          "purpose": "Clarify the research question and methodology."
+        },
+        {
+          "commandId": "slash:cr-plan",
+          "evidence": [
+            {
+              "sourcePath": ".github/prompts/cr-plan.prompt.md",
+              "sourceSection": "process"
+            }
+          ],
+          "order": 2,
+          "purpose": "Create an evidence and integrity aware research plan."
+        },
+        {
+          "commandId": "slash:cr-work",
+          "evidence": [
+            {
+              "sourcePath": ".github/prompts/cr-work.prompt.md",
+              "sourceSection": "process"
+            }
+          ],
+          "order": 3,
+          "purpose": "Implement the approved research plan."
+        },
+        {
+          "commandId": "slash:cr-review",
+          "evidence": [
+            {
+              "sourcePath": ".github/prompts/cr-review.prompt.md",
+              "sourceSection": "process"
+            }
+          ],
+          "order": 4,
+          "purpose": "Review code, methods, and research integrity."
+        },
+        {
+          "commandId": "slash:cr-compound",
+          "evidence": [
+            {
+              "sourcePath": ".github/prompts/cr-compound.prompt.md",
+              "sourceSection": "process"
+            }
+          ],
+          "order": 5,
+          "purpose": "Capture a verified reusable research lesson."
+        }
+      ],
+      "summary": "Scope, plan, implement, review, and capture a research result.",
+      "supportedSuites": [
+        "cr"
+      ],
+      "title": "Complete an evidence-backed research task"
+    },
+    {
+      "id": "review-and-fix",
+      "intents": [
+        "review and fix code changes",
+        "resolve saved review findings"
+      ],
+      "prerequisites": [
+        "Implementation changes are ready for review."
+      ],
+      "sourcePath": "docs/workflow.md",
+      "sourceSection": "the-loop",
+      "steps": [
+        {
+          "commandId": "slash:cg-review",
+          "evidence": [
+            {
+              "sourcePath": ".github/prompts/cg-review.prompt.md",
+              "sourceSection": "process"
+            }
+          ],
+          "order": 1,
+          "purpose": "Create prioritized review findings."
+        },
+        {
+          "commandId": "slash:cg-fix-triage",
+          "evidence": [
+            {
+              "sourcePath": ".github/prompts/cg-fix-triage.prompt.md",
+              "sourceSection": "process"
+            }
+          ],
+          "order": 2,
+          "purpose": "Apply and track selected findings."
+        },
+        {
+          "commandId": "slash:cg-review",
+          "evidence": [
+            {
+              "sourcePath": ".github/prompts/cg-review.prompt.md",
+              "sourceSection": "process"
+            }
+          ],
+          "order": 3,
+          "purpose": "Verify that the fixes converge."
+        }
+      ],
+      "summary": "Review changes, apply selected findings, and verify convergence.",
+      "supportedSuites": [
+        "cg"
+      ],
+      "title": "Review and resolve findings"
+    },
+    {
+      "id": "technical-delivery-loop",
+      "intents": [
+        "complete a software delivery task",
+        "run the technical workflow"
+      ],
+      "prerequisites": [
+        "The cg suite is active."
+      ],
+      "sourcePath": "docs/workflow.md",
+      "sourceSection": "the-loop",
+      "steps": [
+        {
+          "commandId": "slash:cg-brainstorm",
+          "evidence": [
+            {
+              "sourcePath": ".github/prompts/cg-brainstorm.prompt.md",
+              "sourceSection": "process"
+            }
+          ],
+          "order": 1,
+          "purpose": "Clarify fuzzy requirements when needed."
+        },
+        {
+          "commandId": "slash:cg-plan",
+          "evidence": [
+            {
+              "sourcePath": ".github/prompts/cg-plan.prompt.md",
+              "sourceSection": "process"
+            }
+          ],
+          "order": 2,
+          "purpose": "Create a completion-bound implementation plan."
+        },
+        {
+          "commandId": "slash:cg-plan-review",
+          "evidence": [
+            {
+              "sourcePath": ".github/prompts/cg-plan-review.prompt.md",
+              "sourceSection": "process"
+            }
+          ],
+          "order": 3,
+          "purpose": "Challenge the plan before implementation."
+        },
+        {
+          "commandId": "slash:cg-work",
+          "evidence": [
+            {
+              "sourcePath": ".github/prompts/cg-work.prompt.md",
+              "sourceSection": "process"
+            }
+          ],
+          "order": 4,
+          "purpose": "Implement and verify the approved plan."
+        },
+        {
+          "commandId": "slash:cg-review",
+          "evidence": [
+            {
+              "sourcePath": ".github/prompts/cg-review.prompt.md",
+              "sourceSection": "process"
+            }
+          ],
+          "order": 5,
+          "purpose": "Find behavioral regressions and missing tests."
+        },
+        {
+          "commandId": "slash:cg-commit-push-pr",
+          "evidence": [
+            {
+              "sourcePath": ".github/prompts/cg-commit-push-pr.prompt.md",
+              "sourceSection": "process"
+            }
+          ],
+          "order": 6,
+          "purpose": "Commit, push, and open the pull request."
+        },
+        {
+          "commandId": "slash:cg-verify-pr",
+          "evidence": [
+            {
+              "sourcePath": ".github/prompts/cg-verify-pr.prompt.md",
+              "sourceSection": "process"
+            }
+          ],
+          "order": 7,
+          "purpose": "Verify pull-request checks."
+        },
+        {
+          "commandId": "slash:cg-compound",
+          "evidence": [
+            {
+              "sourcePath": ".github/prompts/cg-compound.prompt.md",
+              "sourceSection": "process"
+            }
+          ],
+          "order": 8,
+          "purpose": "Capture reusable verified knowledge."
+        }
+      ],
+      "summary": "Clarify, plan, implement, review, integrate, and capture technical work.",
+      "supportedSuites": [
+        "cg"
+      ],
+      "title": "Complete a technical delivery task"
+    }
+  ]
+}
