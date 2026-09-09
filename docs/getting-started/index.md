@@ -114,6 +114,8 @@ provenance, method, and publication checks owned by that suite:
 /cr-compound
 ```
 
+For the research-first onboarding path, continue with the [Research Handbook](../research/index.md).
+
 Use `/cg-plan-review` between planning and work when the task is consequential
 or the plan depends on uncertain assumptions. For an already well-defined,
 small task, start at `/cg-plan`; for a reproducible bug, use `/cg-fixbug`.
@@ -126,6 +128,7 @@ verification.
 ## Next pages
 
 - [Workflow Overview](../workflows/index.md) selects a route by task.
+- [Research Handbook](../research/index.md) guides a first research workflow.
 - [Modular Guide](../modular-guide.md) explains suite selection and composition.
 - [Skills Catalog](../skills/index.md) shows the analytical and technical guidance available.
 - [Governance and Security](../governance/index.md) explains constraints and limitations.

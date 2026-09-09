@@ -742,7 +742,12 @@ Describe "docs/whats-new.md - generated release ownership" {
     It "contains the generated release marker pair and deterministic empty state" {
         ($page -match '<!--\s*cg:auto:release-notes\s*-->') | Should -Be $true
         ($page -match '<!--\s*cg:auto:end\s*-->') | Should -Be $true
-        ($page -match 'No releases published yet') | Should -Be $true
+        $releaseFiles = @(Get-ChildItem (Join-Path $repoRoot "releases") -Filter "v*.json" -File -ErrorAction SilentlyContinue)
+        if ($releaseFiles.Count -eq 0) {
+            ($page -match 'No releases published yet') | Should -Be $true
+        } else {
+            ($page -match '(?m)^### v\d+\.\d+\.\d+') | Should -Be $true
+        }
     }
 }
 

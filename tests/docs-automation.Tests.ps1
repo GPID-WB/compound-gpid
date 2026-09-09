@@ -7,6 +7,7 @@ $repoRoot = if ($env:CG_TEST_ROOT) { $env:CG_TEST_ROOT } else { Split-Path $PSSc
 if ($env:CG_TEST_ROOT -and -not (Test-Path $env:CG_TEST_ROOT)) { throw "CG_TEST_ROOT '$env:CG_TEST_ROOT' does not exist" }
 
 $rebuildWorkflow = Get-Content (Join-Path $repoRoot ".github\workflows\doc-rebuild.yml") -Raw -Encoding UTF8
+$combinedWorkflow = Get-Content (Join-Path $repoRoot ".github\workflows\docs-site-build.yml") -Raw -Encoding UTF8
 $pagesWorkflow = Get-Content (Join-Path $repoRoot ".github\workflows\pages.yml") -Raw -Encoding UTF8
 $releaseWorkflow = Get-Content (Join-Path $repoRoot ".github\workflows\release-docs.yml") -Raw -Encoding UTF8
 $releasePagesWorkflow = Get-Content (Join-Path $repoRoot ".github\workflows\release-pages.yml") -Raw -Encoding UTF8
@@ -46,7 +47,7 @@ Describe "Documentation rebuild workflow contracts" {
     }
 
     It "pins every privileged action to an immutable commit" {
-        foreach ($workflow in @($rebuildWorkflow, $releaseWorkflow, $pagesWorkflow, $releasePagesWorkflow)) {
+        foreach ($workflow in @($rebuildWorkflow, $combinedWorkflow, $releaseWorkflow, $pagesWorkflow, $releasePagesWorkflow)) {
             foreach ($match in [regex]::Matches($workflow, 'uses:\s*[^@\s]+@([^\s#]+)')) {
                 $match.Groups[1].Value | Should -Match '^[0-9a-f]{40}$'
             }
@@ -55,24 +56,24 @@ Describe "Documentation rebuild workflow contracts" {
 }
 
 Describe "Pages exact-artifact deployment contracts" {
-    It "runs only after successful main rebuild completion" {
+    It "runs only after successful combined build completion" {
         $pagesWorkflow | Should -Match 'workflow_run:'
-        $pagesWorkflow | Should -Match 'Rebuild documentation'
+        $pagesWorkflow | Should -Match 'Build combined documentation'
         $pagesWorkflow | Should -Match "workflow_run\.conclusion == 'success'"
         $pagesWorkflow | Should -Match "workflow_run\.head_branch == 'main'"
+        $pagesWorkflow | Should -Match "workflow_run\.head_branch == 'dev'"
     }
 
-    It "downloads, verifies, freshness-checks, and uploads the unchanged artifact" {
+    It "downloads, verifies, and uploads the unchanged combined artifact" {
         $downloadIndex = $pagesWorkflow.IndexOf('actions/download-artifact')
-        $digestIndex = $pagesWorkflow.IndexOf('--verify-artifact')
-        $freshnessIndex = $pagesWorkflow.IndexOf('--verify-fingerprint')
-        $uploadIndex = $pagesWorkflow.IndexOf('path: site-artifact/docs')
+        $verifyIndex = $pagesWorkflow.IndexOf('--verify')
+        $uploadIndex = $pagesWorkflow.IndexOf('path: combined-artifact/site')
         $downloadIndex | Should -BeGreaterThan -1
-        $digestIndex | Should -BeGreaterThan $downloadIndex
-        $freshnessIndex | Should -BeGreaterThan $digestIndex
-        $uploadIndex | Should -BeGreaterThan $freshnessIndex
+        $verifyIndex | Should -BeGreaterThan $downloadIndex
+        $uploadIndex | Should -BeGreaterThan $verifyIndex
         $pagesWorkflow | Should -Match 'run-id:\s*\$\{\{ github\.event\.workflow_run\.id \}\}'
-        $pagesWorkflow | Should -Match 'Skipping stale main rebuild artifact'
+        $pagesWorkflow | Should -Match '--main-sha'
+        $pagesWorkflow | Should -Match '--dev-sha'
     }
 
     It "supports unprivileged tag builds through the protected workflow-run controller" {
@@ -113,17 +114,17 @@ Describe "Pages exact-artifact deployment contracts" {
         $validatePayloadIndex = $releaseWorkflow.IndexOf('--validate-payload "releases/$RELEASE_TAG.json"')
         $validateSetIndex = $releaseWorkflow.IndexOf('--validate-release-set')
         $byteMatchIndex = $releaseWorkflow.IndexOf('cmp -s "releases/$RELEASE_TAG.json" releases/latest.json')
-        $uploadIndex = $releaseWorkflow.IndexOf('Upload release documentation artifact')
+        $uploadIndex = $releaseWorkflow.IndexOf('Upload combined release documentation artifact')
         $validatePayloadIndex | Should -BeGreaterThan -1
         $validateSetIndex | Should -BeGreaterThan $validatePayloadIndex
         $byteMatchIndex | Should -BeGreaterThan $validateSetIndex
         $uploadIndex | Should -BeGreaterThan $byteMatchIndex
     }
 
-    It "never rebuilds or mutates the downloaded main artifact" {
-        $artifactJob = [regex]::Match($pagesWorkflow, '(?s)deploy-rebuild-artifact:.*?(?=\n  [a-z].*?:|\z)').Value
-        $artifactJob | Should -Match '--verify-artifact'
-        $artifactJob | Should -Match '--verify-fingerprint'
+    It "never rebuilds or mutates the downloaded combined artifact" {
+        $artifactJob = [regex]::Match($pagesWorkflow, '(?s)deploy-combined-artifact:.*?(?=\n  [a-z].*?:|\z)').Value
+        $artifactJob | Should -Match '--verify'
+        $artifactJob | Should -Match 'combined-artifact/site'
         $artifactJob | Should -Not -Match 'rebuild-docs\.js --all'
         $artifactJob | Should -Not -Match 'generate-whats-new\.js'
     }

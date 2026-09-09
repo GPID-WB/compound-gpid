@@ -12,6 +12,8 @@ identification, measurement, econometrics, replication, writing, and
 publication output. The research suite composes shared implementation
 capabilities without depending on the technical command suite.
 
+For a guided first research workflow, use the [Research Handbook](../research/index.md).
+
 | Situation | Start with | Continue with |
 |---|---|---|
 | Project direction is unclear | `/cg-strategy` | `/cg-ideate`, then `/cg-brainstorm` |

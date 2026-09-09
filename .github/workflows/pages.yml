@@ -2,7 +2,7 @@ name: Deploy documentation site
 
 on:
   workflow_run:
-    workflows: ["Rebuild documentation"]
+    workflows: ["Build combined documentation"]
     types: [completed]
 
 permissions:
@@ -13,12 +13,13 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy-rebuild-artifact:
+  deploy-combined-artifact:
     if: >-
       github.event_name == 'workflow_run' &&
-      github.event.workflow_run.name == 'Rebuild documentation' &&
+      github.event.workflow_run.name == 'Build combined documentation' &&
       github.event.workflow_run.conclusion == 'success' &&
-      github.event.workflow_run.head_branch == 'main'
+      (github.event.workflow_run.head_branch == 'main' ||
+       github.event.workflow_run.head_branch == 'dev')
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -29,54 +30,58 @@ jobs:
       pages: write
       id-token: write
     steps:
-      - name: Check out current main for freshness verification
+      - name: Check out trusted main controller
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
         with:
           ref: main
+          fetch-depth: 0
+
+      - name: Check out current dev source as data
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          ref: dev
+          path: current-dev
+          fetch-depth: 0
 
       - name: Set up Node
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4.4.0
         with:
           node-version: "22"
 
-      - name: Download exact rebuild artifact
+      - name: Download exact combined artifact
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
         with:
-          name: docs-site
-          path: site-artifact
+          name: combined-docs-site
+          path: combined-artifact
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ github.token }}
 
-      - name: Verify downloaded artifact digests
-        run: node scripts/rebuild-docs.js --verify-artifact site-artifact
-
-      - name: Check rebuild freshness against current main
-        id: freshness
+      - name: Verify exact sources and combined artifact
+        env:
+          MAIN_SHA: ${{ github.sha }}
+          DEV_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
-          if node scripts/rebuild-docs.js --verify-fingerprint site-artifact/.docs-build-metadata.json; then
-            echo "current=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "current=false" >> "$GITHUB_OUTPUT"
-            echo "Skipping stale main rebuild artifact."
-          fi
+          main_sha="$(git rev-parse HEAD)"
+          dev_sha="$(git -C current-dev rev-parse HEAD)"
+          node scripts/assemble-docs-site.js \
+            --verify combined-artifact \
+            --main-root "$GITHUB_WORKSPACE" \
+            --dev-root "$GITHUB_WORKSPACE/current-dev" \
+            --main-sha "$main_sha" \
+            --dev-sha "$dev_sha" \
+            --main-branch main \
+            --dev-branch dev \
+            --main-ref main \
+            --dev-ref dev
 
       - name: Configure GitHub Pages
-        if: steps.freshness.outputs.current == 'true'
         uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b  # v5.0.0
 
-      - name: Validate exact documentation artifact
-        if: steps.freshness.outputs.current == 'true'
-        env:
-          CG_DOCS_ROOT: ${{ github.workspace }}/site-artifact/docs
-        run: node scripts/check-docs-site.js
-
-      - name: Upload unchanged Pages artifact
-        if: steps.freshness.outputs.current == 'true'
+      - name: Upload unchanged combined Pages artifact
         uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa  # v3.0.1
         with:
-          path: site-artifact/docs
+          path: combined-artifact/site
 
       - name: Deploy to GitHub Pages
-        if: steps.freshness.outputs.current == 'true'
         id: deployment
         uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e  # v4.0.5
