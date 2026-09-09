@@ -49,6 +49,82 @@ answer its questions when asked, and let it run to completion.
 > `.claude/`, `.agents/`, `.opencode/`, and `.kilo/` trees provide native command,
 > skill, agent, instruction, and shared-contract layouts for the other hosts.
 
+<!-- cg:help-workflows:start -->
+```json
+{
+  "schemaVersion": 1,
+  "workflows": [
+    {
+      "id": "installation-and-setup",
+      "title": "Install a project workflow",
+      "summary": "Link the selected platform assets, then configure the project.",
+      "supportedSuites": ["cg"],
+      "intents": ["configure a new Compound GPID project", "link and initialize a project"],
+      "prerequisites": ["Compound GPID is installed on the machine."],
+      "steps": [
+        {"order": 1, "commandId": "shell:cg-link", "purpose": "Link selected platform assets.", "evidence": [{"sourcePath": "docs/installation.md", "sourceSection": "step-3-link-your-project-once-per-project"}]},
+        {"order": 2, "commandId": "slash:cg-setup", "purpose": "Create or validate project configuration and context.", "evidence": [{"sourcePath": ".github/prompts/cg-setup.prompt.md", "sourceSection": "process"}]}
+      ],
+      "sourcePath": "docs/workflow.md",
+      "sourceSection": "the-loop"
+    },
+    {
+      "id": "research-delivery-loop",
+      "title": "Complete an evidence-backed research task",
+      "summary": "Scope, plan, implement, review, and capture a research result.",
+      "supportedSuites": ["cr"],
+      "intents": ["complete an economics research task", "run the research workflow"],
+      "prerequisites": ["The cr suite is active."],
+      "steps": [
+        {"order": 1, "commandId": "slash:cr-brainstorm", "purpose": "Clarify the research question and methodology.", "evidence": [{"sourcePath": ".github/prompts/cr-brainstorm.prompt.md", "sourceSection": "process"}]},
+        {"order": 2, "commandId": "slash:cr-plan", "purpose": "Create an evidence and integrity aware research plan.", "evidence": [{"sourcePath": ".github/prompts/cr-plan.prompt.md", "sourceSection": "process"}]},
+        {"order": 3, "commandId": "slash:cr-work", "purpose": "Implement the approved research plan.", "evidence": [{"sourcePath": ".github/prompts/cr-work.prompt.md", "sourceSection": "process"}]},
+        {"order": 4, "commandId": "slash:cr-review", "purpose": "Review code, methods, and research integrity.", "evidence": [{"sourcePath": ".github/prompts/cr-review.prompt.md", "sourceSection": "process"}]},
+        {"order": 5, "commandId": "slash:cr-compound", "purpose": "Capture a verified reusable research lesson.", "evidence": [{"sourcePath": ".github/prompts/cr-compound.prompt.md", "sourceSection": "process"}]}
+      ],
+      "sourcePath": "docs/workflow.md",
+      "sourceSection": "modular-suites"
+    },
+    {
+      "id": "review-and-fix",
+      "title": "Review and resolve findings",
+      "summary": "Review changes, apply selected findings, and verify convergence.",
+      "supportedSuites": ["cg"],
+      "intents": ["review and fix code changes", "resolve saved review findings"],
+      "prerequisites": ["Implementation changes are ready for review."],
+      "steps": [
+        {"order": 1, "commandId": "slash:cg-review", "purpose": "Create prioritized review findings.", "evidence": [{"sourcePath": ".github/prompts/cg-review.prompt.md", "sourceSection": "process"}]},
+        {"order": 2, "commandId": "slash:cg-fix-triage", "purpose": "Apply and track selected findings.", "evidence": [{"sourcePath": ".github/prompts/cg-fix-triage.prompt.md", "sourceSection": "process"}]},
+        {"order": 3, "commandId": "slash:cg-review", "purpose": "Verify that the fixes converge.", "evidence": [{"sourcePath": ".github/prompts/cg-review.prompt.md", "sourceSection": "process"}]}
+      ],
+      "sourcePath": "docs/workflow.md",
+      "sourceSection": "the-loop"
+    },
+    {
+      "id": "technical-delivery-loop",
+      "title": "Complete a technical delivery task",
+      "summary": "Clarify, plan, implement, review, integrate, and capture technical work.",
+      "supportedSuites": ["cg"],
+      "intents": ["complete a software delivery task", "run the technical workflow"],
+      "prerequisites": ["The cg suite is active."],
+      "steps": [
+        {"order": 1, "commandId": "slash:cg-brainstorm", "purpose": "Clarify fuzzy requirements when needed.", "evidence": [{"sourcePath": ".github/prompts/cg-brainstorm.prompt.md", "sourceSection": "process"}]},
+        {"order": 2, "commandId": "slash:cg-plan", "purpose": "Create a completion-bound implementation plan.", "evidence": [{"sourcePath": ".github/prompts/cg-plan.prompt.md", "sourceSection": "process"}]},
+        {"order": 3, "commandId": "slash:cg-plan-review", "purpose": "Challenge the plan before implementation.", "evidence": [{"sourcePath": ".github/prompts/cg-plan-review.prompt.md", "sourceSection": "process"}]},
+        {"order": 4, "commandId": "slash:cg-work", "purpose": "Implement and verify the approved plan.", "evidence": [{"sourcePath": ".github/prompts/cg-work.prompt.md", "sourceSection": "process"}]},
+        {"order": 5, "commandId": "slash:cg-review", "purpose": "Find behavioral regressions and missing tests.", "evidence": [{"sourcePath": ".github/prompts/cg-review.prompt.md", "sourceSection": "process"}]},
+        {"order": 6, "commandId": "slash:cg-commit-push-pr", "purpose": "Commit, push, and open the pull request.", "evidence": [{"sourcePath": ".github/prompts/cg-commit-push-pr.prompt.md", "sourceSection": "process"}]},
+        {"order": 7, "commandId": "slash:cg-verify-pr", "purpose": "Verify pull-request checks.", "evidence": [{"sourcePath": ".github/prompts/cg-verify-pr.prompt.md", "sourceSection": "process"}]},
+        {"order": 8, "commandId": "slash:cg-compound", "purpose": "Capture reusable verified knowledge.", "evidence": [{"sourcePath": ".github/prompts/cg-compound.prompt.md", "sourceSection": "process"}]}
+      ],
+      "sourcePath": "docs/workflow.md",
+      "sourceSection": "the-loop"
+    }
+  ]
+}
+```
+<!-- cg:help-workflows:end -->
+
 > **Project Charter** (`compound-gpid.md`): Before any workflow step, Copilot reads your
 > project's charter to understand objective, deliverables, constraints, and current focus.
 > Create or update it via `/cg-setup`. The charter has exactly four sections (Objective, Key

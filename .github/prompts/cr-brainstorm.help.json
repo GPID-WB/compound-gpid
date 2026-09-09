@@ -1,0 +1,11 @@
+{
+  "id": "slash:cr-brainstorm", "name": "/cr-brainstorm", "kind": "slash", "ownerModule": "suite-cr", "supportedSuites": ["cr"],
+  "category": "research", "summary": "Clarify fuzzy economics research requirements and methodology decisions.", "aliases": [],
+  "intents": ["clarify a research question", "select a research methodology"], "usage": "/cr-brainstorm", "examples": ["/cr-brainstorm"],
+  "prerequisites": ["A research question or uncertain methodology choice."], "outputs": ["A scoped research brainstorm artifact."],
+  "constraints": ["Surfaces consequential normative choices for human approval."], "relatedCommands": [{"id": "slash:cr-plan", "relation": "next"}],
+  "sourcePath": ".github/prompts/cr-brainstorm.prompt.md", "definitionSources": [".github/prompts/cr-brainstorm.prompt.md"], "definitionDigest": "76144d9af8bad97376f4977581f092a9cea4503370054d7c6a06669672f026d0",
+  "documentationTargets": [], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["any"],
+  "availability": {"status": "available", "evidence": [{"os": "any", "sourcePath": ".github/prompts/cr-brainstorm.prompt.md"}]},
+  "activation": [{"suite": "cr", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
+}

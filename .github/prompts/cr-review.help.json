@@ -1,0 +1,11 @@
+{
+  "id": "slash:cr-review", "name": "/cr-review", "kind": "slash", "ownerModule": "suite-cr", "supportedSuites": ["cr"],
+  "category": "research", "summary": "Review research code, methods, identification, and integrity risks.", "aliases": [],
+  "intents": ["review economics research", "audit research methodology and code"], "usage": "/cr-review", "examples": ["/cr-review"],
+  "prerequisites": ["Research code, outputs, or a defined methodology scope."], "outputs": ["Prioritized research integrity and implementation findings."],
+  "constraints": ["Silent research correctness errors are blocking P0 findings."], "relatedCommands": [{"id": "slash:cr-compound", "relation": "next"}],
+  "sourcePath": ".github/prompts/cr-review.prompt.md", "definitionSources": [".github/prompts/cr-review.prompt.md"], "definitionDigest": "f0db1f243caa201b8a59ed2a9d0350d14b606d150a57d20aea9a6d0b47f5b209",
+  "documentationTargets": [], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["any"],
+  "availability": {"status": "available", "evidence": [{"os": "any", "sourcePath": ".github/prompts/cr-review.prompt.md"}]},
+  "activation": [{"suite": "cr", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
+}

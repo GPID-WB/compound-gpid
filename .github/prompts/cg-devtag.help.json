@@ -1,0 +1,11 @@
+{
+  "id": "slash:cg-devtag", "name": "/cg-devtag", "kind": "slash", "ownerModule": "suite-cg", "supportedSuites": ["cg"],
+  "category": "maintenance", "summary": "Create and push a development tag for end-to-end installation tests.", "aliases": [],
+  "intents": ["create a development release tag", "test installation before a release"], "usage": "/cg-devtag", "examples": ["/cg-devtag"],
+  "prerequisites": ["Run in the canonical repository on an eligible feature branch."], "outputs": ["A pushed four-component development tag."],
+  "constraints": ["Developer-only and not an official release."], "relatedCommands": [{"id": "slash:cg-release", "relation": "related"}],
+  "sourcePath": ".github/prompts/cg-devtag.prompt.md", "definitionSources": [".github/prompts/cg-devtag.prompt.md"], "definitionDigest": "f745452e4d91879bf7497ae147492c1c639c257d0ba9fe24d83ce3700828eb29",
+  "documentationTargets": [], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["any"],
+  "availability": {"status": "conditional", "evidence": [{"os": "any", "sourcePath": ".github/prompts/cg-devtag.prompt.md"}]},
+  "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
+}

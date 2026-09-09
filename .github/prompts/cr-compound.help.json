@@ -1,0 +1,11 @@
+{
+  "id": "slash:cr-compound", "name": "/cr-compound", "kind": "slash", "ownerModule": "suite-cr", "supportedSuites": ["cr"],
+  "category": "research", "summary": "Capture a verified research-method solution for future reuse.", "aliases": [],
+  "intents": ["capture a solved research problem", "document a reusable methodology lesson"], "usage": "/cr-compound", "examples": ["/cr-compound"],
+  "prerequisites": ["A verified research solution."], "outputs": ["A research-specific solution artifact."],
+  "constraints": ["Requires evidence before knowledge capture."], "relatedCommands": [{"id": "slash:cr-review", "relation": "related"}],
+  "sourcePath": ".github/prompts/cr-compound.prompt.md", "definitionSources": [".github/prompts/cr-compound.prompt.md"], "definitionDigest": "64e0d622709508f9ce55975c99144a1bb2ede35c2dbb9d0b771ea575a3522f94",
+  "documentationTargets": [], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["any"],
+  "availability": {"status": "available", "evidence": [{"os": "any", "sourcePath": ".github/prompts/cr-compound.prompt.md"}]},
+  "activation": [{"suite": "cr", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
+}
