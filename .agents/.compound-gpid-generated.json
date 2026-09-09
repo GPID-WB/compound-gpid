@@ -28,7 +28,7 @@
       "path": ".agents/commands/cg-commit-push-pr.md",
       "source": ".github/prompts/cg-commit-push-pr.prompt.md",
       "kind": "command",
-      "sha256": "1abeaf9166f58a697666ce6956c05481de36c9618d1d8cd497a5ddf09f086b8b",
+      "sha256": "7f814e3df88b219add1bf3307ce96eaa613b3510d2a25544b1bed7a5b3ff75ca",
       "executable": false
     },
     {
@@ -319,6 +319,13 @@
       "executable": false
     },
     {
+      "path": ".agents/shared/help-catalog.json",
+      "source": ".github/shared/help-catalog.json",
+      "kind": "shared",
+      "sha256": "1eea25149a1f27287ba6ca997b7dd2585bb1e9b1d7326d02c71f1726bdf3e8ac",
+      "executable": false
+    },
+    {
       "path": ".agents/shared/model-advisory-examples.json",
       "source": ".github/shared/model-advisory-examples.json",
       "kind": "shared",
@@ -344,6 +351,13 @@
       "source": ".github/shared/review-routing.contract.md",
       "kind": "shared",
       "sha256": "a69a44806364bd7a495e922e881534dfa4e71effac8004be3933994278251dbc",
+      "executable": false
+    },
+    {
+      "path": ".agents/shared/shell-commands.json",
+      "source": ".github/shared/shell-commands.json",
+      "kind": "shared",
+      "sha256": "685f93fd12b7169835a08f01206109b0d888bc0517cd82b4597efa8be4bd7cd6",
       "executable": false
     },
     {

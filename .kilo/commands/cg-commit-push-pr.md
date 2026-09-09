@@ -166,13 +166,43 @@ Report the resolved base in later commit and PR summaries. Every changed-file co
     (`python3`, `python`, then `py`) and verify that `--version` starts with
     `Python`. Store it as `$pythonCommand`. If no valid Python command is found,
     halt before Step 2.
-6. Run the generator unconditionally before staging:
+6. Run the independent help-catalog gate before native-target generation:
+   - Run `<pythonCommand> scripts/cg_generate_help_catalog.py --check`
+     unconditionally in the retained Compound GPID source repository. This covers
+     prompt and sidecar additions or removals, aliases, module-registry help
+     changes, shell metadata and every declared shell definition source, the
+     marked workflow evidence, and catalog-only changes without an unbounded scan.
+   - Exit code 2 is a source-validation hard stop. If the diagnostic identifies
+     a stale `definitionDigest`, run `<pythonCommand>
+     scripts/cg_generate_help_catalog.py --preview-definition-digest
+     <kind-qualified-id>` and halt before native-target generation. The
+     maintainer must review that one record's help metadata against its changed
+     definition. Only after that review may the maintainer run `<pythonCommand>
+     scripts/cg_generate_help_catalog.py --repin-definition-digest
+     <kind-qualified-id> --reviewed`. Never auto-repin a definition from this
+     workflow or from a bulk catalog-generation path.
+   - Exit code 3 means only that the validated catalog output is missing or
+     stale. Exit code 4 or any other nonzero/ambiguous result is a hard stop.
+     Never treat source-validation or I/O failure as ordinary output drift.
+   - After all pinned definition digests match reviewed metadata, run
+     `<pythonCommand> scripts/cg_generate_help_catalog.py --write`. Any nonzero
+     result halts before native-target generation and staging. Do not stage a
+     partial or previously stale catalog.
+   - Rerun `<pythonCommand> scripts/cg_generate_help_catalog.py --check` after
+     the write and require exit code 0 before continuing. A nonzero or partial
+     result is a hard stop.
+   - `.cg-docs/views/**` and documentation prose outside the marked
+     help-workflow block in `docs/workflow.md` are not catalog source-digest or
+     drift inputs. Running the unconditional check for such a changed file is a
+     permitted no-op; do not broaden the generator's evidence boundary.
+
+7. Run the generator unconditionally for all native target trees before staging:
 
     > **execution_subagent query**: "In the repo root, run
     > `<pythonCommand> scripts/cg_generate_targets.py --all`. Report the output and exit
     > code. If the exit code is non-zero, report the full stderr."
 
-7. If generation succeeds:
+8. If generation succeeds:
     - Rerun `git status --short` and replace the Step 1 inventory with this
       refreshed output. This is the only inventory Step 2 may use, so newly
       generated and untracked files cannot be omitted from staging.
@@ -181,12 +211,12 @@ Report the resolved base in later commit and PR summaries. Every changed-file co
       canonical source changes.
     - Inform the user: "Platform trees regenerated and the staging inventory
       refreshed. Generated files will be included in the commit."
-8. If generation fails:
+9. If generation fails:
     - **Halt before Step 2.** Report the command output and exit code. Do not
       classify, stage, commit, push, or claim regenerated targets until generation
       succeeds. Existing generated trees remain untouched and usable because the
       generator validates and renders the complete plan before committing it.
-9. Run these local CI-equivalent gates before Step 2:
+10. Run these local CI-equivalent gates before Step 2:
     - Dispatch an `execution_subagent` query through the platform's safe execution mechanism to run in the repository root:
       ```
       <pythonCommand> scripts/cg_pr_preflight.py --phase prepare --base $baseBranch --run-native-target
