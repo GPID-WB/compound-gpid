@@ -105,3 +105,5 @@ Three sub-problems emerged:
   — prior adapter approach (superseded by generated trees)
 - `.cg-docs/solutions/environment-issues/2026-06-23-cross-agent-adapters-are-opt-in-source-packages.md`
   — prior adapter packaging (superseded)
+- `.cg-docs/solutions/testing-patterns/2026-09-09-registry-ownership-metadata-needs-consumer-closure-tests.md`
+  -- phased drift fixtures and effective ownership consumer coverage

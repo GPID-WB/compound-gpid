@@ -1,5 +1,5 @@
 {
-  "edge_count": 336,
+  "edge_count": 338,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -491,6 +491,12 @@
       "edge_type": "decided_from",
       "source": ".cg-docs/plans/2026-09-04-minimal-adaptive-grilling.md",
       "target": ".cg-docs/brainstorms/2026-09-04-minimal-adaptive-grilling.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-09-08-evidence-backed-cg-help-command.md",
+      "target": ".cg-docs/brainstorms/2026-09-04-cg-help-command.md",
       "target_missing": false
     },
     {
@@ -1475,6 +1481,12 @@
       "edge_type": "reviews",
       "source": ".cg-docs/reviews/2026-09-04-minimal-adaptive-grilling-review.md",
       "target": ".cg-docs/plans/2026-09-04-minimal-adaptive-grilling.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-09-04-minimal-adaptive-grilling-verify-review.md",
+      "target": ".cg-docs/reviews/2026-09-04-minimal-adaptive-grilling-review.md",
       "target_missing": false
     },
     {
@@ -3682,6 +3694,34 @@
         "security",
         "release",
         "tests"
+      ]
+    },
+    {
+      "date": "2026-09-04",
+      "entity_type": "brainstorm",
+      "path": ".cg-docs/brainstorms/2026-09-04-cg-help-command.md",
+      "slug": "2026-09-04-cg-help-command",
+      "status": "decided",
+      "summary": "Compound GPID has an auto-generated command reference and documentation site, but it does not have an in-chat help command. Users need one entry point that can explain known commands, discover suitable commands from natural-language goals, describe multi-command workflows when the available evidence supports them, and state honestly when no supported command can perform a task.",
+      "tags": [
+        "help",
+        "commands",
+        "semantic-search",
+        "cross-platform",
+        "documentation"
+      ],
+      "title": "Evidence-Backed /cg-help Command",
+      "top_keywords": [
+        "cg-help",
+        "approach",
+        "/cg-help",
+        "/cg-help cg-work",
+        "command",
+        "help",
+        "evidence-backed",
+        "cg-work",
+        "catalog",
+        "context"
       ]
     },
     {
@@ -7199,6 +7239,35 @@
         "scope",
         "cg-work",
         ".github/prompts/cg-brainstorm.prompt.md"
+      ]
+    },
+    {
+      "date": "2026-09-08",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-09-08-evidence-backed-cg-help-command.md",
+      "slug": "2026-09-08-evidence-backed-cg-help-command",
+      "status": "active",
+      "summary": "Add `/cg-help` as the single in-chat entry point for discovering and using Compound GPID slash and shell commands. The command will use a versioned, generated evidence catalog and a deterministic Python query layer for overview, exact lookup, typo handling, candidate retrieval, active-suite ranking, and explicit result states. The model may rerank only returned candidate IDs. A second deterministic validation and rendering step produces the final answer, so no model-produced command, URL, activation action, or workflow step can cross the evidence boundary. Equivalent assets and static contracts are required on all five platforms; runtime query-mode support is claimed only for platforms...",
+      "tags": [
+        "help",
+        "commands",
+        "catalog",
+        "deterministic-retrieval",
+        "cross-platform",
+        "documentation"
+      ],
+      "title": "Evidence-Backed Cross-Platform /cg-help Command",
+      "top_keywords": [
+        "cg-help",
+        "/cg-help",
+        "cap-help",
+        "--check",
+        "error",
+        "dev",
+        "unverified-no-certified-host",
+        "subjectcommit",
+        "verified",
+        "test scenarios"
       ]
     },
     {
@@ -11246,6 +11315,28 @@
         "last-run.json",
         "current.json",
         "passed",
+        "review"
+      ]
+    },
+    {
+      "date": "2026-09-09",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-09-04-minimal-adaptive-grilling-verify-review.md",
+      "slug": "2026-09-04-minimal-adaptive-grilling-verify-review",
+      "status": "",
+      "summary": "**Review mode**: light verification **Files reviewed**: current tracked and untracked Phase 1/2 worktree changes **Findings**: 15 (P0: 0, P1: 11, P2: 4, P3: 0)",
+      "tags": [],
+      "title": "2026-09-04-minimal-adaptive-grilling-verify-review",
+      "top_keywords": [
+        "catalog.py",
+        "cap-help",
+        "cg-help",
+        "verification",
+        "ownershipexclusions",
+        "expectedroute",
+        "shell:",
+        "shell-commands.json",
+        "test_help_catalog.py",
         "review"
       ]
     },
@@ -18225,6 +18316,35 @@
       ]
     },
     {
+      "date": "2026-09-09",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-09-09-registry-ownership-metadata-needs-consumer-closure-tests.md",
+      "slug": "2026-09-09-registry-ownership-metadata-needs-consumer-closure-tests",
+      "status": "",
+      "summary": "Adding `ownershipExclusions` and the `cap-help` module passed focused schema and catalog tests, but broader verification found failures and silent routing risks: - catalog, lifecycle, CLI, and benchmark consumers still matched raw `ownedAssets` globs; - legacy manifests were forced to contain a new optional field; - unfiltered target scans derived suite closures that their fixtures did not declare; - projection benchmarks did not compare the resolved owner with `expectedRoute`; - generated-target drift tests expected Phase 5 help output during Phase 2. The feature looked locally correct because its source validator was green. The consumer closure was not green.",
+      "tags": [
+        "module-registry",
+        "ownership-exclusions",
+        "generated-targets",
+        "compatibility",
+        "fixtures",
+        "phase-gates"
+      ],
+      "title": "Registry ownership metadata needs consumer-closure tests",
+      "top_keywords": [
+        "ownedassets",
+        "ownershipexclusions",
+        "tests",
+        "registry",
+        "ownership",
+        "metadata",
+        "consumer-closure",
+        "cap-help",
+        "expectedroute",
+        "problem"
+      ]
+    },
+    {
       "date": "2026-04-06",
       "entity_type": "strategy",
       "path": ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
@@ -20407,7 +20527,7 @@
       "entity_type": "feature",
       "path": "roadmap.json#cg-help-interactive",
       "slug": "cg-help-interactive",
-      "status": "idea",
+      "status": "active",
       "summary": "/cg-help — comprehensive interactive help system",
       "tags": [],
       "title": "/cg-help — comprehensive interactive help system",
@@ -22119,13 +22239,13 @@
       ]
     }
   ],
-  "entity_count": 770,
-  "generated": "2026-09-08",
+  "entity_count": 774,
+  "generated": "2026-09-09",
   "schema_version": "0.2.0",
   "topic_count": 6,
   "topics": [
     {
-      "entity_count": 540,
+      "entity_count": 542,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -22181,6 +22301,7 @@
         ".cg-docs/brainstorms/2026-08-13-skill-loading-architecture-context-efficiency.md",
         ".cg-docs/brainstorms/2026-08-28-compound-gpid-rd-command.md",
         ".cg-docs/brainstorms/2026-08-28-scalable-skill-management-suite.md",
+        ".cg-docs/brainstorms/2026-09-04-cg-help-command.md",
         ".cg-docs/brainstorms/2026-09-04-minimal-adaptive-grilling.md",
         ".cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-gsd-2-full-review.md",
@@ -22652,6 +22773,7 @@
         ".cg-docs/solutions/testing-patterns/2026-08-03-single-command-model-overrides-need-dedicated-roles-and-baseline-audits.md",
         ".cg-docs/solutions/testing-patterns/2026-08-10-evidence-manifest-tests-require-referenced-files.md",
         ".cg-docs/solutions/testing-patterns/2026-09-08-fact-first-prompts-need-branch-complete-tests.md",
+        ".cg-docs/solutions/testing-patterns/2026-09-09-registry-ownership-metadata-needs-consumer-closure-tests.md",
         ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
         ".cg-docs/strategy/2026-04-13-workflow-automation-research.md",
         ".cg-docs/strategy/2026-04-15-move-testing-skills-to-skills-enhancement.md",
