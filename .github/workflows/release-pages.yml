@@ -80,7 +80,7 @@ jobs:
             throw new Error("Invalid durable release payload.");
           }
           const root = "release-artifact";
-          const docs = path.join(root, "docs");
+          const docs = path.join(root, "site");
           const metadata = JSON.parse(fs.readFileSync(path.join(root, ".docs-build-metadata.json"), "utf8"));
           if (metadata.schemaVersion !== 1 || !metadata.site || !metadata.site.files) {
             throw new Error("Invalid documentation build metadata.");
@@ -114,7 +114,7 @@ jobs:
       - name: Upload verified release Pages artifact
         uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa  # v3.0.1
         with:
-          path: release-artifact/docs
+          path: release-artifact/site
 
       - name: Recheck release is still newest
         run: |
