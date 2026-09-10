@@ -1,5 +1,8 @@
 """Fast semantic contracts for secure stable and dev-prerelease publication."""
 
+import os
+import re
+import subprocess
 from pathlib import Path
 
 
@@ -73,9 +76,98 @@ def test_release_rulesets_and_exact_run_chain_are_required() -> None:
         "Assert-CgRemoteReleaseLineage",
         "Assert-CgRemoteTagCommit",
         "has no published GitHub Release",
-        "Method Delete",
+        "Get-CgReleaseReservation",
     ):
         assert contract in script
+    assert "-Method Delete" not in script
+    assert "-Method Patch" not in script
+    assert 'push origin --no-follow-tags "$tagObject`:refs/tags/$Tag"' in script
+    assert script.index('-Method Post -Body $payload') < script.index('actions/workflows/release-docs.yml/runs')
+    assert '"FINALIZED|' in script
+    assert 'make_latest = "false"' in script
+    assert 'Write-Host "RESERVED ($reservationStatus)' in script
+    assert 'Write-Host "FINALIZED:' in script
+
+
+def test_release_push_does_not_follow_other_annotated_tags(tmp_path: Path) -> None:
+    """The production push must publish only its raw-object refspec."""
+    push_flags = re.findall(
+        r'git -C \$PSScriptRoot push origin\s+([^"\r\n]*)'
+        r'"\$tagObject`:refs/tags/\$Tag"',
+        _read("create-release.ps1"),
+    )
+    assert len(push_flags) == 1
+    source = tmp_path / "source"
+    remote = tmp_path / "remote.git"
+    hooks = tmp_path / "empty-hooks"
+    source.mkdir()
+    hooks.mkdir()
+    env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
+    env.update(
+        GIT_CONFIG_NOSYSTEM="1",
+        GIT_CONFIG_GLOBAL=os.devnull,
+        GIT_ALLOW_PROTOCOL="file",
+    )
+
+    def git(*args: str) -> str:
+        return subprocess.run(
+            [
+                "git", "-C", str(source),
+                "-c", f"core.hooksPath={hooks.as_posix()}",
+                "-c", f"init.templateDir={hooks.as_posix()}",
+                "-c", "user.name=Release Test",
+                "-c", "user.email=release-test@example.invalid",
+                "-c", "commit.gpgSign=false",
+                "-c", "tag.gpgSign=false",
+                "-c", "push.gpgSign=false",
+                *args,
+            ],
+            env=env,
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        ).stdout.strip()
+
+    git("init")
+    git("init", "--bare", str(remote))
+    git("remote", "add", "origin", remote.as_posix())
+    git("commit", "--allow-empty", "-m", "Release fixture")
+    for tag in ("v1.2.0.9015", "v1.2.0.9016"):
+        git("tag", "-a", tag, "-m", tag, "HEAD")
+    tag_object = git("rev-parse", "refs/tags/v1.2.0.9015")
+    assert git("cat-file", "-t", tag_object) == "tag"
+
+    git(
+        "-c", "push.followTags=true", "push", "origin",
+        *push_flags[0].split(), f"{tag_object}:refs/tags/v1.2.0.9015",
+    )
+
+    assert git("ls-remote", "--tags", "--refs", "origin").splitlines() == [
+        f"{tag_object}\trefs/tags/v1.2.0.9015"
+    ]
+
+
+def test_generated_release_commands_reserve_before_docs_and_finalize() -> None:
+    for relative in RELEASE_PROMPTS:
+        prompt = _read(relative)
+        assert prompt.index("git tag -a <next-tag>") < prompt.index(".\\create-release.ps1 -Phase Reserve")
+        assert prompt.index(".\\create-release.ps1 -Phase Reserve") < prompt.index("Wait for the unprivileged `release-docs.yml`")
+        assert prompt.index("Wait for the unprivileged `release-docs.yml`") < prompt.index(".\\create-release.ps1 -Phase Finalize")
+        assert "git push origin <next-tag>" not in prompt
+        assert "no true distributed atomicity" in prompt
+        assert "canonical and generated evidence" in prompt
+        assert 'Every reservation sets `make_latest: "false"`, including stable tags' in prompt
+        assert "Neither Reserve nor Finalize promotes a Release" in prompt
+
+
+def test_release_identity_text_comparisons_are_case_sensitive() -> None:
+    script = _read("create-release.ps1")
+    assert "[string]$recordedPayload.name -cne $Name" in script
+    assert "[string]$Release.name -cne $ExpectedName" in script
+    assert "(ConvertTo-CgNormalizedReleaseText $Release.body) -cne" in script
+    assert "$_.head_sha -ceq $headCommit -and $_.head_branch -ceq $Tag" in script
+    assert "$_.name -ceq $controllerRunName -and $_.display_title -ceq $controllerRunName" in script
 
 
 def test_tag_build_is_unprivileged_and_dev_preview_controller_is_branch_local() -> None:
