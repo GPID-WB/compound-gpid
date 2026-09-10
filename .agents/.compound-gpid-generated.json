@@ -585,6 +585,13 @@
       "executable": false
     },
     {
+      "path": ".agents/shared/skill-management/release-attestations/v1.2.0.9015.json",
+      "source": ".github/shared/skill-management/release-attestations/v1.2.0.9015.json",
+      "kind": "shared",
+      "sha256": "858d7f11d9c2785d28aa64349a9ef1c0f739f07f39a4768c598e2ad72a736760",
+      "executable": false
+    },
+    {
       "path": ".agents/shared/snapshot-research-modes.json",
       "source": ".github/shared/snapshot-research-modes.json",
       "kind": "shared",
