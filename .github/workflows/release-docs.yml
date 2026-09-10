@@ -80,8 +80,8 @@ jobs:
             --main-ref "$RELEASE_TAG" \
             --dev-ref dev
 
-          - name: Require combined release metadata
-            run: test -f combined-artifact/.docs-build-metadata.json
+      - name: Require combined release metadata
+        run: test -f combined-artifact/.docs-build-metadata.json
 
       - name: Upload combined release documentation artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2

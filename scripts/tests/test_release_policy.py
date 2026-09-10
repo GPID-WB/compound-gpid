@@ -144,3 +144,18 @@ def test_combined_docs_build_checks_metadata_as_a_workflow_step() -> None:
         "            run: test -f combined-artifact/.docs-build-metadata.json\n"
         not in workflow
     )
+
+
+def test_release_docs_build_checks_metadata_as_a_workflow_step() -> None:
+    workflow = _read(".github/workflows/release-docs.yml")
+
+    assert (
+        "\n      - name: Require combined release metadata\n"
+        "        run: test -f combined-artifact/.docs-build-metadata.json\n"
+        in workflow
+    )
+    assert (
+        "\n          - name: Require combined release metadata\n"
+        "            run: test -f combined-artifact/.docs-build-metadata.json\n"
+        not in workflow
+    )
