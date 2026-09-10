@@ -315,7 +315,7 @@
       "path": ".opencode/commands/cg-release.md",
       "source": ".github/prompts/cg-release.prompt.md",
       "kind": "command",
-      "sha256": "61375747b512ee99bb0c4609eeb418586c40a7375600031e9ebf69e83c6c5161",
+      "sha256": "03268fdd22928f6709f8646a2d36417590efb0e17c0531233f4035835639dfc8",
       "executable": false
     },
     {

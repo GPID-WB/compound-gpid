@@ -52,8 +52,9 @@ Parse optional arguments from the user's invocation message before running any s
   must match `^v\d+\.\d+\.\d+(\.\d+)?$`; do not combine it with `--since` or
   the new-release `<tag>` argument. Resume skips
   the new-release scan, payload creation, commit, and tag creation steps. It
-  validates the committed immutable payload and exact tag, waits for that tag's
-  Pages deployment, then retries only the unfinished GitHub Release API call.
+  validates the committed immutable payload and exact annotated tag, repairs or
+  verifies the Release reservation first, then resumes deployment and Finalize.
+  Explicit user confirmation is still required before Reserve or Finalize.
 
 ## Process
 
@@ -284,26 +285,27 @@ If the user wants to edit the notes, pause — they will edit `RELEASE_NOTES.md`
 
 ### Step 5: Create and publish the durable release source
 
-On explicit confirmation, do **not** call `create-release.ps1` yet. The durable
-release payload, its exact tag, and the tag documentation deployment must exist
-first.
+On explicit confirmation, prepare and merge the durable payload before creating
+the local tag. Reserve then owns the tag push and immediate matching non-draft
+Release creation, before any documentation query or wait.
 
 1. Require a clean, up-to-date `<release-branch>` checkout before writing payloads:
 
    ```powershell
    git status --porcelain
    git fetch origin <release-branch> --tags
-   git branch --show-current
    git rev-parse HEAD
    git rev-parse origin/<release-branch>
    ```
 
    Halt if status has tracked or untracked changes (other than ignored
-   `RELEASE_NOTES.md`), the branch is not `<release-branch>`, or `HEAD` differs
+   `RELEASE_NOTES.md`), or `HEAD` differs
    from `origin/<release-branch>`. Halt safely on a non-fast-forward release
    branch rather than creating a release from a stale checkout. Do not require
    a four-component prerelease commit on `dev` to contain the current `main`
    tip; exact `origin/dev` lineage is the prerelease authorization boundary.
+   A clean detached checkout at the exact authorized commit is allowed. Prepare
+   payload changes on a feature branch for the reviewed PR below.
 
 2. Extract exactly one fenced JSON object from the scanner's `## Release
    Payload` section. Parse it before writing any payload. It must contain only a
@@ -361,7 +363,16 @@ first.
    If no staged diff exists because both payload files are already byte-identical,
    do not create an empty commit.
 
-6. Verify the required active repository rulesets before creating the tag:
+6. Push the payload feature branch and open a reviewed PR to `<release-branch>`.
+   Require all tests green before merging. Do not tag the unmerged feature commit
+   or a local payload commit. After merge, fetch `<release-branch>` and check out
+   its exact current remote commit with the payload present. Verify clean status
+   and `HEAD == origin/<release-branch>` again. Never bypass protected-branch PR
+   requirements with a direct release-branch push.
+   Use `--no-follow-tags` for this feature-branch push so `push.followTags=true`
+   cannot publish unrelated annotated local tags before Reserve.
+
+   Verify the required active repository rulesets before creating the tag:
    `Protect release tags` must block all updates and deletions for
    `refs/tags/v*` without bypass actors; `Restrict release tag creation` must
    restrict creation of `refs/tags/v*` to repository administrators; and
@@ -369,34 +380,51 @@ first.
    without bypass actors. Halt before tag creation if any rule is absent or
    weaker than this contract.
 
-7. Verify or create the exact tag on the clean payload commit, then push the
-   release branch and tag. Do not use an unconditional `git tag` command:
+7. Verify or create the exact annotated LOCAL tag on the clean merged payload
+   commit. Do not push the tag manually. Do not use an unconditional `git tag` command:
 
    ```powershell
    git status --porcelain
    $head = (git rev-parse HEAD).Trim()
    $existing = git rev-parse --verify "<next-tag>^{commit}" 2>$null
    if ($LASTEXITCODE -eq 0) {
-     if ($existing.Trim() -ne $head) { throw "Existing tag <next-tag> points to another commit." }
+     if ($existing.Trim() -cne $head) { throw "Existing tag <next-tag> points to another commit." }
+     if ((git cat-file -t refs/tags/<next-tag>).Trim() -cne "tag") { throw "Annotated tag required." }
    } else {
-     git tag <next-tag>
+     git tag -a <next-tag> -m "Release <next-tag>" $head
    }
-   git push origin <release-branch>
-   git push origin <next-tag>
-   $remote = git ls-remote --tags origin refs/tags/<next-tag>
-   if ($remote -notmatch $head) { throw "Remote tag <next-tag> does not resolve to the payload commit." }
    ```
 
-   If the tag already exists, it must resolve to the current clean `HEAD`; if it
-   resolves elsewhere, halt. If either push fails, halt and report the committed
-   payload/tag state so a maintainer can resume without overwriting a release
-   record.
+   If the tag already exists, it must be annotated and resolve to the current
+   clean `HEAD`; otherwise halt without replacing it. Reserve verifies both the
+   raw tag-object SHA and peeled commit when the remote tag already exists.
+
+   With the confirmed final name and exact final `RELEASE_NOTES.md` body, run:
+
+   ```powershell
+   .\create-release.ps1 -Phase Reserve -Tag <tag> -Name "<name>" -NotesFile RELEASE_NOTES.md
+   ```
+
+   Reserve runs local, payload, exact-tree native, credential, ruleset, historical
+   release, and existing-release conflict checks before the first tag push. It
+   requires exact current `origin/<release-branch>` for a new remote tag. It pushes
+   only that annotated tag and immediately creates its matching non-draft Release.
+   Every reservation sets `make_latest: "false"`, including stable tags, so an
+   unvalidated reservation is not promoted to GitHub's latest stable release.
+   There is no true distributed atomicity between Git and the GitHub API. On an
+   uncertain push or POST, reconcile exact tag and Release state read-only. Never
+   blindly repeat POST, force a tag push, or delete/PATCH a Release as rollback.
+
+   Read `release-result.txt`: `CREATED|` and `EXISTS|` confirm the reservation only,
+   NOT lifecycle completion. If absent or the script fails, halt and report the
+   known pair state. Resume Reserve to reconcile or repair before downstream gates.
 
 8. Wait for the unprivileged `release-docs.yml` push run for the exact tag and
    commit. Verify its successful conclusion and record its database ID. Then
    identify the successful `release-pages.yml` `workflow_run` controller whose run name
    is exactly `Deploy docs from <release-docs database ID>`. Halt on a missing,
-   failed, or mismatched build or deployment. The controller must already exist
+   failed, or mismatched build or deployment, but leave the Release and tag intact.
+   Record the controller database ID too. The controller must already exist
    on protected `main`. Do not invoke `/cg-wiki` or
    rebuild documentation from this prompt; the release build and protected
    controller own the immutable complete-build deployment.
@@ -423,47 +451,67 @@ node scripts/generate-whats-new.js --validate-payload releases/latest.json
 node scripts/generate-whats-new.js --validate-release-set
 ```
 
-The local and remote `<tag>` must resolve to the clean `HEAD`, and that commit
-must remain on the authorized `<release-branch>` lineage. The immutable payload
-must be present and valid. Then wait for the exact tag-site deployment as in Step 5.8.
-If it failed, resume the deployment before the API record. If it succeeded but
-the API record is absent, recreate `RELEASE_NOTES.md` from the recorded
-scanner/release context and run Step 6 only. Never overwrite an immutable
-payload or create a new tag during resume.
+The annotated local and remote `<tag>` must match in raw tag-object SHA and peeled
+commit at clean `HEAD`; that commit must remain on the authorized
+`<release-branch>` lineage. If only the local tag exists, Reserve may push it only
+at exact current `origin/<release-branch>`. The immutable payload must be present
+and valid. Restore the exact previously confirmed title and notes from the
+recorded release context; do not invent replacement metadata. Present the exact
+tag, payload, name, body, and remote pair state and obtain explicit confirmation.
+Run `-Phase Reserve` first to repair or verify the reservation, BEFORE any
+documentation wait. Then resume Step 5.8 and Step 6. Never overwrite an immutable
+payload or create a new tag during resume. Never delete an existing Release on
+downstream failure. The only allowed untracked change is the exact canonical
+attestation for this tag, which the script verifies byte-for-byte for retry.
 
-### Step 6: Publish the GitHub Release API record
+### Step 6: Finalize And Commit Evidence
 
-Only after Step 5 has committed/validated the payload, verified the exact pushed
-tag, and observed successful tag-site deployment, run:
+Only after Reserve has confirmed the exact tag/Release pair and Step 5.8 has
+observed successful tag-site deployment, run with the recorded exact run IDs:
 
 ```powershell
-.\create-release.ps1 -Tag <tag> -Name "<name>" -NotesFile RELEASE_NOTES.md
+.\create-release.ps1 -Phase Finalize -Tag <tag> -Name "<name>" -NotesFile RELEASE_NOTES.md -BuildRunId <build-id> -PagesRunId <pages-id>
 ```
 
-The script must also create or verify the release-attestation entry for the exact
-tag after the published release is confirmed. Treat an attestation failure as a
-failed release workflow even if the GitHub API record already exists; do not
-fabricate or edit the attestation manually.
+Finalize must not push tags or create, edit, or delete Releases. It requires the
+existing exact Release, successful `release-docs.yml` push run at the tag SHA,
+and successful `release-pages.yml` controller `Deploy docs from <build-id>`, then
+creates or verifies the canonical release-attestation entry. The optional run IDs
+avoid ambiguity after retries; without IDs the exact chain must be unique.
+An attestation failure leaves the pair intact but blocks lifecycle completion.
+Do not fabricate or edit an attestation manually. Do not create lifecycle
+attestation for withdrawn `v1.2.0.9014`.
 
 Draft releases are not supported by this durable publication flow. Do not pass
 `-Draft`; halt if a draft is requested.
 Add `-Prerelease` whenever `<prerelease>` is `true`. Four-component tags always
 set it to `true`; do not publish `vX.Y.Z.<build>` as a stable GitHub Release.
 
-After the script completes, read `release-result.txt`:
-- If it starts with `CREATED|` — extract the URL and report success:
-  > Release published: <url>
-- If it starts with `EXISTS|` — report idempotency:
-  > A release for <tag> already exists: <url>. No changes were made.
-- If the script errored — report the error message and suggest checking GCM authentication:
-  > Authentication check: run `"protocol=https`nhost=github.com`n" | git credential fill` to verify a token is available.
-- If `release-result.txt` is absent, or starts with neither `CREATED|` nor `EXISTS|`:
-  > Release script may have failed — check GitHub releases manually before retrying.
+After Finalize, require `FINALIZED|<id>|<url>` in `release-result.txt`. A missing
+result or error is a failed workflow; do not claim completion from stale output.
+Never display credential helper output during authentication diagnosis.
+
+Then run `python scripts/cg_generate_targets.py --all`. Review the canonical
+attestation, all generated attestation copies, and ownership manifests. Run the
+required Python tests, canonical safe Pester, and native preflight. Through a
+reviewed PR to `<release-branch>` with tests green before merge, commit the
+canonical and generated evidence. Only after those records are committed and
+verified may you report lifecycle completion with the Release URL. The reservation
+remains published if evidence generation, tests, or the evidence PR fails.
+Neither Reserve nor Finalize promotes a Release to GitHub's latest stable release.
+Any later stable promotion is a separate, explicitly authorized maintainer action
+after all deployment, attestation, test, and evidence-commit gates have passed.
+Do not add a promotion PATCH to either phase or treat reservation as promotion approval.
 
 ## Rules
 
 - Never run `create-release.ps1` without explicit user confirmation in Step 4,
-  validated durable payloads, an exact pushed tag, and a successful tag-site deployment.
+  or the equivalent resume confirmation. Reserve requires validated merged
+  payloads and the exact annotated local tag. Finalize additionally requires the
+  published pair and successful exact tag-site deployment.
+- Never manually push a bare release tag in normal release instructions. Reserve
+  owns the tag push plus immediate Release. Never delete/PATCH a Release or move
+  a protected tag to recover from downstream failures.
 - Never modify `SCHEMA_VERSION` automatically. Warn only.
 - Require stable three-component tags on `main` and four-component prerelease
   tags on `dev`; never weaken this branch/tag matrix.

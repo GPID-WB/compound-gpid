@@ -4247,7 +4247,9 @@ Describe "cg-release.prompt.md - dispatches cg-release-scanner" {
     }
 
     It "catch-all when release-result.txt is absent or unrecognized" {
-        ($content -match 'may have failed|release-result\.txt.*absent|neither.*CREATED') | Should -Be $true
+        ($content -match 'After Finalize, require `FINALIZED\|<id>\|<url>`') | Should -Be $true
+        ($content -match '(?s)A missing\s+result or error is a failed workflow') | Should -Be $true
+        ($content -match 'do not claim completion from stale output') | Should -Be $true
     }
 
     It "documents halt condition when scanner returns no output" {

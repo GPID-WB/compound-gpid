@@ -173,15 +173,18 @@ Describe "Release payload sequencing contracts" {
         $payloadIndex = $releasePrompt.IndexOf('releases/<next-tag>.json')
         $validateIndex = $releasePrompt.IndexOf('--validate-payload releases/<next-tag>.json')
         $commitIndex = $releasePrompt.IndexOf('chore(release): prepare <next-tag> payload')
-        $tagIndex = $releasePrompt.IndexOf('git tag <next-tag>')
+        $tagIndex = $releasePrompt.IndexOf('git tag -a <next-tag>')
         $deployIndex = $releasePrompt.IndexOf('Wait for the unprivileged `release-docs.yml`')
-        $apiIndex = $releasePrompt.IndexOf('.\create-release.ps1 -Tag <tag>')
+        $apiIndex = $releasePrompt.IndexOf('.\create-release.ps1 -Phase Reserve')
+        $finalizeIndex = $releasePrompt.IndexOf('.\create-release.ps1 -Phase Finalize')
         $payloadIndex | Should -BeGreaterThan -1
         $validateIndex | Should -BeGreaterThan $payloadIndex
         $commitIndex | Should -BeGreaterThan $validateIndex
         $tagIndex | Should -BeGreaterThan $commitIndex
         $deployIndex | Should -BeGreaterThan $tagIndex
-        $apiIndex | Should -BeGreaterThan $deployIndex
+        $apiIndex | Should -BeGreaterThan $tagIndex
+        $apiIndex | Should -BeLessThan $deployIndex
+        $finalizeIndex | Should -BeGreaterThan $deployIndex
     }
 
     It "uses record delimiters, idempotent tag handling, and an explicit resume path" {
@@ -200,7 +203,8 @@ Describe "Release payload sequencing contracts" {
         $releasePrompt | Should -Match 'Set `<release-branch>` to `dev` when `<prerelease>` is `true`; otherwise set it[\s\S]*to `main`'
         $releasePrompt | Should -Match 'git fetch origin <release-branch> --tags'
         $releasePrompt | Should -Match 'git rev-parse origin/<release-branch>'
-        $releasePrompt | Should -Match 'git push origin <release-branch>'
+        $releasePrompt | Should -Match 'Require all tests green before merging'
+        $releasePrompt | Should -Not -Match 'git push origin <next-tag>|git push origin <release-branch>'
         $releasePrompt | Should -Not -Match 'merge-base --is-ancestor origin/main HEAD'
         $releasePrompt | Should -Match 'exact `origin/dev` lineage is the prerelease authorization boundary'
         $releasePrompt | Should -Not -Match 'Require a clean, up-to-date `main` checkout before writing payloads'
