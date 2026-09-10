@@ -445,7 +445,10 @@ function Get-CgPublishedReleases {
     <# Paginate authenticated releases, including drafts; reject duplicate identities. #>
     $byTag = @{}
     for ($page = 1; $page -le 100; $page++) {
-        $items = @(Invoke-CgReleaseApi -Uri "https://api.github.com/repos/GPID-WB/compound-gpid/releases?per_page=100&page=$page")
+        # Assign first: Invoke-RestMethod emits the JSON array as one pipeline object.
+        $pageResponse = Invoke-CgReleaseApi -Uri "https://api.github.com/repos/GPID-WB/compound-gpid/releases?per_page=100&page=$page"
+        if ($null -eq $pageResponse) { throw "Incomplete GitHub release list." }
+        $items = @($pageResponse)
         foreach ($item in $items) {
             if ($null -eq $item -or -not $item.PSObject.Properties["tag_name"] -or
                 [string]::IsNullOrWhiteSpace([string]$item.tag_name)) { throw "Incomplete GitHub release list." }
