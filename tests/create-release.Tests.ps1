@@ -406,6 +406,7 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
             Tag = "v1.2.0.9015"; Head = ('a' * 40); Object = ('b' * 40); Tip = ('a' * 40)
             Remote = $false; RemoteObject = ('b' * 40); RemoteCommit = ('a' * 40)
             TagType = "tag"; Release = $null; DraftOnly = $false; Duplicate = $false
+            ListExtras = @()
             LookupError = 0; PostMode = "success"; PushMode = "success"; Dirty = @()
             PreflightExit = 0; AttestationExit = 0; CheckExit = 0; NodeExit = 0
             DocsStatus = "success"; PagesStatus = "success"; BadChain = $false
@@ -504,10 +505,11 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
                 }
             }
             if ($Uri -match '/releases\?') {
-                if ($script:state.DraftOnly) { $draft = $script:expected.PSObject.Copy(); $draft.draft = $true; return $draft }
-                if ($script:state.Duplicate) { return @($script:expected, $script:expected) }
-                if ($null -ne $script:state.Release) { return $script:state.Release }
-                return @()
+                # Invoke-RestMethod emits the JSON array as one pipeline object.
+                if ($script:state.DraftOnly) { $draft = $script:expected.PSObject.Copy(); $draft.draft = $true; return ,@($draft) }
+                if ($script:state.Duplicate) { return ,@($script:expected, $script:expected) }
+                if ($null -ne $script:state.Release) { return ,@($script:state.ListExtras + @($script:state.Release)) }
+                return ,@($script:state.ListExtras)
             }
             if ($Uri -match '/releases/tags/') {
                 $code = $script:state.LookupError
@@ -574,6 +576,19 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
         Invoke-FixtureRelease
         Get-Content (Join-Path $script:fixture 'release-result.txt') | Should -Match '^EXISTS\|'
         ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post|actions/'
+    }
+    It 'accepts multiple records in a non-enumerated REST array' {
+        $script:state.ListExtras = @(
+            [pscustomobject]@{ tag_name = 'v1.0.0' },
+            [pscustomobject]@{ tag_name = 'v1.1.0' }
+        )
+        Invoke-FixtureRelease
+        Get-Content (Join-Path $script:fixture 'release-result.txt') | Should -Match '^CREATED\|123\|'
+    }
+    It 'rejects a null entry inside a non-enumerated REST array before pushing' {
+        $script:state.ListExtras = @($null)
+        { Invoke-FixtureRelease } | Should -Throw 'Incomplete GitHub release list'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
     }
     It 'reserves a stable release only from exact origin/main without requiring a branch name' {
         Remove-Item (Join-Path $script:fixture 'releases/v1.2.0.9015.json')
