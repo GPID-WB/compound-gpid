@@ -18,6 +18,7 @@ For a guided first research workflow, use the [Research Handbook](../research/in
 |---|---|---|
 | Project direction is unclear | `/cg-strategy` | `/cg-ideate`, then `/cg-brainstorm` |
 | One requirement is fuzzy | `/cg-brainstorm` | `/cg-plan` |
+| One small technical task qualifies | `/cg-light-work <task>` | Mandatory light Review, then optional compounding |
 | The task is known | `/cg-plan` | `/cg-plan-review` when consequential, then `/cg-work` |
 | A bug can be reproduced | `/cg-fixbug` | Review and compound after verification |
 | A plan already exists | `/cg-work` | `/cg-review`, `/cg-fix-triage` |
@@ -39,10 +40,18 @@ Understand -> Plan -> Deliver -> Assure -> Resolve -> Remember
 /cg-brainstorm -> /cg-plan -> /cg-work -> /cg-review -> /cg-fix-triage -> /cg-compound
 ```
 
-Not every task needs every step. Lightweight work may begin at planning or
-implementation. High-risk analytical, schema, credential, publishing, install,
-or destructive-file changes should not bypass appropriate review and executed
-evidence.
+`/cg-light-work` is only for a qualified small technical task. Its first user
+gate approves a saved Plan before source edits. It then writes a Work Report and
+Review Report, runs the fixed mandatory light Review with `@cg-code-quality` and
+`@cg-testing`, and permits one initial pass plus one verification pass only when
+Review fixes changed files. Its second user gate is explicit compounding opt-in;
+skip creates no permanent knowledge side effect.
+
+Reproducible bugs use `/cg-fixbug`. Research, statistical, and publication work
+uses `/cr-*`. Larger, ambiguous, security-sensitive, schema, dependency, or
+destructive work uses `/cg-brainstorm` -> `/cg-plan` -> `/cg-work`. `/cg-work`
+executes approved saved Plans and redirects unmatched inline tasks without
+dispatching them.
 
 ## Focused guides
 

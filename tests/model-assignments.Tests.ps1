@@ -44,8 +44,8 @@ Describe "Model assignments - prompt files" {
         $promptFiles += Get-Item $releasePrompt
     }
 
-    It "contains exactly 32 prompt files - update this sentinel when changing prompts" {
-        $promptFiles.Count | Should -Be 32
+    It "contains exactly 33 prompt files - update this sentinel when changing prompts" {
+        $promptFiles.Count | Should -Be 33
     }
 
     foreach ($file in $promptFiles) {

@@ -375,3 +375,7 @@ Wiki-aware prompts (`/cg-wiki`, `/cg-compound`) read these HTML comment directiv
   expected-state publication.
 - Test the real final secure-write boundary and assert exact source restoration,
   not only mocked writer failure.
+- Validate every registry identity field before building keyed maps or sets.
+  Require non-empty string values, test each duplicate field independently, and
+  call validation next to the canonical registry before derived constants. See
+  `.cg-docs/solutions/data-quality/2026-09-09-validate-registry-identities-before-derived-maps.md`.

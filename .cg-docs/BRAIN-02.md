@@ -1,11 +1,41 @@
 # 🧠 Project Brain — Part 2
 
-_Generated 2026-09-08_
+_Generated 2026-09-10_
 
-## Roadmap.Json / Test Scenarios / Prompt-Tools.Tests.Ps1 _(continued from Part 1)_
+## Roadmap.Json / Test Scenarios / Cg-Work _(continued from Part 1)_
 
-_Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 118 entities
+_Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 135 entities
 
+- **[Skills are not slash-command prompts — avoid advertising them as /skill-name](.cg-docs/solutions/environment-issues/2026-03-02-skill-vs-prompt-slash-command.md)** · `solution` · _—_ · `2026-03-02`
+  > Documentation (README, manual) instructed users to run `/cg-setup` in Copilot Chat to configure their project. Howeve…
+- **[Troubleshooting documentation belongs in manual, not README](.cg-docs/solutions/environment-issues/2026-03-13-troubleshooting-doc-structure-readme-vs-manual.md)** · `solution` · _—_ · `2026-03-13`
+  > A troubleshooting section was added to `README.md` during a hotfix (documenting a `cg-update` bootstrap failure). Bec…
+- **[Multi-day VS Code session \(68h\) accumulates event listeners — unresponsive freeze and controlled restart](.cg-docs/solutions/environment-issues/2026-04-24-multi-day-vscode-session-accumulates-listeners-crashes.md)** · `solution` · _—_ · `2026-04-24`
+  > After a multi-priority fix-triage session (P0→P1→P2→P3) spanning multiple hours, VS Code became unresponsive and rest…
+- **[Join-Path with embedded backslash path separator is Windows-only](.cg-docs/solutions/environment-issues/2026-05-13-join-path-backslash-not-cross-platform.md)** · `solution` · _—_ · `2026-05-13`
+  > On Windows, `Join-Path $base "subdir\file.txt"` works correctly, producing `$base\subdir\file.txt`. The same call on …
+- **[Codex and Claude Code need an AGENTS.md adapter to execute GitHub Copilot /cg-* prompts](.cg-docs/solutions/environment-issues/2026-06-06-codex-claude-code-cg-prompt-dispatch-adapter.md)** · `solution` · _—_ · `2026-06-06`
+  > Compound GPID's workflow assets live under `.github/` and were originally designed for GitHub Copilot: - `.github/pro…
+- **[Cross-agent adapters should be opt-in source packages](.cg-docs/solutions/environment-issues/2026-06-23-cross-agent-adapters-are-opt-in-source-packages.md)** · `solution` · _—_ · `2026-06-23`
+  > The root `AGENTS.md` adapter made this repository usable from Codex and Claude Code-compatible agents, but consumer p…
+- **[Cross-agent native platform trees require a generator, drift tests, and consistent Python resolution](.cg-docs/solutions/environment-issues/2026-07-03-cross-agent-native-platform-trees-require-generator-drift-tests-consistent-python.md)** · `solution` · _—_ · `2026-07-03`
+  > Compound GPID's `.github/` assets were designed for GitHub Copilot. Supporting Claude Code, Codex, and OpenCode requi…
+- **[Kilo coexistence requires a certified contained launch and no-follow local copies](.cg-docs/solutions/environment-issues/2026-08-14-kilo-contained-launch-and-no-follow-copy.md)** · `solution` · _—_ · `2026-08-14`
+  > When Kilo, Codex, and Claude-compatible roots coexist in one project, Kilo can discover skills outside the project-lo…
+- **[Manifest-driven install gate prevents junction conflicts with projection synchronizer](.cg-docs/solutions/environment-issues/2026-08-17-manifest-driven-install-gate-prevents-junction-conflicts.md)** · `solution` · _—_ · `2026-08-17`
+  > `link.ps1`/`link.sh` create directory junctions for `.agents/*`, `.claude/*`, `.opencode/*` installUnits before the p…
+- **[git stderr swallowed by 2>&1 redirect into an unused variable](.cg-docs/solutions/git-workflows/2026-03-04-git-pull-stderr-swallowed-by-redirect.md)** · `solution` · _—_ · `2026-03-04`
+  > A script captured git output like this: The intent was to capture output so it could be formatted. In practice: - `2>…
+- **[PS5.1 ErrorActionPreference=Stop promotes git informational stderr into terminating errors](.cg-docs/solutions/git-workflows/2026-03-05-ps51-stderr-stop-terminates-on-git-informational-output.md)** · `solution` · _—_ · `2026-03-05`
+  > After removing `2>$null` from `git checkout .` (following the general rule "don't suppress stderr"), the script start…
+- **[Checklist for consolidating \(merging/renaming\) VS Code Copilot skills](.cg-docs/solutions/git-workflows/2026-03-22-skill-consolidation-checklist.md)** · `solution` · _—_ · `2026-03-22`
+  > When two skills (`cg-skill-stata-core` + `cg-skill-stata-research`) were merged into `cg-skill-stata-best-practices`,…
+- **[.cg-docs/ must not be gitignored — institutional knowledge must be committed](.cg-docs/solutions/git-workflows/2026-03-23-cg-docs-must-not-be-gitignored.md)** · `solution` · _—_ · `2026-03-23`
+  > `.cg-docs/` contains the primary knowledge output of the Compound Engineering workflow: brainstorms, plans, and solut…
+- **[Idempotent .gitignore block management with remove-then-rewrite](.cg-docs/solutions/git-workflows/2026-03-23-idempotent-gitignore-block-management.md)** · `solution` · _—_ · `2026-03-23`
+  > A tool (Compound GPID's `cg-link`) maintains a named section in the project's `.gitignore`. When the set of managed e…
+- **[Charter drift prevention: four-section rule + archive-on-removal + staleness nudge](.cg-docs/solutions/git-workflows/2026-04-01-charter-drift-prevention.md)** · `solution` · _—_ · `2026-04-01`
+  > `compound-gpid.md` is read at the start of every Copilot session via "Step 0: Get Bearings" — it is the shared source…
 - **[gh pr create: use --body-file not inline --body to prevent shell injection](.cg-docs/solutions/git-workflows/2026-05-14-gh-pr-create-use-body-file-not-inline-body.md)** · `solution` · _—_ · `2026-05-14`
   > A prompt using `gh pr create --title "..." --body "<plan content>"` passes the PR body inline on the command line. Wh…
 - **[git log without --first-parent double-counts upstream merge commits when measuring branch-local work](.cg-docs/solutions/git-workflows/2026-05-14-git-log-first-parent-for-branch-local-commits.md)** · `solution` · _—_ · `2026-05-14`
@@ -210,6 +240,10 @@ _Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 11
   > `/cr-work` needed to move from `GPT-5.3-Codex` to `GPT-5.6 Luna` without changing any other prompt or agent. The imme…
 - **[Evidence manifest tests must require referenced files to exist and be non-empty before hashing](.cg-docs/solutions/testing-patterns/2026-08-10-evidence-manifest-tests-require-referenced-files.md)** · `solution` · _—_ · `2026-08-10`
   > The Schema 2 evidence manifest test (`scripts/evidence/tests/manifest.test.js`) verified that recorded SHA-256 hashes…
+- **[gh CLI fixture JSON keys must match what the client actually parses](.cg-docs/solutions/testing-patterns/2026-08-10-gh-cli-fixture-json-keys-must-match-client-parsing.md)** · `solution` · _—_ · `2026-08-10`
+  > The readiness validator's offline fixture (`scripts/tests/fixtures/ready_issue.json`) supplies mocked GitHub state to…
+- **[Release-gate fixtures must mirror runtime commands and derived evidence hashes](.cg-docs/solutions/testing-patterns/2026-08-13-release-gate-fixtures-and-derived-evidence-hashes.md)** · `solution` · _—_ · `2026-08-13`
+  > The final release gate reported two failures in `test_release_gate_targets.py`: - The checkout-mismatch test expected…
 - **[Fact-first interactive prompts need branch-complete tests](.cg-docs/solutions/testing-patterns/2026-09-08-fact-first-prompts-need-branch-complete-tests.md)** · `solution` · _—_ · `2026-09-08`
   > An adaptive prompt can contain all required phrases and still execute the wrong workflow. In `/cg-brainstorm`, the pr…
 - **[Full backlog structuring into five milestones](.cg-docs/strategy/2026-04-06-full-backlog-structuring.md)** · `strategy` · _—_ · `2026-04-06`
@@ -248,7 +282,7 @@ _Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 11
 _Keywords: `architecture research
 objective` · `ongoing ideas
 objective` · `workflow maturity
-objective`_ · 155 entities
+objective`_ · 160 entities
 
 - **[@cg-fix-problems agent \(auto-dispatched by /cg-work\)](roadmap.json#cg-fix-problems-agent)** · `feature` · _done_ · `—`
   > @cg-fix-problems agent (auto-dispatched by /cg-work)
@@ -292,8 +326,8 @@ objective`_ · 155 entities
   > Scalable Skill Management Suite
 - **[Project-authored skills](roadmap.json#project-authored-skills)** · `feature` · _idea_ · `—`
   > Project-authored skills
-- **[Skill discovery metadata and trigger-quality audit](roadmap.json#skill-description-consistency-audit)** · `feature` · _idea_ · `—`
-  > Skill discovery metadata and trigger-quality audit
+- **[Skill description consistency audit and optimization](roadmap.json#skill-description-consistency-audit)** · `feature` · _idea_ · `—`
+  > Skill description consistency audit and optimization
 - **[Testing skill for Python \(pytest/parametrize/monkeypatch\)](roadmap.json#testing-skill-python)** · `feature` · _idea_ · `—`
   > Testing skill for Python (pytest/parametrize/monkeypatch)
 - **[Testing skill for Stata \(assert-based/reprun\)](roadmap.json#testing-skill-stata)** · `feature` · _done_ · `—`
@@ -306,6 +340,10 @@ objective`_ · 155 entities
   > Shared sensitive-data and output-hygiene contract
 - **[Reusable report source provenance and verification](roadmap.json#exemplar-source-pack-schema)** · `feature` · _idea_ · `—`
   > Reusable report source provenance and verification
+- **[Skill description length cap with test enforcement \[from CE\]](roadmap.json#skill-description-length-cap)** · `feature` · _idea_ · `—`
+  > Skill description length cap with test enforcement [from CE]
+- **[CR ML Skill Redesign for Econometricians](roadmap.json#cr-ml-skill-redesign-for-econometricians)** · `feature` · _done_ · `—`
+  > CR ML Skill Redesign for Econometricians
 - **[Slim project-specific copilot-instructions.md \(generated by cg-link/cg-setup\)](roadmap.json#slim-copilot-instructions)** · `feature` · _done_ · `—`
   > Slim project-specific copilot-instructions.md (generated by cg-link/cg-setup)
 - **[compound-gpid.context.md file and Step 0 integration in all prompts](roadmap.json#project-context-file)** · `feature` · _done_ · `—`
@@ -444,6 +482,8 @@ objective`_ · 155 entities
   > Automated Documentation Deployment and What's New Page
 - **[Dual-Deployment: Dev Branch Docs at /dev/](roadmap.json#dual-deployment-dev-branch-docs-at-dev)** · `feature` · _idea_ · `—`
   > Dual-Deployment: Dev Branch Docs at /dev/
+- **[Unified /cg-light-work command for small technical tasks](roadmap.json#unified-cg-light-work-command-for-small-technical-tasks)** · `feature` · _done_ · `—`
+  > Unified /cg-light-work command for small technical tasks
 - **[Full-scope indexer \(all .cg-docs/ + roadmap features\)](roadmap.json#brain-full-scope-indexer)** · `feature` · _done_ · `—`
   > Full-scope indexer (all .cg-docs/ + roadmap features)
 - **[Topic/theme extraction \(auto-cluster artifacts into concepts\)](roadmap.json#brain-topic-extraction)** · `feature` · _done_ · `—`
@@ -532,6 +572,10 @@ objective`_ · 155 entities
   > Manifest-backed skills discovery catalog and /cg-skills
 - **[Capture the learning](roadmap.json#token-optimization-compound)** · `feature` · _idea_ · `—`
   > Capture the learning
+- **[Assign GPT-5.6 Luna to /cr-work with native-target governance](roadmap.json#cr-work-gpt-5-6-luna-model-governance)** · `feature` · _done_ · `—`
+  > Assign GPT-5.6 Luna to /cr-work with native-target governance
+- **[Baseline model-catalog coverage for remaining CR prompts](roadmap.json#cr-prompt-model-catalog-baseline)** · `feature` · _idea_ · `—`
+  > Baseline model-catalog coverage for remaining CR prompts
 - **[Workflow suitability criteria and non-goals](roadmap.json#workflow-suitability-criteria)** · `feature` · _idea_ · `—`
   > Workflow suitability criteria and non-goals
 - **[Project scanner workflow-evidence analysis](roadmap.json#project-scanner-workflow-evidence)** · `feature` · _idea_ · `—`
@@ -561,10 +605,10 @@ objective`_ · 155 entities
 - **[Pilot evaluation gate before broader default exposure](roadmap.json#workflow-pilot-evaluation-gate)** · `feature` · _idea_ · `—`
   > Pilot evaluation gate before broader default exposure
 
-## Expand Compound Research / Responsible Research Partner Objective / Measurement
+## Expand Compound Research / Responsible Research Partner Objective / Research
 
 _Keywords: `expand compound research` · `responsible research partner
-objective` · `measurement`_ · 7 entities
+objective` · `research`_ · 9 entities
 
 - **[CR evidence and provenance spine with repo-local corpus default](roadmap.json#cr-evidence-provenance-spine)** · `feature` · _done_ · `—`
   > CR evidence and provenance spine with repo-local corpus default
@@ -580,6 +624,10 @@ objective` · `measurement`_ · 7 entities
   > Validate the Measurement archetype with a second use case
 - **[Team-level evidence library](roadmap.json#cr-team-evidence-library)** · `feature` · _idea_ · `—`
   > Team-level evidence library
+- **[CR Local Evidence Workbench for Verifiable Research Claims](roadmap.json#cr-local-evidence-workbench-for-verifiable-research-claims)** · `feature` · _done_ · `—`
+  > CR Local Evidence Workbench for Verifiable Research Claims
+- **[Root-level c-research output workspace and migration](roadmap.json#root-level-c-research-output-workspace-and-migration)** · `feature` · _done_ · `—`
+  > Root-level c-research output workspace and migration
 
 ## Scripts/Cg_Kilo_Preflight.Py / Link.Sh / Cg_Kilo_Preflight.Py
 

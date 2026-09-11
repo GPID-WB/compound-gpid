@@ -1,5 +1,5 @@
 {
-  "edge_count": 336,
+  "edge_count": 356,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -471,6 +471,24 @@
     },
     {
       "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-08-12-cr-local-evidence-workbench-revised.md",
+      "target": ".cg-docs/brainstorms/2026-08-12-cr-local-evidence-workbench.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-08-12-cr-local-evidence-workbench.md",
+      "target": ".cg-docs/brainstorms/2026-08-12-cr-local-evidence-workbench.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-08-13-ai-knowledge-work-presentation-production.md",
+      "target": ".cg-docs/brainstorms/2026-08-13-ai-knowledge-work-presentation.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
       "source": ".cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md",
       "target": ".cg-docs/brainstorms/2026-08-13-skill-loading-architecture-context-efficiency.md",
       "target_missing": false
@@ -485,6 +503,30 @@
       "edge_type": "decided_from",
       "source": ".cg-docs/plans/2026-08-28-scalable-skill-management-suite.md",
       "target": ".cg-docs/brainstorms/2026-08-28-scalable-skill-management-suite.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-09-02-c-research-output-workspace-migration.md",
+      "target": ".cg-docs/brainstorms/2026-09-02-c-research-artifact-boundary.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-09-03-cr-ml-skill-redesign.md",
+      "target": ".cg-docs/brainstorms/2026-09-03-cr-ml-skill-redesign.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-09-03-cr-research-handbook-and-dev-preview.md",
+      "target": ".cg-docs/brainstorms/2026-09-03-cr-research-handbook-and-dev-preview.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-09-04-cg-light-work-unified-small-task-workflow.md",
+      "target": ".cg-docs/brainstorms/2026-09-04-cg-light-work-unified-small-task-workflow.md",
       "target_missing": false
     },
     {
@@ -1383,6 +1425,12 @@
     },
     {
       "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-08-12-cr-local-evidence-workbench-revised-review.md",
+      "target": ".cg-docs/plans/2026-08-12-cr-local-evidence-workbench-revised.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
       "source": ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-phase3-review.md",
       "target": ".cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md",
       "target_missing": false
@@ -1467,8 +1515,26 @@
     },
     {
       "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-08-28-scalable-skill-management-suite-verify-review-3.md",
+      "target": ".cg-docs/reviews/2026-08-28-scalable-skill-management-suite-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
       "source": ".cg-docs/reviews/2026-08-28-scalable-skill-management-suite-verify-review.md",
       "target": ".cg-docs/reviews/2026-08-28-scalable-skill-management-suite-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-09-02-c-research-output-workspace-migration-review.md",
+      "target": ".cg-docs/plans/2026-09-02-c-research-output-workspace-migration.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-09-03-cr-ml-skill-redesign-review.md",
+      "target": ".cg-docs/plans/2026-09-03-cr-ml-skill-redesign.md",
       "target_missing": false
     },
     {
@@ -1499,6 +1565,12 @@
       "edge_type": "references",
       "source": ".cg-docs/solutions/git-workflows/2026-08-21-pr-ci-preflight-native-target-kilo-capability-gates.md",
       "target": ".cg-docs/plans/2026-08-21-pr-ci-preflight-and-kilo-capability-gates.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/ml-methodology/2026-09-03-esl-led-ml-skill-router.md",
+      "target": ".cg-docs/plans/2026-09-03-cr-ml-skill-redesign.md",
       "target_missing": false
     },
     {
@@ -1839,6 +1911,12 @@
     },
     {
       "edge_type": "references",
+      "source": ".cg-docs/brainstorms/2026-08-12-cr-local-evidence-workbench.md",
+      "target": ".cg-docs/plans/2026-08-12-cr-local-evidence-workbench.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
       "source": ".cg-docs/brainstorms/2026-08-28-compound-gpid-rd-command.md",
       "target": ".cg-docs/plans/2026-08-28-compound-gpid-rd-command.md",
       "target_missing": false
@@ -1847,6 +1925,24 @@
       "edge_type": "references",
       "source": ".cg-docs/brainstorms/2026-08-28-scalable-skill-management-suite.md",
       "target": ".cg-docs/plans/2026-08-28-scalable-skill-management-suite.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/brainstorms/2026-09-03-cr-ml-skill-redesign.md",
+      "target": ".cg-docs/plans/2026-09-03-cr-ml-skill-redesign.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/brainstorms/2026-09-03-cr-research-handbook-and-dev-preview.md",
+      "target": ".cg-docs/plans/2026-09-03-cr-research-handbook-and-dev-preview.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/brainstorms/2026-09-04-cg-light-work-unified-small-task-workflow.md",
+      "target": ".cg-docs/plans/2026-09-04-cg-light-work-unified-small-task-workflow.md",
       "target_missing": false
     },
     {
@@ -2013,8 +2109,32 @@
     },
     {
       "edge_type": "implements",
+      "source": ".cg-docs/plans/2026-08-02-cr-work-gpt-5-6-luna-plan.md",
+      "target": "roadmap.json#cr-work-gpt-5-6-luna-model-governance",
+      "target_missing": false
+    },
+    {
+      "edge_type": "implements",
+      "source": ".cg-docs/plans/2026-08-12-cr-local-evidence-workbench.md",
+      "target": "roadmap.json#cr-local-evidence-workbench-for-verifiable-research-claims",
+      "target_missing": false
+    },
+    {
+      "edge_type": "implements",
       "source": ".cg-docs/plans/2026-08-28-scalable-skill-management-suite.md",
       "target": "roadmap.json#scalable-skill-management-suite",
+      "target_missing": false
+    },
+    {
+      "edge_type": "implements",
+      "source": ".cg-docs/plans/2026-09-02-c-research-output-workspace-migration.md",
+      "target": "roadmap.json#root-level-c-research-output-workspace-and-migration",
+      "target_missing": false
+    },
+    {
+      "edge_type": "implements",
+      "source": ".cg-docs/plans/2026-09-03-cr-ml-skill-redesign.md",
+      "target": "roadmap.json#cr-ml-skill-redesign-for-econometricians",
       "target_missing": false
     }
   ],
@@ -3591,6 +3711,72 @@
       ]
     },
     {
+      "date": "2026-08-12",
+      "entity_type": "brainstorm",
+      "path": ".cg-docs/brainstorms/2026-08-12-cr-local-evidence-workbench.md",
+      "slug": "2026-08-12-cr-local-evidence-workbench",
+      "status": "decided",
+      "summary": "<!-- Valid status values: decided, in-progress, abandoned -->",
+      "tags": [
+        "compound-research",
+        "evidence",
+        "provenance",
+        "claims",
+        "literature-review",
+        "local-first",
+        "document-ingestion",
+        "retrieval",
+        "verification",
+        "research-integrity",
+        "browser-ui"
+      ],
+      "title": "CR Local Evidence Workbench for Verifiable Research Claims",
+      "top_keywords": [
+        "evidence",
+        "workbench",
+        "local",
+        "approach",
+        "research",
+        "claims",
+        "local evidence workbench",
+        "verifiable research claims",
+        "world bank",
+        "verification"
+      ]
+    },
+    {
+      "date": "2026-08-13",
+      "entity_type": "brainstorm",
+      "path": ".cg-docs/brainstorms/2026-08-13-ai-knowledge-work-presentation.md",
+      "slug": "2026-08-13-ai-knowledge-work-presentation",
+      "status": "decided",
+      "summary": "<!-- Created 2026-08-13. -->",
+      "tags": [
+        "ai",
+        "llms",
+        "knowledge-work",
+        "epistemology",
+        "evidence",
+        "provenance",
+        "ai-dqss",
+        "research-interface",
+        "presentation"
+      ],
+      "title": "AI and the Conditions for Verifiable Knowledge Work",
+      "top_keywords": [
+        "slide",
+        "appendix",
+        "compound research",
+        "concern",
+        "research",
+        "suggestions-for-cr.md",
+        "evidence",
+        "skill.md",
+        "readme.md",
+        "source"
+      ]
+    },
+    {
       "date": "2026-08-13",
       "entity_type": "brainstorm",
       "path": ".cg-docs/brainstorms/2026-08-13-skill-loading-architecture-context-efficiency.md",
@@ -3621,6 +3807,39 @@
         "[cg]",
         "skill",
         "context"
+      ]
+    },
+    {
+      "date": "2026-08-26",
+      "entity_type": "brainstorm",
+      "path": ".cg-docs/brainstorms/2026-08-26-ai-knowledge-work-presentation-practitioner-tour.md",
+      "slug": "2026-08-26-ai-knowledge-work-presentation-practitioner-tour",
+      "status": "decided",
+      "summary": "<!-- Created 2026-08-26. -->",
+      "tags": [
+        "research",
+        "writing",
+        "presentation",
+        "ai",
+        "compound-research",
+        "poverty",
+        "inequality",
+        "welfare",
+        "evidence",
+        "provenance"
+      ],
+      "title": "AI and Research: A Practitioner Tour of the Compound Research Workflow",
+      "top_keywords": [
+        "research",
+        "/cr-brainstorm",
+        "cr",
+        "/cr-plan",
+        "research scoping",
+        "/cr-work",
+        "/cr-review",
+        "/cr-compound",
+        "practitioner tour",
+        "compound research workflow"
       ]
     },
     {
@@ -3682,6 +3901,126 @@
         "security",
         "release",
         "tests"
+      ]
+    },
+    {
+      "date": "2026-09-02",
+      "entity_type": "brainstorm",
+      "path": ".cg-docs/brainstorms/2026-09-02-c-research-artifact-boundary.md",
+      "slug": "2026-09-02-c-research-artifact-boundary",
+      "status": "decided",
+      "summary": "<!-- Valid status values: decided, in-progress, abandoned --> <!-- Created 2026-09-02. -->",
+      "tags": [
+        "compound-research",
+        "file-structure",
+        "artifact-boundary",
+        "module-activation",
+        "migration",
+        "research-outputs"
+      ],
+      "title": "Separate CR Research Outputs from Compound GPID Documentation",
+      "top_keywords": [
+        "c-research/",
+        "cr",
+        ".cg-docs/",
+        ".cg-docs/research/",
+        "approach",
+        "migration",
+        "canonical",
+        "relocation",
+        "data/",
+        "evidence-fixtures/"
+      ]
+    },
+    {
+      "date": "2026-09-03",
+      "entity_type": "brainstorm",
+      "path": ".cg-docs/brainstorms/2026-09-03-cr-ml-skill-redesign.md",
+      "slug": "2026-09-03-cr-ml-skill-redesign",
+      "status": "decided",
+      "summary": "<!-- Valid status values: decided, in-progress, abandoned -->",
+      "tags": [
+        "research",
+        "machine-learning",
+        "econometrics",
+        "statistical-learning",
+        "high-dimensional",
+        "model-selection",
+        "cross-validation",
+        "context-budget"
+      ],
+      "title": "CR ML Skill Redesign for Econometricians",
+      "top_keywords": [
+        "skill.md",
+        "skill",
+        "approach",
+        "context",
+        "cr-skill-ml-economics",
+        "sample_weight",
+        "/cr-work",
+        "/cr-review",
+        "skill redesign",
+        "agent skills"
+      ]
+    },
+    {
+      "date": "2026-09-03",
+      "entity_type": "brainstorm",
+      "path": ".cg-docs/brainstorms/2026-09-03-cr-research-handbook-and-dev-preview.md",
+      "slug": "2026-09-03-cr-research-handbook-and-dev-preview",
+      "status": "decided",
+      "summary": "<!-- Created 2026-09-03. -->",
+      "tags": [
+        "compound-research",
+        "documentation",
+        "handbook",
+        "onboarding",
+        "github-pages",
+        "dev-preview",
+        "research-workflow",
+        "provenance"
+      ],
+      "title": "User-facing Compound Research Handbook and Isolated Dev Preview",
+      "top_keywords": [
+        "dev",
+        "handbook",
+        "/dev/",
+        "modular guide",
+        "approach",
+        "cr",
+        "docs/navigation.json",
+        "docs/research/",
+        "compound research handbook",
+        "isolated dev preview"
+      ]
+    },
+    {
+      "date": "2026-09-04",
+      "entity_type": "brainstorm",
+      "path": ".cg-docs/brainstorms/2026-09-04-cg-light-work-unified-small-task-workflow.md",
+      "slug": "2026-09-04-cg-light-work-unified-small-task-workflow",
+      "status": "decided",
+      "summary": "<!-- Valid status values: decided, in-progress, abandoned -->",
+      "tags": [
+        "workflow",
+        "light-work",
+        "small-tasks",
+        "planning",
+        "review",
+        "compounding"
+      ],
+      "title": "Unified lightweight workflow command for small technical tasks",
+      "top_keywords": [
+        "/cg-work",
+        "cg-work",
+        "cg-light-work",
+        "/cg-light-work",
+        "work report",
+        "stage",
+        "review report",
+        "command",
+        "cg-brainstorm",
+        "/cg-brainstorm"
       ]
     },
     {
@@ -7048,6 +7387,105 @@
       ]
     },
     {
+      "date": "2026-08-12",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-08-12-cr-local-evidence-workbench-revised.md",
+      "slug": "2026-08-12-cr-local-evidence-workbench-revised",
+      "status": "completed",
+      "summary": "<!-- Created 2026-08-12. Revision 2 addresses the plan-review findings. -->",
+      "tags": [
+        "compound-research",
+        "evidence",
+        "provenance",
+        "claims",
+        "document-ingestion",
+        "retrieval",
+        "verification",
+        "local-first",
+        "browser-ui",
+        "research-integrity",
+        "offline-runtime",
+        "dependency-governance"
+      ],
+      "title": "CR Local Evidence Workbench for Verifiable Research Claims (Revised)",
+      "top_keywords": [
+        "test scenarios",
+        "evidence",
+        "candidate",
+        "pyproject.toml",
+        "uv.lock",
+        "phase",
+        "implement",
+        "local",
+        "verification",
+        "validation"
+      ]
+    },
+    {
+      "date": "2026-08-12",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-08-12-cr-local-evidence-workbench.md",
+      "slug": "2026-08-12-cr-local-evidence-workbench",
+      "status": "active",
+      "summary": "<!-- Created 2026-08-12. Follow-up plan: the predecessor plan remains completed historical work. -->",
+      "tags": [
+        "compound-research",
+        "evidence",
+        "provenance",
+        "claims",
+        "document-ingestion",
+        "retrieval",
+        "verification",
+        "local-first",
+        "browser-ui",
+        "research-integrity"
+      ],
+      "title": "CR Local Evidence Workbench for Verifiable Research Claims",
+      "top_keywords": [
+        "test scenarios",
+        "local",
+        "evidence",
+        "phase",
+        "implement",
+        "workbench",
+        "retrieval",
+        "verification",
+        "tests",
+        "browser"
+      ]
+    },
+    {
+      "date": "2026-08-13",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-08-13-ai-knowledge-work-presentation-production.md",
+      "slug": "2026-08-13-ai-knowledge-work-presentation-production",
+      "status": "active",
+      "summary": "<!-- Created 2026-08-13. -->",
+      "tags": [
+        "research",
+        "writing",
+        "presentation",
+        "ai",
+        "knowledge-work",
+        "evidence",
+        "provenance",
+        "ai-dqss"
+      ],
+      "title": "AI and the Conditions for Verifiable Knowledge Work Presentation",
+      "top_keywords": [
+        "suggestions-for-cr.md",
+        "get_errors",
+        "narrative",
+        ".cg-docs/research/manuscript/2026-08-13-ai-knowledge-work-presentation.md",
+        "2026-08-13-ai-knowledge-work-presentation.md",
+        "phase",
+        "roadmap.json",
+        "test scenarios",
+        "presentation",
+        "presentation/ai-knowledge-work-presentation.html"
+      ]
+    },
+    {
       "date": "2026-08-13",
       "entity_type": "plan",
       "path": ".cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md",
@@ -7168,6 +7606,126 @@
         "test_project_manifest.py",
         "project-local",
         "scripts/skill_management/services/provenance.py"
+      ]
+    },
+    {
+      "date": "2026-09-02",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-09-02-c-research-output-workspace-migration.md",
+      "slug": "2026-09-02-c-research-output-workspace-migration",
+      "status": "completed",
+      "summary": "<!-- Created 2026-09-02. -->",
+      "tags": [
+        "compound-research",
+        "file-structure",
+        "artifact-boundary",
+        "module-activation",
+        "migration",
+        "research-outputs"
+      ],
+      "title": "Root-Level c-research Output Workspace and Migration",
+      "top_keywords": [
+        "c-research/",
+        ".cg-docs/",
+        ".cg-docs/research/",
+        "data/",
+        "cr",
+        "test scenarios",
+        "phase",
+        "migration",
+        "c-research/evidence/",
+        "readme.md"
+      ]
+    },
+    {
+      "date": "2026-09-03",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-09-03-cr-ml-skill-redesign.md",
+      "slug": "2026-09-03-cr-ml-skill-redesign",
+      "status": "completed",
+      "summary": "Replace the monolithic `cr-skill-ml-economics/SKILL.md` with a compact, Hastie-Tibshirani-Friedman-led router and eight focused progressive-disclosure references. Give senior econometricians and PhD students one coherent methodological foundation for interactive assistance, implementation, and review, while preserving context budgets and canonical-to-native packaging parity.",
+      "tags": [
+        "research",
+        "machine-learning",
+        "econometrics",
+        "statistical-learning",
+        "high-dimensional",
+        "model-selection",
+        "evaluation",
+        "context-budget"
+      ],
+      "title": "CR ML Skill Redesign for Econometricians",
+      "top_keywords": [
+        "test_cr_ml_skill.py",
+        "test scenarios",
+        "python -m pytest scripts/tests/test_cr_ml_skill.py -q",
+        "skill.md",
+        "/cr-work",
+        "tidymodels",
+        "scripts/tests/test_cr_ml_skill.py",
+        "scikit-learn",
+        "references",
+        "implementation"
+      ]
+    },
+    {
+      "date": "2026-09-03",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-09-03-cr-research-handbook-and-dev-preview.md",
+      "slug": "2026-09-03-cr-research-handbook-and-dev-preview",
+      "status": "active",
+      "summary": "<!-- Created 2026-09-03. -->",
+      "tags": [
+        "compound-research",
+        "documentation",
+        "handbook",
+        "onboarding",
+        "github-pages",
+        "dev-preview",
+        "research-workflow",
+        "provenance"
+      ],
+      "title": "User-facing Compound Research Handbook and Isolated Dev Preview",
+      "top_keywords": [
+        "/dev/",
+        "dev",
+        "test scenarios",
+        "doc-rebuild.yml",
+        "navigation.json",
+        "node scripts/check-docs-site.js",
+        "index.md",
+        "handbook",
+        "phase",
+        "docs/navigation.json"
+      ]
+    },
+    {
+      "date": "2026-09-04",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-09-04-cg-light-work-unified-small-task-workflow.md",
+      "slug": "2026-09-04-cg-light-work-unified-small-task-workflow",
+      "status": "completed",
+      "summary": "Add `/cg-light-work <task>` as one fail-closed workflow for qualifying small technical tasks. It must perform bounded workspace-first discovery, save an approved standard Plan, execute with standard Work state, create and resolve a targeted light Review Report, verify the final state, and ask for explicit consent before permanent knowledge capture. Make `/cg-work` plan-only and give inline requests an exact copy-ready redirect instead of an inline Plan.",
+      "tags": [
+        "workflow",
+        "light-work",
+        "small-tasks",
+        "review",
+        "token-efficiency",
+        "generated-targets"
+      ],
+      "title": "Unified /cg-light-work command for small technical tasks",
+      "top_keywords": [
+        "/cg-work",
+        "work report",
+        "cg-work",
+        "cg-light-work",
+        "/cg-light-work",
+        "tests/last-run.json",
+        "review report",
+        "plan review",
+        "test scenarios",
+        "last-run.json"
       ]
     },
     {
@@ -10920,6 +11478,28 @@
       ]
     },
     {
+      "date": "2026-08-13",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-08-12-cr-local-evidence-workbench-revised-review.md",
+      "slug": "2026-08-12-cr-local-evidence-workbench-revised-review",
+      "status": "",
+      "summary": "- Unrecognized invocation arguments `deep rigorous` were ignored. - Configured `review-depth: thorough` and security/API/dependency/concurrency/schema triggers resolved the review to `full`. - Reviewed commit: `84afe998b63dbd377a17981121ff6ad3ac712d76`. - Prior commit: `fff446598ba77e064ef1bfd0c7adabbc266238c0`. - The worktree was clean before review. - Protected artifacts were not recommended for deletion, replacement, renaming, or movement.",
+      "tags": [],
+      "title": "Final Local Evidence Workbench Review",
+      "top_keywords": [
+        "review",
+        "claim_id",
+        "not-acquired",
+        "nextcommand",
+        "fix/evidence-review-findings",
+        "final local evidence workbench review",
+        "evidence",
+        "workbench",
+        "local",
+        "final"
+      ]
+    },
+    {
       "date": "2026-08-14",
       "entity_type": "review",
       "path": ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-phase3-review.md",
@@ -11206,6 +11786,28 @@
       ]
     },
     {
+      "date": "2026-09-08",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-08-28-scalable-skill-management-suite-verify-review-3.md",
+      "slug": "2026-08-28-scalable-skill-management-suite-verify-review-3",
+      "status": "",
+      "summary": "- **Review mode**: verify (light-only) - **Parent review**: `.cg-docs/reviews/2026-08-28-scalable-skill-management-suite-review.md` - **Current Plan**: `.cg-docs/plans/2026-09-04-cg-light-work-unified-small-task-workflow.md` - **Files reviewed**: 48 changed and untracked paths - **Reviewers**: `@cg-code-quality`, `@cg-testing` - **Suppression**: none; the parent review's fixed blocks are unrelated to this change. P0/P1 and cross-file breakage remained reportable. - **Findings**: 9 (P0: 0, P1: 6, P2: 3, P3: 0)",
+      "tags": [],
+      "title": "2026-08-28-scalable-skill-management-suite-verify-review-3",
+      "top_keywords": [
+        "cg-light-work",
+        "/cg-light-work",
+        "cg-light-work.prompt.md",
+        "workflow",
+        "review",
+        "/cr-brainstorm",
+        ".tmp/",
+        "team brain",
+        "work report",
+        "cg-work"
+      ]
+    },
+    {
       "date": "2026-08-31",
       "entity_type": "review",
       "path": ".cg-docs/reviews/2026-08-28-scalable-skill-management-suite-verify-review.md",
@@ -11225,6 +11827,50 @@
         "suppressed",
         "sourcerevision",
         "scalable"
+      ]
+    },
+    {
+      "date": "2026-09-02",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-09-02-c-research-output-workspace-migration-review.md",
+      "slug": "2026-09-02-c-research-output-workspace-migration-review",
+      "status": "",
+      "summary": "**Review mode:** full",
+      "tags": [],
+      "title": "2026-09-02-c-research-output-workspace-migration-review",
+      "top_keywords": [
+        "scripts/cg_migrate_research_layout.py",
+        "cg_migrate_research_layout.py",
+        "roadmap.json",
+        "review",
+        "c-research/",
+        ".cg-docs/views/**",
+        ".cg-docs/",
+        "c-research/evidence",
+        ".cg-docs/research/",
+        "scripts/update.ps1"
+      ]
+    },
+    {
+      "date": "2026-09-03",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-09-03-cr-ml-skill-redesign-review.md",
+      "slug": "2026-09-03-cr-ml-skill-redesign-review",
+      "status": "",
+      "summary": "Reviewed the uncommitted changes on `feat/cr-ml-skill-redesign` relative to `HEAD` (`1ef1227`). The review included the canonical `.github` sources, all eight ML references, CR routing, tests and fixtures, documentation, generated native bundles/manifests, and derived context-audit evidence. The 14 intentional untracked source/evidence paths were included in the review scope even though `git diff` does not list them.",
+      "tags": [],
+      "title": "CR ML Skill Redesign Review",
+      "top_keywords": [
+        "implementation-r-tidymodels.md",
+        "cr-ml-methodology.agent.md",
+        "ranger",
+        "test_cr_ml_skill.py",
+        "g(x)",
+        "pyproject.toml",
+        "review",
+        "2026-09-03-cr-ml-skill-redesign.md",
+        "econometric-causal-ml.md",
+        "cr-skill-ml-economics"
       ]
     },
     {
@@ -13153,8 +13799,8 @@
         "the windows",
         "generic",
         "publisher",
-        "cross-platform",
         "release",
+        "cross-platform",
         "gates",
         "points"
       ]
@@ -13564,6 +14210,39 @@
     {
       "date": "2026-09-02",
       "entity_type": "solution",
+      "path": ".cg-docs/solutions/bugs/2026-09-02-c-research-migration-security-and-boundary.md",
+      "slug": "2026-09-02-c-research-migration-security-and-boundary",
+      "status": "",
+      "summary": "Moving Compound Research outputs from `.cg-docs/research/` to the root-level `c-research/` workspace exposed several correctness and safety failures: - A symlinked `.cg-docs/` ancestor could expose an external source tree to the migrator. - A dangling destination symlink could make `Path.exists()` return false and redirect an ordinary copy outside the repository. - `copy2()` followed by `unlink()` was vulnerable to destination races, source replacement, partial publication, and source loss after a concurrent change. - Apply mode could remove legacy files while live operational references still pointed at the old path. - Any regular file under an accepted legacy artifact directory could be moved,...",
+      "tags": [
+        "c-research",
+        "migration",
+        "filesystem",
+        "security",
+        "symlink",
+        "toctou",
+        "evidence",
+        "provenance",
+        "suites",
+        "generated-targets"
+      ],
+      "title": "Secure c-research migration and research-output boundary",
+      "top_keywords": [
+        "c-research/",
+        "migration",
+        "c-research",
+        ".cg-docs/",
+        "data/",
+        "boundary",
+        "evidence",
+        "secure",
+        "research-output",
+        "source"
+      ]
+    },
+    {
+      "date": "2026-09-02",
+      "entity_type": "solution",
       "path": ".cg-docs/solutions/bugs/2026-09-02-captured-byte-trust-must-cover-dependency-closure.md",
       "slug": "2026-09-02-captured-byte-trust-must-cover-dependency-closure",
       "status": "",
@@ -13590,6 +14269,35 @@
         "cover",
         "root",
         "skill_management"
+      ]
+    },
+    {
+      "date": "2026-09-03",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/bugs/2026-09-03-cg-setup-omits-active-research-suite-selection.md",
+      "slug": "2026-09-03-cg-setup-omits-active-research-suite-selection",
+      "status": "",
+      "summary": "After running `/cg-setup`, a project that needed Compound Research could still be configured without the `cr` suite. Running a `/cr-*` prompt then displayed:",
+      "tags": [
+        "cg-setup",
+        "compound-research",
+        "active-suites",
+        "configuration",
+        "setup",
+        "regression-test"
+      ],
+      "title": "cg-setup omitted active research-suite selection",
+      "top_keywords": [
+        "cg-setup",
+        "/cg-setup",
+        "[cr]",
+        "[cg, cr]",
+        "test",
+        "missing-test",
+        "cr",
+        "[cg]",
+        "suites:",
+        "active"
       ]
     },
     {
@@ -14073,6 +14781,35 @@
         "mutation",
         "pre-commit",
         "requires"
+      ]
+    },
+    {
+      "date": "2026-09-09",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/data-quality/2026-09-09-validate-registry-identities-before-derived-maps.md",
+      "slug": "2026-09-09-validate-registry-identities-before-derived-maps",
+      "status": "",
+      "summary": "A workflow registry had three identity fields: `workflow_id`, `workflow`, and `path`. Validation rejected duplicate IDs and paths, but accepted duplicate `workflow` command names. A dictionary keyed by `workflow` was built before the validator ran, so Python kept only the last duplicate without an error. Derived high-frequency prompt checks could then omit one registered source path. The related prompt tests had a similar weakness: they checked that H/S gate row labels existed, but did not verify each row's complete route or threshold.",
+      "tags": [
+        "registry",
+        "identity",
+        "validation",
+        "derived-map",
+        "workflow-audit",
+        "regression-test"
+      ],
+      "title": "Validate registry identities before building derived maps",
+      "top_keywords": [
+        "workflow",
+        "registry",
+        "workflow_id",
+        "derived",
+        "validate",
+        "identities",
+        "building",
+        "maps",
+        "related",
+        "problem"
       ]
     },
     {
@@ -14803,6 +15540,34 @@
         ".pyc",
         "__pycache__",
         "authoritative"
+      ]
+    },
+    {
+      "date": "2026-09-03",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/ml-methodology/2026-09-03-esl-led-ml-skill-router.md",
+      "slug": "2026-09-03-esl-led-ml-skill-router",
+      "status": "",
+      "summary": "The ML skill had grown into a large monolith that mixed statistical-learning foundations, high-dimensional econometrics, sample splitting, evaluation, causal ML, survey and panel design, R/Python implementation, and review rules. That made ordinary activation expensive and made it difficult to tell which reference controlled a particular methodological decision. The redesign also exposed high-risk defects: malformed mathematical notation, an unseeded stochastic forest example, non-target-conditional split rules, ambiguous DML nuisance notation, incomplete survey safeguards, and weak route tests.",
+      "tags": [
+        "machine-learning",
+        "progressive-disclosure",
+        "econometrics",
+        "cross-validation",
+        "reproducibility"
+      ],
+      "title": "Use an ESL-led router for theory-first ML guidance in economics",
+      "top_keywords": [
+        "skill.md",
+        "2026-09-03-cr-ml-skill-redesign.md",
+        "2026-09-03-cr-ml-skill-redesign-review.md",
+        "router",
+        "guidance",
+        "esl-led",
+        "theory-first",
+        "economics",
+        "test_cr_ml_skill.py",
+        "references"
       ]
     },
     {
@@ -17857,9 +18622,9 @@
         "tests",
         "mutation",
         "real",
+        "handle-relative",
         "boundary",
         "race",
-        "handle-relative",
         "fixes",
         "require",
         "root"
@@ -18133,6 +18898,34 @@
         "dispatch",
         "errors",
         "dispatch_cli"
+      ]
+    },
+    {
+      "date": "2026-08-13",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-08-13-release-gate-fixtures-and-derived-evidence-hashes.md",
+      "slug": "2026-08-13-release-gate-fixtures-and-derived-evidence-hashes",
+      "status": "",
+      "summary": "The final release gate reported two failures in `test_release_gate_targets.py`: - The checkout-mismatch test expected a tag mismatch, but the fake `git` executable did not implement `git -C <root> tag --list <tag>`. The release script therefore saw no matching tag and correctly skipped the mismatch comparison. - The failing-preflight test expected Python to receive paths from the source checkout, while the release script intentionally clones `HEAD` into an isolated temporary checkout before running the preflight. After those fixture failures were corrected, the artifact evidence validator found stale SHA-256 values for the brainstorm and plan HTML views in the committed design-evidence manifest.",
+      "tags": [
+        "release-gates",
+        "test-fixtures",
+        "generated-artifacts",
+        "sha256",
+        "provenance"
+      ],
+      "title": "Release-gate fixtures must mirror runtime commands and derived evidence hashes",
+      "top_keywords": [
+        "head",
+        "evidence",
+        "derived",
+        "hashes",
+        "mirror",
+        "commands",
+        "must",
+        "runtime",
+        "release-gate",
+        "fixtures"
       ]
     },
     {
@@ -18711,6 +19504,50 @@
     {
       "date": "",
       "entity_type": "feature",
+      "path": "roadmap.json#cr-local-evidence-workbench-for-verifiable-research-claims",
+      "slug": "cr-local-evidence-workbench-for-verifiable-research-claims",
+      "status": "done",
+      "summary": "CR Local Evidence Workbench for Verifiable Research Claims",
+      "tags": [],
+      "title": "CR Local Evidence Workbench for Verifiable Research Claims",
+      "top_keywords": [
+        "local evidence workbench",
+        "verifiable research claims\nmilestone",
+        "responsible research partner\nobjective",
+        "expand compound research",
+        "research",
+        "local",
+        "evidence",
+        "workbench",
+        "verifiable",
+        "claims"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#root-level-c-research-output-workspace-and-migration",
+      "slug": "root-level-c-research-output-workspace-and-migration",
+      "status": "done",
+      "summary": "Root-level c-research output workspace and migration",
+      "tags": [],
+      "title": "Root-level c-research output workspace and migration",
+      "top_keywords": [
+        "responsible research partner\nobjective",
+        "expand compound research",
+        "root-level",
+        "c-research",
+        "workspace",
+        "migration",
+        "research",
+        "responsible",
+        "partner",
+        "feature"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
       "path": "roadmap.json#cg-fix-problems-agent",
       "slug": "cg-fix-problems-agent",
       "status": "done",
@@ -19176,16 +20013,16 @@
       "path": "roadmap.json#skill-description-consistency-audit",
       "slug": "skill-description-consistency-audit",
       "status": "idea",
-      "summary": "Skill discovery metadata and trigger-quality audit",
+      "summary": "Skill description consistency audit and optimization",
       "tags": [],
-      "title": "Skill discovery metadata and trigger-quality audit",
+      "title": "Skill description consistency audit and optimization",
       "top_keywords": [
         "skills enhancement\nobjective",
         "skill",
-        "discovery",
-        "metadata",
-        "trigger-quality",
+        "description",
+        "consistency",
         "audit",
+        "optimization",
         "skills",
         "feature",
         "milestone",
@@ -19318,6 +20155,50 @@
         "source",
         "provenance",
         "verification",
+        "skills",
+        "feature",
+        "milestone",
+        "enhancement"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#skill-description-length-cap",
+      "slug": "skill-description-length-cap",
+      "status": "idea",
+      "summary": "Skill description length cap with test enforcement [from CE]",
+      "tags": [],
+      "title": "Skill description length cap with test enforcement [from CE]",
+      "top_keywords": [
+        "skills enhancement\nobjective",
+        "skill",
+        "description",
+        "length",
+        "cap",
+        "test",
+        "enforcement",
+        "skills",
+        "feature",
+        "milestone"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#cr-ml-skill-redesign-for-econometricians",
+      "slug": "cr-ml-skill-redesign-for-econometricians",
+      "status": "done",
+      "summary": "CR ML Skill Redesign for Econometricians",
+      "tags": [],
+      "title": "CR ML Skill Redesign for Econometricians",
+      "top_keywords": [
+        "skill redesign",
+        "econometricians\nmilestone",
+        "skills enhancement\nobjective",
+        "skill",
+        "redesign",
+        "econometricians",
         "skills",
         "feature",
         "milestone",
@@ -20845,6 +21726,28 @@
     {
       "date": "",
       "entity_type": "feature",
+      "path": "roadmap.json#unified-cg-light-work-command-for-small-technical-tasks",
+      "slug": "unified-cg-light-work-command-for-small-technical-tasks",
+      "status": "done",
+      "summary": "Unified /cg-light-work command for small technical tasks",
+      "tags": [],
+      "title": "Unified /cg-light-work command for small technical tasks",
+      "top_keywords": [
+        "cg-light-work",
+        "workflow maturity\nobjective",
+        "unified",
+        "command",
+        "small",
+        "technical",
+        "tasks",
+        "feature",
+        "milestone",
+        "workflow"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
       "path": "roadmap.json#brain-full-scope-indexer",
       "slug": "brain-full-scope-indexer",
       "status": "done",
@@ -21813,6 +22716,50 @@
     {
       "date": "",
       "entity_type": "feature",
+      "path": "roadmap.json#cr-work-gpt-5-6-luna-model-governance",
+      "slug": "cr-work-gpt-5-6-luna-model-governance",
+      "status": "done",
+      "summary": "Assign GPT-5.6 Luna to /cr-work with native-target governance",
+      "tags": [],
+      "title": "Assign GPT-5.6 Luna to /cr-work with native-target governance",
+      "top_keywords": [
+        "token optimization",
+        "model governance\nobjective",
+        "governance",
+        "assign",
+        "gpt-5",
+        "luna",
+        "cr-work",
+        "native-target",
+        "context",
+        "token"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#cr-prompt-model-catalog-baseline",
+      "slug": "cr-prompt-model-catalog-baseline",
+      "status": "idea",
+      "summary": "Baseline model-catalog coverage for remaining CR prompts",
+      "tags": [],
+      "title": "Baseline model-catalog coverage for remaining CR prompts",
+      "top_keywords": [
+        "token optimization",
+        "model governance\nobjective",
+        "prompts",
+        "baseline",
+        "model-catalog",
+        "coverage",
+        "remaining",
+        "context",
+        "token",
+        "model"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
       "path": "roadmap.json#workflow-suitability-criteria",
       "slug": "workflow-suitability-criteria",
       "status": "idea",
@@ -22119,13 +23066,13 @@
       ]
     }
   ],
-  "entity_count": 770,
-  "generated": "2026-09-08",
+  "entity_count": 800,
+  "generated": "2026-09-10",
   "schema_version": "0.2.0",
   "topic_count": 6,
   "topics": [
     {
-      "entity_count": 540,
+      "entity_count": 561,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -22176,11 +23123,17 @@
         ".cg-docs/brainstorms/2026-07-30-user-selected-model-advisory-routing.md",
         ".cg-docs/brainstorms/2026-07-31-dual-audience-workflow-artifact-rendering.md",
         ".cg-docs/brainstorms/2026-07-31-modular-compound-gpid-architecture.md",
+        ".cg-docs/brainstorms/2026-08-02-completion-dossier-and-curated-artifact-themes.md",
         ".cg-docs/brainstorms/2026-08-02-cr-work-gpt-5-6-luna.md",
         ".cg-docs/brainstorms/2026-08-12-automated-documentation-deployment.md",
+        ".cg-docs/brainstorms/2026-08-12-cr-local-evidence-workbench.md",
         ".cg-docs/brainstorms/2026-08-13-skill-loading-architecture-context-efficiency.md",
         ".cg-docs/brainstorms/2026-08-28-compound-gpid-rd-command.md",
         ".cg-docs/brainstorms/2026-08-28-scalable-skill-management-suite.md",
+        ".cg-docs/brainstorms/2026-09-02-c-research-artifact-boundary.md",
+        ".cg-docs/brainstorms/2026-09-03-cr-ml-skill-redesign.md",
+        ".cg-docs/brainstorms/2026-09-03-cr-research-handbook-and-dev-preview.md",
+        ".cg-docs/brainstorms/2026-09-04-cg-light-work-unified-small-task-workflow.md",
         ".cg-docs/brainstorms/2026-09-04-minimal-adaptive-grilling.md",
         ".cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-gsd-2-full-review.md",
@@ -22296,10 +23249,16 @@
         ".cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline-v2.md",
         ".cg-docs/plans/2026-08-05-copilot-issue-implementation-pipeline.md",
         ".cg-docs/plans/2026-08-12-automated-documentation-deployment.md",
+        ".cg-docs/plans/2026-08-12-cr-local-evidence-workbench-revised.md",
+        ".cg-docs/plans/2026-08-12-cr-local-evidence-workbench.md",
         ".cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md",
         ".cg-docs/plans/2026-08-21-pr-ci-preflight-and-kilo-capability-gates.md",
         ".cg-docs/plans/2026-08-28-compound-gpid-rd-command.md",
         ".cg-docs/plans/2026-08-28-scalable-skill-management-suite.md",
+        ".cg-docs/plans/2026-09-02-c-research-output-workspace-migration.md",
+        ".cg-docs/plans/2026-09-03-cr-ml-skill-redesign.md",
+        ".cg-docs/plans/2026-09-03-cr-research-handbook-and-dev-preview.md",
+        ".cg-docs/plans/2026-09-04-cg-light-work-unified-small-task-workflow.md",
         ".cg-docs/plans/2026-09-04-minimal-adaptive-grilling.md",
         ".cg-docs/plans/phase2-model-governance-cleanup.md",
         ".cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md",
@@ -22460,6 +23419,9 @@
         ".cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review-3.md",
         ".cg-docs/reviews/2026-08-21-pr-ci-preflight-and-kilo-capability-gates-verify-review.md",
         ".cg-docs/reviews/2026-08-28-compound-gpid-rd-command-review.md",
+        ".cg-docs/reviews/2026-08-28-scalable-skill-management-suite-verify-review-3.md",
+        ".cg-docs/reviews/2026-09-02-c-research-output-workspace-migration-review.md",
+        ".cg-docs/reviews/2026-09-03-cr-ml-skill-redesign-review.md",
         ".cg-docs/reviews/2026-09-04-minimal-adaptive-grilling-review.md",
         ".cg-docs/solutions/bugs/2026-03-18-broken-relative-links-in-nested-skill-files.md",
         ".cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md",
@@ -22513,13 +23475,16 @@
         ".cg-docs/solutions/bugs/2026-08-04-evidence-capture-axe-audit-call-site-wiring.md",
         ".cg-docs/solutions/bugs/2026-08-05-kilo-markdown-source-permission.md",
         ".cg-docs/solutions/bugs/2026-08-06-compound-gpid-local-md-gitignored-missing-in-worktrees.md",
+        ".cg-docs/solutions/bugs/2026-08-10-typed-invalid-gh-cli-payloads-crash-exit-code-contract.md",
         ".cg-docs/solutions/bugs/2026-08-11-windows-link-kilo-copy-directory-parse-failure.md",
         ".cg-docs/solutions/bugs/2026-08-14-pages-immutable-ref-gate-rejects-dev-series-pre-release-tags.md",
         ".cg-docs/solutions/bugs/2026-08-20-kilo-cross-adapter-skill-autodiscovery.md",
         ".cg-docs/solutions/bugs/2026-08-21-cg-link-singular-platform-flag.md",
         ".cg-docs/solutions/bugs/2026-08-26-release-drift-ignore-checks-spawn-thousands-of-git-processes.md",
         ".cg-docs/solutions/bugs/2026-08-31-trust-anchor-captured-byte-dispatch.md",
+        ".cg-docs/solutions/bugs/2026-09-02-c-research-migration-security-and-boundary.md",
         ".cg-docs/solutions/bugs/2026-09-02-captured-byte-trust-must-cover-dependency-closure.md",
+        ".cg-docs/solutions/bugs/2026-09-03-cg-setup-omits-active-research-suite-selection.md",
         ".cg-docs/solutions/build-errors/2026-03-04-get-item-target-is-string-array.md",
         ".cg-docs/solutions/build-errors/2026-03-04-powershell-dollar-dollar-is-not-pid.md",
         ".cg-docs/solutions/build-errors/2026-03-13-backslash-quote-in-powershell-string-breaks-percent-operator.md",
@@ -22534,6 +23499,7 @@
         ".cg-docs/solutions/data-quality/2026-05-14-yaml-frontmatter-allowlist-validation-pattern.md",
         ".cg-docs/solutions/data-quality/2026-05-20-welfare-column-three-step-guard-existence-na-positivity.md",
         ".cg-docs/solutions/data-quality/2026-08-28-exact-json-registry-mutation-boundaries.md",
+        ".cg-docs/solutions/data-quality/2026-09-09-validate-registry-identities-before-derived-maps.md",
         ".cg-docs/solutions/environment-issues/2026-03-02-skill-vs-prompt-slash-command.md",
         ".cg-docs/solutions/environment-issues/2026-03-13-troubleshooting-doc-structure-readme-vs-manual.md",
         ".cg-docs/solutions/environment-issues/2026-04-24-multi-day-vscode-session-accumulates-listeners-crashes.md",
@@ -22651,6 +23617,8 @@
         ".cg-docs/solutions/testing-patterns/2026-07-31-review-artifacts-must-use-machine-readable-finding-maps-and-stable-validation-evidence.md",
         ".cg-docs/solutions/testing-patterns/2026-08-03-single-command-model-overrides-need-dedicated-roles-and-baseline-audits.md",
         ".cg-docs/solutions/testing-patterns/2026-08-10-evidence-manifest-tests-require-referenced-files.md",
+        ".cg-docs/solutions/testing-patterns/2026-08-10-gh-cli-fixture-json-keys-must-match-client-parsing.md",
+        ".cg-docs/solutions/testing-patterns/2026-08-13-release-gate-fixtures-and-derived-evidence-hashes.md",
         ".cg-docs/solutions/testing-patterns/2026-09-08-fact-first-prompts-need-branch-complete-tests.md",
         ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
         ".cg-docs/strategy/2026-04-13-workflow-automation-research.md",
@@ -22671,13 +23639,13 @@
       "keywords": [
         "roadmap.json",
         "test scenarios",
-        "prompt-tools.tests.ps1"
+        "cg-work"
       ],
-      "label": "Roadmap.Json / Test Scenarios / Prompt-Tools.Tests.Ps1",
-      "slug": "roadmap-json-test-scenarios-prompt-tools-tests-ps1"
+      "label": "Roadmap.Json / Test Scenarios / Cg-Work",
+      "slug": "roadmap-json-test-scenarios-cg-work"
     },
     {
-      "entity_count": 155,
+      "entity_count": 160,
       "entity_paths": [
         "roadmap.json#cg-fix-problems-agent",
         "roadmap.json#cg-fix-problems-prompt",
@@ -22707,6 +23675,8 @@
         "roadmap.json#skillopt-existing-skills-improvement",
         "roadmap.json#shared-writing-guardrails-contract",
         "roadmap.json#exemplar-source-pack-schema",
+        "roadmap.json#skill-description-length-cap",
+        "roadmap.json#cr-ml-skill-redesign-for-econometricians",
         "roadmap.json#slim-copilot-instructions",
         "roadmap.json#project-context-file",
         "roadmap.json#cg-compound-context-enrichment",
@@ -22776,6 +23746,7 @@
         "roadmap.json#artifact-html-opt-in-default",
         "roadmap.json#automated-documentation-deployment-and-whats-new-page",
         "roadmap.json#dual-deployment-dev-branch-docs-at-dev",
+        "roadmap.json#unified-cg-light-work-command-for-small-technical-tasks",
         "roadmap.json#brain-full-scope-indexer",
         "roadmap.json#brain-topic-extraction",
         "roadmap.json#brain-relationship-detection",
@@ -22820,6 +23791,8 @@
         "roadmap.json#token-benchmark-before-after",
         "roadmap.json#manifest-backed-skills-discovery-catalog",
         "roadmap.json#token-optimization-compound",
+        "roadmap.json#cr-work-gpt-5-6-luna-model-governance",
+        "roadmap.json#cr-prompt-model-catalog-baseline",
         "roadmap.json#workflow-suitability-criteria",
         "roadmap.json#project-scanner-workflow-evidence",
         "roadmap.json#compound-workflow-contract",
@@ -22844,7 +23817,7 @@
       "slug": "architecture-research-objective-ongoing-ideas-objective-workflow-maturity-objective"
     },
     {
-      "entity_count": 7,
+      "entity_count": 9,
       "entity_paths": [
         "roadmap.json#cr-evidence-provenance-spine",
         "roadmap.json#cr-measurement-classification-archetype",
@@ -22852,15 +23825,17 @@
         "roadmap.json#cr-scoping-and-normative-gates",
         "roadmap.json#cr-responsible-lifecycle-method-packs",
         "roadmap.json#cr-second-measurement-use-case-validation",
-        "roadmap.json#cr-team-evidence-library"
+        "roadmap.json#cr-team-evidence-library",
+        "roadmap.json#cr-local-evidence-workbench-for-verifiable-research-claims",
+        "roadmap.json#root-level-c-research-output-workspace-and-migration"
       ],
       "keywords": [
         "expand compound research",
         "responsible research partner\nobjective",
-        "measurement"
+        "research"
       ],
-      "label": "Expand Compound Research / Responsible Research Partner\nObjective / Measurement",
-      "slug": "expand-compound-research-responsible-research-partner-objective-measurement"
+      "label": "Expand Compound Research / Responsible Research Partner\nObjective / Research",
+      "slug": "expand-compound-research-responsible-research-partner-objective-research"
     },
     {
       "entity_count": 4,

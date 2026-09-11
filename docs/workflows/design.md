@@ -18,11 +18,20 @@ record a decision without pretending implementation has begun.
 
 Skip brainstorming when expected behavior and scope are already explicit.
 
+## Choose the delivery route
+
+Use `/cg-light-work` only when one small, low-risk technical task qualifies. Use
+`/cg-fixbug` for a reproducible bug and `/cr-*` for research, statistical, or
+publication work. Larger, ambiguous, security-sensitive, schema, dependency, or
+destructive work uses `/cg-brainstorm` -> `/cg-plan` -> `/cg-work`.
+
 ## Create the plan
 
 Run `/cg-plan` for a known task. The plan records requirements, repository
 evidence, validation, deviations, completion criteria, and phases when useful.
-Standard or deep implementation should not rely on an improvised inline plan.
+`/cg-work` executes an approved saved Plan. If no saved Plan matches supplied
+task text, it stops and returns a copy-ready `/cg-light-work` route without
+dispatching it.
 
 Use `/cg-plan-review` when assumptions, dependencies, phase boundaries, or
 failure modes deserve independent criticism before execution.

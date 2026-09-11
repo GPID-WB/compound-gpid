@@ -102,6 +102,13 @@
       "executable": false
     },
     {
+      "path": ".agents/commands/cg-light-work.md",
+      "source": ".github/prompts/cg-light-work.prompt.md",
+      "kind": "command",
+      "sha256": "df6a564c8c4f84182f8990a513b9f43b5ad162e609f055be651da5791e23f7e6",
+      "executable": false
+    },
+    {
       "path": ".agents/commands/cg-plan-review.md",
       "source": ".github/prompts/cg-plan-review.prompt.md",
       "kind": "command",
@@ -196,7 +203,7 @@
       "path": ".agents/commands/cg-work.md",
       "source": ".github/prompts/cg-work.prompt.md",
       "kind": "command",
-      "sha256": "febd185c85cca01cfce922ff671e324b928f8187fd317e1e9bcedccaf035dbb1",
+      "sha256": "bf9ed9d47d735cd6b3fc02c8f99925355acaffef2a2b5e743a0f1e702542047b",
       "executable": false
     },
     {
@@ -294,7 +301,7 @@
       "path": ".agents/shared/active-state.contract.md",
       "source": ".github/shared/active-state.contract.md",
       "kind": "shared",
-      "sha256": "ca8559dcfdb690669e1688d82edb0d41eed6d912567e20ace9ddf4e4143297a1",
+      "sha256": "edd87c90746d753bd4bcf3e869b5e19eddfa78dc8eaacb6a8c264191dd6d9604",
       "executable": false
     },
     {
@@ -315,7 +322,7 @@
       "path": ".agents/shared/goal-execution.contract.md",
       "source": ".github/shared/goal-execution.contract.md",
       "kind": "shared",
-      "sha256": "1f73351c26458b08738213efa32d8b873f4778d7aa44874cc13177224fa079be",
+      "sha256": "54f26d4fbea1069a755a995ec2deea269968c8a1e1af27619cf8354206e10b92",
       "executable": false
     },
     {
@@ -343,7 +350,7 @@
       "path": ".agents/shared/review-routing.contract.md",
       "source": ".github/shared/review-routing.contract.md",
       "kind": "shared",
-      "sha256": "a69a44806364bd7a495e922e881534dfa4e71effac8004be3933994278251dbc",
+      "sha256": "946815d708ee716235fd7af3958cd6b4b40dd3176ec66d4a9e0d61453a67ed28",
       "executable": false
     },
     {

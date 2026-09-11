@@ -80,8 +80,11 @@ You are working in a data science project maintained by the DECDG team at the Wo
 | Discover what to work on next | `/cg-ideate` |
 | Resume interrupted work | `/cg-resume` |
 | Diagnose VS Code crash | `/cg-diagnose` |
-| Implement a plan | `/cg-work` |
-| Implement a specific phase | `/cg-work phaseX` |
+| Execute a qualified small technical task | `/cg-light-work <task>` |
+| Execute an approved saved Plan | `/cg-work` |
+| Execute a specific approved Plan phase | `/cg-work phaseX` |
+| Fix a reproducible bug | `/cg-fixbug` |
+| Run research, statistical, or publication work | `/cr-*` |
 | Code review | `/cg-review` |
 | Apply review findings | `/cg-fix-triage` |
 | Fix VS Code problems | `/cg-fix-problems` |
@@ -93,6 +96,20 @@ You are working in a data science project maintained by the DECDG team at the Wo
 | Manage GitHub Issues for roadmap items | `/cg-issues` |
 | Ready to commit, push, and open PR | `/cg-commit-push-pr` |
 | CI checks failing on PR | `/cg-verify-pr` |
+
+`/cg-light-work` is only for a qualified small, low-risk technical task. It has
+two user gates: approve and save the Plan before source edits, then explicitly
+opt in to compounding after verification. It writes a Plan, Work Report, and
+Review Report. Its mandatory light Review always uses `@cg-code-quality` and
+`@cg-testing`; Review and fixes stop after the initial pass and, only when fixes
+changed files, one verification pass. Skipping compounding creates no permanent
+knowledge side effect.
+
+Use `/cg-fixbug` for a reproducible bug and `/cr-*` for research, statistical,
+or publication work. Use `/cg-brainstorm` -> `/cg-plan` -> `/cg-work` for larger,
+ambiguous, security-sensitive, schema, dependency, or destructive work.
+`/cg-work` executes approved saved Plans and redirects unmatched inline tasks;
+it does not dispatch another workflow for them.
 
 > **Prompt design convention**: Each prompt file is intentionally self-contained and repeats the "Step 0: Get Bearings" charter-reading pattern verbatim. This duplication is deliberate — prompts must work standalone without requiring the user to have loaded any prior context. Do not factor out this boilerplate.
 

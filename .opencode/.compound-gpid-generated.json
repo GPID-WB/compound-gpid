@@ -298,6 +298,13 @@
       "executable": false
     },
     {
+      "path": ".opencode/commands/cg-light-work.md",
+      "source": ".github/prompts/cg-light-work.prompt.md",
+      "kind": "command",
+      "sha256": "a880b11bd3954eb5f33926191625bbe3bf15cac7e6f0162bbf2ca995fcd85324",
+      "executable": false
+    },
+    {
       "path": ".opencode/commands/cg-plan-review.md",
       "source": ".github/prompts/cg-plan-review.prompt.md",
       "kind": "command",
@@ -392,7 +399,7 @@
       "path": ".opencode/commands/cg-work.md",
       "source": ".github/prompts/cg-work.prompt.md",
       "kind": "command",
-      "sha256": "580c1ee042818afaf65e1d4b4de4772a3f137c80f3aac44f261ca92cc194b88b",
+      "sha256": "5c6860735ec7406a73302243a746c1d51c5b5ef260fe1c9422cbb608ad048c70",
       "executable": false
     },
     {
@@ -497,7 +504,7 @@
       "path": ".opencode/shared/active-state.contract.md",
       "source": ".github/shared/active-state.contract.md",
       "kind": "shared",
-      "sha256": "ca8559dcfdb690669e1688d82edb0d41eed6d912567e20ace9ddf4e4143297a1",
+      "sha256": "edd87c90746d753bd4bcf3e869b5e19eddfa78dc8eaacb6a8c264191dd6d9604",
       "executable": false
     },
     {
@@ -518,7 +525,7 @@
       "path": ".opencode/shared/goal-execution.contract.md",
       "source": ".github/shared/goal-execution.contract.md",
       "kind": "shared",
-      "sha256": "447ec7aaf7e3239d11bf6520bbe2ed19cb85b0d1b23d1caa4950ea3eae5f9cb6",
+      "sha256": "ed20693249e7194b6e1a5992013b79a496dd15b19738224671b8ae99a56b8d4d",
       "executable": false
     },
     {
@@ -546,7 +553,7 @@
       "path": ".opencode/shared/review-routing.contract.md",
       "source": ".github/shared/review-routing.contract.md",
       "kind": "shared",
-      "sha256": "a69a44806364bd7a495e922e881534dfa4e71effac8004be3933994278251dbc",
+      "sha256": "946815d708ee716235fd7af3958cd6b4b40dd3176ec66d4a9e0d61453a67ed28",
       "executable": false
     },
     {
