@@ -322,7 +322,7 @@
       "path": ".kilo/commands/cg-release.md",
       "source": ".github/prompts/cg-release.prompt.md",
       "kind": "command",
-      "sha256": "fe5544626d183814cb2e81c279697421da67df197c6b70885e29da1656191682",
+      "sha256": "762ffdfe136d9d7fd538b6d8b23a2c3900f957f25a60f04fbdc6732842fee29f",
       "executable": false
     },
     {

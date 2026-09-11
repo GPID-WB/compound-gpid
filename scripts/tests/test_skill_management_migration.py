@@ -2,7 +2,10 @@
 from __future__ import annotations
 
 import json
+import subprocess
 from pathlib import Path
+
+import pytest
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -20,9 +23,9 @@ MIGRATION_REFERENCES = {
 }
 
 
-def _active_text_files() -> tuple[Path, ...]:
-    files = []
-    for relative in (
+def _active_text_files(root: Path) -> tuple[Path, ...]:
+    """Scan source-owned files, not ignored or independent nested worktrees."""
+    roots = (
         ".github",
         ".claude",
         ".agents",
@@ -31,14 +34,68 @@ def _active_text_files() -> tuple[Path, ...]:
         "bin",
         "docs",
         "scripts",
-    ):
-        for path in (REPO_ROOT / relative).rglob("*"):
-            if not path.is_file() or "scripts/tests" in path.as_posix():
-                continue
-            if path.suffix.casefold() in {".md", ".json", ".py", ".ps1", ".sh", ".cmd"}:
-                files.append(path)
-    files.extend((REPO_ROOT / "install.ps1", REPO_ROOT / "compound-gpid.context.md"))
+    )
+    result = subprocess.run(
+        ["git", "ls-files", "--cached", "--others", "--exclude-standard", "-z",
+         "--", *roots],
+        cwd=root, capture_output=True, text=True, encoding="utf-8",
+        timeout=30, check=True,
+    )
+    files = []
+    for relative in result.stdout.split("\0"):
+        path = root / relative
+        if not relative or not path.is_file() or Path(relative).parts[:2] == ("scripts", "tests"):
+            continue
+        if path.suffix.casefold() in {".md", ".json", ".py", ".ps1", ".sh", ".cmd"}:
+            files.append(path)
+    files.extend((root / "install.ps1", root / "compound-gpid.context.md"))
     return tuple(sorted(set(files)))
+
+
+@pytest.mark.parametrize("ignored", [False, True])
+@pytest.mark.parametrize("git_file", [False, True])
+def test_migration_scan_respects_repository_ownership(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, ignored: bool, git_file: bool
+) -> None:
+    """Nested Git boundaries cannot hide source-owned native release content."""
+    root = tmp_path / "source"
+    root.mkdir()
+    subprocess.run(["git", "init", str(root)], capture_output=True, check=True)
+    owned = {
+        ".kilo/commands/current.md": "cg-find-skill",
+        ".kilo/worktrees/owned/record.md": "source-owned content",
+        "docs/skills/management/migration.md": " ".join(OLD_NAMES),
+        "install.ps1": "",
+        "compound-gpid.context.md": "",
+    }
+    for relative, content in owned.items():
+        path = root / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content, encoding="utf-8")
+    subprocess.run(["git", "add", "."], cwd=root, capture_output=True, check=True)
+    if ignored:
+        (root / ".gitignore").write_text(".kilo/worktrees/\n", encoding="utf-8")
+    nested = root / ".kilo/worktrees/independent"
+    command = ["git", "init"]
+    if git_file:
+        command.extend(["--separate-git-dir", str(tmp_path / "nested-git")])
+    subprocess.run([*command, str(nested)], capture_output=True, check=True)
+    (nested / "retired.md").write_text(" ".join(OLD_NAMES), encoding="utf-8")
+    untracked = root / ".kilo/commands/new command.md"
+    untracked.write_text("new native command", encoding="utf-8")
+
+    assert set(_active_text_files(root)) == {root / path for path in owned} | {untracked}
+    monkeypatch.setitem(globals(), "REPO_ROOT", root)
+    with pytest.raises(AssertionError, match="current.md"):
+        test_old_names_remain_only_in_explicit_migration_text()
+    (root / ".kilo/commands/current.md").write_text("cg-skill", encoding="utf-8")
+    test_old_names_remain_only_in_explicit_migration_text()
+
+
+def test_migration_scan_fails_closed_without_git_ownership(tmp_path: Path) -> None:
+    """A failed Git query must not silently produce an empty scan."""
+    with pytest.raises(subprocess.CalledProcessError):
+        _active_text_files(tmp_path)
 
 
 def test_public_prompt_and_wrappers_replace_old_surfaces() -> None:
@@ -88,7 +145,7 @@ def test_skill_management_is_a_public_cg_suite_capability() -> None:
 
 def test_old_names_remain_only_in_explicit_migration_text() -> None:
     occurrences = {name: [] for name in OLD_NAMES}
-    for path in _active_text_files():
+    for path in _active_text_files(REPO_ROOT):
         relative = path.relative_to(REPO_ROOT).as_posix()
         content = path.read_text(encoding="utf-8", errors="strict")
         for old_name in OLD_NAMES:

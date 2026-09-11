@@ -17,6 +17,7 @@ import os
 import re
 import subprocess
 import sys
+import time
 from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any, Iterable, Mapping, Optional, Sequence, Tuple
@@ -25,6 +26,7 @@ from typing import Any, Iterable, Mapping, Optional, Sequence, Tuple
 PYTHON = sys.executable
 ZERO_REVISION = "0" * 40
 MAX_CAPTURED_OUTPUT_BYTES = 8 * 1024
+NATIVE_COMMAND_TIMEOUT_SECONDS = 600
 MAX_KILO_RESULT_BYTES = 2 * 1024 * 1024
 MAX_CACHE_REPORT_PATHS = 100
 MODULE_CHECKS = ("dependencies", "cross-suite", "ownership")
@@ -872,7 +874,13 @@ def run_native_target(
         else selected_native_commands(selected, root, phase=phase)
     )
     results: list[CommandResult] = []
-    for command in command_list:
+    for index, command in enumerate(command_list, start=1):
+        started = time.monotonic()
+        sys.stderr.write(
+            f"Preflight: starting native command {index}/{len(command_list)} "
+            f"(timeout={NATIVE_COMMAND_TIMEOUT_SECONDS}s; output captured).\n"
+        )
+        sys.stderr.flush()
         try:
             completed = subprocess.run(
                 list(command),
@@ -881,7 +889,7 @@ def run_native_target(
                 text=True,
                 encoding="utf-8",
                 errors="replace",
-                timeout=600,
+                timeout=NATIVE_COMMAND_TIMEOUT_SECONDS,
                 check=False,
             )
             result = CommandResult(
@@ -893,6 +901,11 @@ def run_native_target(
         except (OSError, subprocess.SubprocessError) as exc:
             result = CommandResult(command, 127, "", _bounded_text(f"{type(exc).__name__}: {exc}"))
         results.append(result)
+        sys.stderr.write(
+            f"Preflight: native command {index}/{len(command_list)} "
+            f"exited {result.returncode} after {time.monotonic() - started:.1f}s.\n"
+        )
+        sys.stderr.flush()
         if result.returncode != 0:
             break
     return NativeRunResult(tuple(results))
@@ -1151,6 +1164,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     """Run selection and, optionally, the native target."""
     args = _build_parser().parse_args(argv)
     root = args.root.expanduser().resolve()
+    if args.run_native_target and not args.selection_only:
+        sys.stderr.write(f"Preflight: inspecting selection and cache (phase={args.phase}).\n")
+        sys.stderr.flush()
     explicit_files = args.changed_files
 
     full_gate = args.full_gate
