@@ -40,9 +40,11 @@ def _run_release_fixture(
         "#!/bin/sh\n"
         "printf '%s\\n' \"$*\" >> \"$CG_GIT_LOG\"\n"
         "case \"$1 $3\" in\n"
-        "  '-C rev-parse') case \"$5\" in HEAD*) printf '%s\\n' \"$CG_HEAD_COMMIT\" ;; *) printf '%s\\n' \"$CG_TAG_COMMIT\" ;; esac ;;\n"
+        "  '-C remote') printf '%s\\n' 'https://github.com/GPID-WB/compound-gpid.git' ;;\n"
+        "  '-C rev-parse') case \"$5\" in HEAD*|origin/*) printf '%s\\n' \"$CG_HEAD_COMMIT\" ;; *'{commit}') printf '%s\\n' \"$CG_TAG_COMMIT\" ;; *) printf '%040d\\n' 2 ;; esac ;;\n"
+        "  '-C cat-file') printf '%s\\n' tag ;;\n"
         "  '-C tag') printf '%s\\n' 'v1.2.0.9006' ;;\n"
-        "  '-C ls-remote') case \"$4\" in --heads) printf '%s\\t%s\\n' \"$CG_HEAD_COMMIT\" 'refs/heads/dev' ;; --tags) printf '%s\\t%s\\n' \"$CG_TAG_COMMIT\" 'refs/tags/v1.2.0.9006' ;; esac ;;\n"
+        "  '-C ls-remote') case \"$4\" in --heads) printf '%s\\t%s\\n' \"$CG_HEAD_COMMIT\" 'refs/heads/dev' ;; esac ;;\n"
         "  '-C status') [ \"$CG_DIRTY\" = 1 ] && printf '%s\\n' ' M changed.txt' ;;\n"
         "  'credential fill') printf '%s\\n' 'password=fake-token' ;;\n"
         "esac\nexit 0\n",
@@ -160,7 +162,7 @@ class TestReleaseGateTargets:
         content = (REPO_ROOT / ".github/prompts/cg-release.prompt.md").read_text(encoding="utf-8")
         execute = content.index("### Step 5: Create and publish the durable release source")
         before_execute = content[:execute].lower()
-        assert "native packaging" in before_execute
+        assert "authoritative complete native preflight" in before_execute
         assert "release gate" in before_execute or "preflight" in before_execute
         assert "halt" in before_execute
 

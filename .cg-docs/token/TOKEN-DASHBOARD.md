@@ -1,6 +1,6 @@
 # Token Dashboard
 
-_Generated: 2026-08-07T19:20:40-04:00@d716ce703e14_
+_Generated: 2026-09-03T00:03:52+02:00@1ef12277141b_
 
 > Token estimates are heuristic (chars/4) and intended for directional audit use.
 
@@ -12,14 +12,14 @@ comparable repository probes.
 
 - Status: `fail`
 - Reason: Deterministic guardrail failures are present.
-- Guardrail failures: 1
-- Guardrail warnings: 25
+- Guardrail failures: 60
+- Guardrail warnings: 11
 - Baseline comparison: not_supplied
 
 ## Source Scope
 
-- Source files counted: 157
-- Source estimated tokens: 602133
+- Source files counted: 161
+- Source estimated tokens: 663963
 - Workflow rows: 9
 
 ## Highest Workflow Budgets
@@ -34,8 +34,8 @@ comparable repository probes.
 
 ## Context and Warning Summary
 
-- Context loading signals: risk=23, justified=17, targeted=114
-- Reviewed warnings: fix=10, accept=12, docs-only=3
+- Context loading signals: risk=9, justified=17, targeted=112
+- Reviewed warnings: fix=8, accept=0, docs-only=3
 
 ## Observability Boundaries
 

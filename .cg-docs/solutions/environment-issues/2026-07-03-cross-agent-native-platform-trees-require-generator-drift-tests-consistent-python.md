@@ -105,3 +105,5 @@ Three sub-problems emerged:
   — prior adapter approach (superseded by generated trees)
 - `.cg-docs/solutions/environment-issues/2026-06-23-cross-agent-adapters-are-opt-in-source-packages.md`
   — prior adapter packaging (superseded)
+- `.cg-docs/solutions/testing-patterns/2026-08-13-release-gate-fixtures-and-derived-evidence-hashes.md`
+  — runtime-faithful release fixtures and derived evidence hash validation

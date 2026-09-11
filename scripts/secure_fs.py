@@ -154,6 +154,89 @@ def normalize_relative_path(relative_path: Union[str, PurePath]) -> str:
     return str(pure)
 
 
+def validate_path_components(path: Path, *, require_directory: bool = False) -> None:
+    """Reject symlink, reparse-point, and non-directory path components.
+
+    Args:
+        path: Lexical path whose existing components should be inspected.
+        require_directory: Require the final existing component to be a directory.
+
+    Returns:
+        ``None`` after all existing components pass the boundary checks.
+
+    Raises:
+        SecureMutationError: If an existing component is unsafe or inaccessible.
+
+    Example:
+        ``validate_path_components(root / "c-research/evidence")`` checks a
+        path before it is created or opened.
+    """
+    lexical = _normalize_allowed_system_aliases(Path(path))
+    components = lexical.parts[1:] if lexical.anchor else lexical.parts
+    current = Path(lexical.anchor) if lexical.anchor else Path()
+    for index, component in enumerate(components):
+        current /= component
+        try:
+            metadata = os.lstat(current)
+        except FileNotFoundError:
+            continue
+        except OSError as error:
+            raise SecureMutationError(
+                f"Could not inspect path component: {current}."
+            ) from error
+        if _is_link_or_reparse(metadata):
+            raise SecureMutationError(
+                f"Path cannot contain a symbolic link or reparse point: {current}."
+            )
+        is_final = index == len(components) - 1
+        if not is_final and not stat.S_ISDIR(metadata.st_mode):
+            raise SecureMutationError(f"Path component is not a directory: {current}.")
+        if is_final and require_directory and not stat.S_ISDIR(metadata.st_mode):
+            raise SecureMutationError(f"Path is not a directory: {current}.")
+
+
+def _normalize_allowed_system_aliases(path: Path) -> Path:
+    """Resolve only standard macOS aliases before secure component traversal."""
+    candidate = path if path.is_absolute() else Path.cwd() / path
+    parts = candidate.parts
+    current = Path(candidate.anchor) if candidate.anchor else Path()
+    normalized_parts = [candidate.anchor] if candidate.anchor else []
+    for component in parts[1:] if candidate.anchor else parts:
+        lexical_component = current / component
+        try:
+            metadata = os.lstat(lexical_component)
+        except FileNotFoundError:
+            current = lexical_component
+            normalized_parts.append(component)
+            continue
+        if _is_link_or_reparse(metadata):
+            if not _is_allowed_system_alias(lexical_component):
+                raise SecureMutationError(
+                    f"Path cannot contain a symbolic link or reparse point: "
+                    f"{lexical_component}."
+                )
+            current = lexical_component.resolve(strict=True)
+            normalized_parts = list(current.parts)
+            continue
+        current = lexical_component
+        normalized_parts.append(component)
+    return Path(*normalized_parts) if normalized_parts else current
+
+
+def _is_allowed_system_alias(path: Path) -> bool:
+    """Return whether a symlink is one of macOS's standard private aliases."""
+    if sys.platform != "darwin" or path not in {
+        Path("/etc"),
+        Path("/tmp"),
+        Path("/var"),
+    }:
+        return False
+    try:
+        return path.resolve(strict=True).is_relative_to(Path("/private"))
+    except OSError:
+        return False
+
+
 def open_relative_parent(
     root: Path,
     relative_path: str,
@@ -184,7 +267,7 @@ def open_relative_parent(
         | getattr(os, "O_DIRECTORY", 0)
         | getattr(os, "O_NOFOLLOW", 0)
     )
-    descriptor = os.open(root, flags)
+    descriptor = _open_directory_chain(Path(root), flags)
     try:
         for part in parts[:-1]:
             if create:
@@ -196,6 +279,31 @@ def open_relative_parent(
             os.close(descriptor)
             descriptor = child
         return descriptor, parts[-1]
+    except BaseException:
+        os.close(descriptor)
+        raise
+
+
+def _open_directory_chain(root: Path, flags: int) -> int:
+    """Open an absolute lexical directory path without following ancestors."""
+    if not _SUPPORTS_SECURE_DIR_FD:
+        raise SecureMutationError(
+            "Handle-relative directory traversal is unavailable on this host."
+        )
+    candidate = _normalize_allowed_system_aliases(Path(root))
+    parts = candidate.parts
+    if candidate.anchor:
+        descriptor = os.open(candidate.anchor, flags)
+        components = parts[1:]
+    else:
+        descriptor = os.open(".", flags)
+        components = parts
+    try:
+        for component in components:
+            child = os.open(component, flags, dir_fd=descriptor)
+            os.close(descriptor)
+            descriptor = child
+        return descriptor
     except BaseException:
         os.close(descriptor)
         raise

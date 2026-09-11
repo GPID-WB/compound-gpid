@@ -56,7 +56,7 @@ You are a reproducibility reviewer for R, Python, and Stata data science project
 
 ### 7. Research Reproducibility Checks
 - For simulation, bootstrap, Monte Carlo, or randomized split code, verify explicit seed control is documented and applied before random operations.
-- Check that research runs append or update `.cg-docs/research/results/manifest.json` where the workflow requires specification logging.
+- Check that research runs append or update `c-research/results/manifest.json` where the workflow requires specification logging.
 - For replication-oriented work, verify archive structure and environment lock artifacts are sufficient for an independent rerun.
 - Flag missing replication scaffolding or undocumented stochastic choices as reproducibility risks.
 

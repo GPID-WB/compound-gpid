@@ -54,6 +54,7 @@ Compound GPID enforces a repeatable **Brainstorm → Plan → Work → Review �
 | [Getting Started](docs/getting-started/index.md) | Understand the project, install/configure it, and complete a first workflow |
 | [Why Compound GPID?](docs/why-compound-gpid.md) | Institutional focus, upstream inspiration, differences, and tradeoffs |
 | [Workflows](docs/workflows/index.md) | Task-oriented paths from strategy through verified knowledge capture |
+| [Research Handbook](docs/research/index.md) | Newcomer path for the research suite, from activation through a first CR workflow |
 | [Skills](docs/skills/index.md) | Canonical analytical, technical, testing, and institutional skill catalog |
 | [Configuration](docs/configuration/index.md) | Context files, platform targets, settings, and managed content |
 | [Modular Guide](docs/modular-guide.md) | Suite selection, capability composition, registry ownership, and extension rules |

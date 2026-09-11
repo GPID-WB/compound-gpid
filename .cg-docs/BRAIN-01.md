@@ -1,10 +1,10 @@
 # 🧠 Project Brain — Part 1
 
-_Generated 2026-09-09_
+_Generated 2026-09-10_
 
 ## Roadmap.Json / Test Scenarios / Cg-Work
 
-_Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 423 entities
+_Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 426 entities
 
 - **[Rename prompts, agents, and skills with cg- prefix; add WIP banner and manual](.cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md)** · `brainstorm` · _decided_ · `2026-03-02`
   > The project's prompts, agents, and skills lack a consistent naming prefix, making it unclear which files belong to th…
@@ -104,16 +104,26 @@ _Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 423 entities
   > <!-- Valid status values: decided, in-progress, abandoned -->
 - **[Modular Compound GPID architecture for technical and research suites](.cg-docs/brainstorms/2026-07-31-modular-compound-gpid-architecture.md)** · `brainstorm` · _decided_ · `2026-07-31`
   > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[Workflow completion dossier and curated artifact themes](.cg-docs/brainstorms/2026-08-02-completion-dossier-and-curated-artifact-themes.md)** · `brainstorm` · _decided_ · `2026-08-02`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
 - **[Use GPT-5.6 Luna for /cr-work](.cg-docs/brainstorms/2026-08-02-cr-work-gpt-5-6-luna.md)** · `brainstorm` · _decided_ · `2026-08-02`
   > <!-- Valid status values: decided, in-progress, abandoned -->
 - **[Automated Documentation Deployment and What's New Page](.cg-docs/brainstorms/2026-08-12-automated-documentation-deployment.md)** · `brainstorm` · _decided_ · `2026-08-12`
   > The Compound GPID documentation site (https://gpid-wb.github.io/compound-gpid/) is deployed via GitHub Actions from `…
+- **[CR Local Evidence Workbench for Verifiable Research Claims](.cg-docs/brainstorms/2026-08-12-cr-local-evidence-workbench.md)** · `brainstorm` · _decided_ · `2026-08-12`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
 - **[Manifest-driven skill loading for context efficiency](.cg-docs/brainstorms/2026-08-13-skill-loading-architecture-context-efficiency.md)** · `brainstorm` · _decided_ · `2026-08-13`
   > <!-- Valid status values: decided, in-progress, abandoned -->
 - **[Rename repository review command and add registry management flags](.cg-docs/brainstorms/2026-08-28-compound-gpid-rd-command.md)** · `brainstorm` · _decided_ · `2026-08-28`
   > <!-- Valid status values: decided, in-progress, abandoned -->
 - **[Scalable Skill Management Suite](.cg-docs/brainstorms/2026-08-28-scalable-skill-management-suite.md)** · `brainstorm` · _decided_ · `2026-08-28`
   > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[Separate CR Research Outputs from Compound GPID Documentation](.cg-docs/brainstorms/2026-09-02-c-research-artifact-boundary.md)** · `brainstorm` · _decided_ · `2026-09-02`
+  > <!-- Valid status values: decided, in-progress, abandoned --> <!-- Created 2026-09-02. -->
+- **[CR ML Skill Redesign for Econometricians](.cg-docs/brainstorms/2026-09-03-cr-ml-skill-redesign.md)** · `brainstorm` · _decided_ · `2026-09-03`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[User-facing Compound Research Handbook and Isolated Dev Preview](.cg-docs/brainstorms/2026-09-03-cr-research-handbook-and-dev-preview.md)** · `brainstorm` · _decided_ · `2026-09-03`
+  > <!-- Created 2026-09-03. -->
 - **[Unified lightweight workflow command for small technical tasks](.cg-docs/brainstorms/2026-09-04-cg-light-work-unified-small-task-workflow.md)** · `brainstorm` · _decided_ · `2026-09-04`
   > <!-- Valid status values: decided, in-progress, abandoned -->
 - **[Minimal adaptive grilling for the Compound GPID workflow](.cg-docs/brainstorms/2026-09-04-minimal-adaptive-grilling.md)** · `brainstorm` · _decided_ · `2026-09-04`
@@ -346,6 +356,10 @@ _Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 423 entities
   > > **ARCHIVED — SUPERSEDED BY v2** > This is the historical v1 plan (2026-08-05). It has been superseded by > `2026-08…
 - **[Automated Documentation Deployment and What's New Page](.cg-docs/plans/2026-08-12-automated-documentation-deployment.md)** · `plan` · _active_ · `2026-08-12`
   > Keep the public documentation site current from reviewed canonical sources and publish a deterministic, release-backe…
+- **[CR Local Evidence Workbench for Verifiable Research Claims \(Revised\)](.cg-docs/plans/2026-08-12-cr-local-evidence-workbench-revised.md)** · `plan` · _completed_ · `2026-08-12`
+  > <!-- Created 2026-08-12. Revision 2 addresses the plan-review findings. -->
+- **[CR Local Evidence Workbench for Verifiable Research Claims](.cg-docs/plans/2026-08-12-cr-local-evidence-workbench.md)** · `plan` · _active_ · `2026-08-12`
+  > <!-- Created 2026-08-12. Follow-up plan: the predecessor plan remains completed historical work. -->
 - **[Manifest-driven skill loading and project-local platform projections](.cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md)** · `plan` · _active_ · `2026-08-13`
   > Replace all-skill, shared-install runtime exposure with a strict, committed per-project manifest and an atomically pu…
 - **[Prevent PR CI reruns with native-target and Kilo capability preflights](.cg-docs/plans/2026-08-21-pr-ci-preflight-and-kilo-capability-gates.md)** · `plan` · _completed_ · `2026-08-21`
@@ -354,6 +368,12 @@ _Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 423 entities
   > Replace the developer-only `/cg-review-repos` command with `/cg-compound-gpid-rd`, preserve its full and delta review…
 - **[Scalable Skill Management Suite](.cg-docs/plans/2026-08-28-scalable-skill-management-suite.md)** · `plan` · _completed_ · `2026-08-28`
   > Build one role-gated `/cg-skill` command that manages the complete skill lifecycle without becoming one large prompt …
+- **[Root-Level c-research Output Workspace and Migration](.cg-docs/plans/2026-09-02-c-research-output-workspace-migration.md)** · `plan` · _completed_ · `2026-09-02`
+  > <!-- Created 2026-09-02. -->
+- **[CR ML Skill Redesign for Econometricians](.cg-docs/plans/2026-09-03-cr-ml-skill-redesign.md)** · `plan` · _completed_ · `2026-09-03`
+  > Replace the monolithic `cr-skill-ml-economics/SKILL.md` with a compact, Hastie-Tibshirani-Friedman-led router and eig…
+- **[User-facing Compound Research Handbook and Isolated Dev Preview](.cg-docs/plans/2026-09-03-cr-research-handbook-and-dev-preview.md)** · `plan` · _active_ · `2026-09-03`
+  > <!-- Created 2026-09-03. -->
 - **[Unified /cg-light-work command for small technical tasks](.cg-docs/plans/2026-09-04-cg-light-work-unified-small-task-workflow.md)** · `plan` · _completed_ · `2026-09-04`
   > Add `/cg-light-work <task>` as one fail-closed workflow for qualifying small technical tasks. It must perform bounded…
 - **[Implement Minimal Adaptive Grilling](.cg-docs/plans/2026-09-04-minimal-adaptive-grilling.md)** · `plan` · _completed_ · `2026-09-04`
@@ -678,6 +698,10 @@ _Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 423 entities
   > **Review mode**: full (auto-routed security-risk) **Files reviewed**: canonical prompt, registry utility, tests, audi…
 - **[2026-08-28-scalable-skill-management-suite-verify-review-3](.cg-docs/reviews/2026-08-28-scalable-skill-management-suite-verify-review-3.md)** · `review` · _—_ · `2026-09-08`
   > - **Review mode**: verify (light-only) - **Parent review**: `.cg-docs/reviews/2026-08-28-scalable-skill-management-su…
+- **[2026-09-02-c-research-output-workspace-migration-review](.cg-docs/reviews/2026-09-02-c-research-output-workspace-migration-review.md)** · `review` · _—_ · `2026-09-02`
+  > **Review mode:** full
+- **[CR ML Skill Redesign Review](.cg-docs/reviews/2026-09-03-cr-ml-skill-redesign-review.md)** · `review` · _—_ · `2026-09-03`
+  > Reviewed the uncommitted changes on `feat/cr-ml-skill-redesign` relative to `HEAD` (`1ef1227`). The review included t…
 - **[2026-09-04-minimal-adaptive-grilling-review](.cg-docs/reviews/2026-09-04-minimal-adaptive-grilling-review.md)** · `review` · _—_ · `2026-09-08`
   > **Review mode**: standard **Files reviewed**: 29 implementation and workflow-record paths **Findings**: 15 (P0: 0, P1…
 - **[Broken relative links in deeply-nested skill files pointing to repo root](.cg-docs/solutions/bugs/2026-03-18-broken-relative-links-in-nested-skill-files.md)** · `solution` · _—_ · `2026-03-18`
@@ -784,6 +808,8 @@ _Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 423 entities
   > After running `cg-link --platform kilo`, the `.kilo/commands/` directory is correctly symlinked to the compound-gpid …
 - **[compound-gpid.local.md gitignored causing missing config in fresh worktrees and clones](.cg-docs/solutions/bugs/2026-08-06-compound-gpid-local-md-gitignored-missing-in-worktrees.md)** · `solution` · _—_ · `2026-08-06`
   > `compound-gpid.local.md` was absent from every fresh git worktree and clone. Team members had to manually copy the fi…
+- **[Typed-invalid gh CLI JSON payloads must map to the API-error exit code, not a crash](.cg-docs/solutions/bugs/2026-08-10-typed-invalid-gh-cli-payloads-crash-exit-code-contract.md)** · `solution` · _—_ · `2026-08-10`
+  > The Compound GPID issue readiness validator (`scripts/issues/readiness.py`) documents an exit-code contract: 0 = read…
 - **[Windows cg-link Kilo parse failures — enforce copy-directory instead of junctions](.cg-docs/solutions/bugs/2026-08-11-windows-link-kilo-copy-directory-parse-failure.md)** · `solution` · _—_ · `2026-08-11`
   > Opening a project in VS Code or Positron with the Compound GPID plugin installed (v1.1.9+) reported the same error fo…
 - **[Pages immutable-ref gate rejects dev-series pre-release tags \(v1.2.0.900x\)](.cg-docs/solutions/bugs/2026-08-14-pages-immutable-ref-gate-rejects-dev-series-pre-release-tags.md)** · `solution` · _—_ · `2026-08-14`
@@ -796,8 +822,12 @@ _Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 423 entities
   > The `/cg-release` packaging gate took more than 20 minutes in the full workflow. The native packaging test portion al…
 - **[Trusted dispatch requires immutable anchors and captured bytes](.cg-docs/solutions/bugs/2026-08-31-trust-anchor-captured-byte-dispatch.md)** · `solution` · _—_ · `2026-08-31`
   > The private skill-management dispatcher used local Git origin and branch data to grant maintainer authority. A fixtur…
+- **[Secure c-research migration and research-output boundary](.cg-docs/solutions/bugs/2026-09-02-c-research-migration-security-and-boundary.md)** · `solution` · _—_ · `2026-09-02`
+  > Moving Compound Research outputs from `.cg-docs/research/` to the root-level `c-research/` workspace exposed several …
 - **[Captured-byte trust must cover the complete dependency closure](.cg-docs/solutions/bugs/2026-09-02-captured-byte-trust-must-cover-dependency-closure.md)** · `solution` · _—_ · `2026-09-02`
   > A dynamic Python dispatcher captured and validated the selected operation file before execution. The handler still im…
+- **[cg-setup omitted active research-suite selection](.cg-docs/solutions/bugs/2026-09-03-cg-setup-omits-active-research-suite-selection.md)** · `solution` · _—_ · `2026-09-03`
+  > After running `/cg-setup`, a project that needed Compound Research could still be configured without the `cr` suite. …
 - **[Get-Item .Target property is string\[\] in PowerShell 5.1, not a scalar string](.cg-docs/solutions/build-errors/2026-03-04-get-item-target-is-string-array.md)** · `solution` · _—_ · `2026-03-04`
   > Code that checks whether a junction points to a specific directory passed all unit tests but produced confusing resul…
 - **[$$  is not a process ID in PowerShell](.cg-docs/solutions/build-errors/2026-03-04-powershell-dollar-dollar-is-not-pid.md)** · `solution` · _—_ · `2026-03-04`
@@ -828,29 +858,5 @@ _Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 423 entities
   > A deterministic JSON registry utility preserved unknown fields structurally but decoded unknown numbers as binary flo…
 - **[Validate registry identities before building derived maps](.cg-docs/solutions/data-quality/2026-09-09-validate-registry-identities-before-derived-maps.md)** · `solution` · _—_ · `2026-09-09`
   > A workflow registry had three identity fields: `workflow_id`, `workflow`, and `path`. Validation rejected duplicate I…
-- **[Skills are not slash-command prompts — avoid advertising them as /skill-name](.cg-docs/solutions/environment-issues/2026-03-02-skill-vs-prompt-slash-command.md)** · `solution` · _—_ · `2026-03-02`
-  > Documentation (README, manual) instructed users to run `/cg-setup` in Copilot Chat to configure their project. Howeve…
-- **[Troubleshooting documentation belongs in manual, not README](.cg-docs/solutions/environment-issues/2026-03-13-troubleshooting-doc-structure-readme-vs-manual.md)** · `solution` · _—_ · `2026-03-13`
-  > A troubleshooting section was added to `README.md` during a hotfix (documenting a `cg-update` bootstrap failure). Bec…
-- **[Multi-day VS Code session \(68h\) accumulates event listeners — unresponsive freeze and controlled restart](.cg-docs/solutions/environment-issues/2026-04-24-multi-day-vscode-session-accumulates-listeners-crashes.md)** · `solution` · _—_ · `2026-04-24`
-  > After a multi-priority fix-triage session (P0→P1→P2→P3) spanning multiple hours, VS Code became unresponsive and rest…
-- **[Join-Path with embedded backslash path separator is Windows-only](.cg-docs/solutions/environment-issues/2026-05-13-join-path-backslash-not-cross-platform.md)** · `solution` · _—_ · `2026-05-13`
-  > On Windows, `Join-Path $base "subdir\file.txt"` works correctly, producing `$base\subdir\file.txt`. The same call on …
-- **[Codex and Claude Code need an AGENTS.md adapter to execute GitHub Copilot /cg-* prompts](.cg-docs/solutions/environment-issues/2026-06-06-codex-claude-code-cg-prompt-dispatch-adapter.md)** · `solution` · _—_ · `2026-06-06`
-  > Compound GPID's workflow assets live under `.github/` and were originally designed for GitHub Copilot: - `.github/pro…
-- **[Cross-agent adapters should be opt-in source packages](.cg-docs/solutions/environment-issues/2026-06-23-cross-agent-adapters-are-opt-in-source-packages.md)** · `solution` · _—_ · `2026-06-23`
-  > The root `AGENTS.md` adapter made this repository usable from Codex and Claude Code-compatible agents, but consumer p…
-- **[Cross-agent native platform trees require a generator, drift tests, and consistent Python resolution](.cg-docs/solutions/environment-issues/2026-07-03-cross-agent-native-platform-trees-require-generator-drift-tests-consistent-python.md)** · `solution` · _—_ · `2026-07-03`
-  > Compound GPID's `.github/` assets were designed for GitHub Copilot. Supporting Claude Code, Codex, and OpenCode requi…
-- **[Kilo coexistence requires a certified contained launch and no-follow local copies](.cg-docs/solutions/environment-issues/2026-08-14-kilo-contained-launch-and-no-follow-copy.md)** · `solution` · _—_ · `2026-08-14`
-  > When Kilo, Codex, and Claude-compatible roots coexist in one project, Kilo can discover skills outside the project-lo…
-- **[Manifest-driven install gate prevents junction conflicts with projection synchronizer](.cg-docs/solutions/environment-issues/2026-08-17-manifest-driven-install-gate-prevents-junction-conflicts.md)** · `solution` · _—_ · `2026-08-17`
-  > `link.ps1`/`link.sh` create directory junctions for `.agents/*`, `.claude/*`, `.opencode/*` installUnits before the p…
-- **[git stderr swallowed by 2>&1 redirect into an unused variable](.cg-docs/solutions/git-workflows/2026-03-04-git-pull-stderr-swallowed-by-redirect.md)** · `solution` · _—_ · `2026-03-04`
-  > A script captured git output like this: The intent was to capture output so it could be formatted. In practice: - `2>…
-- **[PS5.1 ErrorActionPreference=Stop promotes git informational stderr into terminating errors](.cg-docs/solutions/git-workflows/2026-03-05-ps51-stderr-stop-terminates-on-git-informational-output.md)** · `solution` · _—_ · `2026-03-05`
-  > After removing `2>$null` from `git checkout .` (following the general rule "don't suppress stderr"), the script start…
-- **[Checklist for consolidating \(merging/renaming\) VS Code Copilot skills](.cg-docs/solutions/git-workflows/2026-03-22-skill-consolidation-checklist.md)** · `solution` · _—_ · `2026-03-22`
-  > When two skills (`cg-skill-stata-core` + `cg-skill-stata-research`) were merged into `cg-skill-stata-best-practices`,…
 
 _…continues in [BRAIN-02.md](BRAIN-02.md)_

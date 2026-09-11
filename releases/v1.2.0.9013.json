@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "tag": "v1.2.0.9013",
+  "publishedAt": "2026-09-09T20:40:48Z",
+  "releaseDate": "2026-09-09",
+  "name": "v1.2.0.9013 - Adaptive brainstorming decisions",
+  "url": "https://github.com/GPID-WB/compound-gpid/releases/tag/v1.2.0.9013",
+  "sourceUrl": "https://github.com/GPID-WB/compound-gpid/tree/v1.2.0.9013",
+  "sections": [
+    {
+      "kind": "new",
+      "title": "Adaptive brainstorming decisions",
+      "entries": [
+        "Add a fact-first adaptive workflow with bounded exploration and explicit minimal-design confirmation."
+      ]
+    },
+    {
+      "kind": "internal",
+      "title": "Workflow verification and documentation",
+      "entries": [
+        "Add branch-complete workflow tests and regenerate deterministic platform targets.",
+        "Record the design, plan, execution evidence, testing pattern, and rebuilt knowledge index."
+      ]
+    }
+  ]
+}

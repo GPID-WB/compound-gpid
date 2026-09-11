@@ -3,14 +3,17 @@
     "comparison": null,
     "context_loading": {
       "justified": 17,
-      "risk": 23,
-      "targeted": 114
+      "risk": 9,
+      "targeted": 112
     },
     "model_governance": {
-      "advisory_error_count": 0,
-      "advisory_example_count": 5,
-      "advisory_stage_count": 5,
-      "forbidden_execution_metadata_count": 0
+      "haiku_role_violations": 0,
+      "missing_model_count": 53,
+      "model_drift_count": 0,
+      "openai_first_violations": 0,
+      "ordinary_model_picker_violations": 0,
+      "premium_usage_count": 0,
+      "sonnet_role_violations": 0
     },
     "review_agent_counts": {
       "available": true,
@@ -36,9 +39,10 @@
         "dispatch_burden": "limited",
         "dispatch_refs": 2,
         "estimated_tokens": 3965,
-        "execution_metadata": false,
         "file_refs": 17,
         "load_verbs": 8,
+        "model": null,
+        "model_tier": "model-picker",
         "path": ".github/prompts/cg-brainstorm.prompt.md",
         "skill_refs": 1,
         "summary_output_status": "not_observed",
@@ -59,9 +63,10 @@
         "dispatch_burden": "limited",
         "dispatch_refs": 1,
         "estimated_tokens": 3507,
-        "execution_metadata": false,
         "file_refs": 12,
         "load_verbs": 8,
+        "model": null,
+        "model_tier": "model-picker",
         "path": ".github/prompts/cg-plan.prompt.md",
         "skill_refs": 1,
         "summary_output_status": "not_observed",
@@ -82,9 +87,10 @@
         "dispatch_burden": "conditional",
         "dispatch_refs": 3,
         "estimated_tokens": 5315,
-        "execution_metadata": false,
         "file_refs": 19,
         "load_verbs": 23,
+        "model": null,
+        "model_tier": "missing",
         "path": ".github/prompts/cg-work.prompt.md",
         "skill_refs": 2,
         "summary_output_status": "not_observed",
@@ -105,9 +111,10 @@
         "dispatch_burden": "conditional",
         "dispatch_refs": 10,
         "estimated_tokens": 5032,
-        "execution_metadata": false,
         "file_refs": 12,
         "load_verbs": 19,
+        "model": null,
+        "model_tier": "missing",
         "path": ".github/prompts/cg-review.prompt.md",
         "skill_refs": 5,
         "summary_output_status": "not_observed",
@@ -128,9 +135,10 @@
         "dispatch_burden": "none",
         "dispatch_refs": 0,
         "estimated_tokens": 2223,
-        "execution_metadata": false,
         "file_refs": 9,
         "load_verbs": 4,
+        "model": null,
+        "model_tier": "missing",
         "path": ".github/prompts/cg-fix-triage.prompt.md",
         "skill_refs": 8,
         "summary_output_status": "not_observed",
@@ -151,9 +159,10 @@
         "dispatch_burden": "limited",
         "dispatch_refs": 1,
         "estimated_tokens": 2400,
-        "execution_metadata": false,
         "file_refs": 15,
         "load_verbs": 6,
+        "model": null,
+        "model_tier": "missing",
         "path": ".github/prompts/cg-compound.prompt.md",
         "skill_refs": 2,
         "summary_output_status": "not_observed",
@@ -174,9 +183,10 @@
         "dispatch_burden": "limited",
         "dispatch_refs": 2,
         "estimated_tokens": 3152,
-        "execution_metadata": false,
         "file_refs": 15,
         "load_verbs": 1,
+        "model": null,
+        "model_tier": "missing",
         "path": ".github/prompts/cg-resume.prompt.md",
         "skill_refs": 0,
         "summary_output_status": "not_observed",
@@ -197,9 +207,10 @@
         "dispatch_burden": "none",
         "dispatch_refs": 0,
         "estimated_tokens": 2642,
-        "execution_metadata": false,
         "file_refs": 13,
         "load_verbs": 1,
+        "model": null,
+        "model_tier": "missing",
         "path": ".github/prompts/cg-diagnose.prompt.md",
         "skill_refs": 1,
         "summary_output_status": "not_observed",
@@ -220,9 +231,10 @@
         "dispatch_burden": "none",
         "dispatch_refs": 0,
         "estimated_tokens": 784,
-        "execution_metadata": false,
         "file_refs": 14,
         "load_verbs": 0,
+        "model": null,
+        "model_tier": "missing",
         "path": ".github/prompts/cg-token-audit.prompt.md",
         "skill_refs": 0,
         "summary_output_status": "not_observed",
@@ -237,14 +249,15 @@
         "characters": 11025,
         "conditional_routing": false,
         "context_justified_count": 7,
-        "context_risk_count": 20,
-        "context_targeted_count": 63,
+        "context_risk_count": 6,
+        "context_targeted_count": 61,
         "dispatch_burden": "none",
         "dispatch_refs": 0,
         "estimated_tokens": 2756,
-        "execution_metadata": false,
         "file_refs": 0,
         "load_verbs": 0,
+        "model": null,
+        "model_tier": null,
         "path": ".github/skills/cg-skill-brain-query/SKILL.md",
         "query_first": true,
         "skill_refs": 0,
@@ -254,10 +267,246 @@
     ]
   },
   "disclaimer": "Token estimates are heuristic (chars/4) and intended for directional audit use.",
-  "generated": "2026-08-07T19:20:40-04:00@d716ce703e14",
+  "generated": "2026-09-03T00:03:52+02:00@1ef12277141b",
   "generated_kind": "volatile",
   "guardrails": {
     "failures": [
+      {
+        "path": ".github/prompts/cg-brain-rebuild.prompt.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/prompts/cg-brainstorm.prompt.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/prompts/cg-commit-push-pr.prompt.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/prompts/cg-compound-refresh.prompt.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/prompts/cg-compound.prompt.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/prompts/cg-devtag.prompt.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/prompts/cg-diagnose.prompt.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/prompts/cg-fix-problems.prompt.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/prompts/cg-fix-triage.prompt.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/prompts/cg-fixbug.prompt.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/prompts/cg-ideate.prompt.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/prompts/cg-issues.prompt.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/prompts/cg-plan-review.prompt.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/prompts/cg-plan.prompt.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/prompts/cg-release.prompt.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/prompts/cg-render-doc.prompt.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/prompts/cg-resume.prompt.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/prompts/cg-review-repos.prompt.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/prompts/cg-review.prompt.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/prompts/cg-roadmap-view.prompt.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/prompts/cg-setup.prompt.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/prompts/cg-strategy.prompt.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/prompts/cg-token-audit.prompt.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/prompts/cg-verify-pr.prompt.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/prompts/cg-wiki.prompt.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/prompts/cg-work.prompt.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/prompts/cr-brainstorm.prompt.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/prompts/cr-compound.prompt.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/prompts/cr-plan.prompt.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/prompts/cr-review.prompt.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/prompts/cr-work.prompt.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/agents/cg-adversarial.agent.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/agents/cg-architecture.agent.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/agents/cg-code-quality.agent.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/agents/cg-data-quality.agent.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/agents/cg-documentation.agent.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/agents/cg-fix-problems.agent.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/agents/cg-learnings-researcher.agent.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/agents/cg-performance.agent.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/agents/cg-plan-critic.agent.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/agents/cg-project-scanner.agent.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/agents/cg-release-scanner.agent.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/agents/cg-reproducibility.agent.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/agents/cg-roadmap-view.agent.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/agents/cg-roadmap.agent.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/agents/cg-testing.agent.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/agents/cg-version-control.agent.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/agents/cg-wiki.agent.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/agents/cr-academic-writing.agent.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/agents/cr-econometric-reasoning.agent.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/agents/cr-identification-audit.agent.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/agents/cr-mathematical-verification.agent.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/agents/cr-measurement-integrity.agent.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/agents/cr-ml-methodology.agent.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/agents/cr-provenance-audit.agent.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/agents/cr-publication-output.agent.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/agents/cr-replication-package.agent.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/agents/cr-research-integrity.agent.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
+      {
+        "path": ".github/agents/cr-specification-analysis.agent.md",
+        "reason": "prompt/agent is missing a model-catalog role assignment"
+      },
       {
         "path": "(always-on instructions)",
         "reason": "always-on instruction estimated tokens > 6000"
@@ -271,46 +520,6 @@
       {
         "path": ".github/prompts/cg-work.prompt.md",
         "reason": "high-frequency prompt estimated tokens > 5000"
-      },
-      {
-        "path": ".github/agents/cr-econometric-reasoning.agent.md",
-        "reason": "context-loading risk requires review: .cg-docs/"
-      },
-      {
-        "path": ".github/agents/cr-econometric-reasoning.agent.md",
-        "reason": "context-loading risk requires review: .cg-docs/"
-      },
-      {
-        "path": ".github/agents/cr-identification-audit.agent.md",
-        "reason": "context-loading risk requires review: .cg-docs/"
-      },
-      {
-        "path": ".github/agents/cr-mathematical-verification.agent.md",
-        "reason": "context-loading risk requires review: .cg-docs/"
-      },
-      {
-        "path": ".github/agents/cr-mathematical-verification.agent.md",
-        "reason": "context-loading risk requires review: .cg-docs/"
-      },
-      {
-        "path": ".github/agents/cr-ml-methodology.agent.md",
-        "reason": "context-loading risk requires review: .cg-docs/"
-      },
-      {
-        "path": ".github/agents/cr-provenance-audit.agent.md",
-        "reason": "context-loading risk requires review: .cg-docs/"
-      },
-      {
-        "path": ".github/agents/cr-publication-output.agent.md",
-        "reason": "context-loading risk requires review: .cg-docs/"
-      },
-      {
-        "path": ".github/agents/cr-research-integrity.agent.md",
-        "reason": "context-loading risk requires review: .cg-docs/"
-      },
-      {
-        "path": ".github/agents/cr-specification-analysis.agent.md",
-        "reason": "context-loading risk requires review: .cg-docs/"
       },
       {
         "path": ".github/prompts/cg-release.prompt.md",
@@ -333,24 +542,8 @@
         "reason": "context-loading risk requires review: roadmap.json"
       },
       {
-        "path": ".github/prompts/cr-plan.prompt.md",
-        "reason": "context-loading risk requires review: .cg-docs/"
-      },
-      {
         "path": ".github/prompts/cr-work.prompt.md",
         "reason": "context-loading risk requires review: roadmap.json"
-      },
-      {
-        "path": ".github/prompts/cr-work.prompt.md",
-        "reason": "context-loading risk requires review: .cg-docs/"
-      },
-      {
-        "path": ".github/skills/cr-skill-research-integrity/SKILL.md",
-        "reason": "context-loading risk requires review: .cg-docs/"
-      },
-      {
-        "path": ".github/skills/cr-skill-research-integrity/SKILL.md",
-        "reason": "context-loading risk requires review: .cg-docs/"
       },
       {
         "path": "docs/philosophy.md",
@@ -382,17 +575,17 @@
       {
         "category": "prompts",
         "path": ".github/prompts/cg-commit-push-pr.prompt.md",
-        "reason": "prompt estimated tokens >= 3000; reference count >= 5"
+        "reason": "prompt estimated tokens >= 3000; reference count >= 5; missing model in high-reference prompt/agent"
       },
       {
         "category": "prompts",
         "path": ".github/prompts/cg-fixbug.prompt.md",
-        "reason": "prompt estimated tokens >= 3000; reference count >= 5"
+        "reason": "prompt estimated tokens >= 3000; reference count >= 5; missing model in high-reference prompt/agent"
       },
       {
         "category": "prompts",
         "path": ".github/prompts/cg-issues.prompt.md",
-        "reason": "prompt estimated tokens >= 3000; reference count >= 5"
+        "reason": "prompt estimated tokens >= 3000; reference count >= 5; missing model in high-reference prompt/agent"
       },
       {
         "category": "prompts",
@@ -402,7 +595,7 @@
       {
         "category": "prompts",
         "path": ".github/prompts/cg-resume.prompt.md",
-        "reason": "prompt estimated tokens >= 3000; reference count >= 5"
+        "reason": "prompt estimated tokens >= 3000; reference count >= 5; missing model in high-reference prompt/agent"
       },
       {
         "category": "prompts",
@@ -412,17 +605,27 @@
       {
         "category": "prompts",
         "path": ".github/prompts/cg-review.prompt.md",
-        "reason": "prompt estimated tokens >= 3000; reference count >= 5"
+        "reason": "prompt estimated tokens >= 3000; reference count >= 5; missing model in high-reference prompt/agent"
       },
       {
         "category": "prompts",
         "path": ".github/prompts/cg-setup.prompt.md",
-        "reason": "prompt estimated tokens >= 3000; reference count >= 5"
+        "reason": "prompt estimated tokens >= 3000; reference count >= 5; missing model in high-reference prompt/agent"
       },
       {
         "category": "prompts",
         "path": ".github/prompts/cg-work.prompt.md",
-        "reason": "prompt estimated tokens >= 3000; reference count >= 5"
+        "reason": "prompt estimated tokens >= 3000; reference count >= 5; missing model in high-reference prompt/agent"
+      },
+      {
+        "category": "prompts",
+        "path": ".github/prompts/cr-review.prompt.md",
+        "reason": "prompt estimated tokens >= 3000; reference count >= 5; missing model in high-reference prompt/agent"
+      },
+      {
+        "category": "prompts",
+        "path": ".github/prompts/cr-work.prompt.md",
+        "reason": "prompt estimated tokens >= 3000; reference count >= 5; missing model in high-reference prompt/agent"
       },
       {
         "category": "skills",
@@ -446,6 +649,11 @@
       },
       {
         "category": "skills",
+        "path": ".github/skills/cg-skill-setup/SKILL.md",
+        "reason": "skill estimated tokens >= 2000"
+      },
+      {
+        "category": "skills",
         "path": ".github/skills/cg-skill-wiki/SKILL.md",
         "reason": "skill estimated tokens >= 2000"
       },
@@ -462,11 +670,6 @@
       {
         "category": "skills",
         "path": ".github/skills/cr-skill-mathematical-derivation/SKILL.md",
-        "reason": "skill estimated tokens >= 2000"
-      },
-      {
-        "category": "skills",
-        "path": ".github/skills/cr-skill-ml-economics/SKILL.md",
         "reason": "skill estimated tokens >= 2000"
       },
       {
@@ -511,6 +714,11 @@
       },
       {
         "category": "instructions",
+        "path": ".github/instructions/python.instructions.md",
+        "reason": "instruction estimated tokens >= 1500"
+      },
+      {
+        "category": "instructions",
         "path": ".github/instructions/stata.instructions.md",
         "reason": "instruction estimated tokens >= 1500"
       }
@@ -519,32 +727,32 @@
       {
         "category": "prompts",
         "path": ".github/prompts/cg-brain-rebuild.prompt.md",
-        "reason": "reference count >= 5"
+        "reason": "reference count >= 5; missing model in high-reference prompt/agent"
       },
       {
         "category": "prompts",
         "path": ".github/prompts/cg-compound-refresh.prompt.md",
-        "reason": "prompt size exceeds review threshold; reference count >= 5"
+        "reason": "prompt size exceeds review threshold; reference count >= 5; missing model in high-reference prompt/agent"
       },
       {
         "category": "prompts",
         "path": ".github/prompts/cg-compound.prompt.md",
-        "reason": "prompt size exceeds review threshold; reference count >= 5"
+        "reason": "prompt size exceeds review threshold; reference count >= 5; missing model in high-reference prompt/agent"
       },
       {
         "category": "prompts",
         "path": ".github/prompts/cg-diagnose.prompt.md",
-        "reason": "prompt size exceeds review threshold; reference count >= 5"
+        "reason": "prompt size exceeds review threshold; reference count >= 5; missing model in high-reference prompt/agent"
       },
       {
         "category": "prompts",
         "path": ".github/prompts/cg-fix-problems.prompt.md",
-        "reason": "reference count >= 5"
+        "reason": "reference count >= 5; missing model in high-reference prompt/agent"
       },
       {
         "category": "prompts",
         "path": ".github/prompts/cg-fix-triage.prompt.md",
-        "reason": "prompt size exceeds review threshold; reference count >= 5"
+        "reason": "prompt size exceeds review threshold; reference count >= 5; missing model in high-reference prompt/agent"
       },
       {
         "category": "prompts",
@@ -559,17 +767,17 @@
       {
         "category": "prompts",
         "path": ".github/prompts/cg-release.prompt.md",
-        "reason": "prompt size exceeds review threshold; reference count >= 5"
+        "reason": "prompt size exceeds review threshold; reference count >= 5; missing model in high-reference prompt/agent"
       },
       {
         "category": "prompts",
         "path": ".github/prompts/cg-render-doc.prompt.md",
-        "reason": "reference count >= 5"
+        "reason": "reference count >= 5; missing model in high-reference prompt/agent"
       },
       {
         "category": "prompts",
         "path": ".github/prompts/cg-roadmap-view.prompt.md",
-        "reason": "reference count >= 5"
+        "reason": "reference count >= 5; missing model in high-reference prompt/agent"
       },
       {
         "category": "prompts",
@@ -579,147 +787,142 @@
       {
         "category": "prompts",
         "path": ".github/prompts/cg-token-audit.prompt.md",
-        "reason": "reference count >= 5"
+        "reason": "reference count >= 5; missing model in high-reference prompt/agent"
       },
       {
         "category": "prompts",
         "path": ".github/prompts/cg-verify-pr.prompt.md",
-        "reason": "prompt size exceeds review threshold; reference count >= 5"
+        "reason": "prompt size exceeds review threshold; reference count >= 5; missing model in high-reference prompt/agent"
       },
       {
         "category": "prompts",
         "path": ".github/prompts/cg-wiki.prompt.md",
-        "reason": "prompt size exceeds review threshold; reference count >= 5"
+        "reason": "prompt size exceeds review threshold; reference count >= 5; missing model in high-reference prompt/agent"
       },
       {
         "category": "prompts",
         "path": ".github/prompts/cr-brainstorm.prompt.md",
-        "reason": "prompt size exceeds review threshold; reference count >= 5"
+        "reason": "prompt size exceeds review threshold; reference count >= 5; missing model in high-reference prompt/agent"
       },
       {
         "category": "prompts",
         "path": ".github/prompts/cr-compound.prompt.md",
-        "reason": "reference count >= 5"
+        "reason": "reference count >= 5; missing model in high-reference prompt/agent"
       },
       {
         "category": "prompts",
         "path": ".github/prompts/cr-plan.prompt.md",
-        "reason": "reference count >= 5"
-      },
-      {
-        "category": "prompts",
-        "path": ".github/prompts/cr-review.prompt.md",
-        "reason": "prompt size exceeds review threshold; reference count >= 5"
-      },
-      {
-        "category": "prompts",
-        "path": ".github/prompts/cr-work.prompt.md",
-        "reason": "prompt size exceeds review threshold; reference count >= 5"
+        "reason": "reference count >= 5; missing model in high-reference prompt/agent"
       },
       {
         "category": "agents",
         "path": ".github/agents/cg-architecture.agent.md",
-        "reason": "reference count >= 5"
+        "reason": "reference count >= 5; missing model in high-reference prompt/agent"
       },
       {
         "category": "agents",
         "path": ".github/agents/cg-code-quality.agent.md",
-        "reason": "reference count >= 5"
+        "reason": "reference count >= 5; missing model in high-reference prompt/agent"
       },
       {
         "category": "agents",
         "path": ".github/agents/cg-data-quality.agent.md",
-        "reason": "reference count >= 5"
+        "reason": "reference count >= 5; missing model in high-reference prompt/agent"
       },
       {
         "category": "agents",
         "path": ".github/agents/cg-documentation.agent.md",
-        "reason": "reference count >= 5"
+        "reason": "reference count >= 5; missing model in high-reference prompt/agent"
       },
       {
         "category": "agents",
         "path": ".github/agents/cg-fix-problems.agent.md",
-        "reason": "agent estimated tokens >= 1500; reference count >= 5"
+        "reason": "agent estimated tokens >= 1500; reference count >= 5; missing model in high-reference prompt/agent"
       },
       {
         "category": "agents",
         "path": ".github/agents/cg-performance.agent.md",
-        "reason": "reference count >= 5"
+        "reason": "reference count >= 5; missing model in high-reference prompt/agent"
       },
       {
         "category": "agents",
         "path": ".github/agents/cg-project-scanner.agent.md",
-        "reason": "reference count >= 5"
+        "reason": "reference count >= 5; missing model in high-reference prompt/agent"
+      },
+      {
+        "category": "agents",
+        "path": ".github/agents/cg-reproducibility.agent.md",
+        "reason": "missing model in high-reference prompt/agent"
       },
       {
         "category": "agents",
         "path": ".github/agents/cg-roadmap-view.agent.md",
-        "reason": "agent estimated tokens >= 1500; reference count >= 5"
+        "reason": "agent estimated tokens >= 1500; reference count >= 5; missing model in high-reference prompt/agent"
       },
       {
         "category": "agents",
         "path": ".github/agents/cg-roadmap.agent.md",
-        "reason": "agent estimated tokens >= 1500; reference count >= 5"
+        "reason": "agent estimated tokens >= 1500; reference count >= 5; missing model in high-reference prompt/agent"
       },
       {
         "category": "agents",
         "path": ".github/agents/cg-testing.agent.md",
-        "reason": "reference count >= 5"
+        "reason": "reference count >= 5; missing model in high-reference prompt/agent"
+      },
+      {
+        "category": "agents",
+        "path": ".github/agents/cg-version-control.agent.md",
+        "reason": "missing model in high-reference prompt/agent"
       },
       {
         "category": "agents",
         "path": ".github/agents/cg-wiki.agent.md",
-        "reason": "agent estimated tokens >= 1500; reference count >= 5"
+        "reason": "agent estimated tokens >= 1500; reference count >= 5; missing model in high-reference prompt/agent"
       },
       {
         "category": "agents",
         "path": ".github/agents/cr-academic-writing.agent.md",
-        "reason": "agent estimated tokens >= 1500; reference count >= 5"
+        "reason": "agent estimated tokens >= 1500; missing model in high-reference prompt/agent"
       },
       {
         "category": "agents",
         "path": ".github/agents/cr-econometric-reasoning.agent.md",
-        "reason": "agent estimated tokens >= 1500; reference count >= 5"
+        "reason": "agent estimated tokens >= 1500"
       },
       {
         "category": "agents",
         "path": ".github/agents/cr-identification-audit.agent.md",
-        "reason": "agent estimated tokens >= 1500; reference count >= 5"
+        "reason": "agent estimated tokens >= 1500; missing model in high-reference prompt/agent"
       },
       {
         "category": "agents",
         "path": ".github/agents/cr-mathematical-verification.agent.md",
-        "reason": "agent estimated tokens >= 1500; reference count >= 5"
+        "reason": "agent estimated tokens >= 1500; missing model in high-reference prompt/agent"
       },
       {
         "category": "agents",
         "path": ".github/agents/cr-ml-methodology.agent.md",
-        "reason": "agent estimated tokens >= 1500; reference count >= 5"
+        "reason": "agent estimated tokens >= 1500; missing model in high-reference prompt/agent"
       },
       {
         "category": "agents",
         "path": ".github/agents/cr-publication-output.agent.md",
-        "reason": "agent estimated tokens >= 1500; reference count >= 5"
+        "reason": "agent estimated tokens >= 1500; reference count >= 5; missing model in high-reference prompt/agent"
       },
       {
         "category": "agents",
         "path": ".github/agents/cr-replication-package.agent.md",
-        "reason": "agent estimated tokens >= 1500; reference count >= 5"
+        "reason": "agent estimated tokens >= 1500; missing model in high-reference prompt/agent"
       },
       {
         "category": "agents",
         "path": ".github/agents/cr-research-integrity.agent.md",
-        "reason": "agent estimated tokens >= 1500; reference count >= 5"
+        "reason": "agent estimated tokens >= 1500; reference count >= 5; missing model in high-reference prompt/agent"
       },
       {
         "category": "agents",
         "path": ".github/agents/cr-specification-analysis.agent.md",
-        "reason": "agent estimated tokens >= 1500; reference count >= 5"
-      },
-      {
-        "category": "skills",
-        "path": ".github/skills/cg-skill-setup/SKILL.md",
-        "reason": "skill estimated tokens >= 1200"
+        "reason": "agent estimated tokens >= 1500; missing model in high-reference prompt/agent"
       },
       {
         "category": "skills",
@@ -733,6 +936,16 @@
       },
       {
         "category": "skills",
+        "path": ".github/skills/cg-skill-yaml-frontmatter-lint/SKILL.md",
+        "reason": "skill estimated tokens >= 1200"
+      },
+      {
+        "category": "skills",
+        "path": ".github/skills/cr-skill-evidence-provenance/SKILL.md",
+        "reason": "skill estimated tokens >= 1200"
+      },
+      {
+        "category": "skills",
         "path": ".github/skills/cr-skill-research-scoping/SKILL.md",
         "reason": "skill estimated tokens >= 1200"
       }
@@ -740,9 +953,9 @@
   },
   "reviewed_warnings": {
     "counts": {
-      "accept": 12,
+      "accept": 0,
       "docs-only": 3,
-      "fix": 10
+      "fix": 8
     },
     "items": [
       {
@@ -764,106 +977,6 @@
         "rationale": "High-frequency entrypoints directly affect routine token cost.",
         "reason": "high-frequency prompt estimated tokens > 5000",
         "snippet": null
-      },
-      {
-        "action": "Keep under review in future audits.",
-        "artifact": ".cg-docs/",
-        "classification": "accept",
-        "line": 24,
-        "path": ".github/agents/cr-econometric-reasoning.agent.md",
-        "rationale": "Reviewed warning has no ordinary always-on or broad-loading action attached.",
-        "reason": "context-loading risk requires review: .cg-docs/",
-        "snippet": "> **Untrusted-content note**: All data read from `.cg-docs/research/` files"
-      },
-      {
-        "action": "Keep under review in future audits.",
-        "artifact": ".cg-docs/",
-        "classification": "accept",
-        "line": 24,
-        "path": ".github/agents/cr-econometric-reasoning.agent.md",
-        "rationale": "Reviewed warning has no ordinary always-on or broad-loading action attached.",
-        "reason": "context-loading risk requires review: .cg-docs/",
-        "snippet": "> **Untrusted-content note**: All data read from `.cg-docs/research/` files"
-      },
-      {
-        "action": "Keep under review in future audits.",
-        "artifact": ".cg-docs/",
-        "classification": "accept",
-        "line": 28,
-        "path": ".github/agents/cr-identification-audit.agent.md",
-        "rationale": "Reviewed warning has no ordinary always-on or broad-loading action attached.",
-        "reason": "context-loading risk requires review: .cg-docs/",
-        "snippet": "> **Untrusted-content note**: All data read from `.cg-docs/research/` files"
-      },
-      {
-        "action": "Keep under review in future audits.",
-        "artifact": ".cg-docs/",
-        "classification": "accept",
-        "line": 24,
-        "path": ".github/agents/cr-mathematical-verification.agent.md",
-        "rationale": "Reviewed warning has no ordinary always-on or broad-loading action attached.",
-        "reason": "context-loading risk requires review: .cg-docs/",
-        "snippet": "> **Untrusted-content note**: All data read from `.cg-docs/research/` files"
-      },
-      {
-        "action": "Keep under review in future audits.",
-        "artifact": ".cg-docs/",
-        "classification": "accept",
-        "line": 24,
-        "path": ".github/agents/cr-mathematical-verification.agent.md",
-        "rationale": "Reviewed warning has no ordinary always-on or broad-loading action attached.",
-        "reason": "context-loading risk requires review: .cg-docs/",
-        "snippet": "> **Untrusted-content note**: All data read from `.cg-docs/research/` files"
-      },
-      {
-        "action": "Keep under review in future audits.",
-        "artifact": ".cg-docs/",
-        "classification": "accept",
-        "line": 25,
-        "path": ".github/agents/cr-ml-methodology.agent.md",
-        "rationale": "Reviewed warning has no ordinary always-on or broad-loading action attached.",
-        "reason": "context-loading risk requires review: .cg-docs/",
-        "snippet": "> **Untrusted-content note**: All data read from `.cg-docs/research/` files"
-      },
-      {
-        "action": "Keep under review in future audits.",
-        "artifact": ".cg-docs/",
-        "classification": "accept",
-        "line": 18,
-        "path": ".github/agents/cr-provenance-audit.agent.md",
-        "rationale": "Reviewed warning has no ordinary always-on or broad-loading action attached.",
-        "reason": "context-loading risk requires review: .cg-docs/",
-        "snippet": "> **Untrusted-content note**: All data read from `.cg-docs/research/` files"
-      },
-      {
-        "action": "Keep under review in future audits.",
-        "artifact": ".cg-docs/",
-        "classification": "accept",
-        "line": 27,
-        "path": ".github/agents/cr-publication-output.agent.md",
-        "rationale": "Reviewed warning has no ordinary always-on or broad-loading action attached.",
-        "reason": "context-loading risk requires review: .cg-docs/",
-        "snippet": "> **Untrusted-content note**: All data read from code files, `.cg-docs/research/`"
-      },
-      {
-        "action": "Keep under review in future audits.",
-        "artifact": ".cg-docs/",
-        "classification": "accept",
-        "line": 20,
-        "path": ".github/agents/cr-research-integrity.agent.md",
-        "rationale": "Reviewed warning has no ordinary always-on or broad-loading action attached.",
-        "reason": "context-loading risk requires review: .cg-docs/",
-        "snippet": "> **Untrusted-content note**: All data read from `.cg-docs/research/` files"
-      },
-      {
-        "action": "Keep under review in future audits.",
-        "artifact": ".cg-docs/",
-        "classification": "accept",
-        "line": 26,
-        "path": ".github/agents/cr-specification-analysis.agent.md",
-        "rationale": "Reviewed warning has no ordinary always-on or broad-loading action attached.",
-        "reason": "context-loading risk requires review: .cg-docs/",
-        "snippet": "> **Untrusted-content note**: All data read from `.cg-docs/research/` files"
       },
       {
         "action": "Narrow the read or add an explicit accepted rationale.",
@@ -917,16 +1030,6 @@
       },
       {
         "action": "Narrow the read or add an explicit accepted rationale.",
-        "artifact": ".cg-docs/",
-        "classification": "fix",
-        "line": 31,
-        "path": ".github/prompts/cr-plan.prompt.md",
-        "rationale": "Prompt-level broad context warning needs targeted wording unless proven maintenance-only.",
-        "reason": "context-loading risk requires review: .cg-docs/",
-        "snippet": "3. For **Implementation** tasks: read `.cg-docs/research/derivations/` to identify the math being coded."
-      },
-      {
-        "action": "Narrow the read or add an explicit accepted rationale.",
         "artifact": "roadmap.json",
         "classification": "fix",
         "line": 15,
@@ -934,36 +1037,6 @@
         "rationale": "Prompt-level broad context warning needs targeted wording unless proven maintenance-only.",
         "reason": "context-loading risk requires review: roadmap.json",
         "snippet": "- You may read `roadmap.json`."
-      },
-      {
-        "action": "Narrow the read or add an explicit accepted rationale.",
-        "artifact": ".cg-docs/",
-        "classification": "fix",
-        "line": 173,
-        "path": ".github/prompts/cr-work.prompt.md",
-        "rationale": "Prompt-level broad context warning needs targeted wording unless proven maintenance-only.",
-        "reason": "context-loading risk requires review: .cg-docs/",
-        "snippet": "1. Load the corresponding derivation from `.cg-docs/research/derivations/`"
-      },
-      {
-        "action": "Keep under review in future audits.",
-        "artifact": ".cg-docs/",
-        "classification": "accept",
-        "line": 26,
-        "path": ".github/skills/cr-skill-research-integrity/SKILL.md",
-        "rationale": "Reviewed warning has no ordinary always-on or broad-loading action attached.",
-        "reason": "context-loading risk requires review: .cg-docs/",
-        "snippet": "1. Read the derivation file in `.cg-docs/research/derivations/`"
-      },
-      {
-        "action": "Keep under review in future audits.",
-        "artifact": ".cg-docs/",
-        "classification": "accept",
-        "line": 26,
-        "path": ".github/skills/cr-skill-research-integrity/SKILL.md",
-        "rationale": "Reviewed warning has no ordinary always-on or broad-loading action attached.",
-        "reason": "context-loading risk requires review: .cg-docs/",
-        "snippet": "1. Read the derivation file in `.cg-docs/research/derivations/`"
       },
       {
         "action": "Keep as documentation unless wording misleads users.",
@@ -979,7 +1052,7 @@
         "action": "Keep as documentation unless wording misleads users.",
         "artifact": ".cg-docs/",
         "classification": "docs-only",
-        "line": 250,
+        "line": 269,
         "path": "docs/reference.md",
         "rationale": "Documentation wording can mention broad artifacts without causing runtime prompt loading.",
         "reason": "context-loading risk requires review: .cg-docs/",
@@ -989,7 +1062,7 @@
         "action": "Keep as documentation unless wording misleads users.",
         "artifact": ".cg-docs/",
         "classification": "docs-only",
-        "line": 858,
+        "line": 880,
         "path": "docs/workflow.md",
         "rationale": "Documentation wording can mention broad artifacts without causing runtime prompt loading.",
         "reason": "context-loading risk requires review: .cg-docs/",
@@ -1001,53 +1074,53 @@
   "summary": {
     "by_category": {
       "agents": {
-        "characters": 183698,
-        "estimated_tokens": 45914,
+        "characters": 186607,
+        "estimated_tokens": 46643,
         "files": 28
       },
       "brain": {
-        "characters": 332123,
-        "estimated_tokens": 83030,
+        "characters": 391460,
+        "estimated_tokens": 97862,
         "files": 4
       },
       "brain_index": {
-        "characters": 730904,
-        "estimated_tokens": 182726,
+        "characters": 873321,
+        "estimated_tokens": 218330,
         "files": 1
       },
       "context": {
-        "characters": 71592,
-        "estimated_tokens": 17898,
+        "characters": 76198,
+        "estimated_tokens": 19049,
         "files": 1
       },
       "docs": {
-        "characters": 316124,
-        "estimated_tokens": 79019,
-        "files": 33
+        "characters": 358494,
+        "estimated_tokens": 89610,
+        "files": 37
       },
       "instructions": {
-        "characters": 24707,
-        "estimated_tokens": 6174,
+        "characters": 26273,
+        "estimated_tokens": 6566,
         "files": 6
       },
       "prompts": {
-        "characters": 316507,
-        "estimated_tokens": 79117,
+        "characters": 321183,
+        "estimated_tokens": 80286,
         "files": 31
       },
       "roadmap": {
-        "characters": 83189,
-        "estimated_tokens": 20797,
+        "characters": 87864,
+        "estimated_tokens": 21966,
         "files": 1
       },
       "shared": {
-        "characters": 54185,
-        "estimated_tokens": 13543,
+        "characters": 57053,
+        "estimated_tokens": 14260,
         "files": 12
       },
       "skills": {
-        "characters": 294092,
-        "estimated_tokens": 73507,
+        "characters": 275994,
+        "estimated_tokens": 68983,
         "files": 39
       },
       "template": {
@@ -1056,9 +1129,9 @@
         "files": 1
       }
     },
-    "total_characters": 2408754,
-    "total_estimated_tokens": 602133,
-    "total_files": 157
+    "total_characters": 2656080,
+    "total_estimated_tokens": 663963,
+    "total_files": 161
   },
   "workflow_telemetry": {
     "measurement_note": "Workflow telemetry is deterministic source analysis; runtime behavior is partially or not observed unless explicitly instrumented.",
@@ -1387,7 +1460,6 @@
         "dispatch_burden": "limited",
         "dispatch_refs": 2,
         "estimated_tokens": 3965,
-        "execution_metadata": false,
         "file_references": [
           ".cg-docs/brainstorms/",
           ".github/shared/artifact-view.contract.md",
@@ -1411,6 +1483,8 @@
           "cg-skill-brain-query"
         ],
         "load_verbs": 8,
+        "model": null,
+        "model_tier": "model-picker",
         "observability": {
           "agents_dispatched": {
             "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
@@ -1473,7 +1547,6 @@
         "dispatch_burden": "limited",
         "dispatch_refs": 1,
         "estimated_tokens": 3507,
-        "execution_metadata": false,
         "file_references": [
           ".cg-docs/brainstorms/",
           ".cg-docs/plans/",
@@ -1505,6 +1578,8 @@
           "cg-skill-brain-query"
         ],
         "load_verbs": 8,
+        "model": null,
+        "model_tier": "model-picker",
         "observability": {
           "agents_dispatched": {
             "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
@@ -1567,7 +1642,6 @@
         "dispatch_burden": "conditional",
         "dispatch_refs": 3,
         "estimated_tokens": 5315,
-        "execution_metadata": false,
         "file_references": [
           ".cg-docs/plans/",
           ".cg-docs/plans/YYYY-MM-DD-",
@@ -1613,6 +1687,8 @@
           "cg-skill-brain-query"
         ],
         "load_verbs": 23,
+        "model": null,
+        "model_tier": "missing",
         "observability": {
           "agents_dispatched": {
             "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
@@ -1685,7 +1761,6 @@
         "dispatch_burden": "conditional",
         "dispatch_refs": 10,
         "estimated_tokens": 5032,
-        "execution_metadata": false,
         "file_references": [
           ".cg-docs/brainstorms/",
           ".cg-docs/plans/",
@@ -1720,6 +1795,8 @@
           "cg-skill-stata-best-practices"
         ],
         "load_verbs": 19,
+        "model": null,
+        "model_tier": "missing",
         "observability": {
           "agents_dispatched": {
             "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
@@ -1782,7 +1859,6 @@
         "dispatch_burden": "none",
         "dispatch_refs": 0,
         "estimated_tokens": 2223,
-        "execution_metadata": false,
         "file_references": [
           ".cg-docs/reviews/",
           ".github/shared/model-advisory.contract.md",
@@ -1813,6 +1889,8 @@
           "cg-skill-r-technical"
         ],
         "load_verbs": 4,
+        "model": null,
+        "model_tier": "missing",
         "observability": {
           "agents_dispatched": {
             "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
@@ -1880,7 +1958,6 @@
         "dispatch_burden": "limited",
         "dispatch_refs": 1,
         "estimated_tokens": 2400,
-        "execution_metadata": false,
         "file_references": [
           ".cg-docs/solutions/",
           ".github/shared/context-loading.contract.md",
@@ -1903,6 +1980,8 @@
           "cg-skill-brain-query"
         ],
         "load_verbs": 6,
+        "model": null,
+        "model_tier": "missing",
         "observability": {
           "agents_dispatched": {
             "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
@@ -1965,7 +2044,6 @@
         "dispatch_burden": "limited",
         "dispatch_refs": 2,
         "estimated_tokens": 3152,
-        "execution_metadata": false,
         "file_references": [
           ".cg-docs/brainstorms/",
           ".cg-docs/plans/",
@@ -1996,6 +2074,8 @@
         ],
         "likely_skill_loads": [],
         "load_verbs": 1,
+        "model": null,
+        "model_tier": "missing",
         "observability": {
           "agents_dispatched": {
             "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
@@ -2052,7 +2132,6 @@
         "dispatch_burden": "none",
         "dispatch_refs": 0,
         "estimated_tokens": 2642,
-        "execution_metadata": false,
         "file_references": [
           ".cg-docs/solutions/testing-patterns/2026-03-04-pester-testdrive-follows-junctions-freezes-vscode.md",
           ".cg-docs/solutions/testing-patterns/2026-04-02-invoke-pester-full-suite-passthru-crashes-vscode.md",
@@ -2082,6 +2161,8 @@
           "cg-skill-pester-safety"
         ],
         "load_verbs": 1,
+        "model": null,
+        "model_tier": "missing",
         "observability": {
           "agents_dispatched": {
             "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",
@@ -2142,7 +2223,6 @@
         "dispatch_burden": "none",
         "dispatch_refs": 0,
         "estimated_tokens": 784,
-        "execution_metadata": false,
         "file_references": [
           ".cg-docs/cost/",
           ".cg-docs/cost/token-advice.md",
@@ -2171,6 +2251,8 @@
         ],
         "likely_skill_loads": [],
         "load_verbs": 0,
+        "model": null,
+        "model_tier": "missing",
         "observability": {
           "agents_dispatched": {
             "measurement_note": "Static prompt text references agents; conditional routing means actual dispatch is runtime-dependent.",

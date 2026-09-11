@@ -40,6 +40,7 @@ this file is committed to git and shared with the team.
 ```markdown
 ---
 language: "<r|python|stata|both|all|other>"
+suites: [<cg|cr|cg, cr>]
 r-syntax: "<data.table-collapse|tidyverse>"
 project-type: "<package|analysis|dashboard|api|tool|other>"
 review-depth: "<light|standard|thorough>"
@@ -53,6 +54,8 @@ model-advisory:
 ```
 
 > **Note**: Only include `r-syntax` if language is **R**, **Both**, or **All**. Omit this field for Python, Stata, or Other projects.
+> **Note**: `suites:` accepts `[cg]`, `[cr]`, or `[cg, cr]`; it controls the active workflow suite and whether the root-level research-output scaffold is created.
+> **Note**: Ask Question 3.5 before writing this file and replace the `suites:` placeholder with the exact selected value. If research workflows are required, the written value must include `cr`.
 > **Note**: `cg-schema-version` is intentionally blank for new projects. `cg-update`
 > populates this field with the current schema version when run from the project root.
 > `/cg-resume` will nudge the user to run `cg-update` if this field is blank or
@@ -184,6 +187,44 @@ and ideas by invoking `@cg-roadmap` in Copilot Chat.
 
 ---
 
+## c-research Directory Scaffold
+
+Create the following root-level directories and `.gitkeep` files only when
+`suites:` includes `cr`:
+
+```
+c-research/
+├── evidence/
+│   └── .gitkeep
+├── manuscripts/
+│   └── .gitkeep
+├── normative-decisions/
+│   └── .gitkeep
+├── scoping/
+│   └── .gitkeep
+├── derivations/
+│   └── .gitkeep
+├── specifications/
+│   └── .gitkeep
+├── results/
+│   └── .gitkeep
+├── replication/
+│   └── .gitkeep
+├── eda/
+│   └── .gitkeep
+├── measurement/
+│   └── .gitkeep
+└── vintages/
+  └── .gitkeep
+```
+
+`c-research/` contains research outputs only. Project inputs and data belong
+outside this tree, preferably under a project-owned `data/` directory. Setup
+must not create, move, or delete data. If `cr` is later disabled, preserve any
+existing `c-research/` tree and its contents.
+
+---
+
 ## Setup Complete Message
 
 ```
@@ -192,6 +233,7 @@ and ideas by invoking `@cg-roadmap` in Copilot Chat.
 **Language**: <language>
 **Project Type**: <project-type>
 **Review Depth**: <review-depth>
+**Active Suites**: <suites>
 
 ### Available Commands (in Copilot Chat)
 - `/cg-resume`          — Load context and pick up interrupted work
@@ -244,6 +286,9 @@ without touching existing files:
 .cg-docs/solutions/performance-issues/
 .cg-docs/solutions/testing-patterns/
 ```
+
+When `suites:` includes `cr`, also apply the **c-research Directory Scaffold**.
+Do not remove an existing `c-research/` directory when `cr` is inactive.
 
 ---
 

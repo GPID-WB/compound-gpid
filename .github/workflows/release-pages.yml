@@ -77,7 +77,7 @@ jobs:
             throw new Error("Invalid durable release payload.");
           }
           const root = "release-artifact";
-          const docs = path.join(root, "docs");
+          const docs = path.join(root, "site");
           const metadata = JSON.parse(fs.readFileSync(path.join(root, ".docs-build-metadata.json"), "utf8"));
           if (metadata.schemaVersion !== 1 || !metadata.site || !metadata.site.files) {
             throw new Error("Invalid documentation build metadata.");
@@ -105,13 +105,44 @@ jobs:
           NODE
           echo "RELEASE_BRANCH=$required_branch" >> "$GITHUB_ENV"
 
+      - name: Check out exact release source as data
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          path: release-source
+          fetch-depth: 1
+
+      - name: Check out current dev source as data
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          ref: dev
+          path: current-dev
+          fetch-depth: 0
+
+      - name: Verify combined release artifact and current dev freshness
+        env:
+          RELEASE_TAG: ${{ github.event.workflow_run.head_branch }}
+          RELEASE_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          dev_sha="$(git -C current-dev rev-parse HEAD)"
+          node scripts/assemble-docs-site.js \
+            --verify release-artifact \
+            --main-root "$GITHUB_WORKSPACE/release-source" \
+            --dev-root "$GITHUB_WORKSPACE/current-dev" \
+            --main-sha "$RELEASE_SHA" \
+            --dev-sha "$dev_sha" \
+            --main-branch "$RELEASE_BRANCH" \
+            --dev-branch dev \
+            --main-ref "$RELEASE_TAG" \
+            --dev-ref dev
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b  # v5.0.0
 
       - name: Upload verified release Pages artifact
         uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa  # v3.0.1
         with:
-          path: release-artifact/docs
+          path: release-artifact/site
 
       - name: Recheck release is still newest
         run: |

@@ -3,10 +3,26 @@ const { access, readFile, readdir } = require("node:fs/promises");
 const { constants } = require("node:fs");
 const path = require("node:path");
 
-const root = process.cwd();
-const docsRoot = process.env.CG_DOCS_ROOT
-  ? path.resolve(process.env.CG_DOCS_ROOT)
-  : path.join(root, "docs");
+function parseArguments(argv) {
+  const options = {
+    sourceRoot: process.cwd(),
+    docsRoot: process.env.CG_DOCS_ROOT ? path.resolve(process.env.CG_DOCS_ROOT) : null,
+    legacy: false,
+  };
+  for (let index = 0; index < argv.length; index += 1) {
+    const argument = argv[index];
+    if (argument === "--source-root") options.sourceRoot = path.resolve(argv[++index]);
+    else if (argument === "--docs-root") options.docsRoot = path.resolve(argv[++index]);
+    else if (argument === "--legacy") options.legacy = true;
+    else throw new Error(`Unknown argument: ${argument}`);
+  }
+  return options;
+}
+
+const options = parseArguments(process.argv.slice(2));
+const root = options.sourceRoot;
+const docsRoot = options.docsRoot || path.join(root, "docs");
+const legacySource = options.legacy;
 
 function slugify(value) {
   return value.toLowerCase().replace(/<[^>]*>/g, "").replace(/[`*_]/g, "")
@@ -78,27 +94,36 @@ async function validateSkillsCatalog() {
     return new RegExp(`^${escaped}${directory ? ".*" : ""}$`).test(candidate);
   };
   const canonical = new Set((await readdir(canonicalRoot, { withFileTypes: true }))
-    .filter((entry) => entry.isDirectory() && entry.name.startsWith("cg-skill-"))
+    .filter((entry) => entry.isDirectory() && /^(?:cg|cr)-skill-/.test(entry.name))
     .filter((entry) => {
       const candidate = `.github/skills/${entry.name}/SKILL.md`;
       return ownedPatterns.some((pattern) => isOwned(pattern, candidate));
     })
     .map((entry) => entry.name));
-  const catalogFiles = ["analysis.md", "development.md", "institutional.md"]
+  const catalogFiles = ["analysis.md", "development.md", "institutional.md", "research.md"]
     .map((file) => path.join(docsRoot, "skills", file));
   const catalogText = (await Promise.all(catalogFiles.map((file) => readFile(file, "utf8")))).join("\n");
-  const catalogMatches = [...catalogText.matchAll(/\.github\/skills\/(cg-skill-[a-z-]+)\/SKILL\.md/g)]
+  const catalogMatches = [...catalogText.matchAll(/\.github\/skills\/((?:cg|cr)-skill-[a-z-]+)\/SKILL\.md/g)]
     .map((match) => match[1]);
-  const catalog = new Set(catalogMatches);
-  const missing = [...canonical].filter((skill) => !catalog.has(skill));
-  const unknown = [...catalog].filter((skill) => !canonical.has(skill));
-  const categoryCounts = await Promise.all(catalogFiles.map(async (file) => {
-    const content = await readFile(file, "utf8");
-    return [...content.matchAll(/^\| `cg-skill-[a-z-]+` \|/gm)].length;
-  }));
-  if (missing.length || unknown.length || catalog.size !== canonical.size
-    || catalogMatches.length !== canonical.size || categoryCounts.join(",") !== "8,10,7") {
-    throw new Error(`Skills catalog drift. Missing: ${missing.join(", ") || "none"}. Unknown: ${unknown.join(", ") || "none"}.`);
+  const technicalCanonical = new Set(
+    [...canonical].filter((skill) => skill.startsWith("cg-skill-"))
+  );
+  const technicalCatalog = new Set(catalogMatches.filter((skill) => skill.startsWith("cg-skill-")));
+  const researchCanonical = new Set(
+    [...canonical].filter((skill) => skill.startsWith("cr-skill-"))
+  );
+  const researchCatalog = new Set(catalogMatches.filter((skill) => skill.startsWith("cr-skill-")));
+  const missing = [...technicalCanonical].filter((skill) => !technicalCatalog.has(skill));
+  const unknown = [...technicalCatalog].filter((skill) => !technicalCanonical.has(skill));
+  const missingResearch = [...researchCanonical].filter((skill) => !researchCatalog.has(skill));
+  const unknownResearch = [...researchCatalog].filter(
+    (skill) => !canonical.has(skill)
+  );
+  if (missing.length || unknown.length || missingResearch.length || unknownResearch.length
+    || technicalCatalog.size !== technicalCanonical.size
+    || researchCatalog.size !== researchCanonical.size
+    || catalogMatches.length !== new Set(catalogMatches).size) {
+    throw new Error(`Skills catalog drift. Missing: ${[...missing, ...missingResearch].join(", ") || "none"}. Unknown: ${[...unknown, ...unknownResearch].join(", ") || "none"}.`);
   }
   for (const skill of canonical) await access(path.join(canonicalRoot, skill, "SKILL.md"), constants.R_OK);
 }
@@ -145,7 +170,7 @@ async function loadCandidatePages() {
     throw new Error("Documentation navigation must contain audience-oriented groups.");
   }
   const pages = manifest.groups.flatMap((group) => group.pages || []);
-  const candidatePages = await loadCandidatePages();
+  const candidatePages = legacySource ? [] : await loadCandidatePages();
   const ids = pages.map((page) => page.id);
   const pageFiles = pages.map((page) => page.file);
   if (new Set(ids).size !== ids.length) throw new Error("Documentation page IDs must be unique.");
@@ -165,7 +190,14 @@ async function loadCandidatePages() {
     ["philosophy", "philosophy.md"], ["getting-started", "getting-started/index.md"], ["why-compound-gpid", "why-compound-gpid.md"],
     ["workflows", "workflows/index.md"], ["skills", "skills/index.md"],
     ["configuration", "configuration/index.md"], ["governance", "governance/index.md"],
-    ["help", "help/index.md"], ["reference", "reference.md"]
+    ["help", "help/index.md"], ["reference", "reference.md"],
+    ...(legacySource ? [] : [
+      ["research", "research/index.md"], ["research-philosophy", "research/philosophy.md"],
+      ["research-first-workflow", "research/first-workflow.md"],
+      ["research-short-example", "research/short-example.md"],
+      ["research-lifecycle", "research/lifecycle.md"],
+      ["research-evidence-boundaries", "research/evidence-boundaries.md"]
+    ])
   ]);
   for (const [id, file] of requiredRoutes) {
     const page = pages.find((entry) => entry.id === id);
@@ -203,15 +235,22 @@ async function loadCandidatePages() {
     if (!siteScript.includes(contract)) throw new Error(`Site runtime is missing contract: ${contract}`);
   }
 
-  const workflow = await readFile(".github/workflows/pages.yml", "utf8");
-  const releasePagesWorkflow = await readFile(".github/workflows/release-pages.yml", "utf8");
+  if (legacySource) {
+    await validateMarkdownLinks(markdownFiles);
+    console.log(`Legacy documentation site check passed (${pages.length} navigable Markdown pages, ${manifest.groups.length} groups).`);
+    return;
+  }
+
+  const workflow = await readFile(path.join(root, ".github/workflows/pages.yml"), "utf8");
+  const combinedWorkflow = await readFile(path.join(root, ".github/workflows/docs-site-build.yml"), "utf8");
+  const releasePagesWorkflow = await readFile(path.join(root, ".github/workflows/release-pages.yml"), "utf8");
   for (const action of ["actions/configure-pages", "actions/upload-pages-artifact", "actions/deploy-pages"]) {
     if (!workflow.includes(action) || !releasePagesWorkflow.includes(action)) {
       throw new Error(`Pages controllers must use ${action}.`);
     }
   }
-  if (!workflow.includes("path: site-artifact/docs") || !releasePagesWorkflow.includes("path: release-artifact/docs")) {
-    throw new Error("Pages workflow must upload verified main and release documentation artifacts.");
+  if (!workflow.includes("path: combined-artifact/site") || !releasePagesWorkflow.includes("path: release-artifact/site")) {
+    throw new Error("Pages workflow must upload verified combined and release documentation artifacts.");
   }
 
   // -------------------------------------------------------------------------
@@ -251,8 +290,8 @@ async function loadCandidatePages() {
   // -------------------------------------------------------------------------
   // Complete-build artifact handoff and freshness contract.
   // -------------------------------------------------------------------------
-  const rebuildWorkflow = await readFile(".github/workflows/doc-rebuild.yml", "utf8");
-  const releaseWorkflow = await readFile(".github/workflows/release-docs.yml", "utf8");
+  const rebuildWorkflow = await readFile(path.join(root, ".github/workflows/doc-rebuild.yml"), "utf8");
+  const releaseWorkflow = await readFile(path.join(root, ".github/workflows/release-docs.yml"), "utf8");
   const rebuildContract = [
     "branches: [main]",
     "contents: write",
@@ -267,6 +306,20 @@ async function loadCandidatePages() {
   }
   if (!rebuildWorkflow.includes("include-hidden-files: true")) {
     throw new Error("doc-rebuild.yml must include hidden artifact files.");
+  }
+  const combinedContract = [
+    "name: Build combined documentation",
+    "branches: [dev]",
+    "Rebuild documentation",
+    "assemble-docs-site.js",
+    "combined-docs-site",
+    ".docs-build-metadata.json",
+  ];
+  for (const token of combinedContract) {
+    if (!combinedWorkflow.includes(token)) throw new Error(`docs-site-build.yml must reference ${token}.`);
+  }
+  if (/pages:\s*write|id-token:\s*write/.test(combinedWorkflow)) {
+    throw new Error("docs-site-build.yml must remain unprivileged.");
   }
   const releaseContract = [
     "name: Build release documentation",
@@ -283,24 +336,35 @@ async function loadCandidatePages() {
   if (/pages:\s*write|id-token:\s*write/.test(releaseWorkflow)) {
     throw new Error("release-docs.yml must remain unprivileged.");
   }
-  if (!/workflow_run\s*:/.test(workflow)) {
-    throw new Error("pages.yml must consume doc-rebuild via workflow_run.");
-  }
-  const pagesContract = [
-    "Rebuild documentation",
-    "actions/download-artifact",
-    "run-id:",
-    "--verify-artifact",
-    "--verify-fingerprint",
-    "site-artifact/docs",
-  ];
+  const branchLocalPages = /push:\s*\n\s*branches:\s*\[dev\]/.test(workflow)
+    && !/workflow_run\s*:/.test(workflow);
+  const pagesContract = branchLocalPages
+    ? [
+      "push:",
+      "branches: [dev]",
+      "sources/main",
+      "scripts/assemble-docs-site.js",
+      "--main-root",
+      "--dev-root",
+      "actions/upload-pages-artifact",
+      "actions/deploy-pages",
+      "combined-artifact/site",
+    ]
+    : [
+      "Build combined documentation",
+      "actions/download-artifact",
+      "run-id:",
+      "assemble-docs-site.js",
+      "--verify",
+      "combined-artifact/site",
+    ];
   for (const token of pagesContract) {
     if (!workflow.includes(token)) throw new Error(`pages.yml must reference ${token}.`);
   }
   const releasePagesContract = [
     "Build release documentation",
     "release-docs-site",
-    "release-artifact/docs",
+    "release-artifact/site",
     "Artifact digest mismatch",
     "Deploy docs from",
     "Refusing to deploy an older release artifact",

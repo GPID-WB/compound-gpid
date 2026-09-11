@@ -13,6 +13,13 @@ description: "AEA/AER replication package standards for journal submission.
 Reference skill for building and auditing journal-submission replication
 packages. Load for all Reproducibility task types.
 
+The canonical in-project staging location is `c-research/replication/`. A
+submission archive exported from that location may use the AEA root name
+`replication-package/`; the export is derived and is not a second project
+authority. Do not create project data inputs under `c-research/`; keep them in
+the separate project `data/` location and include them in an export only when
+the archive policy permits it.
+
 ---
 
 ## 1. AEA Archive Structure
@@ -21,7 +28,10 @@ The American Economic Association Data and Code Availability Policy requires
 a self-contained archive that a third party can run without contacting the
 authors.
 
-### Required Top-Level Layout
+### Required Top-Level Layout of an Exported Archive
+
+The following `replication-package/` tree describes the root of an exported
+submission archive. It is not the canonical in-project path.
 
 ```
 replication-package/
@@ -141,7 +151,7 @@ renv::status()  # Should report "No issues found"
 ### Seed Registry
 
 Maintain a single seed registry file at
-`.cg-docs/research/results/manifest.json`. Every estimation run that uses
+`c-research/results/manifest.json`. Every estimation run that uses
 randomness must have an entry (see `cr-skill-research-workflow` for manifest
 format).
 
@@ -156,7 +166,8 @@ bootstrap_results <- boot(data, statistic = my_func, R = 1000)
 
 ### Seed Registry Template
 
-Create `replication-package/seeds.md`:
+Create `c-research/replication/seeds.md` in the project; the export may place
+the same file at `replication-package/seeds.md`:
 
 ```markdown
 # Seed Registry
@@ -173,7 +184,7 @@ be jointly reproducible (e.g., bootstrap and CI calculation from same draw).
 
 ### Cross-Reference Requirement
 
-The seed registry must cross-reference `.cg-docs/research/results/manifest.json`:
+The seed registry must cross-reference `c-research/results/manifest.json`:
 every `"seed":` entry in the manifest must appear in `seeds.md` with a
 matching script and line number.
 
@@ -184,7 +195,8 @@ matching script and line number.
 ### Codebook (Required)
 
 For every dataset used or produced, provide a codebook at
-`replication-package/data/codebook-<dataset>.md`:
+`c-research/replication/documentation/codebook-<dataset>.md` in the project,
+or at `replication-package/data/codebook-<dataset>.md` in an exported archive:
 
 ```markdown
 # Codebook: survey_clean.dta

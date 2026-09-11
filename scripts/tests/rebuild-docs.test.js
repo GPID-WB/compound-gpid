@@ -23,18 +23,18 @@ function runRepo(dir, extraArgs = []) {
 
 function expectedCommands() {
   return [
-    "| Prompt | Purpose |",
-    "|--------|---------|",
-    "| `/cg-plan` | Create a plan. |",
-    "| `/cg-work` | Run a plan step. |",
+    "| Prompt | Model | Purpose |",
+    "|--------|-------|---------|",
+    "| `/cg-plan` | Copilot model picker | Create a plan. |",
+    "| `/cg-work` | Copilot model picker | Run a plan step. |",
   ].join("\n");
 }
 
 function expectedResearchCommands() {
   return [
-    "| Prompt | Purpose |",
-    "|--------|---------|",
-    "| `/cr-review` | Review research output with evidence, code, and methods. |",
+    "| Prompt | Model | Purpose |",
+    "|--------|-------|---------|",
+    "| `/cr-review` | Copilot model picker | Review research output with evidence, code, and methods. |",
   ].join("\n");
 }
 
