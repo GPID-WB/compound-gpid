@@ -385,7 +385,7 @@
       "path": ".kilo/commands/cg-verify-pr.md",
       "source": ".github/prompts/cg-verify-pr.prompt.md",
       "kind": "command",
-      "sha256": "b3cb94e14f5091aae2f7916b02e2e63e0962cf6ba03613c5e0ff72c50e73030e",
+      "sha256": "ee9e128a80cf3c738424a6be5ac4ca26a1a64f047e5a4098a1f5110d5338bc58",
       "executable": false
     },
     {

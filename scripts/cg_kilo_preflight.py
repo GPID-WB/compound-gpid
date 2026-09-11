@@ -22,7 +22,8 @@ from typing import Any, Iterable, Optional, Sequence
 
 
 CONTAINMENT_ENVIRONMENT = "KILO_DISABLE_EXTERNAL_SKILLS"
-SUPPORTED_KILO_VERSIONS = frozenset({"7.4.20", "7.4.21", "7.4.22"})
+# Earliest characterized containment host; newer hosts still need live probes.
+MINIMUM_KILO_VERSION = "7.4.20"
 REQUIRED_LOCAL_ROOTS = (
     ".kilo/commands",
     ".kilo/skills",
@@ -33,7 +34,7 @@ REQUIRED_LOCAL_ROOTS = (
 REPARSE_POINT_FLAG = 0x400
 MANAGED_COPY_MARKER = ".compound-gpid-managed-copy.json"
 MAX_HOST_OUTPUT_BYTES = 2 * 1024 * 1024
-VERSION_PATTERN = re.compile(r"(?<!\d)(\d+\.\d+\.\d+)(?!\d)")
+VERSION_PATTERN = re.compile(r"(?:kilo(?: code)?\s+)?v?((?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*))", re.IGNORECASE)
 COMPATIBILITY_ROOTS = frozenset({".agents", "agents", ".claude", "claude"})
 
 EXIT_OK = 0
@@ -401,12 +402,19 @@ def _candidate_kilo_executables(explicit: Optional[str] = None) -> list[Path]:
     return ordered
 
 
+def is_supported_kilo_version(version: Optional[str]) -> bool:
+    """Accept numeric stable versions at or above the minimum, e.g. 7.5.16."""
+    if version is None or re.fullmatch(r"(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)", version) is None:
+        return False
+    return tuple(map(int, version.split("."))) >= tuple(map(int, MINIMUM_KILO_VERSION.split(".")))
+
+
 def resolve_kilo_executable(explicit: Optional[str] = None) -> Optional[Path]:
     """Resolve the first available Kilo executable without changing PATH."""
     candidates = _candidate_kilo_executables(explicit)
     for candidate in candidates:
         version, _error = _read_version(candidate, Path.cwd())
-        if version in SUPPORTED_KILO_VERSIONS:
+        if not _error and is_supported_kilo_version(version):
             return candidate
     return candidates[0] if candidates else None
 
@@ -491,7 +499,7 @@ def _read_version(executable: Path, project_root: Path) -> tuple[Optional[str], 
     stdout, stderr, return_code = _run_host_command(executable, project_root, ("--version",))
     if return_code != 0 or stdout is None:
         return None, "Kilo version command failed"
-    match = VERSION_PATTERN.search(stdout)
+    match = VERSION_PATTERN.fullmatch(stdout.strip())
     if not match:
         return None, "Kilo version output was not recognized"
     return match.group(1), None
@@ -667,13 +675,13 @@ def run_preflight(
 
     version, version_error = _read_version(executable, root)
     executable_sha256 = _file_sha256(executable)
-    if version_error or version not in SUPPORTED_KILO_VERSIONS:
-        detail = version_error or f"Kilo version {version} is not in the certified host set."
+    if version_error or not is_supported_kilo_version(version):
+        detail = version_error or f"Kilo version {version} is below the supported minimum {MINIMUM_KILO_VERSION}."
         return _result(
             PreflightStatus.UNSUPPORTED_VERSION,
             EXIT_HOST_UNAVAILABLE,
             detail,
-            "Use a certified Kilo host version and rerun cg-kilo. "
+            f"Use Kilo {MINIMUM_KILO_VERSION} or newer and rerun cg-kilo. "
             "Direct launches remain unsupported for a combined project.",
             root,
             kilo_executable=str(executable),

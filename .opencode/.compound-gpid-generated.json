@@ -385,7 +385,7 @@
       "path": ".opencode/commands/cg-verify-pr.md",
       "source": ".github/prompts/cg-verify-pr.prompt.md",
       "kind": "command",
-      "sha256": "e8f701c1de9ee3bb59aed0e28fd23ec4865ee730af88959e40a4c06bedc8185c",
+      "sha256": "5289fd5143749059e58d0698332bf3705d3a6c0ace5ac72cbfb4794612ac9121",
       "executable": false
     },
     {

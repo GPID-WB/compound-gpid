@@ -189,7 +189,7 @@
       "path": ".agents/commands/cg-verify-pr.md",
       "source": ".github/prompts/cg-verify-pr.prompt.md",
       "kind": "command",
-      "sha256": "1d0474c3c38ab06a9d0ac36b5f459bd4f9d97598a8bec27d889c66ed13a25dbb",
+      "sha256": "a8fbc32ad38b94f9906b3ac4b6c2acc9e0ea48efa4a1cab7e05deade7e993139",
       "executable": false
     },
     {
