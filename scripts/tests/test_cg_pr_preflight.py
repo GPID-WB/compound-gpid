@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import json
+import io
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -9,6 +11,67 @@ import pytest
 import cg_pr_preflight as preflight
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
+@pytest.mark.parametrize("outcome", [0, 1, "timeout"])
+def test_native_progress_is_flushed_and_failures_stop_execution(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, outcome: object
+) -> None:
+    """Progress precedes the blocking child and preserves the failure contract."""
+    class ProgressStream(io.StringIO):
+        def flush(self) -> None:
+            self.flushed = self.getvalue()
+
+    progress = ProgressStream()
+    monkeypatch.setattr(preflight.sys, "stderr", progress)
+    calls = []
+
+    def run(command: list[str], **kwargs: object) -> subprocess.CompletedProcess:
+        calls.append(command)
+        assert f"starting native command {len(calls)}/2" in progress.flushed
+        assert kwargs["timeout"] == 600
+        assert kwargs["capture_output"] is True
+        if outcome == "timeout":
+            raise subprocess.TimeoutExpired(command, 600)
+        return subprocess.CompletedProcess(command, outcome, "child output", "")
+
+    monkeypatch.setattr(preflight.subprocess, "run", run)
+    result = preflight.run_native_target(tmp_path, commands=(("first",), ("second",)))
+    assert result.exit_code == (127 if outcome == "timeout" else outcome)
+    assert len(calls) == (2 if outcome == 0 else 1)
+    assert f"exited {result.exit_code} after" in progress.flushed
+    if outcome == "timeout":
+        assert "TimeoutExpired" in result.commands[0].stderr
+
+
+def test_native_progress_preserves_json_stdout(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, capsys: pytest.CaptureFixture
+) -> None:
+    """Machine-readable stdout remains a single final JSON document."""
+    monkeypatch.setattr(preflight, "inspect_cache_artifacts", lambda _: preflight.CacheReport())
+    monkeypatch.setattr(
+        preflight.subprocess, "run",
+        lambda command, **kwargs: subprocess.CompletedProcess(command, 0, "", ""),
+    )
+    assert preflight.main([
+        "--root", str(tmp_path), "--phase", "committed", "--full-gate",
+        "--run-native-target", "--format", "json",
+    ]) == 0
+    captured = capsys.readouterr()
+    assert json.loads(captured.out)["exit_code"] == 0
+    assert "inspecting selection and cache (phase=committed)" in captured.err
+    assert "native command 4/4 exited 0" in captured.err
+
+
+def test_release_prompt_requires_blocking_budget_and_no_blind_retry() -> None:
+    """Release calls must outlive child budgets without weakening the gate."""
+    prompt = (REPO_ROOT / ".github/prompts/cg-release.prompt.md").read_text(encoding="utf-8")
+    assert "`2700000` milliseconds (45 minutes)" in prompt
+    assert 2700 > len(preflight.native_commands(REPO_ROOT)) * preflight.NATIVE_COMMAND_TIMEOUT_SECONDS
+    assert "blocking foreground call" in prompt
+    assert "or an automatic retry after a timeout" in prompt
+    assert "never substitute `--phase prepare`" in prompt
+    assert "python scripts/cg_pr_preflight.py --phase committed --full-gate --run-native-target" in prompt
 
 
 def test_canonical_change_selects_native_and_module_gates() -> None:
