@@ -385,7 +385,7 @@
       "path": ".kilo/commands/cg-verify-pr.md",
       "source": ".github/prompts/cg-verify-pr.prompt.md",
       "kind": "command",
-      "sha256": "b3cb94e14f5091aae2f7916b02e2e63e0962cf6ba03613c5e0ff72c50e73030e",
+      "sha256": "ee9e128a80cf3c738424a6be5ac4ca26a1a64f047e5a4098a1f5110d5338bc58",
       "executable": false
     },
     {
@@ -799,6 +799,13 @@
       "source": ".github/shared/skill-management/release-attestations/v1.2.0.9015.json",
       "kind": "shared",
       "sha256": "858d7f11d9c2785d28aa64349a9ef1c0f739f07f39a4768c598e2ad72a736760",
+      "executable": false
+    },
+    {
+      "path": ".kilo/shared/skill-management/release-attestations/v1.2.0.9016.json",
+      "source": ".github/shared/skill-management/release-attestations/v1.2.0.9016.json",
+      "kind": "shared",
+      "sha256": "1331e7683fe9188dff6a477c82cd8fff1c0bbfbe07cfc798595af4b242c8905f",
       "executable": false
     },
     {
