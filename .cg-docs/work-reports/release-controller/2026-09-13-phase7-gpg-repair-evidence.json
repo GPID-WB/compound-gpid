@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 1,
+  "verifiedAt": "2026-09-13T16:44:05.751798Z",
+  "phase": 7,
+  "status": "environment-repair-proved-targeted-tests-passed-full-package-rerun-pending",
+  "authority": "User-authorized investigation of only the final Phase7 package GPG failure under original ordinary repair authority.",
+  "phaseCompleted": false,
+  "originalValidation": "2026-09-13-phase7-final-post-repair-1602Z-validation.json",
+  "originalFailure": {
+    "passed": 993,
+    "failed": 1,
+    "nodeId": "packages/cg-release/tests/test_signing.py::test_signed_object_and_wrong_key_are_verified",
+    "traceback": "test_signing.py:122 -> signing.py:126 -> signing.py:70 (_signer imports key) -> signing.py:67 -> process.py:213 -> ControllerError: gpg exited with code 2.",
+    "stdout": "2026-09-13-phase7-final-post-repair-1602Z-full-package.log",
+    "stderr": "2026-09-13-phase7-final-post-repair-1602Z-full-package-stderr.log",
+    "originalRawGpgDiagnosticAvailable": false,
+    "qualification": "The original log remains a failed complete gate. Its quiet traceback does not retain GPG stderr. The cause below was established by fresh isolated reproductions, not recovered from missing original stderr."
+  },
+  "cause": {
+    "classification": "Gate environment exceeds the bundled GPG agent socket path limit; no signing logic regression demonstrated.",
+    "tool": "C:/Program Files/Git/usr/bin/gpg.exe, GnuPG 2.4.7-unknown, MSYS path handling",
+    "failedGateTemp": "C:/Users/wb384996/AppData/Local/Temp/3/kilo/p7-fg1602/package",
+    "failedGateTempNativeBytes": 61,
+    "mechanism": "The signing_key fixture uses cg-key-<8 random characters>. The controller creates a separate cg-release-sign-<8 random characters>/gnupg home for each signing or verification operation. The longer controller home lets public-key import proceed, but gpg-agent cannot create its extra socket. Secret-key import then fails with No agent running and exit2.",
+    "reproducedAgentError": "socket name '/c/Users/wb384996/AppData/Local/Temp/3/kilo/phovlicow/package/cg-release-sign-19vkdkih/gnupg/S.gpg-agent.extra' is too long",
+    "proof": "2026-09-13-phase7-gpg-long-agent-proof-stderr.log:1-2",
+    "failedExtraSocketBytes": 110,
+    "failedBrowserSocketPredictedBytes": 112,
+    "correctedTempNativeBytes": 52,
+    "passingExtraSocketPredictedBytes": 101,
+    "passingBrowserSocketPredictedBytes": 103,
+    "qualification": "The extra socket failure is directly reported by the agent. Browser socket lengths are calculated from its longer basename, not separate failure observations. This is host-scoped GPG evidence, not native Unix or all-GPG-version qualification."
+  },
+  "repair": {
+    "type": "process-local test environment only",
+    "method": "Allocate one fresh tempfile.mkdtemp(prefix='', dir=approved_kilo_temp_parent) directory and use it directly as child TEMP and TMP. Do not append package or another stage directory. The new private roots used here are 52 native path bytes. Leave host-level environment unchanged.",
+    "approvedParent": "C:/Users/wb384996/AppData/Local/Temp/3/kilo",
+    "productFilesChanged": [],
+    "testFilesChanged": [],
+    "assertionsSkippedOrWeakened": false,
+    "newRegressionTest": false,
+    "regressionRationale": "No product code fix was needed. The existing real-GPG signing test is the regression check. It fails at the original path length and passes unchanged under the corrected environment, including signature verification and wrong-fingerprint rejection. A platform socket limit does not justify changing cryptographic assertions, disabling sockets, or changing safe production error redaction.",
+    "diagnosticObserver": "Only the external probe wrapped process._capture to record fixture-owned GPG stderr and path lengths. It returned the original result and preserved exit handling. On failed import, gpg-agent --homedir <that private home> --daemon --no-detach supplied the precise socket error. No observer is loaded in either final targeted signing run.",
+    "initialProbeQualification": "The first long-path probe used gpg-agent --server, which exited0 without testing daemon sockets. It proved the import failure but not the socket cause. That evidence is preserved; the second long-path probe uses --daemon --no-detach and establishes the cause."
+  },
+  "targetedTests": [
+    {
+      "label": "long-before",
+      "selection": "packages/cg-release/tests/test_signing.py::test_signed_object_and_wrong_key_are_verified",
+      "passed": 0,
+      "failed": 1,
+      "exitCode": 1,
+      "pytestSeconds": 1.37,
+      "diagnosticObserver": true,
+      "execution": "2026-09-13-phase7-gpg-long-before-execution.json"
+    },
+    {
+      "label": "long-agent-proof",
+      "selection": "packages/cg-release/tests/test_signing.py::test_signed_object_and_wrong_key_are_verified",
+      "passed": 0,
+      "failed": 1,
+      "exitCode": 1,
+      "diagnosticObserver": true,
+      "execution": "2026-09-13-phase7-gpg-long-agent-proof-execution.json"
+    },
+    {
+      "label": "short-diagnostic",
+      "selection": "packages/cg-release/tests/test_signing.py::test_signed_object_and_wrong_key_are_verified",
+      "passed": 1,
+      "failed": 0,
+      "exitCode": 0,
+      "pytestSeconds": 3.18,
+      "diagnosticObserver": true,
+      "execution": "2026-09-13-phase7-gpg-short-diagnostic-execution.json"
+    },
+    {
+      "label": "signing-uninstrumented-1",
+      "command": "uv run --offline --project packages/cg-release --locked --no-sync python -B -m pytest packages/cg-release/tests/test_signing.py -q --tb=short -p no:cacheprovider",
+      "passed": 8,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0,
+      "pytestSeconds": 3.25,
+      "diagnosticObserver": false,
+      "execution": "2026-09-13-phase7-gpg-signing-uninstrumented-1-execution.json"
+    },
+    {
+      "label": "signing-uninstrumented-2",
+      "command": "uv run --offline --project packages/cg-release --locked --no-sync python -B -m pytest packages/cg-release/tests/test_signing.py -q --tb=short -p no:cacheprovider",
+      "passed": 8,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0,
+      "pytestSeconds": 3.28,
+      "diagnosticObserver": false,
+      "execution": "2026-09-13-phase7-gpg-signing-uninstrumented-2-execution.json"
+    }
+  ],
+  "testQualification": "Five bounded sequential executions, with fresh roots and generated keys. Two deliberate long-path reproductions failed; the three short-path runs passed. Eight unique test cases, not seventeen unique passing tests. Each execution JSON records exact outer argv, duration, exit, root and raw stream paths. Diagnostic child pytest argv adds -q --tb=short -p no:cacheprovider; the last two diagnostic runs also add -s. No full package or Pester run was performed in this repair.",
+  "sourceAudit": {
+    "artifact": "2026-09-13-phase7-gpg-source-audit.json",
+    "productFileCount": 2743,
+    "productChanges": [],
+    "retainedArtifactsChecked": 29,
+    "allRetainedArtifactsUnchanged": true,
+    "headUnchanged": true,
+    "branchUnchanged": true,
+    "originalHandoffUnchanged": true,
+    "planUnchanged": true,
+    "signingSourceGitBlob": "a59a76d542d847ae3cfde0eb6724ade7aa339920",
+    "signingTestGitBlob": "70f07107956eeee4ff6843c0d176dbc1128742a7",
+    "disabledInstallationConfigGitBlob": "7b1f8303ed54b304eab36f4c9f4fac8ae556fe5e",
+    "originalValidationGitBlob": "740f41f13a839b4f1c7b8d2c43ede08b5bc3d33e"
+  },
+  "safety": {
+    "realCredentialsInjected": false,
+    "sharedKeyringsAccessedOrDeleted": false,
+    "unrelatedProcessesKilled": false,
+    "oldRootsDeleted": false,
+    "globalEnvironmentChanged": false,
+    "fixtureIsolation": "All GPG homes and Git objects belong to fresh probe roots. Existing fixture/controller cleanup addresses only those homes with gpgconf --homedir <owned home> --kill gpg-agent. Probe roots and prior fixtures are retained. This does not claim a global process inventory or successful cleanup of old roots.",
+    "environment": "Removed Git/GNUPG/GPG environment overrides and four GH/GITHUB token variables from child environments without logging their values. Disabled system/global Git configuration and prompts. GNUPGHOME points to an unused path in the owned root; actual GPG operations use explicit fixture homes. No key bytes are logged.",
+    "publicationEnabled": false,
+    "liveEvidence": "deferred-not-passed",
+    "step8Executed": false,
+    "commits": false,
+    "remoteOperations": false,
+    "newAgentManagerSessions": false,
+    "workflowStateOrCountersChanged": false
+  },
+  "localHelpers": [
+    "C:/Users/wb384996/AppData/Local/Temp/3/kilo/phase7_gpg_probe.py",
+    "C:/Users/wb384996/AppData/Local/Temp/3/kilo/phase7_gpg_audit.py"
+  ],
+  "logRetention": "Original and new raw logs remain local. Existing *.log ignore rules are unchanged. Logs contain host paths and generated fixture identities, not private key bytes; review them before any later authorized external evidence publication.",
+  "finalGateHandoff": "2026-09-13-phase7-gpg-finalgate-handoff.json"
+}

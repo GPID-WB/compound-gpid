@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "compound-gpid-active-state-v1",
+  "updatedAt": "2026-09-13T05:36:22Z",
+  "workflow": "/cg-work",
+  "status": "blocked",
+  "branch": "improve-cg-release",
+  "plan": ".cg-docs/plans/2026-09-11-generic-asynchronous-release-controller.md",
+  "executionReport": ".cg-docs/work-reports/2026-09-11-generic-asynchronous-release-controller.md",
+  "currentPhase": 6,
+  "evidenceStatus": [
+    {"id": "V1", "status": "passed", "artifact": ".cg-docs/work-reports/release-controller/2026-09-11-phase1-final-evidence.json"},
+    {"id": "V2", "status": "passed", "artifact": ".cg-docs/work-reports/release-controller/2026-09-11-phase2-final-evidence.json"},
+    {"id": "V3", "status": "passed", "artifact": ".cg-docs/work-reports/release-controller/2026-09-11-phase3-final-evidence.json"},
+    {"id": "V4", "status": "passed", "artifact": ".cg-docs/work-reports/release-controller/2026-09-12-phase4-final-evidence.json"},
+    {"id": "V5", "status": "passed", "artifact": ".cg-docs/work-reports/release-controller/2026-09-12-phase5-final-evidence.json"},
+    {"id": "V6", "status": "blocked-required-bridge-and-source-qualification-evidence", "artifact": ".cg-docs/work-reports/release-controller/2026-09-13-phase6-final-evidence.json"}
+  ],
+  "unresolvedDecisions": [
+    {"id": "V6-external-authority", "summary": "Provide/authorize reviewed legacy bridge delivery, actual Windows/Unix qualification and required source-bound producer/run evidence; no exception or remote operation authorized here.", "blocking": true}
+  ],
+  "artifactRefs": [
+    {"kind": "final-phase-assessment", "path": ".cg-docs/work-reports/release-controller/2026-09-13-phase6-final-evidence.json", "status": "local-work-passed-V6-blocked-no-phase-advance"},
+    {"kind": "verification-review", "path": ".cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-phase6-P1.15-continuations-verification.md", "status": "42-fixed-0-open-0-unverified"},
+    {"kind": "local-gates", "path": ".cg-docs/work-reports/release-controller/2026-09-13-phase6-P1.15-continuations-040753Z-validation.json", "status": "9-of9-package952-Pester2935-passed-with-qualifications"},
+    {"kind": "execution-report", "path": ".cg-docs/work-reports/2026-09-11-generic-asynchronous-release-controller.md", "status": "blocked-at-V6-all-prior-history-retained"},
+    {"kind": "handoff", "path": ".cg-docs/work-reports/release-controller/2026-09-12-phase6-handoff.json", "status": "V6-evidence-only-do-not-repeat-closed-repairs"}
+  ],
+  "nextCommand": "/cg-work phase6 review:auto .cg-docs/plans/2026-09-11-generic-asynchronous-release-controller.md"
+}
