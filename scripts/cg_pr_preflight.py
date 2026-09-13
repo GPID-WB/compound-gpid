@@ -3,11 +3,15 @@
 
 The selector is deliberately independent of pytest, PyYAML, and the Kilo host.
 It can therefore be used before a commit as well as by CI after checkout.  The
-only commands it executes are the native pytest target and the three existing
-module-registry validators; host-dependent Kilo integration remains outside
-this generic gate.
+commands it executes are the native pytest target, the three existing module
+validators, and the separate locked controller-package gate when selected.
+Host-dependent Kilo integration remains outside this generic gate.
 
 Requirements: Python 3.8+ and the standard library only.
+Selected controller-package gates additionally require Python 3.11/3.12 and
+uv==0.11.3 on PATH. Install the tested tool with
+``python -m pip install uv==0.11.3`` before a local controller preflight or legacy
+release preflight. Selection-only and native-only operations keep Python 3.8+.
 """
 from __future__ import annotations
 
@@ -19,10 +23,24 @@ import subprocess
 import sys
 from dataclasses import dataclass, field, replace
 from pathlib import Path
-from typing import Any, Iterable, Mapping, Optional, Sequence, Tuple
-
+from typing import Any, Iterable, Mapping, Sequence, Tuple
 
 PYTHON = sys.executable
+CONTROLLER_UV_VERSION = "0.11.3"
+CONTROLLER_GATE_PREFIX = (
+    "uv", "run", "--project", "packages/cg-release", "--locked",
+    "--python", ">=3.11,<3.13", "--no-python-downloads",
+)
+FULL_PACKAGE_TEST_COMMAND = (
+    *CONTROLLER_GATE_PREFIX, "pytest", "packages/cg-release/tests", "-q",
+)
+NATIVE_COMMAND_TIMEOUT_SECONDS = 600
+# Two complete offline package runs took 727.73s and 723.64s on Windows.
+FULL_PACKAGE_TEST_TIMEOUT_SECONDS = 1800
+CONTROLLER_UV_PREREQUISITE = (
+    f"Controller gate requires uv=={CONTROLLER_UV_VERSION} on PATH and Python 3.11/3.12. "
+    f"Install the tool with: python -m pip install uv=={CONTROLLER_UV_VERSION}"
+)
 ZERO_REVISION = "0" * 40
 MAX_CAPTURED_OUTPUT_BYTES = 8 * 1024
 MAX_KILO_RESULT_BYTES = 2 * 1024 * 1024
@@ -93,6 +111,9 @@ NATIVE_PYTEST_FILES = (
     "scripts/tests/test_frontmatter_parsing.py",
     "scripts/tests/test_yaml_frontmatter_lint.py",
     "scripts/tests/test_release_policy.py",
+    "scripts/tests/test_release_version_readers.py",
+    "scripts/tests/test_legacy_pages_security.py",
+    "scripts/tests/test_release_producer_contracts.py",
 )
 NATIVE_TEST_FILES = NATIVE_PYTEST_FILES
 HEAD_DRIFT_TEST = "scripts/tests/test_target_drift.py"
@@ -133,11 +154,12 @@ class ChangeSelection:
     native_required: bool = False
     generated_tree_changed: bool = False
     drift_required: bool = False
-    module_checks: Tuple[str, ...] = ()
+    module_checks: tuple[str, ...] = ()
     kilo_changed: bool = False
-    pester_files: Tuple[str, ...] = ()
-    reasons: Tuple[str, ...] = ()
-    categories: Tuple[str, ...] = ()
+    pester_files: tuple[str, ...] = ()
+    reasons: tuple[str, ...] = ()
+    categories: tuple[str, ...] = ()
+    controller_required: bool = False
 
     @property
     def native_target_required(self) -> bool:
@@ -172,12 +194,14 @@ class ChangeSelection:
     @property
     def no_impact(self) -> bool:
         """Return whether the change has no native or Pester impact."""
-        return not self.native_required and not self.module_checks and not self.pester_files
+        return (not self.native_required and not self.module_checks
+                and not self.pester_files and not self.controller_required)
 
     def as_dict(self) -> dict[str, Any]:
         """Return a JSON-safe classification record."""
         return {
             "native_required": self.native_required,
+            "controller_required": self.controller_required,
             "generated_tree_changed": self.generated_tree_changed,
             "drift_required": self.drift_required,
             "module_checks": list(self.module_checks),
@@ -193,14 +217,14 @@ class ChangeSelection:
 class ChangedFilesResult:
     """Result of deriving paths from Git, including fail-closed context."""
 
-    changed_files: Tuple[str, ...] = ()
-    selection_error: Optional[str] = None
+    changed_files: tuple[str, ...] = ()
+    selection_error: str | None = None
     full_gate_fallback: bool = False
-    base: Optional[str] = None
+    base: str | None = None
     source: str = "git"
 
     @property
-    def files(self) -> Tuple[str, ...]:
+    def files(self) -> tuple[str, ...]:
         """Compatibility alias for the normalized changed paths."""
         return self.changed_files
 
@@ -213,17 +237,17 @@ ChangeDerivation = ChangedFilesResult
 class CacheReport:
     """Cache artifacts found in the repository and their severity."""
 
-    paths: Tuple[str, ...] = ()
-    tracked_paths: Tuple[str, ...] = ()
-    manifest_paths: Tuple[str, ...] = ()
-    local_paths: Tuple[str, ...] = ()
+    paths: tuple[str, ...] = ()
+    tracked_paths: tuple[str, ...] = ()
+    manifest_paths: tuple[str, ...] = ()
+    local_paths: tuple[str, ...] = ()
     fatal: bool = False
-    git_error: Optional[str] = None
+    git_error: str | None = None
     path_count: int = 0
     truncated: bool = False
 
     @property
-    def fatal_paths(self) -> Tuple[str, ...]:
+    def fatal_paths(self) -> tuple[str, ...]:
         """Return the tracked or manifest-referenced paths that block CI."""
         return tuple(sorted(set(self.tracked_paths) | set(self.manifest_paths)))
 
@@ -270,14 +294,14 @@ class KiloOutcome:
     exit_code: int
     message: str = ""
     remediation: str = ""
-    kilo_version: Optional[str] = None
-    kilo_executable: Optional[str] = None
-    kilo_executable_sha256: Optional[str] = None
+    kilo_version: str | None = None
+    kilo_executable: str | None = None
+    kilo_executable_sha256: str | None = None
     certified_launch_required: bool = False
     direct_launch_supported: bool = True
     inventory: Any = field(default_factory=dict)
-    containment_environment: Optional[str] = None
-    host_evidence: Optional[str] = None
+    containment_environment: str | None = None
+    host_evidence: str | None = None
     evidence: Mapping[str, Any] = field(default_factory=dict)
 
     @property
@@ -314,7 +338,7 @@ class KiloOutcome:
 class NativeRunResult:
     """Results from the ordered native pytest and module commands."""
 
-    commands: Tuple[CommandResult, ...] = ()
+    commands: tuple[CommandResult, ...] = ()
 
     @property
     def exit_code(self) -> int:
@@ -325,7 +349,7 @@ class NativeRunResult:
         return 0
 
     @property
-    def results(self) -> Tuple[CommandResult, ...]:
+    def results(self) -> tuple[CommandResult, ...]:
         """Return command results under the commonly used plural name."""
         return self.commands
 
@@ -336,15 +360,15 @@ class PreflightResult:
 
     phase: str
     selection: ChangeSelection
-    changed_files: Tuple[str, ...]
-    base: Optional[str] = None
+    changed_files: tuple[str, ...]
+    base: str | None = None
     full_gate_fallback: bool = False
-    selection_error: Optional[str] = None
+    selection_error: str | None = None
     cache: CacheReport = field(default_factory=CacheReport)
-    native_commands: Tuple[Command, ...] = ()
-    selected_commands: Tuple[Command, ...] = ()
-    command_results: Tuple[CommandResult, ...] = ()
-    kilo: Optional[KiloOutcome] = None
+    native_commands: tuple[Command, ...] = ()
+    selected_commands: tuple[Command, ...] = ()
+    command_results: tuple[CommandResult, ...] = ()
+    kilo: KiloOutcome | None = None
 
     def as_dict(self) -> dict[str, Any]:
         """Return a bounded JSON-safe result without full subprocess output."""
@@ -412,10 +436,7 @@ def _is_kilo(path: str) -> bool:
         _under(path, ".kilo")
         or "kilo" in lowered
         or _under(path, ".compound-gpid/kilo-compat-skills")
-        or lowered.startswith("scripts/link")
-        or lowered.startswith("scripts/unlink")
-        or lowered.startswith("bin/cg-link")
-        or lowered.startswith("bin/cg-unlink")
+        or lowered.startswith(("scripts/link", "scripts/unlink", "bin/cg-link", "bin/cg-unlink"))
         or lowered in {"tests/link.tests.ps1", "tests/unlink.tests.ps1", "tests/parity.tests.ps1"}
     )
 
@@ -425,13 +446,12 @@ def _is_module_path(path: str) -> bool:
     return (
         _under(path, ".github")
         or path in {"pytest.ini", "scripts/cg_validate_modules.py"}
-        or path.startswith("scripts/cg_context_budget")
-        or path.startswith("scripts/cg_project_manifest")
-        or path.startswith("scripts/cg_project_projection")
-        or path.startswith("scripts/tests/test_module_registry.py")
-        or path.startswith("scripts/tests/test_context_budget.py")
-        or path.startswith("scripts/tests/test_project_manifest.py")
-        or path.startswith("scripts/tests/test_project_projection.py")
+        or path.startswith((
+            "scripts/cg_context_budget", "scripts/cg_project_manifest",
+            "scripts/cg_project_projection", "scripts/tests/test_module_registry.py",
+            "scripts/tests/test_context_budget.py", "scripts/tests/test_project_manifest.py",
+            "scripts/tests/test_project_projection.py",
+        ))
         or path in PROJECT_IMPACT_PATHS
     )
 
@@ -448,7 +468,7 @@ def _is_native_path(path: str) -> bool:
     )
 
 
-def _pester_group(path: str) -> Optional[str]:
+def _pester_group(path: str) -> str | None:
     """Return the safe-runner group name for one Pester test path."""
     if not path.casefold().startswith("tests/") or not path.casefold().endswith(".tests.ps1"):
         return None
@@ -474,8 +494,28 @@ def classify_changed_files(changed_files: Iterable[str]) -> ChangeSelection:
     kilo = any(_is_kilo(path) for path in paths)
     module = any(_is_module_path(path) for path in paths)
     pester = tuple(sorted(filter(None, (_pester_group(path) for path in paths))))
+    controller = any(
+        _under(path, "packages/cg-release") or path in {
+            ".release-controller.json", ".github/workflows/release-controller.yml",
+            ".github/workflows/release-controller-build.yml", ".github/workflows/release-controller-publish.yml",
+            ".github/workflows/release-controller-docs.yml", ".github/shared/release-controller.contract.md",
+            ".github/workflows/release-controller-bridge.yml",
+            "scripts/release_profile_gpid.py", "scripts/release_profile_build.py", "scripts/release_profile_install.py",
+            "scripts/cg_release_cli.py", "scripts/docs-snapshots.js", "scripts/release-version.js",
+            "scripts/tests/test_release_controller_profile.py", "scripts/tests/test_release_controller_launchers.py",
+            "bin/cg-release", "bin/cg-release.cmd",
+            ".github/workflows/release-controller-ci.yml",
+            ".github/workflows/tests.yml",
+            "scripts/cg_pr_preflight.py", "scripts/tests/test_cg_pr_preflight.py",
+            "scripts/benchmark_release.py", "create-release.ps1",
+            ".github/prompts/cg-release.prompt.md",
+        }
+        for path in paths
+    )
 
     reasons: list[str] = []
+    if controller:
+        reasons.append("release-controller")
     if any(path.startswith(".github/prompts/") for path in paths):
         reasons.append("prompt")
     if any(path.startswith(".github/skills/") for path in paths):
@@ -500,6 +540,8 @@ def classify_changed_files(changed_files: Iterable[str]) -> ChangeSelection:
         reasons.append("no-impact")
 
     categories: list[str] = []
+    if controller:
+        categories.append("release-controller")
     if native:
         categories.append("native")
     if generated:
@@ -515,6 +557,7 @@ def classify_changed_files(changed_files: Iterable[str]) -> ChangeSelection:
 
     return ChangeSelection(
         native_required=native,
+        controller_required=controller,
         generated_tree_changed=generated,
         drift_required=generated,
         module_checks=MODULE_CHECKS if module else (),
@@ -529,6 +572,7 @@ def full_gate_selection() -> ChangeSelection:
     """Return the conservative selection used when no trustworthy diff exists."""
     return ChangeSelection(
         native_required=True,
+        controller_required=True,
         generated_tree_changed=True,
         drift_required=True,
         module_checks=MODULE_CHECKS,
@@ -542,17 +586,17 @@ def select_native_targets(changed_files: Iterable[str]) -> ChangeSelection:
     return classify_changed_files(changed_files)
 
 
-def select_module_checks(changed_files: Iterable[str]) -> Tuple[str, ...]:
+def select_module_checks(changed_files: Iterable[str]) -> tuple[str, ...]:
     """Select the ordered module validation checks for changed paths."""
     return classify_changed_files(changed_files).module_checks
 
 
 def resolve_base_branch(
-    existing_pr_base: Optional[str] = None,
-    explicit_base: Optional[str] = None,
-    default_branch: Optional[str] = None,
+    existing_pr_base: str | None = None,
+    explicit_base: str | None = None,
+    default_branch: str | None = None,
     *,
-    pr_base: Optional[str] = None,
+    pr_base: str | None = None,
 ) -> str:
     """Resolve a base using PR metadata, explicit input, then default branch.
 
@@ -598,13 +642,13 @@ def git_tracked_paths(root: Path) -> set[str]:
     return {_normalise_path(path) for path in result.stdout.split("\0") if path}
 
 
-def _parse_git_paths(output: str) -> Tuple[str, ...]:
+def _parse_git_paths(output: str) -> tuple[str, ...]:
     """Parse NUL- or line-delimited Git path output deterministically."""
     values = output.split("\0") if "\0" in output else output.splitlines()
     return tuple(sorted({_normalise_path(value) for value in values if value.strip()}))
 
 
-def _is_zero_revision(value: Optional[str]) -> bool:
+def _is_zero_revision(value: str | None) -> bool:
     """Return whether a Git event supplied the all-zero before revision."""
     if value is None:
         return False
@@ -612,7 +656,7 @@ def _is_zero_revision(value: Optional[str]) -> bool:
     return len(normalized) == 40 and set(normalized) == {"0"}
 
 
-def _git_paths_or_error(root: Path, arguments: Sequence[str]) -> Tuple[Tuple[str, ...], Optional[str]]:
+def _git_paths_or_error(root: Path, arguments: Sequence[str]) -> tuple[tuple[str, ...], str | None]:
     """Run a Git path query and turn failures into a visible selection error."""
     result = _run_git(root, arguments)
     if not result.ok:
@@ -624,11 +668,11 @@ def _git_paths_or_error(root: Path, arguments: Sequence[str]) -> Tuple[Tuple[str
 def derive_changed_files(
     root: Path,
     *,
-    base: Optional[str] = None,
+    base: str | None = None,
     phase: str = "committed",
     full_gate: bool = False,
-    push_before: Optional[str] = None,
-    before: Optional[str] = None,
+    push_before: str | None = None,
+    before: str | None = None,
 ) -> ChangedFilesResult:
     """Derive changed paths without falling back to an unrelated revision.
 
@@ -710,7 +754,7 @@ def _cache_like(path: str) -> bool:
     return "__pycache__" in parts or normalized.casefold().endswith(".pyc")
 
 
-def _filesystem_cache_paths(root: Path) -> Tuple[str, ...]:
+def _filesystem_cache_paths(root: Path) -> tuple[str, ...]:
     """Find cache files without following repository links."""
     found: set[str] = set()
     for current, directories, files in os.walk(root, topdown=True, followlinks=False):
@@ -727,7 +771,7 @@ def _filesystem_cache_paths(root: Path) -> Tuple[str, ...]:
     return tuple(sorted(found))
 
 
-def _manifest_cache_paths(root: Path) -> Tuple[str, ...]:
+def _manifest_cache_paths(root: Path) -> tuple[str, ...]:
     """Find cache paths named by generated ownership manifests."""
     found: set[str] = set()
     manifests = sorted(root.rglob(OWNERSHIP_MANIFEST_NAME))
@@ -772,7 +816,7 @@ def inspect_cache_artifacts(root: Path) -> CacheReport:
     """
     filesystem = set(_filesystem_cache_paths(root))
     manifest = set(_manifest_cache_paths(root))
-    git_error: Optional[str] = None
+    git_error: str | None = None
     try:
         tracked = git_tracked_paths(root)
     except (OSError, RuntimeError) as exc:
@@ -809,7 +853,7 @@ def inspect_cache_artifacts(root: Path) -> CacheReport:
     )
 
 
-def _native_pytest_files(phase: str) -> Tuple[str, ...]:
+def _native_pytest_files(phase: str) -> tuple[str, ...]:
     """Return the ordered native pytest files for one preflight phase."""
     if phase not in {"prepare", "committed"}:
         raise ValueError("phase must be 'prepare' or 'committed'")
@@ -818,7 +862,7 @@ def _native_pytest_files(phase: str) -> Tuple[str, ...]:
     return tuple(path for path in NATIVE_PYTEST_FILES if path != HEAD_DRIFT_TEST)
 
 
-def native_commands(root: Path, phase: str = "committed") -> Tuple[Command, ...]:
+def native_commands(root: Path, phase: str = "committed") -> tuple[Command, ...]:
     """Return the one canonical ordered pytest command and module gates.
 
     ``root`` is the subprocess working directory; paths stay repository
@@ -841,11 +885,29 @@ def native_commands(root: Path, phase: str = "committed") -> Tuple[Command, ...]
 
 
 def selected_native_commands(
-    selection: ChangeSelection, root: Path, phase: str = "committed"
-) -> Tuple[Command, ...]:
+    selection: ChangeSelection, root: Path, phase: str = "committed", *, gate_owner: str = "local"
+) -> tuple[Command, ...]:
     """Return commands selected for an impact classification."""
+    if gate_owner not in {"local", "gpid-native-profile"}:
+        raise ValueError("Unknown gate owner")
     _native_pytest_files(phase)
-    return native_commands(root, phase=phase) if selection.native_required else ()
+    commands = native_commands(root, phase=phase) if selection.native_required else ()
+    if selection.controller_required:
+        # uv selects an explicit supported interpreter; native scripts keep 3.8+.
+        # Never download a runtime silently as part of the old native gate.
+        prefix = CONTROLLER_GATE_PREFIX
+        profile_files = ("scripts/tests/test_release_controller_profile.py",
+                         "scripts/tests/test_release_controller_launchers.py")
+        if gate_owner == "gpid-native-profile":
+            commands += ((PYTHON, "-m", "pytest", *profile_files, "-q"),)
+        else:
+            commands = (("uv", "--version"), *commands,
+                FULL_PACKAGE_TEST_COMMAND,
+                (*prefix, "pytest", *profile_files, "-q"),
+                (*prefix, "ruff", "check", "packages/cg-release"),
+                (*prefix, "python", "-m", "build", "--no-isolation", "packages/cg-release"),
+            )
+    return commands
 
 
 def _bounded_text(value: Any, limit: int = MAX_CAPTURED_OUTPUT_BYTES) -> str:
@@ -859,9 +921,10 @@ def _bounded_text(value: Any, limit: int = MAX_CAPTURED_OUTPUT_BYTES) -> str:
 
 def run_native_target(
     root: Path,
-    selection: Optional[ChangeSelection] = None,
-    commands: Optional[Sequence[Command]] = None,
+    selection: ChangeSelection | None = None,
+    commands: Sequence[Command] | None = None,
     phase: str = "committed",
+    *, gate_owner: str = "local",
 ) -> NativeRunResult:
     """Execute selected native commands in order and stop on the first failure."""
     selected = selection or full_gate_selection()
@@ -869,7 +932,7 @@ def run_native_target(
     command_list = (
         tuple(commands)
         if commands is not None
-        else selected_native_commands(selected, root, phase=phase)
+        else selected_native_commands(selected, root, phase=phase, gate_owner=gate_owner)
     )
     results: list[CommandResult] = []
     for command in command_list:
@@ -881,7 +944,9 @@ def run_native_target(
                 text=True,
                 encoding="utf-8",
                 errors="replace",
-                timeout=600,
+                timeout=(FULL_PACKAGE_TEST_TIMEOUT_SECONDS
+                         if command == FULL_PACKAGE_TEST_COMMAND
+                         else NATIVE_COMMAND_TIMEOUT_SECONDS),
                 check=False,
             )
             result = CommandResult(
@@ -890,8 +955,15 @@ def run_native_target(
                 stdout=_bounded_text(completed.stdout),
                 stderr=_bounded_text(completed.stderr),
             )
+            if command == ("uv", "--version") and result.returncode == 0:
+                expected = r"uv " + re.escape(CONTROLLER_UV_VERSION) + r"(?: \([^\r\n]*\))?"
+                if re.fullmatch(expected, result.stdout.strip()) is None:
+                    result = replace(result, returncode=2, stdout="",
+                                     stderr=CONTROLLER_UV_PREREQUISITE)
         except (OSError, subprocess.SubprocessError) as exc:
-            result = CommandResult(command, 127, "", _bounded_text(f"{type(exc).__name__}: {exc}"))
+            detail = (CONTROLLER_UV_PREREQUISITE if command and command[0] == "uv"
+                      else _bounded_text(f"{type(exc).__name__}: {exc}"))
+            result = CommandResult(command, 127, "", detail)
         results.append(result)
         if result.returncode != 0:
             break
@@ -1049,10 +1121,11 @@ def build_preflight_result(
     root: Path,
     *,
     phase: str = "prepare",
-    base: Optional[str] = None,
-    changed_files: Optional[Iterable[str]] = None,
+    base: str | None = None,
+    changed_files: Iterable[str] | None = None,
     full_gate: bool = False,
-    kilo: Optional[KiloOutcome] = None,
+    kilo: KiloOutcome | None = None,
+    gate_owner: str = "local",
 ) -> PreflightResult:
     """Build a selection result without executing native commands."""
     if phase not in {"prepare", "committed"}:
@@ -1074,7 +1147,7 @@ def build_preflight_result(
             selection = classify_changed_files(derivation.changed_files)
 
     commands = native_commands(root, phase=phase)
-    selected = selected_native_commands(selection, root, phase=phase)
+    selected = selected_native_commands(selection, root, phase=phase, gate_owner=gate_owner)
     cache = inspect_cache_artifacts(root)
     return PreflightResult(
         phase=phase,
@@ -1136,6 +1209,8 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--push-before", "--before", dest="push_before", help=argparse.SUPPRESS)
     parser.add_argument("--changed-file", action="append", dest="changed_files")
     parser.add_argument("--full-gate", action="store_true", help="run the conservative full gate")
+    parser.add_argument("--gate-owner", choices=["local", "gpid-native-profile"], default="local",
+                        help="registered native producer excludes the separately required package CI")
     parser.add_argument("--selection-only", "--select-only", action="store_true", dest="selection_only")
     parser.add_argument("--run-native-target", action="store_true", help="execute selected native commands")
     parser.add_argument(
@@ -1147,7 +1222,7 @@ def _build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main(argv: Optional[Sequence[str]] = None) -> int:
+def main(argv: Sequence[str] | None = None) -> int:
     """Run selection and, optionally, the native target."""
     args = _build_parser().parse_args(argv)
     root = args.root.expanduser().resolve()
@@ -1190,11 +1265,12 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         changed_files=explicit_files,
         full_gate=full_gate,
         kilo=kilo,
+        gate_owner=args.gate_owner,
     )
     if kilo_error is not None:
         result = replace(result, selection_error=kilo_error)
     if args.run_native_target and not args.selection_only and result.exit_code == 0:
-        run = run_native_target(root, result.selection, phase=args.phase)
+        run = run_native_target(root, result.selection, phase=args.phase, gate_owner=args.gate_owner)
         result = replace(result, command_results=run.commands)
 
     output = "json" if args.json else args.format
