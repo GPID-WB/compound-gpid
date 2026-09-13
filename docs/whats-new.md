@@ -4,6 +4,64 @@ Release history and notable changes across Compound GPID from structured
 release payloads.
 
 <!-- cg:auto:release-notes -->
+### v1.2.0.9015 — v1.2.0.9015 - Reliable prerelease publication
+
+*2026-09-10T18:31:25Z*
+
+**Fixed — Release automation fixes**
+- Integrate protected release controller history into dev.
+- Reserve GitHub releases with annotated tag pushes.
+- Verify and upload the release site artifact.
+- Separate release metadata validation into its own step.
+
+**Internal — Release integration**
+- Merge the protected release controller history integration.
+- Merge dev into the release controller integration branch.
+- Merge the fix that pairs annotated tags with published releases.
+- Merge release site artifact verification and upload fixes.
+- Merge the separate release metadata validation step.
+
+[View source tag](https://github.com/GPID-WB/compound-gpid/tree/v1.2.0.9015)
+
+---
+
+### v1.2.0.9014 — v1.2.0.9014 - Research and evidence capabilities
+
+*2026-09-09T23:35:19Z*
+
+**New — Research and evidence capabilities**
+- Added CR ML methodology references and secured the canonical c-research migration workspace.
+- Added the AI knowledge work presentation with provenance artifacts.
+- Delivered the local evidence workbench across Markdown, ingestion, retrieval proposals, and verification.
+
+**Fixed — Documentation and workflow fixes**
+- Preserved separate main and dev documentation validation and published the dev handbook artifact.
+- Aligned documentation, resolver, setup, release-gate, and evidence workbench contracts.
+
+**Internal — Documentation, testing, and maintenance**
+- Refreshed audit, roadmap, target bundle, gate, workflow, and research catalog artifacts.
+- Expanded CR ML routing and safeguard coverage and aligned methodology safeguards.
+- Recorded release evidence and integrated branch changes.
+
+[View source tag](https://github.com/GPID-WB/compound-gpid/tree/v1.2.0.9014)
+
+---
+
+### v1.2.0.9013 — v1.2.0.9013 - Adaptive brainstorming decisions
+
+*2026-09-09T20:40:48Z*
+
+**New — Adaptive brainstorming decisions**
+- Add a fact-first adaptive workflow with bounded exploration and explicit minimal-design confirmation.
+
+**Internal — Workflow verification and documentation**
+- Add branch-complete workflow tests and regenerate deterministic platform targets.
+- Record the design, plan, execution evidence, testing pattern, and rebuilt knowledge index.
+
+[View source tag](https://github.com/GPID-WB/compound-gpid/tree/v1.2.0.9013)
+
+---
+
 ### v1.2.0.9012 — v1.2.0.9012 - Unified skill management
 
 *2026-09-02T21:08:54Z*
