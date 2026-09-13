@@ -129,17 +129,16 @@ test("rejects symbolic links inside the site", (t) => {
 
 test("retains the protected controller, exact build identity, lineage, and newest-release gates", () => {
   for (const guard of [
-    'workflows: ["Build release documentation"]',
-    "if: github.event.workflow_run.conclusion == 'success'",
+    'workflows: ["Build release documentation", "Deploy documentation site"]',
+    "github.event.workflow_run.conclusion == 'success'",
     "name: github-pages",
-    "ref: main",
-    "name: release-docs-site",
-    "run-id: ${{ github.event.workflow_run.id }}",
-    "RELEASE_TAG: ${{ github.event.workflow_run.head_branch }}",
-    "RELEASE_SHA: ${{ github.event.workflow_run.head_sha }}",
-    'required_branch="main"',
-    'if [[ "$RELEASE_TAG" =~ ^v[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+$ ]]; then\n            required_branch="dev"',
-    'elif [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\\.[0-9]+\\.[0-9]+$ ]]; then',
+    "ref: ${{ github.sha }}",
+    "artifact-ids: ${{ steps.authority.outputs.artifact_id }}",
+    "run-id: ${{ inputs.build_run_id || github.event.workflow_run.id }}",
+    "RELEASE_TAG: ${{ steps.authority.outputs.release_tag }}",
+    "RELEASE_SHA: ${{ steps.authority.outputs.release_sha }}",
+    'node scripts/legacy-pages.js check',
+    'required_branch="$(node scripts/release-version.js --legacy-docs-branch "$RELEASE_TAG")"',
     'test "$(git rev-list -n 1 "$RELEASE_TAG")" = "$RELEASE_SHA"',
     'git merge-base --is-ancestor "$RELEASE_SHA" "origin/$required_branch"',
     'git fetch origin "$required_branch" "refs/tags/$RELEASE_TAG:refs/tags/$RELEASE_TAG"',
@@ -148,6 +147,11 @@ test("retains the protected controller, exact build identity, lineage, and newes
     'git fetch origin "$RELEASE_BRANCH"',
     "cmp -s release-validation/releases/latest.json release-validation/recheck-latest.json",
   ]) assert.ok(workflow.includes(guard), `Missing guard: ${guard}`);
+  const {legacyDocsBranch} = require('../../release-version.js');
+  assert.equal(legacyDocsBranch('v1.2.3'), 'main');
+  assert.equal(legacyDocsBranch('v1.2.3.9000'), 'dev');
+  assert.throws(() => legacyDocsBranch('v1.2.3-rc.1'));
+  assert.throws(() => legacyDocsBranch('v1.2'));
   assert.ok(!workflow.includes('git merge-base --is-ancestor origin/main "$RELEASE_SHA"'),
     "Dev releases use selected-branch lineage, not the moving main tip");
   assert.ok(workflow.indexOf("name: Recheck release is still newest")

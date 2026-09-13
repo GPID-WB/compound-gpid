@@ -2,6 +2,7 @@
 const { access, readFile, readdir } = require("node:fs/promises");
 const { constants } = require("node:fs");
 const path = require("node:path");
+const SOURCE_AUTHORITY = /:\s*["']?(?:write|write-all)\b|\benvironment\s*:|\bsecrets[.\[]|actions\/(?:configure-pages|upload-pages-artifact|deploy-pages|create-github-app-token)@/;
 
 function parseArguments(argv) {
   const options = {
@@ -154,6 +155,80 @@ async function loadCandidatePages() {
   return manifest.pages;
 }
 
+function validatePagesWorkflows(builder, controller) {
+  // Check each job separately: another job must not satisfy a missing guard.
+  const content = (text) => text.replace(/^\s*#.*$/gm, "");
+  builder = content(builder);
+  controller = content(controller);
+  const requireTokens = (text, name, tokens) => {
+    for (const token of tokens) {
+      if (!text.includes(token)) throw new Error(`${name} must reference ${token}.`);
+    }
+  };
+  if (SOURCE_AUTHORITY.test(builder)) {
+    throw new Error("pages.yml must remain unprivileged, without an environment or publication credentials.");
+  }
+  requireTokens(builder, "pages.yml", [
+    "branches: [dev]", "contents: read", "ref: ${{ github.sha }}",
+    "persist-credentials: false", "github.ref == 'refs/heads/dev'",
+    "node scripts/rebuild-docs.js --all", "node scripts/check-docs-site.js",
+    "actions/upload-artifact@", "name: legacy-dev-docs", ".docs-build-metadata.json",
+    "include-hidden-files: true", "if-no-files-found: error",
+  ]);
+  if (/workflow_run:|actions\/download-artifact@/.test(builder)) {
+    throw new Error("pages.yml must build its own exact dev source, not consume a prior artifact.");
+  }
+  requireTokens(controller, "release-pages.yml", [
+    'workflows: ["Build release documentation", "Deploy documentation site"]',
+    "types: [completed]", "group: pages", "cancel-in-progress: false",
+  ]);
+  const jobs = new Map([...controller.matchAll(/^  (deploy(?:-dev)?):\r?\n([\s\S]*?)(?=^  [\w-]+:\r?\n|$(?![\s\S]))/gm)]
+    .map((match) => [match[1], match[2]]));
+  for (const [name, artifact] of [["deploy", "release"], ["deploy-dev", "combined"]]) {
+    const job = jobs.get(name);
+    if (!job) throw new Error(`release-pages.yml must contain ${name}.`);
+    if (name === "deploy") {
+      const archive = job.match(/- name: Verify immutable archive bytes before extraction\r?\n([\s\S]*?)(?=\n      -)/)?.[1] || "";
+      if (!archive.includes('node scripts/legacy-pages.js archive "$ARTIFACT_ID" "$ARTIFACT_DIGEST"')) {
+        throw new Error("deploy must reference the exact release archive verification.");
+      }
+    }
+    // Static-data arguments to trusted scripts are allowed; script paths are not.
+    if (/rebuild-docs\.js|generate-whats-new\.js|(?:node|bash|sh|python)\s+["']?(?:\$GITHUB_WORKSPACE\/)?(?:sources\/|current-dev\/|release-source\/|dev-artifact\/|release-artifact\/)|working-directory:\s*(?:sources\/|current-dev|release-source|dev-artifact|release-artifact)/.test(job)) {
+      throw new Error(`${name} must not execute mutable source or rebuild downloaded content.`);
+    }
+    requireTokens(job, name, [
+      "ref: ${{ github.sha }}", "persist-credentials: false", "actions: read",
+      "contents: read", "pages: write", "id-token: write", "name: github-pages",
+      "github.event.workflow_run.conclusion == 'success'", "actions/download-artifact@",
+      "artifact-ids: ${{ steps.authority.outputs.artifact_id }}",
+      'node scripts/legacy-pages.js archive "$ARTIFACT_ID" "$ARTIFACT_DIGEST"',
+      "actions/configure-pages@", "actions/upload-pages-artifact@", "actions/deploy-pages@",
+      `path: ${artifact}-artifact/site`, "node scripts/assemble-docs-site.js",
+      `--verify ${artifact}-artifact`,
+      name === "deploy" ? "run-id: ${{ inputs.build_run_id || github.event.workflow_run.id }}" : "run-id: ${{ github.event.workflow_run.id }}",
+    ]);
+    const upload = job.indexOf("actions/upload-pages-artifact@");
+    const deploy = job.indexOf("actions/deploy-pages@");
+    const check = "node scripts/legacy-pages.js check";
+    if (job.indexOf(check) < 0 || job.indexOf(check) > job.indexOf("actions/download-artifact@")
+        || job.lastIndexOf(check) < upload || job.lastIndexOf(check) > deploy) {
+      throw new Error(`${name} must recheck authority after upload and before deployment.`);
+    }
+  }
+  requireTokens(jobs.get("deploy-dev"), "deploy-dev", [
+    "ref: main", "path: sources/main", "ref: ${{ steps.authority.outputs.release_sha }}",
+    "path: sources/dev", "node scripts/legacy-pages.js import-dev sources/dev dev-artifact",
+    '--main-root sources/main --dev-root sources/dev',
+    'branches/dev" --jq .commit.sha)', 'branches/main" --jq .commit.sha)',
+  ]);
+  requireTokens(jobs.get("deploy"), "deploy", [
+    "Artifact digest mismatch", "Artifact file list mismatch", "merge-base --is-ancestor",
+    "Refusing to deploy an older release artifact", "Recheck release is still newest",
+    'cmp -s "release-validation/releases/$RELEASE_TAG.json" release-validation/releases/latest.json',
+  ]);
+}
+
 (async () => {
   const requiredFiles = [
     path.join(docsRoot, "index.html"), path.join(docsRoot, "navigation.json"),
@@ -244,14 +319,7 @@ async function loadCandidatePages() {
   const workflow = await readFile(path.join(root, ".github/workflows/pages.yml"), "utf8");
   const combinedWorkflow = await readFile(path.join(root, ".github/workflows/docs-site-build.yml"), "utf8");
   const releasePagesWorkflow = await readFile(path.join(root, ".github/workflows/release-pages.yml"), "utf8");
-  for (const action of ["actions/configure-pages", "actions/upload-pages-artifact", "actions/deploy-pages"]) {
-    if (!workflow.includes(action) || !releasePagesWorkflow.includes(action)) {
-      throw new Error(`Pages controllers must use ${action}.`);
-    }
-  }
-  if (!workflow.includes("path: combined-artifact/site") || !releasePagesWorkflow.includes("path: release-artifact/site")) {
-    throw new Error("Pages workflow must upload verified combined and release documentation artifacts.");
-  }
+  validatePagesWorkflows(workflow, releasePagesWorkflow);
 
   // -------------------------------------------------------------------------
   // What's New route, page, heading, and release marker pair.
@@ -318,7 +386,7 @@ async function loadCandidatePages() {
   for (const token of combinedContract) {
     if (!combinedWorkflow.includes(token)) throw new Error(`docs-site-build.yml must reference ${token}.`);
   }
-  if (/pages:\s*write|id-token:\s*write/.test(combinedWorkflow)) {
+  if (SOURCE_AUTHORITY.test(combinedWorkflow.replace(/^\s*#.*$/gm, ""))) {
     throw new Error("docs-site-build.yml must remain unprivileged.");
   }
   const releaseContract = [
@@ -333,47 +401,9 @@ async function loadCandidatePages() {
   for (const token of releaseContract) {
     if (!releaseWorkflow.includes(token)) throw new Error(`release-docs.yml must reference ${token}.`);
   }
-  if (/pages:\s*write|id-token:\s*write/.test(releaseWorkflow)) {
+  if (SOURCE_AUTHORITY.test(releaseWorkflow.replace(/^\s*#.*$/gm, ""))) {
     throw new Error("release-docs.yml must remain unprivileged.");
   }
-  const branchLocalPages = /push:\s*\n\s*branches:\s*\[dev\]/.test(workflow)
-    && !/workflow_run\s*:/.test(workflow);
-  const pagesContract = branchLocalPages
-    ? [
-      "push:",
-      "branches: [dev]",
-      "sources/main",
-      "scripts/assemble-docs-site.js",
-      "--main-root",
-      "--dev-root",
-      "actions/upload-pages-artifact",
-      "actions/deploy-pages",
-      "combined-artifact/site",
-    ]
-    : [
-      "Build combined documentation",
-      "actions/download-artifact",
-      "run-id:",
-      "assemble-docs-site.js",
-      "--verify",
-      "combined-artifact/site",
-    ];
-  for (const token of pagesContract) {
-    if (!workflow.includes(token)) throw new Error(`pages.yml must reference ${token}.`);
-  }
-  const releasePagesContract = [
-    "Build release documentation",
-    "release-docs-site",
-    "release-artifact/site",
-    "Artifact digest mismatch",
-    "Deploy docs from",
-    "Refusing to deploy an older release artifact",
-    "Recheck release is still newest",
-  ];
-  for (const token of releasePagesContract) {
-    if (!releasePagesWorkflow.includes(token)) throw new Error(`release-pages.yml must reference ${token}.`);
-  }
-
   await validateMarkdownLinks(markdownFiles);
   await validateSkillsCatalog();
   console.log(`Documentation site check passed (${pages.length} navigable Markdown pages, ${manifest.groups.length} groups, complete skills catalog).`);
