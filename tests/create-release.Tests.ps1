@@ -281,12 +281,16 @@ Describe "create-release.ps1 - release-result.txt output format" {
 Describe "create-release.ps1 - parameter validation (integration)" {
     It "exits with error for invalid tag format" {
         $scriptPath = Join-Path (Join-Path $PSScriptRoot "..") "create-release.ps1"
-        { & $scriptPath -Tag "1.2.3" -Name "Test" -NotesFile (Join-Path $TestDrive "notes.md") } | Should -Throw
+        { & $scriptPath -LegacyOperation Recovery -Tag "1.2.3" -Name "Test" -NotesFile (Join-Path $TestDrive "notes.md") } | Should -Throw
     }
 
     It "exits with error when NotesFile does not exist" {
         $scriptPath = Join-Path (Join-Path $PSScriptRoot "..") "create-release.ps1"
-        { & $scriptPath -Tag "v1.0.0" -Name "Test" -NotesFile (Join-Path $TestDrive "nonexistent.md") } | Should -Throw
+        { & $scriptPath -LegacyOperation Recovery -Tag "v1.0.0" -Name "Test" -NotesFile (Join-Path $TestDrive "nonexistent.md") } | Should -Throw
+    }
+    It "rejects routine legacy publication before any remote operation" {
+        $scriptPath = Join-Path (Join-Path $PSScriptRoot "..") "create-release.ps1"
+        { & $scriptPath -Tag "v1.0.0" -Name "Test" -NotesFile (Join-Path $TestDrive "notes.md") } | Should -Throw 'Routine publication uses cg-release start'
     }
 }
 
@@ -402,6 +406,11 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
         $script:fixture = Join-Path $TestDrive ("release-" + [guid]::NewGuid().ToString('N'))
         New-Item -ItemType Directory -Path (Join-Path $script:fixture "releases") -Force | Out-Null
         Copy-Item (Join-Path $PSScriptRoot "../create-release.ps1") (Join-Path $script:fixture "create-release.ps1") -Force
+        $authorityHelper = Join-Path $PSScriptRoot '../scripts/release-legacy-authority.ps1'
+        if (Test-Path $authorityHelper) {
+            New-Item -ItemType Directory -Path (Join-Path $script:fixture 'scripts') -Force | Out-Null
+            Copy-Item $authorityHelper (Join-Path $script:fixture 'scripts/release-legacy-authority.ps1')
+        }
         $script:state = @{
             Tag = "v1.2.0.9015"; Head = ('a' * 40); Object = ('b' * 40); Tip = ('a' * 40)
             Remote = $false; RemoteObject = ('b' * 40); RemoteCommit = ('a' * 40)
@@ -413,6 +422,11 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
             CredentialExit = 0; Calls = [System.Collections.Generic.List[string]]::new()
             Origin = 'https://github.com/GPID-WB/compound-gpid.git'
             PagesName = 'Deploy docs from 10'; PagesPath = '.github/workflows/release-pages.yml'
+            Default = 'production'; PolicyEnabled = $false; CutoverAfterPush = $false
+            Protected = $true; Role = 'admin'; RecoveryRecord = $null
+            PagesEvent = 'workflow_run'; ArtifactDigest = ('sha256:' + ('e' * 64))
+            PolicySha = ('d' * 40)
+            BadDefaultRef = $false; BadDeployJob = $false; BadDeployment = $false; WithdrawAfterArtifact = $false
         }
         $script:expected = [pscustomobject]@{
             id = 123; html_url = "https://github.com/GPID-WB/compound-gpid/releases/tag/v1.2.0.9015"
@@ -453,6 +467,7 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
                 }
                 ' status --porcelain ' { return $script:state.Dirty }
                 ' push origin ' {
+                    if ($script:state.CutoverAfterPush) { $script:state.PolicyEnabled = $true; $script:state.PolicySha = ('e' * 40) }
                     if ($script:state.PushMode -ne 'absent') { $script:state.Remote = $true }
                     if ($script:state.PushMode -ne 'success') { $global:LASTEXITCODE = 1; throw "uncertain push" }
                     return
@@ -486,6 +501,24 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
             $script:state = $global:CgReleaseTestState
             $script:expected = $global:CgReleaseTestExpected
             $script:state.Calls.Add("api $Method $Uri")
+            if ($Uri -ceq 'https://api.github.com/repos/GPID-WB/compound-gpid') {
+                return [pscustomobject]@{ id = 123; full_name = 'GPID-WB/compound-gpid'; default_branch = $script:state.Default; fork = $false }
+            }
+            if ($Uri -match '/branches/production$') {
+                return [pscustomobject]@{ name = 'production'; protected = $script:state.Protected; commit = [pscustomobject]@{ sha = $script:state.PolicySha } }
+            }
+            if ($Uri -match '/branches/production/protection$') {
+                return [pscustomobject]@{ enforce_admins = @{enabled=$true}; allow_force_pushes = @{enabled=$false}; allow_deletions = @{enabled=$false}; required_pull_request_reviews = @{required_approving_review_count=1; dismiss_stale_reviews=$true; bypass_pull_request_allowances=@{users=@();teams=@();apps=@()}} }
+            }
+            if ($Uri -ceq "https://api.github.com/repos/GPID-WB/compound-gpid/contents/.release-controller.json?ref=$($script:state.PolicySha)") {
+                $json = @{ enabled = $script:state.PolicyEnabled } | ConvertTo-Json -Compress
+                return [pscustomobject]@{ type='file'; encoding='base64'; content=[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($json)) }
+            }
+            if ($Uri -match '/contents/\.github/release-recovery/') { return $script:state.RecoveryRecord }
+            if ($Uri -ceq 'https://api.github.com/user') { return [pscustomobject]@{ id=7; login='maintainer' } }
+            if ($Uri -match '/collaborators/maintainer/permission$') {
+                return [pscustomobject]@{ role_name=$script:state.Role; permission=$(if ($script:state.Role -eq 'admin') {'admin'} else {'write'}); user=@{id=7} }
+            }
             if ($Uri -match '/rulesets$') {
                 return @(
                     [pscustomobject]@{ id = 1; name = 'Protect release tags'; target = 'tag'; enforcement = 'active' },
@@ -541,17 +574,32 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
                 return [pscustomobject]@{ workflow_runs = @($run) }
             }
             if ($Uri -match 'release-pages.yml/runs|actions/runs/20$') {
-                $run = [pscustomobject]@{ id = 20; name = $script:state.PagesName; display_title = $script:state.PagesName; event = 'workflow_run'; path = $script:state.PagesPath; status = 'completed'; conclusion = $script:state.PagesStatus }
+                $run = [pscustomobject]@{ id = 20; name = $script:state.PagesName; display_title = $script:state.PagesName; event = $script:state.PagesEvent; path = $script:state.PagesPath; status = 'completed'; conclusion = $script:state.PagesStatus; head_sha = ('d' * 40); head_branch = $(if ($script:state.BadDefaultRef) {'other'} else {'production'}); run_attempt = 1 }
                 if ($Uri -match 'actions/runs/20$') { return $run }
                 return [pscustomobject]@{ workflow_runs = @($run) }
             }
+            if ($Uri -match '/actions/artifacts/30$') {
+                if ($script:state.WithdrawAfterArtifact) { $script:state.RecoveryRecord = $null }
+                return [pscustomobject]@{ id=30; name='release-docs-site'; workflow_run=@{id=10;head_sha=$script:state.Head}; digest=$script:state.ArtifactDigest; expired=$false }
+            }
+            if ($Uri -match '/actions/runs/20/attempts/1/jobs\?') {
+                return [pscustomobject]@{ total_count=1; jobs=@([pscustomobject]@{id=40;run_id=20;run_attempt=1;name='deploy';html_url='https://github.com/GPID-WB/compound-gpid/actions/runs/20/job/40';status='completed';conclusion=$(if ($script:state.BadDeployJob) {'skipped'} else {'success'});steps=@(@{name='Deploy to GitHub Pages';conclusion='success'})}) }
+            }
+            if ($Uri -match '/deployments\?') { return ,@([pscustomobject]@{id=50;sha=('d'*40);ref='production';environment='github-pages'}) }
+            if ($Uri -match '/deployments/50/statuses\?') { return ,@([pscustomobject]@{state=$(if ($script:state.BadDeployment) {'failure'} else {'success'});log_url='https://github.com/GPID-WB/compound-gpid/actions/runs/20/job/40';environment='github-pages'}) }
             throw "Unmocked HTTP call blocked: $Method $Uri"
         }
         function Invoke-FixtureRelease {
-            param([string]$Phase = 'Reserve', [switch]$ExactRuns)
-            $parameters = @{ Tag = $script:state.Tag; Name = $script:expected.name; NotesFile = (Join-Path $script:fixture 'notes.md'); Phase = $Phase }
+            param([string]$Phase = 'Reserve', [switch]$ExactRuns, [switch]$Timing, [string]$Operation = 'Bridge')
+            $parameters = @{ Tag = $script:state.Tag; Name = $script:expected.name; NotesFile = (Join-Path $script:fixture 'notes.md'); Phase = $Phase; LegacyOperation = $Operation }
             if ($ExactRuns) { $parameters.BuildRunId = 10; $parameters.PagesRunId = 20 }
+            if ($Timing) { $parameters.Timing = $true }
             & (Join-Path $script:fixture 'create-release.ps1') @parameters
+        }
+        function Set-FixtureRecoveryRecord {
+            $record = @{schema_version=1;repository_id=123;tag=$script:state.Tag;tag_object=$script:state.Object;release_sha=$script:state.Head;actor_ids=@(7);reason='Reviewed offline historical fixture';build_run_id=10;artifact_id=30;artifact_digest=('sha256:' + ('e' * 64))}
+            $raw = $record | ConvertTo-Json -Compress
+            $script:state.RecoveryRecord = [pscustomobject]@{type='file';encoding='base64';content=[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($raw))}
         }
     }
     AfterEach {
@@ -559,6 +607,124 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
         Remove-Item Function:\git, Function:\python3, Function:\Invoke-CgFixtureNode -Force -ErrorAction SilentlyContinue
         Remove-Variable CgReleaseTestState, CgReleaseTestExpected -Scope Global -ErrorAction SilentlyContinue
         $global:LASTEXITCODE = 0
+    }
+
+    It 'does not emit timing unless explicitly enabled' {
+        $writer = [System.IO.StringWriter]::new()
+        $previous = [Console]::Error
+        try {
+            [Console]::SetError($writer)
+            Invoke-FixtureRelease
+        } finally { [Console]::SetError($previous) }
+        $writer.ToString() | Should -Not -Match '"kind":"timing"'
+        $writer.Dispose()
+    }
+    It 'rejects routine new publication through Recovery before any write' {
+        { Invoke-FixtureRelease -Operation Recovery } | Should -Throw 'Explicit reviewed historical recovery authority is required; routine new publication is forbidden.'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
+    }
+    It 'reads cutover from the protected remote default, not absent local policy or main' {
+        $script:state.PolicyEnabled = $true
+        { Invoke-FixtureRelease } | Should -Throw 'Legacy Bridge is disabled after remote controller cutover or with invalid policy.'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
+        ($script:state.Calls -join "`n") | Should -Match '/contents/\.release-controller.json\?ref=d{40}'
+    }
+    It 'rejects an unprotected default before any legacy write' {
+        $script:state.Protected = $false
+        { Invoke-FixtureRelease } | Should -Throw 'Legacy authority requires the protected remote default branch.'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
+    }
+    It 'rechecks cutover after a tag push before Release creation' {
+        $script:state.CutoverAfterPush = $true
+        { Invoke-FixtureRelease } | Should -Throw 'Legacy Bridge is disabled after remote controller cutover or with invalid policy.'
+        $script:state.Remote | Should -Be $true
+        ($script:state.Calls -join "`n") | Should -Not -Match 'api Post'
+    }
+    It 'allows current maintainer recovery of the exact stranded remote tag after cutover' {
+        $script:state.Remote = $true; $script:state.PolicyEnabled = $true
+        Invoke-FixtureRelease -Operation Recovery
+        ($script:state.Calls -join "`n") | Should -Not -Match 'push origin'
+        $script:state.Release.id | Should -Be 123
+    }
+    It 'rejects revoked historical recovery authority before Release creation' {
+        $script:state.Remote = $true; $script:state.Role = 'read'
+        { Invoke-FixtureRelease -Operation Recovery } | Should -Throw 'Current maintainer authority is required for legacy publication.'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
+    }
+    It 'requires the exact reviewed historical record to recover an absent remote tag' {
+        Set-FixtureRecoveryRecord
+        $script:state.PolicyEnabled = $true
+        Invoke-FixtureRelease -Operation Recovery
+        $script:state.Remote | Should -Be $true
+        $script:state.Release.id | Should -Be 123
+    }
+    It 'finalizes the exact reviewed historical manual deployment after cutover' {
+        $script:state.Remote=$true; $script:state.Release=$script:expected; $script:state.PolicyEnabled=$true
+        $script:state.PagesEvent='workflow_dispatch'
+        Set-FixtureRecoveryRecord
+        Invoke-FixtureRelease -Operation Recovery -Phase Finalize -ExactRuns
+        Get-Content (Join-Path $script:fixture 'release-result.txt') | Should -Match '^FINALIZED\|'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
+    }
+    It 'rejects a substituted historical artifact before attestation effects' {
+        $script:state.Remote=$true; $script:state.Release=$script:expected; $script:state.PolicyEnabled=$true
+        $script:state.PagesEvent='workflow_dispatch'; $script:state.ArtifactDigest=('sha256:' + ('f' * 64))
+        Set-FixtureRecoveryRecord
+        { Invoke-FixtureRelease -Operation Recovery -Phase Finalize -ExactRuns } | Should -Throw 'Historical recovery deployment does not bind the exact immutable build and artifact.'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'cg_release_attestation.py|push origin|api Post'
+    }
+    It 'rejects withdrawal of the historical grant after artifact validation' {
+        $script:state.Remote=$true; $script:state.Release=$script:expected; $script:state.PolicyEnabled=$true
+        $script:state.PagesEvent='workflow_dispatch'; $script:state.WithdrawAfterArtifact=$true
+        Set-FixtureRecoveryRecord
+        { Invoke-FixtureRelease -Operation Recovery -Phase Finalize -ExactRuns } | Should -Throw 'historical recovery authority'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'cg_release_attestation.py'
+    }
+    It 'rejects an all-skipped deployment wrapper on another default ref' {
+        $script:state.Remote=$true; $script:state.Release=$script:expected; $script:state.BadDefaultRef=$true
+        { Invoke-FixtureRelease -Phase Finalize -ExactRuns } | Should -Throw 'protected default'
+    }
+    It 'rejects a successful wrapper with a skipped protected deploy job' {
+        $script:state.Remote=$true; $script:state.Release=$script:expected; $script:state.BadDeployJob=$true
+        { Invoke-FixtureRelease -Phase Finalize -ExactRuns } | Should -Throw 'protected deploy job'
+    }
+    It 'rejects a successful wrapper without successful deployment evidence' {
+        $script:state.Remote=$true; $script:state.Release=$script:expected; $script:state.BadDeployment=$true
+        { Invoke-FixtureRelease -Phase Finalize -ExactRuns } | Should -Throw 'deployment result'
+    }
+    It 'emits opt-in gate and publication spans without changing authority order' {
+        $writer = [System.IO.StringWriter]::new()
+        $previous = [Console]::Error
+        try {
+            [Console]::SetError($writer)
+            Invoke-FixtureRelease -Timing
+        } finally { [Console]::SetError($previous) }
+        $raw = $writer.ToString()
+        $rows = @($raw -split '\r?\n' | Where-Object { $_ -match '^\{' } | ForEach-Object { $_ | ConvertFrom-Json })
+        @($rows | Where-Object { $_.stage -eq 'gates' -and $_.outcome -eq 'complete' }).Count | Should -Be 1
+        @($rows | Where-Object { $_.stage -eq 'publication' -and $_.outcome -eq 'complete' }).Count | Should -Be 1
+        foreach ($row in $rows) {
+            ($row.elapsed_seconds -ge 0) | Should -Be $true
+            $row.schema_version | Should -Be 1
+        }
+        $raw | Should -Not -Match 'SECRET-MUST-NOT-LEAK|Authorization|Bearer|notes.md'
+        $calls = $script:state.Calls -join "`n"
+        $calls.IndexOf('cg_pr_preflight.py') | Should -BeLessThan $calls.IndexOf('credential fill')
+        $calls.IndexOf('credential fill') | Should -BeLessThan $calls.IndexOf('push origin')
+        $writer.Dispose()
+    }
+    It 'records interrupted gates without credential access or publication' {
+        $script:state.PreflightExit = 7
+        $writer = [System.IO.StringWriter]::new()
+        $previous = [Console]::Error
+        try {
+            [Console]::SetError($writer)
+            { Invoke-FixtureRelease -Timing } | Should -Throw 'preflight failed with exit code 7'
+        } finally { [Console]::SetError($previous) }
+        $rows = @($writer.ToString() -split '\r?\n' | Where-Object { $_ -match '^\{' } | ForEach-Object { $_ | ConvertFrom-Json })
+        @($rows | Where-Object { $_.stage -eq 'gates' -and $_.outcome -eq 'interrupted' }).Count | Should -Be 1
+        ($script:state.Calls -join "`n") | Should -Not -Match 'credential fill|push origin|api Post'
+        $writer.Dispose()
     }
 
     It 'reserves final metadata immediately after the exact tag push without docs or attestation' {
