@@ -1,0 +1,162 @@
+# Disabled example. Install at .github/workflows/release-controller-publish.yml
+# only through a reviewed setup PR and verified environments/App/ruleset controls.
+name: Release controller publication
+run-name: release-publication ${{ inputs.nonce }}
+on:
+  workflow_dispatch:
+    inputs:
+      request_id:
+        required: true
+        type: string
+      nonce:
+        required: true
+        type: string
+permissions:
+  contents: read
+env:
+  CG_RELEASE_CONTROLLER_REVISION: ${{ vars.CG_RELEASE_CONTROLLER_REVISION }}
+  CG_RELEASE_WHEEL_SHA256: ${{ vars.CG_RELEASE_WHEEL_SHA256 }}
+  CONTROLLER_WHEEL_URL: ${{ vars.CG_RELEASE_CONTROLLER_WHEEL_URL }}
+  CG_RELEASE_SIGNING_FINGERPRINT: ${{ vars.CG_RELEASE_SIGNING_FINGERPRINT }}
+  REQUEST_ID: ${{ inputs.request_id }}
+  DISPATCH_NONCE: ${{ inputs.nonce }}
+jobs:
+  seal:
+    name: seal
+    if: ${{ false && github.run_attempt == 1 && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    environment: release-control
+    concurrency:
+      group: release-controller-control
+      cancel-in-progress: false
+    outputs:
+      environment: ${{ steps.seal.outputs.environment }}
+      evidence_url: ${{ steps.seal.outputs.evidence_url }}
+    steps:
+      - name: Require reviewed controller pins
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$CG_RELEASE_CONTROLLER_REVISION" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$CG_RELEASE_WHEEL_SHA256" =~ ^[0-9a-f]{64}$ ]]
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: ${{ vars.CG_RELEASE_CONTROLLER_REPOSITORY }}
+          ref: ${{ env.CG_RELEASE_CONTROLLER_REVISION }}
+          persist-credentials: false
+          path: _controller
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Install independently pinned controller
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install uv==0.11.3
+          uv sync --project _controller/packages/cg-release --python 3.12 --locked --no-install-project
+          curl --fail --proto '=https' --tlsv1.2 "$CONTROLLER_WHEEL_URL" -o cg_release-0.1.0-py3-none-any.whl
+          printf '%s  %s\n' "$CG_RELEASE_WHEEL_SHA256" cg_release-0.1.0-py3-none-any.whl | sha256sum --check --strict
+          uv pip install --link-mode copy --python _controller/packages/cg-release/.venv/bin/python --no-deps cg_release-0.1.0-py3-none-any.whl
+      - uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349
+        id: control
+        with:
+          app-id: ${{ secrets.RELEASE_CONTROL_APP_ID }}
+          private-key: ${{ secrets.RELEASE_CONTROL_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ github.event.repository.name }}
+          permission-contents: write
+          permission-actions: read
+          permission-administration: read
+          permission-environments: read
+          permission-secrets: read
+      - name: Seal publication inputs before the protected gate
+        id: seal
+        env:
+          CG_RELEASE_CONTROL_TOKEN: ${{ steps.control.outputs.token }}
+        shell: bash
+        run: |
+          _controller/packages/cg-release/.venv/bin/python -I -m cg_release.publish_worker seal \
+            --request-id "$REQUEST_ID" --nonce "$DISPATCH_NONCE"
+  publish:
+    name: publish
+    needs: seal
+    if: ${{ github.run_attempt == 1 && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment:
+      name: ${{ needs.seal.outputs.environment }}
+      url: ${{ needs.seal.outputs.evidence_url }}
+    concurrency:
+      group: release-controller-publication
+      cancel-in-progress: false
+    steps:
+      - name: Require reviewed controller pins
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$CG_RELEASE_CONTROLLER_REVISION" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$CG_RELEASE_WHEEL_SHA256" =~ ^[0-9a-f]{64}$ ]]
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: ${{ vars.CG_RELEASE_CONTROLLER_REPOSITORY }}
+          ref: ${{ env.CG_RELEASE_CONTROLLER_REVISION }}
+          persist-credentials: false
+          path: _controller
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Install independently pinned controller
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install uv==0.11.3
+          uv sync --project _controller/packages/cg-release --python 3.12 --locked --no-install-project
+          curl --fail --proto '=https' --tlsv1.2 "$CONTROLLER_WHEEL_URL" -o cg_release-0.1.0-py3-none-any.whl
+          printf '%s  %s\n' "$CG_RELEASE_WHEEL_SHA256" cg_release-0.1.0-py3-none-any.whl | sha256sum --check --strict
+          uv pip install --link-mode copy --python _controller/packages/cg-release/.venv/bin/python --no-deps cg_release-0.1.0-py3-none-any.whl
+      - uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349
+        id: control
+        with:
+          app-id: ${{ secrets.RELEASE_CONTROL_APP_ID }}
+          private-key: ${{ secrets.RELEASE_CONTROL_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ github.event.repository.name }}
+          permission-contents: write
+          permission-actions: read
+          permission-administration: read
+          permission-environments: read
+          permission-secrets: read
+      - uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349
+        id: publishing
+        with:
+          app-id: ${{ secrets.RELEASE_PUBLISHING_APP_ID }}
+          private-key: ${{ secrets.RELEASE_PUBLISHING_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ github.event.repository.name }}
+          permission-contents: write
+          permission-workflows: write
+      - name: Bound credential lifetime and prepare isolated signing input
+        env:
+          SIGNING_KEY: ${{ secrets.RELEASE_SIGNING_PRIVATE_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Installation tokens live at most one hour. Measure after both issuances
+          # to record a conservative upper bound, never an assumed stale-owner age.
+          printf 'CG_RELEASE_TOKEN_EXPIRES_AT=%s\n' "$(date -u -d '+3600 seconds' +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
+          umask 077
+          printf '%s' "$SIGNING_KEY" > "$RUNNER_TEMP/release-signing-key.asc"
+          printf 'CG_RELEASE_SIGNING_KEY_FILE=%s\n' "$RUNNER_TEMP/release-signing-key.asc" >> "$GITHUB_ENV"
+      - name: Recheck approval and publish exact objects
+        env:
+          CG_RELEASE_CONTROL_TOKEN: ${{ steps.control.outputs.token }}
+          CG_RELEASE_PUBLISHING_TOKEN: ${{ steps.publishing.outputs.token }}
+        shell: bash
+        run: |
+          _controller/packages/cg-release/.venv/bin/python -I -m cg_release.publish_worker publish \
+            --request-id "$REQUEST_ID" --nonce "$DISPATCH_NONCE"
+      - name: Remove job-local signing input
+        if: always()
+        shell: bash
+        run: rm -f -- "$RUNNER_TEMP/release-signing-key.asc"
