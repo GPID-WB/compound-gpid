@@ -170,6 +170,22 @@ rules that help Copilot produce accurate outputs across all prompts and sessions
 
 - **Filesystem race tests must inject at the final mutation boundary**: Pathname validation (`stat`, hash, symlink checks) is not a guarantee for a later pathname mutation. Use root-anchored no-follow directory handles and handle-relative replacement. For stale deletion, atomically quarantine the name, verify the quarantined object, then unlink it. Tests must swap paths immediately before replace/quarantine and assert real managed outputs or credential/API boundaries, not unrelated sentinels. See `.cg-docs/solutions/testing-patterns/2026-07-28-handle-relative-filesystem-mutations-and-real-boundary-tests.md`.
 
+### Release Gate Evidence (2026-09-13)
+
+- Run the exact default package gate in a fresh isolated locked environment;
+  optional dependency groups and a warmed venv cannot prove its dependency
+  contract. Keep package test dependencies out of runtime-only distributions.
+  Prove mock executable startup and exact argv before diagnosing a launcher.
+  See [clean default gates](.cg-docs/solutions/testing-patterns/2026-09-13-clean-default-release-gates-and-executable-fixtures.md).
+- On the tested Windows MSYS GPG host, use a fresh short private child `TEMP`/`TMP`
+  directly under the approved parent; no nested `package` suffix. Pytest
+  `--basetemp` alone does not control the controller's GPG home. Preserve signing
+  assertions and global environment settings. See
+  [GPG socket path evidence](.cg-docs/solutions/environment-issues/2026-09-13-windows-gpg-agent-socket-path-budget.md).
+- Record failed assertions, cleanup, skips, host scope and source identity
+  separately. Zero failed assertions is not successful cleanup; absent skip
+  details remain unknown. Do not sum overlapping gates or rewrite failed runs.
+
 ## Bash Scripting Conventions
 
 - **Command substitution functions must be stdout-clean**: Any bash function whose return value is captured via `VAR="$(fn)"` must write only the return value to stdout. All warnings and progress messages must go to `>&2`. Color helpers (`print_yellow`, `print_gray`, etc.) are **not** stderr-safe by default — always add `>&2` when calling them inside a function used via command substitution. Without `>&2`, the warning text is captured into the variable alongside the intended return value, corrupting every downstream file operation silently (exit code 0, no error). See `.cg-docs/solutions/bugs/2026-05-05-print-yellow-stdout-corrupts-command-substitution-variable.md`.
@@ -229,6 +245,20 @@ rules that help Copilot produce accurate outputs across all prompts and sessions
 - **Manage `.gitignore` blocks with remove-then-rewrite strategy**: Use remove-then-rewrite for vendor-managed `.gitignore` blocks: unconditionally strip the old block via regex, then append the canonical block. This handles renamed/removed entries without leaving orphans. See `.cg-docs/solutions/git-workflows/2026-03-23-idempotent-gitignore-block-management.md`.
 
 - **Windows junction cleanup in CI requires `cmd /c rmdir` — not `Remove-Item -Recurse`**: `Remove-Item -Recurse` follows junction links into the source tree on Windows, corrupting the linked directory. Use `cmd /c rmdir /s /q` in GitHub Actions for junction teardown — it treats junctions as atomic entries. See `.cg-docs/solutions/git-workflows/2026-05-13-e2e-smoke-test-github-actions-windows-junction-teardown.md`.
+
+### Release Controller Continuations (2026-09-13)
+
+- Renew applicable human authority before each separately started continuation
+  effect after intervening reads or completed operations. Preserve authorized
+  prefixes and unresolved intents. This finite contract is not atomic GitHub
+  permission/effect enforcement. Reviewed recovery retains exact source/tag
+  identity and independent protected approval.
+- Decision `D-2026-09-13-defer-live-rollout` keeps the publisher disabled and live
+  bridge, native clean-client, release-mode CI, sandbox and performance evidence
+  deferred, not passed. It does not defer local checks or ordinary PR CI. V8
+  still requires the exact committed preflight after the separately authorized
+  pipeline step 11 commit. See
+  [authority and evidence boundaries](.cg-docs/solutions/git-workflows/2026-09-13-release-controller-authority-and-evidence-boundaries.md).
 
 ## Install/Link Script Conventions
 

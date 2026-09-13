@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-09-08 · 608 artifacts (newest first) + 162 roadmap features_
+_Generated 2026-09-13 · 654 artifacts (newest first) + 168 roadmap features_
 
 ## undated
 
@@ -127,6 +127,69 @@ _Generated 2026-09-08 · 608 artifacts (newest first) + 162 roadmap features_
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
 
+## 2026-09-13
+
+- **[2026-09-12-generic-asynchronous-release-controller-phase6-verify-review](.cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase6-verify-review.md)** · `review` · _—_ · `2026-09-13`
+  > **Status: Failure, changes required.** The requested verification ran to completion. One new P1 prevents review conve…
+- **[2026-09-13-generic-asynchronous-release-controller-phase6-P1.15-continuations-verification](.cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-phase6-P1.15-continuations-verification.md)** · `review` · _verified-in-scope_ · `2026-09-13`
+  > **Verdict: P1.15 is confirmed fixed within the requested finite audit. No remaining or new finding was identified.** …
+- **[2026-09-13-generic-asynchronous-release-controller-phase6-P1.15-final-verification](.cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-phase6-P1.15-final-verification.md)** · `review` · _changes-required_ · `2026-09-13`
+  > **Verdict: Changes required. P1.15 remains open.** The canonical and installed workflow order is repaired, but the fi…
+- **[2026-09-13-generic-asynchronous-release-controller-phase6-P1.15-helper-verification](.cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-phase6-P1.15-helper-verification.md)** · `review` · _changes-required_ · `2026-09-13`
+  > **Verdict: Changes required.** The shared helper correction and the stated composition, evidence-base, and dispatch-i…
+- **[2026-09-13-generic-asynchronous-release-controller-phase7-review](.cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-phase7-review.md)** · `review` · _—_ · `2026-09-13`
+  > **Review mode**: Embedded `review:auto`, resolved `full`; report only by explicit instruction. **Coverage**: All 10 r…
+- **[2026-09-13-generic-asynchronous-release-controller-phase7-verify-review](.cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-phase7-verify-review.md)** · `review` · _—_ · `2026-09-13`
+  > **Confirmed fixed: 2. Open: 0. Unverified: 0. New findings: 0.** These counts cover only the two Phase 7 P2 repairs a…
+- **[2026-09-13-generic-asynchronous-release-controller-step9-fix-triage](.cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-step9-fix-triage.md)** · `review` · _success-qualified_ · `2026-09-13`
+  > **Status: Success, qualified. Step 9 is complete.** The repairs, focused checks, clean default full-package gate, and…
+- **[Release controller authority and evidence must stay bound at each continuation](.cg-docs/solutions/git-workflows/2026-09-13-release-controller-authority-and-evidence-boundaries.md)** · `solution` · _—_ · `2026-09-13`
+  > The asynchronous controller has durable intents, remote effects, result records, and recovery paths. An authority che…
+- **[Release gates need clean default dependencies and executable fixture controls](.cg-docs/solutions/testing-patterns/2026-09-13-clean-default-release-gates-and-executable-fixtures.md)** · `solution` · _—_ · `2026-09-13`
+  > Pipeline step 8 found one P1.1: the default full-package command could not collect `test_profile_workflow_authority.p…
+- **[Windows bundled GPG tests need a short private agent socket path](.cg-docs/solutions/environment-issues/2026-09-13-windows-gpg-agent-socket-path-budget.md)** · `solution` · _—_ · `2026-09-13`
+  > The Phase 7 full package gate reported 993 passes and one failure in `test_signing.py::test_signed_object_and_wrong_k…
+
+## 2026-09-12
+
+- **[2026-09-12-generic-asynchronous-release-controller-phase4-review](.cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase4-review.md)** · `review` · _—_ · `2026-09-12`
+  > **Status:** Review complete; V4 is blocked by critical findings. **Coverage:** 10/10 local agent specs, emulated sequ…
+- **[2026-09-12-generic-asynchronous-release-controller-phase4-verify-review](.cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase4-verify-review.md)** · `review` · _—_ · `2026-09-12`
+  > Verified fixed: **3** (P1.1, P1.2, P2.1). Remaining open: **0**. New findings: **0** at every priority. No incomplete…
+- **[2026-09-12-generic-asynchronous-release-controller-phase5-review](.cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase5-review.md)** · `review` · _—_ · `2026-09-12`
+  > **Result:** Changes required. V5 and Phase 5 must not be marked complete yet. **Findings:** 5 (P0: 0, P1: 3, P2: 2, P…
+- **[2026-09-12-generic-asynchronous-release-controller-phase5-verify-review](.cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase5-verify-review.md)** · `review` · _—_ · `2026-09-12`
+  > Original findings confirmed fixed: **5**. Original findings still open: **0**. New findings: **1**, P1.4. Total open:…
+- **[2026-09-12-generic-asynchronous-release-controller-phase5-verify-review-2](.cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase5-verify-review-2.md)** · `review` · _—_ · `2026-09-12`
+  > **P1.4 is confirmed fixed. No new findings or remaining scoped blockers.** Preserved the five prior confirmed IDs: P1…
+- **[2026-09-12-generic-asynchronous-release-controller-phase6-repair2-verification](.cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase6-repair2-verification.md)** · `review` · _changes-required_ · `2026-09-12`
+  > **Verdict: Changes required.** All 23 repair candidates were assessed through the requested full 10-spec route. **22 …
+- **[2026-09-12-generic-asynchronous-release-controller-phase6-review](.cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase6-review.md)** · `review` · _—_ · `2026-09-12`
+  > **Review complete; changes required.** All ten spec analyses returned usable results. There are **34 open findings: 1…
+- **[2026-09-12-generic-asynchronous-release-controller-phase6-verification](.cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase6-verification.md)** · `review` · _changes-required_ · `2026-09-12`
+  > **Verdict: Changes required.** All ten independent review analyses and evidence handoffs are complete. Of the 34 orig…
+
+## 2026-09-11
+
+- **[2026-09-11-generic-asynchronous-release-controller-phase2-review](.cg-docs/reviews/2026-09-11-generic-asynchronous-release-controller-phase2-review.md)** · `review` · _—_ · `2026-09-11`
+  > Review and independent repair verification complete; all eight findings are fixed. Embedded `/cg-work phase2 review:a…
+- **[2026-09-11-generic-asynchronous-release-controller-phase2-verify-review](.cg-docs/reviews/2026-09-11-generic-asynchronous-release-controller-phase2-verify-review.md)** · `review` · _—_ · `2026-09-11`
+  > All seven original repair mechanisms are independently confirmed in their reported scope. One new P1 cross-file defec…
+- **[2026-09-11-generic-asynchronous-release-controller-phase2-verify-review-2](.cg-docs/reviews/2026-09-11-generic-asynchronous-release-controller-phase2-verify-review-2.md)** · `review` · _—_ · `2026-09-11`
+  > P1.5 is independently verified fixed. No new actionable finding or cross-file regression was found in the requested s…
+- **[2026-09-11-generic-asynchronous-release-controller-phase3-review](.cg-docs/reviews/2026-09-11-generic-asynchronous-release-controller-phase3-review.md)** · `review` · _—_ · `2026-09-11`
+  > **Final verification, 2026-09-11T23:08:05Z**: All six findings are independently confirmed fixed in phase3-verify-rev…
+- **[2026-09-11-generic-asynchronous-release-controller-phase3-verify-review](.cg-docs/reviews/2026-09-11-generic-asynchronous-release-controller-phase3-verify-review.md)** · `review` · _—_ · `2026-09-11`
+  > Confirmed fixed: **6/6**. Original findings still open in this verification: **0**. New findings: **0** (P0: 0, P1: 0…
+- **[2026-09-11-generic-asynchronous-release-controller-review](.cg-docs/reviews/2026-09-11-generic-asynchronous-release-controller-review.md)** · `review` · _—_ · `2026-09-11`
+  > **Status**: review completed; all four findings confirmed fixed by independent scoped verification. No remaining or n…
+- **[2026-09-11-generic-asynchronous-release-controller-verify-review](.cg-docs/reviews/2026-09-11-generic-asynchronous-release-controller-verify-review.md)** · `review` · _—_ · `2026-09-11`
+  > All four prior repairs are confirmed: P1.1, P2.1, P2.2, and P2.3. Remaining findings: 0 (P0: 0, P1: 0, P2: 0, P3: 0).…
+- **[Generic asynchronous release controller](.cg-docs/brainstorms/2026-09-11-generic-asynchronous-release-controller.md)** · `brainstorm` · _decided_ · `2026-09-11`
+  > Replace the current plugin-specific `/cg-release` workflow with a generic release tool. The reported problem is relea…
+- **[Generic asynchronous release controller](.cg-docs/plans/2026-09-11-generic-asynchronous-release-controller.md)** · `plan` · _active_ · `2026-09-11`
+  > Implement a standalone deterministic release controller with `plan`, `start`, `status`, and `resume`, plus a thin `/c…
+
 ## 2026-09-08
 
 - **[2026-08-11-kilo-agent-parsing-linker-copy-directory-verify-review](.cg-docs/reviews/2026-08-11-kilo-agent-parsing-linker-copy-directory-verify-review.md)** · `review` · _—_ · `2026-09-08`
@@ -143,10 +206,35 @@ _Generated 2026-09-08 · 608 artifacts (newest first) + 162 roadmap features_
 - **[Minimal adaptive grilling for the Compound GPID workflow](.cg-docs/brainstorms/2026-09-04-minimal-adaptive-grilling.md)** · `brainstorm` · _decided_ · `2026-09-04`
   > <!-- Valid status values: decided, in-progress, abandoned -->
 
+## 2026-09-03
+
+- **[cg-setup omitted active research-suite selection](.cg-docs/solutions/bugs/2026-09-03-cg-setup-omits-active-research-suite-selection.md)** · `solution` · _—_ · `2026-09-03`
+  > After running `/cg-setup`, a project that needed Compound Research could still be configured without the `cr` suite. …
+- **[CR ML Skill Redesign for Econometricians](.cg-docs/brainstorms/2026-09-03-cr-ml-skill-redesign.md)** · `brainstorm` · _decided_ · `2026-09-03`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[CR ML Skill Redesign for Econometricians](.cg-docs/plans/2026-09-03-cr-ml-skill-redesign.md)** · `plan` · _completed_ · `2026-09-03`
+  > Replace the monolithic `cr-skill-ml-economics/SKILL.md` with a compact, Hastie-Tibshirani-Friedman-led router and eig…
+- **[CR ML Skill Redesign Review](.cg-docs/reviews/2026-09-03-cr-ml-skill-redesign-review.md)** · `review` · _—_ · `2026-09-03`
+  > Reviewed the uncommitted changes on `feat/cr-ml-skill-redesign` relative to `HEAD` (`1ef1227`). The review included t…
+- **[Use an ESL-led router for theory-first ML guidance in economics](.cg-docs/solutions/ml-methodology/2026-09-03-esl-led-ml-skill-router.md)** · `solution` · _—_ · `2026-09-03`
+  > The ML skill had grown into a large monolith that mixed statistical-learning foundations, high-dimensional econometri…
+- **[User-facing Compound Research Handbook and Isolated Dev Preview](.cg-docs/brainstorms/2026-09-03-cr-research-handbook-and-dev-preview.md)** · `brainstorm` · _decided_ · `2026-09-03`
+  > <!-- Created 2026-09-03. -->
+- **[User-facing Compound Research Handbook and Isolated Dev Preview](.cg-docs/plans/2026-09-03-cr-research-handbook-and-dev-preview.md)** · `plan` · _active_ · `2026-09-03`
+  > <!-- Created 2026-09-03. -->
+
 ## 2026-09-02
 
+- **[2026-09-02-c-research-output-workspace-migration-review](.cg-docs/reviews/2026-09-02-c-research-output-workspace-migration-review.md)** · `review` · _—_ · `2026-09-02`
+  > **Review mode:** full
 - **[Captured-byte trust must cover the complete dependency closure](.cg-docs/solutions/bugs/2026-09-02-captured-byte-trust-must-cover-dependency-closure.md)** · `solution` · _—_ · `2026-09-02`
   > A dynamic Python dispatcher captured and validated the selected operation file before execution. The handler still im…
+- **[Root-Level c-research Output Workspace and Migration](.cg-docs/plans/2026-09-02-c-research-output-workspace-migration.md)** · `plan` · _completed_ · `2026-09-02`
+  > <!-- Created 2026-09-02. -->
+- **[Secure c-research migration and research-output boundary](.cg-docs/solutions/bugs/2026-09-02-c-research-migration-security-and-boundary.md)** · `solution` · _—_ · `2026-09-02`
+  > Moving Compound Research outputs from `.cg-docs/research/` to the root-level `c-research/` workspace exposed several …
+- **[Separate CR Research Outputs from Compound GPID Documentation](.cg-docs/brainstorms/2026-09-02-c-research-artifact-boundary.md)** · `brainstorm` · _decided_ · `2026-09-02`
+  > <!-- Valid status values: decided, in-progress, abandoned --> <!-- Created 2026-09-02. -->
 
 ## 2026-09-01
 
@@ -184,6 +272,8 @@ _Generated 2026-09-08 · 608 artifacts (newest first) + 162 roadmap features_
 
 ## 2026-08-26
 
+- **[AI and Research: A Practitioner Tour of the Compound Research Workflow](.cg-docs/brainstorms/2026-08-26-ai-knowledge-work-presentation-practitioner-tour.md)** · `brainstorm` · _decided_ · `2026-08-26`
+  > <!-- Created 2026-08-26. -->
 - **[Release drift ignore checks spawn thousands of Git processes](.cg-docs/solutions/bugs/2026-08-26-release-drift-ignore-checks-spawn-thousands-of-git-processes.md)** · `solution` · _—_ · `2026-08-26`
   > The `/cg-release` packaging gate took more than 20 minutes in the full workflow. The native packaging test portion al…
 
@@ -250,10 +340,18 @@ _Generated 2026-09-08 · 608 artifacts (newest first) + 162 roadmap features_
   > **Review mode**: full (auto-routed security/architecture/install changes) **Files reviewed**: Phase 1 implementation,…
 - **[2026-08-13-manifest-driven-skill-loading-verify-review](.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-verify-review.md)** · `review` · _—_ · `2026-08-13`
   > **Review mode**: verify (light) **Parent review**: `.cg-docs/reviews/2026-08-13-manifest-driven-skill-loading-review.…
+- **[AI and the Conditions for Verifiable Knowledge Work](.cg-docs/brainstorms/2026-08-13-ai-knowledge-work-presentation.md)** · `brainstorm` · _decided_ · `2026-08-13`
+  > <!-- Created 2026-08-13. -->
+- **[AI and the Conditions for Verifiable Knowledge Work Presentation](.cg-docs/plans/2026-08-13-ai-knowledge-work-presentation-production.md)** · `plan` · _active_ · `2026-08-13`
+  > <!-- Created 2026-08-13. -->
+- **[Final Local Evidence Workbench Review](.cg-docs/reviews/2026-08-12-cr-local-evidence-workbench-revised-review.md)** · `review` · _—_ · `2026-08-13`
+  > - Unrecognized invocation arguments `deep rigorous` were ignored. - Configured `review-depth: thorough` and security/…
 - **[Manifest-driven skill loading and project-local platform projections](.cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md)** · `plan` · _active_ · `2026-08-13`
   > Replace all-skill, shared-install runtime exposure with a strict, committed per-project manifest and an atomically pu…
 - **[Manifest-driven skill loading for context efficiency](.cg-docs/brainstorms/2026-08-13-skill-loading-architecture-context-efficiency.md)** · `brainstorm` · _decided_ · `2026-08-13`
   > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[Release-gate fixtures must mirror runtime commands and derived evidence hashes](.cg-docs/solutions/testing-patterns/2026-08-13-release-gate-fixtures-and-derived-evidence-hashes.md)** · `solution` · _—_ · `2026-08-13`
+  > The final release gate reported two failures in `test_release_gate_targets.py`: - The checkout-mismatch test expected…
 - **[Verified Pages artifacts and immutable release-tag gates](.cg-docs/solutions/git-workflows/2026-08-13-verified-pages-artifact-and-release-tag-gates.md)** · `solution` · _—_ · `2026-08-13`
   > An automated documentation workflow needs two independent guarantees: 1. The Pages deploy job must publish exactly th…
 
@@ -263,6 +361,12 @@ _Generated 2026-09-08 · 608 artifacts (newest first) + 162 roadmap features_
   > The Compound GPID documentation site (https://gpid-wb.github.io/compound-gpid/) is deployed via GitHub Actions from `…
 - **[Automated Documentation Deployment and What's New Page](.cg-docs/plans/2026-08-12-automated-documentation-deployment.md)** · `plan` · _active_ · `2026-08-12`
   > Keep the public documentation site current from reviewed canonical sources and publish a deterministic, release-backe…
+- **[CR Local Evidence Workbench for Verifiable Research Claims](.cg-docs/brainstorms/2026-08-12-cr-local-evidence-workbench.md)** · `brainstorm` · _decided_ · `2026-08-12`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[CR Local Evidence Workbench for Verifiable Research Claims](.cg-docs/plans/2026-08-12-cr-local-evidence-workbench.md)** · `plan` · _active_ · `2026-08-12`
+  > <!-- Created 2026-08-12. Follow-up plan: the predecessor plan remains completed historical work. -->
+- **[CR Local Evidence Workbench for Verifiable Research Claims \(Revised\)](.cg-docs/plans/2026-08-12-cr-local-evidence-workbench-revised.md)** · `plan` · _completed_ · `2026-08-12`
+  > <!-- Created 2026-08-12. Revision 2 addresses the plan-review findings. -->
 
 ## 2026-08-11
 
@@ -1639,10 +1743,16 @@ _Generated 2026-09-08 · 608 artifacts (newest first) + 162 roadmap features_
   > CR asset classification mapping
 - **[CR evidence and provenance spine with repo-local corpus default](roadmap.json#cr-evidence-provenance-spine)** · `feature` · _done_ · `—`
   > CR evidence and provenance spine with repo-local corpus default
+- **[CR Local Evidence Workbench for Verifiable Research Claims](roadmap.json#cr-local-evidence-workbench-for-verifiable-research-claims)** · `feature` · _done_ · `—`
+  > CR Local Evidence Workbench for Verifiable Research Claims
 - **[CR Measurement/Classification research archetype](roadmap.json#cr-measurement-classification-archetype)** · `feature` · _done_ · `—`
   > CR Measurement/Classification research archetype
 - **[P0 comparability controls for measurement and indicator work](roadmap.json#cr-measurement-comparability-controls)** · `feature` · _done_ · `—`
   > P0 comparability controls for measurement and indicator work
+- **[CR ML Skill Redesign for Econometricians](roadmap.json#cr-ml-skill-redesign-for-econometricians)** · `feature` · _done_ · `—`
+  > CR ML Skill Redesign for Econometricians
+- **[Baseline model-catalog coverage for remaining CR prompts](roadmap.json#cr-prompt-model-catalog-baseline)** · `feature` · _idea_ · `—`
+  > Baseline model-catalog coverage for remaining CR prompts
 - **[Responsible lifecycle and method-pack retrofit](roadmap.json#cr-responsible-lifecycle-method-packs)** · `feature` · _done_ · `—`
   > Responsible lifecycle and method-pack retrofit
 - **[Research scoping and normative-decision gates](roadmap.json#cr-scoping-and-normative-gates)** · `feature` · _done_ · `—`
@@ -1651,6 +1761,8 @@ _Generated 2026-09-08 · 608 artifacts (newest first) + 162 roadmap features_
   > Validate the Measurement archetype with a second use case
 - **[Team-level evidence library](roadmap.json#cr-team-evidence-library)** · `feature` · _idea_ · `—`
   > Team-level evidence library
+- **[Assign GPT-5.6 Luna to /cr-work with native-target governance](roadmap.json#cr-work-gpt-5-6-luna-model-governance)** · `feature` · _done_ · `—`
+  > Assign GPT-5.6 Luna to /cr-work with native-target governance
 - **[Cross-model review — adversarial model diversity](roadmap.json#cross-model-adversarial-review)** · `feature` · _idea_ · `—`
   > Cross-model review — adversarial model diversity
 - **[Append-only DECISIONS.md register for methodology and architecture choices \[from GSD\]](roadmap.json#decisions-register)** · `feature` · _idea_ · `—`
@@ -1763,6 +1875,8 @@ _Generated 2026-09-08 · 608 artifacts (newest first) + 162 roadmap features_
   > roadmap.json schema validation after @cg-roadmap writes
 - **[Roadmap visualization agent + /cg-roadmap-view prompt](roadmap.json#roadmap-visualization-agent-prompt)** · `feature` · _done_ · `—`
   > Roadmap visualization agent + /cg-roadmap-view prompt
+- **[Root-level c-research output workspace and migration](roadmap.json#root-level-c-research-output-workspace-and-migration)** · `feature` · _done_ · `—`
+  > Root-level c-research output workspace and migration
 - **[Runtime model-catalog introspection across platforms](roadmap.json#runtime-model-catalog-introspection-across-platforms)** · `feature` · _idea_ · `—`
   > Runtime model-catalog introspection across platforms
 - **[Scalable Skill Management Suite](roadmap.json#scalable-skill-management-suite)** · `feature` · _done_ · `—`
@@ -1779,8 +1893,10 @@ _Generated 2026-09-08 · 608 artifacts (newest first) + 162 roadmap features_
   > Shrink always-on context
 - **[Side-idea capture during brainstorming \(save to roadmap\)](roadmap.json#side-idea-capture-in-brainstorm)** · `feature` · _done_ · `—`
   > Side-idea capture during brainstorming (save to roadmap)
-- **[Skill discovery metadata and trigger-quality audit](roadmap.json#skill-description-consistency-audit)** · `feature` · _idea_ · `—`
-  > Skill discovery metadata and trigger-quality audit
+- **[Skill description consistency audit and optimization](roadmap.json#skill-description-consistency-audit)** · `feature` · _idea_ · `—`
+  > Skill description consistency audit and optimization
+- **[Skill description length cap with test enforcement \[from CE\]](roadmap.json#skill-description-length-cap)** · `feature` · _idea_ · `—`
+  > Skill description length cap with test enforcement [from CE]
 - **[SkillOpt-based improvement of existing skills](roadmap.json#skillopt-existing-skills-improvement)** · `feature` · _idea_ · `—`
   > SkillOpt-based improvement of existing skills
 - **[Skip high-confidence setup questions based on scanner results](roadmap.json#skip-irrelevant-setup-questions)** · `feature` · _done_ · `—`

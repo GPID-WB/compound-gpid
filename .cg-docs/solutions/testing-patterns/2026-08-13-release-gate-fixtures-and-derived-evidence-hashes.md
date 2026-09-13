@@ -72,6 +72,7 @@ The release fixture then passed all 11 tests, the complete repository Python sui
 
 ## Related
 
+- [Clean default release environments and executable fixture controls](2026-09-13-clean-default-release-gates-and-executable-fixtures.md)
 - [Cross-agent native platform trees require a generator, drift tests, and consistent Python resolution](../environment-issues/2026-07-03-cross-agent-native-platform-trees-require-generator-drift-tests-consistent-python.md)
 - [Generic publisher deletion commit points and cross-platform release gates](../bugs/2026-08-03-generic-publisher-secure-deletion-and-cross-platform-gates.md)
 - [Evidence manifest tests must require referenced files to exist and be non-empty before hashing](2026-08-10-evidence-manifest-tests-require-referenced-files.md)
