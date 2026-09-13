@@ -56,7 +56,7 @@
       "path": ".agents/commands/cg-devtag.md",
       "source": ".github/prompts/cg-devtag.prompt.md",
       "kind": "command",
-      "sha256": "ad7870b1587f8ee29a49997dd00a4652055c5a49241e02cd0e4cfeca65a8c1b1",
+      "sha256": "91be68670a33ff130908010c26249f854436accb5c25d653939ebb33f8b4f394",
       "executable": false
     },
     {
@@ -119,7 +119,7 @@
       "path": ".agents/commands/cg-release.md",
       "source": ".github/prompts/cg-release.prompt.md",
       "kind": "command",
-      "sha256": "1d2a274988bc7d1e60429051f09d8ed2dad6c5d84bc7ca39ba744103a97ffdfa",
+      "sha256": "385cd2d96bd8e323a7d644e0e6ac570cacf6913984c0d3d9c5ae3ef1b2822696",
       "executable": false
     },
     {
@@ -333,6 +333,13 @@
       "executable": false
     },
     {
+      "path": ".agents/shared/release-controller.contract.md",
+      "source": ".github/shared/release-controller.contract.md",
+      "kind": "shared",
+      "sha256": "b1db8f8e512a54b4207e2195df8d619324d38b11b06e5b5eabcfb1cbb41bee42",
+      "executable": false
+    },
+    {
       "path": ".agents/shared/retrieval-backends.json",
       "source": ".github/shared/retrieval-backends.json",
       "kind": "shared",
@@ -448,7 +455,7 @@
       "path": ".agents/shared/skill-management/contracts/release-attestation-v1.schema.json",
       "source": ".github/shared/skill-management/contracts/release-attestation-v1.schema.json",
       "kind": "shared",
-      "sha256": "736a9719a4d058c3ab18f1fe5812c226bcac6b0102f7d3457be889bab8b935ad",
+      "sha256": "7aacbbb0f3edfa626c6da8388430aec73beebdb233deb94eb8812a91c7aed784",
       "executable": false
     },
     {
@@ -602,7 +609,7 @@
       "path": ".agents/shared/target-mapping.json",
       "source": ".github/shared/target-mapping.json",
       "kind": "shared",
-      "sha256": "38269c5d9c5103d9189865a37f7911c76f1a8a53f5a8dc07899b25c5b9c39968",
+      "sha256": "7fd36441e3ad8bb66b2ff039474605b01a487342090cacb9ed0c4324fff9f525",
       "executable": false
     },
     {
@@ -686,7 +693,7 @@
       "path": ".agents/skills/cg-release-scanner.md",
       "source": ".github/agents/cg-release-scanner.agent.md",
       "kind": "fallback-agent",
-      "sha256": "4f05ab2765448bad52eb3180332038c6cfbeb67d7de453f9d3ecd45d12c549aa",
+      "sha256": "a4ebec02754c08c6b1022bfeaf8571cfb85ac959911ff7a5d37fdfcb042b7886",
       "executable": false
     },
     {
@@ -2618,7 +2625,7 @@
       "path": ".agents/subagents/cg-release-scanner.toml",
       "source": ".github/agents/cg-release-scanner.agent.md",
       "kind": "agent",
-      "sha256": "832f47c7135b3a30581b7928085c45696741c317c6a4e9fe641ad4eb0415305a",
+      "sha256": "151aafdbe09024524741f8be88a85703a886e5c173c127ec35122a24c5f3bb34",
       "executable": false
     },
     {
