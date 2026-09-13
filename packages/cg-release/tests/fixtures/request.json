@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "host": "github.com",
+  "repository_id": 123,
+  "repository_slug": "example/generic",
+  "requester_id": 456,
+  "nonce": "0123456789abcdef0123456789abcdef",
+  "proposal_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "source_branch": "main",
+  "source_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "policy_sha": "cccccccccccccccccccccccccccccccccccccccc",
+  "policy_digest": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "line": "current",
+  "version": "1.0.0",
+  "tag": "v1.0.0",
+  "sign": false,
+  "override_reason": null,
+  "requested_bump": null,
+  "requested_channel": null
+}
