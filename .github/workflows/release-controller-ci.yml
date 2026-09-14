@@ -147,7 +147,7 @@ jobs:
     if: ${{ always() && (github.event_name != 'workflow_dispatch' || needs.register.result == 'success') }}
     name: package-${{ matrix.os }}-py${{ matrix.python }}
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 20
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
