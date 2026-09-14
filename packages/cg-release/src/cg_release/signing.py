@@ -47,7 +47,8 @@ def _signer(key_file: Path, fingerprint: str):
         raise ControllerError(
             "E_SIGNING", "Signing key or fingerprint is unavailable."
         ) from None
-    with TemporaryDirectory(prefix="cg-release-sign-") as directory:
+    # Leave room for GPG's extra/browser sockets under native temporary parents.
+    with TemporaryDirectory(prefix="cg-sign-") as directory:
         root = Path(directory)
         home = root / "gnupg"
         home.mkdir(mode=0o700)

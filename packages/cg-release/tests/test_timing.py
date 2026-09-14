@@ -51,6 +51,7 @@ def test_benchmark_observes_real_process_boundary_and_forbids_network(
     monkeypatch.setattr(socket, "create_connection", forbidden)
     monkeypatch.setattr(socket.socket, "connect", forbidden)
     monkeypatch.setattr(socket.socket, "connect_ex", forbidden)
+    monkeypatch.setattr(benchmark_module.platform, "platform", forbidden)
     if extra_call:
         original_run = benchmark_module.run_process
 
@@ -66,6 +67,7 @@ def test_benchmark_observes_real_process_boundary_and_forbids_network(
         assert report["git_subprocess_count"] == len(observed) == 3
         assert set(observed) == allowed
         assert report["remote_writes"] == 0
+        assert report["environment"]["platform"] == sys.platform
 
 
 @pytest.mark.parametrize(

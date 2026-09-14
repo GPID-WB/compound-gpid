@@ -22,7 +22,8 @@ Use Python 3.11 or later, Git, `gh`, and `uv` for the standalone package. Authen
 `gh` through its normal secure credential store; never put credentials in command
 arguments, URLs, trial records or the journal. Source-free wheel installation uses
 the controller's locked dependency export and `--link-mode copy`. See the
-[package installation instructions](https://github.com/GPID-WB/compound-gpid/blob/main/packages/cg-release/README.md).
+[package installation instructions](https://github.com/GPID-WB/compound-gpid/blob/5e879e2d573515b6baa9797ef7418afb2177af55/packages/cg-release/README.md)
+at the reviewed source revision.
 
 From the reviewed controller source checkout:
 

@@ -185,7 +185,8 @@ def apply_edits(
     # Only controller-created regular files enter this fresh worktree. No source
     # checkout, attributes, hooks, submodules, filters, or inherited Git routing.
     with TemporaryDirectory(prefix="cg-release-prepare-") as temporary:
-        worktree = Path(temporary)
+        # Resolve the trusted temporary parent alias once, not staged descendants.
+        worktree = Path(temporary).resolve(strict=True)
         env = {k: v for k, v in os.environ.items() if not k.upper().startswith("GIT_")}
         env.update(
             GIT_CONFIG_NOSYSTEM="1",

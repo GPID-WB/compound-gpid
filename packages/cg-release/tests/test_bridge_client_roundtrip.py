@@ -18,6 +18,33 @@ from cg_release.profile_models import BridgeRelease, BridgeSpec
 ROOT = Path(__file__).resolve().parents[3]
 
 
+def link_failure_summary(result, cwd, env):
+    """Return only numeric/boolean fixture diagnostics, never child text or paths."""
+    raw = (result.stdout + result.stderr).decode(errors="replace").lower()
+    return {
+        "exit_code": result.returncode,
+        "cwd_characters": len(str(cwd)),
+        "core_module_path": any(
+            "powershell/7/modules" in value.replace("\\", "/").lower()
+            for key, value in env.items()
+            if key.upper() == "PSMODULEPATH"
+        ),
+        "signals": {
+            name: name.lower() in raw
+            for name in (
+                "PathTooLongException",
+                "CommandNotFoundException",
+                "NativeCommandError",
+                "PSSecurityException",
+                "cannot be loaded",
+                "Could not update",
+                "Target mapping",
+                "Cannot find path",
+            )
+        },
+    }
+
+
 @pytest.fixture(scope="module")
 def distribution(tmp_path_factory):
     """Use complete real helper dependencies, never no-op helpers or readers alone."""
@@ -92,7 +119,25 @@ def distribution(tmp_path_factory):
         bridge=identities[1],
         successor=identities[2],
     )
-    return root, spec
+    original_run = subprocess.run
+
+    def observed(argv, **kwargs):
+        result = original_run(argv, **kwargs)
+        if result.returncode and any(
+            str(arg).replace("\\", "/").endswith("/scripts/link.ps1") for arg in argv
+        ):
+            pytest.fail(
+                "Offline Windows link diagnostic: "
+                + json.dumps(
+                    link_failure_summary(result, kwargs["cwd"], kwargs["env"])
+                ),
+                pytrace=False,
+            )
+        return result
+
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(subprocess, "run", observed)
+        yield root, spec
 
 
 def test_actual_client_tree_helpers_managed_refresh_and_link(distribution, tmp_path):
@@ -237,3 +282,20 @@ def test_private_clone_error_never_echoes_raw_or_encoded_credential(
     assert all(
         value.decode() not in str(error.value) for value in output[0].splitlines()
     )
+
+
+def test_link_diagnostics_withhold_child_text_paths_and_environment():
+    secret = "fixture-private-value"
+    raw = (
+        secret
+        + "\nCommandNotFoundException\n"
+        + base64.b64encode(secret.encode()).decode()
+    ).encode()
+    result = subprocess.CompletedProcess([], 1, raw, raw)
+    summary = link_failure_summary(result, Path(secret), {"PSModulePath": secret})
+    rendered = json.dumps(summary)
+    assert secret not in rendered
+    assert base64.b64encode(secret.encode()).decode() not in rendered
+    assert summary["signals"]["CommandNotFoundException"] is True
+    assert summary["signals"]["PathTooLongException"] is False
+    assert summary["exit_code"] == 1

@@ -92,7 +92,8 @@ def benchmark_offline() -> dict:
         "mode": "offline",
         "environment": {
             "python": platform.python_version(),
-            "platform": platform.platform(),
+            # platform.platform() can spawn ver/uname outside the offline budget.
+            "platform": sys.platform,
             "controller_version": version("cg-release"),
         },
         "stage_definitions": STAGES,

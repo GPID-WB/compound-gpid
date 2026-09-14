@@ -1,8 +1,12 @@
 """Execute isolated preparation against real Git trees, never a remote target."""
 
 import hashlib
+import os
+import stat
 import subprocess
+import tempfile
 from dataclasses import replace
+from pathlib import Path
 
 import pytest
 
@@ -10,6 +14,7 @@ from cg_release.events import ControllerError
 from cg_release.metadata import Edit, SourceBlob, proposed_edits
 from cg_release.models import Changelog, MetadataAdapter
 from cg_release.preparation import TreeEntry, apply_edits
+from cg_release.process import run_process
 
 
 def git(path, *args):
@@ -60,6 +65,95 @@ def test_exact_expected_tree_preserves_source_worktree_and_format(source):
     assert prepared.changed_paths == ("package.json",)
     assert prepared.edits == (edit,)
     assert apply_edits(tree, entries, blobs, (edit,), {edit.path}) == prepared
+
+
+def test_temporary_parent_alias_preserves_private_staging(
+    source, tmp_path, monkeypatch
+):
+    """Native temporary aliases must not waive descendant or source checks."""
+    repo, tree, entries, blobs, edit = source
+    expected = apply_edits(tree, entries, blobs, (edit,), {edit.path})
+    before = git(repo, "status", "--porcelain")
+    target, alias = tmp_path / "temporary-parent", tmp_path / "alias"
+    target.mkdir()
+    if os.name == "nt":
+        subprocess.run(
+            ["cmd", "/d", "/c", "mklink", "/J", str(alias), str(target)],
+            capture_output=True,
+            check=True,
+            timeout=10,
+        )
+    else:
+        alias.symlink_to(target, target_is_directory=True)
+    calls = []
+
+    def observed(tool, args, **kwargs):
+        root = kwargs["cwd"]
+        assert root == root.resolve(strict=True)
+        assert root.parent == target.resolve(strict=True)
+        if os.name != "nt":
+            assert stat.S_IMODE(root.stat().st_mode) == 0o700
+        calls.append(args)
+        return run_process(tool, args, **kwargs)
+
+    try:
+        monkeypatch.setattr(
+            "cg_release.preparation.TemporaryDirectory",
+            lambda **kwargs: tempfile.TemporaryDirectory(dir=alias, **kwargs),
+        )
+        assert (
+            apply_edits(tree, entries, blobs, (edit,), {edit.path}, runner=observed)
+            == expected
+        )
+        assert len(calls) == 4
+        assert not list(target.iterdir())
+        assert git(repo, "status", "--porcelain") == before
+        assert (repo / edit.path).read_bytes() == blobs[edit.path].content
+    finally:
+        if os.name == "nt":
+            alias.rmdir()
+        else:
+            alias.unlink()
+
+
+@pytest.mark.parametrize("alias_kind", ["hardlink", "symlink"])
+def test_staged_file_alias_is_still_rejected(source, tmp_path, monkeypatch, alias_kind):
+    """A trusted parent does not authorize aliases in controller-created output."""
+    _, tree, entries, blobs, edit = source
+    outside = tmp_path / "outside"
+    outside.write_bytes(edit.content)
+    original = Path.lstat
+    substituted = []
+
+    def swap(path, *args, **kwargs):
+        if path.name == edit.path and path.parent.name.startswith(
+            "cg-release-prepare-"
+        ):
+            if not substituted:
+                path.unlink()
+                if alias_kind == "hardlink":
+                    os.link(outside, path)
+                else:
+                    try:
+                        path.symlink_to(outside)
+                    except OSError as error:
+                        if os.name == "nt" and error.winerror == 1314:
+                            pytest.skip("Native file symlink privilege is unavailable")
+                        raise
+                substituted.append(path)
+        return original(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "lstat", swap)
+    calls = []
+
+    def observed(tool, args, **kwargs):
+        calls.append(args)
+        return run_process(tool, args, **kwargs)
+
+    with pytest.raises(ControllerError, match="private regular file"):
+        apply_edits(tree, entries, blobs, (edit,), {edit.path}, runner=observed)
+    assert len(substituted) == len(calls) == 1
+    assert outside.read_bytes() == edit.content
 
 
 @pytest.mark.parametrize("field", ["input_digest", "output_digest", "content"])

@@ -59,6 +59,17 @@ def test_controller_page_has_public_navigation_entry() -> None:
     )
 
 
+def test_package_installation_link_uses_an_immutable_source_revision() -> None:
+    text = PAGES[1].read_text(encoding="utf-8")
+    link = re.search(
+        r"\[package installation instructions\]\(https://github\.com/GPID-WB/"
+        r"compound-gpid/blob/([0-9a-f]{40})/(packages/cg-release/README\.md)\)",
+        text,
+    )
+    assert link, "The unreleased package guide must not link to an absent main path"
+    assert (ROOT / link[2]).is_file()
+
+
 def test_copied_setup_template_is_disabled_and_requires_real_identity(tmp_path) -> None:
     from cg_release.models import Policy, load_record
 

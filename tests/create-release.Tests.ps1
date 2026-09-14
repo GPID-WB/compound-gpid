@@ -597,8 +597,10 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
             & (Join-Path $script:fixture 'create-release.ps1') @parameters
         }
         function Set-FixtureRecoveryRecord {
+            param([string]$SchemaJson = '1')
             $record = @{schema_version=1;repository_id=123;tag=$script:state.Tag;tag_object=$script:state.Object;release_sha=$script:state.Head;actor_ids=@(7);reason='Reviewed offline historical fixture';build_run_id=10;artifact_id=30;artifact_digest=('sha256:' + ('e' * 64))}
             $raw = $record | ConvertTo-Json -Compress
+            $raw = $raw -replace '"schema_version":1(?=[,}])', ('"schema_version":' + $SchemaJson)
             $script:state.RecoveryRecord = [pscustomobject]@{type='file';encoding='base64';content=[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($raw))}
         }
     }
@@ -657,6 +659,31 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
         Invoke-FixtureRelease -Operation Recovery
         $script:state.Remote | Should -Be $true
         $script:state.Release.id | Should -Be 123
+    }
+    It 'accepts the Int64 schema representation without changing reviewed authority' {
+        Set-FixtureRecoveryRecord
+        $script:state.PolicyEnabled = $true
+        Mock ConvertFrom-Json -ParameterFilter { $InputObject -match '"schema_version":1[,}]' -and $InputObject -match '"tag_object"' } {
+            $parser = Get-Command ConvertFrom-Json -CommandType Cmdlet
+            $record = & $parser -InputObject $InputObject
+            $record.schema_version = [long]1
+            return $record
+        }
+        Invoke-FixtureRelease -Operation Recovery
+        Assert-MockCalled ConvertFrom-Json -Times 1 -Scope It
+        $script:state.Remote | Should -Be $true
+        $script:state.Release.id | Should -Be 123
+    }
+    It 'rejects invalid historical schema <SchemaJson> before any effect' -TestCases @(
+        @{ SchemaJson = 'true' }, @{ SchemaJson = '"1"' }, @{ SchemaJson = '1.0' },
+        @{ SchemaJson = '1.5' }, @{ SchemaJson = 'null' }, @{ SchemaJson = '0' },
+        @{ SchemaJson = '2' }, @{ SchemaJson = '2147483648' }
+    ) {
+        param($SchemaJson)
+        Set-FixtureRecoveryRecord -SchemaJson $SchemaJson
+        $script:state.PolicyEnabled = $true
+        { Invoke-FixtureRelease -Operation Recovery } | Should -Throw 'Explicit reviewed historical recovery authority'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post|cg_release_attestation.py'
     }
     It 'finalizes the exact reviewed historical manual deployment after cutover' {
         $script:state.Remote=$true; $script:state.Release=$script:expected; $script:state.PolicyEnabled=$true

@@ -71,7 +71,7 @@ function Assert-CgLegacyAuthority {
         }
         if ($null -eq $RemoteTag -or $RequireRecoveryRecord) {
             $record = Get-CgLegacyRemoteDocument -Path ".github/release-recovery/$ReleaseTag.json" -Commit $branch.commit.sha
-            if ($null -eq $record -or $record.schema_version -isnot [int] -or $record.schema_version -ne 1 -or $record.repository_id -ne $repo.id -or
+            if ($null -eq $record -or ($record.schema_version -isnot [int] -and $record.schema_version -isnot [long]) -or $record.schema_version -ne 1 -or $record.repository_id -ne $repo.id -or
                 $record.tag -cne $ReleaseTag -or $record.tag_object -cne $Object -or $record.release_sha -cne $Commit -or
                 $Object -cnotmatch '^[0-9a-f]{40}$' -or $Commit -cnotmatch '^[0-9a-f]{40}$' -or
                 $actor.id -notin @($record.actor_ids) -or [string]::IsNullOrWhiteSpace($record.reason)) {
