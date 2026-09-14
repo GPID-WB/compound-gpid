@@ -205,6 +205,32 @@ def test_private_clone_has_exact_scoped_read_credential_without_argv_secret(
     assert "GH_TOKEN" not in env and "GITHUB_TOKEN" not in env
 
 
+def test_roundtrip_child_env_does_not_forward_psmodulepath(tmp_path, monkeypatch):
+    monkeypatch.delenv("GH_TOKEN", raising=False)
+    monkeypatch.delenv("GITHUB_TOKEN", raising=False)
+    monkeypatch.setenv("GH_TOKEN", "offline-token-not-a-credential")
+    monkeypatch.setenv(
+        "PSModulePath",
+        "C:\\Program Files\\PowerShell\\7\\Modules;"
+        "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\Modules",
+    )
+    captured = {}
+
+    def spawn(argv, **kwargs):
+        captured["env"] = kwargs["env"]
+        raise RuntimeError("outer transport capture")
+
+    monkeypatch.setattr(subprocess, "run", spawn)
+    with pytest.raises(RuntimeError, match="outer transport"):
+        roundtrip(
+            SimpleNamespace(repository_slug="owner/repo"),
+            tmp_path / "private",
+            remote="https://github.com/owner/repo.git",
+            shell_kind="windows",
+        )
+    assert all(key.upper() != "PSMODULEPATH" for key in captured["env"])
+
+
 @pytest.mark.parametrize("token", [None, "", "fake\r\ninjected-header"])
 def test_private_clone_rejects_missing_or_malformed_credential_before_subprocess(
     tmp_path, monkeypatch, token
