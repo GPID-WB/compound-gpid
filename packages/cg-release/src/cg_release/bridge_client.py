@@ -182,8 +182,7 @@ def roundtrip(spec, root: Path, *, remote: str, shell_kind: str) -> dict:
     home.mkdir()
     consumer.mkdir()
     env = {
-        k: v
-        for k, v in os.environ.items()
+        k: v for k, v in os.environ.items()
         if not k.startswith(("CG_", "GIT_", "GH_", "GITHUB_"))
         and k.upper() != "PSMODULEPATH"
     }
