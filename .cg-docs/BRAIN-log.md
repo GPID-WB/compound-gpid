@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-09-13 · 654 artifacts (newest first) + 168 roadmap features_
+_Generated 2026-09-14 · 659 artifacts (newest first) + 169 roadmap features_
 
 ## undated
 
@@ -141,6 +141,8 @@ _Generated 2026-09-13 · 654 artifacts (newest first) + 168 roadmap features_
   > **Review mode**: Embedded `review:auto`, resolved `full`; report only by explicit instruction. **Coverage**: All 10 r…
 - **[2026-09-13-generic-asynchronous-release-controller-phase7-verify-review](.cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-phase7-verify-review.md)** · `review` · _—_ · `2026-09-13`
   > **Confirmed fixed: 2. Open: 0. Unverified: 0. New findings: 0.** These counts cover only the two Phase 7 P2 repairs a…
+- **[2026-09-13-generic-asynchronous-release-controller-precommitrepairverify](.cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-precommitrepairverify.md)** · `review` · _success-qualified_ · `2026-09-13`
+  > **Result: Pass, qualified.** P1.1 is independently confirmed fixed. Both additional Bash fixture failures now pass. N…
 - **[2026-09-13-generic-asynchronous-release-controller-step9-fix-triage](.cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-step9-fix-triage.md)** · `review` · _success-qualified_ · `2026-09-13`
   > **Status: Success, qualified. Step 9 is complete.** The repairs, focused checks, clean default full-package gate, and…
 - **[Release controller authority and evidence must stay bound at each continuation](.cg-docs/solutions/git-workflows/2026-09-13-release-controller-authority-and-evidence-boundaries.md)** · `solution` · _—_ · `2026-09-13`
@@ -190,10 +192,17 @@ _Generated 2026-09-13 · 654 artifacts (newest first) + 168 roadmap features_
 - **[Generic asynchronous release controller](.cg-docs/plans/2026-09-11-generic-asynchronous-release-controller.md)** · `plan` · _active_ · `2026-09-11`
   > Implement a standalone deterministic release controller with `plan`, `start`, `status`, and `resume`, plus a thin `/c…
 
+## 2026-09-09
+
+- **[Validate registry identities before building derived maps](.cg-docs/solutions/data-quality/2026-09-09-validate-registry-identities-before-derived-maps.md)** · `solution` · _—_ · `2026-09-09`
+  > A workflow registry had three identity fields: `workflow_id`, `workflow`, and `path`. Validation rejected duplicate I…
+
 ## 2026-09-08
 
 - **[2026-08-11-kilo-agent-parsing-linker-copy-directory-verify-review](.cg-docs/reviews/2026-08-11-kilo-agent-parsing-linker-copy-directory-verify-review.md)** · `review` · _—_ · `2026-09-08`
   > **Review mode**: light verification **Parent review**: `.cg-docs/reviews/2026-08-11-kilo-agent-parsing-linker-copy-di…
+- **[2026-08-28-scalable-skill-management-suite-verify-review-3](.cg-docs/reviews/2026-08-28-scalable-skill-management-suite-verify-review-3.md)** · `review` · _—_ · `2026-09-08`
+  > - **Review mode**: verify (light-only) - **Parent review**: `.cg-docs/reviews/2026-08-28-scalable-skill-management-su…
 - **[2026-09-04-minimal-adaptive-grilling-review](.cg-docs/reviews/2026-09-04-minimal-adaptive-grilling-review.md)** · `review` · _—_ · `2026-09-08`
   > **Review mode**: standard **Files reviewed**: 29 implementation and workflow-record paths **Findings**: 15 (P0: 0, P1…
 - **[Fact-first interactive prompts need branch-complete tests](.cg-docs/solutions/testing-patterns/2026-09-08-fact-first-prompts-need-branch-complete-tests.md)** · `solution` · _—_ · `2026-09-08`
@@ -204,6 +213,10 @@ _Generated 2026-09-13 · 654 artifacts (newest first) + 168 roadmap features_
 - **[Implement Minimal Adaptive Grilling](.cg-docs/plans/2026-09-04-minimal-adaptive-grilling.md)** · `plan` · _completed_ · `2026-09-04`
   > Improve `/cg-brainstorm` with the smallest complete adaptive-grilling pilot. The command will discover facts before a…
 - **[Minimal adaptive grilling for the Compound GPID workflow](.cg-docs/brainstorms/2026-09-04-minimal-adaptive-grilling.md)** · `brainstorm` · _decided_ · `2026-09-04`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[Unified /cg-light-work command for small technical tasks](.cg-docs/plans/2026-09-04-cg-light-work-unified-small-task-workflow.md)** · `plan` · _completed_ · `2026-09-04`
+  > Add `/cg-light-work <task>` as one fail-closed workflow for qualifying small technical tasks. It must perform bounded…
+- **[Unified lightweight workflow command for small technical tasks](.cg-docs/brainstorms/2026-09-04-cg-light-work-unified-small-task-workflow.md)** · `brainstorm` · _decided_ · `2026-09-04`
   > <!-- Valid status values: decided, in-progress, abandoned -->
 
 ## 2026-09-03
@@ -1947,6 +1960,8 @@ _Generated 2026-09-13 · 654 artifacts (newest first) + 168 roadmap features_
   > Token Efficiency vs modular priority resolution
 - **[Capture the learning](roadmap.json#token-optimization-compound)** · `feature` · _idea_ · `—`
   > Capture the learning
+- **[Unified /cg-light-work command for small technical tasks](roadmap.json#unified-cg-light-work-command-for-small-technical-tasks)** · `feature` · _done_ · `—`
+  > Unified /cg-light-work command for small technical tasks
 - **[User-selected execution with advisory model and effort routing](roadmap.json#user-selected-execution-with-advisory-model-and-effort-routing)** · `feature` · _done_ · `—`
   > User-selected execution with advisory model and effort routing
 - **[Migration path from vanilla Copilot \(detect and merge existing instructions\)](roadmap.json#vanilla-copilot-migration)** · `feature` · _idea_ · `—`

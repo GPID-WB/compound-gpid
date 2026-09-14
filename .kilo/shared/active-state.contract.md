@@ -56,9 +56,9 @@ present.
 
 ## Workflow Responsibilities
 
-- `/cg-work` creates or updates `.cg-docs/active-state/current.json` after it
-  creates the execution report, at phase boundaries, on blocked stops, and on
-  completion.
+- `/cg-work` and the bounded `/cg-light-work` execution stage create or update
+  `.cg-docs/active-state/current.json` after creating the execution report, at
+  phase boundaries, on blocked stops, and on completion.
 - `/cg-resume` reads `.cg-docs/active-state/current.json` when present, verifies
   referenced paths, cross-checks active plans/reviews, and may prefer
   `nextCommand` when it is consistent with scanned state.

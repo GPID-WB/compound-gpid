@@ -1,10 +1,10 @@
 # 🧠 Project Brain — Part 1
 
-_Generated 2026-09-13_
+_Generated 2026-09-14_
 
-## Roadmap.Json / Test Scenarios / Prompt-Tools.Tests.Ps1
+## Roadmap.Json / Test Scenarios / Cg-Work
 
-_Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 431 entities
+_Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 432 entities
 
 - **[Rename prompts, agents, and skills with cg- prefix; add WIP banner and manual](.cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md)** · `brainstorm` · _decided_ · `2026-03-02`
   > The project's prompts, agents, and skills lack a consistent naming prefix, making it unclear which files belong to th…
@@ -124,6 +124,8 @@ _Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 43
   > <!-- Valid status values: decided, in-progress, abandoned -->
 - **[User-facing Compound Research Handbook and Isolated Dev Preview](.cg-docs/brainstorms/2026-09-03-cr-research-handbook-and-dev-preview.md)** · `brainstorm` · _decided_ · `2026-09-03`
   > <!-- Created 2026-09-03. -->
+- **[Unified lightweight workflow command for small technical tasks](.cg-docs/brainstorms/2026-09-04-cg-light-work-unified-small-task-workflow.md)** · `brainstorm` · _decided_ · `2026-09-04`
+  > <!-- Valid status values: decided, in-progress, abandoned -->
 - **[Minimal adaptive grilling for the Compound GPID workflow](.cg-docs/brainstorms/2026-09-04-minimal-adaptive-grilling.md)** · `brainstorm` · _decided_ · `2026-09-04`
   > <!-- Valid status values: decided, in-progress, abandoned -->
 - **[2026-04-23-compound-engineering-full-review](.cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md)** · `review` · _—_ · `2026-04-23`
@@ -372,6 +374,8 @@ _Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 43
   > Replace the monolithic `cr-skill-ml-economics/SKILL.md` with a compact, Hastie-Tibshirani-Friedman-led router and eig…
 - **[User-facing Compound Research Handbook and Isolated Dev Preview](.cg-docs/plans/2026-09-03-cr-research-handbook-and-dev-preview.md)** · `plan` · _active_ · `2026-09-03`
   > <!-- Created 2026-09-03. -->
+- **[Unified /cg-light-work command for small technical tasks](.cg-docs/plans/2026-09-04-cg-light-work-unified-small-task-workflow.md)** · `plan` · _completed_ · `2026-09-04`
+  > Add `/cg-light-work <task>` as one fail-closed workflow for qualifying small technical tasks. It must perform bounded…
 - **[Implement Minimal Adaptive Grilling](.cg-docs/plans/2026-09-04-minimal-adaptive-grilling.md)** · `plan` · _completed_ · `2026-09-04`
   > Improve `/cg-brainstorm` with the smallest complete adaptive-grilling pilot. The command will discover facts before a…
 - **[Generic asynchronous release controller](.cg-docs/plans/2026-09-11-generic-asynchronous-release-controller.md)** · `plan` · _active_ · `2026-09-11`
@@ -694,6 +698,8 @@ _Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 43
   > - **Review mode**: verify (light-only) - **Parent review**: `.cg-docs/reviews/2026-08-13-manifest-driven-skill-loadin…
 - **[2026-08-28-compound-gpid-rd-command-review](.cg-docs/reviews/2026-08-28-compound-gpid-rd-command-review.md)** · `review` · _—_ · `2026-08-28`
   > **Review mode**: full (auto-routed security-risk) **Files reviewed**: canonical prompt, registry utility, tests, audi…
+- **[2026-08-28-scalable-skill-management-suite-verify-review-3](.cg-docs/reviews/2026-08-28-scalable-skill-management-suite-verify-review-3.md)** · `review` · _—_ · `2026-09-08`
+  > - **Review mode**: verify (light-only) - **Parent review**: `.cg-docs/reviews/2026-08-28-scalable-skill-management-su…
 - **[2026-09-02-c-research-output-workspace-migration-review](.cg-docs/reviews/2026-09-02-c-research-output-workspace-migration-review.md)** · `review` · _—_ · `2026-09-02`
   > **Review mode:** full
 - **[CR ML Skill Redesign Review](.cg-docs/reviews/2026-09-03-cr-ml-skill-redesign-review.md)** · `review` · _—_ · `2026-09-03`
@@ -742,6 +748,8 @@ _Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 43
   > **Review mode**: Embedded `review:auto`, resolved `full`; report only by explicit instruction. **Coverage**: All 10 r…
 - **[2026-09-13-generic-asynchronous-release-controller-phase7-verify-review](.cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-phase7-verify-review.md)** · `review` · _—_ · `2026-09-13`
   > **Confirmed fixed: 2. Open: 0. Unverified: 0. New findings: 0.** These counts cover only the two Phase 7 P2 repairs a…
+- **[2026-09-13-generic-asynchronous-release-controller-precommitrepairverify](.cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-precommitrepairverify.md)** · `review` · _success-qualified_ · `2026-09-13`
+  > **Result: Pass, qualified.** P1.1 is independently confirmed fixed. Both additional Bash fixture failures now pass. N…
 - **[2026-09-13-generic-asynchronous-release-controller-step9-fix-triage](.cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-step9-fix-triage.md)** · `review` · _success-qualified_ · `2026-09-13`
   > **Status: Success, qualified. Step 9 is complete.** The repairs, focused checks, clean default full-package gate, and…
 - **[Broken relative links in deeply-nested skill files pointing to repo root](.cg-docs/solutions/bugs/2026-03-18-broken-relative-links-in-nested-skill-files.md)** · `solution` · _—_ · `2026-03-18`
@@ -862,11 +870,5 @@ _Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 43
   > The `/cg-release` packaging gate took more than 20 minutes in the full workflow. The native packaging test portion al…
 - **[Trusted dispatch requires immutable anchors and captured bytes](.cg-docs/solutions/bugs/2026-08-31-trust-anchor-captured-byte-dispatch.md)** · `solution` · _—_ · `2026-08-31`
   > The private skill-management dispatcher used local Git origin and branch data to grant maintainer authority. A fixtur…
-- **[Secure c-research migration and research-output boundary](.cg-docs/solutions/bugs/2026-09-02-c-research-migration-security-and-boundary.md)** · `solution` · _—_ · `2026-09-02`
-  > Moving Compound Research outputs from `.cg-docs/research/` to the root-level `c-research/` workspace exposed several …
-- **[Captured-byte trust must cover the complete dependency closure](.cg-docs/solutions/bugs/2026-09-02-captured-byte-trust-must-cover-dependency-closure.md)** · `solution` · _—_ · `2026-09-02`
-  > A dynamic Python dispatcher captured and validated the selected operation file before execution. The handler still im…
-- **[cg-setup omitted active research-suite selection](.cg-docs/solutions/bugs/2026-09-03-cg-setup-omits-active-research-suite-selection.md)** · `solution` · _—_ · `2026-09-03`
-  > After running `/cg-setup`, a project that needed Compound Research could still be configured without the `cr` suite. …
 
 _…continues in [BRAIN-02.md](BRAIN-02.md)_

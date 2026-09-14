@@ -1,11 +1,17 @@
 # 🧠 Project Brain — Part 2
 
-_Generated 2026-09-13_
+_Generated 2026-09-14_
 
-## Roadmap.Json / Test Scenarios / Prompt-Tools.Tests.Ps1 _(continued from Part 1)_
+## Roadmap.Json / Test Scenarios / Cg-Work _(continued from Part 1)_
 
-_Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 152 entities
+_Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 156 entities
 
+- **[Secure c-research migration and research-output boundary](.cg-docs/solutions/bugs/2026-09-02-c-research-migration-security-and-boundary.md)** · `solution` · _—_ · `2026-09-02`
+  > Moving Compound Research outputs from `.cg-docs/research/` to the root-level `c-research/` workspace exposed several …
+- **[Captured-byte trust must cover the complete dependency closure](.cg-docs/solutions/bugs/2026-09-02-captured-byte-trust-must-cover-dependency-closure.md)** · `solution` · _—_ · `2026-09-02`
+  > A dynamic Python dispatcher captured and validated the selected operation file before execution. The handler still im…
+- **[cg-setup omitted active research-suite selection](.cg-docs/solutions/bugs/2026-09-03-cg-setup-omits-active-research-suite-selection.md)** · `solution` · _—_ · `2026-09-03`
+  > After running `/cg-setup`, a project that needed Compound Research could still be configured without the `cr` suite. …
 - **[Get-Item .Target property is string\[\] in PowerShell 5.1, not a scalar string](.cg-docs/solutions/build-errors/2026-03-04-get-item-target-is-string-array.md)** · `solution` · _—_ · `2026-03-04`
   > Code that checks whether a junction points to a specific directory passed all unit tests but produced confusing resul…
 - **[$$  is not a process ID in PowerShell](.cg-docs/solutions/build-errors/2026-03-04-powershell-dollar-dollar-is-not-pid.md)** · `solution` · _—_ · `2026-03-04`
@@ -34,6 +40,8 @@ _Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 15
   > A welfare validation guard in a research EDA skill read: This has two silent failure modes: 1. **NA values silently b…
 - **[Secure registry mutation requires exact JSON and pre-commit output validation](.cg-docs/solutions/data-quality/2026-08-28-exact-json-registry-mutation-boundaries.md)** · `solution` · _—_ · `2026-08-28`
   > A deterministic JSON registry utility preserved unknown fields structurally but decoded unknown numbers as binary flo…
+- **[Validate registry identities before building derived maps](.cg-docs/solutions/data-quality/2026-09-09-validate-registry-identities-before-derived-maps.md)** · `solution` · _—_ · `2026-09-09`
+  > A workflow registry had three identity fields: `workflow_id`, `workflow`, and `path`. Validation rejected duplicate I…
 - **[Skills are not slash-command prompts — avoid advertising them as /skill-name](.cg-docs/solutions/environment-issues/2026-03-02-skill-vs-prompt-slash-command.md)** · `solution` · _—_ · `2026-03-02`
   > Documentation (README, manual) instructed users to run `/cg-setup` in Copilot Chat to configure their project. Howeve…
 - **[Troubleshooting documentation belongs in manual, not README](.cg-docs/solutions/environment-issues/2026-03-13-troubleshooting-doc-structure-readme-vs-manual.md)** · `solution` · _—_ · `2026-03-13`
@@ -316,7 +324,7 @@ _Keywords: `roadmap.json` · `test scenarios` · `prompt-tools.tests.ps1`_ · 15
 _Keywords: `architecture research
 objective` · `ongoing ideas
 objective` · `workflow maturity
-objective`_ · 159 entities
+objective`_ · 160 entities
 
 - **[@cg-fix-problems agent \(auto-dispatched by /cg-work\)](roadmap.json#cg-fix-problems-agent)** · `feature` · _done_ · `—`
   > @cg-fix-problems agent (auto-dispatched by /cg-work)
@@ -516,6 +524,8 @@ objective`_ · 159 entities
   > Automated Documentation Deployment and What's New Page
 - **[Dual-Deployment: Dev Branch Docs at /dev/](roadmap.json#dual-deployment-dev-branch-docs-at-dev)** · `feature` · _idea_ · `—`
   > Dual-Deployment: Dev Branch Docs at /dev/
+- **[Unified /cg-light-work command for small technical tasks](roadmap.json#unified-cg-light-work-command-for-small-technical-tasks)** · `feature` · _done_ · `—`
+  > Unified /cg-light-work command for small technical tasks
 - **[Full-scope indexer \(all .cg-docs/ + roadmap features\)](roadmap.json#brain-full-scope-indexer)** · `feature` · _done_ · `—`
   > Full-scope indexer (all .cg-docs/ + roadmap features)
 - **[Topic/theme extraction \(auto-cluster artifacts into concepts\)](roadmap.json#brain-topic-extraction)** · `feature` · _done_ · `—`

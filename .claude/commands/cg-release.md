@@ -289,6 +289,18 @@ and module-check lists; do not copy those lists into this prompt:
 python scripts/cg_pr_preflight.py --phase committed --full-gate --run-native-target
 ```
 
+Run this as one blocking foreground call with an explicit tool timeout of
+`7200000` milliseconds (120 minutes), not the default `120000` milliseconds.
+The runner permits 1800 seconds for the full controller package tests and 600
+seconds for each other command. The outer budget covers all nine sequential
+commands plus inspection overhead. Progress is flushed to stderr;
+child output is captured until each command ends, and the final result is on stdout.
+Silence between stage messages is not evidence of a hang. Do not use background
+execution, polling, or an automatic retry after a timeout. If the tool cannot
+provide this budget, or the call is interrupted, **halt** and report the preflight
+as incomplete. A timeout is not a passing gate. Diagnose the reported stage before
+any retry; never substitute `--phase prepare` for the required committed gate.
+
 If Python cannot be resolved or the authoritative preflight exits nonzero,
 **halt**. Report the failure and do not present a ready-to-publish summary, invoke
 `create-release.ps1`, call a GitHub API, or claim the release is ready. Do not weaken
