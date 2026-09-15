@@ -29,7 +29,7 @@ Compatibility switch. Four-component tags are always prereleases and stable
 three-component tags cannot be marked as prereleases.
 
 .EXAMPLE
-.\create-release.ps1 -Tag v0.0.6 -Name "v0.0.6 - My feature" -NotesFile RELEASE_NOTES.md
+.\create-release.ps1 -Phase Reserve -LegacyOperation Bridge -Tag v0.0.6 -Name "v0.0.6 - My feature" -NotesFile RELEASE_NOTES.md
 
 .PARAMETER Phase
 Reserve (default) establishes the tag/Release pair, not lifecycle completion.
@@ -41,8 +41,22 @@ Optional exact release-docs run ID for Finalize, useful after workflow retries.
 .PARAMETER PagesRunId
 Optional exact release-pages controller run ID for Finalize.
 
+.PARAMETER LegacyOperation
+Required. Bridge permits reviewed legacy publication only before cutover on the
+protected remote default. Recovery requires current maintainer authority and an
+existing exact remote tag or a reviewed historical record on that protected ref.
+Recovery cannot be used for routine new publication. Tags and published bytes stay
+unchanged. Post-cutover docs recovery requires the reviewed exact build/artifact
+record and an explicit PagesRunId from release-pages.yml manual recovery.
+
+.PARAMETER Timing
+Opt in to JSON Lines timing on stderr. Records contain fixed stage names,
+monotonic elapsed seconds, and outcome only; no credentials or release inputs.
+For example, add -Timing to an otherwise authorized Reserve or Finalize command.
+Timing does not authorize a release or change its validation requirements.
+
 .EXAMPLE
-.\create-release.ps1 -Tag v1.2.0.9008 -Name "v1.2.0.9008 - Test release" -NotesFile RELEASE_NOTES.md -Prerelease
+.\create-release.ps1 -Phase Finalize -LegacyOperation Recovery -Tag v1.2.0.9008 -Name "v1.2.0.9008 - Test release" -NotesFile RELEASE_NOTES.md -Prerelease
 
 .NOTES
 Output format in release-result.txt (written next to this script):
@@ -59,11 +73,56 @@ param(
     [switch]$Prerelease,
     [ValidateSet("Reserve", "Finalize")][string]$Phase = "Reserve",
     [ValidateRange(1, [long]::MaxValue)][long]$BuildRunId,
-    [ValidateRange(1, [long]::MaxValue)][long]$PagesRunId
+    [ValidateRange(1, [long]::MaxValue)][long]$PagesRunId,
+    [switch]$Timing,
+    [ValidateSet("Bridge", "Recovery")][string]$LegacyOperation
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
+
+if (-not $LegacyOperation) {
+    throw "Routine publication uses cg-release start. Legacy publication requires explicit -LegacyOperation Bridge or Recovery."
+}
+. (Join-Path $PSScriptRoot 'scripts/release-legacy-authority.ps1')
+
+function Write-CgReleaseTiming {
+    <#
+    .SYNOPSIS
+    Emit one opt-in monotonic span without operation inputs or error bodies.
+    .PARAMETER Stage
+    Fixed stage identity; caller text cannot enter timing diagnostics.
+    .PARAMETER Clock
+    Stopwatch started before the measured span, or null when disabled.
+    .PARAMETER Completed
+    True only after the span's existing success checks complete.
+    .EXAMPLE
+    Write-CgReleaseTiming -Stage gates -Clock $gateClock -Completed $gateCompleted
+    #>
+    param(
+        [ValidateSet("preparation", "gates", "subprocess", "publication", "recovery")][string]$Stage,
+        [System.Diagnostics.Stopwatch]$Clock,
+        [bool]$Completed
+    )
+    if (-not $Timing -or $null -eq $Clock) { return }
+    $Clock.Stop()
+    $outcome = "interrupted"
+    if ($Completed) { $outcome = "complete" }
+    $record = [ordered]@{
+        schema_version = 1; kind = "timing"; stage = $Stage
+        elapsed_seconds = $Clock.Elapsed.TotalSeconds; outcome = $outcome
+    }
+    try { [Console]::Error.WriteLine(($record | ConvertTo-Json -Compress)) }
+    catch {
+        # Telemetry cannot replace the original result after a remote write.
+        Write-Warning "Release timing output is unavailable." -WarningAction Continue
+    }
+}
+
+$preparationClock = $null
+if ($Timing) { $preparationClock = [System.Diagnostics.Stopwatch]::StartNew() }
+$preparationCompleted = $false
+try {
 $resultFile = Join-Path $PSScriptRoot "release-result.txt"
 if (Test-Path -LiteralPath $resultFile) { Remove-Item -LiteralPath $resultFile -Force }
 if ($Phase -eq "Reserve" -and ($BuildRunId -or $PagesRunId)) {
@@ -180,9 +239,17 @@ if ([string]::IsNullOrWhiteSpace($notes)) {
     Write-Error "Notes file is empty: $NotesFile"
     exit 1
 }
+$preparationCompleted = $true
+} finally {
+    Write-CgReleaseTiming -Stage preparation -Clock $preparationClock -Completed $preparationCompleted
+}
 
 # Operational native-packaging preflight. This runs before credentials are read
 # or any GitHub API request can observe or publish release state.
+$gateClock = $null
+if ($Timing) { $gateClock = [System.Diagnostics.Stopwatch]::StartNew() }
+$gateCompleted = $false
+try {
 $originPattern = '^(https://github\.com/GPID-WB/compound-gpid(?:\.git)?|git@github\.com:GPID-WB/compound-gpid(?:\.git)?|ssh://git@github\.com/GPID-WB/compound-gpid(?:\.git)?)$'
 foreach ($direction in @(@("--all"), @("--push", "--all"))) {
     $originUrls = @(git -C $PSScriptRoot remote get-url @direction origin 2>$null)
@@ -291,9 +358,17 @@ try {
         throw "Could not check out release commit $headCommit for preflight testing."
     }
     Write-Host "Running native packaging release preflight for $headCommit..." -ForegroundColor Cyan
-    & $pythonCommand (Join-Path $preflightRoot "scripts/cg_pr_preflight.py") --root $preflightRoot --phase committed --full-gate --run-native-target
-    if ($LASTEXITCODE -ne 0) {
-        throw "Native packaging release preflight failed with exit code $LASTEXITCODE. Release publication is blocked."
+    $subprocessClock = $null
+    if ($Timing) { $subprocessClock = [System.Diagnostics.Stopwatch]::StartNew() }
+    $subprocessCompleted = $false
+    try {
+        & $pythonCommand (Join-Path $preflightRoot "scripts/cg_pr_preflight.py") --root $preflightRoot --phase committed --full-gate --run-native-target
+        if ($LASTEXITCODE -ne 0) {
+            throw "Native packaging release preflight failed with exit code $LASTEXITCODE. Release publication is blocked."
+        }
+        $subprocessCompleted = $true
+    } finally {
+        Write-CgReleaseTiming -Stage subprocess -Clock $subprocessClock -Completed $subprocessCompleted
     }
 } finally {
     if (Test-Path -LiteralPath $preflightRoot) {
@@ -494,8 +569,17 @@ foreach ($record in @($immutablePayloads | Select-Object -Skip 1)) {
 }
 $existingRelease = Get-CgReleaseReservation
 if ($null -ne $existingRelease -and $null -eq $remoteTag) { throw "Existing Release has no matching remote tag." }
+$null = Assert-CgLegacyAuthority -Operation $LegacyOperation -ReleaseTag $Tag -Commit $headCommit -Object $tagObject -RemoteTag $remoteTag
+$gateCompleted = $true
+} finally {
+    Write-CgReleaseTiming -Stage gates -Clock $gateClock -Completed $gateCompleted
+}
 
 if ($Phase -eq "Reserve") {
+    $publicationClock = $null
+    if ($Timing) { $publicationClock = [System.Diagnostics.Stopwatch]::StartNew() }
+    $publicationCompleted = $false
+    try {
     $reservationStatus = "EXISTS"
     # Finish every local/payload/API preflight before the first publication operation.
     $payload = ConvertTo-Json -InputObject @{
@@ -504,6 +588,7 @@ if ($Phase -eq "Reserve") {
         make_latest = "false"
     }
     Assert-CgRemoteReleaseLineage -ExpectedCommit $headCommit -Branch $releaseBranch -RequireTip:($null -eq $remoteTag)
+    $null = Assert-CgLegacyAuthority -Operation $LegacyOperation -ReleaseTag $Tag -Commit $headCommit -Object $tagObject -RemoteTag $remoteTag
     if ($null -eq $remoteTag) {
         # No distributed atomicity: after an uncertain push, read back exact identity.
         try { git -C $PSScriptRoot push origin --no-follow-tags "$tagObject`:refs/tags/$Tag" 2>$null | Out-Null }
@@ -516,6 +601,7 @@ if ($Phase -eq "Reserve") {
         throw "Reservation stopped: remote tag identity could not be confirmed. No Release mutation was attempted."
     }
     if ($null -eq $existingRelease) {
+        $null = Assert-CgLegacyAuthority -Operation $LegacyOperation -ReleaseTag $Tag -Commit $headCommit -Object $tagObject -RemoteTag $remoteTag
         # One POST only. Reconcile even a lost response before any later invocation retries.
         try {
             $response = Invoke-CgReleaseApi -Uri "https://api.github.com/repos/GPID-WB/compound-gpid/releases" -Method Post -Body $payload
@@ -535,10 +621,18 @@ if ($Phase -eq "Reserve") {
     }
     "$reservationStatus|$($existingRelease.id)|$($existingRelease.html_url)" | Set-Content $resultFile
     Write-Host "RESERVED ($reservationStatus): $Tag. Finalize and evidence commit are still required; no latest promotion was requested."
+    $publicationCompleted = $true
     return
+    } finally {
+        Write-CgReleaseTiming -Stage publication -Clock $publicationClock -Completed $publicationCompleted
+    }
 }
 
 # Finalize is read-only remotely. Any downstream failure leaves the pair intact.
+$recoveryClock = $null
+if ($Timing) { $recoveryClock = [System.Diagnostics.Stopwatch]::StartNew() }
+$recoveryCompleted = $false
+try {
 if ($null -eq $existingRelease) { throw "Finalize requires an existing exact matching Release. Run Reserve first." }
 $encodedTag = [uri]::EscapeDataString($Tag)
 $buildRunsUri = "https://api.github.com/repos/GPID-WB/compound-gpid/actions/workflows/release-docs.yml/runs?event=push&branch=$encodedTag&per_page=100"
@@ -567,16 +661,41 @@ if ($PagesRunId) {
 }
 $matchingPagesRuns = @($pagesCandidates | Where-Object {
     $_.name -ceq $controllerRunName -and $_.display_title -ceq $controllerRunName -and
-    $_.event -ceq "workflow_run" -and $_.path -ceq ".github/workflows/release-pages.yml"
+    ($_.event -ceq "workflow_run" -or ($LegacyOperation -ceq 'Recovery' -and $PagesRunId -and $_.event -ceq 'workflow_dispatch')) -and
+    $_.path -ceq ".github/workflows/release-pages.yml"
 })
 if ($matchingPagesRuns.Count -ne 1 -or $matchingPagesRuns[0].id -le 0 -or
     ($PagesRunId -and $matchingPagesRuns[0].id -ne $PagesRunId) -or
     $matchingPagesRuns[0].status -cne "completed" -or $matchingPagesRuns[0].conclusion -cne "success") {
     throw "A successful release-pages.yml controller run named '$controllerRunName' is required for Finalize."
 }
+$historicalDeployment = $matchingPagesRuns[0].event -ceq 'workflow_dispatch'
+$authority = Assert-CgLegacyAuthority -Operation $LegacyOperation -ReleaseTag $Tag -Commit $headCommit -Object $tagObject -RemoteTag $remoteTag -RequireRecoveryRecord:$historicalDeployment
+if ($historicalDeployment) {
+    $recovery = $authority.Record
+    $artifact = Invoke-CgReleaseApi -Uri "https://api.github.com/repos/GPID-WB/compound-gpid/actions/artifacts/$($recovery.artifact_id)"
+    if ($recovery.build_run_id -ne $matchingBuildRuns[0].id -or
+        $matchingPagesRuns[0].head_sha -cne $authority.Commit -or $matchingPagesRuns[0].run_attempt -ne 1 -or
+        $artifact.id -ne $recovery.artifact_id -or $artifact.name -cne 'release-docs-site' -or
+        $artifact.workflow_run.id -ne $recovery.build_run_id -or $artifact.workflow_run.head_sha -cne $headCommit -or
+        $artifact.digest -cne $recovery.artifact_digest -or $artifact.expired -ne $false) {
+        throw 'Historical recovery deployment does not bind the exact immutable build and artifact.'
+    }
+}
+$null = Assert-CgLegacyDeployment -Run $matchingPagesRuns[0] -Authority $authority
 Assert-CgRemoteTagCommit -ReleaseTag $Tag -ExpectedCommit $headCommit
 $existingRelease = Get-CgReleaseReservation
 if ($null -eq $existingRelease) { throw "Release reservation disappeared before finalization." }
+$finalAuthority = Assert-CgLegacyAuthority -Operation $LegacyOperation -ReleaseTag $Tag -Commit $headCommit -Object $tagObject -RemoteTag $remoteTag -RequireRecoveryRecord:$historicalDeployment
+if ($finalAuthority.Commit -cne $authority.Commit -or $finalAuthority.Branch -cne $authority.Branch -or
+    $finalAuthority.Actor -ne $authority.Actor -or
+    ($historicalDeployment -and ($finalAuthority.Record | ConvertTo-Json -Depth 20 -Compress) -cne ($authority.Record | ConvertTo-Json -Depth 20 -Compress))) {
+    throw 'Protected default or historical recovery authority changed before final attestation.'
+}
 Write-CgReleaseAttestation
 "FINALIZED|$($existingRelease.id)|$($existingRelease.html_url)" | Set-Content $resultFile
 Write-Host "FINALIZED: $Tag. Commit canonical and generated evidence before lifecycle completion; latest promotion was not performed."
+$recoveryCompleted = $true
+} finally {
+    Write-CgReleaseTiming -Stage recovery -Clock $recoveryClock -Completed $recoveryCompleted
+}

@@ -6,12 +6,27 @@ Run from repo root:
 from __future__ import annotations
 
 import json
+import subprocess
+import sys
 from pathlib import Path
 
-import pytest
-
 import cg_validate_modules as validator
+import pytest
 from skill_management.services import registry as registry_service
+
+
+def test_runtime_minimum_rejects_older_python_before_loading_dependencies():
+    source = Path(validator.__file__).resolve()
+    result = subprocess.run(
+        [sys.executable, "-I", "-c",
+         "import runpy,sys; sys.version_info=(3,7,0); runpy.run_path(sys.argv[1])",
+         str(source)],
+        capture_output=True, text=True, check=False, timeout=30,
+    )
+    assert result.returncode == 1
+    assert result.stdout == ""
+    assert result.stderr.startswith("cg-validate-modules requires Python 3.8+; found ")
+    assert "Traceback" not in result.stderr
 
 
 def _write_json(path: Path, payload: dict) -> None:
@@ -468,6 +483,23 @@ class TestDependencyClosure:
 
 
 class TestC2NoPhysicalRelocation:
+    def test_approved_standalone_controller_is_not_module_relocation(self) -> None:
+        root = Path(__file__).resolve().parents[2]
+        assert validator.check_no_physical_relocation(root) == []
+
+    @pytest.mark.parametrize("name", ["kernel", "capabilities", "suites", "suite-cg"])
+    def test_real_module_relocation_still_fails(self, tmp_path, name) -> None:
+        (tmp_path / "packages" / name).mkdir(parents=True)
+        assert validator.check_no_physical_relocation(tmp_path)
+
+    def test_controller_name_cannot_hide_canonical_assets(self, tmp_path) -> None:
+        package = tmp_path / "packages/cg-release"
+        (package / ".github/prompts").mkdir(parents=True)
+        (package / "src/cg_release").mkdir(parents=True)
+        (package / "src/cg_release/__init__.py").write_text("")
+        (package / "pyproject.toml").write_text('[project]\nname = "cg-release"\n')
+        assert validator.check_no_physical_relocation(tmp_path)
+
     def _repo_with_packages(self, tmp_path: Path) -> Path:
         _minimal_assets(tmp_path)
         (tmp_path / "packages/kernel").mkdir(parents=True, exist_ok=True)

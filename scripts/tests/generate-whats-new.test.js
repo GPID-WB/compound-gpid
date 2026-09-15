@@ -115,6 +115,62 @@ test("--validate-release-set rejects immutable payloads without latest.json", as
   assert.match(result.stdout + result.stderr, /latest\.json is required/i);
 });
 
+test("complete loader rejects distinct malformed UTF-8 payload bytes", async () => {
+  const dir = await tempRepo("releases-multi");
+  try {
+    const payload = JSON.parse(await readFile(path.join(dir, "releases/v0.2.0.json"), "utf8"));
+    payload.name = "BYTE";
+    const parts = JSON.stringify(payload).split("BYTE");
+    for (const [file, byte] of [["v0.2.0.json", 0x80], ["latest.json", 0x81]]) {
+      await writeFile(path.join(dir, "releases", file), Buffer.concat([Buffer.from(parts[0]), Buffer.from([byte]), Buffer.from(parts[1])]));
+    }
+    const result = runRepo(dir, ["--validate-release-set"]);
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /UTF-8|JSON|byte-match/);
+  } finally { await rm(dir, {recursive: true, force: true}); }
+});
+
+for (const count of [20, 21]) test(`configured repository renders ${count} complete payloads`, async () => {
+  const dir = await tempRepo("releases-empty");
+  try {
+    let raw;
+    for (let n = 1; n <= count; n++) {
+      const tag = `v1.0.${n}-rc.1`;
+      raw = JSON.stringify({schemaVersion: 1, tag, name: tag, publishedAt: `2026-09-${String(n).padStart(2, "0")}T00:00:00Z`,
+        url: `https://github.com/owner/repo/releases/tag/${tag}`, sourceUrl: `https://github.com/owner/repo/tree/${tag}`,
+        sections: [{kind: "new", title: "Features", entries: ["Reviewed content"]}]});
+      await writeFile(path.join(dir, "releases", tag + ".json"), raw);
+    }
+    await writeFile(path.join(dir, "releases/latest.json"), raw);
+    const result = spawnSync(node, [script, "--root", dir], {encoding: "utf8", env: {...process.env, CG_RELEASE_REPOSITORY: "owner/repo"}});
+    assert.equal(result.status, 0, result.stderr);
+    const page = await readFile(path.join(dir, "docs/whats-new.md"), "utf8");
+    assert.equal(page.includes("[View older releases](https://github.com/owner/repo/releases)"), count > 20);
+  } finally { await rm(dir, {recursive: true, force: true}); }
+});
+
+test("delegated release-set reader rejects equal JSON with different bytes without writes", async () => {
+  const dir = await tempRepo("releases-multi");
+  try {
+    const immutable = path.join(dir, "releases", "v0.2.0.json");
+    const original = await readFile(immutable, "utf8");
+    const latest = `${original}\n`;
+    const page = await readFile(path.join(dir, "docs", "whats-new.md"), "utf8");
+    await writeFile(path.join(dir, "releases", "latest.json"), latest);
+    assert.deepEqual(JSON.parse(latest), JSON.parse(original));
+    for (const args of [["--validate-release-set"], []]) {
+      const result = runRepo(dir, args);
+      assert.equal(result.status, 1, result.stdout + result.stderr);
+      assert.match(result.stderr, /does not byte-match its versioned payload/);
+      assert.equal(await readFile(immutable, "utf8"), original);
+      assert.equal(await readFile(path.join(dir, "releases", "latest.json"), "utf8"), latest);
+      assert.equal(await readFile(path.join(dir, "docs", "whats-new.md"), "utf8"), page);
+    }
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
 test("--validate-payload rejects an impossible releaseDate", async () => {
   const dir = await tempRepo("releases-multi");
   const payloadPath = path.join(dir, "releases", "v0.2.0.json");

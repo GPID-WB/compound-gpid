@@ -84,7 +84,7 @@
       "path": ".claude/agents/cg-release-scanner.md",
       "source": ".github/agents/cg-release-scanner.agent.md",
       "kind": "agent",
-      "sha256": "a34405f76c1e40fcfa5b2a59ab08e1688239228e1ded0c680b3a3c26abbb4ae1",
+      "sha256": "6ad204d8c2cf0055cc495571b3ba8b2b86f5a82e50abfeb6726213dba67f1a4a",
       "executable": false
     },
     {
@@ -252,7 +252,7 @@
       "path": ".claude/commands/cg-devtag.md",
       "source": ".github/prompts/cg-devtag.prompt.md",
       "kind": "command",
-      "sha256": "ad7870b1587f8ee29a49997dd00a4652055c5a49241e02cd0e4cfeca65a8c1b1",
+      "sha256": "91be68670a33ff130908010c26249f854436accb5c25d653939ebb33f8b4f394",
       "executable": false
     },
     {
@@ -322,7 +322,7 @@
       "path": ".claude/commands/cg-release.md",
       "source": ".github/prompts/cg-release.prompt.md",
       "kind": "command",
-      "sha256": "2ec47b0fd3cc2195700a997ae3420f49ddc7046835b1ee920ffe1115eff04470",
+      "sha256": "ff92d18ab5ca5798414b8d2b927f4c54a8a3521767fa91f20039a7efd2193946",
       "executable": false
     },
     {
@@ -536,6 +536,13 @@
       "executable": false
     },
     {
+      "path": ".claude/shared/release-controller.contract.md",
+      "source": ".github/shared/release-controller.contract.md",
+      "kind": "shared",
+      "sha256": "b1db8f8e512a54b4207e2195df8d619324d38b11b06e5b5eabcfb1cbb41bee42",
+      "executable": false
+    },
+    {
       "path": ".claude/shared/retrieval-backends.json",
       "source": ".github/shared/retrieval-backends.json",
       "kind": "shared",
@@ -651,7 +658,7 @@
       "path": ".claude/shared/skill-management/contracts/release-attestation-v1.schema.json",
       "source": ".github/shared/skill-management/contracts/release-attestation-v1.schema.json",
       "kind": "shared",
-      "sha256": "736a9719a4d058c3ab18f1fe5812c226bcac6b0102f7d3457be889bab8b935ad",
+      "sha256": "7aacbbb0f3edfa626c6da8388430aec73beebdb233deb94eb8812a91c7aed784",
       "executable": false
     },
     {
@@ -819,7 +826,7 @@
       "path": ".claude/shared/target-mapping.json",
       "source": ".github/shared/target-mapping.json",
       "kind": "shared",
-      "sha256": "38269c5d9c5103d9189865a37f7911c76f1a8a53f5a8dc07899b25c5b9c39968",
+      "sha256": "7fd36441e3ad8bb66b2ff039474605b01a487342090cacb9ed0c4324fff9f525",
       "executable": false
     },
     {

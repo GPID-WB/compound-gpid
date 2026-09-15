@@ -129,7 +129,7 @@ test("verifies complete artifact digests and rejects stale source inputs", async
   }
 });
 
-test("rejects output collisions and symlinked source files", async () => {
+test("rejects output collisions and file-link entries at the filesystem boundary", async (t) => {
   const mainRoot = await createSource("main");
   const devRoot = await createSource("dev");
   const collisionOutput = await mkdtemp(path.join(os.tmpdir(), "cg-site-collision-"));
@@ -148,19 +148,30 @@ test("rejects output collisions and symlinked source files", async () => {
     assert.match(collision.stderr + collision.stdout, /collision|overlap|dev/i);
 
     await rm(path.join(mainRoot, "docs", "dev"), { recursive: true, force: true });
-    const outside = path.join(os.tmpdir(), "cg-site-outside.txt");
+    const outside = path.join(devRoot, "outside.txt");
     await writeFile(outside, "outside\n");
     try {
-      await symlink(outside, path.join(devRoot, "docs", "outside.txt"));
-      const symlinkResult = run([
-        "--main-root", mainRoot,
-        "--dev-root", devRoot,
-        "--out", symlinkOutput,
-        "--main-sha", "1111111111111111111111111111111111111111",
-        "--dev-sha", "2222222222222222222222222222222222222222",
-      ]);
-      assert.notEqual(symlinkResult.status, 0);
-      assert.match(symlinkResult.stderr + symlinkResult.stdout, /symlink|symbolic/i);
+      try { await symlink(outside, path.join(devRoot, "docs", "outside.txt")); }
+      catch (error) {
+        if (process.platform !== "win32" || error.code !== "EPERM") throw error;
+        // This restricted Windows token cannot create file symlinks. Exercise
+        // the same real scanner with only the OS directory-entry type supplied.
+        // Native hosts still execute the real file-symlink path above.
+        t.diagnostic("Windows EPERM: portable file-link Dirent boundary, not native symlink qualification");
+        await writeFile(path.join(devRoot, "docs", "outside.txt"), "must not copy");
+        const fs = require("node:fs"), readdir = fs.readdirSync;
+        t.mock.method(fs, "readdirSync", (directory, options) => {
+          const rows = readdir(directory, options);
+          if (directory !== path.join(devRoot, "docs") || !options?.withFileTypes) return rows;
+          return rows.map(row => row.name !== "outside.txt" ? row : new Proxy(row, {
+            get(target, key) { return key === "isSymbolicLink" ? () => true : Reflect.get(target, key); },
+          }));
+        });
+      }
+      const {writeCombinedSite} = require("../assemble-docs-site.js");
+      assert.throws(() => writeCombinedSite({mainRoot, devRoot, out: symlinkOutput,
+        mainSha: "1".repeat(40), devSha: "2".repeat(40)}), /symlink|symbolic/i);
+      assert.deepEqual(await listFiles(symlinkOutput), []);
     } finally {
       await rm(outside, { force: true });
     }
@@ -189,6 +200,27 @@ test("rejects incomplete source identity metadata", async () => {
     const invalid = run(["--verify", output]);
     assert.notEqual(invalid.status, 0);
     assert.match(invalid.stderr + invalid.stdout, /invalid dev source record/i);
+  } finally {
+    await removeTemporary(mainRoot, devRoot, output);
+  }
+});
+
+test("rejects self-consistent stable contamination at the source verifier boundary", async () => {
+  const mainRoot = await createSource("main");
+  const devRoot = await createSource("dev");
+  const output = await mkdtemp(path.join(os.tmpdir(), "cg-site-contamination-"));
+  try {
+    assert.equal(run(["--main-root", mainRoot, "--dev-root", devRoot, "--out", output,
+      "--main-sha", "1".repeat(40), "--dev-sha", "2".repeat(40)]).status, 0);
+    const poisoned = Buffer.from("<html><body>ATTACKER STABLE CONTENT</body></html>");
+    await writeFile(path.join(output, "site/index.html"), poisoned);
+    const metadataPath = path.join(output, ".docs-build-metadata.json");
+    const metadata = JSON.parse(await readFile(metadataPath, "utf8"));
+    metadata.site.files["index.html"] = require("node:crypto").createHash("sha256").update(poisoned).digest("hex");
+    await writeFile(metadataPath, JSON.stringify(metadata));
+    const result = run(["--verify", output, "--main-root", mainRoot, "--dev-root", devRoot]);
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /stable.*(source|output|digest)/i);
   } finally {
     await removeTemporary(mainRoot, devRoot, output);
   }

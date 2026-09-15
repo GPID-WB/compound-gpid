@@ -285,6 +285,14 @@ function verifyCombinedSite(artifact, mainRoot = null, devRoot = null, expectedI
     const currentDev = canonicalInputFingerprint(path.resolve(devRoot)).fingerprint;
     if (currentMain !== metadata.sources.main.fingerprint) fail("main source fingerprint is stale");
     if (currentDev !== metadata.sources.dev.fingerprint) fail("dev source fingerprint is stale");
+    // Source fingerprints do not bind generated output. Stable bytes must also
+    // match the separately verified release producer (or committed legacy tree).
+    const stableFiles = digestTree(path.join(mainRoot, "docs"));
+    const stablePaths = actualPaths.filter(name => !name.startsWith("dev/"));
+    if (JSON.stringify(stablePaths) !== JSON.stringify(Object.keys(stableFiles).sort()) ||
+        stablePaths.some(name => actual[name] !== stableFiles[name])) {
+      fail("stable output differs from verified source docs");
+    }
     if (expectedIdentity.mainSha && metadata.sources.main.sha !== expectedIdentity.mainSha) fail("main source SHA does not match expected identity");
     if (expectedIdentity.devSha && metadata.sources.dev.sha !== expectedIdentity.devSha) fail("dev source SHA does not match expected identity");
   }
@@ -293,6 +301,23 @@ function verifyCombinedSite(artifact, mainRoot = null, devRoot = null, expectedI
 }
 
 function main() {
+  if (process.argv[2] === "--snapshot") {
+    try {
+      const options = JSON.parse(fs.readFileSync(process.argv[3], "utf8"));
+      require("./docs-snapshots.js").buildSnapshot(options);
+      return 0;
+    } catch (error) { console.error(error.message); process.exitCode = 1; return 1; }
+  }
+  if (process.argv[2] === "--verify-snapshot") {
+    try { require("./docs-snapshots.js").verifySnapshot(process.argv[3]); return 0; }
+    catch (error) { console.error(error.message); process.exitCode = 1; return 1; }
+  }
+  if (process.argv[2] === "--compose-snapshots") {
+    try {
+      require("./docs-snapshots.js").composeSnapshots(JSON.parse(fs.readFileSync(process.argv[3], "utf8")));
+      return 0;
+    } catch (error) { console.error(error.message); process.exitCode = 1; return 1; }
+  }
   const args = parseArgs(process.argv.slice(2));
   if (!args) return usage();
   try {

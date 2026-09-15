@@ -84,7 +84,7 @@
       "path": ".kilo/agents/cg-release-scanner.md",
       "source": ".github/agents/cg-release-scanner.agent.md",
       "kind": "agent",
-      "sha256": "2f4953bdad39b9a05d3dd4651d4cedbdd3f4f6079a2a13163320fc55f6901ce4",
+      "sha256": "7bd57e98b93005c9a5a730ced1e5af6b92deafd92070e161b4f3546ee16733f3",
       "executable": false
     },
     {
@@ -252,7 +252,7 @@
       "path": ".kilo/commands/cg-devtag.md",
       "source": ".github/prompts/cg-devtag.prompt.md",
       "kind": "command",
-      "sha256": "15c157042a844b879d3830039c652fbbb1dad0232f11834981ae43ffe0ab336b",
+      "sha256": "1c24dffa3f2070d3bbe28e0eb8477bbca23d41066d13828238329fea323f7d2e",
       "executable": false
     },
     {
@@ -322,7 +322,7 @@
       "path": ".kilo/commands/cg-release.md",
       "source": ".github/prompts/cg-release.prompt.md",
       "kind": "command",
-      "sha256": "762ffdfe136d9d7fd538b6d8b23a2c3900f957f25a60f04fbdc6732842fee29f",
+      "sha256": "86f1a9f2cf0700588f36dc17686d731b92af538739950292d7c8674c5ec21918",
       "executable": false
     },
     {
@@ -543,6 +543,13 @@
       "executable": false
     },
     {
+      "path": ".kilo/shared/release-controller.contract.md",
+      "source": ".github/shared/release-controller.contract.md",
+      "kind": "shared",
+      "sha256": "b1db8f8e512a54b4207e2195df8d619324d38b11b06e5b5eabcfb1cbb41bee42",
+      "executable": false
+    },
+    {
       "path": ".kilo/shared/retrieval-backends.json",
       "source": ".github/shared/retrieval-backends.json",
       "kind": "shared",
@@ -658,7 +665,7 @@
       "path": ".kilo/shared/skill-management/contracts/release-attestation-v1.schema.json",
       "source": ".github/shared/skill-management/contracts/release-attestation-v1.schema.json",
       "kind": "shared",
-      "sha256": "736a9719a4d058c3ab18f1fe5812c226bcac6b0102f7d3457be889bab8b935ad",
+      "sha256": "7aacbbb0f3edfa626c6da8388430aec73beebdb233deb94eb8812a91c7aed784",
       "executable": false
     },
     {
@@ -826,7 +833,7 @@
       "path": ".kilo/shared/target-mapping.json",
       "source": ".github/shared/target-mapping.json",
       "kind": "shared",
-      "sha256": "38269c5d9c5103d9189865a37f7911c76f1a8a53f5a8dc07899b25c5b9c39968",
+      "sha256": "7fd36441e3ad8bb66b2ff039474605b01a487342090cacb9ed0c4324fff9f525",
       "executable": false
     },
     {

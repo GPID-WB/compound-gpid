@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "enabled": false,
+  "repository_id": null,
+  "host": "github.com",
+  "tag_prefix": "v",
+  "production_branches": [
+    "main"
+  ],
+  "release_lines": [
+    {
+      "id": "current",
+      "branches": [
+        "main"
+      ],
+      "minimum_core": [
+        1,
+        0,
+        0
+      ],
+      "maximum_core_exclusive": [
+        2,
+        0,
+        0
+      ]
+    }
+  ],
+  "bootstrap": [],
+  "metadata": [
+    {
+      "kind": "json",
+      "path": ".release-version.json",
+      "pointer": "/version"
+    }
+  ],
+  "changelog": {
+    "path": "CHANGELOG.md",
+    "marker": "<!-- release-controller -->"
+  },
+  "build": {
+    "argv": [
+      "python",
+      "scripts/release_profile_build.py"
+    ],
+    "cwd": ".",
+    "lock_paths": [
+      "packages/cg-release/uv.lock",
+      "packages/cg-release/pyproject.toml",
+      "package-lock.json"
+    ],
+    "artifacts": [
+      {
+        "name": "release-docs.json",
+        "path": "release-output/release-docs.json",
+        "media_type": "application/json",
+        "required": true,
+        "max_bytes": 67108864
+      },
+      {
+        "name": "native-environment.json",
+        "path": "release-output/native-environment.json",
+        "media_type": "application/json",
+        "required": true,
+        "max_bytes": 65536
+      }
+    ],
+    "max_artifacts": 2,
+    "max_total_bytes": 67174400
+  },
+  "required_checks": [
+    {
+      "name": "gpid-native-profile",
+      "app_id": null,
+      "workflow_path": ".github/workflows/release-controller-build.yml",
+      "stage": "release"
+    },
+    {
+      "name": "release-controller-ci",
+      "app_id": null,
+      "workflow_path": ".github/workflows/release-controller-ci.yml",
+      "stage": "preparation-and-release"
+    }
+  ],
+  "controller": {
+    "revision": null,
+    "wheel_digest": null
+  },
+  "state_branch": "release-controller-state",
+  "journal_root": null,
+  "apps": {
+    "control": null,
+    "control_slug": null,
+    "publishing": null
+  },
+  "signing_required": false,
+  "allowed_signing_fingerprints": [],
+  "environments": {
+    "control": "release-control",
+    "publish": "release-publish",
+    "override": "release-override"
+  },
+  "timeouts": {
+    "read_seconds": 20,
+    "read_attempts": 3,
+    "start_seconds": 120,
+    "watch_seconds": 600,
+    "poll_seconds": 5,
+    "job_minutes": 30
+  },
+  "gpid_profile": "v1",
+  "profile": {
+    "bridge": null,
+    "payload_directory": "releases",
+    "latest_payload": "releases/latest.json",
+    "attestation_directory": ".github/shared/skill-management/release-attestations",
+    "docs_workflow": ".github/workflows/release-controller-docs.yml",
+    "composition_retries": 3,
+    "docs_baselines": []
+  }
+}

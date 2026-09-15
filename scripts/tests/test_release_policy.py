@@ -5,6 +5,7 @@ import re
 import subprocess
 from pathlib import Path
 
+import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
 RELEASE_PROMPTS = (
@@ -170,7 +171,7 @@ def test_release_identity_text_comparisons_are_case_sensitive() -> None:
     assert "$_.name -ceq $controllerRunName -and $_.display_title -ceq $controllerRunName" in script
 
 
-def test_tag_build_is_unprivileged_and_dev_preview_controller_is_branch_local() -> None:
+def test_tag_build_is_unprivileged_and_both_builders_use_protected_controller() -> None:
     builder = _read(".github/workflows/release-docs.yml")
     controller = _read(".github/workflows/release-pages.yml")
     pages = _read(".github/workflows/pages.yml")
@@ -178,8 +179,15 @@ def test_tag_build_is_unprivileged_and_dev_preview_controller_is_branch_local() 
     assert 'tags: ["v*.*.*"]' in builder
     assert "pages: write" not in builder
     assert "id-token: write" not in builder
-    assert 'workflows: ["Build release documentation"]' in controller
-    assert "ref: main" in controller
+    parsed = yaml.load(controller, Loader=yaml.BaseLoader)
+    assert parsed["on"]["workflow_run"] == {
+        "workflows": ["Build release documentation", "Deploy documentation site"],
+        "types": ["completed"],
+    }
+    for job in parsed["jobs"].values():
+        checkout = job["steps"][0]["with"]
+        assert checkout["ref"] == "${{ github.sha }}"
+        assert checkout["persist-credentials"] == "false"
     assert "Refusing to deploy an older release artifact" in controller
     assert "Recheck release is still newest" in controller
     assert "pages: write" in controller
@@ -207,20 +215,46 @@ def test_combined_docs_build_does_not_rebuild_legacy_main_source() -> None:
     assert "sources/dev/scripts/rebuild-docs.js --root \"$GITHUB_WORKSPACE/sources/dev\" --all" in workflow
 
 
-def test_dev_pages_controller_is_branch_local_and_uses_main_as_content_only() -> None:
+def test_dev_builder_has_no_authority_and_controller_uses_main_as_content_only() -> None:
     pages = _read(".github/workflows/pages.yml")
+    controller = yaml.load(
+        _read(".github/workflows/release-pages.yml"), Loader=yaml.BaseLoader
+    )["jobs"]["deploy-dev"]
+    builder = yaml.load(pages, Loader=yaml.BaseLoader)
 
     assert "push:\n    branches: [dev]" in pages
     assert "workflow_run:" not in pages
-    assert "ref: dev" in pages
-    assert "ref: main" in pages
-    assert "path: sources/main" in pages
-    assert "--dev-root \"$GITHUB_WORKSPACE\"" in pages
-    assert "scripts/assemble-docs-site.js" in pages
-    assert "actions/upload-pages-artifact" in pages
-    assert "actions/deploy-pages" in pages
+    assert builder["permissions"] == {"contents": "read"}
+    source_job = builder["jobs"]["deploy-dev-preview"]
+    assert source_job["permissions"] == {"contents": "read"}
+    assert "environment" not in source_job
+    assert "ref: ${{ github.sha }}" in pages
+    assert "persist-credentials: false" in pages
+    assert "name: legacy-dev-docs" in pages
+    assert ".docs-build-metadata.json" in pages
+    assert "actions/upload-pages-artifact" not in pages
+    assert "actions/deploy-pages" not in pages
     assert "run-id:" not in pages
     assert "current-dev" not in pages
+    steps = controller["steps"]
+    checkouts = [s["with"] for s in steps if s.get("uses", "").startswith("actions/checkout@")]
+    assert [(s.get("path"), s["ref"]) for s in checkouts] == [
+        (None, "${{ github.sha }}"), ("sources/main", "main"),
+        ("sources/dev", "${{ steps.authority.outputs.release_sha }}"),
+    ]
+    assert all(s["persist-credentials"] == "false" for s in checkouts)
+    download = next(s["with"] for s in steps if s.get("uses", "").startswith("actions/download-artifact@"))
+    assert download["run-id"] == "${{ github.event.workflow_run.id }}"
+    assert download["artifact-ids"] == "${{ steps.authority.outputs.artifact_id }}"
+    runs = "\n".join(s.get("run", "") for s in steps)
+    assert "scripts/legacy-pages.js import-dev sources/dev dev-artifact" in runs
+    assert "scripts/assemble-docs-site.js --verify combined-artifact" in runs
+    assert "rebuild-docs.js" not in runs
+    assert "node sources/" not in runs
+    assert runs.count("node scripts/legacy-pages.js check") == 2
+    assert controller["permissions"] == {
+        "contents": "read", "actions": "read", "pages": "write", "id-token": "write",
+    }
 
 
 def test_combined_docs_build_checks_metadata_as_a_workflow_step() -> None:
@@ -242,12 +276,12 @@ def test_release_docs_build_checks_metadata_as_a_workflow_step() -> None:
     workflow = _read(".github/workflows/release-docs.yml")
 
     assert (
-        "\n      - name: Require combined release metadata\n"
-        "        run: test -f combined-artifact/.docs-build-metadata.json\n"
+        "\n      - name: Require isolated release metadata\n"
+        "        run: test -f .docs-build-metadata.json\n"
         in workflow
     )
     assert (
-        "\n          - name: Require combined release metadata\n"
-        "            run: test -f combined-artifact/.docs-build-metadata.json\n"
+        "\n          - name: Require isolated release metadata\n"
+        "            run: test -f .docs-build-metadata.json\n"
         not in workflow
     )

@@ -994,16 +994,27 @@ check the Copilot UI if that identity matters.
 
 ### Release (`/cg-release`)
 
-**When to use**: After completing and compounding a milestone, when you are ready to publish a new version of compound-gpid to GitHub.
+**When to use**: Preview a release, submit an explicitly approved request, inspect
+its progress, or request reconciliation through the standalone controller.
 
-**What happens**: Reads the latest durable release payload, analyzes commits since its exact tag to suggest the next semver version, reads `.cg-docs/` entries dated after the last release to draft curated release notes, checks `SCHEMA_VERSION` for structural migration warnings, presents a confirmation summary, and runs `create-release.ps1` to publish to GitHub. Maintainers can supply an exact stable tag (`/cg-release v1.3.0`) from `main` or a four-component test-release tag (`/cg-release v1.2.0.9008`) directly from `dev`. Four-component tags are always GitHub prereleases. Tag documentation builds without Pages credentials, then a protected-main workflow verifies and deploys the prebuilt artifact before the API record is created. `--resume` follows the same branch and deployment policy.
+**What happens**: `/cg-release plan|start|status|resume` passes arguments unchanged
+to the installed CLI. `plan` is read-only and non-reserving; `start` confirms and
+rechecks exact inputs without requiring a prior plan. Retain the provisional
+request locator before the first write. A receipt means queued submission, not
+publication. Generic mode needs no GPID charter. The trusted policy selects the
+optional GPID profile and enforces required hooks.
 
 **When NOT to use**:
-- On a branch other than `main` for stable releases or `dev` for four-component prereleases
+- To bypass disabled installation, trusted setup, current authority or protected approval
 - Without reviewing and running the full test suite first
 - Without checking for open P0/P1 review findings
 
-**Output**: A published GitHub Release at https://github.com/GPID-WB/compound-gpid/releases
+**Output**: A preview, durable request receipt, structured progress or explicit
+error. `published` remains distinct from `complete`. The supplied publisher stays
+disabled; bridge/live CI/sandbox/performance proof is deferred, not passed.
+Ordinary PR CI and the later authorized committed gate remain required. See the
+[release controller guide](release-controller.md) for tested syntax, setup,
+version lines, immutable publication, recovery and the restricted legacy paths.
 
 ---
 

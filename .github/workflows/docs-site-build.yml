@@ -14,6 +14,8 @@ on:
       - 'scripts/docs-markers.js'
       - 'scripts/check-docs-site.js'
       - 'scripts/assemble-docs-site.js'
+      - 'scripts/docs-snapshots.js'
+      - 'scripts/release-version.js'
       - '.github/workflows/docs-site-build.yml'
       - '.github/workflows/doc-rebuild.yml'
       - '.github/workflows/pages.yml'

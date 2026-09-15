@@ -4,6 +4,12 @@ This detailed page covers platform-specific installation, linking, repair, and
 uninstall procedures. New users should follow the shorter
 [Getting Started](getting-started/index.md) path first.
 
+The optional standalone [release controller](release-controller.md#installation)
+requires Python 3.11+, Git and `gh`, and a separately installed locked wheel. It
+does not raise the Python minimum of existing GPID scripts. Generic operation
+needs no GPID charter. The supplied publisher is disabled; installing the package
+does not authorize setup, bridge delivery, sandbox trials or publication.
+
 > **New here?** See the [Home](../README.md) page for an overview of what Compound GPID is and why it exists.
 
 **Platform**: Jump to your operating system:

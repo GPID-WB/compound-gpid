@@ -1,5 +1,5 @@
 {
-  "edge_count": 356,
+  "edge_count": 394,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -533,6 +533,12 @@
       "edge_type": "decided_from",
       "source": ".cg-docs/plans/2026-09-04-minimal-adaptive-grilling.md",
       "target": ".cg-docs/brainstorms/2026-09-04-minimal-adaptive-grilling.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-09-11-generic-asynchronous-release-controller.md",
+      "target": ".cg-docs/brainstorms/2026-09-11-generic-asynchronous-release-controller.md",
       "target_missing": false
     },
     {
@@ -1544,6 +1550,204 @@
       "target_missing": false
     },
     {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-09-11-generic-asynchronous-release-controller-phase2-review.md",
+      "target": ".cg-docs/plans/2026-09-11-generic-asynchronous-release-controller.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-09-11-generic-asynchronous-release-controller-phase2-verify-review-2.md",
+      "target": ".cg-docs/plans/2026-09-11-generic-asynchronous-release-controller.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-09-11-generic-asynchronous-release-controller-phase2-verify-review-2.md",
+      "target": ".cg-docs/reviews/2026-09-11-generic-asynchronous-release-controller-phase2-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-09-11-generic-asynchronous-release-controller-phase2-verify-review.md",
+      "target": ".cg-docs/plans/2026-09-11-generic-asynchronous-release-controller.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-09-11-generic-asynchronous-release-controller-phase2-verify-review.md",
+      "target": ".cg-docs/reviews/2026-09-11-generic-asynchronous-release-controller-phase2-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-09-11-generic-asynchronous-release-controller-phase3-review.md",
+      "target": ".cg-docs/plans/2026-09-11-generic-asynchronous-release-controller.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-09-11-generic-asynchronous-release-controller-phase3-verify-review.md",
+      "target": ".cg-docs/plans/2026-09-11-generic-asynchronous-release-controller.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-09-11-generic-asynchronous-release-controller-review.md",
+      "target": ".cg-docs/plans/2026-09-11-generic-asynchronous-release-controller.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-09-11-generic-asynchronous-release-controller-verify-review.md",
+      "target": ".cg-docs/reviews/2026-09-11-generic-asynchronous-release-controller-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase4-review.md",
+      "target": ".cg-docs/plans/2026-09-11-generic-asynchronous-release-controller.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase4-verify-review.md",
+      "target": ".cg-docs/plans/2026-09-11-generic-asynchronous-release-controller.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase4-verify-review.md",
+      "target": ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase4-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase5-review.md",
+      "target": ".cg-docs/plans/2026-09-11-generic-asynchronous-release-controller.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase5-verify-review-2.md",
+      "target": ".cg-docs/plans/2026-09-11-generic-asynchronous-release-controller.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase5-verify-review-2.md",
+      "target": ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase5-verify-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase5-verify-review.md",
+      "target": ".cg-docs/plans/2026-09-11-generic-asynchronous-release-controller.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase5-verify-review.md",
+      "target": ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase5-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase6-repair2-verification.md",
+      "target": ".cg-docs/plans/2026-09-11-generic-asynchronous-release-controller.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase6-repair2-verification.md",
+      "target": ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase6-verification.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase6-review.md",
+      "target": ".cg-docs/plans/2026-09-11-generic-asynchronous-release-controller.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase6-verification.md",
+      "target": ".cg-docs/plans/2026-09-11-generic-asynchronous-release-controller.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase6-verification.md",
+      "target": ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase6-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase6-verify-review.md",
+      "target": ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase6-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-phase6-P1.15-continuations-verification.md",
+      "target": ".cg-docs/plans/2026-09-11-generic-asynchronous-release-controller.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-phase6-P1.15-continuations-verification.md",
+      "target": ".cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-phase6-P1.15-helper-verification.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-phase6-P1.15-final-verification.md",
+      "target": ".cg-docs/plans/2026-09-11-generic-asynchronous-release-controller.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-phase6-P1.15-final-verification.md",
+      "target": ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase6-repair2-verification.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-phase6-P1.15-helper-verification.md",
+      "target": ".cg-docs/plans/2026-09-11-generic-asynchronous-release-controller.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-phase6-P1.15-helper-verification.md",
+      "target": ".cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-phase6-P1.15-final-verification.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-phase7-review.md",
+      "target": ".cg-docs/plans/2026-09-11-generic-asynchronous-release-controller.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-phase7-verify-review.md",
+      "target": ".cg-docs/plans/2026-09-11-generic-asynchronous-release-controller.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-precommitrepairverify.md",
+      "target": ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase6-verify-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-step9-fix-triage.md",
+      "target": ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase6-verify-review.md",
+      "target_missing": false
+    },
+    {
       "edge_type": "references",
       "source": ".cg-docs/solutions/environment-issues/2026-06-23-cross-agent-adapters-are-opt-in-source-packages.md",
       "target": ".cg-docs/plans/2026-06-23-cross-agent-packaging-adapters.md",
@@ -1563,8 +1767,20 @@
     },
     {
       "edge_type": "references",
+      "source": ".cg-docs/solutions/environment-issues/2026-09-13-windows-gpg-agent-socket-path-budget.md",
+      "target": ".cg-docs/plans/2026-09-11-generic-asynchronous-release-controller.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
       "source": ".cg-docs/solutions/git-workflows/2026-08-21-pr-ci-preflight-native-target-kilo-capability-gates.md",
       "target": ".cg-docs/plans/2026-08-21-pr-ci-preflight-and-kilo-capability-gates.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/git-workflows/2026-09-13-release-controller-authority-and-evidence-boundaries.md",
+      "target": ".cg-docs/plans/2026-09-11-generic-asynchronous-release-controller.md",
       "target_missing": false
     },
     {
@@ -1679,6 +1895,12 @@
       "edge_type": "references",
       "source": ".cg-docs/solutions/testing-patterns/2026-07-31-advisory-inheritance-audit-and-legacy-cleanup.md",
       "target": ".cg-docs/plans/2026-07-30-user-selected-model-advisory-routing.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/testing-patterns/2026-09-13-clean-default-release-gates-and-executable-fixtures.md",
+      "target": ".cg-docs/plans/2026-09-11-generic-asynchronous-release-controller.md",
       "target_missing": false
     },
     {
@@ -1949,6 +2171,12 @@
       "edge_type": "references",
       "source": ".cg-docs/brainstorms/2026-09-04-minimal-adaptive-grilling.md",
       "target": ".cg-docs/plans/2026-09-04-minimal-adaptive-grilling.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/brainstorms/2026-09-11-generic-asynchronous-release-controller.md",
+      "target": ".cg-docs/plans/2026-09-11-generic-asynchronous-release-controller.md",
       "target_missing": false
     },
     {
@@ -4051,6 +4279,35 @@
         "cg-brainstorm",
         "cg-skill-brainstorming",
         "decision"
+      ]
+    },
+    {
+      "date": "2026-09-11",
+      "entity_type": "brainstorm",
+      "path": ".cg-docs/brainstorms/2026-09-11-generic-asynchronous-release-controller.md",
+      "slug": "2026-09-11-generic-asynchronous-release-controller",
+      "status": "decided",
+      "summary": "Replace the current plugin-specific `/cg-release` workflow with a generic release tool. The reported problem is release sessions that can exceed eight hours. The current workflow combines change analysis, repeated validation, reviewed metadata changes, publication, documentation deployment, and a second evidence PR. A GitHub Release API call is only one part of that process.",
+      "tags": [
+        "release",
+        "automation",
+        "semver",
+        "github",
+        "performance",
+        "migration"
+      ],
+      "title": "Generic asynchronous release controller",
+      "top_keywords": [
+        "cg-release",
+        "release",
+        "start",
+        "1.5.0",
+        "1.4.2",
+        "dev",
+        "controller",
+        "queued",
+        "approach",
+        "/cg-release"
       ]
     },
     {
@@ -7757,6 +8014,35 @@
         "scope",
         "cg-work",
         ".github/prompts/cg-brainstorm.prompt.md"
+      ]
+    },
+    {
+      "date": "2026-09-11",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-09-11-generic-asynchronous-release-controller.md",
+      "slug": "2026-09-11-generic-asynchronous-release-controller",
+      "status": "active",
+      "summary": "Implement a standalone deterministic release controller with `plan`, `start`, `status`, and `resume`, plus a thin `/cg-release` interface. Return a durable request identity and status link within 120 seconds under the measured service conditions. Do not equate submission with publication or completion.",
+      "tags": [
+        "release",
+        "automation",
+        "semver",
+        "github",
+        "migration",
+        "security"
+      ],
+      "title": "Generic asynchronous release controller",
+      "top_keywords": [
+        "cg-release",
+        "test scenarios",
+        "github.py",
+        "lifecycle.py",
+        "start",
+        "phase",
+        "implement",
+        "journal.py",
+        "resume",
+        "release-pages.yml"
       ]
     },
     {
@@ -11896,6 +12182,512 @@
       ]
     },
     {
+      "date": "2026-09-11",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-09-11-generic-asynchronous-release-controller-phase2-review.md",
+      "slug": "2026-09-11-generic-asynchronous-release-controller-phase2-review",
+      "status": "",
+      "summary": "Review and independent repair verification complete; all eight findings are fixed. Embedded `/cg-work phase2 review:auto`, resolved mode **full**. Coverage: **10/10 specs**, emulated sequentially in one dedicated review session, not ten independent sessions. Incomplete outputs: **0**. Initial findings: **7 (P0: 1, P1: 4, P2: 2, P3: 0)**, all open when reviewed. All seven original findings and follow-up P1.5 are independently verified fixed. The final verification is recorded in phase2-verify-review-2.md; historical repair sections below retain their original local-evidence qualifications. No implementation edits, repairs, completion updates, commits, or remote mutations. Phase 1 review and verification reports remain unchanged.",
+      "tags": [],
+      "title": "2026-09-11-generic-asynchronous-release-controller-phase2-review",
+      "top_keywords": [
+        "cg-release",
+        "github.py",
+        "source_blobs.py",
+        "metadata.py",
+        "process.py",
+        "source.py",
+        "policy.py",
+        "notes.py",
+        "versions.py",
+        "test_cli.py"
+      ]
+    },
+    {
+      "date": "2026-09-11",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-09-11-generic-asynchronous-release-controller-phase2-verify-review-2.md",
+      "slug": "2026-09-11-generic-asynchronous-release-controller-phase2-verify-review-2",
+      "status": "",
+      "summary": "P1.5 is independently verified fixed. No new actionable finding or cross-file regression was found in the requested scope. All seven prior confirmations are preserved. The parent retains the Phase 2 completion decision.",
+      "tags": [],
+      "title": "2026-09-11-generic-asynchronous-release-controller-phase2-verify-review-2",
+      "top_keywords": [
+        "cg-release",
+        "manifest.py",
+        "policy.py",
+        "metadata.py",
+        "2026-09-11-generic-asynchronous-release-controller.md",
+        "test_manifest.py",
+        "preview.py",
+        "prior",
+        "phase",
+        "verification"
+      ]
+    },
+    {
+      "date": "2026-09-11",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-09-11-generic-asynchronous-release-controller-phase2-verify-review.md",
+      "slug": "2026-09-11-generic-asynchronous-release-controller-phase2-verify-review",
+      "status": "",
+      "summary": "All seven original repair mechanisms are independently confirmed in their reported scope. One new P1 cross-file defect remains open. Phase 2 acceptance must remain blocked until that defect is repaired and verified.",
+      "tags": [],
+      "title": "2026-09-11-generic-asynchronous-release-controller-phase2-verify-review",
+      "top_keywords": [
+        "cg-release",
+        "test_phase2_repairs.py",
+        "verification",
+        "e_manifest",
+        "finding",
+        "metadata.py",
+        "manifest.py",
+        "2026-09-11-generic-asynchronous-release-controller.md",
+        "policy.py",
+        "source.py"
+      ]
+    },
+    {
+      "date": "2026-09-11",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-09-11-generic-asynchronous-release-controller-phase3-review.md",
+      "slug": "2026-09-11-generic-asynchronous-release-controller-phase3-review",
+      "status": "",
+      "summary": "**Final verification, 2026-09-11T23:08:05Z**: All six findings are independently confirmed fixed in phase3-verify-review.md. Remaining findings: 0; new findings: 0. The original full review covered 10 specs; repair verification covered two specs sequentially in a separate session. The finding statuses above record that verified closure. The dated implementation note and original review below are historical, not current open findings.",
+      "tags": [],
+      "title": "2026-09-11-generic-asynchronous-release-controller-phase3-review",
+      "top_keywords": [
+        "cg-release",
+        "queue",
+        "journal",
+        "reconcile",
+        "runtime.py",
+        "scan",
+        "revalidate",
+        "events.py",
+        "test_controller.py",
+        "test_runtime.py"
+      ]
+    },
+    {
+      "date": "2026-09-11",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-09-11-generic-asynchronous-release-controller-phase3-verify-review.md",
+      "slug": "2026-09-11-generic-asynchronous-release-controller-phase3-verify-review",
+      "status": "",
+      "summary": "Confirmed fixed: **6/6**. Original findings still open in this verification: **0**. New findings: **0** (P0: 0, P1: 0, P2: 0, P3: 0).",
+      "tags": [],
+      "title": "2026-09-11-generic-asynchronous-release-controller-phase3-verify-review",
+      "top_keywords": [
+        "test_worker_e2e.py",
+        "test_phase3_review_repairs.py",
+        "cg-release",
+        "queue.py",
+        "journal.py",
+        "controller.py",
+        "authority.py",
+        "github_journal.py",
+        "git_journal.py",
+        "verification.py"
+      ]
+    },
+    {
+      "date": "2026-09-11",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-09-11-generic-asynchronous-release-controller-review.md",
+      "slug": "2026-09-11-generic-asynchronous-release-controller-review",
+      "status": "",
+      "summary": "**Status**: review completed; all four findings confirmed fixed by independent scoped verification. No remaining or new findings; no whole-plan or merge approval is implied. **Review mode**: full, embedded `review:auto` only. **Invocation**: `/cg-work phase1 review:auto .cg-docs/plans/2026-09-11-generic-asynchronous-release-controller.md`. **Coverage**: 10/10 agent specs read and emulated sequentially, once each, in the requested order. These were not independent sessions. **Files reviewed**: 23 implementation/test/configuration files, plus the selected execution report, offline baseline, Pester evidence, and active-state checkpoint for consistency. The current Pester runner summary was also checked. **Findings**: 4 unique findings (P0: 0, P1: 1, P2: 3, P3: 0). The original review below records the findings...",
+      "tags": [],
+      "title": "2026-09-11-generic-asynchronous-release-controller-review",
+      "top_keywords": [
+        "cli.py",
+        "benchmark_release.py",
+        "cg-release",
+        "create-release.ps1",
+        "events.py",
+        "process.py",
+        "test_timing.py",
+        "review",
+        "token",
+        "cg_pr_preflight.py"
+      ]
+    },
+    {
+      "date": "2026-09-11",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-09-11-generic-asynchronous-release-controller-verify-review.md",
+      "slug": "2026-09-11-generic-asynchronous-release-controller-verify-review",
+      "status": "",
+      "summary": "All four prior repairs are confirmed: P1.1, P2.1, P2.2, and P2.3. Remaining findings: 0 (P0: 0, P1: 0, P2: 0, P3: 0). New findings: 0 (P0: 0, P1: 0, P2: 0, P3: 0). Incomplete assigned review scopes: 0. Agent coverage: 2/2.",
+      "tags": [],
+      "title": "2026-09-11-generic-asynchronous-release-controller-verify-review",
+      "top_keywords": [
+        "cg-release",
+        "tests.yml",
+        "verification",
+        "release-controller-ci.yml",
+        "test_cg_pr_preflight.py",
+        "benchmark_release.py",
+        "confirmed",
+        "repair",
+        "evidence",
+        "agent"
+      ]
+    },
+    {
+      "date": "2026-09-12",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase4-review.md",
+      "slug": "2026-09-12-generic-asynchronous-release-controller-phase4-review",
+      "status": "",
+      "summary": "**Status:** Review complete; V4 is blocked by critical findings. **Coverage:** 10/10 local agent specs, emulated sequentially in one session. These were not ten independent sessions. **Findings:** 3 unique findings: P0: 0, P1: 2, P2: 1, P3: 0. **Implementation files read:** 40, including tests, templates, and package configuration; authority and evidence documents are additional. **Changes made:** This report only. No implementation fixes, phase advancement, commit, remote mutation, or publication.",
+      "tags": [],
+      "title": "2026-09-12-generic-asynchronous-release-controller-phase4-review",
+      "top_keywords": [
+        "cg-release",
+        "build-request-1",
+        "build_stage.py",
+        "test_phase4_worker.py",
+        "build",
+        "zipfile",
+        "prepare_stage.py",
+        "build_control.py",
+        "test_build_tickets.py",
+        "artifacts.py"
+      ]
+    },
+    {
+      "date": "2026-09-12",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase4-verify-review.md",
+      "slug": "2026-09-12-generic-asynchronous-release-controller-phase4-verify-review",
+      "status": "",
+      "summary": "Verified fixed: **3** (P1.1, P1.2, P2.1). Remaining open: **0**. New findings: **0** at every priority. No incomplete review scopes.",
+      "tags": [],
+      "title": "2026-09-12-generic-asynchronous-release-controller-phase4-verify-review",
+      "top_keywords": [
+        "cg-release",
+        "journal.py",
+        "controller.py",
+        "2026-09-12-phase4-review-repair-1-evidence.json",
+        "phase4_transport.py",
+        "test_build_control.py",
+        "test_build_stage.py",
+        "build_stage.py",
+        "phase",
+        "registration"
+      ]
+    },
+    {
+      "date": "2026-09-12",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase5-review.md",
+      "slug": "2026-09-12-generic-asynchronous-release-controller-phase5-review",
+      "status": "",
+      "summary": "**Result:** Changes required. V5 and Phase 5 must not be marked complete yet. **Findings:** 5 (P0: 0, P1: 3, P2: 2, P3: 0). All findings are open. **Coverage:** 10/10 local reviewer specs emulated sequentially in one dedicated review session. These were not ten independent agents or sessions. **Mode:** Embedded `review:auto`, resolved `full`; no implementation or autofix.",
+      "tags": [],
+      "title": "2026-09-12-generic-asynchronous-release-controller-phase5-review",
+      "top_keywords": [
+        "cg-release",
+        "publication_inputs.py",
+        "test_phase5_transport.py",
+        "publish_worker.py",
+        "build_stage.py",
+        "recovery",
+        "run_process",
+        "publisher.py",
+        "publication_stage.py",
+        "stranded_recovery.py"
+      ]
+    },
+    {
+      "date": "2026-09-12",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase5-verify-review-2.md",
+      "slug": "2026-09-12-generic-asynchronous-release-controller-phase5-verify-review-2",
+      "status": "",
+      "summary": "**P1.4 is confirmed fixed. No new findings or remaining scoped blockers.** Preserved the five prior confirmed IDs: P1.1, P1.2, P1.3, P2.1, and P2.2. Total confirmed fixed: 6. Total open: 0 (P0: 0, P1: 0, P2: 0, P3: 0).",
+      "tags": [],
+      "title": "2026-09-12-generic-asynchronous-release-controller-phase5-verify-review-2",
+      "top_keywords": [
+        "e_approval",
+        "cg-release",
+        "e_authority",
+        "publication_inputs.py",
+        "stranded_recovery.py",
+        "recovery_authority.py",
+        "recovery_actions.py",
+        "publication_approval.py",
+        "approval.py",
+        "publish_worker.py"
+      ]
+    },
+    {
+      "date": "2026-09-12",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase5-verify-review.md",
+      "slug": "2026-09-12-generic-asynchronous-release-controller-phase5-verify-review",
+      "status": "",
+      "summary": "Original findings confirmed fixed: **5**. Original findings still open: **0**. New findings: **1**, P1.4. Total open: **1** (P0: 0, P1: 1, P2: 0, P3: 0). **Phase 5 and V5 must remain incomplete until P1.4 is repaired and verified.**",
+      "tags": [],
+      "title": "2026-09-12-generic-asynchronous-release-controller-phase5-verify-review",
+      "top_keywords": [
+        "boundedtransport",
+        "cg-release",
+        "test_phase5_review_repairs.py",
+        "gh",
+        "original",
+        "publisher",
+        "feature",
+        "publication_inputs.py",
+        "publish_worker.py",
+        "test_recovery_authority_history.py"
+      ]
+    },
+    {
+      "date": "2026-09-12",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase6-repair2-verification.md",
+      "slug": "2026-09-12-generic-asynchronous-release-controller-phase6-repair2-verification",
+      "status": "changes-required",
+      "summary": "**Verdict: Changes required.** All 23 repair candidates were assessed through the requested full 10-spec route. **22 repairs are confirmed; P1.15 remains open; there are no new finding IDs.** The 19 earlier confirmations are preserved. The resulting assessment is **41 confirmed and 1 open**, with active severity **P0: 0, P1: 1, P2: 0, P3: 0**. No finding was skipped, suppressed, or accepted as an exception.",
+      "tags": [],
+      "title": "2026-09-12-generic-asynchronous-release-controller-phase6-repair2-verification",
+      "top_keywords": [
+        "cg-release",
+        "bridge_client.py",
+        "profile_selection.py",
+        "build_stage.py",
+        "phase",
+        "repair",
+        "dev",
+        "profile_build_verify.py:70-74",
+        "rc.a",
+        "profile_build_verify.py"
+      ]
+    },
+    {
+      "date": "2026-09-12",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase6-review.md",
+      "slug": "2026-09-12-generic-asynchronous-release-controller-phase6-review",
+      "status": "",
+      "summary": "**Review complete; changes required.** All ten spec analyses returned usable results. There are **34 open findings: 1 P0, 18 P1, 13 P2 and 2 P3**. The P0 is an inherited, explicitly scoped Pages integration risk, not a new Phase 6 regression. No finding was fixed or accepted as an exception in this review.",
+      "tags": [],
+      "title": "2026-09-12-generic-asynchronous-release-controller-phase6-review",
+      "top_keywords": [
+        "cg-release",
+        "test_profile_lifecycle.py",
+        "profile_docs.py",
+        "probe",
+        "test_profile_adapter_reads.py",
+        "test_release_producer_contracts.py",
+        "test_profile_input_boundaries.py",
+        "invocation",
+        "models.py",
+        "build_stage.py"
+      ]
+    },
+    {
+      "date": "2026-09-12",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase6-verification.md",
+      "slug": "2026-09-12-generic-asynchronous-release-controller-phase6-verification",
+      "status": "changes-required",
+      "summary": "**Verdict: Changes required.** All ten independent review analyses and evidence handoffs are complete. Of the 34 original findings, **19 are verified, 15 are reopened, and 0 are unverified**. There are **8 additional findings**. Active severity counts are **P0: 1, P1: 15, P2: 7, P3: 0**, for **23 open findings**. No finding was skipped or suppressed, and no exception was accepted. Verification completion is not Phase 6, V6, or external-V6-only completion.",
+      "tags": [],
+      "title": "2026-09-12-generic-asynchronous-release-controller-phase6-verification",
+      "top_keywords": [
+        "cg-release",
+        "recovery",
+        "composition_journal.py",
+        "evidence",
+        "bash",
+        "bridge",
+        "profile_selection.py",
+        "profile_worker.py",
+        "profile_evidence.py",
+        "build_stage.py"
+      ]
+    },
+    {
+      "date": "2026-09-13",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase6-verify-review.md",
+      "slug": "2026-09-12-generic-asynchronous-release-controller-phase6-verify-review",
+      "status": "",
+      "summary": "**Status: Failure, changes required.** The requested verification ran to completion. One new P1 prevents review convergence. This is not a failed live rollout or a withdrawal of the approved deferral.",
+      "tags": [],
+      "title": "2026-09-12-generic-asynchronous-release-controller-phase6-verify-review",
+      "top_keywords": [
+        "cg-release",
+        "test_profile_workflow_authority.py",
+        "benchmark_release.py",
+        "test_performance.py",
+        "test_release_controller_launchers.py",
+        "process.py",
+        "cli.py",
+        "result.json",
+        "trials.py",
+        "release-controller.md"
+      ]
+    },
+    {
+      "date": "2026-09-13",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-phase6-P1.15-continuations-verification.md",
+      "slug": "2026-09-13-generic-asynchronous-release-controller-phase6-P1.15-continuations-verification",
+      "status": "verified-in-scope",
+      "summary": "**Verdict: P1.15 is confirmed fixed within the requested finite audit. No remaining or new finding was identified.** All 15 rows in the continuation repair record were assessed, not only pending registration. Fresh checks used real authority functions and controller/journal paths, with bounded fake provider and storage boundaries. The applicable principals were rejected before the next separately started operation after revocation. Authorized prefixes, exact tickets, and unresolved intents were retained.",
+      "tags": [],
+      "title": "2026-09-13-generic-asynchronous-release-controller-phase6-P1.15-continuations-verification",
+      "top_keywords": [
+        "profile_evidence.py",
+        "audit",
+        "phase",
+        "cg-release",
+        "authorize_attempt",
+        "profile_dispatch.py",
+        "agent manager",
+        "test_hook_save_continuations.py",
+        "test_hook_checkpoint_continuations.py",
+        "test_recovery_registration_continuations.py"
+      ]
+    },
+    {
+      "date": "2026-09-13",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-phase6-P1.15-final-verification.md",
+      "slug": "2026-09-13-generic-asynchronous-release-controller-phase6-P1.15-final-verification",
+      "status": "changes-required",
+      "summary": "**Verdict: Changes required. P1.15 remains open.** The canonical and installed workflow order is repaired, but the final worker helper still reads repository and default-branch state after it checks human permissions. Eight fresh offline counterexamples reproduce stale authorization at that connected boundary. These are additional proofs of P1.15, not new finding IDs.",
+      "tags": [],
+      "title": "2026-09-13-generic-asynchronous-release-controller-phase6-P1.15-final-verification",
+      "top_keywords": [
+        "test_profile_security.py",
+        "branches/production",
+        "cg-release",
+        "2026-09-12-phase6-p1.15-validation-233019z.json",
+        "final",
+        "evidence",
+        "phase",
+        "authorize-deploy",
+        "authorize_deployment()",
+        "repos/owner/repo"
+      ]
+    },
+    {
+      "date": "2026-09-13",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-phase6-P1.15-helper-verification.md",
+      "slug": "2026-09-13-generic-asynchronous-release-controller-phase6-P1.15-helper-verification",
+      "status": "changes-required",
+      "summary": "**Verdict: Changes required.** The shared helper correction and the stated composition, evidence-base, and dispatch-intent ordering changes are confirmed within the tested boundaries. P1.15 remains open because the pending-dispatch registration path performs a second journal operation without rechecking authority after the first operation. Two fresh offline counterexamples reproduce this for the requester and resumer. This is another boundary of P1.15, not a new finding ID.",
+      "tags": [],
+      "title": "2026-09-13-generic-asynchronous-release-controller-phase6-P1.15-helper-verification",
+      "top_keywords": [
+        "test_hook_authority_boundary.py",
+        "register()",
+        "cg-release",
+        "e_authority",
+        "phase",
+        "boundary",
+        "save()",
+        "compositionjournal.intent()",
+        "profile_worker.py",
+        "hook_authority.py"
+      ]
+    },
+    {
+      "date": "2026-09-13",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-phase7-review.md",
+      "slug": "2026-09-13-generic-asynchronous-release-controller-phase7-review",
+      "status": "",
+      "summary": "**Review mode**: Embedded `review:auto`, resolved `full`; report only by explicit instruction. **Coverage**: All 10 requested specs read and emulated in sequence in one session. No separate agents or Agent Manager sessions were started. **Primary scope**: The 16 files listed in the Phase 7 implementation evidence, plus their direct package, documentation, generated-command and disabled-installation interactions. **Findings**: 2 (P0: 0, P1: 0, P2: 2, P3: 0). Both remain open; no fixes applied. **Source**: Dirty `improve-cg-release` worktree at HEAD `b94f585c8a485dfb03965ca9711fb83257aaa7de`. This is not a committed-candidate or complete content-hash attestation.",
+      "tags": [],
+      "title": "2026-09-13-generic-asynchronous-release-controller-phase7-review",
+      "top_keywords": [
+        "cg-release",
+        "trials.py",
+        "benchmark_release.py",
+        "2026-09-13-phase7-implementation-evidence.json",
+        "test_sandbox.py",
+        "test_performance.py",
+        "test_documentation.py",
+        "readme.md",
+        "live_handoff_passed=false",
+        "allow_nan=false"
+      ]
+    },
+    {
+      "date": "2026-09-13",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-phase7-verify-review.md",
+      "slug": "2026-09-13-generic-asynchronous-release-controller-phase7-verify-review",
+      "status": "",
+      "summary": "**Confirmed fixed: 2. Open: 0. Unverified: 0. New findings: 0.** These counts cover only the two Phase 7 P2 repairs and their direct regression boundaries. No P0, P1, P2 or P3 finding was added.",
+      "tags": [],
+      "title": "2026-09-13-generic-asynchronous-release-controller-phase7-verify-review",
+      "top_keywords": [
+        "cg-release",
+        "benchmark_release.py",
+        "trials.py",
+        "2026-09-13-phase7-1425z-validation.json",
+        "test_performance.py",
+        "test_sandbox.py",
+        "e_benchmark_output",
+        "oserror",
+        "typeerror",
+        "packages/cg-release/src/cg_release/trials.py"
+      ]
+    },
+    {
+      "date": "2026-09-13",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-precommitrepairverify.md",
+      "slug": "2026-09-13-generic-asynchronous-release-controller-precommitrepairverify",
+      "status": "success-qualified",
+      "summary": "**Result: Pass, qualified.** P1.1 is independently confirmed fixed. Both additional Bash fixture failures now pass. No new actionable defect was found in the five repair paths or the adjacent boundaries inspected. This is a report-only repair verification for step 11, not a commit, a full implementation review, a committed gate, or a phase transition.",
+      "tags": [],
+      "title": "2026-09-13-generic-asynchronous-release-controller-precommitrepairverify",
+      "top_keywords": [
+        "cg-release",
+        "source-before.json",
+        "result.json",
+        "integrity.json",
+        "pester-last-run.json",
+        "test_install.py",
+        "cg_pr_preflight.py",
+        "test_release_controller_launchers.py",
+        "repair",
+        "results"
+      ]
+    },
+    {
+      "date": "2026-09-13",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-step9-fix-triage.md",
+      "slug": "2026-09-13-generic-asynchronous-release-controller-step9-fix-triage",
+      "status": "success-qualified",
+      "summary": "**Status: Success, qualified. Step 9 is complete.** The repairs, focused checks, clean default full-package gate, and unfiltered full Pester assertion gate pass. Cleanup did not complete without errors, and two Pester skips retain unknown individual names/reasons. This is local fix-triage acceptance, not independent review convergence, a committed gate, live readiness, or permission to start step 10.",
+      "tags": [],
+      "title": "2026-09-13-generic-asynchronous-release-controller-step9-fix-triage",
+      "top_keywords": [
+        "cg-release",
+        "test_install.py",
+        "result.json",
+        "handoff.json",
+        "pester-last-run.json",
+        "integrity.json",
+        "pwsh.exe",
+        "--no-sync",
+        "test_release_controller_launchers.py",
+        "package"
+      ]
+    },
+    {
       "date": "2026-08-17",
       "entity_type": "solution",
       "path": ".cg-docs/solutions/architecture/2026-08-17-capability-router-hard-stop.md",
@@ -15119,6 +15911,34 @@
       ]
     },
     {
+      "date": "2026-09-13",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/environment-issues/2026-09-13-windows-gpg-agent-socket-path-budget.md",
+      "slug": "2026-09-13-windows-gpg-agent-socket-path-budget",
+      "status": "",
+      "summary": "The Phase 7 full package gate reported 993 passes and one failure in `test_signing.py::test_signed_object_and_wrong_key_are_verified`. Secret-key import in the controller's private signing home failed with GPG exit 2. The original quiet traceback did not retain raw GPG stderr. It did not establish a signing-code defect or the underlying cause.",
+      "tags": [
+        "windows",
+        "gnupg",
+        "msys",
+        "tempfile",
+        "release-gates"
+      ],
+      "title": "Windows bundled GPG tests need a short private agent socket path",
+      "top_keywords": [
+        "windows",
+        "gpg",
+        "socket",
+        "agent",
+        "root",
+        "temp",
+        "package",
+        "cause",
+        "evidence",
+        "tmp"
+      ]
+    },
+    {
       "date": "2026-03-04",
       "entity_type": "solution",
       "path": ".cg-docs/solutions/git-workflows/2026-03-04-git-pull-stderr-swallowed-by-redirect.md",
@@ -15540,6 +16360,34 @@
         ".pyc",
         "__pycache__",
         "authoritative"
+      ]
+    },
+    {
+      "date": "2026-09-13",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/git-workflows/2026-09-13-release-controller-authority-and-evidence-boundaries.md",
+      "slug": "2026-09-13-release-controller-authority-and-evidence-boundaries",
+      "status": "",
+      "summary": "The asynchronous controller has durable intents, remote effects, result records, and recovery paths. An authority check before one operation did not authorize a later operation after intervening reads or a completed effect. Phase 6 P1.15 required a finite audit of these continuation boundaries, not a callback-presence check alone. Phase 5 also found that reviewed recovery after source deletion and a policy change could be admitted but fail at approval routing. The original request had no override reason; the verified recovery directive supplied the new reason. Changing the original request or bypassing protected approval was not a valid fix. Local test...",
+      "tags": [
+        "release-controller",
+        "authority",
+        "recovery",
+        "provenance",
+        "deferred-rollout"
+      ],
+      "title": "Release controller authority and evidence must stay bound at each continuation",
+      "top_keywords": [
+        "evidence",
+        "authority",
+        "release",
+        "controller",
+        "2026-09-11-phase1-final-evidence.json",
+        "2026-09-11-phase2-final-evidence.json",
+        "2026-09-11-phase3-final-evidence.json",
+        "2026-09-12-phase4-final-evidence.json",
+        "2026-09-12-phase5-final-evidence.json",
+        "2026-09-13-generic-asynchronous-release-controller-phase6-p1.15-continuations-verification.md"
       ]
     },
     {
@@ -19015,6 +19863,34 @@
         "prompts",
         "branch-complete",
         "scope"
+      ]
+    },
+    {
+      "date": "2026-09-13",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-09-13-clean-default-release-gates-and-executable-fixtures.md",
+      "slug": "2026-09-13-clean-default-release-gates-and-executable-fixtures",
+      "status": "",
+      "summary": "Pipeline step 8 found one P1.1: the default full-package command could not collect `test_profile_workflow_authority.py`, which imports `yaml`. A previously prepared environment with the optional `gpid-native` group concealed the missing default test dependency. The new isolated regression failed with `ModuleNotFoundError: No module named 'yaml'`: 976 collected, one collection error, inner exit 2. Two real legacy-launcher checks also failed. A copied Bash fixture `pwsh.exe` exited `3758096423` with empty streams before recording argv. The unchanged real Bash launcher returned 127. These symptoms alone did not prove a product router or argument-forwarding defect.",
+      "tags": [
+        "release-gates",
+        "uv",
+        "dependency-groups",
+        "fixtures",
+        "windows"
+      ],
+      "title": "Release gates need clean default dependencies and executable fixture controls",
+      "top_keywords": [
+        "gpid-native",
+        "cg-release",
+        "dev",
+        "pwsh.exe",
+        "default",
+        "clean",
+        "executable",
+        "fixtures",
+        "release",
+        "gates"
       ]
     },
     {
@@ -23066,13 +23942,13 @@
       ]
     }
   ],
-  "entity_count": 800,
-  "generated": "2026-09-10",
+  "entity_count": 828,
+  "generated": "2026-09-14",
   "schema_version": "0.2.0",
   "topic_count": 6,
   "topics": [
     {
-      "entity_count": 561,
+      "entity_count": 588,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -23260,6 +24136,7 @@
         ".cg-docs/plans/2026-09-03-cr-research-handbook-and-dev-preview.md",
         ".cg-docs/plans/2026-09-04-cg-light-work-unified-small-task-workflow.md",
         ".cg-docs/plans/2026-09-04-minimal-adaptive-grilling.md",
+        ".cg-docs/plans/2026-09-11-generic-asynchronous-release-controller.md",
         ".cg-docs/plans/phase2-model-governance-cleanup.md",
         ".cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md",
         ".cg-docs/reviews/2026-04-01-cg-strategy-and-roadmap-fix-review.md",
@@ -23423,6 +24300,29 @@
         ".cg-docs/reviews/2026-09-02-c-research-output-workspace-migration-review.md",
         ".cg-docs/reviews/2026-09-03-cr-ml-skill-redesign-review.md",
         ".cg-docs/reviews/2026-09-04-minimal-adaptive-grilling-review.md",
+        ".cg-docs/reviews/2026-09-11-generic-asynchronous-release-controller-phase2-review.md",
+        ".cg-docs/reviews/2026-09-11-generic-asynchronous-release-controller-phase2-verify-review-2.md",
+        ".cg-docs/reviews/2026-09-11-generic-asynchronous-release-controller-phase2-verify-review.md",
+        ".cg-docs/reviews/2026-09-11-generic-asynchronous-release-controller-phase3-review.md",
+        ".cg-docs/reviews/2026-09-11-generic-asynchronous-release-controller-phase3-verify-review.md",
+        ".cg-docs/reviews/2026-09-11-generic-asynchronous-release-controller-review.md",
+        ".cg-docs/reviews/2026-09-11-generic-asynchronous-release-controller-verify-review.md",
+        ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase4-review.md",
+        ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase4-verify-review.md",
+        ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase5-review.md",
+        ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase5-verify-review-2.md",
+        ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase5-verify-review.md",
+        ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase6-repair2-verification.md",
+        ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase6-review.md",
+        ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase6-verification.md",
+        ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase6-verify-review.md",
+        ".cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-phase6-P1.15-continuations-verification.md",
+        ".cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-phase6-P1.15-final-verification.md",
+        ".cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-phase6-P1.15-helper-verification.md",
+        ".cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-phase7-review.md",
+        ".cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-phase7-verify-review.md",
+        ".cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-precommitrepairverify.md",
+        ".cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-step9-fix-triage.md",
         ".cg-docs/solutions/bugs/2026-03-18-broken-relative-links-in-nested-skill-files.md",
         ".cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md",
         ".cg-docs/solutions/bugs/2026-03-19-explicit-unpin-does-not-persist-missing-state-file-write.md",
@@ -23509,6 +24409,7 @@
         ".cg-docs/solutions/environment-issues/2026-07-03-cross-agent-native-platform-trees-require-generator-drift-tests-consistent-python.md",
         ".cg-docs/solutions/environment-issues/2026-08-14-kilo-contained-launch-and-no-follow-copy.md",
         ".cg-docs/solutions/environment-issues/2026-08-17-manifest-driven-install-gate-prevents-junction-conflicts.md",
+        ".cg-docs/solutions/environment-issues/2026-09-13-windows-gpg-agent-socket-path-budget.md",
         ".cg-docs/solutions/git-workflows/2026-03-04-git-pull-stderr-swallowed-by-redirect.md",
         ".cg-docs/solutions/git-workflows/2026-03-05-ps51-stderr-stop-terminates-on-git-informational-output.md",
         ".cg-docs/solutions/git-workflows/2026-03-22-skill-consolidation-checklist.md",
@@ -23522,6 +24423,7 @@
         ".cg-docs/solutions/git-workflows/2026-08-11-merge-generated-brain-files-and-additive-ci-conflicts.md",
         ".cg-docs/solutions/git-workflows/2026-08-13-verified-pages-artifact-and-release-tag-gates.md",
         ".cg-docs/solutions/git-workflows/2026-08-21-pr-ci-preflight-native-target-kilo-capability-gates.md",
+        ".cg-docs/solutions/git-workflows/2026-09-13-release-controller-authority-and-evidence-boundaries.md",
         ".cg-docs/solutions/performance-issues/2026-03-18-grp-precomputation-for-multi-aggregation.md",
         ".cg-docs/solutions/performance-issues/2026-04-07-model-audit-classification.md",
         ".cg-docs/solutions/security/2026-08-17-tar-slip-toctou-dos-quarantine-pipeline.md",
@@ -23620,6 +24522,7 @@
         ".cg-docs/solutions/testing-patterns/2026-08-10-gh-cli-fixture-json-keys-must-match-client-parsing.md",
         ".cg-docs/solutions/testing-patterns/2026-08-13-release-gate-fixtures-and-derived-evidence-hashes.md",
         ".cg-docs/solutions/testing-patterns/2026-09-08-fact-first-prompts-need-branch-complete-tests.md",
+        ".cg-docs/solutions/testing-patterns/2026-09-13-clean-default-release-gates-and-executable-fixtures.md",
         ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
         ".cg-docs/strategy/2026-04-13-workflow-automation-research.md",
         ".cg-docs/strategy/2026-04-15-move-testing-skills-to-skills-enhancement.md",
