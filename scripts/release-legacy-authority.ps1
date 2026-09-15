@@ -43,14 +43,28 @@ function Assert-CgLegacyAuthority {
         $branch.name -cne $repo.default_branch -or $branch.commit.sha -cnotmatch '^[0-9a-f]{40}$') {
         throw 'Legacy authority requires the protected remote default branch.'
     }
-    $protection = Invoke-CgReleaseApi -Uri "$base/branches/$branchName/protection"
-    $reviews = $protection.required_pull_request_reviews
-    if ($protection.enforce_admins.enabled -ne $true -or $protection.allow_force_pushes.enabled -ne $false -or
-        $protection.allow_deletions.enabled -ne $false -or $reviews.required_approving_review_count -lt 1 -or
-        $reviews.dismiss_stale_reviews -ne $true -or
-        @($reviews.bypass_pull_request_allowances.users).Count -gt 0 -or
-        @($reviews.bypass_pull_request_allowances.teams).Count -gt 0 -or
-        @($reviews.bypass_pull_request_allowances.apps).Count -gt 0) {
+    # The default branch is protected by repository rulesets. The classic
+    # /branches/{branch}/protection endpoint reports 404 "Branch not protected"
+    # and must not be read. The active default-branch ruleset carries the
+    # deletion, non-fast-forward, pull-request, and required status check
+    # authority the classic settings used to provide.
+    $defaultRuleset = Get-CgRepositoryRuleset -RulesetName "Protect main" -RulesetTarget "branch"
+    $defaultRuleTypes = @($defaultRuleset.rules | ForEach-Object { [string]$_.type })
+    $defaultIncludes = @($defaultRuleset.conditions.ref_name.include | ForEach-Object { [string]$_ })
+    $defaultExcludes = @($defaultRuleset.conditions.ref_name.exclude | ForEach-Object { [string]$_ })
+    $defaultBypass = @($defaultRuleset.bypass_actors)
+    $defaultBypassOk = $true
+    foreach ($actor in $defaultBypass) {
+        if ([string]$actor.actor_type -cne 'RepositoryRole' -or [int]$actor.actor_id -ne 5 -or
+            [string]$actor.bypass_mode -cne 'always') { $defaultBypassOk = $false }
+    }
+    if ($defaultRuleTypes -cnotcontains 'deletion' -or
+        $defaultRuleTypes -cnotcontains 'non_fast_forward' -or
+        $defaultRuleTypes -cnotcontains 'pull_request' -or
+        $defaultRuleTypes -cnotcontains 'required_status_checks' -or
+        ($defaultIncludes -cnotcontains "refs/heads/$($repo.default_branch)" -and
+            $defaultIncludes -cnotcontains '~DEFAULT_BRANCH') -or
+        $defaultExcludes.Count -ne 0 -or -not $defaultBypassOk) {
         throw 'Legacy protected-default review authority is insufficient.'
     }
     $policy = Get-CgLegacyRemoteDocument -Path '.release-controller.json' -Commit $branch.commit.sha

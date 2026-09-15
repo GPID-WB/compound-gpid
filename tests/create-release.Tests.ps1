@@ -423,7 +423,7 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
             Origin = 'https://github.com/GPID-WB/compound-gpid.git'
             PagesName = 'Deploy docs from 10'; PagesPath = '.github/workflows/release-pages.yml'
             Default = 'production'; PolicyEnabled = $false; CutoverAfterPush = $false
-            Protected = $true; Role = 'admin'; RecoveryRecord = $null
+            Protected = $true; Role = 'admin'; RecoveryRecord = $null; BadRuleset = $false
             PagesEvent = 'workflow_run'; ArtifactDigest = ('sha256:' + ('e' * 64))
             PolicySha = ('d' * 40)
             BadDefaultRef = $false; BadDeployJob = $false; BadDeployment = $false; WithdrawAfterArtifact = $false
@@ -508,7 +508,10 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
                 return [pscustomobject]@{ name = 'production'; protected = $script:state.Protected; commit = [pscustomobject]@{ sha = $script:state.PolicySha } }
             }
             if ($Uri -match '/branches/production/protection$') {
-                return [pscustomobject]@{ enforce_admins = @{enabled=$true}; allow_force_pushes = @{enabled=$false}; allow_deletions = @{enabled=$false}; required_pull_request_reviews = @{required_approving_review_count=1; dismiss_stale_reviews=$true; bypass_pull_request_allowances=@{users=@();teams=@();apps=@()}} }
+                # The classic branch-protection endpoint reports 404 when only
+                # repository rulesets protect the default branch and must not
+                # be read by the legacy authority gate.
+                throw 'classic branch protection endpoint must not be read'
             }
             if ($Uri -ceq "https://api.github.com/repos/GPID-WB/compound-gpid/contents/.release-controller.json?ref=$($script:state.PolicySha)") {
                 $json = @{ enabled = $script:state.PolicyEnabled } | ConvertTo-Json -Compress
@@ -523,18 +526,26 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
                 return @(
                     [pscustomobject]@{ id = 1; name = 'Protect release tags'; target = 'tag'; enforcement = 'active' },
                     [pscustomobject]@{ id = 2; name = 'Restrict release tag creation'; target = 'tag'; enforcement = 'active' },
-                    [pscustomobject]@{ id = 3; name = 'Protect dev'; target = 'branch'; enforcement = 'active' }
+                    [pscustomobject]@{ id = 3; name = 'Protect dev'; target = 'branch'; enforcement = 'active' },
+                    [pscustomobject]@{ id = 4; name = 'Protect main'; target = 'branch'; enforcement = 'active' }
                 )
             }
-            if ($Uri -match '/rulesets/([123])$') {
+            if ($Uri -match '/rulesets/([1234])$') {
                 $id = $Matches[1]
-                $types = @('update', 'deletion', 'non_fast_forward'); $include = 'refs/tags/v*'; $bypass = @()
+                $types = @('update', 'deletion', 'non_fast_forward'); $include = 'refs/tags/v*'; $bypass = @(); $canBypass = 'never'
                 if ($id -eq '2') { $types = @('creation'); $bypass = @([pscustomobject]@{ actor_type = 'RepositoryRole'; actor_id = 5; bypass_mode = 'always' }) }
                 if ($id -eq '3') { $include = 'refs/heads/dev' }
+                if ($id -eq '4') {
+                    $types = @('deletion', 'non_fast_forward', 'pull_request', 'required_status_checks')
+                    $include = '~DEFAULT_BRANCH'
+                    $bypass = @([pscustomobject]@{ actor_type = 'RepositoryRole'; actor_id = 5; bypass_mode = 'always' })
+                    $canBypass = 'always'
+                    if ($script:state.BadRuleset) { $types = @('deletion', 'non_fast_forward', 'required_status_checks') }
+                }
                 return [pscustomobject]@{
                     rules = @($types | ForEach-Object { [pscustomobject]@{ type = $_ } })
                     conditions = [pscustomobject]@{ ref_name = [pscustomobject]@{ include = @($include); exclude = @() } }
-                    bypass_actors = $bypass; current_user_can_bypass = 'never'
+                    bypass_actors = $bypass; current_user_can_bypass = $canBypass
                 }
             }
             if ($Uri -match '/releases\?') {
@@ -635,6 +646,15 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
         $script:state.Protected = $false
         { Invoke-FixtureRelease } | Should -Throw 'Legacy authority requires the protected remote default branch.'
         ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
+    }
+    It 'rejects a weakened default-branch ruleset before any legacy write' {
+        $script:state.BadRuleset = $true
+        { Invoke-FixtureRelease } | Should -Throw 'Legacy protected-default review authority is insufficient.'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
+    }
+    It 'never reads the classic branch protection endpoint' {
+        Invoke-FixtureRelease
+        ($script:state.Calls -join "`n") | Should -Not -Match '/branches/production/protection'
     }
     It 'rechecks cutover after a tag push before Release creation' {
         $script:state.CutoverAfterPush = $true
