@@ -80,7 +80,11 @@ jobs:
             throw new Error("Invalid durable release payload.");
           }
           const root = "release-artifact";
-          const docs = path.join(root, "site");
+          const siteDir = fs.existsSync(path.join(root, "docs")) ? "docs" : "site";
+          const docs = path.join(root, siteDir);
+          if (!fs.existsSync(docs)) {
+            throw new Error("Artifact is missing the documentation tree.");
+          }
           const metadata = JSON.parse(fs.readFileSync(path.join(root, ".docs-build-metadata.json"), "utf8"));
           if (metadata.schemaVersion !== 1 || !metadata.site || !metadata.site.files) {
             throw new Error("Invalid documentation build metadata.");
@@ -106,6 +110,11 @@ jobs:
             if (actual[name] !== expected[name]) throw new Error(`Artifact digest mismatch: ${name}`);
           }
           NODE
+          if [ -d release-artifact/docs ]; then
+            echo "SITE_DIR=docs" >> "$GITHUB_ENV"
+          else
+            echo "SITE_DIR=site" >> "$GITHUB_ENV"
+          fi
           echo "RELEASE_BRANCH=$required_branch" >> "$GITHUB_ENV"
 
       - name: Configure GitHub Pages
@@ -114,7 +123,7 @@ jobs:
       - name: Upload verified release Pages artifact
         uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa  # v3.0.1
         with:
-          path: release-artifact/site
+          path: release-artifact/${{ env.SITE_DIR }}
 
       - name: Recheck release is still newest
         run: |
