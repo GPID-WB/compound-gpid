@@ -1,9 +1,6 @@
 const home = document.querySelector("[data-home]");
 const documentView = document.querySelector("[data-document]");
-const sidebar = document.querySelector(".sidebar");
 const navigation = document.querySelector("[data-navigation]");
-const menuButton = document.querySelector("[data-menu-toggle]");
-const menuClose = document.querySelector("[data-menu-close]");
 const searchDialog = document.querySelector("[data-search-dialog]");
 const searchInput = document.querySelector("[data-search-input]");
 const searchResults = document.querySelector("[data-search-results]");
@@ -14,6 +11,9 @@ let activeResult = -1;
 let searchIndex;
 let activePage = "";
 let navigationRequest = 0;
+let activeDocument;
+let sectionClick = false;
+let lastDocumentRoute = "#home";
 
 function getRoute() {
   const params = new URLSearchParams(location.hash.replace(/^#/, ""));
@@ -99,7 +99,13 @@ function renderBlocks(blocks) {
     if (block.type === "code") return `<pre><button class="copy-code" type="button" aria-label="Copy code">Copy</button><code class="language-${escapeHtml(block.language)}">${escapeHtml(block.text)}</code></pre>`;
     if (block.type === "table") return renderTable(block.lines);
     if (block.type === "hr") return "<hr>";
-    if (block.type === "quote") return `<blockquote>${renderBlocks(block.children)}</blockquote>`;
+    if (block.type === "quote") {
+      const marker = /^\[!(NOTE|WARNING|TECHNICAL|RESEARCH|SHARED)\](?:\s|$)/.exec(block.children[0]?.text || "");
+      if (!marker) return `<blockquote>${renderBlocks(block.children)}</blockquote>`;
+      const labels = { NOTE: "Note", WARNING: "Warning", TECHNICAL: "Technical (CG)", RESEARCH: "Research (CR)", SHARED: "Shared" };
+      const children = block.children.map((child, index) => index ? child : { ...child, text: child.text.slice(marker[0].length) });
+      return `<blockquote class="callout callout-${marker[1].toLowerCase()}"><strong>${labels[marker[1]]}</strong>${renderBlocks(children)}</blockquote>`;
+    }
     if (block.type === "list") {
       const tag = block.ordered ? "ol" : "ul";
       return `<${tag}>${block.items.map((item) => {
@@ -113,31 +119,6 @@ function renderBlocks(blocks) {
 
 function markdownToHtml(markdown) { return renderBlocks(DocsContract.parseDocument(markdown).blocks); }
 
-function buildNavigation(groups) {
-  navigation.replaceChildren();
-  const appendLink = (parent, id, number, title) => {
-    const link = document.createElement("a");
-    link.href = id === "home" ? "#home" : `#page=${encodeURIComponent(id)}`;
-    link.dataset.route = id;
-    const label = document.createElement("span");
-    label.textContent = number;
-    link.append(label, ` ${title}`);
-    parent.append(link);
-  };
-  appendLink(navigation, "home", "00", "Overview");
-  groups.forEach((group, groupIndex) => {
-    const section = document.createElement("section");
-    section.className = "nav-group";
-    const heading = document.createElement("h2");
-    heading.id = `nav-group-${groupIndex}`;
-    heading.textContent = group.title;
-    section.setAttribute("aria-labelledby", heading.id);
-    section.append(heading);
-    group.pages.filter(DocsContract.sidebarVisible).forEach((page, pageIndex) => appendLink(section, page.id, `${groupIndex + 1}.${pageIndex + 1}`, page.title));
-    navigation.append(section);
-  });
-}
-
 async function loadManifest() {
   const response = await fetch("navigation.json");
   if (!response.ok) throw new Error("Could not load documentation navigation.");
@@ -145,29 +126,33 @@ async function loadManifest() {
   pages = DocsContract.validateManifest(manifest);
   pageMap = new Map(pages.map((page) => [page.id, page]));
   fileMap = new Map(pages.map((page) => [normalizePath(page.file), page]));
-  buildNavigation(manifest.groups);
-}
-
-function updateNavigation(page) {
-  document.querySelectorAll("[data-route]").forEach((link) => {
-    const active = link.dataset.route === (page || "home");
-    link.classList.toggle("active", active);
-    if (active) link.setAttribute("aria-current", "page"); else link.removeAttribute("aria-current");
-  });
-  setNavigationOpen(false);
+  DocsReading.buildNavigation(manifest.groups);
 }
 
 async function renderRoute() {
-  const { page, section } = getRoute();
+  const raw = getRoute();
+  if (location.hash === "#content") {
+    history.replaceState(null, "", lastDocumentRoute);
+    document.querySelector("#content").focus({ preventScroll: true }); return;
+  }
+  const { page, section } = DocsContract.resolveRoute(pages, raw.page, raw.section);
+  lastDocumentRoute = location.hash || "#home";
   const request = ++navigationRequest;
-  updateNavigation(page);
+  DocsReading.updateNavigation(page, pages);
+  const focusSection = sectionClick; sectionClick = false;
+  if (page && activePage === page && activeDocument) {
+    DocsReading.move(section, activeDocument, pageMap.get(page), focusSection); return;
+  }
+  activeDocument = null;
+  DocsReading.clear();
+  document.querySelector("[data-reading]").hidden = !page;
   if (!page) {
     activePage = "";
     home.hidden = false;
     documentView.hidden = true;
     document.title = "Compound GPID | Documentation";
     home.scrollIntoView({ behavior: "instant", block: "start" });
-    document.querySelector("#content").focus({ preventScroll: true });
+    if (!focusSection) document.querySelector("#content").focus({ preventScroll: true });
     return;
   }
   home.hidden = true;
@@ -187,25 +172,19 @@ async function renderRoute() {
     if (!response.ok) throw new Error(`Could not load ${config.file}`);
     const markdown = await response.text();
     if (request !== navigationRequest) return;
-    const parsed = DocsContract.parseDocument(markdown);
+    const parsed = DocsContract.parseDocument(markdown); activeDocument = parsed;
     documentView.innerHTML = renderBlocks(parsed.blocks);
+    DocsReading.mount(config, pages);
     documentView.querySelectorAll(".copy-code").forEach((button) => button.addEventListener("click", async () => {
       await navigator.clipboard.writeText(button.nextElementSibling.textContent);
       button.textContent = "Copied";
       setTimeout(() => { button.textContent = "Copy"; }, 1300);
     }));
-    const resolved = section && DocsContract.resolveSection(parsed.headings, section, config.sectionAliases);
-    const target = resolved?.status === "resolved" && [...documentView.querySelectorAll("[id]")].find((element) => element.id === resolved.id);
-    if (section && resolved.status !== "resolved") {
-      const notice = document.createElement("p");
-      notice.setAttribute("role", "status");
-      notice.textContent = resolved.status === "ambiguous" ? "This old section link is ambiguous. Select a heading on this page." : "This section is not available. Showing the page top.";
-      documentView.prepend(notice);
-    }
-    (target || documentView).scrollIntoView({ behavior: "instant", block: "start" });
-    document.querySelector("#content").focus({ preventScroll: true });
+    DocsReading.move(section, parsed, config, focusSection);
+    if (!focusSection) document.querySelector("#content").focus({ preventScroll: true });
   } catch (error) {
     if (request !== navigationRequest) return;
+    activeDocument = null; DocsReading.clear();
     documentView.innerHTML = `<h1>Page unavailable</h1><p class="error-message">This page could not be loaded. <a href="${escapeHtml(config.file)}">Open the canonical Markdown file</a>.</p>`;
   }
 }
@@ -237,7 +216,7 @@ async function search(query) {
   searchResults.innerHTML = results.length ? results.map((entry) => {
     const at = entry.text.toLowerCase().indexOf(term);
     const excerpt = at >= 0 ? entry.text.slice(Math.max(0, at - 60), at + term.length + 110) : entry.description;
-    return `<a class="search-result" href="#page=${entry.id}"><small>${escapeHtml(entry.group)}</small><strong>${escapeHtml(entry.title)}</strong><p>${escapeHtml(excerpt)}...</p></a>`;
+    return `<a class="search-result" href="#page=${entry.id}"><small>${escapeHtml(entry.group)}</small>${DocsReading.badge(entry.ownerModule).outerHTML}<strong>${escapeHtml(entry.title)}</strong><p>${escapeHtml(excerpt)}...</p></a>`;
   }).join("") : '<p class="search-hint" role="status">No matching documentation. Try a command name or a shorter phrase.</p>';
 }
 
@@ -248,23 +227,12 @@ function openSearch() {
 
 function closeSearchOnRoute() { if (searchDialog.open) searchDialog.close(); }
 
-function setNavigationOpen(opened) {
-  const mobile = window.matchMedia("(max-width: 820px)").matches;
-  const isOpen = opened && mobile;
-  const focusWasInSidebar = sidebar.contains(document.activeElement);
-  sidebar.classList.toggle("open", isOpen);
-  sidebar.inert = mobile && !isOpen;
-  sidebar.setAttribute("aria-hidden", String(mobile && !isOpen));
-  menuButton.setAttribute("aria-expanded", String(isOpen));
-  menuButton.setAttribute("aria-label", isOpen ? "Close navigation" : "Open navigation");
-  menuClose.hidden = !isOpen;
-  document.querySelector("main").inert = isOpen;
-  document.body.classList.toggle("navigation-open", isOpen);
-  if (isOpen) sidebar.querySelector("a")?.focus();
-  if (mobile && !isOpen && focusWasInSidebar) menuButton.focus();
-}
-
 document.querySelectorAll("[data-open-search]").forEach((button) => button.addEventListener("click", openSearch));
+DocsReading.init();
+document.addEventListener("click", event => {
+  const link = event.target.closest("[data-toc] a, .heading-permalink");
+  if (link) sectionClick = true;
+});
 searchInput.addEventListener("input", (event) => search(event.target.value));
 searchResults.addEventListener("click", closeSearchOnRoute);
 document.querySelector("[data-close-search]").addEventListener("click", () => searchDialog.close());
@@ -280,28 +248,25 @@ document.addEventListener("keydown", (event) => {
   results[activeResult].focus();
 });
 
-menuButton.addEventListener("click", () => setNavigationOpen(!sidebar.classList.contains("open")));
-menuClose.addEventListener("click", () => setNavigationOpen(false));
 document.querySelector("[data-theme-toggle]").addEventListener("click", () => {
   const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
   document.documentElement.dataset.theme = next;
-  localStorage.setItem("compound-theme", next);
+  try { localStorage.setItem("compound-theme", next); } catch { /* The DOM retains the selected theme. */ }
 });
-window.addEventListener("resize", () => setNavigationOpen(false));
-document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape" && sidebar.classList.contains("open")) setNavigationOpen(false);
-});
-const savedTheme = localStorage.getItem("compound-theme");
-if (savedTheme) document.documentElement.dataset.theme = savedTheme;
+try {
+  const savedTheme = localStorage.getItem("compound-theme");
+  if (["light", "dark"].includes(savedTheme)) document.documentElement.dataset.theme = savedTheme;
+} catch { /* Reading and theme switching do not require storage. */ }
 
 (async () => {
   try {
     await loadManifest();
-    setNavigationOpen(false);
+    DocsReading.setNavigationOpen(false);
     window.addEventListener("hashchange", renderRoute);
     await renderRoute();
   } catch (error) {
-    navigation.querySelector(".nav-loading").textContent = "Navigation could not be loaded.";
+    navigation.textContent = "Navigation could not be loaded.";
+    DocsReading.clear(); document.querySelector("[data-reading]").hidden = false;
     home.hidden = true;
     documentView.hidden = false;
     documentView.innerHTML = `<h1>Documentation unavailable</h1><p>${escapeHtml(error.message)}</p>`;

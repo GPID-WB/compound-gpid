@@ -58,6 +58,32 @@ test("nested list and quote headings share the article heading namespace", () =>
   assert.deepEqual(ids, ["title", "repeat", "repeat-1", "repeat-2"]);
 });
 
+test("callouts permit only labelled text conventions and never enable raw HTML", () => {
+  const html = render("> [!WARNING] Do not bypass approval.\n\n> [!RESEARCH] Check assumptions.\n\n> [!CUSTOM] <script>alert(1)</script>");
+  assert.match(html, /callout-warning/); assert.match(html, /callout-research/);
+  assert.doesNotMatch(html, /callout-custom|<script>/);
+  assert.match(html, /&lt;script&gt;/);
+});
+
+test("page badges use canonical module support rather than a command prefix", () => {
+  const registry = JSON.parse(fs.readFileSync(path.join(root, ".github/shared/module-registry.json")));
+  const site = JSON.parse(fs.readFileSync(path.join(root, "docs/navigation.json")));
+  for (const page of contract().validateManifest(site)) assert.ok(registry.modules.some(m => m.id === page.ownerModule), page.id);
+  const capability = registry.capabilities.find(c => c.owningModule === "cap-skill-management");
+  const context = vm.createContext({ document: { createElement: () => ({}) } });
+  vm.runInContext(fs.readFileSync(path.join(root, "docs/assets/docs-reading.js"), "utf8"), context);
+  const label = vm.runInContext('DocsReading.badge("cap-skill-management").textContent', context);
+  assert.equal(label, capability.supportedSuites.length === 2 ? "Shared" : capability.supportedSuites[0] === "cg" ? "Technical (CG)" : "Research (CR)");
+  const guide = fs.readFileSync(path.join(root, "docs/skills/management/index.md"), "utf8");
+  assert.match(guide, /capability-layer module is not automatically shared across suites/);
+});
+
+test("contextual next steps reject absent or self destinations", () => {
+  assert.throws(() => contract().validateManifest(manifest(page("a", { next: ["missing"] }))), /next step/);
+  assert.throws(() => contract().validateManifest(manifest(page("a", { next: ["a"] }))), /next step/);
+  assert.throws(() => contract().validateManifest(manifest(page("a", { next: "b" }))), /next steps/);
+});
+
 test("legacy aliases resolve only when unambiguous and never override canonical IDs", () => {
   const headings = contract().extractHeadings("# A/B\n## AB\n## Again\n## Again");
   const aliases = contract().headingAliases(headings);
@@ -96,6 +122,7 @@ for (const [name, make] of [
   ["reserved home ID", () => manifest(page("home"))],
   ["non-string IDs", () => manifest(page(123))],
   ["visibility type", () => manifest(page("a", { sidebar: "false" }))],
+  ["owner type", () => manifest(page("a", { ownerModule: ["kernel"] }))],
   ["missing redirect target", () => manifest(page("old", { redirect: { page: "absent", sections: {} } }))],
   ["redirect cycles", () => manifest(page("a", { redirect: { page: "b", sections: {} } }), page("b", { redirect: { page: "a", sections: {} } }))],
   ["unsafe section", () => manifest(page("a"), page("b", { redirect: { page: "a", section: "<script>", sections: {} } }))],

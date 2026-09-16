@@ -70,7 +70,9 @@ the file silently. Restart the IDE after linking.
 
 ## 4. Configure the project
 
-In the agent chat, run:
+Choose the suite using [CG or CR](../modular-guide.md) before starting work.
+In a new project, the default suite is `cg`. Where the Technical setup prompt is
+eligible, run this in agent chat:
 
 ```text
 /cg-setup
@@ -85,9 +87,11 @@ creates the required `.cg-docs/` structure and may create:
 - `compound-gpid.md`: optional committed project charter.
 - `compound-gpid.context.md`: optional committed project knowledge.
 
-Do not skip setup. Workflow prompts depend on the `.cg-docs/` structure it
-creates. See [Configuration](../configuration/index.md) before changing managed
-or shared files manually.
+An already configured CR-only project must not invoke an inactive CG prompt.
+Follow the [research activation path](../research/index.md#activate-the-research-suite)
+and check its configuration and knowledge structure instead. Workflow prompts
+need that structure. See [Configuration](../configuration/index.md) before
+changing managed or shared files manually.
 
 ## 5. Complete a first workflow
 
@@ -112,10 +116,13 @@ technical work, use the standard loop:
 /cg-brainstorm
 /cg-plan
 /cg-work
-/cg-review light
+/cg-review
 /cg-fix-triage
 /cg-compound
 ```
+
+Use `/cg-review` without an explicit depth for automatic risk routing. An
+explicit depth overrides that routing and must match the change's risk.
 
 Research work uses the parallel `/cr-*` loop, with research integrity,
 provenance, method, and publication checks owned by that suite:

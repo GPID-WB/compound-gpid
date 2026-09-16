@@ -27,7 +27,7 @@ Deliver the core redesign independently of `/cg-help`. Catalog-backed discovery 
 
 ### Source and Approval
 
-This is the CG implementation-plan conversion of [the source proposal](../../.kilo/plans/1789505624639-documentation-ia-ux-redesign.md), inspected on 2026-09-16. The supplied `.mdb` extension referred to this existing `.md` file. The source remains unchanged. Its product decisions are retained; the completion contract below was approved before this plan was saved.
+This is the CG implementation-plan conversion of [the source proposal](../archive/2026-09-16-documentation-ia-ux-redesign-proposal.md), inspected on 2026-09-16. The supplied `.mdb` extension referred to this existing `.md` file. The source remains unchanged. Its product decisions are retained; the completion contract below was approved before this plan was saved.
 
 The 2026-09-16 `/cg-plan-review` revision was explicitly requested with all findings to be addressed. The corrections below retain the five phases and product scope. They clarify source verification, mixed-version operation, and mandatory test gates; they do not authorize implementation or publication during plan review.
 

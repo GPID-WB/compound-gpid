@@ -1,0 +1,61 @@
+{
+  "source": "skills/importing.md",
+  "destination": "skills/management/index.md",
+  "reviewStatus": "pending-parent-subject-review",
+  "edits": [
+    {
+      "oldPrefix": "Compound GPID supports importing external skills through a controlled,",
+      "reason": "Separate inactive project import from canonical plugin admission; no blanket canonical-source claim.",
+      "authority": ".github/shared/skill-management/operations/import.json",
+      "required": ["Planning does not change active lifecycle state.", "The committed project record remains inactive", "Project approval cannot grant plugin vendoring authority."]
+    },
+    {
+      "oldPrefix": "```\n/cg-skill import <repo-url>",
+      "reason": "Add the text fence language without changing grammar.",
+      "authority": "docs/skills/management/commands/import.md",
+      "required": ["/cg-skill import <repo-url> <path> <full-sha> --license <id> [--scope project|plugin]"]
+    },
+    {
+      "oldPrefix": "- **repo-url**:",
+      "reason": "Correct old blanket allowlist wording to scope-specific admission; retain all argument constraints.",
+      "authority": "docs/skills/management/commands/import.md",
+      "required": ["**repo-url**: Credential-free public GitHub HTTPS origin; plugin scope requires the allowlist, and project scope requires reviewed exact-origin admission.", "**full-sha**: Full 40-character immutable commit SHA (no short SHAs, branches, or tags)", "**path**: Path to the skill root within the repository (e.g., `.github/skills/skill-name/`)", "**scope**: `project` (default) or maintainer-only `plugin`"]
+    },
+    {
+      "oldPrefix": "Consumer project",
+      "reason": "Label the example as chat planning with a synthetic identity; preserve exact invocation.",
+      "authority": "docs/skills/management/commands/import.md",
+      "required": ["Consumer project, chat planning example:", "/cg-skill import https://github.com/Kilo-Org/kilocode .github/skills/cg-skill-example abc123def456abc123def456abc123def456abcd --license MIT", "These are illustrative source identities and digests, not known existing bundles"]
+    },
+    {
+      "oldPrefix": "Maintainer",
+      "reason": "Keep the full plugin example, with explicit synthetic metadata and plan-before-apply treatment.",
+      "authority": "docs/skills/management/commands/import.md",
+      "required": ["/cg-skill import https://github.com/Kilo-Org/kilocode .github/skills/cg-skill-example abc123def456abc123def456abc123def456abcd --license MIT --scope plugin --owner cap-example --capability example --suites cg --platforms copilot,kilo --activation-cost low --triggers example --selectors \"[]\" --approver maintainer --review-reference review=1111111111111111111111111111111111111111", "then explicitly apply the returned digest."]
+    },
+    {
+      "oldPrefix": "1. Run `/cg-skill import",
+      "reason": "Move the consumer steps into contiguous guide prose and make digest-bound apply explicit.",
+      "authority": "docs/skills/management/commands/import.md",
+      "required": ["The importer places pinned content in `.compound-gpid/quarantine/`.", "Admission checks cover extensions, paths, links, secrets, prompt injection, frontmatter, binary content and resource classes.", "Review evidence is stored in `.compound-gpid/vendor-reviews/`.", "Review it before approving and repeating the same arguments with the returned `--apply <plan-digest>`."]
+    },
+    {
+      "oldPrefix": "1. Switch to the Compound GPID",
+      "reason": "Make approval distinct from apply and retain all transaction outputs.",
+      "authority": "docs/skills/management/commands/import.md",
+      "required": ["In the canonical checkout, plan with all metadata, review the quarantine and evidence, then explicitly apply the returned digest.", "The vendor transaction publishes canonical source, provenance, registry, manifests, generated targets, and projections together."]
+    },
+    {
+      "oldPrefix": "| Check | What it catches |",
+      "reason": "Correct scope-specific origin approval, document the existing opaque SVG/resource-class rule, and scope strict frontmatter validation to SKILL.md as enforced by services/bundles.py; retain every other safety row.",
+      "authority": ".github/shared/vendor-policy.json",
+      "required": ["| Origin approval | Plugin allowlist or reviewed project exact-origin admission; neither grants the other scope |", "| File extension allowlist | `.md`, `.json`, `.yml`, `.yaml`, `.txt`; `.svg` is opaque and needs an approved non-data resource class |", "| Full SHA requirement | Prevents mutable reference attacks |", "| Path safety | Traversal, hidden files, Unicode confusables, Windows reserved names |", "| Executable rejection | `.exe`, `.sh`, `.py`, `.ps1`, etc. |", "| Symlink/junction rejection | Prevents link-following attacks |", "| Secret scanning | API keys, tokens, passwords, AWS credentials |", "| Prompt-injection scanning | Instruction override attempts, shell execution patterns |", "| Binary content detection | Null bytes, non-UTF-8 content |", "| Bundle size limits | Max 1MB total, 64 files, 256KB per file |", "| Frontmatter validation | Strict frontmatter validation for `SKILL.md` |"]
+    },
+    {
+      "oldPrefix": "- No automatic installation",
+      "reason": "Correct blanket marketplace/allowlist wording without dropping any runtime or path boundary.",
+      "authority": "docs/skills/management/commands/import.md",
+      "required": ["- No automatic installation from arbitrary repositories", "- No remote runtime fetching or network execution", "- No semantic rewrites of imported skills (mechanical namespace/path rewrites only)", "- No public marketplace; plugin origins require allowlisting and project origins require explicit reviewed admission", "- Plugin scope requires a verified canonical feature-branch checkout"]
+    }
+  ]
+}

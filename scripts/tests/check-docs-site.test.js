@@ -58,16 +58,31 @@ test("hidden references remain registered, linked, and checked by the real valid
   const original = await readFile(target, "utf8");
   try {
     const manifest = JSON.parse(original);
-    manifest.groups.find(group => group.title === "Skill Management").pages.forEach(page => { page.sidebar = false; });
+    const skills = manifest.groups.find(group => group.pages.some(page => page.id === "skill-management"));
+    skills.pages.forEach(page => { page.sidebar = false; });
     await writeFile(target, JSON.stringify(manifest));
     const result = spawnSync(node, [script, "--source-root", source], { encoding: "utf8" });
     assert.equal(result.status, 0, result.stderr + result.stdout);
-    manifest.groups.find(group => group.title === "Skill Management").pages.pop();
+    skills.pages.pop();
     await writeFile(target, JSON.stringify(manifest));
     const missing = spawnSync(node, [script, "--source-root", source], { encoding: "utf8" });
     assert.equal(missing.status, 1);
     assert.match(missing.stderr, /Navigation coverage failed/);
   } finally { await writeFile(target, original); }
+});
+
+test("split reading controls remain required and accessibility tokens cannot disappear", async () => {
+  const htmlPath = path.join(source, "docs/index.html"), readingPath = path.join(source, "docs/assets/docs-reading.js");
+  const html = await readFile(htmlPath, "utf8"), reading = await readFile(readingPath, "utf8");
+  try {
+    await writeFile(htmlPath, html.replace('<script src="assets/docs-reading.js"></script>', ""));
+    const missing = spawnSync(node, [script, "--source-root", source], { encoding: "utf8" });
+    assert.equal(missing.status, 1); assert.match(missing.stderr, /load reading controls/);
+    await writeFile(htmlPath, html);
+    await writeFile(readingPath, reading.replaceAll("aria-current", "removed-current"));
+    const inaccessible = spawnSync(node, [script, "--source-root", source], { encoding: "utf8" });
+    assert.equal(inaccessible.status, 1); assert.match(inaccessible.stderr, /missing contract: aria-current/);
+  } finally { await writeFile(htmlPath, html); await writeFile(readingPath, reading); }
 });
 
 test("fenced examples cannot satisfy a real Markdown fragment link", async () => {

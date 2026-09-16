@@ -33,10 +33,11 @@ You need:
 - A research question or a small research task whose result can be checked.
 - Access to the data, source documents, or other evidence that the task needs.
 
-If the project has not been configured, run `/cg-setup` first. It creates or
-checks the project configuration and can activate the research suite. If you
-are working in a project that uses both technical and research workflows, keep
-both suites active.
+For a new unconfigured project, the default suite is `cg`; where `/cg-setup` is
+eligible, use it to create or check configuration before selecting CR. Do not
+invoke that prompt in an already configured CR-only project. Check the existing
+configuration and knowledge structure using the [configuration guide](../configuration/index.md)
+instead. Keep both suites active only when the project needs both workflows.
 
 ## Activate the research suite
 
@@ -81,7 +82,7 @@ research process that makes the next human review easier.
 
 ## If you get stuck
 
-- No project configuration: run `/cg-setup`.
+- No project configuration: use the eligible setup route above; do not bypass suite eligibility.
 - The research command is unavailable: check that `suites` includes `cr`, then
   refresh the linked installation with the project's normal update path.
 - The question is too broad: return to `/cr-brainstorm` and ask it to narrow

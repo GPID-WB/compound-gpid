@@ -308,8 +308,14 @@ function validatePagesWorkflows(builder, controller) {
   const siteScript = await readFile(path.join(docsRoot, "assets", "site.js"), "utf8");
   const legacyHeadings = !siteScript.includes("DocsContract.parseDocument");
   if (!legacyHeadings && !html.includes('src="assets/docs-contract.js"')) throw new Error("Site shell must load the shared docs contract.");
+  let readingScript = "";
+  if (siteScript.includes("DocsReading.")) {
+    const readingPosition = html.indexOf('src="assets/docs-reading.js"');
+    if (readingPosition < 0 || readingPosition > html.indexOf('src="assets/site.js"')) throw new Error("Site shell must load reading controls before the runtime.");
+    readingScript = await readFile(path.join(docsRoot, "assets", "docs-reading.js"), "utf8");
+  }
   for (const contract of ["navigation.json", "navigationRequest", "aria-current", "setNavigationOpen"]) {
-    if (!siteScript.includes(contract)) throw new Error(`Site runtime is missing contract: ${contract}`);
+    if (!`${siteScript}\n${readingScript}`.includes(contract)) throw new Error(`Site runtime is missing contract: ${contract}`);
   }
 
   if (legacySource) {

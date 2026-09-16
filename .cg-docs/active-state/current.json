@@ -1,6 +1,6 @@
 {
   "schemaVersion": "compound-gpid-active-state-v1",
-  "updatedAt": "2026-09-16T18:05:10Z",
+  "updatedAt": "2026-09-16T23:04:18Z",
   "workflow": "/cg-work",
   "status": "handoff",
   "branch": "improve-website-design",
@@ -10,15 +10,17 @@
   "evidenceStatus": [
     {"id": "V1", "status": "passed", "artifact": ".cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign.md"},
     {"id": "phase1-full-suite", "status": "passed-unfiltered-2992-pass-0-fail-2-reported-skipped", "artifact": ".cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign-phase1-pester.json"},
-    {"id": "V2", "status": "uncompleted-approved-ci-recovery-awaiting-browser-red-baseline", "artifact": ".cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign.md"},
-    {"id": "V3", "status": "not-started", "artifact": null},
-    {"id": "ci-browser-recovery", "status": "READY-parent-checkpoint-commit-push-and-dispatch-pending", "artifact": ".cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign.md"},
-    {"id": "ci-checkpoint-full-suite", "status": "passed-unfiltered-3011-pass-0-fail-2-update-skips-environmental-retry", "artifact": ".cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign.md"},
-    {"id": "phase2-full-suite", "status": "not-ready", "artifact": null}
+    {"id": "V2", "status": "implementation-ready-NEEDS_REMOTE_BROWSER-and-accessibility-review", "artifact": ".cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign.md"},
+    {"id": "V3", "status": "scoped-technical-and-research-content-reviews-passed-four-P2s-independently-verified", "artifact": ".cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign.md"},
+    {"id": "ci-browser-recovery", "status": "resolved-source-bound-red-run35132434045-attempt1-lock-applied", "artifact": ".cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign.md"},
+    {"id": "ci-checkpoint-full-suite", "status": "passed-fresh-2026-09-16T23:01:05Z-unfiltered-3011-pass-0-fail-2-update-skips", "artifact": ".cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign.md"},
+    {"id": "phase2-docs-node", "status": "prior-full-158-pass-current-targeted-37-pass-zero-fail-zero-skip", "artifact": ".cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign.md"},
+    {"id": "phase2-full-suite", "status": "passed-fresh-unfiltered-3011-pass-0-fail-2-update-skips-phase2-incomplete", "artifact": ".cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign.md"}
   ],
   "unresolvedDecisions": [],
   "artifactRefs": [
-    {"kind": "execution-report", "path": ".cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign.md", "status": "run6-checkpoint-gate-and-parent-reviews-passed-commit-push-dispatch-pending-no-pr-or-deploy-before-step9-dev-only"},
+    {"kind": "execution-report", "path": ".cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign.md", "status": "run9-early-test-checkpoint-ready-content-review-and-fresh-gate-passed-browser-pending"},
+    {"kind": "content-migration", "path": "scripts/tests/fixtures/docs-redesign/phase2-content-edits.json", "status": "technical-reviewer-verified-final-evidence-in-report-fixture-unchanged"},
     {"kind": "phase1-full-suite", "path": ".cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign-phase1-pester.json", "status": "passed-cleanup-warning-recorded-pending-count-not-recorded"},
     {"kind": "previous-workflow-snapshot", "path": ".cg-docs/active-state/2026-09-13-release-controller-handoff.json", "status": "historical-unrelated-workflow"}
   ],

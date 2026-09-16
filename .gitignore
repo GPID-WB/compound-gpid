@@ -29,6 +29,9 @@ Thumbs.db
 .idea/
 .tmp/
 
+# Local proposal preserved unchanged in .cg-docs/archive/.
+/.kilo/plans/1789505624639-documentation-ia-ux-redesign.md
+
 # Python
 __pycache__/
 *.py[cod]

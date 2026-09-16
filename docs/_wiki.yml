@@ -1,5 +1,8 @@
 # Project-wiki ownership manifest. Public site navigation is defined in
 # docs/navigation.json and validated independently.
+# Nested Skill Management and command-hub prose is manually maintained outside
+# this root-page wiki manifest. Operation references remain manual. Existing
+# syntax/summary generation remains with rebuild-docs until Gate B.
 schemaVersion: "compound-gpid-wiki-v1"
 folder: "docs"
 pages:

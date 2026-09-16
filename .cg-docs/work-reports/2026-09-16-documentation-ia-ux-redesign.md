@@ -750,3 +750,417 @@ before original Step 9, and any eventual PR must target `dev` only.
 
 Metadata-update preflight: plan `cg-render-artifact --validate-only` passed.
 No Pester, browser, or Actions run was performed by this task during this update.
+
+## Run 7: Phase 2 Resumed After Remote RED, 2026-09-16T18:20:43Z
+
+The parent completed the approved feature-branch checkpoint at
+`98c5e7181ccda3947a9e93eace87b5ecc9826000`. Remote run
+https://github.com/GPID-WB/compound-gpid/actions/runs/35132434045 is bound to that
+exact SHA, `workflow_dispatch`, branch `improve-website-design`, attempt 1.
+Read the downloaded provenance record: dependency/lock repair and Chromium
+installation succeeded. Node 22.23.2, Playwright 1.52.0, axe-core 4.10.3,
+Chromium 136.0.7103.25. Docs Node: 149 passed. Browser: 15 total, 9 passed,
+6 failed, 0 skipped/flaky; no collection errors. This run is RED, not GREEN.
+
+Red-phase confirmed: seven-group assertion expected 7 `[data-nav-group]` nodes,
+got 0; section/history TOC link absent; missing-section route notice absent;
+denied localStorage prevented article startup; root and dev overflow at 320 px.
+These executed failures establish Step 2's behavior baseline before implementation.
+
+Parent-verified artifact: `docs-browser-evidence-35132434045-1`, ID 10461064674,
+SHA-256 `ebf862a3dd020d477c405bb03674ac4d2d3695c9ac81f1467068f19136497718`.
+Local evidence root: `C:/Users/wb384996/AppData/Local/Temp/3/kilo/docs-browser-evidence-35132434045-1`.
+The parent applied only the verified repaired lockfile, SHA-256
+`5641c6e80be9b96c88dfda09157be84bc96920c585e395c92e2b02ad9f4c22c1`;
+exact dependency pins remain unchanged. Preserve this change.
+
+Plan validation passed on resume. The previous halt is resolved by the user's
+approved CI fallback, not by an evidence waiver. No local npm installation or
+browser run is allowed. Parent owns checkpoint/push/Actions, Pester, and subject
+reviews. Later browser runs must disable lock repair. No PR before pipeline
+Step 9; eventual base is dev only. The separate generated-proposal preflight
+issue belongs to the parent researcher: this task must not change the proposal,
+its links, or the preflight checker. Preserve unrelated untracked `.kilo` scratch
+files. The 3011-pass checkpoint Pester run is not phase 2 completion evidence.
+
+Current status: active Step 2-3 implementation. V2/V3 and fresh phase 2 full-suite
+evidence remain incomplete. No phase completion, commit, push, or later command
+is performed by this task. Functional recovery attempts: 0 of 2 per step.
+
+### Phase 2 Implementation Handoff: 2026-09-16T18:52:54Z
+
+Status: `NEEDS_REMOTE_BROWSER` and `NEEDS_CONTENT_REVIEW`. Steps 2-3 implementation
+is ready for those checks. It is not phase completion. No `completed-phases`,
+`current-phase`, or plan-body change was made. No later phase was started.
+
+#### Implemented Scope
+
+- Seven task-oriented primary groups, with all 76 IDs and source paths retained.
+  Primary groups use actual collapsible buttons and open the active group. Hidden
+  references stay registered, validated and searchable; compatibility stubs are
+  excluded from search. No numeric prefixes or literal backticks in labels.
+- `docs/assets/docs-reading.js` owns primary-navigation controls, article-only
+  H2/H3 TOC, breadcrumbs, contextual next steps, permalinks, passive current-section
+  tracking, geometry measurement, and mobile focus. The router remains in
+  `site.js`; both scripts stay below 300 lines. The TOC is a separate right rail
+  on desktop and an independent collapsible block above the article at narrower
+  widths, never part of the primary drawer.
+- Same-page section changes retain the parsed article and do not fetch/render
+  again. Redirect mappings are applied before loading. Skip-to-content keeps the
+  current route. Loading/errors clear the TOC and disconnect route observers.
+  Storage reads/writes are guarded; the DOM retains an in-memory theme choice.
+  Existing escaping and navigation-request race guard remain.
+- Paper/navy typography is retained. Technical, Research and Shared text badges
+  use distinct accessible color tokens; safe fixed-label callouts do not enable
+  embedded HTML. Homepage Technical and Research entry paths have equal treatment.
+- `modular-guide.md` now leads with the engineering-question/research-claim
+  comparison, suite examples, and bounded mixed-work handoffs. Existing headings
+  remain. Getting Started and Research Start Here qualify `/cg-setup` by actual
+  suite eligibility, rather than requiring an inactive prompt in a CR-only project.
+- Skill Management is one guide with the eight required H2 sections. All 17 old
+  narratives are short raw-Markdown compatibility pages with preserved headings
+  and explicit links. All 12 operation-reference files are byte-unchanged; their
+  descriptor paths, result anchors and guide links remain valid. The migration
+  tests cover all 29 management entries plus importing content and every frozen
+  old-heading destination.
+- The command hub has complete editorial checklist rows for every shipped prompt
+  and shell wrapper, distinct chat/terminal context, role/suite prerequisites,
+  expected output, approval/verification, failure and next step. Eight task
+  recipes are in `docs/workflows/index.md`. Exact generated syntax/summary ownership
+  remains unchanged until Gate B; no help catalog or runtime-support claim was added.
+- The site validator now checks the actually loaded reading helper plus router,
+  and rejects a missing helper or missing accessibility contract. Existing legacy
+  shells still validate through their original single-script path. No publication
+  authority, channel identity, producer upgrade, or release policy was changed.
+
+#### Source Reconciliation And Content Checklist
+
+Current `.github/shared/module-registry.json` declares `cap-skill-management`
+support for `cg` only. The guide and command entry therefore use Technical, not a
+guessed Shared classification. Capability-layer membership alone does not prove
+cross-suite support. Rendering/report-writing capabilities retain their actual
+shared support distinction without granting inactive chat prompts eligibility.
+The new badge test compares display against canonical support metadata.
+
+The wiki generator permits root-page entries, not nested paths. The final
+`docs/_wiki.yml` retains its existing structured entries and generated owners;
+an explanatory comment records manual ownership of nested guide/command prose.
+No validator was relaxed to admit unsupported paths.
+
+`scripts/tests/fixtures/docs-redesign/phase2-content-edits.json` records nine
+explicit importing-content edits, their old-block selectors, canonical authority,
+rationale, and mandatory replacement text. The edits correct scope-specific
+admission, include the already-supported opaque SVG/resource-class rule, label
+synthetic examples, and make plan/apply distinct. Every other preserved block is
+checked after only heading-level, whitespace and relative-link normalization.
+All retained operation contracts still have exact original hashes. The new edit
+record is subject-review input, with `reviewStatus: pending-parent-subject-review`;
+it is not reviewer approval and does not change the frozen phase 1 inventory.
+
+| V3 checklist item | Executed evidence / remaining review |
+| --- | --- |
+| CG/CR comparison and bounded mixed handoff | Link/heading checks pass; technical and research semantic review pending |
+| Seven groups and complete registration | Validator: 76 pages, 7 groups; all frozen routes/headings pass |
+| One guide, 17 compatibility narratives, 12 retained references | Migration/content tests pass for all 30 preservation pages; subject review of nine edits pending |
+| Every public command checklist and eight recipes | Source-inventory coverage test passes; invocation/output/approval semantics need parent subject reviewers |
+| Descriptors and evidence anchors | All 12 descriptors still point to registered unchanged operation files; result anchors and canonical consumer links pass |
+| One generated owner / manual prose | Complete build freshness and existing managed-interior/prose-preservation tests pass |
+| Visual/screen-reader usability | Remote browser/axe/screenshots and focused accessibility review still required; not replaced by Node tests |
+
+Canonical sources inspected for this work include module registry and vendor
+policy, the import descriptor, retained operation contracts, and the canonical
+`cg-skill`, `cg-release`, `cg-render-doc`, `cg-roadmap-view`, and commit/PR prompt
+contracts. Remaining commands use the current generated reference and focused
+workflow guides; parent reviewers must check their exact canonical prompts/wrappers.
+No complete independent subject review is claimed by this implementation task.
+
+#### Executed Checks And Recovery
+
+| Command/check | Actual result |
+| --- | --- |
+| `node --test --test-name-pattern "phase 2" scripts/tests/docs-migration.test.js` before content/navigation edits | RED: 2 failed, identifying the old guide structure and eight old groups |
+| Initial migration/navigation check | 30 passed, 1 failed; preservation matcher exposed nine explicitly edited importing blocks; the separate migration record now binds each old block to required source-correct text |
+| Subsequent migration/navigation check | 35 passed, 1 failed; incorrect new assumption of CG+CR skill-management support rejected by current source; documentation/badge corrected without changing suite metadata |
+| Intermediate `node scripts/rebuild-docs.js --check --all` | Failed: `traversal rejected in wiki manifest page file: skills/management/index.md`; removed this task's unsupported nested entry, retained manual ownership and existing validation |
+| First complete registered docs Node inventory after shell split | 156 tests: 133 passed, 23 failed. Runtime validator still searched only `site.js` for `aria-current`, and hidden-reference fixture selected the retired group title. No publishing assertions were waived |
+| Final complete registered docs Node inventory | **158 passed, 0 failed, 0 skipped/cancelled/todo; 19.564 seconds**. Includes new negative helper/accessibility validation and source-bound badge checks |
+| `node scripts/check-docs-site.js` final | Passed: 76 pages, 7 groups, complete skills catalog |
+| `node scripts/rebuild-docs.js --check --all` final | Passed: complete build current |
+| `node --check docs/assets/site.js` | Passed after final navigation-module split |
+| `node --check docs/assets/docs-reading.js` | Passed after final navigation-module split |
+| `node --check scripts/check-docs-site.js` | Passed after final validator change |
+| `node --check scripts/tests/docs-browser.spec.js` | Passed; syntax only, not browser execution |
+| `node scripts/tests/fixtures/docs-redesign/capture-baseline.js --check` | Passed read-only: 76 routes, 30 preservation pages, 347 inbound links, 7 explicit alias decisions |
+| Plan `cg-render-artifact --validate-only` | Passed on resume and at handoff; phase metadata unchanged |
+| `git diff --check` | Passed; existing LF-to-CRLF checkout warnings only |
+
+Conservative recovery accounting: Step 2 used two correction rounds (source-bound
+badge correction, then split-runtime validator/fixture alignment). Step 3 used
+two rounds (explicit content-migration reconciliation and removal of unsupported
+nested wiki entries). No failing local test remains. If remote behavior or later
+required tests fail, return the exact failure to the parent for the bounded-recovery
+decision rather than silently start extra repair loops or accept missing evidence.
+
+The final Node command was the exact current `test:docs-automation` inventory,
+executed directly to avoid the unavailable local npm setup:
+
+```powershell
+$env:TEMP = 'C:\Users\wb384996\AppData\Local\Temp\3\kilo'
+$env:TMP = $env:TEMP
+node --test --test-reporter=spec scripts/tests/rebuild-docs.test.js scripts/tests/generate-whats-new.test.js scripts/tests/release-version.test.js scripts/tests/docs-snapshots.test.js scripts/tests/legacy-pages.test.js scripts/tests/assemble-docs-site.test.js scripts/tests/check-docs-site.test.js scripts/tests/docs-navigation.test.js scripts/tests/docs-build-contract.test.js scripts/tests/docs-migration.test.js scripts/tests/docs-preview-runtime.test.js scripts/evidence/tests/release-pages.test.js
+```
+
+The short TEMP parent was verified first. These variables were process-local.
+Existing Windows file-symlink EPERM coverage uses the portable Dirent boundary;
+no native symlink qualification is claimed. No local npm install, browser run,
+Pester run, or persistent environment change was performed. Editor diagnostics
+remain unavailable; JavaScript syntax checks are not an editor-diagnostics pass.
+
+#### Tested Source Identity
+
+HEAD remains `98c5e7181ccda3947a9e93eace87b5ecc9826000`; the final Node run tested
+the uncommitted implementation plus the parent-applied lockfile. These blobs came
+from `git hash-object --no-filters`, in the final tested working tree:
+
+| Path | Blob |
+| --- | --- |
+| `docs/assets/site.js` | `d6c05b63476609effcf9722db8241faab7c1bff9` |
+| `docs/assets/docs-reading.js` | `519692548d6995034cb3c0f5d45dec45672ddc76` |
+| `docs/assets/docs-contract.js` | `4048cc15e627ba6d4b8253971bbfd011a9a3dfc9` |
+| `docs/assets/site.css` | `858a408ab3e6591721fa1f4faebab883be8be254` |
+| `docs/index.html` | `a410f14947b4f31e8559ceca2b4258aa6494140e` |
+| `docs/navigation.json` | `2a9e6783493356390d0491e6b1626bdbf0a8219b` |
+| `docs/modular-guide.md` | `b3f80b6e8661a02271173326016bee01f2c23191` |
+| `docs/skills/management/index.md` | `6f15fe6e7760148398bd838f08f299c74df75299` |
+| `docs/reference/commands.md` | `3779ec80b075861da81446a2a8d1e8489eff11fe` |
+| `docs/workflows/index.md` | `d2431afdb4a43bca4ff4f30a794accbb6c8b3bb9` |
+| `scripts/check-docs-site.js` | `7ef71322f5ff3eb50bb6e11205fcf88c6fb27ffc` |
+| `scripts/tests/check-docs-site.test.js` | `b2674bc9c4b00b42bd9927afb5d906d9e6f0787b` |
+| `scripts/tests/docs-navigation.test.js` | `0d0bd9d51ca391268e5dd1d336aae62e2d47ea4b` |
+| `scripts/tests/docs-migration.test.js` | `24c4f9fa7516faf6f3caf1f3756ad96a92b0d93d` |
+| `scripts/tests/docs-browser.spec.js` | `e8f81c34e4a85aeceab60a6e2a5d2390209d8c95` |
+| `scripts/tests/fixtures/docs-redesign/phase2-content-edits.json` | `61bc69471e12fcbdfc6ba97977912b1bf1418f8b` |
+| Parent-applied `package-lock.json` | `40093fd2e527b6520d006858889568d84ba7cea8` |
+
+#### Exact Parent Requests
+
+1. `NEEDS_REMOTE_BROWSER`: after the authorized allowlisted checkpoint/push,
+   dispatch `gh workflow run tests.yml --repo GPID-WB/compound-gpid --ref improve-website-design`
+   with lock repair disabled/default false. Run the entire
+   `npm run test:docs-browser -- --reporter=line,json` suite, not a filtered subset.
+   Expected current collection is 18 tests. Retain JSON, trace/error output,
+   responsive screenshots and run/package/lock/source provenance. Verify the
+   exact checkpoint SHA and attempt before accepting results. The independent
+   native-preflight proposal issue is owned by the parent researcher, not waived.
+2. `NEEDS_CONTENT_REVIEW`, technical/documentation reviewer: review
+   `docs/reference/commands.md`, `docs/workflows/index.md`,
+   `docs/getting-started/index.md`, `docs/modular-guide.md`,
+   `docs/skills/management/index.md`, all 17 changed compatibility narratives,
+   and `scripts/tests/fixtures/docs-redesign/phase2-content-edits.json` against
+   canonical prompts, bin wrappers, descriptors, vendor policy and module registry.
+   Focus on all command checklist rows, eight recipes, CG-only skill eligibility,
+   nine importing edits, unique safety/examples, exact apply grammar and retained
+   operation/evidence paths. Do not infer that passing links proves semantics.
+3. `NEEDS_CONTENT_REVIEW`, research reviewer: review `docs/modular-guide.md`,
+   `docs/research/index.md`, the Research entries in `docs/reference/commands.md`,
+   and Run Research/mixed-work recipes in `docs/workflows/index.md`. Verify
+   comparability, welfare/PPP/survey-design assumptions, human normative choices,
+   research integrity and the `/cg-review` versus `/cr-review` boundary against
+   current canonical CR prompts. No claim certification or new host-support claim.
+4. Required visual/accessibility review: inspect the new root/dev responsive
+   screenshots and browser keyboard/axe evidence; review landmarks, focus and
+   heading announcements, separate mobile TOC/drawer, actual banner offsets,
+   light/dark contrast, 200% zoom and 320px layout. Record what was actually checked;
+   absent screen-reader evidence is not a pass.
+5. `NEEDS_FULL_SUITE`: through the safety-loaded dedicated parent test subagent,
+   run `. tests\Run-Tests.ps1` with no flags or pipeline and approved short
+   process-local TEMP/TMP. Return fresh timestamp, source identity, counts,
+   failures, `failFast`, `filteredFiles`, missing-file skips and pending/skip
+   qualifications. The prior 3011-pass checkpoint is not this phase's gate.
+
+Only after all required V2/V3 evidence and the fresh full-suite gate pass may the
+parent resume this phase to finalize completion metadata. No evidence exception
+is approved. V1 remains preserved; V4-V8 are not completed by this work. C1-C7
+remain enforced within phase 2 scope; phase 3 publishing, search and identity
+guarantees are not claimed. Unrelated `.kilo` scratch files, original proposal
+and plan links, roadmap, frozen fixtures, and existing release-note output remain
+untouched. No commit, push, PR, deployment, five-minute PR wait, or later pipeline
+step was performed by this implementation task.
+
+## Run 8: Four Technical Content Corrections, 2026-09-16T22:54:10Z
+
+Status: `NEEDS_REMOTE_BROWSER`; technical reviewer verification and fresh safe
+Pester evidence also remain required. Scope was the four concrete P2 corrections
+reported by parent reviewer `cg-documentation`, followed only by targeted Node,
+generation, preservation, metadata, and whitespace checks. These are explicitly
+authorized content-review remediations, not a new test-failure repair allowance.
+No new failing test or additional repair loop occurred in this run.
+
+### Received Reviews
+
+Parent supplied the technical review with four P2 findings below. The corrections
+are applied, but the technical reviewer has not yet verified them. No clean
+technical-review result is claimed.
+
+Parent supplied a passing research review of `docs/modular-guide.md`,
+`docs/research/index.md`, the CR checklist/reference material, and research/mixed
+recipes. It reported no P0 or material discrepancy, no claim certification, and
+no new host-support claim. Those scoped conclusions are retained. This run did
+not change that research content or rerun its review. The research pass does not
+supply missing technical, browser, accessibility, or full-suite evidence.
+
+### Corrections And Canonical Verification
+
+| Finding | Correction | Canonical source read before editing |
+| --- | --- | --- |
+| Select-before-fix recipe used autofix review | Both review passes in `docs/workflows/index.md` now use `/cg-review standard --report-only`. The recipe says to decline interactive Fix offers until selecting findings for triage. The review checklist in `docs/reference/commands.md` states that default review immediately applies `safe_auto` fixes and can edit files; manual fixes require approval | `.github/prompts/cg-review.prompt.md:257-267` |
+| High-risk onboarding forced light review | `docs/getting-started/index.md` now uses `/cg-review` for automatic risk routing and explains that an explicit depth overrides routing and must match risk | `.github/prompts/cg-review.prompt.md:63-77` |
+| Strategy prerequisite permitted only an objective | The strategy checklist requires existing `compound-gpid.md` and a resolved project type from local settings or clarification. Missing-charter recovery is `/cg-setup`; missing or blank project type must be resolved before proceeding | `.github/prompts/cg-strategy.prompt.md:33-44` |
+| Import table claimed frontmatter validation for every Markdown file | `docs/skills/management/index.md` now states `Strict frontmatter validation for SKILL.md`; the matching required text and rationale in the phase 2 content-edit record were corrected | `scripts/skill_management/services/admission.py:544-557` delegates bundle inventory; `scripts/skill_management/services/bundles.py:614-623` parses `SKILL.md` |
+
+Only those four Markdown files, the associated non-frozen
+`scripts/tests/fixtures/docs-redesign/phase2-content-edits.json`, this report, and
+active state were edited by this run. No runtime, canonical prompt, Python,
+package, lockfile, or frozen-baseline change was made.
+
+### Executed Checks
+
+| Command | Actual result |
+| --- | --- |
+| `node --test scripts/tests/docs-migration.test.js scripts/tests/docs-navigation.test.js` | **37 passed, 0 failed, 0 skipped/cancelled/todo** |
+| `node scripts/rebuild-docs.js --check --all` | Passed: complete build current; no generated output written |
+| `node scripts/check-docs-site.js` | Passed: 76 pages, 7 groups, complete skills catalog |
+| `node scripts/tests/fixtures/docs-redesign/capture-baseline.js --check` | Passed read-only: 76 routes, 30 preservation pages, 347 inbound links, 7 explicit alias decisions |
+| `./bin/cg-render-artifact.cmd --validate-only .cg-docs/plans/2026-09-16-documentation-ia-ux-redesign.md` | Passed; parent-approved source link retained |
+| `git diff --check` | Passed; existing LF-to-CRLF checkout warnings only |
+
+The earlier 158-pass complete docs Node run preceded these four content
+corrections. The current result is the 37-test targeted run, not a fresh complete
+Node or Pester run. No browser, Pester, installation, commit, push, PR, deployment,
+or later-phase command ran here. V2/V3 remain incomplete and phase metadata is not
+advanced.
+
+### Parent Bookkeeping Preserved
+
+Parent reports separately approved recovery changes: the exact proposal archive
+at `.cg-docs/archive/2026-09-16-documentation-ia-ux-redesign-proposal.md`, original
+proposal retained as ignored/untracked after staged index removal, one approved
+plan source-link update, and the nullable-handoff test correction plus 11
+regressions (94 tests passed in the parent's run). The reported original/archive
+SHA-256 is `8c99c6e075d3894abeaf3db9c3ff396a527831a8e065820098adc675ab87d0c6`.
+These changes, `.gitignore`, and `scripts/tests/test_issue_dispatch.py` were not
+edited, reverted, staged, or tested again by this task. The parent removed only
+the eight test-created pyfm/pysum scratch scripts; this task did not remove
+anything. The two old `.kilo` fixture directories remain untouched.
+
+### Exact Technical Re-Verification Scope
+
+Recheck only the four reported P2s against the canonical sources in the table:
+`docs/workflows/index.md:130-147`, `docs/getting-started/index.md:112-125`,
+`docs/reference/commands.md:125` and `:133`,
+`docs/skills/management/index.md:381`, and the frontmatter required-text entry in
+`scripts/tests/fixtures/docs-redesign/phase2-content-edits.json:49-52`.
+Confirm report-only still presents optional Fix offers, explicit depth overrides
+risk routing, strategy hard-stops without its charter, and strict frontmatter
+validation is specific to `SKILL.md`. Do not close these findings from this
+implementer's report alone.
+
+Corrected working-tree identities from `git hash-object --no-filters`:
+
+| Path | Blob |
+| --- | --- |
+| `docs/workflows/index.md` | `baac83dd15d80f9c4fa7b6be17fcbd4158e8415f` |
+| `docs/getting-started/index.md` | `2a9d742722e3820a2fa41eea0311833f6d73c025` |
+| `docs/reference/commands.md` | `3762c39a1766975e9eec58a0734a56473a4f7783` |
+| `docs/skills/management/index.md` | `73d36db92e3bf166418cbe74e4d053ed2eb85875` |
+| `scripts/tests/fixtures/docs-redesign/phase2-content-edits.json` | `bc125b343806bf5384813bf20a7ea1ab1a10d4d0` |
+
+Parent owns technical re-verification, fresh safe Pester, and the subsequent
+authorized remote checkpoint/push and complete browser CI with lock repair
+disabled. Previous exact remote-browser/artifact requirements remain in force.
+No PR before pipeline Step 9; eventual PR base remains `dev` only. No new task
+was dispatched and no missing evidence was accepted as a pass.
+
+## Run 9: Early Test Checkpoint, 2026-09-16T23:04:18Z
+
+This is the explicitly approved EARLY TEST CHECKPOINT, not pipeline Step 9 or
+`/cg-commit-push-pr`. Scope is the existing phase 2 implementation, verified
+lockfile repair, and separately approved proposal bookkeeping and nullable
+handoff test correction. Only this report and active state are edited in this
+checkpoint preparation. No product or test code changed after the fresh gate.
+
+### Final Content Review Evidence
+
+The parent supplied the final scoped V3 results. Technical reviewer
+`ses_f539f41a3ffeZaH3Kcl1mnLawm` independently verified all four Run 8 P2 fixes:
+report-only review with optional Fix offers declined, risk-routed onboarding,
+strategy charter/project-type prerequisites, and `SKILL.md`-specific frontmatter
+validation. The scoped technical review passed. Research reviewer
+`ses_f539f41a0ffeRAz138t3Xg7maN` earlier passed the research semantic scope with no
+material findings. These are content-review results, not browser, accessibility,
+or whole-plan approval. The five corrected source blobs in Run 8 still match.
+The content-edit fixture's pending-review label is historical input; final
+review evidence is recorded here without changing the tested fixture.
+
+Retained executed checks: migration/navigation 37 passed after correction;
+complete docs Node 158 passed before correction; site validation passed for
+76 pages and 7 groups; complete build freshness and frozen baseline checks
+passed. Parent-supplied native correction evidence: issue-dispatch 94 passed
+and drift 19 passed after removal of only the parent's eight scratch Python
+scripts. No local test was rerun for this checkpoint preparation.
+
+### Fresh Full-Suite Gate
+
+Read the fresh `tests/last-run.json` and confirmed these fields against the
+parent's dedicated safe-runner result. This replaces the earlier pending
+full-suite request, but does not complete phase 2.
+
+| Field | Verified result |
+| --- | --- |
+| Command | `. tests\Run-Tests.ps1`, parent dedicated subagent, no flags or pipeline |
+| Start reported by parent | `2026-09-16T22:57:19.6395337Z` |
+| Artifact ranAt | `2026-09-16T23:01:05Z` |
+| Source HEAD | `98c5e7181ccda3947a9e93eace87b5ecc9826000` |
+| Artifact gitSha | `98c5e718`, matching source HEAD |
+| Parent-reported exit / passed | 0 / true |
+| Total / passed / failed / skipped | 3013 / 3011 / 0 / 2 |
+| Skip location | Both in `update`; separate pending counts and individual reasons not recorded |
+| failFast / filteredFiles | false / null |
+| failures / missing-file skips | Empty arrays |
+| Completeness | All 21 canonical test files present |
+| Relevant files | docs-automation 24/24; docs-preview 10/10; wiki 126/126 |
+| Artifact Git blob, no filters | `2b73b648113aa71b5845b1342f6aeb625d192878` |
+
+The runner used the approved short process-local TEMP/TMP path
+`C:\Users\wb384996\AppData\Local\Temp\3\kilo`. The parent reported
+non-terminating cleanup warnings. They remain a cleanup qualification, not a
+failed test or evidence exception. Do not report all 3013 tests as passed.
+
+### Checkpoint Boundary
+
+Inspected Git status, actual diffs, and the ten recent commits. HEAD and the
+existing upstream both match the source SHA above. The retained local proposal
+and archive both have SHA-256
+`8c99c6e075d3894abeaf3db9c3ff396a527831a8e065820098adc675ab87d0c6`.
+The original remains present and ignored by its exact path; its existing staged
+deletion is preserved. The plan has only the approved source-link revision.
+The repaired lockfile still has SHA-256
+`5641c6e80be9b96c88dfda09157be84bc96920c585e395c92e2b02ad9f4c22c1`.
+
+Stage only the approved changed docs sources, phase 2 helper/tests/content-edit
+fixture, `.gitignore`, issue-dispatch test, archive, plan, report, state, and
+lockfile. Exclude both leftover `.kilo` GUID directories, all scratch/temp files,
+`tests/last-run.json`, and downloaded artifacts. Preserve unrelated files.
+
+Status: ready for the approved checkpoint commit and push to
+`origin/improve-website-design`, then normal dispatch with no repair flag:
+
+```text
+gh workflow run tests.yml --repo GPID-WB/compound-gpid --ref improve-website-design
+```
+
+At this precommit record, commit/push/dispatch are pending. Stop after dispatch;
+do not run later pipeline steps. Browser/visual/accessibility evidence remains
+pending. Phase 2 remains incomplete, with `completed-phases: [1]`,
+`current-phase: 2`, and plan status active. No evidence exception, PR, deployment,
+or phase completion is authorized by this checkpoint. `nextCommand` stays null.

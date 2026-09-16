@@ -1,116 +1,51 @@
 # Importing External Skills
 
-Compound GPID supports importing external skills through a controlled,
-quarantined workflow. This ensures all imported content is security-scanned,
-reviewed, and registered with full provenance before entering the canonical
-source.
+This material moved to the unified [Skill Management guide](management/index.md#import-at-an-exact-sha).
 
 ## Overview
 
-The `/cg-skill import` operation provides two scopes:
-
-| Scope | Who uses it | What it does |
-|------|-------------|--------------|
-| `project` | Consumer projects | Quarantines content, produces evidence, and plans an inactive project record |
-| `plugin` | Maintainers (canonical source checkout) | Quarantines, reviews, and plans approved canonical vendoring |
+See [Start here](management/index.md#start-here) for consumer and maintainer roles.
 
 ## Usage
 
-```
-/cg-skill import <repo-url> <path> <full-sha> --license <id> [--scope project|plugin]
-```
+See [Import at an exact SHA](management/index.md#import-at-an-exact-sha).
 
 ### Arguments
 
-- **repo-url**: HTTPS URL of the source repository (must be on the allowlist)
-- **full-sha**: Full 40-character immutable commit SHA (no short SHAs, branches, or tags)
-- **path**: Path to the skill root within the repository (e.g., `.github/skills/skill-name/`)
-- **scope**: `project` (default) or maintainer-only `plugin`
+See [Import arguments](management/index.md#import-at-an-exact-sha) and the retained [operation contract](management/commands/import.md#options).
 
 ### Examples
 
-Consumer project — quarantine for review:
-```
-/cg-skill import https://github.com/Kilo-Org/kilocode .github/skills/cg-skill-example abc123def456abc123def456abc123def456abcd --license MIT
-```
-
-Maintainer — vendor after approval:
-```
-/cg-skill import https://github.com/Kilo-Org/kilocode .github/skills/cg-skill-example abc123def456abc123def456abc123def456abcd --license MIT --scope plugin --owner cap-example --capability example --suites cg --platforms copilot,kilo --activation-cost low --triggers example --selectors "[]" --approver maintainer --review-reference review=1111111111111111111111111111111111111111
-```
+See [Import examples](management/index.md#import-examples). Source identities in examples are illustrative.
 
 ## Workflow
 
+See [Plan and apply](management/index.md#plan-and-apply).
+
 ### 1. Consumer Review
 
-1. Run `/cg-skill import <repository> <path> <full-sha> --license <id>` in your consumer project.
-2. The importer fetches pinned content into `.compound-gpid/quarantine/`.
-3. Admission checks run: file extensions, path safety, symlinks, secrets, prompt-injection, frontmatter, binary content.
-4. A deterministic review diff is saved to `.compound-gpid/vendor-reviews/`.
-5. Review the diff and decide whether to approve.
+See [Project import](management/index.md#import-at-an-exact-sha). Review exact-source evidence before apply.
 
 ### 2. Maintainer Vendor
 
-1. Switch to the Compound GPID canonical source checkout.
-2. Run `/cg-skill import <arguments> --scope plugin` with all required canonical metadata.
-3. Same quarantine and admission as review mode.
-4. After approval, the bundle is copied to `.github/skills/` with provenance registration.
-5. The module registry is updated with vendor import metadata.
+See [Plugin vendoring](management/index.md#vendor-an-imported-skill). A separate approved plugin plan is required.
 
 ## Security Checks
 
-Every imported bundle passes through default-deny admission:
-
-| Check | What it catches |
-|-------|-----------------|
-| Repository allowlist | Only approved HTTPS repositories |
-| Full SHA requirement | Prevents mutable reference attacks |
-| Path safety | Traversal, hidden files, Unicode confusables, Windows reserved names |
-| File extension allowlist | Only `.md`, `.json`, `.yml`, `.yaml`, `.txt` |
-| Executable rejection | `.exe`, `.sh`, `.py`, `.ps1`, etc. |
-| Symlink/junction rejection | Prevents link-following attacks |
-| Secret scanning | API keys, tokens, passwords, AWS credentials |
-| Prompt-injection scanning | Instruction override attempts, shell execution patterns |
-| Binary content detection | Null bytes, non-UTF-8 content |
-| Bundle size limits | Max 1MB total, 64 files, 256KB per file |
-| Frontmatter validation | Valid YAML frontmatter on `.md` files |
+See [Acquisition and quarantine](management/index.md#acquisition-and-quarantine) for all admission checks and limits.
 
 ## Configuration
 
-The vendor policy is defined in `.github/shared/vendor-policy.json`:
-
-- **allowedRepositoryIdentities**: HTTPS URLs of approved source repositories
-- **allowedUpstreamSkillRoots**: Path prefixes that skills must be under
-- **maxBundleSizeBytes**: Maximum total quarantine size
-- **blockedSecretPatterns**: Regex patterns for secret detection
-- **blockedMarkdownInstructions**: Regex patterns for prompt-injection detection
-- **approvedLicenses**: SPDX identifiers of acceptable licenses
+See [Vendor policy](management/index.md#vendor-policy). Do not relax policy to admit a bundle.
 
 ## Quarantine and Review Evidence
 
-- Quarantine directory: `.compound-gpid/quarantine/`
-- Review evidence: `.compound-gpid/vendor-reviews/`
-- Both directories are gitignored (quarantine is ephemeral, reviews are local evidence)
+See [Quarantine and review evidence](management/index.md#quarantine-and-review-evidence).
 
 ## Vendor Registration
 
-Approved plugin imports receive canonical provenance and a capability record:
-
-```json
-{
-  "id": "example",
-  "owningModule": "cap-example",
-  "sourceProvenance": "vendor/https://github.com/example/skills@<full-sha>"
-}
-```
+See [Vendor registration](management/index.md#vendor-registration).
 
 ## Limitations
 
-- No automatic installation from arbitrary repositories
-- No remote runtime fetching or network execution
-- No semantic rewrites of imported skills (mechanical namespace/path rewrites only)
-- No public marketplace — only approved allowlisted repositories
-- Plugin scope requires a verified canonical feature-branch checkout
-
-See the complete [import operation](management/commands/import.md),
-[security controls](management/security.md), and [migration guide](management/migration.md).
+See [Limitations](management/index.md#limitations). Import does not authorize execution or activation.

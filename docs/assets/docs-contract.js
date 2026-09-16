@@ -149,21 +149,25 @@
     const pages = [], ids = new Set(), files = new Set();
     for (const group of manifest.groups) {
       if (!record(group) || typeof group.title !== "string" || !group.title.trim() || !Array.isArray(group.pages)) fail("invalid group");
+      if (group.ownerModule !== undefined && (typeof group.ownerModule !== "string" || !/^[a-z][a-z0-9-]*$/.test(group.ownerModule))) fail("invalid group owner");
       for (const page of group.pages) {
         if (!record(page) || typeof page.id !== "string" || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(page.id) || page.id === "home") fail("unsafe or reserved page ID");
         if (ids.has(page.id)) fail(`duplicate ID ${page.id}`);
         if (!safePath(page.file) || files.has(page.file)) fail(`unsafe or duplicate file ${page.file}`);
         if (![page.title, page.description].every(value => typeof value === "string" && value.trim())) fail(`incomplete metadata ${page.id}`);
         if (Object.hasOwn(page, "sidebar") && typeof page.sidebar !== "boolean") fail(`invalid sidebar ${page.id}`);
+        if (page.ownerModule !== undefined && (typeof page.ownerModule !== "string" || !/^[a-z][a-z0-9-]*$/.test(page.ownerModule))) fail(`invalid owner ${page.id}`);
+        if (page.next !== undefined && (!Array.isArray(page.next) || !page.next.every(id => typeof id === "string"))) fail(`invalid next steps ${page.id}`);
         if (Object.hasOwn(page, "sectionAliases") && !mapping(page.sectionAliases)) fail(`invalid aliases ${page.id}`);
         if (page.redirect !== undefined && (!record(page.redirect) || typeof page.redirect.page !== "string"
           || !mapping(page.redirect.sections) || (page.redirect.section !== undefined && !section(page.redirect.section))
           || Object.keys(page.redirect).some(key => !["page", "section", "sections"].includes(key)))) fail(`invalid redirect ${page.id}`);
-        pages.push({ ...page, group: group.title }); ids.add(page.id); files.add(page.file);
+        pages.push({ ...page, ownerModule: page.ownerModule || group.ownerModule, group: group.title }); ids.add(page.id); files.add(page.file);
       }
     }
     const byId = new Map(pages.map(page => [page.id, page]));
     for (const page of pages) {
+      if (page.next?.some(id => !byId.has(id) || id === page.id)) fail(`missing or circular next step ${page.id}`);
       const seen = new Set([page.id]);
       for (let current = page; current.redirect;) {
         const target = byId.get(current.redirect.page);

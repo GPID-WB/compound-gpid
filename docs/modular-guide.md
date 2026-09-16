@@ -1,5 +1,63 @@
 # Modular Guide — Technical (`/cg-*`) and Research (`/cr-*`) Suites
 
+## CG or CR: Choose a Workflow
+
+Choose by the question you must answer, not by programming language, whether you
+write code, or your level of experience. Both suites require human judgment,
+independent verification, and verified lessons.
+
+| Decision | Technical (CG) | Research (CR) |
+| --- | --- | --- |
+| Main question | Does the implementation meet engineering requirements? | Is the research claim supported by evidence, assumptions, and valid methods? |
+| Typical task | Fix a launcher, deliver a feature, maintain a service | Compare surveys, validate a published indicator, specify an estimator |
+| Review focus | Behavior, tests, security, maintainability, reproducibility | Provenance, comparability, identification, assumptions, uncertainty, research integrity |
+| Example | A quoted project path breaks a launcher | A survey redesign changes who is represented in a poverty estimate |
+| Start | [Choose a technical task](workflows/index.md) | [First CR workflow](research/first-workflow.md) |
+
+> [!TECHNICAL] A launcher repair belongs to CG. A passing launcher test shows that the invocation works; it does not establish a statistical claim.
+
+> [!RESEARCH] Statistical specification and published-indicator validation belong to CR, including their implementation code. Research review identifies evidence gaps; it does not certify a claim as true.
+
+### Mixed Work and Bounded Handoffs
+
+A research project can need a separate infrastructure repair. Keep the research
+question, assumptions, and integrity gates in the CR plan. Define the technical
+repair's inputs, expected behavior, tests, and return evidence in a bounded CG
+task when the CG suite is active. Return verified artifacts to the CR workflow
+before interpreting results. `/cg-review` does not replace `/cr-review`.
+
+CR composes shared language, testing, and reproducibility capabilities without
+depending on the CG suite. Enabling both suites does not merge their review
+responsibilities. Rendering and institutional report-writing capabilities have
+shared support metadata. Skill Management currently declares `cg` only, and the
+registry owns `cg-*` prompts in the Technical suite. A capability-layer module is
+not automatically shared, and a badge does not activate a prompt. Check canonical
+ownership, capability support, and the resolved project closure rather than the prefix.
+
+### Select the Suite Explicitly
+
+Use one of these configurations in `compound-gpid.local.md`, then follow
+[configuration](configuration/index.md) and [installation](installation.md) for
+the selected host. These are alternatives, not three successive edits.
+
+```yaml
+suites: [cg]
+```
+
+```yaml
+suites: [cr]
+```
+
+```yaml
+suites: [cg, cr]
+```
+
+The technical default is `[cg]` when the field is absent. `/cg-setup` requires an
+eligible technical workflow; selecting CR alone does not make that prompt active.
+The [Research Handbook](research/index.md) gives the CR-only activation path.
+
+## Architecture and Configuration
+
 Compound GPID is a modular plugin. The canonical `.github/` tree is organized
 into **modules** across three layers — **kernel**, **capability packs**, and
 **suites** — so every asset has one owner, dependencies stay acyclic and
