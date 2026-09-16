@@ -764,10 +764,10 @@
     },
     "pr153": {
       "mergeable": "MERGEABLE",
-      "mergeStateStatus": "CLEAN",
-      "headRefOid": "df1b37e8c75b1245bff8e2f8b9426747a5ecde6a"
+      "mergeStateStatus": "UNSTABLE",
+      "headRefOid": "de5eba68904d86a56fe72be7a4393a98a567765c"
     },
-    "ci": "checks initial state only; /cg-verify-pr later",
+    "ci": "checks initial state at head de5eba6: SUCCESS x8, SKIPPED x4, in-progress x7; FAILURE x3 (Native target Python gate macos-14, Native target Python gate ubuntu-24.04, Pester macos-14) - run in progress, job logs pending; POSIX-only tests not covered by local Windows gates; CI verification is later /cg-verify-pr scope",
     "gates": [
       {
         "id": "focused-install",
