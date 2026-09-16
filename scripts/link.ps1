@@ -1059,6 +1059,20 @@ foreach ($platform in $selectedPlatforms) {
     }
 }
 
+# Control helper availability is a read-only report. The autopilot control
+# helper lives in the installed package only and is never projected or copied
+# into consumer projects; consumers invoke it globally and pass their own
+# validated root explicitly, keeping their own reproduction/test selection.
+$autopilotHelperPaths = @(
+    (Join-Path $CompoundGpidDir "bin\cg-autopilot-control.cmd"),
+    (Join-Path $CompoundGpidDir "bin\cg-autopilot-control")
+)
+if (@($autopilotHelperPaths | Where-Object { Test-Path -LiteralPath $_ }).Count -gt 0) {
+    Write-Host "  Control helper: cg-autopilot-control available (installed package; pass an explicit --root from the consumer)." -ForegroundColor DarkGray
+} else {
+    Write-Warning "  Control helper not found in the Compound GPID installation; run install.ps1 (Windows) or scripts/install.sh (macOS/Linux) to register cg-autopilot-control."
+}
+
 Write-Host ""
 Write-Host "Linked!" -ForegroundColor Green
 Write-Host ""

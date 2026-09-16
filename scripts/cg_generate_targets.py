@@ -74,6 +74,13 @@ CANONICAL_PROMPTS_GLOB = ".github/prompts/*.prompt.md"
 CANONICAL_AGENTS_GLOB = ".github/agents/*.agent.md"
 CANONICAL_SKILLS_GLOB = ".github/skills/*/SKILL.md"
 CANONICAL_INSTRUCTIONS_GLOB = ".github/instructions/*.instructions.md"
+NATIVE_EVIDENCE_ASSETS = (
+    ".github/plugins/cg-native-evidence.js",
+    ".github/plugin-support/cg-native-evidence/wire.mjs",
+    ".github/plugin-support/cg-native-evidence/transport.mjs",
+    ".github/plugin-support/cg-native-evidence/records.mjs",
+    ".github/plugin-support/cg-native-evidence/evidence.mjs",
+)
 MARKDOWN_LINK_PATTERN = bundle_service.MARKDOWN_LINK_PATTERN
 MARKDOWN_REFERENCE_PATTERN = bundle_service.MARKDOWN_REFERENCE_PATTERN
 CANONICAL_RUNTIME_PATH_PATTERN = re.compile(
@@ -336,6 +343,108 @@ def _validate_projected_categories(prefix: str, categories: Any) -> list[str]:
     return errors
 
 
+def _validate_asset_metadata(target: dict[str, Any]) -> list[str]:
+    """Validate complete Kilo bootstrap routing without permissive defaults.
+
+    Args:
+        target: One target mapping record.
+    Returns:
+        Validation errors, empty for absent or valid metadata.
+    Examples:
+        >>> _validate_asset_metadata({"id": "kilo"})
+        []
+    """
+    if "assetMetadata" not in target:
+        return []
+    metadata = target["assetMetadata"]
+    label = "assetMetadata"
+    if target.get("id") != "kilo" or not isinstance(metadata, dict):
+        return [f"{label}: only a Kilo object is supported"]
+    task_targets = {
+        "cg-autopilot.agent.md": {"cg-workflow-stage"},
+        "cg-workflow-stage.agent.md": {"cg-code-quality", "cg-fix-problems", "cg-bootstrap-leaf"},
+        "cg-fix-problems.agent.md": {"general"},
+    }
+    expected: dict[str, Any] = {
+        "cg-autopilot.prompt.md": {"agent": "cg-autopilot", "subtask": False},
+        "cg-bootstrap-leaf.agent.md": {
+            "mode": "subagent",
+            "permission": {
+                "*": "deny", "read": "allow", "glob": "allow", "grep": "allow",
+                "cg_native_identity": "ask",
+                "bash": {
+                    "*": "deny",
+                    "git branch --show-current*": "allow",
+                    "git rev-parse*": "allow",
+                    "git status --porcelain*": "allow",
+                },
+            },
+        },
+    }
+    for asset, children in task_targets.items():
+        permissions: dict[str, Any] = {
+            "task": {"*": "ask", **{child: "allow" for child in sorted(children)}}}
+        if asset == "cg-fix-problems.agent.md":
+            expected[asset] = {"permission": permissions}
+        else:
+            expected[asset] = {
+                "mode": "primary" if asset == "cg-autopilot.agent.md" else "subagent",
+                "permission": {"*": "deny", "read": "allow", "glob": "allow",
+                               "grep": "allow", "cg_native_identity": "ask",
+                               "cg_native_evidence": "ask", **permissions},
+            }
+    errors: list[str] = []
+
+    def compare(actual: Any, required: Any, path: str) -> None:
+        """Append exact field/type errors for the fixed bootstrap metadata tree."""
+        if isinstance(required, dict):
+            if not isinstance(actual, dict):
+                errors.append(f"{path}: required object")
+                return
+            missing, unknown = set(required) - set(actual), set(actual) - set(required)
+            if missing:
+                errors.append(f"{path}: required fields: {', '.join(sorted(missing))}")
+            if unknown:
+                errors.append(f"{path}: unknown fields: {', '.join(sorted(map(str, unknown)))}")
+            for key in sorted(set(required) & set(actual)):
+                compare(actual[key], required[key], f"{path}.{key}")
+        elif type(actual) is not type(required) or actual != required:
+            expected_text = "false" if required is False else required
+            errors.append(f"{path}: must be {expected_text}")
+
+    compare(metadata, expected, label)
+    return errors
+
+
+def _validated_asset_metadata(source: dict[str, Any], target: dict[str, Any]) -> dict[str, Any]:
+    """Return checked per-asset metadata before native frontmatter emission.
+
+    Args:
+        source: Canonical asset with its relative_path.
+        target: Native target record; only Kilo supports overrides.
+    Returns:
+        The asset's complete overrides, or empty for an ordinary asset.
+    Raises:
+        MappingValidationError: Invalid or absent required bootstrap metadata.
+    Examples:
+        >>> _validated_asset_metadata({"relative_path": "ordinary.md"}, {"id": "kilo"})
+        {}
+    """
+    errors = _validate_asset_metadata(target)
+    if errors:
+        raise MappingValidationError("; ".join(errors))
+    name = PurePosixPath(source.get("relative_path", "")).name
+    metadata = target.get("assetMetadata", {})
+    if target.get("id") == "kilo" and name in {
+        "cg-autopilot.prompt.md", "cg-autopilot.agent.md", "cg-workflow-stage.agent.md",
+        "cg-bootstrap-leaf.agent.md",
+    } and name not in metadata:
+        errors.append(f"{name}: required bootstrap metadata")
+    if errors:
+        raise MappingValidationError("; ".join(errors))
+    return metadata.get(name, {})
+
+
 def validate_target_mapping(data: dict[str, Any]) -> list[str]:
     """Validate target-mapping.json structure. Returns list of error messages (empty = valid)."""
     errors: list[str] = []
@@ -387,6 +496,7 @@ def validate_target_mapping(data: dict[str, Any]) -> list[str]:
             errors.append(f"{prefix}: modelMapping is not supported; targets inherit the user's platform selection")
 
         errors.extend(_validate_capabilities(prefix, target.get("capabilities", {})))
+        errors.extend(_validate_asset_metadata(target))
         errors.extend(_validate_formats(prefix, target.get("formats", {})))
         errors.extend(_validate_output_paths(prefix, target.get("outputPaths", {})))
         errors.extend(_validate_install_units(prefix, target.get("installUnits")))
@@ -678,6 +788,7 @@ def scan_canonical_assets(
         "instructions": [],
         "prompt_support": [],
         "shared": [],
+        "native_plugins": [],
     }
 
     module_registry = (
@@ -756,6 +867,22 @@ def scan_canonical_assets(
                 )
                 asset["body"] = content
             assets[category].append(asset)
+
+    # Exact Kilo-only passive code inventory, never an autoload-directory glob.
+    if any(os.path.lexists(root / relative) for relative in NATIVE_EVIDENCE_ASSETS):
+        for relative in NATIVE_EVIDENCE_ASSETS:
+            if not _is_loadable(relative):
+                continue
+            content = secure_fs.secure_read_bytes(
+                root, PurePosixPath(relative), reject_hardlinks=True,
+                max_bytes=MAX_CANONICAL_ASSET_BYTES,
+            )
+            if len(content.splitlines()) >= 300:
+                raise ValueError(f"Native evidence module exceeds line bound: {relative}")
+            assets["native_plugins"].append({
+                "relative_path": relative, "content": content,
+                "filename": PurePosixPath(relative).name,
+            })
 
     shared_paths = path_policy.inventory_shared_assets(
         root,
@@ -1302,6 +1429,14 @@ def build_output_manifest(
     if not projected_categories and output_paths.get("config"):
         manifest.append({"path": output_paths["config"], "source": "target-mapping", "type": "config"})
 
+    if target["id"] == "kilo" and not projected_categories:
+        for asset in assets.get("native_plugins", []):
+            relative = asset["relative_path"]
+            if relative not in NATIVE_EVIDENCE_ASSETS:
+                raise ValueError(f"Unknown native evidence resource: {relative}")
+            manifest.append({"path": f"{gtp}/{relative[len('.github/'):]}",
+                             "source": relative, "type": "native-plugin"})
+
     return manifest
 
 
@@ -1312,7 +1447,7 @@ def build_output_manifest(
 def _format_frontmatter(
     fm: dict[str, Any],
     body: str,
-    extra_fields: dict[str, Optional[str]],
+    extra_fields: dict[str, Any],
 ) -> str:
     """Format a native file with frontmatter from canonical source.
 
@@ -1336,7 +1471,20 @@ def _format_frontmatter(
 
 
 def _yaml_scalar(value: Any) -> str:
-    """Serialize a deterministic YAML-compatible scalar."""
+    """Serialize a typed YAML value with deterministic flow-map ordering.
+
+    Args:
+        value: A scalar or validated metadata map.
+    Returns:
+        YAML-compatible text, retaining Boolean types and ordered maps.
+    Examples:
+        >>> _yaml_scalar(False)
+        'false'
+        >>> _yaml_scalar({"task": {"general": "allow", "*": "deny"}})
+        '{"task": {"*": "deny", "general": "allow"}}'
+    """
+    if isinstance(value, (bool, dict)):
+        return json.dumps(value, ensure_ascii=True, sort_keys=True)
     text = str(value)
     if re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._ /-]*", text) and text.casefold() not in {
         "null", "true", "false", "yes", "no", "on", "off",
@@ -1362,10 +1510,19 @@ def _with_arguments_block(body: str, target_id: str) -> str:
 
 
 def _build_asset_lookup(assets: dict[str, list[dict[str, Any]]]) -> dict[str, dict[str, dict[str, Any]]]:
-    """Build per-category lookup dicts keyed by relative_path for O(1) access."""
+    """Build per-category lookup dicts keyed by relative_path for O(1) access.
+
+    Skill bundle resources are indexed once into a flat ``skill-resource``
+    map, so per-file rendering never rescans every skill's bundle files.
+    """
     lookups: dict[str, dict[str, dict[str, Any]]] = {}
     for category, items in assets.items():
         lookups[category] = {item["relative_path"]: item for item in items}
+    skill_resources: dict[str, dict[str, Any]] = {}
+    for skill in assets["skills"]:
+        for item in skill.get("bundle_files", []) or []:
+            skill_resources[item["relative_path"]] = item
+    lookups["skill-resource"] = skill_resources
     return lookups
 
 
@@ -1473,16 +1630,10 @@ def _render_output_entry(
         "fallback-agent": "agents",
         "prompt-support": "prompt_support", "instruction": "instructions",
         "shared": "shared",
+        "native-plugin": "native_plugins",
     }.get(kind)
     if kind == "skill-resource":
-        for skill in assets["skills"]:
-            source = next(
-                (item for item in skill.get("bundle_files", [])
-                 if item["relative_path"] == source_identity),
-                None,
-            )
-            if source is not None:
-                break
+        source = lookups.get("skill-resource", {}).get(source_identity)
         if source is None:
             raise ValueError(f"Manifest references unknown skill resource: {source_identity}")
     elif category is not None:
@@ -1494,7 +1645,7 @@ def _render_output_entry(
         text = _emit_command(source, target)
     elif kind == "skill":
         text = source["body"]
-    elif kind == "skill-resource":
+    elif kind in ("skill-resource", "native-plugin"):
         content = source["content"]
     elif kind == "agent":
         text = _emit_agent(source, target)
@@ -1511,7 +1662,7 @@ def _render_output_entry(
     else:
         raise ValueError(f"Unsupported output type: {kind}")
 
-    if kind not in ("skill-resource", "shared"):
+    if kind not in ("skill-resource", "shared", "native-plugin"):
         if kind in ("command", "skill", "agent", "fallback-agent",
                     "prompt-support", "instruction"):
             text = _rewrite_runtime_dependencies(
@@ -1879,7 +2030,8 @@ def _emit_command(
     if target["id"] in ("claude-code", "codex"):
         return _format_frontmatter(fm, body, {})
     elif target["id"] in ("opencode", "kilo"):
-        return _format_frontmatter(fm, _with_arguments_block(body, target["id"]), {})
+        metadata = _validated_asset_metadata(source, target)
+        return _format_frontmatter(fm, _with_arguments_block(body, target["id"]), metadata)
     else:
         return body
 
@@ -1907,7 +2059,8 @@ def _emit_agent(
     elif target["id"] in ("claude-code",):
         return _format_frontmatter(fm, body, {})
     elif target["id"] in ("opencode", "kilo"):
-        return _format_frontmatter(fm, body, {"mode": "subagent"})
+        metadata = _validated_asset_metadata(source, target)
+        return _format_frontmatter(fm, body, {"mode": "subagent", **metadata})
     else:
         return body
 
