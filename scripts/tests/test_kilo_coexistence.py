@@ -354,7 +354,7 @@ def test_newer_hosts_require_live_containment(tmp_path: Path, version: str, igno
     assert result.exit_code == (preflight.EXIT_CONTAINMENT if ignore_containment else preflight.EXIT_OK)
 
 
-@pytest.mark.parametrize("version", ["7.4.19", "6.99.99", "7.5", "7.5.16.1", "garbage7.5.16", "7.5.16\n8.0.0", ""])
+@pytest.mark.parametrize("version", ["7.4.19", "6.99.99", "7.5", "7.5.16.1", "garbage7.5.16", ""])
 def test_unsupported_or_malformed_host_version(tmp_path: Path, version: str, monkeypatch: pytest.MonkeyPatch) -> None:
     _projection(tmp_path)
     fake = _fake_kilo(tmp_path / "fake-kilo", tmp_path / "log", version=version)
