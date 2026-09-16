@@ -251,40 +251,55 @@ If missing or corrupted, delete it and run `cg-update` — it defaults to `lates
 
 ## Four-component prerelease tags (maintainer-only)
 
-Prerelease tags follow the convention `v<MAJOR>.<MINOR>.<PATCH>.<BUILD>` where
+Historical prerelease tags follow `v<MAJOR>.<MINOR>.<PATCH>.<BUILD>` where
 BUILD starts at 9000 (for example, `v1.2.0.9000` and `v1.2.0.9001`). They let
 maintainers publish an installable GitHub prerelease and test the complete
 release path through `cg-update` before promoting a stable three-component
 release.
 
+Updated readers also accept strict SemVer tags such as `v1.5.0-rc.2` and
+`v1.5.0-rc.10`, with numeric identifier ordering. Stable sorts after prereleases
+of the same core. Four-part versions use their separate legacy ordering; old
+pins and historical bytes are not renamed or converted. A delivered compatibility
+bridge and actual native clean-client qualification are required before writer
+enablement. Both are deferred, not passed; the publisher remains disabled.
+See [Release Controller](release-controller.md) for lines, projections and latest
+selection. The updater's `latest` preference still means tracking `main`, not the
+controller's highest-stable GitHub Release classification.
+
 **Prerelease tags stay out of the stable update channel:**
 
-- `cg-update --list` shows only 3-component release tags.
+- `cg-update --list` hides prereleases; `--show-dev` includes them.
 - The "Newer release available" hint is never triggered by a prerelease tag.
 - `cg-update` (bare) and `cg-update latest` pull `main` and are unaware of any tags.
 - Testers can install a known prerelease explicitly with `cg-update v1.2.0.9008`.
 
 ### Publishing an installable prerelease
 
-From a clean `dev` checkout whose `HEAD` matches `origin/dev`, run:
+The new four-command interface previews strict SemVer without publication:
 
 ```text
-/cg-release v1.2.0.9008
+/cg-release plan --version 1.5.0-rc.1 --branch dev --line current --json
 ```
 
-The release workflow creates the durable payload, exact tag, immutable Pages
-deployment, and GitHub Release record. A four-component tag is automatically
-marked as a GitHub prerelease. It is accepted by both new-release and
-`--resume` flows. Stable three-component releases remain restricted to a clean,
-up-to-date `main` checkout.
+This needs a trusted policy whose line includes `dev`. The publisher is disabled
+until separate setup, bridge and rollout review. `start` confirms/rechecks and
+returns a durable locator, not an immediate published Release. Use `status` and
+`resume` with that locator; `--yes` does not replace protected approval.
+
+Legacy four-part bridge/recovery remains separately authorized GPID tooling through
+`--legacy-bridge` or `--legacy-recovery`. It retains the clean `dev`/`main` policy
+and all payload, tag and docs checks. The positional `/cg-release v...` interface
+is not the new routine command. Historical procedures below describe temporary
+four-part tooling only, not new-format publication or a baseline source.
 
 Published prerelease tags are immutable release records. Do not delete or reuse
 them; increment the build component for the next candidate.
 
-Only repository administrators can create release-shaped `v*` tags. The `dev`
+On the retained legacy path, only repository administrators can create release-shaped `v*` tags. The `dev`
 branch rejects deletion and force-pushes, and published tags reject every update
-or deletion. The release flow does not publish drafts because its durable
-payload and Pages deployment are public before the GitHub Release API record.
+or deletion. The new controller instead stages and verifies a draft before final
+publication; this does not permit modification of any published identity.
 
 ### Creating a temporary dev tag
 

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "description": "Maps canonical .github/ assets to native platform trees. Read by scripts/cg_generate_targets.py to emit platform-specific command, skill, and agent files.",
+  "description": "Maps canonical .github/ assets to native platform trees, including the argument-preserving cg-release CLI interface on all five targets. Read by scripts/cg_generate_targets.py; never hand-edit generated commands.",
   "targets": [
     {
       "id": "copilot",

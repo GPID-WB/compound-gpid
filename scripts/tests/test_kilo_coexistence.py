@@ -5,6 +5,8 @@ import json
 import os
 from pathlib import Path
 import stat
+import shutil
+import subprocess
 import sys
 
 import pytest
@@ -44,7 +46,7 @@ def _projection(root: Path, *, codex: bool = True, claude: bool = False) -> None
         )
 
 
-def _fake_kilo(path: Path, inventory_log: Path, *, ignore_containment: bool = False) -> Path:
+def _fake_kilo(path: Path, inventory_log: Path, *, ignore_containment: bool = False, version: str = "7.4.21") -> Path:
     """Create a host fixture that honors the containment variable."""
     script = path.with_suffix(".py")
     ignore_containment_literal = "True" if ignore_containment else "False"
@@ -52,7 +54,7 @@ def _fake_kilo(path: Path, inventory_log: Path, *, ignore_containment: bool = Fa
 import json, os, pathlib, sys
 args = sys.argv[1:]
 if args == ['--version']:
-    print('7.4.21')
+    print(__VERSION__)
     raise SystemExit(0)
 if args[:2] == ['debug', 'skill']:
     root = pathlib.Path.cwd()
@@ -65,7 +67,7 @@ if args[:2] == ['debug', 'skill']:
     raise SystemExit(0)
 pathlib.Path(os.environ['CG_KILO_TEST_LOG']).write_text(json.dumps(args), encoding='utf-8')
 raise SystemExit(23)
-""".replace("__IGNORE_CONTAINMENT__", ignore_containment_literal)
+""".replace("__IGNORE_CONTAINMENT__", ignore_containment_literal).replace("__VERSION__", repr(version))
     script.write_text(
         host_script,
         encoding="utf-8",
@@ -171,7 +173,7 @@ def test_host_evidence_fixture_is_machine_readable() -> None:
     assert data["containment"]["scope"] == "child-process-only"
     assert data["hosts"]
     for host in data["hosts"]:
-        assert host["version"] in preflight.SUPPORTED_KILO_VERSIONS
+        assert preflight.is_supported_kilo_version(host["version"])
         assert host["invocation"] == ["kilo", "debug", "skill"]
         assert host["contained"]["localSkill"] is True
         assert host["contained"]["codexSkill"] is False
@@ -200,8 +202,77 @@ def test_current_embedded_kilo_hosts_match_containment_contract(tmp_path: Path) 
     _projection(tmp_path, codex=True)
     for executable in executables:
         version, error = preflight._read_version(executable, tmp_path)
-        if error or version not in preflight.SUPPORTED_KILO_VERSIONS:
+        if error or not preflight.is_supported_kilo_version(version):
             pytest.fail(f"Unsupported embedded Kilo host: {executable} ({version or error})")
         result = preflight.run_preflight(tmp_path, kilo_executable=str(executable))
         assert result.exit_code == preflight.EXIT_OK
         assert result.inventory.external_compatibility_locations == ()
+
+
+@pytest.mark.parametrize("version", ["7.4.20", "7.5.16", "7.10.0", "8.0.0", "10.0.0"])
+@pytest.mark.parametrize("ignore_containment", [False, True])
+def test_newer_hosts_require_live_containment(tmp_path: Path, version: str, ignore_containment: bool) -> None:
+    _projection(tmp_path)
+    fake = _fake_kilo(tmp_path / "fake-kilo", tmp_path / "log", version=version, ignore_containment=ignore_containment)
+    result = preflight.run_preflight(tmp_path, kilo_executable=str(fake))
+    assert result.kilo_version == version
+    assert result.exit_code == (preflight.EXIT_CONTAINMENT if ignore_containment else preflight.EXIT_OK)
+
+
+@pytest.mark.parametrize("version", ["7.4.19", "6.99.99", "7.5", "7.5.16.1", "7.5.16-bad", "garbage7.5.16", "07.5.16", "7.5.16\n8.0.0", ""])
+def test_unsupported_or_malformed_host_version(tmp_path: Path, version: str, monkeypatch: pytest.MonkeyPatch) -> None:
+    _projection(tmp_path)
+    fake = _fake_kilo(tmp_path / "fake-kilo", tmp_path / "log", version=version)
+    monkeypatch.setattr(preflight, "_candidate_kilo_executables", lambda explicit: [fake])
+    result = preflight.run_preflight(tmp_path, kilo_executable=str(fake))
+    assert result.status == preflight.PreflightStatus.UNSUPPORTED_VERSION
+    assert result.exit_code == preflight.EXIT_HOST_UNAVAILABLE
+    assert result.host_evidence == "unavailable"
+
+
+@pytest.mark.parametrize("version,blocked", [("7.5.16", False), ("8.0.0", False), ("7.4.19", True), ("7.5.16.1", True)])
+def test_updater_early_guard_uses_minimum_policy(tmp_path: Path, version: str, blocked: bool) -> None:
+    """Exercise the actual updater, stopping at invalid input before any Git write."""
+    shell = shutil.which("powershell" if os.name == "nt" else "bash")
+    if not shell:
+        pytest.skip("Native updater shell is unavailable")
+    install = tmp_path / "install/scripts"
+    install.mkdir(parents=True)
+    extension = "ps1" if os.name == "nt" else "sh"
+    for name in (f"update.{extension}", "helpers.ps1", "cg_kilo_preflight.py"):
+        shutil.copyfile(REPO_ROOT / "scripts" / name, install / name)
+    consumer = tmp_path / "consumer"
+    _projection(consumer)
+    host_dir = tmp_path / "host"
+    host_dir.mkdir()
+    fake = _fake_kilo(host_dir / "kilo", tmp_path / "log", version=version)
+    if os.name != "nt":
+        fake.rename(host_dir / "kilo")
+    home = tmp_path / "home"
+    home.mkdir()
+    environment = os.environ.copy()
+    environment.update(HOME=str(home), USERPROFILE=str(home), PATH=str(host_dir) + os.pathsep + os.environ["PATH"])
+    environment.pop("CG_INTERNAL_CALL", None)
+    if os.name == "nt":
+        script_path = str(install / "update.ps1").replace("'", "''")
+        profile = str(home / "profile.ps1").replace("'", "''")
+        command = [shell, "-NoProfile", "-NonInteractive", "-Command", f"$PROFILE = '{profile}'; & '{script_path}' -Version invalid-test-version"]
+    else:
+        command = [shell, str(install / "update.sh"), "invalid-test-version"]
+    result = subprocess.run(command, cwd=consumer, env=environment, capture_output=True, text=True, timeout=90)
+    output = result.stdout + result.stderr
+    assert result.returncode != 0
+    if blocked:
+        assert "unsupported-kilo-version" in output
+        assert "Invalid version:" not in output
+    else:
+        assert "Invalid version:" in output
+        assert "unsupported-kilo-version" not in output
+    assert not (install.parent / ".cg-version").exists()
+
+
+def test_host_selection_accepts_newer_candidate(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    older, newer = tmp_path / "old", tmp_path / "new"
+    monkeypatch.setattr(preflight, "_candidate_kilo_executables", lambda explicit: [older, newer])
+    monkeypatch.setattr(preflight, "_read_version", lambda path, root: ("7.4.19" if path == older else "7.5.16", None))
+    assert preflight.resolve_kilo_executable() == newer

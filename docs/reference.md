@@ -181,9 +181,10 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 | `/cg-fixbug` | Copilot model picker | Structured bug-fix workflow: establish the expected-behavior source in Step 1.5, perform test-gap classification in Step 2.5, and require red-green proof. |
 | `/cg-ideate` | Copilot model picker | Generate, critique, and filter improvement ideas for the project. Use before /cg-brainstorm when you want to discover what to work on next. |
 | `/cg-issues` | Copilot model picker | Manage GitHub Issues linked to roadmap work items. Modes: status (default, read-only), backfill, link, adopt, setup. |
+| `/cg-light-work` | Copilot model picker | Qualify and execute one small technical task with bounded discovery, light review, and explicit compounding consent. |
 | `/cg-plan-review` | Copilot model picker | Review an implementation plan for risks, over-engineering, missing edge cases, and flawed assumptions. Use after /cg-plan or on any existing plan. |
 | `/cg-plan` | Copilot model picker | Create a structured implementation plan with research. Use after brainstorming or when requirements are clear. |
-| `/cg-release` | Copilot model picker | Create a GitHub Release for compound-gpid. Detects the next semver tag from git history, drafts curated release notes, checks SCHEMA_VERSION, confirms with the user, and publishes. Developer-only — guarded to the compound-gpid repo; Step 0 stops execution in consumer projects. |
+| `/cg-release` | Copilot model picker | Run the standalone release controller with unchanged arguments. Generic plan/start/status/resume needs no GPID charter. Explicit legacy bridge/recovery remains GPID-only. |
 | `/cg-render-doc` | Copilot model picker | Render a workflow artifact or generic Markdown document to curated HTML. Routes typed artifacts to cg-render-artifact and generic documents to cg-publish-markdown. Supports --theme selection (reference or editorial). |
 | `/cg-resume` | Copilot model picker | Load context and resume interrupted work. Use at the start of a session to pick up where you left off. |
 | `/cg-review` | Copilot model picker | Run multi-agent code review on recent changes. Produces prioritized P0/P1/P2/P3 findings. |
@@ -469,19 +470,18 @@ cleanup stay separate.
 
 > **Prior-work awareness**: `/cg-brainstorm` checks `.cg-docs/brainstorms/` and `/cg-plan` checks `.cg-docs/plans/` for related prior work before starting. If a match is found, you can continue from it, follow up, or start fresh.
 
-> **Scope assessment**: `/cg-brainstorm`, `/cg-plan`, and `/cg-work` all classify the task scope (Lightweight / Standard / Deep) and adapt their behavior accordingly. `/cg-work` declines to generate inline plans for Standard/Deep tasks — use `/cg-plan` first.
+> **Task routing**: Use `/cg-light-work` only for a qualified small technical task. It requires Plan approval before source edits, writes a Plan, Work Report, and mandatory fixed light Review Report, permits at most an initial Review pass plus one verification pass after Review fixes, and compounds only after explicit opt-in. Reproducible bugs use `/cg-fixbug`; research, statistical, and publication work uses `/cr-*`; larger, ambiguous, security-sensitive, schema, dependency, or destructive work uses `/cg-brainstorm` -> `/cg-plan` -> `/cg-work`. `/cg-work` executes approved saved Plans and redirects unmatched inline tasks without dispatching them.
 
 ### Plugin Development (developer-only)
 
-> **Consumer project users**: The prompts below are for compound-gpid maintenance
-> only. `/cg-release` and `/cg-compound-gpid-rd` appear in your autocomplete because
-> they are distributed via junctions, but they **will not run** outside the
-> compound-gpid repo — Step 0 stops them immediately. Do not use these prompts in
-> consumer projects.
+> **Consumer project users**: `/cg-release plan|start|status|resume` uses the
+> standalone controller and needs no GPID charter in generic mode. Its optional
+> GPID profile and explicit legacy bridge/recovery paths remain GPID-specific.
+> `/cg-compound-gpid-rd` remains restricted to Compound GPID maintenance.
 
 | Prompt | Purpose | Distribution |
 |--------|---------|-------------|
-| `/cg-release [vX.Y.Z[.build]]` | Create a stable release from `main` or a four-component prerelease from `dev`. Detects the next tag unless an exact tag is supplied, drafts release notes from `.cg-docs/`, checks `SCHEMA_VERSION`, and publishes to GitHub Releases. | **Distributed** via junctions to consumer projects, but Step 0 stops execution immediately if not run inside compound-gpid. |
+| `/cg-release plan\|start\|status\|resume` | Read-only preview, confirmed durable submission, status and remote reconciliation through one core. See [Release Controller](release-controller.md). Supplied publisher disabled; live rollout proof deferred, not passed. | All five interfaces preserve CLI arguments. Generic mode needs no GPID files; explicit legacy paths remain restricted. |
 | `/cg-compound-gpid-rd`, `/cg-compound-gpid-rd --full`, `/cg-compound-gpid-rd --add <URL>`, `/cg-compound-gpid-rd --remove <id>` | Research public GitHub repositories for Compound GPID. Delta and full modes create reviews. Add and remove modes safely manage the registry without starting a review. `rd` means `research-development`; the current scope is public GitHub repository research for Compound GPID maintainers. | **Distributed** via junctions to consumer projects, but Step 0 requires the exact Compound GPID charter and stops before registry access, network access, utility calls, or writes in other projects. |
 
 ### Competitive Review System
@@ -713,7 +713,10 @@ Used by `/cg-review`, `/cg-fix-triage`, and all review agents. Each finding gets
 |-------|-------|-------|----------------|
 | `@cg-release-scanner` | Classifies commits by conventional commit prefix, lists relevant `.cg-docs/` entries within the scan window, and returns a structured categorized report for `/cg-release` | Claude Haiku 4.5 | No |
 
-> `@cg-release-scanner` is dispatched exclusively by `/cg-release`. It is **not user-invokable** directly. It receives the pre-collected git commit log and window parameters from the orchestrating prompt, classifies commits (feat/fix/docs/breaking), matches `.cg-docs/` plan and solution entries by keyword, and returns a structured markdown report with Semver Impact recommendation and SCHEMA_VERSION signals.
+> `@cg-release-scanner` is an optional editorial helper, not a release authority.
+> It classifies the supplied commit inventory and relevant knowledge entries. The
+> deterministic controller, not scanner text, selects the version and verifies
+> approval, exact source, publication and completion.
 
 ---
 

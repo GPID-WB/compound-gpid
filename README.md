@@ -61,6 +61,7 @@ Compound GPID enforces a repeatable **Brainstorm → Plan → Work → Review �
 | [Modular Guide](docs/modular-guide.md) | Suite selection, capability composition, registry ownership, and extension rules |
 | [Governance](docs/governance/index.md) | Data safeguards, review gates, operating constraints, and limitations |
 | [Reference](docs/reference.md) | Complete commands, agents, schemas, configuration, and file structure |
+| [Release Controller](docs/release-controller.md) | Standalone CLI installation, disabled setup, recovery and deferred live rollout checks |
 | [Help](docs/help/index.md) | Recovery routes and complete troubleshooting links |
 
 ## Contributing

@@ -98,7 +98,7 @@
       "path": ".kilo/agents/cg-release-scanner.md",
       "source": ".github/agents/cg-release-scanner.agent.md",
       "kind": "agent",
-      "sha256": "2f4953bdad39b9a05d3dd4651d4cedbdd3f4f6079a2a13163320fc55f6901ce4",
+      "sha256": "7bd57e98b93005c9a5a730ced1e5af6b92deafd92070e161b4f3546ee16733f3",
       "executable": false
     },
     {
@@ -280,7 +280,7 @@
       "path": ".kilo/commands/cg-devtag.md",
       "source": ".github/prompts/cg-devtag.prompt.md",
       "kind": "command",
-      "sha256": "15c157042a844b879d3830039c652fbbb1dad0232f11834981ae43ffe0ab336b",
+      "sha256": "1c24dffa3f2070d3bbe28e0eb8477bbca23d41066d13828238329fea323f7d2e",
       "executable": false
     },
     {
@@ -326,6 +326,13 @@
       "executable": false
     },
     {
+      "path": ".kilo/commands/cg-light-work.md",
+      "source": ".github/prompts/cg-light-work.prompt.md",
+      "kind": "command",
+      "sha256": "b136d254d936c93719d49d0a202a4d555610e6e2c91399f67fc16ea165d3d255",
+      "executable": false
+    },
+    {
       "path": ".kilo/commands/cg-plan-review.md",
       "source": ".github/prompts/cg-plan-review.prompt.md",
       "kind": "command",
@@ -343,7 +350,7 @@
       "path": ".kilo/commands/cg-release.md",
       "source": ".github/prompts/cg-release.prompt.md",
       "kind": "command",
-      "sha256": "fe5544626d183814cb2e81c279697421da67df197c6b70885e29da1656191682",
+      "sha256": "86f1a9f2cf0700588f36dc17686d731b92af538739950292d7c8674c5ec21918",
       "executable": false
     },
     {
@@ -406,7 +413,7 @@
       "path": ".kilo/commands/cg-verify-pr.md",
       "source": ".github/prompts/cg-verify-pr.prompt.md",
       "kind": "command",
-      "sha256": "4c1c10412246eeb8c8a540a4263b6b24ff342d4bc5375e34a94177d842e8013b",
+      "sha256": "644164a3128744ca2a3df1748688768d6cadf679d80322d7eab8f376fd57cf8f",
       "executable": false
     },
     {
@@ -420,7 +427,7 @@
       "path": ".kilo/commands/cg-work.md",
       "source": ".github/prompts/cg-work.prompt.md",
       "kind": "command",
-      "sha256": "c133562d34346ed0573a3be9d0f78c2c07a275a79f6e6430bbb05e66f3bdb19c",
+      "sha256": "3558e29b500514bf72f9b306476febd7bd643cd5d1423fb758a41cdff4b041c6",
       "executable": false
     },
     {
@@ -560,7 +567,7 @@
       "path": ".kilo/shared/active-state.contract.md",
       "source": ".github/shared/active-state.contract.md",
       "kind": "shared",
-      "sha256": "783b031a1ae2767869287c8fbbfadad375f6f94305c992848eba95ea7b20f767",
+      "sha256": "85654da33c857344dd163ff4dc9e95d8c55462b2e1e7d262653de3f0a45ca9f7",
       "executable": false
     },
     {
@@ -588,7 +595,7 @@
       "path": ".kilo/shared/goal-execution.contract.md",
       "source": ".github/shared/goal-execution.contract.md",
       "kind": "shared",
-      "sha256": "e6df5087bbd10a72573a2d5a2099e376194eb6b0810e7f799238608672291bdd",
+      "sha256": "bb8ab8781c2c74b0367c647996cb931d03cb42852f13381760cdaba1ddbf84e7",
       "executable": false
     },
     {
@@ -606,6 +613,13 @@
       "executable": false
     },
     {
+      "path": ".kilo/shared/release-controller.contract.md",
+      "source": ".github/shared/release-controller.contract.md",
+      "kind": "shared",
+      "sha256": "b1db8f8e512a54b4207e2195df8d619324d38b11b06e5b5eabcfb1cbb41bee42",
+      "executable": false
+    },
+    {
       "path": ".kilo/shared/retrieval-backends.json",
       "source": ".github/shared/retrieval-backends.json",
       "kind": "shared",
@@ -616,7 +630,7 @@
       "path": ".kilo/shared/review-routing.contract.md",
       "source": ".github/shared/review-routing.contract.md",
       "kind": "shared",
-      "sha256": "a69a44806364bd7a495e922e881534dfa4e71effac8004be3933994278251dbc",
+      "sha256": "946815d708ee716235fd7af3958cd6b4b40dd3176ec66d4a9e0d61453a67ed28",
       "executable": false
     },
     {
@@ -721,7 +735,7 @@
       "path": ".kilo/shared/skill-management/contracts/release-attestation-v1.schema.json",
       "source": ".github/shared/skill-management/contracts/release-attestation-v1.schema.json",
       "kind": "shared",
-      "sha256": "736a9719a4d058c3ab18f1fe5812c226bcac6b0102f7d3457be889bab8b935ad",
+      "sha256": "7aacbbb0f3edfa626c6da8388430aec73beebdb233deb94eb8812a91c7aed784",
       "executable": false
     },
     {
@@ -865,6 +879,27 @@
       "executable": false
     },
     {
+      "path": ".kilo/shared/skill-management/release-attestations/v1.2.0.9016.json",
+      "source": ".github/shared/skill-management/release-attestations/v1.2.0.9016.json",
+      "kind": "shared",
+      "sha256": "1331e7683fe9188dff6a477c82cd8fff1c0bbfbe07cfc798595af4b242c8905f",
+      "executable": false
+    },
+    {
+      "path": ".kilo/shared/skill-management/release-attestations/v1.2.0.9017.json",
+      "source": ".github/shared/skill-management/release-attestations/v1.2.0.9017.json",
+      "kind": "shared",
+      "sha256": "f26e747d07ad52b98257026301022f0065f00329430259f08b73d0e928a3c311",
+      "executable": false
+    },
+    {
+      "path": ".kilo/shared/skill-management/release-attestations/v1.2.0.9019.json",
+      "source": ".github/shared/skill-management/release-attestations/v1.2.0.9019.json",
+      "kind": "shared",
+      "sha256": "52574cde208cdf8a254f6a0a74b67370ca19f24639ca5130cfcf33418dc52cc8",
+      "executable": false
+    },
+    {
       "path": ".kilo/shared/snapshot-research-modes.json",
       "source": ".github/shared/snapshot-research-modes.json",
       "kind": "shared",
@@ -875,7 +910,7 @@
       "path": ".kilo/shared/target-mapping.json",
       "source": ".github/shared/target-mapping.json",
       "kind": "shared",
-      "sha256": "58a5aba1eca5c4f845da75c561e0b7ab3de3500b2e6e0f3b0b0e55f764895782",
+      "sha256": "48ff5eecc86d657001c180b6129f7207d3831e4eb76d4a3dd82a4bdc09ba913a",
       "executable": false
     },
     {

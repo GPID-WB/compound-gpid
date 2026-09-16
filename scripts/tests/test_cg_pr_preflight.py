@@ -1,14 +1,195 @@
 """Contract tests for the CI-impact preflight and native target runner."""
 from __future__ import annotations
 
+import io
 import json
+import subprocess
 from pathlib import Path
 
+import cg_pr_preflight as preflight
 import pytest
 
-import cg_pr_preflight as preflight
-
 REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
+def test_native_producer_installs_pinned_controller_tool_before_preflight() -> None:
+    import yaml
+
+    workflow = yaml.safe_load((REPO_ROOT / ".github/workflows/tests.yml").read_text())
+    steps = workflow["jobs"]["native-targets"]["steps"]
+    gate_index = next(i for i, step in enumerate(steps)
+                      if "scripts/cg_pr_preflight.py" in step.get("run", ""))
+    install = f"python -m pip install uv=={preflight.CONTROLLER_UV_VERSION}"
+    assert any(install in step.get("run", "") for step in steps[:gate_index])
+    assert "uv==" in preflight.__doc__
+
+
+@pytest.mark.parametrize("version", ["uv 0.1.0", "not-uv", ""])
+def test_controller_rejects_unpinned_tool_before_running_gate(
+    version: str, monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
+) -> None:
+    import subprocess
+
+    calls = []
+
+    def wrong_version(argv: list, **_kwargs: object) -> subprocess.CompletedProcess:
+        calls.append(argv)
+        return subprocess.CompletedProcess(argv, 0, version, "")
+
+    monkeypatch.setattr(preflight.subprocess, "run", wrong_version)
+    selection = preflight.classify_changed_files(["packages/cg-release/uv.lock"])
+    result = preflight.run_native_target(tmp_path, selection)
+    assert result.exit_code != 0
+    assert calls == [["uv", "--version"]]
+    assert "uv==0.11.3" in result.commands[0].stderr
+
+
+def test_missing_uv_reports_actionable_prerequisite(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
+) -> None:
+    def missing(*_args: object, **_kwargs: object) -> None:
+        raise FileNotFoundError("uv")
+
+    monkeypatch.setattr(preflight.subprocess, "run", missing)
+    selection = preflight.classify_changed_files(["packages/cg-release/uv.lock"])
+    result = preflight.run_native_target(tmp_path, selection)
+    assert result.exit_code != 0
+    assert "python -m pip install uv==0.11.3" in result.commands[0].stderr
+
+
+@pytest.mark.parametrize("path", [
+    "packages/cg-release/src/cg_release/cli.py",
+    "packages/cg-release/uv.lock",
+    ".github/workflows/release-controller-ci.yml",
+    ".github/workflows/tests.yml",
+    "scripts/benchmark_release.py",
+    "create-release.ps1",
+    "scripts/cg_pr_preflight.py",
+])
+def test_controller_impact_selects_separate_locked_gate(path: str) -> None:
+    selection = preflight.classify_changed_files([path])
+    assert selection.controller_required is True
+    assert selection.no_impact is False
+    assert selection.as_dict()["controller_required"] is True
+    commands = preflight.selected_native_commands(selection, Path("repo"))
+    assert any("packages/cg-release" in command and "--locked" in command
+               for command in commands)
+
+
+def test_package_only_changes_do_not_change_native_test_list() -> None:
+    selection = preflight.classify_changed_files(["packages/cg-release/pyproject.toml"])
+    assert selection.native_required is False
+    assert all(not path.startswith("packages/") for path in preflight.NATIVE_PYTEST_FILES)
+    assert not preflight.classify_changed_files(["packages/cg-release-other/x"]).controller_required
+
+
+def test_full_gate_requires_controller_package() -> None:
+    assert preflight.full_gate_selection().controller_required is True
+
+
+@pytest.mark.parametrize("path", ["scripts/release_profile_gpid.py", "scripts/release_profile_build.py",
+                                   "scripts/release_profile_install.py", ".release-controller.json",
+                                   ".github/workflows/release-controller-docs.yml", "bin/cg-release.cmd"])
+def test_profile_impact_selects_package_and_profile_gate(path: str) -> None:
+    assert preflight.classify_changed_files([path]).controller_required
+
+
+def test_controller_missing_runtime_does_not_pass_or_download(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
+) -> None:
+    import subprocess
+
+    calls = []
+
+    def missing_runtime(argv: list, **kwargs: object) -> subprocess.CompletedProcess:
+        calls.append(argv)
+        if argv == ["uv", "--version"]:
+            return subprocess.CompletedProcess(argv, 0, "uv 0.11.3", "")
+        return subprocess.CompletedProcess(argv, 2, "", "No interpreter found for Python >=3.11,<3.13")
+
+    monkeypatch.setattr(preflight.subprocess, "run", missing_runtime)
+    selection = preflight.classify_changed_files(["packages/cg-release/uv.lock"])
+    result = preflight.run_native_target(tmp_path, selection)
+    assert result.exit_code == 2
+    assert len(calls) == 2
+    assert calls[0] == ["uv", "--version"]
+    assert "--no-python-downloads" in calls[1]
+    assert "No interpreter found" in result.commands[1].stderr
+
+
+@pytest.mark.parametrize("command, timeout", [
+    (("first",), 600),
+    (preflight.FULL_PACKAGE_TEST_COMMAND, 1800),
+])
+@pytest.mark.parametrize("outcome", [0, 1, "timeout"])
+def test_native_progress_is_flushed_and_failures_stop_execution(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, outcome: object,
+    command: tuple[str, ...], timeout: int,
+) -> None:
+    """Progress precedes the blocking child and preserves the failure contract."""
+    class ProgressStream(io.StringIO):
+        def flush(self) -> None:
+            self.flushed = self.getvalue()
+
+    progress = ProgressStream()
+    monkeypatch.setattr(preflight.sys, "stderr", progress)
+    calls = []
+
+    def run(argv: list[str], **kwargs: object) -> subprocess.CompletedProcess:
+        calls.append(argv)
+        assert f"starting native command {len(calls)}/2" in progress.flushed
+        expected_timeout = timeout if len(calls) == 1 else 600
+        assert kwargs["timeout"] == expected_timeout
+        assert f"timeout={expected_timeout}s" in progress.flushed
+        assert kwargs["capture_output"] is True
+        if outcome == "timeout":
+            raise subprocess.TimeoutExpired(argv, expected_timeout)
+        return subprocess.CompletedProcess(argv, outcome, "child output", "")
+
+    monkeypatch.setattr(preflight.subprocess, "run", run)
+    result = preflight.run_native_target(tmp_path, commands=(command, ("second",)))
+    assert result.exit_code == (127 if outcome == "timeout" else outcome)
+    assert len(calls) == (2 if outcome == 0 else 1)
+    assert f"exited {result.exit_code} after" in progress.flushed
+    if outcome == "timeout":
+        assert (preflight.CONTROLLER_UV_PREREQUISITE if command[0] == "uv"
+                else "TimeoutExpired") in result.commands[0].stderr
+
+
+def test_native_progress_preserves_json_stdout(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, capsys: pytest.CaptureFixture
+) -> None:
+    """Machine-readable stdout remains a single final JSON document."""
+    monkeypatch.setattr(preflight, "inspect_cache_artifacts", lambda _: preflight.CacheReport())
+    monkeypatch.setattr(
+        preflight.subprocess, "run",
+        lambda command, **kwargs: subprocess.CompletedProcess(
+            command, 0, f"uv {preflight.CONTROLLER_UV_VERSION}" if command == ["uv", "--version"] else "", ""
+        ),
+    )
+    assert preflight.main([
+        "--root", str(tmp_path), "--phase", "committed", "--full-gate",
+        "--run-native-target", "--format", "json",
+    ]) == 0
+    captured = capsys.readouterr()
+    assert json.loads(captured.out)["exit_code"] == 0
+    assert "inspecting selection and cache (phase=committed)" in captured.err
+    command_count = len(preflight.selected_native_commands(preflight.full_gate_selection(), tmp_path))
+    assert f"native command {command_count}/{command_count} exited 0" in captured.err
+
+
+def test_release_prompt_requires_blocking_budget_and_no_blind_retry() -> None:
+    """Release calls must outlive child budgets without weakening the gate."""
+    prompt = (REPO_ROOT / ".github/prompts/cg-release.prompt.md").read_text(encoding="utf-8")
+    assert "`7200000` milliseconds (120 minutes)" in prompt
+    commands = preflight.selected_native_commands(preflight.full_gate_selection(), REPO_ROOT)
+    assert 7200 > sum(preflight.FULL_PACKAGE_TEST_TIMEOUT_SECONDS
+                      if command == preflight.FULL_PACKAGE_TEST_COMMAND
+                      else preflight.NATIVE_COMMAND_TIMEOUT_SECONDS for command in commands)
+    assert "blocking foreground call" in prompt
+    assert "or an automatic retry after a timeout" in prompt
+    assert "never substitute `--phase prepare`" in prompt
+    assert "python scripts/cg_pr_preflight.py --phase committed --full-gate --run-native-target" in prompt
 
 
 def test_canonical_change_selects_native_and_module_gates() -> None:

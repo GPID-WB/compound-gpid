@@ -108,7 +108,8 @@ class TestLauncherParity:
                 yield path.name, content
 
     def test_every_python_cmd_uses_where_guard_and_store_stub_check(self) -> None:
-        stub_check = re.compile(r'findstr /i(?: /R /C:)? *"\^Python \[0-9\]"')
+        stub_check = re.compile(r'findstr /i(?: /[Rr] /[Cc]:)? *"\^Python \[0-9\]"')
+        version_gate = re.compile(r"sys\.version_info >= \(3, (?:[8-9]|\d{2,})\)")
         problems = []
         for name, content in self._python_cmds():
             for candidate in ("python3", "python", "py"):
@@ -118,7 +119,7 @@ class TestLauncherParity:
                 problems.append(f"{name}: missing Store-stub version check")
             if "exit /b %ERRORLEVEL%" not in content:
                 problems.append(f"{name}: exit code not propagated")
-            if "sys.version_info >= (3, 8)" not in content:
+            if not version_gate.search(content):
                 problems.append(f"{name}: missing Python 3.8+ version gate")
         assert problems == []
 

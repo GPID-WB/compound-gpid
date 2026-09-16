@@ -256,6 +256,11 @@ jobs:
           python-version: "3.11"
       - name: Install Python test dependencies
         run: python -m pip install pytest pyyaml
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: "22"
+      - name: Install pinned controller preflight tool
+        run: python -m pip install uv==0.11.3
       - name: Run authoritative native target preflight
         shell: bash
         env:
@@ -358,6 +363,8 @@ jobs:
           scripts/tests/test_cg_generate_targets.py
           scripts/tests/test_project_projection.py
           -q
+      - name: Run existing-runtime version reader contracts
+        run: python -m pytest scripts/tests/test_release_version_readers.py -k "attestation or build_metadata" -q
 
   test:
     name: Pester on ${{ matrix.os }}

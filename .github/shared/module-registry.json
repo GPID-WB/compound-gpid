@@ -293,7 +293,7 @@
       "id": "suite-cg",
       "layer": "suite",
       "displayName": "Technical suite",
-      "description": "The /cg-* command orchestration surface: workflow prompts, suite-specific agents, and workflow-support skills. The passive native evidence plugins are tested against the released @kilocode/sdk 7.6.2 fixture; runtime compatibility follows the minimum-version policy (7.4.20) with no exact-version allowlist or upper bound.",
+"description": "The /cg-* command orchestration surface: workflow prompts, suite-specific agents, and workflow-support skills, including the optional thin release-controller interface and explicitly separate legacy bridge/recovery tooling. The passive native evidence plugins are tested against the released @kilocode/sdk 7.6.2 fixture; runtime compatibility follows the minimum-version policy (7.4.20) with no exact-version allowlist or upper bound.",
       "dependsOn": [
         "kernel",
         "cap-pester-safety",

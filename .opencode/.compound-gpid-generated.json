@@ -98,7 +98,7 @@
       "path": ".opencode/agents/cg-release-scanner.md",
       "source": ".github/agents/cg-release-scanner.agent.md",
       "kind": "agent",
-      "sha256": "2f4953bdad39b9a05d3dd4651d4cedbdd3f4f6079a2a13163320fc55f6901ce4",
+      "sha256": "7bd57e98b93005c9a5a730ced1e5af6b92deafd92070e161b4f3546ee16733f3",
       "executable": false
     },
     {
@@ -280,7 +280,7 @@
       "path": ".opencode/commands/cg-devtag.md",
       "source": ".github/prompts/cg-devtag.prompt.md",
       "kind": "command",
-      "sha256": "9897da4ddc56f95dfbbf2b6f041e3ad0c5aeb37eae1507bd398e259c703ffbfb",
+      "sha256": "7fc8d4593a9796380baa3c78806b4589e426f03d7be19ac0e2909cae27f0ae00",
       "executable": false
     },
     {
@@ -326,6 +326,13 @@
       "executable": false
     },
     {
+      "path": ".opencode/commands/cg-light-work.md",
+      "source": ".github/prompts/cg-light-work.prompt.md",
+      "kind": "command",
+      "sha256": "a880b11bd3954eb5f33926191625bbe3bf15cac7e6f0162bbf2ca995fcd85324",
+      "executable": false
+    },
+    {
       "path": ".opencode/commands/cg-plan-review.md",
       "source": ".github/prompts/cg-plan-review.prompt.md",
       "kind": "command",
@@ -343,7 +350,7 @@
       "path": ".opencode/commands/cg-release.md",
       "source": ".github/prompts/cg-release.prompt.md",
       "kind": "command",
-      "sha256": "03268fdd22928f6709f8646a2d36417590efb0e17c0531233f4035835639dfc8",
+      "sha256": "7c5846dbde88b5828dd03b31a28ccbaeca2700597d47180402509bbc7a49d0de",
       "executable": false
     },
     {
@@ -406,7 +413,7 @@
       "path": ".opencode/commands/cg-verify-pr.md",
       "source": ".github/prompts/cg-verify-pr.prompt.md",
       "kind": "command",
-      "sha256": "abf2c4d68719253fe65c5c82846e270aa2e901fba4696faf71ad64342e6cd22f",
+      "sha256": "c7e16c846267c6a37bf716d0754f53d7453b0730ee09f2ca09c50d9826d978be",
       "executable": false
     },
     {
@@ -420,7 +427,7 @@
       "path": ".opencode/commands/cg-work.md",
       "source": ".github/prompts/cg-work.prompt.md",
       "kind": "command",
-      "sha256": "83868d4303cf7e7f1a241193673775d5ef635c08f8b422dd5ed91c61ab43c3a1",
+      "sha256": "5ac317ff6e72c74418a603095f9ce773e188f3668bbcb029617b7e6d4aa8cd53",
       "executable": false
     },
     {
@@ -525,7 +532,7 @@
       "path": ".opencode/shared/active-state.contract.md",
       "source": ".github/shared/active-state.contract.md",
       "kind": "shared",
-      "sha256": "256091863645e89a5a4f194d27c4df7bfdb67584a7e686cc2ee25148e0d07fd5",
+      "sha256": "101b48198adc97401fc325492f3ee27988b522010402709c0c76be10481f4291",
       "executable": false
     },
     {
@@ -553,7 +560,7 @@
       "path": ".opencode/shared/goal-execution.contract.md",
       "source": ".github/shared/goal-execution.contract.md",
       "kind": "shared",
-      "sha256": "2a8a6b2d17cf9cd1b29619834e7c032129dc1a196738392fce9e0ef87e760138",
+      "sha256": "a53bd2cb0f64cb1087edb52824f6399dab66797ca2c93aacc808876d7fda0d65",
       "executable": false
     },
     {
@@ -571,6 +578,13 @@
       "executable": false
     },
     {
+      "path": ".opencode/shared/release-controller.contract.md",
+      "source": ".github/shared/release-controller.contract.md",
+      "kind": "shared",
+      "sha256": "b1db8f8e512a54b4207e2195df8d619324d38b11b06e5b5eabcfb1cbb41bee42",
+      "executable": false
+    },
+    {
       "path": ".opencode/shared/retrieval-backends.json",
       "source": ".github/shared/retrieval-backends.json",
       "kind": "shared",
@@ -581,7 +595,7 @@
       "path": ".opencode/shared/review-routing.contract.md",
       "source": ".github/shared/review-routing.contract.md",
       "kind": "shared",
-      "sha256": "a69a44806364bd7a495e922e881534dfa4e71effac8004be3933994278251dbc",
+      "sha256": "946815d708ee716235fd7af3958cd6b4b40dd3176ec66d4a9e0d61453a67ed28",
       "executable": false
     },
     {
@@ -686,7 +700,7 @@
       "path": ".opencode/shared/skill-management/contracts/release-attestation-v1.schema.json",
       "source": ".github/shared/skill-management/contracts/release-attestation-v1.schema.json",
       "kind": "shared",
-      "sha256": "736a9719a4d058c3ab18f1fe5812c226bcac6b0102f7d3457be889bab8b935ad",
+      "sha256": "7aacbbb0f3edfa626c6da8388430aec73beebdb233deb94eb8812a91c7aed784",
       "executable": false
     },
     {
@@ -830,6 +844,27 @@
       "executable": false
     },
     {
+      "path": ".opencode/shared/skill-management/release-attestations/v1.2.0.9016.json",
+      "source": ".github/shared/skill-management/release-attestations/v1.2.0.9016.json",
+      "kind": "shared",
+      "sha256": "1331e7683fe9188dff6a477c82cd8fff1c0bbfbe07cfc798595af4b242c8905f",
+      "executable": false
+    },
+    {
+      "path": ".opencode/shared/skill-management/release-attestations/v1.2.0.9017.json",
+      "source": ".github/shared/skill-management/release-attestations/v1.2.0.9017.json",
+      "kind": "shared",
+      "sha256": "f26e747d07ad52b98257026301022f0065f00329430259f08b73d0e928a3c311",
+      "executable": false
+    },
+    {
+      "path": ".opencode/shared/skill-management/release-attestations/v1.2.0.9019.json",
+      "source": ".github/shared/skill-management/release-attestations/v1.2.0.9019.json",
+      "kind": "shared",
+      "sha256": "52574cde208cdf8a254f6a0a74b67370ca19f24639ca5130cfcf33418dc52cc8",
+      "executable": false
+    },
+    {
       "path": ".opencode/shared/snapshot-research-modes.json",
       "source": ".github/shared/snapshot-research-modes.json",
       "kind": "shared",
@@ -840,7 +875,7 @@
       "path": ".opencode/shared/target-mapping.json",
       "source": ".github/shared/target-mapping.json",
       "kind": "shared",
-      "sha256": "58a5aba1eca5c4f845da75c561e0b7ab3de3500b2e6e0f3b0b0e55f764895782",
+      "sha256": "48ff5eecc86d657001c180b6129f7207d3831e4eb76d4a3dd82a4bdc09ba913a",
       "executable": false
     },
     {

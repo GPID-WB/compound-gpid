@@ -56,9 +56,9 @@ present.
 
 ## Workflow Responsibilities
 
-- `/cg-work` creates or updates `.cg-docs/active-state/current.json` after it
-  creates the execution report, at phase boundaries, on blocked stops, and on
-  completion.
+- `/cg-work` and the bounded `/cg-light-work` execution stage create or update
+  `.cg-docs/active-state/current.json` after creating the execution report, at
+  phase boundaries, on blocked stops, and on completion.
 - Inside a validated autopilot stage, the `/cg-work` child never writes the
   active-state record. It emits one bounded `cursor-update-request` per
   report-created, phase-boundary or blocked-stop lifecycle point in its stage
