@@ -1,6 +1,6 @@
 {
   "schemaVersion": "compound-gpid-active-state-v1",
-  "updatedAt": "2026-09-15T22:15:00Z",
+  "updatedAt": "2026-09-16T12:50:46Z",
   "completedPhases": [1, 2, 3, 4],
   "failingSteps": [],
   "workflow": "/cg-work",
@@ -39,6 +39,7 @@
   ],
   "unresolvedDecisions": [],
   "artifactRefs": [
+    {"kind": "dev-integration-merge", "path": ".cg-docs/work-reports/2026-09-09-evidence-backed-cg-help-command.md", "status": "supersedes-deferred-merge-after-phase5-request-amr-0aa42d05d0013UJhVMTjvmWSSK-merge-not-rebase"},
     {"kind": "plan", "path": ".cg-docs/plans/2026-09-08-evidence-backed-cg-help-command.md", "status": "active"},
     {"kind": "execution-report", "path": ".cg-docs/work-reports/2026-09-09-evidence-backed-cg-help-command.md", "status": "phase4-complete-step7-and-step8-gates-passed-phase3-preserved"},
     {"kind": "shell-metadata", "path": ".github/shared/shell-commands.json", "status": "cg-help-final-source-reviewed-named-repin-passed"},
