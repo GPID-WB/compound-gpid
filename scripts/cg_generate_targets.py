@@ -52,6 +52,13 @@ DEFERRED_HELP_SHARED_SOURCES = frozenset({
     ".github/shared/help-catalog.json",
     ".github/shared/shell-commands.json",
 })
+HELP_ARGUMENT_SOURCES = {
+    "copilot": {"source": "invocation-tail", "token": "", "fidelity": "model-visible"},
+    "claude-code": {"source": "native-placeholder", "token": "$ARGUMENTS", "fidelity": "native-placeholder"},
+    "codex": {"source": "native-placeholder", "token": "$ARGUMENTS", "fidelity": "native-placeholder"},
+    "opencode": {"source": "generated-block", "token": "$ARGUMENTS", "fidelity": "model-visible"},
+    "kilo": {"source": "generated-block", "token": "$ARGUMENTS", "fidelity": "model-visible"},
+}
 
 
 @functools.lru_cache(maxsize=1)
@@ -112,6 +119,12 @@ class PathSafetyError(ValueError):
 
 class MappingValidationError(ValueError):
     """Raised when target mapping validation fails."""
+
+
+class CanonicalAssets(dict):
+    """Keep selected help closure evidence without emitting a synthetic asset."""
+
+    help_required = False
 
 
 @dataclass(frozen=True)
@@ -392,6 +405,11 @@ def validate_target_mapping(data: dict[str, Any]) -> list[str]:
             errors.append(f"{prefix}: modelMapping is not supported; targets inherit the user's platform selection")
 
         errors.extend(_validate_capabilities(prefix, target.get("capabilities", {})))
+        if "argumentSource" in target and (
+            tid not in HELP_ARGUMENT_SOURCES
+            or target["argumentSource"] != HELP_ARGUMENT_SOURCES[tid]
+        ):
+            errors.append(f"{prefix}.argumentSource: invalid platform source/token/fidelity")
         errors.extend(_validate_formats(prefix, target.get("formats", {})))
         errors.extend(_validate_output_paths(prefix, target.get("outputPaths", {})))
         errors.extend(_validate_install_units(prefix, target.get("installUnits")))
@@ -507,6 +525,15 @@ def build_generation_plan(
     if errors:
         raise MappingValidationError("target-mapping.json validation failed:\n- " + "\n- ".join(errors))
     validate_mapping_paths(root, mapping)
+    help_present = getattr(assets, "help_required", False) or any(
+        item["relative_path"] == CANONICAL_HELP_PROMPT_PATH
+        for item in assets["prompts"]
+    )
+    if help_present:
+        missing = [target["id"] for target in mapping["targets"]
+                   if "argumentSource" not in target]
+        if missing:
+            raise MappingValidationError("argumentSource required for help: " + ", ".join(missing))
     by_target: dict[str, TargetResult] = {}
     for target in mapping["targets"]:
         if (
@@ -590,21 +617,13 @@ def _validate_output_namespace(
 # ---------------------------------------------------------------------------
 
 def _load_module_registry(root: Path) -> Optional[dict[str, Any]]:
-    """Return a securely captured module registry, or ``None`` when absent."""
-    try:
-        content = secure_fs.secure_read_bytes(
-            root,
-            MODULE_REGISTRY_PATH,
-            reject_hardlinks=True,
-            max_bytes=MAX_CANONICAL_CONTROL_BYTES,
-        )
-    except FileNotFoundError:
+    """Return a strictly captured module registry, or ``None`` when absent."""
+    path = root / MODULE_REGISTRY_PATH
+    if not path.exists():
         return None
-    try:
-        data = json.loads(content.decode("utf-8", errors="strict"))
-    except (UnicodeDecodeError, json.JSONDecodeError):
-        return None
-    return data if isinstance(data, dict) else None
+    from skill_management.services import registry as registry_service
+
+    return registry_service.load_registry_snapshot(root).to_dict()
 
 
 def _registry_owned_skill_dir_names(
@@ -695,7 +714,7 @@ def scan_canonical_assets(
     committed active manifest's resolved closure rather than re-deriving
     selection from raw project config at publish time.
     """
-    assets: dict[str, list[dict[str, Any]]] = {
+    assets = CanonicalAssets({
         "prompts": [],
         "agents": [],
         "skills": [],
@@ -703,7 +722,7 @@ def scan_canonical_assets(
         "prompt_support": [],
         "help_sidecars": [],
         "shared": [],
-    }
+    })
 
     module_registry = (
         control_snapshot.module_registry
@@ -738,6 +757,12 @@ def scan_canonical_assets(
         selected_module_ids = context.loadable_module_ids(
             module_registry, selected_suites
         )
+
+    assets.help_required = (root / CANONICAL_HELP_PROMPT_PATH).is_file() or bool(
+        module_registry and any(module.get("id") == "cap-help"
+                                for module in module_registry.get("modules", []))
+        and (selected_module_ids is None or "cap-help" in selected_module_ids)
+    )
 
     def _is_loadable(rel_path: str) -> bool:
         if selected_module_ids is not None and module_registry is not None:
@@ -1924,6 +1949,42 @@ def _emit_command(
     """Emit a platform-native command file from a canonical prompt."""
     fm = source["frontmatter"]
     body = source["body"]
+    if source.get("relative_path") == CANONICAL_HELP_PROMPT_PATH:
+        argument = target["argumentSource"]
+        if argument["source"] != "invocation-tail":
+            if argument["source"] == "native-placeholder":
+                instruction = (
+                    "Use the native-placeholder invocation value below as query text.\n"
+                    "An absent value means an empty query.\n\n```text\n"
+                    + argument["token"] + "\n```\n"
+                )
+            else:
+                instruction = (
+                    "Use the generated Invocation Arguments block below as query text.\n"
+                    "An absent value means an empty query. This source is model-visible:\n"
+                    "it is the query text received by the host, not byte-exact keystrokes.\n"
+                )
+            instruction += "If required text is omitted or a placeholder is unsubstituted, stop with the fixed recovery below.\n"
+            # The ``<!-- help-argument-source:start/end -->`` marker pair in
+            # the canonical help prompt delimits the region that receives the
+            # generated invocation instruction above. The emitted file for an
+            # invocation-tail target must carry that block, so the canonical
+            # prompt must keep the marker pair; a dropped pair would leave the
+            # markers verbatim in the emitted body instead of raising.
+            body = re.sub(
+                r"(?s)(<!-- help-argument-source:start -->).*?(<!-- help-argument-source:end -->)",
+                lambda match: match[1] + "\n" + instruction + match[2], body,
+            )
+        if target["id"] != "copilot":
+            marker = "--platform copilot"
+            replaced = body.replace(marker, "--platform " + target["id"])
+            if marker in replaced:
+                raise ValueError(
+                    "canonical help prompt marker {!r} is missing from {}".format(
+                        marker, source.get("relative_path", "the help prompt")
+                    )
+                )
+            body = replaced
     if target["id"] in ("claude-code", "codex"):
         return _format_frontmatter(fm, body, {})
     elif target["id"] in ("opencode", "kilo"):

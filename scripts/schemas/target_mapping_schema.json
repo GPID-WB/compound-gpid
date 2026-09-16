@@ -15,11 +15,21 @@
   },
   "additionalProperties": false,
   "definitions": {
+    "argumentSource": {
+      "type": "object", "additionalProperties": false,
+      "required": ["source", "token", "fidelity"],
+      "properties": {
+        "source": {"enum": ["invocation-tail", "native-placeholder", "generated-block"]},
+        "token": {"enum": ["", "$ARGUMENTS"]},
+        "fidelity": {"enum": ["model-visible", "native-placeholder"]}
+      }
+    },
     "target": {
       "type": "object",
       "required": ["id", "name", "generatedTreePath", "capabilities", "formats", "outputPaths"],
       "properties": {
         "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+        "argumentSource": { "$ref": "#/definitions/argumentSource" },
         "name": { "type": "string" },
         "generatedTreePath": { "type": ["string", "null"], "pattern": "^(?![A-Za-z]:)(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[^\\u0000\\\\]+$" },
         "projectedCategories": {

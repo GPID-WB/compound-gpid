@@ -158,16 +158,18 @@
       "id": "cap-help",
       "layer": "capability",
       "displayName": "Command help evidence",
-      "description": "Shared shell-command metadata and cross-suite help ownership authority.",
+      "description": "Shared shell-command metadata and cross-suite help ownership authority. Closure rationale: depends only on kernel because every canonical asset it owns is base-layer metadata; no capability pack or suite dependency is needed for its ownership authority.",
       "dependsOn": ["kernel"],
       "ownedAssets": [
+        ".github/prompts/cg-help.help.json",
+        ".github/prompts/cg-help.prompt.md",
         ".github/shared/help-catalog.json",
         ".github/shared/shell-commands.json"
       ],
       "ambiguous": [],
       "help": {
         "metadataGlobs": [".github/shared/shell-commands.json"],
-        "commandKinds": ["shell"],
+        "commandKinds": ["shell", "slash"],
         "commandPrefixes": ["cg-"],
         "catalogOwner": "cap-help"
       }
@@ -312,6 +314,7 @@
       "layer": "suite",
       "displayName": "Technical suite",
       "description": "The /cg-* command orchestration surface: workflow prompts, suite-specific agents, and workflow-support skills.",
+      "ownershipExclusions": [".github/prompts/cg-help.help.json", ".github/prompts/cg-help.prompt.md"],
       "dependsOn": [
         "kernel",
         "cap-help",

@@ -3,11 +3,11 @@
   "commands": [
     {
       "id": "shell:cg-brain-init", "name": "cg-brain-init", "kind": "shell", "ownerModule": "kernel", "supportedSuites": ["cg", "cr"],
-      "category": "knowledge", "summary": "Initialize a project connection to the configured team Brain repository.", "aliases": [],
+      "category": "knowledge", "summary": "Create and scaffold a public team Brain repository, or configure a project to use an existing repository.", "aliases": [],
       "intents": ["initialize team brain", "configure shared knowledge synchronization"], "usage": "cg-brain-init --repo <owner/name> --manager <github-user>", "examples": ["cg-brain-init --repo GPID-WB/team-brain --manager analyst"],
-      "prerequisites": ["Python 3.8+ and repository access."], "outputs": ["Validated team Brain configuration."],
+      "prerequisites": ["Python 3.8+, Git, and authenticated GitHub CLI (gh) with repository creation and push access when creating a repository."], "outputs": ["A new public repository with its initial scaffold commit pushed, when the repository does not exist.", "Local team Brain configuration when enabled and the update succeeds; otherwise setup guidance."],
       "constraints": ["Requires explicit repository and manager identities."], "relatedCommands": [{"id": "shell:cg-index", "relation": "related"}],
-      "sourcePath": "bin/cg-brain-init", "definitionSources": ["bin/cg-brain-init", "bin/cg-brain-init.cmd", "install.ps1", "scripts/install.sh", "scripts/team_brain/init.py"], "definitionDigest": "dc62bcc4101700aa484e381dc966e78e200808280951174fcdeb687afc3ae858",
+      "sourcePath": "bin/cg-brain-init", "definitionSources": ["bin/cg-brain-init", "bin/cg-brain-init.cmd", "install.ps1", "scripts/install.sh", "scripts/team_brain/init.py"], "definitionDigest": "f62c6d1f62ccd3589042dfcc5c3e54b251a7f919c7440b5373d93c64a8b84623",
       "documentationTargets": [], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["posix", "windows"],
       "availability": {"status": "conditional", "evidence": [{"os": "posix", "sourcePath": "bin/cg-brain-init"}, {"os": "windows", "sourcePath": "bin/cg-brain-init.cmd"}]},
       "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}, {"suite": "cr", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
@@ -18,9 +18,22 @@
       "intents": ["summarize git changes", "reduce diff context"], "usage": "cg-diff-summary [arguments]", "examples": ["cg-diff-summary"],
       "prerequisites": ["Python 3.8+ and a POSIX shell."], "outputs": ["A compact diff summary and full patch artifact reference."],
       "constraints": ["POSIX only; no Windows wrapper is installed."], "relatedCommands": [],
-      "sourcePath": "bin/cg-diff-summary", "definitionSources": ["bin/cg-diff-summary", "scripts/cg_summary.py", "scripts/install.sh"], "definitionDigest": "f1236d9b3722e6a3e61ca0d304392fcb470b7cedbee69779e66d978a70819e6b",
+      "sourcePath": "bin/cg-diff-summary", "definitionSources": ["bin/cg-diff-summary", "scripts/cg_summary.py", "scripts/install.sh"], "definitionDigest": "45d737a106313430b6f12f281e267efe61153ca2a166a2516a31a0b413f96b40",
       "documentationTargets": [], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["posix"],
       "availability": {"status": "conditional", "evidence": [{"os": "posix", "sourcePath": "bin/cg-diff-summary"}]},
+      "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}, {"suite": "cr", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
+    },
+    {
+      "id": "shell:cg-help", "name": "cg-help", "kind": "shell", "ownerModule": "cap-help", "supportedSuites": ["cg", "cr"],
+      "category": "help", "summary": "Query evidence-backed command help through confined single-use request and selection files.", "aliases": [],
+      "intents": ["find command syntax and prerequisites", "query available commands and documented workflows"], "usage": "cg-help (--prepare-request|--consume-request <uuid>|--render-selection <uuid>) [--root <path>] [--platform <copilot|claude-code|codex|opencode|kilo>] [--catalog <path> --source-root <path>]", "examples": ["cg-help --prepare-request --root . --platform kilo", "cg-help --consume-request <returned-uuid> --root . --platform kilo", "cg-help --render-selection <returned-uuid> --root . --platform kilo"],
+      "prerequisites": ["Python 3.8+, Git, and a writable canonical project root with no link or reparse ancestors.", "Current installed-clone catalog and definition evidence, plus valid strict project config and active manifest or recognized no-config legacy installation evidence.", "In Git projects, .compound-gpid/runtime/help-requests files must be untracked and ignored; cg-link manages the runtime ignore entry."],
+      "outputs": ["Schema-v1 JSON transport envelopes on stdout, with deterministic Markdown inside semantic results.", "Prepared request UUID and confined query path; candidate results prepare a selection path for allowed command IDs.", "Overview, exact command, candidates, documented workflow, unsupported, or error results; nonzero CLI errors also emit stderr diagnostics."],
+      "constraints": ["Choose exactly one operation. Write UTF-8 query text in place to the returned query file through a structured file-write tool; never pass query text as a shell argument.", "Use the returned UUID and the same project root, platform, catalog, and source-root binding for consume and render operations.", "Query input is limited to 4096 bytes; selection input is a JSON array of at most three distinct allowed command IDs, limited to 1024 bytes. Requests and selections are single-use and expire after 300 seconds.", "Only candidates permit selection rendering. Write the selection array in place to the returned selection file; changed catalog or project evidence requires a new request.", "--catalog and --source-root are paired local fixture overrides, not normal catalog selection flags.", "CLI exit categories are 0 success, 2 invalid transport or input, 3 invalid evidence, and 4 filesystem or I/O failure; missing Python makes the wrapper exit 1."],
+      "relatedCommands": [{"id": "shell:cg-link", "relation": "related"}],
+      "sourcePath": "bin/cg-help", "definitionSources": ["bin/cg-help", "bin/cg-help.cmd", "install.ps1", "scripts/cg_help.py", "scripts/cg_project_manifest.py", "scripts/help/catalog.py", "scripts/help/query.py", "scripts/install.sh", "scripts/link.ps1", "scripts/link.sh", "scripts/schemas/help_catalog_schema.json", "scripts/schemas/help_transport_schema.json", "scripts/secure_fs.py"], "definitionDigest": "b46fc9ac6386cc929dd57b128dbdd910150f901e7506b506eba27fafa3775567",
+      "documentationTargets": [], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["posix", "windows"],
+      "availability": {"status": "conditional", "evidence": [{"os": "posix", "sourcePath": "bin/cg-help"}, {"os": "windows", "sourcePath": "bin/cg-help.cmd"}]},
       "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}, {"suite": "cr", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
     },
     {
@@ -29,18 +42,18 @@
       "intents": ["build knowledge indexes", "query project brain context"], "usage": "cg-index query --intent <intent> --query <text> --budget <tokens> --format <json|md>", "examples": ["cg-index query --intent work --query ownership --budget 800 --format md"],
       "prerequisites": ["Python 3.8+ and project knowledge artifacts."], "outputs": ["Deterministic Brain indexes or bounded query results."],
       "constraints": ["Query output is budgeted and local to declared knowledge sources."], "relatedCommands": [{"id": "slash:cg-brain-rebuild", "relation": "related"}],
-      "sourcePath": "bin/cg-index", "definitionSources": ["bin/cg-index", "bin/cg-index.cmd", "install.ps1", "scripts/cg_index.py", "scripts/install.sh"], "definitionDigest": "e1f7eae11c27c012da74ad341f389fa8b8407558dfff3ebb771df3e5936d4b81",
+      "sourcePath": "bin/cg-index", "definitionSources": ["bin/cg-index", "bin/cg-index.cmd", "install.ps1", "scripts/cg_index.py", "scripts/install.sh"], "definitionDigest": "a970b6ab4488c1a524288605b8fb2afa5bf8c98cb90a55e5af8effe877f0f41f",
       "documentationTargets": [], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["posix", "windows"],
       "availability": {"status": "conditional", "evidence": [{"os": "posix", "sourcePath": "bin/cg-index"}, {"os": "windows", "sourcePath": "bin/cg-index.cmd"}]},
       "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}, {"suite": "cr", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
     },
     {
       "id": "shell:cg-kilo", "name": "cg-kilo", "kind": "shell", "ownerModule": "cap-help", "supportedSuites": ["cg", "cr"],
-      "category": "integration", "summary": "Run the certified contained Kilo launch preflight and optional host launch.", "aliases": [],
-      "intents": ["launch Kilo with certified containment", "validate Kilo coexistence"], "usage": "cg-kilo [--root <path>] [--json] [--launch] [-- <host arguments>]", "examples": ["cg-kilo --json"],
-      "prerequisites": ["Python 3.8+ and supported Kilo host infrastructure."], "outputs": ["Bounded preflight evidence and optional certified host launch."],
-      "constraints": ["Direct launch is unsupported when certified containment is required."], "relatedCommands": [{"id": "shell:cg-link", "relation": "related"}],
-      "sourcePath": "bin/cg-kilo", "definitionSources": ["bin/cg-kilo", "bin/cg-kilo.cmd", "install.ps1", "scripts/cg_kilo_preflight.py", "scripts/install.sh"], "definitionDigest": "ce28b1609365c9730dcb04957fa7f0f07a27f7d8837187586d57c0f83a1afcba",
+      "category": "integration", "summary": "Run the certified contained Kilo launch preflight and launch Kilo when it passes.", "aliases": [],
+      "intents": ["launch Kilo with certified containment", "launch Kilo after coexistence validation"], "usage": "cg-kilo [<Kilo arguments>]", "examples": ["cg-kilo"],
+      "prerequisites": ["Python 3.8+ and Kilo 7.4.20 or later with the required local projection, capability, and containment checks. Exact certified-host version and executable hash checks are separate."], "outputs": ["Bounded preflight evidence and a Kilo launch after a passing preflight."],
+      "constraints": ["Direct launch is unsupported when certified containment is required.", "The wrapper always passes --launch --; all supplied arguments go to Kilo, not to the preflight parser."], "relatedCommands": [{"id": "shell:cg-link", "relation": "related"}],
+      "sourcePath": "bin/cg-kilo", "definitionSources": ["bin/cg-kilo", "bin/cg-kilo.cmd", "install.ps1", "scripts/cg_kilo_preflight.py", "scripts/install.sh"], "definitionDigest": "bfd07b349f49de972284149b8e5274c6e9a54157cd21a58d97332a458ba3115e",
       "documentationTargets": [{"path": "docs/installation.md", "section": "step-3-link-your-project-once-per-project"}], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["posix", "windows"],
       "availability": {"status": "conditional", "evidence": [{"os": "posix", "sourcePath": "bin/cg-kilo"}, {"os": "windows", "sourcePath": "bin/cg-kilo.cmd"}]},
       "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}, {"suite": "cr", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
@@ -51,7 +64,7 @@
       "intents": ["link Compound GPID to a project", "select installed agent platforms"], "usage": "cg-link [--platforms <comma-separated-platforms>]", "examples": ["cg-link --platforms copilot,kilo"],
       "prerequisites": ["A valid Compound GPID installation and project root."], "outputs": ["Validated links, copies, config, manifest, and projection state."],
       "constraints": ["Fails closed on unsafe paths, invalid config, or projection conflicts."], "relatedCommands": [{"id": "shell:cg-update", "relation": "related"}, {"id": "shell:cg-unlink", "relation": "related"}],
-      "sourcePath": "bin/cg-link", "definitionSources": ["bin/cg-link", "bin/cg-link.cmd", "install.ps1", "scripts/install.sh", "scripts/link.ps1", "scripts/link.sh"], "definitionDigest": "0cd218e236996c5c2362b18b3ba50c0bc93498dcb272bbaf0517744911863e7e",
+      "sourcePath": "bin/cg-link", "definitionSources": ["bin/cg-link", "bin/cg-link.cmd", "install.ps1", "scripts/install.sh", "scripts/link.ps1", "scripts/link.sh"], "definitionDigest": "285dde3ce43bda82a2676806c98ea7161120fdf7eb229a1aeed7955de7d16292",
       "documentationTargets": [{"path": "docs/installation.md", "section": "step-3-link-your-project-once-per-project"}], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["posix", "windows"],
       "availability": {"status": "available", "evidence": [{"os": "posix", "sourcePath": "bin/cg-link"}, {"os": "windows", "sourcePath": "bin/cg-link.cmd"}]},
       "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}, {"suite": "cr", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
@@ -62,7 +75,7 @@
       "intents": ["summarize git history", "reduce commit log context"], "usage": "cg-log-summary [arguments]", "examples": ["cg-log-summary"],
       "prerequisites": ["Python 3.8+ and a POSIX shell."], "outputs": ["A compact recent-commit summary."],
       "constraints": ["POSIX only; no Windows wrapper is installed."], "relatedCommands": [],
-      "sourcePath": "bin/cg-log-summary", "definitionSources": ["bin/cg-log-summary", "scripts/cg_summary.py", "scripts/install.sh"], "definitionDigest": "824dc0c3eb29a0fb07a51eb1dd67c32227aa759b48fdd9db7c0b515edf3644c0",
+      "sourcePath": "bin/cg-log-summary", "definitionSources": ["bin/cg-log-summary", "scripts/cg_summary.py", "scripts/install.sh"], "definitionDigest": "51cb59059343cb22d179033fc729fe56e3cdf8dbe255e3857564e9f532518fb5",
       "documentationTargets": [], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["posix"],
       "availability": {"status": "conditional", "evidence": [{"os": "posix", "sourcePath": "bin/cg-log-summary"}]},
       "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}, {"suite": "cr", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
@@ -70,10 +83,10 @@
     {
       "id": "shell:cg-problems-summary", "name": "cg-problems-summary", "kind": "shell", "ownerModule": "cap-help", "supportedSuites": ["cg", "cr"],
       "category": "summaries", "summary": "Create a bounded summary of editor or diagnostics problem output.", "aliases": [],
-      "intents": ["summarize diagnostics", "reduce problem output context"], "usage": "cg-problems-summary [arguments]", "examples": ["cg-problems-summary"],
-      "prerequisites": ["Python 3.8+ and a POSIX shell."], "outputs": ["A compact diagnostics summary."],
+      "intents": ["summarize diagnostics", "reduce problem output context"], "usage": "cg-problems-summary --input <diagnostics-file> [arguments]", "examples": ["cg-problems-summary --input problems.json"],
+      "prerequisites": ["Python 3.8+, a POSIX shell, and an existing diagnostics JSON file or text log supplied with --input."], "outputs": ["A compact diagnostics summary."],
       "constraints": ["POSIX only; no Windows wrapper is installed."], "relatedCommands": [{"id": "slash:cg-fix-problems", "relation": "related"}],
-      "sourcePath": "bin/cg-problems-summary", "definitionSources": ["bin/cg-problems-summary", "scripts/cg_summary.py", "scripts/install.sh"], "definitionDigest": "8e341265daf9930efe6bffb26ff67792a8b0304f3b8e7cb36b19f3ec6aa5847a",
+      "sourcePath": "bin/cg-problems-summary", "definitionSources": ["bin/cg-problems-summary", "scripts/cg_summary.py", "scripts/install.sh"], "definitionDigest": "768eb1f7d561e85951948774509170cb7825111f1c3ee5280478d726416605f9",
       "documentationTargets": [], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["posix"],
       "availability": {"status": "conditional", "evidence": [{"os": "posix", "sourcePath": "bin/cg-problems-summary"}]},
       "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}, {"suite": "cr", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
@@ -84,7 +97,7 @@
       "intents": ["publish generic Markdown", "check generic HTML freshness"], "usage": "cg-publish-markdown [--automatic|--validate-only|--check] [--theme <theme>] <source>", "examples": ["cg-publish-markdown --check docs/guide.md"],
       "prerequisites": ["Python 3.8+ and a supported project-contained Markdown source."], "outputs": ["Curated HTML or a deterministic validation/check result."],
       "constraints": ["Brainstorm and Plan sources must use cg-render-artifact."], "relatedCommands": [{"id": "shell:cg-render-artifact", "relation": "alternative"}, {"id": "slash:cg-render-doc", "relation": "related"}],
-      "sourcePath": "bin/cg-publish-markdown", "definitionSources": ["bin/cg-publish-markdown", "bin/cg-publish-markdown.cmd", "install.ps1", "scripts/artifact_views/generic_cli.py", "scripts/install.sh", "scripts/publish_markdown.py"], "definitionDigest": "98dcb3a56d358dc9ad1f98c241674446c3df718d7b0866779f1e76ca1df973f6",
+      "sourcePath": "bin/cg-publish-markdown", "definitionSources": ["bin/cg-publish-markdown", "bin/cg-publish-markdown.cmd", "install.ps1", "scripts/artifact_views/generic_cli.py", "scripts/install.sh", "scripts/publish_markdown.py"], "definitionDigest": "2241294c0654135bc67ef46ff4a0452d69ea00b44e513d4c4c570e03d9a533d2",
       "documentationTargets": [], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["posix", "windows"],
       "availability": {"status": "available", "evidence": [{"os": "posix", "sourcePath": "bin/cg-publish-markdown"}, {"os": "windows", "sourcePath": "bin/cg-publish-markdown.cmd"}]},
       "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}, {"suite": "cr", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
@@ -95,7 +108,7 @@
       "intents": ["render a plan or brainstorm", "validate workflow artifact HTML"], "usage": "cg-render-artifact [--automatic|--validate-only|--check] <source>", "examples": ["cg-render-artifact --check .cg-docs/plans/example.md"],
       "prerequisites": ["Python 3.8+ and a supported Plan or Brainstorm source."], "outputs": ["Curated HTML or a deterministic validation/check result."],
       "constraints": ["Uses the strict typed-artifact schema and provenance contract."], "relatedCommands": [{"id": "shell:cg-publish-markdown", "relation": "alternative"}, {"id": "slash:cg-render-doc", "relation": "related"}],
-      "sourcePath": "bin/cg-render-artifact", "definitionSources": ["bin/cg-render-artifact", "bin/cg-render-artifact.cmd", "install.ps1", "scripts/artifact_views/cli.py", "scripts/install.sh", "scripts/render_artifact.py"], "definitionDigest": "c5bbbd94d59c5276a492a30daad5c2edfca6fcc8ff68087fea554c73f8ebf5ed",
+      "sourcePath": "bin/cg-render-artifact", "definitionSources": ["bin/cg-render-artifact", "bin/cg-render-artifact.cmd", "install.ps1", "scripts/artifact_views/cli.py", "scripts/install.sh", "scripts/render_artifact.py"], "definitionDigest": "07ed562161c771aaeee352f18a4e15c21d639dc25fbe8c7b9eb10ddc2ee6670b",
       "documentationTargets": [], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["posix", "windows"],
       "availability": {"status": "available", "evidence": [{"os": "posix", "sourcePath": "bin/cg-render-artifact"}, {"os": "windows", "sourcePath": "bin/cg-render-artifact.cmd"}]},
       "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}, {"suite": "cr", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
@@ -106,7 +119,7 @@
       "intents": ["manage skills from the terminal", "inspect or validate skill state"], "usage": "cg-skill --project-root . --format <human|json> <operation> [arguments]", "examples": ["cg-skill --project-root . --format json find --id python"],
       "prerequisites": ["Python 3.8+ and installed skill-management contracts."], "outputs": ["A validated human or JSON lifecycle result."],
       "constraints": ["Maintainer mutations require role and plan-digest checks."], "relatedCommands": [{"id": "slash:cg-skill", "relation": "related"}],
-      "sourcePath": "bin/cg-skill", "definitionSources": ["bin/cg-skill", "bin/cg-skill.cmd", "install.ps1", "scripts/cg_skill.py", "scripts/install.sh"], "definitionDigest": "942b89e8830eccfc3172d58f2bfe421de7da83c6a43b481a1ba79475917d94b7",
+      "sourcePath": "bin/cg-skill", "definitionSources": ["bin/cg-skill", "bin/cg-skill.cmd", "install.ps1", "scripts/cg_skill.py", "scripts/install.sh"], "definitionDigest": "68453a948dfc65100a41b70b7fdff2da54f42194aa66313ba0ec4d437748a1b8",
       "documentationTargets": [{"path": "docs/skills/management/index.md", "section": "common-grammar"}], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["posix", "windows"],
       "availability": {"status": "available", "evidence": [{"os": "posix", "sourcePath": "bin/cg-skill"}, {"os": "windows", "sourcePath": "bin/cg-skill.cmd"}]},
       "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}, {"suite": "cr", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
@@ -117,7 +130,7 @@
       "intents": ["summarize test output", "reduce test log context"], "usage": "cg-test-summary [arguments]", "examples": ["cg-test-summary"],
       "prerequisites": ["Python 3.8+, a POSIX shell, and existing test output."], "outputs": ["A compact test result summary."],
       "constraints": ["Does not run tests and has no Windows wrapper."], "relatedCommands": [],
-      "sourcePath": "bin/cg-test-summary", "definitionSources": ["bin/cg-test-summary", "scripts/cg_summary.py", "scripts/install.sh"], "definitionDigest": "5830b32b04908c16d76799b83c9e79b8fa2bfe52e397cfeadd45fe6eb15c40ee",
+      "sourcePath": "bin/cg-test-summary", "definitionSources": ["bin/cg-test-summary", "scripts/cg_summary.py", "scripts/install.sh"], "definitionDigest": "c762096e1e99c28a8162eba8aaf122e66156788c28acb1dada6003a81f3fd279",
       "documentationTargets": [], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["posix"],
       "availability": {"status": "conditional", "evidence": [{"os": "posix", "sourcePath": "bin/cg-test-summary"}]},
       "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}, {"suite": "cr", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
@@ -126,9 +139,9 @@
       "id": "shell:cg-token-audit", "name": "cg-token-audit", "kind": "shell", "ownerModule": "cap-help", "supportedSuites": ["cg", "cr"],
       "category": "assurance", "summary": "Run the deterministic context and model-governance audit.", "aliases": [],
       "intents": ["measure token and context usage", "write context budget reports"], "usage": "cg-token-audit --root . --output-dir .cg-docs/cost --format both --recommendations", "examples": ["cg-token-audit --root . --output-dir .cg-docs/cost --format both --recommendations"],
-      "prerequisites": ["Python 3.8+ and a Compound GPID project."], "outputs": ["Cost, token, dashboard, and recommendation artifacts."],
+      "prerequisites": ["Python 3.8+ and a Compound GPID source root with a .github/prompts directory under --root; a native-only linked project is not sufficient."], "outputs": ["Cost, token, dashboard, and recommendation artifacts."],
       "constraints": ["Uses bounded declared workflow and context inputs."], "relatedCommands": [{"id": "slash:cg-token-audit", "relation": "related"}],
-      "sourcePath": "bin/cg-token-audit", "definitionSources": ["bin/cg-token-audit", "bin/cg-token-audit.cmd", "install.ps1", "scripts/cg_audit_context.py", "scripts/install.sh"], "definitionDigest": "12e05d603240d79374240ab0a939743453d72d066510fc6d57d695cf91a9cb3b",
+      "sourcePath": "bin/cg-token-audit", "definitionSources": ["bin/cg-token-audit", "bin/cg-token-audit.cmd", "install.ps1", "scripts/cg_audit_context.py", "scripts/install.sh"], "definitionDigest": "68d93b9ffe507d910d53f83464f6778591b8d21c04abdd2640f9ebd3596a6c53",
       "documentationTargets": [], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["posix", "windows"],
       "availability": {"status": "available", "evidence": [{"os": "posix", "sourcePath": "bin/cg-token-audit"}, {"os": "windows", "sourcePath": "bin/cg-token-audit.cmd"}]},
       "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}, {"suite": "cr", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
@@ -139,7 +152,7 @@
       "intents": ["summarize project files", "reduce file tree context"], "usage": "cg-tree-summary [arguments]", "examples": ["cg-tree-summary"],
       "prerequisites": ["Python 3.8+ and a POSIX shell."], "outputs": ["A compact project tree summary."],
       "constraints": ["POSIX only; no Windows wrapper is installed."], "relatedCommands": [],
-      "sourcePath": "bin/cg-tree-summary", "definitionSources": ["bin/cg-tree-summary", "scripts/cg_summary.py", "scripts/install.sh"], "definitionDigest": "6d27ef7fbdaf6788ee3719329e1fa588094fcf0e97dc17d694bd7de5c9549109",
+      "sourcePath": "bin/cg-tree-summary", "definitionSources": ["bin/cg-tree-summary", "scripts/cg_summary.py", "scripts/install.sh"], "definitionDigest": "e7deedf20e0ad7f50781490d0142307f2d6b417bb88c3d0238c526089f9e57c9",
       "documentationTargets": [], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["posix"],
       "availability": {"status": "conditional", "evidence": [{"os": "posix", "sourcePath": "bin/cg-tree-summary"}]},
       "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}, {"suite": "cr", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
@@ -148,9 +161,9 @@
       "id": "shell:cg-unlink", "name": "cg-unlink", "kind": "shell", "ownerModule": "cap-help", "supportedSuites": ["cg", "cr"],
       "category": "lifecycle", "summary": "Remove only Compound GPID-managed project links and projections.", "aliases": [],
       "intents": ["unlink Compound GPID from a project", "remove managed platform assets"], "usage": "cg-unlink [--yes]", "examples": ["cg-unlink --yes"],
-      "prerequisites": ["A linked Compound GPID project."], "outputs": ["Removed checksum-owned links and projection files with preservation warnings."],
-      "constraints": ["Preserves user-owned or drifted content."], "relatedCommands": [{"id": "shell:cg-link", "relation": "related"}],
-      "sourcePath": "bin/cg-unlink", "definitionSources": ["bin/cg-unlink", "bin/cg-unlink.cmd", "install.ps1", "scripts/install.sh", "scripts/unlink.ps1", "scripts/unlink.sh"], "definitionDigest": "7f7a5ecd85e403cc8ad304cce6a4eac6ce60e4a6d1b94db98f4bc15f8b322a05",
+      "prerequisites": ["A linked Compound GPID project."], "outputs": ["Removed managed links, checksum-owned projection files, and marker-owned instruction files, with preservation warnings where applicable."],
+      "constraints": ["Preserves user-owned paths and checksum-drifted managed copies, but .github/copilot-instructions.md may be removed even with user edits when its Compound GPID ownership marker is present."], "relatedCommands": [{"id": "shell:cg-link", "relation": "related"}],
+      "sourcePath": "bin/cg-unlink", "definitionSources": ["bin/cg-unlink", "bin/cg-unlink.cmd", "install.ps1", "scripts/install.sh", "scripts/unlink.ps1", "scripts/unlink.sh"], "definitionDigest": "c4057bbf8ff3bee2a3991c2bfda67d69af43a7bbfca0f6f383df31858b121cf5",
       "documentationTargets": [{"path": "docs/installation.md", "section": "uninstalling"}], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["posix", "windows"],
       "availability": {"status": "available", "evidence": [{"os": "posix", "sourcePath": "bin/cg-unlink"}, {"os": "windows", "sourcePath": "bin/cg-unlink.cmd"}]},
       "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}, {"suite": "cr", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
@@ -161,7 +174,7 @@
       "intents": ["update Compound GPID", "pin or repair an installation"], "usage": "cg-update [<version>|latest|--list|--fix]", "examples": ["cg-update --list"],
       "prerequisites": ["An installed Compound GPID clone."], "outputs": ["Updated installation and refreshed linked project state when applicable."],
       "constraints": ["Repair mode can discard installation-clone changes and must be selected explicitly."], "relatedCommands": [{"id": "shell:cg-link", "relation": "related"}],
-      "sourcePath": "bin/cg-update", "definitionSources": ["bin/cg-update", "bin/cg-update.cmd", "install.ps1", "scripts/install.sh", "scripts/update.ps1", "scripts/update.sh"], "definitionDigest": "49b7bb2540999a83dd70a2c78f0cea3a8e030e4e1a897d6b76e002e4ffe5c027",
+      "sourcePath": "bin/cg-update", "definitionSources": ["bin/cg-update", "bin/cg-update.cmd", "install.ps1", "scripts/install.sh", "scripts/update.ps1", "scripts/update.sh"], "definitionDigest": "48ee8c4148e2eb6396f06600273357a6d3fcdced00e91dd26dcdc54bec5b8835",
       "documentationTargets": [{"path": "docs/versioning.md", "section": "commands-in-depth"}], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["posix", "windows"],
       "availability": {"status": "available", "evidence": [{"os": "posix", "sourcePath": "bin/cg-update"}, {"os": "windows", "sourcePath": "bin/cg-update.cmd"}]},
       "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}, {"suite": "cr", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
