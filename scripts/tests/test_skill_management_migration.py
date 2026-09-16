@@ -17,7 +17,7 @@ GENERATED_COMMAND_ROOTS = (
     ".kilo/commands",
 )
 MIGRATION_REFERENCES = {
-    "docs/skills/management/migration.md",
+    "docs/skills/management/index.md",
     "install.ps1",
     "scripts/install.sh",
 }
@@ -64,7 +64,10 @@ def test_migration_scan_respects_repository_ownership(
     owned = {
         ".kilo/commands/current.md": "cg-find-skill",
         ".kilo/worktrees/owned/record.md": "source-owned content",
-        "docs/skills/management/migration.md": " ".join(OLD_NAMES),
+        "docs/skills/management/index.md": (
+            "# Skill Management\n\n## Migrate Existing Workflows\n\n"
+            + " ".join(OLD_NAMES)
+        ),
         "install.ps1": "",
         "compound-gpid.context.md": "",
     }
@@ -150,17 +153,58 @@ def test_old_names_remain_only_in_explicit_migration_text() -> None:
         content = path.read_text(encoding="utf-8", errors="strict")
         for old_name in OLD_NAMES:
             if old_name in content:
+                if relative == "docs/skills/management/index.md":
+                    before, marker, after = content.partition(
+                        "\n## Migrate Existing Workflows\n"
+                    )
+                    migration, _, following = after.partition("\n## ")
+                    assert marker and old_name in migration, (old_name, relative)
+                    assert old_name not in before and old_name not in following, (
+                        old_name, relative, "outside migration section"
+                    )
                 occurrences[old_name].append(relative)
     for old_name, paths in occurrences.items():
         assert set(paths) <= MIGRATION_REFERENCES, (old_name, paths)
-        assert "docs/skills/management/migration.md" in paths
+        assert "docs/skills/management/index.md" in paths
+
+
+@pytest.mark.parametrize("old_name", OLD_NAMES)
+@pytest.mark.parametrize("position", ["before", "after"])
+def test_retired_names_outside_unified_migration_section_are_rejected(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, old_name: str, position: str
+) -> None:
+    """Allow the moved migration section, not retired guidance elsewhere."""
+    guide = tmp_path / "docs/skills/management/index.md"
+    guide.parent.mkdir(parents=True)
+    content = (
+        "# Skill Management\n\n## Migrate Existing Workflows\n\n"
+        + " ".join(OLD_NAMES)
+        + "\n\n## Operation Reference\n"
+    )
+    content = old_name + "\n" + content if position == "before" else content + old_name
+    guide.write_text(content, encoding="utf-8")
+    monkeypatch.setitem(globals(), "REPO_ROOT", tmp_path)
+    monkeypatch.setitem(globals(), "_active_text_files", lambda _root: (guide,))
+    with pytest.raises(AssertionError, match="outside migration section"):
+        test_old_names_remain_only_in_explicit_migration_text()
 
 
 def test_public_navigation_and_benchmark_use_cg_skill() -> None:
     navigation = json.loads((REPO_ROOT / "docs/navigation.json").read_text(encoding="utf-8"))
-    groups = [group for group in navigation["groups"] if group["title"] == "Skill Management"]
+    groups = [group for group in navigation["groups"] if group["title"] == "Skills"]
     assert len(groups) == 1
-    assert len(groups[0]["pages"]) == 29
+    assert not any(group["title"] == "Skill Management" for group in navigation["groups"])
+    pages = groups[0]["pages"]
+    assert [page["id"] for page in pages if page.get("sidebar", True)] == [
+        "skills", "skill-management"
+    ]
+    assert len([
+        page for page in pages
+        if Path(page["file"]).parts[:2] == ("skills", "management")
+    ]) == 29
+    importing = next(page for page in pages if page["id"] == "importing-skills")
+    assert importing["sidebar"] is False
+    assert importing["redirect"]["page"] == "skill-management"
     benchmark = (REPO_ROOT / "scripts/cg_projection_benchmark.py").read_text(
         encoding="utf-8"
     )

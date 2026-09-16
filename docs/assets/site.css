@@ -157,9 +157,9 @@ summary:focus-visible, [tabindex="-1"]:focus-visible { outline: 3px solid var(--
 }
 @media (max-width: 480px) {
   .brand { font-size: 14px; gap: 6px; }
-  .topbar-actions { gap: 2px; }
+  .topbar-actions { gap: 6px; flex-shrink: 0; }
   .icon-button { padding: 0 7px; }
-  .menu-button { width: 34px; }
+  .topbar .icon-button, .topbar .menu-button { min-width: 44px; min-height: 44px; flex-shrink: 0; justify-content: center; }
   .home-page { padding-left: 20px; padding-right: 20px; overflow-wrap: anywhere; }
   .hero-grid { grid-template-columns: minmax(0, 1fr); }
 }

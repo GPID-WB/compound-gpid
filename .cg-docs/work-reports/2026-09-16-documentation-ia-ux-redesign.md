@@ -1164,3 +1164,178 @@ do not run later pipeline steps. Browser/visual/accessibility evidence remains
 pending. Phase 2 remains incomplete, with `completed-phases: [1]`,
 `current-phase: 2`, and plan status active. No evidence exception, PR, deployment,
 or phase completion is authorized by this checkpoint. `nextCommand` stays null.
+
+## Run 10: One Approved Repair Pass, 2026-09-16T23:26:20Z
+
+The user explicitly selected **Approve Repair Pass (Recommended)** for the
+current phase 2 failures. This authorizes exactly one additional bounded pass,
+without waivers, later phases, local browser/Pester runs, or publication actions.
+That pass is now used and locally complete. No local targeted failure remains;
+remote verification is pending. No second pass was started or implied.
+
+### Source-Bound Failure Evidence
+
+Normal CI run https://github.com/GPID-WB/compound-gpid/actions/runs/35160868824,
+attempt 1, tested exact SHA `d3154c40f8836bbfc2f370638b8216049bd367fd` on
+`improve-website-design`. Current HEAD matches. Downloaded provenance confirms
+`repairRequested: false`, repair skipped, `npm ci` and Chromium installation
+successful, and checked-in/installed lockfile SHA-256 unchanged at
+`5641c6e80be9b96c88dfda09157be84bc96920c585e395c92e2b02ad9f4c22c1`.
+Versions: Node 22.23.2, Playwright 1.52.0, axe-core 4.10.3, Chromium 136.0.7103.25.
+
+Parent verified artifact `docs-browser-evidence-35160868824-1`, SHA-256
+`13d1e1a606ff27ab12652480ededca6fd2f22e8e36ffe719bc532d4c8ba00ec0`, downloaded under
+`C:/Users/wb384996/AppData/Local/Temp/3/kilo/docs-browser-evidence-35160868824-1`.
+This task read its provenance, failing JSON assertions, and the root 320px failure
+screenshot. Docs Node: 158 passed. Browser: 18 executed, 14 passed, 4 failed.
+All four failures were the unchanged axe assertion at spec line 122:
+`target-size: .search-trigger, button[data-theme-toggle=""]`, at root/dev 320px
+and 390px. They failed in the first, light-theme iteration; dark-theme evidence
+at those widths was therefore not obtained. Root/dev 768/1024/1440 passed both
+theme iterations. Capture and downstream evidence-test workflow steps were skipped
+after the browser failure, not passed.
+
+Parent also supplied six native pytest failures on each OS: the retired-name
+allowlist still required `docs/skills/management/migration.md`, and five assertions
+still selected a top-level `Skill Management` group. Native execution stopped at
+command 2 of 9 on every OS; the later seven commands remain unverified. The local
+targeted result below does not substitute for that entire cross-platform gate.
+
+### Focused Fixes And Explicit Contract Changes
+
+Read Python skill/instructions and the exact failing test files before editing.
+The approved plan at lines 151-154, 176, 183, 209-222 explicitly names the new
+Skills group, markup-free labels, unified migration section, retained operation
+references, and hidden compatibility narratives. Test expectations change only
+for those named interfaces; no product eligibility or operation contract changed.
+
+| Path / old expectation | Focused repair and retained safeguard |
+| --- | --- |
+| `docs/assets/site.css`: narrow mobile icon buttons with 2px gaps | At <=480px, use 44px minimum width/height for header icon/menu buttons, 6px gaps, no flex shrink, and centered icons. No overflow or axe exception was added |
+| `scripts/tests/docs-browser.spec.js` | Keep every axe tag and the empty-violations assertion unchanged. Add actual rendered-size >=24px and nonoverlap assertions for all three header buttons at 320/390px, within both theme iterations. Collection remains 18 tests |
+| Migration allowlist: old standalone migration page | Replace only that permitted documentation path with `docs/skills/management/index.md`; retain the two installer paths. Require both retired names in the guide's exact `Migrate Existing Workflows` section and reject them before/after it. Four new regressions cover both names on each side of that section. Source-owned/untracked and nested-repository scan guards remain |
+| Public group: 29 pages in top-level `Skill Management` | Require exactly one `Skills` group, no former group, exactly Skills Catalog and Skill Management as primary links, all 29 management records, and the hidden importing redirect |
+| Metadata/H1: literal code backticks in navigation titles | Require markup-free navigation titles matched to Markdown H1 after removing only backticks. Operation H1s remain exactly `# ` followed by the original code-formatted command; operation IDs, descriptor paths, roles, phases and options remain exact |
+| Reachability: guide must lead to all old narrative pages | Require every one of the 12 operation references reachable from the guide; retain exact unique 29-file inventory and all link/fragment validation. Require all 16 management compatibility narratives hidden, registered, linked directly to the guide, with valid default and mapped section targets. The importing compatibility page is separately covered; no stub is excluded from validation |
+
+The only implementation/test paths changed are `docs/assets/site.css`,
+`scripts/tests/docs-browser.spec.js`, `scripts/tests/test_skill_management_migration.py`,
+and `scripts/tests/test_skill_management_completeness.py`. Report/state changes
+record this pass. No canonical Markdown, navigation manifest, runtime script,
+operation descriptor, package/lockfile, or frozen fixture was modified.
+
+### Single Local Verification
+
+The approved short TEMP parent was checked first; Python is 3.12.0. Executed once:
+
+```powershell
+$env:TEMP = 'C:\Users\wb384996\AppData\Local\Temp\3\kilo'
+$env:TMP = $env:TEMP
+python -m pytest scripts/tests/test_skill_management_migration.py scripts/tests/test_skill_management_completeness.py -q --tb=short
+```
+
+Result: **30 passed in 8.75 seconds**, exit 0. This includes the original native
+tests and four new retired-name boundary regressions. No skip or failure reported.
+No native source or test repair was attempted after this result.
+
+| Other executed check | Result |
+| --- | --- |
+| `node --test scripts/tests/docs-migration.test.js scripts/tests/docs-navigation.test.js` | 37 passed, 0 failed, 0 skipped/cancelled/todo |
+| `node --check scripts/tests/docs-browser.spec.js` | Passed syntax only; no browser execution |
+| `node scripts/check-docs-site.js` | Passed: 76 pages, 7 groups, complete skills catalog |
+| `node scripts/rebuild-docs.js --check --all` | Complete build current; no metadata regeneration |
+| `node scripts/tests/fixtures/docs-redesign/capture-baseline.js --check` | Frozen baseline verified: 76 routes, 30 preservation pages, 347 inbound links, 7 alias decisions |
+| `git diff --check` | Passed; existing CSS/browser-spec LF-to-CRLF warnings only |
+
+Repaired working-tree identities (`git hash-object --no-filters`):
+
+| Path | Blob |
+| --- | --- |
+| `docs/assets/site.css` | `f2d7646d72666969ba69c64b80102403bd30d19d` |
+| `scripts/tests/docs-browser.spec.js` | `d7a22ef4473b150286b925fa24eef9bc8238cd4d` |
+| `scripts/tests/test_skill_management_migration.py` | `a7e574d23492fb243a7b282ea889d2b648c0242f` |
+| `scripts/tests/test_skill_management_completeness.py` | `075423f40a68eb4a360aefab73f7984e3ae9fd09` |
+
+### Remaining Evidence And Boundary
+
+Status: `NEEDS_REMOTE_BROWSER`. Parent owns fresh safe Pester for this changed
+tree, the authorized checkpoint/push, and normal remote verification with lock
+repair disabled. Require all 18 browser tests, mobile light and dark axe checks,
+updated responsive screenshots, and all nine native commands on each OS. If any
+failure remains or a new failure appears, return it for a new parent/user decision;
+this pass grants no further automatic repair or evidence waiver.
+
+The independently verified four technical P2 corrections and passing research
+semantic review remain preserved. No content changed in this repair. The previous
+3011-pass Pester result predates this repair and is not a fresh changed-tree gate.
+The prior zoom result used CSS `zoom = 2`, not actual browser zoom. Reduced-motion
+media was emulated but does not prove a complete motion audit. No full visual,
+screen-reader, mobile-dark, or accessibility pass is claimed from these results.
+
+Phase 2 stays incomplete: `completed-phases: [1]`, `current-phase: 2`. No local
+browser, Pester, install, metadata-generation, commit, push, gh command, PR,
+deployment, or later phase ran. Frozen baselines, archived proposal, ignored
+original proposal, approved plan link, and residual `.kilo` GUID fixture directories
+are untouched. `nextCommand` remains null for parent-controlled sequencing.
+
+### Approved Repair Checkpoint Gate: 2026-09-16T23:35:30Z
+
+The parent supplied the focused independent `cg-testing` review from
+`ses_f537295bdffe8bEvNVar6iVnUi`: no material findings, no weakened tests, and
+all axe tags still active. The actual diff retains the empty-violations
+assertion and adds target-size/nonoverlap checks. The migration changes retain
+the restricted allowlist and add four negative boundary cases; completeness
+still requires 29 management pages, 12 operation references, and validated
+compatibility stubs. This is a focused review, not a full remote gate result.
+
+Read the fresh canonical `tests/last-run.json` and confirmed its fields against
+the parent's dedicated safe-runner result. All four repaired source/test blobs
+still match the Run 10 table. Only this report and active state are edited for
+checkpoint preparation; no production or test file changed after the gate.
+
+| Field | Verified result |
+| --- | --- |
+| Command | `. tests\Run-Tests.ps1`, parent dedicated subagent, no flags or pipeline |
+| Artifact ranAt | `2026-09-16T23:33:53Z` |
+| Source HEAD | `d3154c40f8836bbfc2f370638b8216049bd367fd` |
+| Artifact gitSha | `d3154c40`, matching source HEAD |
+| Parent-reported exit / passed | 0 / true |
+| Total / passed / failed / skipped | 3013 / 3011 / 0 / 2 |
+| Skip location | Both in `update`; separate pending counts and individual reasons not recorded |
+| Completeness | All 21 canonical test files present |
+| failFast / filteredFiles | false / null |
+| failures / missing-file skips | Empty arrays |
+| Artifact Git blob, no filters | `9fced73bb5c4e15548e376731c811a6ecf2cdf86` |
+
+The runner used approved short process-local TEMP/TMP at
+`C:\Users\wb384996\AppData\Local\Temp\3\kilo`. Parent-reported free space on
+C: was 1.54 GiB. Non-terminating cleanup warnings remain a qualification, not
+a failed test or an evidence waiver. No local tests are rerun at this checkpoint.
+Retain the 30-pass targeted pytest result, 37-pass Node result, and passing
+site, generation, frozen-baseline, syntax, and diff checks from Run 10.
+
+The user authorized a new early feature-branch checkpoint and exactly one
+remote verification cycle for this repair. Inspected status, actual diffs, and
+the ten recent commits; HEAD and upstream match the source SHA above. Stage
+only the four repair paths plus this report and active state. Exclude both
+`.kilo` GUID directories, scratch/temp files, `tests/last-run.json`, and
+downloaded artifacts. Do not amend, force-push, or bypass hooks.
+
+Commit and push only to `origin/improve-website-design`, then dispatch once:
+
+```text
+gh workflow run tests.yml --repo GPID-WB/compound-gpid --ref improve-website-design
+```
+
+At this precommit record, commit/push/dispatch are pending. The repair input
+defaults to false; do not send a lockfile repair flag. The earlier remote run
+`35160868824` remains failed evidence: 14 browser passes, four target-size
+failures, and six old-interface native failures per OS. Browser and the full
+nine-command native gate remain pending for the repaired commit. If this cycle
+has any remaining or new failure, report it and stop; no further automatic
+repair or retry is authorized.
+
+This is not pipeline Step 9 or `/cg-commit-push-pr`. Stop after dispatch. Phase 2
+remains incomplete, `completed-phases: [1]`, `current-phase: 2`, and plan status
+active. No evidence exception, PR, deployment, or later phase is authorized.
+`nextCommand` remains null.

@@ -117,6 +117,19 @@ for (const width of [320, 390, 768, 1024, 1440]) {
     for (const theme of ["light", "dark"]) {
       await page.evaluate(value => { document.documentElement.dataset.theme = value; }, theme);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      if (width <= 390) {
+        const controls = page.locator(".topbar button");
+        await expect(controls).toHaveCount(3);
+        let previousRight = 0;
+        for (const control of await controls.all()) {
+          const box = await control.boundingBox();
+          expect(box).not.toBeNull();
+          expect(box.width).toBeGreaterThanOrEqual(24);
+          expect(box.height).toBeGreaterThanOrEqual(24);
+          expect(box.x).toBeGreaterThanOrEqual(previousRight);
+          previousRight = box.x + box.width;
+        }
+      }
       await page.addScriptTag({ path: require.resolve("axe-core/axe.min.js") });
       const violations = await page.evaluate(async () => (await axe.run(document, { runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"] } })).violations);
       expect(violations.map(v => `${v.id}: ${v.nodes.map(n => n.target).join(", ")}`)).toEqual([]);
