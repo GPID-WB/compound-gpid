@@ -44,8 +44,8 @@ Describe "Model assignments - prompt files" {
         $promptFiles += Get-Item $releasePrompt
     }
 
-    It "contains exactly 32 prompt files - update this sentinel when changing prompts" {
-        $promptFiles.Count | Should -Be 32
+    It "contains exactly 33 prompt files - update this sentinel when changing prompts" {
+        $promptFiles.Count | Should -Be 33
     }
 
     foreach ($file in $promptFiles) {
@@ -75,8 +75,8 @@ Describe "Model assignments - agent files" {
     $agentsDir = Join-Path $repoRoot ".github\agents"
     $agentFiles = @(Get-ChildItem -Path $agentsDir -Filter "*.agent.md" -File)
 
-    It "contains exactly 28 agent files - update this sentinel when adding a new agent" {
-        $agentFiles.Count | Should -Be 28
+    It "contains exactly 31 agent files - update this sentinel when adding a new agent" {
+        $agentFiles.Count | Should -Be 31
     }
 
     foreach ($file in $agentFiles) {

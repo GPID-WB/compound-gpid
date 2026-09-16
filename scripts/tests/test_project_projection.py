@@ -932,3 +932,39 @@ class TestCliPipeline:
         removed, warnings = projection.unlink_consumer_projection(root)
         assert managed.read_bytes() == b"user-edited"
         assert any("user-modified" in warning for warning in warnings)
+
+
+class TestHelperNeverProjected:
+    """The installed autopilot control helper is never copied into consumers.
+
+    Consumers reach the helper through the global installation and pass their
+    own validated root explicitly; projection must never materialize
+    ``scripts/``, ``tests/`` or ``bin/`` entries, and the target mapping must
+    declare no install unit (including a manifest-ignored directory unit) for
+    the helper.
+    """
+
+    def _destinations(self, tmp_path: Path, platforms: str) -> set:
+        root, _ = _repo_root(tmp_path, platforms=platforms)
+        plan = projection.build_projection_plan(root, projection.load_active_manifest(root))
+        return {entry.destination for entry in plan.entries}
+
+    def test_projection_plan_never_emits_install_or_test_paths(self, tmp_path: Path) -> None:
+        destinations = self._destinations(tmp_path, "kilo,opencode")
+        assert not any(d.startswith("scripts/") for d in destinations)
+        assert not any(d.startswith("tests/") for d in destinations)
+        assert not any(d.startswith("bin/") for d in destinations)
+
+    def test_projection_plan_never_emits_autopilot_control_paths(self, tmp_path: Path) -> None:
+        destinations = self._destinations(tmp_path, "kilo,opencode,copilot")
+        assert not any("autopilot-control" in d for d in destinations)
+
+    def test_target_mapping_declares_no_helper_install_unit(self) -> None:
+        mapping = projection.load_target_mapping(REPO_ROOT)
+        for target in mapping["targets"]:
+            for unit in target.get("installUnits", []):
+                target_rel = str(unit.get("target", ""))
+                assert not target_rel.startswith("bin/")
+                assert not target_rel.startswith("scripts/")
+                assert not target_rel.startswith("tests/")
+                assert "cg-autopilot-control" not in target_rel

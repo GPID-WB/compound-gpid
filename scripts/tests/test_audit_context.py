@@ -795,6 +795,7 @@ class TestPhase6Benchmark:
             "/cg-fix-triage",
             "/cg-compound",
             "/cg-resume",
+            "/cg-autopilot",
             "/cg-diagnose",
             "/cg-token-audit",
         ]
@@ -833,6 +834,7 @@ class TestPhase6Benchmark:
             "/cg-fix-triage",
             "/cg-compound",
             "/cg-resume",
+            "/cg-autopilot",
             "/cg-diagnose",
             "/cg-token-audit",
             "Knowledge Brain/context lookup",
@@ -926,11 +928,11 @@ class TestPhase6Benchmark:
         assert {path.name for path in paths} == set(audit.TOKEN_ARTIFACT_FILENAMES)
         token_payload = json.loads((token_dir / "token-audit.json").read_text(encoding="utf-8"))
         assert token_payload["schema_version"] == 1
-        assert len(token_payload["workflow_telemetry"]["workflows"]) == 9
+        assert len(token_payload["workflow_telemetry"]["workflows"]) == 10
 
         context_payload = json.loads((token_dir / "context-map.json").read_text(encoding="utf-8"))
         assert context_payload["schema_version"] == 1
-        assert len(context_payload["workflows"]) == 9
+        assert len(context_payload["workflows"]) == 10
         token_audit_context = next(
             row for row in context_payload["workflows"] if row["workflow"] == "/cg-token-audit"
         )
@@ -938,7 +940,7 @@ class TestPhase6Benchmark:
         assert "run_in_terminal" in token_audit_context["tool_references"]
 
         cost_rows = list(csv.DictReader(io.StringIO((token_dir / "workflow-costs.csv").read_text(encoding="utf-8"))))
-        assert len(cost_rows) == 9
+        assert len(cost_rows) == 10
         token_audit_cost = next(row for row in cost_rows if row["workflow"] == "/cg-token-audit")
         assert token_audit_cost["command_output_status"] == "not_observed"
         assert token_audit_cost["summary_output_status"] == "not_observed"
