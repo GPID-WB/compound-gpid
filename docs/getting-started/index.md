@@ -91,8 +91,22 @@ or shared files manually.
 
 ## 5. Complete a first workflow
 
-Choose a small real task whose expected result can be checked. Technical work
-uses the `/cg-*` loop:
+Choose a small real task whose expected result can be checked. If it is a
+qualified small, low-risk technical task, run:
+
+```text
+/cg-light-work -- <task>
+```
+
+The first user gate approves and saves a Plan before source edits. The command
+then creates a Work Report and Review Report and runs its mandatory fixed light
+Review with `@cg-code-quality` and `@cg-testing`. Review is capped at one initial
+pass plus one verification pass if Review fixes changed files. The second user
+gate is explicit compounding opt-in; skipping it causes no permanent knowledge
+change.
+
+For larger, ambiguous, security-sensitive, schema, dependency, or destructive
+technical work, use the standard loop:
 
 ```text
 /cg-brainstorm
@@ -114,9 +128,13 @@ provenance, method, and publication checks owned by that suite:
 /cr-compound
 ```
 
+For the research-first onboarding path, continue with the [Research Handbook](../research/index.md).
+
 Use `/cg-plan-review` between planning and work when the task is consequential
-or the plan depends on uncertain assumptions. For an already well-defined,
-small task, start at `/cg-plan`; for a reproducible bug, use `/cg-fixbug`.
+or the Plan depends on uncertain assumptions. `/cg-work` executes approved saved
+Plans and redirects unmatched inline tasks without dispatching them. For a
+reproducible bug, use `/cg-fixbug`. Research, statistical, and publication work
+uses `/cr-*`.
 
 The useful outcome is not merely a chat response. Check that the code or
 document changed as intended, validation evidence exists, review findings were
@@ -126,6 +144,7 @@ verification.
 ## Next pages
 
 - [Workflow Overview](../workflows/index.md) selects a route by task.
+- [Research Handbook](../research/index.md) guides a first research workflow.
 - [Modular Guide](../modular-guide.md) explains suite selection and composition.
 - [Skills Catalog](../skills/index.md) shows the analytical and technical guidance available.
 - [Governance and Security](../governance/index.md) explains constraints and limitations.

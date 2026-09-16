@@ -59,13 +59,49 @@ resolve_python() {
 COPILOT_INSTRUCTIONS_MARKER="<!-- compound-gpid:managed -->"
 VERSION_FILE="$COMPOUND_GPID_DIR/.cg-version"
 
-# Regex that matches 3-component release tags only (e.g. v0.2.0)
-# Dev tags (4-component, e.g. v0.2.0.9000) are excluded from user-visible output.
-RELEASE_TAG_PATTERN='^v[0-9]+\.[0-9]+\.[0-9]+$'
+# BEGIN RELEASE READERS
+# Four-part legacy pins are not SemVer pre-release baselines.
+VERSION_NUMBER='(0|[1-9][0-9]*)'
+VERSION_IDENTIFIER='(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)'
+VERSION_CORE="${VERSION_NUMBER}\\.${VERSION_NUMBER}\\.${VERSION_NUMBER}"
+VERSION_SUFFIX="(-${VERSION_IDENTIFIER}(\\.${VERSION_IDENTIFIER})*)?(\\+[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?"
+RELEASE_TAG_PATTERN="^v${VERSION_CORE}(\\+[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?$"
+VERSION_ACCEPT_PATTERN="^(latest|v${VERSION_CORE}${VERSION_SUFFIX}|v[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+)$"
 
-# Accepts all valid version inputs: release tags, dev tags, and 'latest'.
-# git tag names are case-sensitive: V0.2.0 is not the same as v0.2.0.
-VERSION_ACCEPT_PATTERN='^(latest|v[0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?)$'
+# Read validated tags on stdin; sort by numeric/ASCII precedence, never git -v.
+# POSIX awk is already a shell-platform utility; no Python/Node dependency.
+cg_sort_release_tags() {
+    LC_ALL=C awk '
+    function scalar(a,b) { return ("x" a) == ("x" b) ? 0 : (("x" a) < ("x" b) ? -1 : 1) }
+    function number(a,b) {
+        sub(/^0+/, "", a); sub(/^0+/, "", b)
+        return length(a) != length(b) ? (length(a) < length(b) ? -1 : 1) : scalar(a,b)
+    }
+    function compare(a,b, ac,bc,ap,bp,an,bn,al,bl,i,r,x,y,p) {
+        sub(/^v/, "", a); sub(/^v/, "", b); sub(/\+.*/, "", a); sub(/\+.*/, "", b)
+        p=index(a,"-"); x=p ? substr(a,p+1) : ""; if(p) a=substr(a,1,p-1)
+        p=index(b,"-"); y=p ? substr(b,p+1) : ""; if(p) b=substr(b,1,p-1)
+        an=split(a,ac,"."); bn=split(b,bc,".")
+        for(i=1;i<=3;i++) { r=number(ac[i],bc[i]); if(r) return r }
+        al=an==4 ? 0 : (x!="" ? 1 : 2); bl=bn==4 ? 0 : (y!="" ? 1 : 2)
+        if(al!=bl) return al<bl ? -1 : 1
+        if(al==0) return number(ac[4],bc[4])
+        if(al==2) return 0
+        an=split(x,ap,"."); bn=split(y,bp,".")
+        for(i=1;i<=an && i<=bn;i++) {
+            x=ap[i]~/^[0-9]+$/; y=bp[i]~/^[0-9]+$/
+            r=x && y ? number(ap[i],bp[i]) : (x!=y ? (x ? -1 : 1) : scalar(ap[i],bp[i]))
+            if(r) return r
+        }
+        return an==bn ? 0 : (an<bn ? -1 : 1)
+    }
+    NF { tags[++n]=$0 }
+    END {
+        for(i=2;i<=n;i++) { v=tags[i]; j=i-1; while(j>=1 && compare(tags[j],v)<0) { tags[j+1]=tags[j]; j-- } tags[j+1]=v }
+        for(i=1;i<=n;i++) print tags[i]
+    }'
+}
+# END RELEASE READERS
 
 # ---------------------------------------------------------------------------
 # generate_copilot_instructions <template_path> <project_root> <marker>
@@ -179,11 +215,13 @@ fi
 VERSION_ARG=""
 DO_LIST=false
 DO_FIX=false
+SHOW_DEV=false
 
 for arg in "$@"; do
     case "$arg" in
         --list)   DO_LIST=true ;;
         --fix)    DO_FIX=true  ;;
+        --show-dev) SHOW_DEV=true ;;
         --*)      print_error "Unknown option: $arg"; printf 'Usage: cg-update [version|latest|--list|--fix]\n' >&2; exit 1 ;;
         *)        VERSION_ARG="$arg" ;;
     esac
@@ -258,8 +296,10 @@ if [[ "$DO_LIST" == "true" ]]; then
     (cd "$COMPOUND_GPID_DIR" && git fetch --tags 2>/dev/null) || \
         print_warn "git fetch --tags failed -- showing cached tag data. Check your network connection."
 
-    ALL_TAGS="$(cd "$COMPOUND_GPID_DIR" && git tag --list 'v*' --sort=-version:refname 2>/dev/null || true)"
-    RELEASE_TAGS="$(printf '%s\n' "$ALL_TAGS" | grep -E "$RELEASE_TAG_PATTERN" || true)"
+    ALL_TAGS="$(cd "$COMPOUND_GPID_DIR" && git tag --list 'v*' 2>/dev/null || true)"
+    LIST_PATTERN="$RELEASE_TAG_PATTERN"
+    [[ "$SHOW_DEV" == "true" ]] && LIST_PATTERN="$VERSION_ACCEPT_PATTERN"
+    RELEASE_TAGS="$(printf '%s\n' "$ALL_TAGS" | grep -E "$LIST_PATTERN" | cg_sort_release_tags || true)"
 
     # Determine current label
     CURRENT_PIN="$VERSION_MODE"
@@ -267,6 +307,9 @@ if [[ "$DO_LIST" == "true" ]]; then
         MODE_LABEL="main (latest)"
     elif [[ "$CURRENT_PIN" =~ ^v[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
         MODE_LABEL="$CURRENT_PIN (dev -- not listed above)"
+        [[ "$SHOW_DEV" == "true" ]] && MODE_LABEL="$CURRENT_PIN (legacy dev)"
+    elif [[ "${CURRENT_PIN%%+*}" == *-* ]]; then
+        MODE_LABEL="$CURRENT_PIN (pre-release)"
     else
         MODE_LABEL="$CURRENT_PIN (pinned)"
     fi
@@ -275,7 +318,7 @@ if [[ "$DO_LIST" == "true" ]]; then
     INSTALLED_TAG=""
     if [[ "$CURRENT_PIN" == "latest" ]]; then
         INSTALLED_TAG="$(cd "$COMPOUND_GPID_DIR" && \
-            git tag --points-at HEAD 2>/dev/null | grep -E "$RELEASE_TAG_PATTERN" | head -1 || true)"
+            git tag --points-at HEAD 2>/dev/null | grep -E "$LIST_PATTERN" | cg_sort_release_tags | head -1 || true)"
     fi
 
     printf '\n'
@@ -287,7 +330,10 @@ if [[ "$DO_LIST" == "true" ]]; then
             if [[ "$tag" == "$CURRENT_PIN" || "$tag" == "$INSTALLED_TAG" ]]; then
                 MARKER="  <-- current"
             fi
-            printf '  %s%s\n' "$tag" "$MARKER"
+            LABEL=""
+            if [[ "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then LABEL=" (legacy dev)"
+            elif [[ "${tag%%+*}" == *-* ]]; then LABEL=" (pre-release)"; fi
+            printf '  %s%s%s\n' "$tag" "$LABEL" "$MARKER"
         done <<< "$RELEASE_TAGS"
     else
         print_gray "No releases found."
@@ -299,6 +345,7 @@ if [[ "$DO_LIST" == "true" ]]; then
     printf '\n'
     printf '  cg-update <version>  -- pin to a specific release\n'
     printf '  cg-update latest     -- unpin and track main\n'
+    printf '  cg-update --list --show-dev -- include pre-releases and legacy dev tags\n'
     printf '\n'
     exit 0
 fi
@@ -368,10 +415,11 @@ if [[ "$VERSION_MODE" == "latest" ]]; then
             print_green "Already up to date."
         fi
 
-        # --- Regenerate platform trees after pull (source repo only) ---
+        # --- Regenerate the shared all-suite platform baseline after pull ---
         # If this is the compound-gpid source repo, regenerate .claude/, .agents/,
-        # and .opencode/ from the updated .github/ canonical assets so linked
-        # consumer projects see fresh platform trees via their symlinks/junctions.
+        # and .opencode/ from the updated .github/ canonical assets. Linked
+        # consumer projects share this baseline; their suites: setting controls
+        # workflow eligibility and must not filter the global tree per consumer.
         TARGET_MAPPING="$COMPOUND_GPID_DIR/.github/shared/target-mapping.json"
         GENERATOR_SCRIPT="$COMPOUND_GPID_DIR/scripts/cg_generate_targets.py"
         if [[ ! -f "$TARGET_MAPPING" ]]; then
@@ -404,8 +452,8 @@ else
         git fetch --tags 2>/dev/null || \
             print_warn "git fetch --tags failed -- continuing with cached tag data"
 
-        ALL_TAGS="$(git tag --list 'v*' --sort=-version:refname 2>/dev/null || true)"
-        RELEASE_TAGS_FILTERED="$(printf '%s\n' "$ALL_TAGS" | grep -E "$RELEASE_TAG_PATTERN" || true)"
+        ALL_TAGS="$(git tag --list 'v*' 2>/dev/null || true)"
+        RELEASE_TAGS_FILTERED="$(printf '%s\n' "$ALL_TAGS" | grep -E "$RELEASE_TAG_PATTERN" | cg_sort_release_tags || true)"
         LATEST_TAG_LOCAL="$(printf '%s\n' "$RELEASE_TAGS_FILTERED" | head -1)"
 
         # Validate the tag exists
@@ -437,7 +485,8 @@ else
         print_gray "Run: cg-update latest   to return to tracking main."
 
         # Hint if there is a newer release
-        if [[ -n "$LATEST_TAG_LOCAL" && "$LATEST_TAG_LOCAL" != "$VERSION_MODE" ]]; then
+        NEWEST_PAIR="$(printf '%s\n' "$VERSION_MODE" "$LATEST_TAG_LOCAL" | cg_sort_release_tags | head -1)"
+        if [[ -n "$LATEST_TAG_LOCAL" && "$LATEST_TAG_LOCAL" != "$VERSION_MODE" && "$NEWEST_PAIR" == "$LATEST_TAG_LOCAL" ]]; then
             printf '\n'
             print_yellow "Note: $LATEST_TAG_LOCAL is available. Run: cg-update $LATEST_TAG_LOCAL"
         fi
@@ -597,6 +646,22 @@ if [[ "${CG_INTERNAL_CALL:-}" != "1" ]] && \
     fi
 fi
 
+# Apply the research migration for native-target-only projects that do not have
+# a .github link. The structural block above handles linked projects.
+if [[ ! -d "$CWD_GITHUB" ]]; then
+    CWD_ROOT="$(pwd)"
+    LEGACY_RESEARCH_ROOT="$CWD_ROOT/.cg-docs/research"
+    RESEARCH_MIGRATION_SCRIPT="$COMPOUND_GPID_DIR/scripts/cg_migrate_research_layout.py"
+    if [[ -e "$LEGACY_RESEARCH_ROOT" || -L "$LEGACY_RESEARCH_ROOT" ]]; then
+        if [[ ! -f "$RESEARCH_MIGRATION_SCRIPT" ]]; then
+            print_error "Research-layout migration helper not found at: $RESEARCH_MIGRATION_SCRIPT"
+            exit 1
+        fi
+        print_gray "Migrating legacy CR research outputs to c-research/..."
+        "$PYTHON_CMD" "$RESEARCH_MIGRATION_SCRIPT" --root "$CWD_ROOT"
+    fi
+fi
+
 printf '\n'
 
 # ---------------------------------------------------------------------------
@@ -655,5 +720,21 @@ if [[ -d "$CWD_GITHUB" ]]; then
             rmdir "$OLD_DOCS_DIR"
             print_gray "Removed empty docs/ directory."
         fi
+    fi
+
+    # -----------------------------------------------------------------------
+    # Structural migration: legacy CR outputs -> c-research/
+    # -----------------------------------------------------------------------
+    # Use the shared Python helper so Windows and macOS apply the same
+    # conflict-safe, idempotent research-output migration.
+    LEGACY_RESEARCH_ROOT="$CWD_ROOT/.cg-docs/research"
+    RESEARCH_MIGRATION_SCRIPT="$COMPOUND_GPID_DIR/scripts/cg_migrate_research_layout.py"
+    if [[ -e "$LEGACY_RESEARCH_ROOT" || -L "$LEGACY_RESEARCH_ROOT" ]]; then
+        if [[ ! -f "$RESEARCH_MIGRATION_SCRIPT" ]]; then
+            print_error "Research-layout migration helper not found at: $RESEARCH_MIGRATION_SCRIPT"
+            exit 1
+        fi
+        print_gray "Migrating legacy CR research outputs to c-research/..."
+        "$PYTHON_CMD" "$RESEARCH_MIGRATION_SCRIPT" --root "$CWD_ROOT"
     fi
 fi

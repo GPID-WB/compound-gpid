@@ -1,6 +1,6 @@
 # 🧠 Project Brain
 
-_Generated 2026-09-15 · 782 entities · 6 topics · 345 edges_
+_Generated 2026-09-16 · 840 entities · 6 topics · 403 edges_
 
 ## How to Use
 
@@ -13,9 +13,9 @@ _Generated 2026-09-15 · 782 entities · 6 topics · 345 edges_
 
 | # | Topic | Entities | File |
 |---|-------|----------|------|
-| 1 | [Roadmap.Json / Test Scenarios / Prompt-Tools.Tests.Ps1](BRAIN-01.md#roadmap-json-test-scenarios-prompt-tools-tests-ps1) | 548 | BRAIN-01.md |
-| 2 | [Architecture Research Objective / Ongoing Ideas Objective / Workflow Maturity Objective](BRAIN-02.md#architecture-research-objective-ongoing-ideas-objective-workflow-maturity-objective) | 155 | BRAIN-02.md |
-| 3 | [Expand Compound Research / Responsible Research Partner Objective / Measurement](BRAIN-02.md#expand-compound-research-responsible-research-partner-objective-measurement) | 7 | BRAIN-02.md |
+| 1 | [Roadmap.Json / Test Scenarios / Cg-Work](BRAIN-01.md#roadmap-json-test-scenarios-cg-work) | 596 | BRAIN-01.md |
+| 2 | [Architecture Research Objective / Ongoing Ideas Objective / Workflow Maturity Objective](BRAIN-02.md#architecture-research-objective-ongoing-ideas-objective-workflow-maturity-objective) | 160 | BRAIN-02.md |
+| 3 | [Expand Compound Research / Responsible Research Partner Objective / Research](BRAIN-02.md#expand-compound-research-responsible-research-partner-objective-research) | 9 | BRAIN-02.md |
 | 4 | [Scripts/Cg_Kilo_Preflight.Py / Link.Sh / Cg_Kilo_Preflight.Py](BRAIN-02.md#scripts-cg-kilo-preflight-py-link-sh-cg-kilo-preflight-py) | 4 | BRAIN-02.md |
 | 5 | [Contracts.Py / Cg_Skill.Py / Cg_Generate_Targets.Py](BRAIN-02.md#contracts-py-cg-skill-py-cg-generate-targets-py) | 3 | BRAIN-02.md |
 | 6 | [Secure_Fs.Py / Validation / Parser.Py](BRAIN-02.md#secure-fs-py-validation-parser-py) | 3 | BRAIN-02.md |
@@ -24,21 +24,21 @@ _Generated 2026-09-15 · 782 entities · 6 topics · 345 edges_
 
 | Type | Count |
 |------|-------|
-| brainstorm | 60 |
-| feature | 162 |
-| plan | 120 |
-| review | 190 |
-| solution | 235 |
+| brainstorm | 68 |
+| feature | 169 |
+| plan | 128 |
+| review | 217 |
+| solution | 243 |
 | strategy | 15 |
 
-_62 entities not assigned to any topic_
+_65 entities not assigned to any topic_
 
 ## Relationship Summary
 
 | Edge Type | Count |
 |-----------|-------|
-| decided_from | 83 |
-| implements | 27 |
-| references | 67 |
-| reviews | 101 |
-| verifies | 67 |
+| decided_from | 91 |
+| implements | 31 |
+| references | 76 |
+| reviews | 123 |
+| verifies | 82 |

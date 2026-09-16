@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "tag": "v1.2.0.9017",
+  "publishedAt": "2026-09-11T21:35:55Z",
+  "releaseDate": "2026-09-11",
+  "name": "v1.2.0.9017 - Kilo minimum-version compatibility",
+  "url": "https://github.com/GPID-WB/compound-gpid/releases/tag/v1.2.0.9017",
+  "sourceUrl": "https://github.com/GPID-WB/compound-gpid/tree/v1.2.0.9017",
+  "sections": [
+    {
+      "kind": "fixed",
+      "title": "Kilo minimum-version compatibility",
+      "entries": [
+        "Accept valid Kilo runtime versions at or above 7.4.20, including 7.5.16, without an exact-version allowlist or upper bound. Continue to reject malformed and below-minimum versions and require capability, trust, projection, and containment checks."
+      ]
+    },
+    {
+      "kind": "internal",
+      "title": "Verification, recovery guidance, and release evidence",
+      "entries": [
+        "Add minimum-version regression tests, document recovery through the global installation before refreshing consumer projects, and update generated PR verification guidance.",
+        "Record and merge the canonical and generated v1.2.0.9016 release attestation."
+      ]
+    }
+  ]
+}

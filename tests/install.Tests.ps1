@@ -20,6 +20,24 @@ if (-not $script:OnWindows) {
 
 . (Join-Path $PSScriptRoot "..\scripts\helpers.ps1")
 
+Describe "install.ps1 - cg-release.cmd source" {
+    It "rejects Store stubs with one complete regular expression" {
+        $content = Get-Content -LiteralPath (Join-Path $PSScriptRoot "../bin/cg-release.cmd") -Raw
+        ([regex]::Matches($content, 'findstr /i /r /c:"\^Python \[0-9\]"')).Count | Should -Be 3
+    }
+    It "ships the committed argument-preserving launcher" {
+        $launcher = Join-Path $PSScriptRoot "../bin/cg-release.cmd"
+        Test-Path -LiteralPath $launcher | Should -Be $true
+        $content = Get-Content -LiteralPath $launcher -Raw
+        $content | Should -Match 'for /f'
+        $content | Should -Match 'where python3\s+>nul'
+        $content | Should -Match 'where python\s+>nul'
+        $content | Should -Match 'where py\s+>nul'
+        $content | Should -Match 'cg_release_cli\.py.*%\*'
+        $content | Should -Match 'exit /b %ERRORLEVEL%'
+    }
+}
+
 function Get-PythonForCgIndexSmoke {
     foreach ($cmd in @("python3", "python", "py")) {
         $found = Get-Command $cmd -ErrorAction SilentlyContinue

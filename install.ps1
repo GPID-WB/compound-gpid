@@ -370,6 +370,22 @@ if (Test-Path $cgSkillCmdSrc) {
     exit 1
 }
 
+# Copy cg-release.cmd from the committed file (single source of truth).
+$cgReleaseCmdSrc = Join-Path $CompoundGpidDir "bin\cg-release.cmd"
+$cgReleaseCmdDst = Join-Path $binDir "cg-release.cmd"
+if (Test-Path $cgReleaseCmdSrc) {
+    $cgReleaseSrcFull = [System.IO.Path]::GetFullPath($cgReleaseCmdSrc)
+    $cgReleaseDstFull = [System.IO.Path]::GetFullPath($cgReleaseCmdDst)
+    if ($cgReleaseSrcFull -ieq $cgReleaseDstFull) {
+        Write-Host "  Already present: cg-release in $binDir" -ForegroundColor DarkGray
+    } else {
+        Copy-Item -Path $cgReleaseCmdSrc -Destination $cgReleaseCmdDst -Force
+        Write-Host "  Copied:  cg-release in $binDir" -ForegroundColor DarkGray
+    }
+} else {
+    Write-Warning "  bin\cg-release.cmd not found in installation -- skipping cg-release wrapper."
+}
+
 # Copy the certified Kilo launcher from the committed source of truth.
 $cgKiloCmdSrc = Join-Path $CompoundGpidDir "bin\cg-kilo.cmd"
 $cgKiloCmdDst = Join-Path $binDir "cg-kilo.cmd"

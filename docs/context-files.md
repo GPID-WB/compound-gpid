@@ -44,6 +44,12 @@ maintainers before each release. Drift tests fail if generated trees are stale.
 Copied files tracked in `.compound-gpid/managed-files.json` are refreshed by
 `cg-update` only when their checksum still matches the managed copy.
 
+The global native trees are shared all-suite distribution baselines. A
+consumer's `suites:` setting controls workflow eligibility; it does not cause
+`cg-update` to rewrite the shared source tree for one project. Use the
+generator's explicit `--active-suites` option only for an isolated maintainer
+build.
+
 ### Atomic bundles and target-local closure
 
 Each canonical `.github/skills/cg-skill-*/` directory is an **atomic skill
@@ -306,7 +312,8 @@ counts, provenance, staging state, and `cg-render-artifact --check` or
 1. Run `cg-link` in your project root — this links all supported platform install units and creates `.github/copilot-instructions.md` from the template.
 2. Run `/cg-setup` in agent chat. It creates `compound-gpid.local.md` and can create the optional shared `compound-gpid.md` and `compound-gpid.context.md` files.
 3. If you created `compound-gpid.context.md`, add durable data-source paths, workspace layout, and domain vocabulary.
-4. Commit the shared charter and context files. Never commit `compound-gpid.local.md`; it is personal and gitignored.
+4. Commit the shared charter, context, and `compound-gpid.local.md` configuration
+  files. Active suites and other project settings must travel with the project.
 
 Current installations receive generated native Claude Code, Codex, and OpenCode
 targets through `cg-link`. The root `AGENTS.md` in this repository remains a

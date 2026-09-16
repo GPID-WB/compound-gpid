@@ -48,9 +48,9 @@ conflicting files are preserved.
 | `competitive-reviews/` | Maintainer external-repository reviews and registry |
 | `cost/` | Context/model audit reports and release-readiness records |
 | `inbox/` | Unapproved strategy ideas awaiting promotion |
+| `evidence-fixtures/` | Shared publishing/browser-evidence test fixtures; not CR outputs |
 | `plans/` | `/cg-plan` implementation plans |
 | `reviews/` | Review and verification reports with finding status |
-| `research/` | Research derivations, specifications, evidence, replication, and other CR workflow artifacts |
 | `solutions/` | Verified reusable lessons from `/cg-compound` |
 | `strategy/` | `/cg-strategy` records |
 | `token/` | Token dashboard, context map, regression checks, and short-lived output evidence |
@@ -58,6 +58,28 @@ conflicting files are preserved.
 | `views/plans/` | Self-contained HTML derived from canonical Plan Markdown |
 | `views/documents/` | Self-contained HTML published from generic Markdown sources |
 | `work-reports/` | Delivery evidence and implementation summaries |
+
+## Root-level research outputs
+
+| Path | Produced or used by |
+|---|---|
+| `c-research/evidence/` | CR evidence and provenance workflow; canonical source-backed records |
+| `c-research/manuscripts/` | CR writing workflow; working papers, sections, and responses |
+| `c-research/normative-decisions/` | CR scoping and normative-decision gate; human decisions |
+| `c-research/scoping/` | CR scoping workflow; research-question and study memos |
+| `c-research/derivations/` | CR theory/modeling and implementation workflows |
+| `c-research/specifications/` | CR theory-data and specification-analysis workflows |
+| `c-research/results/` | CR estimation and reproducibility workflows; manifests and results |
+| `c-research/replication/` | CR replication-package workflow |
+| `c-research/eda/` | CR research-framed exploratory analysis workflow |
+| `c-research/measurement/` | CR measurement/classification workflow |
+| `c-research/vintages/` | CR comparability and vintage-tracking workflow |
+
+`c-research/` contains outputs only. Project data and other source inputs are
+kept outside it, preferably under `data/`. It is created when the `cr` suite is
+active and is never deleted when `cr` is later disabled. The generic Compound
+Brain indexes `.cg-docs/` process and knowledge records only; CR workflows read
+`c-research/` directly.
 
 Generated `BRAIN.md`, topic files, logs, and `brain-index.json` index these source
 artifacts. Preserve the source artifacts as the authority.

@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "tag": "v1.2.0.9018",
+  "publishedAt": "2026-09-15T10:24:57Z",
+  "releaseDate": "2026-09-15",
+  "name": "v1.2.0.9018 - Asynchronous Release Controller",
+  "url": "https://github.com/GPID-WB/compound-gpid/releases/tag/v1.2.0.9018",
+  "sourceUrl": "https://github.com/GPID-WB/compound-gpid/tree/v1.2.0.9018",
+  "sections": [
+    {
+      "kind": "new",
+      "title": "Release Controller Features",
+      "entries": [
+        "Add asynchronous controller core with standalone locked Python package",
+        "Integrate disabled GPID controller with SemVer ordering",
+        "Wire guarded controller workflows and source-bound build/publish contracts",
+        "Bind release snapshots to verified producer bytes",
+        "Add disabled asynchronous release controller via merge PR"
+      ]
+    },
+    {
+      "kind": "fixed",
+      "title": "CI and Merge Fixes",
+      "entries": [
+        "Raise package matrix timeout to thirty minutes",
+        "Keep bridge_client within module line limit",
+        "Stop forwarding PowerShell module path into bridge child",
+        "Repair release portability and safe diagnostics",
+        "Integrate dev into release controller branch"
+      ]
+    },
+    {
+      "kind": "internal",
+      "title": "Documentation and Maintenance",
+      "entries": [
+        "Capture release validation and authority lessons in knowledge docs",
+        "Preserve controller history and dev PR handoff in workflow docs",
+        "Record asynchronous controller delivery and live deferral in plan docs",
+        "Document controller operation and deferred rollout",
+        "Regenerate release interfaces for Kilo, OpenCode, Codex, and Claude",
+        "Verify reader migration and GPID producer contracts",
+        "Record v1.2.0.9017 attestation"
+      ]
+    }
+  ]
+}

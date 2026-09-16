@@ -26,8 +26,8 @@ an economics or econometrics research task.
 
 1. Find the most recent brainstorm in `.cg-docs/brainstorms/` (by `date:` frontmatter).
 2. Scan the project directory for existing code files relevant to the task.
-3. For **Implementation** tasks: read `.cg-docs/research/derivations/` to identify the math being coded.
-4. For all tasks: check `.cg-docs/research/specifications/` for existing specification decisions.
+3. For **Implementation** tasks: read `c-research/derivations/` to identify the math being coded.
+4. For all tasks: check `c-research/specifications/` for existing specification decisions.
 5. If context is needed for workspace structure notes, read only relevant `compound-gpid.context.md` headings/snippets.
 
 #### Step 1.5 — Scope Assessment
@@ -99,7 +99,7 @@ Present the plan. Ask for feedback. Revise if needed.
 At Step 4, add a "Normative Decisions" subsection in the presented plan:
 - List value-laden choices the plan commits to.
 - Reference per-study entries in
-  `.cg-docs/research/normative-decisions/<study-slug>.md`.
+  `c-research/normative-decisions/<study-slug>.md`.
 - Treat user acceptance/refinement at this step as explicit approval of those
   listed choices.
 

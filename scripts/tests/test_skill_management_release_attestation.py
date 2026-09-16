@@ -238,6 +238,27 @@ def test_post_release_cli_writes_reviewed_attestation(tmp_path: Path) -> None:
     ).is_file()
 
 
+@pytest.mark.parametrize("state", ["identical", "different", "missing"])
+def test_post_release_cli_check_is_read_only(tmp_path: Path, state: str) -> None:
+    root, _remote, _digest = _plugin_grace_repo(tmp_path)
+    review = "review=" + "f" * 40
+    path = root / release_attestation.ATTESTATION_ROOT / "v1.1.0.json"
+    path.unlink()
+    release_attestation.write_release_attestation(root, "v1.1.0", review)
+    if state == "different":
+        path.write_bytes(path.read_bytes() + b" ")
+    if state == "missing":
+        path.unlink()
+    before = path.read_bytes() if path.exists() else None
+
+    result = cg_release_attestation.main([
+        "--root", str(root), "--tag", "v1.1.0", "--review-reference", review, "--check",
+    ])
+
+    assert result == (0 if state == "identical" else 1)
+    assert (path.read_bytes() if path.exists() else None) == before
+
+
 def test_release_version_order_accepts_four_component_prereleases() -> None:
     assert release_attestation._version_key("v1.2.3.9001") > release_attestation._version_key(  # pylint: disable=protected-access
         "v1.2.3.9000"  # pylint: disable=protected-access

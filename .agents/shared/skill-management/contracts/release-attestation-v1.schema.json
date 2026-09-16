@@ -5,7 +5,7 @@
   "properties": {
     "schema": {"const": "cg-skill-release-attestation-v1"},
     "schemaVersion": {"const": 1},
-    "releaseTag": {"type": "string", "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+(?:\\.[0-9]+|-[A-Za-z0-9.-]+)?(?:\\+[A-Za-z0-9.-]+)?$"},
+    "releaseTag": {"type": "string", "maxLength": 255, "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+(?:\\.[0-9]+|-[A-Za-z0-9.-]+)?(?:\\+[A-Za-z0-9.-]+)?$"},
     "tagRefObjectSha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
     "peeledCommitSha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
     "releasePayloadSha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},

@@ -4,7 +4,7 @@
   "intents": ["clarify a research question", "select a research methodology"], "usage": "/cr-brainstorm", "examples": ["/cr-brainstorm"],
   "prerequisites": ["A research question or uncertain methodology choice."], "outputs": ["A scoped research brainstorm artifact."],
   "constraints": ["Surfaces consequential normative choices for human approval."], "relatedCommands": [{"id": "slash:cr-plan", "relation": "next"}],
-  "sourcePath": ".github/prompts/cr-brainstorm.prompt.md", "definitionSources": [".github/prompts/cr-brainstorm.prompt.md"], "definitionDigest": "101acff1ae5f7285e57b0f7d0ae91354b5b5f9e745fe3c2fcd961c4242529fe6",
+  "sourcePath": ".github/prompts/cr-brainstorm.prompt.md", "definitionSources": [".github/prompts/cr-brainstorm.prompt.md"], "definitionDigest": "ccab4e50f0dd6485b485ba2746eefe6642a0395919042fd885e5bb41d54e9c7a",
   "documentationTargets": [], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["any"],
   "availability": {"status": "available", "evidence": [{"os": "any", "sourcePath": ".github/prompts/cr-brainstorm.prompt.md"}]},
   "activation": [{"suite": "cr", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]

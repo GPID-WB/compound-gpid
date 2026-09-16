@@ -1,5 +1,5 @@
 ---
-applyTo: "**/.cg-docs/research/derivations/**/*.md,**/.cg-docs/research/derivations/**/*.tex"
+applyTo: "**/c-research/derivations/**/*.md,**/c-research/derivations/**/*.tex"
 module: research
 ---
 
@@ -11,7 +11,7 @@ module: research
 > mapping tables, and numerical verification patterns.
 
 > **Risk note (P2.1)**: The `applyTo` glob in this file uses a path-based
-> pattern (`**/.cg-docs/research/derivations/**`). VS Code may not apply these
+> pattern (`**/c-research/derivations/**`). VS Code may not apply these
 > instructions automatically in all cases, particularly when `.cg-docs/` exists
 > at a non-root depth in multi-root workspaces (the leading `**/` matches at
 > any depth).
@@ -22,7 +22,7 @@ module: research
 >    manually in Copilot Chat for the file you are working on.
 > 3. If the problem persists, open a GitHub issue at GPID-WB/compound-gpid.
 >
-> **Multi-depth risk**: The glob matches `.cg-docs/research/derivations/` at
+> **Multi-depth risk**: The glob matches `c-research/derivations/` at
 > any workspace depth. If you use nested project directories, ensure only
 > derivation files live under this path to avoid unintended instruction loading.
 

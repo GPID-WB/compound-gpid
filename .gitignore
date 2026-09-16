@@ -39,6 +39,13 @@ build/
 # Virtual environments
 .venv/
 venv/
+research_evidence/.cache/
+research_evidence/.evidence-index/
+research_evidence/.runtime/
+
+# Research evidence derived state; canonical YAML remains version-controlled
+c-research/evidence/derived/
+c-research/evidence/index/
 
 # Testing & profiling
 .pytest_cache/

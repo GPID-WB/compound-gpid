@@ -1,6 +1,6 @@
 # Workflow Token Budget Baseline
 
-_Generated: 2026-08-07T19:20:40-04:00@d716ce703e14_
+_Generated: 2026-09-03T00:03:52+02:00@1ef12277141b_
 
 > Token estimates are heuristic (chars/4) and intended for directional audit use.
 
@@ -10,8 +10,8 @@ repository probes.
 
 ## Source Scope
 
-- Source files counted: 157
-- Source estimated tokens: 602133
+- Source files counted: 161
+- Source estimated tokens: 663963
 - Workflow rows: 9
 - Workflows with prompt source observed: 9
 - Workflows without prompt source observed: 0

@@ -1,13 +1,24 @@
 name: Deploy release documentation
-run-name: Deploy docs from ${{ github.event.workflow_run.id }}
+run-name: Deploy docs from ${{ inputs.build_run_id || github.event.workflow_run.id }}
 
 on:
   workflow_run:
-    workflows: ["Build release documentation"]
+    workflows: ["Build release documentation", "Deploy documentation site"]
     types: [completed]
+  workflow_dispatch:
+    inputs:
+      build_run_id:
+        description: Exact successful historical release-docs run in the reviewed recovery record
+        required: true
+        type: string
 
 permissions:
   contents: read
+
+env:
+  GH_TOKEN: ${{ github.token }}
+  BUILD_RUN_ID: ${{ inputs.build_run_id || github.event.workflow_run.id }}
+  LEGACY_MODE: ${{ github.event_name == 'workflow_dispatch' && 'recovery' || 'release' }}
 
 concurrency:
   group: pages
@@ -15,7 +26,7 @@ concurrency:
 
 jobs:
   deploy:
-    if: github.event.workflow_run.conclusion == 'success'
+    if: (github.event_name == 'workflow_dispatch' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)) || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.name == 'Build release documentation')
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -29,34 +40,75 @@ jobs:
       - name: Check out protected deployment controller
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
         with:
-          ref: main
+          ref: ${{ github.sha }}
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Set up Node
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4.4.0
         with:
           node-version: "22"
 
+      - name: Read-only authority for reviewed historical recovery
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349
+        id: recovery-authority
+        with:
+          app-id: ${{ secrets.RELEASE_CONTROL_APP_ID }}
+          private-key: ${{ secrets.RELEASE_CONTROL_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ github.event.repository.name }}
+          permission-contents: read
+          permission-actions: read
+          permission-administration: read
+
+      - name: Check protected default policy and exact historical authority
+        id: authority
+        env:
+          GH_TOKEN: ${{ steps.recovery-authority.outputs.token || github.token }}
+        run: node scripts/legacy-pages.js check
+
+      - name: Verify immutable archive bytes before extraction
+        env:
+          ARTIFACT_ID: ${{ steps.authority.outputs.artifact_id }}
+          ARTIFACT_DIGEST: ${{ steps.authority.outputs.artifact_digest }}
+        run: node scripts/legacy-pages.js archive "$ARTIFACT_ID" "$ARTIFACT_DIGEST"
+
+      - name: Verify isolated dev archive before extraction
+        if: steps.authority.outputs.dev_artifact_id != ''
+        env:
+          ARTIFACT_ID: ${{ steps.authority.outputs.dev_artifact_id }}
+          ARTIFACT_DIGEST: ${{ steps.authority.outputs.dev_artifact_digest }}
+        run: node scripts/legacy-pages.js archive "$ARTIFACT_ID" "$ARTIFACT_DIGEST"
+
+      - name: Download isolated dev documentation
+        if: steps.authority.outputs.dev_artifact_id != ''
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          artifact-ids: ${{ steps.authority.outputs.dev_artifact_id }}
+          merge-multiple: true
+          path: release-dev-artifact
+          run-id: ${{ inputs.build_run_id || github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+
       - name: Download exact release documentation artifact
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
         with:
-          name: release-docs-site
+          artifact-ids: ${{ steps.authority.outputs.artifact_id }}
+          merge-multiple: true
           path: release-artifact
-          run-id: ${{ github.event.workflow_run.id }}
+          run-id: ${{ inputs.build_run_id || github.event.workflow_run.id }}
           github-token: ${{ github.token }}
 
       - name: Verify release tag, lineage, payload, and artifact
         env:
-          RELEASE_TAG: ${{ github.event.workflow_run.head_branch }}
-          RELEASE_SHA: ${{ github.event.workflow_run.head_sha }}
+          ISOLATED_RELEASE: ${{ steps.authority.outputs.dev_artifact_id != '' }}
+          GH_TOKEN: ${{ steps.recovery-authority.outputs.token || github.token }}
+          RELEASE_TAG: ${{ steps.authority.outputs.release_tag }}
+          RELEASE_SHA: ${{ steps.authority.outputs.release_sha }}
         run: |
-          required_branch="main"
-          if [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            required_branch="dev"
-          elif [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "Unsupported release tag: $RELEASE_TAG"
-            exit 1
-          fi
+          node scripts/legacy-pages.js check
+          required_branch="$(node scripts/release-version.js --legacy-docs-branch "$RELEASE_TAG")"
           git fetch origin "$required_branch" "refs/tags/$RELEASE_TAG:refs/tags/$RELEASE_TAG"
           test "$(git rev-list -n 1 "$RELEASE_TAG")" = "$RELEASE_SHA"
           git merge-base --is-ancestor "$RELEASE_SHA" "origin/$required_branch"
@@ -77,7 +129,7 @@ jobs:
             throw new Error("Invalid durable release payload.");
           }
           const root = "release-artifact";
-          const docs = path.join(root, "docs");
+           const docs = path.join(root, process.env.ISOLATED_RELEASE === "true" ? "docs" : "site");
           const metadata = JSON.parse(fs.readFileSync(path.join(root, ".docs-build-metadata.json"), "utf8"));
           if (metadata.schemaVersion !== 1 || !metadata.site || !metadata.site.files) {
             throw new Error("Invalid documentation build metadata.");
@@ -105,21 +157,143 @@ jobs:
           NODE
           echo "RELEASE_BRANCH=$required_branch" >> "$GITHUB_ENV"
 
+      - name: Check out exact release source as data
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          ref: ${{ steps.authority.outputs.release_sha }}
+          path: release-source
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Check out current dev source as data
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          ref: dev
+          path: current-dev
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Compose isolated producer artifacts with protected code
+        if: steps.authority.outputs.dev_artifact_id != ''
+        env:
+          RELEASE_TAG: ${{ steps.authority.outputs.release_tag }}
+          RELEASE_SHA: ${{ steps.authority.outputs.release_sha }}
+        run: |
+          node scripts/legacy-pages.js import-docs release-source release-artifact
+          node scripts/legacy-pages.js import-dev current-dev release-dev-artifact
+          dev_sha="$(git -C current-dev rev-parse HEAD)"
+          node scripts/assemble-docs-site.js --main-root release-source --dev-root current-dev --out composed-artifact --main-sha "$RELEASE_SHA" --dev-sha "$dev_sha" --main-branch "$RELEASE_BRANCH" --main-ref "$RELEASE_TAG"
+          mv release-artifact release-build-artifact
+          mv composed-artifact release-artifact
+
+      - name: Verify combined release artifact and current dev freshness
+        env:
+          RELEASE_TAG: ${{ steps.authority.outputs.release_tag }}
+          RELEASE_SHA: ${{ steps.authority.outputs.release_sha }}
+        run: |
+          dev_sha="$(git -C current-dev rev-parse HEAD)"
+          node scripts/assemble-docs-site.js \
+            --verify release-artifact \
+            --main-root "$GITHUB_WORKSPACE/release-source" \
+            --dev-root "$GITHUB_WORKSPACE/current-dev" \
+            --main-sha "$RELEASE_SHA" \
+            --dev-sha "$dev_sha" \
+            --main-branch "$RELEASE_BRANCH" \
+            --dev-branch dev \
+            --main-ref "$RELEASE_TAG" \
+            --dev-ref dev
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b  # v5.0.0
 
       - name: Upload verified release Pages artifact
         uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa  # v3.0.1
         with:
-          path: release-artifact/docs
+          path: release-artifact/site
 
       - name: Recheck release is still newest
+        env:
+          GH_TOKEN: ${{ steps.recovery-authority.outputs.token || github.token }}
         run: |
           git fetch origin "$RELEASE_BRANCH"
           git show "origin/$RELEASE_BRANCH:releases/latest.json" > release-validation/recheck-latest.json
           cmp -s release-validation/releases/latest.json release-validation/recheck-latest.json \
-            || { echo "A newer release payload appeared before deployment."; exit 1; }
+              || { echo "A newer release payload appeared before deployment."; exit 1; }
+          node scripts/legacy-pages.js check
 
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e  # v4.0.5
+
+  deploy-dev:
+    if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.name == 'Deploy documentation site'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      contents: read
+      actions: read
+      pages: write
+      id-token: write
+    env:
+      LEGACY_MODE: dev
+    steps:
+      - name: Check out exact protected default controller
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - id: authority
+        run: node scripts/legacy-pages.js check
+      - name: Verify exact-run archive digest
+        env:
+          ARTIFACT_ID: ${{ steps.authority.outputs.artifact_id }}
+          ARTIFACT_DIGEST: ${{ steps.authority.outputs.artifact_digest }}
+        run: node scripts/legacy-pages.js archive "$ARTIFACT_ID" "$ARTIFACT_DIGEST"
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          artifact-ids: ${{ steps.authority.outputs.artifact_id }}
+          merge-multiple: true
+          run-id: ${{ github.event.workflow_run.id }}
+          path: dev-artifact
+          github-token: ${{ github.token }}
+      - name: Read stable main content as data, separate from policy authority
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: main
+          path: sources/main
+          persist-credentials: false
+      - name: Read exact dev canonical inputs as data
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ steps.authority.outputs.release_sha }}
+          path: sources/dev
+          persist-credentials: false
+      - name: Verify full inventory and compose using trusted static-data code
+        env:
+          DEV_SHA: ${{ steps.authority.outputs.release_sha }}
+        run: |
+          set -euo pipefail
+          node scripts/check-docs-site.js --source-root sources/main --legacy
+          node scripts/legacy-pages.js import-dev sources/dev dev-artifact
+          main_sha="$(git -C sources/main rev-parse HEAD)"
+          node scripts/assemble-docs-site.js --main-root sources/main --dev-root sources/dev --out combined-artifact --main-sha "$main_sha" --dev-sha "$DEV_SHA"
+          node scripts/assemble-docs-site.js --verify combined-artifact --main-root sources/main --dev-root sources/dev --main-sha "$main_sha" --dev-sha "$DEV_SHA"
+      - uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b
+      - uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa
+        with:
+          path: combined-artifact/site
+      - name: Recheck policy, actor authority and both source tips after upload
+        env:
+          DEV_SHA: ${{ steps.authority.outputs.release_sha }}
+        run: |
+          node scripts/legacy-pages.js check
+          test "$(gh api "repos/$GITHUB_REPOSITORY/branches/dev" --jq .commit.sha)" = "$DEV_SHA"
+          test "$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq .commit.sha)" = "$(git -C sources/main rev-parse HEAD)"
+      - uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e
+        id: deployment

@@ -77,6 +77,7 @@ Regression tests prove these boundaries:
 
 ## Related
 
+- [Release controller continuation authority and evidence limits](../git-workflows/2026-09-13-release-controller-authority-and-evidence-boundaries.md)
 - `.cg-docs/solutions/testing-patterns/2026-07-28-handle-relative-filesystem-mutations-and-real-boundary-tests.md`
 - `.cg-docs/solutions/bugs/2026-08-01-secure-publication-rollback-must-not-clobber.md`
 - `.cg-docs/solutions/testing-patterns/2026-07-24-cross-file-contract-state-must-align-docs-validator-tests.md`

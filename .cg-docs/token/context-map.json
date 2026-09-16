@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-07T19:20:40-04:00@d716ce703e14",
+  "generated": "2026-09-03T00:03:52+02:00@1ef12277141b",
   "generated_kind": "volatile",
   "measurement_note": "Workflow telemetry is deterministic source analysis; runtime behavior is partially or not observed unless explicitly instrumented.",
   "schema_version": 1,

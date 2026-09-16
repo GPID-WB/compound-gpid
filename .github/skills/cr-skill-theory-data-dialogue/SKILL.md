@@ -5,7 +5,7 @@ description: "Theory-data dialogue for structural economics research. Covers
   distributional assumption tests, conditional moment checks, support analysis,
   reduced-form regressions before structural estimation, exclusion restriction
   validation, monotonicity tests, balance tests, and the documentation trail
-  in .cg-docs/research/specifications/. Loaded for Specification Analysis and
+  in c-research/specifications/. Loaded for Specification Analysis and
   Theory/Modeling tasks."
 ---
 
@@ -15,7 +15,7 @@ Reference skill for aligning structural model assumptions with the data.
 The core principle: **before estimating structural parameters, verify that
 the data are consistent with each maintained assumption.**
 
-Store all specification checks in `.cg-docs/research/specifications/` with
+Store all specification checks in `c-research/specifications/` with
 dated file names and the `status: draft | reviewed | final` frontmatter field.
 
 ---
@@ -30,13 +30,13 @@ dated file names and the `status: draft | reviewed | final` frontmatter field.
 3. Test with data: "Q-Q plot + Shapiro-Wilk + Jarque-Bera"
 4. Evaluate: "p = 0.003 — normality rejected"
 5. Model response: "Switch to t-distributed errors; add skew-normal robustness check"
-6. Document: Write up in .cg-docs/research/specifications/
+6. Document: Write up in c-research/specifications/
 ```
 
 Every maintained assumption that is testable must go through this loop.
 Assumptions that are not directly testable must be justified economically.
 
-**Specification file template** (`.cg-docs/research/specifications/`):
+**Specification file template** (`c-research/specifications/`):
 
 ```yaml
 ---
@@ -230,7 +230,7 @@ fitstat(iv_fit, ~sargan)  # Sargan J-test
 **Documentation requirement**: Provide the economic argument for why each
 instrument satisfies the exclusion restriction. Tests alone are insufficient
 (they only check over-identifying restrictions; a just-identified model
-always passes). File: `.cg-docs/research/specifications/instrument-validity.md`
+always passes). File: `c-research/specifications/instrument-validity.md`
 
 ---
 
@@ -291,7 +291,7 @@ iebaltab x1 x2 x3 x4, grpvar(treat) vce(robust) savetex(balance-table.tex)
 All specification checks must be traceable. Structure:
 
 ```
-.cg-docs/research/specifications/
+c-research/specifications/
   YYYY-MM-DD-[model-name]-distributional-checks.md
   YYYY-MM-DD-[model-name]-instrument-validity.md
   YYYY-MM-DD-[model-name]-reduced-form-regressions.md

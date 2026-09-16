@@ -7,6 +7,7 @@ $repoRoot = if ($env:CG_TEST_ROOT) { $env:CG_TEST_ROOT } else { Split-Path $PSSc
 if ($env:CG_TEST_ROOT -and -not (Test-Path $env:CG_TEST_ROOT)) { throw "CG_TEST_ROOT '$env:CG_TEST_ROOT' does not exist" }
 
 $rebuildWorkflow = Get-Content (Join-Path $repoRoot ".github\workflows\doc-rebuild.yml") -Raw -Encoding UTF8
+$combinedWorkflow = Get-Content (Join-Path $repoRoot ".github\workflows\docs-site-build.yml") -Raw -Encoding UTF8
 $pagesWorkflow = Get-Content (Join-Path $repoRoot ".github\workflows\pages.yml") -Raw -Encoding UTF8
 $releaseWorkflow = Get-Content (Join-Path $repoRoot ".github\workflows\release-docs.yml") -Raw -Encoding UTF8
 $releasePagesWorkflow = Get-Content (Join-Path $repoRoot ".github\workflows\release-pages.yml") -Raw -Encoding UTF8
@@ -14,6 +15,7 @@ $releasePrompt = Get-Content (Join-Path $repoRoot ".github\prompts\cg-release.pr
 $scanner = Get-Content (Join-Path $repoRoot ".github\agents\cg-release-scanner.agent.md") -Raw -Encoding UTF8
 $rebuildScript = Get-Content (Join-Path $repoRoot "scripts\rebuild-docs.js") -Raw -Encoding UTF8
 $whatsNewScript = Get-Content (Join-Path $repoRoot "scripts\generate-whats-new.js") -Raw -Encoding UTF8
+$payloadScript = Get-Content (Join-Path $repoRoot "scripts\release-payloads.js") -Raw -Encoding UTF8
 
 Describe "Documentation rebuild workflow contracts" {
     It "filters only approved canonical documentation inputs on main" {
@@ -46,7 +48,7 @@ Describe "Documentation rebuild workflow contracts" {
     }
 
     It "pins every privileged action to an immutable commit" {
-        foreach ($workflow in @($rebuildWorkflow, $releaseWorkflow, $pagesWorkflow, $releasePagesWorkflow)) {
+        foreach ($workflow in @($rebuildWorkflow, $combinedWorkflow, $releaseWorkflow, $pagesWorkflow, $releasePagesWorkflow)) {
             foreach ($match in [regex]::Matches($workflow, 'uses:\s*[^@\s]+@([^\s#]+)')) {
                 $match.Groups[1].Value | Should -Match '^[0-9a-f]{40}$'
             }
@@ -55,50 +57,62 @@ Describe "Documentation rebuild workflow contracts" {
 }
 
 Describe "Pages exact-artifact deployment contracts" {
-    It "runs only after successful main rebuild completion" {
-        $pagesWorkflow | Should -Match 'workflow_run:'
-        $pagesWorkflow | Should -Match 'Rebuild documentation'
-        $pagesWorkflow | Should -Match "workflow_run\.conclusion == 'success'"
-        $pagesWorkflow | Should -Match "workflow_run\.head_branch == 'main'"
+    It "isolates mutable dev execution from every Pages or OIDC credential" {
+        $pagesWorkflow | Should -Not -Match 'pages:\s*write|id-token:\s*write|environment:'
+        $pagesWorkflow | Should -Match 'actions/upload-artifact'
+        $releasePagesWorkflow | Should -Match 'Deploy documentation site'
+        $releasePagesWorkflow | Should -Match 'legacy-pages.js'
+        $releasePagesWorkflow | Should -Match 'run-id:.*github.event.workflow_run.id'
+    }
+    It "uses fresh protected remote default policy before all legacy deployments" {
+        $controllerCheckout = [regex]::Match($releasePagesWorkflow, '(?s)Check out protected deployment controller.*?persist-credentials: false').Value
+        $controllerCheckout | Should -Match 'ref:.*github.sha'
+        $controllerCheckout | Should -Not -Match 'ref:\s*main'
+        ([regex]::Matches($releasePagesWorkflow, 'legacy-pages.js.*check')).Count | Should -BeGreaterThan 1
+    }
+    It "runs from pushes to dev" {
+        $pagesWorkflow | Should -Match 'push:'
+        $pagesWorkflow | Should -Match 'branches:\s*\[dev\]'
+        $pagesWorkflow | Should -Not -Match 'workflow_run:'
     }
 
-    It "downloads, verifies, freshness-checks, and uploads the unchanged artifact" {
-        $downloadIndex = $pagesWorkflow.IndexOf('actions/download-artifact')
-        $digestIndex = $pagesWorkflow.IndexOf('--verify-artifact')
-        $freshnessIndex = $pagesWorkflow.IndexOf('--verify-fingerprint')
-        $uploadIndex = $pagesWorkflow.IndexOf('path: site-artifact/docs')
-        $downloadIndex | Should -BeGreaterThan -1
-        $digestIndex | Should -BeGreaterThan $downloadIndex
-        $freshnessIndex | Should -BeGreaterThan $digestIndex
-        $uploadIndex | Should -BeGreaterThan $freshnessIndex
-        $pagesWorkflow | Should -Match 'run-id:\s*\$\{\{ github\.event\.workflow_run\.id \}\}'
-        $pagesWorkflow | Should -Match 'Skipping stale main rebuild artifact'
+    It "builds dev without authority and composes verified data with protected tooling" {
+        $pagesWorkflow | Should -Match 'scripts/rebuild-docs\.js --all'
+        $releasePagesWorkflow | Should -Match 'scripts/assemble-docs-site\.js'
+        $releasePagesWorkflow | Should -Match 'path: combined-artifact/site'
+        $releasePagesWorkflow | Should -Match 'path:\s*sources/main'
+        $releasePagesWorkflow | Should -Match '--main-root'
+        $releasePagesWorkflow | Should -Match '--dev-root'
+        $releasePagesWorkflow | Should -Match 'legacy-pages.js import-dev sources/dev dev-artifact'
+        $pagesWorkflow | Should -Not -Match 'actions/download-artifact|run-id:'
     }
 
     It "supports unprivileged tag builds through the protected workflow-run controller" {
         $releaseWorkflow | Should -Match 'tags:\s*\["v\*\.\*\.\*"\]'
         $releaseWorkflow | Should -Match 'release-docs-site'
         $releaseWorkflow | Should -Not -Match 'pages:\s*write|id-token:\s*write'
-        $pagesWorkflow | Should -Not -Match '(?m)^\s*push:\s*$'
-        $pagesWorkflow | Should -Not -Match 'workflow_dispatch:'
+        $pagesWorkflow | Should -Match '(?m)^\s*push:\s*$'
+        $pagesWorkflow | Should -Match 'branches:\s*\[dev\]'
         $releasePagesWorkflow | Should -Match 'Build release documentation'
         $releasePagesWorkflow | Should -Match 'name: Deploy release documentation'
         $releasePagesWorkflow | Should -Match 'merge-base --is-ancestor'
-        $releasePagesWorkflow | Should -Match 'v\[0-9\]\+\\\.\[0-9\]\+\\\.\[0-9\]\+'
+        $releasePagesWorkflow | Should -Match 'release-version.js --legacy-docs-branch "\$RELEASE_TAG"'
         $releaseWorkflow | Should -Match 'rebuild-docs\.js --all'
     }
 
     It "accepts dev-series pre-release tags (v1.2.0.900x) in the unprivileged builder" {
-        $tagPatterns = @([regex]::Matches($releaseWorkflow, '\$RELEASE_TAG"\s*=\~\s*([^ ]+)') | ForEach-Object { $_.Groups[1].Value } | Where-Object { $_ -match '^\^v' })
-        $tagPatterns.Count | Should -Be 2
-        ([regex]$tagPatterns[0]).IsMatch('v1.2.0.9004') | Should -Be $true
-        ([regex]$tagPatterns[1]).IsMatch('v1.2.0') | Should -Be $true
-        ([regex]$tagPatterns[1]).IsMatch('v1.2') | Should -Be $false
+        $releaseWorkflow | Should -Match 'release-version.js --legacy-docs-branch "\$RELEASE_TAG"'
+        $helper = Join-Path $repoRoot 'scripts/release-version.js'
+        (& node $helper --legacy-docs-branch v1.2.0.9004) | Should -BeExactly 'dev'
+        $LASTEXITCODE | Should -Be 0
+        (& node $helper --legacy-docs-branch v1.2.0) | Should -BeExactly 'main'
+        $LASTEXITCODE | Should -Be 0
+        & node -e 'const a=require(''node:assert/strict''), h=require(process.argv[1]); for(const t of [''v1.2'',''v1.2.0-rc.1'',''../v1.2.0'']) a.throws(()=>h.legacyDocsBranch(t));' $helper
+        $LASTEXITCODE | Should -Be 0
     }
 
     It "binds stable tags to main and prerelease tags to dev" {
-        $releaseWorkflow | Should -Match 'required_branch="main"'
-        $releaseWorkflow | Should -Match '\^v\[0-9\]\+\\\.\[0-9\]\+\\\.\[0-9\]\+\\\.\[0-9\]\+\$[\s\S]*required_branch="dev"'
+        $releaseWorkflow | Should -Match 'required_branch="\$\(node scripts/release-version.js --legacy-docs-branch'
         $releaseWorkflow | Should -Match 'git fetch origin "\$required_branch"'
         $releaseWorkflow | Should -Not -Match 'git fetch origin main dev'
         $releaseWorkflow | Should -Match 'is-ancestor "\$RELEASE_SHA" "origin/\$required_branch"'
@@ -110,22 +124,32 @@ Describe "Pages exact-artifact deployment contracts" {
     }
 
     It "binds tag deployments to the exact latest durable payload" {
-        $validatePayloadIndex = $releaseWorkflow.IndexOf('--validate-payload "releases/$RELEASE_TAG.json"')
-        $validateSetIndex = $releaseWorkflow.IndexOf('--validate-release-set')
-        $byteMatchIndex = $releaseWorkflow.IndexOf('cmp -s "releases/$RELEASE_TAG.json" releases/latest.json')
-        $uploadIndex = $releaseWorkflow.IndexOf('Upload release documentation artifact')
+        # Phase6's isolated producer validates its own payload before its artifact upload.
+        $releaseJob = [regex]::Match($releaseWorkflow, '(?ms)^  build:\r?\n.*?(?=^  [a-z][a-z0-9-]*:\r?$|\z)').Value
+        $releaseJob.Length | Should -BeGreaterThan 0
+        $uploadSteps = @([regex]::Matches($releaseJob, '(?ms)^      - .*?(?=^      - |\z)') | Where-Object {
+            $_.Value -match 'uses:\s*actions/upload-artifact@[0-9a-f]{40}(?:\s|$)' -and
+            $_.Value -match '(?m)^\s+name:\s*release-docs-site\s*$'
+        })
+        $uploadSteps.Count | Should -Be 1
+        $validatePayloadIndex = $releaseJob.IndexOf('--validate-payload "releases/$RELEASE_TAG.json"')
+        $validateSetIndex = $releaseJob.IndexOf('--validate-release-set')
+        $byteMatchIndex = $releaseJob.IndexOf('cmp -s "releases/$RELEASE_TAG.json" releases/latest.json')
+        $uploadIndex = $uploadSteps[0].Index
         $validatePayloadIndex | Should -BeGreaterThan -1
         $validateSetIndex | Should -BeGreaterThan $validatePayloadIndex
         $byteMatchIndex | Should -BeGreaterThan $validateSetIndex
         $uploadIndex | Should -BeGreaterThan $byteMatchIndex
     }
 
-    It "never rebuilds or mutates the downloaded main artifact" {
-        $artifactJob = [regex]::Match($pagesWorkflow, '(?s)deploy-rebuild-artifact:.*?(?=\n  [a-z].*?:|\z)').Value
-        $artifactJob | Should -Match '--verify-artifact'
-        $artifactJob | Should -Match '--verify-fingerprint'
-        $artifactJob | Should -Not -Match 'rebuild-docs\.js --all'
-        $artifactJob | Should -Not -Match 'generate-whats-new\.js'
+    It "does not rebuild dev inside the trusted deployment job" {
+        $pagesWorkflow | Should -Match 'rebuild-docs\.js --all'
+        $releasePagesWorkflow | Should -Match 'scripts/assemble-docs-site\.js'
+        $releasePagesWorkflow | Should -Match 'combined-artifact/site'
+        $releasePagesWorkflow | Should -Not -Match 'rebuild-docs\.js --all'
+        $pagesWorkflow | Should -Not -Match 'actions/download-artifact'
+        $pagesWorkflow | Should -Not -Match 'run-id:'
+        $pagesWorkflow | Should -Not -Match 'generate-whats-new\.js'
     }
 
     It "builds tagged code without Pages credentials and deploys only the verified prebuilt artifact" {
@@ -136,7 +160,7 @@ Describe "Pages exact-artifact deployment contracts" {
         $deployJob | Should -Match 'actions/download-artifact'
         $deployJob | Should -Match 'actions/upload-pages-artifact'
         $deployJob | Should -Match 'pages:\s*write'
-        $deployJob | Should -Match 'ref:\s*main'
+        $deployJob | Should -Match 'ref:.*github.sha'
         $deployJob | Should -Match 'Artifact digest mismatch'
         $deployJob | Should -Match 'release-validation/current-latest\.json'
         $deployJob | Should -Not -Match 'rebuild-docs\.js --all'
@@ -155,10 +179,11 @@ Describe "Deterministic generator contracts" {
     It "validates source tags, deduplicates latest, caps history, and escapes payload text" {
         $whatsNewScript | Should -Match 'sourceUrl'
         $whatsNewScript | Should -Match 'MAX_RELEASES = 20'
-        $whatsNewScript | Should -Match 'byte-match'
-        $whatsNewScript | Should -Match 'must match newest immutable payload'
+        $whatsNewScript | Should -Match 'require\("\./release-payloads.js"\)\.loadReleasePayloads\(root, validatePayload, fail\)'
+        $payloadScript | Should -Match 'byte-match'
+        $payloadScript | Should -Match 'must match newest immutable payload'
         $whatsNewScript | Should -Match 'GPID-WB/compound-gpid'
-        $whatsNewScript | Should -Match 'must not be a symbolic link'
+        $payloadScript | Should -Match 'must not be a symbolic link'
         $whatsNewScript | Should -Match 'View older releases'
         $whatsNewScript | Should -Match 'escapeText'
     }
@@ -175,15 +200,18 @@ Describe "Release payload sequencing contracts" {
         $payloadIndex = $releasePrompt.IndexOf('releases/<next-tag>.json')
         $validateIndex = $releasePrompt.IndexOf('--validate-payload releases/<next-tag>.json')
         $commitIndex = $releasePrompt.IndexOf('chore(release): prepare <next-tag> payload')
-        $tagIndex = $releasePrompt.IndexOf('git tag <next-tag>')
+        $tagIndex = $releasePrompt.IndexOf('git tag -a <next-tag>')
         $deployIndex = $releasePrompt.IndexOf('Wait for the unprivileged `release-docs.yml`')
-        $apiIndex = $releasePrompt.IndexOf('.\create-release.ps1 -Tag <tag>')
+        $apiIndex = $releasePrompt.IndexOf('.\create-release.ps1 -Phase Reserve')
+        $finalizeIndex = $releasePrompt.IndexOf('.\create-release.ps1 -Phase Finalize')
         $payloadIndex | Should -BeGreaterThan -1
         $validateIndex | Should -BeGreaterThan $payloadIndex
         $commitIndex | Should -BeGreaterThan $validateIndex
         $tagIndex | Should -BeGreaterThan $commitIndex
         $deployIndex | Should -BeGreaterThan $tagIndex
-        $apiIndex | Should -BeGreaterThan $deployIndex
+        $apiIndex | Should -BeGreaterThan $tagIndex
+        $apiIndex | Should -BeLessThan $deployIndex
+        $finalizeIndex | Should -BeGreaterThan $deployIndex
     }
 
     It "uses record delimiters, idempotent tag handling, and an explicit resume path" {
@@ -202,7 +230,8 @@ Describe "Release payload sequencing contracts" {
         $releasePrompt | Should -Match 'Set `<release-branch>` to `dev` when `<prerelease>` is `true`; otherwise set it[\s\S]*to `main`'
         $releasePrompt | Should -Match 'git fetch origin <release-branch> --tags'
         $releasePrompt | Should -Match 'git rev-parse origin/<release-branch>'
-        $releasePrompt | Should -Match 'git push origin <release-branch>'
+        $releasePrompt | Should -Match 'Require all tests green before merging'
+        $releasePrompt | Should -Not -Match 'git push origin <next-tag>|git push origin <release-branch>'
         $releasePrompt | Should -Not -Match 'merge-base --is-ancestor origin/main HEAD'
         $releasePrompt | Should -Match 'exact `origin/dev` lineage is the prerelease authorization boundary'
         $releasePrompt | Should -Not -Match 'Require a clean, up-to-date `main` checkout before writing payloads'

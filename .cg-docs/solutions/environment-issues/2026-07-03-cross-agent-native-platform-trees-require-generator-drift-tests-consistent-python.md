@@ -107,3 +107,5 @@ Three sub-problems emerged:
   — prior adapter packaging (superseded)
 - `.cg-docs/solutions/testing-patterns/2026-09-09-registry-ownership-metadata-needs-consumer-closure-tests.md`
   -- phased drift fixtures and effective ownership consumer coverage
+- `.cg-docs/solutions/testing-patterns/2026-08-13-release-gate-fixtures-and-derived-evidence-hashes.md`
+  — runtime-faithful release fixtures and derived evidence hash validation

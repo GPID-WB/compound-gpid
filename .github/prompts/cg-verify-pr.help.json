@@ -4,7 +4,7 @@
   "intents": ["diagnose pull request checks", "fix CI failures"], "usage": "/cg-verify-pr [--propose]", "examples": ["/cg-verify-pr --propose"],
   "prerequisites": ["A current pull request with accessible checks."], "outputs": ["A CI diagnosis and, when allowed, verified fixes."],
   "constraints": ["Propose mode is observe-only."], "relatedCommands": [{"id": "slash:cg-commit-push-pr", "relation": "related"}],
-  "sourcePath": ".github/prompts/cg-verify-pr.prompt.md", "definitionSources": [".github/prompts/cg-verify-pr.prompt.md"], "definitionDigest": "1d0474c3c38ab06a9d0ac36b5f459bd4f9d97598a8bec27d889c66ed13a25dbb",
+  "sourcePath": ".github/prompts/cg-verify-pr.prompt.md", "definitionSources": [".github/prompts/cg-verify-pr.prompt.md"], "definitionDigest": "a8fbc32ad38b94f9906b3ac4b6c2acc9e0ea48efa4a1cab7e05deade7e993139",
   "documentationTargets": [], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["any"],
   "availability": {"status": "conditional", "evidence": [{"os": "any", "sourcePath": ".github/prompts/cg-verify-pr.prompt.md"}]},
   "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]

@@ -18,6 +18,7 @@ jobs:
         with:
           ref: ${{ github.sha }}
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Set up Node
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4.4.0
@@ -29,30 +30,55 @@ jobs:
           RELEASE_TAG: ${{ github.ref_name }}
           RELEASE_SHA: ${{ github.sha }}
         run: |
-          required_branch="main"
-          if [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            required_branch="dev"
-          elif [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "Unsupported release tag: $RELEASE_TAG"
-            exit 1
-          fi
+          required_branch="$(node scripts/release-version.js --legacy-docs-branch "$RELEASE_TAG")"
           git fetch origin "$required_branch" "refs/tags/$RELEASE_TAG:refs/tags/$RELEASE_TAG"
           test "$(git rev-list -n 1 "$RELEASE_TAG")" = "$RELEASE_SHA"
           git merge-base --is-ancestor "$RELEASE_SHA" "origin/$required_branch"
           node scripts/generate-whats-new.js --validate-payload "releases/$RELEASE_TAG.json"
           node scripts/generate-whats-new.js --validate-release-set
           cmp -s "releases/$RELEASE_TAG.json" releases/latest.json
+          echo "RELEASE_BRANCH=$required_branch" >> "$GITHUB_ENV"
 
       - name: Build complete documentation tree
         run: node scripts/rebuild-docs.js --all
 
-      - name: Validate documentation site
+      - name: Validate tagged documentation site
         run: node scripts/check-docs-site.js
 
-      - name: Upload release documentation artifact
+      - name: Require isolated release metadata
+        run: test -f .docs-build-metadata.json
+
+      - name: Upload isolated release documentation artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
           name: release-docs-site
+          path: |
+            docs/
+            .docs-build-metadata.json
+          retention-days: 1
+          include-hidden-files: true
+          if-no-files-found: error
+
+  build-dev:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: dev
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: "22"
+      - name: Build and validate isolated dev documentation
+        run: |
+          node scripts/rebuild-docs.js --all
+          node scripts/check-docs-site.js
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: release-dev-docs
           path: |
             docs/
             .docs-build-metadata.json

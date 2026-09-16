@@ -24,11 +24,11 @@ from __future__ import annotations
 
 import sys
 
-if sys.version_info < (3, 8):
-    print(
+MIN_PYTHON = (3, 8)
+if sys.version_info < MIN_PYTHON:
+    sys.stderr.write(
         "cg-validate-modules requires Python 3.8+; found "
-        f"{sys.version.split()[0]}",
-        file=sys.stderr,
+        f"{sys.version.split()[0]}\n"
     )
     sys.exit(1)
 
@@ -39,7 +39,7 @@ import os
 import re
 import stat
 from pathlib import Path, PurePosixPath
-from typing import Any, Dict, Iterable, List, Optional, Tuple
+from typing import Any, Iterable
 
 import secure_fs
 from skill_management import paths as path_policy
@@ -81,9 +81,9 @@ _REPARSE_POINT_FLAG = 0x400
 # ---------------------------------------------------------------------------
 
 
-def _canonical_categories(root: Path) -> Dict[str, List[str]]:
+def _canonical_categories(root: Path) -> dict[str, list[str]]:
     """Return POSIX repository-relative canonical asset paths per category."""
-    assets: Dict[str, List[str]] = {
+    assets: dict[str, list[str]] = {
         "prompts": [],
         "agents": [],
         "skills": [],
@@ -115,7 +115,7 @@ def _canonical_categories(root: Path) -> Dict[str, List[str]]:
 
 
 @functools.lru_cache(maxsize=16)
-def canonical_assets(root: Path) -> List[str]:
+def canonical_assets(root: Path) -> list[str]:
     """Return every canonical asset path (POSIX, repo-relative), sorted.
 
     Memoized: the inventory is re-scanned repeatedly by the reference scanners;
@@ -147,12 +147,12 @@ def _glob_match(pattern: str, asset: str) -> bool:
     return glob_match(pattern, asset)
 
 
-def portable_path_key(value: str) -> Tuple[str, ...]:
+def portable_path_key(value: str) -> tuple[str, ...]:
     """Return a case-insensitive Unicode-normalized portable path key."""
     return path_policy.portable_path_key(value)
 
 
-def validate_repo_relative_path(label: str, value: Any) -> List[str]:
+def validate_repo_relative_path(label: str, value: Any) -> list[str]:
     """Validate one portable POSIX repository-relative path."""
     return path_policy.validate_repo_relative_path(label, value)
 
@@ -163,7 +163,7 @@ def _is_link_or_reparse(metadata: os.stat_result) -> bool:
     )
 
 
-def inventory_shared_assets(root: Path) -> List[str]:
+def inventory_shared_assets(root: Path) -> list[str]:
     """Recursively inventory regular shared files without following links."""
     return path_policy.inventory_shared_assets(root)
 
@@ -179,7 +179,7 @@ def _read_asset_text(root: Path, relative_path: str) -> str:
     return content.decode("utf-8")
 
 
-def _frontmatter_owner(content: str) -> Optional[str]:
+def _frontmatter_owner(content: str) -> str | None:
     """Extract an optional ``owner:`` field from canonical frontmatter."""
     if not content.lstrip("\ufeff\r\n").startswith("---"):
         return None
@@ -199,7 +199,7 @@ def _frontmatter_owner(content: str) -> Optional[str]:
 # ---------------------------------------------------------------------------
 
 
-def load_registry(root: Path) -> Tuple[Optional[dict], Optional[str]]:
+def load_registry(root: Path) -> tuple[dict | None, str | None]:
     """Load and parse the module registry. Returns (data, error)."""
     path = root / MODULE_REGISTRY_PATH
     if not path.exists():
@@ -223,9 +223,9 @@ def load_registry(root: Path) -> Tuple[Optional[dict], Optional[str]]:
     return data, None
 
 
-def validate_registry_schema(registry: dict) -> List[str]:
+def validate_registry_schema(registry: dict) -> list[str]:
     """Validate the registry structure. Returns list of error messages."""
-    errors: List[str] = []
+    errors: list[str] = []
     if "schemaVersion" not in registry:
         errors.append("Missing required field: schemaVersion")
     elif type(registry["schemaVersion"]) is not int or registry["schemaVersion"] not in VALID_SCHEMA_VERSIONS:
@@ -287,7 +287,7 @@ def validate_registry_schema(registry: dict) -> List[str]:
         if not isinstance(exclusions, list):
             errors.append(f"{prefix}.ownershipExclusions: must be an array")
         else:
-            seen_exclusions: set[Tuple[str, ...]] = set()
+            seen_exclusions: set[tuple[str, ...]] = set()
             for exclusion_index, exclusion in enumerate(exclusions):
                 label = f"{prefix}.ownershipExclusions[{exclusion_index}]"
                 if not isinstance(exclusion, str) or not exclusion:
@@ -351,7 +351,7 @@ def validate_registry_schema(registry: dict) -> List[str]:
     return errors
 
 
-def _validate_module_help(prefix: str, value: Any) -> List[str]:
+def _validate_module_help(prefix: str, value: Any) -> list[str]:
     """Validate optional backward-compatible module help metadata.
 
     Args:
@@ -418,9 +418,9 @@ def _validate_module_help(prefix: str, value: Any) -> List[str]:
     return errors
 
 
-def validate_capability_records(registry: dict, module_ids: set[str]) -> List[str]:
+def validate_capability_records(registry: dict, module_ids: set[str]) -> list[str]:
     """Validate v2 capability eligibility/activation records (R3, R4)."""
-    errors: List[str] = []
+    errors: list[str] = []
     capabilities = registry.get("capabilities")
     if capabilities is None:
         errors.append("schemaVersion 2 requires a 'capabilities' array")
@@ -524,18 +524,18 @@ def validate_capability_records(registry: dict, module_ids: set[str]) -> List[st
     return errors
 
 
-def _layer_of(registry: dict, module_id: str) -> Optional[str]:
+def _layer_of(registry: dict, module_id: str) -> str | None:
     for module in registry.get("modules", []):
         if isinstance(module, dict) and module.get("id") == module_id:
             return module.get("layer")
     return None
 
 
-def check_layer_rules(registry: dict) -> List[str]:
+def check_layer_rules(registry: dict) -> list[str]:
     """Verify dependency edges respect layer rules and ids resolve."""
-    errors: List[str] = []
+    errors: list[str] = []
     ids = {module.get("id") for module in registry.get("modules", []) if isinstance(module, dict)}
-    adjacency: Dict[str, List[str]] = {}
+    adjacency: dict[str, list[str]] = {}
     for module in registry.get("modules", []):
         if not isinstance(module, dict):
             continue
@@ -562,16 +562,16 @@ def check_layer_rules(registry: dict) -> List[str]:
     return errors
 
 
-def _first_cycle(adjacency: Dict[str, List[str]]) -> Optional[List[str]]:
+def _first_cycle(adjacency: dict[str, list[str]]) -> list[str] | None:
     """Return one cycle in the dependency graph, or None if acyclic."""
     WHITE, GRAY, BLACK = 0, 1, 2
-    color: Dict[str, int] = {node: WHITE for node in adjacency}
+    color: dict[str, int] = {node: WHITE for node in adjacency}
     for start in sorted(adjacency):
         if color.get(start, WHITE) != WHITE:
             continue
-        path: List[str] = []
-        positions: Dict[str, int] = {}
-        frames: List[Tuple[str, int]] = [(start, 0)]
+        path: list[str] = []
+        positions: dict[str, int] = {}
+        frames: list[tuple[str, int]] = [(start, 0)]
         while frames:
             node, neighbor_index = frames[-1]
             if color.get(node, WHITE) == WHITE:
@@ -600,9 +600,9 @@ def _first_cycle(adjacency: Dict[str, List[str]]) -> Optional[List[str]]:
 # ---------------------------------------------------------------------------
 
 
-def check_owned_assets_exist(registry: dict, assets: Iterable[str]) -> List[str]:
+def check_owned_assets_exist(registry: dict, assets: Iterable[str]) -> list[str]:
     """Verify every declared owned-assets pattern matches a canonical asset."""
-    errors: List[str] = []
+    errors: list[str] = []
     asset_set = set(assets)
     for module in registry.get("modules", []):
         if not isinstance(module, dict):
@@ -618,7 +618,7 @@ def check_owned_assets_exist(registry: dict, assets: Iterable[str]) -> List[str]
 
 def _asset_owner_groups(
     registry: dict, assets: Iterable[str]
-) -> Dict[str, List[str]]:
+) -> dict[str, list[str]]:
     """Compute every canonical asset's owning modules once.
 
     Args:
@@ -634,15 +634,15 @@ def _asset_owner_groups(
     """
     from skill_management.services.registry import matching_asset_owners
 
-    groups: Dict[str, List[str]] = {asset: [] for asset in assets}
+    groups: dict[str, list[str]] = {asset: [] for asset in assets}
     for asset in groups:
         groups[asset].extend(matching_asset_owners(registry, asset))
     return groups
 
 
-def check_ownership_closure(registry: dict, assets: Iterable[str]) -> List[str]:
+def check_ownership_closure(registry: dict, assets: Iterable[str]) -> list[str]:
     """Verify every canonical asset has exactly one owning module."""
-    errors: List[str] = []
+    errors: list[str] = []
     owners_by_asset = _asset_owner_groups(registry, assets)
 
     for asset in sorted(owners_by_asset):
@@ -654,9 +654,9 @@ def check_ownership_closure(registry: dict, assets: Iterable[str]) -> List[str]:
     return errors
 
 
-def check_frontmatter_ownership(root: Path, registry: dict, assets: Iterable[str]) -> List[str]:
+def check_frontmatter_ownership(root: Path, registry: dict, assets: Iterable[str]) -> list[str]:
     """Cross-validate optional frontmatter ``owner:`` fields against the registry."""
-    errors: List[str] = []
+    errors: list[str] = []
     owners_by_asset = _asset_owner_groups(registry, assets)
 
     for asset in sorted(owners_by_asset):
@@ -681,14 +681,28 @@ def check_frontmatter_ownership(root: Path, registry: dict, assets: Iterable[str
     return errors
 
 
-def check_no_physical_relocation(root: Path) -> List[str]:
+def check_no_physical_relocation(root: Path) -> list[str]:
     """C2: verify .github/ remains the canonical runtime source.
 
     No physical package-tree relocation to packages/kernel/, packages/suites/,
     etc. The registry may declare modules over the canonical tree only.
     """
-    errors: List[str] = []
+    errors: list[str] = []
     packages_roots = sorted(p for p in root.glob("packages/*/") if p.is_dir())
+    standalone = root / "packages/cg-release"
+    # Only this approved src-layout tool is outside the logical module registry.
+    # It must not become a container for relocated canonical runtime assets.
+    if (
+        standalone in packages_roots
+        and not standalone.is_symlink()
+        and (standalone / "pyproject.toml").is_file()
+        and (standalone / "src/cg_release/__init__.py").is_file()
+        and not any((standalone / name).exists() for name in (
+            ".github", "kernel", "capabilities", "suites", "suite-cg", "suite-cr",
+            "prompts", "agents", "skills", "instructions", "shared",
+        ))
+    ):
+        packages_roots.remove(standalone)
     if packages_roots:
         names = ", ".join(p.relative_to(root).as_posix() for p in packages_roots)
         errors.append(
@@ -698,9 +712,9 @@ def check_no_physical_relocation(root: Path) -> List[str]:
     return errors
 
 
-def check_ambiguous_entries(registry: dict) -> List[str]:
+def check_ambiguous_entries(registry: dict) -> list[str]:
     """Require every ambiguous entry to carry a resolution note."""
-    errors: List[str] = []
+    errors: list[str] = []
     for module in registry.get("modules", []):
         if not isinstance(module, dict):
             continue
@@ -716,9 +730,9 @@ def check_ambiguous_entries(registry: dict) -> List[str]:
     return errors
 
 
-def empty_module_warnings(registry: dict) -> List[str]:
+def empty_module_warnings(registry: dict) -> list[str]:
     """Return warnings for modules that declare no owned assets."""
-    warnings: List[str] = []
+    warnings: list[str] = []
     for module in registry.get("modules", []):
         if not isinstance(module, dict):
             continue
@@ -734,14 +748,14 @@ def empty_module_warnings(registry: dict) -> List[str]:
 # ---------------------------------------------------------------------------
 
 
-def _module_by_id(registry: dict, module_id: str) -> Optional[dict]:
+def _module_by_id(registry: dict, module_id: str) -> dict | None:
     for module in registry.get("modules", []):
         if isinstance(module, dict) and module.get("id") == module_id:
             return module
     return None
 
 
-def resolve_asset_owner(registry: dict, asset: str) -> Optional[str]:
+def resolve_asset_owner(registry: dict, asset: str) -> str | None:
     """Map a canonical path to its owning module via registry ownedAssets globs."""
     from skill_management.services.registry import matching_asset_owners
 
@@ -749,9 +763,9 @@ def resolve_asset_owner(registry: dict, asset: str) -> Optional[str]:
     return owners[0] if len(owners) == 1 else None
 
 
-def _owner_map(registry: dict, assets: Iterable[str]) -> Dict[str, Optional[str]]:
+def _owner_map(registry: dict, assets: Iterable[str]) -> dict[str, str | None]:
     """Build asset -> owning module (single-owner) once, for O(1) lookups."""
-    mapping: Dict[str, Optional[str]] = {}
+    mapping: dict[str, str | None] = {}
     for asset in assets:
         mapping[asset] = resolve_asset_owner(registry, asset)
     return mapping
@@ -806,8 +820,8 @@ def _reference_closure(registry: dict, module_id: str) -> set[str]:
 def _resolve_name_reference(
     registry: dict,
     name: str,
-    assets: Optional[Iterable[str]] = None,
-) -> Optional[str]:
+    assets: Iterable[str] | None = None,
+) -> str | None:
     """Map a bare agent or skill name to its canonical asset path, if owned.
 
     Accepts ``@cg-<name>`` / ``@cr-<name>`` agent references and
@@ -834,9 +848,9 @@ def _module_references(
     root: Path,
     registry: dict,
     module_id: str,
-    owners: Optional[Dict[str, Optional[str]]] = None,
-    assets: Optional[Iterable[str]] = None,
-) -> Dict[str, List[str]]:
+    owners: dict[str, str | None] | None = None,
+    assets: Iterable[str] | None = None,
+) -> dict[str, list[str]]:
     """Scan one module's owned canonical asset bodies for references.
 
     Returns {referenced_path: [owning_module_ids...]} for each reference that
@@ -849,7 +863,7 @@ def _module_references(
     if owners is None or assets is None:
         assets = canonical_assets(root)
         owners = _owner_map(registry, assets)
-    referenced: Dict[str, List[str]] = {}
+    referenced: dict[str, list[str]] = {}
     from skill_management.services.registry import module_owns_asset
 
     for canonical in assets:
@@ -887,9 +901,9 @@ def _module_name_references(
     root: Path,
     registry: dict,
     module_id: str,
-    owners: Optional[Dict[str, Optional[str]]] = None,
-    assets: Optional[Iterable[str]] = None,
-) -> Dict[str, List[str]]:
+    owners: dict[str, str | None] | None = None,
+    assets: Iterable[str] | None = None,
+) -> dict[str, list[str]]:
     """Scan for name-form references (@agent and <prefix>-skill-<name>).
 
     Used by the cross-suite gate to catch couplings that path-form scanning
@@ -902,7 +916,7 @@ def _module_name_references(
         assets = canonical_assets(root)
         owners = _owner_map(registry, assets)
     asset_set = set(assets)
-    referenced: Dict[str, List[str]] = {}
+    referenced: dict[str, list[str]] = {}
     name_patterns = (AGENT_REF_PATTERN, SKILL_REF_PATTERN)
     from skill_management.services.registry import module_owns_asset
 
@@ -935,7 +949,7 @@ def _module_name_references(
     return referenced
 
 
-def check_cross_suite_references(root: Path) -> List[str]:
+def check_cross_suite_references(root: Path) -> list[str]:
     """V9/R4 gate: no asset in one suite references an asset owned by another
     suite, except through a module the referencing suite depends on (directly
     or transitively via kernel/capability packs). Also fails on cycles/layer
@@ -975,7 +989,7 @@ def check_cross_suite_references(root: Path) -> List[str]:
         for reference, ref_owners in name_refs.items():
             refs.setdefault(reference, []).extend(ref_owners)
         for target, ref_owners in sorted(refs.items()):
-            owner = sorted(set(ref_owners))[0] if ref_owners else None
+            owner = min(ref_owners) if ref_owners else None
             if owner is None:
                 continue
             owner_module = _module_by_id(registry, owner)
@@ -993,7 +1007,7 @@ def check_cross_suite_references(root: Path) -> List[str]:
     return errors
 
 
-def check_unresolved_dependencies(root: Path) -> List[str]:
+def check_unresolved_dependencies(root: Path) -> list[str]:
     """Phase 2 Step 4: any canonical path referenced by an asset not in the
     referencing module's transitive dependency closure is an error."""
     registry, error = load_registry(root)
@@ -1020,7 +1034,7 @@ def check_unresolved_dependencies(root: Path) -> List[str]:
             errors.append(str(read_error))
             continue
         for target, owners in sorted(refs.items()):
-            owner = sorted(set(owners))[0] if owners else None
+            owner = min(owners) if owners else None
             if owner is None or owner == mid or owner in closure:
                 continue
             errors.append(
@@ -1035,7 +1049,7 @@ def check_unresolved_dependencies(root: Path) -> List[str]:
 # ---------------------------------------------------------------------------
 
 
-def check_ownership(root: Path) -> List[str]:
+def check_ownership(root: Path) -> list[str]:
     """Run schema + ownership checks. Return error messages (empty = valid)."""
     registry, error = load_registry(root)
     if error:
@@ -1056,7 +1070,7 @@ def check_ownership(root: Path) -> List[str]:
     return errors
 
 
-def check_dependencies(root: Path) -> List[str]:
+def check_dependencies(root: Path) -> list[str]:
     """Run schema + dependency + closure checks. Empty list = valid.
 
     V4: dependency graph acyclic and cross-suite-safe; every canonical runtime
@@ -1074,7 +1088,7 @@ def check_dependencies(root: Path) -> List[str]:
     return errors
 
 
-def check_cross_suite(root: Path) -> List[str]:
+def check_cross_suite(root: Path) -> list[str]:
     """V9: verify no direct cross-suite dependency (cr-* <-> cg-* without a
     shared capability pack) and acyclic/layer-safe dependency graph."""
     registry, error = load_registry(root)
@@ -1089,9 +1103,9 @@ def check_cross_suite(root: Path) -> List[str]:
     return errors
 
 
-def _ownership_report(root: Path, registry: dict) -> List[str]:
+def _ownership_report(root: Path, registry: dict) -> list[str]:
     """Produce an ownership report table (asset -> module)."""
-    lines: List[str] = ["# Module Registry Ownership Report"]
+    lines: list[str] = ["# Module Registry Ownership Report"]
     assets = canonical_assets(root)
     owners_by_asset = _asset_owner_groups(registry, assets)
     lines.append("")
@@ -1119,9 +1133,9 @@ def _ownership_report(root: Path, registry: dict) -> List[str]:
 
 
 def main(
-    argv: Optional[List[str]] = None,
+    argv: list[str] | None = None,
     *,
-    root_override: Optional[Path] = None,
+    root_override: Path | None = None,
 ) -> int:
     parser = argparse.ArgumentParser(
         description="Validate the Compound GPID module registry."
@@ -1163,7 +1177,7 @@ def main(
         ]
         if not selected:
             selected = ["ownership", "dependencies", "cross-suite"]
-        errors: List[str] = []
+        errors: list[str] = []
         if "ownership" in selected:
             errors.extend(check_ownership(root))
         if "dependencies" in selected:

@@ -1,0 +1,8 @@
+{
+  "valid": ["0.0.0", "1.4.2", "1.5.0-rc.9", "1.5.0-rc.10", "1.5.0", "1.5.0+build.01", "1.5.0-alpha-beta.1"],
+  "invalid": ["v1.0.0", "1.0", "01.2.3", "1.02.3", "1.2.03", "1.0.0-01", "1.0.0-rc..1", "1.0.0-", "1.0.0+", "1.0.0-rc_1", "1.0.0-\u03b1", " 1.0.0", "1.0.0\n"],
+  "ascending": ["1.0.0-alpha", "1.0.0-alpha.1", "1.0.0-alpha.beta", "1.0.0-beta", "1.0.0-beta.2", "1.0.0-beta.11", "1.0.0-rc.1", "1.0.0"],
+  "equivalent": [["1.5.0+build.1", "1.5.0+build.2"], ["1.5.0", "1.5.0+build.1"]],
+  "legacy": [{"tag":"v1.5.0.1","strict_semver":false,"requires_reviewed_baseline":true}, {"tag":"v2026.8.1-dev.2","strict_semver_without_prefix":true,"preserve_tag":true}],
+  "policy_cases": ["maintenance-line-beside-newer-major", "ambiguous-baseline", "no-baseline", "detached-head", "fork-rejected", "missing-branch", "hostile-source-policy", "unauthorized-override", "global-reservation-collision", "malformed-managed-history", "incomplete-publication", "pagination-after-100", "pep440-beta-to-dev-downgrade"]
+}

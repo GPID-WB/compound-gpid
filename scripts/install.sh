@@ -336,6 +336,17 @@ fi
 chmod +x "$BIN_DIR/cg-render-artifact"
 print_gray "Registered: $BIN_DIR/cg-render-artifact"
 
+# cg-release is committed as the installer source of truth.
+CG_RELEASE_SRC="$COMPOUND_GPID_DIR/bin/cg-release"
+CG_RELEASE_DST="$BIN_DIR/cg-release"
+if [[ "$CG_RELEASE_SRC" != "$CG_RELEASE_DST" ]]; then
+    cp "$COMPOUND_GPID_DIR/bin/cg-release" "$BIN_DIR/cg-release"
+else
+    print_gray "Already present: $CG_RELEASE_DST"
+fi
+chmod +x "$BIN_DIR/cg-release"
+print_gray "Registered: $BIN_DIR/cg-release"
+
 # cg-publish-markdown is committed as the installer source of truth.
 CG_PUBLISH_MARKDOWN_SRC="$COMPOUND_GPID_DIR/bin/cg-publish-markdown"
 CG_PUBLISH_MARKDOWN_DST="$BIN_DIR/cg-publish-markdown"

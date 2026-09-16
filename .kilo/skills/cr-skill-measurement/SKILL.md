@@ -73,7 +73,7 @@ Across-unit comparability:
 `/cr-work` produces artifacts; `@cr-measurement-integrity` audits them.
 The agent never recomputes statistics.
 
-Path: `.cg-docs/research/measurement/weighting-sensitivity.yaml`
+Path: `c-research/measurement/weighting-sensitivity.yaml`
 Schema contract:
 ```yaml
 baseline:
@@ -89,7 +89,7 @@ scenarios:
     max_rank_shift: 6
 ```
 
-Path: `.cg-docs/research/measurement/cluster-validity.yaml`
+Path: `c-research/measurement/cluster-validity.yaml`
 Schema contract:
 ```yaml
 selected_k: 4
@@ -106,7 +106,7 @@ stability:
     c4: 0.72
 ```
 
-Path: `.cg-docs/research/vintages/<study-slug>-vintage-manifest.yaml`
+Path: `c-research/vintages/<study-slug>-vintage-manifest.yaml`
 Schema contract:
 ```yaml
 study: "example-study"

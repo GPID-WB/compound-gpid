@@ -1,0 +1,225 @@
+{
+  "created": "2026-09-03",
+  "references": {
+    "foundations-and-esl.md": {
+      "purpose": "ESL-led statistical-learning foundations and prediction versus causal boundaries",
+      "required_terms": [
+        "Elements of Statistical Learning",
+        "prediction target",
+        "loss function",
+        "generalization error",
+        "bias-variance"
+      ]
+    },
+    "high-dimensional-and-regularized-methods.md": {
+      "purpose": "High-dimensional prediction, regularization, selection, and inference",
+      "required_terms": [
+        "ridge",
+        "LASSO",
+        "elastic net",
+        "approximate sparsity",
+        "double selection",
+        "debiased"
+      ]
+    },
+    "splitting-resampling-and-evaluation.md": {
+      "purpose": "Sample splitting, resampling, leakage control, tuning, and evaluation",
+      "required_terms": [
+        "iid",
+        "GroupKFold",
+        "TimeSeriesSplit",
+        "nested cross-validation",
+        "data leakage",
+        "out-of-sample"
+      ]
+    },
+    "trees-ensembles-and-interpretation.md": {
+      "purpose": "Trees, ensembles, flexible prediction, and interpretation",
+      "required_terms": [
+        "bagging",
+        "random forest",
+        "boosting",
+        "permutation importance",
+        "SHAP",
+        "partial dependence"
+      ]
+    },
+    "econometric-causal-ml.md": {
+      "purpose": "Econometric causal machine learning and high-dimensional inference",
+      "required_terms": [
+        "double/debiased machine learning",
+        "Neyman orthogonality",
+        "cross-fitting",
+        "overlap",
+        "heterogeneous treatment effects"
+      ]
+    },
+    "survey-panel-and-target-population.md": {
+      "purpose": "Panel dependence, survey weights, target populations, and design limitations",
+      "required_terms": [
+        "target population",
+        "probability weights",
+        "cluster",
+        "stratification",
+        "design-based variance",
+        "sample_weight"
+      ]
+    },
+    "implementation-r-tidymodels.md": {
+      "purpose": "R implementation patterns using tidymodels",
+      "required_terms": [
+        "tidymodels",
+        "rsample",
+        "recipes",
+        "parsnip",
+        "workflows",
+        "tune",
+        "yardstick",
+        "last_fit"
+      ]
+    },
+    "implementation-python-scikit-learn.md": {
+      "purpose": "Python implementation patterns using scikit-learn",
+      "required_terms": [
+        "scikit-learn",
+        "Pipeline",
+        "ColumnTransformer",
+        "GroupKFold",
+        "TimeSeriesSplit",
+        "cross_validate",
+        "GridSearchCV",
+        "random_state"
+      ]
+    }
+  },
+  "tasks": [
+    {
+      "id": "iid-prediction",
+      "description": "Choose and assess a predictive model for iid observations.",
+      "expected_references": [
+        "foundations-and-esl.md",
+        "splitting-resampling-and-evaluation.md"
+      ],
+      "route_needs": [
+        "ESL foundations, loss, risk, complexity, bias-variance",
+        "iid, group, panel, temporal splitting, CV, tuning, evaluation"
+      ],
+      "required_core_terms": ["iid", "out-of-sample"]
+    },
+    {
+      "id": "high-dimensional-selection",
+      "description": "Select predictors when the number of candidate controls is large.",
+      "expected_references": [
+        "foundations-and-esl.md",
+        "high-dimensional-and-regularized-methods.md"
+      ],
+      "route_needs": [
+        "ESL foundations, loss, risk, complexity, bias-variance",
+        "High-dimensional prediction, regularization, selection, inference"
+      ],
+      "required_core_terms": ["high-dimensional", "regularization"]
+    },
+    {
+      "id": "panel-clustered-prediction",
+      "description": "Evaluate prediction for repeated observations within units.",
+      "expected_references": [
+        "splitting-resampling-and-evaluation.md",
+        "survey-panel-and-target-population.md"
+      ],
+      "route_needs": [
+        "iid, group, panel, temporal splitting, CV, tuning, evaluation",
+        "Survey weights, target population, clustering, design limits"
+      ],
+      "required_core_terms": ["panel", "group", "cluster"]
+    },
+    {
+      "id": "survey-weighted-prediction",
+      "description": "Predict a population outcome from complex survey microdata.",
+      "expected_references": [
+        "splitting-resampling-and-evaluation.md",
+        "survey-panel-and-target-population.md"
+      ],
+      "route_needs": [
+        "iid, group, panel, temporal splitting, CV, tuning, evaluation",
+        "Survey weights, target population, clustering, design limits"
+      ],
+      "required_core_terms": ["survey", "target population", "weights"]
+    },
+    {
+      "id": "dml-causal-effect",
+      "description": "Use machine learning for nuisance functions in an identified causal design.",
+      "expected_references": [
+        "econometric-causal-ml.md",
+        "splitting-resampling-and-evaluation.md"
+      ],
+      "route_needs": [
+        "DML, cross-fitting, orthogonality, causal ML",
+        "iid, group, panel, temporal splitting, CV, tuning, evaluation"
+      ],
+      "required_core_terms": ["causal", "DML", "cross-fitting"]
+    },
+    {
+      "id": "ensemble-interpretation",
+      "description": "Compare flexible ensembles and interpret predictive contributions.",
+      "expected_references": [
+        "foundations-and-esl.md",
+        "trees-ensembles-and-interpretation.md"
+      ],
+      "route_needs": [
+        "ESL foundations, loss, risk, complexity, bias-variance",
+        "Trees, ensembles, importance, SHAP, partial dependence"
+      ],
+      "required_core_terms": ["ensemble", "importance", "predictive"]
+    },
+    {
+      "id": "r-implementation",
+      "description": "Implement a reproducible ML workflow in R.",
+      "expected_references": [
+        "implementation-r-tidymodels.md",
+        "splitting-resampling-and-evaluation.md"
+      ],
+      "route_needs": [
+        "R implementation with tidymodels",
+        "iid, group, panel, temporal splitting, CV, tuning, evaluation"
+      ],
+      "required_core_terms": ["R", "tidymodels", "implementation"]
+    },
+    {
+      "id": "python-implementation",
+      "description": "Implement a reproducible ML workflow in Python.",
+      "expected_references": [
+        "implementation-python-scikit-learn.md",
+        "splitting-resampling-and-evaluation.md"
+      ],
+      "route_needs": [
+        "Python implementation with scikit-learn",
+        "iid, group, panel, temporal splitting, CV, tuning, evaluation"
+      ],
+      "required_core_terms": ["Python", "scikit-learn", "implementation"]
+    },
+    {
+      "id": "review-leakage",
+      "description": "Review an ML pipeline for preprocessing and target leakage.",
+      "expected_references": [
+        "splitting-resampling-and-evaluation.md"
+      ],
+      "route_needs": [
+        "Leakage, preprocessing, and review safeguards"
+      ],
+      "required_core_terms": ["review", "leakage"]
+    },
+    {
+      "id": "neural-network-selection",
+      "description": "Decide whether a bounded neural network is appropriate for tabular economic data.",
+      "expected_references": [
+        "foundations-and-esl.md",
+        "splitting-resampling-and-evaluation.md"
+      ],
+      "route_needs": [
+        "Neural-network method selection",
+        "iid, group, panel, temporal splitting, CV, tuning, evaluation"
+      ],
+      "required_core_terms": ["neural", "validation"]
+    }
+  ]
+}

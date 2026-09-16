@@ -17,7 +17,8 @@ commands are available when `suites:` includes `cr`.
 | Clarify a fuzzy task | `/cg-brainstorm` |
 | Create an implementation plan | `/cg-plan` |
 | Critique a plan | `/cg-plan-review` |
-| Implement a plan or phase | `/cg-work [phaseX]` |
+| Execute a qualified small technical task | `/cg-light-work <task>` |
+| Execute an approved saved Plan or phase | `/cg-work [phaseX]` |
 | Reproduce and fix a bug | `/cg-fixbug` |
 | Review changes | `/cg-review [light|standard|data-risk|architecture|full]` |
 | Resolve saved review findings | `/cg-fix-triage [priorities or finding IDs]` |
@@ -37,6 +38,11 @@ commands are available when `suites:` includes `cr`.
 
 ## Research workflow prompts
 
+Use `/cr-*` for research, statistical, and publication work. Use the standard
+technical `/cg-brainstorm` -> `/cg-plan` -> `/cg-work` cycle for larger,
+ambiguous, security-sensitive, schema, dependency, or destructive technical
+work.
+
 | Goal | Command |
 |---|---|
 | Scope a research question and surface normative choices | `/cr-brainstorm` |
@@ -44,6 +50,9 @@ commands are available when `suites:` includes `cr`.
 | Execute a research plan or phase | `/cr-work [phaseX]` |
 | Run task-aware research and engineering review | `/cr-review` |
 | Capture a verified research lesson | `/cr-compound` |
+
+The [Research Handbook](../research/index.md) explains when to use these
+commands and what a newcomer should expect from each handoff.
 
 Developer-only commands include `/cg-devtag`, `/cg-compound-gpid-rd`, and the
 compound-gpid-only `/cg-release` workflow. They are not normal consumer-project

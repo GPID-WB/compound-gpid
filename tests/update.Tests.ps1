@@ -662,6 +662,21 @@ Describe "update.ps1 - docs to .cg-docs migration" {
     }
 }
 
+Describe "update.ps1 - c-research structural migration" {
+    $content = Get-Content (Join-Path $repoRoot "scripts\update.ps1") -Raw -Encoding UTF8
+
+    It "invokes the shared research-layout migration helper" {
+        ($content -match 'cg_migrate_research_layout\.py') | Should -Be $true
+        ($content -match 'Resolve-PythonCommand') | Should -Be $true
+        ($content -match 'c-research') | Should -Be $true
+    }
+
+    It "does not use a compatibility research tree after migration" {
+        ($content -match 'legacy CR outputs|\.cg-docs\\research|\.cg-docs/research') | Should -Be $true
+        ($content -match '--root \$cwdRoot') | Should -Be $true
+    }
+}
+
 # ---------------------------------------------------------------------------
 # Charter migration notice
 # ---------------------------------------------------------------------------

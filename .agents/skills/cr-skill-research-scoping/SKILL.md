@@ -126,7 +126,7 @@ logic and must be walked explicitly.
 ## Scoping Memo Schema
 
 Write a scoping memo to:
-- `.cg-docs/research/scoping/<study-slug>.md`
+- `c-research/scoping/<study-slug>.md`
 
 Required sections:
 - Problem framing
@@ -142,7 +142,7 @@ Create the directory if absent.
 ## Per-Study Normative Register Linking
 
 Record decisions in:
-- `.cg-docs/research/normative-decisions/<study-slug>.md`
+- `c-research/normative-decisions/<study-slug>.md`
 
 Each decision must have:
 - Stable ID (`ND-<study-slug>-NNN`)

@@ -313,7 +313,7 @@
       "id": "suite-cg",
       "layer": "suite",
       "displayName": "Technical suite",
-      "description": "The /cg-* command orchestration surface: workflow prompts, suite-specific agents, and workflow-support skills.",
+"description": "The /cg-* command surface, including the optional thin release-controller interface and explicitly separate legacy bridge/recovery tooling: workflow prompts, suite-specific agents, and workflow-support skills.",
       "ownershipExclusions": [".github/prompts/cg-help.help.json", ".github/prompts/cg-help.prompt.md"],
       "dependsOn": [
         "kernel",

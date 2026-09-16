@@ -182,7 +182,7 @@ the code.
 ```markdown
 ## Code-Derivation Audit Checklist
 
-**Derivation file**: `.cg-docs/research/derivations/wage-mle.md`
+**Derivation file**: `c-research/derivations/wage-mle.md`
 **Code file**: `estimation.R` (line references from git blame)
 
 | Eq. # | Math Expression | Code Line | Code Expression | Match? | Notes |

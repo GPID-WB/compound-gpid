@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "tag": "v1.2.0.9015",
+  "publishedAt": "2026-09-10T18:31:25Z",
+  "releaseDate": "2026-09-10",
+  "name": "v1.2.0.9015 - Reliable prerelease publication",
+  "url": "https://github.com/GPID-WB/compound-gpid/releases/tag/v1.2.0.9015",
+  "sourceUrl": "https://github.com/GPID-WB/compound-gpid/tree/v1.2.0.9015",
+  "sections": [
+    {
+      "kind": "fixed",
+      "title": "Release automation fixes",
+      "entries": [
+        "Integrate protected release controller history into dev.",
+        "Reserve GitHub releases with annotated tag pushes.",
+        "Verify and upload the release site artifact.",
+        "Separate release metadata validation into its own step."
+      ]
+    },
+    {
+      "kind": "internal",
+      "title": "Release integration",
+      "entries": [
+        "Merge the protected release controller history integration.",
+        "Merge dev into the release controller integration branch.",
+        "Merge the fix that pairs annotated tags with published releases.",
+        "Merge release site artifact verification and upload fixes.",
+        "Merge the separate release metadata validation step."
+      ]
+    }
+  ]
+}

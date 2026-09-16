@@ -787,10 +787,12 @@ class TestPhase6Benchmark:
     def test_workflow_registry_covers_phase_1_1_commands(self) -> None:
         commands = [row["workflow"] for row in audit.WORKFLOW_REGISTRY]
         workflow_ids = [row["workflow_id"] for row in audit.WORKFLOW_REGISTRY]
+        paths = [row["path"] for row in audit.WORKFLOW_REGISTRY]
         assert commands == [
             "/cg-brainstorm",
             "/cg-plan",
             "/cg-work",
+            "/cg-light-work",
             "/cg-review",
             "/cg-fix-triage",
             "/cg-compound",
@@ -799,6 +801,23 @@ class TestPhase6Benchmark:
             "/cg-token-audit",
         ]
         assert len(workflow_ids) == len(set(workflow_ids))
+        assert len(paths) == len(set(paths))
+
+    def test_light_work_registry_identity_and_path_are_unique(self) -> None:
+        rows = [
+            row
+            for row in audit.WORKFLOW_REGISTRY
+            if row["workflow_id"] == "cg-light-work"
+            or row["workflow"] == "/cg-light-work"
+            or row["path"] == ".github/prompts/cg-light-work.prompt.md"
+        ]
+        assert rows == [
+            {
+                "workflow_id": "cg-light-work",
+                "workflow": "/cg-light-work",
+                "path": ".github/prompts/cg-light-work.prompt.md",
+            }
+        ]
 
     def test_duplicate_workflow_ids_fail_registry_validation(self) -> None:
         registry = [
@@ -807,6 +826,60 @@ class TestPhase6Benchmark:
         ]
         with pytest.raises(ValueError, match="Duplicate workflow_id"):
             audit.validate_workflow_registry(registry)
+
+    def test_duplicate_workflow_paths_fail_registry_validation(self) -> None:
+        registry = [
+            {"workflow_id": "cg-plan", "workflow": "/cg-plan", "path": ".github/prompts/cg-plan.prompt.md"},
+            {"workflow_id": "cg-plan-copy", "workflow": "/cg-plan-copy", "path": ".github/prompts/cg-plan.prompt.md"},
+        ]
+        with pytest.raises(ValueError, match="Duplicate workflow path"):
+            audit.validate_workflow_registry(registry)
+
+    def test_duplicate_workflow_commands_fail_registry_validation(self) -> None:
+        registry = [
+            {"workflow_id": "cg-plan", "workflow": "/cg-plan", "path": ".github/prompts/cg-plan.prompt.md"},
+            {"workflow_id": "cg-plan-copy", "workflow": "/cg-plan", "path": ".github/prompts/cg-plan-copy.prompt.md"},
+        ]
+        with pytest.raises(ValueError, match="Duplicate workflow command"):
+            audit.validate_workflow_registry(registry)
+
+    @pytest.mark.parametrize(
+        "registry",
+        [
+            [None],
+            [{"workflow_id": "cg-plan", "workflow": 1, "path": ".github/prompts/cg-plan.prompt.md"}],
+            [{"workflow_id": "cg-plan", "workflow": "   ", "path": ".github/prompts/cg-plan.prompt.md"}],
+        ],
+    )
+    def test_workflow_registry_rows_require_non_empty_strings(
+        self,
+        registry: list[object],
+    ) -> None:
+        with pytest.raises(ValueError, match="non-empty string fields"):
+            audit.validate_workflow_registry(registry)
+
+    def test_light_work_appears_in_workflow_telemetry(self, tmp_path: Path) -> None:
+        _write(
+            tmp_path / ".github/prompts/cg-light-work.prompt.md",
+            _frontmatter(None)
+            + "Load `.github/shared/context-loading.contract.md` during Stage 0.\n"
+            + "### Stage 5: Targeted Review And Resolution\n"
+            + "Dispatch @cg-code-quality and @cg-testing for the fixed light Review.\n"
+            + "### Stage 6: Completion\n",
+        )
+
+        report = audit.build_report(tmp_path)
+
+        row = next(
+            item
+            for item in report["workflow_telemetry"]["workflows"]
+            if item["workflow"] == "/cg-light-work"
+        )
+        assert row["workflow_id"] == "cg-light-work"
+        assert row["path"] == ".github/prompts/cg-light-work.prompt.md"
+        assert row["available"] is True
+        assert row["estimated_tokens"] is not None
+        assert ".github/shared/context-loading.contract.md" in row["likely_file_reads"]
 
     def test_builds_workflow_benchmark_rows(self, tmp_path: Path) -> None:
         _write(tmp_path / ".github/prompts/cg-plan.prompt.md", _frontmatter(None) + "Context expansion: reading `roadmap.json` because targeted fields.\n")
@@ -918,6 +991,13 @@ class TestPhase6Benchmark:
             _frontmatter("Claude Haiku 4.5")
             + "Read `.github/shared/context-loading.contract.md` and run_in_terminal.\n",
         )
+        _write(
+            tmp_path / ".github/prompts/cg-light-work.prompt.md",
+            _frontmatter(None)
+            + "### Stage 5: Targeted Review And Resolution\n"
+            + "Dispatch @cg-code-quality and @cg-testing for the fixed light Review.\n"
+            + "### Stage 6: Completion\n",
+        )
         report = audit.build_report(tmp_path)
         token_dir = tmp_path / ".cg-docs/token"
 
@@ -926,11 +1006,22 @@ class TestPhase6Benchmark:
         assert {path.name for path in paths} == set(audit.TOKEN_ARTIFACT_FILENAMES)
         token_payload = json.loads((token_dir / "token-audit.json").read_text(encoding="utf-8"))
         assert token_payload["schema_version"] == 1
-        assert len(token_payload["workflow_telemetry"]["workflows"]) == 9
+        assert len(token_payload["workflow_telemetry"]["workflows"]) == 10
+        light_work_token = next(
+            row
+            for row in token_payload["workflow_telemetry"]["workflows"]
+            if row["workflow"] == "/cg-light-work"
+        )
+        assert light_work_token["available"] is True
 
         context_payload = json.loads((token_dir / "context-map.json").read_text(encoding="utf-8"))
         assert context_payload["schema_version"] == 1
-        assert len(context_payload["workflows"]) == 9
+        assert len(context_payload["workflows"]) == 10
+        assert any(
+            row["workflow"] == "/cg-light-work"
+            and row["path"] == ".github/prompts/cg-light-work.prompt.md"
+            for row in context_payload["workflows"]
+        )
         token_audit_context = next(
             row for row in context_payload["workflows"] if row["workflow"] == "/cg-token-audit"
         )
@@ -938,7 +1029,8 @@ class TestPhase6Benchmark:
         assert "run_in_terminal" in token_audit_context["tool_references"]
 
         cost_rows = list(csv.DictReader(io.StringIO((token_dir / "workflow-costs.csv").read_text(encoding="utf-8"))))
-        assert len(cost_rows) == 9
+        assert len(cost_rows) == 10
+        assert any(row["workflow"] == "/cg-light-work" for row in cost_rows)
         token_audit_cost = next(row for row in cost_rows if row["workflow"] == "/cg-token-audit")
         assert token_audit_cost["command_output_status"] == "not_observed"
         assert token_audit_cost["summary_output_status"] == "not_observed"
@@ -1090,6 +1182,139 @@ class TestPhase6Benchmark:
 
 
 class TestPhase6Guardrails:
+    @pytest.mark.parametrize(
+        ("tokens", "expected_status"),
+        [
+            (5000, "pass"),
+            (5001, "warn"),
+            (6000, "warn"),
+            (6001, "fail"),
+        ],
+    )
+    def test_light_work_high_frequency_thresholds(
+        self,
+        tmp_path: Path,
+        tokens: int,
+        expected_status: str,
+    ) -> None:
+        path = ".github/prompts/cg-light-work.prompt.md"
+        file_row = {
+            "path": path,
+            "category": "prompts",
+            "characters": tokens * 4,
+            "estimated_tokens": tokens,
+        }
+        report = {
+            "files": [file_row],
+            "model_inventory": {
+                "forbidden_execution_metadata": [],
+                "advisory": {"errors": []},
+            },
+            "context_loading_risks": [],
+            "benchmark": {
+                "review_agent_counts": {
+                    "counts": dict(audit.EXPECTED_REVIEW_AGENT_COUNTS),
+                }
+            },
+        }
+
+        guardrails = audit.build_guardrails(tmp_path, report)
+        warnings = [row for row in guardrails["warnings"] if row["path"] == path]
+        failures = [row for row in guardrails["failures"] if row["path"] == path]
+        budget = audit._workflow_budget_status(
+            {"workflow": "/cg-light-work", **file_row}
+        )
+
+        assert budget["status"] == expected_status
+        assert bool(warnings) is (expected_status == "warn")
+        assert bool(failures) is (expected_status == "fail")
+
+    def test_light_work_model_picker_remains_advisory(self, tmp_path: Path) -> None:
+        path = tmp_path / ".github/prompts/cg-light-work.prompt.md"
+        _write(
+            path,
+            _frontmatter(None)
+            + "Read `.github/shared/model-advisory.contract.md` only for the handoff.\n"
+            + "Give capability guidance without selecting or assigning a model.\n",
+        )
+        files, _ = audit.scan_files(tmp_path)
+
+        inventory = audit.build_model_inventory(tmp_path, files)
+
+        declaration = next(
+            row
+            for row in inventory["declarations"]
+            if row["path"] == ".github/prompts/cg-light-work.prompt.md"
+        )
+        assert declaration["execution_metadata"] is False
+        assert declaration["model"] is None
+        assert inventory["forbidden_execution_metadata"] == []
+
+        _write(path, _frontmatter("Claude Opus 4.6"))
+        files, _ = audit.scan_files(tmp_path)
+        forbidden = audit.build_model_inventory(tmp_path, files)[
+            "forbidden_execution_metadata"
+        ]
+        assert forbidden[0]["path"] == ".github/prompts/cg-light-work.prompt.md"
+
+    def test_light_work_reports_fixed_two_agent_review_burden(self) -> None:
+        root = Path(__file__).resolve().parents[2]
+        path = ".github/prompts/cg-light-work.prompt.md"
+        content = (root / path).read_text(encoding="utf-8-sig")
+
+        row = audit.count_dispatch_burden(path, content)
+
+        assert row["dispatch_refs"] == 2
+        assert row["conditional_routing"] is False
+        assert row["broad_dispatch"] is False
+        assert row["burden_level"] == "limited"
+
+    def test_light_work_staged_context_expansion_is_justified(self) -> None:
+        row = audit.classify_context_loading_line(
+            ".github/prompts/cg-light-work.prompt.md",
+            "Context expansion: reading full `compound-gpid.context.md` because "
+            "Stage 4 requires whole-file conflict semantics.",
+        )
+
+        assert row is not None
+        assert row["level"] == "justified"
+
+    def test_light_work_broad_default_context_read_is_a_failure(
+        self,
+        tmp_path: Path,
+    ) -> None:
+        path = ".github/prompts/cg-light-work.prompt.md"
+        snippet = "Read full `compound-gpid.context.md` by default."
+        classification = audit.classify_context_loading_line(path, snippet)
+        assert classification is not None
+        report = {
+            "files": [],
+            "model_inventory": {
+                "forbidden_execution_metadata": [],
+                "advisory": {"errors": []},
+            },
+            "context_loading_risks": [
+                {
+                    "path": path,
+                    "line": 1,
+                    "snippet": snippet,
+                    **classification,
+                }
+            ],
+            "benchmark": {
+                "review_agent_counts": {
+                    "counts": dict(audit.EXPECTED_REVIEW_AGENT_COUNTS),
+                }
+            },
+        }
+
+        guardrails = audit.build_guardrails(tmp_path, report)
+
+        failures = [row for row in guardrails["failures"] if row["path"] == path]
+        assert classification["level"] == "risk"
+        assert len(failures) == 1
+        assert "broad context-loading risk" in failures[0]["reason"]
+
     def test_guardrails_fail_for_ordinary_model_and_broad_prompt_read(self, tmp_path: Path) -> None:
         _write(tmp_path / ".github/prompts/cg-plan.prompt.md", _frontmatter("Claude Opus 4.6") + "Read `brain-index.json` before planning.\n")
         _write(tmp_path / ".github/prompts/cg-work.prompt.md", _frontmatter() + "review:auto review:manual review:none no agent dispatch route-aware review-routing.contract.md\n")

@@ -4,6 +4,12 @@ This detailed page covers platform-specific installation, linking, repair, and
 uninstall procedures. New users should follow the shorter
 [Getting Started](getting-started/index.md) path first.
 
+The optional standalone [release controller](release-controller.md#installation)
+requires Python 3.11+, Git and `gh`, and a separately installed locked wheel. It
+does not raise the Python minimum of existing GPID scripts. Generic operation
+needs no GPID charter. The supplied publisher is disabled; installing the package
+does not authorize setup, bridge delivery, sandbox trials or publication.
+
 > **New here?** See the [Home](../README.md) page for an overview of what Compound GPID is and why it exists.
 
 **Platform**: Jump to your operating system:
@@ -85,6 +91,19 @@ This links Compound GPID install units for all supported platforms by default: G
 > version, local projection, or containment check is unsupported, `cg-link` and
 > `cg-update` fail with remediation rather than claiming coexistence support.
 
+Kilo runtime compatibility requires version **7.4.20 or newer**, with no
+exact-version allowlist or upper bound. Every host must still pass the live
+capability and containment checks. Recorded CI versions and executable hashes
+identify tested binaries; they do not restrict consumer Kilo versions.
+
+An older installed updater can reject a new Kilo version before it downloads
+the fix. After a release with the fix is published, run `cg-update <fixed-tag>`
+from the global Compound GPID installation directory, not from a linked
+consumer project. This uses the existing source-install update path. Then run
+the same command from the consumer project to refresh and validate its local
+projection. Do not set `CG_INTERNAL_CALL`, disable containment checks, downgrade
+Kilo, or edit an existing release tag to recover from this version-list error.
+
 > ⚠️ **IMPORTANT — Restart VS Code / Positron after linking.**
 > Copilot must re-index the workspace to see the newly linked prompts, skills, and agents.
 > Without a restart, `/cg-setup` and other prompts will not be available.
@@ -138,9 +157,10 @@ and creates three config files:
 
 > **Suite selection**: `/cg-setup` records active suites in
 > `compound-gpid.local.md`. An absent `suites:` field defaults to `[cg]` for
-> backward compatibility. The generator filters each native tree to the active
-> suites, their transitive capability dependencies, and the kernel. See the
-> [Modular Guide](modular-guide.md).
+> backward compatibility. Linked projects share the global all-suite native
+> target baseline; `suites:` controls workflow eligibility and instruction-level
+> loading for that project. Maintainers can request an isolated filtered build
+> with `--active-suites`. See the [Modular Guide](modular-guide.md).
 
 ---
 

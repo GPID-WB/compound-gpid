@@ -4,7 +4,7 @@
   "intents": ["create a research implementation plan", "plan an econometrics analysis"], "usage": "/cr-plan", "examples": ["/cr-plan"],
   "prerequisites": ["A scoped research task or approved research brainstorm."], "outputs": ["A research plan with integrity and verification gates."],
   "constraints": ["Keeps evidence, identification, and implementation requirements explicit."], "relatedCommands": [{"id": "slash:cr-work", "relation": "next"}],
-  "sourcePath": ".github/prompts/cr-plan.prompt.md", "definitionSources": [".github/prompts/cr-plan.prompt.md"], "definitionDigest": "2cb48c4e1b074dc632fc818530a6d95d09e8b21eb6920987dcda8731c2370083",
+  "sourcePath": ".github/prompts/cr-plan.prompt.md", "definitionSources": [".github/prompts/cr-plan.prompt.md"], "definitionDigest": "c37aa5eb3657dd17a9add8f0a965068f3a3602546226676ea94ab084c8c640f9",
   "documentationTargets": [], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["any"],
   "availability": {"status": "available", "evidence": [{"os": "any", "sourcePath": ".github/prompts/cr-plan.prompt.md"}]},
   "activation": [{"suite": "cr", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]

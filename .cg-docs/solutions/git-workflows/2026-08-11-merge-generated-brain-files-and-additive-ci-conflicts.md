@@ -68,3 +68,4 @@ The release script's isolated preflight runs against a local clone, so it passes
 
 - `.cg-docs/solutions/git-workflows/2026-05-14-git-merge-base-multiple-ancestors-take-first-line.md` — merge-base gotcha
 - `.kilo/commands/cg-release.md` — release workflow with push-before-publish requirement
+- `.cg-docs/solutions/testing-patterns/2026-08-13-release-gate-fixtures-and-derived-evidence-hashes.md` — release-fixture command fidelity and derived evidence hash refresh

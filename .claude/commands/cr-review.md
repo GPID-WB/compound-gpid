@@ -75,10 +75,10 @@ and continue.
      All *task-type-conditional* agents belong in Step 3 only. -->
 **Conditionally dispatch (file-presence)**:
 - **@cr-mathematical-verification** — symbolic checks against derivation files
-  (dispatch only if `.cg-docs/research/derivations/` contains `.tex` or `.md` files;
+  (dispatch only if `c-research/derivations/` contains `.tex` or `.md` files;
   if absent, skip and note: '@cr-mathematical-verification skipped — no derivation files found')
 - **@cr-provenance-audit** — source and citation provenance checks
-  (dispatch when `.cg-docs/research/evidence/` exists, or when task type is Writing
+  (dispatch when `c-research/evidence/` exists, or when task type is Writing
   or Tables/Figures; otherwise skip and note: '@cr-provenance-audit skipped — no evidence artifacts found')
 
 **Conditionally dispatch based on task type** (see Step 3 task-type table):
@@ -123,11 +123,17 @@ Based on the task type identified in the plan:
 | Measurement/Classification | @cr-measurement-integrity |
 | Tables/Figures | @cr-publication-output, @cg-documentation *(dispatch @cg-documentation only if the file defines exported functions)* |
 | EDA | @cg-performance, @cg-data-quality *(No CR agent — @cr-eda-reviewer planned for future phase)* |
-| Implementation | @cg-performance, @cr-ml-methodology, @cr-specification-analysis, @cr-publication-output *(if output-producing calls found — the agent's skip guard prevents spurious findings on files with no output code)* |
+| Implementation | @cg-performance, @cr-specification-analysis, @cr-publication-output *(if output-producing calls found — the agent's skip guard prevents spurious findings on files with no output code)*; @cr-ml-methodology only when ML signals are present |
 | Research Scoping | @cr-specification-analysis, @cr-provenance-audit |
 
 For thorough review depth: also dispatch @cg-learnings-researcher to cross-reference
 past solutions in `.cg-docs/solutions/`.
+
+For `Implementation`, dispatch `@cr-ml-methodology` only when the plan or
+reviewed files contain ML signals such as `LASSO`, `ridge`, `elastic net`,
+`RandomForest`, boosting, `Pipeline`, `tidymodels`, `DoubleML`, causal forests,
+cross-fitting, model tuning, or prediction/evaluation code. Generic estimator
+implementation without those signals does not activate the ML reviewer.
 
 **Mixed-format files**: If the submitted file has extension `.Rnw`, `.qmd`, `.Rmd`,
 or `.ipynb` (files combining prose and code), dispatch **both** `@cr-academic-writing`
@@ -145,7 +151,7 @@ context-scan all reviewed files for `feols`, `ivreg`, `ivreghdfe`, `rdrobust`, `
 
 **Measurement dispatch scope (always applies)**: Dispatch `@cr-measurement-integrity`
 when task type is `Measurement/Classification`, or when reviewed/changed files
-intersect `.cg-docs/research/measurement/` or `.cg-docs/research/vintages/`.
+intersect `c-research/measurement/` or `c-research/vintages/`.
 Do not dispatch based only on repository-wide directory presence. If skipped,
 note: '@cr-measurement-integrity skipped — no measurement artifacts in scope'.
 
@@ -233,3 +239,25 @@ If no P0 errors are open AND the task type is Theory/Modeling or Implementation:
 > 1. **`/cg-fix-triage`** — Apply review findings by ID
 > 2. **`/cr-compound`** — Capture a methodology lesson from this review
 > 3. **Continue working** — Return to `/cr-work` with the findings in context
+
+## Local Evidence Workbench Review Surface
+
+When `research_evidence/` or `c-research/evidence/` is in scope, audit
+the workbench boundary explicitly:
+
+- Confirm the configured corpus is repository-local and that no internet search,
+  URL retrieval, external API model execution, hidden download, or external
+  fallback path exists.
+- Confirm every substantive claim carries source identity, source version,
+  typed locator, verbatim quote, verification method/reason, confidence, and
+  review state. A candidate is not an approved claim.
+- Confirm original files remain authoritative and that converted/OCR text,
+  indexes, API responses, and browser views are derived. Check source hash and
+  stale invalidation before accepting a claim.
+- Confirm legacy `external-opt-in` rows remain read-only in
+  `external-quarantine.yaml`; they are not fetched, indexed, or approved.
+- Confirm tables, equations, OCR, ambiguous mappings, inaccessible originals,
+  fuzzy-only matches, and conflicting evidence stay flagged or abstained.
+- Confirm API mutations use journaled YAML transactions with revisions,
+  conflicts, recovery, and append-only history. Browser state must never be
+  treated as canonical.
