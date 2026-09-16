@@ -59,6 +59,11 @@ present.
 - `/cg-work` creates or updates `.cg-docs/active-state/current.json` after it
   creates the execution report, at phase boundaries, on blocked stops, and on
   completion.
+- Inside a validated autopilot stage, the `/cg-work` child never writes the
+  active-state record. It emits one bounded `cursor-update-request` per
+  report-created, phase-boundary or blocked-stop lifecycle point in its stage
+  result, and only the parent publishes them through the checkpoint protocol.
+  Standalone invocations keep the direct lifecycle writes.
 - `/cg-resume` reads `.cg-docs/active-state/current.json` when present, verifies
   referenced paths, cross-checks active plans/reviews, and may prefer
   `nextCommand` when it is consistent with scanned state.
@@ -78,3 +83,53 @@ present.
   `/cg-compound`.
 - When work blocks, set `status: "blocked"`, include the blocking unresolved
   decision, and set `nextCommand` to the exact resume or triage command.
+
+## Autopilot Section
+
+`/cg-autopilot` adds one optional `autopilot` section with its own schema
+version. The section is closed: exactly these fields, no extras.
+
+```json
+{
+  "schema-version": 1,
+  "run-id": "20260915-103000",
+  "revision": 0,
+  "worktree": "C:/repo/worktrees/cg-autopilot",
+  "branch": "cg-autopilot",
+  "required-base": "origin/dev",
+  "plan-execution-digest": "<64 lowercase hex>",
+  "installed-command-digest": "<64 lowercase hex or null>",
+  "installed-contract-digest": "<64 lowercase hex or null>",
+  "batch-pointer": {"phase": 1, "segment-start": 1, "segment-end": 2},
+  "stage-pointer": {"stage": "work", "operation-id": "work-1"},
+  "artifact-refs": [{"kind": "review", "path": "path/review.md", "sha256": "<64 hex>"}],
+  "folded-attempt-ids": ["res-1"],
+  "next-action": "/cg-work phase2 review:none"
+}
+```
+
+Rules:
+
+- `schema-version` is exactly integer 1. `revision` is a nonnegative integer
+  and increases only through parent checkpoints.
+- `run-id` uses only lowercase ASCII letters, digits and hyphens, starts with a
+  letter or digit, and is at most 128 UTF-8 bytes; digit-leading values such as
+  the example `20260915-103000` are valid. `worktree`, `branch`,
+  `required-base` and `plan-execution-digest` bind the run identity; the digest
+  is the normalized plan execution digest with only the six progress fields
+  excluded.
+- `batch-pointer` and `stage-pointer` are null or closed objects;
+  `stage-pointer.stage` is one of the stage table entries, never a command.
+- `artifact-refs` holds at most 16 contained references with kind, path and
+  SHA-256; the cursor stores references, never file bodies or logs.
+- `folded-attempt-ids` records reservation IDs folded into checkpoints;
+  reservations are settled and folded exactly once.
+- `next-action` is one bounded action string, never an executable command
+  invented by a child. Only the parent writes the cursor, through the
+  three-step expected-byte checkpoint protocol documented in
+  `.opencode/shared/autopilot-stage.contract.md`; work children may only emit
+  `cursor-update-request` records.
+- The complete active-state record is a versioned checkpoint bounded to
+  32768 bytes. Direct child writes, missing markers, quarantine leftovers,
+  foreign owners and diverged revisions block continuation and are reported
+  by `cg-autopilot reconcile` without removing any files.

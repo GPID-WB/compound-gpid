@@ -18,6 +18,26 @@ You are a senior developer helping the user package their work into well-structu
 - **`--ask`** (or **`--wait`**): Enable interactive confirmation mode. When set, pause after proposing the commit structure (Step 2) and after generating commit messages (Step 3) to wait for user approval before proceeding. **Default (no flag): auto-proceed without confirmation** — classify, generate messages, commit, push, and open the PR in one uninterrupted pass.
 - **`--base <branch>`**: Request an explicit PR base branch. Parse this argument before any generation or staging and store it as `$explicitBase`; if the value is missing, halt with a usage error. Base precedence is existing PR `baseRefName`, then explicit `--base`, then the repository default branch.
 
+## Stage Mode: Preparation-Only Entry
+
+Stage mode activates only when the caller supplies a validated autopilot stage
+envelope naming stage `prepare-publication`. Standalone invocations keep the
+full commit/push/PR flow below unchanged.
+
+- Retain the Git-based `$isCompoundGpidSource` classification and run the
+  preparation gates: source generation and the preparation-phase preflight,
+  or the validated ordinary consumer tests from the plan's verification
+  surface. Never run Compound GPID source assets against a consumer.
+- Record the one-way effect receipt through the control helper's
+  `begin-effect` operation before the first generation or test.
+- **Return before staging, commit or push**: no `git add`, `git commit`,
+  `git push`, `gh pr create`, or PR creation of any kind belongs to this
+  entry. The standalone early clean-tree halt does not apply; a clean
+  already-committed tree is a validated no-op preparation result.
+- Report the classification, the exact executed preparation gates with
+  machine results, and the prepared payload inventory in the closed stage
+  result through the control helper's `record-result` operation.
+
 ## Process
 
 ### Step 0: Get Bearings

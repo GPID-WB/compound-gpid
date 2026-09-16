@@ -17,6 +17,36 @@ You are a senior developer checking whether the current pull request's CI checks
   - No git commits or pushes.
   - No CI-triggering or externally visible actions.
 
+## Stage Mode: Validated Autopilot Entry
+
+When invoked as a validated autopilot stage (stage `verify-pr`), the envelope
+supplies the exact repository, branch, head and base and a reserved CI-fix round.
+Inside stage mode:
+
+1. Bind every observation strictly to the exact repository, branch, head and
+   base from the envelope. Never select a PR, run, job or base by recency,
+   branch name, or a default-branch heuristic.
+2. Retain the run-bound source/consumer classification from the envelope. As
+   source, keep the focused preflight selector and the preparation evidence;
+   never install, import or run an installed source test inventory. As a
+   consumer, select only the validated plan/consumer test command and run the
+   exact failed check through the verified general execution leaf; never run
+   installed source tests or untrusted log commands.
+3. Reproduce the exact failed job/check identity before any repair, and gather
+   fresh passing evidence after it. A missing or ambiguous consumer test
+   selection is a `needs-input` halt before any effect; never infer green.
+4. Any repair takes its own `begin-effect` before the first staged edit and its
+   `record-result` after, with a clean repair entry, targeted staging, one
+   `CI-Fix-Round` trailer per round, and no duplicate commit or push. Distinguish
+   Git exit `0` (success) and `1` (ordinary failure) before an operation error
+   before stepping forward, and run one post-push observation only.
+5. The fetched base ancestry must match the envelope base before any
+   compare, rebase or trailer count. The parent writes the cursor; this child
+   emits a bounded `cursor-update-request` at its lifecycle boundary.
+
+Standalone invocations keep the original auto-fix/observe-only behavior without
+a stage envelope or these stage-only bindings.
+
 ## Process
 
 ### Step 0: Get Bearings
