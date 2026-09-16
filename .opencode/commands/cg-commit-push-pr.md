@@ -182,8 +182,11 @@ Report the resolved base in later commit and PR summaries. Every changed-file co
      <kind-qualified-id> --reviewed`. Never auto-repin a definition from this
      workflow or from a bulk catalog-generation path.
    - Exit code 3 means only that the validated catalog output is missing or
-     stale. Exit code 4 or any other nonzero/ambiguous result is a hard stop.
-     Never treat source-validation or I/O failure as ordinary output drift.
+     stale. Exit code 3 is the trigger to run `<pythonCommand>
+     scripts/cg_generate_help_catalog.py --write` after every pinned definition
+     digest passes review. Exit code 4 or any other nonzero/ambiguous result
+     is a hard stop. Never treat source-validation or I/O failure as ordinary
+     output drift.
    - After all pinned definition digests match reviewed metadata, run
      `<pythonCommand> scripts/cg_generate_help_catalog.py --write`. Any nonzero
      result halts before native-target generation and staging. Do not stage a
