@@ -4,7 +4,7 @@
   "intents": ["configure Compound GPID", "initialize a project"], "usage": "/cg-setup", "examples": ["/cg-setup"],
   "prerequisites": ["Compound GPID is linked into the project."], "outputs": ["Project charter, strict local config, and workflow directories."],
   "constraints": ["Preserves existing project and roadmap content."], "relatedCommands": [{"id": "slash:cg-strategy", "relation": "next"}],
-  "sourcePath": ".github/prompts/cg-setup.prompt.md", "definitionSources": [".github/prompts/cg-setup.prompt.md"], "definitionDigest": "3d5f766ddcc23b8a3bd34ee6c4f4aa5bafec9de78c860423f65f65809da3bdd8",
+  "sourcePath": ".github/prompts/cg-setup.prompt.md", "definitionSources": [".github/prompts/cg-setup.prompt.md"], "definitionDigest": "7de6d4754f056be7c8beaec348efe184d915938166733bddcf2a43edcfa8d60f",
   "documentationTargets": [{"path": "docs/workflow.md", "section": "setup-cg-setup"}], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["any"],
   "availability": {"status": "available", "evidence": [{"os": "any", "sourcePath": ".github/prompts/cg-setup.prompt.md"}]},
   "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]

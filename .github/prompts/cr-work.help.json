@@ -4,7 +4,7 @@
   "intents": ["implement a research plan", "execute one research plan phase"], "usage": "/cr-work [phaseX]", "examples": ["/cr-work phase1"],
   "prerequisites": ["A validated research plan."], "outputs": ["Implemented research code and evidence artifacts."],
   "constraints": ["Enforces seed, provenance, and specification logging requirements."], "relatedCommands": [{"id": "slash:cr-review", "relation": "next"}],
-  "sourcePath": ".github/prompts/cr-work.prompt.md", "definitionSources": [".github/prompts/cr-work.prompt.md"], "definitionDigest": "5fb7a33dc0e0badb8a75d40c49323f5d68e9204923f412150a627f331a7d4820",
+  "sourcePath": ".github/prompts/cr-work.prompt.md", "definitionSources": [".github/prompts/cr-work.prompt.md"], "definitionDigest": "2bea9b2c8a7a9fa1a1ed6f50eabddc1c081532a2e74d10b5415ad336d060bc2d",
   "documentationTargets": [], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["any"],
   "availability": {"status": "available", "evidence": [{"os": "any", "sourcePath": ".github/prompts/cr-work.prompt.md"}]},
   "activation": [{"suite": "cr", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
