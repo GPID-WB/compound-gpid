@@ -16,6 +16,12 @@ const verifier = workflow.match(/node - "\$RELEASE_TAG" <<'NODE'\n([\s\S]*?)\n  
   .replace(/^          /gm, "");
 const uploadPath = workflow.match(/name: Upload verified release Pages artifact[\s\S]*?path: ([^\n]+)/)[1];
 
+/** Mirror the controller's SITE_DIR export: the new docs layout wins when present. */
+function resolveUploadDir(f) {
+  const detected = fs.existsSync(path.join(f.artifact, "docs")) ? "docs" : "site";
+  return path.join(f.artifact, detected);
+}
+
 /** Create a minimal combined-site artifact and run the controller against it. */
 function fixture(t, tag = "v1.2.3.4") {
   const cwd = fs.mkdtempSync(path.join(os.tmpdir(), "release-pages-test-"));
@@ -54,17 +60,27 @@ for (const tag of ["v1.2.3", "v1.2.3.4"]) {
     assert.equal(fs.existsSync(path.join(f.artifact, "docs")), false);
     const result = f.run();
     assert.equal(result.status, 0, result.stderr);
-    assert.equal(path.resolve(f.cwd, uploadPath), f.site);
-    assert.equal(fs.existsSync(path.join(f.cwd, uploadPath, "dev/index.html")), true);
+    assert.equal(uploadPath, "release-artifact/${{ env.SITE_DIR }}");
+    assert.equal(resolveUploadDir(f), f.site);
+    assert.equal(fs.existsSync(path.join(resolveUploadDir(f), "dev/index.html")), true);
   });
 }
 
-test("rejects a missing site even when the old docs directory exists", (t) => {
+test("accepts the new docs layout when the site directory is absent", (t) => {
   const f = fixture(t);
   fs.renameSync(f.site, path.join(f.artifact, "docs"));
   const result = f.run();
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(resolveUploadDir(f), path.join(f.artifact, "docs"));
+  assert.equal(fs.existsSync(path.join(resolveUploadDir(f), "dev/index.html")), true);
+});
+
+test("rejects an artifact with neither site nor docs", (t) => {
+  const f = fixture(t);
+  fs.rmSync(f.site, { recursive: true, force: true });
+  const result = f.run();
   assert.notEqual(result.status, 0);
-  assert.match(result.stderr, /ENOENT.*release-artifact[\\/]site/);
+  assert.match(result.stderr, /Artifact is missing the documentation tree/);
 });
 
 test("rejects changed site bytes", (t) => {
@@ -147,6 +163,10 @@ test("retains the protected controller, exact build identity, lineage, and newes
     'cmp -s "release-validation/releases/$RELEASE_TAG.json" release-validation/current-latest.json',
     'git fetch origin "$RELEASE_BRANCH"',
     "cmp -s release-validation/releases/latest.json release-validation/recheck-latest.json",
+    'const siteDir = fs.existsSync(path.join(root, "docs")) ? "docs" : "site"',
+    'echo "SITE_DIR=docs" >> "$GITHUB_ENV"',
+    'echo "SITE_DIR=site" >> "$GITHUB_ENV"',
+    "path: release-artifact/${{ env.SITE_DIR }}",
   ]) assert.ok(workflow.includes(guard), `Missing guard: ${guard}`);
   assert.ok(workflow.indexOf("name: Recheck release is still newest")
     < workflow.indexOf("name: Deploy to GitHub Pages"));
