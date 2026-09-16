@@ -304,7 +304,7 @@ class TestOutput:
         header = compact_text.split("\n")[0]
         assert "ID" in header
         assert "PURPOSE" in header
-        assert "AVAILABLE" in header
+        assert "AVAILABILITY" in header
 
     def test_full_format_has_all_columns(self, tmp_path: Path) -> None:
         root = _fixture_root(tmp_path)
@@ -525,6 +525,22 @@ class TestCLI:
 # ---------------------------------------------------------------------------
 
 
+def _real_repo_is_dirty() -> bool:
+    """True when the repository worktree has uncommitted changes."""
+    import subprocess
+
+    status = subprocess.run(
+        ["git", "-C", str(REPO_ROOT), "status", "--porcelain"],
+        capture_output=True,
+        encoding="utf-8",
+        check=False,
+    )
+    return status.returncode != 0 or bool(status.stdout.strip())
+
+
+@pytest.mark.skipif(
+    _real_repo_is_dirty(), reason="real-repo tests require a clean worktree"
+)
 class TestRealRepo:
     def test_real_registry_catalog_builds(self) -> None:
         """With the real repo, catalog should build without error if manifest exists."""

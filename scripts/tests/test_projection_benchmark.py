@@ -17,13 +17,15 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 
 def _write_json(path: Path, payload: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    with path.open("w", encoding="utf-8", newline="\n") as handle:
+        handle.write(json.dumps(payload, indent=2))
 
 
 def _create_file(repo_root: Path, rel_path: str, content: str = "body\n") -> None:
     path = repo_root / rel_path
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(content, encoding="utf-8")
+    with path.open("w", encoding="utf-8", newline="\n") as handle:
+        handle.write(content)
 
 
 def _minimal_assets(repo_root: Path) -> None:
@@ -343,13 +345,33 @@ class TestValidation:
         assert benchmark.validate_payload(payload) == [], benchmark.validate_payload(payload)
 
 
+def _real_repo_is_dirty() -> bool:
+    """True when the repository worktree has uncommitted changes."""
+    import subprocess
+
+    status = subprocess.run(
+        ["git", "-C", str(REPO_ROOT), "status", "--porcelain"],
+        capture_output=True,
+        encoding="utf-8",
+        check=False,
+    )
+    return status.returncode != 0 or bool(status.stdout.strip())
+
+
+@pytest.fixture(scope="session")
+def real_repo_baseline() -> dict:
+    """Run the real-repo baseline scans and git probes once per session."""
+    return benchmark.run_benchmark(REPO_ROOT)
+
+
+@pytest.mark.skipif(
+    _real_repo_is_dirty(), reason="real-repo tests require a clean worktree"
+)
 class TestRealRepo:
-    def test_real_repo_baseline_validates(self) -> None:
-        payload = benchmark.run_benchmark(REPO_ROOT)
-        errors = benchmark.validate_payload(payload)
+    def test_real_repo_baseline_validates(self, real_repo_baseline: dict) -> None:
+        errors = benchmark.validate_payload(real_repo_baseline)
         assert errors == [], f"Validation errors: {errors}"
 
-    def test_real_repo_profiles_pass_oracles(self) -> None:
-        payload = benchmark.run_benchmark(REPO_ROOT)
-        for record in payload["profiles"]:
+    def test_real_repo_profiles_pass_oracles(self, real_repo_baseline: dict) -> None:
+        for record in real_repo_baseline["profiles"]:
             assert record["oracleStatus"] == "passed", record["id"]

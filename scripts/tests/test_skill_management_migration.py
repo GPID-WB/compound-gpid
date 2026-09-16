@@ -97,12 +97,15 @@ def test_help_metadata_migration_keeps_existing_public_skill_surfaces() -> None:
     help_module = next(item for item in registry["modules"] if item["id"] == "cap-help")
 
     assert help_module["ownedAssets"] == [
+        ".github/prompts/cg-help.help.json",
+        ".github/prompts/cg-help.prompt.md",
         ".github/shared/help-catalog.json",
         ".github/shared/shell-commands.json",
     ]
     assert (REPO_ROOT / ".github/prompts/cg-skill.help.json").is_file()
     assert (REPO_ROOT / ".github/prompts/cg-skill.prompt.md").is_file()
-    assert not (REPO_ROOT / ".github/prompts/cg-help.prompt.md").exists()
+    assert (REPO_ROOT / ".github/prompts/cg-help.prompt.md").is_file()
+    assert (REPO_ROOT / ".github/prompts/cg-help.help.json").is_file()
 
 
 

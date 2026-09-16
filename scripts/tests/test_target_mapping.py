@@ -20,6 +20,33 @@ def _load_repo_mapping() -> dict:
 
 
 class TestTargetMappingSchema:
+    @pytest.mark.parametrize("target_id,source,token,fidelity", [
+        ("copilot", "invocation-tail", "", "model-visible"),
+        ("claude-code", "native-placeholder", "$ARGUMENTS", "native-placeholder"),
+        ("codex", "native-placeholder", "$ARGUMENTS", "native-placeholder"),
+        ("opencode", "generated-block", "$ARGUMENTS", "model-visible"),
+        ("kilo", "generated-block", "$ARGUMENTS", "model-visible"),
+    ])
+    def test_help_argument_source_production_complete(self, target_id, source, token, fidelity):
+        target = next(t for t in _load_repo_mapping()["targets"] if t["id"] == target_id)
+        assert target.get("argumentSource") == {
+            "source": source, "token": token, "fidelity": fidelity,
+        }
+
+    @pytest.mark.parametrize("value", [None, {}, "tail", {
+        "source": "invocation-tail", "token": "$ARGUMENTS", "fidelity": "native-placeholder"
+    }, {"source": "invocation-tail", "token": "", "fidelity": "model-visible", "extra": True}])
+    def test_help_argument_source_invalid_is_rejected(self, value):
+        mapping = _load_repo_mapping()
+        mapping["targets"][0]["argumentSource"] = value
+        assert any("argumentSource" in error for error in gen.validate_target_mapping(mapping))
+
+    def test_help_argument_source_remains_optional_for_legacy_mapping(self):
+        mapping = _load_repo_mapping()
+        for target in mapping["targets"]:
+            target.pop("argumentSource", None)
+        assert gen.validate_target_mapping(mapping) == []
+
     def test_repo_target_mapping_validates(self) -> None:
         data = _load_repo_mapping()
         errors = gen.validate_target_mapping(data)

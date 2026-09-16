@@ -7,6 +7,9 @@ import io
 import json
 import re
 import shutil
+import stat
+import subprocess
+import zipfile
 from dataclasses import replace
 from pathlib import Path
 from typing import Any, Mapping
@@ -14,7 +17,7 @@ from typing import Any, Mapping
 import pytest
 
 import cg_generate_targets as target_generator
-from help import catalog
+from help import catalog, maintenance
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -78,11 +81,51 @@ def _copy_catalog_source_graph(tmp_path: Path) -> Path:
     return root
 
 
+@pytest.fixture
+def committed_catalog_source_graph(tmp_path: Path) -> Path:
+    """Validate a complete committed baseline, independent of worktree edits."""
+    root = tmp_path / "repo"
+    archive = subprocess.run(
+        [
+            "git", "archive", "--format=zip", "HEAD",
+            ".github", "bin", "docs", "scripts", "install.ps1",
+        ],
+        cwd=REPO_ROOT,
+        check=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        timeout=30,
+    )
+    with zipfile.ZipFile(io.BytesIO(archive.stdout)) as sources:
+        for member in sources.infolist():
+            assert (root / member.filename).resolve().is_relative_to(root.resolve())
+            assert not stat.S_ISLNK(member.external_attr >> 16)
+        sources.extractall(root)
+
+    # These are strict checks, not stale-digest allowances or fixture repins.
+    catalog.validate_source_metadata(root)
+    # P3.23 derives generated summaries from the prompt descriptions; the
+    # archived catalog predates that contract and the worktree catalog was
+    # regenerated, so reproduce the baseline before the strict check.
+    catalog.write_catalog(root)
+    catalog.check_catalog(root)
+    return root
+
+
 def _write_json(path: Path, value: object) -> None:
     path.write_text(
         json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
+
+
+def _maintenance_artifact_bytes(root: Path) -> dict[str, bytes]:
+    """Snapshot every pin and catalog output for maintenance no-write checks."""
+    paths = set((root / ".github/prompts").glob("*.help.json"))
+    paths.update(root / path for path in (
+        catalog.SHELL_METADATA_PATH, catalog.CATALOG_OUTPUT_PATH,
+    ))
+    return {path.relative_to(root).as_posix(): path.read_bytes() for path in paths}
 
 
 def _reference_json_equal(first: Any, second: Any) -> bool:
@@ -439,7 +482,7 @@ def test_canonical_help_metadata_inventory_is_complete_and_strict() -> None:
     prompt_names = {
         path.name[: -len(".prompt.md")]
         for path in (REPO_ROOT / ".github/prompts").glob("*.prompt.md")
-        if path.name.startswith(("cg-", "cr-")) and path.name != "cg-help.prompt.md"
+        if path.name.startswith(("cg-", "cr-"))
     }
     sidecar_names = {
         path.name[: -len(".help.json")] for path in source.sidecar_paths
@@ -455,9 +498,13 @@ def test_canonical_help_metadata_inventory_is_complete_and_strict() -> None:
     assert source.workflows
 
 
-def test_canonical_help_metadata_excludes_deferred_help_prompt_and_sidecar() -> None:
-    assert not (REPO_ROOT / ".github/prompts/cg-help.prompt.md").exists()
-    assert not (REPO_ROOT / ".github/prompts/cg-help.help.json").exists()
+def test_canonical_help_metadata_includes_help_prompt_and_sidecar() -> None:
+    source = catalog.validate_source_metadata(REPO_ROOT)
+    prompt = REPO_ROOT / ".github/prompts/cg-help.prompt.md"
+    sidecar = REPO_ROOT / ".github/prompts/cg-help.help.json"
+    assert prompt.is_file() and sidecar.is_file()
+    assert sidecar in source.sidecar_paths
+    assert {command["id"] for command in source.slash_commands} >= {"slash:cg-help"}
 
 
 def test_shell_metadata_inventory_has_per_os_implementation_evidence() -> None:
@@ -594,15 +641,52 @@ def test_accepted_metadata_change_updates_source_digest(tmp_path: Path) -> None:
     )
 
     assert after["sourceDigest"] != before["sourceDigest"]
+    from brain.utils import parse_frontmatter
+
+    prompt = (root / ".github/prompts/cg-work.prompt.md").read_text(encoding="utf-8")
+    expected = parse_frontmatter(prompt, source="cg-work.prompt.md").get("description")
     assert next(
         item for item in after["commands"] if item["id"] == "slash:cg-work"
-    )["summary"].endswith("Reviewed.")
+    )["summary"] == expected
+
+
+def test_generated_summary_is_derived_from_prompt_description(tmp_path: Path) -> None:
+    """The sidecar summary field is not the source of truth; generation derives it."""
+    from brain.utils import parse_frontmatter
+
+    root = _copy_catalog_source_graph(tmp_path)
+    sidecar_path = root / ".github/prompts/cg-work.help.json"
+    sidecar = catalog.load_strict_json(sidecar_path)
+    sidecar["summary"] = "Invented divergent summary."
+    _write_json(sidecar_path, sidecar)
+
+    after = catalog.load_strict_json_bytes(
+        catalog.generate_catalog_bytes(root), source="after"
+    )
+    prompt = (root / ".github/prompts/cg-work.prompt.md").read_text(encoding="utf-8")
+    expected = parse_frontmatter(prompt, source="cg-work.prompt.md").get("description")
+
+    assert next(
+        item for item in after["commands"] if item["id"] == "slash:cg-work"
+    )["summary"] == expected
+
+
+def test_missing_prompt_description_fails_generation_closed(tmp_path: Path) -> None:
+    root = _copy_catalog_source_graph(tmp_path)
+    prompt_path = root / ".github/prompts/cg-work.prompt.md"
+    content = prompt_path.read_bytes()
+    key = b'description: "'
+    assert content.count(key) >= 1
+    prompt_path.write_bytes(content.replace(key, b"renamed: \"", 1))
+
+    with pytest.raises(catalog.HelpValidationError, match="description is missing"):
+        catalog.generate_catalog_bytes(root)
 
 
 def test_changed_definition_fails_until_explicit_one_record_repin(
-    tmp_path: Path,
+    committed_catalog_source_graph: Path,
 ) -> None:
-    root = _copy_catalog_source_graph(tmp_path)
+    root = committed_catalog_source_graph
     sidecar_path = root / ".github/prompts/cg-work.help.json"
     other_sidecar = root / ".github/prompts/cg-review.help.json"
     shell_metadata = root / catalog.SHELL_METADATA_PATH
@@ -651,7 +735,7 @@ def test_repin_forced_final_validation_failure_preserves_metadata_bytes(
             raise catalog.HelpValidationError("forced final source validation failure")
         return original_validate(*args, **kwargs)
 
-    monkeypatch.setattr(catalog, "validate_source_metadata", fail_final_validation)
+    monkeypatch.setattr(maintenance, "validate_source_metadata", fail_final_validation)
 
     with pytest.raises(catalog.HelpValidationError, match="forced final"):
         catalog.repin_definition_digest(root, "slash:cg-work")
@@ -660,8 +744,10 @@ def test_repin_forced_final_validation_failure_preserves_metadata_bytes(
     assert metadata_path.read_bytes() == original_metadata
 
 
-def test_changed_shell_definition_is_detected_without_bulk_repin(tmp_path: Path) -> None:
-    root = _copy_catalog_source_graph(tmp_path)
+def test_changed_shell_definition_is_detected_without_bulk_repin(
+    committed_catalog_source_graph: Path,
+) -> None:
+    root = committed_catalog_source_graph
     definition = root / "scripts/cg_index.py"
     definition.write_bytes(definition.read_bytes() + b"\n# changed parser\n")
 
@@ -671,6 +757,338 @@ def test_changed_shell_definition_is_detected_without_bulk_repin(tmp_path: Path)
     generator = importlib.import_module("cg_generate_help_catalog")
     with pytest.raises(SystemExit):
         generator.parse_args(["--repin-all"])
+
+
+@pytest.mark.parametrize("operation", ["preview", "repin"])
+def test_multi_stale_shell_definitions_allow_one_record_maintenance(
+    committed_catalog_source_graph: Path, operation: str,
+) -> None:
+    """One reviewed record can be maintained while every other pin stays fixed."""
+    root = committed_catalog_source_graph
+    source = catalog.validate_source_metadata(root)
+    sidecars_before = {path: path.read_bytes() for path in source.sidecar_paths}
+    metadata_path = root / catalog.SHELL_METADATA_PATH
+    metadata_bytes_before = metadata_path.read_bytes()
+    metadata_before = catalog.load_strict_json(metadata_path)
+    catalog_path = root / catalog.CATALOG_OUTPUT_PATH
+    catalog_before = catalog_path.read_bytes()
+    selected_id = "shell:cg-brain-init"
+    other_id = "shell:cg-diff-summary"
+    for name in ("cg-brain-init", "cg-diff-summary"):
+        definition = root / "bin" / name
+        definition.write_bytes(
+            definition.read_bytes() + b"\n# Reviewed fixture definition change.\n"
+        )
+    computed = {
+        command["id"]: catalog.compute_definition_digest(
+            root, command["definitionSources"]
+        )
+        for command in source.slash_commands + source.shell_commands
+    }
+    assert {
+        command["id"]
+        for command in source.slash_commands + source.shell_commands
+        if command["definitionDigest"] != computed[command["id"]]
+    } == {selected_id, other_id}
+
+    generator = importlib.import_module("cg_generate_help_catalog")
+    arguments = ["--root", str(root)]
+    for mode in ("--write", "--check"):
+        stderr = io.BytesIO()
+        assert generator.main(
+            arguments + [mode], io.BytesIO(), stderr
+        ) == generator.EXIT_SOURCE_INVALID
+        assert b"definitionDigest is stale" in stderr.getvalue()
+    assert metadata_path.read_bytes() == metadata_bytes_before
+    assert catalog_path.read_bytes() == catalog_before
+
+    maintenance = [f"--{operation}-definition-digest", selected_id]
+    if operation == "repin":
+        maintenance.append("--reviewed")
+    stdout, stderr = io.BytesIO(), io.BytesIO()
+    exit_code = generator.main(arguments + maintenance, stdout, stderr)
+    assert exit_code == generator.EXIT_SUCCESS, stderr.getvalue().decode("utf-8")
+    result = catalog.load_strict_json_bytes(stdout.getvalue(), source="maintenance")
+    assert result["computedDefinitionDigest"] == computed[selected_id]
+    expected_metadata = copy.deepcopy(metadata_before)
+    selected = next(
+        command for command in expected_metadata["commands"]
+        if command["id"] == selected_id
+    )
+    if operation == "repin":
+        assert result["previousDefinitionDigest"] == selected["definitionDigest"]
+        assert result["currentDefinitionDigest"] == computed[selected_id]
+        assert result["changed"] is True
+        selected["definitionDigest"] = computed[selected_id]
+    else:
+        assert result["currentDefinitionDigest"] == selected["definitionDigest"]
+        assert result["stale"] is True
+        assert metadata_path.read_bytes() == metadata_bytes_before
+    assert catalog.load_strict_json(metadata_path) == expected_metadata
+    assert all(path.read_bytes() == content for path, content in sidecars_before.items())
+    assert catalog_path.read_bytes() == catalog_before
+
+    for mode in ("--write", "--check"):
+        stderr = io.BytesIO()
+        assert generator.main(
+            arguments + [mode], io.BytesIO(), stderr
+        ) == generator.EXIT_SOURCE_INVALID
+        stale_id = other_id if operation == "repin" else selected_id
+        assert stale_id.encode("utf-8") in stderr.getvalue()
+        assert b"definitionDigest is stale" in stderr.getvalue()
+    assert catalog.load_strict_json(metadata_path) == expected_metadata
+    assert catalog_path.read_bytes() == catalog_before
+
+
+@pytest.mark.parametrize("operation", ["preview", "repin"])
+@pytest.mark.parametrize(
+    "selected_id, changed_paths, stale_ids",
+    [
+        (
+            "slash:cg-work",
+            (".github/prompts/cg-work.prompt.md", ".github/prompts/cg-review.prompt.md"),
+            {"slash:cg-work", "slash:cg-review"},
+        ),
+        (
+            "slash:cg-work",
+            (".github/prompts/cg-work.prompt.md", "bin/cg-brain-init"),
+            {"slash:cg-work", "shell:cg-brain-init"},
+        ),
+        (
+            "shell:cg-brain-init",
+            (".github/prompts/cg-work.prompt.md", "bin/cg-brain-init"),
+            {"slash:cg-work", "shell:cg-brain-init"},
+        ),
+        ("shell:cg-brain-init", ("scripts/install.sh",), None),
+    ],
+    ids=["slash", "mixed-slash", "mixed-shell", "shared-installer"],
+)
+def test_named_maintenance_preserves_other_pins_and_source_bytes(
+    committed_catalog_source_graph: Path,
+    operation: str,
+    selected_id: str,
+    changed_paths: tuple[str, ...],
+    stale_ids: set[str] | None,
+) -> None:
+    """User requirement: maintain one named pin, including shared-source changes."""
+    root = committed_catalog_source_graph
+    source = catalog.validate_source_metadata(root)
+    records = source.slash_commands + source.shell_commands
+    selected = next(command for command in records if command["id"] == selected_id)
+    if stale_ids is None:
+        stale_ids = {command["id"] for command in source.shell_commands}
+    for relative in changed_paths:
+        path = root / relative
+        path.write_bytes(path.read_bytes() + b"\n# Reviewed fixture change.\n")
+    computed = {
+        command["id"]: catalog.compute_definition_digest(
+            root, command["definitionSources"]
+        )
+        for command in records
+    }
+    assert {
+        command["id"] for command in records
+        if computed[command["id"]] != command["definitionDigest"]
+    } == stale_ids
+    source_bytes = {
+        relative: (root / relative).read_bytes()
+        for relative in {
+            path for command in records for path in command["definitionSources"]
+        }
+    }
+    before = _maintenance_artifact_bytes(root)
+    metadata_path = (
+        selected["sourcePath"].replace(".prompt.md", ".help.json")
+        if selected["kind"] == "slash" else catalog.SHELL_METADATA_PATH
+    )
+    generator = importlib.import_module("cg_generate_help_catalog")
+    arguments = [
+        "--root", str(root), f"--{operation}-definition-digest", selected_id,
+    ]
+    if operation == "repin":
+        arguments.append("--reviewed")
+    stdout, stderr = io.BytesIO(), io.BytesIO()
+
+    assert generator.main(arguments, stdout, stderr) == 0, stderr.getvalue()
+    result = catalog.load_strict_json_bytes(stdout.getvalue(), source="maintenance")
+    assert result["id"] == selected_id
+    assert result["metadataPath"] == metadata_path
+    assert result["computedDefinitionDigest"] == computed[selected_id]
+    expected = dict(before)
+    if operation == "repin":
+        assert result["previousDefinitionDigest"] == selected["definitionDigest"]
+        assert result["currentDefinitionDigest"] == computed[selected_id]
+        assert result["changed"] is True
+        assert result["stale"] is False
+        old_digest = selected["definitionDigest"].encode("ascii")
+        assert before[metadata_path].count(old_digest) == 1
+        expected[metadata_path] = before[metadata_path].replace(
+            old_digest, computed[selected_id].encode("ascii"), 1
+        )
+        # A now-current selection must remain a no-op despite other stale pins.
+        stdout, stderr = io.BytesIO(), io.BytesIO()
+        assert generator.main(arguments, stdout, stderr) == 0, stderr.getvalue()
+        repeated = catalog.load_strict_json_bytes(stdout.getvalue(), source="repeat")
+        assert repeated["changed"] is False
+        assert repeated["stale"] is False
+        assert repeated["currentDefinitionDigest"] == computed[selected_id]
+    else:
+        assert result["currentDefinitionDigest"] == selected["definitionDigest"]
+        assert result["stale"] is True
+    assert _maintenance_artifact_bytes(root) == expected
+    assert all(
+        (root / path).read_bytes() == content
+        for path, content in source_bytes.items()
+    )
+    for mode in ("--write", "--check", "--stdout"):
+        stdout, stderr = io.BytesIO(), io.BytesIO()
+        assert generator.main(["--root", str(root), mode], stdout, stderr) == 2
+        assert b"definitionDigest is stale" in stderr.getvalue()
+        assert stdout.getvalue() == b""
+    assert _maintenance_artifact_bytes(root) == expected
+
+
+@pytest.mark.parametrize("operation", ["preview", "repin"])
+@pytest.mark.parametrize(
+    "fault, diagnostic",
+    [
+        ("unknown-id", b"definition record is unknown"),
+        ("unqualified-id", b"kind-qualified"),
+        ("malformed-pin", b"pattern"),
+        ("missing-definition", b"missing"),
+        ("unsafe-definition", b"escape"),
+        ("missing-sidecar", b"missing"),
+        ("extra-wrapper", b"inventory mismatch"),
+        ("missing-section", b"source section"),
+        ("malformed-workflow", b"markers must occur exactly once"),
+    ],
+)
+def test_multi_stale_maintenance_rejects_invalid_evidence_without_writes(
+    committed_catalog_source_graph: Path,
+    operation: str,
+    fault: str,
+    diagnostic: bytes,
+) -> None:
+    """Freshness allowances must not weaken any source validation boundary."""
+    root = committed_catalog_source_graph
+    installer = root / "scripts/install.sh"
+    installer.write_bytes(installer.read_bytes() + b"\n# Reviewed fixture change.\n")
+    selected_id = "shell:cg-brain-init"
+    shell_path = root / catalog.SHELL_METADATA_PATH
+    payload = catalog.load_strict_json(shell_path)
+    other = next(
+        item for item in payload["commands"] if item["id"] == "shell:cg-diff-summary"
+    )
+    if fault == "unknown-id":
+        selected_id = "shell:cg-not-real"
+    elif fault == "unqualified-id":
+        selected_id = "cg-brain-init"
+    elif fault == "malformed-pin":
+        other["definitionDigest"] = "not-a-digest"
+        _write_json(shell_path, payload)
+    elif fault == "missing-definition":
+        (root / "bin/cg-diff-summary").unlink()
+    elif fault == "unsafe-definition":
+        other["definitionSources"] = ["../outside"]
+        _write_json(shell_path, payload)
+    elif fault == "missing-sidecar":
+        (root / ".github/prompts/cg-work.help.json").unlink()
+    elif fault == "extra-wrapper":
+        (root / "bin/cg-not-real").write_bytes(b"# unregistered wrapper\n")
+    elif fault == "missing-section":
+        other["documentationTargets"] = [
+            {"path": catalog.WORKFLOW_SOURCE_PATH, "section": "no-such-section"}
+        ]
+        _write_json(shell_path, payload)
+    else:
+        workflow = root / catalog.WORKFLOW_SOURCE_PATH
+        workflow.write_bytes(
+            workflow.read_bytes() + catalog.WORKFLOW_START.encode("ascii")
+        )
+    before = _maintenance_artifact_bytes(root)
+    generator = importlib.import_module("cg_generate_help_catalog")
+    arguments = [
+        "--root", str(root), f"--{operation}-definition-digest", selected_id,
+    ]
+    if operation == "repin":
+        arguments.append("--reviewed")
+    stdout, stderr = io.BytesIO(), io.BytesIO()
+
+    assert generator.main(arguments, stdout, stderr) == 2
+    assert diagnostic in stderr.getvalue()
+    assert stdout.getvalue() == b""
+    assert _maintenance_artifact_bytes(root) == before
+
+
+@pytest.mark.parametrize(
+    "fault, diagnostic",
+    [
+        ("selected-pin-stale", b"(shell:cg-brain-init) definitionDigest is stale"),
+        ("final-invalid-evidence", b"markers must occur exactly once"),
+        ("source-snapshot", b"source graph changed during definition repin"),
+        ("metadata-conflict", b"definition metadata changed during repin"),
+    ],
+)
+def test_multi_stale_repin_final_validation_and_conflicts_preserve_bytes(
+    committed_catalog_source_graph: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    fault: str,
+    diagnostic: bytes,
+) -> None:
+    """Inject faults at the second boundary without replacing real validation."""
+    root = committed_catalog_source_graph
+    for name in ("cg-brain-init", "cg-diff-summary"):
+        path = root / "bin" / name
+        path.write_bytes(path.read_bytes() + b"\n# Reviewed fixture change.\n")
+    before = _maintenance_artifact_bytes(root)
+    expected = dict(before)
+    changed_path = None
+    changed_content = None
+    original_validate = catalog.validate_source_metadata
+    calls = 0
+
+    def inject_final_fault(*args: Any, **kwargs: Any) -> catalog.SourceMetadata:
+        nonlocal calls, changed_path, changed_content
+        calls += 1
+        if calls == 2:
+            if fault == "selected-pin-stale":
+                kwargs["source_overrides"] = {
+                    catalog.SHELL_METADATA_PATH: before[catalog.SHELL_METADATA_PATH]
+                }
+            else:
+                relative = {
+                    "final-invalid-evidence": catalog.WORKFLOW_SOURCE_PATH,
+                    "source-snapshot": "bin/cg-diff-summary",
+                    "metadata-conflict": catalog.SHELL_METADATA_PATH,
+                }[fault]
+                changed_path = root / relative
+                addition = (
+                    catalog.WORKFLOW_START.encode("ascii")
+                    if fault == "final-invalid-evidence" else b"\n"
+                )
+                changed_content = changed_path.read_bytes() + addition
+                changed_path.write_bytes(changed_content)
+                if fault == "metadata-conflict":
+                    expected[relative] = changed_content
+        return original_validate(*args, **kwargs)
+
+    monkeypatch.setattr(maintenance, "validate_source_metadata", inject_final_fault)
+    generator = importlib.import_module("cg_generate_help_catalog")
+    stdout, stderr = io.BytesIO(), io.BytesIO()
+
+    assert generator.main(
+        [
+            "--root", str(root), "--repin-definition-digest",
+            "shell:cg-brain-init", "--reviewed",
+        ],
+        stdout, stderr,
+    ) == 2
+    assert calls == 2
+    assert diagnostic in stderr.getvalue()
+    assert stdout.getvalue() == b""
+    assert _maintenance_artifact_bytes(root) == expected
+    if changed_path is not None:
+        assert changed_path.read_bytes() == changed_content
 
 
 def test_malformed_late_source_prevents_catalog_write(tmp_path: Path) -> None:
@@ -738,6 +1156,44 @@ def test_installer_inventory_ignores_comment_only_command_fixture() -> None:
         )
 
 
+def test_posix_installer_requires_chmod_at_the_same_execution_level() -> None:
+    """Comments and here-document bodies cannot carry the chmod evidence."""
+    content = (
+        b"if false; then\n"
+        b"for cmd in index; do\n"
+        b'  WRAPPER="$BIN_DIR/cg-$cmd"\n'
+        b'  # chmod +x "$WRAPPER"\n'
+        b"done\n"
+        b"fi\n"
+        b"if false; then\n"
+        b'CG_EVIL_DST="$BIN_DIR/cg-evil"\n'
+        b'# chmod +x "$BIN_DIR/cg-evil"\n'
+        b"fi\n"
+    )
+    start = catalog.POSIX_INSTALL_START
+    end = catalog.POSIX_INSTALL_END
+    section = (start + "\n" + content.decode("utf-8") + "# pad\n" + end + "\n").encode("utf-8")
+
+    assert catalog.parse_posix_installer_inventory(section) == set()
+
+
+def test_windows_installer_requires_set_content_at_the_same_execution_level() -> None:
+    """Commented declarations and bodies cannot satisfy Windows evidence."""
+    content = (
+        b"# $scripts = @(\"index\")\n"
+        b'# foreach ($script in $scripts) { $cmdPath = Join-Path $binDir "cg-$script.cmd"; Set-Content -Path $cmdPath "x" }\n'
+        b"if ($false) {\n"
+        b'$indexCmdDst = Join-Path $binDir "cg-index.cmd"\n'
+        b'if (Test-Path $indexCmdSrc) { Copy-Item -Path $indexCmdSrc -Destination $indexCmdDst -Force }\n'
+        b"}\n"
+    )
+    start = catalog.WINDOWS_INSTALL_START
+    end = catalog.WINDOWS_INSTALL_END
+    section = (start + "\n" + content.decode("utf-8") + "# pad\n" + end + "\n").encode("utf-8")
+
+    assert catalog.parse_windows_installer_inventory(section) == set()
+
+
 def test_catalog_write_check_stdout_and_distinct_exit_codes(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -765,7 +1221,12 @@ def test_catalog_write_check_stdout_and_distinct_exit_codes(
     assert output.read_bytes() == stale_bytes
 
     shutil.copyfile(REPO_ROOT / ".github/prompts/cg-work.help.json", sidecar)
-    monkeypatch.setattr(catalog.os, "replace", lambda _source, _target: (_ for _ in ()).throw(OSError("interrupted")))
+    import secure_fs
+
+    def interrupted_write(*_args, **_kwargs):
+        raise secure_fs.SecureMutationError("interrupted replace")
+
+    monkeypatch.setattr(secure_fs, "secure_write_bytes", interrupted_write)
     assert generator.main(["--root", str(root), "--write"], io.BytesIO(), io.BytesIO()) == 4
     assert output.read_bytes() == stale_bytes
     assert not list(output.parent.glob(".help-catalog.json.*.tmp"))

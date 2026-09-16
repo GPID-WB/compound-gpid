@@ -448,6 +448,22 @@ class TestValidation:
         assert ownership.read_text(encoding="utf-8").strip() == '{"user": "content"}'
 
 
+def _real_repo_is_dirty() -> bool:
+    """True when the repository worktree has uncommitted changes."""
+    import subprocess
+
+    status = subprocess.run(
+        ["git", "-C", str(REPO_ROOT), "status", "--porcelain"],
+        capture_output=True,
+        encoding="utf-8",
+        check=False,
+    )
+    return status.returncode != 0 or bool(status.stdout.strip())
+
+
+@pytest.mark.skipif(
+    _real_repo_is_dirty(), reason="real-repo tests require a clean worktree"
+)
 class TestRealRepo:
     def test_real_repo_resolves_and_validates(self) -> None:
         resolved = manifest.resolve_active_manifest(REPO_ROOT)

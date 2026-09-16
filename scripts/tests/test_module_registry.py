@@ -648,6 +648,8 @@ class TestRealRepoRegistry:
             item for item in registry["modules"] if item["id"] == "cap-help"
         )
         assert help_module["ownedAssets"] == [
+            ".github/prompts/cg-help.help.json",
+            ".github/prompts/cg-help.prompt.md",
             ".github/shared/help-catalog.json",
             ".github/shared/shell-commands.json"
         ]
@@ -657,8 +659,12 @@ class TestRealRepoRegistry:
             )
             assert "cap-help" in suite["dependsOn"]
             assert suite["help"]["metadataGlobs"]
-        assert not (REPO_ROOT / ".github/prompts/cg-help.prompt.md").exists()
-        assert not (REPO_ROOT / ".github/prompts/cg-help.help.json").exists()
+        suite_cg = next(item for item in registry["modules"] if item["id"] == "suite-cg")
+        assert suite_cg["ownershipExclusions"] == [
+            ".github/prompts/cg-help.help.json", ".github/prompts/cg-help.prompt.md"
+        ]
+        for path in help_module["ownedAssets"]:
+            assert (REPO_ROOT / path).is_file()
 
     def test_repo_ownership_closure_is_complete(self) -> None:
         errors = validator.check_ownership(REPO_ROOT)

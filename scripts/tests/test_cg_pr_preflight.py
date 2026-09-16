@@ -347,17 +347,27 @@ def test_workflow_reports_neutral_generic_kilo_capability() -> None:
 def test_certified_kilo_job_is_protected_and_hash_pinned() -> None:
     workflow = (REPO_ROOT / ".github/workflows/tests.yml").read_text(encoding="utf-8")
     start = workflow.index("kilo-certified-integration:")
-    block = workflow[start:]
+    block = workflow[start:workflow.index("  native-targets:", start)]
 
     assert "github.event_name == 'push'" in block
     assert "github.event_name == 'workflow_dispatch'" in block
-    assert "github.ref == format('refs/heads/{0}', github.event.repository.default_branch)" in block
+    assert "github.ref == 'refs/heads/dev'" in block
+    assert "github.ref_protected" in block
     assert "github.event_name != 'pull_request'" in block
     assert "vars.CG_KILO_CERTIFIED_RUNNER" in block
     assert "vars.CG_KILO_CERTIFIED_VERSION" in block
     assert "vars.CG_KILO_CERTIFIED_SHA256" in block
     assert "environment: cg-kilo-certified" in block
-    assert "ref: ${{ github.event.repository.default_branch }}" in block
+    assert "ref: ${{ needs.kilo-certified-subject.outputs.subject }}" in block
+    assert "ref: ${{ github.event.repository.default_branch }}" not in block
+    assert "git checkout --detach" in block
+    assert "git rev-parse HEAD" in block
+    subject = workflow[workflow.index("  kilo-certified-subject:"):start]
+    assert "subject_commit" in workflow
+    assert "github.sha" in subject
+    assert "[0-9a-f]{40}" in subject
+    assert "github.rest.repos.getCommit" in subject
+    assert "commit.data.sha !== subject" in subject
     assert "kilo_executable_sha256" in block
     assert "CG_KILO_CERTIFIED_SHA256" in block
     assert "CG_KILO_CERTIFIED_VERSION" in block
@@ -365,6 +375,58 @@ def test_certified_kilo_job_is_protected_and_hash_pinned() -> None:
     assert "cg-kilo" in block
     assert "CG_KILO_CERTIFIED_EXECUTABLE" in block
     assert "-m pytest scripts/tests/test_kilo_coexistence.py -m integration" in block
+
+
+@pytest.mark.parametrize("case", ["valid", "mutable", "missing", "newline", "foreign", "fork", "mismatch", "absent-commit"])
+def test_certified_subject_script_rejects_untrusted_inputs(case):
+    """Execute the exact workflow script with a local GitHub client fixture.
+
+    The fixture is genuinely untrusted input: the subject script bytes are
+    extracted verbatim from the workflow's ``script: |`` block (anchored at
+    its literal 10-space indentation, so a re-indentation fails loudly at
+    extraction instead of silently testing stale bytes) and executed under
+    ``node`` with injected adversarial inputs covering a non-string/mutable
+    subject, missing or newline-contaminated subjects, foreign or forked
+    repositories, SHA mismatches, and absent commits. A host without a
+    ``node`` executable skips instead of erroring out the whole module.
+    """
+    import shutil
+    if shutil.which("node") is None:
+        pytest.skip("node is required to execute the certified-subject script")
+    import subprocess
+    import textwrap
+    workflow = (REPO_ROOT / ".github/workflows/tests.yml").read_text(encoding="utf-8")
+    block = workflow.split("  kilo-certified-subject:", 1)[1].split("  kilo-certified-integration:", 1)[0]
+    script = textwrap.dedent(block.split("          script: |\n", 1)[1])
+    sha = "a" * 40
+    data = {"subject": sha, "repository": "owner/repo", "fork": False, "returned": sha, "missing": False}
+    if case in ("mutable", "missing", "newline"):
+        data["subject"] = {"mutable": "dev", "missing": "", "newline": sha + "\n"}[case]
+    elif case == "foreign":
+        data["repository"] = "fork/repo"
+    elif case == "fork":
+        data["fork"] = True
+    elif case == "mismatch":
+        data["returned"] = "b" * 40
+    elif case == "absent-commit":
+        data["missing"] = True
+    harness = """
+const data = JSON.parse(process.argv[1]);
+process.env.SUBJECT_COMMIT = data.subject;
+const context = {repo:{owner:'owner',repo:'repo'},payload:{repository:{full_name:data.repository,fork:data.fork}}};
+const github = {rest:{repos:{getCommit:async request => {
+  if(data.missing || request.ref !== data.subject || request.owner !== 'owner' || request.repo !== 'repo') throw Error('missing');
+  return {data:{sha:data.returned}};
+}}}};
+const core = {setOutput:(name,value) => process.stdout.write(JSON.stringify({name,value}))};
+"""
+    result = subprocess.run(["node", "-e", harness + "\n(async()=>{\n" + script + "\n})().catch(()=>process.exit(42));", json.dumps(data)],
+                            capture_output=True, text=True, timeout=15)
+    assert result.returncode == (0 if case == "valid" else 42), result.stderr
+    if case == "valid":
+        assert json.loads(result.stdout) == {"name": "subject", "value": sha}
+    else:
+        assert result.stdout == ""
 
 
 def test_generic_e2e_consumes_declared_capability_without_host_probe() -> None:

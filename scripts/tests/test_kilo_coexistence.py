@@ -6,6 +6,10 @@ import os
 from pathlib import Path
 import stat
 import sys
+import hashlib
+import shutil
+import subprocess
+from datetime import datetime, timezone
 
 import pytest
 
@@ -14,6 +18,26 @@ import cg_kilo_preflight as preflight
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 EVIDENCE_PATH = REPO_ROOT / "scripts/tests/fixtures/kilo_coexistence_host.json"
+
+
+@pytest.mark.parametrize("version", [
+    "7.4.20", "7.4.23", "7.5.0", "8.0.0", "99.0.0",
+    "7.4.20-beta.1", "7.4.23-rc.2", "7.5.0-alpha.1+build.5",
+])
+def test_step7_minimum_only_host_compatibility(version, tmp_path, monkeypatch):
+    _projection(tmp_path, codex=True)
+    fake = _fake_kilo(tmp_path / "fake-kilo", tmp_path / "args.json")
+    monkeypatch.setattr(preflight, "_read_version", lambda *_: (version, None))
+    result = preflight.run_preflight(tmp_path, kilo_executable=str(fake))
+    assert result.exit_code == 0, result.message
+
+
+@pytest.mark.parametrize("version", ["7.4.19", "7.4.19-rc.1", "6.99.99", "6.99.99-alpha.2", None])
+def test_step7_minimum_and_missing_version_fail_closed(version, tmp_path, monkeypatch):
+    _projection(tmp_path, codex=True)
+    fake = _fake_kilo(tmp_path / "fake-kilo", tmp_path / "args.json")
+    monkeypatch.setattr(preflight, "_read_version", lambda *_: (version, None))
+    assert preflight.run_preflight(tmp_path, kilo_executable=str(fake)).exit_code == preflight.EXIT_HOST_UNAVAILABLE
 
 
 def _write(path: Path, content: str) -> None:
@@ -76,6 +100,40 @@ raise SystemExit(23)
     wrapper = path.with_suffix(".cmd")
     wrapper.write_text(f'@echo off\n"{sys.executable}" "{script}" %*\n', encoding="ascii")
     return wrapper
+
+
+def _fake_kilo_version_output(path: Path, printed: str) -> Path:
+    """Create a host fixture printing a fixed ``--version`` output."""
+    script = path.with_suffix(".py")
+    script.write_text(
+        "import sys\n"
+        "if sys.argv[1:] == ['--version']:\n"
+        + "    print(" + repr(printed) + ")\n"
+        + "    raise SystemExit(0)\n"
+        + "raise SystemExit(23)\n",
+        encoding="utf-8",
+    )
+    if os.name != "nt":
+        script.chmod(script.stat().st_mode | stat.S_IXUSR)
+        return script
+    wrapper = path.with_suffix(".cmd")
+    wrapper.write_text(f'@echo off\n"{sys.executable}" "{script}" %*\n', encoding="ascii")
+    return wrapper
+
+
+@pytest.mark.parametrize("printed", ["v7.4.20", "7.4.20.1", "Kilo 7.4.20", "version: 7.4.20"])
+def test_read_version_rejects_embedded_prefixed_suffixed_output(tmp_path: Path, printed: str) -> None:
+    fake = _fake_kilo_version_output(tmp_path / "fake-kilo", printed)
+    version, error = preflight._read_version(fake, tmp_path)
+    assert version is None
+    assert error == "Kilo version output was not recognized"
+
+
+def test_read_version_parses_only_the_first_non_empty_line(tmp_path: Path) -> None:
+    fake = _fake_kilo_version_output(tmp_path / "fake-kilo", "7.4.21\nunrelated trailing banner\n")
+    version, error = preflight._read_version(fake, tmp_path)
+    assert version == "7.4.21"
+    assert error is None
 
 
 def test_inventory_summary_preserves_names_and_separates_external_roots() -> None:
@@ -171,7 +229,7 @@ def test_host_evidence_fixture_is_machine_readable() -> None:
     assert data["containment"]["scope"] == "child-process-only"
     assert data["hosts"]
     for host in data["hosts"]:
-        assert host["version"] in preflight.SUPPORTED_KILO_VERSIONS
+        assert preflight.supported_kilo_version(host["version"])
         assert host["invocation"] == ["kilo", "debug", "skill"]
         assert host["contained"]["localSkill"] is True
         assert host["contained"]["codexSkill"] is False
@@ -200,8 +258,87 @@ def test_current_embedded_kilo_hosts_match_containment_contract(tmp_path: Path) 
     _projection(tmp_path, codex=True)
     for executable in executables:
         version, error = preflight._read_version(executable, tmp_path)
-        if error or version not in preflight.SUPPORTED_KILO_VERSIONS:
+        if error or not preflight.supported_kilo_version(version):
             pytest.fail(f"Unsupported embedded Kilo host: {executable} ({version or error})")
         result = preflight.run_preflight(tmp_path, kilo_executable=str(executable))
         assert result.exit_code == preflight.EXIT_OK
         assert result.inventory.external_compatibility_locations == ()
+
+
+@pytest.mark.integration
+def test_certified_kilo_help_observed_flows(tmp_path: Path) -> None:
+    """Run only an explicitly configured exact-subject host, never auto-discover one."""
+    from help import catalog, support
+    from scripts.tests.test_cg_help import project
+    configured = os.environ.get("CG_KILO_CERTIFIED_EXECUTABLE")
+    if not configured:
+        pytest.skip("No explicitly configured certified Kilo host")
+    subject = os.environ.get("CG_HELP_SUBJECT_COMMIT", "")
+    support._commit(REPO_ROOT, subject)
+    assert support._git(REPO_ROOT, "rev-parse", "HEAD").decode().strip() == subject
+    assert subprocess.run(["git", "symbolic-ref", "-q", "HEAD"], cwd=REPO_ROOT,
+                          capture_output=True).returncode == 1
+    catalog.check_catalog(REPO_ROOT)
+    bindings = support.subject_bindings(REPO_ROOT, subject)
+    assert bindings == support.subject_bindings(REPO_ROOT, subject)
+    version = os.environ["CG_KILO_CERTIFIED_VERSION"]
+    executable_hash = os.environ["CG_KILO_CERTIFIED_SHA256"].lower()
+    executable = Path(configured).resolve(strict=True)
+    assert preflight._file_sha256(executable) == executable_hash
+    assert preflight._read_version(executable, REPO_ROOT) == (version, None)
+    outcomes = []
+    for name, text in support.PROBE_CASES.items():
+        root = tmp_path / name
+        for relative in preflight.REQUIRED_LOCAL_ROOTS:
+            shutil.copytree(REPO_ROOT / relative, root / relative)
+        project(REPO_ROOT, root, "cg, cr", "kilo")
+        shutil.copyfile(REPO_ROOT / ".kilo/kilo.json", root / "kilo.json")
+        bin_dir, receipts = root / "probe-bin", tmp_path / (name + "-receipts")
+        bin_dir.mkdir()
+        receipts.mkdir()
+        observer = bin_dir / "observer.py"
+        observer.write_bytes((
+            "import hashlib,io,json,sys,uuid\nfrom pathlib import Path\n"
+            + "sys.path.insert(0," + repr(str(REPO_ROOT / "scripts")) + ")\n"
+            + "import cg_help\noriginal=cg_help.query_service\nseen=[]\n"
+            + "def observe(text,**kwargs):\n seen.append(hashlib.sha256(text.encode('utf-8')).hexdigest())\n return original(text,**kwargs)\n"
+            + "cg_help.query_service=observe\nstream=sys.stdout\nsys.stdout=io.StringIO()\n"
+            + "status=cg_help.main(sys.argv[1:])\noutput=sys.stdout.getvalue()\nsys.stdout=stream\n"
+            + "payload=dict(argv=sys.argv[1:],exitCode=status,envelope=json.loads(output),queryFingerprints=seen)\n"
+            + "destination=Path(" + repr(str(receipts)) + ")/(str(uuid.uuid4())+'.json')\n"
+            + "destination.write_bytes(json.dumps(payload).encode('utf-8'))\nstream.write(output)\nraise SystemExit(status)\n"
+        ).encode("utf-8"))
+        if os.name == "nt":
+            _write(bin_dir / "cg-help.cmd", '@echo off\n"{}" "{}" %*\n'.format(sys.executable, observer))
+        else:
+            import shlex
+            wrapper = bin_dir / "cg-help"
+            _write(wrapper, "#!/bin/sh\nexec {} {} \"$@\"\n".format(shlex.quote(sys.executable), shlex.quote(str(observer))))
+            wrapper.chmod(0o700)
+        host = preflight.run_preflight(root, kilo_executable=str(executable), force_certified_launch=True)
+        assert host.exit_code == 0
+        assert host.kilo_version == version and host.kilo_executable_sha256 == executable_hash
+        environment = os.environ.copy()
+        environment[preflight.CONTAINMENT_ENVIRONMENT] = "1"
+        environment["PATH"] = str(bin_dir) + os.pathsep + environment.get("PATH", "")
+        # Native host argv carries public fixture input as data, never shell text.
+        result = subprocess.run([str(executable), *support.PROBE_ARGUMENTS, text],
+                                cwd=root, env=environment, capture_output=True, timeout=180, check=False)
+        assert result.returncode == 0, "Certified host command failed"
+        assert len(result.stdout) <= preflight.MAX_HOST_OUTPUT_BYTES
+        events = [catalog.load_strict_json_bytes(line, source="host event") for line in result.stdout.splitlines() if line.strip()]
+        final = "".join(event["part"]["text"] for event in events if event.get("type") == "text")
+        commands = [event["part"]["state"]["input"]["command"] for event in events
+                    if event.get("type") == "tool_use" and event.get("part", {}).get("tool") == "bash"]
+        order = {"request-prepared": 0, "query-completed": 1, "selection-prepared": 1, "selection-rendered": 2}
+        records = [catalog.load_strict_json(path) for path in receipts.glob("*.json")]
+        records.sort(key=lambda record: order.get(record["envelope"].get("operation"), 99))
+        outcomes.append(support.validate_host_flow(name, records, final, commands))
+    # A bounded probe fragment is not the canonical combined support artifact.
+    fragment = dict(subjectCommit=subject, probeCommit=subject,
+                    probeTree=support._git(REPO_ROOT, "rev-parse", "HEAD^{tree}").decode().strip(),
+                    host={"pinnedVersion": version, "observedVersion": version,
+                          "pinnedSha256": executable_hash, "observedSha256": executable_hash},
+                    probes=outcomes, runAt=datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), **bindings)
+    assert preflight._file_sha256(executable) == executable_hash
+    (REPO_ROOT / "kilo-help-probes.json").write_bytes(json.dumps(fragment, sort_keys=True).encode("utf-8"))
