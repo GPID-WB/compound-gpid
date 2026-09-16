@@ -9,8 +9,9 @@
     "reveal.js": "5.1.0"
   },
   "scripts": {
+    "test:docs-browser": "playwright test --config playwright.docs.config.js",
     "capture": "node scripts/evidence/capture.js",
     "test": "node --test scripts/evidence/tests/*.test.js",
-    "test:docs-automation": "node --test scripts/tests/rebuild-docs.test.js scripts/tests/generate-whats-new.test.js scripts/tests/release-version.test.js scripts/tests/docs-snapshots.test.js scripts/tests/legacy-pages.test.js scripts/tests/assemble-docs-site.test.js scripts/tests/check-docs-site.test.js scripts/evidence/tests/release-pages.test.js"
+    "test:docs-automation": "node --test scripts/tests/rebuild-docs.test.js scripts/tests/generate-whats-new.test.js scripts/tests/release-version.test.js scripts/tests/docs-snapshots.test.js scripts/tests/legacy-pages.test.js scripts/tests/assemble-docs-site.test.js scripts/tests/check-docs-site.test.js scripts/tests/docs-navigation.test.js scripts/tests/docs-build-contract.test.js scripts/tests/docs-migration.test.js scripts/tests/docs-preview-runtime.test.js scripts/evidence/tests/release-pages.test.js"
   }
 }

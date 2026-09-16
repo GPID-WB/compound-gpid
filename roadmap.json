@@ -778,6 +778,13 @@
           "description": "Add `/cg-light-work` as the unified workflow for small technical tasks. It provides bounded workspace-first discovery, strict hard safety routing, overridable size gates with approval, a standard Plan/Work Report/Review Report lifecycle, targeted light review and revalidation, and explicit compounding opt-in. Make `/cg-work` plan-only and provide a copy-ready redirect for inline tasks. Brainstorm context: `.cg-docs/brainstorms/2026-09-04-cg-light-work-unified-small-task-workflow.md`.",
           "status": "done",
           "plan": ".cg-docs/plans/2026-09-04-cg-light-work-unified-small-task-workflow.md"
+        },
+        {
+          "id": "documentation-ia-ux-redesign",
+          "title": "Documentation Information Architecture and UX Redesign",
+          "description": "Redesign the existing static docs navigation and separate in-page TOC, consolidate Skill Management, explain CG/CR, improve task-based command guides and local discovery, and verify Published/root plus /dev/ identity. Core Gate A ships independently; catalog integration and help runtime claims need Gates B/C.",
+          "status": "active",
+          "plan": ".cg-docs/plans/2026-09-16-documentation-ia-ux-redesign.md"
         }
       ]
     },

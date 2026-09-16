@@ -225,3 +225,50 @@ test("rejects self-consistent stable contamination at the source verifier bounda
     await removeTemporary(mainRoot, devRoot, output);
   }
 });
+
+test("reserves only the channel manifest output and preserves existing output on collision", async () => {
+  const mainRoot = await createSource("main"), devRoot = await createSource("dev");
+  const output = await mkdtemp(path.join(os.tmpdir(), "cg-channels-reserved-"));
+  try {
+    await writeFile(path.join(output, "sentinel"), "previous valid artifact");
+    for (const source of [mainRoot, devRoot]) {
+      const collision = path.join(source, "docs/channels.json");
+      await writeFile(collision, "{}");
+      const result = run(["--main-root", mainRoot, "--dev-root", devRoot, "--out", output,
+        "--main-sha", "1".repeat(40), "--dev-sha", "2".repeat(40)]);
+      assert.equal(result.status, 1, result.stderr + result.stdout);
+      assert.match(result.stderr, /reserved.*channels.json/);
+      assert.equal(await readFile(path.join(output, "sentinel"), "utf8"), "previous valid artifact");
+      await rm(collision);
+    }
+  } finally { await removeTemporary(mainRoot, devRoot, output); }
+});
+
+test("pairs the captured actual legacy root with the new dev runtime without rewriting root bytes", async () => {
+  const mainRoot = await createSource("main"), devRoot = await createSource("dev");
+  const output = await mkdtemp(path.join(os.tmpdir(), "cg-real-mixed-runtime-"));
+  try {
+    for (const sourceRoot of [mainRoot, devRoot]) {
+      await rm(path.join(sourceRoot, "docs"), { recursive: true });
+      await cp(path.join(root, "docs"), path.join(sourceRoot, "docs"), { recursive: true });
+    }
+    const legacy = path.join(__dirname, "fixtures/docs-redesign/legacy/docs");
+    await cp(legacy, path.join(mainRoot, "docs"), { recursive: true });
+    const legacyDocuments = require("./fixtures/docs-redesign/legacy-documents.json");
+    for (const [file, text] of Object.entries(legacyDocuments)) await writeFile(path.join(mainRoot, "docs", file), text);
+    await rm(path.join(mainRoot, "docs/assets/docs-contract.js"));
+    const { digestTree } = require("../assemble-docs-site.js");
+    const mainBefore = digestTree(path.join(mainRoot, "docs")), devBefore = digestTree(path.join(devRoot, "docs"));
+    const result = run(["--main-root", mainRoot, "--dev-root", devRoot, "--out", output,
+      "--main-sha", "1".repeat(40), "--dev-sha", "2".repeat(40)]);
+    assert.equal(result.status, 0, result.stderr + result.stdout);
+    const verified = run(["--verify", output, "--main-root", mainRoot, "--dev-root", devRoot]);
+    assert.equal(verified.status, 0, verified.stderr + verified.stdout);
+    assert.deepEqual(digestTree(path.join(mainRoot, "docs")), mainBefore);
+    assert.deepEqual(digestTree(path.join(devRoot, "docs")), devBefore);
+    assert.equal(await readFile(path.join(output, "site/assets/site.js"), "utf8"), await readFile(path.join(legacy, "assets/site.js"), "utf8"));
+    assert.match(await readFile(path.join(output, "site/dev/assets/site.js"), "utf8"), /DocsContract.parseDocument/);
+    assert.doesNotMatch(await readFile(path.join(output, "site/index.html"), "utf8"), /docs-contract\.js|dev-preview-banner/);
+    assert.match(await readFile(path.join(output, "site/dev/index.html"), "utf8"), /assets\/docs-contract\.js/);
+  } finally { await removeTemporary(mainRoot, devRoot, output); }
+});

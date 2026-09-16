@@ -53,6 +53,67 @@ test("rejects unknown validation arguments", () => {
   assert.match(result.stderr + result.stdout, /Usage|unknown|argument/i);
 });
 
+test("hidden references remain registered, linked, and checked by the real validator", async () => {
+  const target = path.join(source, "docs/navigation.json");
+  const original = await readFile(target, "utf8");
+  try {
+    const manifest = JSON.parse(original);
+    manifest.groups.find(group => group.title === "Skill Management").pages.forEach(page => { page.sidebar = false; });
+    await writeFile(target, JSON.stringify(manifest));
+    const result = spawnSync(node, [script, "--source-root", source], { encoding: "utf8" });
+    assert.equal(result.status, 0, result.stderr + result.stdout);
+    manifest.groups.find(group => group.title === "Skill Management").pages.pop();
+    await writeFile(target, JSON.stringify(manifest));
+    const missing = spawnSync(node, [script, "--source-root", source], { encoding: "utf8" });
+    assert.equal(missing.status, 1);
+    assert.match(missing.stderr, /Navigation coverage failed/);
+  } finally { await writeFile(target, original); }
+});
+
+test("fenced examples cannot satisfy a real Markdown fragment link", async () => {
+  const target = path.join(source, "docs/skills/management/security.md");
+  const original = await readFile(target, "utf8");
+  try {
+    await writeFile(target, `${original}\n[Invalid](#fake-only-in-code)\n\n~~~md\n## Fake Only In Code\n~~~\n`);
+    const result = spawnSync(node, [script, "--source-root", source], { encoding: "utf8" });
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /missing fragment #fake-only-in-code/);
+  } finally { await writeFile(target, original); }
+});
+
+test("the separate candidate-page allowance remains validated outside public navigation", async () => {
+  const candidate = path.join(source, "docs/skills/management/phase1-candidate.md");
+  const candidates = path.join(source, "docs/skills/management/candidates.json");
+  let prior = null;
+  try { prior = await readFile(candidates); } catch (error) { if (error.code !== "ENOENT") throw error; }
+  try {
+    await writeFile(candidate, "# Candidate\n\nNot in the sidebar.\n");
+    await writeFile(candidates, JSON.stringify({ schemaVersion: "compound-gpid-docs-candidates-v1", pages: [
+      { id: "phase1-candidate", title: "Candidate", description: "Candidate only", file: "docs/skills/management/phase1-candidate.md" },
+    ] }));
+    const allowed = spawnSync(node, [script, "--source-root", source], { encoding: "utf8" });
+    assert.equal(allowed.status, 0, allowed.stderr + allowed.stdout);
+    await writeFile(candidate, "# Candidate\n\n[Missing](missing-candidate.md)\n");
+    const invalid = spawnSync(node, [script, "--source-root", source], { encoding: "utf8" });
+    assert.equal(invalid.status, 1);
+    assert.match(invalid.stderr, /targets missing/);
+  } finally {
+    await rm(candidate, { force: true });
+    if (prior) await writeFile(candidates, prior); else await rm(candidates, { force: true });
+  }
+});
+
+test("a heading inside a code fence cannot satisfy the page title requirement", async () => {
+  const target = path.join(source, "docs/skills/management/security.md");
+  const original = await readFile(target, "utf8");
+  try {
+    await writeFile(target, "```md\n# Not a Page Title\n```\n");
+    const result = spawnSync(node, [script, "--source-root", source], { encoding: "utf8" });
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /must have a level-one heading/);
+  } finally { await writeFile(target, original); }
+});
+
 const workflowVariants = [
   ["dev Pages permission", "pages.yml", "contents: read", "contents: read\n  pages: write", /pages.yml must remain unprivileged/],
   ["dev OIDC permission", "pages.yml", "contents: read", "contents: read\n  id-token: write", /pages.yml must remain unprivileged/],

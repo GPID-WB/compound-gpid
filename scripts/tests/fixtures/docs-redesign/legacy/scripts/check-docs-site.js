@@ -2,7 +2,6 @@
 const { access, readFile, readdir } = require("node:fs/promises");
 const { constants } = require("node:fs");
 const path = require("node:path");
-const docsContract = require("../docs/assets/docs-contract.js");
 const SOURCE_AUTHORITY = /:\s*["']?(?:write|write-all)\b|\benvironment\s*:|\bsecrets[.\[]|actions\/(?:configure-pages|upload-pages-artifact|deploy-pages|create-github-app-token)@/;
 
 function parseArguments(argv) {
@@ -26,6 +25,11 @@ const root = options.sourceRoot;
 const docsRoot = options.docsRoot || path.join(root, "docs");
 const legacySource = options.legacy;
 
+function slugify(value) {
+  return value.toLowerCase().replace(/<[^>]*>/g, "").replace(/[`*_]/g, "")
+    .replace(/[^a-z0-9\s-]/g, "").replace(/[\s-]+/g, "-").replace(/(^-|-$)/g, "");
+}
+
 async function walkMarkdown(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
   const output = [];
@@ -37,7 +41,11 @@ async function walkMarkdown(directory) {
   return output;
 }
 
-async function validateMarkdownLinks(files, pages, legacyHeadings) {
+function markdownHeadings(content) {
+  return new Set([...content.matchAll(/^#{1,6}\s+(.+)$/gm)].map((match) => slugify(match[1])));
+}
+
+async function validateMarkdownLinks(files) {
   const errors = [];
   const contentCache = new Map();
   for (const file of files) contentCache.set(file, await readFile(file, "utf8"));
@@ -58,12 +66,7 @@ async function validateMarkdownLinks(files, pages, legacyHeadings) {
       }
       if (!fragment || !target.endsWith(".md")) continue;
       const targetContent = contentCache.get(target) || await readFile(target, "utf8");
-      const headings = docsContract.extractHeadings(targetContent);
-      const config = pages.find(page => path.join(docsRoot, page.file) === target);
-      const resolved = legacyHeadings
-        ? { status: headings.some(h => h.legacy[0] === decodeURIComponent(fragment)) ? "resolved" : "missing" }
-        : docsContract.resolveSection(headings, decodeURIComponent(fragment), config?.sectionAliases);
-      if (resolved.status !== "resolved") {
+      if (!markdownHeadings(targetContent).has(decodeURIComponent(fragment))) {
         errors.push(`${path.relative(root, file)}:${line} targets missing fragment #${fragment} in ${path.relative(root, target)}`);
       }
     }
@@ -241,7 +244,7 @@ function validatePagesWorkflows(builder, controller) {
   if (!Array.isArray(manifest.groups) || manifest.groups.length < 5) {
     throw new Error("Documentation navigation must contain audience-oriented groups.");
   }
-   const pages = docsContract.validateManifest(manifest);
+  const pages = manifest.groups.flatMap((group) => group.pages || []);
   const candidatePages = legacySource ? [] : await loadCandidatePages();
   const ids = pages.map((page) => page.id);
   const pageFiles = pages.map((page) => page.file);
@@ -285,17 +288,14 @@ function validatePagesWorkflows(builder, controller) {
     throw new Error(`Navigation coverage failed. Orphaned: ${orphaned.map((file) => path.relative(root, file)).join(", ") || "none"}. Missing: ${missing.map((file) => path.relative(root, file)).join(", ") || "none"}.`);
   }
 
-  const pageHeadings = {};
   for (const page of pages) {
     if (!page.title || !page.description) throw new Error(`Navigation metadata is incomplete for ${page.id}.`);
     const content = await readFile(path.join(docsRoot, page.file), "utf8");
-    pageHeadings[page.id] = docsContract.extractHeadings(content);
-    if (!pageHeadings[page.id].some(heading => heading.level === 1)) throw new Error(`${page.file} must have a level-one heading.`);
+    if (!/^\uFEFF?#\s+\S/m.test(content)) throw new Error(`${page.file} must have a level-one heading.`);
   }
-  docsContract.validateManifest(manifest, pageHeadings);
   for (const page of candidatePages) {
     const content = await readFile(path.join(root, page.file), "utf8");
-    if (!docsContract.extractHeadings(content).some(heading => heading.level === 1)) throw new Error(`${page.file} must have a level-one heading.`);
+    if (!/^\uFEFF?#\s+\S/m.test(content)) throw new Error(`${page.file} must have a level-one heading.`);
   }
 
   const html = await readFile(path.join(docsRoot, "index.html"), "utf8");
@@ -306,14 +306,12 @@ function validatePagesWorkflows(builder, controller) {
   const unknownShellRoutes = shellRoutes.filter((id) => !ids.includes(id));
   if (unknownShellRoutes.length) throw new Error(`Site shell references unknown routes: ${unknownShellRoutes.join(", ")}.`);
   const siteScript = await readFile(path.join(docsRoot, "assets", "site.js"), "utf8");
-  const legacyHeadings = !siteScript.includes("DocsContract.parseDocument");
-  if (!legacyHeadings && !html.includes('src="assets/docs-contract.js"')) throw new Error("Site shell must load the shared docs contract.");
-  for (const contract of ["navigation.json", "navigationRequest", "aria-current", "setNavigationOpen"]) {
+  for (const contract of ["navigation.json", "navigationRequest", "aria-current", "setNavigationOpen", "#{1,6}"]) {
     if (!siteScript.includes(contract)) throw new Error(`Site runtime is missing contract: ${contract}`);
   }
 
   if (legacySource) {
-    await validateMarkdownLinks(markdownFiles, pages, legacyHeadings);
+    await validateMarkdownLinks(markdownFiles);
     console.log(`Legacy documentation site check passed (${pages.length} navigable Markdown pages, ${manifest.groups.length} groups).`);
     return;
   }
@@ -406,7 +404,7 @@ function validatePagesWorkflows(builder, controller) {
   if (SOURCE_AUTHORITY.test(releaseWorkflow.replace(/^\s*#.*$/gm, ""))) {
     throw new Error("release-docs.yml must remain unprivileged.");
   }
-  await validateMarkdownLinks(markdownFiles, pages, legacyHeadings);
+  await validateMarkdownLinks(markdownFiles);
   await validateSkillsCatalog();
   console.log(`Documentation site check passed (${pages.length} navigable Markdown pages, ${manifest.groups.length} groups, complete skills catalog).`);
 })().catch((error) => {

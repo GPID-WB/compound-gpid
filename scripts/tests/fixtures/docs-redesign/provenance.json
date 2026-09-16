@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "sourceRevision": "9afd40ef4499da1b1cc9ade18e20ab596e4af6d2",
+  "capture": "git show <sourceRevision>:<path>; never rebuilt with the upgraded producer",
+  "producerContract": "compound-gpid-docs-producer-v1",
+  "fingerprintVersion": 1,
+  "runtimeContract": "compound-gpid-docs-runtime-v1",
+  "headingContract": "compound-gpid-headings-v1",
+  "files": {
+    "docs/index.html": "4b79f75bcfa71402ea969ecf695cbcf58dff4ad257f215643d485e6b9544ce13",
+    "docs/navigation.json": "a44cdf1d91eb04da54c35ffe0479e35a77fedf92d9418754d7e84f77308a05e9",
+    "docs/assets/site.js": "b935a77c9ef3e10f8153f4ac564ac7c1bd261864f4ad15b5b4245b2efd6117f4",
+    "docs/assets/site.css": "da52b1cce84c635868e9efa0b9e5b67b12d2621b7a05fe3a6ac21d0ed162ad86",
+    "scripts/rebuild-docs.js": "d6e6c98ed6c1e318ee0b0aa5c462213279668a59411c7a1843aea7009d163a58",
+    "scripts/docs-markers.js": "527692c224e99258a92467935b4f6a1610d6b47206fd5f1aec80ddfb1e0ef432",
+    "scripts/generate-whats-new.js": "8f203a48864758fa15ad67552ff40f6801e4da6d4b7e68f15af014cdfd9d50bf",
+    "scripts/release-payloads.js": "f49a2a8a5fb30dd35f17fcc3315adfe3bd1c98b8178f49d3658b515231f641a0",
+    "scripts/release-version.js": "be2ee586628d5c2b91939aa0fd8355065c355e980e8612d6b0a3469c65cd330a",
+    "scripts/check-docs-site.js": "8d3b6f70dc421f0e5505102105ac902090678dbbcf0d9ce35461ffde088bfcdd",
+    "scripts/assemble-docs-site.js": "6aae952630b2db78afb682630ff17d9a2fc5bcf1f1e4f91c2a84272fb8cb37fc"
+  }
+}

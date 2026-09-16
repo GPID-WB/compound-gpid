@@ -84,7 +84,7 @@
         { "id": "strict-config", "title": "Strict Config Schema", "file": "configuration.md", "description": "Strict compound-gpid.local.md grammar, projectRoots, manifest resolver, and validation." },
         { "id": "governance", "title": "Governance and Security", "file": "governance/index.md", "description": "Operating constraints, data safeguards, review gates, and limitations." },
         { "id": "help", "title": "Help and Troubleshooting", "file": "help/index.md", "description": "Start with the shortest recovery path and escalate safely." },
-        { "id": "installation", "title": "Installation Details", "file": "installation.md", "description": "Complete platform-specific installation, repair, and uninstall procedures.", "sectionAliases": { "step-1-clone-once-per-machine": "step-1-clone-once-per-machine", "step-2-install-once-per-machine": "step-2-install-once-per-machine", "step-3-link-your-project-once-per-project": "step-3-link-your-project-once-per-project", "step-4-configure-your-project-once-per-project": "step-4-configure-your-project-once-per-project" } },
+        { "id": "installation", "title": "Installation Details", "file": "installation.md", "description": "Complete platform-specific installation, repair, and uninstall procedures." },
         { "id": "versioning", "title": "Updates and Versions", "file": "versioning.md", "description": "Update, pin, unpin, and repair an installation." },
         { "id": "troubleshooting", "title": "Troubleshooting Reference", "file": "troubleshooting.md", "description": "Complete recovery procedures and known issues." }
       ]
@@ -96,7 +96,7 @@
         { "id": "agents", "title": "Agents", "file": "reference/agents.md", "description": "Review and infrastructure agents and how they are dispatched." },
         { "id": "files", "title": "Files and Artifacts", "file": "reference/files.md", "description": "Project files, generated targets, and knowledge artifacts." },
         { "id": "reference", "title": "Complete Reference", "file": "reference.md", "description": "Detailed command, schema, agent, and configuration contracts." },
-        { "id": "context-files", "title": "Context Files", "file": "context-files.md", "description": "Detailed context-file lifecycle and platform architecture.", "sectionAliases": { "what-it-contains": "what-it-contains", "how-it-is-created": "how-it-is-created", "how-it-is-updated": "how-it-is-updated" } },
+        { "id": "context-files", "title": "Context Files", "file": "context-files.md", "description": "Detailed context-file lifecycle and platform architecture." },
         { "id": "model-guide", "title": "Model Guide", "file": "model-guide.md", "description": "Model selection, escalation, and token-governance policy." },
         { "id": "team-brain-schema", "title": "Team Brain Schema", "file": "team-brain-schema.md", "description": "Team Brain configuration, repository schema, and privacy fields." },
         { "id": "experimental", "title": "Experimental Capabilities", "file": "reference/experimental.md", "description": "Evaluation-only retrieval and research-mode registries." },

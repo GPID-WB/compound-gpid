@@ -5,7 +5,6 @@ const fs = require("node:fs");
 const path = require("node:path");
 const crypto = require("node:crypto");
 const { canonicalInputFingerprint } = require("./rebuild-docs.js");
-const { assertSourcePaths } = require("./docs-build-contract.js");
 
 const REQUIRED_SITE_FILES = [
   "index.html",
@@ -91,7 +90,6 @@ function sourceTree(root, label) {
   assertDirectory(docs, `${label} docs root`);
   const files = regularFiles(docs);
   const names = new Set(files.map((file) => file.relative));
-  assertSourcePaths([...names]);
   for (const required of REQUIRED_SITE_FILES) {
     if (!names.has(required)) fail(`${label} docs tree is missing ${required}`);
   }
