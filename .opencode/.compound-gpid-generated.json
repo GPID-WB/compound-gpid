@@ -539,7 +539,7 @@
       "path": ".opencode/shared/help-catalog.json",
       "source": ".github/shared/help-catalog.json",
       "kind": "shared",
-      "sha256": "4902caae88eac6a8a8619af4ac081bc30c45423325b905d81b46f76eb677464e",
+      "sha256": "32c3d589b0d9d268249e48fcd6fa6c4c8de34042b67da9984cdbf1e83e2f51d9",
       "executable": false
     },
     {
@@ -581,7 +581,7 @@
       "path": ".opencode/shared/shell-commands.json",
       "source": ".github/shared/shell-commands.json",
       "kind": "shared",
-      "sha256": "7bb4571a0d4a104901842e3bd915f4074dbd841191f5c14811af561302a83d73",
+      "sha256": "d0ef5621739b2e2ad2ebe3075b7e2f26852e460639802a8bf0d894da51d1c74a",
       "executable": false
     },
     {

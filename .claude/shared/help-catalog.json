@@ -189,7 +189,7 @@
         "--catalog and --source-root are paired local fixture overrides, not normal catalog selection flags.",
         "CLI exit categories are 0 success, 2 invalid transport or input, 3 invalid evidence, and 4 filesystem or I/O failure; missing Python makes the wrapper exit 1."
       ],
-      "definitionDigest": "7122defc2499ea7a30ec7a99ebacea7b022db0ea8b10095a098a537e67dda262",
+      "definitionDigest": "5679917c11a0bb85b08634cdc130fe25c5eb5e7cac06df87d4815852f267d0da",
       "definitionSources": [
         "bin/cg-help",
         "bin/cg-help.cmd",
@@ -3740,7 +3740,7 @@
   ],
   "generatorVersion": "1.0.0",
   "schemaVersion": 1,
-  "sourceDigest": "e6cbc6f452ec269ddd05118fea40374943d4a66251bbf9ef300c38db20a160e8",
+  "sourceDigest": "5250728a23b28aa8b8ca07e2379340cb9baed330ab4956be1efaba5fff8d9167",
   "suites": [
     {
       "activation": {

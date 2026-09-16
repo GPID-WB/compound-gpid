@@ -105,20 +105,33 @@ raise SystemExit(23)
 def _fake_kilo_version_output(path: Path, printed: str) -> Path:
     """Create a host fixture printing a fixed ``--version`` output."""
     script = path.with_suffix(".py")
-    script.write_text(
+    script.write_bytes((
+        "#!/usr/bin/env python3\n"
         "import sys\n"
         "if sys.argv[1:] == ['--version']:\n"
         + "    print(" + repr(printed) + ")\n"
         + "    raise SystemExit(0)\n"
-        + "raise SystemExit(23)\n",
-        encoding="utf-8",
-    )
+        + "raise SystemExit(23)\n"
+    ).encode("utf-8"))
     if os.name != "nt":
         script.chmod(script.stat().st_mode | stat.S_IXUSR)
         return script
     wrapper = path.with_suffix(".cmd")
     wrapper.write_text(f'@echo off\n"{sys.executable}" "{script}" %*\n', encoding="ascii")
     return wrapper
+
+
+def test_fake_kilo_version_output_is_directly_executable(tmp_path: Path) -> None:
+    """Check the POSIX entrypoint even when the Windows wrapper is used."""
+    fake = _fake_kilo_version_output(tmp_path / "fake-kilo", "7.4.21")
+    assert fake.with_suffix(".py").read_bytes().startswith(b"#!/usr/bin/env python3\n")
+    result = subprocess.run(
+        [str(fake), "--version"], cwd=tmp_path, capture_output=True,
+        text=True, timeout=10, check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    assert result.stdout == "7.4.21\n"
+    assert result.stderr == ""
 
 
 @pytest.mark.parametrize("printed", ["v7.4.20", "7.4.20.1", "Kilo 7.4.20", "version: 7.4.20"])
@@ -366,8 +379,12 @@ def test_unsupported_or_malformed_host_version(tmp_path: Path, version: str, mon
 
 
 @pytest.mark.parametrize("version,blocked", [("7.5.16", False), ("8.0.0", False), ("7.4.19", True), ("7.5.16.1", True)])
-def test_updater_early_guard_uses_minimum_policy(tmp_path: Path, version: str, blocked: bool) -> None:
+@pytest.mark.parametrize("path_padding", ["", "nested-install-" * 3])
+def test_updater_early_guard_uses_minimum_policy(
+    tmp_path: Path, version: str, blocked: bool, path_padding: str,
+) -> None:
     """Exercise the actual updater, stopping at invalid input before any Git write."""
+    tmp_path = tmp_path / path_padding
     shell = shutil.which("powershell" if os.name == "nt" else "bash")
     if not shell:
         pytest.skip("Native updater shell is unavailable")
@@ -391,7 +408,13 @@ def test_updater_early_guard_uses_minimum_policy(tmp_path: Path, version: str, b
     if os.name == "nt":
         script_path = str(install / "update.ps1").replace("'", "''")
         profile = str(home / "profile.ps1").replace("'", "''")
-        command = [shell, "-NoProfile", "-NonInteractive", "-Command", f"$PROFILE = '{profile}'; & '{script_path}' -Version invalid-test-version"]
+        # PowerShell's formatted error prefix can wrap the message at host width.
+        invocation = (
+            f"$PROFILE = '{profile}'; "
+            f"try {{ & '{script_path}' -Version invalid-test-version }} "
+            "catch { [Console]::Error.WriteLine($_.Exception.Message); exit 1 }"
+        )
+        command = [shell, "-NoProfile", "-NonInteractive", "-Command", invocation]
     else:
         command = [shell, str(install / "update.sh"), "invalid-test-version"]
     result = subprocess.run(command, cwd=consumer, env=environment, capture_output=True, text=True, timeout=90)
@@ -401,7 +424,7 @@ def test_updater_early_guard_uses_minimum_policy(tmp_path: Path, version: str, b
         assert "unsupported-kilo-version" in output
         assert "Invalid version:" not in output
     else:
-        assert "Invalid version:" in output
+        assert "Invalid version:" in output, output
         assert "unsupported-kilo-version" not in output
     assert not (install.parent / ".cg-version").exists()
 

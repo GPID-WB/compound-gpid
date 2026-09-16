@@ -216,7 +216,7 @@
         "scripts/schemas/help_transport_schema.json",
         "scripts/secure_fs.py"
       ],
-      "definitionDigest": "7122defc2499ea7a30ec7a99ebacea7b022db0ea8b10095a098a537e67dda262",
+      "definitionDigest": "5679917c11a0bb85b08634cdc130fe25c5eb5e7cac06df87d4815852f267d0da",
       "documentationTargets": [],
       "supportedPlatforms": [
         "claude-code",
