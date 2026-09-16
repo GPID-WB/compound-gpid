@@ -25,7 +25,20 @@ EXIT_IO_ERROR = 4
 
 
 def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
-    """Parse one explicit catalog or one-record digest operation."""
+    """Parse one explicit catalog or one-record digest operation.
+
+    Args:
+        argv: Optional argument vector (defaults to ``sys.argv[1:]``).
+
+    Returns:
+        Parsed arguments with exactly one mutually exclusive mode selected.
+
+    Raises:
+        SystemExit: If the vector is invalid or missing a mode.
+
+    Example:
+        ``args = parse_args(["--check"])`` selects the check operation.
+    """
     parser = argparse.ArgumentParser(
         description="Generate or verify the deterministic command help catalog."
     )
@@ -78,7 +91,20 @@ def main(
     stdout: Optional[BinaryIO] = None,
     stderr: Optional[BinaryIO] = None,
 ) -> int:
-    """Run one fail-closed catalog maintenance operation."""
+    """Run one fail-closed catalog maintenance operation.
+
+    Args:
+        argv: Optional argument vector (defaults to ``sys.argv[1:]``).
+        stdout: Optional binary output stream (defaults to ``sys.stdout``).
+        stderr: Optional binary error stream (defaults to ``sys.stderr``).
+
+    Returns:
+        Exit code 0 on success; 2 for invalid sources; 3 for stale or
+        unexpected catalog bytes; 4 for I/O errors on validated mutations.
+
+    Example:
+        ``raise SystemExit(main(["--check"]))`` runs the check gate.
+    """
     arguments = parse_args(argv)
     output_stream = stdout if stdout is not None else sys.stdout.buffer
     error_stream = stderr if stderr is not None else sys.stderr.buffer
@@ -130,7 +156,7 @@ def main(
             ),
         )
         return EXIT_CATALOG_STALE
-    except (catalog.HelpCatalogIOError, OSError) as error:
+    except OSError as error:
         try:
             _write(
                 error_stream,

@@ -1,6 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "compound-gpid-help-catalog-v1",
+  "$comment": "Authoring boundary: this catalog and its schema are durable repo metadata generated only by scripts/cg_generate_help_catalog.py from reviewed sources. Extension points (suites, commands, workflows) are read-only here; authoring happens in the prompt, shell-metadata, and registry sources. Never hand-edit this generated artifact.",
   "type": "object",
   "additionalProperties": false,
   "required": ["schemaVersion", "generatorVersion", "sourceDigest", "suites", "commands", "workflows"],
@@ -22,7 +23,7 @@
       "required": ["sourcePath", "sourceSection"],
       "properties": {
         "sourcePath": {"$ref": "#/$defs/nonEmpty"},
-        "sourceSection": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"}
+        "sourceSection": {"type": "string", "pattern": "^[a-z0-9]+(?:-+[a-z0-9]+)*$"}
       }
     },
     "documentationTarget": {
@@ -31,7 +32,7 @@
       "required": ["path", "section"],
       "properties": {
         "path": {"$ref": "#/$defs/nonEmpty"},
-        "section": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"}
+        "section": {"type": "string", "pattern": "^[a-z0-9]+(?:-+[a-z0-9]+)*$"}
       }
     },
     "suite": {
@@ -79,7 +80,7 @@
       "properties": {
         "suite": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"},
         "sourcePath": {"$ref": "#/$defs/nonEmpty"},
-        "sourceSection": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"}
+        "sourceSection": {"type": "string", "pattern": "^[a-z0-9]+(?:-+[a-z0-9]+)*$"}
       }
     },
     "command": {
@@ -136,7 +137,7 @@
         "prerequisites": {"$ref": "#/$defs/stringList"},
         "steps": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/workflowStep"}},
         "sourcePath": {"const": "docs/workflow.md"},
-        "sourceSection": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"}
+        "sourceSection": {"type": "string", "pattern": "^[a-z0-9]+(?:-+[a-z0-9]+)*$"}
       }
     }
   }
