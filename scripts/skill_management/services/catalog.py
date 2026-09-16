@@ -1,7 +1,6 @@
 """Canonical catalog construction and prospective manifest health resolution."""
 from __future__ import annotations
 
-import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
@@ -131,8 +130,12 @@ def inspect_manifest(project_root: Path, source_root: Path) -> ManifestStatus:
     committed = None
     if path.exists():
         try:
-            committed = json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, UnicodeError, json.JSONDecodeError) as error:
+            from help.catalog import load_strict_json_bytes
+
+            committed = load_strict_json_bytes(
+                path.read_bytes(), source=ACTIVE_MANIFEST_PATH
+            )
+        except (OSError, UnicodeError, ValueError) as error:
             raise CatalogError(
                 f"Active manifest is unreadable or malformed: {error}"
             ) from error

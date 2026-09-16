@@ -113,6 +113,56 @@ def matching_asset_owners(registry: Mapping[str, Any], asset: str) -> Tuple[str,
     return tuple(sorted(owners))
 
 
+def transitive_closure(
+    registry: Mapping[str, Any],
+    start_ids: Sequence[str],
+    *,
+    modules_by_id: Optional[Mapping[str, Any]] = None,
+) -> set:
+    """Return the full ``dependsOn`` closure of module ids, ids included.
+
+    Args:
+        registry: Parsed canonical module registry.
+        start_ids: Module ids whose transitive dependencies are requested.
+        modules_by_id: Optional precomputed id-to-module map.
+
+    Returns:
+        The set of every reachable module id, including the start ids.
+
+    Raises:
+        ValueError: If any module's ``dependsOn`` is not a list of ids.
+
+    Example:
+        ``transitive_closure(registry, ["suite-cg"])`` returns the suite
+        closure used for ownership and activation evidence.
+    """
+    if modules_by_id is None:
+        modules_by_id = {
+            item.get("id"): item
+            for item in registry.get("modules", [])
+            if isinstance(item, dict) and isinstance(item.get("id"), str)
+        }
+    closure: set = set()
+    frontier = list(start_ids)
+    while frontier:
+        current = frontier.pop()
+        if current in closure:
+            continue
+        closure.add(current)
+        module = modules_by_id.get(current)
+        if not isinstance(module, Mapping):
+            continue
+        dependencies = module.get("dependsOn", [])
+        if not isinstance(dependencies, list) or not all(
+            isinstance(item, str) for item in dependencies
+        ):
+            raise ValueError(
+                "module {!r} dependsOn must be a list of module ids".format(current)
+            )
+        frontier.extend(dependencies)
+    return closure
+
+
 @dataclass(frozen=True)
 class RegistrySnapshot:
     """One deterministic validated canonical registry snapshot.
@@ -331,12 +381,23 @@ class CombinedRegistrySnapshot:
                 return inventory
         return None
 
-    def provenance_by_id(self, identifier: str) -> Dict[str, Any]:
-        """Return detached provenance for one project skill."""
+    def provenance_by_id(self, identifier: str) -> Optional[Dict[str, Any]]:
+        """Return one detached project provenance record, or ``None``.
+
+        Args:
+            identifier: Project skill identifier.
+
+        Returns:
+            Detached provenance record, or ``None`` when the project has no
+            matching record.
+
+        Example:
+            ``record = snapshot.provenance_by_id("local-one")``
+        """
         for record in self.provenance_records:
             if record.get("skillId") == identifier:
                 return _thaw(record)
-        raise KeyError(identifier)
+        return None
 
     def canonical_bundle_by_id(
         self, identifier: str

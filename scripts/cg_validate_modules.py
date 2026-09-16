@@ -38,8 +38,6 @@ import json
 import os
 import re
 import stat
-import unicodedata
-from fnmatch import fnmatchcase
 from pathlib import Path, PurePosixPath
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
@@ -207,10 +205,18 @@ def load_registry(root: Path) -> Tuple[Optional[dict], Optional[str]]:
     if not path.exists():
         return None, f"Module registry not found at: {MODULE_REGISTRY_PATH}"
     try:
-        data = json.loads(_read_asset_text(root, MODULE_REGISTRY_PATH))
-    except json.JSONDecodeError as exc:
+        from help.catalog import load_strict_json_bytes
+
+        content = secure_fs.secure_read_bytes(
+            root,
+            MODULE_REGISTRY_PATH,
+            reject_hardlinks=True,
+            max_bytes=MAX_VALIDATOR_ASSET_BYTES,
+        )
+        data = load_strict_json_bytes(content, source=MODULE_REGISTRY_PATH)
+    except ValueError as exc:
         return None, f"Module registry is malformed JSON: {exc}"
-    except (OSError, UnicodeDecodeError, ValueError) as exc:
+    except (OSError, UnicodeDecodeError) as exc:
         return None, f"Module registry cannot be read safely: {exc}"
     if not isinstance(data, dict):
         return None, "Module registry must be a JSON object"
@@ -346,7 +352,18 @@ def validate_registry_schema(registry: dict) -> List[str]:
 
 
 def _validate_module_help(prefix: str, value: Any) -> List[str]:
-    """Validate optional backward-compatible module help metadata."""
+    """Validate optional backward-compatible module help metadata.
+
+    Args:
+        prefix: Error prefix naming the validated registry path.
+        value: The ``help`` value of one module record.
+
+    Returns:
+        List of error descriptions (empty when the metadata is valid).
+
+    Example:
+        ``errors = _validate_module_help("modules[0].help", module["help"])``
+    """
     if not isinstance(value, dict):
         return [f"{prefix}.help: must be an object"]
     required = {
@@ -599,14 +616,35 @@ def check_owned_assets_exist(registry: dict, assets: Iterable[str]) -> List[str]
     return errors
 
 
+def _asset_owner_groups(
+    registry: dict, assets: Iterable[str]
+) -> Dict[str, List[str]]:
+    """Compute every canonical asset's owning modules once.
+
+    Args:
+        registry: Parsed canonical module registry.
+        assets: Canonical asset paths from ``canonical_assets(root)``.
+
+    Returns:
+        Mapping of asset to its owning module ids (possibly empty).
+
+    Example:
+        ``_asset_owner_groups(registry, ("a.md",))`` returns the group map
+        used by every aggregate ownership check.
+    """
+    from skill_management.services.registry import matching_asset_owners
+
+    groups: Dict[str, List[str]] = {asset: [] for asset in assets}
+    for asset in groups:
+        groups[asset].extend(matching_asset_owners(registry, asset))
+    return groups
+
+
 def check_ownership_closure(registry: dict, assets: Iterable[str]) -> List[str]:
     """Verify every canonical asset has exactly one owning module."""
     errors: List[str] = []
-    owners_by_asset: Dict[str, List[str]] = {asset: [] for asset in assets}
-    from skill_management.services.registry import matching_asset_owners
+    owners_by_asset = _asset_owner_groups(registry, assets)
 
-    for asset in owners_by_asset:
-        owners_by_asset[asset].extend(matching_asset_owners(registry, asset))
     for asset in sorted(owners_by_asset):
         owners = owners_by_asset[asset]
         if not owners:
@@ -619,11 +657,8 @@ def check_ownership_closure(registry: dict, assets: Iterable[str]) -> List[str]:
 def check_frontmatter_ownership(root: Path, registry: dict, assets: Iterable[str]) -> List[str]:
     """Cross-validate optional frontmatter ``owner:`` fields against the registry."""
     errors: List[str] = []
-    owners_by_asset: Dict[str, List[str]] = {asset: [] for asset in assets}
-    from skill_management.services.registry import matching_asset_owners
+    owners_by_asset = _asset_owner_groups(registry, assets)
 
-    for asset in owners_by_asset:
-        owners_by_asset[asset].extend(matching_asset_owners(registry, asset))
     for asset in sorted(owners_by_asset):
         owners = owners_by_asset[asset]
         if len(owners) != 1:
@@ -724,17 +759,11 @@ def _owner_map(registry: dict, assets: Iterable[str]) -> Dict[str, Optional[str]
 
 def _transitive_dependency_closure(registry: dict, module_id: str) -> set[str]:
     """Full recursive dependency closure for a module (dependsOn + theirs)."""
-    closure: set[str] = set()
-    frontier = list(_module_by_id(registry, module_id).get("dependsOn", []) if _module_by_id(registry, module_id) else [])
-    while frontier:
-        dep = frontier.pop()
-        if dep in closure:
-            continue
-        closure.add(dep)
-        dep_module = _module_by_id(registry, dep)
-        if dep_module:
-            frontier.extend(dep_module.get("dependsOn", []))
-    return closure
+    from skill_management.services.registry import transitive_closure
+
+    module = _module_by_id(registry, module_id)
+    start_ids = list(module.get("dependsOn", [])) if module else []
+    return transitive_closure(registry, start_ids)
 
 
 def _derived_capability_ids_for(registry: dict, module_id: str) -> set[str]:
@@ -912,7 +941,6 @@ def check_cross_suite_references(root: Path) -> List[str]:
     or transitively via kernel/capability packs). Also fails on cycles/layer
     violations and on references outside the referencing module's closure.
     """
-    _read_asset_text.cache_clear()
     registry, error = load_registry(root)
     if error:
         return [error]
@@ -968,7 +996,6 @@ def check_cross_suite_references(root: Path) -> List[str]:
 def check_unresolved_dependencies(root: Path) -> List[str]:
     """Phase 2 Step 4: any canonical path referenced by an asset not in the
     referencing module's transitive dependency closure is an error."""
-    _read_asset_text.cache_clear()
     registry, error = load_registry(root)
     if error:
         return [error]
@@ -1010,7 +1037,6 @@ def check_unresolved_dependencies(root: Path) -> List[str]:
 
 def check_ownership(root: Path) -> List[str]:
     """Run schema + ownership checks. Return error messages (empty = valid)."""
-    _read_asset_text.cache_clear()
     registry, error = load_registry(root)
     if error:
         return [error]
@@ -1036,7 +1062,6 @@ def check_dependencies(root: Path) -> List[str]:
     V4: dependency graph acyclic and cross-suite-safe; every canonical runtime
     reference within the referencing module's transitive dependency closure.
     """
-    _read_asset_text.cache_clear()
     registry, error = load_registry(root)
     if error:
         return [error]
@@ -1052,7 +1077,6 @@ def check_dependencies(root: Path) -> List[str]:
 def check_cross_suite(root: Path) -> List[str]:
     """V9: verify no direct cross-suite dependency (cr-* <-> cg-* without a
     shared capability pack) and acyclic/layer-safe dependency graph."""
-    _read_asset_text.cache_clear()
     registry, error = load_registry(root)
     if error:
         return [error]
@@ -1069,11 +1093,7 @@ def _ownership_report(root: Path, registry: dict) -> List[str]:
     """Produce an ownership report table (asset -> module)."""
     lines: List[str] = ["# Module Registry Ownership Report"]
     assets = canonical_assets(root)
-    owners_by_asset: Dict[str, List[str]] = {asset: [] for asset in assets}
-    from skill_management.services.registry import matching_asset_owners
-
-    for asset in sorted(owners_by_asset):
-        owners_by_asset[asset].extend(matching_asset_owners(registry, asset))
+    owners_by_asset = _asset_owner_groups(registry, assets)
     lines.append("")
     lines.append("| Asset | Module |")
     lines.append("|-------|--------|")
@@ -1118,6 +1138,9 @@ def main(
         print(f"Error: project root does not exist or is not a directory: {root}", file=sys.stderr)
         return 2
 
+    # One cache reset per CLI invocation: aggregate checks share the asset
+    # cache instead of clearing it between every check.
+    _read_asset_text.cache_clear()
     registry, error = load_registry(root)
     if error:
         print(f"Error: {error}", file=sys.stderr)

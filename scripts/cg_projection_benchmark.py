@@ -62,6 +62,9 @@ DISCLAIMER = (
 
 MODULE_REGISTRY_PATH = ".github/shared/module-registry.json"
 LOCAL_CONFIG_PATH = "compound-gpid.local.md"
+# Advertised descriptions are truncated to keep baseline artifacts compact;
+# longer descriptions are never shown in compact benchmark columns.
+MAX_ADVERTISEMENT_DESCRIPTION_CHARS = 240
 
 # ---------------------------------------------------------------------------
 # Profile fixtures
@@ -158,7 +161,11 @@ def _git_revision(root: Path) -> str:
 
 
 def _platform_versions() -> dict[str, str]:
-    """Return python and platform version evidence for the baseline record."""
+    """Return python and platform version evidence for the render note.
+
+    Host versions are render-time metadata, never part of the comparable
+    baseline payload: embedding them would make byte comparison host-dependent.
+    """
     from platform import python_version, platform
 
     return {"python": python_version(), "platform": platform()}
@@ -168,10 +175,9 @@ def _load_registry(root: Path) -> dict:
     path = root / MODULE_REGISTRY_PATH
     if not path.exists():
         raise FileNotFoundError(f"{MODULE_REGISTRY_PATH} not found at {root}")
-    data = json.loads(path.read_text(encoding="utf-8"))
-    if not isinstance(data, dict):
-        raise ValueError("module registry must be a JSON object")
-    return data
+    from skill_management.services import registry as registry_service
+
+    return registry_service.load_registry_snapshot(root).to_dict()
 
 
 def _config_text(root: Path) -> str:
@@ -247,7 +253,10 @@ def _advertised_skill_metadata(
             selected.append({
                 "id": row["id"],
                 "path": row["path"],
-                "description": row["description"][:240],
+                # Truncation is a deliberate size discipline for the baseline
+                # artifact; descriptions longer than this are never shown in
+                # compact benchmark columns.
+                "description": row["description"][:MAX_ADVERTISEMENT_DESCRIPTION_CHARS],
             })
     return selected
 
@@ -482,7 +491,7 @@ def run_benchmark(root: Path, profile_ids: Optional[Sequence[str]] = None) -> di
         "kind": "skill-loading-baseline",
         "generated": audit._deterministic_generated_stamp(root),
         "sourceRevision": _git_revision(root),
-        "platformVersions": _platform_versions(),
+        "hostMetadataExcluded": "host python/platform versions are render-time notes, not payload fields",
         "disclaimer": DISCLAIMER,
         "collectionCommands": [
             "python scripts/cg_projection_benchmark.py --validate",
@@ -543,6 +552,7 @@ def render_markdown(payload: dict[str, Any]) -> str:
         "",
         f"_Generated: {payload.get('generated')}_",
         f"_Source revision: {payload.get('sourceRevision')}_",
+        f"_Host note (not payload evidence): python {_platform_versions()['python']}, platform {_platform_versions()['platform']}_",
         "",
         f"> {payload.get('disclaimer', DISCLAIMER)}",
         "",
