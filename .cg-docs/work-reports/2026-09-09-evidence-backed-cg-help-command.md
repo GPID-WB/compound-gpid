@@ -1380,3 +1380,24 @@ The support schema, `scripts/help/support.py`, verifier CLI, support tests, cano
 - Predecessor state (parent-verified, re-verified by this stage): branch `wealthy-salmonberry`; HEAD `58bd85cbd5c97f898a9010f65027311e258d0681`; worktree clean; PR #153 open, base `dev`, head `wealthy-salmonberry`, mergeable CONFLICTING, mergeStateStatus DIRTY; `origin/dev` after fetch = `06804d24f6b264714b7dbc298377ddad4f392f1d` (matched the supplied expected oid; no remote drift). Merge base = `cb75c40f763c8515a09dd9dcc9a84af04c13a0dc`; 109 dev commits not in HEAD; 18 branch commits not in dev.
 - Plan status at entry: `active`, completed-phases `[1,2,3,4]`, current-phase `5`, failing-steps `[]`.
 - This section and the compact active-state update are the FIRST repository mutations, before any merge/resolution/regeneration/test work.
+
+
+## Dev Integration Merge Completion: 2026-09-16T15:31:00Z
+
+- Stage `dev-integration-merge-finish`; coordinator request `amr_0aa76b3ee001gLwfIT8HCw54yc`. Approach FIXED: MERGE (published branch, open PR #153; no force-push). The prior in-flight merge was RESUMED (MERGE_HEAD `06804d24` present), never aborted or restarted.
+- Merge commit: `486ea82` (parents `9e4a3f5` ours, `06804d24` origin/dev). Follow-up reconciliation commit: `df1b37e`. HEAD at completion: `df1b37e`. Supersession commit `9e4a3f5` was preserved unamended.
+- Conflicts: 17 unmerged paths resolved.
+  - Generator-owned (9): regenerated from merged source set via `cg_generate_help_catalog.py --write` (+`--check` current), `cg_generate_targets.py --all --active-suites cg,cr` (1510 files; dry-run idempotent), `cg_index.py --brain` (re-run byte-identical).
+  - Union (2): `compound-gpid.context.md` (complementary registry-convention bullets); `.cg-docs/active-state/current.json` (primary cg-help active state + nested `devBranchState` preserving dev release-controller fields).
+  - Hand three-way (5): `.github/shared/module-registry.json` (ours + dev suite-cg description); `scripts/cg_validate_modules.py` (dev structure + our feature assertions); `tests/model-assignments.Tests.ps1` (dev structure, prompt count sentinel 34 for merged 34 prompts); `scripts/tests/test_release_gate_targets.py` (both assertions kept, both true in merged prompt); solutions `2026-07-03` doc (both related links).
+  - Catalog maintenance additions (3 classes): new `cg-light-work.help.json` sidecar (dev added cg-light-work.prompt.md without sidecar; digest computed from merged prompt); new `shell:cg-release` record in shell-commands.json + installer registration in install.sh/install.ps1 (dev added bin/cg-release wrappers; strict inventory requires registration; digest computed 54d681...); definition-digest repins for dev-modified slash/shell records via the plan-approved `--repin-definition-digest --reviewed` command.
+- Fresh gates (all foreground, background:false, never nested Task, one invocation each):
+  - Focused install Pester: PASSED 104/104, filteredFiles `install`.
+  - Focused prompt-tools Pester: PASSED 1749/1749, filteredFiles `prompt-tools`.
+  - Canonical unfiltered full Pester: PASSED 3039 passed, 0 failed, 2 skipped, `filteredFiles: null` (21 files).
+  - Step 7 full 8-file Python: PASSED 317 passed, 4 skipped, exit 0.
+  - Step 7 six-file extra regression: PASSED 339 passed, 17 skipped, 2 integration deselected, exit 0 (after one reconciliation: dev's `test_unsupported_or_malformed_host_version` three params `7.5.16-bad`/`07.5.16`/`7.5.16
+8.0.0` now resolve as supported under the merged minimum-only `kilo.runtime_version_policy`; those forms are asserted accepted by our `test_step7_minimum_only_host_compatibility`. The fail-closed test keeps its six genuinely-unsupported params.)
+  - Step 8 adversarial Python: PASSED 13 passed, 228 deselected, exit 0.
+- Push: `58bd85c..df1b37e` to origin/wealthy-salmonberry (fast-forward, no force). PR #153 now `mergeable: MERGEABLE`, `mergeStateStatus: CLEAN`, headRefOid `df1b37e`. GitHub checks are in initial IN_PROGRESS/QUEUED/SKIPPED state; CI verification stays a later `/cg-verify-pr` stage.
+- Additional merged dev-owned suites outside the plan gate set are CI-covered; no unbounded extra suite runs.

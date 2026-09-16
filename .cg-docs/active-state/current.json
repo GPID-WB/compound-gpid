@@ -730,5 +730,81 @@
       }
     ],
     "nextCommand": "/cg-commit-push-pr --base dev"
+  },
+  "devIntegrationMerge": {
+    "workflow": "dev-integration-merge",
+    "status": "completed",
+    "entry": "merge-completion",
+    "recordedAt": "2026-09-16T15:31:00Z",
+    "mergeCommit": "486ea82c257c5e6c0d86f7940374e94a2ca7946",
+    "fixCommit": "df1b37e8c75b1245bff8e2f8b9426747a5ecde6a",
+    "headAtCompletion": "df1b37e8c75b1245bff8e2f8b9426747a5ecde6a",
+    "conflictCount": 17,
+    "resolutionStrategy": {
+      "generatorOwned": [
+        "regen from merged source set: cg_generate_help_catalog.py --write; cg_generate_targets.py --all --active-suites cg,cr; cg_index.py --brain, then --check idempotency",
+        "manifests: .agents/.claude/.kilo/.opencode .compound-gpid-generated.json; .cg-docs BRAIN.md/BRAIN-01/BRAIN-02/BRAIN-log/brain-index.json"
+      ],
+      "union": [
+        "compound-gpid.context.md (complementary bullets)",
+        ".cg-docs/active-state/current.json (primary cg-help state + nested devBranchState)"
+      ],
+      "handThreeWay": [
+        ".github/shared/module-registry.json (ours + dev description)",
+        "scripts/cg_validate_modules.py (dev structure + our assertions)",
+        "tests/model-assignments.Tests.ps1 (dev structure, sentinel 34)",
+        "scripts/tests/test_release_gate_targets.py (both assertions kept)",
+        "solutions 2026-07-03 doc (both related links)"
+      ],
+      "catalogMaintenance": [
+        "new cg-light-work.help.json sidecar",
+        "new shell:cg-release record + bin/installer registration",
+        "definition-digest repins for dev-modified prompts/shells"
+      ]
+    },
+    "pr153": {
+      "mergeable": "MERGEABLE",
+      "mergeStateStatus": "CLEAN",
+      "headRefOid": "df1b37e8c75b1245bff8e2f8b9426747a5ecde6a"
+    },
+    "ci": "checks initial state only; /cg-verify-pr later",
+    "gates": [
+      {
+        "id": "focused-install",
+        "cmd": ". tests\\Run-Tests.ps1 -File install",
+        "result": "PASSED",
+        "details": "104 passed, 0 failed, filteredFiles install"
+      },
+      {
+        "id": "focused-prompt-tools",
+        "cmd": ". tests\\Run-Tests.ps1 -File prompt-tools",
+        "result": "PASSED",
+        "details": "1749 passed, 0 failed, filteredFiles prompt-tools"
+      },
+      {
+        "id": "full-pester",
+        "cmd": ". tests\\Run-Tests.ps1",
+        "result": "PASSED",
+        "details": "3039 passed, 0 failed, 2 skipped, filteredFiles null"
+      },
+      {
+        "id": "step7-full",
+        "cmd": "8-file python suite",
+        "result": "PASSED",
+        "details": "317 passed, 4 skipped, exit 0"
+      },
+      {
+        "id": "step7-extra",
+        "cmd": "six-file extra regression",
+        "result": "PASSED after one reconciliation",
+        "details": "339 passed, 17 skipped, 2 integration deselected, exit 0"
+      },
+      {
+        "id": "step8-adversarial",
+        "cmd": "adversarial -k filter",
+        "result": "PASSED",
+        "details": "13 passed, 228 deselected, exit 0"
+      }
+    ]
   }
 }
