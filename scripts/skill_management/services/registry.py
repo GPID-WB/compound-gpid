@@ -42,6 +42,54 @@ def _thaw(value: Any) -> Any:
     return value
 
 
+def ownership_pattern_matches(
+    module: Mapping[str, Any], pattern: Any, asset: str
+) -> bool:
+    """Return whether one owned-asset pattern applies after module exclusions.
+
+    Args:
+        module: One module-registry module record.
+        pattern: Candidate pattern from the module's ``ownedAssets`` list.
+        asset: Portable repository-relative canonical asset path.
+
+    Returns:
+        ``True`` when the pattern matches and no module exclusion matches.
+
+    Example:
+        ``ownership_pattern_matches(module, pattern, asset)`` preserves one
+        broad pattern only when it still owns a future asset.
+    """
+    return (
+        isinstance(pattern, str)
+        and glob_match(pattern, asset)
+        and not any(
+            isinstance(exclusion, str) and glob_match(exclusion, asset)
+            for exclusion in module.get("ownershipExclusions", [])
+        )
+    )
+
+
+def module_owns_asset(module: Mapping[str, Any], asset: str) -> bool:
+    """Return whether one module owns an asset after explicit exclusions.
+
+    Args:
+        module: One module-registry module record.
+        asset: Portable repository-relative canonical asset path.
+
+    Returns:
+        ``True`` only when an owned-assets pattern matches and no ownership
+        exclusion matches.
+
+    Example:
+        ``module_owns_asset(module, ".github/prompts/cg-work.prompt.md")``
+        resolves broad ownership without ignoring an exact exclusion.
+    """
+    return any(
+        ownership_pattern_matches(module, pattern, asset)
+        for pattern in module.get("ownedAssets", [])
+    )
+
+
 def matching_asset_owners(registry: Mapping[str, Any], asset: str) -> Tuple[str, ...]:
     """Return every module whose owned-assets patterns match one asset.
 
@@ -60,12 +108,59 @@ def matching_asset_owners(registry: Mapping[str, Any], asset: str) -> Tuple[str,
     for module in registry.get("modules", []):
         if not isinstance(module, Mapping) or not isinstance(module.get("id"), str):
             continue
-        if any(
-            isinstance(pattern, str) and glob_match(pattern, asset)
-            for pattern in module.get("ownedAssets", [])
-        ):
+        if module_owns_asset(module, asset):
             owners.add(module["id"])
     return tuple(sorted(owners))
+
+
+def transitive_closure(
+    registry: Mapping[str, Any],
+    start_ids: Sequence[str],
+    *,
+    modules_by_id: Optional[Mapping[str, Any]] = None,
+) -> set:
+    """Return the full ``dependsOn`` closure of module ids, ids included.
+
+    Args:
+        registry: Parsed canonical module registry.
+        start_ids: Module ids whose transitive dependencies are requested.
+        modules_by_id: Optional precomputed id-to-module map.
+
+    Returns:
+        The set of every reachable module id, including the start ids.
+
+    Raises:
+        ValueError: If any module's ``dependsOn`` is not a list of ids.
+
+    Example:
+        ``transitive_closure(registry, ["suite-cg"])`` returns the suite
+        closure used for ownership and activation evidence.
+    """
+    if modules_by_id is None:
+        modules_by_id = {
+            item.get("id"): item
+            for item in registry.get("modules", [])
+            if isinstance(item, dict) and isinstance(item.get("id"), str)
+        }
+    closure: set = set()
+    frontier = list(start_ids)
+    while frontier:
+        current = frontier.pop()
+        if current in closure:
+            continue
+        closure.add(current)
+        module = modules_by_id.get(current)
+        if not isinstance(module, Mapping):
+            continue
+        dependencies = module.get("dependsOn", [])
+        if not isinstance(dependencies, list) or not all(
+            isinstance(item, str) for item in dependencies
+        ):
+            raise ValueError(
+                "module {!r} dependsOn must be a list of module ids".format(current)
+            )
+        frontier.extend(dependencies)
+    return closure
 
 
 @dataclass(frozen=True)
@@ -286,12 +381,23 @@ class CombinedRegistrySnapshot:
                 return inventory
         return None
 
-    def provenance_by_id(self, identifier: str) -> Dict[str, Any]:
-        """Return detached provenance for one project skill."""
+    def provenance_by_id(self, identifier: str) -> Optional[Dict[str, Any]]:
+        """Return one detached project provenance record, or ``None``.
+
+        Args:
+            identifier: Project skill identifier.
+
+        Returns:
+            Detached provenance record, or ``None`` when the project has no
+            matching record.
+
+        Example:
+            ``record = snapshot.provenance_by_id("local-one")``
+        """
         for record in self.provenance_records:
             if record.get("skillId") == identifier:
                 return _thaw(record)
-        raise KeyError(identifier)
+        return None
 
     def canonical_bundle_by_id(
         self, identifier: str

@@ -224,7 +224,7 @@
       "path": ".opencode/commands/cg-commit-push-pr.md",
       "source": ".github/prompts/cg-commit-push-pr.prompt.md",
       "kind": "command",
-      "sha256": "1e5e3159188f7b4287ac8124afe5590e06cf54c5d6de2171f2ba8c78a225c82c",
+      "sha256": "2d7edea092b9cadd5f16e0209aa3c4ce69086a9ef1b49fb9e140e2c583631107",
       "executable": false
     },
     {
@@ -281,6 +281,13 @@
       "source": ".github/prompts/cg-fixbug.prompt.md",
       "kind": "command",
       "sha256": "2620bd7b54eda7e179bb652b59e811553ddb17f40de679eefcb4d6abaf0b9d36",
+      "executable": false
+    },
+    {
+      "path": ".opencode/commands/cg-help.md",
+      "source": ".github/prompts/cg-help.prompt.md",
+      "kind": "command",
+      "sha256": "dd68efb8b4553112cdb8421be6d1023fede476effdb9ef63f87725b948486db5",
       "executable": false
     },
     {
@@ -529,6 +536,13 @@
       "executable": false
     },
     {
+      "path": ".opencode/shared/help-catalog.json",
+      "source": ".github/shared/help-catalog.json",
+      "kind": "shared",
+      "sha256": "32c3d589b0d9d268249e48fcd6fa6c4c8de34042b67da9984cdbf1e83e2f51d9",
+      "executable": false
+    },
+    {
       "path": ".opencode/shared/model-advisory-examples.json",
       "source": ".github/shared/model-advisory-examples.json",
       "kind": "shared",
@@ -561,6 +575,13 @@
       "source": ".github/shared/review-routing.contract.md",
       "kind": "shared",
       "sha256": "946815d708ee716235fd7af3958cd6b4b40dd3176ec66d4a9e0d61453a67ed28",
+      "executable": false
+    },
+    {
+      "path": ".opencode/shared/shell-commands.json",
+      "source": ".github/shared/shell-commands.json",
+      "kind": "shared",
+      "sha256": "d0ef5621739b2e2ad2ebe3075b7e2f26852e460639802a8bf0d894da51d1c74a",
       "executable": false
     },
     {
@@ -840,7 +861,7 @@
       "path": ".opencode/shared/target-mapping.json",
       "source": ".github/shared/target-mapping.json",
       "kind": "shared",
-      "sha256": "7fd36441e3ad8bb66b2ff039474605b01a487342090cacb9ed0c4324fff9f525",
+      "sha256": "fccefd5d1f4090a370fbacc0c494db99b9db89b8cb1484116fa3745421dad841",
       "executable": false
     },
     {

@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-09-14 · 659 artifacts (newest first) + 169 roadmap features_
+_Generated 2026-09-16 · 671 artifacts (newest first) + 169 roadmap features_
 
 ## undated
 
@@ -127,6 +127,29 @@ _Generated 2026-09-14 · 659 artifacts (newest first) + 169 roadmap features_
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
 
+## 2026-09-16
+
+- **[2026-09-08-evidence-backed-cg-help-command-verify-review-2](.cg-docs/reviews/2026-09-08-evidence-backed-cg-help-command-verify-review-2.md)** · `review` · _—_ · `2026-09-16`
+  > **Date**: 2026-09-16 **Mode**: verify (light-only) **Type**: verification **Parent review**: `.cg-docs/reviews/2026-0…
+
+## 2026-09-15
+
+- **[2026-09-08-evidence-backed-cg-help-command-verify-review](.cg-docs/reviews/2026-09-08-evidence-backed-cg-help-command-verify-review.md)** · `review` · _—_ · `2026-09-15`
+  > **Date**: 2026-09-15 **Mode**: verify (light-only) **Type**: verification **Parent review**: `.cg-docs/reviews/2026-0…
+- **[CMD FINDSTR splits space-separated patterns into ORs, letting the Windows Store stub pass a .cmd launcher probe](.cg-docs/solutions/bugs/2026-09-15-cmd-findstr-pattern-splitting-accepts-store-stub.md)** · `solution` · _—_ · `2026-09-15`
+  > The `/cg-help` Windows installer gate failed with two current red cases `rejects absent Python and Store stubs withou…
+- **[Pester 4.10.1 TestDrive cleanup fails on Windows long paths; short process-local TEMP and owned-temp disposal are required](.cg-docs/solutions/testing-patterns/2026-09-15-pester-testdrive-long-path-cleanup-failure.md)** · `solution` · _—_ · `2026-09-15`
+  > The unfiltered full Pester gate passed its assertions but left fixture directories behind. The supervised run of `202…
+- **[Prompt-count sentinel in model-assignments tests must change with every .github/prompts/*.prompt.md addition](.cg-docs/solutions/testing-patterns/2026-09-15-prompt-count-sentinel-prompt-additions-sync.md)** · `solution` · _—_ · `2026-09-15`
+  > The Step 7 full Pester gate (`2026-09-14T19:29:01Z` – `19:32:15Z`) failed with a genuine, StrictMode-independent regr…
+- **[Runner harness leaking Set-StrictMode or ErrorActionPreference into the canonical Pester scope invalidates full-gate results](.cg-docs/solutions/testing-patterns/2026-09-15-runner-harness-leak-invalidates-pester-gates.md)** · `solution` · _—_ · `2026-09-15`
+  > Two supervised full-gate attempts were invalidated by harness contamination of the canonical Pester scope: 1. **Stric…
+
+## 2026-09-14
+
+- **[2026-09-08-evidence-backed-cg-help-command-review](.cg-docs/reviews/2026-09-08-evidence-backed-cg-help-command-review.md)** · `review` · _—_ · `2026-09-14`
+  > **Date**: 2026-09-14 **Mode**: full (auto-routed: security-risk — installers, linkers, schema, generated targets, wor…
+
 ## 2026-09-13
 
 - **[2026-09-12-generic-asynchronous-release-controller-phase6-verify-review](.cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase6-verify-review.md)** · `review` · _—_ · `2026-09-13`
@@ -191,9 +214,15 @@ _Generated 2026-09-14 · 659 artifacts (newest first) + 169 roadmap features_
   > Replace the current plugin-specific `/cg-release` workflow with a generic release tool. The reported problem is relea…
 - **[Generic asynchronous release controller](.cg-docs/plans/2026-09-11-generic-asynchronous-release-controller.md)** · `plan` · _active_ · `2026-09-11`
   > Implement a standalone deterministic release controller with `plan`, `start`, `status`, and `resume`, plus a thin `/c…
+- **[Single-record help repin blocked by multiple stale definitions](.cg-docs/solutions/bugs/2026-09-11-single-record-help-repin-multiple-stale-definitions.md)** · `solution` · _—_ · `2026-09-11`
+  > Preview and explicit reviewed repin of `shell:cg-brain-init` failed when both its definition and the unrelated `shell…
 
 ## 2026-09-09
 
+- **[2026-09-04-minimal-adaptive-grilling-verify-review](.cg-docs/reviews/2026-09-04-minimal-adaptive-grilling-verify-review.md)** · `review` · _—_ · `2026-09-09`
+  > **Review mode**: light verification **Files reviewed**: current tracked and untracked Phase 1/2 worktree changes **Fi…
+- **[Registry ownership metadata needs consumer-closure tests](.cg-docs/solutions/testing-patterns/2026-09-09-registry-ownership-metadata-needs-consumer-closure-tests.md)** · `solution` · _—_ · `2026-09-09`
+  > Adding `ownershipExclusions` and the `cap-help` module passed focused schema and catalog tests, but broader verificat…
 - **[Validate registry identities before building derived maps](.cg-docs/solutions/data-quality/2026-09-09-validate-registry-identities-before-derived-maps.md)** · `solution` · _—_ · `2026-09-09`
   > A workflow registry had three identity fields: `workflow_id`, `workflow`, and `path`. Validation rejected duplicate I…
 
@@ -205,11 +234,15 @@ _Generated 2026-09-14 · 659 artifacts (newest first) + 169 roadmap features_
   > - **Review mode**: verify (light-only) - **Parent review**: `.cg-docs/reviews/2026-08-28-scalable-skill-management-su…
 - **[2026-09-04-minimal-adaptive-grilling-review](.cg-docs/reviews/2026-09-04-minimal-adaptive-grilling-review.md)** · `review` · _—_ · `2026-09-08`
   > **Review mode**: standard **Files reviewed**: 29 implementation and workflow-record paths **Findings**: 15 (P0: 0, P1…
+- **[Evidence-Backed Cross-Platform /cg-help Command](.cg-docs/plans/2026-09-08-evidence-backed-cg-help-command.md)** · `plan` · _active_ · `2026-09-08`
+  > Add `/cg-help` as the single in-chat entry point for discovering and using Compound GPID slash and shell commands. Th…
 - **[Fact-first interactive prompts need branch-complete tests](.cg-docs/solutions/testing-patterns/2026-09-08-fact-first-prompts-need-branch-complete-tests.md)** · `solution` · _—_ · `2026-09-08`
   > An adaptive prompt can contain all required phrases and still execute the wrong workflow. In `/cg-brainstorm`, the pr…
 
 ## 2026-09-04
 
+- **[Evidence-Backed /cg-help Command](.cg-docs/brainstorms/2026-09-04-cg-help-command.md)** · `brainstorm` · _decided_ · `2026-09-04`
+  > Compound GPID has an auto-generated command reference and documentation site, but it does not have an in-chat help co…
 - **[Implement Minimal Adaptive Grilling](.cg-docs/plans/2026-09-04-minimal-adaptive-grilling.md)** · `plan` · _completed_ · `2026-09-04`
   > Improve `/cg-brainstorm` with the smallest complete adaptive-grilling pilot. The command will discover facts before a…
 - **[Minimal adaptive grilling for the Compound GPID workflow](.cg-docs/brainstorms/2026-09-04-minimal-adaptive-grilling.md)** · `brainstorm` · _decided_ · `2026-09-04`
@@ -1724,7 +1757,7 @@ _Generated 2026-09-14 · 659 artifacts (newest first) + 169 roadmap features_
   > @cg-fix-problems agent (auto-dispatched by /cg-work)
 - **[/cg-fix-problems user-facing prompt](roadmap.json#cg-fix-problems-prompt)** · `feature` · _done_ · `—`
   > /cg-fix-problems user-facing prompt
-- **[/cg-help — comprehensive interactive help system](roadmap.json#cg-help-interactive)** · `feature` · _idea_ · `—`
+- **[/cg-help — comprehensive interactive help system](roadmap.json#cg-help-interactive)** · `feature` · _active_ · `—`
   > /cg-help — comprehensive interactive help system
 - **[Split /cg-release into Haiku scan + Sonnet drafting](roadmap.json#cg-release-haiku-sonnet-split)** · `feature` · _done_ · `—`
   > Split /cg-release into Haiku scan + Sonnet drafting

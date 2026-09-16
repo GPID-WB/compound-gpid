@@ -1,0 +1,11 @@
+{
+  "id": "slash:cg-fixbug", "name": "/cg-fixbug", "kind": "slash", "ownerModule": "suite-cg", "supportedSuites": ["cg"],
+  "category": "delivery", "summary": "Fix a reproducible bug with required red-green verification.", "aliases": [],
+  "intents": ["fix a reproducible bug", "run a red green bug workflow"], "usage": "/cg-fixbug", "examples": ["/cg-fixbug"],
+  "prerequisites": ["A specific bug symptom or report."], "outputs": ["A tested fix and verified bug solution artifact."],
+  "constraints": ["Cannot proceed without reproduction and verification evidence."], "relatedCommands": [{"id": "slash:cg-review", "relation": "next"}],
+  "sourcePath": ".github/prompts/cg-fixbug.prompt.md", "definitionSources": [".github/prompts/cg-fixbug.prompt.md"], "definitionDigest": "377879b51a279016757f15ad9cb497ea32c49b44f79dc6d055a8712da905927f",
+  "documentationTargets": [], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["any"],
+  "availability": {"status": "available", "evidence": [{"os": "any", "sourcePath": ".github/prompts/cg-fixbug.prompt.md"}]},
+  "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
+}

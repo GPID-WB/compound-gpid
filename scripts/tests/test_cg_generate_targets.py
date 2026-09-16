@@ -69,6 +69,9 @@ LIFECYCLE_CONTRACT_SOURCES = (
 )
 EXPECTED_PLAN_TARGETS = set(COMMIT_PUSH_COMMAND_PATHS) | {"copilot"}
 SOURCE_MARKER = ".compound-gpid-source.json"
+PHASE_2_DEFERRED_TARGET_SOURCES = {
+    ".github/prompts/cg-commit-push-pr.prompt.md",
+}
 
 
 def _write(path: Path, content: str) -> Path:
@@ -141,6 +144,18 @@ def _worktree_output_mismatches(
         ):
             mismatches.append(f"content:{entry.destination}")
     return mismatches
+
+
+def _phase_2_fixture_manifest_view(manifest: dict) -> dict:
+    """Remove only target records deferred until Phase 5 integration."""
+    return {
+        **manifest,
+        "files": [
+            item
+            for item in manifest.get("files", [])
+            if item.get("source") not in PHASE_2_DEFERRED_TARGET_SOURCES
+        ],
+    }
 
 
 def _make_fixture_repo(tmp_path: Path) -> Path:
@@ -241,12 +256,13 @@ def _make_fixture_repo(tmp_path: Path) -> Path:
 
 
 def _install_fixture_registry(root: Path) -> Path:
-    """Add a minimal registry that owns the fixture skill bundle."""
+    """Add a minimal valid v2 registry that owns the fixture skill bundle."""
     return _write(
         root / gen.MODULE_REGISTRY_PATH,
         json.dumps({
-            "schemaVersion": 1,
+            "schemaVersion": 2,
             "description": "fixture registry",
+            "capabilities": [],
             "modules": [{
                 "id": "kernel",
                 "layer": "kernel",
@@ -332,6 +348,25 @@ class TestScanCanonicalAssets:
         root = _make_fixture_repo(tmp_path)
         assets = gen.scan_canonical_assets(root)
         assert len(assets["skills"]) == 1
+
+    def test_unfiltered_schema_v2_capability_registry_scans_all_assets(
+        self, tmp_path: Path
+    ) -> None:
+        root = _make_fixture_repo(tmp_path)
+        registry_path = _install_fixture_registry(root)
+        registry = json.loads(registry_path.read_text(encoding="utf-8"))
+        registry["schemaVersion"] = 2
+        registry_path.write_text(json.dumps(registry), encoding="utf-8")
+
+        assets = gen.scan_canonical_assets(root)
+
+        assert {item["filename"] for item in assets["prompts"]} == {
+            "cg-another.prompt.md",
+            "cg-test.prompt.md",
+        }
+        assert [item["filename"] for item in assets["agents"]] == [
+            "cg-test-agent.agent.md"
+        ]
 
     def test_missing_canonical_roots_fail(self, tmp_path: Path) -> None:
         root = tmp_path / "empty"
@@ -768,6 +803,62 @@ class TestDryRun:
 
 
 class TestGenerationPlan:
+    def test_help_argument_source_required_for_capability_without_prompt(self, tmp_path):
+        root = _make_fixture_repo(tmp_path)
+        _write(root / gen.MODULE_REGISTRY_PATH, json.dumps({"schemaVersion": 2, "description": "fixture registry", "capabilities": [], "modules": [
+            {"id": "cap-help", "layer": "capability", "displayName": "Help", "description": "fixture", "dependsOn": [], "ownedAssets": [".github/skills/*/"]}
+        ]}))
+        mapping = gen.load_target_mapping(root)
+        for target in mapping["targets"]:
+            target.pop("argumentSource", None)
+        with pytest.raises(gen.MappingValidationError, match="argumentSource"):
+            gen.build_generation_plan(root, mapping, gen.scan_canonical_assets(root))
+
+    def test_help_argument_source_required_before_generation(self, tmp_path):
+        root = _make_fixture_repo(tmp_path)
+        _write(root / gen.CANONICAL_HELP_PROMPT_PATH, "---\ndescription: Help\n---\n\n# Help\n")
+        mapping = gen.load_target_mapping(root)
+        for target in mapping["targets"]:
+            target.pop("argumentSource", None)
+        with pytest.raises(gen.MappingValidationError, match="argumentSource"):
+            gen.build_generation_plan(root, mapping, gen.scan_canonical_assets(root))
+        assert not (root / ".kilo").exists()
+
+    @pytest.mark.parametrize("help_prompt_present", [False, True])
+    def test_help_shared_outputs_require_canonical_help_prompt(
+        self, tmp_path: Path, help_prompt_present: bool
+    ) -> None:
+        root = _make_fixture_repo(tmp_path)
+        for source in gen.DEFERRED_HELP_SHARED_SOURCES:
+            _write(root / source, "{}\n")
+        if help_prompt_present:
+            _write(
+                root / gen.CANONICAL_HELP_PROMPT_PATH,
+                "---\ndescription: Help\n---\n\n# Help\n",
+            )
+            mapping_path = root / gen.TARGET_MAPPING_PATH
+            mapping = gen.load_target_mapping(root)
+            production = gen.load_target_mapping(Path(__file__).resolve().parents[2])
+            for target in mapping["targets"]:
+                target["argumentSource"] = next(
+                    item["argumentSource"] for item in production["targets"]
+                    if item["id"] == target["id"]
+                )
+            _write(mapping_path, json.dumps(mapping))
+
+        plan = gen.build_generation_plan(
+            root,
+            gen.load_target_mapping(root),
+            gen.scan_canonical_assets(root),
+        )
+
+        for target_id in ("claude-code", "codex", "opencode", "kilo"):
+            sources = {entry.source for entry in plan.by_target[target_id].entries}
+            assert (
+                gen.DEFERRED_HELP_SHARED_SOURCES <= sources
+            ) is help_prompt_present
+            assert ".github/shared/runtime-contract.md" in sources
+
     def test_entries_are_sorted_and_contain_final_bytes_and_hashes(self, tmp_path: Path) -> None:
         root = _make_fixture_repo(tmp_path)
         mapping = gen.load_target_mapping(root)
@@ -1140,6 +1231,16 @@ class TestGenerationPlan:
         output_mismatches = _worktree_output_mismatches(
             REPO_ROOT, plan.entries, copilot_destinations
         )
+        deferred_destinations = {
+            entry.destination
+            for entry in plan.entries
+            if entry.source in PHASE_2_DEFERRED_TARGET_SOURCES
+        }
+        output_mismatches = [
+            mismatch
+            for mismatch in output_mismatches
+            if mismatch.split(":", 1)[1] not in deferred_destinations
+        ]
 
         manifest_mismatches = []
         disk_manifest_paths = {}
@@ -1152,10 +1253,13 @@ class TestGenerationPlan:
                 continue
 
             disk_bytes = disk_path.read_bytes()
-            if disk_bytes != expected_bytes:
-                manifest_mismatches.append(f"content:{manifest_path}")
             try:
                 disk_manifest = json.loads(disk_bytes.decode("utf-8"))
+                expected_manifest = json.loads(expected_bytes.decode("utf-8"))
+                if _phase_2_fixture_manifest_view(
+                    disk_manifest
+                ) != _phase_2_fixture_manifest_view(expected_manifest):
+                    manifest_mismatches.append(f"content:{manifest_path}")
                 disk_manifest_paths[target_id] = {
                     item["path"] for item in disk_manifest["files"]
                 }

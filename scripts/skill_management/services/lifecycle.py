@@ -110,11 +110,14 @@ def _target(
         inventory = snapshot.project_bundle_by_id(identifier)
         if inventory is None:
             raise LifecyclePlanningError(f"Project bundle is missing: {identifier}")
+        provenance = snapshot.provenance_by_id(identifier)
+        if provenance is None:
+            raise LifecyclePlanningError(f"Project bundle is missing provenance: {identifier}")
         return (
             "project-imported",
             inventory,
             project_record,
-            snapshot.provenance_by_id(identifier),
+            provenance,
         )
     inventory = snapshot.canonical_bundle_by_id(identifier)
     if inventory is None:
@@ -622,11 +625,14 @@ def _canonical_registry_after_removal(
         retained = []
         for pattern in module.get("ownedAssets", []):
             matches_target = any(
-                registry.glob_match(pattern, item.source_path)
+                registry.ownership_pattern_matches(
+                    module, pattern, item.source_path
+                )
                 for item in inventory.files
             )
             matches_future = any(
-                registry.glob_match(pattern, path) for path in future_assets
+                registry.ownership_pattern_matches(module, pattern, path)
+                for path in future_assets
             )
             if matches_target and not matches_future:
                 continue
@@ -662,7 +668,10 @@ def _staged_map(
     source_root: Path,
     actions: Sequence[planning.PlannedAction],
 ) -> Dict[Tuple[str, str], Optional[bytes]]:
-    root_kind = "project" if project_root == source_root else "project"
+    # Every mutation in the current planner stages a project-root path; the
+    # kind is intentionally fixed and kept explicit for future home-directory
+    # staging, where a second "homedir" kind would be introduced deliberately.
+    root_kind = "project"
     return {
         (root_kind, action.mutation.path): action.mutation.after
         for action in actions

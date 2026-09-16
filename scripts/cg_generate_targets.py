@@ -47,6 +47,18 @@ from skill_management.services import bundles as bundle_service
 
 TARGET_MAPPING_PATH = ".github/shared/target-mapping.json"
 MODULE_REGISTRY_PATH = ".github/shared/module-registry.json"
+CANONICAL_HELP_PROMPT_PATH = ".github/prompts/cg-help.prompt.md"
+DEFERRED_HELP_SHARED_SOURCES = frozenset({
+    ".github/shared/help-catalog.json",
+    ".github/shared/shell-commands.json",
+})
+HELP_ARGUMENT_SOURCES = {
+    "copilot": {"source": "invocation-tail", "token": "", "fidelity": "model-visible"},
+    "claude-code": {"source": "native-placeholder", "token": "$ARGUMENTS", "fidelity": "native-placeholder"},
+    "codex": {"source": "native-placeholder", "token": "$ARGUMENTS", "fidelity": "native-placeholder"},
+    "opencode": {"source": "generated-block", "token": "$ARGUMENTS", "fidelity": "model-visible"},
+    "kilo": {"source": "generated-block", "token": "$ARGUMENTS", "fidelity": "model-visible"},
+}
 
 
 @functools.lru_cache(maxsize=1)
@@ -107,6 +119,12 @@ class PathSafetyError(ValueError):
 
 class MappingValidationError(ValueError):
     """Raised when target mapping validation fails."""
+
+
+class CanonicalAssets(dict):
+    """Keep selected help closure evidence without emitting a synthetic asset."""
+
+    help_required = False
 
 
 @dataclass(frozen=True)
@@ -387,6 +405,11 @@ def validate_target_mapping(data: dict[str, Any]) -> list[str]:
             errors.append(f"{prefix}: modelMapping is not supported; targets inherit the user's platform selection")
 
         errors.extend(_validate_capabilities(prefix, target.get("capabilities", {})))
+        if "argumentSource" in target and (
+            tid not in HELP_ARGUMENT_SOURCES
+            or target["argumentSource"] != HELP_ARGUMENT_SOURCES[tid]
+        ):
+            errors.append(f"{prefix}.argumentSource: invalid platform source/token/fidelity")
         errors.extend(_validate_formats(prefix, target.get("formats", {})))
         errors.extend(_validate_output_paths(prefix, target.get("outputPaths", {})))
         errors.extend(_validate_install_units(prefix, target.get("installUnits")))
@@ -502,18 +525,30 @@ def build_generation_plan(
     if errors:
         raise MappingValidationError("target-mapping.json validation failed:\n- " + "\n- ".join(errors))
     validate_mapping_paths(root, mapping)
+    help_present = getattr(assets, "help_required", False) or any(
+        item["relative_path"] == CANONICAL_HELP_PROMPT_PATH
+        for item in assets["prompts"]
+    )
+    if help_present:
+        missing = [target["id"] for target in mapping["targets"]
+                   if "argumentSource" not in target]
+        if missing:
+            raise MappingValidationError("argumentSource required for help: " + ", ".join(missing))
     by_target: dict[str, TargetResult] = {}
-    lookups = _build_asset_lookup(assets)
     for target in mapping["targets"]:
         if (
             target.get("generatedTreePath") is None
             and not target.get("projectedCategories")
         ):
             continue
-        render_context = (lookups, _runtime_destination_map(target, assets))
+        target_assets = _assets_for_native_target(target, assets)
+        render_context = (
+            _build_asset_lookup(target_assets),
+            _runtime_destination_map(target, target_assets),
+        )
         rendered = tuple(sorted(
-            (_render_output_entry(target, entry, assets, render_context)
-             for entry in build_output_manifest(target, assets)),
+            (_render_output_entry(target, entry, target_assets, render_context)
+             for entry in build_output_manifest(target, target_assets)),
             key=lambda entry: entry.destination,
         ))
         _validate_output_namespace(target["id"], rendered)
@@ -526,6 +561,27 @@ def build_generation_plan(
         key=lambda entry: entry.destination,
     ))
     return GenerationPlan(entries, by_target)
+
+
+def _assets_for_native_target(
+    target: dict[str, Any],
+    assets: dict[str, list[dict[str, Any]]],
+) -> dict[str, list[dict[str, Any]]]:
+    """Defer help shared outputs until the canonical help prompt exists."""
+    prompt_exists = any(
+        prompt["relative_path"] == CANONICAL_HELP_PROMPT_PATH
+        for prompt in assets["prompts"]
+    )
+    if target.get("generatedTreePath") is None or prompt_exists:
+        return assets
+
+    filtered = dict(assets)
+    filtered["shared"] = [
+        asset
+        for asset in assets["shared"]
+        if asset["relative_path"] not in DEFERRED_HELP_SHARED_SOURCES
+    ]
+    return filtered
 
 
 def _validate_output_namespace(
@@ -561,21 +617,13 @@ def _validate_output_namespace(
 # ---------------------------------------------------------------------------
 
 def _load_module_registry(root: Path) -> Optional[dict[str, Any]]:
-    """Return a securely captured module registry, or ``None`` when absent."""
-    try:
-        content = secure_fs.secure_read_bytes(
-            root,
-            MODULE_REGISTRY_PATH,
-            reject_hardlinks=True,
-            max_bytes=MAX_CANONICAL_CONTROL_BYTES,
-        )
-    except FileNotFoundError:
+    """Return a strictly captured module registry, or ``None`` when absent."""
+    path = root / MODULE_REGISTRY_PATH
+    if not path.exists():
         return None
-    try:
-        data = json.loads(content.decode("utf-8", errors="strict"))
-    except (UnicodeDecodeError, json.JSONDecodeError):
-        return None
-    return data if isinstance(data, dict) else None
+    from skill_management.services import registry as registry_service
+
+    return registry_service.load_registry_snapshot(root).to_dict()
 
 
 def _registry_owned_skill_dir_names(
@@ -602,13 +650,9 @@ def _registry_owned_skill_dir_names(
         if not skill_file.exists():
             continue
         candidate = f".github/skills/{entry.name}/SKILL.md"
-        if any(
-            isinstance(pattern, str)
-            and path_policy.glob_match(pattern, candidate)
-            for module in registry.get("modules", [])
-            if isinstance(module, dict)
-            for pattern in module.get("ownedAssets", [])
-        ):
+        from skill_management.services.registry import matching_asset_owners
+
+        if matching_asset_owners(registry, candidate):
             names.add(entry.name)
         else:
             raise ValueError(
@@ -624,16 +668,12 @@ def _loadable_owned_asset_globs(
 ) -> Optional[set[str]]:
     """Return owned-asset glob patterns loadable under the active suites.
 
-    With a module registry, omitted suites mean all public suites (cg and cr),
-    not every internal module. Repositories without a registry retain the
-    legacy unfiltered fixture behavior. Explicit suites derive the loadable
-    module set through cg_context_budget.
+    Omitted suites preserve the legacy unfiltered scan. Explicit suites derive
+    the loadable module set through cg_context_budget.
     """
-    if active_suites is None and (
-        registry is None or registry.get("schemaVersion") != 2
-    ):
+    if active_suites is None:
         return None
-    selected_suites = tuple(active_suites) if active_suites is not None else ("cg", "cr")
+    selected_suites = tuple(active_suites)
     try:
         import cg_context_budget as context
     except ImportError as exc:
@@ -654,11 +694,14 @@ def scan_canonical_assets(
     root: Path,
     active_suites: Optional[Sequence[str]] = None,
     loadable_globs: Optional[Iterable[str]] = None,
+    loadable_module_ids: Optional[Iterable[str]] = None,
     control_snapshot: Optional[CanonicalControlSnapshot] = None,
 ) -> dict[str, list[dict[str, Any]]]:
     """Scan .github/ canonical assets and return structured metadata.
 
-    Returns dict with keys: prompts, agents, skills, instructions.
+    Returns categorized prompts, help sidecars, agents, skills, instructions,
+    prompt support, and shared files. Help sidecars are inventory-only inputs;
+    they are never emitted as command bodies.
     Each value is a list of dicts with: path, relative_path, frontmatter, body.
 
     When ``active_suites`` is provided, only assets owned by loadable modules
@@ -671,14 +714,15 @@ def scan_canonical_assets(
     committed active manifest's resolved closure rather than re-deriving
     selection from raw project config at publish time.
     """
-    assets: dict[str, list[dict[str, Any]]] = {
+    assets = CanonicalAssets({
         "prompts": [],
         "agents": [],
         "skills": [],
         "instructions": [],
         "prompt_support": [],
+        "help_sidecars": [],
         "shared": [],
-    }
+    })
 
     module_registry = (
         control_snapshot.module_registry
@@ -699,7 +743,34 @@ def scan_canonical_assets(
             module_registry,
         )
 
+    selected_module_ids = (
+        set(loadable_module_ids) if loadable_module_ids is not None else None
+    )
+    if (
+        selected_module_ids is None
+        and module_registry
+        and active_suites is not None
+    ):
+        import cg_context_budget as context
+
+        selected_suites = list(active_suites)
+        selected_module_ids = context.loadable_module_ids(
+            module_registry, selected_suites
+        )
+
+    assets.help_required = (root / CANONICAL_HELP_PROMPT_PATH).is_file() or bool(
+        module_registry and any(module.get("id") == "cap-help"
+                                for module in module_registry.get("modules", []))
+        and (selected_module_ids is None or "cap-help" in selected_module_ids)
+    )
+
     def _is_loadable(rel_path: str) -> bool:
+        if selected_module_ids is not None and module_registry is not None:
+            import cg_context_budget as context
+
+            return context.asset_is_loadable(
+                module_registry, selected_module_ids, rel_path
+            )
         if loadable_filter is None:
             return True
         return any(
@@ -724,6 +795,7 @@ def scan_canonical_assets(
         (CANONICAL_SKILLS_GLOB, "skills"),
         (CANONICAL_INSTRUCTIONS_GLOB, "instructions"),
         (".github/prompts/*.md", "prompt_support"),
+        (".github/prompts/*.help.json", "help_sidecars"),
     ]:
         for path in sorted(root.glob(pattern)):
             if category == "prompt_support" and path.name.endswith(".prompt.md"):
@@ -750,9 +822,10 @@ def scan_canonical_assets(
                     max_bytes=MAX_CANONICAL_ASSET_BYTES,
                 )
                 content = _decode_canonical_text(content_bytes)
-                asset["frontmatter"] = _get_parse_frontmatter()(
-                    content,
-                    source=path,
+                asset["frontmatter"] = (
+                    {}
+                    if category == "help_sidecars"
+                    else _get_parse_frontmatter()(content, source=path)
                 )
                 asset["body"] = content
             assets[category].append(asset)
@@ -1876,6 +1949,42 @@ def _emit_command(
     """Emit a platform-native command file from a canonical prompt."""
     fm = source["frontmatter"]
     body = source["body"]
+    if source.get("relative_path") == CANONICAL_HELP_PROMPT_PATH:
+        argument = target["argumentSource"]
+        if argument["source"] != "invocation-tail":
+            if argument["source"] == "native-placeholder":
+                instruction = (
+                    "Use the native-placeholder invocation value below as query text.\n"
+                    "An absent value means an empty query.\n\n```text\n"
+                    + argument["token"] + "\n```\n"
+                )
+            else:
+                instruction = (
+                    "Use the generated Invocation Arguments block below as query text.\n"
+                    "An absent value means an empty query. This source is model-visible:\n"
+                    "it is the query text received by the host, not byte-exact keystrokes.\n"
+                )
+            instruction += "If required text is omitted or a placeholder is unsubstituted, stop with the fixed recovery below.\n"
+            # The ``<!-- help-argument-source:start/end -->`` marker pair in
+            # the canonical help prompt delimits the region that receives the
+            # generated invocation instruction above. The emitted file for an
+            # invocation-tail target must carry that block, so the canonical
+            # prompt must keep the marker pair; a dropped pair would leave the
+            # markers verbatim in the emitted body instead of raising.
+            body = re.sub(
+                r"(?s)(<!-- help-argument-source:start -->).*?(<!-- help-argument-source:end -->)",
+                lambda match: match[1] + "\n" + instruction + match[2], body,
+            )
+        if target["id"] != "copilot":
+            marker = "--platform copilot"
+            replaced = body.replace(marker, "--platform " + target["id"])
+            if marker in replaced:
+                raise ValueError(
+                    "canonical help prompt marker {!r} is missing from {}".format(
+                        marker, source.get("relative_path", "the help prompt")
+                    )
+                )
+            body = replaced
     if target["id"] in ("claude-code", "codex"):
         return _format_frontmatter(fm, body, {})
     elif target["id"] in ("opencode", "kilo"):

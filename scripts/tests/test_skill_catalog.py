@@ -107,6 +107,29 @@ def _manifest() -> dict:
     }
 
 
+def _registry_with_inactive_replacement_owner() -> dict:
+    registry = _registry()
+    broad_owner = next(
+        module
+        for module in registry["modules"]
+        if module["id"] == "cap-language-r"
+    )
+    broad_owner["ownershipExclusions"] = [
+        ".github/skills/cg-skill-r-analytical/SKILL.md"
+    ]
+    registry["modules"].append(
+        {
+            "id": "cap-replacement",
+            "layer": "capability",
+            "displayName": "Replacement",
+            "description": "Inactive replacement owner.",
+            "dependsOn": ["kernel"],
+            "ownedAssets": [".github/skills/cg-skill-r-analytical/"],
+        }
+    )
+    return registry
+
+
 def _fixture_root(tmp_path: Path) -> Path:
     """Create a minimal fixture root with all required artifacts."""
     _write_json(tmp_path / ".github/shared/module-registry.json", _registry())
@@ -188,6 +211,19 @@ class TestCatalogBuild:
         assert cr_skill["available"] is False
         assert cr_skill["inactiveReason"] is not None
 
+    def test_excluded_skill_uses_replacement_owner_outside_closure(
+        self, tmp_path: Path
+    ) -> None:
+        root = _fixture_root(tmp_path)
+
+        rows = catalog.build_catalog(
+            root, _manifest(), _registry_with_inactive_replacement_owner()
+        )
+
+        row = next(r for r in rows if r["id"] == "cg-skill-r-analytical")
+        assert row["owner"] == "cap-replacement"
+        assert row["available"] is False
+
     def test_full_row_has_extended_fields(self, tmp_path: Path) -> None:
         root = _fixture_root(tmp_path)
         manifest = _manifest()
@@ -268,7 +304,7 @@ class TestOutput:
         header = compact_text.split("\n")[0]
         assert "ID" in header
         assert "PURPOSE" in header
-        assert "AVAILABLE" in header
+        assert "AVAILABILITY" in header
 
     def test_full_format_has_all_columns(self, tmp_path: Path) -> None:
         root = _fixture_root(tmp_path)
@@ -409,6 +445,22 @@ class TestInventoryLeaks:
         leaks = catalog.check_inventory_leaks(root, manifest, registry)
         assert any("cr-skill-publication-output" in leak for leak in leaks)
 
+    def test_excluded_replacement_owner_is_inactive_for_leak_scan(
+        self, tmp_path: Path
+    ) -> None:
+        root = _fixture_root(tmp_path)
+        _write(
+            root / ".github/prompts/cg-work.prompt.md",
+            "---\ndescription: work\n---\n"
+            "Load `.github/skills/cg-skill-r-analytical/SKILL.md`.\n",
+        )
+
+        leaks = catalog.check_inventory_leaks(
+            root, _manifest(), _registry_with_inactive_replacement_owner()
+        )
+
+        assert any("cg-skill-r-analytical" in leak for leak in leaks)
+
 
 # ---------------------------------------------------------------------------
 # CLI integration
@@ -473,6 +525,22 @@ class TestCLI:
 # ---------------------------------------------------------------------------
 
 
+def _real_repo_is_dirty() -> bool:
+    """True when the repository worktree has uncommitted changes."""
+    import subprocess
+
+    status = subprocess.run(
+        ["git", "-C", str(REPO_ROOT), "status", "--porcelain"],
+        capture_output=True,
+        encoding="utf-8",
+        check=False,
+    )
+    return status.returncode != 0 or bool(status.stdout.strip())
+
+
+@pytest.mark.skipif(
+    _real_repo_is_dirty(), reason="real-repo tests require a clean worktree"
+)
 class TestRealRepo:
     def test_real_registry_catalog_builds(self) -> None:
         """With the real repo, catalog should build without error if manifest exists."""

@@ -985,6 +985,7 @@ if ((Test-Path -LiteralPath $compProjectionStateDir) -and
         }
     }
     foreach ($runtimeEntry in @(
+        ".compound-gpid/runtime/",
         ".compound-gpid/active/",
         ".compound-gpid/generations/",
         ".compound-gpid/projection-ownership.json",
@@ -1002,6 +1003,9 @@ if ((Test-Path -LiteralPath $compProjectionStateDir) -and
 foreach ($entry in @(Protect-CgKiloCompatibilitySkillLinks -Mapping $mapping)) {
     [void]$installedEntries.Add($entry)
 }
+
+# Help transport is also available to recognized legacy, non-projected installs.
+[void]$installedEntries.Add(".compound-gpid/runtime/")
 
 if ($manifest.files.Count -gt 0) {
     Write-CgManagedFilesManifest -ManifestPath $ManifestPath -Manifest $manifest

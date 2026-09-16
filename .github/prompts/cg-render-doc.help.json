@@ -1,0 +1,11 @@
+{
+  "id": "slash:cg-render-doc", "name": "/cg-render-doc", "kind": "slash", "ownerModule": "suite-cg", "supportedSuites": ["cg"],
+  "category": "knowledge", "summary": "Render a workflow artifact or Markdown document to curated HTML.", "aliases": [],
+  "intents": ["publish Markdown as HTML", "render a plan or brainstorm"], "usage": "/cg-render-doc <source> [--theme reference|editorial]", "examples": ["/cg-render-doc docs/guide.md"],
+  "prerequisites": ["A project-contained supported Markdown source."], "outputs": ["Validated curated HTML or a check result."],
+  "constraints": ["Theme selection is explicit and source type controls the renderer."], "relatedCommands": [{"id": "shell:cg-render-artifact", "relation": "related"}, {"id": "shell:cg-publish-markdown", "relation": "related"}],
+  "sourcePath": ".github/prompts/cg-render-doc.prompt.md", "definitionSources": [".github/prompts/cg-render-doc.prompt.md"], "definitionDigest": "3f4e493790bc785c45dc1d05f30a65cd8e30d47ca51cadfeb0d3ce5f782510f1",
+  "documentationTargets": [], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["any"],
+  "availability": {"status": "available", "evidence": [{"os": "any", "sourcePath": ".github/prompts/cg-render-doc.prompt.md"}]},
+  "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
+}

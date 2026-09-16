@@ -80,6 +80,21 @@ def _local_config(suites: list[str] | None) -> str:
 
 
 class TestActiveSuites:
+    def test_ownership_exclusion_is_preserved_in_filtered_inventory(self) -> None:
+        registry = _minimal_registry()
+        suite = next(item for item in registry["modules"] if item["id"] == "suite-cg")
+        suite["ownershipExclusions"] = [".github/prompts/cg-help.prompt.md"]
+        manifest = budget.filtered_manifest(registry, ["cg"])
+
+        assert manifest["ownershipExclusions"] == {
+            "suite-cg": [".github/prompts/cg-help.prompt.md"]
+        }
+        assert not budget.asset_is_loadable(
+            registry,
+            set(manifest["loadableModules"]),
+            ".github/prompts/cg-help.prompt.md",
+        )
+
     def test_read_active_suites_defaults_to_cg(self) -> None:
         assert budget.read_active_suites(_local_config(None)) == ["cg"]
 
@@ -289,6 +304,22 @@ class TestCapabilityResolution:
         assert "cap-opt-in" in explicit
 
 
+def _real_repo_is_dirty() -> bool:
+    """True when the repository worktree has uncommitted changes."""
+    import subprocess
+
+    status = subprocess.run(
+        ["git", "-C", str(REPO_ROOT), "status", "--porcelain"],
+        capture_output=True,
+        encoding="utf-8",
+        check=False,
+    )
+    return status.returncode != 0 or bool(status.stdout.strip())
+
+
+@pytest.mark.skipif(
+    _real_repo_is_dirty(), reason="real-repo tests require a clean worktree"
+)
 class TestRealRepo:
     def test_real_registry_cg_minus_cr_detects_cr_excluded(self) -> None:
         # With the real registry but only the cg suite active, cr-* assets are
@@ -339,40 +370,6 @@ class TestRealRepo:
             ".github/prompts/cg-light-work.prompt.md"
         ]
 
-    def test_generator_cr_only_excludes_light_work_without_reference_leaks(
-        self,
-    ) -> None:
-        """A CR-only native projection omits light-work and unresolved paths."""
-        import cg_generate_targets as gen
-
-        source = ".github/prompts/cg-light-work.prompt.md"
-        assets = gen.scan_canonical_assets(REPO_ROOT, active_suites=["cr"])
-        assert source not in {
-            asset["relative_path"] for asset in assets["prompts"]
-        }
-
-        plan = gen.build_generation_plan(
-            REPO_ROOT,
-            gen.load_target_mapping(REPO_ROOT),
-            assets,
-        )
-        for target_id, result in plan.by_target.items():
-            if target_id == "copilot":
-                continue
-            assert all(entry.source != source for entry in result.entries)
-            assert all(
-                not entry.destination.endswith("/commands/cg-light-work.md")
-                for entry in result.entries
-            )
-            for entry in result.entries:
-                assert source.encode("utf-8") not in entry.content
-                if entry.kind != "skill-resource":
-                    text = entry.content.decode("utf-8")
-                    assert not gen.CANONICAL_RUNTIME_PATH_PATTERN.search(text), (
-                        f"{entry.destination} contains an unresolved canonical "
-                        "runtime reference"
-                    )
-
     def test_generator_mixed_includes_cr_assets(self, tmp_path: Path) -> None:
         """Generator-level enforcement: mixed generation includes CR assets."""
         import cg_generate_targets as gen
@@ -396,6 +393,69 @@ class TestRealRepo:
 
 
 class TestInactiveAssetExclusion:
+    def test_generator_cr_only_excludes_light_work_without_reference_leaks(
+        self,
+    ) -> None:
+        """Exclude inactive runtime assets, but preserve canonical help evidence."""
+        import cg_generate_targets as gen
+        from help.query import availability
+
+        source = ".github/prompts/cg-light-work.prompt.md"
+        assets = gen.scan_canonical_assets(REPO_ROOT, active_suites=["cr"])
+        assert source not in {
+            asset["relative_path"] for asset in assets["prompts"]
+        }
+        # These data files record provenance, not instructions to load sources.
+        evidence = {
+            path: (REPO_ROOT / path).read_bytes()
+            for path in (
+                ".github/shared/help-catalog.json",
+                ".github/shared/shell-commands.json",
+            )
+        }
+        plan = gen.build_generation_plan(
+            REPO_ROOT,
+            gen.load_target_mapping(REPO_ROOT),
+            assets,
+        )
+        for target_id, result in plan.by_target.items():
+            if target_id == "copilot":
+                continue
+            assert all(entry.source != source for entry in result.entries)
+            assert all(
+                not entry.destination.endswith("/commands/cg-light-work.md")
+                for entry in result.entries
+            )
+            for path, content in evidence.items():
+                copies = [entry for entry in result.entries if entry.source == path]
+                assert len(copies) == 1
+                assert copies[0].kind == "shared"
+                assert copies[0].content == content
+            catalog = json.loads(evidence[".github/shared/help-catalog.json"])
+            command = next(
+                item for item in catalog["commands"]
+                if item["id"] == "slash:cg-light-work"
+            )
+            assert availability(command, ["cr"], target_id, "windows")[0] is False
+            for entry in result.entries:
+                if entry.source in evidence and entry.kind == "shared":
+                    continue
+                assert source.encode("utf-8") not in entry.content
+                # Shared schemas contain canonical path patterns as data;
+                # operation descriptors and Markdown contain runtime paths.
+                if (
+                    entry.kind not in ("skill-resource", "shared")
+                    or entry.source.casefold().endswith((".md", ".markdown"))
+                    or entry.source.startswith(
+                        ".github/shared/skill-management/operations/"
+                    )
+                ):
+                    text = entry.content.decode("utf-8")
+                    assert not gen.CANONICAL_RUNTIME_PATH_PATTERN.search(text), (
+                        f"{entry.destination} contains an unresolved canonical "
+                        "runtime reference"
+                    )
+
     def test_inactive_module_assets_excluded_from_loadable_globs(self, tmp_path: Path) -> None:
         """Assets owned by inactive modules must not appear in loadable globs."""
         registry = budget.load_registry(tmp_path, _minimal_registry(CR_SUITE))

@@ -147,8 +147,10 @@ def load_active_manifest(root: Path) -> dict[str, Any]:
             "to resolve it first"
         )
     try:
-        data = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
+        from help.catalog import load_strict_json_bytes
+
+        data = load_strict_json_bytes(path.read_bytes(), source=ACTIVE_MANIFEST_PATH)
+    except (OSError, ValueError) as exc:
         raise ProjectionError(f"{ACTIVE_MANIFEST_PATH} is malformed: {exc}") from exc
     errors = manifest_module.validate_manifest(data)
     if errors:
@@ -185,8 +187,12 @@ def _manifest_closure(
             "a manifest-driven projection requires the versioned registry"
         )
     try:
-        registry = json.loads(registry_path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
+        from help.catalog import load_strict_json_bytes
+
+        registry = load_strict_json_bytes(
+            registry_path.read_bytes(), source="module registry"
+        )
+    except (OSError, ValueError) as exc:
         raise ProjectionError(f"module registry is malformed: {exc}") from exc
     return closure, registry
 
@@ -258,8 +264,13 @@ def _load_canonical_assets(
     source_root: Path, manifest: dict[str, Any]
 ) -> dict[str, list[dict[str, Any]]]:
     """Scan canonical assets filtered by the manifest's committed closure globs."""
-    globs = _manifest_closure_globs(source_root, manifest)
-    return generator.scan_canonical_assets(source_root, loadable_globs=globs)
+    closure, registry = _manifest_closure(source_root, manifest)
+    globs = budget.loadable_asset_globs(registry, closure)
+    return generator.scan_canonical_assets(
+        source_root,
+        loadable_globs=globs,
+        loadable_module_ids=closure,
+    )
 
 
 def _load_projection_assets(
@@ -343,6 +354,8 @@ def _load_projection_assets(
         if inventory is None:
             raise ProjectionError(f"selected project bundle is missing: {identifier}")
         provenance = snapshot.provenance_by_id(identifier)
+        if provenance is None:
+            raise ProjectionError(f"selected project bundle has no provenance: {identifier}")
         source = provenance.get("source", {})
         identities[identifier] = (
             f"{source.get('repository', '')}@{source.get('commit', '')}:"
@@ -376,32 +389,20 @@ def _validate_capability_alignment(
     would mean the closure globs cannot guarantee its inventory).
     """
     if combined_snapshot is not None:
-        registry = combined_snapshot.canonical.to_dict()
+        combined = combined_snapshot
     else:
-        registry_path = source_root / ".github/shared/module-registry.json"
-        if not registry_path.exists():
-            raise ProjectionError(
-                ".github/shared/module-registry.json not found at source root; "
-                "a manifest-driven projection requires the versioned registry"
-            )
-        try:
-            registry = json.loads(registry_path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError) as exc:
-            raise ProjectionError(f"module registry is malformed: {exc}") from exc
-    capability_by_id = {
-        cap.get("id"): cap
-        for cap in registry.get("capabilities", [])
-        if isinstance(cap, dict) and cap.get("id")
-    }
-    if combined_snapshot is None:
         try:
             combined = registry_service.load_combined_registry_snapshot(
                 project_root, source_root
             )
         except registry_service.RegistryValidationError as error:
             raise ProjectionError(str(error)) from error
-    else:
-        combined = combined_snapshot
+    registry = combined.canonical.to_dict()
+    capability_by_id = {
+        cap.get("id"): cap
+        for cap in registry.get("capabilities", [])
+        if isinstance(cap, dict) and cap.get("id")
+    }
     project_capabilities = {
         str(item["capability"]): str(item["id"])
         for item in combined.project_records
@@ -631,12 +632,14 @@ def _stage_tree(project_root: Path, plan: ProjectionPlan, tx_id: str) -> Path:
 def _inventory_staged_destinations(
     staging_root: Path,
 ) -> dict[str, str]:
-    """Map staged leaf destinations -> sha256, rejecting unsafe routes.
+    """Map staged leaf destinations -> sha256 digests, rejecting unsafe routes.
 
     Each file is stored at ``staging_root/<destination>``, so the inventory key
     is the destination itself (e.g. ``.kilo/commands/cg-work.md``). Staging
     writes are root-anchored no-follow, so no staged path can escape via a
-    link; the final regular-file check here is defense in depth.
+    link; the final regular-file check here is defense in depth. Every regular
+    file is read exactly once and used for both hashing and Markdown UTF-8
+    validation, so no second read can observe different bytes.
     """
     inventory: dict[str, str] = {}
     scan_root = _windows_scannable_path(staging_root)
@@ -646,7 +649,13 @@ def _inventory_staged_destinations(
         relative = path.relative_to(scan_root).as_posix()
         if not _is_safe_relative(relative):
             raise ProjectionError(f"staged path escapes staging root: {relative!r}")
-        inventory[relative] = hashlib.sha256(path.read_bytes()).hexdigest()
+        content = path.read_bytes()
+        if relative.endswith(".md"):
+            try:
+                content.decode("utf-8")
+            except UnicodeDecodeError as exc:
+                raise ProjectionError(f"staged Markdown is not valid UTF-8: {path}") from exc
+        inventory[relative] = hashlib.sha256(content).hexdigest()
     return inventory
 
 
@@ -672,8 +681,6 @@ def _validate_staged_tree(
         if actual[key] != entry.sha256:
             raise ProjectionError(f"staged file hash mismatch for {key}")
 
-    _validate_staged_markdown_utf8(staging_root)
-
     adapter_requirements = {
         "kilo": ".kilo/AGENTS.md",
         "opencode": ".opencode/AGENTS.md",
@@ -687,17 +694,6 @@ def _validate_staged_tree(
             raise ProjectionError(
                 f"{platform} projection is missing root adapter {required}"
             )
-
-
-def _validate_staged_markdown_utf8(staging_root: Path) -> None:
-    """Reject staged Markdown that is not decodable as UTF-8 (fail closed)."""
-    for path in sorted(_windows_scannable_path(staging_root).rglob("*.md")):
-        if path.is_symlink() or not path.is_file():
-            continue
-        try:
-            path.read_text(encoding="utf-8")
-        except UnicodeDecodeError as exc:
-            raise ProjectionError(f"staged Markdown is not valid UTF-8: {path}") from exc
 
 
 def _windows_scannable_path(path: Path) -> Path:
@@ -1177,6 +1173,7 @@ def publish_projection(
             )
         generation_arena.parent.mkdir(parents=True, exist_ok=True)
         os.rename(str(source_arena), str(generation_arena))
+        _revalidate_generation_arena(generation_arena, plan.by_platform[platform], root_name)
         try:
             materialized = _materialize_platform(
                 project_root,
@@ -1244,6 +1241,32 @@ def publish_projection(
         _remove_tree_no_follow(staging_transaction)
 
     return ownership
+
+
+def _revalidate_generation_arena(
+    arena: Path, entries: Sequence[ProjectionEntry], root_name: str
+) -> None:
+    """Re-verify the moved arena files against planned hashes after rename.
+
+    Planned destinations are project-root-relative; the arena holds the
+    platform tree under ``root_name`` (e.g. ``.kilo``), so arena keys strip
+    that prefix before comparison.
+    """
+    prefix = root_name.rstrip("/") + "/"
+    expected: Dict[str, str] = {}
+    for entry in entries:
+        destination = str(entry.destination)
+        arena_relative = (
+            destination[len(prefix):] if destination.startswith(prefix) else destination
+        )
+        expected[arena_relative] = entry.sha256
+    actual = _inventory_staged_destinations(arena)
+    for destination, digest in expected.items():
+        observed = actual.get(destination)
+        if observed is None or observed != digest:
+            raise ProjectionError(
+                f"generation hash mismatch after rename for {destination}"
+            )
 
 
 def _remove_tree_no_follow(root: Path) -> None:
@@ -1431,15 +1454,18 @@ def _staged_entries_from_generation(
         except ValueError:
             raise ProjectionError(f"generation source escapes arena: {relative}") from None
         filesystem_source = _windows_scannable_path(source_file)
-        actual = _regular_file_hash(filesystem_source)
-        if not _is_sha256(expected_sha) or actual != expected_sha:
+        try:
+            content = filesystem_source.read_bytes()
+        except OSError as exc:
+            raise ProjectionError(f"generation source is unreadable: {relative}") from exc
+        if not _is_sha256(expected_sha) or hashlib.sha256(content).hexdigest() != expected_sha:
             raise ProjectionError(f"generation hash mismatch for {relative}")
         entries.append(ProjectionEntry(
             platform=platform,
             destination=relative,
             source="recovered-generation",
             kind="recovered",
-            content=filesystem_source.read_bytes(),
+            content=content,
             sha256=expected_sha,
             executable=os.access(filesystem_source, os.X_OK),
             origin="recovered",

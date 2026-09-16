@@ -10,6 +10,28 @@
 $script:OnWindows = (((Test-Path variable:IsWindows) -and $IsWindows) -or ($env:OS -eq "Windows_NT"))
 $script:OnMacOS   = ($IsMacOS -eq $true)
 
+Describe "bash-scripts - cg-help cross-platform wrapper contract" {
+    $helpRepoRoot = if ($env:CG_TEST_ROOT) { $env:CG_TEST_ROOT } else { Split-Path $PSScriptRoot -Parent }
+
+    It "ships a guarded self-relative POSIX launcher with exact status propagation" {
+        $path = Join-Path $helpRepoRoot "bin/cg-help"
+        Test-Path $path | Should -Be $true
+        $content = Get-Content $path -Raw -ErrorAction Stop
+        $content | Should -Match '^#!/usr/bin/env bash'
+        $content | Should -Match 'command -v "\$candidate"'
+        $content | Should -Match 'python3 python py'
+        $content | Should -Match 'sys\.version_info\s*>=\s*\(3,\s*8\)'
+        $content | Should -Match 'exec "\$PYTHON_CMD" "\$SCRIPT_DIR/\.\./scripts/cg_help\.py" "\$@"'
+    }
+
+    It "installs, marks executable, and displays the committed help wrapper" {
+        $content = Get-Content (Join-Path $helpRepoRoot "scripts/install.sh") -Raw
+        $content | Should -Match 'cp.*bin/cg-help'
+        $content | Should -Match 'chmod \+x.*cg-help'
+        $content | Should -Match 'printf ''\s+cg-help\s+--'
+    }
+}
+
 # Bash integration tests only run on macOS (the platform that ships bash and the
 # scripts target). On Windows, emit a single passing placeholder and return.
 if (-not $script:OnMacOS) {
@@ -174,15 +196,19 @@ Describe "install.sh - PATH block is idempotent" {
         New-Item -ItemType Directory -Path $tmpInstallBin     -Force | Out-Null
         New-Item -ItemType SymbolicLink -Path $tmpInstallScripts -Target (Join-Path $repoRoot "scripts") -Force | Out-Null
         Copy-Item -Path (Join-Path $repoRoot "bin/cg-render-artifact") -Destination (Join-Path $tmpInstallBin "cg-render-artifact") -Force
+        Copy-Item -Path (Join-Path $repoRoot "bin/cg-release") -Destination (Join-Path $tmpInstallBin "cg-release") -Force
         Copy-Item -Path (Join-Path $repoRoot "bin/cg-publish-markdown") -Destination (Join-Path $tmpInstallBin "cg-publish-markdown") -Force
+        Copy-Item -Path (Join-Path $repoRoot "bin/cg-help") -Destination (Join-Path $tmpInstallBin "cg-help") -Force
         Copy-Item -Path (Join-Path $repoRoot "bin/cg-kilo") -Destination (Join-Path $tmpInstallBin "cg-kilo") -Force
         Copy-Item -Path (Join-Path $repoRoot "bin/cg-skill") -Destination (Join-Path $tmpInstallBin "cg-skill") -Force
 
         try {
             # First run — use temp install dir
-            & bash (Join-Path $tmpInstallScripts "install.sh") 2>/dev/null | Out-Null
+            & bash (Join-Path $tmpInstallScripts "install.sh") | Out-Null
+            $LASTEXITCODE | Should -Be 0
             # Second run (idempotent)
-            & bash (Join-Path $tmpInstallScripts "install.sh") 2>/dev/null | Out-Null
+            & bash (Join-Path $tmpInstallScripts "install.sh") | Out-Null
+            $LASTEXITCODE | Should -Be 0
 
             $profileContent = if (Test-Path $tmpZshrc) { Get-Content $tmpZshrc -Raw } else { "" }
 
@@ -664,6 +690,68 @@ Describe "bash-scripts - Python-backed wrappers enforce Python 3.8+" {
     It "install.sh generated wrappers enforce Python 3.8+" {
         $content = Get-Content (Join-Path $repoRoot "scripts/install.sh") -Raw -Encoding UTF8
         $content | Should -Match 'sys\.version_info\s*>=\s*\(3,\s*8\)'
+    }
+}
+
+Describe "bash-scripts - cg-help consumer and uninstall runtime" {
+    It "keeps the consumer cwd and forwards each exact operation and child status" -TestCases @(
+        @{ Operation = @('--prepare-request', '--root', '.') },
+        @{ Operation = @('--consume-request', '12345678-1234-4234-8234-123456789abc') },
+        @{ Operation = @('--render-selection', '12345678-1234-4234-8234-123456789abc') }
+    ) {
+        param($Operation)
+        $fakeBin = Join-Path $TestDrive "help-python"
+        $consumer = Join-Path $TestDrive "unrelated consumer"
+        New-Item -ItemType Directory -Path $fakeBin, $consumer -Force | Out-Null
+        $fakePython = Join-Path $fakeBin "python3"
+        @'
+#!/bin/sh
+case "$1" in
+  --version) printf 'Python 3.12.0\n'; exit 0 ;;
+  -c) exit 0 ;;
+esac
+printf '%s\n' "$PWD" "$@" > "$CG_HELP_TEST_LOG"
+exit 37
+'@ | Set-Content $fakePython -Encoding ASCII
+        & chmod +x $fakePython
+        $oldPath, $oldLog = $env:PATH, $env:CG_HELP_TEST_LOG
+        $probeLog = Join-Path $TestDrive "help-wrapper.log"
+        try {
+            $env:PATH = "${fakeBin}:$oldPath"
+            $env:CG_HELP_TEST_LOG = $probeLog
+            Push-Location $consumer
+            try {
+                & bash (Join-Path $repoRoot "bin/cg-help") @Operation | Out-Null
+                $LASTEXITCODE | Should -Be 37
+            } finally { Pop-Location }
+        } finally { $env:PATH, $env:CG_HELP_TEST_LOG = $oldPath, $oldLog }
+        $lines = @(Get-Content $probeLog)
+        $lines[0] | Should -Be $consumer
+        [IO.Path]::GetFullPath($lines[1]) | Should -Be (Join-Path $repoRoot "scripts/cg_help.py")
+        ($lines[2..($lines.Count - 1)] -join ' ') | Should -Be ($Operation -join ' ')
+    }
+
+    It "unregisters an isolated install while preserving cg-help source bytes" {
+        $fixture = Join-Path $TestDrive "help-uninstall"
+        $scripts = Join-Path $fixture "scripts"
+        $bin = Join-Path $fixture "bin"
+        $fixtureHome = Join-Path $fixture "home"
+        New-Item -ItemType Directory -Path $scripts, $bin, $fixtureHome -Force | Out-Null
+        Copy-Item (Join-Path $repoRoot "scripts/install.sh") (Join-Path $scripts "install.sh")
+        Copy-Item (Join-Path $repoRoot "bin/cg-help") (Join-Path $bin "cg-help") -ErrorAction Stop
+        $wrapper = Join-Path $bin "cg-help"
+        $before = [Convert]::ToBase64String([IO.File]::ReadAllBytes($wrapper))
+        $profile = Join-Path $fixtureHome ".zshrc"
+        Set-Content $profile "# --- Compound GPID ---`nexport PATH=managed`n# --- End Compound GPID ---`n# keep" -Encoding ASCII
+        $oldHome, $oldShell = $env:HOME, $env:SHELL
+        try {
+            $env:HOME, $env:SHELL = $fixtureHome, '/bin/zsh'
+            & bash (Join-Path $scripts "install.sh") --uninstall | Out-Null
+            $LASTEXITCODE | Should -Be 0
+        } finally { $env:HOME, $env:SHELL = $oldHome, $oldShell }
+        [Convert]::ToBase64String([IO.File]::ReadAllBytes($wrapper)) | Should -Be $before
+        (Get-Content $profile -Raw) | Should -Not -Match 'export PATH=managed'
+        (Get-Content $profile -Raw) | Should -Match '# keep'
     }
 }
 

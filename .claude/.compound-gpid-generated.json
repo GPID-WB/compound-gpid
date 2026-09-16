@@ -224,7 +224,7 @@
       "path": ".claude/commands/cg-commit-push-pr.md",
       "source": ".github/prompts/cg-commit-push-pr.prompt.md",
       "kind": "command",
-      "sha256": "1abeaf9166f58a697666ce6956c05481de36c9618d1d8cd497a5ddf09f086b8b",
+      "sha256": "28dc378438267a0a791b005db1ed0c6dd68a0acfa83c936505ae3b81c9aa5c08",
       "executable": false
     },
     {
@@ -281,6 +281,13 @@
       "source": ".github/prompts/cg-fixbug.prompt.md",
       "kind": "command",
       "sha256": "495efde4edd2a25df7fd31622f89b0d7c6d92fc6ebccdcf5e5605bc0280422ce",
+      "executable": false
+    },
+    {
+      "path": ".claude/commands/cg-help.md",
+      "source": ".github/prompts/cg-help.prompt.md",
+      "kind": "command",
+      "sha256": "971ae584590e18fd8d488c531247cce04bddc5174c6a262552a42386d2bcf1bf",
       "executable": false
     },
     {
@@ -522,6 +529,13 @@
       "executable": false
     },
     {
+      "path": ".claude/shared/help-catalog.json",
+      "source": ".github/shared/help-catalog.json",
+      "kind": "shared",
+      "sha256": "32c3d589b0d9d268249e48fcd6fa6c4c8de34042b67da9984cdbf1e83e2f51d9",
+      "executable": false
+    },
+    {
       "path": ".claude/shared/model-advisory-examples.json",
       "source": ".github/shared/model-advisory-examples.json",
       "kind": "shared",
@@ -554,6 +568,13 @@
       "source": ".github/shared/review-routing.contract.md",
       "kind": "shared",
       "sha256": "946815d708ee716235fd7af3958cd6b4b40dd3176ec66d4a9e0d61453a67ed28",
+      "executable": false
+    },
+    {
+      "path": ".claude/shared/shell-commands.json",
+      "source": ".github/shared/shell-commands.json",
+      "kind": "shared",
+      "sha256": "d0ef5621739b2e2ad2ebe3075b7e2f26852e460639802a8bf0d894da51d1c74a",
       "executable": false
     },
     {
@@ -833,7 +854,7 @@
       "path": ".claude/shared/target-mapping.json",
       "source": ".github/shared/target-mapping.json",
       "kind": "shared",
-      "sha256": "7fd36441e3ad8bb66b2ff039474605b01a487342090cacb9ed0c4324fff9f525",
+      "sha256": "fccefd5d1f4090a370fbacc0c494db99b9db89b8cb1484116fa3745421dad841",
       "executable": false
     },
     {
