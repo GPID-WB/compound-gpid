@@ -1,4 +1,4 @@
-> [!NOTE]
+﻿> [!NOTE]
 > **⚠️ WORK IN PROGRESS**
 >
 > Core workflows (brainstorm, plan, work, review, fix-triage, compound) are stable.
@@ -37,6 +37,7 @@ Compound GPID enforces a repeatable **Brainstorm → Plan → Work → Review �
 - **Knowledge brain** — `cg-index --brain` and `/cg-brain-rebuild` build a structured knowledge brain (`BRAIN.md`, `BRAIN-NN.md`, `BRAIN-log.md`, `brain-index.json`) by clustering `.cg-docs/` artifacts into topics and mapping typed relationships between artifacts — so every session can surface relevant past work automatically.
 - **Roadmap tracking** — `@cg-roadmap` manages a `roadmap.json` milestone and feature tracker. Brainstorm, Plan, and Work prompts hook into it automatically: brainstorms register feature ideas, plans link to features, and work marks them active — so your roadmap stays current without manual updates.
 - **Modular suites** — a validated registry separates the kernel, reusable capability packs, the technical `/cg-*` suite, and the research `/cr-*` suite. Projects select `suites: [cg]`, `[cr]`, or `[cg, cr]` without creating cross-suite dependencies.
+- **Supervised batch execution (Kilo)** — `/cg-autopilot` runs a strict phased plan as supervised stage batches with parent-only checkpoints, scoped approvals, bounded repair rounds, and drift-proof publication. Probe-only bootstrap until native qualification completes; the specified contract is documented in [docs/reference.md](docs/reference.md).
 - **Cross-platform** — native support for GitHub Copilot, Claude Code, Codex, OpenCode, and Kilo from a single `.github/` source. Generated platform trees are committed, release-validated, and distributed through merge-safe per-platform install units. `cg-link` links all platforms by default.
 - **Zero friction** — one global clone, per-subdirectory symlinks (junctions on Windows, symlinks on macOS), and shell commands (`cg-link`, `cg-unlink`, `cg-update`, `cg-index`, `cg-brain-init`, `cg-publish-markdown`, `cg-token-audit`) wire everything into VS Code / Positron automatically.
 - **Secure document views** — `cg-publish-markdown` turns one project-contained generic Markdown file into a deterministic, self-contained `reference` HTML view while preserving strict Brainstorm/Plan validation and excluding generated bodies from model context.
