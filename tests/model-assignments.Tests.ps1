@@ -10,7 +10,7 @@ Describe "Canonical prompt execution metadata" {
     $promptFiles = @(Get-ChildItem (Join-Path $repoRoot ".github\prompts") -Filter "*.prompt.md" -File)
 
     It "contains exactly 32 prompt files - update this sentinel when changing prompts" {
-        $promptFiles.Count | Should -Be 32
+        $promptFiles.Count | Should -Be 33
     }
 
     foreach ($file in $promptFiles) {

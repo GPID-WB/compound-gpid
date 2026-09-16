@@ -23,9 +23,89 @@ if ($env:CG_TEST_ROOT -and -not (Test-Path $env:CG_TEST_ROOT)) { throw "CG_TEST_
 
 # Note: Get-ToolsList is defined in helpers.ps1 (shared helper, moved here to avoid duplication across test files)
 
+Describe "cg-help deterministic answer boundary" {
+    $helpPath = Join-Path $repoRoot ".github/prompts/cg-help.prompt.md"
+    $helpText = if (Test-Path $helpPath) { Get-Content $helpPath -Raw -Encoding UTF8 } else { "" }
+
+    It "ships a thin prompt with separate metadata" {
+        Test-Path $helpPath | Should -Be $true
+        Test-Path (Join-Path $repoRoot ".github/prompts/cg-help.help.json") | Should -Be $true
+        $helpText.Length | Should -BeLessThan 7000
+        $helpText.Contains('definitionDigest') | Should -Be $false
+        $helpText.Contains('$ARGUMENTS') | Should -Be $false
+    }
+    It "requires prepare validation before each structured write" {
+        $helpText.Contains('--prepare-request --root .') | Should -Be $true
+        $helpText.Contains('Before every write') | Should -Be $true
+        $helpText.Contains('structured file-write tool') | Should -Be $true
+        $helpText.Contains('UUID-derived path') | Should -Be $true
+        $helpText.Contains('selection-prepared') | Should -Be $true
+    }
+    It "relays only deterministic content and stops unsafe fallback" {
+        $helpText.Contains('Do not compose') | Should -Be $true
+        $helpText.Contains('unchanged') | Should -Be $true
+        $helpText.Contains('Never scan') | Should -Be $true
+        $helpText.Contains('transport-error') | Should -Be $true
+        $helpText.Contains('at most three') | Should -Be $true
+        $helpText.Contains('--render-selection <uuid>') | Should -Be $true
+    }
+}
+
 # ---------------------------------------------------------------------------
 # cg-render-doc.prompt.md must exclude generated views from publishing
 # ---------------------------------------------------------------------------
+
+Describe "cg-commit-push-pr.prompt.md - Step 6 help-catalog gate" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-commit-push-pr.prompt.md"
+    $content = if (Test-Path $promptFile) { Get-Content $promptFile -Raw -Encoding UTF8 } else { "" }
+    $flat = [regex]::Replace($content, "\s+", " ")
+
+    It "runs the help catalog check unconditionally before native-target generation" {
+        ($flat -match 'scripts/cg_generate_help_catalog\.py --check') | Should -Be $true
+        ($flat -match 'unconditionally') | Should -Be $true
+    }
+
+    It "treats exit code 2 as a source-validation hard stop" {
+        ($flat -match 'Exit code 2 is a source-validation hard stop') | Should -Be $true
+    }
+
+    It "halts for a stale definition digest and requires a preview before repin" {
+        ($flat -match 'stale `definitionDigest`|stale ``definitionDigest``') | Should -Be $true
+        ($flat -match '--preview-definition-digest') | Should -Be $true
+        ($flat -match 'halt before native-target generation') | Should -Be $true
+    }
+
+    It "requires reviewed one-record repin and never auto-repins" {
+        ($flat -match '--repin-definition-digest') | Should -Be $true
+        ($flat -match '--reviewed') | Should -Be $true
+        ($flat -match 'Never auto-repin a definition from this workflow or from a bulk catalog-generation path') | Should -Be $true
+    }
+
+    It "distinguishes exit 3 stale output from exit 4 or other hard-stop failures" {
+        ($flat -match 'Exit code 3 means only that the validated catalog output is missing or stale') | Should -Be $true
+        ($flat -match 'Exit code 3 is the trigger to run') | Should -Be $true
+        ($flat -match 'Exit code 4 or any other nonzero/ambiguous result is a hard stop') | Should -Be $true
+        ($flat -match 'Never treat source-validation or I/O failure as ordinary output drift') | Should -Be $true
+    }
+
+    It "writes the catalog only after reviewed digests and stops on any nonzero write" {
+        ($flat -match 'scripts/cg_generate_help_catalog\.py --write') | Should -Be $true
+        ($flat -match 'Any nonzero result halts before native-target generation and staging') | Should -Be $true
+        ($flat -match 'Do not stage a partial or previously stale catalog') | Should -Be $true
+    }
+
+    It "reruns the check after the write and requires exit code 0" {
+        ($flat -match 'Rerun') | Should -Be $true
+        ($flat -match 'after the write and require exit code 0 before continuing') | Should -Be $true
+        ($flat -match 'A nonzero or partial result is a hard stop') | Should -Be $true
+    }
+
+    It "keeps views and documentation prose out of the catalog drift boundary" {
+        ($flat -match '\.cg-docs/views/\*\*') | Should -Be $true
+        ($flat -match 'are not catalog source-digest or drift inputs') | Should -Be $true
+        ($flat -match 'do not broaden the generator''s evidence boundary') | Should -Be $true
+    }
+}
 
 Describe "cg-render-doc.prompt.md - generated views routing" {
     $promptFile = Join-Path $repoRoot ".github\prompts\cg-render-doc.prompt.md"
