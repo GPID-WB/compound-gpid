@@ -12,6 +12,14 @@ bin/cg-*        text eol=lf
 *.yml           text eol=lf
 *.yaml          text eol=lf
 *.html          text eol=lf
+*.js            text eol=lf
+*.mjs           text eol=lf
+
+# Native plugin ownership hashes must survive Windows checkout without conversion.
+.github/plugins/*.js text eol=lf
+.github/plugin-support/cg-native-evidence/*.mjs text eol=lf
+.kilo/plugins/*.js text eol=lf
+.kilo/plugin-support/cg-native-evidence/*.mjs text eol=lf
 
 # Ensure Windows batch wrappers keep CRLF (required by CMD.EXE)
 bin/*.cmd       text eol=crlf
