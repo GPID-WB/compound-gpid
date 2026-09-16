@@ -1,5 +1,5 @@
 {
-  "edge_count": 338,
+  "edge_count": 345,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -1490,6 +1490,30 @@
       "target_missing": false
     },
     {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-09-08-evidence-backed-cg-help-command-review.md",
+      "target": ".cg-docs/plans/2026-09-08-evidence-backed-cg-help-command.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-09-08-evidence-backed-cg-help-command-verify-review-2.md",
+      "target": ".cg-docs/reviews/2026-09-08-evidence-backed-cg-help-command-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-09-08-evidence-backed-cg-help-command-verify-review.md",
+      "target": ".cg-docs/reviews/2026-09-08-evidence-backed-cg-help-command-review.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/bugs/2026-09-15-cmd-findstr-pattern-splitting-accepts-store-stub.md",
+      "target": ".cg-docs/plans/2026-09-08-evidence-backed-cg-help-command.md",
+      "target_missing": false
+    },
+    {
       "edge_type": "references",
       "source": ".cg-docs/solutions/environment-issues/2026-06-23-cross-agent-adapters-are-opt-in-source-packages.md",
       "target": ".cg-docs/plans/2026-06-23-cross-agent-packaging-adapters.md",
@@ -1619,6 +1643,24 @@
       "edge_type": "references",
       "source": ".cg-docs/solutions/testing-patterns/2026-07-31-advisory-inheritance-audit-and-legacy-cleanup.md",
       "target": ".cg-docs/plans/2026-07-30-user-selected-model-advisory-routing.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/testing-patterns/2026-09-15-pester-testdrive-long-path-cleanup-failure.md",
+      "target": ".cg-docs/plans/2026-09-08-evidence-backed-cg-help-command.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/testing-patterns/2026-09-15-prompt-count-sentinel-prompt-additions-sync.md",
+      "target": ".cg-docs/plans/2026-09-08-evidence-backed-cg-help-command.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/testing-patterns/2026-09-15-runner-harness-leak-invalidates-pester-gates.md",
+      "target": ".cg-docs/plans/2026-09-08-evidence-backed-cg-help-command.md",
       "target_missing": false
     },
     {
@@ -11341,6 +11383,72 @@
       ]
     },
     {
+      "date": "2026-09-14",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-09-08-evidence-backed-cg-help-command-review.md",
+      "slug": "2026-09-08-evidence-backed-cg-help-command-review",
+      "status": "",
+      "summary": "**Date**: 2026-09-14 **Mode**: full (auto-routed: security-risk — installers, linkers, schema, generated targets, workflows; config `review-depth: thorough`; no explicit mode) **Type**: standard initial review (NOT a verify review) **Plan**: `.cg-docs/plans/2026-09-08-evidence-backed-cg-help-command.md` **PR**: #153, base `dev`, head branch wealthy-salmonberry **Head (before/after)**: `53966262c430b44145508b7837ebcc9a11a1aa5c` (unchanged) **Prev. decisions**: D1–D5 and all approved plan-phase decisions are final and not reopened (deferral, model-assignments sentinel 33, per-OS implementation evidence, single-record repin, definition-source set composition).",
+      "tags": [],
+      "title": "2026-09-08-evidence-backed-cg-help-command-review",
+      "top_keywords": [
+        "catalog.py",
+        "cg_help.py",
+        "query.py",
+        "cg_skill_catalog.py",
+        "cg_generate_help_catalog.py",
+        "support.py",
+        "53966262c430b44145508b7837ebcc9a11a1aa5c",
+        "scripts/help/query.py",
+        "--write",
+        "cg_validate_modules.py"
+      ]
+    },
+    {
+      "date": "2026-09-16",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-09-08-evidence-backed-cg-help-command-verify-review-2.md",
+      "slug": "2026-09-08-evidence-backed-cg-help-command-verify-review-2",
+      "status": "",
+      "summary": "**Date**: 2026-09-16 **Mode**: verify (light-only) **Type**: verification **Parent review**: `.cg-docs/reviews/2026-09-08-evidence-backed-cg-help-command-review.md` **Predecessor verify**: `.cg-docs/reviews/2026-09-08-evidence-backed-cg-help-command-verify-review.md` (cycle 1) **Head (before/after)**: `53966262c430b44145508b7837ebcc9a11a1aa5c` (unchanged) **Settled decisions (not reopened)**: D1–D5, OR-set approval 2026-09-15T01:58Z, five-decision approval 2026-09-15T18:45Z, V-P3.1–V-P3.7 fix record 2026-09-15T23:45Z.",
+      "tags": [],
+      "title": "2026-09-08-evidence-backed-cg-help-command-verify-review-2",
+      "top_keywords": [
+        "fixed",
+        "verification",
+        "@cg-code-quality",
+        "@cg-testing",
+        "v-p3",
+        "review",
+        ".cg-docs/reviews/2026-09-08-evidence-backed-cg-help-command-review.md",
+        "53966262c430b44145508b7837ebcc9a11a1aa5c",
+        "python scripts/cg_generate_help_catalog.py --check",
+        "2026-09-08-evidence-backed-cg-help-command-review.md"
+      ]
+    },
+    {
+      "date": "2026-09-15",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-09-08-evidence-backed-cg-help-command-verify-review.md",
+      "slug": "2026-09-08-evidence-backed-cg-help-command-verify-review",
+      "status": "",
+      "summary": "**Date**: 2026-09-15 **Mode**: verify (light-only) **Type**: verification **Parent review**: `.cg-docs/reviews/2026-09-08-evidence-backed-cg-help-command-review.md` **Plan**: `.cg-docs/plans/2026-09-08-evidence-backed-cg-help-command.md` **Head (before/after)**: `53966262c430b44145508b7837ebcc9a11a1aa5c` (unchanged) **Settled decisions (not reopened)**: D1–D5, OR-set approval 2026-09-15T01:58Z, five-decision approval 2026-09-15T18:45Z.",
+      "tags": [],
+      "title": "2026-09-08-evidence-backed-cg-help-command-verify-review",
+      "top_keywords": [
+        "fixed",
+        "53966262c430b44145508b7837ebcc9a11a1aa5c",
+        "tests.yml",
+        "test_kilo_coexistence.py",
+        "test_cg_pr_preflight.py",
+        "test_help_catalog.py",
+        "cg_generate_targets.py",
+        "findings",
+        "verification",
+        "scripts/cg_generate_targets.py"
+      ]
+    },
+    {
       "date": "2026-08-17",
       "entity_type": "solution",
       "path": ".cg-docs/solutions/architecture/2026-08-17-capability-router-hard-stop.md",
@@ -13681,6 +13789,65 @@
         "cover",
         "root",
         "skill_management"
+      ]
+    },
+    {
+      "date": "2026-09-11",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/bugs/2026-09-11-single-record-help-repin-multiple-stale-definitions.md",
+      "slug": "2026-09-11-single-record-help-repin-multiple-stale-definitions",
+      "status": "",
+      "summary": "Preview and explicit reviewed repin of `shell:cg-brain-init` failed when both its definition and the unrelated `shell:cg-diff-summary` definition were stale. The maintenance command returned a source-validation error for the unrelated stale pin. It could not complete a valid single-record operation.",
+      "tags": [
+        "cg-help",
+        "catalog",
+        "definition-digest",
+        "repin",
+        "stale-metadata",
+        "fixture-gap"
+      ],
+      "title": "Single-record help repin blocked by multiple stale definitions",
+      "top_keywords": [
+        "fixture-gap",
+        "shell:cg-diff-summary",
+        "repin",
+        "test",
+        "d3-multi-stale-single-repin-scope",
+        "currentdefinitiondigest",
+        "shell:cg-brain-init",
+        "maintenance repair evidence reconciliation",
+        "test_help_catalog.py",
+        "stale"
+      ]
+    },
+    {
+      "date": "2026-09-15",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/bugs/2026-09-15-cmd-findstr-pattern-splitting-accepts-store-stub.md",
+      "slug": "2026-09-15-cmd-findstr-pattern-splitting-accepts-store-stub",
+      "status": "",
+      "summary": "The `/cg-help` Windows installer gate failed with two current red cases `rejects absent Python and Store stubs without running them as interpreters (store-stub)` and `(fallback)` — each `Expected $false, but got $true.` Evidence: `tests/last-run.json` `ranAt: 2026-09-12T17:39:04Z`, 102 total / 100 passed / 2 failed, `filteredFiles: \"install\"`, asserted at `tests/install.Tests.ps1:938`. The Store-stub message `Python was not found` was accepted by the launcher probe, so the stub flow reached the `-c` probe and created the forbidden marker. The symptom was invisible in normal interactive use because a real Python matches both the correct and the defective probe.",
+      "tags": [
+        "cmd",
+        "findstr",
+        "windows",
+        "store-stub",
+        "python-detection",
+        "cg-help",
+        "launcher"
+      ],
+      "title": "CMD FINDSTR splits space-separated patterns into ORs, letting the Windows Store stub pass a .cmd launcher probe",
+      "top_keywords": [
+        "cmd",
+        "findstr",
+        ".cmd",
+        "cg-help",
+        "launcher",
+        "windows",
+        "python was not found",
+        "bin/cg-help.cmd",
+        "windows store",
+        "space-separated"
       ]
     },
     {
@@ -18345,6 +18512,98 @@
       ]
     },
     {
+      "date": "2026-09-15",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-09-15-pester-testdrive-long-path-cleanup-failure.md",
+      "slug": "2026-09-15-pester-testdrive-long-path-cleanup-failure",
+      "status": "",
+      "summary": "The unfiltered full Pester gate passed its assertions but left fixture directories behind. The supervised run of `2026-09-13T02:05:25Z` – `02:08:14Z` (2,839 total / 2,837 passed / 0 failed / 2 skipped, `filteredFiles: null`) also produced 192 genuine cleanup exception records: 78 `DirectoryNotFoundException`, 108 `IOException` (\"The directory is not empty\"), and 6 `ItemNotFoundException`. They originate in Pester 4.10.1 `Functions/TestDrive.ps1:42` (131 records) and `:146` (61 records) during `Clear-TestDrive` / `Remove-TestDrive`. Cleanup errors are NOT counted in `failedCount`, so a green canonical artifact can coexist with unresolved residue. Retained residue roots: `<USER_HOME>\\AppData\\Local\\Temp\\3\\4f28d182-c040-4660-b810-61cb788e293d` (deepest path 267 chars) and `<USER_HOME>\\AppData\\Local\\Temp\\3\\f2436869-bcc9-4c79-908a-a5c9d3b53c32` (deepest path 265 chars).",
+      "tags": [
+        "pester",
+        "powershell",
+        "windows",
+        "testdrive",
+        "long-path",
+        "temp",
+        "cleanup",
+        "full-gate",
+        "supervision"
+      ],
+      "title": "Pester 4.10.1 TestDrive cleanup fails on Windows long paths; short process-local TEMP and owned-temp disposal are required",
+      "top_keywords": [
+        "temp",
+        "cleanup",
+        "pester",
+        "testdrive",
+        "windows",
+        "c:\\temp\\p7f2",
+        "short",
+        "process-local",
+        "long",
+        "paths"
+      ]
+    },
+    {
+      "date": "2026-09-15",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-09-15-prompt-count-sentinel-prompt-additions-sync.md",
+      "slug": "2026-09-15-prompt-count-sentinel-prompt-additions-sync",
+      "status": "",
+      "summary": "The Step 7 full Pester gate (`2026-09-14T19:29:01Z` – `19:32:15Z`) failed with a genuine, StrictMode-independent regression: `tests\\model-assignments.Tests.ps1:12-13` asserts `$promptFiles.Count | Should -Be 32` over `.github\\prompts\\*.prompt.md`, but the directory held 33 files because Step 7 added `.github/prompts/cg-help.prompt.md` without updating the sentinel. Failure message: `Expected 32, but got 33`. The sentinel update `32 -> 33` was resolved by explicit user decision `D5` (recorded `2026-09-14T19:42Z`) and applied at `tests/model-assignments.Tests.ps1:13`; the corrected full gate then ran model-assignments green (210/210) and the full suite passed 2,845/2,843/0/2.",
+      "tags": [
+        "pester",
+        "model-assignments",
+        "sentinel",
+        "prompt-inventory",
+        "cg-help",
+        "contract"
+      ],
+      "title": "Prompt-count sentinel in model-assignments tests must change with every .github/prompts/*.prompt.md addition",
+      "top_keywords": [
+        "prompt.md",
+        "model-assignments.tests.ps1",
+        "sentinel",
+        "model-assignments",
+        ".github/prompts/*.prompt.md",
+        ".cg-docs/solutions/testing-patterns/2026-04-08-new-prompt-agent-addition-checklist.md",
+        "2026-04-08-new-prompt-agent-addition-checklist.md",
+        "tests",
+        "prompt",
+        "change"
+      ]
+    },
+    {
+      "date": "2026-09-15",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-09-15-runner-harness-leak-invalidates-pester-gates.md",
+      "slug": "2026-09-15-runner-harness-leak-invalidates-pester-gates",
+      "status": "",
+      "summary": "Two supervised full-gate attempts were invalidated by harness contamination of the canonical Pester scope: 1. **StrictMode leak** — `2026-09-14T19:29:01Z` – `19:32:15Z`, osExit 1: 159 invalid failures with exclusive StrictMode signatures (`The property 'Count'/'Name'/'schemaVersion'/'githubIssues' cannot be found`, `The variable '$IsMacOS'/'$Version'/... cannot be retrieved because it has not been set`) across roadmap (51), pester-safety (76), bash-scripts (1), cg-index (12), update (9), and link (10). Cause: the generated worker set `Set-StrictMode -Version Latest` in the canonical scope before dot-sourcing `tests\\Run-Tests.ps1`. 2. **`$ErrorActionPreference='Stop'` leak** — fullgate2 `2026-09-14T20:18:37Z` – `20:22:16Z`, osExit 1: 14 failures (cg-index 12, link 2) with `NativeCommandError` signatures because native-command stderr surfaced...",
+      "tags": [
+        "pester",
+        "powershell",
+        "harness",
+        "isolation",
+        "strictmode",
+        "erroractionpreference",
+        "full-gate",
+        "run-tests"
+      ],
+      "title": "Runner harness leaking Set-StrictMode or ErrorActionPreference into the canonical Pester scope invalidates full-gate results",
+      "top_keywords": [
+        "set-strictmode",
+        "run-tests.ps1",
+        "erroractionpreference",
+        "harness",
+        "pester",
+        "full-gate",
+        "set-psdebug",
+        ". tests\\run-tests.ps1",
+        "$erroractionpreference",
+        "scope"
+      ]
+    },
+    {
       "date": "2026-04-06",
       "entity_type": "strategy",
       "path": ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
@@ -22239,13 +22498,13 @@
       ]
     }
   ],
-  "entity_count": 774,
-  "generated": "2026-09-09",
+  "entity_count": 782,
+  "generated": "2026-09-15",
   "schema_version": "0.2.0",
   "topic_count": 6,
   "topics": [
     {
-      "entity_count": 542,
+      "entity_count": 548,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -22582,6 +22841,8 @@
         ".cg-docs/reviews/2026-08-21-pr-ci-preflight-and-kilo-capability-gates-verify-review.md",
         ".cg-docs/reviews/2026-08-28-compound-gpid-rd-command-review.md",
         ".cg-docs/reviews/2026-09-04-minimal-adaptive-grilling-review.md",
+        ".cg-docs/reviews/2026-09-08-evidence-backed-cg-help-command-verify-review-2.md",
+        ".cg-docs/reviews/2026-09-08-evidence-backed-cg-help-command-verify-review.md",
         ".cg-docs/solutions/bugs/2026-03-18-broken-relative-links-in-nested-skill-files.md",
         ".cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md",
         ".cg-docs/solutions/bugs/2026-03-19-explicit-unpin-does-not-persist-missing-state-file-write.md",
@@ -22641,6 +22902,8 @@
         ".cg-docs/solutions/bugs/2026-08-26-release-drift-ignore-checks-spawn-thousands-of-git-processes.md",
         ".cg-docs/solutions/bugs/2026-08-31-trust-anchor-captured-byte-dispatch.md",
         ".cg-docs/solutions/bugs/2026-09-02-captured-byte-trust-must-cover-dependency-closure.md",
+        ".cg-docs/solutions/bugs/2026-09-11-single-record-help-repin-multiple-stale-definitions.md",
+        ".cg-docs/solutions/bugs/2026-09-15-cmd-findstr-pattern-splitting-accepts-store-stub.md",
         ".cg-docs/solutions/build-errors/2026-03-04-get-item-target-is-string-array.md",
         ".cg-docs/solutions/build-errors/2026-03-04-powershell-dollar-dollar-is-not-pid.md",
         ".cg-docs/solutions/build-errors/2026-03-13-backslash-quote-in-powershell-string-breaks-percent-operator.md",
@@ -22774,6 +23037,8 @@
         ".cg-docs/solutions/testing-patterns/2026-08-10-evidence-manifest-tests-require-referenced-files.md",
         ".cg-docs/solutions/testing-patterns/2026-09-08-fact-first-prompts-need-branch-complete-tests.md",
         ".cg-docs/solutions/testing-patterns/2026-09-09-registry-ownership-metadata-needs-consumer-closure-tests.md",
+        ".cg-docs/solutions/testing-patterns/2026-09-15-pester-testdrive-long-path-cleanup-failure.md",
+        ".cg-docs/solutions/testing-patterns/2026-09-15-prompt-count-sentinel-prompt-additions-sync.md",
         ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
         ".cg-docs/strategy/2026-04-13-workflow-automation-research.md",
         ".cg-docs/strategy/2026-04-15-move-testing-skills-to-skills-enhancement.md",

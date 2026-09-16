@@ -62,7 +62,7 @@ answer its questions when asked, and let it run to completion.
       "intents": ["configure a new Compound GPID project", "link and initialize a project"],
       "prerequisites": ["Compound GPID is installed on the machine."],
       "steps": [
-        {"order": 1, "commandId": "shell:cg-link", "purpose": "Link selected platform assets.", "evidence": [{"sourcePath": "docs/installation.md", "sourceSection": "step-3-link-your-project-once-per-project"}]},
+        {"order": 1, "commandId": "shell:cg-link", "purpose": "Link selected platform assets.", "evidence": [{"sourcePath": "docs/installation.md", "sourceSection": "step-3---link-your-project-once-per-project"}]},
         {"order": 2, "commandId": "slash:cg-setup", "purpose": "Create or validate project configuration and context.", "evidence": [{"sourcePath": ".github/prompts/cg-setup.prompt.md", "sourceSection": "process"}]}
       ],
       "sourcePath": "docs/workflow.md",

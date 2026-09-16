@@ -2,8 +2,9 @@
 date: 2026-09-08
 title: "Evidence-Backed Cross-Platform /cg-help Command"
 status: active
-completed-phases: [1, 2]
-current-phase: 3
+completed-phases: [1, 2, 3, 4]
+current-phase: 5
+failing-steps: []
 execution-report: ".cg-docs/work-reports/2026-09-09-evidence-backed-cg-help-command.md"
 scope: "Deep"
 brainstorm: ".cg-docs/brainstorms/2026-09-04-cg-help-command.md"
@@ -556,6 +557,10 @@ authority.
 - **Requirements**: R1, R2, R3, R5, R6, R7, R8, R12, R13, R15, R16, R18, R19, R20, R21
 - **Files**:
   - `scripts/cg_help.py` (new)
+  - `scripts/secure_fs.py` (approved D3-secure-fs-scope: prepare-time identity capture and expected-identity validation during pinned read/delete; approved D3-secure-fs-oversize-delete-scope: identity-authorized deletion without payload reads for CLI-owned oversized requests, requiring valid expected_identity and preserving pinned regular-file, hardlink, identity, non-clobbering checks, and unchanged digest verification whenever a digest is supplied)
+  - `scripts/tests/test_secure_fs.py` (approved D3-secure-fs-scope and D3-secure-fs-oversize-delete-scope: test the narrow identity-only deletion mode while preserving existing callers and security tests)
+  - `.github/shared/shell-commands.json` (approved D3-shell-metadata-scope: reviewed shell:cg-help metadata and explicit separate per-record repins for the 15 installer-bound IDs recorded in the execution report)
+  - `.github/shared/help-catalog.json` (generated; approved D3-shell-metadata-scope: regenerate/check after all individual metadata reviews and repins)
   - `bin/cg-help` (new)
   - `bin/cg-help.cmd` (new)
   - `install.ps1`
@@ -656,10 +661,12 @@ authority.
   - `.github/prompts/cg-help.prompt.md` (new)
   - `.github/prompts/cg-help.help.json` (new)
   - `.github/shared/help-catalog.json` (regenerated)
+  - `.github/shared/shell-commands.json` (approved D4-named-metadata-review: ONLY separate final-source semantic reviews and explicit named repins of shell:cg-help and shell:cg-kilo, after their bound code is final; only necessary accurate descriptive corrections; preserve complete source sets, unrelated fields, records, and pins; no bulk repin, zero-digest waiver, or Phase 5 migration)
   - `.github/shared/module-registry.json`
   - `.github/shared/target-mapping.json`
   - `scripts/schemas/target_mapping_schema.json`
   - `scripts/cg_generate_targets.py`
+  - `scripts/help/catalog.py` (approved D4-required-file-scope: remove the explicit cg-help.prompt.md exclusion while retaining complete source-set, structural, and security validation and existing Phase 3 code)
   - `scripts/schemas/help_support_evidence_schema.json` (new)
   - `scripts/help/support.py` (new)
   - `scripts/cg_verify_help_support.py` (new)
@@ -671,6 +678,11 @@ authority.
   - `tests/prompt-tools.Tests.ps1`
   - `scripts/tests/test_cg_help.py`
   - `scripts/tests/test_project_projection.py`
+  - `scripts/tests/test_module_registry.py` (approved D4-required-file-scope: planned ownership transition with exact new ownership, exclusions, and preserved public-skill coverage)
+  - `scripts/tests/test_skill_management_migration.py` (approved D4-required-file-scope: planned ownership transition with exact new ownership, exclusions, and preserved public-skill coverage)
+  - `scripts/tests/test_target_drift.py` (approved D4-required-file-scope: help-present generation transition only; preserve coverage and leave general Phase 5 fixture migration deferred)
+  - `scripts/tests/test_cg_generate_targets.py` (approved D4-required-file-scope: help-present generation and required argument-source fixtures only; no broad Phase 5 migration)
+  - `scripts/tests/test_cg_pr_preflight.py` (approved D4-required-file-scope: trusted exact-subject checkout instead of obsolete mutable-default expectations; preserve environment, fork, executable/version/hash, and runner protections)
   - `scripts/tests/test_target_mapping.py`
   - `scripts/tests/test_target_claude.py`
   - `scripts/tests/test_target_codex.py`

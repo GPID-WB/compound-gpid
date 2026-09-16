@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-09-09 · 612 artifacts (newest first) + 162 roadmap features_
+_Generated 2026-09-15 · 620 artifacts (newest first) + 162 roadmap features_
 
 ## undated
 
@@ -126,6 +126,34 @@ _Generated 2026-09-09 · 612 artifacts (newest first) + 162 roadmap features_
   > Plan: `.cg-docs/plans/2026-06-23-token-dashboard-regression-checks.md`
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
+
+## 2026-09-16
+
+- **[2026-09-08-evidence-backed-cg-help-command-verify-review-2](.cg-docs/reviews/2026-09-08-evidence-backed-cg-help-command-verify-review-2.md)** · `review` · _—_ · `2026-09-16`
+  > **Date**: 2026-09-16 **Mode**: verify (light-only) **Type**: verification **Parent review**: `.cg-docs/reviews/2026-0…
+
+## 2026-09-15
+
+- **[2026-09-08-evidence-backed-cg-help-command-verify-review](.cg-docs/reviews/2026-09-08-evidence-backed-cg-help-command-verify-review.md)** · `review` · _—_ · `2026-09-15`
+  > **Date**: 2026-09-15 **Mode**: verify (light-only) **Type**: verification **Parent review**: `.cg-docs/reviews/2026-0…
+- **[CMD FINDSTR splits space-separated patterns into ORs, letting the Windows Store stub pass a .cmd launcher probe](.cg-docs/solutions/bugs/2026-09-15-cmd-findstr-pattern-splitting-accepts-store-stub.md)** · `solution` · _—_ · `2026-09-15`
+  > The `/cg-help` Windows installer gate failed with two current red cases `rejects absent Python and Store stubs withou…
+- **[Pester 4.10.1 TestDrive cleanup fails on Windows long paths; short process-local TEMP and owned-temp disposal are required](.cg-docs/solutions/testing-patterns/2026-09-15-pester-testdrive-long-path-cleanup-failure.md)** · `solution` · _—_ · `2026-09-15`
+  > The unfiltered full Pester gate passed its assertions but left fixture directories behind. The supervised run of `202…
+- **[Prompt-count sentinel in model-assignments tests must change with every .github/prompts/*.prompt.md addition](.cg-docs/solutions/testing-patterns/2026-09-15-prompt-count-sentinel-prompt-additions-sync.md)** · `solution` · _—_ · `2026-09-15`
+  > The Step 7 full Pester gate (`2026-09-14T19:29:01Z` – `19:32:15Z`) failed with a genuine, StrictMode-independent regr…
+- **[Runner harness leaking Set-StrictMode or ErrorActionPreference into the canonical Pester scope invalidates full-gate results](.cg-docs/solutions/testing-patterns/2026-09-15-runner-harness-leak-invalidates-pester-gates.md)** · `solution` · _—_ · `2026-09-15`
+  > Two supervised full-gate attempts were invalidated by harness contamination of the canonical Pester scope: 1. **Stric…
+
+## 2026-09-14
+
+- **[2026-09-08-evidence-backed-cg-help-command-review](.cg-docs/reviews/2026-09-08-evidence-backed-cg-help-command-review.md)** · `review` · _—_ · `2026-09-14`
+  > **Date**: 2026-09-14 **Mode**: full (auto-routed: security-risk — installers, linkers, schema, generated targets, wor…
+
+## 2026-09-11
+
+- **[Single-record help repin blocked by multiple stale definitions](.cg-docs/solutions/bugs/2026-09-11-single-record-help-repin-multiple-stale-definitions.md)** · `solution` · _—_ · `2026-09-11`
+  > Preview and explicit reviewed repin of `shell:cg-brain-init` failed when both its definition and the unrelated `shell…
 
 ## 2026-09-09
 
