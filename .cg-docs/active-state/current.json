@@ -1,7 +1,7 @@
 {
   "schemaVersion": "compound-gpid-active-state-v1",
-  "updatedAt": "2026-09-17T17:36:00Z",
-  "workflow": "/cg-review",
+  "updatedAt": "2026-09-17T18:01:08Z",
+  "workflow": "/cg-work",
   "status": "active",
   "branch": "improve-website-design",
   "plan": ".cg-docs/plans/2026-09-16-documentation-ia-ux-redesign.md",
@@ -90,8 +90,13 @@
     },
     {
       "id": "V8-V9",
-      "status": "passed-phase5-source-bound-Kilo-198node-50browser-3007fullpester",
-      "artifact": ".cg-docs/work-reports/2026-09-17-docs-phase5-evidence.json"
+      "status": "reopened-current-source-native-final-output-failed-twice",
+      "artifact": ".cg-docs/work-reports/2026-09-17-docs-final-revalidation.json"
+    },
+    {
+      "id": "final-source-full-suite",
+      "status": "passed-unfiltered-3007-pass-0-fail-3-windows-skips-2026-09-17T18:01:08Z",
+      "artifact": ".cg-docs/work-reports/2026-09-17-docs-final-revalidation.json"
     }
   ],
   "unresolvedDecisions": [],
@@ -99,12 +104,12 @@
     {
       "kind": "temporary-handoff",
       "path": "HANDOFF.md",
-      "status": "all-five-phases-verified-final-review-active"
+      "status": "phase5-reopened-native-delivery-failure-review-passed"
     },
     {
       "kind": "execution-report",
       "path": ".cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign.md",
-      "status": "all-five-phases-verified-final-review-active"
+      "status": "phase5-reopened-native-delivery-failure-review-passed"
     },
     {
       "kind": "browser-tests",
@@ -127,5 +132,5 @@
       "status": "historical-unrelated-workflow"
     }
   ],
-  "nextCommand": "/cg-review mode:verify"
+  "nextCommand": "Run approved progress-prose repair attempt 1/1 against fresh committed native subject."
 }

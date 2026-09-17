@@ -315,7 +315,7 @@
       "path": ".kilo/commands/cg-help.md",
       "source": ".github/prompts/cg-help.prompt.md",
       "kind": "command",
-      "sha256": "8fdac9beda11b7f143e8aeffcdc3c93c3b75571287670713e34dd573f781753b",
+      "sha256": "c5c96e255779bf226ec85841da0873b668ce5f4a3db5793da4a48ad90740015e",
       "executable": false
     },
     {
@@ -609,7 +609,7 @@
       "path": ".kilo/shared/help-catalog.json",
       "source": ".github/shared/help-catalog.json",
       "kind": "shared",
-      "sha256": "572ecb9151261bc65c3d649641e87a8a60e6593d14e0b67768f2d99ac61fdbb4",
+      "sha256": "48cd6f7e1bca89b74c3dd5bba31d49a339ad66320a0abfef90baf7ea355ac30c",
       "executable": false
     },
     {

@@ -5,6 +5,35 @@ Remove this file after the successor has completed the work and saved final
 evidence in the canonical work report. Do not treat this file as a replacement
 for the approved plan or as proof that the work is complete.
 
+## Latest Review Revalidation, 2026-09-17
+
+The user has now approved the progress-prose repair described below. Run 28
+records attempt 1/1: the canonical prompt explicitly forbids progress updates
+and adapters/catalog outputs are regenerated with the reviewed definition pin.
+The fresh native subject and outcome will be recorded before continuing.
+
+The user-approved argv repair passed on 9e2ed000. Final review then corrected
+four issues and committed them at 5ef13ead27386220a87a9e1b4b6b66fdd34c7c8b.
+The full 52-case browser suite and verification review now pass. Fresh native
+help certification is blocked: on 5ef13ead Kilo adds progress prose before
+the backend display. The first run failed in metacharacters (145.92 seconds);
+one unchanged diagnostic repeat failed in overview (53.18 seconds). Exact query
+transport passed; unchanged response delivery failed. Neither run emitted a
+successful proof. The stored 9e evidence is historical and stale for this source.
+
+Phase 5 is reopened, step 7 failing. An asynchronous question requests one
+additional repair attempt to explicitly forbid progress/preamble commentary in
+the canonical help prompt, regenerate adapters, and rerun all three strict
+probes. Do not infer approval from elapsed time or perform another host retry.
+Prepare preflight passed all nine commands (3,383 native and 1,015 controller
+tests passed). Final unfiltered Pester passed at 2026-09-17T18:01:08Z: 3,007
+passed, zero failed, three Windows-only skips, no cleanup issues. The final
+Node suite has 198 passes and one stale-support-evidence failure. Machine-readable
+results are in `2026-09-17-docs-final-revalidation.json` under the work reports.
+The verify review is saved; triage has zero open findings. Compounding, final
+commit/push/PR to dev, the five-minute wait and PR verification remain pending.
+See the latest canonical work-report entry; earlier updates below are historical.
+
 ## Browser Pickup Update, 2026-09-17
 
 The execute-all-phases request resumed this handoff. Local repairs now pass all

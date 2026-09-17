@@ -315,7 +315,7 @@
       "path": ".claude/commands/cg-help.md",
       "source": ".github/prompts/cg-help.prompt.md",
       "kind": "command",
-      "sha256": "971ae584590e18fd8d488c531247cce04bddc5174c6a262552a42386d2bcf1bf",
+      "sha256": "82d621d0339649b62acd1c359ccd96caab8bd76fcf9bf5434600d867a4d68141",
       "executable": false
     },
     {
@@ -567,7 +567,7 @@
       "path": ".claude/shared/help-catalog.json",
       "source": ".github/shared/help-catalog.json",
       "kind": "shared",
-      "sha256": "572ecb9151261bc65c3d649641e87a8a60e6593d14e0b67768f2d99ac61fdbb4",
+      "sha256": "48cd6f7e1bca89b74c3dd5bba31d49a339ad66320a0abfef90baf7ea355ac30c",
       "executable": false
     },
     {

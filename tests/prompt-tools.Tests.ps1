@@ -200,6 +200,11 @@ Describe "cg-help deterministic answer boundary" {
         $helpText.Contains('at most three') | Should -Be $true
         $helpText.Contains('--render-selection <uuid>') | Should -Be $true
     }
+    It "suppresses progress prose throughout the help transport" {
+        $flat = [regex]::Replace($helpText, '\s+', ' ')
+        ($flat -match 'Do not send progress updates, preambles, or intermediate commentary before or between tools\.') | Should -Be $true
+        ($flat -match 'Emit user-visible text only when relaying the final backend display or fixed recovery\.') | Should -Be $true
+    }
 }
 
 # ---------------------------------------------------------------------------

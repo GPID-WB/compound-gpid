@@ -94,6 +94,8 @@
   /** Mount article-only TOC, breadcrumbs and deliberate next steps after a successful render. */
   function mount(config, pages) {
     article = document.querySelector("[data-document]"); measure();
+    // A retained verified article already has its links from the first mount.
+    article.querySelectorAll(".heading-permalink").forEach(link => link.remove());
     const crumb = document.querySelector("[data-breadcrumb]");
     const home = document.createElement("a"); home.href = "#home"; home.textContent = "Home";
     const group = document.createElement("span"); group.textContent = config.group;

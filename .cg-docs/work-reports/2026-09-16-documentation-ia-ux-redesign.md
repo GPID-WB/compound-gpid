@@ -2592,3 +2592,70 @@ runtime logic is unchanged, but the documentation writer belongs to its bound
 source inventory, so the authentic host evidence must be retaken on the new
 commit. This is source-freshness validation after separately authorized review
 fixes; the previously approved native argv renewal passed and is not reset.
+
+## Run 27: Verification Review Passed; Fresh Host Delivery Failed
+
+All 52 browser cases pass after removing existing generated heading permalinks
+before remounting retained DOM and narrowing command error-status selectors.
+The verification reviewer inspected both corrections and found no remaining
+reportable issues. The saved verify review names the exact parent full review;
+triage has four fixed P2 findings, one skipped P3 advisory, and zero open items.
+Fresh docs build and site checks pass (76 pages, seven navigation groups).
+
+Native certification on 5ef13ead27386220a87a9e1b4b6b66fdd34c7c8b failed in
+metacharacters after 145.92 seconds. Query fingerprints and fixed shell
+operations passed, but user-visible text included a progress sentence before
+the deterministic backend display. One unchanged diagnostic repeat failed in
+overview after 53.18 seconds for the same reason. No source or assertions were
+changed between these runs, and neither emitted successful certification.
+Logs: `/private/tmp/cg-review-kilo-final.log` and
+`/private/tmp/cg-review-kilo-repeat.log`.
+
+The genuine 9e proof remains historical; it cannot certify the changed bound
+documentation writer. Run 25 does not establish current phase 5 completion.
+V8/V9 are reopened, step 7 failing. One further bounded repair approval is
+pending: explicitly suppress progress/preamble commentary in the canonical help
+prompt, regenerate adapters, and run all three probes with every strict
+receipt/query/final-output assertion retained. No model switch, silent retry,
+evidence waiver, push, PR or deployment is authorized by this pending request.
+
+The final docs Node run executes all 199 tests: 198 pass, one fails because the
+strict native-support verifier rejects the stale 9e evidence after the bound
+writer changed. This is the expected blocking evidence check, not a passing
+whole-suite gate. The help guide now explicitly marks its existing table and
+examples as historical and discloses the current-source failed revalidation.
+The redesign roadmap feature is active again; its milestone remains in-progress.
+
+The proposed canonical prompt addition is: "Do not send progress updates,
+preambles, or intermediate commentary before or between tools. Emit user-visible
+text only when relaying the final backend display or fixed recovery."
+It requires regenerated adapters/catalog-owned documents, an exact prompt
+regression assertion, fresh source-bound three-flow native evidence and all
+affected final checks. It is a proposal only until the pending approval arrives.
+
+The full prepare preflight passed all nine selected commands without changing
+the selection: 3,383 native Python tests passed (12 skipped, three deselected),
+all three module checks passed, 1,015 controller package tests passed in 470
+seconds, 18 controller profile/launcher tests passed (two skipped), ruff passed,
+and both distribution formats built. The isolated uv 0.11.3 pin was used.
+No committed-phase preflight, push or PR has run. The dedicated executor is
+running the canonical unfiltered Pester gate after the prepare run completed.
+
+The final canonical unfiltered Pester gate passed at 2026-09-17T18:01:08Z on
+5ef13ead plus the documented working changes: 3,007 passed, zero failed, three
+Windows-only skips, 3,010 total; filteredFiles null, failFast false. No cleanup
+issues were reported. Junction suites retain macOS platform placeholders.
+`2026-09-17-docs-final-revalidation.json` stores this full result alongside the
+browser, Node, preflight and failed native-probe evidence. Independent work is
+finished; the requested single native response-format repair remains pending
+user approval. No new commit, push, PR, deployment or success claim was made.
+
+## Run 28: Approved Progress-Prose Repair
+
+The user approved one additional repair attempt. Attempt 1/1 adds the exact
+proposed no-progress-prose instruction to the canonical help prompt and a
+specific prompt regression assertion. The adapter generation, reviewed single
+definition repin, catalog and documentation outputs will be regenerated before
+committing the exact native subject. No receipt, query, shell-command or final
+output assertion is removed or relaxed. Current-source certification remains
+pending until all three real host flows pass on that subject.

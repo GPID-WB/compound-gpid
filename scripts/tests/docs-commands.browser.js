@@ -20,7 +20,7 @@ module.exports = function commandCases(origin) {
     await expect(page.locator("[data-document] td").filter({ hasText: /^\/cg-work \[phaseX\] \[review\]/ }).first()).toBeVisible();
     value.commands[0].route.page = "javascript:alert(1)";
     await page.reload();
-    await expect(page.locator(".command-browser [role=status]")).toContainText("unavailable");
+    await expect(page.locator(".command-browser > [role=status]")).toContainText("unavailable");
     await expect(page.locator(".command-card")).toHaveCount(0);
     value.commands[0].route.page = "commands";
     await page.getByRole("button", { name: "Retry command catalog", exact: true }).click();

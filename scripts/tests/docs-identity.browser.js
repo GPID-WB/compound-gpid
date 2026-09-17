@@ -138,7 +138,7 @@ module.exports = function identityCases() {
         await route.fulfill({ json: data });
       });
       await page.locator('[data-command-filter="query"]').fill("cg-help");
-      await expect(page.locator(".command-browser [role=status]")).toContainText("Reload the full page");
+      await expect(page.locator(".command-browser > [role=status]")).toContainText("Reload the full page");
       await expect(page.locator(".command-card")).toHaveCount(0);
       await expect(page.locator("[data-build-identity]")).toHaveText("Published: main@11111111");
     });

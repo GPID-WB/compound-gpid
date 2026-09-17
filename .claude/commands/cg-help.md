@@ -84,6 +84,10 @@ exactly. Never use backend text as shell syntax.
 
 ## Answer Boundary
 
+Do not send progress updates, preambles, or intermediate commentary before or
+between tools. Emit user-visible text only when relaying the final backend
+display or fixed recovery.
+
 For overview, exact, workflow, and unsupported, relay only `result.display.content`
 unchanged. After selection rendering, relay its deterministic Markdown unchanged.
 For a valid structured error with its matching nonzero category, relay only its
