@@ -71,3 +71,27 @@ test("captured v2 producer remains independently verifiable; mixed v2/v3 identit
   controller.writeCombinedSite(options); assert.equal(controller.verifyCombinedSite(options.out, root, root, options), 0);
   assert.throws(() => controller.writeCombinedSite({ ...options, devRoot: current }), /v2 recovery cannot be paired/);
 });
+
+test("native help guidance matches current source-bound support evidence", () => {
+  const root = path.resolve(__dirname, "../.."), relative = ".cg-docs/work-reports/2026-09-17-docs-help-support.json";
+  const proof = JSON.parse(fs.readFileSync(path.join(root, relative)));
+  require("node:child_process").execFileSync(process.platform === "win32" ? "python" : "python3",
+    [path.join(root, "scripts/cg_verify_help_support.py"), "--root", root, "--evidence", relative], { timeout: 30000 });
+  const text = fs.readFileSync(path.join(root, "docs/help/index.md"), "utf8");
+  const names = { "claude-code": "Claude Code", codex: "Codex", copilot: "GitHub Copilot", kilo: "Kilo", opencode: "OpenCode" };
+  for (const row of proof.platforms) {
+    const expected = row.runtimeStatus === "verified" ? "Verified" : "Unverified";
+    assert.ok(text.includes(`| ${names[row.platform]} | ${expected} |`), row.platform);
+  }
+  assert.ok(text.includes(proof.subjectCommit));
+  assert.ok(text.includes("only for the verified Kilo configuration"));
+});
+
+test("renaming a help evidence anchor fails even when the committed catalog digest is unchanged", t => {
+  const root = modernSource(); t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const catalogFile = path.join(root, ".github/shared/help-catalog.json"), before = fs.readFileSync(catalogFile);
+  const file = path.join(root, "docs/configuration.md");
+  fs.writeFileSync(file, fs.readFileSync(file, "utf8").replace("## Strict Configuration Schema", "## Renamed Configuration Schema"));
+  assert.throws(() => prepareHelp(root), /section|anchor|validation/);
+  assert.deepEqual(fs.readFileSync(catalogFile), before);
+});
