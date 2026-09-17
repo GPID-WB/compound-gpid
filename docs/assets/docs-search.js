@@ -69,5 +69,81 @@
     return results;
   }
 
-  return { validateIndex, rank };
+  let openDialog;
+
+  /** Bind one lazy, channel-local index and keyboard dialog after navigation validation. */
+  function init(manifest, channelLabel) {
+    const dialog = document.querySelector("[data-search-dialog]"), input = document.querySelector("[data-search-input]");
+    const container = document.querySelector("[data-search-results]");
+    let pending, request = 0, selected = -1, opener;
+    function message(value, role = "status") {
+      const node = document.createElement("p"); node.className = "search-hint";
+      node.setAttribute("role", role); node.textContent = value; container.replaceChildren(node);
+    }
+    async function perform(query) {
+      const current = ++request; selected = -1;
+      if (!query.trim()) { message("Try install, survey, review, or cg-update."); return; }
+      message("Searching documentation...");
+      try {
+        if (!pending) pending = fetch("assets/search-index.json").then(async response => {
+          if (!response.ok) throw new Error("Search index unavailable");
+          return validateIndex(await response.json(), manifest);
+        }).catch(error => { pending = null; throw error; });
+        const index = await pending;
+        if (current !== request || !dialog.open) return;
+        const results = rank(index, query);
+        if (!results.length) { message("No matching documentation. Try a command name or a shorter phrase."); return; }
+        container.replaceChildren();
+        for (const entry of results) {
+          const link = document.createElement("a"), meta = document.createElement("small"), badge = document.createElement("span");
+          const heading = document.createElement("strong"), snippet = document.createElement("p");
+          link.className = "search-result";
+          link.href = `#page=${encodeURIComponent(entry.page)}${entry.section ? `&section=${encodeURIComponent(entry.section)}` : ""}`;
+          meta.textContent = `${entry.kind === "section" ? `Section in ${entry.title}` : "Page"} | ${channelLabel}`;
+          const suite = { cg: ["technical", "Technical (CG)"], cr: ["research", "Research (CR)"], shared: ["shared", "Shared"] }[entry.suite];
+          badge.className = `suite-badge suite-${suite[0]}`; badge.textContent = suite[1];
+          heading.textContent = entry.heading || entry.title; snippet.textContent = entry.snippet;
+          link.append(meta, badge, heading, snippet); container.append(link);
+        }
+      } catch {
+        if (current !== request || !dialog.open) return;
+        message("Search unavailable. You can still read documentation or retry.", "alert");
+        const retry = document.createElement("button"); retry.type = "button"; retry.className = "search-retry";
+        retry.textContent = "Retry search"; retry.addEventListener("click", () => perform(input.value)); container.append(retry);
+      }
+    }
+    openDialog = () => {
+      if (!dialog.open) { opener = document.activeElement; dialog.showModal(); perform(input.value); }
+      input.focus();
+    };
+    input.addEventListener("input", () => perform(input.value));
+    container.addEventListener("click", event => { if (event.target.closest(".search-result")) dialog.close(); });
+    container.addEventListener("focusin", event => {
+      const link = event.target.closest(".search-result"); if (!link) return;
+      const results = [...container.querySelectorAll(".search-result")]; selected = results.indexOf(link);
+      results.forEach((result, index) => result.classList.toggle("selected", index === selected));
+    });
+    document.querySelector("[data-close-search]").addEventListener("click", () => dialog.close());
+    dialog.addEventListener("close", () => { request += 1; opener?.focus(); });
+    document.addEventListener("keydown", event => {
+      if ((event.ctrlKey || event.metaKey) && !event.altKey && event.key.toLowerCase() === "k") { event.preventDefault(); openDialog(); }
+    });
+    dialog.addEventListener("keydown", event => {
+      if (!["ArrowDown", "ArrowUp", "Enter"].includes(event.key) || event.target.closest("button")) return;
+      const results = [...container.querySelectorAll(".search-result")]; if (!results.length) return;
+      if (event.key === "Enter") {
+        if (event.target === input && selected >= 0) { event.preventDefault(); results[selected].click(); }
+        return;
+      }
+      event.preventDefault();
+      selected = event.key === "ArrowDown" ? (selected + 1) % results.length : (selected - 1 + results.length) % results.length;
+      results.forEach((result, index) => result.classList.toggle("selected", index === selected)); results[selected].focus();
+    });
+    document.querySelector(".search-trigger kbd").textContent = /Mac|iPhone|iPad/.test(navigator.platform) ? "Cmd K" : "Ctrl K";
+  }
+
+  /** Open the initialized search dialog without intercepting unmodified typing. */
+  function open() { openDialog?.(); }
+
+  return { validateIndex, rank, init, open };
 });

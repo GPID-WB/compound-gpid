@@ -3,6 +3,7 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
+const os = require("node:os");
 const root = path.resolve(__dirname, "../..");
 const generate = data => require("../docs-search-index.js").generateSearchIndex(data);
 const search = () => require("../../docs/assets/docs-search.js");
@@ -177,4 +178,32 @@ test("current canonical pages produce a complete validated index with no source 
   assert.ok(search().rank(index, "cg-skill activate").some(row => row.page === "skill-management-activate"));
   assert.ok(search().rank(index, "KILO_DISABLE_EXTERNAL_SKILLS")
     .some(row => row.page === "installation" && row.snippet.includes("KILO_DISABLE_EXTERNAL_SKILLS")));
+});
+
+test("build preparation independently generates exact search bytes without importing source code or writing", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "cg-search-build-"));
+  try {
+    const input = fixture();
+    fs.mkdirSync(path.join(dir, "docs/assets"), { recursive: true });
+    fs.mkdirSync(path.join(dir, ".github/shared"), { recursive: true });
+    fs.writeFileSync(path.join(dir, "docs/navigation.json"), JSON.stringify(input.manifest));
+    fs.writeFileSync(path.join(dir, ".github/shared/module-registry.json"), JSON.stringify(input.registry));
+    for (const [file, body] of Object.entries(input.documents)) fs.writeFileSync(path.join(dir, "docs", file), body);
+    fs.writeFileSync(path.join(dir, "docs/assets/docs-contract.js"), 'throw new Error("Never execute mutable source");');
+    fs.writeFileSync(path.join(dir, "docs/assets/search-index.json"), "forged");
+    const prepare = require("../docs-search-index.js").prepareSearchIndex;
+    const before = Object.fromEntries(Object.keys(input.documents).map(file => [file, fs.readFileSync(path.join(dir, "docs", file), "utf8")]));
+    const build = prepare(dir);
+    assert.equal(build.path, "docs/assets/search-index.json");
+    assert.equal(build.next, generate(input));
+    assert.equal(build.changed, true);
+    assert.deepEqual(prepare(dir), build);
+    assert.equal(fs.readFileSync(path.join(dir, build.path), "utf8"), "forged");
+    for (const [file, body] of Object.entries(before)) assert.equal(fs.readFileSync(path.join(dir, "docs", file), "utf8"), body);
+    fs.writeFileSync(path.join(dir, build.path), build.next);
+    assert.equal(prepare(dir).changed, false);
+    fs.rmSync(path.join(dir, "docs/guide.md"));
+    assert.throws(() => prepare(dir), /missing|ENOENT/);
+    assert.equal(fs.readFileSync(path.join(dir, build.path), "utf8"), build.next);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });

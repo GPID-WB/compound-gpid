@@ -1,19 +1,16 @@
 const home = document.querySelector("[data-home]");
 const documentView = document.querySelector("[data-document]");
 const navigation = document.querySelector("[data-navigation]");
-const searchDialog = document.querySelector("[data-search-dialog]");
-const searchInput = document.querySelector("[data-search-input]");
-const searchResults = document.querySelector("[data-search-results]");
 let pages = [];
 let pageMap = new Map();
 let fileMap = new Map();
-let activeResult = -1;
-let searchIndex;
 let activePage = "";
 let navigationRequest = 0;
 let activeDocument;
 let sectionClick = false;
 let lastDocumentRoute = "#home";
+// Filled only after step 5's shell/content verifier establishes source identity.
+const verifiedSource = null;
 
 function getRoute() {
   const params = new URLSearchParams(location.hash.replace(/^#/, ""));
@@ -54,7 +51,8 @@ function resolveDocLink(href) {
     const section = fragment ? `&section=${encodeURIComponent(fragment)}` : "";
     return { href: `#page=${page.id}${section}` };
   }
-  return null;
+  const source = DocsTools.repositoryUrl(href, activeFile, verifiedSource?.sha);
+  return source ? { href: source, external: true } : null;
 }
 
 function inlineMarkdown(value) {
@@ -96,7 +94,10 @@ function renderTable(lines) {
 function renderBlocks(blocks) {
   return blocks.map((block) => {
     if (block.type === "heading") return `<h${block.level} id="${escapeHtml(block.id)}">${inlineMarkdown(block.text)}</h${block.level}>`;
-    if (block.type === "code") return `<pre><button class="copy-code" type="button" aria-label="Copy code">Copy</button><code class="language-${escapeHtml(block.language)}">${escapeHtml(block.text)}</code></pre>`;
+    if (block.type === "code") {
+      const copy = DocsTools.copyable(block);
+      return `<div class="code-block"><pre>${copy ? '<button class="copy-code" type="button" aria-label="Copy code">Copy</button>' : ""}<code class="language-${escapeHtml(block.language)}">${escapeHtml(block.text)}</code></pre>${copy ? '<p class="copy-status" role="status" aria-live="polite"></p><button class="select-code" type="button" hidden>Select code</button>' : ""}</div>`;
+    }
     if (block.type === "table") return renderTable(block.lines);
     if (block.type === "hr") return "<hr>";
     if (block.type === "quote") {
@@ -127,6 +128,7 @@ async function loadManifest() {
   pageMap = new Map(pages.map((page) => [page.id, page]));
   fileMap = new Map(pages.map((page) => [normalizePath(page.file), page]));
   DocsReading.buildNavigation(manifest.groups);
+  DocsSearch.init(manifest, document.querySelector("[data-build-identity]").textContent);
 }
 
 async function renderRoute() {
@@ -145,6 +147,7 @@ async function renderRoute() {
   }
   activeDocument = null;
   DocsReading.clear();
+  document.querySelector("[data-document-source]").hidden = true;
   document.querySelector("[data-reading]").hidden = !page;
   if (!page) {
     activePage = "";
@@ -175,11 +178,9 @@ async function renderRoute() {
     const parsed = DocsContract.parseDocument(markdown); activeDocument = parsed;
     documentView.innerHTML = renderBlocks(parsed.blocks);
     DocsReading.mount(config, pages);
-    documentView.querySelectorAll(".copy-code").forEach((button) => button.addEventListener("click", async () => {
-      await navigator.clipboard.writeText(button.nextElementSibling.textContent);
-      button.textContent = "Copied";
-      setTimeout(() => { button.textContent = "Copy"; }, 1300);
-    }));
+    DocsTools.mount(documentView);
+    const sourceLink = document.querySelector("[data-document-source]");
+    sourceLink.href = config.file; sourceLink.hidden = false;
     DocsReading.move(section, parsed, config, focusSection);
     if (!focusSection) document.querySelector("#content").focus({ preventScroll: true });
   } catch (error) {
@@ -189,63 +190,12 @@ async function renderRoute() {
   }
 }
 
-async function buildSearchIndex() {
-  if (searchIndex) return searchIndex;
-  searchIndex = Promise.all(pages.filter(DocsContract.searchable).map(async (page) => {
-    try {
-      const response = await fetch(page.file);
-      const text = response.ok ? await response.text() : "";
-      return { ...page, text: text.replace(/[#*`>|\[\]()]/g, " ").replace(/\s+/g, " ") };
-    } catch { return { ...page, text: "" }; }
-  }));
-  return searchIndex;
-}
-
-async function search(query) {
-  const term = query.trim().toLowerCase();
-  const request = query;
-  activeResult = -1;
-  if (!term) {
-    searchResults.innerHTML = '<p class="search-hint">Try <code>install</code>, <code>survey</code>, <code>review</code>, or <code>cg-update</code>.</p>';
-    return;
-  }
-  searchResults.innerHTML = '<p class="search-hint" role="status">Searching documentation...</p>';
-  const index = await buildSearchIndex();
-  if (searchInput.value !== request) return;
-  const results = index.filter((entry) => `${entry.title} ${entry.description} ${entry.text}`.toLowerCase().includes(term)).slice(0, 10);
-  searchResults.innerHTML = results.length ? results.map((entry) => {
-    const at = entry.text.toLowerCase().indexOf(term);
-    const excerpt = at >= 0 ? entry.text.slice(Math.max(0, at - 60), at + term.length + 110) : entry.description;
-    return `<a class="search-result" href="#page=${entry.id}"><small>${escapeHtml(entry.group)}</small>${DocsReading.badge(entry.ownerModule).outerHTML}<strong>${escapeHtml(entry.title)}</strong><p>${escapeHtml(excerpt)}...</p></a>`;
-  }).join("") : '<p class="search-hint" role="status">No matching documentation. Try a command name or a shorter phrase.</p>';
-}
-
-function openSearch() {
-  if (!searchDialog.open) searchDialog.showModal();
-  setTimeout(() => searchInput.focus(), 0);
-}
-
-function closeSearchOnRoute() { if (searchDialog.open) searchDialog.close(); }
-
-document.querySelectorAll("[data-open-search]").forEach((button) => button.addEventListener("click", openSearch));
+document.querySelectorAll("[data-open-search]").forEach((button) => button.addEventListener("click", DocsSearch.open));
 DocsReading.init();
+DocsTools.init();
 document.addEventListener("click", event => {
   const link = event.target.closest("[data-toc] a, .heading-permalink");
   if (link) sectionClick = true;
-});
-searchInput.addEventListener("input", (event) => search(event.target.value));
-searchResults.addEventListener("click", closeSearchOnRoute);
-document.querySelector("[data-close-search]").addEventListener("click", () => searchDialog.close());
-document.addEventListener("keydown", (event) => {
-  if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") { event.preventDefault(); openSearch(); }
-  if (!searchDialog.open || !["ArrowDown", "ArrowUp", "Enter"].includes(event.key)) return;
-  const results = [...searchResults.querySelectorAll(".search-result")];
-  if (!results.length) return;
-  if (event.key === "Enter" && activeResult >= 0) { results[activeResult].click(); return; }
-  event.preventDefault();
-  activeResult = event.key === "ArrowDown" ? (activeResult + 1) % results.length : (activeResult - 1 + results.length) % results.length;
-  results.forEach((result, index) => result.classList.toggle("selected", index === activeResult));
-  results[activeResult].focus();
 });
 
 document.querySelector("[data-theme-toggle]").addEventListener("click", () => {

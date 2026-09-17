@@ -61,4 +61,32 @@ function generateSearchIndex({ manifest, documents, registry }) {
   return `${JSON.stringify(index, null, 2)}\n`;
 }
 
-module.exports = { generateSearchIndex };
+/** Prepare exact index bytes with protected helpers, treating the source tree only as data.
+ * Returns { path, next, changed }; the versioned rebuild owner controls writes.
+ */
+function prepareSearchIndex(root) {
+  const fs = require("node:fs"), path = require("node:path");
+  const canonical = fs.realpathSync(root);
+  function read(relative, optional = false) {
+    let file = canonical;
+    for (const part of relative.split("/")) {
+      if (!part || part === "." || part === ".." || /[\\:]/.test(part)) throw new Error("Documentation search: unsafe input path");
+      file = path.join(file, part);
+      let stat;
+      try { stat = fs.lstatSync(file); } catch (error) {
+        if (optional && error.code === "ENOENT") return null;
+        throw error;
+      }
+      if (stat.isSymbolicLink()) throw new Error(`Documentation search: symlink input ${relative}`);
+    }
+    return fs.readFileSync(file, "utf8");
+  }
+  const manifest = JSON.parse(read("docs/navigation.json"));
+  const pages = contract.validateManifest(manifest);
+  const registry = JSON.parse(read(".github/shared/module-registry.json"));
+  const documents = Object.fromEntries(pages.filter(contract.searchable).map(page => [page.file, read(`docs/${page.file}`)]));
+  const output = "docs/assets/search-index.json", next = generateSearchIndex({ manifest, documents, registry });
+  return { path: output, next, changed: read(output, true) !== next };
+}
+
+module.exports = { generateSearchIndex, prepareSearchIndex };

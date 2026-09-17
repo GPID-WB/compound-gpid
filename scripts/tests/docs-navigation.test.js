@@ -22,6 +22,7 @@ function render(markdown, script = "docs/assets/site.js") {
   const context = vm.createContext({
     document: { querySelector: () => ({}) },
     DocsContract: fs.existsSync(path.join(root, "docs/assets/docs-contract.js")) ? contract() : undefined,
+    DocsTools: require("../../docs/assets/docs-tools.js"),
     URLSearchParams, location: { hash: "" },
   });
   const source = fs.readFileSync(path.join(root, script), "utf8");

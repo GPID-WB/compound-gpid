@@ -1738,3 +1738,305 @@ Step 4's repair budget remains 2/2 used; this checkpoint grants no extra repair.
 Phase 3 remains incomplete with `completed-phases: [1, 2]`, `current-phase: 3`,
 and plan status active. The saved resume command remains conditional on the
 parent's source-bound browser RED evidence; it is not executed here.
+
+## Run 13: Verified Browser RED And Initial Live Integration, 2026-09-17T01:22:33Z
+
+The user supplied source-bound remote RED and authorized planned initial Step 4
+live integration, not an extra recovery attempt. Plan validation passed before
+mutation. Step 4 remains 2/2 repair attempts used; Step 5 remains 0/2 and unstarted.
+The current authoritative plan remains active at phase 3, with [1, 2] complete.
+Git/GitHub operations, remote browser execution and safe Pester remain parent-owned.
+
+Read the downloaded `test-results/docs-browser-provenance.json` at
+`C:/Users/wb384996/AppData/Local/Temp/3/kilo/docs-browser-evidence-35168018359-1`.
+Its checkout/event SHA, branch, attempt, package pins, normal installation and
+step outcomes match the parent's evidence. Parent verified the report and archive;
+this task did not independently download or rehash the archive.
+
+| Remote RED identity/result | Evidence |
+| --- | --- |
+| Run / attempt | `35168018359` / `1` |
+| Exact source | `eaf6348aa4907b0aa6737fb5bb9539426040bf3d`, `refs/heads/improve-website-design` |
+| Artifact | `docs-browser-evidence-35168018359-1`, ID `10476405165` |
+| Archive SHA-256 | `f3e2f85f43c98b9e2cffef99413ab23a8daddd45737eecb5057b92b298a0074c` |
+| Browser report SHA-256 | `f8a9e8294432a73145fabedf32bccdd4e03500a153234953f8a32f7881afdd20` |
+| Locked dependencies | Normal `npm ci` and Chromium succeeded; repair false/skipped; checked-in/installed lock digest identical |
+| Browser result | 28 total: 20 passed, 8 failed, 0 skipped. All 18 old tests passed; new tests: 2 passed, 8 feature RED |
+| Failing assertions | Root/dev section search returned page-only links; missing unavailable alerts for failed/malformed index; no lazy index request in race case; missing copy success/error status; missing print cheat-sheet heading |
+| Other CI jobs | Parent verified 7 passed and 2 skipped, including native checks on all three OS, both Pester jobs and Python |
+| Downstream capture/evidence | Skipped after browser RED, not reported as passing |
+
+These are feature assertion failures, not collection/install errors. Red evidence
+permits initial implementation, not unlimited repair. The 20 light/dark shell
+screenshots and 6 interaction screenshots are executed artifacts; parent found
+TOC/table captures need stronger visible-state checks. They are not human
+screen-reader evidence or proof of actual browser zoom.
+
+Implementation sequence: replace live page-crawl search with the tested local
+index, add accessible copy/manual selection, print and truthful unverified/local
+identity, and prepare source-link/build-generation units under local red tests.
+The existing producer fingerprint semantics stay unchanged. Production index
+emission must wait for Step 5's versioned generator/controller contract; no
+unversioned index exclusion or source self-digest shortcut is permitted.
+
+### Initial Integration And Budget Stop: 2026-09-17T01:32:58Z
+
+Status: **BLOCKED_STEP4_RECOVERY_EXHAUSTED**. The initial implementation is saved,
+but one full-suite regression remains. No further product/test correction was
+attempted after this failure. This is a parent decision checkpoint, not a claim
+that Step 4 or Gate A is complete.
+
+Implemented initial scope against the verified remote RED:
+
+- `docs/assets/docs-search.js` and `docs/assets/site.js`: one lazy local index,
+  validation before caching, explicit failure/retry, stale-query rejection, safe
+  DOM text, section routes, canonical suite labels, keyboard selection and focus
+  return, and platform-correct shortcut text. The prior page-by-page crawl is
+  removed. This implementation has not yet run in a browser.
+- `docs/assets/docs-tools.js`: clipboard success/error live status, exact code
+  bytes, manual selection fallback, no copy button for declared output or
+  recognizable prompted/numbered transcripts, and pure SHA-bound repository/issue
+  URL construction with path/scheme checks. Source identity is still null; GitHub
+  source/issue links are not activated from unverified metadata. Raw Markdown
+  links are explicitly labelled unverified.
+- `docs/index.html`, `docs/assets/site.css`, and `docs/reference/commands.md`:
+  load the local helpers, add default unverified identity with loopback/file-only
+  local-preview wording, a manual task-to-command cheat sheet, and print rules
+  that retain suite/build text while removing navigation/copy controls. No CDN or
+  dependency was added. Existing fixed main-source contribution link now uses
+  the registered development guide rather than guessing a version.
+- `docs/assets/docs-reading.js`: heading accessible names retain the heading text
+  instead of incorporating the appended permalink label.
+- `scripts/docs-search-index.js`: `prepareSearchIndex(root)` independently
+  computes expected bytes from source data using protected helpers. It returns
+  one exact output path/content/change result and performs no writes or mutable
+  source-code imports. The existing producer is NOT changed or enabled to emit
+  the index. Versioned emission, fingerprint inputs, generated-output ownership,
+  and final publication verification remain Step 5 work.
+- `scripts/tests/docs-reading-tools.test.js`, `scripts/tests/docs-search.test.js`,
+  `scripts/tests/docs-navigation.test.js`, and `package.json`: six new Node cases
+  and explicit CI registration; the navigation VM loads the new renderer helper.
+  `scripts/tests/docs-discovery.browser.js` now waits for the closed drawer to
+  move offscreen and asserts heading/table viewport visibility before captures.
+  No browser assertions were removed or weakened.
+
+| Executed check | Result |
+| --- | --- |
+| New source-link/build-preparation red run: `node --test scripts/tests/docs-search.test.js scripts/tests/docs-reading-tools.test.js` | 16 passed, 6 failed, 0 skipped; new module missing and `prepare is not a function` before initial implementation |
+| Initial implementation: `node --test scripts/tests/docs-search.test.js scripts/tests/docs-reading-tools.test.js scripts/tests/docs-navigation.test.js` | 49 passed, 0 failed, 0 skipped on first post-implementation run |
+| `node scripts/check-docs-site.js` | Passed: 76 navigable Markdown pages, 7 groups, complete skills catalog |
+| `node scripts/rebuild-docs.js --check --all` | Passed for the unchanged current generation contract; not evidence that new production index emission is enabled |
+| `node --check` for `docs/assets/site.js`, `docs/assets/docs-search.js`, `docs/assets/docs-tools.js`, `docs/assets/docs-reading.js`, `scripts/docs-search-index.js`, `scripts/tests/docs-discovery.browser.js` | All six passed |
+| `npm run test:docs-automation` | **179 passed, 1 failed, 0 skipped**, total 180; failure described below |
+
+Exact failing case:
+`scripts/tests/docs-migration.test.js::all 76 baseline routes and every heading have explicit retained destinations`.
+Error: **`ReferenceError: DocsTools is not defined`** at the new code-block renderer,
+called from the migration VM. Inspection confirms `renderer()` at lines 20-25
+loads only `DocsContract` for the upgraded source. The analogous navigation VM
+was updated during initial implementation; the migration VM was missed. The
+frozen legacy runtime/fixture is unchanged. This is an actual integration failure,
+not evidence that a route/anchor was lost, but migration verification is blocked.
+
+Likely bounded repair for parent approval: supply the real `DocsTools` module only
+to the migration VM's upgraded/shared branch, retain every migration assertion
+and all frozen legacy bytes, then rerun the targeted migration suite and full
+docs Node command. That repair was NOT applied. Step 4 remains **2/2 used**, with
+no extra attempt granted; Step 5 remains **0/2, unstarted**. Wrote
+`failing-steps: [4]` while retaining plan status active and phases [1, 2] complete.
+
+All temp-generating commands used the approved short TEMP/TMP parent, checked
+before execution with 1,168,064,512 bytes free on C. The old portable Windows
+file-link qualification remains reported; no new native symlink qualification is
+claimed. No Pester or browser run occurred here. No Git/GitHub operation, commit,
+push, install, deployment, later step/phase, review, or evidence exception occurred.
+Unrelated user metadata and the known untracked GUID directories were preserved.
+
+Next action is a parent decision on the exact bounded harness repair. If approved,
+resume the same phase 3 command and verify the repair before requesting the normal
+remote browser green checkpoint. V4 remains partial; V5/V6, production index
+emission, shell identity/SRI, actual legacy switching, independent pre-import
+derivation, controller readiness, human review/real browser zoom, and the fresh
+unfiltered final Pester gate remain incomplete. Do not advance to Step 5 while
+this Step 4 failure remains unresolved.
+
+## Run 14: Approved Step 4 Renewal Pass 1, 2026-09-17T01:40:01Z
+
+The user explicitly approved **Approve Two Passes (Recommended)**: exactly two
+additional targeted Step 4 repair passes, starting with the missing real
+`DocsTools` dependency in the upgraded migration renderer VM. This is a bounded
+budget renewal, not a test waiver, scope expansion, or permission to start Step 5.
+Original budget remains **2/2 used**. This edit uses **renewal pass 1/2**; pass 2
+remains unused. Stop if the renewed budget is exhausted.
+
+Plan validation passed before mutation. The sole test/code change is the
+conditional dependency injection in `scripts/tests/docs-migration.test.js`:
+`DocsTools` is loaded only when `shared` is true. The false/legacy branch stays
+empty, and all migration assertions and frozen legacy files are unchanged.
+Preserve the existing live integration and every unrelated worktree change.
+The recorded failure remains until executed targeted/full checks pass.
+
+### Renewal Pass 1 Verification: 2026-09-17T01:41:35Z
+
+| Executed check | Actual result |
+| --- | --- |
+| `node --test --test-name-pattern="^all 76 baseline routes and every heading have explicit retained destinations$" scripts/tests/docs-migration.test.js` | Exact previously failing case: 1 passed, 0 failed, 0 skipped; targeted evidence only |
+| `npm run test:docs-automation` | Full continuing docs Node suite: **180 passed, 0 failed, 0 skipped**. Includes the repaired migration case, all migration assertions, and actual frozen legacy runtime/producer checks |
+| `node scripts/check-docs-site.js` | Passed: 76 navigable Markdown pages, 7 groups, complete skills catalog |
+| `node scripts/rebuild-docs.js --check --all` | Passed: complete build current under the unchanged producer contract |
+| `node --check scripts/tests/docs-migration.test.js` | Passed |
+| `node --check docs/assets/site.js` | Passed; existing live implementation unchanged by this repair |
+
+Only after those passing results, removed Step 4 from `failing-steps` (it was the
+only entry). This clears the executed harness regression, not the remaining V4
+browser gate or phase completion requirements. Plan remains `status: active`,
+`completed-phases: [1, 2]`, `current-phase: 3`.
+
+Budget accounting remains separate: original **2/2 used**; approved renewal
+**1/2 used, 1 pass remaining**. No second renewal pass was attempted. No assertion
+was changed or disabled, no legacy VM dependency was added, and no frozen fixture
+was edited. The tested source is the existing uncommitted live integration plus
+the one-line upgraded-VM dependency change; no new commit identity is claimed.
+
+The approved TEMP parent existed with 1,060,143,104 bytes free on C before tests.
+The full Node run used process-local TEMP/TMP at
+`C:/Users/wb384996/AppData/Local/Temp/3/kilo`. Preserve the existing Windows EPERM
+portable file-link qualification; it is not native symlink certification.
+
+Final status: **NEEDS_REMOTE_BROWSER** for Step 4 live validation. Parent owns
+safe Pester, checkpoint/commit/push and the normal unfiltered browser command
+`npm run test:docs-browser -- --reporter=line,json`. No Pester, browser, remote,
+Git/GitHub, install, or Step 5 action ran in this call. Step 5 remains unstarted
+at **0/2**; do not start it before the parent validates this checkpoint and resumes.
+The existing source-bound RED record and all unresolved publication/identity,
+human-review and final phase-gate requirements remain intact. No waiver applies.
+
+## Run 15: Final Approved Step 4 Renewal Pass, 2026-09-17T01:50:04Z
+
+The user explicitly assigned the final approved renewal pass to two material
+`cg-adversarial` findings, with no extra recovery loop or scope expansion:
+
+- **P1.1**: after ArrowDown selects the first result and Tab focuses the second,
+  Enter is intercepted and activates the stale selected result rather than the
+  focused link. Preserve native focused-link activation and synchronize selected
+  styling/state when focus moves between results.
+- **P2.2**: closing search during the first pending index load invalidates the
+  request, but reopening only focuses the input. The old completion is discarded,
+  so Searching can remain indefinitely. On a closed-to-open transition, perform
+  the current input under a fresh request ID using the same pending/validated
+  promise; preserve stale-response rejection and index validation.
+
+Added three precise browser regression cases to the already registered
+`scripts/tests/docs-discovery.browser.js` before the runtime edit: native Enter
+after ArrowDown/Tab with distinct destinations and selection checks; reopen while
+the response is pending; reopen after its response completes while closed. Both
+reopen cases also check cache reuse on another open. These cases are **not locally
+executed**, and no new browser red or green result is claimed. The previous
+executed phase RED remains recorded separately; parent must obtain remote
+reproduction/verification of these cases.
+
+Budget: original **2/2 used**, renewal **2/2 used** by this pass. No further repair
+is authorized. The scope is only these interactions, regression tests, and existing
+report/state. No Step 5, commit, push, installation, GitHub or local browser action.
+
+Parent reports a separate pre-fix canonical Pester pass at
+`2026-09-17T01:48:04Z`: 3013 total, 3011 passed, 0 failed, 2 skipped, all 21 files,
+full/unfiltered, with cleanup warnings and 0.919 GiB free on C. This is historical
+pre-fix evidence, not a gate for the source changed in this pass; a fresh parent
+Pester run is required after the interaction fixes.
+
+### Final Renewal Verification: 2026-09-17T01:53:41Z
+
+Implemented both fixes in `docs/assets/docs-search.js` in one bounded pass:
+result `focusin` now synchronizes the selected index/class; custom Enter handling
+is restricted to the search input, leaving a focused result's native activation
+unchanged. Every closed-to-open transition performs the retained input again with
+a fresh request ID. The existing pending or validated index promise is reused.
+Validation, safe text display, path construction, stale-response guards and
+ordinary typing behavior are unchanged. No extra repair iteration occurred.
+
+| Executed check | Actual result |
+| --- | --- |
+| `node --test scripts/tests/docs-search.test.js scripts/tests/docs-reading-tools.test.js` | 22 passed, 0 failed, 0 skipped |
+| `npm run test:docs-automation` | Full continuing Node suite: **180 passed, 0 failed, 0 skipped**, including migration, legacy, unsafe-input and CI-selection regressions |
+| `node scripts/check-docs-site.js` | Passed: 76 navigable Markdown pages, 7 groups, complete skills catalog |
+| `node scripts/rebuild-docs.js --check --all` | Passed: complete build current under the unchanged producer contract |
+| `node --check docs/assets/docs-search.js` | Passed |
+| `node --check scripts/tests/docs-discovery.browser.js` | Passed; syntax evidence only, not browser collection or execution |
+
+Only the search runtime, registered discovery browser file, existing report and
+active state changed in this pass. All assertions from earlier tests remain.
+TEMP/TMP used the approved short parent after confirming it existed and C had
+804,081,664 bytes free; no arbitrary capacity threshold or disk-full error was
+introduced. Existing Windows EPERM portable file-link qualification is retained.
+
+**P1.1 and P2.2 are implemented, pending remote browser verification and review
+closure.** The new cases were written first but not run against either pre-fix or
+post-fix browser code here. Expected browser inventory is now 31 cases (previous
+28 plus 3); this is not an executed count. Parent must run the full normal suite
+and retain source/run/artifact identities. Native Enter, focus selection, pending
+reopen and completed-while-closed reopen must be checked from actual results.
+
+Final status: **NEEDS_REMOTE_BROWSER**. No local functional check failed, but
+Node results do not satisfy the browser gate. Original Step 4 budget **2/2 used**;
+approved renewal **2/2 used**, with **zero further passes authorized**. A new
+failure requires a parent decision, not an automatic repair. The pre-fix Pester
+pass at 01:48:04Z remains historical; parent must rerun the full safe gate on this
+changed source. Step 5 remains unstarted at 0/2. No commit, push, install, remote,
+local Playwright, Pester, or Step 5 action was performed. Plan remains active at
+phase 3 with completed phases [1, 2], and no phase-completion or waiver is claimed.
+
+### Live Integration Checkpoint Gate: 2026-09-17T02:04:23Z
+
+The user authorized the early feature-branch checkpoint for Step 4 live
+integration and the final approved renewal pass. Parent-supplied independent
+review confirms P1.1 focused-result Enter and P2.2 search reopen are fixed, with
+no open material finding. This closes the focused review, not remote browser
+verification. Retain the final 22 targeted passes and 180 passes from the complete
+docs Node suite. No local test or cleanup is run during this checkpoint.
+
+Read the fresh canonical `tests/last-run.json` and confirmed the current gate:
+
+| Field | Verified result |
+| --- | --- |
+| Command | Canonical `. tests\Run-Tests.ps1`, parent dedicated safe runner |
+| Artifact ranAt | `2026-09-17T02:01:22Z` |
+| Source HEAD | `eaf6348aa4907b0aa6737fb5bb9539426040bf3d`, with the current uncommitted integration |
+| Artifact gitSha / passed | `eaf6348a` / true |
+| Total / passed / failed / skipped | 3013 / 3011 / 0 / 2 |
+| Skip location | Both in `update`; separate pending counts and individual reasons not recorded |
+| Completeness | All 21 canonical test files present |
+| failFast / filteredFiles | false / null |
+| failures / missing-file skips | Empty arrays |
+| Artifact Git blob, no filters | `699f283f0d4ea538d8f587fc4ec6b51b33283949` |
+| Stable search runtime blob, no filters | `4a9b87be39c763243406e99d2082ceb9956ebfdd` |
+
+The search runtime hash matches the supplied tested identity. Only this existing
+report and active state are edited after the gate. The parent reports
+non-terminating cleanup errors, no resource failure, and 0.369 GiB free on C:
+afterward. Preserve those qualifications; zero failed tests does not mean
+error-free terminal output. Do not rerun tests or remove temporary files here.
+
+Inspected Git status, actual diffs, and the ten recent commits. Local HEAD and
+upstream match the source SHA above. The explicit checkpoint has 16 changed
+paths: live docs runtime/helpers, styles, shell and command cheat sheet, index
+preparation, registered tests/package script, and this report/state. There is
+no current plan diff; preserve its active phase 3 metadata and completed phases
+[1, 2]. Exclude both `.kilo` GUID directories, all scratch/temp files, screenshots,
+downloaded artifacts, and `tests/last-run.json`.
+
+At this precommit record, the new conventional commit, push only to
+`origin/improve-website-design`, and normal dispatch are pending:
+
+```text
+gh workflow run tests.yml --repo GPID-WB/compound-gpid --ref improve-website-design
+```
+
+Use no repair flag; `repair_docs_lockfile` defaults to false. The expected browser
+inventory is 31 cases, including three new interaction regressions; none is
+claimed passed on this source yet. Production index emission and the versioned
+build/identity contract remain Step 5 work, which has not started. Stop after
+dispatch, without amend, force-push, PR, deployment, pipeline Step 9, or later
+phase execution. Original Step 4 budget is 2/2 used and renewed budget is 2/2
+used; no further automatic repair is authorized. Phase 3 remains incomplete,
+and the saved resume command remains conditional on parent verification.

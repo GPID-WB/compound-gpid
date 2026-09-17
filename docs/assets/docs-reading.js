@@ -117,6 +117,7 @@
       headings.forEach(heading => observer.observe(heading)); track();
     }
     article.querySelectorAll("h1, h2, h3, h4, h5, h6").forEach(heading => {
+      heading.setAttribute("aria-label", heading.textContent);
       const link = document.createElement("a"); link.className = "heading-permalink";
       link.href = `#page=${config.id}&section=${encodeURIComponent(heading.id)}`;
       link.setAttribute("aria-label", `Link to ${heading.textContent}`); link.textContent = "#";

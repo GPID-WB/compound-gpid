@@ -9,6 +9,31 @@ Use prompts for guided project workflows and shell commands for installation,
 local indexing, and bounded summaries. Skills are loaded by workflows and are
 not slash commands.
 
+## Task-to-command cheat sheet
+
+Print this page with your browser's Print command. The printed page keeps suite
+labels and build identity, but removes navigation and copy controls. A local or
+unverified build does not identify a published version. Review the linked recipes
+and approval gates before you run a command; this table is not authority to apply,
+commit, or publish changes.
+
+| Task | Suite and context | Starting command | Verify or approve |
+| --- | --- | --- | --- |
+| Configure a project | Technical (CG), AI chat | `/cg-setup` | Check the project root and suite selection |
+| Fix a software error | Technical (CG), AI chat | `/cg-fixbug The launcher fails when the project path contains spaces` | Reproduce the error and verify the repair |
+| Complete a small technical task | Technical (CG), AI chat | `/cg-light-work <task>` | Approve the saved plan and review the result |
+| Deliver an approved larger change | Technical (CG), AI chat | `/cg-work phase1` | Use the approved plan and required phase tests |
+| Resolve technical review findings | Technical (CG), AI chat | `/cg-fix-triage` | Re-review the recorded findings with evidence |
+| Scope research | Research (CR), AI chat | `/cr-brainstorm Compare poverty estimates across survey rounds` | Resolve comparability assumptions before planning |
+| Execute approved research | Research (CR), AI chat | `/cr-work phase1` | Check evidence, methods and researcher decisions |
+| Resume technical work | Technical (CG), AI chat | `/cg-resume` | Confirm the current state and next approved action |
+
+Use [task recipes](../workflows/index.md#task-recipes) for the complete technical
+procedures and the [Research Handbook](../research/index.md) for research work.
+Search uses only the current channel's section index. If search is unavailable,
+continue with navigation or use Retry search. Copy failures offer Select code for
+manual copying. Output and prompted transcripts are not copyable invocations.
+
 ## Workflow prompts
 
 > [!TECHNICAL] These are slash prompts for AI chat, not terminal commands. Technical workflow prompts need `cg` in the active suite selection. The canonical module registry, not a prefix heuristic, controls ownership and eligibility.

@@ -19,7 +19,7 @@ const read = file => fs.readFileSync(path.join(root, "docs", file), "utf8");
 
 function renderer(file, shared = false) {
   const context = vm.createContext({ document: { querySelector: () => ({}) }, URLSearchParams,
-    location: { hash: "" }, ...(shared ? { DocsContract: contract } : {}) });
+    location: { hash: "" }, ...(shared ? { DocsContract: contract, DocsTools: require("../../docs/assets/docs-tools.js") } : {}) });
   const source = fs.readFileSync(file, "utf8");
   vm.runInContext(source.slice(0, source.indexOf('document.querySelectorAll("[data-open-search]")')), context);
   return markdown => vm.runInContext(`markdownToHtml(${JSON.stringify(markdown)})`, context);

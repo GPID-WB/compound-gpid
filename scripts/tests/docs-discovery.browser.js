@@ -32,6 +32,66 @@ module.exports = function registerDiscoveryTests({ origin, searchFixture }) {
     expect(requests.filter(url => url.endsWith("search-index.json"))).toHaveLength(1);
   });
 
+  test("phase3 Enter activates the focused result after ArrowDown then Tab", async ({ page }) => {
+    const markdown = "# Keyboard fixture\n## Keyboard sentinel first\nFirst destination.\n## Keyboard sentinel second\nSecond destination.";
+    await page.route("**/modular-guide.md", route => route.fulfill({ body: markdown }));
+    await page.route("**/assets/search-index.json", route => route.fulfill({ contentType: "application/json",
+      body: searchFixture({ "modular-guide.md": markdown }) }));
+    await page.goto(`${origin()}/compound-gpid/#page=modular-guide`);
+    await expect(page.locator("[data-document] h1")).toHaveText(/Keyboard fixture/);
+    await page.getByRole("button", { name: "Search documentation", exact: true }).click();
+    await page.locator("[data-search-input]").fill("keyboard sentinel");
+    const results = page.locator(".search-result"), first = results.nth(0), second = results.nth(1);
+    await expect(results).toHaveCount(2);
+    await expect(first).toHaveAttribute("href", "#page=modular-guide&section=keyboard-sentinel-first");
+    await expect(second).toHaveAttribute("href", "#page=modular-guide&section=keyboard-sentinel-second");
+    await page.keyboard.press("ArrowDown"); await expect(first).toBeFocused();
+    await expect(first).toHaveClass(/selected/);
+    await page.keyboard.press("Tab"); await expect(second).toBeFocused();
+    await expect(second).toHaveClass(/selected/); await expect(first).not.toHaveClass(/selected/);
+    await page.evaluate(() => document.addEventListener("keydown", event => {
+      if (event.key === "Enter" && event.target.closest(".search-result")) window.resultEnterPrevented = event.defaultPrevented;
+    }));
+    await page.keyboard.press("Enter");
+    await expect(page).toHaveURL(/#page=modular-guide&section=keyboard-sentinel-second$/);
+    expect(await page.evaluate(() => window.resultEnterPrevented)).toBe(false);
+    await expect(page.locator("[data-search-dialog]")).not.toBeVisible();
+  });
+
+  for (const completedWhileClosed of [false, true]) test(`phase3 reopen search when index ${completedWhileClosed ? "completed while closed" : "is still pending"}`, async ({ page }) => {
+    let release, requests = 0;
+    const hold = new Promise(resolve => { release = resolve; });
+    await page.route("**/assets/search-index.json", async route => {
+      requests += 1; await hold;
+      await route.fulfill({ contentType: "application/json", body: searchFixture() });
+    });
+    await page.goto(`${origin()}/compound-gpid/dev/#page=modular-guide`);
+    await expect(page.locator("[data-document] h1")).toBeVisible();
+    const trigger = page.getByRole("button", { name: "Search documentation", exact: true });
+    const input = page.locator("[data-search-input]"), dialog = page.locator("[data-search-dialog]");
+    await trigger.click(); await input.fill("Module preferences");
+    try {
+      await expect.poll(() => requests).toBe(1);
+      await expect(page.locator("[data-search-results]")).toContainText("Searching documentation...");
+      await page.keyboard.press("Escape"); await expect(dialog).not.toBeVisible();
+      await expect(trigger).toBeFocused();
+      if (completedWhileClosed) {
+        const response = page.waitForResponse("**/assets/search-index.json");
+        release(); await (await response).finished();
+      }
+      await page.keyboard.press("Enter"); await expect(input).toBeFocused();
+      await expect(input).toHaveValue("Module preferences");
+      release();
+      await expect(page.locator(".search-result").first()).toHaveAttribute("href", "#page=modular-guide&section=module-preferences");
+      await expect(page.locator("[data-search-results]")).not.toContainText("Searching documentation...");
+      expect(requests).toBe(1);
+      await page.keyboard.press("Escape"); await expect(trigger).toBeFocused();
+      await page.keyboard.press("Enter");
+      await expect(page.locator(".search-result").first()).toHaveAttribute("href", "#page=modular-guide&section=module-preferences");
+      expect(requests).toBe(1);
+    } finally { release(); }
+  });
+
   test("phase3 failed index is retryable and never replaces reading with an incomplete cache", async ({ page }) => {
     let attempts = 0;
     await page.route("**/assets/search-index.json", route => {
@@ -141,13 +201,17 @@ module.exports = function registerDiscoveryTests({ origin, searchFixture }) {
     }
     await page.screenshot({ path: testInfo.outputPath(`drawer-${theme}.png`) });
     await page.keyboard.press("Escape"); await expect(menu).toBeFocused();
+    await expect.poll(() => page.locator(".sidebar").evaluate(node => node.getBoundingClientRect().right)).toBeLessThanOrEqual(0);
     const summary = page.locator("[data-toc] summary"); await summary.focus(); await page.keyboard.press("Enter");
     const link = page.locator('[data-toc] a[data-section="module-preferences"]');
     await link.focus(); await page.keyboard.press("Enter");
     await expect(page.locator("[data-document] #module-preferences")).toBeFocused();
+    await expect(page.locator("[data-document] #module-preferences")).toBeInViewport();
     await page.screenshot({ path: testInfo.outputPath(`toc-focus-${theme}.png`) });
     const table = page.getByRole("region", { name: "Scrollable table" }).first();
+    await table.scrollIntoViewIfNeeded();
     await table.focus(); await expect(table).toBeFocused();
+    await expect(table).toBeInViewport();
     const before = await table.evaluate(node => ({ left: node.scrollLeft, overflows: node.scrollWidth > node.clientWidth }));
     expect(before.overflows).toBe(true);
     await page.keyboard.press("ArrowRight");
