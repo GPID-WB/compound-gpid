@@ -8,6 +8,36 @@ This page explains how to choose which version of Compound GPID runs on your mac
 
 ## Overview
 
+### Documentation channels
+
+The website has two moving channels: **Published** at the site root and
+**Development** under `dev/`. They are not archives for every installed release.
+The footer of an upgraded page identifies its verified source tag or branch and
+commit. Four-component release tags are marked as prereleases. Use the source
+link or [release notes](whats-new.md) to inspect older versions.
+
+The channel selector keeps the current page and section when the destination
+supports them. A missing destination opens its homepage or the page top with an
+explanation and return link. Before leaving for an older site, a confirmation
+shows the destination and a copyable return URL: that older site may have no
+verified footer or switch back. Browser Back also returns to the original page.
+
+If a deployment changes while a page is open, the site keeps any previously
+verified article, stops loading new content, and offers **Reload**. An unavailable
+build identity is not a stable-version claim. Unstamped local previews display
+`Local preview: version unavailable` and disable channel switching.
+
+For maintainers, `channels.json`, shell stamps, and asset hashes are generated
+only in the paired artifact. Protected code verifies producer output against
+unchanged source checkouts before importing into separate staging. The v1
+compatibility path retains the captured legacy generator; v2 independently
+generates the section index and checks the upgraded shell. HTML references
+content-addressed local assets with integrity attributes. Both channels and the
+public metadata are verified before upload. Local validation does not establish
+that the protected publishing controller supports these contracts; controller
+rollout requires its existing separate review. The release controller remains
+disabled.
+
 By default `cg-update` tracks the `main` branch and always pulls the newest commit. You can instead **pin** to a specific tagged release for stability, or switch back to tracking main at any time — all with a single command.
 
 | Situation | Command |

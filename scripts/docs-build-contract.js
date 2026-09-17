@@ -1,12 +1,13 @@
 "use strict";
 
-// Phase 1 freezes the wire/transform contract. Validation of this shape is NOT
-// source derivation or permission to publish; phase 3 implements those gates.
+// Wire/transform contracts. Shape validation alone is not derivation proof
+// or permission to publish; docs-provenance and docs-channel-build enforce it.
 const crypto = require("node:crypto");
 const SHA = /^[0-9a-f]{40}$/;
 const DIGEST = /^[0-9a-f]{64}$/;
 const PUBLIC_METADATA = "channels.json";
-const ASSET_SOURCES = ["assets/site.js", "assets/site.css", "assets/docs-contract.js"];
+const ASSET_SOURCES = ["assets/site.js", "assets/site.css", "assets/docs-contract.js", "assets/docs-reading.js",
+  "assets/docs-search.js", "assets/docs-tools.js", "assets/docs-identity.js"];
 const producers = Object.freeze(Object.fromEntries([1, 2].map(version => [
   `compound-gpid-docs-producer-v${version}`, Object.freeze({
     producerContract: `compound-gpid-docs-producer-v${version}`, fingerprintVersion: version,
@@ -17,7 +18,7 @@ const producers = Object.freeze(Object.fromEntries([1, 2].map(version => [
 ])));
 
 // Input semantics are immutable within a version. V2 is not enabled in the
-// producer yet. A changed input/output algorithm requires another version.
+// protected rollout yet. A changed input/output algorithm requires another version.
 const fingerprintContracts = Object.freeze({
   1: {
     implementationRevision: "9afd40ef4499da1b1cc9ade18e20ab596e4af6d2",
@@ -30,9 +31,10 @@ const fingerprintContracts = Object.freeze({
     fixedInputs: [".github/shared/module-registry.json", ".github/shared/help-catalog.json", ".github/shared/shell-commands.json",
       "scripts/rebuild-docs.js", "scripts/generate-whats-new.js", "scripts/release-payloads.js", "scripts/docs-markers.js",
       "scripts/check-docs-site.js", "scripts/assemble-docs-site.js", "scripts/legacy-pages.js", "scripts/docs-build-contract.js",
+      "scripts/docs-source.js", "scripts/docs-provenance.js", "scripts/docs-fingerprint.js", "scripts/docs-channel-build.js", "scripts/docs-search-index.js",
       ".github/workflows/docs-site-build.yml", ".github/workflows/doc-rebuild.yml", ".github/workflows/pages.yml",
       ".github/workflows/release-docs.yml", ".github/workflows/release-pages.yml"],
-    treeInputs: ["docs", "scripts/help"],
+    treeInputs: ["docs", "scripts/help", "scripts/docs-legacy-v1"],
     generatedOutputs: ["docs/assets/search-index.json", "docs/assets/command-index.json"],
     normalization: "UTF-8 with LF; managed Markdown interiors replaced with the v1 marker token; hash a sorted JSON array of [path, normalizedText] pairs.",
     absence: "Record [path, null] for each absent fixed input and absent input directory. Empty directories record [path, []].",
@@ -78,7 +80,7 @@ function assertSourcePaths(paths) {
     if (!safePath(file)) fail(`unsafe source path ${file}`);
     const folded = file.toLowerCase();
     if (folded === PUBLIC_METADATA || folded === "dev" || folded.startsWith("dev/")
-      || /^assets\/(?:site\.[0-9a-f]{64}\.(?:js|css)|docs-contract\.[0-9a-f]{64}\.js)$/.test(folded)) fail(`reserved output path ${file}`);
+      || /^assets\/(?:site|docs-(?:contract|reading|search|tools|identity))\.[0-9a-f]{64}\.(?:js|css)$/.test(folded)) fail(`reserved output path ${file}`);
   }
 }
 

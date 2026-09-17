@@ -1,3 +1,4 @@
+const SHELL_BUILD_ID = "__CG_DOCS_SHELL_BUILD_ID__";
 const home = document.querySelector("[data-home]");
 const documentView = document.querySelector("[data-document]");
 const navigation = document.querySelector("[data-navigation]");
@@ -10,7 +11,7 @@ let activeDocument;
 let sectionClick = false;
 let lastDocumentRoute = "#home";
 // Filled only after step 5's shell/content verifier establishes source identity.
-const verifiedSource = null;
+let verifiedSource = null;
 
 function getRoute() {
   const params = new URLSearchParams(location.hash.replace(/^#/, ""));
@@ -121,9 +122,7 @@ function renderBlocks(blocks) {
 function markdownToHtml(markdown) { return renderBlocks(DocsContract.parseDocument(markdown).blocks); }
 
 async function loadManifest() {
-  const response = await fetch("navigation.json");
-  if (!response.ok) throw new Error("Could not load documentation navigation.");
-  const manifest = await response.json();
+  const manifest = JSON.parse(await DocsIdentity.read("navigation.json"));
   pages = DocsContract.validateManifest(manifest);
   pageMap = new Map(pages.map((page) => [page.id, page]));
   fileMap = new Map(pages.map((page) => [normalizePath(page.file), page]));
@@ -138,6 +137,7 @@ async function renderRoute() {
     document.querySelector("#content").focus({ preventScroll: true }); return;
   }
   const { page, section } = DocsContract.resolveRoute(pages, raw.page, raw.section);
+  const retained = { page: activePage, document: activeDocument };
   lastDocumentRoute = location.hash || "#home";
   const request = ++navigationRequest;
   DocsReading.updateNavigation(page, pages);
@@ -150,6 +150,7 @@ async function renderRoute() {
   document.querySelector("[data-document-source]").hidden = true;
   document.querySelector("[data-reading]").hidden = !page;
   if (!page) {
+    document.querySelector("[data-build-identity]").textContent = DocsIdentity.label();
     activePage = "";
     home.hidden = false;
     documentView.hidden = true;
@@ -161,6 +162,7 @@ async function renderRoute() {
   home.hidden = true;
   documentView.hidden = false;
   if (!pageMap.has(page)) {
+    document.querySelector("[data-build-identity]").textContent = DocsIdentity.label();
     activePage = "";
     document.title = "Page not found | Compound GPID";
     documentView.innerHTML = '<h1>Page not found</h1><p>The requested documentation route is not in the public navigation. Return to the <a href="#home">documentation homepage</a> or use search.</p>';
@@ -171,20 +173,28 @@ async function renderRoute() {
   activePage = page;
   document.title = `${config.title} | Compound GPID`;
   try {
-    const response = await fetch(config.file);
-    if (!response.ok) throw new Error(`Could not load ${config.file}`);
-    const markdown = await response.text();
+    const markdown = await DocsIdentity.read(config.file);
     if (request !== navigationRequest) return;
     const parsed = DocsContract.parseDocument(markdown); activeDocument = parsed;
     documentView.innerHTML = renderBlocks(parsed.blocks);
     DocsReading.mount(config, pages);
     DocsTools.mount(documentView);
     const sourceLink = document.querySelector("[data-document-source]");
-    sourceLink.href = config.file; sourceLink.hidden = false;
+    sourceLink.href = verifiedSource ? DocsTools.repositoryUrl(config.file.split("/").at(-1), config.file, verifiedSource.sha) : config.file;
+    sourceLink.textContent = verifiedSource ? "View source at this revision" : "Raw Markdown (unverified build)"; sourceLink.hidden = false;
+    const issue = document.querySelector("[data-page-issue]"); issue.hidden = !verifiedSource;
+    if (verifiedSource) issue.href = DocsTools.issueUrl(config.id, verifiedSource.channel, verifiedSource.sha);
     DocsReading.move(section, parsed, config, focusSection);
     if (!focusSection) document.querySelector("#content").focus({ preventScroll: true });
   } catch (error) {
     if (request !== navigationRequest) return;
+    if (error.buildChanged && retained.document) {
+      activePage = retained.page; activeDocument = retained.document; documentView.innerHTML = renderBlocks(activeDocument.blocks);
+      document.title = `${pageMap.get(activePage).title} | Compound GPID`;
+      DocsReading.updateNavigation(activePage, pages);
+      DocsReading.mount(pageMap.get(activePage), pages); DocsTools.mount(documentView);
+      return;
+    }
     activeDocument = null; DocsReading.clear();
     documentView.innerHTML = `<h1>Page unavailable</h1><p class="error-message">This page could not be loaded. <a href="${escapeHtml(config.file)}">Open the canonical Markdown file</a>.</p>`;
   }
@@ -210,6 +220,7 @@ try {
 
 (async () => {
   try {
+    verifiedSource = await DocsIdentity.init(SHELL_BUILD_ID);
     await loadManifest();
     DocsReading.setNavigationOpen(false);
     window.addEventListener("hashchange", renderRoute);

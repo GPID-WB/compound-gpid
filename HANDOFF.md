@@ -5,6 +5,35 @@ Remove this file after the successor has completed the work and saved final
 evidence in the canonical work report. Do not treat this file as a replacement
 for the approved plan or as proof that the work is complete.
 
+## Browser Pickup Update, 2026-09-17
+
+The execute-all-phases request resumed this handoff. Local repairs now pass all
+31 browser tests, 20 axe matrix scans, 180 docs Node tests, and the canonical
+unfiltered macOS Pester run (2,925 passed, 0 failed, 3 platform skips). Escape now
+explicitly closes search; reduced-motion transitions use zero duration to avoid
+stale inherited theme colors. The second two-attempt renewal is used and passed.
+Source changes are uncommitted on `improve-website-design`.
+
+**Current work: phase 4 help integration.** The user explicitly approved
+deferring human screen-reader and 200% zoom visual checks in Run 18. Step 4 is
+complete with that limited exception. Step 5 implements immutable source
+verification, separate staging, paired metadata, shell integrity and legacy
+switching. Phase 3 is complete: 191 Node tests, 44 browser tests and the fresh
+full Pester gate (2,925 pass, zero fail, three platform skips) pass. See Run 18
+and `2026-09-17-docs-phase3-evidence.json`. Phase 4 is integrating merged dev
+7a4df8c6. Phase 5 and the final pipeline remain pending; no deployment exists.
+
+Read Run 17 in the canonical work report and
+`.cg-docs/work-reports/2026-09-17-docs-step4-browser-recovery.json` for current
+source hashes, evidence and platform qualifications. The session review server
+is `http://127.0.0.1:64400/compound-gpid/#page=modular-guide`, with the paired dev
+fixture at `/compound-gpid/dev/`. It may need restarting in a later session.
+Remote `dev` now contains the merged help catalog/scripts; the older claim below
+that readiness must be rechecked still applies before integrating Gate B.
+
+The remaining sections preserve the incoming checkpoint and historical CI
+evidence. Their repair-authorization blocker is superseded by this update.
+
 ## Current State
 
 - Repository: `GPID-WB/compound-gpid`.

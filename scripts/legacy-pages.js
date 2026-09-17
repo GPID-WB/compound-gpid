@@ -129,38 +129,10 @@ function verifyArchive(env, id, expected, transport = execFileSync) {
 }
 
 // Import only verified dev docs as data. Stable files and trusted scripts stay untouched.
-function importDev(source, artifact) {
-  const {canonicalInputFingerprint} = require('./rebuild-docs.js');
-  let count = 0, bytes = 0;
-  const actual = Object.create(null);
-  function bounded(directory, depth = 0) {
-    const info = fs.lstatSync(directory);
-    if (info.isSymbolicLink() || depth > 32) fail('linked or excessive artifact tree');
-    if (info.isDirectory()) {
-      for (const name of fs.readdirSync(directory)) bounded(path.join(directory, name), depth + 1);
-    } else {
-      if (!info.isFile() || info.nlink !== 1 || ++count > 10000 ||
-          info.size > 67108864 || (bytes += info.size) > 268435456) fail('invalid artifact inventory capacity');
-      const name = path.relative(path.join(artifact, 'docs'), directory).split(path.sep).join('/');
-      if (!name.startsWith('../')) actual[name] = crypto.createHash('sha256').update(fs.readFileSync(directory)).digest('hex');
-    }
-  }
-  bounded(artifact);
-  if (fs.readdirSync(artifact).sort().join('|') !== '.docs-build-metadata.json|docs') fail('unexpected artifact root inventory');
-  const metadata = JSON.parse(fs.readFileSync(path.join(artifact, '.docs-build-metadata.json'), 'utf8'));
-  const expected = metadata.site?.files;
-  if (metadata.schemaVersion !== 1 || !expected || typeof expected !== 'object' ||
-      JSON.stringify(Object.keys(actual).sort()) !== JSON.stringify(Object.keys(expected).sort())) fail('artifact file list mismatch');
-  for (const name of Object.keys(actual)) if (actual[name] !== expected[name]) fail('artifact digest mismatch');
-  if (metadata.site.fingerprint !== canonicalInputFingerprint(source).fingerprint) fail('dev source fingerprint mismatch');
-  for (const name of Object.keys(metadata.site.files)) {
-    if (name.startsWith('/') || name.includes('\\') || name.split('/').some(p => !p || p === '.' || p === '..')) fail('unsafe dev path');
-  }
-  const docs = path.join(source, 'docs');
-  if (fs.lstatSync(docs).isSymbolicLink()) fail('linked dev directory');
-  fs.rmSync(docs, {recursive: true});
-  fs.cpSync(path.join(artifact, 'docs'), docs, {recursive: true, dereference: false});
+function importDev(source, artifact, staging) {
+  return require('./docs-provenance.js').importVerified(source, artifact, staging);
 }
+
 
 if (require.main === module) {
   try {
@@ -169,7 +141,7 @@ if (require.main === module) {
       if (process.env.GITHUB_OUTPUT) fs.appendFileSync(process.env.GITHUB_OUTPUT,
         Object.entries(result).map(([k, v]) => `${k}=${v}\n`).join(''));
     } else if (process.argv[2] === 'archive') verifyArchive(process.env, process.argv[3], process.argv[4]);
-    else if (['import-dev', 'import-docs'].includes(process.argv[2])) importDev(process.argv[3], process.argv[4]);
+    else if (['import-dev', 'import-docs'].includes(process.argv[2])) importDev(process.argv[3], process.argv[4], process.argv[5]);
     else fail('unknown operation');
   } catch (error) {
     console.error(error.message.startsWith('legacy-pages:') ? error.message : 'legacy-pages: bounded verification failed');

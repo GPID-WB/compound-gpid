@@ -85,9 +85,9 @@
       if (!query.trim()) { message("Try install, survey, review, or cg-update."); return; }
       message("Searching documentation...");
       try {
-        if (!pending) pending = fetch("assets/search-index.json").then(async response => {
-          if (!response.ok) throw new Error("Search index unavailable");
-          return validateIndex(await response.json(), manifest);
+        await DocsIdentity.assertCurrent();
+        if (!pending) pending = DocsIdentity.read("assets/search-index.json").then(text => {
+          return validateIndex(JSON.parse(text), manifest);
         }).catch(error => { pending = null; throw error; });
         const index = await pending;
         if (current !== request || !dialog.open) return;
@@ -124,11 +124,18 @@
       results.forEach((result, index) => result.classList.toggle("selected", index === selected));
     });
     document.querySelector("[data-close-search]").addEventListener("click", () => dialog.close());
-    dialog.addEventListener("close", () => { request += 1; opener?.focus(); });
+    dialog.addEventListener("close", () => {
+      // Native close events are queued; an old event must not cancel a reopen.
+      if (dialog.open) return;
+      request += 1; opener?.focus();
+    });
     document.addEventListener("keydown", event => {
       if ((event.ctrlKey || event.metaKey) && !event.altKey && event.key.toLowerCase() === "k") { event.preventDefault(); openDialog(); }
     });
     dialog.addEventListener("keydown", event => {
+      // Search inputs consume Escape to clear text before the dialog's native
+      // cancel action. Keep the close contract and the query used on reopening.
+      if (event.key === "Escape") { event.preventDefault(); dialog.close(); return; }
       if (!["ArrowDown", "ArrowUp", "Enter"].includes(event.key) || event.target.closest("button")) return;
       const results = [...container.querySelectorAll(".search-result")]; if (!results.length) return;
       if (event.key === "Enter") {

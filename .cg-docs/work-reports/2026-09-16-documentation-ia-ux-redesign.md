@@ -2144,3 +2144,177 @@ pipeline. It preserves the `dev` PR target and the five-minute post-PR wait.
 Both untracked `.kilo/<GUID>/` test directories are excluded from staging and
 left untouched. Plan validation and whitespace checks apply to this
 documentation/state-only change; no fresh runtime test pass is claimed.
+
+## Run 17: Browser-Enabled Resume, 2026-09-17
+
+The user requested: "Please, read HANDOFF.md and execute all the phases."
+This supersedes the prior handoff-only scope and authorizes implementation and
+the remaining pipeline. Record a new bounded Step 4 recovery allowance of two
+attempts, initially 0/2; preserve the exhausted original 2/2 and first renewal
+2/2. No evidence exception, protected publication, or release-policy change is
+authorized. Active deviation policy remains `ask`.
+
+Plan validation passed with `bin/cg-render-artifact --validate-only` before
+state/source mutation. The checkout is on `improve-website-design` and initially
+clean. Node 22.23.1 and npm 10.9.8 are available on macOS; normal locked
+`npm ci --ignore-scripts --no-audit --no-fund` succeeded without lock changes.
+The matching Chromium is being installed. Browser baseline output is directed
+to `/tmp/compound-gpid-docs-baseline.json` and its adjacent log. These are local
+diagnostic artifacts, not proof of completion until inspected.
+
+Test index retained: the 14 files explicitly selected by `test:docs-automation`,
+the 31-case Playwright suite and imported discovery cases, plus canonical
+`tests/docs-automation.Tests.ps1`, `tests/docs-preview.Tests.ps1`, and
+`tests/wiki.Tests.ps1`. Required full-suite phase gates remain additional.
+Phases 1/2 remain complete; Step 5 and phases 4/5 remain unstarted. Human
+screen-reader review, browser zoom, and loaded-font evidence remain open.
+
+### Recovery diagnosis and attempt accounting
+
+The initial 31-case baseline reported 20 passed / 11 failed. One failure was an
+executor error: a concurrent headed diagnostic reused the default Playwright
+output directory and removed trace files. Discard that baseline as aggregate
+gate evidence. Subsequent runs use separate output directories. The independent
+headed run reproduced both Escape failures. A separate 10-case contrast run
+failed 9 cases, with full axe details retained in
+`/tmp/compound-gpid-docs-contrast.json`: dark theme inherited light foreground
+`#294052` against `#101c29` (1.59:1), with muted text at 3:1.
+
+Second renewal attempt 1/2 added explicit Escape closing, full axe attachments,
+theme-button interaction and painted/font-ready color checks. The full browser
+run (`/tmp/compound-gpid-docs-recovery1.json`) had 21 passes and 10 failures:
+all Escape, focused-result Enter, pending/completed reopening and remaining
+interaction tests passed; every matrix case detected stale inherited table
+color in reduced-motion mode. Waiting two frames did not fix it.
+
+Diagnosis isolated the global reduced-motion rule: setting a nonzero `.01ms`
+transition duration on every element enables the default `transition-property:
+all`, including inherited theme colors. The second targeted attempt sets that
+duration to zero, keeping reduced motion, themes and all assertions intact.
+Second renewal allowance is now 2/2 used; its verification is pending.
+
+The first Node run had 156 passes / 24 failures from macOS temporary-directory
+symlink rejection. Rerun with `TMPDIR=/private/tmp`, preserving security checks.
+Docs validation, rebuild freshness and frozen migration baseline checks passed.
+Read-only GitHub inspection found the help catalog and scripts already merged
+on remote `dev`, although absent from this older feature branch. Gate B must
+use those merged sources after Gate A; no sibling artifacts were copied.
+
+### Verified repair result and evidence boundary
+
+Second renewal attempt 2/2 passed on source HEAD
+`b1d26a230de9204f6a93d6cc8bcb263b009e4e6e` plus the three source/test changes
+whose SHA-256 identities are recorded in
+`2026-09-17-docs-step4-browser-recovery.json`. No original assertion, security
+check, fixture, package version, or lockfile was weakened or changed.
+
+| Executed check | Result |
+| --- | --- |
+| Full Playwright suite, 2026-09-17T14:41:58Z | 31 passed, 0 failed/skipped/flaky; Chromium 136.0.7103.25, Playwright 1.52.0, macOS 26.6.2 |
+| Axe 4.10.3 matrix | All 20 channel/theme/width scans passed; full violation attachments and computed body/article/table colors retained |
+| Docs Node suite with canonical temporary path | 180 passed, 0 failed |
+| Site validator / rebuild freshness / frozen baseline | Passed; 76 routes, 30 preservation pages, 347 inbound links, 7 explicit alias decisions |
+| JavaScript syntax and whitespace | Passed for changed JavaScript and diff |
+| Canonical Pester, 2026-09-17T14:45:40Z | 2,928 total, 2,925 passed, 0 failed, 3 skipped; `passed: true`, `filteredFiles: null` |
+| Actual browser zoom, both channels/themes | Native `chrome.tabs.setZoom` / `getZoom` reports 2; viewport 1440 -> 720 CSS px, DPR 1 -> 2, CSS zoom remains 1; no document overflow; search and Escape focus return passed |
+| Loaded fonts | DM Mono, Fraunces and Manrope reached `loaded` during the separate headed browser checks |
+
+Pester used the required dedicated execution subagent and unfiltered
+`. tests/Run-Tests.ps1`. The first run found four historical artifact-schema
+failures; the unchanged second run passed after the canonical runner refreshed
+that artifact. No source repair was used. Skips: Windows-only install
+placeholder, Constrained Language Mode acceptance requiring Windows PowerShell,
+and ANSI profile preservation requiring the active Windows ANSI code page.
+`link`/`unlink` each pass a macOS platform placeholder; Windows junction behavior
+was not executed here. No cleanup warnings/errors occurred; normal Pester
+deprecation and fixture-generated warnings remain qualified.
+
+Visual inspection covered fallback-font root light at 320 px and dev dark at
+1440 px: readable text, contained horizontally scrollable tables, and distinct
+sidebar/TOC. The actual-zoom capture tool produced clipped screenshots, so these
+are **not** accepted as visual proof of full-page zoom usability. Native browser
+zoom, mobile media query, control bounds and interaction checks above are valid
+executed evidence. A human should additionally review zoom presentation.
+
+The review server is available for this session at
+`http://127.0.0.1:64400/compound-gpid/#page=modular-guide` and the equivalent
+`/compound-gpid/dev/` path. It supplies the isolated search fixture; it is not
+the unfinished production build. Review search open/query/Escape/reopen,
+landmarks and heading navigation, mobile drawer/TOC, and table scrolling with a
+screen reader. The user was asked for human review or an explicit deferral;
+neither has been received. No human pass or evidence exception is recorded.
+
+**Blocked on remaining V4 human evidence.** The functional failures are fixed;
+`failing-steps: [4]` is retained as incomplete-evidence state, not a claim that
+the new browser run failed. Step 5 and phases 4/5 remain unstarted. The Pester
+result is a Step 4 regression snapshot, not Phase 3 completion. Do not skip
+Step 5's build/provenance work or final phase gate. Remote `dev` at
+`7a4df8c652b0c2feed0a681aaae6580cf4c4b49a` contains merged help contracts; inspect
+and integrate canonical sources only after prior gates permit Gate B.
+
+The review/triage/compound/final commit-push-PR pipeline and five-minute PR wait
+have not started. No commit, push, PR, or deployment was created in this run.
+`HANDOFF.md` remains because the requested phases are not all complete.
+
+## Run 18: Approved Human-Evidence Deferral and Step 5, 2026-09-17
+
+The user replied "approved, please continue" to the explicit request to defer
+the human screen-reader and 200% zoom visual checks. Accepted exception V4 is
+limited to those two human checks. The 31 browser tests, 20 clean axe scans,
+180 Node tests, real browser zoom interactions, loaded fonts, and unfiltered
+Pester regression evidence from Run 17 remain required and recorded. No
+automated test, source-integrity gate, release boundary, or later-phase evidence
+is waived. Record Step 4 complete with this exception; Step 5 now starts with
+its original two-attempt recovery allowance unused (0/2). Phase 3 remains active
+and incomplete until V5/V6 and the fresh phase-completion gate pass.
+
+### Step 5 implementation and Gate A closure
+
+Implemented protected expected-byte generation, separate verified import
+staging, exact two-channel composition, deterministic HTML/runtime stamps,
+seven content-addressed assets with SRI, verified data reads, reload locking,
+source links and explicit legacy departure confirmation. Legacy generator
+copies remain byte-identical to frozen revision 9afd40ef; the historical
+fixtures were not changed. The actual current main runtime at
+e6b19fbe7aeab1465ed5db0e883c38e8a5451f90 is recognized separately. Tagged v1
+generation/import/composition/recovery and upgraded v2 production each run
+their matching generator contract. Unknown/old-only-controller/downgrade
+cases fail. Both legacy schema-v1 and new paired verification compare exact
+canonical expected output, including the development banner.
+
+The initial red provenance tests established forged-output acceptance and
+source mutation. Initial integration corrected a delayed search close event,
+identity fixture handling and retained-article decoration. Additional red
+cases covered linked source ancestors and tagged legacy composition. Final
+regression repair corrected identity on home/unknown-route views while keeping
+failed initialization unverified. The old Pester workflow assertion required
+in-place source generation; it was updated for the plan's explicitly changed
+immutable-source interface, with new separate-build/final-verification checks
+and the original no-publication-credentials checks retained. No assertion was
+weakened to accept a forgery, stale identity or failed browser interaction.
+
+Final verification: 191/191 Node tests; 44/44 Chromium browser tests (20 axe
+matrix scans); site check 76 pages/seven groups; rebuild --check --all current;
+frozen baseline 76 routes/347 inbound links unchanged; git diff --check clean.
+The full canonical `. tests/Run-Tests.ps1` gate at 2026-09-17T15:23:05Z passed
+2,925 of 2,928 assertions, zero failed, three platform skips, filteredFiles null.
+Windows installation/CLM/ANSI cases were skipped on macOS. Link/unlink used
+passing macOS placeholders, not Windows junction execution. No cleanup errors.
+The preceding Pester run had one old-interface assertion failure and overlapped
+a runtime edit; it is not the accepted gate.
+
+Exact CLI paths, source fingerprint, artifact digest, browser report digest and
+full Pester summary are saved in `2026-09-17-docs-phase3-evidence.json` beside
+this report. The development fixture represents the dirty working tree based
+on b1d26a23; its base SHA alone is not evidence of the modifications. The root
+fixture is an archive of exact main e6b19fbe. Import and composition leave
+canonical source inventories unchanged. The versioning-page content review
+confirms moving channels, legacy limitations, source links, and no help-release
+claim. V5/V6 pass locally; V4 has only the explicitly approved human exception.
+
+Gate A is complete. Publication readiness is separate and **not complete**:
+protected main does not contain the new controller contracts. No deployment,
+main-targeted PR, publisher enablement, release-policy change or snapshot
+enablement was performed. The authorized next phase is Gate B integration from
+merged canonical dev 7a4df8c652b0c2feed0a681aaae6580cf4c4b49a, whose catalog
+freshness check passed in a separate clean checkout.

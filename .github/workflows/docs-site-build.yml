@@ -10,6 +10,11 @@ on:
       - '.github/agents/**'
       - 'docs/**'
       - 'scripts/rebuild-docs.js'
+      - 'scripts/docs-*.js'
+      - 'scripts/docs-legacy-v1/**'
+      - '.github/shared/module-registry.json'
+      - '.github/shared/help-catalog.json'
+      - '.github/shared/shell-commands.json'
       - 'scripts/generate-whats-new.js'
       - 'scripts/docs-markers.js'
       - 'scripts/check-docs-site.js'
@@ -61,15 +66,20 @@ jobs:
           node-version: "22"
 
       - name: Build development documentation source
-        run: node sources/dev/scripts/rebuild-docs.js --root "$GITHUB_WORKSPACE/sources/dev" --all
+        run: |
+          cp -R sources/dev producer-input
+          node sources/dev/scripts/rebuild-docs.js --root "$GITHUB_WORKSPACE/producer-input" --all
+          mkdir dev-build
+          cp -R producer-input/docs dev-build/docs
+          cp producer-input/.docs-build-metadata.json dev-build/.docs-build-metadata.json
 
       - name: Validate stable documentation source
         working-directory: sources/main
         run: node "$GITHUB_WORKSPACE/sources/dev/scripts/check-docs-site.js" --legacy
 
       - name: Validate development documentation source
-        working-directory: sources/dev
-        run: node scripts/check-docs-site.js
+        working-directory: producer-input
+        run: node "$GITHUB_WORKSPACE/sources/dev/scripts/check-docs-site.js"
 
       - name: Capture exact source commits
         id: sources
@@ -82,12 +92,17 @@ jobs:
           node sources/dev/scripts/assemble-docs-site.js \
             --main-root "$GITHUB_WORKSPACE/sources/main" \
             --dev-root "$GITHUB_WORKSPACE/sources/dev" \
+            --dev-build "$GITHUB_WORKSPACE/dev-build" \
             --out "$GITHUB_WORKSPACE/combined-artifact" \
             --main-sha "${{ steps.sources.outputs.main_sha }}" \
             --dev-sha "${{ steps.sources.outputs.dev_sha }}"
 
       - name: Require combined build metadata
-        run: test -f combined-artifact/.docs-build-metadata.json
+        run: |
+          test -f combined-artifact/.docs-build-metadata.json
+          node sources/dev/scripts/assemble-docs-site.js --verify combined-artifact \
+            --main-root "$GITHUB_WORKSPACE/sources/main" --dev-root "$GITHUB_WORKSPACE/sources/dev" \
+            --main-sha "${{ steps.sources.outputs.main_sha }}" --dev-sha "${{ steps.sources.outputs.dev_sha }}"
 
       - name: Upload complete combined documentation artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2

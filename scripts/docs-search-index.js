@@ -64,7 +64,7 @@ function generateSearchIndex({ manifest, documents, registry }) {
 /** Prepare exact index bytes with protected helpers, treating the source tree only as data.
  * Returns { path, next, changed }; the versioned rebuild owner controls writes.
  */
-function prepareSearchIndex(root) {
+function prepareSearchIndex(root, overrides = {}) {
   const fs = require("node:fs"), path = require("node:path");
   const canonical = fs.realpathSync(root);
   function read(relative, optional = false) {
@@ -84,7 +84,7 @@ function prepareSearchIndex(root) {
   const manifest = JSON.parse(read("docs/navigation.json"));
   const pages = contract.validateManifest(manifest);
   const registry = JSON.parse(read(".github/shared/module-registry.json"));
-  const documents = Object.fromEntries(pages.filter(contract.searchable).map(page => [page.file, read(`docs/${page.file}`)]));
+  const documents = Object.fromEntries(pages.filter(contract.searchable).map(page => [page.file, overrides[page.file] ?? read(`docs/${page.file}`)]));
   const output = "docs/assets/search-index.json", next = generateSearchIndex({ manifest, documents, registry });
   return { path: output, next, changed: read(output, true) !== next };
 }

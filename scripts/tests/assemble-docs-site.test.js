@@ -245,7 +245,7 @@ test("reserves only the channel manifest output and preserves existing output on
 });
 
 test("pairs the captured actual legacy root with the new dev runtime without rewriting root bytes", async () => {
-  const mainRoot = await createSource("main"), devRoot = await createSource("dev");
+  const mainRoot = await createSource("main"), devRoot = require("./docs-publishing-fixture.js").modernSource();
   const output = await mkdtemp(path.join(os.tmpdir(), "cg-real-mixed-runtime-"));
   try {
     for (const sourceRoot of [mainRoot, devRoot]) {
@@ -269,6 +269,6 @@ test("pairs the captured actual legacy root with the new dev runtime without rew
     assert.equal(await readFile(path.join(output, "site/assets/site.js"), "utf8"), await readFile(path.join(legacy, "assets/site.js"), "utf8"));
     assert.match(await readFile(path.join(output, "site/dev/assets/site.js"), "utf8"), /DocsContract.parseDocument/);
     assert.doesNotMatch(await readFile(path.join(output, "site/index.html"), "utf8"), /docs-contract\.js|dev-preview-banner/);
-    assert.match(await readFile(path.join(output, "site/dev/index.html"), "utf8"), /assets\/docs-contract\.js/);
+    assert.match(await readFile(path.join(output, "site/dev/index.html"), "utf8"), /assets\/docs-contract\.[a-f0-9]{64}\.js/);
   } finally { await removeTemporary(mainRoot, devRoot, output); }
 });

@@ -39,7 +39,7 @@ function channel(name, legacy) {
   if (!legacy) {
     row.files["assets/docs-contract.js"] = hash("canonical helper");
     row.shellBuildId = build().shellBuildId(row);
-    for (const source of ["assets/site.js", "assets/site.css", "assets/docs-contract.js"]) {
+    for (const source of build().ASSET_SOURCES) {
       const sha256 = hash(source);
       const output = source.replace(/\.(js|css)$/, `.${sha256}.$1`);
       row.files[output] = sha256;

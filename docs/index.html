@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Compound GPID documentation for institutional data science, economics, and research workflows.">
     <meta name="theme-color" content="#101c29">
+    <meta name="cg-docs-shell" content="__CG_DOCS_SHELL_BUILD_ID__">
     <title>Compound GPID | Documentation</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -104,8 +105,13 @@
         </div>
         <footer class="build-footer">
           <p data-build-identity>Build identity unavailable (unverified)</p>
+          <p data-build-notice role="status" hidden></p>
+          <p data-channel-notice role="status" hidden></p>
+          <button type="button" data-build-reload hidden>Reload documentation</button>
+          <label>Documentation channel <select data-channel-switch disabled><option value="published">Published</option><option value="development">Development</option></select></label>
           <a data-document-source hidden>Raw Markdown (unverified build)</a>
-          <p>Version-correct repository and issue links require a verified build.</p>
+          <p>Published and Development are two moving documentation channels.</p>
+          <a data-page-issue hidden>Report a documentation issue</a>
         </footer>
       </main>
     </div>
@@ -119,10 +125,16 @@
       </div>
     </dialog>
     <noscript><p class="noscript-message">JavaScript is required for the interactive site. Open <a href="getting-started/index.md">Getting Started</a> or the <a href="manual.md">Markdown index</a>.</p></noscript>
+    <dialog data-channel-dialog aria-labelledby="channel-dialog-title">
+      <h2 id="channel-dialog-title">Switch documentation channel</h2><p data-channel-message></p>
+      <p><a data-channel-confirm>Continue</a></p><label>Return URL <input data-channel-return readonly></label>
+      <button type="button" data-channel-cancel>Stay on this page</button>
+    </dialog>
     <script src="assets/docs-contract.js"></script>
     <script src="assets/docs-reading.js"></script>
     <script src="assets/docs-search.js"></script>
     <script src="assets/docs-tools.js"></script>
+    <script src="assets/docs-identity.js"></script>
     <script src="assets/site.js"></script>
   </body>
 </html>

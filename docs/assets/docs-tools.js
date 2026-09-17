@@ -75,6 +75,7 @@
   /** Show only an unverified identity until step 5 supplies loaded-shell verification. */
   function init() {
     document.querySelector("[data-build-identity]").textContent = isLocalPreview(location)
+      && document.querySelector('meta[name="cg-docs-shell"]')?.content === "__CG_DOCS_SHELL_BUILD_ID__"
       ? "Local preview: version unavailable" : "Build identity unavailable (unverified)";
   }
 

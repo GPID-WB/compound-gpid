@@ -40,6 +40,8 @@ function parseArgs(argv) {
     devBranch: null,
     mainRef: null,
     devRef: null,
+    mainBuild: null,
+    devBuild: null,
     verify: null,
   };
   for (let index = 0; index < argv.length; index += 1) {
@@ -53,6 +55,8 @@ function parseArgs(argv) {
     else if (argument === "--dev-branch") args.devBranch = argv[++index];
     else if (argument === "--main-ref") args.mainRef = argv[++index];
     else if (argument === "--dev-ref") args.devRef = argv[++index];
+    else if (argument === "--main-build") args.mainBuild = path.resolve(argv[++index]);
+    else if (argument === "--dev-build") args.devBuild = path.resolve(argv[++index]);
     else if (argument === "--verify") args.verify = path.resolve(argv[++index]);
     else return null;
   }
@@ -174,9 +178,11 @@ function buildMetadata(mainRoot, devRoot, mainSha, devSha, mainBranch, devBranch
   };
 }
 
-function writeCombinedSite({ mainRoot, devRoot, out, mainSha, devSha, mainBranch, devBranch, mainRef, devRef }) {
+function writeCombinedSite({ mainRoot, devRoot, out, mainSha, devSha, mainBranch, devBranch, mainRef, devRef, mainBuild, devBuild }) {
   validateSha(mainSha, "--main-sha");
   validateSha(devSha, "--dev-sha");
+  const modern = require("./docs-channel-build.js");
+  if (mainBuild || devBuild || modern.upgraded(mainRoot) || modern.upgraded(devRoot)) return modern.assemble({ mainRoot, devRoot, out, mainSha, devSha, mainBranch, devBranch, mainRef, devRef, mainBuild, devBuild });
   const main = sourceTree(mainRoot, "main");
   const dev = sourceTree(devRoot, "dev");
   const output = path.resolve(out);
@@ -245,6 +251,9 @@ function readMetadata(artifact) {
 
 function verifyCombinedSite(artifact, mainRoot = null, devRoot = null, expectedIdentity = {}) {
   assertDirectory(artifact, "artifact directory");
+  const header = JSON.parse(fs.readFileSync(path.join(artifact, METADATA_FILE), "utf8"));
+  if (header.schemaVersion === 2) return require("./docs-channel-build.js").verify(artifact, mainRoot, devRoot, expectedIdentity);
+  if ((mainRoot && require("./docs-channel-build.js").upgraded(mainRoot)) || (devRoot && require("./docs-channel-build.js").upgraded(devRoot))) fail("upgraded source cannot downgrade to a legacy artifact");
   const metadata = readMetadata(artifact);
   const site = path.join(artifact, SITE_DIRECTORY);
   assertDirectory(site, "combined site directory");
@@ -287,13 +296,22 @@ function verifyCombinedSite(artifact, mainRoot = null, devRoot = null, expectedI
     const currentDev = canonicalInputFingerprint(path.resolve(devRoot)).fingerprint;
     if (currentMain !== metadata.sources.main.fingerprint) fail("main source fingerprint is stale");
     if (currentDev !== metadata.sources.dev.fingerprint) fail("dev source fingerprint is stale");
-    // Source fingerprints do not bind generated output. Stable bytes must also
-    // match the separately verified release producer (or committed legacy tree).
-    const stableFiles = digestTree(path.join(mainRoot, "docs"));
-    const stablePaths = actualPaths.filter(name => !name.startsWith("dev/"));
-    if (JSON.stringify(stablePaths) !== JSON.stringify(Object.keys(stableFiles).sort()) ||
-        stablePaths.some(name => actual[name] !== stableFiles[name])) {
-      fail("stable output differs from verified source docs");
+    // Historical recovery must also establish derivation of both channel trees;
+    // self-digests and source fingerprints alone do not bind managed interiors.
+    const trusted = require("./docs-provenance.js"), data = require("./docs-source.js");
+    for (const [name, root, prefix] of [["stable", mainRoot, ""], ["dev", devRoot, "dev/"]]) {
+      const generates = fs.existsSync(path.join(root, "scripts/rebuild-docs.js")) &&
+        (name === "dev" || metadata.sources.main.ref.startsWith("v"));
+      const files = generates ? trusted.expectedDocs(root, trusted.identifyProducer(root)) : data.readTree(path.join(root, "docs"));
+      if (prefix) {
+        const html = files.get("index.html").toString("utf8"), body = html.search(/<body(?:\s[^>]*)?>/i);
+        if (body < 0 || html.includes("dev-preview-banner")) fail("invalid legacy development template");
+        const end = html.indexOf(">", body);
+        files.set("index.html", Buffer.from(`${html.slice(0, end + 1)}\n    ${DEV_MARKER}\n${html.slice(end + 1)}`));
+      }
+      const expectedFiles = data.digests(files), names = actualPaths.filter(file => prefix ? file.startsWith(prefix) : !file.startsWith("dev/"));
+      if (JSON.stringify(names.map(file => file.slice(prefix.length))) !== JSON.stringify(Object.keys(expectedFiles)) ||
+        names.some(file => actual[file] !== expectedFiles[file.slice(prefix.length)])) fail(`${name} output differs from verified source docs`);
     }
     if (expectedIdentity.mainSha && metadata.sources.main.sha !== expectedIdentity.mainSha) fail("main source SHA does not match expected identity");
     if (expectedIdentity.devSha && metadata.sources.dev.sha !== expectedIdentity.devSha) fail("dev source SHA does not match expected identity");

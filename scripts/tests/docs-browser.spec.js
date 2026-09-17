@@ -125,8 +125,20 @@ for (const width of [320, 390, 768, 1024, 1440]) {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto(`${origin}/compound-gpid/${channel}#page=modular-guide`);
     await expect(page.locator("[data-document] h1")).toBeVisible();
+    await page.addScriptTag({ path: require.resolve("axe-core/axe.min.js") });
     for (const theme of ["light", "dark"]) {
-      await page.evaluate(value => { document.documentElement.dataset.theme = value; }, theme);
+      if (await page.locator("html").getAttribute("data-theme") !== theme
+        && theme === "dark") await page.getByRole("button", { name: "Switch color theme" }).click();
+      // Measure a painted theme after font/layout readiness, not a mixture of
+      // inherited colors during style invalidation immediately after mutation.
+      const colors = await page.evaluate(async () => {
+        await document.fonts.ready;
+        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        return [document.body, document.querySelector(".prose"), document.querySelector("td")]
+          .map(node => ({ tag: node.tagName, color: getComputedStyle(node).color,
+            background: getComputedStyle(node).backgroundColor }));
+      });
+      expect(colors[2].color).toBe(colors[1].color);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
       if (width <= 390) {
         const controls = page.locator(".topbar button");
@@ -141,8 +153,11 @@ for (const width of [320, 390, 768, 1024, 1440]) {
           previousRight = box.x + box.width;
         }
       }
-      await page.addScriptTag({ path: require.resolve("axe-core/axe.min.js") });
       const violations = await page.evaluate(async () => (await axe.run(document, { runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"] } })).violations);
+      await testInfo.attach(`axe-${theme}-${width}`, {
+        body: JSON.stringify({ theme, width, channel: channel || "root", colors, violations }, null, 2),
+        contentType: "application/json",
+      });
       expect(violations.map(v => `${v.id}: ${v.nodes.map(n => n.target).join(", ")}`)).toEqual([]);
       const motion = await page.evaluate(() => [document.documentElement, document.querySelector(".sidebar"), document.querySelector(".topbar")]
         .map(node => ({ scroll: getComputedStyle(node).scrollBehavior, transition: getComputedStyle(node).transitionDuration })));
@@ -217,3 +232,4 @@ test("short articles and loading states have no stale TOC; hidden references rem
 });
 
 require("./docs-discovery.browser.js")({ origin: () => origin, searchFixture });
+require("./docs-identity.browser.js")();

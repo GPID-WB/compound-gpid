@@ -179,10 +179,10 @@ jobs:
           RELEASE_TAG: ${{ steps.authority.outputs.release_tag }}
           RELEASE_SHA: ${{ steps.authority.outputs.release_sha }}
         run: |
-          node scripts/legacy-pages.js import-docs release-source release-artifact
-          node scripts/legacy-pages.js import-dev current-dev release-dev-artifact
+          node scripts/legacy-pages.js import-docs release-source release-artifact verified-staging/release
+          node scripts/legacy-pages.js import-dev current-dev release-dev-artifact verified-staging/dev
           dev_sha="$(git -C current-dev rev-parse HEAD)"
-          node scripts/assemble-docs-site.js --main-root release-source --dev-root current-dev --out composed-artifact --main-sha "$RELEASE_SHA" --dev-sha "$dev_sha" --main-branch "$RELEASE_BRANCH" --main-ref "$RELEASE_TAG"
+          node scripts/assemble-docs-site.js --main-root release-source --dev-root current-dev --main-build verified-staging/release --dev-build verified-staging/dev --out composed-artifact --main-sha "$RELEASE_SHA" --dev-sha "$dev_sha" --main-branch "$RELEASE_BRANCH" --main-ref "$RELEASE_TAG"
           mv release-artifact release-build-artifact
           mv composed-artifact release-artifact
 
@@ -280,9 +280,9 @@ jobs:
         run: |
           set -euo pipefail
           node scripts/check-docs-site.js --source-root sources/main --legacy
-          node scripts/legacy-pages.js import-dev sources/dev dev-artifact
+          node scripts/legacy-pages.js import-dev sources/dev dev-artifact verified-staging/dev
           main_sha="$(git -C sources/main rev-parse HEAD)"
-          node scripts/assemble-docs-site.js --main-root sources/main --dev-root sources/dev --out combined-artifact --main-sha "$main_sha" --dev-sha "$DEV_SHA"
+          node scripts/assemble-docs-site.js --main-root sources/main --dev-root sources/dev --dev-build verified-staging/dev --out combined-artifact --main-sha "$main_sha" --dev-sha "$DEV_SHA"
           node scripts/assemble-docs-site.js --verify combined-artifact --main-root sources/main --dev-root sources/dev --main-sha "$main_sha" --dev-sha "$DEV_SHA"
       - uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b
       - uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa
