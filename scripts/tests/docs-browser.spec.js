@@ -4,10 +4,21 @@ const http = require("node:http");
 const fs = require("node:fs");
 const path = require("node:path");
 const docs = path.resolve(__dirname, "../../docs");
-let server, origin;
+const { generateSearchIndex } = require("../docs-search-index.js");
+let server, origin, searchBytes;
+
+// This isolated data fixture does not enable or replace the production builder.
+function searchFixture(overrides = {}) {
+  const manifest = JSON.parse(fs.readFileSync(path.join(docs, "navigation.json")));
+  const documents = Object.fromEntries(manifest.groups.flatMap(group => group.pages)
+    .map(page => [page.file, fs.readFileSync(path.join(docs, page.file), "utf8")]));
+  return generateSearchIndex({ manifest, documents: { ...documents, ...overrides },
+    registry: JSON.parse(fs.readFileSync(path.join(docs, "../.github/shared/module-registry.json"))) });
+}
 
 // Each run owns an ephemeral loopback port; it cannot reuse a developer server.
 test.beforeAll(async () => {
+  searchBytes = searchFixture();
   server = http.createServer((request, response) => {
     const url = new URL(request.url, "http://localhost");
     const match = /^\/compound-gpid\/(dev\/)?(.*)$/.exec(url.pathname);
@@ -17,7 +28,7 @@ test.beforeAll(async () => {
     }
     const file = path.join(docs, relative);
     try {
-      let bytes = fs.readFileSync(file);
+      let bytes = relative === "assets/search-index.json" ? Buffer.from(searchBytes) : fs.readFileSync(file);
       if (match[1] && relative === "index.html") bytes = Buffer.from(bytes.toString().replace("<body>",
         '<body><div class="dev-preview-banner">Development preview. Content can change before release.</div>'));
       const type = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json" }[path.extname(file)] || "text/plain";
@@ -133,12 +144,15 @@ for (const width of [320, 390, 768, 1024, 1440]) {
       await page.addScriptTag({ path: require.resolve("axe-core/axe.min.js") });
       const violations = await page.evaluate(async () => (await axe.run(document, { runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"] } })).violations);
       expect(violations.map(v => `${v.id}: ${v.nodes.map(n => n.target).join(", ")}`)).toEqual([]);
+      const motion = await page.evaluate(() => [document.documentElement, document.querySelector(".sidebar"), document.querySelector(".topbar")]
+        .map(node => ({ scroll: getComputedStyle(node).scrollBehavior, transition: getComputedStyle(node).transitionDuration })));
+      expect(motion.every(value => value.scroll === "auto" && value.transition.split(",").every(duration => parseFloat(duration) <= 0.00001))).toBe(true);
+      await page.screenshot({ path: testInfo.outputPath(`shell-${theme}-${width}.png`), fullPage: false });
     }
-    await page.screenshot({ path: testInfo.outputPath(`shell-${width}.png`), fullPage: false });
   });
 }
 
-test("200 percent zoom reflows and no-JavaScript fallback stays useful", async ({ page, browser }) => {
+test("CSS 200 percent scaling reflows; no-JavaScript fallback stays useful (not browser zoom)", async ({ page, browser }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto(`${origin}/compound-gpid/dev/#page=modular-guide&section=module-preferences`);
   await expect(page.locator("[data-document] h1")).toBeVisible();
@@ -201,3 +215,5 @@ test("short articles and loading states have no stale TOC; hidden references rem
   await expect(page.locator(".search-result strong", { hasText: /^cg-skill activate$/ })).toBeVisible();
   await expect(page.locator('.search-result[href="#page=skill-management-activation"]')).toHaveCount(0);
 });
+
+require("./docs-discovery.browser.js")({ origin: () => origin, searchFixture });

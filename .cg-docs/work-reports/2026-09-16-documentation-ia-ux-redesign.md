@@ -1339,3 +1339,402 @@ This is not pipeline Step 9 or `/cg-commit-push-pr`. Stop after dispatch. Phase 
 remains incomplete, `completed-phases: [1]`, `current-phase: 2`, and plan status
 active. No evidence exception, PR, deployment, or later phase is authorized.
 `nextCommand` remains null.
+
+## Run 11: Phase 2 Completion Evidence, 2026-09-17T00:15:16Z
+
+Scope: finalize phase 2 only. The user supplied final executed evidence and
+authorized only the completion metadata, report, and active-state updates if V2
+and V3 pass. No implementation, test, package, workflow, or later-phase edits are
+authorized. Active deviation policy remains `ask`, with no runtime override and
+no accepted evidence exception. Prior failures, approvals, recovery limits, and
+checkpoint records above remain historical evidence, not deleted or relabelled.
+
+### Exact Source And Artifact
+
+Normal CI run https://github.com/GPID-WB/compound-gpid/actions/runs/35163119256,
+attempt 1, completed successfully: 8 jobs passed, 2 skipped, 0 failed. Repository
+`GPID-WB/compound-gpid`, event `workflow_dispatch`, ref
+`refs/heads/improve-website-design`, exact event and checkout SHA
+`393a197506ba42ed6ebcf33cf39d82eb1b8a1b92`. Current HEAD matches. The only initial
+worktree entries were the two preserved untracked `.kilo` GUID fixture directories;
+there were no tracked source/test changes after the verified commit.
+
+Artifact: `docs-browser-evidence-35163119256-1`, ID `10473214181`, parent-verified
+archive SHA-256 `ff9391fad930c576b4b7494d83e413fc5a4658b79a5d2c3529628efc22a2720a`.
+Local root:
+`C:/Users/wb384996/AppData/Local/Temp/3/kilo/docs-browser-evidence-35163119256-1`.
+Read `test-results/docs-browser-provenance.json` and the browser JSON's source,
+test identities, outcomes, retry setting, and aggregate counts. The parent has
+verified the artifact/source/ref/attempt and package/lock/report hashes; this
+task did not redownload or independently rehash that archive.
+
+| Provenance field | Verified record |
+| --- | --- |
+| Node / npm | 22.23.2 / 10.9.8 |
+| Playwright / axe-core / Chromium | 1.52.0 / 4.10.3 / 136.0.7103.25 |
+| `repairRequested` / repair step | false / skipped |
+| `npm ci` / Chromium installation | success / success |
+| Package JSON SHA-256 | `9b5f93590db9a70593424247967e4fdf191e77faff1888be72d95774080ef57e` |
+| Checked-in and installed lockfile SHA-256 | Both `5641c6e80be9b96c88dfda09157be84bc96920c585e395c92e2b02ad9f4c22c1` |
+| Browser JSON SHA-256 | `93a2e011978f66bc364c4c6d429a121937ea3bb41916fb9cfd2c47f229ee9927` |
+
+### Executed Final Checks
+
+| Check | Actual result and scope |
+| --- | --- |
+| `npm run test:docs-automation` | 158 passed on the final committed source |
+| `npm run test:docs-browser -- --reporter=line,json` | 18 passed, 0 failed, 0 skipped, 0 flaky, 0 retries; no collection failure |
+| Responsive axe matrix | Root/dev under `/compound-gpid/`, widths 320/390/768/1024/1440, both light and dark: clean assertions. All original axe tags remain enabled |
+| Router/reading behavior | Separate navigation/TOC, groups, redirects/raw stubs, section/history/skip-link no-fetch behavior, route races and notices, loading/errors, storage denial, mobile focus return, keyboard TOC focus, callout safety and actual banner-offset checks passed |
+| `npm run capture` | Parent verified successful capture across 4 cells and 5 widths; separate from the docs suite's 10 dark screenshots |
+| Evidence `npm test` | 34 passed |
+| Native target gate | All 9 commands exited 0 on Windows 2022, macOS 14 and Ubuntu 24.04. The previously unexecuted later 7 commands are now verified |
+| Publisher suite | Windows: 181 passed, 16 skipped. macOS/Linux: 191 passed, 6 skipped. Do not report skipped tests as passes |
+| Race suite | Windows: 8 passed. macOS/Linux: 11 passed |
+| Remote Pester and Python compatibility | Both Pester OS jobs and Python compatibility passed, as verified by parent |
+| Skipped CI jobs | Documentation staleness and certified Kilo qualification were skipped; neither is claimed as passed or as host certification |
+
+The repaired mobile target-size failures and all six old-interface native
+failures per OS are resolved by the executed final run, not by disabled checks,
+changed eligibility, blanket allowlisting, retries, or a waiver. The one approved
+additional repair pass is closed; no extra repair pass was used.
+
+### Fresh Canonical Full-Suite Relevance
+
+Read the current `tests/last-run.json`: `ranAt: 2026-09-16T23:33:53Z`,
+`gitSha: d3154c40`, `passed: true`, 3013 total, 3011 passed, 0 failed, 2 skipped
+in `update`. All 21 canonical files are present; `filteredFiles: null`,
+`failFast: false`, empty failures and missing-file skip arrays. Parent verified
+the exact canonical `. tests\Run-Tests.ps1` invocation without flags/pipeline and
+exit 0, in a dedicated safety-loaded session with the approved short TEMP/TMP.
+
+That local run included the uncommitted repair later committed as `393a1975`.
+`git diff --name-only d3154c40..393a1975` contains exactly the four repair files
+plus the report and active state. Current `git hash-object --no-filters` values
+for all four repair files still match the Run 10 table. The current Pester artifact
+also matches recorded blob `9fced73bb5c4e15548e376731c811a6ecf2cdf86`.
+Only report/state changed after the local gate before commit; no tested product
+or test input drift was found. This supplies the phase gate without falsely
+calling the old HEAD field the final commit SHA. The final committed source also
+has passing remote Pester jobs.
+
+Retain the non-terminating cleanup-warning qualification. The two update skips,
+their unrecorded individual reasons, and separate pending counts not present in
+the runner artifact are not converted into passes. No local Pester or browser
+rerun was performed during completion bookkeeping.
+
+### V2 And V3 Decision
+
+| Evidence | Phase 2 result |
+| --- | --- |
+| V2: sidebar, TOC, redirects, deep links, history, skip-link | Passed by the complete 18-test browser suite and executed router/navigation checks on the final source. Independent dark visual review complements those checks without substituting for them |
+| V3: source-correct suite guide, unified skills, command recipes and preserved contracts | Passed. Technical reviewer `ses_f539f41a3ffeZaH3Kcl1mnLawm` independently verified all four P2 corrections; research reviewer `ses_f539f41a0ffeRAz138t3Xg7maN` passed scoped semantics. Migration, exact 29-page inventory, 12 descriptor-bound references, unique-content preservation, retired-name boundaries and generation/ownership checks pass |
+| Repair test integrity | Independent `cg-testing` reviewer `ses_f537295bdffe8bEvNVar6iVnUi` found no material issue or weakened check. Final CI verifies the repaired input |
+| Mandatory full-suite phase gate | Passed with the fresh canonical local result and source-relevance check above; skip and cleanup qualifications retained |
+
+Parent supplied an independent visual agent's completed review of all 10 docs
+dark screenshots (both channels at five widths). It found no material visible
+issue: primary navigation, article and TOC remain separate, mobile buttons are
+distinct, and banner offsets are correct. Horizontal table scroll wrappers do
+not imply lost content. This supports only the phase 2 dark visual check and the
+executed keyboard/route evidence. It is not human approval, live-deployment
+verification, a manual screen-reader result, or complete V4/Gate A approval.
+
+### Constraints And Phase 3 Evidence
+
+| Constraint | Current boundary result |
+| --- | --- |
+| C1 | Existing two-channel/static-site scope and paper/navy style retained. No new UI claim is made for the frozen legacy shell |
+| C2 | All 76 routes, meaningful heading mappings, 29 management entries plus importing, 12 operation contracts and source-reviewed safety guidance remain covered |
+| C3 | Existing deployment/verification regressions pass. The new pristine-source, loaded-shell and producer/recovery guarantees belong to phase 3 V5 and remain uncompleted |
+| C4 | No command behavior, suite dependency, eligibility or release-policy change. No PR is created; eventual base remains dev |
+| C5 | Executed generation, ownership and prose-preservation checks pass; one writer per existing generated section retained |
+| C6 | No catalog/help integration or new runtime-support claim made. Certified Kilo was skipped, not certified |
+| C7 | Continuing docs tests executed in CI, all native commands ran, and the fresh unfiltered canonical full-suite gate is source-relevant |
+
+Carry the following as explicit phase 3 V4/Gate A requirements, not accepted
+exceptions or a claim that overall accessibility is complete:
+
+- Light-theme visual review: axe passed, but this docs artifact saves dark
+  screenshots only.
+- Manual screen-reader evidence is absent.
+- Current zoom test uses CSS `zoom = 2`, not actual browser zoom.
+- Reduced-motion preference is set, but no behavior assertion proves motion reduction.
+- Expand visual/interactive evidence for an open drawer, TOC focus, and table
+  reading/scroll journeys; current screenshots do not cover those states fully.
+- Fonts are blocked in the browser suite, so screenshots use fallback typography.
+  No live deployment or external-font behavior was verified.
+
+V4-V9 and Gate A/B/C remain open. These later evidence requirements do not undo
+the executed, scoped V2/V3 results and are not waived. All phase 2 required rows
+and the mandatory full-suite gate are satisfied; there is no unresolved phase 2
+criterion or `failing-steps` entry.
+
+### Completion Write Boundary
+
+Pre-write `cg-render-artifact --validate-only` passed. Evidence is durably recorded
+before metadata mutation. Next, append 2 to `completed-phases`, re-read and verify,
+then set `current-phase: 3` while retaining `status: active`. Final completion
+bookkeeping verification is recorded below after those ordered writes.
+
+Final status: **phase 2 completed**, Steps 2 and 3, on 2026-09-17. First wrote
+`completed-phases: [1, 2]` and read it back while `current-phase` was still 2.
+Only then wrote `current-phase: 3`, retaining `status: active`. Re-read the final
+plan and active state; the latter is a handoff, not active phase 3 execution.
+Post-write `cg-render-artifact --validate-only` and `git diff --check` passed.
+The tracked diff contains only the plan frontmatter, this appended report, and
+active state. No product/test edit, commit, push, PR, or phase 3 command ran.
+
+The exact next command is recorded for parent-controlled sequencing only:
+
+`/cg-work phase3 review:auto .cg-docs/plans/2026-09-16-documentation-ia-ux-redesign.md`
+
+## Run 12: Phase 3 Step 4, 2026-09-17
+
+Scope is pipeline step 3 only: plan Steps 4-5, V4-V6. Phases 1 and 2 remain
+authoritative completed work. Active deviation policy is `ask`; no exception or
+additional recovery pass is approved. Parent controls all Git/GitHub operations,
+remote Chromium execution, safe Pester, and review checkpoints. No local browser,
+later phase, PR, release enablement, or deployment is permitted in this run.
+
+Read the complete command and selected plan, charter/local configuration, project
+instructions, context-loading, goal-execution, active-state and artifact-view
+contracts. Plan validation passed before mutation. No JavaScript-specific language
+instruction is installed. Bounded local Brain query selected
+`.cg-docs/plans/2026-06-01-test-correctness-assessment.md`; the applicable rule is
+to establish executed red evidence before implementation. Open-brain is not
+available. No full tactical context or sibling worktree was loaded.
+
+Test index: existing docs navigation/build-contract/migration, rebuild, preview,
+composer, legacy producer and browser suites; `tests/docs-automation.Tests.ps1`,
+`tests/docs-preview.Tests.ps1`, and `tests/wiki.Tests.ps1` remain required at the
+fresh parent full-suite phase gate. The continuing Node command already includes
+the HTTP preview suite and asserts an exact bounded test inventory.
+
+Step 4 starts with a pure, deterministic section-index generator and shared search
+validation/ranking units. These use canonical Markdown/navigation/module data, not
+a second command-facts catalog. Browser tests will establish a parent-run red
+checkpoint before the live runtime changes. Rebuild/publication wiring waits for
+the versioned generator and independent-output verification work; no old producer
+algorithm or frozen fixture will be silently changed. Step 5 has not started.
+
+V4-V6 remain incomplete. The phase 2 light visual, human screen-reader, actual
+browser zoom, motion assertions, drawer/TOC/table interactions, and external-font
+limitations remain open. Initial functional recovery use: Step 4 0/2, Step 5 0/2.
+
+### Step 4 Parent Browser Checkpoint: 2026-09-17T00:29:43Z
+
+Status: **NEEDS_REMOTE_BROWSER**. This is the required browser red checkpoint,
+not phase completion, an exhausted failure, or a missing-subagent blocker.
+Parent-supplied starting HEAD is `393a197506ba42ed6ebcf33cf39d82eb1b8a1b92`;
+this task performed no Git/GitHub operation. Parent must bind the new checkpoint
+commit and actual run/artifact identities before treating remote results as
+evidence. The two old untracked GUID fixtures and frozen legacy fixtures were not
+edited. The approved proposal archive and ignored original were not edited.
+
+Implemented partial Step 4 scope:
+
+- `scripts/docs-search-index.js`: pure deterministic section-index projection of
+  supplied canonical navigation/Markdown/module data; shared heading IDs, hidden
+  references, no compatibility-stub hits, canonical suite support, and no source
+  writes or source-tree code execution.
+- `docs/assets/docs-search.js`: strict index shape/coverage checks, exact title
+  and heading ranking, distinct slash/shell tokens, bounded per-page results,
+  duplicate-narrative suppression, and plain-text snippets. This helper is not
+  yet loaded by the live shell.
+- `scripts/tests/docs-search.test.js` and `package.json`: 12 new unit/contract
+  tests registered in the continuing exact docs Node inventory. One test's
+  initially mistyped route was corrected from direct canonical navigation
+  inspection before implementing the module, not by changing a product contract.
+- `scripts/tests/docs-browser.spec.js` and new
+  `scripts/tests/docs-discovery.browser.js`: 10 new browser cases, registered
+  through the existing browser entry. They cover two-channel lazy section search,
+  keyboard selection/focus, failed-fetch retry, malformed data, stale-query races,
+  inert display, clipboard success/denial, print, and both-theme drawer/TOC/table
+  journeys. The isolated server supplies generated index bytes in memory only.
+  Existing responsive cells now save light and dark screenshots and assert
+  computed reduced-motion styles. The CSS scaling test name explicitly states
+  that it is not actual browser zoom. None of these browser changes was executed
+  locally; expected collection is 28 cases, not a reported result.
+
+### Executed Checks And Repair Accounting
+
+| Command/check | Actual result |
+| --- | --- |
+| `bin/cg-render-artifact.cmd --validate-only .cg-docs/plans/2026-09-16-documentation-ia-ux-redesign.md` | Passed preflight before state/code mutation |
+| `node --test scripts/tests/docs-search.test.js` before implementation | 0 passed, 12 failed, 0 skipped; missing `../docs-search-index.js`. Executed new-module red baseline, not browser behavior evidence |
+| Same command after initial implementation | 11 passed, 1 failed: script-like-text search returned no result because dotted identifiers were treated as one token |
+| Step 4 functional repair attempt 1 | Split punctuation at dots while retaining command hyphens and leading slashes; no assertion weakened. Same command then passed 12/12, zero skipped |
+| `npm run test:docs-automation` after repair | 170 passed, 0 failed, 0 skipped. Includes the 12 new tests, HTTP preview, continuing CI-selection checks, and unchanged legacy/composer regressions |
+| `node --test scripts/tests/docs-search.test.js scripts/tests/docs-navigation.test.js` after browser-test additions | 39 passed, 0 failed, 0 skipped; final search units and CI-selection assertions |
+| `node --check` on `scripts/docs-search-index.js`, `docs/assets/docs-search.js`, `scripts/tests/docs-browser.spec.js`, and `scripts/tests/docs-discovery.browser.js` | All four passed |
+| `node scripts/check-docs-site.js` | Passed: 76 navigable Markdown pages, 7 groups, complete skills catalog |
+| `node scripts/rebuild-docs.js --check --all` | Passed: complete build current; does not claim the new index is wired into production generation |
+
+TEMP/TMP for the Node regression command were explicitly set to
+`C:/Users/wb384996/AppData/Local/Temp/3/kilo`, after confirming the parent exists
+and drive C had 1,342,361,600 bytes free. No deep `.kilo` temp was selected.
+The existing Windows file-link test reports its portable boundary qualification
+after EPERM; this is not native symlink qualification. Editor `get_errors` is not
+available; syntax checks are not misreported as an editor diagnostics pass.
+
+Functional recovery remaining: Step 4 **1 of 2 attempts used**, Step 5 **0 of 2**.
+No current executed unit failure remains. Planned browser red failures are not
+yet known and must be recorded from the actual run. No full Pester suite or
+phase 3 browser execution occurred in this task.
+
+### Required Parent Action
+
+Use the authorized early test-checkpoint path on `improve-website-design`, keeping
+normal `npm ci` and the pinned Chromium installation. Parent owns any required
+safe checkpoint regression, commit/push and normal `tests.yml` dispatch. Do not
+enable lockfile repair, filter the browser suite, or skip old tests. Execute the
+existing remote command `npm run test:docs-browser -- --reporter=line,json` with
+the workflow's `PLAYWRIGHT_JSON_OUTPUT_NAME=test-results/docs-browser.json`.
+The live runtime is intentionally unchanged, so new search/copy/print tests are
+expected to expose missing behavior. Confirm actual assertion failures, not only
+a collection/environment error, before allowing runtime implementation.
+
+Return source SHA/ref, run/attempt, artifact ID/archive digest and these existing
+artifact paths: `test-results/docs-browser-provenance.json`,
+`test-results/docs-browser.json`, `test-results/docs-browser/`. Retain light/dark
+and interaction screenshots for later scoped review. No browser red result is
+claimed now. No human review is implied by automated screenshots.
+
+### Remaining Scope And Constraints
+
+V4 is partial; V5/V6 and Gate A are not satisfied. Still required: production
+generator wiring and versioned fingerprints, live search/copy/source/issue/print
+tools, verified build/channel UI, all step 5 independent derivation and forgery
+checks, immutable staging, exact reserved outputs, complete asset/SRI inventory
+(including `docs-reading.js` and the new search helper), actual legacy
+confirmation/history behavior, and the producer/controller recovery matrix.
+Controller-first external readiness remains separately unverified. Human
+screen-reader review and real browser zoom evidence remain absent; blocked font
+requests still mean fallback-font screenshots only. A fresh unfiltered canonical
+Pester result remains mandatory at the final phase 3 boundary.
+
+C1-C7 boundaries are retained, not declared fully verified for phase 3. No new
+channel, command behavior, help dependency, suite/release-policy change, trust
+waiver, generated-section ownership transfer, or publication enablement occurred.
+No live runtime, HTML, CSS, workflow, lockfile, producer, controller, legacy fixture,
+or plan body was edited. No review/triage/compound/PR or phase 4/5 ran.
+
+Final status for this run: **blocked at required parent remote-browser checkpoint**.
+Keep `status: active`, `completed-phases: [1, 2]`, `current-phase: 3`.
+After source-bound red evidence, resume only:
+`/cg-work phase3 review:auto .cg-docs/plans/2026-09-16-documentation-ia-ux-redesign.md`.
+
+### Focused P2 Correction Before Remote RED: 2026-09-17T00:37:56Z
+
+The user supplied a focused review finding and authorized one in-scope correction
+to the helper/tests before the parent browser checkpoint. The previous search
+text helper deleted every underscore, including literal
+`KILO_DISABLE_EXTERNAL_SKILLS`, while the tokenizer correctly retained underscores.
+This corrupted snippets and prevented the exact installation-page search.
+
+Changed only `scripts/docs-search-index.js` and
+`scripts/tests/docs-search.test.js`, plus this existing report and active state.
+The helper now uses the block parser's code type to bypass Markdown processing
+for fenced code, preserves inline-code contents, and removes only supported
+paired inline delimiters/link syntax from prose. Plain identifiers keep their
+underscores. Search whitespace normalization is unchanged. No dependency,
+tokenizer, live runtime, browser test, builder, workflow, or lockfile changed.
+
+| Executed check | Result |
+| --- | --- |
+| Plan `--validate-only` preflight | Passed |
+| `node --test scripts/tests/docs-search.test.js` before correction | 11 passed, 5 failed, 0 skipped: inline/fenced/plain identifier preservation, formatted-heading preservation, and canonical installation lookup |
+| Same command after correction | 16 passed, 0 failed, 0 skipped; includes exact uppercase/lowercase queries and literal snippet assertions |
+| `npm run test:docs-automation` after correction | 174 passed, 0 failed, 0 skipped; includes continuing CI selection and unchanged legacy/composer regressions |
+| `node --check scripts/docs-search-index.js` and `node --check scripts/tests/docs-search.test.js` | Both passed |
+
+This was **Step 4 repair attempt 2 of 2**, successful on its first post-edit run.
+No extra repair loop or assertion weakening occurred. The Step 4 recovery budget
+is now fully used; any further functional repair beyond that budget requires a
+parent decision. Step 5 remains unstarted, 0/2 attempts used. No executed failure
+remains, but V4-V6 and the phase completion gate remain open.
+
+The approved TEMP parent existed with 1,282,674,688 bytes free on C before the
+full Node run; TEMP/TMP used `C:/Users/wb384996/AppData/Local/Temp/3/kilo`.
+No arbitrary minimum-free-space gate was added. The user reports the dedicated
+Pester agent did not start tests because it imposed an unsupported 2 GiB threshold.
+That non-execution is neither a test failure nor passing evidence; parent handles
+the safe Pester checkpoint separately. The full phase-boundary gate is not waived.
+
+Status remains **NEEDS_REMOTE_BROWSER**. No remote run, commit, push, install,
+later step, or live runtime integration occurred. Parent's next test command
+remains `npm run test:docs-browser -- --reporter=line,json` in normal CI, followed
+by the same phase 3 resume command only after source-bound browser red evidence.
+
+### Early Browser RED Checkpoint Gate: 2026-09-17T00:45:54Z
+
+The user authorized this early feature-branch checkpoint for phase 3 Step 4,
+not phase completion or pipeline Step 9. The parent reports that the reviewer
+independently verified and closed the P2 literal-underscore finding after the
+focused correction. Retain the final 16 passing search unit tests and 174
+passing tests from the complete `npm run test:docs-automation` command. This
+checkpoint does not rerun those tests or supply browser behavior evidence.
+
+Read the fresh canonical `tests/last-run.json` and confirmed its fields against
+the parent's dedicated safe-runner report. The run tested the current uncommitted
+checkpoint on HEAD `393a197506ba42ed6ebcf33cf39d82eb1b8a1b92`, not a later
+commit. Only this existing report and active state are edited after that gate.
+
+| Field | Verified result |
+| --- | --- |
+| Command | `. tests\Run-Tests.ps1`, parent dedicated subagent, no flags or pipeline |
+| Parent-reported start | `2026-09-17T00:39:38.886Z` |
+| Artifact ranAt | `2026-09-17T00:43:37Z` |
+| Artifact gitSha | `393a1975`, matching source HEAD |
+| Parent-reported exit / passed | 0 / true |
+| Total / passed / failed / skipped | 3013 / 3011 / 0 / 2 |
+| Skip location | Both in `update`; separate pending counts and individual reasons not recorded |
+| Completeness | All 21 canonical test files present |
+| failFast / filteredFiles | false / null |
+| failures / missing-file skips | Empty arrays |
+| Artifact Git blob, no filters | `9d5a99c7dcaa8cd019513ecb7d55ba4f433bfa9b` |
+
+The run used the approved short process-local TEMP/TMP path
+`C:\Users\wb384996\AppData\Local\Temp\3\kilo`. The parent reported
+non-terminating cleanup errors and an isolated update-fixture warning. Record
+these qualifications; this was not error-free terminal output. C: had 1.042 GiB
+free afterward, with no disk-full error reported. These diagnostics do not
+change the zero-failed-test result and are not an evidence waiver.
+
+Checkpoint source identities from `git hash-object --no-filters`:
+
+| Path | Blob |
+| --- | --- |
+| `docs/assets/docs-search.js` | `627351d44220c799db8b4034560d97af328cd59c` |
+| `scripts/docs-search-index.js` | `c0c349bee201b3ff540777b83a6bf04e5f5565be` |
+| `scripts/tests/docs-discovery.browser.js` | `156dba73104222f457d7783bc177e1f25ad7804f` |
+| `scripts/tests/docs-search.test.js` | `cfa927b1e2293b4ea80b604d062ee306cce37bf7` |
+| `package.json` | `7a8af1b267911fdbb098d2ac778ca856151af74b` |
+| `scripts/tests/docs-browser.spec.js` | `9c10dc1401fe61d435f3f01591859108b51e7122` |
+
+Inspected status, actual diffs, and the ten recent commits. Local HEAD and
+upstream match the source SHA above. The explicit nine-path checkpoint includes
+these six source/test paths, the existing phase 2 completion plan metadata,
+this report, and active state. Preserve every phase 2 commit. Exclude both
+`.kilo` GUID directories, scratch/temp files, `tests/last-run.json`, and
+downloaded artifacts.
+
+The live shell does not load the new helper, and production build integration
+is not enabled. New browser cases are expected to expose missing features;
+that planned RED baseline is not, by itself, a new regression. Actual failures
+must still be checked for source identity, collection/setup problems, and any
+regression in existing behavior. No browser result is claimed before execution.
+
+At this precommit record, the new commit, push, and normal dispatch are pending:
+
+```text
+gh workflow run tests.yml --repo GPID-WB/compound-gpid --ref improve-website-design
+```
+
+Push only `origin/improve-website-design`; use no lockfile repair flag. Stop
+after dispatch, with no amend, force-push, PR, deployment, or later-phase action.
+Step 4's repair budget remains 2/2 used; this checkpoint grants no extra repair.
+Phase 3 remains incomplete with `completed-phases: [1, 2]`, `current-phase: 3`,
+and plan status active. The saved resume command remains conditional on the
+parent's source-bound browser RED evidence; it is not executed here.
