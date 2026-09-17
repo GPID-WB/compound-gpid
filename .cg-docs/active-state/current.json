@@ -1,8 +1,8 @@
 {
   "schemaVersion": "compound-gpid-active-state-v1",
-  "updatedAt": "2026-09-17T15:25:00Z",
+  "updatedAt": "2026-09-17T15:32:40Z",
   "workflow": "/cg-work",
-  "status": "active",
+  "status": "blocked",
   "branch": "improve-website-design",
   "plan": ".cg-docs/plans/2026-09-16-documentation-ia-ux-redesign.md",
   "executionReport": ".cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign.md",
@@ -84,22 +84,29 @@
       "artifact": ".cg-docs/work-reports/2026-09-17-docs-phase3-evidence.json"
     },
     {
-      "id": "V7-V9",
-      "status": "pending",
+      "id": "V7",
+      "status": "blocked-missing-merged-help-doc-writer-and-ownership-parity",
+      "artifact": ".cg-docs/work-reports/2026-09-17-docs-gateB-readiness.json"
+    },
+    {
+      "id": "V8-V9",
+      "status": "pending-prior-gate",
       "artifact": ".cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign.md"
     }
   ],
-  "unresolvedDecisions": [],
+  "unresolvedDecisions": [
+    "Gate B requires merged help documentation writer/checker, marker migration, wiki ownership and parity evidence; canonical dev 7a4df8c6 does not contain them."
+  ],
   "artifactRefs": [
     {
       "kind": "temporary-handoff",
       "path": "HANDOFF.md",
-      "status": "phase3-complete-phase4-active"
+      "status": "run19-gateA-passed-gateB-prerequisite-blocked-trial-merge-aborted"
     },
     {
       "kind": "execution-report",
       "path": ".cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign.md",
-      "status": "run18-gateA-complete"
+      "status": "run19-gateA-passed-gateB-prerequisite-blocked-trial-merge-aborted"
     },
     {
       "kind": "browser-tests",

@@ -14,14 +14,19 @@ explicitly closes search; reduced-motion transitions use zero duration to avoid
 stale inherited theme colors. The second two-attempt renewal is used and passed.
 Source changes are uncommitted on `improve-website-design`.
 
-**Current work: phase 4 help integration.** The user explicitly approved
+**Current blocker: Gate B's merged help documentation writer is missing.** The user explicitly approved
 deferring human screen-reader and 200% zoom visual checks in Run 18. Step 4 is
 complete with that limited exception. Step 5 implements immutable source
 verification, separate staging, paired metadata, shell integrity and legacy
 switching. Phase 3 is complete: 191 Node tests, 44 browser tests and the fresh
 full Pester gate (2,925 pass, zero fail, three platform skips) pass. See Run 18
-and `2026-09-17-docs-phase3-evidence.json`. Phase 4 is integrating merged dev
-7a4df8c6. Phase 5 and the final pipeline remain pending; no deployment exists.
+and `2026-09-17-docs-phase3-evidence.json`. Gate A is checkpointed at de64bf06.
+Merged dev 7a4df8c6 has the catalog but its help Plan has completed phases 1-4
+only; phase 6's documentation writer/checker, marker migration and wiki ownership
+transfer are absent. The trial integration was tested, recorded in Run 19 and
+`2026-09-17-docs-gateB-readiness.json`, then safely aborted. Step 6 is blocked;
+phase 5 and the final pipeline remain pending. Obtain the merged help generation/
+ownership/parity implementation before resuming phase 4. No deployment exists.
 
 Read Run 17 in the canonical work report and
 `.cg-docs/work-reports/2026-09-17-docs-step4-browser-recovery.json` for current

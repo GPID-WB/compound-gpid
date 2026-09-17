@@ -2318,3 +2318,56 @@ main-targeted PR, publisher enablement, release-policy change or snapshot
 enablement was performed. The authorized next phase is Gate B integration from
 merged canonical dev 7a4df8c652b0c2feed0a681aaae6580cf4c4b49a, whose catalog
 freshness check passed in a separate clean checkout.
+
+## Run 19: Gate B Readiness Blocker, 2026-09-17
+
+Gate A checkpoint: `de64bf066da79842223e2ebdc6252c69f0a94d88`.
+The trial merge used merged canonical dev
+`7a4df8c652b0c2feed0a681aaae6580cf4c4b49a`, never an unmerged sibling.
+Its help Plan remains active with completed phases [1,2,3,4] and current phase 5.
+Help phase 6 step 11 specifies the documentation writer, strict checker,
+marker migration and wiki ownership transfer. Those implementations are absent:
+the executed catalog CLI `--help` exposes catalog write/check and named-record
+maintenance only, with no bootstrap-docs-markers/write-docs/check-docs modes.
+The current wiki manifest still assigns command tables to the existing builder.
+
+This is a required Gate B input, not a request to waive its checks. The approved
+redesign Step 6 requires adoption of the merged documentation writer and one
+owner per section; its source proposal likewise says to reconcile help Phase 6
+at adoption. Gate B is blocked until that upstream implementation is merged
+and its ownership/parity evidence is available. No parallel writer, catalog
+projection, producer-contract change or speculative ownership transfer was
+enabled. Step 6 remains incomplete; phases 4/5 and whole-plan completion are
+not recorded.
+
+Concrete readiness evidence is in `2026-09-17-docs-gateB-readiness.json`.
+The clean canonical catalog check passed and includes `/cg-light-work`. A trial
+merge resolved two conflicts by keeping this documentation workflow state and
+both CI dispatch inputs. Its initial stale shell:cg-render-artifact pin was a
+working-tree LF/CRLF mismatch: declared CRLF restored the exact upstream bytes
+and the check passed without repinning any metadata.
+
+The trial's Node regression ran 191 tests: 188 passed, three failed. New
+autopilot/help entry rows, the newly shared skill-management badge and the
+second CI dispatch input require integration reconciliation. The six-file
+help/query/transport/support/documentation/drift Python run was interrupted
+after the prerequisite blocker was established: 181 passed, 34 setup errors
+(`canonical asset has no owning module: .github/shared/help-catalog.json` in
+test fixtures). It is not a completed parity gate. The native generator dry-run
+listed 1,542 prospective files; a dry-run listing is not proof of no drift.
+No source repair allowance was spent on these deferred integration failures.
+
+The trial merge was saved as a local review patch and safely aborted. Its
+generated documentation changes and batch-wrapper normalization were removed;
+the branch again contains the passing Gate A implementation. Post-abort site,
+rebuild-current and frozen-baseline checks pass. No unrelated work was removed.
+No committed support-evidence JSON was found under canonical `.cg-docs`; Gate C
+was not executed and no host certification was inferred from static assets.
+
+Next required input: merged help documentation writer/checker, marker migration,
+wiki ownership and parity evidence (help Plan phases 5/6), followed by current
+source-bound support evidence for any Gate C runtime claims. Resume redesign
+`/cg-work phase4 review:auto .cg-docs/plans/2026-09-16-documentation-ia-ux-redesign.md`
+after checking those actual merged sources. The ordered final review/triage/
+compound/commit-push-PR/five-minute-wait/verify pipeline remains pending because
+its prerequisite phases have not completed. No push, PR or deployment occurred.
