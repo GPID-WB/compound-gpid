@@ -165,6 +165,32 @@ Describe "link.ps1 <-> link.sh parity" {
     }
 }
 
+Describe "cg-help - managed runtime ignore and install parity" {
+    It "both managed-ignore emission blocks contain the same runtime entries" {
+        $ps1 = Get-Content (Join-Path $repoRoot "scripts/link.ps1") -Raw
+        $sh = Get-Content (Join-Path $repoRoot "scripts/link.sh") -Raw
+        $psBlock = [regex]::Match($ps1, '(?s)foreach \(\$runtimeEntry in @\((.*?)\)\)').Groups[1].Value
+        $shBlock = [regex]::Match($sh, '(?s)printf ''%s\\n'' \\\r?\n(\s*''\.compound-gpid/.*?)(?:>> "\$entries_file")').Groups[1].Value
+        $pattern = '["''](\.compound-gpid/[^"'']+)["'']'
+        $psEntries = @([regex]::Matches($psBlock, $pattern) | ForEach-Object { $_.Groups[1].Value } | Sort-Object -Unique)
+        $shEntries = @([regex]::Matches($shBlock, $pattern) | ForEach-Object { $_.Groups[1].Value } | Sort-Object -Unique)
+        $psEntries | Should -Contain '.compound-gpid/runtime/'
+        $shEntries | Should -Contain '.compound-gpid/runtime/'
+        ($psEntries -join "`n") | Should -Be ($shEntries -join "`n")
+        $psEntries | Should -Not -Contain '.compound-gpid/active-manifest.json'
+        (Get-Content (Join-Path $repoRoot '.gitignore')) | Should -Contain '.compound-gpid/runtime/'
+    }
+
+    It "both installers register the same committed help entrypoint" {
+        foreach ($relative in @('bin/cg-help', 'bin/cg-help.cmd')) {
+            Test-Path (Join-Path $repoRoot $relative) | Should -Be $true
+            (Get-Content (Join-Path $repoRoot $relative) -Raw) | Should -Match 'cg_help\.py'
+        }
+        (Get-Content (Join-Path $repoRoot 'install.ps1') -Raw) | Should -Match 'bin\\cg-help\.cmd'
+        (Get-Content (Join-Path $repoRoot 'scripts/install.sh') -Raw) | Should -Match 'bin/cg-help'
+    }
+}
+
 # ---------------------------------------------------------------------------
 # cg-link singular platform flag
 # ---------------------------------------------------------------------------

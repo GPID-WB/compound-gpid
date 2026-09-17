@@ -1,0 +1,11 @@
+{
+  "id": "slash:cg-ideate", "name": "/cg-ideate", "kind": "slash", "ownerModule": "suite-cg", "supportedSuites": ["cg"],
+  "category": "design", "summary": "Discover and rank codebase-grounded project improvement ideas.", "aliases": [],
+  "intents": ["discover what to work on next", "generate project improvement ideas"], "usage": "/cg-ideate", "examples": ["/cg-ideate"],
+  "prerequisites": ["A project that can be inspected for concrete signals."], "outputs": ["A filtered and ranked list of improvement ideas."],
+  "constraints": ["Filters ideas against project constraints and existing roadmap work."], "relatedCommands": [{"id": "slash:cg-brainstorm", "relation": "next"}],
+  "sourcePath": ".github/prompts/cg-ideate.prompt.md", "definitionSources": [".github/prompts/cg-ideate.prompt.md"], "definitionDigest": "6b2af53dcf204f65b67ef6c61aadd4b998fd5755146765b4e3f3f3dc74081af4",
+  "documentationTargets": [], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["any"],
+  "availability": {"status": "available", "evidence": [{"os": "any", "sourcePath": ".github/prompts/cg-ideate.prompt.md"}]},
+  "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
+}

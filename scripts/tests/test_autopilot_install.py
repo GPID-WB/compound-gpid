@@ -12,12 +12,12 @@ Run: python -B -m pytest scripts/tests/test_autopilot_install.py -q
 """
 from __future__ import annotations
 
+import json
 import os
 import re
 from pathlib import Path
 
 import cg_autopilot
-from autopilot.arguments import parse_invocation
 from autopilot.install import (
     CODE_PATH_PREFIXES,
     resolve_install_root,
@@ -253,16 +253,26 @@ class TestInstalledIdentity:
 
 
 class TestInspectReportsInstalledIdentity:
-    def test_run_inspect_includes_helper_identity(self, tmp_path: Path) -> None:
+    def test_blocked_inspect_reports_identity_and_exits_zero(
+        self, tmp_path: Path, capsys
+    ) -> None:
+        """A completed inspection reports blockers in JSON, not its exit code."""
         root = tmp_path / "consumer"
         plan_rel = ".cg-docs/plans/test.md"
         plan_path = root / plan_rel
         plan_path.parent.mkdir(parents=True)
         plan_path.write_text(plan_source_valid(), encoding="utf-8")
-        invocation = parse_invocation(
-            ["--plan", plan_rel, "--batches", "1", "--base", "origin/dev"]
-        )
-        report = cg_autopilot.run_inspect(root, invocation)
+        assert cg_autopilot.main([
+            "inspect", "--root", str(root),
+            "--plan", plan_rel, "--batches", "1", "--base", "origin/dev",
+        ]) == 0
+        output = capsys.readouterr()
+        assert output.err == ""
+        report = json.loads(output.out)
+        assert report["status"] == "blocked"
+        assert {item["code"] for item in report["blockers"]} >= {
+            "contract-identity-unavailable", "base-unresolved",
+        }
         helper = report["installed-helper"]
         assert helper["install-root"]
         assert "helper-version" in helper

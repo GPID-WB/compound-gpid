@@ -4,6 +4,7 @@
   "targets": [
     {
       "id": "copilot",
+      "argumentSource": {"source": "invocation-tail", "token": "", "fidelity": "model-visible"},
       "name": "GitHub Copilot",
       "generatedTreePath": null,
       "projectedCategories": ["skills"],
@@ -40,6 +41,7 @@
     },
     {
       "id": "claude-code",
+      "argumentSource": {"source": "native-placeholder", "token": "$ARGUMENTS", "fidelity": "native-placeholder"},
       "name": "Claude Code",
       "generatedTreePath": ".claude",
       "capabilities": {
@@ -77,6 +79,7 @@
     },
     {
       "id": "codex",
+      "argumentSource": {"source": "native-placeholder", "token": "$ARGUMENTS", "fidelity": "native-placeholder"},
       "name": "Codex",
       "generatedTreePath": ".agents",
       "capabilities": {
@@ -115,6 +118,7 @@
     },
     {
       "id": "opencode",
+      "argumentSource": {"source": "generated-block", "token": "$ARGUMENTS", "fidelity": "model-visible"},
       "name": "OpenCode",
       "generatedTreePath": ".opencode",
       "capabilities": {
@@ -160,6 +164,7 @@
     },
     {
       "id": "kilo",
+      "argumentSource": {"source": "generated-block", "token": "$ARGUMENTS", "fidelity": "model-visible"},
       "name": "Kilo",
       "generatedTreePath": ".kilo",
       "assetMetadata": {

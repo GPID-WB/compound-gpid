@@ -219,6 +219,20 @@ def test_git_ignore_checks_are_batched(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 class TestNoDrift:
+    def test_generator_distributes_help_after_atomic_prompt_ownership(self) -> None:
+        plan = _build_structured_plan(REPO_ROOT)
+        assets = gen.scan_canonical_assets(REPO_ROOT, active_suites=("cg", "cr"))
+        shared_sources = {
+            asset["relative_path"] for asset in assets["shared"]
+        }
+
+        assert gen.DEFERRED_HELP_SHARED_SOURCES <= shared_sources
+        assert (REPO_ROOT / gen.CANONICAL_HELP_PROMPT_PATH).is_file()
+        for target in ("claude-code", "codex", "opencode", "kilo"):
+            sources = {entry.source for entry in plan.by_target[target].entries}
+            assert gen.DEFERRED_HELP_SHARED_SOURCES <= sources
+            assert gen.CANONICAL_HELP_PROMPT_PATH in sources
+
     def test_ownership_manifests_are_well_formed_and_match_worktree(self) -> None:
         for rel_path in sorted(OWNERSHIP_MANIFESTS):
             committed = _read_git_blob_bytes(REPO_ROOT, rel_path)

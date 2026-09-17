@@ -1,0 +1,11 @@
+{
+  "id": "slash:cg-strategy", "name": "/cg-strategy", "kind": "slash", "ownerModule": "suite-cg", "supportedSuites": ["cg"],
+  "category": "design", "summary": "Structure project vision or reconsider strategic direction.", "aliases": [],
+  "intents": ["define project strategy", "rethink project direction"], "usage": "/cg-strategy", "examples": ["/cg-strategy"],
+  "prerequisites": ["A project vision or strategic decision."], "outputs": ["A strategy artifact and approved charter or roadmap proposals."],
+  "constraints": ["Roadmap writes are delegated to the roadmap authority."], "relatedCommands": [{"id": "slash:cg-ideate", "relation": "next"}],
+  "sourcePath": ".github/prompts/cg-strategy.prompt.md", "definitionSources": [".github/prompts/cg-strategy.prompt.md"], "definitionDigest": "fcdc54cf304074acae494922f55b43fbbe63402da3fdee854f15e33df566e325",
+  "documentationTargets": [], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["any"],
+  "availability": {"status": "available", "evidence": [{"os": "any", "sourcePath": ".github/prompts/cg-strategy.prompt.md"}]},
+  "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
+}

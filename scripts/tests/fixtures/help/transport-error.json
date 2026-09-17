@@ -1,0 +1,1 @@
+{"schemaVersion":1,"operation":"transport-error","code":"transport.invalid-path","message":"The request path is invalid.","recovery":["Prepare a new request."]}

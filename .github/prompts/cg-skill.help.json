@@ -1,0 +1,11 @@
+{
+  "id": "slash:cg-skill", "name": "/cg-skill", "kind": "slash", "ownerModule": "suite-cg", "supportedSuites": ["cg"],
+  "category": "capabilities", "summary": "Manage the complete skill lifecycle through one role-gated command.", "aliases": [],
+  "intents": ["find or manage a skill", "validate skill lifecycle state"], "usage": "/cg-skill <operation> [arguments]", "examples": ["/cg-skill find python"],
+  "prerequisites": ["The skill-management capability is installed."], "outputs": ["A validated skill lifecycle result or mutation plan."],
+  "constraints": ["Canonical mutations require strict maintainer authority."], "relatedCommands": [{"id": "shell:cg-skill", "relation": "related"}],
+  "sourcePath": ".github/prompts/cg-skill.prompt.md", "definitionSources": [".github/prompts/cg-skill.prompt.md"], "definitionDigest": "178c9695e7b68d64fd59789d61d202cb974a21d835a19247092f1cde0d9277da",
+  "documentationTargets": [{"path": "docs/skills/management/index.md", "section": "operations"}], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["any"],
+  "availability": {"status": "available", "evidence": [{"os": "any", "sourcePath": ".github/prompts/cg-skill.prompt.md"}]},
+  "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
+}

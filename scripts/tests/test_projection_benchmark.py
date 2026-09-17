@@ -17,17 +17,20 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 
 def _write_json(path: Path, payload: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    with path.open("w", encoding="utf-8", newline="\n") as handle:
+        handle.write(json.dumps(payload, indent=2))
 
 
 def _create_file(repo_root: Path, rel_path: str, content: str = "body\n") -> None:
     path = repo_root / rel_path
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(content, encoding="utf-8")
+    with path.open("w", encoding="utf-8", newline="\n") as handle:
+        handle.write(content)
 
 
 def _minimal_assets(repo_root: Path) -> None:
     _create_file(repo_root, ".github/prompts/cg-work.prompt.md", "---\ndescription: work\n---\nwork body\n")
+    _create_file(repo_root, ".github/prompts/cg-skill.prompt.md", "---\ndescription: skill\n---\nskill body\n")
     _create_file(repo_root, ".github/prompts/cr-work.prompt.md", "---\ndescription: cr work\n---\ncr body\n")
     _create_file(repo_root, ".github/skills/cg-skill-r-analytical/SKILL.md", "---\ndescription: R\n---\nr body\n")
     _create_file(repo_root, ".github/skills/cr-skill-publication-output/SKILL.md", "---\ndescription: publication output\n---\ncr skill body\n")
@@ -147,7 +150,7 @@ def _cg_only_profile() -> dict:
         "capabilities": [],
         "config": {"language": "both"},
         "requestedCommand": "/cg-work",
-        "expectedRoute": "cg-work",
+        "expectedRoute": "suite-cg",
         "expectedCatalogSummary": "cg active",
         "expectedHardStop": "cr inactive",
         "expectedInventoryIncludes": ["kernel", "suite-cg"],
@@ -201,7 +204,7 @@ class TestCollectProfile:
         second = benchmark._generated_selected_inventory(root, _cg_only_profile())
         assert first["digest"] == second["digest"]
         cr = {"suites": ["cr"], "capabilities": [], "requestedCommand": "/cr-work",
-              "expectedRoute": "cr-work", "expectedCatalogSummary": "cr",
+              "expectedRoute": "suite-cr", "expectedCatalogSummary": "cr",
               "expectedInventoryIncludes": [], "expectedInventoryExcludes": [],
               "hostProcedure": ""}
         cr_inventory = benchmark._generated_selected_inventory(root, cr)
@@ -219,12 +222,52 @@ class TestOracle:
     def test_oracle_route_failure_stops_profile(self, tmp_path: Path) -> None:
         root = _make_repo(tmp_path)
         profile = _cg_only_profile()
-        profile["expectedRoute"] = "cr-work"
-        profile["requestedCommand"] = "/cr-work"
+        profile["expectedRoute"] = "suite-cr"
         result = benchmark.run_task_oracle(root, profile)
         assert result["available"] is True
         assert result["passed"] is False
-        assert any(check["name"] == "route cr-work" and not check["ok"] for check in result["checks"])
+        assert any(
+            check["name"] == "route suite-cr" and not check["ok"]
+            for check in result["checks"]
+        )
+
+    def test_oracle_resolves_excluded_route_to_inactive_replacement_owner(
+        self, tmp_path: Path
+    ) -> None:
+        root = _make_repo(tmp_path)
+        registry_path = root / ".github/shared/module-registry.json"
+        registry = json.loads(registry_path.read_text(encoding="utf-8"))
+        suite = next(
+            module
+            for module in registry["modules"]
+            if module["id"] == "suite-cg"
+        )
+        suite["ownershipExclusions"] = [
+            ".github/prompts/cg-work.prompt.md"
+        ]
+        registry["modules"].append(
+            {
+                "id": "cap-route-replacement",
+                "layer": "capability",
+                "displayName": "Route replacement",
+                "description": "Inactive exact route owner.",
+                "dependsOn": ["kernel"],
+                "ownedAssets": [".github/prompts/cg-work.prompt.md"],
+            }
+        )
+        _write_json(registry_path, registry)
+        profile = _cg_only_profile()
+        profile["expectedRoute"] = "cap-route-replacement"
+
+        result = benchmark.run_task_oracle(root, profile)
+
+        route_check = next(
+            check
+            for check in result["checks"]
+            if check["name"] == "route cap-route-replacement"
+        )
+        assert route_check["ok"] is False
+        assert "cap-route-replacement" in route_check["detail"]
 
     def test_oracle_flags_inactive_skill_leak(self, tmp_path: Path) -> None:
         root = _make_repo(tmp_path)
@@ -302,13 +345,33 @@ class TestValidation:
         assert benchmark.validate_payload(payload) == [], benchmark.validate_payload(payload)
 
 
+def _real_repo_is_dirty() -> bool:
+    """True when the repository worktree has uncommitted changes."""
+    import subprocess
+
+    status = subprocess.run(
+        ["git", "-C", str(REPO_ROOT), "status", "--porcelain"],
+        capture_output=True,
+        encoding="utf-8",
+        check=False,
+    )
+    return status.returncode != 0 or bool(status.stdout.strip())
+
+
+@pytest.fixture(scope="session")
+def real_repo_baseline() -> dict:
+    """Run the real-repo baseline scans and git probes once per session."""
+    return benchmark.run_benchmark(REPO_ROOT)
+
+
+@pytest.mark.skipif(
+    _real_repo_is_dirty(), reason="real-repo tests require a clean worktree"
+)
 class TestRealRepo:
-    def test_real_repo_baseline_validates(self) -> None:
-        payload = benchmark.run_benchmark(REPO_ROOT)
-        errors = benchmark.validate_payload(payload)
+    def test_real_repo_baseline_validates(self, real_repo_baseline: dict) -> None:
+        errors = benchmark.validate_payload(real_repo_baseline)
         assert errors == [], f"Validation errors: {errors}"
 
-    def test_real_repo_profiles_pass_oracles(self) -> None:
-        payload = benchmark.run_benchmark(REPO_ROOT)
-        for record in payload["profiles"]:
+    def test_real_repo_profiles_pass_oracles(self, real_repo_baseline: dict) -> None:
+        for record in real_repo_baseline["profiles"]:
             assert record["oracleStatus"] == "passed", record["id"]

@@ -129,7 +129,7 @@ evaluation-only: `local-workflow` remains the only active mode.
 | `cg-diff-summary --root . --format md` | Project root | Summarize changed files, hunks, and risk tags while storing the full redacted diff artifact. |
 | `cg-log-summary --root . --format json` | Project root | Summarize branch-local first-parent commits and notable files. |
 | `cg-tree-summary --root . --max-entries 120 --format md` | Project root | Summarize a bounded repository tree while excluding generated outputs, dependencies, and caches. |
-| `cg-autopilot-control inspect --root <path> [--plan <path>] [--batches <segments>] [--base <branch>] [--resume <cursor>]` | Project root | Read-only Kilo autopilot control helper. Prints one JSON report on stdout with `"status": "eligible"` or `"blocked"`; exit code 0 when eligible and 1 otherwise; diagnostics on stderr. Never writes and never derives the project root from its install location. All other helper operations return `operation-not-implemented` until native qualification completes. |
+| `cg-autopilot-control inspect --root <path> [--plan <path>] [--batches <segments>] [--base <branch>] [--resume <cursor>]` | Project root | Read-only Kilo autopilot control helper. Prints one JSON report on stdout with `"status": "eligible"` or `"blocked"`; completed inspections exit 0 for either status, so callers must inspect `status` and `blockers`. Invocation errors exit 1 without a report; diagnostics go to stderr. Never writes and never derives the project root from its install location. All other helper operations return `operation-not-implemented` until native qualification completes. |
 | `cg-problems-summary --root . --input problems.json --format json` | Project root | Summarize optional diagnostics JSON or text; reports unavailable when no diagnostics input is provided. |
 | `python scripts/cg_project_manifest.py [--root <path>] [--output <path>] [--platforms copilot,kilo] [--validate] [--check-stale <manifest>] [--ensure-state]` | Project root | `cg-project-manifest` — resolve and validate the canonical committed active project manifest (`.compound-gpid/active-manifest.json`) from the strict config plus the versioned module registry. Records config/registry hashes, schema versions (`config-schema-version`), selected suites, derived and explicit capabilities, the resolved module closure, canonical platform ids, platform eligibility, and the projection plan digest. Immutable selection validity is separated from mutable projection ownership. Exit codes: `0` success, `1` resolution/validation failure, `2` missing or invalid project root. |
 | `python scripts/cg_projection_benchmark.py [--root <path>] [--profiles cg-only,cr-only,mixed,capability-python] [--validate]` | Project root | `cg-projection-benchmark` — emit deterministic before-state profile baseline matrices (`.cg-docs/cost/skill-loading-baseline.json` + `.md`) for projection. Per profile: requested command/capability, expected route, expected hard-stop or catalog summary, expected inventory digest, and a supported-host procedure. Token estimates are heuristic (chars/4) and never claim savings; unavailable required host evidence is a blocking `unavailable`, never a zero. Exit codes: `0` success, `1` validation/oracle failure, `2` missing or invalid project root. |
@@ -344,8 +344,10 @@ cg-autopilot-control inspect --root . [--plan <path>] [--batches <segments>] [--
 ```
 
 `inspect` prints one JSON report on stdout (`"status": "eligible"` or
-`"blocked"` with normalized specs or typed blockers), exits 0 when eligible
-and 1 otherwise, keeps diagnostics on stderr, and never writes or derives a
+`"blocked"` with normalized specs or typed blockers). Completed inspections
+exit 0 for either status; callers must inspect `status` and `blockers` rather
+than infer eligibility from the exit code. Invocation errors exit 1 without
+a report. The helper keeps diagnostics on stderr and never writes or derives a
 project root from its install location. Remaining operations answer
 `operation-not-implemented` until native qualification completes.
 

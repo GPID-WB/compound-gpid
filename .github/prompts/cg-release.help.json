@@ -1,0 +1,11 @@
+{
+  "id": "slash:cg-release", "name": "/cg-release", "kind": "slash", "ownerModule": "suite-cg", "supportedSuites": ["cg"],
+  "category": "maintenance", "summary": "Create a guarded Compound GPID GitHub Release with curated notes.", "aliases": [],
+  "intents": ["publish a Compound GPID release", "prepare release notes and tag"], "usage": "/cg-release [version]", "examples": ["/cg-release"],
+  "prerequisites": ["Run in the canonical repository with release authority."], "outputs": ["A confirmed GitHub Release and tag."],
+  "constraints": ["Developer-only and guarded to the canonical repository."], "relatedCommands": [{"id": "slash:cg-devtag", "relation": "related"}],
+  "sourcePath": ".github/prompts/cg-release.prompt.md", "definitionSources": [".github/prompts/cg-release.prompt.md"], "definitionDigest": "ff92d18ab5ca5798414b8d2b927f4c54a8a3521767fa91f20039a7efd2193946",
+  "documentationTargets": [], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["any"],
+  "availability": {"status": "conditional", "evidence": [{"os": "any", "sourcePath": ".github/prompts/cg-release.prompt.md"}]},
+  "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
+}

@@ -10,7 +10,7 @@
 #   2. Tests that directory junctions can be created on this machine.
 #   3. Creates .cmd wrappers in bin\ and adds bin\ to the user PATH
 #      so cg-link, cg-unlink, cg-update, cg-skill, cg-index,
-#      cg-render-artifact, cg-token-audit and cg-autopilot-control are
+#      cg-help, cg-render-artifact, cg-token-audit and cg-autopilot-control are
 #      available from any terminal.
 #   4. Initializes .cg-version with "latest" (if not already set).
 #
@@ -288,6 +288,22 @@ if (Test-Path $cgBrainInitCmdSrc) {
     Write-Warning "  bin\cg-brain-init.cmd not found in installation -- skipping cg-brain-init wrapper."
 }
 
+# Copy cg-help.cmd from the committed file (single source of truth).
+$cgHelpCmdSrc = Join-Path $CompoundGpidDir "bin\cg-help.cmd"
+$cgHelpCmdDst = Join-Path $binDir "cg-help.cmd"
+if (Test-Path $cgHelpCmdSrc) {
+    $cgHelpSrcFull = [System.IO.Path]::GetFullPath($cgHelpCmdSrc)
+    $cgHelpDstFull = [System.IO.Path]::GetFullPath($cgHelpCmdDst)
+    if ($cgHelpSrcFull -ieq $cgHelpDstFull) {
+        Write-Host "  Already present: cg-help in $binDir" -ForegroundColor DarkGray
+    } else {
+        Copy-Item -Path $cgHelpCmdSrc -Destination $cgHelpCmdDst -Force
+        Write-Host "  Copied:  cg-help in $binDir" -ForegroundColor DarkGray
+    }
+} else {
+    Write-Warning "  bin\cg-help.cmd not found in installation -- skipping cg-help wrapper."
+}
+
 # Copy cg-render-artifact.cmd from the committed file (single source of truth).
 $cgRenderArtifactCmdSrc = Join-Path $CompoundGpidDir "bin\cg-render-artifact.cmd"
 $cgRenderArtifactCmdDst = Join-Path $binDir "cg-render-artifact.cmd"
@@ -374,6 +390,22 @@ if (Test-Path $cgSkillCmdSrc) {
     exit 1
 }
 
+# Copy cg-release.cmd from the committed file (single source of truth).
+$cgReleaseCmdSrc = Join-Path $CompoundGpidDir "bin\cg-release.cmd"
+$cgReleaseCmdDst = Join-Path $binDir "cg-release.cmd"
+if (Test-Path $cgReleaseCmdSrc) {
+    $cgReleaseSrcFull = [System.IO.Path]::GetFullPath($cgReleaseCmdSrc)
+    $cgReleaseDstFull = [System.IO.Path]::GetFullPath($cgReleaseCmdDst)
+    if ($cgReleaseSrcFull -ieq $cgReleaseDstFull) {
+        Write-Host "  Already present: cg-release in $binDir" -ForegroundColor DarkGray
+    } else {
+        Copy-Item -Path $cgReleaseCmdSrc -Destination $cgReleaseCmdDst -Force
+        Write-Host "  Copied:  cg-release in $binDir" -ForegroundColor DarkGray
+    }
+} else {
+    Write-Warning "  bin\cg-release.cmd not found in installation -- skipping cg-release wrapper."
+}
+
 # Copy the certified Kilo launcher from the committed source of truth.
 $cgKiloCmdSrc = Join-Path $CompoundGpidDir "bin\cg-kilo.cmd"
 $cgKiloCmdDst = Join-Path $binDir "cg-kilo.cmd"
@@ -429,7 +461,7 @@ try {
     Write-Warning "  You may manually remove the old Compound GPID functions from: $PROFILE"
 }
 
-Write-Host "  Registered: cg-link, cg-unlink, cg-update, cg-kilo, cg-skill, cg-index, cg-render-artifact, cg-publish-markdown, cg-token-audit, cg-autopilot-control" -ForegroundColor DarkGray
+Write-Host "  Registered: cg-link, cg-unlink, cg-update, cg-kilo, cg-skill, cg-index, cg-help, cg-render-artifact, cg-publish-markdown, cg-token-audit, cg-autopilot-control" -ForegroundColor DarkGray
 
 # -----------------------------------------------------------------------
 # Step 4: Initialize .cg-version
@@ -470,6 +502,7 @@ Write-Host '  cg-update <version>  -- Pin to a specific release (e.g. cg-update 
 Write-Host "  cg-update latest     -- Unpin and return to tracking main"
 Write-Host "  cg-update --list     -- Browse available releases"
 Write-Host "  cg-index        -- Build knowledge index from .cg-docs/   (run from project root)"
+Write-Host "  cg-help         -- Run a safe evidence-backed help request (run from project root)"
 Write-Host "  cg-render-artifact -- Render or validate one workflow artifact (run from project root)"
 Write-Host "  cg-publish-markdown -- Publish one generic Markdown document (run from project root)"
 Write-Host "  cg-token-audit  -- Analyze token/context usage          (run from project root)"

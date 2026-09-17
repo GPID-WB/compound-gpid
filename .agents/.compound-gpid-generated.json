@@ -14,7 +14,7 @@
       "path": ".agents/commands/cg-autopilot.md",
       "source": ".github/prompts/cg-autopilot.prompt.md",
       "kind": "command",
-      "sha256": "b8f2907612e16970c4c26cc20dee93a97ec42937194dc4ed83ddca3556e58527",
+      "sha256": "27634296354a25c424b6f59f192798091dfcaff27423debdf1067239bf6a721b",
       "executable": false
     },
     {
@@ -35,7 +35,7 @@
       "path": ".agents/commands/cg-commit-push-pr.md",
       "source": ".github/prompts/cg-commit-push-pr.prompt.md",
       "kind": "command",
-      "sha256": "31b318395014860b80d923e28dfe90dab07c0aabbd7839b9fed8519a73f3e25f",
+      "sha256": "71700ad4e50994d3b4d34bfb16d55ce5cfee8c8c2904e7bd40e9e66e1df05b29",
       "executable": false
     },
     {
@@ -92,6 +92,13 @@
       "source": ".github/prompts/cg-fixbug.prompt.md",
       "kind": "command",
       "sha256": "46b05ece16a4a188776a1620d24b49e84264e6c0e83e7055894c46d0c423500e",
+      "executable": false
+    },
+    {
+      "path": ".agents/commands/cg-help.md",
+      "source": ".github/prompts/cg-help.prompt.md",
+      "kind": "command",
+      "sha256": "6deebf7baa3ac7a373f8beedbc3e0e086fa751de0cb961f9df6c0c285963241f",
       "executable": false
     },
     {
@@ -340,6 +347,13 @@
       "executable": false
     },
     {
+      "path": ".agents/shared/help-catalog.json",
+      "source": ".github/shared/help-catalog.json",
+      "kind": "shared",
+      "sha256": "aeb9a801b75f9fbb81e24bd0d493b55a68d24b26c28c1106f4222a69aa332596",
+      "executable": false
+    },
+    {
       "path": ".agents/shared/model-advisory-examples.json",
       "source": ".github/shared/model-advisory-examples.json",
       "kind": "shared",
@@ -372,6 +386,13 @@
       "source": ".github/shared/review-routing.contract.md",
       "kind": "shared",
       "sha256": "946815d708ee716235fd7af3958cd6b4b40dd3176ec66d4a9e0d61453a67ed28",
+      "executable": false
+    },
+    {
+      "path": ".agents/shared/shell-commands.json",
+      "source": ".github/shared/shell-commands.json",
+      "kind": "shared",
+      "sha256": "8690b66eed5d4c13b7a57c2aaad9ff5e6bef3b14da1f7d0f2e149220743df79a",
       "executable": false
     },
     {
@@ -651,7 +672,7 @@
       "path": ".agents/shared/target-mapping.json",
       "source": ".github/shared/target-mapping.json",
       "kind": "shared",
-      "sha256": "48ff5eecc86d657001c180b6129f7207d3831e4eb76d4a3dd82a4bdc09ba913a",
+      "sha256": "8fa4def636b102454f3232946e49a6b12883d7025f9d1f6b004da90c0bf33ae8",
       "executable": false
     },
     {

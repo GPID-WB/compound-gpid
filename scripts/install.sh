@@ -10,7 +10,7 @@
 #       and cg-autopilot-control).
 #   2. Tests that symlinks can be created on this machine.
 #   3. Creates bash wrappers in bin/ and adds bin/ to PATH via shell profile
-#      so cg-link, cg-unlink, cg-update, cg-skill, cg-token-audit and
+#      so cg-link, cg-unlink, cg-update, cg-skill, cg-help, cg-token-audit and
 #      cg-autopilot-control are available from any terminal.
 #   4. Initializes .cg-version with "latest" (if not already set).
 #
@@ -316,6 +316,17 @@ EOF
 chmod +x "$WRAPPER"
 print_gray "Created: $WRAPPER"
 
+# cg-help is committed as the installer source of truth.
+CG_HELP_SRC="$COMPOUND_GPID_DIR/bin/cg-help"
+CG_HELP_DST="$BIN_DIR/cg-help"
+if [[ "$CG_HELP_SRC" != "$CG_HELP_DST" ]]; then
+    cp "$COMPOUND_GPID_DIR/bin/cg-help" "$BIN_DIR/cg-help"
+else
+    print_gray "Already present: $CG_HELP_DST"
+fi
+chmod +x "$BIN_DIR/cg-help"
+print_gray "Registered: $BIN_DIR/cg-help"
+
 # cg-render-artifact is committed as the installer source of truth.
 CG_RENDER_ARTIFACT_SRC="$COMPOUND_GPID_DIR/bin/cg-render-artifact"
 CG_RENDER_ARTIFACT_DST="$BIN_DIR/cg-render-artifact"
@@ -326,6 +337,17 @@ else
 fi
 chmod +x "$BIN_DIR/cg-render-artifact"
 print_gray "Registered: $BIN_DIR/cg-render-artifact"
+
+# cg-release is committed as the installer source of truth.
+CG_RELEASE_SRC="$COMPOUND_GPID_DIR/bin/cg-release"
+CG_RELEASE_DST="$BIN_DIR/cg-release"
+if [[ "$CG_RELEASE_SRC" != "$CG_RELEASE_DST" ]]; then
+    cp "$COMPOUND_GPID_DIR/bin/cg-release" "$BIN_DIR/cg-release"
+else
+    print_gray "Already present: $CG_RELEASE_DST"
+fi
+chmod +x "$BIN_DIR/cg-release"
+print_gray "Registered: $BIN_DIR/cg-release"
 
 # cg-publish-markdown is committed as the installer source of truth.
 CG_PUBLISH_MARKDOWN_SRC="$COMPOUND_GPID_DIR/bin/cg-publish-markdown"
@@ -519,6 +541,7 @@ printf '  cg-update latest     -- Unpin and return to tracking main\n'
 printf '  cg-update --list     -- Browse available releases\n'
 printf '  cg-kilo    -- Certified contained Kilo launch (run from project root)\n'
 printf '  cg-skill   -- Manage the complete skill lifecycle (run from project root)\n'
+printf '  cg-help             -- Run a safe evidence-backed help request (run from project root)\n'
 printf '  cg-render-artifact   -- Render or validate one workflow artifact\n'
 printf '  cg-publish-markdown  -- Publish one generic Markdown document\n'
 printf '  cg-token-audit       -- Analyze token/context usage  (run from project root)\n'

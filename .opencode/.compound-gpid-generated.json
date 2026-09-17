@@ -231,7 +231,7 @@
       "path": ".opencode/commands/cg-autopilot.md",
       "source": ".github/prompts/cg-autopilot.prompt.md",
       "kind": "command",
-      "sha256": "b4bcbb71c3ac95e898d7df71f8b928db0a03fac35c2380ebd88c31648c7421fd",
+      "sha256": "8e68b5ec9844d9fd28063b2b40abcf8afc51d79641885246e601a0c18b438477",
       "executable": false
     },
     {
@@ -252,7 +252,7 @@
       "path": ".opencode/commands/cg-commit-push-pr.md",
       "source": ".github/prompts/cg-commit-push-pr.prompt.md",
       "kind": "command",
-      "sha256": "a04cc68f51bb6c343c7fef6cd395f10d99b3a150341cc049d7581d355d51cb5a",
+      "sha256": "d3ffd75780fe5bc7c4f7b1370cb91a779c299499711ef7a6bdb5b297490a66f0",
       "executable": false
     },
     {
@@ -309,6 +309,13 @@
       "source": ".github/prompts/cg-fixbug.prompt.md",
       "kind": "command",
       "sha256": "2620bd7b54eda7e179bb652b59e811553ddb17f40de679eefcb4d6abaf0b9d36",
+      "executable": false
+    },
+    {
+      "path": ".opencode/commands/cg-help.md",
+      "source": ".github/prompts/cg-help.prompt.md",
+      "kind": "command",
+      "sha256": "dd68efb8b4553112cdb8421be6d1023fede476effdb9ef63f87725b948486db5",
       "executable": false
     },
     {
@@ -564,6 +571,13 @@
       "executable": false
     },
     {
+      "path": ".opencode/shared/help-catalog.json",
+      "source": ".github/shared/help-catalog.json",
+      "kind": "shared",
+      "sha256": "aeb9a801b75f9fbb81e24bd0d493b55a68d24b26c28c1106f4222a69aa332596",
+      "executable": false
+    },
+    {
       "path": ".opencode/shared/model-advisory-examples.json",
       "source": ".github/shared/model-advisory-examples.json",
       "kind": "shared",
@@ -596,6 +610,13 @@
       "source": ".github/shared/review-routing.contract.md",
       "kind": "shared",
       "sha256": "946815d708ee716235fd7af3958cd6b4b40dd3176ec66d4a9e0d61453a67ed28",
+      "executable": false
+    },
+    {
+      "path": ".opencode/shared/shell-commands.json",
+      "source": ".github/shared/shell-commands.json",
+      "kind": "shared",
+      "sha256": "8690b66eed5d4c13b7a57c2aaad9ff5e6bef3b14da1f7d0f2e149220743df79a",
       "executable": false
     },
     {
@@ -875,7 +896,7 @@
       "path": ".opencode/shared/target-mapping.json",
       "source": ".github/shared/target-mapping.json",
       "kind": "shared",
-      "sha256": "48ff5eecc86d657001c180b6129f7207d3831e4eb76d4a3dd82a4bdc09ba913a",
+      "sha256": "8fa4def636b102454f3232946e49a6b12883d7025f9d1f6b004da90c0bf33ae8",
       "executable": false
     },
     {

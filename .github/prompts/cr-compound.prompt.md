@@ -1,6 +1,5 @@
 ---
 description: 'Research compound — capture a solved research problem for future reuse. Extends /cg-compound with research-specific categories: identification, specification, derivation, ml-methodology, reproducibility.'
-module: research
 ---
 
 # Research Compound

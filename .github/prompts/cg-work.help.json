@@ -1,0 +1,11 @@
+{
+  "id": "slash:cg-work", "name": "/cg-work", "kind": "slash", "ownerModule": "suite-cg", "supportedSuites": ["cg"],
+  "category": "delivery", "summary": "Implement an approved plan or one selected phase with verification gates.", "aliases": [],
+  "intents": ["implement an approved plan", "implement one plan phase"], "usage": "/cg-work [phaseX] [review] [deviate:<policy>]", "examples": ["/cg-work phase1"],
+  "prerequisites": ["An approved saved Plan that passes validation."], "outputs": ["Implemented changes with test and constraint evidence."],
+  "constraints": ["Stops at blocked completion evidence and respects plan boundaries.", "Does not create inline Plans; use the separate /cg-light-work route for a small technical task without a saved Plan."], "relatedCommands": [{"id": "slash:cg-review", "relation": "next"}, {"id": "slash:cg-light-work", "relation": "related"}],
+  "sourcePath": ".github/prompts/cg-work.prompt.md", "definitionSources": [".github/prompts/cg-work.prompt.md"], "definitionDigest": "8a77158b1bea324f83d04192df99c6c02eb4db0ab2449e280ff85f64059d85ff",
+  "documentationTargets": [{"path": "docs/workflow.md", "section": "3-work-cg-work"}], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["any"],
+  "availability": {"status": "available", "evidence": [{"os": "any", "sourcePath": ".github/prompts/cg-work.prompt.md"}]},
+  "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
+}

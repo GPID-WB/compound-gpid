@@ -37,7 +37,9 @@ cg-autopilot-control inspect --root <repo> [--plan <path>] [--batches <segments>
 
 `inspect` never writes. It returns one JSON report on stdout with
 `"status": "eligible"` or `"status": "blocked"` plus a normalized run
-specification or typed blockers, and exits 0 when eligible and 1 otherwise.
+specification or typed blockers. A completed inspection exits 0 for either
+status; callers must inspect `status` and `blockers`, not infer eligibility
+from the exit code. Invocation errors exit 1 without a report.
 Diagnostics go to stderr as `cg-autopilot: <error-code>: <message>`; machine
 stdout and diagnostics stay separate. An explicit `--root` is always required:
 the helper never derives a project root from its installation directory and
