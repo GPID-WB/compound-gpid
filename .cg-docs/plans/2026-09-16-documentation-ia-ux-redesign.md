@@ -11,6 +11,7 @@ artifact-schema-version: 1
 phases: 5
 completed-phases: [1, 2]
 current-phase: 3
+failing-steps: [4]
 execution-report: .cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign.md
 tags: [documentation, information-architecture, accessibility, navigation, github-pages, cg-help]
 ---

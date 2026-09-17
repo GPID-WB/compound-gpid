@@ -1,6 +1,6 @@
 {
   "schemaVersion": "compound-gpid-active-state-v1",
-  "updatedAt": "2026-09-17T02:04:23Z",
+  "updatedAt": "2026-09-17T14:20:54Z",
   "workflow": "/cg-work",
   "status": "blocked",
   "branch": "improve-website-design",
@@ -18,18 +18,19 @@
     {"id": "phase2-native-targeted", "status": "passed-local30-and-all-nine-remote-native-commands-on-each-of-three-OS", "artifact": ".cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign.md"},
     {"id": "phase2-additional-repair", "status": "one-approved-pass-used-and-verified-final-remote-cycle-success-no-waiver", "artifact": ".cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign.md"},
     {"id": "phase2-full-suite", "status": "passed-source-relevant-fresh-unfiltered-3011-pass-0-fail-2-update-skips-cleanup-qualified", "artifact": ".cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign.md"},
-    {"id": "V4", "status": "P1.1-P2.2-independent-review-closed-browser31-pending-unit22pass-docs180pass-original2of2-renewal2of2-used", "artifact": ".cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign.md"},
+    {"id": "V4", "status": "blocked-run35173151334-attempt1-browser21pass10fail-original2of2-renewal2of2-exhausted", "artifact": ".cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign.md"},
     {"id": "V5-V9", "status": "later-phase-and-final-gates-not-completed", "artifact": ".cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign.md"}
   ],
   "unresolvedDecisions": [
-    {"id": "NEEDS_REMOTE_BROWSER", "summary": "Focused review closed and fresh post-fix full Pester passed; parent must verify all 31 expected browser cases before Step 5. Original2/2 and renewal2/2 used; no further automatic repair authorized.", "blocking": true}
+    {"id": "STEP4_REPAIR_AUTHORIZATION", "summary": "Browser verification failed: four Escape-close/focus checks and six axe contrast checks. Original and renewed repair budgets are exhausted. Explicit bounded repair approval is required; Step 5 and later pipeline steps remain unstarted.", "blocking": true}
   ],
   "artifactRefs": [
-    {"kind": "execution-report", "path": ".cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign.md", "status": "run15-review-closed-fresh-gate-passed-checkpoint-ready-NEEDS_REMOTE_BROWSER-step5-not-started"},
-    {"kind": "browser-tests", "path": "scripts/tests/docs-discovery.browser.js", "status": "3-interaction-regressions-added-before-fix-31-total-expected-no-post-fix-browser-execution"},
+    {"kind": "temporary-handoff", "path": "HANDOFF.md", "status": "browser-enabled-machine-pickup-final-ci-failed-7jobs-passed-1failed-2skipped-no-repair-waiver"},
+    {"kind": "execution-report", "path": ".cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign.md", "status": "run16-browser-failure-recorded-pipeline-halted-step5-not-started"},
+    {"kind": "browser-tests", "path": "scripts/tests/docs-discovery.browser.js", "status": "run35173151334-attempt1-31executed21pass10fail-focused-link-Enter-passed-reopen-blocked-by-Escape"},
     {"kind": "content-migration", "path": "scripts/tests/fixtures/docs-redesign/phase2-content-edits.json", "status": "technical-reviewer-verified-final-evidence-in-report-fixture-unchanged"},
     {"kind": "phase1-full-suite", "path": ".cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign-phase1-pester.json", "status": "passed-cleanup-warning-recorded-pending-count-not-recorded"},
     {"kind": "previous-workflow-snapshot", "path": ".cg-docs/active-state/2026-09-13-release-controller-handoff.json", "status": "historical-unrelated-workflow"}
   ],
-  "nextCommand": "/cg-work phase3 review:auto .cg-docs/plans/2026-09-16-documentation-ia-ux-redesign.md"
+  "nextCommand": null
 }

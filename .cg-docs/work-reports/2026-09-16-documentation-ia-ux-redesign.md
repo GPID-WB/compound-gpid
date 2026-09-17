@@ -2040,3 +2040,107 @@ dispatch, without amend, force-push, PR, deployment, pipeline Step 9, or later
 phase execution. Original Step 4 budget is 2/2 used and renewed budget is 2/2
 used; no further automatic repair is authorized. Phase 3 remains incomplete,
 and the saved resume command remains conditional on parent verification.
+
+## Run 16: Remote Verification Failure and Pipeline Halt, 2026-09-17T02:29:17Z
+
+The interrupted evidence collection resumed without a workflow rerun or source
+repair. The existing run is bound to checkpoint
+`cdea701a24748262d720782accd322c3b67577ac` on `improve-website-design`:
+https://github.com/GPID-WB/compound-gpid/actions/runs/35173151334, attempt 1.
+Browser job `105048948638` failed at `2026-09-17T02:08:28Z`.
+
+### Executed Browser Result
+
+The report records **31 executed, 21 passed, 10 failed, 0 skipped, 0 flaky**.
+Normal dependency installation, documentation automation, and Chromium setup
+passed. Lockfile repair was false and its step was skipped. This is a failed
+behavior/accessibility gate, not a local installation failure.
+
+| Failed cases | Evidence |
+| --- | --- |
+| Root/dev lazy section search | Escape did not return focus to the trigger; timeout at `scripts/tests/docs-discovery.browser.js:31:64`. |
+| Reopen while pending / after completion while closed | Escape did not hide the dialog; timeout at `scripts/tests/docs-discovery.browser.js:76:69`, before reopening was exercised. |
+| Root 320, dev 390, root 768, root 1024, dev 1024, dev 1440 | Axe reported `color-contrast` violations on table cells and, in the widest dev case, list text; assertion at `scripts/tests/docs-browser.spec.js:146:88`. |
+
+The four search snapshots show an open dialog, empty search input, and the
+empty-query hint. The input is `type="search"`; the runtime has no explicit
+Escape handler. Native clear-first behavior is a supported hypothesis, not a
+confirmed diagnosis from a new reproduction. The contrast report lacks computed
+ratios and the failing theme. Persistent styling, transition timing, and tool
+limitations have not been distinguished; no specific CSS repair is established.
+
+Focused-result Enter passed. Retry, malformed-index rejection, query-race
+handling, clipboard paths, print, and both drawer/TOC/table journeys passed.
+The two reopening corrections remain behaviorally unverified because their
+tests failed before reopening. Earlier static review closure and passing Node
+or Pester checks do not override these browser failures.
+
+### Bound Evidence
+
+Artifact `docs-browser-evidence-35173151334-1`, ID `10477431891`, is 17,252,109
+archive bytes and expires `2026-09-24T02:08:24Z`. Source/ref/run/attempt and
+package, lockfile, report, and archive digests were verified. Runtime pins remain
+Playwright 1.52.0, axe-core 4.10.3, reveal.js 5.1.0; observed Chromium is
+136.0.7103.25, Node 22.23.2, npm 10.9.8.
+
+| Evidence | SHA-256 |
+| --- | --- |
+| Artifact ZIP | `bba35dfedeede9ccaa56067fbdf2e8230dcac6c664e2e711828c96427b6352ab` |
+| Browser JSON | `faec28ac5d93aa90cef08a2f31718dcc76bbcfa949b46006f987830b715ad6c7` |
+| Provenance JSON | `cf0295ac30595d2dcf272e2fcf95c17ceb486a3a8a50c1eec8770b71952c4946` |
+| Lockfile | `5641c6e80be9b96c88dfda09157be84bc96920c585e395c92e2b02ad9f4c22c1` |
+
+Only 14 JSON/error-context files, 498,811 bytes, were extracted under the approved
+temporary parent into `docs-browser-evidence-35173151334-1`. Archive paths,
+duplicates, symlinks, and containment were checked. Screenshots and traces were
+not extracted. C: had about 0.29 GiB free at resumption; future local tests may
+be blocked by capacity. No unrelated files were removed.
+
+### Stop and Remaining Work
+
+At `2026-09-17T02:29:17Z`, the overall workflow was still in progress with no
+final conclusion: Windows native preflight remained running. Native macOS and
+Ubuntu, both Pester jobs, Python compatibility, and the generic Kilo report
+passed. Docs staleness and certified Kilo integration were skipped. Browser
+capture and evidence tests were skipped after the failed browser gate. The
+running job was not cancelled; it is not reported as passed.
+
+**BLOCKED_STEP4_RECOVERY_EXHAUSTED**: original budget 2/2 and approved renewal
+2/2 are used. No new bounded repair approval was given. The continuation request
+resumed evidence collection; it did not waive failures or extend the budget.
+Plan `failing-steps: [4]` is restored, completed phases remain `[1, 2]`, and
+current phase remains 3. Step 5 is unstarted at 0/2. V4-V9 remain incomplete.
+Further implementation requires explicit bounded repair authorization.
+
+The pipeline is halted before Step 5 and before phases 4/5, review, triage,
+compounding, the final commit/push/PR command, the five-minute PR wait, and PR
+verification. Earlier commits were authorized test checkpoints, not completion
+of pipeline Step 9. No PR or deployment exists from this pipeline. Only the plan
+metadata, existing work report, and active state are updated for this stop;
+source/tests and the two unrelated scratch directories are unchanged.
+
+## Handoff Refresh: 2026-09-17T14:20:54Z
+
+The user requested staging, committing, and pushing all recent work on the
+current branch, with a temporary `HANDOFF.md` for a browser-enabled computer.
+This request does not change phase completion or authorize another repair loop.
+The implementation is already pushed through checkpoint
+`cdea701a24748262d720782accd322c3b67577ac`; the handoff commit carries the pending
+blocked-state records and the new portable instructions. No runtime/test fix,
+workflow rerun, PR, or deployment is part of this handoff operation.
+
+Rechecked run `35173151334`: it is now **completed, failure**, with **7 jobs
+passed, 1 failed, 2 skipped**. The Windows native target job has passed, as have
+the macOS and Ubuntu native jobs, both Pester jobs, Python 3.8 compatibility,
+and the generic Kilo report. The browser job remains failed with 21/31 tests
+passing. Docs staleness and certified Kilo integration were skipped. This final
+status supersedes only Run 16's time-qualified in-progress workflow status;
+the browser blocker and exhausted repair budgets remain unchanged.
+
+`HANDOFF.md` records completed work, exact blockers, portable dependency/test
+commands, artifact retrieval and expiry, source files and browser scenarios,
+remaining step 5/Gate A security work, Gates B/C, and the strict remaining
+pipeline. It preserves the `dev` PR target and the five-minute post-PR wait.
+Both untracked `.kilo/<GUID>/` test directories are excluded from staging and
+left untouched. Plan validation and whitespace checks apply to this
+documentation/state-only change; no fresh runtime test pass is claimed.
