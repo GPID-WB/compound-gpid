@@ -16,18 +16,18 @@
       Object.keys(value.channels).sort().join() !== "development,published") fail("Invalid channel metadata");
     for (const [name, c] of Object.entries(value.channels)) {
       const v = c.fingerprintVersion;
-      if (![1, 2].includes(v) || c.producerContract !== `compound-gpid-docs-producer-v${v}` ||
-        c.runtimeContract !== `compound-gpid-docs-runtime-v${v}` || c.headingContract !== `compound-gpid-headings-v${v}` ||
+      if (![1, 2, 3].includes(v) || c.producerContract !== `compound-gpid-docs-producer-v${v}` ||
+        c.runtimeContract !== `compound-gpid-docs-runtime-v${v}` || c.headingContract !== `compound-gpid-headings-v${Math.min(v, 2)}` ||
         c.path !== (name === "published" ? "" : "dev/") || !/^[a-f0-9]{40}$/.test(c.source?.sha) ||
         ![c.source?.branch, c.source?.ref].every(s => typeof s === "string" && /^[A-Za-z0-9][A-Za-z0-9._/-]*$/.test(s) && !s.includes("..")) ||
         !digestPattern.test(c.fingerprint) || !c.files || typeof c.files !== "object" || Array.isArray(c.files) ||
         Object.keys(c.files).length > 10000 || !Object.entries(c.files).every(([p, h]) => safePath(p) && !p.startsWith("dev/") && p !== "channels.json" && digestPattern.test(h))) fail("Unsupported channel identity");
       if (name === "development" && (c.source.branch !== "dev" || c.source.ref !== "dev" || c.source.tag)) fail("Invalid dev identity");
       if (c.source.tag && (!/^v\d+\.\d+\.\d+(?:\.\d+)?$/.test(c.source.tag) || c.source.tag !== c.source.ref)) fail("Invalid release identity");
-      const expected = { sectionLinks: true, redirectMappings: v === 2, switchNotices: v === 2, reverseSwitching: v === 2, verifiedIdentity: v === 2 };
+      const expected = { sectionLinks: true, redirectMappings: v >= 2, switchNotices: v >= 2, reverseSwitching: v >= 2, verifiedIdentity: v >= 2 };
       if (JSON.stringify(Object.keys(c.capabilities || {}).sort()) !== JSON.stringify(Object.keys(expected).sort()) ||
         Object.entries(expected).some(([key, val]) => c.capabilities[key] !== val)) fail("Unknown channel capabilities");
-      if (!Array.isArray(c.assets) || (v === 1 ? c.shellBuildId !== null || c.assets.length : !digestPattern.test(c.shellBuildId) || c.assets.length !== 7)) fail("Invalid shell identity");
+      if (!Array.isArray(c.assets) || (v === 1 ? c.shellBuildId !== null || c.assets.length : !digestPattern.test(c.shellBuildId) || c.assets.length !== (v === 2 ? 7 : 8))) fail("Invalid shell identity");
     }
     return value;
   }
@@ -40,7 +40,7 @@
     if (!response.ok) fail("Build metadata unavailable");
     const value = validate(await response.json());
     for (const c of Object.values(value.channels)) {
-      if (c.fingerprintVersion !== 2) continue;
+      if (c.fingerprintVersion < 2) continue;
       const bytes = new TextEncoder().encode(JSON.stringify([c.source.sha, c.fingerprint, c.producerContract,
         c.fingerprintVersion, c.runtimeContract, c.headingContract]));
       if (await digest(bytes) !== c.shellBuildId) fail("Channel shell identity mismatch");
@@ -111,7 +111,7 @@
       channelName = directory.pathname.endsWith("/dev/") ? "development" : "published";
       base = channelName === "development" ? new URL("../", directory) : directory;
       metadata = await readJson(new URL("channels.json", base)); active = metadata.channels[channelName];
-      if (active.runtimeContract !== "compound-gpid-docs-runtime-v2" || active.shellBuildId !== htmlId) fail("Loaded shell is stale");
+      if (active.runtimeContract !== "compound-gpid-docs-runtime-v3" || active.shellBuildId !== htmlId) fail("Loaded shell is stale");
       const seen = new Set();
       for (const asset of active.assets) {
         const expectedPath = asset.source?.replace(/\.(js|css)$/, `.${asset.sha256}.$1`);
@@ -125,9 +125,9 @@
           (element.tagName === "LINK" && !element.sheet)) fail("A required shell asset failed integrity loading");
         await verifiedText(asset.path);
       }
-      const required = ["site.js", "site.css", "docs-contract.js", "docs-reading.js", "docs-search.js", "docs-tools.js", "docs-identity.js"];
+      const required = ["site.js", "site.css", "docs-contract.js", "docs-reading.js", "docs-search.js", "docs-tools.js", "docs-identity.js", "docs-commands.js"];
       if (required.some(n => !seen.has(`assets/${n}`))) fail("Missing shell asset");
-      if (["DocsContract", "DocsReading", "DocsSearch", "DocsTools", "DocsIdentity"].some(name => !globalThis[name])) fail("A required helper did not execute");
+      if (["DocsContract", "DocsReading", "DocsSearch", "DocsTools", "DocsIdentity", "DocsCommands"].some(name => !globalThis[name])) fail("A required helper did not execute");
       const select = document.querySelector("[data-channel-switch]"); select.value = channelName; select.disabled = false;
       select.addEventListener("change", () => switchChannel(select.value).catch(error => changed(error)));
       // Reading the first verified article reveals identity; initialization alone does not.
@@ -157,7 +157,7 @@
     const destination = metadata.channels[name], manifest = JSON.parse(await verifiedText("navigation.json", destination));
     const params = new URLSearchParams(location.hash.slice(1)), pages = DocsContract.validateManifest(manifest);
     let page = params.get("page"), section = params.get("section"), reason = "", fallback;
-    if (destination.fingerprintVersion === 2) ({ page, section } = DocsContract.resolveRoute(pages, page, section));
+    if (destination.fingerprintVersion >= 2) ({ page, section } = DocsContract.resolveRoute(pages, page, section));
     const config = pages.find(p => p.id === page);
     if (page && !config) { page = null; section = null; fallback = "page-missing"; reason = "This page is unavailable in the destination. The documentation homepage will open."; }
     if (config && section) {
@@ -168,7 +168,7 @@
     }
     const target = new URL(destination.path, base);
     target.hash = page ? `page=${encodeURIComponent(page)}${section ? `&section=${encodeURIComponent(section)}` : ""}` : "home";
-    if (fallback && destination.fingerprintVersion === 2) { target.searchParams.set("docs-notice", fallback); target.searchParams.set("return", location.href); }
+    if (fallback && destination.fingerprintVersion >= 2) { target.searchParams.set("docs-notice", fallback); target.searchParams.set("return", location.href); }
     if (destination.fingerprintVersion === 1) reason += " This legacy channel has no verified in-page identity, switch notice, or reverse switch. Use Back or the return URL.";
     if (!reason) { location.assign(target.href); return; }
     const dialog = document.querySelector("[data-channel-dialog]");

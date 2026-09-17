@@ -5124,7 +5124,7 @@ Describe "docs/reference.md - phased plan documentation" {
     $content = if (Test-Path $refFile) { Get-Content $refFile -Raw -Encoding UTF8 } else { "" }
 
     It "/cg-work entry documents phaseX argument syntax" {
-        ($content -match '/cg-work \[phaseX\]|cg-work phase') | Should Be $true
+        ([System.Net.WebUtility]::HtmlDecode($content) -match '/cg-work \[phaseX\]|cg-work phase') | Should Be $true
     }
 
     It "documents phases: frontmatter field as a convenience hint" {
@@ -7862,7 +7862,8 @@ Describe "docs/reference.md and team-brain schema - remaining docs coverage" {
     $schema = Get-Content (Join-Path $repoRoot "docs\team-brain-schema.md") -Raw -Encoding UTF8
 
     It "documents cg-brain-init in shell commands" {
-        ($reference -match '\| `cg-brain-init` \| Project root \|') | Should -Be $true
+        ($reference -match '\| cg-brain-init --repo .* --manager .*\| CG, CR \|') | Should -Be $true
+        ($reference -match '`cg-brain-init` uses the project root') | Should -Be $true
     }
 
     It "documents private and private-sections fields" {

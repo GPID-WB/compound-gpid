@@ -2390,3 +2390,47 @@ test preserves both independently authorized inputs. The historical v2 generator
 and runtime are captured from de64bf06 before the new output contract is enabled.
 Step 6 initial implementation/red-green work is active; its functional repair
 allowance is 0/2 before the first complete post-implementation verification.
+
+## Run 21: Phase 4 Complete; Gate B Passed Locally
+
+Implemented the missing writer in `scripts/help/documentation.py` and exposed
+explicit bootstrap/write/check/stdout modes in the existing catalog generator.
+The source-approved bootstrap recognized the old table bounds; both pages now
+have one help owner per generated section. Wiki instructions and all four native
+adapters preserve those sections. Shared commands appear under both eligible
+suites. The complete 53-command, four-workflow projection preserves kind IDs,
+constraints, examples, prerequisites, outputs, related commands and repeated
+steps. The presentation-only route map validates every page/heading.
+
+Version 3 explicitly owns the new input/output contract and eighth shell asset.
+Protected version 1 fixtures remain untouched. Nineteen version 2 archive files
+match de64bf06 exactly; independent v2/v2 recovery passes. A mixed v2/v3 pair
+fails explicitly because the unpublished old runtime cannot parse v3 metadata.
+Actual legacy v1/new v3 and current v3/v3 paths pass. Imports independently
+regenerate managed prose and both indexes, rejecting forged bytes even when an
+artifact's own digests are consistent. Cached browser filters recheck channel
+identity; text/entity injection and unsafe routes cannot execute.
+
+Final source checks: 196 Node tests; 50 browser tests including 21 axe scans;
+318 catalog/query/transport/support/writer/documentation tests; 245 native
+generation/ownership/determinism/skill-documentation tests. Repeated native
+generation is byte-identical, all three module checks pass, and repeated docs
+and metadata generation is byte-identical. Site validation retains 76 pages and
+seven groups. Exact commands and source binding are in
+`2026-09-17-docs-phase4-evidence.json`.
+
+The first full Pester gate found 15 legacy table assertions and guidance that
+needed retaining. Recovery 1/2 preserves the model-picker and project-root
+guidance, decodes inert entities for the syntax assertion, and tests the new
+ownership declarations. Fresh unfiltered gate at 2026-09-17T16:54:57Z: 3,007
+passed, zero failed, three platform skips, no cleanup errors. Initial Node and
+browser feedback also corrected old marker order, the now-shared skill label,
+keyboard access to long command blocks, and entity display. No assertions were
+suppressed and no new evidence waiver was used.
+
+Phase 4 and V7 are complete. Phase 5 remains required. Readiness inspection
+finds a real Kilo 7.4.20 host with successful containment, but that is not help
+runtime certification. The current support verifier also raises a KeyError when
+multiple generated paths share a Git blob; phase 5 must repair and test that
+binding defect before accepting evidence. No host success has been invented.
+No push, PR, deployment, or publisher enablement occurred in this run.

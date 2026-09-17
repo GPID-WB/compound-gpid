@@ -69,6 +69,56 @@ module.exports = function identityCases() {
       await expect(page.locator("[data-build-identity]")).not.toContainText("Published:");
     });
 
+    for (const channel of ["", "dev/"]) test(`complete command browser uses verified channel-local facts ${channel || "root"}`, async ({ page }) => {
+      const requests = []; page.on("request", request => { if (request.url().endsWith("command-index.json")) requests.push(new URL(request.url()).pathname); });
+      await page.goto(`${origin}/paired/compound-gpid/${channel}#page=modular-guide`);
+      await expect(page.locator("[data-build-identity]")).toContainText(channel ? "Development:" : "Published:");
+      expect(requests).toHaveLength(0);
+      await page.evaluate(() => { location.hash = "page=commands"; });
+      await expect(page.locator(".command-card")).toHaveCount(57);
+      expect(requests).toEqual([`/paired/compound-gpid/${channel}assets/command-index.json`]);
+      await page.locator('[data-command-filter="query"]').fill("cg-help");
+      await expect(page.locator(".command-card")).toHaveCount(2);
+      await page.locator('[data-command-filter="suite"]').selectOption("cr");
+      await page.locator('[data-command-filter="kind"]').selectOption("slash");
+      await expect(page.locator(".command-card")).toHaveCount(1);
+      await expect(page.locator(".command-card")).toHaveAttribute("data-command-id", "slash:cg-help");
+      await page.locator(".command-card summary").click();
+      await expect(page.locator(".command-card")).toContainText("Prerequisites");
+      await expect(page.locator(".command-card")).toContainText("Constraints");
+      await expect(page.locator(".command-card")).toContainText("Host certification is recorded separately");
+      await page.locator('[data-command-filter="suite"]').selectOption("");
+      await page.locator('[data-command-filter="kind"]').selectOption("workflow");
+      await page.locator('[data-command-filter="query"]').fill("");
+      await expect(page.locator(".command-card")).toHaveCount(4);
+      const workflows = require("../../.github/shared/help-catalog.json").workflows;
+      const commands = require("../../.github/shared/help-catalog.json").commands;
+      for (const workflow of workflows) {
+        const card = page.locator(`[data-command-id="workflow:${workflow.id}"]`); await card.locator("summary").click();
+        await expect(card.locator("ol > li > code")).toHaveText(workflow.steps.map(step => commands.find(command => command.id === step.commandId).usage));
+      }
+    });
+
+    test("cached command filters reject a changed deployment and cannot display mixed facts", async ({ page }) => {
+      await page.goto(`${origin}/paired/compound-gpid/#page=commands`);
+      await expect(page.locator(".command-card")).toHaveCount(57);
+      await page.route("**/channels.json", async route => {
+        const response = await route.fetch(), data = await response.json(); data.channels.published.source.sha = "3".repeat(40);
+        await route.fulfill({ json: data });
+      });
+      await page.locator('[data-command-filter="query"]').fill("cg-help");
+      await expect(page.locator(".command-browser [role=status]")).toContainText("Reload the full page");
+      await expect(page.locator(".command-card")).toHaveCount(0);
+      await expect(page.locator("[data-build-identity]")).toHaveText("Published: main@11111111");
+    });
+
+    test("forged command index fails channel digest verification", async ({ page }) => {
+      await page.route("**/command-index.json", route => route.fulfill({ body: '{"commands":[]}' }));
+      await page.goto(`${origin}/paired/compound-gpid/#page=commands`);
+      await expect(page.locator("[data-build-notice]")).toContainText("digest mismatch");
+      await expect(page.locator(".command-card")).toHaveCount(0);
+    });
+
     test("an open tab retains its verified article when deployment metadata changes", async ({ page }) => {
       await page.goto(`${origin}/paired/compound-gpid/#page=modular-guide`);
       await expect(page.locator("[data-document] h1")).toBeVisible();

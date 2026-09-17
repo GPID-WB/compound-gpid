@@ -17,21 +17,31 @@ function identifyProducer(root) {
   const actual = source.hash(fs.readFileSync(script));
   let version;
   if (actual === contract.fingerprintContracts[1].generatorSha256) version = 1;
-  else if (actual === source.hash(fs.readFileSync(path.join(__dirname, "rebuild-docs.js")))) version = 2;
+  else if (actual === source.hash(fs.readFileSync(path.join(__dirname, "docs-legacy-v2/scripts/rebuild-docs.js")))) version = 2;
+  else if (actual === source.hash(fs.readFileSync(path.join(__dirname, "rebuild-docs.js")))) version = 3;
   else fail("unknown canonical producer code");
-  const protectedRoot = version === 1 ? path.join(__dirname, "docs-legacy-v1") : __dirname;
+  const protectedRoot = version === 1 ? path.join(__dirname, "docs-legacy-v1") : version === 2 ? path.join(__dirname, "docs-legacy-v2/scripts") : __dirname;
   const required = version === 1 ? legacyFiles : [...legacyFiles, "docs-provenance.js", "docs-source.js", "docs-build-contract.js", "docs-search-index.js", "docs-fingerprint.js"];
+  if (version === 3) {
+    required.push("docs-help-build.js", "cg_generate_help_catalog.py", "cg_validate_modules.py", "secure_fs.py");
+    for (const dir of ["help", "brain", "skill_management"]) {
+      for (const name of source.readTree(path.join(__dirname, dir)).keys()) {
+        if (/\.(py|json)$/.test(name)) required.push(`${dir}/${name}`);
+      }
+    }
+  }
   for (const name of required) {
     const candidate = path.join(root, "scripts", name);
     if (fs.existsSync(candidate)) source.unlinked(candidate);
     if (!fs.existsSync(candidate) || fs.lstatSync(candidate).isSymbolicLink() ||
       !fs.readFileSync(candidate).equals(fs.readFileSync(path.join(protectedRoot, name)))) fail(`canonical producer code mismatch: ${name}`);
   }
-  if (version === 2) {
-    for (const name of contract.ASSET_SOURCES.filter(n => n.endsWith(".js"))) {
+  if (version >= 2) {
+    const runtimeRoot = version === 2 ? path.join(__dirname, "docs-legacy-v2/docs") : path.join(__dirname, "../docs");
+    for (const name of contract.assetSources(version).filter(n => n.endsWith(".js"))) {
       const candidate = path.join(root, "docs", name);
       if (!fs.existsSync(candidate) || fs.lstatSync(candidate).isSymbolicLink() ||
-        !fs.readFileSync(candidate).equals(fs.readFileSync(path.join(__dirname, "../docs", name)))) fail(`unknown canonical runtime/helper: ${name}`);
+        !fs.readFileSync(candidate).equals(fs.readFileSync(path.join(runtimeRoot, name)))) fail(`unknown canonical runtime/helper: ${name}`);
     }
   }
   return contract.producers[`compound-gpid-docs-producer-v${version}`];
@@ -41,15 +51,22 @@ function identifyProducer(root) {
 function expectedDocs(root, producer = identifyProducer(root)) {
   const stage = fs.mkdtempSync(path.join(fs.realpathSync(os.tmpdir()), "cg-expected-docs-"));
   try {
-    for (const dir of ["docs", ".github/prompts", ".github/shared", "releases"]) {
+    const inputs = producer.fingerprintVersion === 3 ? ["docs", ".github", "scripts", "bin", "releases"] : ["docs", ".github/prompts", ".github/shared", "releases"];
+    for (const dir of inputs) {
       const input = path.join(root, dir);
       if (!fs.existsSync(input)) continue;
       for (const [name, bytes] of source.readTree(input)) {
         const target = path.join(stage, dir, name); fs.mkdirSync(path.dirname(target), { recursive: true }); fs.writeFileSync(target, bytes);
       }
     }
-    const builder = path.join(__dirname, producer.fingerprintVersion === 1 ? "docs-legacy-v1/rebuild-docs.js" : "rebuild-docs.js");
-    try { execFileSync(process.execPath, [builder, "--root", stage, "--all"], { encoding: "utf8", timeout: 30000, maxBuffer: 1048576 }); }
+    if (producer.fingerprintVersion === 3) {
+      for (const name of ["install.ps1", ".gitattributes"]) {
+        const file = path.join(root, name);
+        if (fs.existsSync(file)) fs.writeFileSync(path.join(stage, name), fs.readFileSync(source.unlinked(file)));
+      }
+    }
+    const builder = path.join(__dirname, producer.fingerprintVersion === 1 ? "docs-legacy-v1/rebuild-docs.js" : producer.fingerprintVersion === 2 ? "docs-legacy-v2/scripts/rebuild-docs.js" : "rebuild-docs.js");
+    try { execFileSync(process.execPath, [builder, "--root", stage, "--all"], { encoding: "utf8", timeout: 60000, maxBuffer: 1048576 }); }
     catch (error) { fail(`expected generation failed: ${String(error.stderr || error.message).slice(0, 1000)}`); }
     return source.readTree(path.join(stage, "docs"));
   } finally { fs.rmSync(stage, { recursive: true, force: true }); }

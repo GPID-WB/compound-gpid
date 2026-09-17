@@ -9,10 +9,15 @@ const { normalizeManagedInteriors } = require("./docs-markers.js");
 function fingerprint(root, version) {
   unlinked(root);
   if (version === 1) return require("./docs-legacy-v1/rebuild-docs.js").canonicalInputFingerprint(root).fingerprint;
-  if (version !== 2) throw Error("Unknown documentation fingerprint version");
-  const rules = fingerprintContracts[2], inputs = new Map();
+  if (![2, 3].includes(version)) throw Error("Unknown documentation fingerprint version");
+  const rules = fingerprintContracts[version], inputs = new Map();
   function add(name, bytes) {
     if (rules.generatedOutputs.includes(name)) return;
+    if (version === 3) {
+      const normalized = name.startsWith("docs/") && name.endsWith(".md") ?
+        normalizeManagedInteriors(bytes.toString("utf8").replace(/\r\n?/g, "\n")) : bytes;
+      inputs.set(name, hash(normalized)); return;
+    }
     let text = bytes.toString("utf8").replace(/\r\n?/g, "\n");
     if (name.startsWith("docs/")) text = normalizeManagedInteriors(text);
     inputs.set(name, text);

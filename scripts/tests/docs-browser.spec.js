@@ -233,3 +233,4 @@ test("short articles and loading states have no stale TOC; hidden references rem
 
 require("./docs-discovery.browser.js")({ origin: () => origin, searchFixture });
 require("./docs-identity.browser.js")();
+require("./docs-commands.browser.js")(() => origin);

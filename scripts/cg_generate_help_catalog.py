@@ -52,6 +52,10 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     modes.add_argument("--write", action="store_true", help="Atomically write the catalog.")
     modes.add_argument("--check", action="store_true", help="Check catalog freshness.")
     modes.add_argument("--stdout", action="store_true", help="Write expected catalog bytes to stdout.")
+    modes.add_argument("--bootstrap-docs-markers", action="store_true", help="Explicitly migrate recognized legacy documentation tables.")
+    modes.add_argument("--write-docs", action="store_true", help="Write catalog-owned documentation sections.")
+    modes.add_argument("--check-docs", action="store_true", help="Check catalog-owned documentation without writing.")
+    modes.add_argument("--stdout-docs", action="store_true", help="Emit independently expected document strings as JSON.")
     modes.add_argument(
         "--preview-definition-digest",
         metavar="QUALIFIED_ID",
@@ -110,7 +114,19 @@ def main(
     error_stream = stderr if stderr is not None else sys.stderr.buffer
     root = arguments.root.resolve()
     try:
-        if arguments.stdout:
+        if any((arguments.bootstrap_docs_markers, arguments.write_docs, arguments.check_docs, arguments.stdout_docs)):
+            from help import documentation
+            if arguments.bootstrap_docs_markers:
+                result = documentation.bootstrap(root)
+            elif arguments.write_docs:
+                result = {"changed": documentation.write_documents(root)}
+            elif arguments.check_docs:
+                documentation.check_documents(root)
+                result = {"status": "current"}
+            else:
+                result = documentation.expected_documents(root)
+            _write(output_stream, _json_bytes(result))
+        elif arguments.stdout:
             _write(output_stream, catalog.generate_catalog_bytes(root))
         elif arguments.check:
             catalog.check_catalog(root)
@@ -140,7 +156,7 @@ def main(
             )
             _write(output_stream, _json_bytes(result))
         return EXIT_SUCCESS
-    except catalog.HelpValidationError as error:
+    except (catalog.HelpValidationError, ValueError) as error:
         _write(
             error_stream,
             "help catalog source validation failed: {}\n".format(error).encode(

@@ -221,6 +221,54 @@ triggering a second workflow.
 
 ### Recovery behavior
 
+Keep generated artifacts separate from canonical source and verify the relevant
+producer contract before restoring a prior build.
+
+### Catalog documentation and build compatibility
+
+The canonical help catalog owns command facts in `docs/reference.md` and
+`docs/reference/commands.md`. Its Python writer updates only the three
+`help-*` managed sections; wiki generation preserves those sections. The
+ownership declaration in `docs/_wiki.yml` records both files and the writer.
+Maintainers edit prompt descriptions, reviewed help sidecars, shell metadata,
+and explicit workflow records, then regenerate. Stale definition pins stop the
+build and require review of the individual record.
+
+```bash
+python scripts/cg_generate_help_catalog.py --check
+python scripts/cg_generate_help_catalog.py --write-docs
+python scripts/cg_generate_help_catalog.py --check-docs
+node scripts/rebuild-docs.js --all
+node scripts/rebuild-docs.js --check --all
+node scripts/check-docs-site.js
+```
+
+The one-time `--bootstrap-docs-markers` operation accepts only the recognized
+legacy table boundaries; ordinary builds never perform that migration. Content
+outside those sections remains editorial. The website projection contains the
+complete catalog, including kind-qualified IDs and repeated workflow steps.
+`docs/reference/command-routes.json` supplies only registered presentation
+destinations. A renamed destination heading must be repaired before generation.
+
+Producer/fingerprint/runtime version 3 adds the catalog writer, command index,
+and eighth local shell asset. Fingerprints bind exact generator, wrapper,
+registry, sidecar and route bytes; managed Markdown interiors are normalized.
+The two generated indexes are excluded from their own inputs and independently
+regenerated before import. The protected controller executes its own generator
+against isolated copies of source data and verifies every output byte. A fresh
+catalog does not certify native host behavior.
+
+Version 1 legacy publication remains supported beside version 3 development.
+The unpublished version 2 checkpoint is retained byte-for-byte under
+`scripts/docs-legacy-v2` for historical recovery. Its old runtime cannot read
+version 3 metadata, so a mixed version 2/version 3 pair is rejected: rebuild both
+upgraded channels with version 3. A version 2/version 2 recovery pair remains
+verifiable. Never reinterpret a historical fingerprint version or deploy an
+artifact directly from a modified site directory. Controller rollout remains
+separate from these local build checks.
+
+### Recovery outcomes
+
 - No-op rebuild: `docs/` unchanged — no bot commit; the artifact is still
   uploaded for Pages.
 - Validation failure: the rebuild fails loudly and never deploys.

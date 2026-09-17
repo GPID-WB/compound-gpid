@@ -67,7 +67,9 @@ function inlineMarkdown(value) {
     const external = resolved.external ? ' target="_blank" rel="noreferrer"' : "";
     return `<a href="${escapeHtml(resolved.href)}"${external}>${label}</a>`;
   });
-  return html;
+  // Decode one level of authored entities only after Markdown syntax handling.
+  // Character references render as text; they cannot introduce HTML elements.
+  return html.replace(/&amp;((?:#\d+|#x[0-9a-f]+|lt|gt|amp|quot|apos);)/gi, "&$1");
 }
 
 function renderTable(lines) {
@@ -179,6 +181,7 @@ async function renderRoute() {
     documentView.innerHTML = renderBlocks(parsed.blocks);
     DocsReading.mount(config, pages);
     DocsTools.mount(documentView);
+    DocsCommands.mount(documentView, config);
     const sourceLink = document.querySelector("[data-document-source]");
     sourceLink.href = verifiedSource ? DocsTools.repositoryUrl(config.file.split("/").at(-1), config.file, verifiedSource.sha) : config.file;
     sourceLink.textContent = verifiedSource ? "View source at this revision" : "Raw Markdown (unverified build)"; sourceLink.hidden = false;

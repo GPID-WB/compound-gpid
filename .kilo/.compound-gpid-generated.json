@@ -140,7 +140,7 @@
       "path": ".kilo/agents/cg-wiki.md",
       "source": ".github/agents/cg-wiki.agent.md",
       "kind": "agent",
-      "sha256": "c682b35500662e1765ee1e557e7fa8ece626f782ab17368cb44e351b473aacae",
+      "sha256": "bdb9e851ffb3cdab6f3f34e3d3ec7da37943911e4734bed588f2d5772e633626",
       "executable": false
     },
     {
@@ -2478,7 +2478,7 @@
       "path": ".kilo/skills/cg-skill-wiki/SKILL.md",
       "source": ".github/skills/cg-skill-wiki/SKILL.md",
       "kind": "skill",
-      "sha256": "71359eb83cae9c249c7d5dffcf2f3de10504ac29618bb2cb7cc001d1b674ce69",
+      "sha256": "9fadc6c248d4b2bc91c1322afc466d484a1f639828d969a2a42e25973a30045c",
       "executable": false
     },
     {

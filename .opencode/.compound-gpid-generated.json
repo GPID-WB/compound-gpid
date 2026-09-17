@@ -140,7 +140,7 @@
       "path": ".opencode/agents/cg-wiki.md",
       "source": ".github/agents/cg-wiki.agent.md",
       "kind": "agent",
-      "sha256": "ed3d893d778fee47f8bd4a84f499d4554c0311498a4d876c777e46e0d17b94d9",
+      "sha256": "9b4f18f93e88a7b2c4a87b34827328f6054860af8c1f11c737652a8e5b2c83c5",
       "executable": false
     },
     {
@@ -2443,7 +2443,7 @@
       "path": ".opencode/skills/cg-skill-wiki/SKILL.md",
       "source": ".github/skills/cg-skill-wiki/SKILL.md",
       "kind": "skill",
-      "sha256": "71359eb83cae9c249c7d5dffcf2f3de10504ac29618bb2cb7cc001d1b674ce69",
+      "sha256": "9fadc6c248d4b2bc91c1322afc466d484a1f639828d969a2a42e25973a30045c",
       "executable": false
     },
     {

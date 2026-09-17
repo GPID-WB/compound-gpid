@@ -349,18 +349,17 @@ function validatePagesWorkflows(builder, controller) {
   // Split Technical/Research prompt markers in reference.md (marker migration).
   // -------------------------------------------------------------------------
   const referenceContent = await readFile(path.join(docsRoot, "reference.md"), "utf8");
-  const cmdOpen = (referenceContent.match(/<!-- cg:auto:commands -->/g) || []).length;
-  const cmdClose = (referenceContent.match(/<!-- cg:auto:end -->/g) || []).length;
-  const researchOpen = (referenceContent.match(/<!-- cg:auto:research-commands -->/g) || []).length;
-  if (cmdOpen !== 1 || cmdClose !== 2 || researchOpen !== 1) {
-    throw new Error("reference.md markers must be a single commands pair plus a research-commands pair.");
+  const helpOwned = referenceContent.includes("<!-- cg:auto:help-commands -->");
+  const expectedSections = helpOwned ? ["help-shell-commands", "help-commands", "help-research-commands"] : ["commands", "research-commands"];
+  const markers = require("./docs-markers.js").findManagedMarkers(referenceContent);
+  if (JSON.stringify(markers.map(marker => marker.section)) !== JSON.stringify(expectedSections)) {
+    throw new Error("reference.md markers must be single, ordered and non-overlapping command pairs for its generator version.");
   }
-  const commandsPos = referenceContent.indexOf("<!-- cg:auto:commands -->");
-  const researchPos = referenceContent.indexOf("<!-- cg:auto:research-commands -->");
-  const commandsClose = referenceContent.indexOf("<!-- cg:auto:end -->");
-  const researchClose = referenceContent.indexOf("<!-- cg:auto:end -->", commandsClose + 1);
-  if (!(commandsPos < commandsClose && commandsClose < researchPos && researchPos < researchClose)) {
-    throw new Error("commands and research-commands markers must be ordered and non-overlapping.");
+  if (helpOwned) {
+    const hub = await readFile(path.join(docsRoot, "reference/commands.md"), "utf8");
+    if (JSON.stringify(require("./docs-markers.js").findManagedMarkers(hub).map(marker => marker.section)) !== JSON.stringify(["help-commands", "help-research-commands", "help-shell-commands"])) {
+      throw new Error("command hub markers must match the help ownership contract.");
+    }
   }
 
   // -------------------------------------------------------------------------

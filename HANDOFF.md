@@ -14,7 +14,11 @@ explicitly closes search; reduced-motion transitions use zero duration to avoid
 stale inherited theme colors. The second two-attempt renewal is used and passed.
 Source changes are uncommitted on `improve-website-design`.
 
-**Current work: implementing the canonical help documentation integration.** The user explicitly approved
+**Current work: phase 5 help runtime evidence; phase 4 is complete.** Run 21 and
+`2026-09-17-docs-phase4-evidence.json` record 196 Node, 50 browser, 318 help,
+245 adapter/documentation, and 3,007 full Pester passing tests (zero failures;
+three platform skips). The canonical writer and command browser now exist.
+The older integration-in-progress details below are historical. The user explicitly approved
 deferring human screen-reader and 200% zoom visual checks in Run 18. Step 4 is
 complete with that limited exception. Step 5 implements immutable source
 verification, separate staging, paired metadata, shell integrity and legacy

@@ -32,7 +32,7 @@ function channel(root, name, identity, artifact) {
   contract.assertSourcePaths([...canonical.keys()]);
   if (upgraded(root)) {
     producer = provenance.identifyProducer(root);
-    if (producer.fingerprintVersion !== 2) fail("upgraded shell requires its matching producer");
+    if (producer.fingerprintVersion < 2) fail("upgraded shell requires its matching producer");
     files = artifact ? provenance.verifyProducer(root, artifact).files : provenance.expectedDocs(root, producer);
   } else {
     producer = contract.producers["compound-gpid-docs-producer-v1"];
@@ -46,10 +46,10 @@ function channel(root, name, identity, artifact) {
   const record = { path: name === "published" ? "" : "dev/", source: identity, ...producer,
     fingerprint: fingerprint(root, producer.fingerprintVersion), files: {}, shellBuildId: null, assets: [] };
   let html = files.get("index.html").toString("utf8");
-  if (producer.fingerprintVersion === 2) {
+  if (producer.fingerprintVersion >= 2) {
     record.shellBuildId = contract.shellBuildId(record);
     html = replaceOnce(html, 'content="__CG_DOCS_SHELL_BUILD_ID__"', `content="${record.shellBuildId}"`);
-    for (const file of contract.ASSET_SOURCES) {
+    for (const file of contract.assetSources(producer.fingerprintVersion)) {
       let bytes = files.get(file);
       if (!bytes) fail(`missing shell asset ${file}`);
       if (file === "assets/site.js") bytes = Buffer.from(replaceOnce(bytes.toString("utf8"),
@@ -80,6 +80,10 @@ function expectedPair(options) {
   const main = channel(mainRoot, "published", mainIdentity, options.mainBuild);
   const dev = channel(devRoot, "development", { sha: devSha, branch: options.devBranch || "dev", ref: options.devRef || "dev" }, options.devBuild);
   const channels = { schemaVersion: "compound-gpid-docs-channels-v1", channels: { published: main.record, development: dev.record } };
+  // The unpublished v2 checkpoint cannot parse v3 metadata. Keep its recovery
+  // artifact intact; never declare working identity controls for a mixed pair.
+  const versions = [main.record.fingerprintVersion, dev.record.fingerprintVersion];
+  if (versions.includes(2) && versions.includes(3)) fail("historical v2 recovery cannot be paired with v3; rebuild both upgraded channels with v3");
   contract.validateChannels(channels);
   const files = new Map([...main.files, ...[...dev.files].map(([n, v]) => [`dev/${n}`, v])]);
   files.set("channels.json", json(channels));

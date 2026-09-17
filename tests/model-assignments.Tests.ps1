@@ -186,7 +186,9 @@ Describe "docs/reference.md - ordinary prompt model picker sync" {
             $escapedCommand = [regex]::Escape($command)
             ($content -match "\| ``?$escapedCommand") | Should -Be $true
             ($content -match "\| ``?$escapedCommand[^\r\n]*\| Claude Opus") | Should -Be $false
-            ($content -match "\| ``?$escapedCommand[^\r\n]*\| Copilot model picker \|") | Should -Be $true
+            ($content -match 'All listed ordinary CG and CR prompts inherit the \*\*Copilot model picker\*\*') | Should -Be $true
+            $prompt = Get-Content (Join-Path $repoRoot (".github/prompts/" + $command.TrimStart('/') + ".prompt.md")) -Raw -Encoding UTF8
+            ($prompt -match '(?m)^model:') | Should -Be $false
         }
     }
 }
@@ -196,23 +198,28 @@ Describe "docs/reference.md - CR command model-picker sync" {
     $content = if (Test-Path $referenceFile) { Get-Content $referenceFile -Raw -Encoding UTF8 } else { "" }
 
     It "/cr-brainstorm inherits the model picker" {
-        ($content -match '\| `/cr-brainstorm` \| Copilot model picker \|') | Should -Be $true
+        ($content -match '\| /cr-brainstorm \| CR \|') | Should -Be $true
+        ($content -match 'ordinary CG and CR prompts inherit the \*\*Copilot model picker\*\*') | Should -Be $true
     }
 
     It "/cr-plan inherits the model picker" {
-        ($content -match '\| `/cr-plan` \| Copilot model picker \|') | Should -Be $true
+        ($content -match '\| /cr-plan \| CR \|') | Should -Be $true
+        ($content -match 'ordinary CG and CR prompts inherit the \*\*Copilot model picker\*\*') | Should -Be $true
     }
 
     It "/cr-work inherits the model picker" {
-        ($content -match '\| `/cr-work` \| Copilot model picker \|') | Should -Be $true
+        ([System.Net.WebUtility]::HtmlDecode($content) -match '\| /cr-work \[phaseX\] \| CR \|') | Should -Be $true
+        ($content -match 'ordinary CG and CR prompts inherit the \*\*Copilot model picker\*\*') | Should -Be $true
     }
 
     It "/cr-review inherits the model picker" {
-        ($content -match '\| `/cr-review` \| Copilot model picker \|') | Should -Be $true
+        ($content -match '\| /cr-review.* \| CR \|') | Should -Be $true
+        ($content -match 'ordinary CG and CR prompts inherit the \*\*Copilot model picker\*\*') | Should -Be $true
     }
 
     It "/cr-compound inherits the model picker" {
-        ($content -match '\| `/cr-compound` \| Copilot model picker \|') | Should -Be $true
+        ($content -match '\| /cr-compound \| CR \|') | Should -Be $true
+        ($content -match 'ordinary CG and CR prompts inherit the \*\*Copilot model picker\*\*') | Should -Be $true
     }
 }
 

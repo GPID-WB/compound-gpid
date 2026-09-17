@@ -192,3 +192,13 @@ summary:focus-visible, [tabindex="-1"]:focus-visible { outline: 3px solid var(--
   .breadcrumb, .build-footer { margin: 10pt 0; }
   .dev-preview-banner { position: static; }
 }
+/* Catalog filters remain usable on narrow screens; all facts wrap as text. */
+.command-browser { margin: 1.5rem 0; padding: 1rem; border: 1px solid var(--line); border-radius: .5rem; }
+.command-filters { display: flex; flex-wrap: wrap; gap: 1rem; }
+.command-filters label { display: flex; flex: 1 1 10rem; min-width: 0; flex-direction: column; gap: .3rem; }
+.command-filters input, .command-filters select { width: 100%; min-width: 0; padding: .5rem; color: inherit; background: var(--paper); border: 1px solid var(--line); border-radius: .25rem; font: inherit; }
+.command-card { padding: .8rem 0; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+.command-browser :focus-visible { outline: 3px solid var(--lime-deep); outline-offset: 3px; }
+.command-card summary { cursor: pointer; font-weight: 600; }
+.command-fact-label { font-weight: 600; }
+@media print { .command-filters { display: none; } }

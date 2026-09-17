@@ -7,12 +7,10 @@ const repository = path.resolve(__dirname, "../..");
 /** Isolated source fixture with real canonical generator code and real upgraded shell. */
 function modernSource() {
   const root = fs.mkdtempSync(path.join(fs.realpathSync(os.tmpdir()), "cg-modern-source-"));
-  for (const name of ["docs", ".github", "releases"]) fs.cpSync(path.join(repository, name), path.join(root, name), { recursive: true });
-  fs.mkdirSync(path.join(root, "scripts"));
-  for (const name of fs.readdirSync(path.join(repository, "scripts"))) {
-    if (name.endsWith(".js")) fs.copyFileSync(path.join(repository, "scripts", name), path.join(root, "scripts", name));
+  for (const name of ["docs", ".github", "releases", "scripts", "bin", "install.ps1", ".gitattributes"]) {
+    fs.cpSync(path.join(repository, name), path.join(root, name), { recursive: true,
+      filter: file => !file.includes("__pycache__") && !file.endsWith(".pyc") });
   }
-  fs.cpSync(path.join(repository, "scripts/docs-legacy-v1"), path.join(root, "scripts/docs-legacy-v1"), { recursive: true });
   return root;
 }
 
@@ -24,7 +22,7 @@ function modernArtifact(root) {
   const producer = identifyProducer(root), docs = expectedDocs(root, producer);
   const metadata = { schemaVersion: 1, version: "1", producerContract: producer.producerContract,
     fingerprintVersion: producer.fingerprintVersion,
-    site: { fingerprint: require("../docs-fingerprint.js").fingerprint(root, 2), files: digests(docs) } };
+    site: { fingerprint: require("../docs-fingerprint.js").fingerprint(root, producer.fingerprintVersion), files: digests(docs) } };
   const files = new Map([...docs].map(([n, v]) => [`docs/${n}`, v]));
   files.set(".docs-build-metadata.json", Buffer.from(JSON.stringify(metadata, null, 2) + "\n"));
   writeTree(artifact, files, [root]); return artifact;

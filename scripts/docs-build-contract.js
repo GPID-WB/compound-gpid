@@ -7,13 +7,14 @@ const SHA = /^[0-9a-f]{40}$/;
 const DIGEST = /^[0-9a-f]{64}$/;
 const PUBLIC_METADATA = "channels.json";
 const ASSET_SOURCES = ["assets/site.js", "assets/site.css", "assets/docs-contract.js", "assets/docs-reading.js",
-  "assets/docs-search.js", "assets/docs-tools.js", "assets/docs-identity.js"];
-const producers = Object.freeze(Object.fromEntries([1, 2].map(version => [
+  "assets/docs-search.js", "assets/docs-tools.js", "assets/docs-identity.js", "assets/docs-commands.js"];
+const assetSources = version => version === 2 ? ASSET_SOURCES.filter(name => name !== "assets/docs-commands.js") : ASSET_SOURCES;
+const producers = Object.freeze(Object.fromEntries([1, 2, 3].map(version => [
   `compound-gpid-docs-producer-v${version}`, Object.freeze({
     producerContract: `compound-gpid-docs-producer-v${version}`, fingerprintVersion: version,
-    runtimeContract: `compound-gpid-docs-runtime-v${version}`, headingContract: `compound-gpid-headings-v${version}`,
-    capabilities: Object.freeze({ sectionLinks: true, redirectMappings: version === 2, switchNotices: version === 2,
-      reverseSwitching: version === 2, verifiedIdentity: version === 2 }),
+    runtimeContract: `compound-gpid-docs-runtime-v${version}`, headingContract: `compound-gpid-headings-v${Math.min(version, 2)}`,
+    capabilities: Object.freeze({ sectionLinks: true, redirectMappings: version >= 2, switchNotices: version >= 2,
+      reverseSwitching: version >= 2, verifiedIdentity: version >= 2 }),
   }),
 ])));
 
@@ -39,6 +40,14 @@ const fingerprintContracts = Object.freeze({
     normalization: "UTF-8 with LF; managed Markdown interiors replaced with the v1 marker token; hash a sorted JSON array of [path, normalizedText] pairs.",
     absence: "Record [path, null] for each absent fixed input and absent input directory. Empty directories record [path, []].",
     exclusion: "Only the two exact generated outputs are excluded; each requires independent expected-byte verification. Stamped assets and channels.json are forbidden in source.",
+  },
+  3: {
+    directoryInputs: { scripts: [".py", ".js", ".json"], releases: [".json"] },
+    treeInputs: ["docs", ".github", "bin", "scripts/docs-legacy-v1", "scripts/docs-legacy-v2"],
+    fixedInputs: ["install.ps1", ".gitattributes"],
+    generatedOutputs: ["docs/assets/search-index.json", "docs/assets/command-index.json"],
+    normalization: "Sorted JSON path/digest pairs. Hash exact input bytes except docs Markdown: normalize LF and managed interiors before hashing. V3 owns catalog documentation and command projection.",
+    absence: "Absent declared paths are null; empty directories are empty arrays.",
   },
 });
 
@@ -80,7 +89,7 @@ function assertSourcePaths(paths) {
     if (!safePath(file)) fail(`unsafe source path ${file}`);
     const folded = file.toLowerCase();
     if (folded === PUBLIC_METADATA || folded === "dev" || folded.startsWith("dev/")
-      || /^assets\/(?:site|docs-(?:contract|reading|search|tools|identity))\.[0-9a-f]{64}\.(?:js|css)$/.test(folded)) fail(`reserved output path ${file}`);
+      || /^assets\/(?:site|docs-(?:contract|reading|search|tools|identity|commands))\.[0-9a-f]{64}\.(?:js|css)$/.test(folded)) fail(`reserved output path ${file}`);
   }
 }
 
@@ -121,10 +130,11 @@ function validateChannels(metadata) {
     }
     if (channel.shellBuildId !== shellBuildId(channel)) fail("shell build identity mismatch");
     if (!Object.hasOwn(channel.files, "assets/docs-contract.js")) fail("missing canonical helper digest");
-    if (channel.assets.length !== ASSET_SOURCES.length) fail("incomplete shell asset inventory");
+    const sources = assetSources(producer.fingerprintVersion);
+    if (channel.assets.length !== sources.length) fail("incomplete shell asset inventory");
     const seen = new Set();
     for (const asset of channel.assets) {
-      if (!keys(asset, ["source", "path", "sha256", "integrity"]) || !ASSET_SOURCES.includes(asset.source)
+      if (!keys(asset, ["source", "path", "sha256", "integrity"]) || !sources.includes(asset.source)
         || seen.has(asset.source) || !DIGEST.test(asset.sha256)) fail("invalid shell asset inventory");
       seen.add(asset.source);
       if (asset.path !== asset.source.replace(/\.(js|css)$/, `.${asset.sha256}.$1`)
@@ -135,5 +145,5 @@ function validateChannels(metadata) {
   return metadata;
 }
 
-module.exports = { PUBLIC_METADATA, ASSET_SOURCES, producers, fingerprintContracts, transforms,
+module.exports = { PUBLIC_METADATA, ASSET_SOURCES, assetSources, producers, fingerprintContracts, transforms,
   selectProducer, assertSourcePaths, shellBuildId, validateChannels };

@@ -86,9 +86,9 @@ test("modern producer import and paired composition preserve sources and reject 
   assert.equal(composer.verifyCombinedSite(out, main, dev, options), 0);
   assert.deepEqual([tree(main), tree(dev)], before);
   const metadata = JSON.parse(fs.readFileSync(path.join(out, "site/channels.json")));
-  assert.equal(metadata.channels.development.assets.length, 7);
+  assert.equal(metadata.channels.development.assets.length, 8);
   assert.match(fs.readFileSync(path.join(out, "site/dev/index.html"), "utf8"), /integrity="sha256-/);
-  for (const file of ["index.html", "reference.md", "assets/search-index.json", "assets/site.js", "assets/docs-search.js"]) {
+  for (const file of ["index.html", "reference.md", "reference/commands.md", "assets/command-index.json", "assets/search-index.json", "assets/site.js", "assets/docs-search.js"]) {
     const target = path.join(artifact, "docs", file), original = fs.readFileSync(target);
     fs.appendFileSync(target, "\nforged");
     const metaPath = path.join(artifact, ".docs-build-metadata.json"), originalMeta = fs.readFileSync(metaPath);

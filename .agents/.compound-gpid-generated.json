@@ -2331,7 +2331,7 @@
       "path": ".agents/skills/cg-skill-wiki/SKILL.md",
       "source": ".github/skills/cg-skill-wiki/SKILL.md",
       "kind": "skill",
-      "sha256": "71359eb83cae9c249c7d5dffcf2f3de10504ac29618bb2cb7cc001d1b674ce69",
+      "sha256": "9fadc6c248d4b2bc91c1322afc466d484a1f639828d969a2a42e25973a30045c",
       "executable": false
     },
     {
@@ -2387,7 +2387,7 @@
       "path": ".agents/skills/cg-wiki.md",
       "source": ".github/agents/cg-wiki.agent.md",
       "kind": "fallback-agent",
-      "sha256": "3bb2165e27a9661821c7c295cfae6b3c4a049724df13131229cf00b910abbee9",
+      "sha256": "1456cc7af74cc60def600ffdb3a74877482a84e22e843b87960f97a69d201fc6",
       "executable": false
     },
     {
@@ -2765,7 +2765,7 @@
       "path": ".agents/subagents/cg-wiki.toml",
       "source": ".github/agents/cg-wiki.agent.md",
       "kind": "agent",
-      "sha256": "904981a7c9af9f7f7f4a66f70ed698af709d582ff1eb993f87cfd6fb43fe0aa6",
+      "sha256": "2f971687171bed41cc612b916971393642b98152e85fb533d7860d0eef424b3d",
       "executable": false
     },
     {

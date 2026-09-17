@@ -26,7 +26,7 @@ module.exports = function registerDiscoveryTests({ origin, searchFixture }) {
     await trigger.focus(); await page.keyboard.press("Enter");
     await input.fill("cg-skill activate");
     await expect(page.locator(".search-result").first()).toHaveAttribute("href", "#page=skill-management-activate");
-    await expect(page.locator(".search-result").first()).toContainText("Technical (CG)");
+    await expect(page.locator(".search-result").first()).toContainText("Shared");
     await expect(page.locator('.search-result[href*="page=skill-management-activation"]')).toHaveCount(0);
     await page.keyboard.press("Escape"); await expect(trigger).toBeFocused();
     expect(requests.filter(url => url.endsWith("search-index.json"))).toHaveLength(1);
