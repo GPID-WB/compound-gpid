@@ -86,6 +86,51 @@ def test_step7_support_implementation_exists():
     support_module()
 
 
+def test_duplicate_git_blobs_retain_every_sensitive_path(history):
+    support, root, _ = history
+    content = "identical generated adapter\n"
+    for directory in (".claude/commands", ".kilo/commands", ".opencode/commands"):
+        write(root, directory + "/cg-help.md", content)
+    commit(root, "same content at distinct paths")
+    subject = git(root, "rev-parse", "HEAD")
+    bindings = support.subject_bindings(root, subject)
+    rows = {row["path"]: row for row in bindings["sensitivePaths"]}
+    for directory in (".claude/commands", ".kilo/commands", ".opencode/commands"):
+        assert rows[directory + "/cg-help.md"]["sha256"] == hashlib.sha256(content.encode()).hexdigest()
+
+
+def test_working_bytes_honor_only_protected_crlf_checkout_policy():
+    support = support_module()
+    assert hasattr(support, "checkout_bytes")
+    attributes = Path(__file__).resolve().parents[2].joinpath(".gitattributes").read_bytes()
+    raw = b"@echo off\nexit /b 0\n"
+    assert support.checkout_bytes("bin/cg-help.cmd", raw, attributes) == b"@echo off\r\nexit /b 0\r\n"
+    assert support.checkout_bytes("scripts/cg_help.py", raw, attributes) == raw
+    with pytest.raises(ValueError, match="checkout policy"):
+        support.checkout_bytes("bin/cg-help.cmd", raw, attributes + b"bin/cg-help.cmd eol=lf\n")
+
+
+def test_subject_verifier_accepts_declared_crlf_but_rejects_mixed_or_changed_bytes(history):
+    support, root, evidence = history
+    attributes = Path(__file__).resolve().parents[2].joinpath(".gitattributes").read_bytes()
+    root.joinpath(".gitattributes").write_bytes(attributes)
+    wrapper = root / "bin/cg-help.cmd"
+    wrapper.parent.mkdir()
+    wrapper.write_bytes(b"@echo off\r\nexit /b 0\r\n")
+    commit(root, "declared Windows checkout")
+    subject = git(root, "rev-parse", "HEAD")
+    evidence.update(subjectCommit=subject, probeCommit=subject, probeTree=git(root, "rev-parse", "HEAD^{tree}"), **support.subject_bindings(root, subject))
+    for row in evidence["platforms"]:
+        row.update(support.platform_bindings(root, subject, row["platform"]))
+    support.verify_evidence(root, evidence)
+    wrapper.write_bytes(b"@echo off\r\nexit /b 0\n")
+    with pytest.raises(ValueError, match="working bytes"):
+        support.verify_evidence(root, evidence)
+    wrapper.write_bytes(b"@echo off\r\nexit /b 1\r\n")
+    with pytest.raises(ValueError, match="changed"):
+        support.verify_evidence(root, evidence)
+
+
 def test_probe_flow_validator_exists():
     assert hasattr(support_module(), "validate_host_flow"), "Step7 host operation/final-output validator is missing"
 

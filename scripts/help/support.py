@@ -200,8 +200,10 @@ def _blobs(root: Path, tree: dict, paths: Sequence[str]) -> Dict[str, bytes]:
         if len(body) != size:
             raise ValueError("Git batch read returned truncated content")
         position = header_end + 1 + size + 1
-        values[requests[oid]] = body
-    return values
+        values[oid] = body
+    # Several generated adapters can have exactly the same blob. Deduplicate
+    # the I/O request, never the path inventory used to bind the subject.
+    return {path: values[tree[path][2]] for path in paths}
 
 
 def _blob(root: Path, tree: dict, path: str) -> bytes:
@@ -354,6 +356,22 @@ def _require_rfc3339_utc(value: str) -> None:
     datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ") or None
 
 
+def checkout_bytes(path: str, blob: bytes, attributes: bytes) -> bytes:
+    """Apply the sole protected checkout transform without running Git filters.
+
+    Args: path: Subject path. blob: Exact Git bytes. attributes: Subject policy.
+    Returns: Expected physical bytes, preserving the Git-object evidence hash.
+    Raises: ValueError for an unknown batch-wrapper checkout policy.
+    Example: checkout_bytes('bin/cg-help.cmd', b'x\\n', policy) returns CRLF.
+    """
+    if not path.startswith("bin/") or not path.endswith(".cmd") or not attributes:
+        return blob
+    protected = Path(__file__).resolve().parents[2] / ".gitattributes"
+    if attributes != protected.read_bytes():
+        raise ValueError("Unknown help-sensitive checkout policy")
+    return blob.replace(b"\r\n", b"\n").replace(b"\n", b"\r\n")
+
+
 def verify_evidence(root: Path, evidence: dict) -> None:
     """Validate schema, status, subject ancestry and unchanged sensitive bytes.
 
@@ -392,12 +410,14 @@ def verify_evidence(root: Path, evidence: dict) -> None:
     changed = {path.decode("utf-8") for path in _git(root, "diff", "--name-only", "-z", subject, "--").split(b"\0") if path}
     if changed.intersection(row["path"] for row in expected["sensitivePaths"]):
         raise ValueError("Help-sensitive working/index paths or modes changed")
+    expected_blobs = _blobs(root, subject_tree, [row["path"] for row in expected["sensitivePaths"]])
+    attributes = _blob(root, subject_tree, ".gitattributes") if ".gitattributes" in subject_tree else b""
     for row in expected["sensitivePaths"]:
         try:
             content = secure_fs.secure_read_bytes(root, row["path"], reject_hardlinks=True, max_bytes=MAX_BLOB_BYTES)
         except (OSError, ValueError) as error:
             raise ValueError("Unsafe or missing help-sensitive working path: " + row["path"]) from error
-        if _sha(content) != row["sha256"]:
+        if content != checkout_bytes(row["path"], expected_blobs[row["path"]], attributes):
             raise ValueError("Help-sensitive working bytes changed: " + row["path"])
     rows = evidence["platforms"]
     if [row["platform"] for row in rows] != sorted(PROMPT_ROOTS):

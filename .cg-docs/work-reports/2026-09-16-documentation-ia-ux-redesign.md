@@ -2434,3 +2434,20 @@ runtime certification. The current support verifier also raises a KeyError when
 multiple generated paths share a Git blob; phase 5 must repair and test that
 binding defect before accepting evidence. No host success has been invented.
 No push, PR, deployment, or publisher enablement occurred in this run.
+
+## Run 22: Phase 5 Source-Bound Runtime Verification
+
+Before host execution, fixed a reproduced verifier defect: its batch Git reader
+deduplicated blob IDs but omitted other paths sharing those bytes. It now reads
+each blob once and retains every path binding. Also bound `.gitattributes` and
+recognized only the protected Windows wrapper CRLF checkout transform. Evidence
+continues to hash raw Git objects; working bytes must match the exact declared
+checkout representation, with mixed or changed bytes rejected. No Git filters
+execute and no host-certification requirement is relaxed. Two focused red tests
+failed before repair; all 43 support tests now pass, including full verifier
+tests for declared CRLF, mixed line endings and changed command content.
+
+The real subject inventory now binds 334 paths instead of raising KeyError.
+This is a verifier repair checkpoint, not phase 5 completion or native help
+certification. The next operation runs the existing exact-subject Kilo probes
+in a detached worktree with the observed host version/hash explicitly pinned.
