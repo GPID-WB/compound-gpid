@@ -374,7 +374,22 @@
         },
         {
           "id": "autonomous-pipeline-autopilot",
-          "title": "Autonomous pipeline command /cg-autopilot (blocked on workflow research + hooks evaluation)",
+          "title": "Autonomous pipeline command /cg-autopilot",
+          "description": "Explore Kilo-first execution from canonical .github sources with honest generated adapter capability gates. Use a dedicated lightweight parent and a fresh foreground cg-workflow-stage Task child per operation in one worktree/branch; preserve /cg-work phaseN review:none. Use deterministic validation, state and CI helpers; exact plan/report identity and read-back evidence; opt-in stage execution that preserves standalone command semantics and direct writes; verified Task permissions and conditional depth3; scoped human approvals; a crash-safe reference-only cursor; clean publication checkpoints; bounded review/CI loops that preserve the existing PR-scoped two-round CI cap; an explicit base and exact-head CI green gate; and compact results. Keep basic dirty-tree checks, cooperative locks, evidence reconciliation and uncertain-owner safe stops in core v1. Pause safely rather than claim hard stage termination or exclusive writer ownership. This is brainstorm scope, not implementation or plan completion.",
+          "status": "active",
+          "plan": ".cg-docs/plans/2026-09-11-kilo-first-autopilot.md"
+        },
+        {
+          "id": "autopilot-hard-stage-deadlines",
+          "title": "Autopilot hard stage deadlines",
+          "description": "Beyond version1, evaluate runtime-enforced elapsed-time deadlines, supervised agent processes and descendant-process termination checks. Cover hung tools, cancellation and interruption without allowing retry while an earlier writer might survive. Preserve scoped approvals and existing safety gates. Hard stage deadlines are separate from v1 bounded CI polling and safe-pause recovery; do not claim process termination implies rollback.",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "autopilot-enforced-writer-isolation",
+          "title": "Autopilot enforced writer isolation",
+          "description": "Beyond version1, research enforceable writer ownership/isolation and runtime-backed interrupted-child reconciliation for the same-worktree pipeline. Define which writers/platforms the mechanism can control and verify fencing and stale-owner recovery before claiming exclusivity. Keep basic dirty-tree checks, cooperative locks, evidence reconciliation and uncertain-owner safe stops in core v1; do not add separate worktrees per stage or duplicate workflow-status-resume.",
           "status": "idea",
           "plan": null
         },

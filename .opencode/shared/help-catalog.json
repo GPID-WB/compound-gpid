@@ -6,6 +6,81 @@
           "sourcePath": "docs/configuration.md",
           "sourceSection": "strict-configuration-schema",
           "suite": "cg"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "posix",
+            "sourcePath": "bin/cg-autopilot-control"
+          },
+          {
+            "os": "windows",
+            "sourcePath": "bin/cg-autopilot-control.cmd"
+          }
+        ],
+        "status": "conditional"
+      },
+      "category": "delivery",
+      "constraints": [
+        "Only inspect is enabled; other helper operations return operation-not-implemented.",
+        "An explicit --root is required; the helper never selects the consumer root from its installation directory.",
+        "--resume is mutually exclusive with --plan, --batches and --base.",
+        "Inspection does not enable production autopilot execution."
+      ],
+      "definitionDigest": "fe49cd33277caaa496d59c8fb68a52109df1ad1a1c3aedca45e88f11eae11d6b",
+      "definitionSources": [
+        "bin/cg-autopilot-control",
+        "bin/cg-autopilot-control.cmd",
+        "install.ps1",
+        "scripts/cg_autopilot.py",
+        "scripts/install.sh"
+      ],
+      "documentationTargets": [],
+      "examples": [
+        "cg-autopilot-control inspect --root . --plan .cg-docs/plans/example.md --batches 1 --base origin/dev"
+      ],
+      "id": "shell:cg-autopilot-control",
+      "intents": [
+        "inspect autopilot plan eligibility",
+        "inspect prior autopilot control state"
+      ],
+      "kind": "shell",
+      "name": "cg-autopilot-control",
+      "outputs": [
+        "Exit 0 with one JSON report on stdout for either eligible or blocked inspection; read status and blockers to determine eligibility. Argument, plan or operation errors exit 1 with diagnostics on stderr and no report."
+      ],
+      "ownerModule": "suite-cg",
+      "prerequisites": [
+        "Python 3.8+, Git, and the installed Compound GPID helper with its Kilo command and contract."
+      ],
+      "relatedCommands": [
+        {
+          "id": "slash:cg-autopilot",
+          "relation": "related"
+        }
+      ],
+      "sourcePath": "bin/cg-autopilot-control",
+      "summary": "Inspect Kilo autopilot eligibility and prior control state without writing.",
+      "supportedOS": [
+        "posix",
+        "windows"
+      ],
+      "supportedPlatforms": [
+        "kilo"
+      ],
+      "supportedSuites": [
+        "cg"
+      ],
+      "usage": "cg-autopilot-control inspect --root <repo> --plan <path> --batches <segments> --base <branch> [--ci-timeout 30m]"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
         },
         {
           "sourcePath": "docs/configuration.md",
@@ -31,7 +106,7 @@
       "constraints": [
         "Requires explicit repository and manager identities."
       ],
-      "definitionDigest": "86f5825176c8dbed1a663a559fbfe308ec37657457b1ea257a205fff606f293c",
+      "definitionDigest": "73ac1564629f0c48bafc32d6cd6c3435c6d1bc882cf6565035d9203d2852aefd",
       "definitionSources": [
         "bin/cg-brain-init",
         "bin/cg-brain-init.cmd",
@@ -110,7 +185,7 @@
       "constraints": [
         "POSIX only; no Windows wrapper is installed."
       ],
-      "definitionDigest": "b468ce32c960e069e7b7d2a68ab18c992d0385d7a6001619ff8161985098e064",
+      "definitionDigest": "85f614d267a952160b6bb388a013d392b668d81a126e5ca64fceb69c5cb19cda",
       "definitionSources": [
         "bin/cg-diff-summary",
         "scripts/cg_summary.py",
@@ -189,7 +264,7 @@
         "--catalog and --source-root are paired local fixture overrides, not normal catalog selection flags.",
         "CLI exit categories are 0 success, 2 invalid transport or input, 3 invalid evidence, and 4 filesystem or I/O failure; missing Python makes the wrapper exit 1."
       ],
-      "definitionDigest": "5679917c11a0bb85b08634cdc130fe25c5eb5e7cac06df87d4815852f267d0da",
+      "definitionDigest": "da38008e95a67255681da55172acd4f07971ead760dcc3e9058e65c11486589d",
       "definitionSources": [
         "bin/cg-help",
         "bin/cg-help.cmd",
@@ -285,7 +360,7 @@
       "constraints": [
         "Query output is budgeted and local to declared knowledge sources."
       ],
-      "definitionDigest": "7240620209737779a36bd332b02e9f6131ad8e28090d09481ce1c8c85946f0aa",
+      "definitionDigest": "fd2b026039570ccd4a2594ca54e8fe6255c3d01e1d0db2cda6b20dfacf0c099f",
       "definitionSources": [
         "bin/cg-index",
         "bin/cg-index.cmd",
@@ -368,7 +443,7 @@
         "Direct launch is unsupported when certified containment is required.",
         "The wrapper always passes --launch --; all supplied arguments go to Kilo, not to the preflight parser."
       ],
-      "definitionDigest": "823a8f80d81ce05e1d86f16507706c4c2f811961e30ca2e628aed4b7c44f02b5",
+      "definitionDigest": "9aeec92871cd21c23179008c46656cc0012677626388adb931a3a2966907ea39",
       "definitionSources": [
         "bin/cg-kilo",
         "bin/cg-kilo.cmd",
@@ -455,7 +530,7 @@
       "constraints": [
         "Fails closed on unsafe paths, invalid config, or projection conflicts."
       ],
-      "definitionDigest": "e14e20c4672d1d68338ec86b07d2f28114ac89e5b74a6f997a331017e46b2192",
+      "definitionDigest": "8770660efedb7b0a4d4ed0dca1083bfc5a4c307bf319b8d657dd4f20e037be95",
       "definitionSources": [
         "bin/cg-link",
         "bin/cg-link.cmd",
@@ -543,7 +618,7 @@
       "constraints": [
         "POSIX only; no Windows wrapper is installed."
       ],
-      "definitionDigest": "34b49e620db47683d91c10921012c7dc41e3780531d53cbcefee245fb1b354c4",
+      "definitionDigest": "2e7b5f98656bdf87bb656fe26fedca1dc93f3edc31da327c3233539672b73fff",
       "definitionSources": [
         "bin/cg-log-summary",
         "scripts/cg_summary.py",
@@ -613,7 +688,7 @@
       "constraints": [
         "POSIX only; no Windows wrapper is installed."
       ],
-      "definitionDigest": "7fb4e1c3646a199a8b52090df775229fc728081061f2c4c82e3e79d809451113",
+      "definitionDigest": "941f59d3e2e0d19c273f50277399153dd6b9e8177d9ed1d22111e1088304ac3c",
       "definitionSources": [
         "bin/cg-problems-summary",
         "scripts/cg_summary.py",
@@ -692,7 +767,7 @@
       "constraints": [
         "Brainstorm and Plan sources must use cg-render-artifact."
       ],
-      "definitionDigest": "9404e508a700ca2b2a31ef9fcc99bd10eea7a925075461d142284cd6891c3c39",
+      "definitionDigest": "7d84366cdeafce10c69bfc93185c0ef26929687b3e72d03c55239e75f6dfc39a",
       "definitionSources": [
         "bin/cg-publish-markdown",
         "bin/cg-publish-markdown.cmd",
@@ -774,7 +849,7 @@
       "constraints": [
         "Developer-only and guarded to the canonical repository."
       ],
-      "definitionDigest": "54d681043430cf382591e868d94890f250db1135776bdc7b997eb49814d7d46e",
+      "definitionDigest": "73a858a44c24cd3672f0f4a5e9b0b4e927060586512fc3e44829f0f81bf99797",
       "definitionSources": [
         "bin/cg-release",
         "bin/cg-release.cmd",
@@ -860,7 +935,7 @@
       "constraints": [
         "Uses the strict typed-artifact schema and provenance contract."
       ],
-      "definitionDigest": "3842892d512b127e3018e1172a10d433b2a80e7ec1af95014e07610d54ac2116",
+      "definitionDigest": "de0cac18afce9ce7ee066751d2aa4034ac46d595790c8c95de7df34a7149d87c",
       "definitionSources": [
         "bin/cg-render-artifact",
         "bin/cg-render-artifact.cmd",
@@ -947,7 +1022,7 @@
       "constraints": [
         "Maintainer mutations require role and plan-digest checks."
       ],
-      "definitionDigest": "813f0ae08667243870129e1bf476f11375bdf7960021ea1c2d509bb01b21c8d3",
+      "definitionDigest": "1d284ccefbcefc7686bbf03e0b7af03e5c86ecdc2ac64f22c58c7b135cc035b7",
       "definitionSources": [
         "bin/cg-skill",
         "bin/cg-skill.cmd",
@@ -1030,7 +1105,7 @@
       "constraints": [
         "Does not run tests and has no Windows wrapper."
       ],
-      "definitionDigest": "f052539fd12d282f69ba6e3b82355c59a7239749d825aa5fba6294983c81d8cc",
+      "definitionDigest": "5b7f60218b3e3b543f97617bf2624fae14abaf2105959c907bdfe1f21bb6ca7f",
       "definitionSources": [
         "bin/cg-test-summary",
         "scripts/cg_summary.py",
@@ -1104,7 +1179,7 @@
       "constraints": [
         "Uses bounded declared workflow and context inputs."
       ],
-      "definitionDigest": "b93a9f78f20620b6d0103701b20893977be307acb122ee6ea76a6e37da9e16b3",
+      "definitionDigest": "d49f14ffbcb5d8ac3783e016e9025e66a27b1a6ef82b23b52e828e8eb3f53825",
       "definitionSources": [
         "bin/cg-token-audit",
         "bin/cg-token-audit.cmd",
@@ -1182,7 +1257,7 @@
       "constraints": [
         "POSIX only; no Windows wrapper is installed."
       ],
-      "definitionDigest": "95244409d08f90e3b8e2f68afd7f362cf7fd033c81f05c2d99f09b38ec4031d2",
+      "definitionDigest": "b2ccb022bd33f6cbda6fa199567d364eb2bc7acba694a73c14e8536ab37327d3",
       "definitionSources": [
         "bin/cg-tree-summary",
         "scripts/cg_summary.py",
@@ -1256,7 +1331,7 @@
       "constraints": [
         "Preserves user-owned paths and checksum-drifted managed copies, but .github/copilot-instructions.md may be removed even with user edits when its Compound GPID ownership marker is present."
       ],
-      "definitionDigest": "9f0b31bc557e42bfbdcc96b9fc466bda759fc8ea76029beddb419fcab6e40258",
+      "definitionDigest": "7db2d8942725701eff9873563f58c6f621b07dbf4b137c81336a46022bf6363b",
       "definitionSources": [
         "bin/cg-unlink",
         "bin/cg-unlink.cmd",
@@ -1344,7 +1419,7 @@
       "constraints": [
         "Repair mode can discard installation-clone changes and must be selected explicitly."
       ],
-      "definitionDigest": "7a139c31de8beb55448fec41f8689787855380b7d19b8f735b8212b6cd88e12d",
+      "definitionDigest": "dea2f355da295d0098af176e211d2a2956a9deeaece0829e7aa511be349b790e",
       "definitionSources": [
         "bin/cg-update",
         "bin/cg-update.cmd",
@@ -1400,6 +1475,71 @@
         "cr"
       ],
       "usage": "cg-update [<version>|latest|--list|--fix]"
+    },
+    {
+      "activation": [
+        {
+          "sourcePath": "docs/configuration.md",
+          "sourceSection": "strict-configuration-schema",
+          "suite": "cg"
+        }
+      ],
+      "aliases": [],
+      "availability": {
+        "evidence": [
+          {
+            "os": "any",
+            "sourcePath": ".github/prompts/cg-autopilot.prompt.md"
+          }
+        ],
+        "status": "conditional"
+      },
+      "category": "delivery",
+      "constraints": [
+        "Probe-only: production fresh and resume pipeline execution is not enabled.",
+        "Other adapters return unsupported-adapter without dispatch or effects.",
+        "Do not create a marker, report, cursor, commit or other file from the bootstrap stub."
+      ],
+      "definitionDigest": "776628ca9a8600b2235602c334d1a621ff280a3c1a16ed92a926a40806295c87",
+      "definitionSources": [
+        ".github/prompts/cg-autopilot.prompt.md"
+      ],
+      "documentationTargets": [],
+      "examples": [
+        "/cg-autopilot"
+      ],
+      "id": "slash:cg-autopilot",
+      "intents": [
+        "inspect autopilot bootstrap readiness",
+        "run an authorized read-only Kilo bootstrap probe"
+      ],
+      "kind": "slash",
+      "name": "/cg-autopilot",
+      "outputs": [
+        "Bounded bootstrap evidence or an explicit blocked result."
+      ],
+      "ownerModule": "suite-cg",
+      "prerequisites": [
+        "Kilo with the installed dedicated cg-autopilot primary agent and an explicitly authorized read-only bootstrap request."
+      ],
+      "relatedCommands": [
+        {
+          "id": "shell:cg-autopilot-control",
+          "relation": "related"
+        }
+      ],
+      "sourcePath": ".github/prompts/cg-autopilot.prompt.md",
+      "summary": "Coordinate Kilo autopilot bootstrap probes; production execution is not enabled.",
+      "supportedOS": [
+        "any"
+      ],
+      "supportedPlatforms": [
+        "kilo"
+      ],
+      "supportedSuites": [
+        "cg"
+      ],
+      "usage": "/cg-autopilot <authorized read-only bootstrap request>"
     },
     {
       "activation": [
@@ -1560,9 +1700,10 @@
       },
       "category": "delivery",
       "constraints": [
-        "Stops when required validation or staging checks fail."
+        "Stops when required validation or staging checks fail.",
+        "Validated autopilot stage mode prepares only and returns before staging, commit, push or PR creation."
       ],
-      "definitionDigest": "28dc378438267a0a791b005db1ed0c6dd68a0acfa83c936505ae3b81c9aa5c08",
+      "definitionDigest": "71700ad4e50994d3b4d34bfb16d55ce5cfee8c8c2904e7bd40e9e66e1df05b29",
       "definitionSources": [
         ".github/prompts/cg-commit-push-pr.prompt.md"
       ],
@@ -1629,7 +1770,7 @@
       "constraints": [
         "Do not document a fix before verification."
       ],
-      "definitionDigest": "2f3017a30df1f47608745245f151b2c2ce7f63441083e57b564132c0334d83b6",
+      "definitionDigest": "01c8982633bb61e1dc9123fb2654b0b0d3af2ce0b2cd2697fe1faee635e6b829",
       "definitionSources": [
         ".github/prompts/cg-compound.prompt.md"
       ],
@@ -2034,9 +2175,10 @@
       },
       "category": "assurance",
       "constraints": [
-        "Migration mode changes tracking metadata only."
+        "Migration mode changes tracking metadata only.",
+        "Validated autopilot stage mode applies only the bound report and eligible finding IDs; the parent arranges verification afterward."
       ],
-      "definitionDigest": "827b6a6166fad6e2737d7f2aae927edd3116fc4722cbd1feb19eea9587e1d62d",
+      "definitionDigest": "9846f9792272e724dd0a64a7dfa10cb4bcbc6f8eb735ad6c805a9220e0980174",
       "definitionSources": [
         ".github/prompts/cg-fix-triage.prompt.md"
       ],
@@ -2734,7 +2876,7 @@
       "constraints": [
         "Reports state and does not replace the active plan or review authority."
       ],
-      "definitionDigest": "37b40a1a870ec7432f40ff0345a27a37745726ea08ee35c744df1ab8d098e021",
+      "definitionDigest": "c336d6c06702c08a34c1e50029a756fbebb10ceb945869e25b567d5b7c6f327d",
       "definitionSources": [
         ".github/prompts/cg-resume.prompt.md"
       ],
@@ -2801,7 +2943,7 @@
       "constraints": [
         "Findings are primary and tests remain separate evidence."
       ],
-      "definitionDigest": "f7e2b7dfafdfc185b2192fbb63703ad3e0bc2b873e5f5412ad0224d848dee29a",
+      "definitionDigest": "9465d946e3f8b3998d2908bb6e3f86c8f642d75432657ac3c371fe2b3edacdc0",
       "definitionSources": [
         ".github/prompts/cg-review.prompt.md"
       ],
@@ -3218,7 +3360,7 @@
       "constraints": [
         "Propose mode is observe-only."
       ],
-      "definitionDigest": "a8fbc32ad38b94f9906b3ac4b6c2acc9e0ea48efa4a1cab7e05deade7e993139",
+      "definitionDigest": "b165770105b5bfaccb19f617c531477b530754bf36bd33f13ea827e0e86b1afb",
       "definitionSources": [
         ".github/prompts/cg-verify-pr.prompt.md"
       ],
@@ -3350,9 +3492,10 @@
       },
       "category": "delivery",
       "constraints": [
-        "Stops at blocked completion evidence and respects plan boundaries."
+        "Stops at blocked completion evidence and respects plan boundaries.",
+        "Does not create inline Plans; use the separate /cg-light-work route for a small technical task without a saved Plan."
       ],
-      "definitionDigest": "82d48406d238e25ee2f6e32cf9aad7f5db57c34aaea85087751598e6f09a6822",
+      "definitionDigest": "8a77158b1bea324f83d04192df99c6c02eb4db0ab2449e280ff85f64059d85ff",
       "definitionSources": [
         ".github/prompts/cg-work.prompt.md"
       ],
@@ -3377,12 +3520,16 @@
       ],
       "ownerModule": "suite-cg",
       "prerequisites": [
-        "A validated plan or an eligible lightweight task."
+        "An approved saved Plan that passes validation."
       ],
       "relatedCommands": [
         {
           "id": "slash:cg-review",
           "relation": "next"
+        },
+        {
+          "id": "slash:cg-light-work",
+          "relation": "related"
         }
       ],
       "sourcePath": ".github/prompts/cg-work.prompt.md",
@@ -3740,7 +3887,7 @@
   ],
   "generatorVersion": "1.0.0",
   "schemaVersion": 1,
-  "sourceDigest": "5250728a23b28aa8b8ca07e2379340cb9baed330ab4956be1efaba5fff8d9167",
+  "sourceDigest": "1c38dd0afd0e78025a4b8518b3533872282017d6a0bd4b1e8c33ad3a5493bc47",
   "suites": [
     {
       "activation": {

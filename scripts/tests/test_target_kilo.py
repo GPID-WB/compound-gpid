@@ -76,7 +76,8 @@ class TestKiloTreeStructure:
             content = agent_file.read_text(encoding="utf-8")
             fm = _frontmatter(content)
             assert fm.get("description"), f"Missing description: {agent_file}"
-            assert fm.get("mode") == "subagent", f"Missing subagent mode: {agent_file}"
+            expected_mode = "primary" if agent_file.name == "cg-autopilot.md" else "subagent"
+            assert fm.get("mode") == expected_mode, f"Wrong native mode: {agent_file}"
             assert "role" not in fm, f"Kilo agent has invalid role field: {agent_file}"
             assert content.split("---", 2)[-1].strip(), f"Missing agent prompt: {agent_file}"
 
@@ -116,3 +117,56 @@ class TestKiloModelInheritance:
     def test_root_adapter_references_kilo_paths(self) -> None:
         content = (REPO_ROOT / ".kilo/AGENTS.md").read_text(encoding="utf-8")
         assert ".kilo/commands" in content
+
+
+def test_typed_command_and_agent_metadata_emission() -> None:
+    """JSON flow maps are valid YAML and retain Boolean and permission types."""
+    target = next(t for t in gen.load_target_mapping(REPO_ROOT)["targets"] if t["id"] == "kilo")
+    target["assetMetadata"]["cg-autopilot.agent.md"]["permission"] = {
+        "task": {"cg-workflow-stage": "allow", "*": "ask"},
+        "read": "allow", "grep": "allow", "glob": "allow", "*": "deny",
+        "cg_native_identity": "ask", "cg_native_evidence": "ask"}
+    source = {"relative_path": ".github/prompts/cg-autopilot.prompt.md",
+              "frontmatter": {"description": "Probe"}, "body": "Probe"}
+    command = _frontmatter(gen._emit_command(source, target))
+    assert command["agent"] == "cg-autopilot"
+    assert json.loads(command["subtask"]) is False
+    source["relative_path"] = ".github/agents/cg-autopilot.agent.md"
+    agent = _frontmatter(gen._emit_agent(source, target))
+    assert agent["mode"] == "primary"
+    permissions = json.loads(agent["permission"])
+    assert permissions == {"*": "deny", "cg_native_evidence": "ask", "cg_native_identity": "ask",
+                           "glob": "allow", "grep": "allow", "read": "allow", "task": {"*": "ask", "cg-workflow-stage": "allow"}}
+    assert list(permissions) == ["*", "cg_native_evidence", "cg_native_identity", "glob", "grep", "read", "task"]
+    assert list(permissions["task"]) == ["*", "cg-workflow-stage"]
+
+
+def test_generated_bootstrap_permissions_are_explicit() -> None:
+    """Only exact bootstrap children are declared eligible; no runtime proof."""
+    parent = _frontmatter((REPO_ROOT / ".kilo/agents/cg-autopilot.md").read_text(encoding="utf-8"))
+    stage = _frontmatter((REPO_ROOT / ".kilo/agents/cg-workflow-stage.md").read_text(encoding="utf-8"))
+    leaf = _frontmatter((REPO_ROOT / ".kilo/agents/cg-bootstrap-leaf.md").read_text(encoding="utf-8"))
+    parent_task = json.loads(parent["permission"])["task"]
+    assert parent_task == {"*": "ask", "cg-workflow-stage": "allow"}
+    assert set(parent_task) == {"*", "cg-workflow-stage"}
+    stage_task = json.loads(stage["permission"])["task"]
+    assert stage_task == {
+        "*": "ask", "cg-code-quality": "allow", "cg-fix-problems": "allow", "cg-bootstrap-leaf": "allow"}
+    assert set(stage_task) == {"*", "cg-code-quality", "cg-fix-problems", "cg-bootstrap-leaf"}
+    leaf_permission = json.loads(leaf["permission"])
+    assert leaf["mode"] == "subagent"
+    assert "task" not in leaf_permission
+    assert leaf_permission == {
+        "*": "deny", "read": "allow", "glob": "allow", "grep": "allow",
+        "cg_native_identity": "ask",
+        "bash": {"*": "deny", "git branch --show-current*": "allow",
+                 "git rev-parse*": "allow", "git status --porcelain*": "allow"}}
+    assert "edit" not in leaf_permission
+    assert "webfetch" not in leaf_permission
+    assert "network" not in leaf_permission
+
+
+def test_ordinary_command_metadata_is_unchanged() -> None:
+    """cg-work keeps its standalone behavior and native model inheritance."""
+    fields = _frontmatter((REPO_ROOT / ".kilo/commands/cg-work.md").read_text(encoding="utf-8"))
+    assert set(fields) == {"description"}

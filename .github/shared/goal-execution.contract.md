@@ -190,6 +190,13 @@ filename does not start with this pattern, use the entire basename minus the
 5. **Incremental update**: update the report after phase completions, deviation
    decisions, accepted exceptions, test/evidence runs, and blocked stops.
 
+6. **Autopilot stage mode**: inside a validated autopilot work stage, the
+   child uses the envelope's exact plan and the plan-linked
+   `execution-report` identity (never newest-file selection) and retains its
+   direct execution-report write permission. It does not write the active-state
+   record; cursor updates travel as `cursor-update-request` entries through the
+   parent. Standalone invocations keep the lifecycle above unchanged.
+
 ### Report Sections
 
 - **Plan reference**: path to the plan file.

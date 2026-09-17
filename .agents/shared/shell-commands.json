@@ -2,6 +2,31 @@
   "schemaVersion": 1,
   "commands": [
     {
+      "id": "shell:cg-autopilot-control",
+      "name": "cg-autopilot-control",
+      "kind": "shell",
+      "ownerModule": "suite-cg",
+      "supportedSuites": ["cg"],
+      "category": "delivery",
+      "summary": "Inspect Kilo autopilot eligibility and prior control state without writing.",
+      "aliases": [],
+      "intents": ["inspect autopilot plan eligibility", "inspect prior autopilot control state"],
+      "usage": "cg-autopilot-control inspect --root <repo> --plan <path> --batches <segments> --base <branch> [--ci-timeout 30m]",
+      "examples": ["cg-autopilot-control inspect --root . --plan .cg-docs/plans/example.md --batches 1 --base origin/dev"],
+      "prerequisites": ["Python 3.8+, Git, and the installed Compound GPID helper with its Kilo command and contract."],
+      "outputs": ["Exit 0 with one JSON report on stdout for either eligible or blocked inspection; read status and blockers to determine eligibility. Argument, plan or operation errors exit 1 with diagnostics on stderr and no report."],
+      "constraints": ["Only inspect is enabled; other helper operations return operation-not-implemented.", "An explicit --root is required; the helper never selects the consumer root from its installation directory.", "--resume is mutually exclusive with --plan, --batches and --base.", "Inspection does not enable production autopilot execution."],
+      "relatedCommands": [{"id": "slash:cg-autopilot", "relation": "related"}],
+      "sourcePath": "bin/cg-autopilot-control",
+      "definitionSources": ["bin/cg-autopilot-control", "bin/cg-autopilot-control.cmd", "install.ps1", "scripts/cg_autopilot.py", "scripts/install.sh"],
+      "definitionDigest": "fe49cd33277caaa496d59c8fb68a52109df1ad1a1c3aedca45e88f11eae11d6b",
+      "documentationTargets": [],
+      "supportedPlatforms": ["kilo"],
+      "supportedOS": ["posix", "windows"],
+      "availability": {"status": "conditional", "evidence": [{"os": "posix", "sourcePath": "bin/cg-autopilot-control"}, {"os": "windows", "sourcePath": "bin/cg-autopilot-control.cmd"}]},
+      "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
+    },
+    {
       "id": "shell:cg-brain-init",
       "name": "cg-brain-init",
       "kind": "shell",
@@ -45,7 +70,7 @@
         "scripts/install.sh",
         "scripts/team_brain/init.py"
       ],
-      "definitionDigest": "86f5825176c8dbed1a663a559fbfe308ec37657457b1ea257a205fff606f293c",
+      "definitionDigest": "73ac1564629f0c48bafc32d6cd6c3435c6d1bc882cf6565035d9203d2852aefd",
       "documentationTargets": [],
       "supportedPlatforms": [
         "claude-code",
@@ -120,7 +145,7 @@
         "scripts/cg_summary.py",
         "scripts/install.sh"
       ],
-      "definitionDigest": "b468ce32c960e069e7b7d2a68ab18c992d0385d7a6001619ff8161985098e064",
+      "definitionDigest": "85f614d267a952160b6bb388a013d392b668d81a126e5ca64fceb69c5cb19cda",
       "documentationTargets": [],
       "supportedPlatforms": [
         "claude-code",
@@ -216,7 +241,7 @@
         "scripts/schemas/help_transport_schema.json",
         "scripts/secure_fs.py"
       ],
-      "definitionDigest": "5679917c11a0bb85b08634cdc130fe25c5eb5e7cac06df87d4815852f267d0da",
+      "definitionDigest": "da38008e95a67255681da55172acd4f07971ead760dcc3e9058e65c11486589d",
       "documentationTargets": [],
       "supportedPlatforms": [
         "claude-code",
@@ -298,7 +323,7 @@
         "scripts/cg_index.py",
         "scripts/install.sh"
       ],
-      "definitionDigest": "7240620209737779a36bd332b02e9f6131ad8e28090d09481ce1c8c85946f0aa",
+      "definitionDigest": "fd2b026039570ccd4a2594ca54e8fe6255c3d01e1d0db2cda6b20dfacf0c099f",
       "documentationTargets": [],
       "supportedPlatforms": [
         "claude-code",
@@ -381,7 +406,7 @@
         "scripts/cg_kilo_preflight.py",
         "scripts/install.sh"
       ],
-      "definitionDigest": "823a8f80d81ce05e1d86f16507706c4c2f811961e30ca2e628aed4b7c44f02b5",
+      "definitionDigest": "9aeec92871cd21c23179008c46656cc0012677626388adb931a3a2966907ea39",
       "documentationTargets": [
         {
           "path": "docs/installation.md",
@@ -473,7 +498,7 @@
         "scripts/link.ps1",
         "scripts/link.sh"
       ],
-      "definitionDigest": "e14e20c4672d1d68338ec86b07d2f28114ac89e5b74a6f997a331017e46b2192",
+      "definitionDigest": "8770660efedb7b0a4d4ed0dca1083bfc5a4c307bf319b8d657dd4f20e037be95",
       "documentationTargets": [
         {
           "path": "docs/installation.md",
@@ -553,7 +578,7 @@
         "scripts/cg_summary.py",
         "scripts/install.sh"
       ],
-      "definitionDigest": "34b49e620db47683d91c10921012c7dc41e3780531d53cbcefee245fb1b354c4",
+      "definitionDigest": "2e7b5f98656bdf87bb656fe26fedca1dc93f3edc31da327c3233539672b73fff",
       "documentationTargets": [],
       "supportedPlatforms": [
         "claude-code",
@@ -628,7 +653,7 @@
         "scripts/cg_summary.py",
         "scripts/install.sh"
       ],
-      "definitionDigest": "7fb4e1c3646a199a8b52090df775229fc728081061f2c4c82e3e79d809451113",
+      "definitionDigest": "941f59d3e2e0d19c273f50277399153dd6b9e8177d9ed1d22111e1088304ac3c",
       "documentationTargets": [],
       "supportedPlatforms": [
         "claude-code",
@@ -710,7 +735,7 @@
         "scripts/install.sh",
         "scripts/publish_markdown.py"
       ],
-      "definitionDigest": "9404e508a700ca2b2a31ef9fcc99bd10eea7a925075461d142284cd6891c3c39",
+      "definitionDigest": "7d84366cdeafce10c69bfc93185c0ef26929687b3e72d03c55239e75f6dfc39a",
       "documentationTargets": [],
       "supportedPlatforms": [
         "claude-code",
@@ -796,7 +821,7 @@
         "scripts/cg_release_cli.py",
         "scripts/install.sh"
       ],
-      "definitionDigest": "54d681043430cf382591e868d94890f250db1135776bdc7b997eb49814d7d46e",
+      "definitionDigest": "73a858a44c24cd3672f0f4a5e9b0b4e927060586512fc3e44829f0f81bf99797",
       "documentationTargets": [],
       "supportedPlatforms": [
         "claude-code",
@@ -878,7 +903,7 @@
         "scripts/install.sh",
         "scripts/render_artifact.py"
       ],
-      "definitionDigest": "3842892d512b127e3018e1172a10d433b2a80e7ec1af95014e07610d54ac2116",
+      "definitionDigest": "de0cac18afce9ce7ee066751d2aa4034ac46d595790c8c95de7df34a7149d87c",
       "documentationTargets": [],
       "supportedPlatforms": [
         "claude-code",
@@ -960,7 +985,7 @@
         "scripts/cg_skill.py",
         "scripts/install.sh"
       ],
-      "definitionDigest": "813f0ae08667243870129e1bf476f11375bdf7960021ea1c2d509bb01b21c8d3",
+      "definitionDigest": "1d284ccefbcefc7686bbf03e0b7af03e5c86ecdc2ac64f22c58c7b135cc035b7",
       "documentationTargets": [
         {
           "path": "docs/skills/management/index.md",
@@ -1040,7 +1065,7 @@
         "scripts/cg_summary.py",
         "scripts/install.sh"
       ],
-      "definitionDigest": "f052539fd12d282f69ba6e3b82355c59a7239749d825aa5fba6294983c81d8cc",
+      "definitionDigest": "5b7f60218b3e3b543f97617bf2624fae14abaf2105959c907bdfe1f21bb6ca7f",
       "documentationTargets": [],
       "supportedPlatforms": [
         "claude-code",
@@ -1117,7 +1142,7 @@
         "scripts/cg_audit_context.py",
         "scripts/install.sh"
       ],
-      "definitionDigest": "b93a9f78f20620b6d0103701b20893977be307acb122ee6ea76a6e37da9e16b3",
+      "definitionDigest": "d49f14ffbcb5d8ac3783e016e9025e66a27b1a6ef82b23b52e828e8eb3f53825",
       "documentationTargets": [],
       "supportedPlatforms": [
         "claude-code",
@@ -1192,7 +1217,7 @@
         "scripts/cg_summary.py",
         "scripts/install.sh"
       ],
-      "definitionDigest": "95244409d08f90e3b8e2f68afd7f362cf7fd033c81f05c2d99f09b38ec4031d2",
+      "definitionDigest": "b2ccb022bd33f6cbda6fa199567d364eb2bc7acba694a73c14e8536ab37327d3",
       "documentationTargets": [],
       "supportedPlatforms": [
         "claude-code",
@@ -1270,7 +1295,7 @@
         "scripts/unlink.ps1",
         "scripts/unlink.sh"
       ],
-      "definitionDigest": "9f0b31bc557e42bfbdcc96b9fc466bda759fc8ea76029beddb419fcab6e40258",
+      "definitionDigest": "7db2d8942725701eff9873563f58c6f621b07dbf4b137c81336a46022bf6363b",
       "documentationTargets": [
         {
           "path": "docs/installation.md",
@@ -1358,7 +1383,7 @@
         "scripts/update.ps1",
         "scripts/update.sh"
       ],
-      "definitionDigest": "7a139c31de8beb55448fec41f8689787855380b7d19b8f735b8212b6cd88e12d",
+      "definitionDigest": "dea2f355da295d0098af176e211d2a2956a9deeaece0829e7aa511be349b790e",
       "documentationTargets": [
         {
           "path": "docs/versioning.md",

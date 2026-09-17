@@ -3,8 +3,8 @@
   "category": "assurance", "summary": "Apply all or selected findings from a saved review report.", "aliases": [],
   "intents": ["apply code review findings", "fix selected review priorities"], "usage": "/cg-fix-triage [P0|P1|finding-id|--migrate]", "examples": ["/cg-fix-triage P0 P1"],
   "prerequisites": ["A saved review report with open findings."], "outputs": ["Verified fixes and updated finding status."],
-  "constraints": ["Migration mode changes tracking metadata only."], "relatedCommands": [{"id": "slash:cg-review", "relation": "next"}],
-  "sourcePath": ".github/prompts/cg-fix-triage.prompt.md", "definitionSources": [".github/prompts/cg-fix-triage.prompt.md"], "definitionDigest": "827b6a6166fad6e2737d7f2aae927edd3116fc4722cbd1feb19eea9587e1d62d",
+  "constraints": ["Migration mode changes tracking metadata only.", "Validated autopilot stage mode applies only the bound report and eligible finding IDs; the parent arranges verification afterward."], "relatedCommands": [{"id": "slash:cg-review", "relation": "next"}],
+  "sourcePath": ".github/prompts/cg-fix-triage.prompt.md", "definitionSources": [".github/prompts/cg-fix-triage.prompt.md"], "definitionDigest": "9846f9792272e724dd0a64a7dfa10cb4bcbc6f8eb735ad6c805a9220e0980174",
   "documentationTargets": [], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["any"],
   "availability": {"status": "available", "evidence": [{"os": "any", "sourcePath": ".github/prompts/cg-fix-triage.prompt.md"}]},
   "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]

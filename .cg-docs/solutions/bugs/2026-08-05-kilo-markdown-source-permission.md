@@ -79,4 +79,4 @@ When adding a new platform to the multi-platform link system, the platform-speci
 
 ## Related
 
-None.
+- `.cg-docs/solutions/bugs/2026-09-16-kilo-deny-first-task-baseline-blocks-subagent-dispatch.md`

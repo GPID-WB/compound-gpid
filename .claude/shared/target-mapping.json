@@ -167,6 +167,55 @@
       "argumentSource": {"source": "generated-block", "token": "$ARGUMENTS", "fidelity": "model-visible"},
       "name": "Kilo",
       "generatedTreePath": ".kilo",
+      "assetMetadata": {
+        "cg-autopilot.prompt.md": {
+          "agent": "cg-autopilot",
+          "subtask": false
+        },
+        "cg-autopilot.agent.md": {
+          "mode": "primary",
+          "permission": {
+            "*": "deny",
+            "read": "allow",
+            "glob": "allow",
+            "grep": "allow",
+            "cg_native_identity": "ask",
+            "cg_native_evidence": "ask",
+            "task": {"*": "ask", "cg-workflow-stage": "allow"}
+          }
+        },
+        "cg-bootstrap-leaf.agent.md": {
+          "mode": "subagent",
+          "permission": {
+            "*": "deny",
+            "read": "allow",
+            "glob": "allow",
+            "grep": "allow",
+            "cg_native_identity": "ask",
+            "bash": {
+              "*": "deny",
+              "git branch --show-current*": "allow",
+              "git rev-parse*": "allow",
+              "git status --porcelain*": "allow"
+            }
+          }
+        },
+        "cg-fix-problems.agent.md": {
+          "permission": {"task": {"*": "ask", "general": "allow"}}
+        },
+        "cg-workflow-stage.agent.md": {
+          "mode": "subagent",
+          "permission": {
+            "*": "deny",
+            "read": "allow",
+            "glob": "allow",
+            "grep": "allow",
+            "cg_native_identity": "ask",
+            "cg_native_evidence": "ask",
+            "task": {"*": "ask", "cg-code-quality": "allow", "cg-fix-problems": "allow", "cg-bootstrap-leaf": "allow"}
+          }
+        }
+      },
       "capabilities": {
         "supportsNativeCommands": true,
         "supportsNativeSkills": true,

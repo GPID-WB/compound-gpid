@@ -89,6 +89,7 @@ def _canonical_categories(root: Path) -> dict[str, list[str]]:
         "skills": [],
         "instructions": [],
         "shared": [],
+        "native_plugins": [],
     }
     prompt_globs = [
         ".github/prompts/*.prompt.md",
@@ -103,6 +104,8 @@ def _canonical_categories(root: Path) -> dict[str, list[str]]:
         ("agents", agent_globs),
         ("skills", skill_globs),
         ("instructions", instruction_globs),
+        ("native_plugins", [".github/plugins/*.js", ".github/plugins/*.ts",
+                            ".github/plugin-support/cg-native-evidence/*.mjs"]),
     ):
         for pattern in globs:
             for path in sorted(root.glob(pattern)):

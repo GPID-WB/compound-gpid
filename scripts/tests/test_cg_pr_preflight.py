@@ -622,3 +622,25 @@ def test_generic_e2e_consumes_declared_capability_without_host_probe() -> None:
     assert "CG_KILO_CAPABILITY" in block
     assert "generic-not-applicable" in block
     assert "kilo debug skill" not in block
+
+
+def test_base_resolution_preserves_existing_pr_precedence_for_standalone() -> None:
+    # The standalone resolver keeps its documented precedence: an existing PR
+    # base wins over the explicit and default values. Autopilot publication
+    # must never reuse this silently-adopting precedence (see the focused
+    # ordering guard below), but standalone behavior stays unchanged.
+    assert preflight.resolve_base_branch("feature-base", "main", "main") == "feature-base"
+    assert preflight.resolve_base_branch(None, "explicit", "main") == "explicit"
+    assert preflight.resolve_base_branch(None, "", "main") == "main"
+
+
+def test_autopilot_publication_requires_selected_base_before_existing_pr() -> None:
+    # Step 10 (publication reconciliation): the selected base precedes any
+    # existing-PR base resolution, so a conflicting PR base is detected instead
+    # of being adopted through the standalone resolver above.
+    from autopilot import queries as pub
+
+    assert pub.require_selected_base("origin/dev") == "origin/dev"
+    for missing in (None, "", "   "):
+        with pytest.raises(pub.QueryError, match="base-required"):
+            pub.require_selected_base(missing)

@@ -69,9 +69,6 @@ LIFECYCLE_CONTRACT_SOURCES = (
 )
 EXPECTED_PLAN_TARGETS = set(COMMIT_PUSH_COMMAND_PATHS) | {"copilot"}
 SOURCE_MARKER = ".compound-gpid-source.json"
-PHASE_2_DEFERRED_TARGET_SOURCES = {
-    ".github/prompts/cg-commit-push-pr.prompt.md",
-}
 
 
 def _write(path: Path, content: str) -> Path:
@@ -144,18 +141,6 @@ def _worktree_output_mismatches(
         ):
             mismatches.append(f"content:{entry.destination}")
     return mismatches
-
-
-def _phase_2_fixture_manifest_view(manifest: dict) -> dict:
-    """Remove only target records deferred until Phase 5 integration."""
-    return {
-        **manifest,
-        "files": [
-            item
-            for item in manifest.get("files", [])
-            if item.get("source") not in PHASE_2_DEFERRED_TARGET_SOURCES
-        ],
-    }
 
 
 def _make_fixture_repo(tmp_path: Path) -> Path:
@@ -1231,16 +1216,6 @@ class TestGenerationPlan:
         output_mismatches = _worktree_output_mismatches(
             REPO_ROOT, plan.entries, copilot_destinations
         )
-        deferred_destinations = {
-            entry.destination
-            for entry in plan.entries
-            if entry.source in PHASE_2_DEFERRED_TARGET_SOURCES
-        }
-        output_mismatches = [
-            mismatch
-            for mismatch in output_mismatches
-            if mismatch.split(":", 1)[1] not in deferred_destinations
-        ]
 
         manifest_mismatches = []
         disk_manifest_paths = {}
@@ -1253,13 +1228,10 @@ class TestGenerationPlan:
                 continue
 
             disk_bytes = disk_path.read_bytes()
+            if disk_bytes != expected_bytes:
+                manifest_mismatches.append(f"content:{manifest_path}")
             try:
                 disk_manifest = json.loads(disk_bytes.decode("utf-8"))
-                expected_manifest = json.loads(expected_bytes.decode("utf-8"))
-                if _phase_2_fixture_manifest_view(
-                    disk_manifest
-                ) != _phase_2_fixture_manifest_view(expected_manifest):
-                    manifest_mismatches.append(f"content:{manifest_path}")
                 disk_manifest_paths[target_id] = {
                     item["path"] for item in disk_manifest["files"]
                 }

@@ -15,6 +15,33 @@ You implement `/cg-plan` output with phase/review/deviate controls.
 - You may create/modify compact active-state records under `.cg-docs/active-state/`.
 - You must NOT modify `roadmap.json` directly -- dispatch `@cg-roadmap` for all roadmap writes.
 
+## Stage Mode: Validated Autopilot Entry
+
+Stage mode activates only when the caller supplies a validated autopilot stage
+envelope naming stage `work`. Standalone invocations keep the ordinary lifecycle
+below unchanged.
+
+- Use the envelope's exact plan path and phase; never fall back to plan
+  recency selection and never execute a different phase.
+- Execute only that phase and return at the phase boundary: do not start the
+  next phase and do not run the final whole-plan evidence or roadmap gates for
+  work the parent did not authorize.
+- In stage mode, never write `.cg-docs/active-state/current.json`. For every
+  report-created, phase-boundary and blocked-stop lifecycle point, emit one
+  bounded `cursor-update-request` with exactly `expected-revision`,
+  `event-kind`, `plan-ref` and `report-ref`; never supply cursor bytes.
+- Keep direct writes to the plan's progress frontmatter, the plan-linked
+  execution report and ordinary code/test files.
+- Before your first substantive write in stage mode, record the one-way effect
+  receipt through the control helper's `begin-effect` operation for the
+  envelope operation ID.
+- On exit, persist the closed stage result through the control helper's
+  `record-result` operation: status `succeeded`, `failed`, `blocked` or
+  `needs-input`, exact heads, change-manifest hash, frozen test references
+  and the accumulated cursor-update requests. Semantic decisions return
+  `needs-input` with exact advertised option labels and scope, never a
+  free-form question.
+
 ## Process
 
 ### Step 0: Get Bearings
@@ -118,6 +145,9 @@ Do NOT call `gh`, create issues, or block work.
 stops, and completion, update `.cg-docs/active-state/current.json` per contract:
 refs, decisions, evidence status, exact `nextCommand`;
 no full bodies, raw output, diffs, or transcripts.
+In a validated autopilot stage, replace every such active-state write with a
+`cursor-update-request` entry in the stage result (see Stage Mode above);
+standalone invocations keep these direct lifecycle writes.
 
 ### Step 1.6: Build Test Index
 

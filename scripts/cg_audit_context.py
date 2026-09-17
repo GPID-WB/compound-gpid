@@ -269,6 +269,7 @@ WORKFLOW_REGISTRY = (
     {"workflow_id": "cg-fix-triage", "workflow": "/cg-fix-triage", "path": ".github/prompts/cg-fix-triage.prompt.md"},
     {"workflow_id": "cg-compound", "workflow": "/cg-compound", "path": ".github/prompts/cg-compound.prompt.md"},
     {"workflow_id": "cg-resume", "workflow": "/cg-resume", "path": ".github/prompts/cg-resume.prompt.md"},
+    {"workflow_id": "cg-autopilot", "workflow": "/cg-autopilot", "path": ".github/prompts/cg-autopilot.prompt.md"},
     {"workflow_id": "cg-diagnose", "workflow": "/cg-diagnose", "path": ".github/prompts/cg-diagnose.prompt.md"},
     {"workflow_id": "cg-token-audit", "workflow": "/cg-token-audit", "path": ".github/prompts/cg-token-audit.prompt.md"},
 )

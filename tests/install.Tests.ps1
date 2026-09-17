@@ -610,6 +610,81 @@ Describe "install.ps1 - cg-token-audit.cmd copy" {
     }
 }
 
+Describe "install.ps1 - cg-autopilot-control.cmd copy" {
+    Context "single source of truth" {
+        It "cg-autopilot-control.cmd exists in the committed bin/ directory" {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $cmdFile  = Join-Path $repoRoot "bin\cg-autopilot-control.cmd"
+            Test-Path $cmdFile | Should -Be $true
+        }
+
+        It "cg-autopilot-control.cmd contains the for /f Python resolution pattern" {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $cmdFile  = Join-Path $repoRoot "bin\cg-autopilot-control.cmd"
+            $content  = Get-Content $cmdFile -Raw
+            ($content -match 'for /f') | Should -Be $true
+        }
+
+        It "cg-autopilot-control.cmd guards each python probe with a 'where' pre-check to prevent stderr leak" {
+            # Regression guard: without the 'where' pre-check, for /f
+            # ('python3 --version 2^>^&1') leaks the "'python3' is not
+            # recognized" error to outer stderr when python3 is absent from
+            # PATH (NativeCommandError under PowerShell).
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $cmdFile  = Join-Path $repoRoot "bin\cg-autopilot-control.cmd"
+            $content  = Get-Content $cmdFile -Raw
+            ($content -match 'where python3\s+>nul') | Should -Be $true
+            ($content -match 'where python\s+>nul')  | Should -Be $true
+            ($content -match 'where py\s+>nul')      | Should -Be $true
+        }
+
+        It "cg-autopilot-control.cmd rejects Windows Store stubs with the Python version check" {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $cmdFile  = Join-Path $repoRoot "bin\cg-autopilot-control.cmd"
+            $content  = Get-Content $cmdFile -Raw
+            ($content -match 'findstr /i "\^Python \[0-9\]"') | Should -Be $true
+            ($content -match 'sys\.version_info\s*>=\s*\(3,\s*8\)') | Should -Be $true
+        }
+
+        It "cg-autopilot-control.cmd references cg_autopilot.py wrapper-relative" {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $cmdFile  = Join-Path $repoRoot "bin\cg-autopilot-control.cmd"
+            $content  = Get-Content $cmdFile -Raw
+            ($content -match 'cg_autopilot\.py') | Should -Be $true
+            ($content -match '%~dp0\.\.\\scripts\\cg_autopilot\.py') | Should -Be $true
+        }
+
+        It "install.ps1 copies cg-autopilot-control.cmd rather than generating it inline" {
+            $repoRoot      = Split-Path $PSScriptRoot -Parent
+            $installScript = Get-Content (Join-Path $repoRoot "install.ps1") -Raw
+            ($installScript -match 'cgAutopilotControlCmdSrc.*cg-autopilot-control\.cmd') | Should -Be $true
+            ($installScript -match 'Copy-Item.*cgAutopilotControlCmdSrc') | Should -Be $true
+        }
+
+        It "does not throw when cg-autopilot-control.cmd source and destination are the same path" {
+            $compoundDir = Join-Path $TestDrive ".compound-gpid"
+            $binDir      = Join-Path $compoundDir "bin"
+            New-Item -ItemType Directory -Path $binDir -Force | Out-Null
+
+            $src = Join-Path $compoundDir "bin\cg-autopilot-control.cmd"
+            $dst = Join-Path $binDir "cg-autopilot-control.cmd"
+            Set-Content -Path $src -Value "@echo off" -NoNewline
+
+            {
+                if (Test-Path $src) {
+                    $srcFull = [System.IO.Path]::GetFullPath($src)
+                    $dstFull = [System.IO.Path]::GetFullPath($dst)
+                    if ($srcFull -ieq $dstFull) {
+                        $null = $true
+                    } else {
+                        Copy-Item -Path $src -Destination $dst -Force -ErrorAction Stop
+                    }
+                }
+            } | Should -Not -Throw
+        }
+    }
+}
+
 Describe "install.ps1 - cg-skill.cmd copy" {
     Context "single source of truth" {
         BeforeAll {
@@ -762,7 +837,8 @@ Describe "Python-backed CMD launchers - runtime selection and status parity" {
         "cg-brain-init.cmd",
         "cg-token-audit.cmd",
         "cg-render-artifact.cmd",
-        "cg-publish-markdown.cmd"
+        "cg-publish-markdown.cmd",
+        "cg-autopilot-control.cmd"
     )
     $launcherCases = @($launchers | ForEach-Object { @{ Launcher = $_ } })
 

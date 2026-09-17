@@ -27,6 +27,7 @@ For a guided first research workflow, use the [Research Handbook](../research/in
 | A solved problem should be reusable | `/cg-compound` | `/cg-brain-rebuild` when the Brain needs refreshing |
 | CI is failing on a pull request | `/cg-verify-pr` | Apply confirmed fixes and rerun checks |
 | VS Code or Positron crashed | `/cg-diagnose` | Follow the bounded recovery path |
+| A phased plan should run end to end under supervision (Kilo) | `/cg-autopilot` | Stage batches continue through review, compound, publish, and PR verification |
 | A research question or method is unclear | `/cr-brainstorm` | `/cr-plan` |
 | A research plan is ready | `/cr-work` | `/cr-review`, then `/cr-compound` |
 
@@ -52,6 +53,17 @@ uses `/cr-*`. Larger, ambiguous, security-sensitive, schema, dependency, or
 destructive work uses `/cg-brainstorm` -> `/cg-plan` -> `/cg-work`. `/cg-work`
 executes approved saved Plans and redirects unmatched inline tasks without
 dispatching them.
+
+`/cg-autopilot` (Kilo only) runs a strict phased plan as supervised batches
+instead of invoking `/cg-work` phase by phase: work stages per phase, then one
+preparation, review, triage, compound, publish, and PR-verification pass per
+batch. It is probe-only until native qualification completes; the specified
+operating contract, including repair-round caps, deadline extension, and
+recovery without force, is documented in the [Autopilot (Kilo) Operating
+Contract](../reference.md) section of the complete reference. If a run was
+interrupted, `/cg-resume` detects the unfinished autopilot run and recommends
+the exact `/cg-autopilot --resume .cg-docs/active-state/current.json` command
+before any phase-only suggestion.
 
 ## Focused guides
 

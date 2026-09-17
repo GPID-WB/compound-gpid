@@ -30,9 +30,22 @@ OWNERSHIP_MANIFESTS = {
     ".opencode/.compound-gpid-generated.json",
     ".kilo/.compound-gpid-generated.json",
 }
-PHASE_2_DEFERRED_CHANGED_TARGET_SOURCES = {
-    ".github/prompts/cg-commit-push-pr.prompt.md",
-}
+
+
+def test_generation_does_not_own_user_root_kilo_config() -> None:
+    """The user depth override at kilo.json is outside every generated output."""
+    plan = _build_structured_plan(REPO_ROOT)
+    assert all(entry.destination != "kilo.json" for entry in plan.entries)
+
+
+@pytest.mark.parametrize("target_id", ["claude-code", "codex", "opencode"])
+def test_unsupported_generated_autopilot_entry_has_stop(target_id: str) -> None:
+    """Unsupported adapters remain discoverable with an explicit stop."""
+    plan = _build_structured_plan(REPO_ROOT)
+    entries = [entry for entry in plan.entries if entry.target_id == target_id
+               and entry.destination.endswith("commands/cg-autopilot.md")]
+    assert len(entries) == 1
+    assert b"unsupported-adapter" in entries[0].content
 
 
 def _build_structured_plan(root: Path) -> gen.GenerationPlan:
@@ -330,16 +343,7 @@ class TestNoDrift:
 
         # Compare only files that are both expected and committed to avoid
         # duplicate reporting with stale/orphaned path tests above.
-        deferred_destinations = {
-            entry.destination
-            for entry in _build_structured_plan(REPO_ROOT).entries
-            if entry.source in PHASE_2_DEFERRED_CHANGED_TARGET_SOURCES
-        }
-        overlap = sorted(
-            (expected_committed & committed)
-            - deferred_destinations
-            - OWNERSHIP_MANIFESTS
-        )
+        overlap = sorted(expected_committed & committed)
         assert overlap, "No overlapping generated files to compare"
 
         with tempfile.TemporaryDirectory() as tmp_dir:

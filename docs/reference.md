@@ -129,6 +129,7 @@ evaluation-only: `local-workflow` remains the only active mode.
 | `cg-diff-summary --root . --format md` | Project root | Summarize changed files, hunks, and risk tags while storing the full redacted diff artifact. |
 | `cg-log-summary --root . --format json` | Project root | Summarize branch-local first-parent commits and notable files. |
 | `cg-tree-summary --root . --max-entries 120 --format md` | Project root | Summarize a bounded repository tree while excluding generated outputs, dependencies, and caches. |
+| `cg-autopilot-control inspect --root <path> [--plan <path>] [--batches <segments>] [--base <branch>] [--resume <cursor>]` | Project root | Read-only Kilo autopilot control helper. Prints one JSON report on stdout with `"status": "eligible"` or `"blocked"`; completed inspections exit 0 for either status, so callers must inspect `status` and `blockers`. Invocation errors exit 1 without a report; diagnostics go to stderr. Never writes and never derives the project root from its install location. All other helper operations return `operation-not-implemented` until native qualification completes. |
 | `cg-problems-summary --root . --input problems.json --format json` | Project root | Summarize optional diagnostics JSON or text; reports unavailable when no diagnostics input is provided. |
 | `python scripts/cg_project_manifest.py [--root <path>] [--output <path>] [--platforms copilot,kilo] [--validate] [--check-stale <manifest>] [--ensure-state]` | Project root | `cg-project-manifest` — resolve and validate the canonical committed active project manifest (`.compound-gpid/active-manifest.json`) from the strict config plus the versioned module registry. Records config/registry hashes, schema versions (`config-schema-version`), selected suites, derived and explicit capabilities, the resolved module closure, canonical platform ids, platform eligibility, and the projection plan digest. Immutable selection validity is separated from mutable projection ownership. Exit codes: `0` success, `1` resolution/validation failure, `2` missing or invalid project root. |
 | `python scripts/cg_projection_benchmark.py [--root <path>] [--profiles cg-only,cr-only,mixed,capability-python] [--validate]` | Project root | `cg-projection-benchmark` — emit deterministic before-state profile baseline matrices (`.cg-docs/cost/skill-loading-baseline.json` + `.md`) for projection. Per profile: requested command/capability, expected route, expected hard-stop or catalog summary, expected inventory digest, and a supported-host procedure. Token estimates are heuristic (chars/4) and never claim savings; unavailable required host evidence is a blocking `unavailable`, never a zero. Exit codes: `0` success, `1` validation/oracle failure, `2` missing or invalid project root. |
@@ -166,6 +167,7 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 <!-- cg:auto:commands -->
 | Prompt | Model | Purpose |
 |--------|-------|---------|
+| `/cg-autopilot` | Copilot model picker | Coordinate Kilo autopilot bootstrap probes; production execution is not enabled. |
 | `/cg-brain-rebuild` | Copilot model picker | Rebuild the project knowledge brain (BRAIN.md + indexes). |
 | `/cg-brainstorm` | Copilot model picker | Brainstorm answers about what to build and how. Use when requirements are fuzzy. |
 | `/cg-commit-push-pr` | Copilot model picker | Stage changes into logical commits, push, and open a PR with plan-driven description. |
@@ -258,6 +260,107 @@ default branch, checks out that trusted ref, compares the preflight-reported
 executable version and SHA-256 before launch, and uploads `kilo-preflight.json`
 and inventory evidence. Missing configuration produces a neutral
 `generic-not-applicable` summary; generic CI never claims real-host integration.
+
+### Autopilot (Kilo) Operating Contract
+
+`/cg-autopilot` coordinates phased plan batches end to end through stage
+children. This section documents the specified operating contract. Production
+execution is not enabled yet: the command is probe-only today and returns
+`blocked: bootstrap-only` for fresh/resume pipeline arguments until native
+qualification completes. The control modules under `scripts/autopilot/` and
+the journey tests under `scripts/tests/` validate the contract offline.
+
+**Command forms** (documented syntax; examples do not use invented flags):
+
+```text
+/cg-autopilot --plan .cg-docs/plans/<plan>.md --batches 1-3 --base origin/dev
+/cg-autopilot --resume .cg-docs/active-state/current.json
+```
+
+A strict v1 phased plan is required: validation rejects oversized plans,
+missing completion-contract sections, duplicate phase numbers, and a current
+phase outside the completed prefix. Fresh runs require a clean checkout of the
+release branch and an explicitly selected base; the required base is recorded in
+the marker and cursor and every publication/CI observation rechecks exact
+repository, PR, head, and base instead of inferring them.
+
+**Stage ordering** is enforced: work (one stage per phase) → prepare-publication
+→ review → (triage → prepare-publication → verify-review) → compound →
+publish → verify-pr → next batch. Generation precedes affected review;
+review always precedes preparation of the reviewed payload, and publication
+cannot push payload drift — regenerating a drifted inventory invalidates the
+intent and returns to preparation plus affected review. Only the parent writes
+the versioned cursor; stage children return `cursor-update-request` events
+(report-created, phase-boundary, blocked-stop) and the parent checkpoints
+expected bytes after settle and read-back.
+
+**Scoped approvals and repair rounds.** Review findings first ask a scoped
+question before any effect; an acknowledged needs-input settles
+`released-no-effect` only when the parent verifies unchanged HEAD, index,
+worktree, plan, report, and remote identities and no test or external action
+started. Partial effects charge the round; failed and uncertain attempts keep
+their charge; reservations are never refunded. Caps: two charged review/fix
+rounds per batch, two CI rounds per repository PR across batches and resumes
+(counted from `CI-Fix-Round: <PR>/<round>` trailers in `$mergeBase..HEAD`).
+Canceled CI is never implicit success; at most one explicitly approved rerun
+per batch is accepted.
+
+**CI observation and deadline extension.** Observation waits on pending checks,
+routes failure/timeout to exact diagnosis through `gh run view <run-id> --job
+<job-id> --log-failed` with redaction and an 8 KiB diagnostic bound, and blocks
+on missing, stale, or malformed rolls. One immutable original UTC deadline is
+recorded at first observation. `extend-ci-deadline` is parent-only, applies
+exactly once from an explicit approval with a duration and exact scope, moves
+only the waiting deadline (never repair slots, permissions, or evidence gates),
+stores old/new/original values plus history, and replays the same request ID
+idempotently. A changed scope, a shorter deadline, or a missing observation
+requires a new decision instead of silent rebasing.
+
+**Consumer-owned reproduction.** Source classification uses tracked canonical
+evidence, never helper location or directory existence; consumers without a
+local Compound GPID scripts/test layout reproduce failures with validated
+consumer test argv through the verified general execution leaf, never installed
+source tests. Pester always runs through the canonical safe execution-child
+runner.
+
+**Limits and nesting.** Whole-document reads are complete-file bounded
+evidence (2 MiB per document, 128 MiB aggregate per validation operation);
+parent frames are bounded (8192 bytes per returned frame, 65536 cumulative
+bytes per primary context) and exhaustion pauses before another dispatch —
+never truncates and never resets within a session. Conditional nesting is
+limited (at most three depth levels with full input validation at each), and
+runtime qualification is separate from semantic approval: a matching hash or
+effect-start receipt records that an operation wrote before proceeding and
+does not prove correctness or unchanged state; envelopes are correlation
+records, not security credentials; the coordination marker is an ownership
+record, not a lock against a privileged writer.
+
+**Installed helper setup.** The control helper `cg-autopilot-control` is
+installed with the other shell commands from `bin/`. Its only enabled
+operation is a read-only `inspect`:
+
+```text
+cg-autopilot-control inspect --root . [--plan <path>] [--batches <segments>] [--base <branch>] [--resume <cursor>]
+```
+
+`inspect` prints one JSON report on stdout (`"status": "eligible"` or
+`"blocked"` with normalized specs or typed blockers). Completed inspections
+exit 0 for either status; callers must inspect `status` and `blockers` rather
+than infer eligibility from the exit code. Invocation errors exit 1 without
+a report. The helper keeps diagnostics on stderr and never writes or derives a
+project root from its install location. Remaining operations answer
+`operation-not-implemented` until native qualification completes.
+
+**Recovery without force.** An interrupted run reconciles through the
+read-only resume path first: the parent reloads the marker and cursor,
+detects open transactions, interrupted effects, and unacknowledged results,
+and finishes an interrupted checkpoint only with the exact expected payload
+digest. Quarantined and foreign bytes stay in place as evidence and block
+progression instead of being overwritten. Do not delete markers, rewrite the
+cursor by hand, force-push, or run broad git repairs to resolve control
+state. The advanced ideas `autopilot-hard-stage-deadlines` and
+`autopilot-enforced-writer-isolation` remain deferred roadmap items and are
+not part of the current contract.
 
 ### Research Suite Commands
 

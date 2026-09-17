@@ -170,6 +170,36 @@ def test_valid_manifest_shared_command_and_deterministic_render(source, tmp_path
                                             requestId=REQUEST, result=first))
 
 
+@pytest.mark.parametrize("text", ["", "/cg-help", "shell:cg-skill", "review"])
+def test_workflow_pointer_changes_do_not_affect_help(source, tmp_path, text):
+    """Workflow restart pointers are not help activation or catalog inputs."""
+    root = project(source, tmp_path / "consumer")
+    expected = ask(root, source, text)
+    assert expected["state"] != "error"
+    for base in (root, source):
+        path = base / ".cg-docs/active-state/current.json"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        for branch, phase in (("cg-autopilot", 6), ("wealthy-salmonberry", 5)):
+            state = {
+                "schemaVersion": "compound-gpid-active-state-v1",
+                "updatedAt": "2026-09-16T15:33:12Z",
+                "workflow": "/cg-work",
+                "status": "active",
+                "branch": branch,
+                "plan": None,
+                "executionReport": None,
+                "currentPhase": phase,
+                "evidenceStatus": [],
+                "unresolvedDecisions": [],
+                "artifactRefs": [],
+                "nextCommand": "/cg-compound" if phase == 6 else "/cg-work phase5",
+            }
+            content = json.dumps(state).encode("utf-8")
+            path.write_bytes(content)
+            assert ask(root, source, text) == expected
+            assert path.read_bytes() == content
+
+
 @pytest.mark.parametrize("change", ["missing", "config", "suite", "closure", "platform", "registry", "command", "duplicate"])
 def test_incomplete_or_contradictory_activation_is_error(source, tmp_path, change):
     """No unverified active command is recommended on any activation failure."""

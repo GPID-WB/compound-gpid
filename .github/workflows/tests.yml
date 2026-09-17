@@ -278,6 +278,9 @@ jobs:
   native-targets:
     name: Native target Python gate on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    env:
+      CG_NATIVE_EVIDENCE_REQUIRE_SDK: "1"
+      CG_NATIVE_EVIDENCE_SDK_CLIENT: ${{ github.workspace }}/scripts/tests/native-sdk/node_modules/@kilocode/sdk/dist/client.js
     permissions:
       contents: read
     strategy:
@@ -295,6 +298,12 @@ jobs:
         with:
           # The preflight must compare the event's actual base/before revision.
           fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4.4.0
+        with:
+          node-version: "24.x"
+      # Locked SDK is an offline test fixture, not a Kilo runtime version policy.
+      - name: Install isolated native SDK test fixture
+        run: npm ci --prefix scripts/tests/native-sdk --ignore-scripts --no-audit --no-fund
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0
         with:
           python-version: "3.11"
