@@ -4,6 +4,107 @@ Release history and notable changes across Compound GPID from structured
 release payloads.
 
 <!-- cg:auto:release-notes -->
+### v1.2.0.9019 — v1.2.0.9019 - Asynchronous Release Controller
+
+*2026-09-15T22:29:55Z*
+
+**New — Release Controller Features**
+- Add asynchronous controller core with standalone locked Python package
+- Integrate disabled GPID controller with SemVer ordering
+- Wire guarded controller workflows and source-bound build/publish contracts
+- Bind release snapshots to verified producer bytes
+- Add disabled asynchronous release controller via merge PR
+
+**Fixed — CI and Merge Fixes**
+- Raise package matrix timeout to thirty minutes
+- Keep bridge_client within module line limit
+- Stop forwarding PowerShell module path into bridge child
+- Repair release portability and safe diagnostics
+- Integrate dev into release controller branch
+
+**Internal — Documentation and Maintenance**
+- Capture release validation and authority lessons in knowledge docs
+- Preserve controller history and dev PR handoff in workflow docs
+- Record asynchronous controller delivery and live deferral in plan docs
+- Document controller operation and deferred rollout
+- Regenerate release interfaces for Kilo, OpenCode, Codex, and Claude
+- Verify reader migration and GPID producer contracts
+- Record v1.2.0.9017 attestation
+- Accept new release-docs artifact layout in the Pages verifier
+- Read ruleset-based default-branch protection in the legacy release authority
+
+[View source tag](https://github.com/GPID-WB/compound-gpid/tree/v1.2.0.9019)
+
+---
+
+### v1.2.0.9018 — v1.2.0.9018 - Asynchronous Release Controller
+
+*2026-09-15T10:24:57Z*
+
+**New — Release Controller Features**
+- Add asynchronous controller core with standalone locked Python package
+- Integrate disabled GPID controller with SemVer ordering
+- Wire guarded controller workflows and source-bound build/publish contracts
+- Bind release snapshots to verified producer bytes
+- Add disabled asynchronous release controller via merge PR
+
+**Fixed — CI and Merge Fixes**
+- Raise package matrix timeout to thirty minutes
+- Keep bridge_client within module line limit
+- Stop forwarding PowerShell module path into bridge child
+- Repair release portability and safe diagnostics
+- Integrate dev into release controller branch
+
+**Internal — Documentation and Maintenance**
+- Capture release validation and authority lessons in knowledge docs
+- Preserve controller history and dev PR handoff in workflow docs
+- Record asynchronous controller delivery and live deferral in plan docs
+- Document controller operation and deferred rollout
+- Regenerate release interfaces for Kilo, OpenCode, Codex, and Claude
+- Verify reader migration and GPID producer contracts
+- Record v1.2.0.9017 attestation
+
+[View source tag](https://github.com/GPID-WB/compound-gpid/tree/v1.2.0.9018)
+
+---
+
+### v1.2.0.9017 — v1.2.0.9017 - Kilo minimum-version compatibility
+
+*2026-09-11T21:35:55Z*
+
+**Fixed — Kilo minimum-version compatibility**
+- Accept valid Kilo runtime versions at or above 7.4.20, including 7.5.16, without an exact-version allowlist or upper bound. Continue to reject malformed and below-minimum versions and require capability, trust, projection, and containment checks.
+
+**Internal — Verification, recovery guidance, and release evidence**
+- Add minimum-version regression tests, document recovery through the global installation before refreshing consumer projects, and update generated PR verification guidance.
+- Record and merge the canonical and generated v1.2.0.9016 release attestation.
+
+[View source tag](https://github.com/GPID-WB/compound-gpid/tree/v1.2.0.9017)
+
+---
+
+### v1.2.0.9016 — v1.2.0.9016 - Qualified light-work command
+
+*2026-09-11T16:57:58Z*
+
+**New — Qualified light-work command**
+- Add /cg-light-work as a bounded workflow for small tasks with qualification, planning, review, and compounding gates.
+- Redirect unmatched inline tasks from /cg-work and register /cg-light-work in context and model audits.
+
+**Fixed — Release preflight**
+- Correct preflight timeout and migration scan scope.
+
+**Internal — Documentation, verification, and repository maintenance**
+- Document task routing, approval gates, execution evidence, and completed planning records.
+- Test qualification gates, plan-only redirects, audit identity, token limits, review burden, suite filtering, and generated target provenance.
+- Generate /cg-light-work assets for Kilo, OpenCode, Claude, and Codex with updated lifecycle contracts.
+- Document registry identity validation before derived maps and rebuild knowledge indexes.
+- Integrate development branches and record release attestation.
+
+[View source tag](https://github.com/GPID-WB/compound-gpid/tree/v1.2.0.9016)
+
+---
+
 ### v1.2.0.9015 — v1.2.0.9015 - Reliable prerelease publication
 
 *2026-09-10T18:31:25Z*

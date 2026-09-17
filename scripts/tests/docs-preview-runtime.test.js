@@ -73,8 +73,8 @@ test("stable root and /dev/ preview serve the same site shell at distinct paths"
       assert.doesNotMatch(stableIndex, /dev-preview-banner/);
       assert.match(devIndex, /dev-preview-banner/);
       assert.match(devIndex, /Development preview built from/);
-      assert.match(devScript, /fetch\("navigation\.json"\)/);
-      assert.match(devScript, /fetch\(config\.file\)/);
+      assert.match(devScript, /DocsIdentity.read\("navigation\.json"\)/);
+      assert.match(devScript, /DocsIdentity.read\(config\.file\)/);
     } finally {
       await new Promise((resolve) => server.close(resolve));
     }

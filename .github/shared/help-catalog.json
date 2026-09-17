@@ -2320,7 +2320,7 @@
         "Runtime support requires verified host evidence; static assets alone are not runtime proof.",
         "Direct agent and skill assets are outside command help."
       ],
-      "definitionDigest": "f7ad4602d6e71f542c778ed1b298a054e3059a5688f91abf5f6672b57d24983a",
+      "definitionDigest": "98e25d9e26471cee70b8f8cd2c6f170ef8b048b79c5f56a077949b2c8e0395f2",
       "definitionSources": [
         ".github/prompts/cg-help.prompt.md"
       ],
@@ -3887,7 +3887,7 @@
   ],
   "generatorVersion": "1.0.0",
   "schemaVersion": 1,
-  "sourceDigest": "1c38dd0afd0e78025a4b8518b3533872282017d6a0bd4b1e8c33ad3a5493bc47",
+  "sourceDigest": "4632a9870fbdc1d77cf267e6d9830b4198cf0e9847a20754a1b55833a2d554b2",
   "suites": [
     {
       "activation": {

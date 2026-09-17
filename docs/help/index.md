@@ -4,6 +4,48 @@ Start with the smallest recovery path. Preserve user files and capture the
 actual error before using repair commands that discard changes in the global
 plugin clone.
 
+## Command help
+
+Use the [command browser](../reference/commands.md) to find slash commands,
+terminal commands, and complete workflows. Its catalog is checked against the
+command definitions during the documentation build.
+
+The examples below are supported only for the verified Kilo configuration
+listed here. Static adapter checks pass for all five hosts; runtime status is separate.
+
+| Host | Runtime status | Tested configuration |
+|---|---|---|
+| Claude Code | Unverified | No certified runtime probe |
+| Codex | Unverified | No certified runtime probe |
+| GitHub Copilot | Unverified | No certified runtime probe |
+| Kilo | Verified | macOS, Kilo 7.4.20, `openai/gpt-5.6-terra`, high reasoning effort |
+| OpenCode | Unverified | No certified runtime probe |
+
+In the verified Kilo configuration, open a project linked to the development
+installation, with the `cg-help` backend available on PATH. Use these lookups in
+the host's command input:
+
+```text
+/cg-help
+/cg-help /cg-help
+```
+
+The first returns the command overview; the second explains `/cg-help` itself.
+The host transfers the query through a prepared file and relays the backend's
+answer. Running `/cg-help` does not install the backend or generate documentation.
+If it reports unavailable help, check the installation and project linking before
+retrying; do not replace the response with guessed commands.
+
+Evidence was collected on 2026-09-17 for source commit
+`4358ca4f46881d1373109be6f712b02ed1bc72ee`, using a process-only model selection.
+Overview, exact lookup, punctuation preservation, and unchanged result delivery
+passed. This evidence does not certify other models, host versions, or operating
+systems. Maintainers can recheck the stored source bindings with:
+
+```sh
+python3 scripts/cg_verify_help_support.py --evidence .cg-docs/work-reports/2026-09-17-docs-help-support.json
+```
+
 ## Choose the problem
 
 | Symptom | First check | Detailed path |

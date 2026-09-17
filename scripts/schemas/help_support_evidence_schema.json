@@ -13,6 +13,7 @@
     "platforms": {"type": "array", "minItems": 5, "maxItems": 5, "items": {"$ref": "#/$defs/platform"}}
   },
   "helpSensitivePatterns": [
+    ".gitattributes",
     ".github/prompts/*.prompt.md", ".github/prompts/*.help.json",
     ".github/shared/help-*.json", ".github/shared/shell-commands.json",
     ".github/shared/module-registry.json", ".github/shared/target-mapping.json",

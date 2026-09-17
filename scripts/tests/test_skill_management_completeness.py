@@ -136,9 +136,13 @@ def _one_operation_root(tmp_path: Path, operation: str = "find") -> Path:
 
 def _management_pages(root: Path = REPO_ROOT) -> tuple[dict, ...]:
     navigation = json.loads((root / "docs/navigation.json").read_text(encoding="utf-8"))
-    groups = [group for group in navigation["groups"] if group["title"] == "Skill Management"]
+    groups = [group for group in navigation["groups"] if group["title"] == "Skills"]
     assert len(groups) == 1
-    return tuple({**page, "file": "docs/" + page["file"]} for page in groups[0]["pages"])
+    return tuple(
+        {**page, "file": "docs/" + page["file"]}
+        for page in groups[0]["pages"]
+        if Path(page["file"]).parts[:2] == ("skills", "management")
+    )
 
 
 def _slugify(value: str) -> str:
@@ -205,7 +209,7 @@ def test_public_navigation_has_unique_complete_metadata_and_exact_page_inventory
         for path in CANDIDATE_ROOT.rglob("*.md")
     )
 
-    assert len(ids) == len(set(ids))
+    assert len(ids) == len(set(ids)) == 29
     assert len(files) == len(set(files))
     assert sorted(files) == markdown
     for page in pages:
@@ -213,7 +217,10 @@ def test_public_navigation_has_unique_complete_metadata_and_exact_page_inventory
         assert page["title"].strip()
         assert page["description"].strip()
         content = (REPO_ROOT / page["file"]).read_text(encoding="utf-8")
-        assert content.startswith(f"# {page['title']}\n")
+        assert "`" not in page["title"]
+        heading = content.splitlines()[0]
+        assert heading.startswith("# ")
+        assert heading[2:].replace("`", "") == page["title"]
 
 
 def test_operation_page_identity_roles_phases_and_options_come_from_descriptors() -> None:
@@ -225,8 +232,11 @@ def test_operation_page_identity_roles_phases_and_options_come_from_descriptors(
         relative = str(record.descriptor["documentation"])
         page = pages[relative]
         assert page["id"] == f"skill-management-{record.operation}"
-        assert page["title"] == f"`cg-skill {record.operation}`"
+        assert page["title"] == f"cg-skill {record.operation}"
+        assert page["sidebar"] is False
+        assert "redirect" not in page
         content = (REPO_ROOT / relative).read_text(encoding="utf-8")
+        assert content.startswith(f"# `cg-skill {record.operation}`\n")
         roles = ", ".join(f"`{role}`" for role in record.descriptor["roles"])
         phases = ", ".join(f"`{phase}`" for phase in record.descriptor["phases"])
         assert f"**Roles:** {roles}" in content
@@ -291,8 +301,9 @@ def test_executable_help_matches_descriptor_roles_phases_and_page_paths() -> Non
     ]
 
 
-def test_public_management_links_resolve_and_every_page_is_reachable_from_index() -> None:
-    management_files = {page["file"] for page in _management_pages()}
+def test_management_links_resolve_references_are_reachable_and_stubs_link_to_guide() -> None:
+    pages = _management_pages()
+    management_files = {page["file"] for page in pages}
     graph = {relative: set() for relative in management_files}
     for relative in sorted(management_files):
         path = REPO_ROOT / relative
@@ -323,7 +334,29 @@ def test_public_management_links_resolve_and_every_page_is_reachable_from_index(
             continue
         reached.add(relative)
         pending.extend(sorted(graph[relative] - reached))
-    assert reached == management_files
+    compatibility = {page["file"]: page for page in pages if "redirect" in page}
+    reference_files = {
+        f"docs/skills/management/commands/{operation}.md" for operation in OPERATIONS
+    }
+    guide = "docs/skills/management/index.md"
+    assert management_files - set(compatibility) == reference_files | {guide}
+    assert reference_files | {guide} <= reached
+    assert len(compatibility) == 16
+    guide_headings = {
+        _slugify(match.group(1))
+        for match in re.finditer(
+            r"^#{1,6}\s+(.+)$",
+            (REPO_ROOT / guide).read_text(encoding="utf-8"),
+            re.MULTILINE,
+        )
+    }
+    for relative, page in compatibility.items():
+        assert page["sidebar"] is False
+        assert page["redirect"]["page"] == "skill-management"
+        assert page["redirect"]["section"] in guide_headings
+        assert page["redirect"]["sections"]
+        assert set(page["redirect"]["sections"].values()) <= guide_headings
+        assert guide in graph[relative], relative
 
 
 def test_public_command_replaces_old_surfaces_and_keeps_migration_text() -> None:
@@ -341,7 +374,7 @@ def test_public_command_replaces_old_surfaces_and_keeps_migration_text() -> None
             if old_name in content:
                 occurrences[old_name].append(page["file"])
     assert occurrences == {
-        old_name: ["docs/skills/management/migration.md"] for old_name in OLD_COMMANDS
+        old_name: ["docs/skills/management/index.md"] for old_name in OLD_COMMANDS
     }
     for old_name in OLD_COMMANDS:
         stem = old_name[1:]

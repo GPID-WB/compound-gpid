@@ -9,6 +9,21 @@ on:
       - '.github/agents/**'
       - 'docs/**'
       - 'scripts/rebuild-docs.js'
+      - 'scripts/docs-*.js'
+      - 'scripts/docs-legacy-v1/**'
+      - 'scripts/docs-legacy-v2/**'
+      - 'scripts/help/**'
+      - 'scripts/cg_generate_help_catalog.py'
+      - 'scripts/cg_validate_modules.py'
+      - 'scripts/secure_fs.py'
+      - 'scripts/brain/**'
+      - 'scripts/skill_management/**'
+      - 'scripts/schemas/help*'
+      - 'bin/**'
+      - 'install.ps1'
+      - '.github/shared/module-registry.json'
+      - '.github/shared/help-catalog.json'
+      - '.github/shared/shell-commands.json'
       - 'scripts/generate-whats-new.js'
       - 'scripts/assemble-docs-site.js'
       - 'scripts/check-docs-site.js'
@@ -40,6 +55,10 @@ jobs:
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4.4.0
         with:
           node-version: "22"
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0
+        with:
+          python-version: "3.11"
 
       - name: Build complete documentation tree
         run: node scripts/rebuild-docs.js --all

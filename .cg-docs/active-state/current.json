@@ -1,172 +1,136 @@
 {
   "schemaVersion": "compound-gpid-active-state-v1",
-  "updatedAt": "2026-09-16T15:33:12Z",
-  "workflow": "/cg-work",
-  "status": "verify-review-complete-fix-triage-complete-all-six-phases-implemented-plan-substantively-complete-v6-mark-complete-and-pipeline-publication-pending",
-  "branch": "cg-autopilot",
-  "plan": ".cg-docs/plans/2026-09-11-kilo-first-autopilot.md",
-  "executionReport": ".cg-docs/work-reports/2026-09-11-kilo-first-autopilot.md",
-  "currentPhase": 6,
+  "updatedAt": "2026-09-17T19:18:39Z",
+  "workflow": "/cg-commit-push-pr",
+  "status": "active",
+  "branch": "improve-website-design",
+  "plan": ".cg-docs/plans/2026-09-16-documentation-ia-ux-redesign.md",
+  "executionReport": ".cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign.md",
+  "currentPhase": 5,
   "evidenceStatus": [
     {
       "id": "V1",
-      "status": "v1-native-graph-feasibility-proven-by-executed-probes-all-three-native-edges-succeeded-with-receipts-depth-2-reviewer-stage-reviewer-02-depth-2-restricted-leaf-stage-general-05-and-conditional-depth-3-stage-fix-general-01-final-restricted-leaf-probe-succeeded-receipt-status-succeeded-reason-null-two-observed-settled-allowed-sign-off-still-gated-on-a-denial-and-depth-1-rejection-and-denied-target-native-confirmation-or-explicit-scoped-decision-that-offline-denial-tests-satisfy-r2-permissions-verification-and-b-observing-primary-qualification-record-with-installed-byte-sha256-and-receipts-phase-1-otherwise-substantively-complete-on-r2",
-      "artifact": null
+      "status": "passed",
+      "artifact": ".cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign.md"
     },
     {
-      "id": "NATIVE-EVIDENCE-REVISION-01",
-      "status": "dedicated-primary-probes-stage-general-02-and-stage-reviewer-01-blocked-dispatch-unavailable-no-effective-task-tool-inherited-deny-overrides-declared-allow-live-confirmed-two-receipts-initial-1-of-1-used-recovery-2-of-2-used-original-steps-each-2-of-2",
-      "artifact": ".cg-docs/work-reports/2026-09-11-kilo-first-autopilot.md"
+      "id": "phase1-full-suite",
+      "status": "passed-unfiltered-2992-pass-0-fail-2-reported-skipped",
+      "artifact": ".cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign-phase1-pester.json"
     },
     {
-      "id": "leaf-read-only-enforcement",
-      "status": "resolved-by-task-dispatch-01-restricted-read-only-leaf-cg-bootstrap-leaf-added-ask-baselines-exact-allows-regenerated-tests-pending-reload-and-fresh-probes",
-      "artifact": ".cg-docs/work-reports/2026-09-11-kilo-first-autopilot.md"
+      "id": "V2",
+      "status": "passed-phase2-browser18-and-independent-dark-visual-review-run35163119256-attempt1",
+      "artifact": ".cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign.md"
     },
     {
-      "id": "TASK-DISPATCH-01",
-      "status": "approved-exception-applied-and-verified-2026-09-14t21-33-32z-initial-1-of-1-used-repairs-1-of-2-used-ask-task-baselines-exact-allows-parent-cg-workflow-stage-stage-cg-code-quality-cg-fix-problems-cg-bootstrap-leaf-fix-problems-general-restricted-read-only-leaf-no-task-key-git-only-bash-regenerated-1510-outputs-pytest-2682-pass-50-skip-0-fail-node24-125-pass-0-fail-native-evidence-9-pass-frontmatter-71-71-drift-ownership-lf-whitespace-passed-adversarial-verification-all-fixed-no-star-allow-anywhere-fix-problems-allow-set-unchanged-pester-1688-and-215-and-full-2929-total-2927-pass-0-fail-2-skip-verified-pester-and-adversarial-fresh-probe-stage-general-05-next",
-      "artifact": ".cg-docs/work-reports/2026-09-11-kilo-first-autopilot.md"
+      "id": "V3",
+      "status": "scoped-technical-and-research-content-reviews-passed-four-P2s-independently-verified",
+      "artifact": ".cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign.md"
     },
     {
-      "id": "TASK-DISPATCH-01-PESTER",
-      "status": "verified-execution-leaf-ses_f5a3962c7ffeP8eLpibwDdrl4Q-prompt-tools-1688-1688-pass-ranAt-2026-09-15t15-54-51z-model-assignments-215-215-pass-ranAt-15-55-22z-full-safe-runner-2929-total-2927-passed-0-failed-2-skipped-update-tests-ps1-same-as-prior-filteredFiles-null-ranAt-2026-09-15t15-58-21z-head-b94f585c8a485dfb03965ca9711fb83257aaa7de-unchanged-cleanup-no-errors",
-      "artifact": ".cg-docs/work-reports/2026-09-11-kilo-first-autopilot.md"
+      "id": "ci-browser-recovery",
+      "status": "resolved-source-bound-red-run35132434045-attempt1-lock-applied",
+      "artifact": ".cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign.md"
     },
     {
-      "id": "TASK-DISPATCH-01-ADVERSARIAL",
-      "status": "independent-cg-adversarial-verification-ses_f5a393ceaffe3RBFAi6EX3k03q-all-9-items-fixed-no-scope-creep-no-new-p0-p1-one-minor-p2-not-a-blocker-deferred-leaf-body-line-18-branch-clause-references-branch-field-not-present-in-identity-payload-scope-hash-same-path-encodes-worktree-branch-implicitly-same-for-single-worktree-foreground-chain-recommend-reword-or-add-branch-field-would-consume-repair-2-of-2-not-required-for-leaf-success",
-      "artifact": ".cg-docs/work-reports/2026-09-11-kilo-first-autopilot.md"
+      "id": "ci-checkpoint-full-suite",
+      "status": "passed-fresh-post-fix-2026-09-17T02:01:22Z-unfiltered3011pass0fail2update-skips-cleanup-qualified",
+      "artifact": ".cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign.md"
     },
     {
-      "id": "FR-01-through-FR-14",
-      "status": "independently-verified-closed-including-fr12-explicit-tap-unchanged-exit-zero-skip-mandatory-sdk-guards",
-      "artifact": ".cg-docs/work-reports/2026-09-11-kilo-first-autopilot.md"
+      "id": "phase2-docs-node",
+      "status": "passed-final-source-158-docs-and34-evidence-tests-run35163119256",
+      "artifact": ".cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign.md"
     },
     {
-      "id": "CI-REPORTER-01",
-      "status": "explicit-exception-1-of-1-verified-closed-node24.21.0-focused-pytest9-pass-node125-pass-zero-fail-skip-cancel-installed-sdk-external-path-unset",
-      "artifact": ".cg-docs/work-reports/2026-09-11-kilo-first-autopilot.md"
+      "id": "phase2-native-targeted",
+      "status": "passed-local30-and-all-nine-remote-native-commands-on-each-of-three-OS",
+      "artifact": ".cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign.md"
     },
     {
-      "id": "full-pester-final-recovery",
-      "status": "2026-09-13T21:33:04Z-total2923-pass2921-fail0-skip2-filteredFiles-null-head-b94f585-no-cleanup-errors-before-reporter-only-exception-and-task-dispatch-01",
-      "artifact": ".cg-docs/work-reports/2026-09-11-kilo-first-autopilot.md"
+      "id": "phase2-additional-repair",
+      "status": "one-approved-pass-used-and-verified-final-remote-cycle-success-no-waiver",
+      "artifact": ".cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign.md"
     },
     {
-      "id": "phase1-20260914-stage-reviewer-02",
-      "status": "succeeded-native-dispatch-evidence-stage-child-ses_f5e1f3210ffecE4TmQXItNfn7k-completed-receipt-status-succeeded-reason-null-one-observation-agent-cg-code-quality-task-id-ses_f5e1c1327ffe4uM42wOtyOjpDp-parent-task-id-ses_f5e1f3210ffecE4TmQXItNfn7k-directory-worktree-cg-autopilot-branch-cg-autopilot-head-b94f585c8a485dfb03965ca9711fb83257aaa7de-full-built-in-toolset-including-bash-webfetch-memory-not-read-only-enforced-expected-permission-status-allowed-model-fields-model-modelid-settled-true-reviewer-fixed-reads-4498-bytes-1408-plus-1735-plus-1355-within-16384-per-file-49152-total-bounds-proves-ask-baseline-remediation-fixed-inherited-deny-task-blocking-stage-to-reviewer-depth-2-native-graph-edge-works-earlier-blocked-receipts-were-deny-first-baseline",
-      "artifact": ".cg-docs/work-reports/2026-09-11-kilo-first-autopilot.md"
+      "id": "phase2-full-suite",
+      "status": "passed-source-relevant-fresh-unfiltered-3011-pass-0-fail-2-update-skips-cleanup-qualified",
+      "artifact": ".cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign.md"
     },
     {
-      "id": "phase1-20260914-stage-general-03",
-      "status": "blocked-two-attempts-no-qualification-caller-msg_0a54316ad0017YmRw9p6e8l2sp-attempt-1-transport-error-stream-ended-unexpectedly-before-the-completion-finished-no-receipt-session-ses_f5abbf62affefXFASeD66CS1hH-preserved-not-resumed-task-id-reuse-disqualified-terminal-read-only-graph-no-artifacts-attempt-2-bounded-fresh-retry-same-probe-id-native-task-ses_f5ab6fb63ffet34HTvKEQ6QpUT-completed-receipt-blocked-native-identity-unverified-observations-empty-child-identity-blocked-unverified-reason-edge-limit-stopped-before-effects-correct-parent-identity-observed-reason-null-same-scope-hash-healthy-root-cause-4-edge-per-acquisition-cap-by-design-fresh-dedicated-cg-autopilot-session-resets-edge-count",
-      "artifact": ".cg-docs/work-reports/2026-09-11-kilo-first-autopilot.md"
+      "id": "V4",
+      "status": "passed-with-explicit-human-screen-reader-and-zoom-visual-deferral",
+      "artifact": ".cg-docs/work-reports/2026-09-17-docs-step4-browser-recovery.json"
     },
     {
-      "id": "phase1-20260915-stage-general-04",
-      "status": "blocked-native-identity-unverified-two-observations-settled-and-allowed-stage-tools-cg-native-evidence-cg-native-identity-glob-grep-read-task-permission-allowed-model-fields-null-branch-null-head-null-cg-bootstrap-leaf-tools-bash-glob-grep-read-permission-allowed-settled-true-branch-null-head-null-dispatch-mechanics-proven-no-task-tool-regression-new-blocker-leaf-has-no-native-identity-tool-and-no-stage-to-leaf-identity-evidence-propagation-so-it-stopped-before-its-four-git-probes-note-native-identity-qualification-unverified-is-evidence-only",
-      "artifact": null
+      "id": "step4-full-suite",
+      "status": "fresh-unfiltered-2925pass0fail3-platform-skips-macos-junction-placeholders-not-phase3-completion",
+      "artifact": ".cg-docs/work-reports/2026-09-17-docs-step4-browser-recovery.json"
     },
     {
-      "id": "phase1-20260915-stage-fix-general-01",
-      "status": "succeeded-conditional-depth-3-native-graph-proven-primary-to-stage-to-fix-problems-to-general-three-observations-all-settled-and-allowed-no-task-id-reuse-only-four-git-probes-no-writes-branch-cg-autopilot-head-b94f585c8a485dfb03965ca9711fb83257aaa7de-stage-and-fix-model-fields-description-prompt-subagent_type-task_id-command-background-general-model-fields-null-permitted-fix-and-general-expose-broad-tools-read-only-instruction-enforced-not-permission-enforced-general-built-in-no-file-needed-supersedes-prior-earlier-general-not-installed-observation-3-forward-slash-directory-cosmetic",
-      "artifact": ".cg-docs/work-reports/2026-09-11-kilo-first-autopilot.md"
+      "id": "V5",
+      "status": "passed-local-publication-controller-rollout-pending",
+      "artifact": ".cg-docs/work-reports/2026-09-17-docs-phase3-evidence.json"
     },
     {
-      "id": "phase1-20260915-stage-general-05",
-      "status": "succeeded-final-restricted-leaf-edge-caller-ses_f5a1e6cfeffeLNWbxgyvhbuh0E-parent-null-receipt-status-succeeded-reason-null-two-observations-both-settled-and-allowed-stage-cg-workflow-stage-tools-cg-native-evidence-cg-native-identity-glob-grep-read-task-permission-allowed-model-fields-null-settled-true-leaf-cg-bootstrap-leaf-tools-cg-native-identity-bash-glob-grep-read-permission-allowed-settled-true-foreground-sequential-no-task-id-reuse-no-writes-tests-config-generation-completes-all-three-native-graph-edges",
-      "artifact": ".cg-docs/work-reports/2026-09-11-kilo-first-autopilot.md"
+      "id": "V6",
+      "status": "passed-local-publication-controller-rollout-pending",
+      "artifact": ".cg-docs/work-reports/2026-09-17-docs-phase3-evidence.json"
     },
     {
-      "id": "PHASE1-QUALIFICATION-2026-09-15",
-      "status": "phase-1-steps-1-3-substantively-complete-v1-native-graph-feasibility-demonstrated-by-three-executed-probes-stage-reviewer-02-depth-2-stage-fix-general-01-conditional-depth-3-stage-general-05-depth-2-restricted-leaf-all-receipts-succeeded-reason-null-settled-allowed-foreground-sequential-no-task-id-reuse-no-writes-tests-config-generation-denial-depth-1-rejection-denied-target-mapped-to-offline-receipt-permission-tests-no-live-negative-claimed-observing-primary-seven-installed-byte-sha256-recorded-v6-total-completion-and-publication-not-done",
-      "artifact": null
+      "id": "phase3-full-suite",
+      "status": "passed-local-publication-controller-rollout-pending",
+      "artifact": ".cg-docs/work-reports/2026-09-17-docs-phase3-evidence.json"
     },
     {
-      "id": "PHASE2-QUALIFICATION-2026-09-15",
-      "status": "phase-2-steps-4-6-complete-via-implementation-child-ses_f59be8103ffe05eLQe6bWDcKaB-12-modules-cg-autopilot-py-plus-autopilot-11-submodules-all-under-300-lines-explicit-split-deviation-from-proposed-9-names-test-arguments-evidence-state-recovery-extended-contracts-active-state-contract-autopilot-cursor-regenerated-adapter-mirrors-gates-215-verify-1-205-passed-1-skipped-set-2-161-guards-111-passed-1-skipped-trio-exit-zero-tests-first-red-via-collection-errors-not-repair-repairs-max-2-secure-fs-contract-crlf-cursor-digest-fixture-v6-total-not-complete-no-commit-pr",
-      "artifact": ".cg-docs/work-reports/2026-09-11-kilo-first-autopilot.md"
+      "id": "V7",
+      "status": "passed-phase4-196node-50browser-318help-245parity-3007fullpester",
+      "artifact": ".cg-docs/work-reports/2026-09-17-docs-phase4-evidence.json"
     },
     {
-      "id": "PHASE3-QUALIFICATION-2026-09-15",
-      "status": "phase-3-steps-7-9-complete-via-implementation-child-ses_f59873c6ffewKPoCa6wCUZmot-new-scripts-autopilot-pipeline-py-298-lines-closed-transition-table-plus-injected-dispatcher-recording-fake-test-autopilot-pipeline-py-26-plus-test-autopilot-handoffs-py-77-stage-mode-sections-added-to-five-prompts-active-goal-contract-notes-six-new-prompt-tools-describe-blocks-147-lines-regenerated-1510-adapter-mirrors-drift-119-pass-4-skip-pytest-verify-318-pass-0-fail-pipeline-26-handoffs-77-inherited-215-module-trio-validated-2-focused-repairs-green-pester-prompt-tools-1709-1709-model-215-215-full-2950-total-2948-pass-0-fail-0-skip-filteredFiles-null-head-b94f585-unchanged-no-cleanup-errors-v6-total-not-complete-no-commit-pr",
-      "artifact": ".cg-docs/work-reports/2026-09-11-kilo-first-autopilot.md"
+      "id": "V8-V9",
+      "status": "passed-final-4358ca4f-native-199node-52browser-3008fullpester",
+      "artifact": ".cg-docs/work-reports/2026-09-17-docs-phase5-evidence.json"
     },
     {
-      "id": "PHASE4-QUALIFICATION-2026-09-15",
-      "status": "phase-4-steps-10-12-complete-via-implementation-child-ses_f596be6c6ffejPbtzc6Bs0wAYV-new-scripts-autopilot-queries-py-406-lines-benign-noted-deviation-above-300-line-target-no-action-scripts-autopilot-ci-py-new-tests-test-autopilot-publication-py-19-test-autopilot-ci-py-18-fixtures-scripts-tests-fixtures-autopilot-json-modified-recovery-py-record-extend-ci-deadline-parent-only-pipeline-py-publish-verify-pr-activation-transition-cg-verify-pr-prompt-md-stage-mode-test-cg-pr-preflight-py-plus-2-base-ordering-test-autopilot-pipeline-py-test-autopilot-handoffs-py-gates-verify-251-pass-other-autopilot-203-pass-module-trio-validated-regeneration-1510-target-drift-kilo-mapping-pass-repairs-0-of-2-first-attempt-green-no-live-git-gh-mutation-temp-local-repos-faked-gh-pester-leaf-ses_f59523a14ffengEfqudg7FPjtg-prompt-tools-1709-1709-model-assignments-215-215-full-2950-total-2948-pass-0-fail-2-skip-update-ranAt-20-07-20-10z-head-b94f585c8a485dfb03965ca9711fb83257aaa7de-unchanged-no-cleanup-errors-v6-total-not-complete-no-commit-pr",
-      "artifact": ".cg-docs/work-reports/2026-09-11-kilo-first-autopilot.md"
-    },
-    {
-      "id": "PHASE5-QUALIFICATION-2026-09-15",
-      "status": "phase-5-steps-13-14-complete-via-implementation-child-ses_f594a46b0ffegD2xRb0EFh7BZG-new-bin-cg-autopilot-control-plus-cmd-launchers-scripts-autopilot-install-py-162-context-py-135-lines-tests-test-autopilot-install-py-24-test-autopilot-context-py-22-modified-cg-autopilot-py-root-mandatory-pipeline-py-context-budget-frame-measurement-context-pause-install-ps1-install-sh-link-ps1-helper-install-reporting-cg-resume-prompt-md-step-2g-resume-templates-md-context-loading-contract-md-4096-8192-65536-limits-pause-not-truncate-allowance-only-fresh-reset-cg-audit-context-py-registry-cg-pr-preflight-py-native-pytest-files-test-project-projection-py-plus-4-test-audit-context-py-9-to-10-repair-1-of-2-launcher-run-python-parity-install-103-to-104-pass-repair-2-of-2-three-canonical-prompt-contract-phrase-rewraps-single-line-contains-pass-prompt-tools-1716-to-1719-regenerated-1510-mirrors-twice-drift-targets-green-pester-final-leaf-ses_f591d0eb6ffeiAwM7L6kzFDoxe-install-104-104-earlier-leaf-ses_f5922cf7dffeMlei6r4EsGAH8L-prompt-tools-1719-1719-model-assignments-215-215-full-2970-total-2968-pass-0-fail-2-skip-update-filteredFiles-null-ranAt-2026-09-15t21-09-07z-head-b94f585c8a485dfb03965ca9711fb83257aaa7de-unchanged-no-cleanup-errors-python-367-pass-6-skip-verify-targets-146-9-regression-224-1-module-trio-drift-pass-pre-existing-observations-test-kilo-coexistence-env-drift-embedded-7-6-0-vs-committed-exact-host-set-matches-saved-kilo-runtime-version-policy-correction-separate-task-run-tests-ps1-287-undeclared-file-cosmetic-warning-bug-out-of-scope-v6-total-not-complete-no-commit-pr",
-      "artifact": ".cg-docs/work-reports/2026-09-11-kilo-first-autopilot.md"
-    },
-    {
-      "id": "PHASE6-STEP16-OFFLINE-2026-09-15",
-      "status": "offline-portion-complete-registered-9-new-autopilot-pytest-files-in-cg-pr-preflight-py-native-pytest-files-arguments-evidence-state-recovery-pipeline-handoffs-publication-ci-journeys-count-60-to-69-each-of-14-target-names-exactly-once-no-exact-count-test-exists-no-update-needed-fixtures-under-scripts-tests-fixtures-autopilot-need-no-module-registry-entry-ci-selection-authority-unchanged-tests-yml-diff-pre-existing-step-15-work-full-native-pytest-gate-explicit-native-pytest-files-python-b-m-pytest-files-m-not-integration-q-3134-passed-50-skipped-2-deselected-0-failed-12m37s-module-trio-dependencies-cross-suite-ownership-all-validated-generation-dry-run-1510-files-would-be-written-drift-tests-green-frontmatter-lint-27-passed-repairs-0-of-2-used-no-pester-prompt-files-unchanged-no-commit-pr-step-16-not-complete-overall-remaining-native-smoke-re-probes-against-final-installed-graph-parent-stage-leaf-metadata-helper-hashes-full-returned-frame-sizes-require-supported-reload-and-fresh-dedicated-cg-autopilot-session-probes-pending-user-action-v6-whole-plan-not-complete",
-      "artifact": ".cg-docs/work-reports/2026-09-11-kilo-first-autopilot.md"
-    },
-    {
-      "id": "PHASE6-STEP16-NATIVE-CONFORMANCE-2026-09-16",
-      "status": "final-native-conformance-round-from-dedicated-primary-ses_f58398abcffe6iRtw1InqCDegV-stage-reviewer-03-succeeded-depth-2-receipt-succeeded-reason-null-stage-child-ses_f5837d032ffeSU4MBUiSuBKUNqK-to-cg-code-quality-ses_f5833faebffevFo7Hq27znAFZo-full-reviewer-tools-allowed-settled-model-fields-null-observed-unavailable-stage-general-06-succeeded-depth-2-stage-child-ses_f581594e2ffed3NaNdWrakeZEb-to-cg-bootstrap-leaf-ses_f581064a7ffeSsm2p3lYi0Cny9-leaf-tools-read-cg-native-identity-bash-no-task-no-evidence-recursion-git-probes-only-allowed-settled-leaf-observed-dirty-worktree-informational-reconcile-note-only-stage-fix-general-02-blocked-native-identity-unverified-three-attempts-connection-reset-recovery-only-resume-non-qualifying-then-two-identical-edge-limit-fail-closed-no-dispatch-root-cause-third-probe-dispatch-5-tripped-4-edge-identity-cap-not-permission-or-metadata-readiness-fix-agent-read-only-branch-and-task-ask-general-allow-verified-installed-probe-target-not-ready-did-not-apply-depth-2-reviewer-and-restricted-leaf-re-qualified-final-on-current-bytes-conditional-depth-3-already-proven-phase1-20260915-stage-fix-general-01-metadata-unchanged-freshly-verified-step-16-not-complete-until-clean-single-probe-fresh-session-depth-3-receipt-pending-user-action-send-only-phase1-20260915-stage-fix-general-03-as-first-dispatch-in-another-fresh-dedicated-cg-autopilot-session-phases-1-5-complete-phase-6-steps-15-17-complete-step-16-offline-complete-branch-cg-autopilot-head-b94f585c8a485dfb03965ca9711fb83257aaa7de-no-commit-pr-plan-v6-not-complete-closed-2026-09-16-by-phase1-20260916-stage-fix-general-01-succeeded-conditional-depth-3-first-dispatch-of-fresh-dedicated-primary-ses_f5624a8d3ffeVWBBXQSxda2ipb-no-edge-limit-step-16-and-phase-6-now-complete",
-      "artifact": ".cg-docs/work-reports/2026-09-11-kilo-first-autopilot.md"
-    },
-    {
-      "id": "PHASE6-STEP16-FINAL-CLOSURE-2026-09-16",
-      "status": "phase1-20260916-stage-fix-general-01-succeeded-conditional-depth-3-first-dispatch-of-dedicated-primary-ses_f5624a8d3ffeVWBBXQSxda2ipb-no-edge-limit-receipt-status-succeeded-reason-null-three-observations-all-settled-allowed-stage-task-id-ses_f562124f8ffeCXM4mtieou7t2g-parent-ses_f5624a8d3ffeVWBBXQSxda2ipb-fix-problems-task-id-ses_f561d7275ffe3Fm23UpOSoNnmI-general-task-id-ses_f561b8ad8ffeDjoLijCRopb0Uw-parents-correlated-worktree-directory-branch-cg-autopilot-head-b94f585c8a485dfb03965ca9711fb83257aaa7de-fix-and-general-broad-tools-instruction-enforced-read-only-general-has-no-task-tool-leaf-precondition-verified-installed-fix-problems-read-only-bootstrap-probe-branch-task-ask-general-allow-stage-task-cg-fix-problems-allow-no-effects-anywhere-final-conformance-set-complete-on-current-installed-bytes-stage-reviewer-03-succeeded-depth-2-stage-general-06-succeeded-depth-2-restricted-leaf-phase1-20260916-stage-fix-general-01-succeeded-conditional-depth-3-observing-primary-seven-installed-byte-sha256-values-acquired-2026-09-15t17-22z-are-pre-regeneration-reference-files-regenerated-since-final-byte-rehash-needed-if-qualify-requires-post-regeneration-hashes-no-fabricated-hashes-phase-6-steps-15-16-17-complete-all-six-phases-implemented-plan-substantively-complete-v6-mark-complete-and-pipeline-publication-pending-next-cg-review-mode-verify",
-      "artifact": ".cg-docs/work-reports/2026-09-11-kilo-first-autopilot.md"
-    },
-    {
-      "id": "VERIFY-REVIEW-FIX-TRIAGE-ROUND-1-2026-09-16",
-      "status": "fix-triage-round-1-of-2-complete-verify-review-not-marked-complete-parent-decides-round-2-all-5-p1-and-19-p2-findings-fixed-safe-p3s-applied-6-record-only-p3s-recorded-no-code-change-repairs-0-of-2-used-no-loops-native-gate-3154-pass-50-skip-1-pre-existing-timing-flake-import-skill-review-diff-second-boundary-re-run-passed-in-isolation-module-trio-validated-regenerated-1510-outputs-claude-368-codex-399-opencode-369-kilo-374-drift-green-pester-handed-back-prompt-tools-exceptions-are-not-passes-canonical-prompt-inspect-ci-timeout-grammar-regenerated-no-commit-pr",
-      "artifact": ".cg-docs/work-reports/2026-09-11-kilo-first-autopilot.md"
-    },
-    {
-      "id": "VERIFY-REVIEW-FIX-TRIAGE-COMPLETE-2026-09-16",
-      "status": "verify-review-mode-verify-complete-10-routes-no-p0-5-p1-19-distinct-p2-several-p3-fix-triage-round-1-of-2-complete-all-5-p1-and-19-p2-fixed-safe-p3s-applied-6-record-only-p3s-recorded-pytest-69-file-native-gate-3154-passed-50-skipped-2-deselected-0-failed-post-change-re-verifies-green-pester-leaf-prompt-tools-1720-1720-model-assignments-215-215-bash-scripts-1-1-full-2971-total-2969-passed-0-failed-2-skipped-filteredFiles-null-head-b94f585c8a485dfb03965ca9711fb83257aaa7de-unchanged-no-cleanup-errors-verify-re-pass-confirmed-no-new-findings-parent-concludes-verify-triage-stage-green",
-      "artifact": ".cg-docs/work-reports/2026-09-11-kilo-first-autopilot.md"
+      "id": "final-source-full-suite",
+      "status": "passed-unfiltered-3007-pass-0-fail-3-windows-skips-2026-09-17T18:01:08Z",
+      "artifact": ".cg-docs/work-reports/2026-09-17-docs-final-revalidation.json"
     }
   ],
-  "unresolvedDecisions": [
-    {
-      "id": "native-plugin-admission-gap",
-      "summary": "Recorded risk retained: relaxed Task policies with a missing/failed plugin could reach ordinary shell capability. TASK-DISPATCH-01 does not relax to allow: the approved baselines are ask (native approval required), the restricted leaf has git-only bash, and adversarial verification confirmed no task \"*\": \"allow\" baseline anywhere. No unapproved relaxation exists.",
-      "blocking": false
-    },
-    {
-      "id": "fresh-session-positive-graph-probe",
-      "summary": "Resolved by live probes in dedicated primary ses_f5eae048effeqbK8UGocDVobQu: stage-reviewer-02 SUCCEEDED natively (receipt status succeeded, reason null), proving the ask-baseline remediation fixed the inherited-deny Task blocking and the depth-2 stage-to-reviewer edge works. stage-general-03 BLOCKED: the child cg_native_identity returned edge-limit because this primary session exceeded the 4-edge-per-acquisition cap; by design, not a runtime defect, and a fresh dedicated cg-autopilot session resets the edge count. Fresh probes phase1-20260915-stage-general-04 (receipt must name cg-bootstrap-leaf) and phase1-20260915-stage-fix-general-01 in a NEW dedicated primary session now complete: both probes ran (stage-general-04 and stage-fix-general-01); the final stage-general-05 restricted-leaf probe in a fresh dedicated session has now SUCCEEDED, completing all three native graph edges.",
-      "blocking": false
-    },
-    {
-      "id": "stage-reviewer-probe-decision",
-      "summary": "Resolved by execution: stage-reviewer-02 succeeded after the TASK-DISPATCH-01 ask-baseline remediation. The stage-general probe targets cg-bootstrap-leaf rather than built-in general in receipt text. Nuance recorded: general is a BUILT-IN Kilo subagent (no file needed); the earlier general-not-installed claim was the child file-based check, superseded by the ask-baseline fix restoring the stage Task tool.",
-      "blocking": false
-    },
-    {
-      "id": "cg-bootstrap-leaf-identity-gap",
-      "summary": "Focused repair 1/2 applied and verified 2026-09-15: leaf permission adds cg_native_identity ask plus identity-first body instruction; fail-closed on unverifiable ancestor walk; no new delegation or write surface. Regenerated and all static gates green; Pester prompt-tools 1688, model-assignments 215, full 2929 total / 2927 passed / 0 failed / 2 skipped; independent adversarial 9 items fixed. One non-blocking deferred P2: the leaf body line 18 branch-clause references a branch field not present in the identity payload (scope-hash/same-path encode the worktree; branch is implicitly the same for the single-worktree foreground chain); recommend reword or add a branch field; would consume repair 2/2 and is not required for leaf success. Gap closed: native probe phase1-20260915-stage-general-05 SUCCEEDED (leaf receipt status succeeded, reason null). The deferred branch-field P2 wording remains non-blocking. Not blocking.",
-      "blocking": false
-    }
-  ],
+  "unresolvedDecisions": [],
   "artifactRefs": [
     {
-      "kind": "work-report",
-      "path": ".cg-docs/work-reports/2026-09-11-kilo-first-autopilot.md",
-      "status": "task-dispatch-01-implementation-complete-and-repair-1-of-2-applied-and-verified-leaf-identity-fix-cg-native-identity-ask-plus-identity-first-body-fail-closed-regenerated-1510-outputs-static-gates-green-pester-1688-and-215-and-full-2929-total-2927-pass-0-fail-2-skip-adversarial-9-items-fixed-stage-general-05-probe-succeeded-all-three-native-graph-edges-succeeded-phase-1-qualified-seven-installed-sha256-and-offline-denial-mapping-v1-demonstrated-phase-2-complete-steps-4-6-12-modules-gates-green-no-commit-v6-total-not-complete-phase-3-complete-steps-7-9-pipeline-298-lines-plus-26-77-tests-stage-mode-prompts-six-describe-blocks-1510-regenerated-drift-119-4-pytest-verify-318-pass-module-trio-validated-pester-2950-total-2948-pass-0-fail-0-skip-no-commit-phase-4-complete-steps-10-12-queries-py-406-lines-benign-deviation-no-action-ci-py-publication-19-ci-18-tests-fixtures-recovery-pipeline-verify-pr-preflight-modified-verify-251-other-203-trio-pass-1510-regenerated-drift-kilo-mapping-pass-repairs-0-2-first-attempt-green-pester-2950-total-2948-pass-0-fail-2-skip-no-commit-phase-5-complete-steps-13-14-launchers-install-py-context-py-root-mandatory-context-limits-2-focused-repairs-used-pester-2970-total-2968-pass-0-fail-2-skip-no-commit-v6-total-not-complete-step-16-offline-registration-60-to-69-full-native-gate-3134-pass-50-skip-0-fail-module-trio-drift-frontmatter-green-repairs-0-2-native-conformance-round-2026-09-16-stage-reviewer-03-and-stage-general-06-succeeded-final-stage-fix-general-02-blocked-4-edge-identity-cap-third-probe-in-session-step-16-pending-clean-depth-3-fresh-session-probe-closed-2026-09-16-phase1-20260916-stage-fix-general-01-succeeded-conditional-depth-3-first-dispatch-of-fresh-dedicated-primary-ses_f5624a8d3ffeVWBBXQSxda2ipb-phase-6-steps-15-16-17-complete-all-six-phases-implemented-v6-mark-complete-and-pipeline-publication-pending-next-cg-review-mode-verify-fix-triage-complete-no-commit-pr"
+      "kind": "temporary-handoff",
+      "path": "HANDOFF.md",
+      "status": "removed-after-durable-final-phase-evidence"
     },
     {
-      "kind": "plan",
-      "path": ".cg-docs/plans/2026-09-11-kilo-first-autopilot.md",
-      "status": "active-with-approved-permission-baseline-correction-2026-09-14"
+      "kind": "execution-report",
+      "path": ".cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign.md",
+      "status": "all-five-phases-verified-final-publication-active"
     },
     {
-      "kind": "plan",
-      "path": ".cg-docs/plans/2026-09-12-autopilot-native-evidence-revision.md",
-      "status": "ready-for-supported-reload-passive-capability-not-native-qualified"
+      "kind": "browser-tests",
+      "path": "scripts/tests/docs-discovery.browser.js",
+      "status": "local31pass-including-Escape-and-both-reopening-cases"
+    },
+    {
+      "kind": "content-migration",
+      "path": "scripts/tests/fixtures/docs-redesign/phase2-content-edits.json",
+      "status": "technical-reviewer-verified-final-evidence-in-report-fixture-unchanged"
+    },
+    {
+      "kind": "phase1-full-suite",
+      "path": ".cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign-phase1-pester.json",
+      "status": "passed-cleanup-warning-recorded-pending-count-not-recorded"
+    },
+    {
+      "kind": "previous-workflow-snapshot",
+      "path": ".cg-docs/active-state/2026-09-13-release-controller-handoff.json",
+      "status": "historical-unrelated-workflow"
     }
   ],
-  "nextCommand": "/cg-compound"
+  "nextCommand": "/cg-commit-push-pr --base dev; wait five minutes; /cg-verify-pr"
 }

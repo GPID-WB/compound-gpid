@@ -7,6 +7,11 @@ on:
     branches: [ main, dev ]
   workflow_dispatch:
     inputs:
+      repair_docs_lockfile:
+        description: "One-time docs lockfile recovery; download and review the artifact before committing"
+        type: boolean
+        required: false
+        default: false
       subject_commit:
         description: "Exact same-repository 40-hex pre-evidence commit for approved Kilo certification"
         required: true
@@ -25,19 +30,124 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        id: checkout
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          fetch-depth: 0
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4.4.0
+        id: node
         with:
           node-version: "22"
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0
+        with:
+          python-version: "3.11"
+      - name: Check canonical help documentation
+        run: |
+          python scripts/cg_generate_help_catalog.py --check
+          python scripts/cg_generate_help_catalog.py --check-docs
+          python -m pip install pytest
+          python -m pytest scripts/tests/test_help_documentation.py -q
+      - name: Repair docs lockfile (explicit dispatch only)
+        id: repair
+        if: github.event_name == 'workflow_dispatch' && inputs.repair_docs_lockfile == true
+        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
       - name: Install Node test dependencies
-        run: npm install
+        id: dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Run documentation automation tests
+        id: docs_automation
         run: npm run test:docs-automation
       - name: Install Chromium for evidence capture
+        id: chromium
         run: npx playwright install --with-deps chromium
+      - name: Run documentation browser tests
+        id: docs_browser
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_NAME: test-results/docs-browser.json
+        run: npm run test:docs-browser -- --reporter=line,json
       - name: Capture browser evidence manifest
+        id: capture
         run: npm run capture
       - name: Run browser evidence tests
+        id: evidence_tests
         run: npm test
+      - name: Record docs browser provenance
+        if: always()
+        shell: bash
+        env:
+          STEP_RESULTS: ${{ toJSON(steps) }}
+          REPAIR_REQUESTED: ${{ github.event_name == 'workflow_dispatch' && inputs.repair_docs_lockfile == true }}
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const { execFileSync } = require('node:child_process');
+          const { createHash } = require('node:crypto');
+          // Failed setup must produce diagnostic nulls, not invented versions or passing outcomes.
+          const optional = read => { try { return read(); } catch { return null; } };
+          const hash = bytes => createHash('sha256').update(bytes).digest('hex');
+          const digest = file => optional(() => hash(fs.readFileSync(file)));
+          const command = (tool, args) => execFileSync(tool, args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+          const steps = JSON.parse(process.env.STEP_RESULTS);
+          const commands = {
+            repair: 'npm install --package-lock-only --ignore-scripts --no-audit --no-fund',
+            dependencies: 'npm ci --ignore-scripts --no-audit --no-fund',
+            docs_automation: 'npm run test:docs-automation',
+            chromium: 'npx playwright install --with-deps chromium',
+            docs_browser: 'npm run test:docs-browser -- --reporter=line,json',
+            capture: 'npm run capture',
+            evidence_tests: 'npm test',
+          };
+          const packages = optional(() => JSON.parse(fs.readFileSync('package.json')).devDependencies) || {};
+          const manifest = {
+            schemaVersion: 1,
+            recordedAt: new Date().toISOString(),
+            repository: process.env.GITHUB_REPOSITORY,
+            eventName: process.env.GITHUB_EVENT_NAME,
+            ref: process.env.GITHUB_REF,
+            eventSha: process.env.GITHUB_SHA,
+            checkedOutSha: optional(() => command('git', ['rev-parse', 'HEAD'])),
+            runId: process.env.GITHUB_RUN_ID,
+            runAttempt: process.env.GITHUB_RUN_ATTEMPT,
+            repairRequested: process.env.REPAIR_REQUESTED === 'true',
+            versions: {
+              node: process.version,
+              npm: optional(() => command('npm', ['--version'])),
+              packages: Object.fromEntries(Object.keys(packages).map(name => [name,
+                optional(() => JSON.parse(fs.readFileSync(`node_modules/${name}/package.json`)).version)])),
+              chromium: optional(() => command(require('playwright').chromium.executablePath(), ['--version'])),
+            },
+            packageJsonSha256: digest('package.json'),
+            checkedInLockfileSha256: optional(() => hash(execFileSync('git', ['show', 'HEAD:package-lock.json']))),
+            lockfileSha256: digest('package-lock.json'),
+            browserResultsSha256: digest('test-results/docs-browser.json'),
+            commands,
+            steps: Object.fromEntries(['checkout', 'node', ...Object.keys(commands)].map(id => [id, {
+              outcome: steps[id]?.outcome || 'unknown', conclusion: steps[id]?.conclusion || 'unknown',
+            }])),
+          };
+          fs.mkdirSync('test-results', { recursive: true });
+          fs.writeFileSync('test-results/docs-browser-provenance.json', JSON.stringify(manifest, null, 2) + '\n');
+          if (!/^[0-9a-f]{40}$/.test(manifest.checkedOutSha) || manifest.checkedOutSha !== manifest.eventSha) {
+            throw new Error('Checkout SHA does not match the event SHA');
+          }
+          if (steps.docs_browser?.outcome === 'success' && !manifest.browserResultsSha256) {
+            throw new Error('Browser results missing after a successful test step');
+          }
+          NODE
+      - name: Upload docs browser recovery evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        with:
+          name: docs-browser-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 7
+          path: |
+            package.json
+            package-lock.json
+            test-results/docs-browser.json
+            test-results/docs-browser/
+            test-results/docs-browser-provenance.json
+          if-no-files-found: error
 
   kilo-capability-report:
     name: Generic Kilo capability report

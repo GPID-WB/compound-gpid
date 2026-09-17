@@ -2,119 +2,121 @@
   "schemaVersion": "compound-gpid-docs-navigation-v1",
   "groups": [
     {
-      "title": "Start",
+      "title": "Start Here",
+      "ownerModule": "kernel",
       "pages": [
-        { "id": "whats-new", "title": "What's New", "file": "whats-new.md", "description": "Release-backed history of Compound GPID changes, newest first, from validated release payloads." },
+        { "id": "getting-started", "title": "Getting Started", "file": "getting-started/index.md", "description": "Install, select suites, configure, and complete a first useful workflow.", "next": ["modular-guide", "workflows", "research"] },
+        { "id": "modular-guide", "title": "CG or CR: Choose a Workflow", "file": "modular-guide.md", "description": "Choose by engineering requirements or research claims, not language or experience.", "next": ["workflows", "research", "configuration"] },
         { "id": "philosophy", "title": "Working with AI Responsibly", "file": "philosophy.md", "description": "The epistemic risks, principles, and human responsibilities behind the plugin." },
-        { "id": "getting-started", "title": "Getting Started", "file": "getting-started/index.md", "description": "Install, select suites, configure, and complete a first useful workflow." },
-        { "id": "modular-guide", "title": "Modular Guide", "file": "modular-guide.md", "description": "Choose technical or research suites and understand capability composition." },
-        { "id": "why-compound-gpid", "title": "Why Compound GPID?", "file": "why-compound-gpid.md", "description": "Purpose, institutional fit, tradeoffs, and inspiration." }
+        { "id": "whats-new", "title": "What's New", "file": "whats-new.md", "description": "Release-backed history of Compound GPID changes, newest first, from validated release payloads." },
+        { "id": "why-compound-gpid", "title": "Why Compound GPID?", "file": "why-compound-gpid.md", "description": "Purpose, institutional fit, tradeoffs, and inspiration.", "sidebar": false }
       ]
     },
     {
-      "title": "Research Handbook",
+      "title": "Technical Workflows",
+      "ownerModule": "suite-cg",
       "pages": [
-        { "id": "research", "title": "Research Handbook: Start Here", "file": "research/index.md", "description": "Activate the research suite and complete a first Compound Research workflow." },
-        { "id": "research-philosophy", "title": "Why Compound Research Exists", "file": "research/philosophy.md", "description": "Understand the evidence, uncertainty, and human responsibility behind CR." },
-        { "id": "research-first-workflow", "title": "Your First CR Workflow", "file": "research/first-workflow.md", "description": "Follow the five research commands from question to reusable lesson." },
-        { "id": "research-short-example", "title": "Short Workflow Example", "file": "research/short-example.md", "description": "See a compact Kenya extreme-precipitation workflow from activation to review." },
+        { "id": "workflows", "title": "Choose a Task", "file": "workflows/index.md", "description": "Choose the shortest workflow that fits the task.", "next": ["design-work", "deliver-work", "commands"] },
+        { "id": "design-work", "title": "Design the Work", "file": "workflows/design.md", "description": "Set direction, explore options, and create a reviewed plan.", "next": ["deliver-work", "assure-work"] },
+        { "id": "deliver-work", "title": "Deliver and Resume", "file": "workflows/deliver.md", "description": "Implement plans, fix bugs, and resume interrupted work.", "next": ["assure-work", "knowledge-work"] },
+        { "id": "assure-work", "title": "Review and Assure", "file": "workflows/assure.md", "description": "Match review depth to risk and resolve findings.", "next": ["knowledge-work", "help"] },
+        { "id": "knowledge-work", "title": "Knowledge and Coordination", "file": "workflows/knowledge.md", "description": "Capture lessons, manage the Brain, roadmap, issues, and wiki." }
+      ]
+    },
+    {
+      "title": "Research Workflows",
+      "ownerModule": "suite-cr",
+      "pages": [
+        { "id": "research", "title": "Start Here", "file": "research/index.md", "description": "Activate the research suite and complete a first Compound Research workflow.", "next": ["research-first-workflow", "research-philosophy"] },
+        { "id": "research-philosophy", "title": "Why Compound Research Exists", "file": "research/philosophy.md", "description": "Understand the evidence, uncertainty, and human responsibility behind CR.", "sidebar": false },
+        { "id": "research-first-workflow", "title": "First CR Workflow", "file": "research/first-workflow.md", "description": "Follow the five research commands from question to reusable lesson.", "next": ["research-short-example", "research-evidence-boundaries"] },
+        { "id": "research-short-example", "title": "Worked Example", "file": "research/short-example.md", "description": "See a compact Kenya extreme-precipitation workflow from activation to review." },
         { "id": "research-lifecycle", "title": "Research Lifecycle and Task Types", "file": "research/lifecycle.md", "description": "Learn how CR stages and task types route research work." },
         { "id": "research-evidence-boundaries", "title": "Evidence, Review, and Boundaries", "file": "research/evidence-boundaries.md", "description": "Keep claims traceable and understand what CR cannot establish." }
       ]
     },
     {
-      "title": "Workflows",
-      "pages": [
-        { "id": "workflows", "title": "Workflow Overview", "file": "workflows/index.md", "description": "Choose the shortest workflow that fits the task." },
-        { "id": "design-work", "title": "Design the Work", "file": "workflows/design.md", "description": "Set direction, explore options, and create a reviewed plan." },
-        { "id": "deliver-work", "title": "Deliver and Resume", "file": "workflows/deliver.md", "description": "Implement plans, fix bugs, and resume interrupted work." },
-        { "id": "assure-work", "title": "Review and Assure", "file": "workflows/assure.md", "description": "Match review depth to risk and resolve findings." },
-        { "id": "knowledge-work", "title": "Knowledge and Coordination", "file": "workflows/knowledge.md", "description": "Capture lessons, manage the Brain, roadmap, issues, and wiki." }
-      ]
-    },
-    {
       "title": "Skills",
+      "ownerModule": "cap-skill-management",
       "pages": [
-        { "id": "skills", "title": "Skills Catalog", "file": "skills/index.md", "description": "All canonical skills, availability, and maintenance rules." },
-        { "id": "analytical-skills", "title": "Analysis and Economics", "file": "skills/analysis.md", "description": "R, Stata, Python, data, statistics, and visualization guidance." },
-        { "id": "research-skills", "title": "Research Skills", "file": "skills/research.md", "description": "Research methods, evidence, econometrics, machine learning, and high-dimensional inference." },
-        { "id": "development-skills", "title": "Development and Testing", "file": "skills/development.md", "description": "Technical development, testing, reproducibility, and platform skills." },
-        { "id": "institutional-skills", "title": "Institutional Knowledge", "file": "skills/institutional.md", "description": "Writing, project memory, documentation, and collaboration skills." },
-        { "id": "importing-skills", "title": "Importing External Skills", "file": "skills/importing.md", "description": "Quarantined external-skill import with security scanning, review, and vendor registration." }
-      ]
-    },
-    {
-      "title": "Skill Management",
-      "pages": [
-        { "id": "skill-management", "title": "Skill Management", "file": "skills/management/index.md", "description": "Descriptor-driven discovery, import, activation, updates, validation, audit, and retirement." },
-        { "id": "skill-management-lifecycle", "title": "Skill Lifecycle", "file": "skills/management/lifecycle.md", "description": "States, roles, plan/apply behavior, and lifecycle safety boundaries." },
-        { "id": "skill-management-activate", "title": "`cg-skill activate`", "file": "skills/management/commands/activate.md", "description": "Plan and apply one explicit capability activation." },
-        { "id": "skill-management-audit", "title": "`cg-skill audit`", "file": "skills/management/commands/audit.md", "description": "Audit skill state, provenance, references, manifests, and projections." },
-        { "id": "skill-management-create", "title": "`cg-skill create`", "file": "skills/management/commands/create.md", "description": "Plan and create an inactive permanent plugin skill." },
-        { "id": "skill-management-deactivate", "title": "`cg-skill deactivate`", "file": "skills/management/commands/deactivate.md", "description": "Plan and apply removal of one explicit capability selection." },
-        { "id": "skill-management-deprecate", "title": "`cg-skill deprecate`", "file": "skills/management/commands/deprecate.md", "description": "Deprecate an immutable skill identifier in favor of a successor." },
-        { "id": "skill-management-find", "title": "`cg-skill find`", "file": "skills/management/commands/find.md", "description": "Search deterministic canonical and project skill metadata." },
-        { "id": "skill-management-help", "title": "`cg-skill help`", "file": "skills/management/commands/help.md", "description": "List complete descriptor-backed operations and their contracts." },
-        { "id": "skill-management-import", "title": "`cg-skill import`", "file": "skills/management/commands/import.md", "description": "Plan and apply a bounded exact-SHA skill import." },
-        { "id": "skill-management-info", "title": "`cg-skill info`", "file": "skills/management/commands/info.md", "description": "Inspect one skill by its immutable identifier." },
-        { "id": "skill-management-remove", "title": "`cg-skill remove`", "file": "skills/management/commands/remove.md", "description": "Remove only deprecated, inactive, migrated, checksum-owned skill state." },
-        { "id": "skill-management-update", "title": "`cg-skill update`", "file": "skills/management/commands/update.md", "description": "Compare and apply one immutable-SHA imported-skill update." },
-        { "id": "skill-management-validate", "title": "`cg-skill validate`", "file": "skills/management/commands/validate.md", "description": "Validate one skill or the complete selected skill set." },
-        { "id": "skill-management-consumers", "title": "Consumer Guide", "file": "skills/management/consumers/index.md", "description": "A focused path from discovery through safe project activation." },
-        { "id": "skill-management-discovery", "title": "Discover and Inspect Skills", "file": "skills/management/consumers/discovery.md", "description": "Use find, info, help, and validate without changing lifecycle state." },
-        { "id": "skill-management-project-import", "title": "Import a Project Skill", "file": "skills/management/consumers/project-import.md", "description": "Review and apply an exact-origin project import." },
-        { "id": "skill-management-activation", "title": "Activate and Deactivate Skills", "file": "skills/management/consumers/activation.md", "description": "Manage explicit capabilities through byte-preserving plans." },
-        { "id": "skill-management-availability", "title": "Understand Skill Availability", "file": "skills/management/consumers/availability.md", "description": "Interpret active, inactive, prospective, and manifest-health results." },
-        { "id": "skill-management-remediation", "title": "Remediate Skill Findings", "file": "skills/management/consumers/remediation.md", "description": "Use stable finding and exit-code contracts to recover safely." },
-        { "id": "skill-management-maintainers", "title": "Maintainer Guide", "file": "skills/management/maintainers/index.md", "description": "A focused path for permanent plugin skill maintenance." },
-        { "id": "skill-management-creation", "title": "Create a Permanent Skill", "file": "skills/management/maintainers/creation.md", "description": "Create an inactive canonical skill with explicit ownership." },
-        { "id": "skill-management-vendoring", "title": "Vendor an Imported Skill", "file": "skills/management/maintainers/vendoring.md", "description": "Apply plugin-scope admission under maintainer and allowlist controls." },
-        { "id": "skill-management-registry", "title": "Manage Registry and Capabilities", "file": "skills/management/maintainers/registry-capabilities.md", "description": "Preserve ownership, eligibility, selectors, and suite closure." },
-        { "id": "skill-management-updates", "title": "Update an Imported Skill", "file": "skills/management/maintainers/updates.md", "description": "Review an immutable-SHA diff and append provenance." },
-        { "id": "skill-management-retirement", "title": "Deprecate and Remove Skills", "file": "skills/management/maintainers/deprecation-removal.md", "description": "Use successors, grace evidence, migrations, and tombstones." },
-        { "id": "skill-management-release", "title": "Release Skill Management Changes", "file": "skills/management/maintainers/release.md", "description": "Use separate pre-removal and final-tree release gates." },
-        { "id": "skill-management-security", "title": "Skill Management Security", "file": "skills/management/security.md", "description": "Trust, quarantine, approval, provenance, and destructive controls." },
-        { "id": "skill-management-migration", "title": "Migrate to `cg-skill`", "file": "skills/management/migration.md", "description": "Immediate replacement map for the two retired command surfaces." }
+        { "id": "skills", "title": "Skills Catalog", "file": "skills/index.md", "description": "All canonical skills, availability, and maintenance rules.", "ownerModule": "kernel" },
+        { "id": "skill-management", "title": "Skill Management", "file": "skills/management/index.md", "description": "One consumer and maintainer guide to safe skill lifecycle operations.", "next": ["skills", "help"] },
+        { "id": "analytical-skills", "title": "Analysis and Economics", "file": "skills/analysis.md", "description": "R, Stata, Python, data, statistics, and visualization guidance.", "sidebar": false, "ownerModule": "kernel" },
+        { "id": "research-skills", "title": "Research Skills", "file": "skills/research.md", "description": "Research methods, evidence, econometrics, machine learning, and high-dimensional inference.", "sidebar": false, "ownerModule": "suite-cr" },
+        { "id": "development-skills", "title": "Development and Testing", "file": "skills/development.md", "description": "Technical development, testing, reproducibility, and platform skills.", "sidebar": false, "ownerModule": "kernel" },
+        { "id": "institutional-skills", "title": "Institutional Knowledge", "file": "skills/institutional.md", "description": "Writing, project memory, documentation, and collaboration skills.", "sidebar": false, "ownerModule": "kernel" },
+        { "id": "importing-skills", "title": "Importing External Skills", "file": "skills/importing.md", "description": "Compatibility links to the unified guide.", "sidebar": false, "redirect": { "page": "skill-management", "section": "import-at-an-exact-sha", "sections": { "importing-external-skills": "import-at-an-exact-sha", "overview": "start-here", "usage": "import-at-an-exact-sha", "arguments": "import-at-an-exact-sha", "examples": "import-examples", "workflow": "plan-and-apply", "1-consumer-review": "import-at-an-exact-sha", "2-maintainer-vendor": "vendor-an-imported-skill", "security-checks": "acquisition-and-quarantine", "configuration": "vendor-policy", "quarantine-and-review-evidence": "quarantine-and-review-evidence", "vendor-registration": "vendor-registration", "limitations": "limitations" } } },
+        { "id": "skill-management-lifecycle", "title": "Skill Lifecycle", "file": "skills/management/lifecycle.md", "description": "Compatibility links to lifecycle and safety.", "sidebar": false, "redirect": { "page": "skill-management", "section": "lifecycle-and-safety", "sections": { "skill-lifecycle": "lifecycle-and-safety", "state-model": "state-model", "roles": "roles", "plan-and-apply": "plan-and-apply", "lifecycle-paths": "lifecycle-paths" } } },
+        { "id": "skill-management-activate", "title": "cg-skill activate", "file": "skills/management/commands/activate.md", "description": "Plan and apply one explicit capability activation.", "sidebar": false },
+        { "id": "skill-management-audit", "title": "cg-skill audit", "file": "skills/management/commands/audit.md", "description": "Audit skill state, provenance, references, manifests, and projections.", "sidebar": false },
+        { "id": "skill-management-create", "title": "cg-skill create", "file": "skills/management/commands/create.md", "description": "Plan and create an inactive permanent plugin skill.", "sidebar": false },
+        { "id": "skill-management-deactivate", "title": "cg-skill deactivate", "file": "skills/management/commands/deactivate.md", "description": "Plan and apply removal of one explicit capability selection.", "sidebar": false },
+        { "id": "skill-management-deprecate", "title": "cg-skill deprecate", "file": "skills/management/commands/deprecate.md", "description": "Deprecate an immutable skill identifier in favor of a successor.", "sidebar": false },
+        { "id": "skill-management-find", "title": "cg-skill find", "file": "skills/management/commands/find.md", "description": "Search deterministic canonical and project skill metadata.", "sidebar": false },
+        { "id": "skill-management-help", "title": "cg-skill help", "file": "skills/management/commands/help.md", "description": "List complete descriptor-backed operations and their contracts.", "sidebar": false },
+        { "id": "skill-management-import", "title": "cg-skill import", "file": "skills/management/commands/import.md", "description": "Plan and apply a bounded exact-SHA skill import.", "sidebar": false },
+        { "id": "skill-management-info", "title": "cg-skill info", "file": "skills/management/commands/info.md", "description": "Inspect one skill by its immutable identifier.", "sidebar": false },
+        { "id": "skill-management-remove", "title": "cg-skill remove", "file": "skills/management/commands/remove.md", "description": "Remove only deprecated, inactive, migrated, checksum-owned skill state.", "sidebar": false },
+        { "id": "skill-management-update", "title": "cg-skill update", "file": "skills/management/commands/update.md", "description": "Compare and apply one immutable-SHA imported-skill update.", "sidebar": false },
+        { "id": "skill-management-validate", "title": "cg-skill validate", "file": "skills/management/commands/validate.md", "description": "Validate one skill or the complete selected skill set.", "sidebar": false },
+        { "id": "skill-management-consumers", "title": "Consumer Guide", "file": "skills/management/consumers/index.md", "description": "Compatibility link to project skills.", "sidebar": false, "redirect": { "page": "skill-management", "section": "use-skills-in-a-project", "sections": { "consumer-guide": "consumer-topics" } } },
+        { "id": "skill-management-discovery", "title": "Discover and Inspect Skills", "file": "skills/management/consumers/discovery.md", "description": "Compatibility link to discovery.", "sidebar": false, "redirect": { "page": "skill-management", "section": "find-and-inspect", "sections": { "discover-and-inspect-skills": "find-and-inspect" } } },
+        { "id": "skill-management-project-import", "title": "Import a Project Skill", "file": "skills/management/consumers/project-import.md", "description": "Compatibility link to exact-SHA import.", "sidebar": false, "redirect": { "page": "skill-management", "section": "import-at-an-exact-sha", "sections": { "import-a-project-skill": "import-at-an-exact-sha" } } },
+        { "id": "skill-management-activation", "title": "Activate and Deactivate Skills", "file": "skills/management/consumers/activation.md", "description": "Compatibility link to explicit activation.", "sidebar": false, "redirect": { "page": "skill-management", "section": "activate-and-deactivate", "sections": { "activate-and-deactivate-skills": "activate-and-deactivate" } } },
+        { "id": "skill-management-availability", "title": "Understand Skill Availability", "file": "skills/management/consumers/availability.md", "description": "Compatibility link to availability.", "sidebar": false, "redirect": { "page": "skill-management", "section": "availability", "sections": { "understand-skill-availability": "availability" } } },
+        { "id": "skill-management-remediation", "title": "Remediate Skill Findings", "file": "skills/management/consumers/remediation.md", "description": "Compatibility link to recovery.", "sidebar": false, "redirect": { "page": "skill-management", "section": "safe-remediation", "sections": { "remediate-skill-findings": "safe-remediation" } } },
+        { "id": "skill-management-maintainers", "title": "Maintainer Guide", "file": "skills/management/maintainers/index.md", "description": "Compatibility link to plugin maintenance.", "sidebar": false, "redirect": { "page": "skill-management", "section": "maintain-plugin-skills", "sections": { "maintainer-guide": "maintainer-topics" } } },
+        { "id": "skill-management-creation", "title": "Create a Permanent Skill", "file": "skills/management/maintainers/creation.md", "description": "Compatibility link to creation.", "sidebar": false, "redirect": { "page": "skill-management", "section": "create-a-permanent-skill", "sections": { "create-a-permanent-skill": "create-a-permanent-skill" } } },
+        { "id": "skill-management-vendoring", "title": "Vendor an Imported Skill", "file": "skills/management/maintainers/vendoring.md", "description": "Compatibility link to vendoring.", "sidebar": false, "redirect": { "page": "skill-management", "section": "vendor-an-imported-skill", "sections": { "vendor-an-imported-skill": "vendor-an-imported-skill" } } },
+        { "id": "skill-management-registry", "title": "Manage Registry and Capabilities", "file": "skills/management/maintainers/registry-capabilities.md", "description": "Compatibility link to registry rules.", "sidebar": false, "redirect": { "page": "skill-management", "section": "registry-and-capabilities", "sections": { "manage-registry-and-capabilities": "registry-and-capabilities" } } },
+        { "id": "skill-management-updates", "title": "Update an Imported Skill", "file": "skills/management/maintainers/updates.md", "description": "Compatibility link to immutable updates.", "sidebar": false, "redirect": { "page": "skill-management", "section": "update-an-imported-skill", "sections": { "update-an-imported-skill": "update-an-imported-skill" } } },
+        { "id": "skill-management-retirement", "title": "Deprecate and Remove Skills", "file": "skills/management/maintainers/deprecation-removal.md", "description": "Compatibility link to retirement safeguards.", "sidebar": false, "redirect": { "page": "skill-management", "section": "deprecate-and-remove", "sections": { "deprecate-and-remove-skills": "deprecate-and-remove" } } },
+        { "id": "skill-management-release", "title": "Release Skill Management Changes", "file": "skills/management/maintainers/release.md", "description": "Compatibility link to release gates.", "sidebar": false, "redirect": { "page": "skill-management", "section": "release-gates", "sections": { "release-skill-management-changes": "release-gates" } } },
+        { "id": "skill-management-security", "title": "Skill Management Security", "file": "skills/management/security.md", "description": "Compatibility links to security and provenance.", "sidebar": false, "redirect": { "page": "skill-management", "section": "security-and-provenance", "sections": { "skill-management-security": "security-and-provenance", "acquisition-and-quarantine": "acquisition-and-quarantine", "authority-and-approval": "authority-and-approval", "provenance-and-supply-chain": "provenance-and-supply-chain", "destructive-controls": "destructive-controls" } } },
+        { "id": "skill-management-migration", "title": "Migrate to cg-skill", "file": "skills/management/migration.md", "description": "Compatibility link to retired-command replacements.", "sidebar": false, "redirect": { "page": "skill-management", "section": "migrate-existing-workflows", "sections": { "migrate-to-cg-skill": "migrate-existing-workflows" } } }
       ]
     },
     {
       "title": "Operate",
+      "ownerModule": "kernel",
       "pages": [
         { "id": "configuration", "title": "Configuration", "file": "configuration/index.md", "description": "Project settings, context files, platforms, and managed content." },
-        { "id": "strict-config", "title": "Strict Config Schema", "file": "configuration.md", "description": "Strict compound-gpid.local.md grammar, projectRoots, manifest resolver, and validation." },
+        { "id": "strict-config", "title": "Strict Config Schema", "file": "configuration.md", "description": "Strict compound-gpid.local.md grammar, projectRoots, manifest resolver, and validation.", "sidebar": false },
         { "id": "governance", "title": "Governance and Security", "file": "governance/index.md", "description": "Operating constraints, data safeguards, review gates, and limitations." },
         { "id": "help", "title": "Help and Troubleshooting", "file": "help/index.md", "description": "Start with the shortest recovery path and escalate safely." },
-        { "id": "installation", "title": "Installation Details", "file": "installation.md", "description": "Complete platform-specific installation, repair, and uninstall procedures." },
+        { "id": "installation", "title": "Installation Details", "file": "installation.md", "description": "Complete platform-specific installation, repair, and uninstall procedures.", "sidebar": false, "sectionAliases": { "step-1-clone-once-per-machine": "step-1-clone-once-per-machine", "step-2-install-once-per-machine": "step-2-install-once-per-machine", "step-3-link-your-project-once-per-project": "step-3-link-your-project-once-per-project", "step-4-configure-your-project-once-per-project": "step-4-configure-your-project-once-per-project" } },
         { "id": "versioning", "title": "Updates and Versions", "file": "versioning.md", "description": "Update, pin, unpin, and repair an installation." },
-        { "id": "troubleshooting", "title": "Troubleshooting Reference", "file": "troubleshooting.md", "description": "Complete recovery procedures and known issues." }
+        { "id": "troubleshooting", "title": "Troubleshooting Reference", "file": "troubleshooting.md", "description": "Complete recovery procedures and known issues.", "sidebar": false }
       ]
     },
     {
       "title": "Reference",
+      "ownerModule": "kernel",
       "pages": [
-        { "id": "commands", "title": "Commands", "file": "reference/commands.md", "description": "Task-oriented prompt and shell-command index." },
+        { "id": "commands", "title": "Find a Command", "file": "reference/commands.md", "description": "Task-oriented prompt and shell-command index.", "next": ["workflows", "research", "reference"] },
         { "id": "agents", "title": "Agents", "file": "reference/agents.md", "description": "Review and infrastructure agents and how they are dispatched." },
         { "id": "files", "title": "Files and Artifacts", "file": "reference/files.md", "description": "Project files, generated targets, and knowledge artifacts." },
         { "id": "reference", "title": "Complete Reference", "file": "reference.md", "description": "Detailed command, schema, agent, and configuration contracts." },
-        { "id": "context-files", "title": "Context Files", "file": "context-files.md", "description": "Detailed context-file lifecycle and platform architecture." },
-        { "id": "model-guide", "title": "Model Guide", "file": "model-guide.md", "description": "Model selection, escalation, and token-governance policy." },
-        { "id": "team-brain-schema", "title": "Team Brain Schema", "file": "team-brain-schema.md", "description": "Team Brain configuration, repository schema, and privacy fields." },
-        { "id": "experimental", "title": "Experimental Capabilities", "file": "reference/experimental.md", "description": "Evaluation-only retrieval and research-mode registries." },
-        { "id": "retrieval-backends", "title": "Retrieval Backends", "file": "retrieval-backends.md", "description": "Evaluation registry; native Brain query remains the active backend." },
-        { "id": "snapshot-external-research", "title": "Research Modes", "file": "snapshot-external-research.md", "description": "Evaluation registry; local workflow remains the active mode." },
-        { "id": "workflow", "title": "Detailed Workflow Manual", "file": "workflow.md", "description": "Complete prompt behavior, scenarios, and workflow contracts." },
-        { "id": "manual", "title": "Compatibility Manual Index", "file": "manual.md", "description": "Legacy Markdown table of contents retained for inbound links." }
+        { "id": "context-files", "title": "Context Files", "file": "context-files.md", "description": "Detailed context-file lifecycle and platform architecture.", "sidebar": false, "sectionAliases": { "what-it-contains": "what-it-contains", "how-it-is-created": "how-it-is-created", "how-it-is-updated": "how-it-is-updated" } },
+        { "id": "model-guide", "title": "Model Guide", "file": "model-guide.md", "description": "Model selection, escalation, and token-governance policy.", "sidebar": false },
+        { "id": "team-brain-schema", "title": "Team Brain Schema", "file": "team-brain-schema.md", "description": "Team Brain configuration, repository schema, and privacy fields.", "sidebar": false },
+        { "id": "experimental", "title": "Experimental Capabilities", "file": "reference/experimental.md", "description": "Evaluation-only retrieval and research-mode registries.", "sidebar": false },
+        { "id": "retrieval-backends", "title": "Retrieval Backends", "file": "retrieval-backends.md", "description": "Evaluation registry; native Brain query remains the active backend.", "sidebar": false },
+        { "id": "snapshot-external-research", "title": "Research Modes", "file": "snapshot-external-research.md", "description": "Evaluation registry; local workflow remains the active mode.", "sidebar": false },
+        { "id": "workflow", "title": "Detailed Workflow Manual", "file": "workflow.md", "description": "Complete prompt behavior, scenarios, and workflow contracts.", "sidebar": false },
+        { "id": "manual", "title": "Compatibility Manual Index", "file": "manual.md", "description": "Legacy Markdown table of contents retained for inbound links.", "sidebar": false }
       ]
     },
     {
-      "title": "Develop",
+      "title": "Contribute",
+      "ownerModule": "suite-cg",
       "pages": [
         { "id": "development", "title": "Contribute and Develop", "file": "development/index.md", "description": "Repository development, tests, documentation, and releases." },
-        { "id": "release-controller", "title": "Release Controller", "file": "release-controller.md", "description": "Disabled local controller, installation, trusted setup, recovery and deferred rollout checks." },
-        { "id": "copilot-readiness", "title": "Copilot Issue Readiness", "file": "copilot-readiness.md", "description": "Canonical readiness contract and deterministic read-only validator for Copilot implementation issues." },
-        { "id": "copilot-dispatch", "title": "Copilot Issue Dispatch", "file": "copilot-dispatch.md", "description": "Manually triggered single-issue Copilot dispatcher: inputs, dry-run, permissions, mutation order, and recovery." },
-        { "id": "competitive-reviews", "title": "Competitive Reviews", "file": "competitive-reviews.md", "description": "Maintainer-only external repository review workflow." },
-        { "id": "documentation-audit", "title": "Documentation Migration", "file": "about/documentation-audit.md", "description": "Source inventory, preservation decisions, and future review items." }
+        { "id": "release-controller", "title": "Release Controller", "file": "release-controller.md", "description": "Disabled local controller, installation, trusted setup, recovery and deferred rollout checks.", "sidebar": false },
+        { "id": "copilot-readiness", "title": "Copilot Issue Readiness", "file": "copilot-readiness.md", "description": "Canonical readiness contract and deterministic read-only validator for Copilot implementation issues.", "sidebar": false },
+        { "id": "copilot-dispatch", "title": "Copilot Issue Dispatch", "file": "copilot-dispatch.md", "description": "Manually triggered single-issue Copilot dispatcher: inputs, dry-run, permissions, mutation order, and recovery.", "sidebar": false },
+        { "id": "competitive-reviews", "title": "Competitive Reviews", "file": "competitive-reviews.md", "description": "Maintainer-only external repository review workflow.", "sidebar": false },
+        { "id": "documentation-audit", "title": "Documentation Migration", "file": "about/documentation-audit.md", "description": "Source inventory, preservation decisions, and future review items.", "sidebar": false }
       ]
     }
   ]

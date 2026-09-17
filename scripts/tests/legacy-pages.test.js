@@ -116,24 +116,25 @@ test('the exact immutable archive digest is checked against downloaded bytes', (
   assert.throws(() => verifyArchive(env, 20, 'sha256:' + '0'.repeat(64), transport), /digest mismatch/);
 });
 
-test('trusted dev importer verifies real full inventory before changing only dev data', t => {
+test('trusted dev importer verifies full inventory before writing separate staging', t => {
   const fs = require('node:fs'), path = require('node:path'), os = require('node:os');
   const {canonicalInputFingerprint, perFileDigests} = require('../rebuild-docs.js');
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'cg-legacy-pages-'));
   t.after(() => fs.rmSync(root, {recursive: true, force: true}));
-  const source = path.join(root, 'dev'), artifact = path.join(root, 'artifact');
+  const source = path.join(root, 'dev'), artifact = path.join(root, 'artifact'), staging = path.join(root, 'staging');
   for (const dir of [source, artifact]) fs.mkdirSync(path.join(dir, 'docs'), {recursive: true});
   fs.writeFileSync(path.join(root, 'stable.html'), 'stable remains unchanged');
   fs.writeFileSync(path.join(source, 'docs/index.html'), 'canonical dev content');
-  fs.writeFileSync(path.join(artifact, 'docs/index.html'), 'built dev content');
+  fs.writeFileSync(path.join(artifact, 'docs/index.html'), 'canonical dev content');
   const metadata = {schemaVersion: 1, site: {files: perFileDigests(artifact),
     fingerprint: canonicalInputFingerprint(source).fingerprint}};
   fs.writeFileSync(path.join(artifact, '.docs-build-metadata.json'), JSON.stringify(metadata));
   fs.writeFileSync(path.join(artifact, 'docs/extra.html'), 'unlisted');
-  assert.throws(() => importDev(source, artifact), /file list/);
+  assert.throws(() => importDev(source, artifact, staging), /file list/);
   assert.equal(fs.readFileSync(path.join(source, 'docs/index.html'), 'utf8'), 'canonical dev content');
   fs.rmSync(path.join(artifact, 'docs/extra.html'));
-  importDev(source, artifact);
-  assert.equal(fs.readFileSync(path.join(source, 'docs/index.html'), 'utf8'), 'built dev content');
+  assert.throws(() => importDev(source, artifact, staging), /unknown canonical producer/);
+  assert.equal(fs.readFileSync(path.join(source, 'docs/index.html'), 'utf8'), 'canonical dev content');
+  assert.equal(fs.existsSync(staging), false);
   assert.equal(fs.readFileSync(path.join(root, 'stable.html'), 'utf8'), 'stable remains unchanged');
 });

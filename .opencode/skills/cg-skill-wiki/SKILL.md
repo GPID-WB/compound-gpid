@@ -65,6 +65,19 @@ lastUpdated: "YYYY-MM-DD"  # ISO date; updated by agent after every successful w
 
 ## Section Markers
 
+### Externally generated help sections
+
+`sections[].generator: "help-catalog"` delegates the section to the canonical
+help documentation writer. The optional `externalGenerators.help-catalog`
+manifest record also lists its exact files and section IDs, including nested
+`reference/commands.md`. This does not change flat `pages[].file` validation.
+All wiki modes (init, update, rebuild, convert) preserve these marker interiors
+byte-for-byte. Never synthesize or bootstrap their command facts. Use
+`python scripts/cg_generate_help_catalog.py --check-docs` to check freshness;
+only its `--write-docs` mode regenerates them. The explicit one-time
+`--bootstrap-docs-markers` mode requires recognized old table boundaries and is
+separate from normal wiki generation.
+
 Section markers delimit plugin-managed content within `auto` pages. Content outside markers is user-owned and must never be overwritten.
 
 **Marker syntax:**

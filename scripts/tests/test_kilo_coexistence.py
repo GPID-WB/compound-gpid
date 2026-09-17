@@ -312,6 +312,7 @@ def test_certified_kilo_help_observed_flows(tmp_path: Path) -> None:
         observer = bin_dir / "observer.py"
         observer.write_bytes((
             "import hashlib,io,json,sys,uuid\nfrom pathlib import Path\n"
+            + "assert Path.cwd().resolve()==Path(" + repr(str(root.resolve())) + "), 'Host command escaped the isolated probe root'\n"
             + "sys.path.insert(0," + repr(str(REPO_ROOT / "scripts")) + ")\n"
             + "import cg_help\noriginal=cg_help.query_service\nseen=[]\n"
             + "def observe(text,**kwargs):\n seen.append(hashlib.sha256(text.encode('utf-8')).hexdigest())\n return original(text,**kwargs)\n"
@@ -332,10 +333,17 @@ def test_certified_kilo_help_observed_flows(tmp_path: Path) -> None:
         assert host.exit_code == 0
         assert host.kilo_version == version and host.kilo_executable_sha256 == executable_hash
         environment = os.environ.copy()
+        # Native hosts can include PWD in model context. subprocess cwd alone
+        # does not replace the inherited value, which can redirect tool calls.
+        environment["PWD"] = str(root.resolve())
+        environment.pop("OLDPWD", None)
         environment[preflight.CONTAINMENT_ENVIRONMENT] = "1"
         environment["PATH"] = str(bin_dir) + os.pathsep + environment.get("PATH", "")
-        # Native host argv carries public fixture input as data, never shell text.
-        result = subprocess.run([str(executable), *support.PROBE_ARGUMENTS, text],
+        # Kilo quotes message arguments containing spaces before expanding its
+        # command template. These fixed single-space fixtures must therefore use
+        # separate message words; shell metacharacters remain inert argv data.
+        message_words = text.split(" ") if text else []
+        result = subprocess.run([str(executable), *support.PROBE_ARGUMENTS, *message_words],
                                 cwd=root, env=environment, capture_output=True, timeout=180, check=False)
         assert result.returncode == 0, "Certified host command failed"
         assert len(result.stdout) <= preflight.MAX_HOST_OUTPUT_BYTES

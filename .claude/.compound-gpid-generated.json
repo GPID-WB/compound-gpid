@@ -140,7 +140,7 @@
       "path": ".claude/agents/cg-wiki.md",
       "source": ".github/agents/cg-wiki.agent.md",
       "kind": "agent",
-      "sha256": "363ca215a8c84cc7fa8616f54bae18f5e67c7bab064ae4cf2664a1fbffe360d4",
+      "sha256": "14f3babd85bd43f5eda09b21f63eb36f65446639eb9a83c277222398b8089901",
       "executable": false
     },
     {
@@ -315,7 +315,7 @@
       "path": ".claude/commands/cg-help.md",
       "source": ".github/prompts/cg-help.prompt.md",
       "kind": "command",
-      "sha256": "971ae584590e18fd8d488c531247cce04bddc5174c6a262552a42386d2bcf1bf",
+      "sha256": "82d621d0339649b62acd1c359ccd96caab8bd76fcf9bf5434600d867a4d68141",
       "executable": false
     },
     {
@@ -567,7 +567,7 @@
       "path": ".claude/shared/help-catalog.json",
       "source": ".github/shared/help-catalog.json",
       "kind": "shared",
-      "sha256": "572ecb9151261bc65c3d649641e87a8a60e6593d14e0b67768f2d99ac61fdbb4",
+      "sha256": "48cd6f7e1bca89b74c3dd5bba31d49a339ad66320a0abfef90baf7ea355ac30c",
       "executable": false
     },
     {
@@ -2436,7 +2436,7 @@
       "path": ".claude/skills/cg-skill-wiki/SKILL.md",
       "source": ".github/skills/cg-skill-wiki/SKILL.md",
       "kind": "skill",
-      "sha256": "71359eb83cae9c249c7d5dffcf2f3de10504ac29618bb2cb7cc001d1b674ce69",
+      "sha256": "9fadc6c248d4b2bc91c1322afc466d484a1f639828d969a2a42e25973a30045c",
       "executable": false
     },
     {

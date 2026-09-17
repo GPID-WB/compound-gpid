@@ -1310,7 +1310,52 @@ class TestActiveStateIntegrity:
 
     def test_handoff_targets_dev_branch(self) -> None:
         text = ACTIVE_STATE.read_text(encoding="utf-8-sig")
-        next_cmd = json.loads(text).get("nextCommand", "")
-        assert "main" not in next_cmd.lower() or "dev" in next_cmd.lower(), (
-            "nextCommand must reference dev, not main"
+        next_cmd = json.loads(text)["nextCommand"]
+        assert next_cmd is None or isinstance(next_cmd, str), (
+            "nextCommand must be null or a string"
         )
+        if isinstance(next_cmd, str):
+            assert "main" not in next_cmd.lower() or "dev" in next_cmd.lower(), (
+                "nextCommand must reference dev, not main"
+            )
+
+    @pytest.mark.parametrize("next_cmd", [
+        pytest.param(None, id="null"),
+        pytest.param("", id="empty-string"),
+        pytest.param("/cg-work phase2", id="workflow-command"),
+        pytest.param("gh pr create --base DEV", id="dev-branch"),
+        pytest.param("Compare MAIN with DEV", id="both-branches"),
+    ])
+    def test_handoff_accepts_contract_valid_next_command(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, next_cmd: str | None
+    ) -> None:
+        """Exercise the handoff assertion without changing the shared state file."""
+        state_path = tmp_path / "current.json"
+        state_path.write_text(json.dumps({"nextCommand": next_cmd}), encoding="utf-8")
+        monkeypatch.setattr(f"{__name__}.ACTIVE_STATE", state_path)
+        self.test_handoff_targets_dev_branch()
+
+    @pytest.mark.parametrize(("next_cmd", "message"), [
+        pytest.param(False, "nextCommand must be null or a string", id="boolean"),
+        pytest.param(0, "nextCommand must be null or a string", id="number"),
+        pytest.param([], "nextCommand must be null or a string", id="array"),
+        pytest.param({}, "nextCommand must be null or a string", id="object"),
+        pytest.param(
+            "gh pr create --base main", "nextCommand must reference dev, not main",
+            id="main-branch",
+        ),
+        pytest.param(
+            "gh pr create --base MAIN", "nextCommand must reference dev, not main",
+            id="uppercase-main-branch",
+        ),
+    ])
+    def test_handoff_rejects_invalid_type_or_main_only_command(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+        next_cmd: object, message: str,
+    ) -> None:
+        """Require explicit type rejection and preserve the string branch policy."""
+        state_path = tmp_path / "current.json"
+        state_path.write_text(json.dumps({"nextCommand": next_cmd}), encoding="utf-8")
+        monkeypatch.setattr(f"{__name__}.ACTIVE_STATE", state_path)
+        with pytest.raises(AssertionError, match=message):
+            self.test_handoff_targets_dev_branch()

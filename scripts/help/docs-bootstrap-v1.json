@@ -1,0 +1,28 @@
+{
+  "reference.md": {
+    "help-commands": {
+      "legacy": "commands"
+    },
+    "help-research-commands": {
+      "legacy": "research-commands"
+    },
+    "help-shell-commands": {
+      "heading": "## Shell Commands",
+      "sha256": "425dc36a65c9adfcfb6c5e5ca930a25441021d6e61faa3d171493189bfa1e671"
+    }
+  },
+  "reference/commands.md": {
+    "help-commands": {
+      "heading": "## Workflow prompts",
+      "sha256": "ec6b40c93c0a49e2ccfdd13cfd3c0481a4d7b898f887e00536f634cd4d008891"
+    },
+    "help-research-commands": {
+      "heading": "## Research workflow prompts",
+      "sha256": "cf47c51a3d4e00757ae8ba680a4217e563f3cf2afd215742e53ee7d071cda7fa"
+    },
+    "help-shell-commands": {
+      "heading": "## Shell commands",
+      "sha256": "110f498aa6450a8ede7408568ebc7fd95040dc72c21d5c943f5b296dfc14913c"
+    }
+  }
+}

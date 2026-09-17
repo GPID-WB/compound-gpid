@@ -1,5 +1,9 @@
 # Project-wiki ownership manifest. Public site navigation is defined in
 # docs/navigation.json and validated independently.
+# Nested Skill Management and command-hub prose is manually maintained outside
+# this root-page wiki manifest. Operation references remain manual. Existing
+# help facts belong to the canonical help-catalog writer below. Its bounded
+# declaration uses this exact format so no general YAML parser is required.
 schemaVersion: "compound-gpid-wiki-v1"
 folder: "docs"
 pages:
@@ -32,10 +36,15 @@ pages:
     ownership: "auto"
     order: 5
     sections:
-      - id: "commands"
+      - id: "help-commands"
         managed: true
-      - id: "research-commands"
+        generator: "help-catalog"
+      - id: "help-research-commands"
         managed: true
+        generator: "help-catalog"
+      - id: "help-shell-commands"
+        managed: true
+        generator: "help-catalog"
   - id: "context-files"
     file: "context-files.md"
     title: "Context Files"
@@ -81,4 +90,10 @@ pages:
     title: "Competitive Reviews"
     ownership: "manual"
     order: 14
-lastUpdated: "2026-08-13"
+externalGenerators:
+  help-catalog:
+    files: ["reference.md", "reference/commands.md"]
+    sections: ["help-commands", "help-research-commands", "help-shell-commands"]
+    writer: "python scripts/cg_generate_help_catalog.py --write-docs"
+    checker: "python scripts/cg_generate_help_catalog.py --check-docs"
+lastUpdated: "2026-09-17"

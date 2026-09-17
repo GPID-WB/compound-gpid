@@ -31,6 +31,9 @@ const OWNERS = {
   "commands": "prompts",
   "research-commands": "prompts",
   "release-notes": "release-generator",
+  "help-commands": "help-catalog",
+  "help-research-commands": "help-catalog",
+  "help-shell-commands": "help-catalog",
 };
 
 function usage() {
@@ -250,6 +253,7 @@ function docsSource(root) {
 }
 
 function canonicalInputFingerprint(root) {
+  if (upgradedSource(root)) return { fingerprint: require("./docs-fingerprint.js").fingerprint(root, 3) };
   const hash = crypto.createHash("sha256");
   const parts = [];
   const dirInputs = [
@@ -337,7 +341,12 @@ function verifyArtifact(artifactDir) {
   return 0;
 }
 
-function runRebuild(root, { check = false, all = false, verifyFingerprint = null, verifyArtifact: artifactDir = null } = {}) {
+function upgradedSource(root) {
+  const html = path.join(root, "docs/index.html");
+  return fs.existsSync(html) && fs.readFileSync(html, "utf8").includes('name="cg-docs-shell"');
+}
+
+function runRebuild(root, { check = false, all = false, verifyFingerprint = null, verifyArtifact: artifactDir = null, producerVersion = upgradedSource(root) ? 3 : 1 } = {}) {
   if (artifactDir) return verifyArtifact(artifactDir);
   resolveInside(root, "docs/_wiki.yml");
   const manifestPath = path.join(root, "docs", "_wiki.yml");
@@ -391,18 +400,24 @@ function runRebuild(root, { check = false, all = false, verifyFingerprint = null
     }
   }
 
+  const helpBuild = producerVersion === 3 ? require("./docs-help-build.js").prepareHelp(root) : null;
   let changed = false;
   const tables = {
     "commands": generateCommandTable(root, "cg-"),
     "research-commands": generateCommandTable(root, "cr-"),
   };
-  for (const section of Object.keys(tables)) {
+  for (const section of helpBuild ? [] : Object.keys(tables)) {
     const next = replaceInterior(refText, section, tables[section]);
     if (next !== refText) { changed = true; refText = next; }
+  }
+  if (helpBuild) {
+    changed = helpBuild.documents["reference.md"] !== refText;
+    refText = helpBuild.documents["reference.md"];
   }
 
   if (verifyFingerprint) {
     const meta = readBuildMetadata(verifyFingerprint);
+    require("./docs-build-contract.js").selectProducer(meta, `compound-gpid-docs-producer-v${producerVersion}`);
     const current = canonicalInputFingerprint(root);
     if (current.fingerprint === meta.site.fingerprint) {
       console.log("rebuild-docs: fingerprint current");
@@ -414,6 +429,8 @@ function runRebuild(root, { check = false, all = false, verifyFingerprint = null
 
   const whatsNew = all ? require("./generate-whats-new.js") : null;
   const releaseBuild = all ? whatsNew.prepareReleaseNotes(root) : null;
+  const searchBuild = all && producerVersion >= 2 ? require("./docs-search-index.js").prepareSearchIndex(root,
+    { ...helpBuild?.documents, "reference.md": refText, "whats-new.md": releaseBuild.next }) : null;
 
   if (all) {
     // Build and validate the release page before writing either managed page,
@@ -422,6 +439,8 @@ function runRebuild(root, { check = false, all = false, verifyFingerprint = null
       const stale = [];
       if (changed) stale.push("docs/reference.md");
       if (releaseBuild.changed) stale.push("docs/whats-new.md");
+      if (searchBuild?.changed) stale.push(searchBuild.path);
+      for (const file of helpBuild?.files || []) if (file.changed && !stale.includes(file.path)) stale.push(file.path);
       if (stale.length) {
         console.log(stale.join("\n"));
         return 1;
@@ -431,26 +450,31 @@ function runRebuild(root, { check = false, all = false, verifyFingerprint = null
     }
     if (changed) fs.writeFileSync(refPath, refText);
     if (releaseBuild.changed) fs.writeFileSync(releaseBuild.filePath, releaseBuild.next);
+    if (searchBuild?.changed) fs.writeFileSync(resolveInside(root, searchBuild.path), searchBuild.next);
+    for (const file of helpBuild?.files || []) if (file.changed) fs.writeFileSync(resolveInside(root, file.path), file.next);
     const meta = {
       schemaVersion: 1,
       version: "1",
+      ...(producerVersion >= 2 ? { producerContract: `compound-gpid-docs-producer-v${producerVersion}`, fingerprintVersion: producerVersion } : {}),
       site: {
-        fingerprint: canonicalInputFingerprint(root).fingerprint,
+        fingerprint: require("./docs-fingerprint.js").fingerprint(root, producerVersion),
         files: perFileDigests(root),
       },
     };
     const metaPath = path.join(root, ".docs-build-metadata.json");
     fs.writeFileSync(metaPath, JSON.stringify(meta, null, 2) + "\n");
-    if (changed || releaseBuild.changed) console.log("rebuild-docs: --all rebuilt managed documentation");
+    if (changed || releaseBuild.changed || searchBuild?.changed || helpBuild?.files.some(file => file.changed)) console.log("rebuild-docs: --all rebuilt managed documentation");
     else console.log("rebuild-docs: --all current (no changes)");
     return 0;
   }
 
   if (!check && changed) fs.writeFileSync(refPath, refText);
+  if (!check) for (const file of helpBuild?.files || []) if (file.changed) fs.writeFileSync(resolveInside(root, file.path), file.next);
 
   if (check) {
     const stale = [];
     if (changed) stale.push("docs/reference.md");
+    for (const file of helpBuild?.files || []) if (file.changed && !stale.includes(file.path)) stale.push(file.path);
     if (stale.length) {
       console.log(stale.join("\n"));
       return 1;

@@ -203,8 +203,8 @@ def test_combined_docs_build_validates_legacy_main_separately_from_dev() -> None
         '        run: node "$GITHUB_WORKSPACE/sources/dev/scripts/check-docs-site.js" --legacy'
     ) in workflow
     assert (
-        'working-directory: sources/dev\n'
-        '        run: node scripts/check-docs-site.js'
+        'working-directory: producer-input\n'
+        '        run: node "$GITHUB_WORKSPACE/sources/dev/scripts/check-docs-site.js"'
     ) in workflow
 
 
@@ -212,7 +212,9 @@ def test_combined_docs_build_does_not_rebuild_legacy_main_source() -> None:
     workflow = _read(".github/workflows/docs-site-build.yml")
 
     assert "sources/main/scripts/rebuild-docs.js" not in workflow
-    assert "sources/dev/scripts/rebuild-docs.js --root \"$GITHUB_WORKSPACE/sources/dev\" --all" in workflow
+    assert "cp -R sources/dev producer-input" in workflow
+    assert "sources/dev/scripts/rebuild-docs.js --root \"$GITHUB_WORKSPACE/producer-input\" --all" in workflow
+    assert "--root \"$GITHUB_WORKSPACE/sources/dev\" --all" not in workflow
 
 
 def test_dev_builder_has_no_authority_and_controller_uses_main_as_content_only() -> None:
@@ -260,16 +262,14 @@ def test_dev_builder_has_no_authority_and_controller_uses_main_as_content_only()
 def test_combined_docs_build_checks_metadata_as_a_workflow_step() -> None:
     workflow = _read(".github/workflows/docs-site-build.yml")
 
-    assert (
-        "\n      - name: Require combined build metadata\n"
-        "        run: test -f combined-artifact/.docs-build-metadata.json\n"
-        in workflow
-    )
-    assert (
-        "\n          - name: Require combined build metadata\n"
-        "            run: test -f combined-artifact/.docs-build-metadata.json\n"
-        not in workflow
-    )
+    parsed = yaml.load(workflow, Loader=yaml.BaseLoader)
+    steps = [step for job in parsed["jobs"].values() for step in job["steps"]
+             if step.get("name") == "Require combined build metadata"]
+    assert len(steps) == 1
+    assert "test -f combined-artifact/.docs-build-metadata.json" in steps[0]["run"]
+    assert "assemble-docs-site.js --verify combined-artifact" in steps[0]["run"]
+    for flag in ("--main-root", "--dev-root", "--main-sha", "--dev-sha"):
+        assert flag in steps[0]["run"]
 
 
 def test_release_docs_build_checks_metadata_as_a_workflow_step() -> None:
