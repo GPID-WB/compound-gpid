@@ -936,6 +936,7 @@ if [ -d "$PROJECT_ROOT/.compound-gpid" ] && [ -f "$PROJECT_ROOT/.compound-gpid/a
         [ -n "$projection_root" ] && printf '%s\n' "$projection_root" >> "$entries_file"
     done
     printf '%s\n' \
+        '.compound-gpid/runtime/' \
         '.compound-gpid/active/' \
         '.compound-gpid/generations/' \
         '.compound-gpid/projection-ownership.json' \
@@ -960,6 +961,8 @@ elif [[ ",$PLATFORMS," == *,kilo,* ]]; then
 fi
 
 collect_existing_managed_entries >> "$entries_file"
+# Help transport also needs an ignore rule in legacy, non-projected installs.
+printf '%s\n' '.compound-gpid/runtime/' >> "$entries_file"
 update_gitignore_block "$entries_file"
 
 case ",$PLATFORMS," in

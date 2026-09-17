@@ -23,6 +23,29 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 NATIVE_TARGETS = ("claude-code", "codex", "opencode", "kilo")
 
 
+@pytest.mark.parametrize("suites", [("cg",), ("cr",), ("cg", "cr")])
+def test_step7_help_projects_in_every_suite_and_target(suites):
+    from skill_management.services.registry import matching_asset_owners
+    registry = json.loads((REPO_ROOT / generator.MODULE_REGISTRY_PATH).read_text(encoding="utf-8"))
+    assets = generator.scan_canonical_assets(REPO_ROOT, active_suites=suites)
+    paths = {item["relative_path"] for item in assets["prompts"]}
+    assert generator.CANONICAL_HELP_PROMPT_PATH in paths
+    assert matching_asset_owners(registry, generator.CANONICAL_HELP_PROMPT_PATH) == ("cap-help",)
+    plan = generator.build_generation_plan(REPO_ROOT, generator.load_target_mapping(REPO_ROOT), assets)
+    for target in NATIVE_TARGETS:
+        entry = next(item for item in plan.by_target[target].entries
+                     if item.source == generator.CANONICAL_HELP_PROMPT_PATH)
+        text = entry.content.decode("utf-8")
+        assert "$ARGUMENTS" in text
+        assert "--platform " + target in text
+        assert "invocation tail from the current user request" not in text
+        if target in ("opencode", "kilo"):
+            assert "Invocation Arguments" in text
+            assert "model-visible" in text
+        else:
+            assert "native-placeholder" in text
+
+
 def _write_json(path: Path, payload: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
@@ -263,6 +286,27 @@ class TestPlanOnlyReadsManifest:
 
 
 class TestClosureFiltering:
+    def test_help_sidecar_metadata_is_scanned_but_not_projected(
+        self, tmp_path: Path
+    ) -> None:
+        root, manifest = _repo_root(tmp_path, platforms="kilo", suites="[cg]")
+        sidecar = root / ".github/prompts/cg-work.help.json"
+        _write(sidecar, "{}\n")
+        registry_path = root / ".github/shared/module-registry.json"
+        registry = json.loads(registry_path.read_text(encoding="utf-8"))
+        suite = next(item for item in registry["modules"] if item["id"] == "suite-cg")
+        suite["ownedAssets"].append(".github/prompts/cg-*.help.json")
+        _write_json(registry_path, registry)
+        manifest = manifest_module.resolve_active_manifest(root, platforms=["kilo"])
+
+        assets = projection._load_canonical_assets(root, manifest)
+        plan = projection.build_projection_plan(root, manifest)
+
+        assert [item["relative_path"] for item in assets["help_sidecars"]] == [
+            ".github/prompts/cg-work.help.json"
+        ]
+        assert all(not entry.source.endswith(".help.json") for entry in plan.entries)
+
     def test_distinct_inventories_per_profile(self, tmp_path: Path) -> None:
         cg_root = tmp_path / "cg"
         _real_registry(cg_root)
@@ -932,3 +976,39 @@ class TestCliPipeline:
         removed, warnings = projection.unlink_consumer_projection(root)
         assert managed.read_bytes() == b"user-edited"
         assert any("user-modified" in warning for warning in warnings)
+
+
+class TestHelperNeverProjected:
+    """The installed autopilot control helper is never copied into consumers.
+
+    Consumers reach the helper through the global installation and pass their
+    own validated root explicitly; projection must never materialize
+    ``scripts/``, ``tests/`` or ``bin/`` entries, and the target mapping must
+    declare no install unit (including a manifest-ignored directory unit) for
+    the helper.
+    """
+
+    def _destinations(self, tmp_path: Path, platforms: str) -> set:
+        root, _ = _repo_root(tmp_path, platforms=platforms)
+        plan = projection.build_projection_plan(root, projection.load_active_manifest(root))
+        return {entry.destination for entry in plan.entries}
+
+    def test_projection_plan_never_emits_install_or_test_paths(self, tmp_path: Path) -> None:
+        destinations = self._destinations(tmp_path, "kilo,opencode")
+        assert not any(d.startswith("scripts/") for d in destinations)
+        assert not any(d.startswith("tests/") for d in destinations)
+        assert not any(d.startswith("bin/") for d in destinations)
+
+    def test_projection_plan_never_emits_autopilot_control_paths(self, tmp_path: Path) -> None:
+        destinations = self._destinations(tmp_path, "kilo,opencode,copilot")
+        assert not any("autopilot-control" in d for d in destinations)
+
+    def test_target_mapping_declares_no_helper_install_unit(self) -> None:
+        mapping = projection.load_target_mapping(REPO_ROOT)
+        for target in mapping["targets"]:
+            for unit in target.get("installUnits", []):
+                target_rel = str(unit.get("target", ""))
+                assert not target_rel.startswith("bin/")
+                assert not target_rel.startswith("scripts/")
+                assert not target_rel.startswith("tests/")
+                assert "cg-autopilot-control" not in target_rel

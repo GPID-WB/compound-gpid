@@ -27,6 +27,33 @@ Use `/cg-compound` after:
 - Completing a review that surfaced important learnings
 - Any time you think "someone else on the team will hit this"
 
+## Stage Mode: Validated Autopilot Entry
+
+Stage mode activates only when the caller supplies a validated autopilot stage
+envelope naming stage `compound`. Standalone invocations keep the ordinary
+conversation-driven workflow below unchanged.
+
+- Accept only bounded problem, root-cause, fix and evidence references from
+  the envelope scope. Never import conversation history or full log/diff
+  bodies.
+- Skip trivial lessons: no mandatory compounding for trivial work. A useful
+  lesson requires the applicable human test-pass confirmation before the
+  lesson document is finalized.
+- Declare secondary effects separately: the solution document,
+  related-document cross-references, the knowledge-brain rebuild, the
+  context/wiki updates and the external team-brain push. `--no-enrich` and
+  `--no-brain` suppress only their own steps; they never suppress the other
+  declared effects.
+- Pause with a `needs-input` decision before any unapproved scope expansion
+  or external effect; exact options and scope are required.
+- After capture, validate the resulting artifacts. If inputs changed, the
+  parent re-enters preparation and the affected review/validation before
+  freezing publication intent. A post-review generated delta is never
+  implicitly approved.
+- On exit, persist the closed stage result through the control helper's
+  `record-result` operation, reporting every declared effect that actually
+  ran.
+
 ## Process
 
 ### Step 0: Get Bearings

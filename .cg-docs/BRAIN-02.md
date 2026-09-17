@@ -1,17 +1,25 @@
 # 🧠 Project Brain — Part 2
 
-_Generated 2026-09-14_
+_Generated 2026-09-16_
 
 ## Roadmap.Json / Test Scenarios / Cg-Work _(continued from Part 1)_
 
-_Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 156 entities
+_Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 163 entities
 
+- **[Release drift ignore checks spawn thousands of Git processes](.cg-docs/solutions/bugs/2026-08-26-release-drift-ignore-checks-spawn-thousands-of-git-processes.md)** · `solution` · _—_ · `2026-08-26`
+  > The `/cg-release` packaging gate took more than 20 minutes in the full workflow. The native packaging test portion al…
+- **[Trusted dispatch requires immutable anchors and captured bytes](.cg-docs/solutions/bugs/2026-08-31-trust-anchor-captured-byte-dispatch.md)** · `solution` · _—_ · `2026-08-31`
+  > The private skill-management dispatcher used local Git origin and branch data to grant maintainer authority. A fixtur…
 - **[Secure c-research migration and research-output boundary](.cg-docs/solutions/bugs/2026-09-02-c-research-migration-security-and-boundary.md)** · `solution` · _—_ · `2026-09-02`
   > Moving Compound Research outputs from `.cg-docs/research/` to the root-level `c-research/` workspace exposed several …
 - **[Captured-byte trust must cover the complete dependency closure](.cg-docs/solutions/bugs/2026-09-02-captured-byte-trust-must-cover-dependency-closure.md)** · `solution` · _—_ · `2026-09-02`
   > A dynamic Python dispatcher captured and validated the selected operation file before execution. The handler still im…
 - **[cg-setup omitted active research-suite selection](.cg-docs/solutions/bugs/2026-09-03-cg-setup-omits-active-research-suite-selection.md)** · `solution` · _—_ · `2026-09-03`
   > After running `/cg-setup`, a project that needed Compound Research could still be configured without the `cr` suite. …
+- **[Single-record help repin blocked by multiple stale definitions](.cg-docs/solutions/bugs/2026-09-11-single-record-help-repin-multiple-stale-definitions.md)** · `solution` · _—_ · `2026-09-11`
+  > Preview and explicit reviewed repin of `shell:cg-brain-init` failed when both its definition and the unrelated `shell…
+- **[CMD FINDSTR splits space-separated patterns into ORs, letting the Windows Store stub pass a .cmd launcher probe](.cg-docs/solutions/bugs/2026-09-15-cmd-findstr-pattern-splitting-accepts-store-stub.md)** · `solution` · _—_ · `2026-09-15`
+  > The `/cg-help` Windows installer gate failed with two current red cases `rejects absent Python and Store stubs withou…
 - **[Get-Item .Target property is string\[\] in PowerShell 5.1, not a scalar string](.cg-docs/solutions/build-errors/2026-03-04-get-item-target-is-string-array.md)** · `solution` · _—_ · `2026-03-04`
   > Code that checks whether a junction points to a specific directory passed all unit tests but produced confusing resul…
 - **[$$  is not a process ID in PowerShell](.cg-docs/solutions/build-errors/2026-03-04-powershell-dollar-dollar-is-not-pid.md)** · `solution` · _—_ · `2026-03-04`
@@ -286,8 +294,14 @@ _Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 156 entities
   > The final release gate reported two failures in `test_release_gate_targets.py`: - The checkout-mismatch test expected…
 - **[Fact-first interactive prompts need branch-complete tests](.cg-docs/solutions/testing-patterns/2026-09-08-fact-first-prompts-need-branch-complete-tests.md)** · `solution` · _—_ · `2026-09-08`
   > An adaptive prompt can contain all required phrases and still execute the wrong workflow. In `/cg-brainstorm`, the pr…
+- **[Registry ownership metadata needs consumer-closure tests](.cg-docs/solutions/testing-patterns/2026-09-09-registry-ownership-metadata-needs-consumer-closure-tests.md)** · `solution` · _—_ · `2026-09-09`
+  > Adding `ownershipExclusions` and the `cap-help` module passed focused schema and catalog tests, but broader verificat…
 - **[Release gates need clean default dependencies and executable fixture controls](.cg-docs/solutions/testing-patterns/2026-09-13-clean-default-release-gates-and-executable-fixtures.md)** · `solution` · _—_ · `2026-09-13`
   > Pipeline step 8 found one P1.1: the default full-package command could not collect `test_profile_workflow_authority.p…
+- **[Pester 4.10.1 TestDrive cleanup fails on Windows long paths; short process-local TEMP and owned-temp disposal are required](.cg-docs/solutions/testing-patterns/2026-09-15-pester-testdrive-long-path-cleanup-failure.md)** · `solution` · _—_ · `2026-09-15`
+  > The unfiltered full Pester gate passed its assertions but left fixture directories behind. The supervised run of `202…
+- **[Prompt-count sentinel in model-assignments tests must change with every .github/prompts/*.prompt.md addition](.cg-docs/solutions/testing-patterns/2026-09-15-prompt-count-sentinel-prompt-additions-sync.md)** · `solution` · _—_ · `2026-09-15`
+  > The Step 7 full Pester gate (`2026-09-14T19:29:01Z` – `19:32:15Z`) failed with a genuine, StrictMode-independent regr…
 - **[Full backlog structuring into five milestones](.cg-docs/strategy/2026-04-06-full-backlog-structuring.md)** · `strategy` · _—_ · `2026-04-06`
   > - Project charter and roadmap.json already in place. - Roadmap had 1 milestone (Quality Loop) with 6 idea-stage featu…
 - **[Workflow automation and external patterns research](.cg-docs/strategy/2026-04-13-workflow-automation-research.md)** · `strategy` · _—_ · `2026-04-13`
@@ -484,7 +498,7 @@ objective`_ · 160 entities
   > /cg-setup --refresh mode for non-destructive re-configuration
 - **[Onboarding tour prompt /cg-tour \(guided workflow walkthrough\)](roadmap.json#onboarding-tour-prompt)** · `feature` · _idea_ · `—`
   > Onboarding tour prompt /cg-tour (guided workflow walkthrough)
-- **[/cg-help — comprehensive interactive help system](roadmap.json#cg-help-interactive)** · `feature` · _idea_ · `—`
+- **[/cg-help — comprehensive interactive help system](roadmap.json#cg-help-interactive)** · `feature` · _active_ · `—`
   > /cg-help — comprehensive interactive help system
 - **[Project scanner evidence, unknowns, and intent-versus-reality gaps](roadmap.json#project-scanner-evidence-reality-gaps)** · `feature` · _idea_ · `—`
   > Project scanner evidence, unknowns, and intent-versus-reality gaps

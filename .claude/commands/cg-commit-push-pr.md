@@ -18,6 +18,26 @@ You are a senior developer helping the user package their work into well-structu
 - **`--ask`** (or **`--wait`**): Enable interactive confirmation mode. When set, pause after proposing the commit structure (Step 2) and after generating commit messages (Step 3) to wait for user approval before proceeding. **Default (no flag): auto-proceed without confirmation** — classify, generate messages, commit, push, and open the PR in one uninterrupted pass.
 - **`--base <branch>`**: Request an explicit PR base branch. Parse this argument before any generation or staging and store it as `$explicitBase`; if the value is missing, halt with a usage error. Base precedence is existing PR `baseRefName`, then explicit `--base`, then the repository default branch.
 
+## Stage Mode: Preparation-Only Entry
+
+Stage mode activates only when the caller supplies a validated autopilot stage
+envelope naming stage `prepare-publication`. Standalone invocations keep the
+full commit/push/PR flow below unchanged.
+
+- Retain the Git-based `$isCompoundGpidSource` classification and run the
+  preparation gates: source generation and the preparation-phase preflight,
+  or the validated ordinary consumer tests from the plan's verification
+  surface. Never run Compound GPID source assets against a consumer.
+- Record the one-way effect receipt through the control helper's
+  `begin-effect` operation before the first generation or test.
+- **Return before staging, commit or push**: no `git add`, `git commit`,
+  `git push`, `gh pr create`, or PR creation of any kind belongs to this
+  entry. The standalone early clean-tree halt does not apply; a clean
+  already-committed tree is a validated no-op preparation result.
+- Report the classification, the exact executed preparation gates with
+  machine results, and the prepared payload inventory in the closed stage
+  result through the control helper's `record-result` operation.
+
 ## Process
 
 ### Step 0: Get Bearings
@@ -166,13 +186,46 @@ Report the resolved base in later commit and PR summaries. Every changed-file co
     (`python3`, `python`, then `py`) and verify that `--version` starts with
     `Python`. Store it as `$pythonCommand`. If no valid Python command is found,
     halt before Step 2.
-6. Run the generator unconditionally before staging:
+6. Run the independent help-catalog gate before native-target generation:
+   - Run `<pythonCommand> scripts/cg_generate_help_catalog.py --check`
+     unconditionally in the retained Compound GPID source repository. This covers
+     prompt and sidecar additions or removals, aliases, module-registry help
+     changes, shell metadata and every declared shell definition source, the
+     marked workflow evidence, and catalog-only changes without an unbounded scan.
+   - Exit code 2 is a source-validation hard stop. If the diagnostic identifies
+     a stale `definitionDigest`, run `<pythonCommand>
+     scripts/cg_generate_help_catalog.py --preview-definition-digest
+     <kind-qualified-id>` and halt before native-target generation. The
+     maintainer must review that one record's help metadata against its changed
+     definition. Only after that review may the maintainer run `<pythonCommand>
+     scripts/cg_generate_help_catalog.py --repin-definition-digest
+     <kind-qualified-id> --reviewed`. Never auto-repin a definition from this
+     workflow or from a bulk catalog-generation path.
+   - Exit code 3 means only that the validated catalog output is missing or
+     stale. Exit code 3 is the trigger to run `<pythonCommand>
+     scripts/cg_generate_help_catalog.py --write` after every pinned definition
+     digest passes review. Exit code 4 or any other nonzero/ambiguous result
+     is a hard stop. Never treat source-validation or I/O failure as ordinary
+     output drift.
+   - After all pinned definition digests match reviewed metadata, run
+     `<pythonCommand> scripts/cg_generate_help_catalog.py --write`. Any nonzero
+     result halts before native-target generation and staging. Do not stage a
+     partial or previously stale catalog.
+   - Rerun `<pythonCommand> scripts/cg_generate_help_catalog.py --check` after
+     the write and require exit code 0 before continuing. A nonzero or partial
+     result is a hard stop.
+   - `.cg-docs/views/**` and documentation prose outside the marked
+     help-workflow block in `docs/workflow.md` are not catalog source-digest or
+     drift inputs. Running the unconditional check for such a changed file is a
+     permitted no-op; do not broaden the generator's evidence boundary.
+
+7. Run the generator unconditionally for all native target trees before staging:
 
     > **execution_subagent query**: "In the repo root, run
     > `<pythonCommand> scripts/cg_generate_targets.py --all`. Report the output and exit
     > code. If the exit code is non-zero, report the full stderr."
 
-7. If generation succeeds:
+8. If generation succeeds:
     - Rerun `git status --short` and replace the Step 1 inventory with this
       refreshed output. This is the only inventory Step 2 may use, so newly
       generated and untracked files cannot be omitted from staging.
@@ -181,12 +234,12 @@ Report the resolved base in later commit and PR summaries. Every changed-file co
       canonical source changes.
     - Inform the user: "Platform trees regenerated and the staging inventory
       refreshed. Generated files will be included in the commit."
-8. If generation fails:
+9. If generation fails:
     - **Halt before Step 2.** Report the command output and exit code. Do not
       classify, stage, commit, push, or claim regenerated targets until generation
       succeeds. Existing generated trees remain untouched and usable because the
       generator validates and renders the complete plan before committing it.
-9. Run these local CI-equivalent gates before Step 2:
+10. Run these local CI-equivalent gates before Step 2:
     - Dispatch an `execution_subagent` query through the platform's safe execution mechanism to run in the repository root:
       ```
       <pythonCommand> scripts/cg_pr_preflight.py --phase prepare --base $baseBranch --run-native-target

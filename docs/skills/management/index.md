@@ -10,7 +10,7 @@ active descriptors.
 
 ## Start Here
 
-> [!TECHNICAL] The current `cap-skill-management` capability declares support for `cg` only, and the registry owns `cg-*` prompt files in the Technical suite. Check the resolved project configuration before chat dispatch. Skills supply instructions; they are not slash commands. A capability-layer module is not automatically shared across suites.
+> [!NOTE] The current `cap-skill-management` capability declares support for both `cg` and `cr`; its ownership and eligibility come from the registry. Check the resolved project configuration before chat dispatch. Skills supply instructions; they are not slash commands. A capability-layer module is not automatically shared across suites.
 
 Use `/cg-skill <operation>` in AI chat for guided work. Use shell `cg-skill
 <operation>` in a terminal for deterministic results. Both use the operation

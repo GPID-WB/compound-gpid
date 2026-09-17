@@ -985,6 +985,7 @@ if ((Test-Path -LiteralPath $compProjectionStateDir) -and
         }
     }
     foreach ($runtimeEntry in @(
+        ".compound-gpid/runtime/",
         ".compound-gpid/active/",
         ".compound-gpid/generations/",
         ".compound-gpid/projection-ownership.json",
@@ -1002,6 +1003,9 @@ if ((Test-Path -LiteralPath $compProjectionStateDir) -and
 foreach ($entry in @(Protect-CgKiloCompatibilitySkillLinks -Mapping $mapping)) {
     [void]$installedEntries.Add($entry)
 }
+
+# Help transport is also available to recognized legacy, non-projected installs.
+[void]$installedEntries.Add(".compound-gpid/runtime/")
 
 if ($manifest.files.Count -gt 0) {
     Write-CgManagedFilesManifest -ManifestPath $ManifestPath -Manifest $manifest
@@ -1057,6 +1061,20 @@ foreach ($platform in $selectedPlatforms) {
     } else {
         Write-Warning "  $platform - not fully available; review skipped units above."
     }
+}
+
+# Control helper availability is a read-only report. The autopilot control
+# helper lives in the installed package only and is never projected or copied
+# into consumer projects; consumers invoke it globally and pass their own
+# validated root explicitly, keeping their own reproduction/test selection.
+$autopilotHelperPaths = @(
+    (Join-Path $CompoundGpidDir "bin\cg-autopilot-control.cmd"),
+    (Join-Path $CompoundGpidDir "bin\cg-autopilot-control")
+)
+if (@($autopilotHelperPaths | Where-Object { Test-Path -LiteralPath $_ }).Count -gt 0) {
+    Write-Host "  Control helper: cg-autopilot-control available (installed package; pass an explicit --root from the consumer)." -ForegroundColor DarkGray
+} else {
+    Write-Warning "  Control helper not found in the Compound GPID installation; run install.ps1 (Windows) or scripts/install.sh (macOS/Linux) to register cg-autopilot-control."
 }
 
 Write-Host ""

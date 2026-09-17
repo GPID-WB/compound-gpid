@@ -42,6 +42,26 @@ into routine sessions; the same applies to the technical suite when it is inacti
 	verification of this instruction.
 - When `suites:` is absent, the default is `[cg]` (backward compatible).
 
+## Autopilot Parent Context Limits
+
+The autopilot parent measures complete returned frames — the closed stage
+result bytes plus its own metadata and any warnings — before another
+dispatch:
+
+- Complete stage JSON stays within 4096 UTF-8 bytes.
+- Per-frame ceiling: 8192 bytes for one complete returned frame.
+- Cumulative allowance: 65536 returned-frame bytes per primary parent
+  context.
+- When a frame exceeds its ceiling or the cumulative allowance would be
+  exceeded, the parent pauses before the next dispatch. It never truncates a
+  frame, never drops metadata or warnings to fit a budget, and never claims a
+  fresh-context reset within the same session.
+- A verified
+  fresh primary context resets only that context's returned-frame allowance.
+  Reservation, repair-round, CI-round, usage-counter and deadline state never
+  reset; deadline changes require the explicitly approved
+  extension transition.
+
 ## Manifest-Aware Capability Routing
 
 When a command explicitly requests a capability (by id, task trigger, or

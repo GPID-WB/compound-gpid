@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "generatorVersion": "1.0.0",
+  "sourceDigest": "0000000000000000000000000000000000000000000000000000000000000000",
+  "suites": [
+    {"id": "cg", "moduleId": "suite-cg", "displayName": "Technical", "activation": {"sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}}
+  ],
+  "commands": [
+    {
+      "id": "slash:cg-work", "name": "/cg-work", "kind": "slash", "ownerModule": "suite-cg", "supportedSuites": ["cg"],
+      "category": "delivery", "summary": "Implement a plan.", "aliases": [], "intents": ["implement plan"], "usage": "/cg-work", "examples": ["/cg-work phase1"],
+      "prerequisites": [], "outputs": ["Implemented changes."], "constraints": ["Requires evidence."], "relatedCommands": [],
+      "sourcePath": ".github/prompts/cg-work.prompt.md", "definitionSources": [".github/prompts/cg-work.prompt.md"], "definitionDigest": "1111111111111111111111111111111111111111111111111111111111111111",
+      "documentationTargets": [], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["any"],
+      "availability": {"status": "available", "evidence": [{"os": "any", "sourcePath": ".github/prompts/cg-work.prompt.md"}]},
+      "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
+    }
+  ],
+  "workflows": []
+}

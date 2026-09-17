@@ -32,6 +32,22 @@ OWNERSHIP_MANIFESTS = {
 }
 
 
+def test_generation_does_not_own_user_root_kilo_config() -> None:
+    """The user depth override at kilo.json is outside every generated output."""
+    plan = _build_structured_plan(REPO_ROOT)
+    assert all(entry.destination != "kilo.json" for entry in plan.entries)
+
+
+@pytest.mark.parametrize("target_id", ["claude-code", "codex", "opencode"])
+def test_unsupported_generated_autopilot_entry_has_stop(target_id: str) -> None:
+    """Unsupported adapters remain discoverable with an explicit stop."""
+    plan = _build_structured_plan(REPO_ROOT)
+    entries = [entry for entry in plan.entries if entry.target_id == target_id
+               and entry.destination.endswith("commands/cg-autopilot.md")]
+    assert len(entries) == 1
+    assert b"unsupported-adapter" in entries[0].content
+
+
 def _build_structured_plan(root: Path) -> gen.GenerationPlan:
     """Build and return the validated in-memory generation plan."""
     try:
@@ -203,6 +219,20 @@ def test_git_ignore_checks_are_batched(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 class TestNoDrift:
+    def test_generator_distributes_help_after_atomic_prompt_ownership(self) -> None:
+        plan = _build_structured_plan(REPO_ROOT)
+        assets = gen.scan_canonical_assets(REPO_ROOT, active_suites=("cg", "cr"))
+        shared_sources = {
+            asset["relative_path"] for asset in assets["shared"]
+        }
+
+        assert gen.DEFERRED_HELP_SHARED_SOURCES <= shared_sources
+        assert (REPO_ROOT / gen.CANONICAL_HELP_PROMPT_PATH).is_file()
+        for target in ("claude-code", "codex", "opencode", "kilo"):
+            sources = {entry.source for entry in plan.by_target[target].entries}
+            assert gen.DEFERRED_HELP_SHARED_SOURCES <= sources
+            assert gen.CANONICAL_HELP_PROMPT_PATH in sources
+
     def test_ownership_manifests_are_well_formed_and_match_worktree(self) -> None:
         for rel_path in sorted(OWNERSHIP_MANIFESTS):
             committed = _read_git_blob_bytes(REPO_ROOT, rel_path)

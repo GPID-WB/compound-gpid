@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 2,
+  "description": "Help schema fixture.",
+  "capabilities": [],
+  "modules": [
+    {"id": "kernel", "layer": "kernel", "displayName": "Kernel", "description": "Fixture.", "dependsOn": [], "ownedAssets": []},
+    {"id": "cap-help", "layer": "capability", "displayName": "Help", "description": "Fixture.", "dependsOn": ["kernel"], "ownedAssets": []},
+    {"id": "suite-cg", "layer": "suite", "displayName": "CG", "description": "Fixture.", "dependsOn": ["cap-help", "kernel"], "ownedAssets": []},
+    {"id": "suite-cr", "layer": "suite", "displayName": "CR", "description": "Fixture.", "dependsOn": ["cap-help", "kernel"], "ownedAssets": []}
+  ]
+}

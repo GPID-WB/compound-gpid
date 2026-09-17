@@ -6,10 +6,12 @@
 #
 # What this does:
 #   1. Verifies Git is available.
-#   1b. Verifies Python is available (required for cg-index and cg-token-audit).
+#   1b. Verifies Python is available (required for cg-index, cg-token-audit
+#       and cg-autopilot-control).
 #   2. Tests that symlinks can be created on this machine.
 #   3. Creates bash wrappers in bin/ and adds bin/ to PATH via shell profile
-#      so cg-link, cg-unlink, cg-update, and cg-skill are available from any terminal.
+#      so cg-link, cg-unlink, cg-update, cg-skill, cg-help, cg-token-audit and
+#      cg-autopilot-control are available from any terminal.
 #   4. Initializes .cg-version with "latest" (if not already set).
 #
 # Options:
@@ -314,6 +316,17 @@ EOF
 chmod +x "$WRAPPER"
 print_gray "Created: $WRAPPER"
 
+# cg-help is committed as the installer source of truth.
+CG_HELP_SRC="$COMPOUND_GPID_DIR/bin/cg-help"
+CG_HELP_DST="$BIN_DIR/cg-help"
+if [[ "$CG_HELP_SRC" != "$CG_HELP_DST" ]]; then
+    cp "$COMPOUND_GPID_DIR/bin/cg-help" "$BIN_DIR/cg-help"
+else
+    print_gray "Already present: $CG_HELP_DST"
+fi
+chmod +x "$BIN_DIR/cg-help"
+print_gray "Registered: $BIN_DIR/cg-help"
+
 # cg-render-artifact is committed as the installer source of truth.
 CG_RENDER_ARTIFACT_SRC="$COMPOUND_GPID_DIR/bin/cg-render-artifact"
 CG_RENDER_ARTIFACT_DST="$BIN_DIR/cg-render-artifact"
@@ -324,6 +337,17 @@ else
 fi
 chmod +x "$BIN_DIR/cg-render-artifact"
 print_gray "Registered: $BIN_DIR/cg-render-artifact"
+
+# cg-release is committed as the installer source of truth.
+CG_RELEASE_SRC="$COMPOUND_GPID_DIR/bin/cg-release"
+CG_RELEASE_DST="$BIN_DIR/cg-release"
+if [[ "$CG_RELEASE_SRC" != "$CG_RELEASE_DST" ]]; then
+    cp "$COMPOUND_GPID_DIR/bin/cg-release" "$BIN_DIR/cg-release"
+else
+    print_gray "Already present: $CG_RELEASE_DST"
+fi
+chmod +x "$BIN_DIR/cg-release"
+print_gray "Registered: $BIN_DIR/cg-release"
 
 # cg-publish-markdown is committed as the installer source of truth.
 CG_PUBLISH_MARKDOWN_SRC="$COMPOUND_GPID_DIR/bin/cg-publish-markdown"
@@ -361,6 +385,42 @@ if [[ -z "$PYTHON_CMD" ]]; then
     exit 1
 fi
 exec "$PYTHON_CMD" "$SCRIPT_DIR/../scripts/cg_audit_context.py" "$@"
+EOF
+chmod +x "$WRAPPER"
+print_gray "Created: $WRAPPER"
+
+# cg-autopilot-control calls the deterministic autopilot helper directly
+# (same resolve_python pattern as cg-index). The helper takes an explicit
+# validated consumer --root and its code never leaves the installed package:
+# no scripts/tests files are copied into consumer projects.
+WRAPPER="$BIN_DIR/cg-autopilot-control"
+cat > "$WRAPPER" <<'EOF'
+#!/bin/bash
+# bin/cg-autopilot-control -- Compound GPID autopilot control helper (macOS/Linux)
+# This file is committed to the repo; install.sh regenerates it on install/upgrade.
+# The helper resolves its code from this installation directory and takes the
+# validated consumer project root through an explicit --root argument. It never
+# changes the working directory to the package checkout and never selects
+# consumer tests from the installed source test inventory.
+set -euo pipefail
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+resolve_python() {
+    local candidate version
+    for candidate in python3 python py; do
+        command -v "$candidate" >/dev/null 2>&1 || continue
+        version="$($candidate --version 2>&1 || true)"
+        case "$version" in Python\ [0-9]*) ;; *) continue ;; esac
+        "$candidate" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 8) else 1)' >/dev/null 2>&1 || continue
+        printf '%s\n' "$candidate"; return 0
+    done
+    return 1
+}
+PYTHON_CMD="$(resolve_python || true)"
+if [[ -z "$PYTHON_CMD" ]]; then
+    printf 'ERROR: Python is not available (checked: python3, python, py).\n' >&2
+    exit 1
+fi
+exec "$PYTHON_CMD" "$SCRIPT_DIR/../scripts/cg_autopilot.py" "$@"
 EOF
 chmod +x "$WRAPPER"
 print_gray "Created: $WRAPPER"
@@ -481,9 +541,11 @@ printf '  cg-update latest     -- Unpin and return to tracking main\n'
 printf '  cg-update --list     -- Browse available releases\n'
 printf '  cg-kilo    -- Certified contained Kilo launch (run from project root)\n'
 printf '  cg-skill   -- Manage the complete skill lifecycle (run from project root)\n'
+printf '  cg-help             -- Run a safe evidence-backed help request (run from project root)\n'
 printf '  cg-render-artifact   -- Render or validate one workflow artifact\n'
 printf '  cg-publish-markdown  -- Publish one generic Markdown document\n'
 printf '  cg-token-audit       -- Analyze token/context usage  (run from project root)\n'
+printf '  cg-autopilot-control -- Kilo autopilot control helper (read-only inspect; requires an explicit --root)\n'
 printf '\n'
 printf 'To uninstall: bash "%s/scripts/install.sh" --uninstall\n' "$COMPOUND_GPID_DIR"
 printf '\n'

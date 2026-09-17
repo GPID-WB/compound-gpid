@@ -481,6 +481,15 @@
     },
     {
       "page": "whats-new",
+      "section": "v1-2-0-9019-v1-2-0-9019-asynchronous-release-controller",
+      "title": "What's New",
+      "heading": "v1.2.0.9019 — v1.2.0.9019 - Asynchronous Release Controller",
+      "text": "2026-09-15T22:29:55Z New — Release Controller Features Add asynchronous controller core with standalone locked Python package Integrate disabled GPID controller with SemVer ordering Wire guarded controller workflows and source-bound build/publish contracts Bind release snapshots to verified producer bytes Add disabled asynchronous release controller via merge PR Fixed — CI and Merge Fixes Raise package matrix timeout to thirty minutes Keep bridge_client within module line limit Stop forwarding PowerShell module path into bridge child Repair release portability and safe diagnostics Integrate dev into release controller branch Internal — Documentation and Maintenance Capture release validation and authority lessons in knowledge docs Preserve controller history and dev PR handoff in workflow docs Record asynchronous controller delivery and live deferral in plan docs Document controller operation and deferred rollout Regenerate release interfaces for Kilo, OpenCode, Codex, and Claude Verify reader migration and GPID producer contracts Record v1.2.0.9017 attestation Accept new release-docs artifact layout in the Pages verifier Read ruleset-based default-branch protection in the legacy release authority View source tag",
+      "suite": "shared",
+      "kind": "section"
+    },
+    {
+      "page": "whats-new",
       "section": "v1-2-0-9018-v1-2-0-9018-asynchronous-release-controller",
       "title": "What's New",
       "heading": "v1.2.0.9018 — v1.2.0.9018 - Asynchronous Release Controller",
@@ -691,7 +700,7 @@
       "section": "choose-by-situation",
       "title": "Choose a Task",
       "heading": "Choose by situation",
-      "text": "First choose the suite that owns the task. Use /cg-* for technical delivery, infrastructure, and code-review workflows. Use /cr-* for research scoping, identification, measurement, econometrics, replication, writing, and publication output. The research suite composes shared implementation capabilities without depending on the technical command suite. For a guided first research workflow, use the Research Handbook. | Situation | Start with | Continue with | | Project direction is unclear | /cg-strategy | /cg-ideate, then /cg-brainstorm | | One requirement is fuzzy | /cg-brainstorm | /cg-plan | | One small technical task qualifies | /cg-light-work <task> | Mandatory light Review, then optional compounding | | The task is known | /cg-plan | /cg-plan-review when consequential, then /cg-work | | A bug can be reproduced | /cg-fixbug | Review and compound after verification | | A plan already exists | /cg-work | /cg-review, /cg-fix-triage | | Work was interrupted | /cg-resume | Run the returned next command | | A change needs assurance | /cg-review | /cg-fix-triage, then verify | | A solved problem should be reusable | /cg-compound | /cg-brain-rebuild when the Brain needs refreshing | | CI is failing on a pull request | /cg-verify-pr | Apply confirmed fixes and rerun checks | | VS Code or Positron crashed | /cg-diagnose | Follow the bounded recovery path | | A research question or method is unclear | /cr-brainstorm | /cr-plan | | A research plan is ready | /cr-work | /cr-review, then /cr-compound |",
+      "text": "First choose the suite that owns the task. Use /cg-* for technical delivery, infrastructure, and code-review workflows. Use /cr-* for research scoping, identification, measurement, econometrics, replication, writing, and publication output. The research suite composes shared implementation capabilities without depending on the technical command suite. For a guided first research workflow, use the Research Handbook. | Situation | Start with | Continue with | | Project direction is unclear | /cg-strategy | /cg-ideate, then /cg-brainstorm | | One requirement is fuzzy | /cg-brainstorm | /cg-plan | | One small technical task qualifies | /cg-light-work <task> | Mandatory light Review, then optional compounding | | The task is known | /cg-plan | /cg-plan-review when consequential, then /cg-work | | A bug can be reproduced | /cg-fixbug | Review and compound after verification | | A plan already exists | /cg-work | /cg-review, /cg-fix-triage | | Work was interrupted | /cg-resume | Run the returned next command | | A change needs assurance | /cg-review | /cg-fix-triage, then verify | | A solved problem should be reusable | /cg-compound | /cg-brain-rebuild when the Brain needs refreshing | | CI is failing on a pull request | /cg-verify-pr | Apply confirmed fixes and rerun checks | | VS Code or Positron crashed | /cg-diagnose | Follow the bounded recovery path | | A phased plan should run end to end under supervision (Kilo) | /cg-autopilot | Stage batches continue through review, compound, publish, and PR verification | | A research question or method is unclear | /cr-brainstorm | /cr-plan | | A research plan is ready | /cr-work | /cr-review, then /cr-compound |",
       "suite": "cg",
       "kind": "section"
     },
@@ -700,7 +709,7 @@
       "section": "the-standard-loop",
       "title": "Choose a Task",
       "heading": "The standard loop",
-      "text": "Understand -> Plan -> Deliver -> Assure -> Resolve -> Remember /cg-brainstorm -> /cg-plan -> /cg-work -> /cg-review -> /cg-fix-triage -> /cg-compound /cg-light-work is only for a qualified small technical task. Its first user gate approves a saved Plan before source edits. It then writes a Work Report and Review Report, runs the fixed mandatory light Review with @cg-code-quality and @cg-testing, and permits one initial pass plus one verification pass only when Review fixes changed files. Its second user gate is explicit compounding opt-in; skip creates no permanent knowledge side effect. Reproducible bugs use /cg-fixbug. Research, statistical, and publication work uses /cr-*. Larger, ambiguous, security-sensitive, schema, dependency, or destructive work uses /cg-brainstorm -> /cg-plan -> /cg-work. /cg-work executes approved saved Plans and redirects unmatched inline tasks without dispatching them.",
+      "text": "Understand -> Plan -> Deliver -> Assure -> Resolve -> Remember /cg-brainstorm -> /cg-plan -> /cg-work -> /cg-review -> /cg-fix-triage -> /cg-compound /cg-light-work is only for a qualified small technical task. Its first user gate approves a saved Plan before source edits. It then writes a Work Report and Review Report, runs the fixed mandatory light Review with @cg-code-quality and @cg-testing, and permits one initial pass plus one verification pass only when Review fixes changed files. Its second user gate is explicit compounding opt-in; skip creates no permanent knowledge side effect. Reproducible bugs use /cg-fixbug. Research, statistical, and publication work uses /cr-*. Larger, ambiguous, security-sensitive, schema, dependency, or destructive work uses /cg-brainstorm -> /cg-plan -> /cg-work. /cg-work executes approved saved Plans and redirects unmatched inline tasks without dispatching them. /cg-autopilot (Kilo only) runs a strict phased plan as supervised batches instead of invoking /cg-work phase by phase: work stages per phase, then one preparation, review, triage, compound, publish, and PR-verification pass per batch. It is probe-only until native qualification completes; the specified operating contract, including repair-round caps, deadline extension, and recovery without force, is documented in the Autopilot (Kilo) Operating Contract section of the complete reference. If a run was interrupted, /cg-resume detects the unfinished autopilot run and recommends the exact /cg-autopilot --resume .cg-docs/active-state/current.json command before any phase-only suggestion.",
       "suite": "cg",
       "kind": "section"
     },
@@ -1367,7 +1376,7 @@
       "title": "Skill Management",
       "heading": "",
       "text": "This guide documents the public descriptor-driven skill lifecycle available through /cg-skill and the cg-skill shell command. The operation descriptors define operation identity, role, phase, workflow, contract, tests, and command page. The dispatcher loads only complete active descriptors.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "page"
     },
     {
@@ -1375,8 +1384,8 @@
       "section": "start-here",
       "title": "Skill Management",
       "heading": "Start Here",
-      "text": "[!TECHNICAL] The current cap-skill-management capability declares support for cg only, and the registry owns cg-* prompt files in the Technical suite. Check the resolved project configuration before chat dispatch. Skills supply instructions; they are not slash commands. A capability-layer module is not automatically shared across suites. Use /cg-skill <operation> in AI chat for guided work. Use shell cg-skill <operation> in a terminal for deterministic results. Both use the operation contracts below. Do not enter slash prompts in a terminal. The Python form is for a checkout with scripts/cg_skill.py; consumer projects use the installed wrapper. Put common options before the operation in either terminal form.",
-      "suite": "cg",
+      "text": "[!NOTE] The current cap-skill-management capability declares support for both cg and cr; its ownership and eligibility come from the registry. Check the resolved project configuration before chat dispatch. Skills supply instructions; they are not slash commands. A capability-layer module is not automatically shared across suites. Use /cg-skill <operation> in AI chat for guided work. Use shell cg-skill <operation> in a terminal for deterministic results. Both use the operation contracts below. Do not enter slash prompts in a terminal. The Python form is for a checkout with scripts/cg_skill.py; consumer projects use the installed wrapper. Put common options before the operation in either terminal form.",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1385,7 +1394,7 @@
       "title": "Skill Management",
       "heading": "Choose a Path",
       "text": "Consumer guide Maintainer guide Lifecycle and roles Security controls Migration guide",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1394,7 +1403,7 @@
       "title": "Skill Management",
       "heading": "Common Grammar",
       "text": "Common options must appear before the operation: python scripts/cg_skill.py [--project-root <path>] [--source-root <path>] [--format human|json] <operation> [operation arguments] Consumer is the default role. The dispatcher derives maintainer authority from the checkout context; a command-line role value cannot grant authority. Mutating operations plan first and apply only the same digest-bound arguments with --apply <64-character-plan-digest>.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1403,7 +1412,7 @@
       "title": "Skill Management",
       "heading": "Lifecycle and Safety",
       "text": "Skill management separates source origin, admission, lifecycle, availability, and manifest health so one status cannot imply another.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1412,7 +1421,7 @@
       "title": "Skill Management",
       "heading": "State Model",
       "text": "| Dimension | Values | Meaning | | Origin | plugin-canonical, project-imported | The authority and store that own the bundle. | | Admission | quarantined, approved, rejected | The bounded source-review state. | | Lifecycle | current, deprecated, removed | Immutable identity progression. | | Availability | inactive, active | Whether an explicit selected capability is usable. | | Manifest health | fresh, missing, stale, invalid | Whether runtime availability is proven. | An imported or created skill starts inactive. Activation is a separate explicit plan. Deprecation blocks new activation but does not silently deactivate current use. Removal requires inactive deprecated state, a valid successor, grace evidence, completed migrations, zero active references, and checksum ownership.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1421,7 +1430,7 @@
       "title": "Skill Management",
       "heading": "Roles",
       "text": "Consumers can discover, inspect, validate, audit, import project skills, and manage explicit project selections. Maintainers can also change canonical plugin assets, but only when invocation root, project root, and canonical source root are the same approved feature-branch checkout. Approver labels and review references are audit metadata. They do not grant authority and do not replace repository review or branch protection.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1430,7 +1439,7 @@
       "title": "Skill Management",
       "heading": "Plan and Apply",
       "text": "Every mutation creates a deterministic plan by default. Its digest binds normalized arguments, resolved role, source and project roots, registries, configuration, manifest, provenance, references, and bundle inventory. Apply repeats the same operation arguments with --apply <digest>. A held lock, durable journal, compare-before-replace publication, and exact final verification make the operation crash-consistent and forward-recoverable. A changed input or byte invalidates the plan rather than being overwritten.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1439,7 +1448,7 @@
       "title": "Skill Management",
       "heading": "Lifecycle Paths",
       "text": "Project: import -> activate -> update -> deprecate and remove Plugin: create or vendor -> registry review -> release See security controls before any source acquisition or destructive operation.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1448,7 +1457,7 @@
       "title": "Skill Management",
       "heading": "Use Skills in a Project",
       "text": "Consumers use read operations first, then review an exact plan before any project change. Discover and inspect a skill and confirm its origin, lifecycle, capability, supported suites, and supported platforms. Import a project skill only from one exact public GitHub origin, path, and full commit SHA. Activate the explicit capability after review. Check availability with a fresh manifest. Remediate findings without bypassing a failed gate. The lifecycle model explains why import and activation are separate operations.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1457,7 +1466,7 @@
       "title": "Skill Management",
       "heading": "Consumer Topics",
       "text": "Discover and inspect Import a project skill Activate and deactivate Understand availability Remediate findings",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1466,7 +1475,7 @@
       "title": "Skill Management",
       "heading": "Find and Inspect",
       "text": "Start with help, use find for deterministic filtering, and use info for one immutable identifier. Run validate before activation or after a local change. A missing or stale manifest permits clearly labeled prospective discovery. It does not prove active or projected state, and availability filters remain blocked until the manifest is fresh. Discovery never falls back to global, generated, external, or network locations. Terminal (PowerShell or POSIX), read-only discovery: cg-skill help cg-skill find cg-skill info cg-skill-management The result identifies local metadata and findings; it is not proof that a skill is active. Continue to project import only when no approved local skill meets the task.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1475,7 +1484,7 @@
       "title": "Skill Management",
       "heading": "Import at an Exact SHA",
       "text": "Import acquires one exact public GitHub bundle into confined quarantine, verifies bounded metadata and content, runs admission, and writes redacted review evidence. Planning does not change active lifecycle state. Review the source identity, license, bundle inventory, resource classes, findings, actions, and plan digest. Apply the same exact arguments only when the evidence is complete. The committed project record remains inactive and gets one reserved explicit-only capability. Project approval cannot grant plugin vendoring authority. See security and then activation. The /cg-skill import operation provides two scopes: | Scope | Who uses it | What it does | | project | Consumer projects | Quarantines content, produces evidence, and plans an inactive project record | | plugin | Maintainers (canonical source checkout) | Quarantines, reviews, and plans approved canonical vendoring | Chat grammar (replace every angle-bracket placeholder): /cg-skill import <repo-url> <path> <full-sha> --license <id> [--scope project|plugin] repo-url: Credential-free public GitHub HTTPS origin; plugin scope requires the allowlist, and project scope requires reviewed exact-origin admission. full-sha: Full 40-character immutable commit SHA (no short SHAs, branches, or tags) path: Path to the skill root within the repository (e.g., .github/skills/skill-name/) scope: project (default) or maintainer-only plugin",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1484,7 +1493,7 @@
       "title": "Skill Management",
       "heading": "Import Examples",
       "text": "These are illustrative source identities and digests, not known existing bundles or approval evidence. Replace them with reviewed values; do not copy the apply example until its plan is reviewed. Consumer project, chat planning example: /cg-skill import https://github.com/Kilo-Org/kilocode .github/skills/cg-skill-example abc123def456abc123def456abc123def456abcd --license MIT The importer places pinned content in .compound-gpid/quarantine/. Admission checks cover extensions, paths, links, secrets, prompt injection, frontmatter, binary content and resource classes. Review evidence is stored in .compound-gpid/vendor-reviews/. Review it before approving and repeating the same arguments with the returned --apply <plan-digest>. A blocked finding is not partial success.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1493,7 +1502,7 @@
       "title": "Skill Management",
       "heading": "Activate and Deactivate",
       "text": "Activate adds one explicit capability through a byte-preserving configuration plan. Deactivate removes only an explicit selection; it cannot subtract selector-derived or dependency-required capabilities. Both operations re-resolve the manifest, generate selected targets, publish selected host projections, and verify exact desired paths and managed-bundle inventories. Modified or user-owned projection files block unsafe deletion. Terminal example, using a synthetic capability and digest: cg-skill activate project-skill-example cg-skill activate project-skill-example --apply aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa After apply, use availability and audit to confirm the final state. Run cg-skill deactivate project-skill-example to plan deactivation, then review a new digest before applying it.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1502,7 +1511,7 @@
       "title": "Skill Management",
       "heading": "Availability",
       "text": "Availability is reliable only when manifest health is fresh. active means the capability is selected and the current manifest proves it. inactive means the skill is known but is not selected. prospective means discovery used current registry data because the committed manifest is missing or stale. invalid means a contract failed and no runtime claim is safe. Supported suite and platform metadata is eligibility, not activation. For a project skill, only its one-to-one selectedProjectSkills entry selects the bundle. Use find, info, and remediation to distinguish these cases.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1511,7 +1520,7 @@
       "title": "Skill Management",
       "heading": "Maintain Plugin Skills",
       "text": "Maintainer operations require one canonical development checkout on a nondefault, nonprotected feature branch. Free-text role, origin, approver, or review values cannot elevate a consumer context. Create a new permanent skill or vendor an imported bundle. Review registry and capability ownership. Update only from a new immutable full SHA. Deprecate and remove with successor and grace proof. Run the separate release gates. Read security controls before any canonical mutation.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1520,7 +1529,7 @@
       "title": "Skill Management",
       "heading": "Maintainer Topics",
       "text": "Create permanent skills Vendor imported skills Manage registry and capabilities Update imported skills Deprecate and remove Release changes",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1529,7 +1538,7 @@
       "title": "Skill Management",
       "heading": "Create a Permanent Skill",
       "text": "Create scaffolds one canonical bundle with quoted ASCII-safe frontmatter, explicit ownership, one capability, eligibility, activation cost, triggers, selectors, provenance, and an atomic inventory. Add only focused references, workflows, examples, and approved non-data resources. Data-bearing, executable, linked, oversized, colliding, or undeclared resources fail admission. Creation leaves the capability inactive. Review registry and capability rules before apply. Use the complete creation example to supply all required metadata; do not infer ownership or eligibility from the skill name.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1538,7 +1547,7 @@
       "title": "Skill Management",
       "heading": "Vendor an Imported Skill",
       "text": "Plugin-scope import reuses bounded acquisition, quarantine, admission, and review evidence. It also requires maintainer context, an allowlisted repository, explicit owner and capability metadata, approver audit metadata, and an immutable review reference. Project exact-origin approval is not reusable for plugin scope. Create and apply a separate plugin plan. The vendor transaction publishes canonical source, provenance, registry, manifests, generated targets, and projections together. Use security controls as the review checklist. In the canonical checkout, plan with all metadata, review the quarantine and evidence, then explicitly apply the returned digest. The following chat example is illustrative, with synthetic SHA, owner, capability, and review reference: /cg-skill import https://github.com/Kilo-Org/kilocode .github/skills/cg-skill-example abc123def456abc123def456abc123def456abcd --license MIT --scope plugin --owner cap-example --capability example --suites cg --platforms copilot,kilo --activation-cost low --triggers example --selectors \"[]\" --approver maintainer --review-reference review=1111111111111111111111111111111111111111",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1547,7 +1556,7 @@
       "title": "Skill Management",
       "heading": "Registry and Capabilities",
       "text": "Every canonical asset has exactly one module owner. A capability identifies its owning module, supported suites and platforms, source provenance, activation cost, task triggers, and selectors. Dependencies can add required capabilities; configuration cannot subtract them. Project records use reserved owner project-local, capability project-skill-<id>, explicit-only activation, and one-to-one selected-bundle mapping. Project records cannot shadow canonical identifiers, owners, or capabilities. Run module ownership, dependency, and cross-suite checks before release.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1556,7 +1565,7 @@
       "title": "Skill Management",
       "heading": "Update an Imported Skill",
       "text": "Update accepts one existing imported skill and one new full commit SHA. It reuses the original immutable repository, path, origin, identifier, and metadata authority. Review the deterministic path, change-kind, size, and SHA-256 diff. Apply appends source, approval, policy, evidence, diff, and content digests to provenance. It does not replace prior provenance history. Generic mutable update discovery is not available. A specific exact SHA is required for every comparison. Follow the update example, review its diff, apply the exact digest, then validate and audit the new state.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1565,7 +1574,7 @@
       "title": "Skill Management",
       "heading": "Deprecate and Remove",
       "text": "Deprecate preserves the immutable identifier and records a valid same-origin successor. Existing active use receives a migration warning, while new activation is blocked. Remove requires deprecated inactive state, a successor, immutable grace evidence, digest-bound migration edits, and a final zero-reference rescan. It deletes only exact source bytes and checksum-owned projections, then writes a permanent tombstone. User-owned or modified files are never deleted. Plugin grace uses pinned release attestation data. Project grace uses a later descendant project revision. See release and migration.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1574,7 +1583,7 @@
       "title": "Skill Management",
       "heading": "Release Gates",
       "text": "Release uses two separate complete gates. While the current public commands remain active, run all operation evidence, authoritative native preflight, full unfiltered safe-runner Pester, docs, modules, target dry-run, and Windows/macOS/Linux plus Python 3.8 CI. Record exact-tree evidence, then stage public registration and old-surface removal as one changeset generated from canonical source. Run the complete final-tree gate and exact-tree CI again. A failure keeps the prior released tree active. Future releases that cover plugin deprecations also create a reviewed post-release attestation bound to the annotated tag object, peeled commit, immutable release payload, and deprecation-record digests. The new release controller preserves these evidence requirements. Payloads are reviewed before the release tag; the post-tag attestation is a separate reviewed evidence PR that never moves that tag. published is not complete until required documentation and evidence hooks are remotely verified. Historical payloads and attestations remain unchanged. The supplied publisher stays disabled. Bridge delivery, native clean-client qualification, registered release-mode CI and sandbox/performance proof are deferred, not passed. This does not defer ordinary PR CI or the authorized final committed-input gate. Legacy bridge/recovery requires explicit maintainer authorization and retains the old permission, branch, payload and tag checks.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1583,7 +1592,7 @@
       "title": "Skill Management",
       "heading": "Security and Provenance",
       "text": "Skill management treats source acquisition, authority, lifecycle writes, and destructive cleanup as separate fail-closed controls.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1592,7 +1601,7 @@
       "title": "Skill Management",
       "heading": "Acquisition and Quarantine",
       "text": "Imports accept one credential-free public GitHub HTTPS repository, normalized bundle path, and full commit SHA. Bounded tree and blob traversal verifies sizes, Git object identities, paths, modes, links, content limits, license, secrets, and the non-data resource policy before lifecycle state can change. Every imported bundle passes through default-deny admission: | Check | What it catches | | Origin approval | Plugin allowlist or reviewed project exact-origin admission; neither grants the other scope | | Full SHA requirement | Prevents mutable reference attacks | | Path safety | Traversal, hidden files, Unicode confusables, Windows reserved names | | File extension allowlist | .md, .json, .yml, .yaml, .txt; .svg is opaque and needs an approved non-data resource class | | Executable rejection | .exe, .sh, .py, .ps1, etc. | | Symlink/junction rejection | Prevents link-following attacks | | Secret scanning | API keys, tokens, passwords, AWS credentials | | Prompt-injection scanning | Instruction override attempts, shell execution patterns | | Binary content detection | Null bytes, non-UTF-8 content | | Bundle size limits | Max 1MB total, 64 files, 256KB per file | | Frontmatter validation | Strict frontmatter validation for SKILL.md | These are admission checks, not proof that instructions are safe or correct. Review the actual source and evidence before apply.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1601,7 +1610,7 @@
       "title": "Skill Management",
       "heading": "Authority and Approval",
       "text": "Consumer is the default role. Canonical mutation requires equal invocation, project, and source roots in one approved feature-branch checkout. Approver and review fields are audit metadata, not authorization proof. Project exact-origin approval cannot grant plugin allowlist authority.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1610,7 +1619,7 @@
       "title": "Skill Management",
       "heading": "Provenance and Supply Chain",
       "text": "Provenance is append-only and binds immutable source identity, policy, evidence, inventory, and content digests. Plans and review evidence are redacted. Imported content is never executed during admission, generation, validation, or projection.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1619,7 +1628,7 @@
       "title": "Skill Management",
       "heading": "Destructive Controls",
       "text": "Apply uses one held lifecycle lock, durable expected-byte journal, and exact desired-state verification. Removal requires complete references, successor and grace proof, digest-bound migrations, zero active references, and checksum-owned paths. Modified and user-owned files are preserved. Use audit, remediation, and the lifecycle model for operational checks.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1628,7 +1637,7 @@
       "title": "Skill Management",
       "heading": "Vendor Policy",
       "text": "The vendor policy is defined in .github/shared/vendor-policy.json: allowedRepositoryIdentities: HTTPS URLs of approved source repositories allowedUpstreamSkillRoots: Path prefixes that skills must be under maxBundleSizeBytes: Maximum total quarantine size blockedSecretPatterns: Regex patterns for secret detection blockedMarkdownInstructions: Regex patterns for prompt-injection detection approvedLicenses: SPDX identifiers of acceptable licenses Do not relax policy to force admission. Its resource classes and scope-specific approval controls are part of the current import contract.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1637,7 +1646,7 @@
       "title": "Skill Management",
       "heading": "Quarantine and Review Evidence",
       "text": "Quarantine directory: .compound-gpid/quarantine/ Review evidence: .compound-gpid/vendor-reviews/ Both directories are gitignored (quarantine is ephemeral, reviews are local evidence)",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1646,7 +1655,7 @@
       "title": "Skill Management",
       "heading": "Vendor Registration",
       "text": "Approved plugin imports receive canonical provenance and a capability record: { \"id\": \"example\", \"owningModule\": \"cap-example\", \"sourceProvenance\": \"vendor/https://github.com/example/skills@<full-sha>\" } This is an illustrative record, not a complete registry schema.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1655,7 +1664,7 @@
       "title": "Skill Management",
       "heading": "Limitations",
       "text": "No automatic installation from arbitrary repositories No remote runtime fetching or network execution No semantic rewrites of imported skills (mechanical namespace/path rewrites only) No public marketplace; plugin origins require allowlisting and project origins require explicit reviewed admission Plugin scope requires a verified canonical feature-branch checkout See the complete import operation, security controls, and migration guide.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1664,7 +1673,7 @@
       "title": "Skill Management",
       "heading": "Diagnose and Recover",
       "text": "",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1673,7 +1682,7 @@
       "title": "Skill Management",
       "heading": "Safe Remediation",
       "text": "Read the stable exit code, then process deterministic findings in their returned order. Each finding includes an exact path and remediation. Do not apply a stale plan, edit a generated tree, relax an admission ceiling, or delete a modified projection. Repair the canonical source or project input, run validate, use audit when the problem spans lifecycle state, and create a new plan. The result contract defines all exit codes. The security guide defines findings that must remain fail-closed.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1682,7 +1691,7 @@
       "title": "Skill Management",
       "heading": "Result Contract",
       "text": "Human and JSON output use the same deterministic result envelope. Every finding has a stable code, severity, path, message, and remediation. Exit codes are: | Result | Code | Meaning | | success | 0 | The read, plan, or apply completed safely. | | internal | 1 | Trusted dispatch or output failed unexpectedly. | | usage | 2 | Operation grammar or typed arguments are invalid. | | contract | 3 | A descriptor, schema, manifest, or result contract failed. | | role-context | 4 | The validated checkout role cannot perform the operation. | | security | 5 | Admission, path, source, or content security blocked the operation. | | lifecycle-conflict | 6 | Current lifecycle state does not permit the requested transition. | | stale-plan | 7 | Inputs or expected bytes changed after planning. | | verification | 8 | Final desired-state verification failed. | Do not reinterpret a nonzero code as partial success. Follow the returned remediation and create a new plan after any relevant input changes.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1691,7 +1700,7 @@
       "title": "Skill Management",
       "heading": "Migrate Existing Workflows",
       "text": "The public migration is complete and has no compatibility aliases. Replace old invocations immediately; the retired prompt and wrappers are not shipped. | Previous command | Replacement | | /cg-find-skill [filters] | /cg-skill find [filters] | | /cg-import-skill <repository> <path> <full-sha> --license <id> | /cg-skill import <repository> <path> <full-sha> --license <id> | Shell automation must replace the old launcher name with cg-skill and keep the operation as the first command argument. Put common options before the operation. Mutation scripts must preserve the two-step plan and apply flow; do not reuse a plan after changing arguments or inputs. Use find, import, and the consumer guide for executable examples. Historical release and project evidence remains immutable and is not rewritten. Documentation route compatibility is separate: old guide pages keep raw links and old headings. The website maps those routes to this guide. An unknown section shows an explicit notice; it does not silently select an unrelated section.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1700,7 +1709,7 @@
       "title": "Skill Management",
       "heading": "Operation Reference",
       "text": "",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1709,7 +1718,7 @@
       "title": "Skill Management",
       "heading": "Operations",
       "text": "| Operation | Role/context | Effect and next check | | help | Consumer or maintainer | Read descriptors; choose one operation | | find | Consumer or maintainer | Discover metadata; inspect with info | | info | Consumer or maintainer | Inspect one ID; validate before change | | validate | Consumer or maintainer | Check contracts; remediate findings | | audit | Consumer or maintainer | Check lifecycle/provenance/projections; remediate | | import | Consumer; plugin scope needs maintainer context | Plan/apply an inactive record; activate separately | | activate | Consumer or maintainer | Plan/apply one explicit selection; audit final state | | deactivate | Consumer or maintainer | Plan/apply explicit deselection; verify projections | | create | Maintainer only | Plan/apply inactive canonical scaffold; validate | | update | Consumer or maintainer within origin authority | Plan/apply exact-SHA diff; validate and audit | | deprecate | Consumer or maintainer within origin authority | Plan/apply successor record; migrate references | | remove | Consumer or maintainer within origin authority | Plan/apply guarded retirement; verify tombstone | The 12 detailed operation contracts remain authoritative for flags, examples, result envelopes, and evidence anchors: activate audit create deactivate deprecate find help import info remove update validate",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1862,7 +1871,7 @@
       "title": "cg-skill activate",
       "heading": "",
       "text": "Plan and apply selection of one explicit capability. Roles: consumer Phases: plan, apply",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "page"
     },
     {
@@ -1871,7 +1880,7 @@
       "title": "cg-skill activate",
       "heading": "Synopsis",
       "text": "python scripts/cg_skill.py [common options] activate <capability> [--apply <plan-digest>]",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1880,7 +1889,7 @@
       "title": "cg-skill activate",
       "heading": "Options",
       "text": "| Argument | Required | Meaning | | <capability> | Yes | One current explicit capability identifier. | | --apply <plan-digest> | Apply only | Apply the exact stored plan. |",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1889,7 +1898,7 @@
       "title": "cg-skill activate",
       "heading": "Examples",
       "text": "python scripts/cg_skill.py --format json activate project-skill-example python scripts/cg_skill.py --format json activate project-skill-example --apply aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1898,7 +1907,7 @@
       "title": "cg-skill activate",
       "heading": "Lifecycle Effect",
       "text": "Planning writes no lifecycle state. Apply adds only the explicit selection, re-resolves the manifest, publishes selected targets and projections, and verifies their exact desired state. Eligibility selectors can reject selection but cannot activate a project skill.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1907,7 +1916,7 @@
       "title": "cg-skill activate",
       "heading": "Results",
       "text": "Status is planned, committed, no-op, or blocked. See the result contract, activation guide, workflow, and operation contract.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1916,7 +1925,7 @@
       "title": "cg-skill audit",
       "heading": "",
       "text": "Audit lifecycle metadata, provenance, references, manifests, targets, and exact projections. Roles: consumer Phases: read",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "page"
     },
     {
@@ -1925,7 +1934,7 @@
       "title": "cg-skill audit",
       "heading": "Synopsis",
       "text": "python scripts/cg_skill.py [common options] audit [<skill-id>] [--provenance] [--references]",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1934,7 +1943,7 @@
       "title": "cg-skill audit",
       "heading": "Options",
       "text": "| Argument | Required | Meaning | | <skill-id> | No | Limit the audit to one immutable identifier. | | --provenance | No | Include provenance checks. | | --references | No | Include classified reference results. | With no filter, audit runs both audit groups.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1943,7 +1952,7 @@
       "title": "cg-skill audit",
       "heading": "Examples",
       "text": "python scripts/cg_skill.py --format json audit --provenance --references python scripts/cg_skill.py --format json audit cg-skill-python-best-practices --references",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1952,7 +1961,7 @@
       "title": "cg-skill audit",
       "heading": "Lifecycle Effect",
       "text": "Audit is read-only and performs no mutable remote update discovery. Reference output classifies active, migration, and historical records with stable paths, lines, findings, and remediation.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1961,7 +1970,7 @@
       "title": "cg-skill audit",
       "heading": "Results",
       "text": "The result includes manifest health, audited IDs, filters, reference digest, and classified references. See the result contract, remediation guide, workflow, and operation contract.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1970,7 +1979,7 @@
       "title": "cg-skill create",
       "heading": "",
       "text": "Plan and create one inactive permanent canonical skill scaffold. Roles: maintainer Phases: plan, apply",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "page"
     },
     {
@@ -1979,7 +1988,7 @@
       "title": "cg-skill create",
       "heading": "Synopsis",
       "text": "python scripts/cg_skill.py [common options] create <skill-id> --scope permanent --description <text> --owner <module> --capability <id> --suites <csv> --platforms <csv> --activation-cost <low|medium|high> --triggers <csv> --selectors <json> --approver <label> --review-reference <immutable-ref> [--references <csv>] [--workflows <csv>] [--examples <csv>] [--resources <csv>] [--resource-classes <json>] [--apply <plan-digest>]",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1988,7 +1997,7 @@
       "title": "cg-skill create",
       "heading": "Options",
       "text": "| Argument | Required | Meaning | | <skill-id> | Yes | New immutable skill identifier. | | --scope permanent | Yes | Restrict creation to permanent plugin scope. | | --description <text> | Yes | Quoted ASCII-safe frontmatter description. | | --owner <module> | Yes | Exact canonical module owner. | | --capability <id> | Yes | Explicit capability identifier. | | --suites <csv> | Yes | Supported suite identifiers. | | --platforms <csv> | Yes | Supported platform identifiers. | | --activation-cost <value> | Yes | low, medium, or high. | | --triggers <csv> | Yes | Stable task triggers. | | --selectors <json> | Yes | Eligibility selectors. | | --approver <label> | Yes | Reviewed audit metadata. | | --review-reference <immutable-ref> | Yes | Immutable review reference. | | --references <csv> | No | Focused reference files to scaffold. | | --workflows <csv> | No | Focused workflow files to scaffold. | | --examples <csv> | No | Focused example files to scaffold. | | --resources <csv> | No | Approved non-data resources to scaffold. | | --resource-classes <json> | Conditional | Exact classes for opaque resources. | | --apply <plan-digest> | Apply only | Apply the exact stored plan. |",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -1997,7 +2006,7 @@
       "title": "cg-skill create",
       "heading": "Examples",
       "text": "python scripts/cg_skill.py --format json create cg-skill-example --scope permanent --description \"Example focused skill.\" --owner cap-example --capability example --suites cg --platforms copilot,kilo --activation-cost low --triggers example --selectors \"[]\" --approver maintainer --review-reference 1111111111111111111111111111111111111111 python scripts/cg_skill.py --format json create cg-skill-example --scope permanent --description \"Example focused skill.\" --owner cap-example --capability example --suites cg --platforms copilot,kilo --activation-cost low --triggers example --selectors \"[]\" --approver maintainer --review-reference 1111111111111111111111111111111111111111 --apply aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2006,7 +2015,7 @@
       "title": "cg-skill create",
       "heading": "Lifecycle Effect",
       "text": "Planning validates frontmatter, ownership, capability metadata, resource classes, and collisions without publishing state. Apply writes canonical source, provenance, registry, manifest, targets, and projections through one transaction. The new capability remains inactive.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2015,7 +2024,7 @@
       "title": "cg-skill create",
       "heading": "Results",
       "text": "Status is planned, committed, or blocked; availability is always inactive. See the result contract, creation guide, workflow, and operation contract.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2024,7 +2033,7 @@
       "title": "cg-skill deactivate",
       "heading": "",
       "text": "Plan and apply removal of one explicit capability selection. Roles: consumer Phases: plan, apply",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "page"
     },
     {
@@ -2033,7 +2042,7 @@
       "title": "cg-skill deactivate",
       "heading": "Synopsis",
       "text": "python scripts/cg_skill.py [common options] deactivate <capability> [--apply <plan-digest>]",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2042,7 +2051,7 @@
       "title": "cg-skill deactivate",
       "heading": "Options",
       "text": "| Argument | Required | Meaning | | <capability> | Yes | One explicitly selected capability identifier. | | --apply <plan-digest> | Apply only | Apply the exact stored plan. |",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2051,7 +2060,7 @@
       "title": "cg-skill deactivate",
       "heading": "Examples",
       "text": "python scripts/cg_skill.py --format json deactivate project-skill-example python scripts/cg_skill.py --format json deactivate project-skill-example --apply aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2060,7 +2069,7 @@
       "title": "cg-skill deactivate",
       "heading": "Lifecycle Effect",
       "text": "Planning writes no lifecycle state. Apply removes only the explicit selection, then converges the manifest, targets, and projections. Selector-derived and dependency-required capabilities are not subtracted. Only checksum-owned stale projection files can be removed.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2069,7 +2078,7 @@
       "title": "cg-skill deactivate",
       "heading": "Results",
       "text": "Status is planned, committed, no-op, or blocked. See the result contract, activation guide, workflow, and operation contract.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2078,7 +2087,7 @@
       "title": "cg-skill deprecate",
       "heading": "",
       "text": "Deprecate one immutable skill identifier in favor of a same-origin successor. Roles: consumer Phases: plan, apply",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "page"
     },
     {
@@ -2087,7 +2096,7 @@
       "title": "cg-skill deprecate",
       "heading": "Synopsis",
       "text": "python scripts/cg_skill.py [common options] deprecate <skill-id> <successor-id> --approver <label> --review-reference <immutable-ref> [--apply <plan-digest>]",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2096,7 +2105,7 @@
       "title": "cg-skill deprecate",
       "heading": "Options",
       "text": "| Argument | Required | Meaning | | <skill-id> | Yes | Current immutable identifier to deprecate. | | <successor-id> | Yes | Current nondeprecated same-origin successor. | | --approver <label> | Yes | Reviewed audit metadata. | | --review-reference <immutable-ref> | Yes | Immutable review reference. | | --apply <plan-digest> | Apply only | Apply the exact stored plan. |",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2105,7 +2114,7 @@
       "title": "cg-skill deprecate",
       "heading": "Examples",
       "text": "python scripts/cg_skill.py --format json deprecate cg-skill-old cg-skill-new --approver maintainer --review-reference 1111111111111111111111111111111111111111 python scripts/cg_skill.py --format json deprecate cg-skill-old cg-skill-new --approver maintainer --review-reference 1111111111111111111111111111111111111111 --apply aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2114,7 +2123,7 @@
       "title": "cg-skill deprecate",
       "heading": "Lifecycle Effect",
       "text": "The successor must be current, nondeprecated, acyclic, and from the same origin. Apply records the successor and immutable deprecation-record digest. It blocks new activation; active use remains visible as a migration warning.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2123,7 +2132,7 @@
       "title": "cg-skill deprecate",
       "heading": "Results",
       "text": "The result reports status, origin, successor, active warning, and deprecation digest. See the result contract, retirement guide, workflow, and operation contract.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2132,7 +2141,7 @@
       "title": "cg-skill find",
       "heading": "",
       "text": "Search deterministic canonical and project skill metadata without remote discovery. Roles: consumer Phases: read",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "page"
     },
     {
@@ -2141,7 +2150,7 @@
       "title": "cg-skill find",
       "heading": "Synopsis",
       "text": "python scripts/cg_skill.py [common options] find [--id <text>] [--exact] [--capability <id>] [--suite <id>] [--platform <id>] [--available] [--unavailable] [--cost <low|medium|high>] [--owner <id>] [--provenance <text>] [--full]",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2150,7 +2159,7 @@
       "title": "cg-skill find",
       "heading": "Options",
       "text": "| Option | Meaning | | --id <text> | Filter identifiers. | | --exact | Require exact --id equality. | | --capability <id> | Filter by capability. | | --suite <id> | Filter by supported suite. | | --platform <id> | Filter by supported platform. | | --available | Require proven active availability. | | --unavailable | Require proven inactive availability. | | --cost <value> | Filter by activation cost. | | --owner <id> | Filter by owning module. | | --provenance <text> | Filter by provenance identity. | | --full | Include complete inspection fields. |",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2159,7 +2168,7 @@
       "title": "cg-skill find",
       "heading": "Examples",
       "text": "python scripts/cg_skill.py --format json find --id cg-skill-python-best-practices --exact --full python scripts/cg_skill.py --format json find --suite cg --platform kilo --cost low",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2168,7 +2177,7 @@
       "title": "cg-skill find",
       "heading": "Lifecycle Effect",
       "text": "Find is read-only. Missing or stale manifests produce prospective rows with regeneration remediation. Availability filters require a fresh manifest. The operation never searches global, generated, external, or network locations.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2177,7 +2186,7 @@
       "title": "cg-skill find",
       "heading": "Results",
       "text": "Records are deterministic and include origin, lifecycle, availability, and manifest health. See the result contract, discovery guide, workflow, and operation contract.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2186,7 +2195,7 @@
       "title": "cg-skill help",
       "heading": "",
       "text": "List complete private operations or inspect one exact operation descriptor. Roles: consumer Phases: read",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "page"
     },
     {
@@ -2195,7 +2204,7 @@
       "title": "cg-skill help",
       "heading": "Synopsis",
       "text": "python scripts/cg_skill.py [common options] help [<operation>]",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2204,7 +2213,7 @@
       "title": "cg-skill help",
       "heading": "Options",
       "text": "This operation has no named options. The optional <operation> positional value limits output to one exact operation.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2213,7 +2222,7 @@
       "title": "cg-skill help",
       "heading": "Examples",
       "text": "python scripts/cg_skill.py --format json help python scripts/cg_skill.py --format json help import",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2222,7 +2231,7 @@
       "title": "cg-skill help",
       "heading": "Lifecycle Effect",
       "text": "Help is read-only. It is descriptor-derived and cannot advertise an operation until its workflow, handler, contract, tests, and focused documentation page are complete.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2231,7 +2240,7 @@
       "title": "cg-skill help",
       "heading": "Results",
       "text": "Operations appear in lexical order with exact roles, phases, workflow paths, and documentation paths. See the result contract, discovery guide, workflow, and operation contract.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2240,7 +2249,7 @@
       "title": "cg-skill import",
       "heading": "",
       "text": "Plan and apply one inactive skill import from an exact public GitHub source. Roles: consumer Phases: plan, apply",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "page"
     },
     {
@@ -2249,7 +2258,7 @@
       "title": "cg-skill import",
       "heading": "Synopsis",
       "text": "python scripts/cg_skill.py [common options] import <repository> <bundle-path> <full-sha> --license <id> [--scope project|plugin] [--suites <csv>] [--platforms <csv>] [--owner <module>] [--capability <id>] [--activation-cost <low|medium|high>] [--triggers <csv>] [--selectors <json>] [--approver <label>] [--review-reference <immutable-ref>] [--apply <plan-digest>]",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2258,7 +2267,7 @@
       "title": "cg-skill import",
       "heading": "Options",
       "text": "| Argument | Required | Meaning | | <repository> | Yes | Credential-free public GitHub HTTPS origin. | | <bundle-path> | Yes | Normalized repository-relative bundle path. | | <full-sha> | Yes | Exact 40-character commit SHA. | | --license <id> | Yes | Expected approved license identifier. | | --scope project|plugin | No | Defaults to project; plugin requires maintainer context. | | --suites <csv> | Plugin | Supported suites. | | --platforms <csv> | Plugin | Supported platforms. | | --owner <module> | Plugin | Canonical module owner. | | --capability <id> | Plugin | Canonical capability identifier. | | --activation-cost <value> | Plugin | low, medium, or high. | | --triggers <csv> | Plugin | Stable task triggers. | | --selectors <json> | Plugin | Eligibility selectors. | | --approver <label> | Plugin | Reviewed audit metadata. | | --review-reference <immutable-ref> | Plugin | Immutable review reference. | | --apply <plan-digest> | Apply only | Apply the exact stored plan. |",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2267,7 +2276,7 @@
       "title": "cg-skill import",
       "heading": "Examples",
       "text": "python scripts/cg_skill.py --format json import https://github.com/example/skills skills/example 1111111111111111111111111111111111111111 --license MIT python scripts/cg_skill.py --format json import https://github.com/example/skills skills/example 1111111111111111111111111111111111111111 --license MIT --apply aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2276,7 +2285,7 @@
       "title": "cg-skill import",
       "heading": "Lifecycle Effect",
       "text": "Planning writes only confined quarantine and redacted evidence. Project apply adds an inactive project record and cannot change canonical plugin assets. Plugin scope requires a separate allowlisted maintainer plan. Import never activates the skill.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2285,7 +2294,7 @@
       "title": "cg-skill import",
       "heading": "Results",
       "text": "The result reports status, skill ID, and review-evidence path. See the result contract, project import guide, workflow, and operation contract.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2294,7 +2303,7 @@
       "title": "cg-skill info",
       "heading": "",
       "text": "Inspect one canonical or project skill by its exact immutable identifier. Roles: consumer Phases: read",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "page"
     },
     {
@@ -2303,7 +2312,7 @@
       "title": "cg-skill info",
       "heading": "Synopsis",
       "text": "python scripts/cg_skill.py [common options] info <skill-id>",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2312,7 +2321,7 @@
       "title": "cg-skill info",
       "heading": "Options",
       "text": "This operation has no named options. <skill-id> is one required exact immutable identifier.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2321,7 +2330,7 @@
       "title": "cg-skill info",
       "heading": "Examples",
       "text": "python scripts/cg_skill.py --format json info cg-skill-python-best-practices",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2330,7 +2339,7 @@
       "title": "cg-skill info",
       "heading": "Lifecycle Effect",
       "text": "Info is read-only and never falls back to a global skill directory. A missing or stale manifest can produce prospective metadata but cannot prove availability.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2339,7 +2348,7 @@
       "title": "cg-skill info",
       "heading": "Results",
       "text": "The result includes purpose, owner, capability, source, provenance, selectors, supported suites and platforms, lifecycle, and availability context. See the result contract, discovery guide, workflow, and operation contract.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2348,7 +2357,7 @@
       "title": "cg-skill remove",
       "heading": "",
       "text": "Remove only a deprecated inactive skill after grace, migration, and ownership proof. Roles: consumer Phases: plan, apply",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "page"
     },
     {
@@ -2357,7 +2366,7 @@
       "title": "cg-skill remove",
       "heading": "Synopsis",
       "text": "python scripts/cg_skill.py [common options] remove <skill-id> --approver <label> --review-reference <immutable-ref> [--migrations <csv>] [--grace-exception] [--grace-reason <text>] [--apply <plan-digest>]",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2366,7 +2375,7 @@
       "title": "cg-skill remove",
       "heading": "Options",
       "text": "| Argument | Required | Meaning | | <skill-id> | Yes | Deprecated inactive immutable identifier. | | --approver <label> | Yes | Reviewed audit metadata. | | --review-reference <immutable-ref> | Yes | Immutable review reference. | | --migrations <csv> | No | Versioned digest-bound migration records. | | --grace-exception | No | Request an explicitly reviewed emergency exception. | | --grace-reason <text> | With exception | Exact reviewed exception reason. | | --apply <plan-digest> | Apply only | Apply the exact stored plan. |",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2375,7 +2384,7 @@
       "title": "cg-skill remove",
       "heading": "Examples",
       "text": "python scripts/cg_skill.py --format json remove cg-skill-old --approver maintainer --review-reference 1111111111111111111111111111111111111111 python scripts/cg_skill.py --format json remove cg-skill-old --approver maintainer --review-reference 1111111111111111111111111111111111111111 --apply aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2384,7 +2393,7 @@
       "title": "cg-skill remove",
       "heading": "Lifecycle Effect",
       "text": "Planning requires a valid successor, immutable grace evidence, staged migrations, and zero final active references. Apply deletes only exact source bytes and checksum-owned projections. It preserves provenance, migration evidence, user-owned bytes, and a permanent non-reusable tombstone.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2393,7 +2402,7 @@
       "title": "cg-skill remove",
       "heading": "Results",
       "text": "The result reports grace evidence, tombstone digest, removed paths, and remaining references. See the result contract, retirement guide, workflow, and operation contract.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2402,7 +2411,7 @@
       "title": "cg-skill update",
       "heading": "",
       "text": "Compare and apply one imported skill update from a new immutable full SHA. Roles: consumer, maintainer Phases: plan, apply",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "page"
     },
     {
@@ -2411,7 +2420,7 @@
       "title": "cg-skill update",
       "heading": "Synopsis",
       "text": "python scripts/cg_skill.py [common options] update <skill-id> <new-full-sha> --license <id> --approver <label> --review-reference <immutable-ref> [--apply <plan-digest>]",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2420,7 +2429,7 @@
       "title": "cg-skill update",
       "heading": "Options",
       "text": "| Argument | Required | Meaning | | <skill-id> | Yes | Skill with pinned imported provenance. | | <new-full-sha> | Yes | New exact 40-character commit SHA. | | --license <id> | Yes | Expected approved license identifier. | | --approver <label> | Yes | Reviewed audit metadata. | | --review-reference <immutable-ref> | Yes | Immutable review reference. | | --apply <plan-digest> | Apply only | Apply the exact stored plan. |",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2429,7 +2438,7 @@
       "title": "cg-skill update",
       "heading": "Examples",
       "text": "python scripts/cg_skill.py --format json update cg-skill-example 2222222222222222222222222222222222222222 --license MIT --approver maintainer --review-reference 1111111111111111111111111111111111111111 python scripts/cg_skill.py --format json update cg-skill-example 2222222222222222222222222222222222222222 --license MIT --approver maintainer --review-reference 1111111111111111111111111111111111111111 --apply aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2438,7 +2447,7 @@
       "title": "cg-skill update",
       "heading": "Lifecycle Effect",
       "text": "The repository, source path, origin, identifier, owner, capability, and eligibility remain fixed. Apply appends deterministic redacted diff and policy digests to provenance, then verifies all selected targets and projections.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2447,7 +2456,7 @@
       "title": "cg-skill update",
       "heading": "Results",
       "text": "Status is planned, committed, blocked, or unchanged; data includes the diff and its digest. See the result contract, update guide, workflow, and operation contract.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2456,7 +2465,7 @@
       "title": "cg-skill validate",
       "heading": "",
       "text": "Validate one skill or the complete combined canonical and project skill set. Roles: consumer Phases: read",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "page"
     },
     {
@@ -2465,7 +2474,7 @@
       "title": "cg-skill validate",
       "heading": "Synopsis",
       "text": "python scripts/cg_skill.py [common options] validate [<skill-id> | --all]",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2474,7 +2483,7 @@
       "title": "cg-skill validate",
       "heading": "Options",
       "text": "| Argument | Required | Meaning | | <skill-id> | Conditional | Validate one exact immutable identifier. | | --all | Conditional | Validate all combined registry skills. | Use exactly one selection form.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2483,7 +2492,7 @@
       "title": "cg-skill validate",
       "heading": "Examples",
       "text": "python scripts/cg_skill.py --format json validate cg-skill-python-best-practices python scripts/cg_skill.py --format json validate --all",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2492,7 +2501,7 @@
       "title": "cg-skill validate",
       "heading": "Lifecycle Effect",
       "text": "Validate is read-only. It checks descriptors, contracts, frontmatter, atomic bundle inventory, links, ownership, capabilities, project records, provenance, manifest health, targets, projections, references, and containment.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2501,7 +2510,7 @@
       "title": "cg-skill validate",
       "heading": "Results",
       "text": "The result includes manifest health, validated IDs, descriptor operations, and stable findings. See the result contract, remediation guide, workflow, and operation contract.",
-      "suite": "cg",
+      "suite": "shared",
       "kind": "section"
     },
     {
@@ -2555,6 +2564,15 @@
       "title": "Configuration",
       "heading": "Managed and user-owned content",
       "text": "Directory install units are junctions on Windows and symlinks on macOS. Marker- managed text files can be regenerated. Strict configuration files that cannot contain comments use .compound-gpid/managed-files.json checksums. If a target file is user-owned or has changed since it was managed, link and update operations preserve it and report the conflict. Review the suggested snippet instead of replacing the file wholesale. The repository's adapters/ directory is a superseded compatibility path. Generated native trees are the current default and should be used for new installations.",
+      "suite": "shared",
+      "kind": "section"
+    },
+    {
+      "page": "configuration",
+      "section": "kilo-autopilot-requirements",
+      "title": "Configuration",
+      "heading": "Kilo autopilot requirements",
+      "text": "/cg-autopilot is the only command that needs a specific runtime. It requires Kilo with the dedicated primary cg-autopilot agent installed and natively selected; document flags, envelopes, or copied tool lists never substitute for actual native selection. The parent coordinates and validates child results but never implements fixes or runs tests itself, so the primary session must have a foreground Task tool available for stage children and at most three conditional-nesting levels with full input validation at each level. Requirements are explicit and scoped: One dedicated primary agent (cg-autopilot) with its own model-assignment and permission settings; existing user-owned configuration is preserved and never rewritten by setup. Parent context budgets (8192 bytes per returned frame, 65536 cumulative bytes per primary context) pause before another dispatch; they never truncate and never reset within the same session. The control helper cg-autopilot-control is installed with the other shell commands; inspect is its only enabled operation today. See the Autopilot (Kilo) Operating Contract for the full fresh/resume syntax, scoped approvals, repair rounds, and recovery behavior. Production execution is not enabled: the command is probe-only and returns blocked: bootstrap-only for fresh/resume pipeline arguments until native qualification completes. Unsupported adapters, missing qualification, and safe-pause boundaries are reported as typed blockers, never worked around. No user or global Kilo configuration is modified by the autopilot contract; runtime containment, capability, and trust checks follow the ordinary Kilo installation policy.",
       "suite": "shared",
       "kind": "section"
     },
@@ -3589,7 +3607,7 @@
       "section": "maintainer-entries",
       "title": "Find a Command",
       "heading": "Maintainer Entries",
-      "text": "These operations are distinct from ordinary project delivery. Maintainer-only and Development labels describe role/risk, not another suite. No example below authorizes a release, tag, or repository mutation. | Command and example | Use when / do not use when | Prerequisites | Expected output and verification or approval boundary | Common failure / next useful step | | /cg-devtag | Authorized plugin development install test / not a normal consumer release | Plugin checkout, correct branch, tag authority | Confirmed development tag and push; inspect version and git state first | Unauthorized branch or existing tag / stop, never move the tag | | /cg-compound-gpid-rd --full | Research public repository features / not research in a consumer project | Exact Compound GPID charter, valid registry and network access | Repository assessments; add/remove modes need their distinct confirmations | Guardrail or registry failure / repair approved input, then select a feature | | /cg-release plan --version 1.5.0-rc.1 --json | Preview a generic release request / not use legacy recovery implicitly | Separately installed controller and its repository policy; no GPID charter required in generic mode | Read-only non-reserving plan; start needs confirmation; submitted/published is not complete | Missing CLI or disabled publisher / report blocker; see Release Controller |",
+      "text": "The merged help assets are present, but host runtime certification is a separate gate. A listed command does not establish that an installed host supports it. | Command and example | Use when / do not use when | Prerequisites | Expected output and verification or approval boundary | Common failure / next useful step | | /cg-help | Find catalog-backed command information / not execute the described task | Installed backend, fresh catalog, and verified host transport | Bounded lookup or recovery text; host support remains unverified until source-bound evidence passes | Missing backend or unsupported transport / stop and use the command reference | | /cg-autopilot | Inspect the approved Kilo bootstrap-probe workflow / not run production autopilot | Kilo contract and explicit probe authorization; unsupported on other hosts | Probe evidence only; production execution remains disabled | Unsupported host or missing authorization / use ordinary workflow commands | These operations are distinct from ordinary project delivery. Maintainer-only and Development labels describe role/risk, not another suite. No example below authorizes a release, tag, or repository mutation. | Command and example | Use when / do not use when | Prerequisites | Expected output and verification or approval boundary | Common failure / next useful step | | /cg-devtag | Authorized plugin development install test / not a normal consumer release | Plugin checkout, correct branch, tag authority | Confirmed development tag and push; inspect version and git state first | Unauthorized branch or existing tag / stop, never move the tag | | /cg-compound-gpid-rd --full | Research public repository features / not research in a consumer project | Exact Compound GPID charter, valid registry and network access | Repository assessments; add/remove modes need their distinct confirmations | Guardrail or registry failure / repair approved input, then select a feature | | /cg-release plan --version 1.5.0-rc.1 --json | Preview a generic release request / not use legacy recovery implicitly | Separately installed controller and its repository policy; no GPID charter required in generic mode | Read-only non-reserving plan; start needs confirmation; submitted/published is not complete | Missing CLI or disabled publisher / report blocker; see Release Controller |",
       "suite": "shared",
       "kind": "section"
     },
@@ -3598,7 +3616,7 @@
       "section": "shell-entry-checklist",
       "title": "Find a Command",
       "heading": "Shell Entry Checklist",
-      "text": "Examples below run in a terminal at the project root unless noted. Installation must put the wrapper on PATH. For Windows summary examples, replace the wrapper with python scripts/cg_summary.py test|diff|log|tree|problems as applicable; the vertical bars denote alternatives, not literal shell syntax. | Command and example | Use when / do not use when | Prerequisites | Expected output and verification or approval boundary | Common failure / next useful step | | cg-link --platforms copilot | Link a project / not overwrite user-owned units | Installed source, project root, chosen host | Managed links/copies and ownership record; review reported conflicts | Conflicting user file / preserve it and follow installation recovery | | cg-unlink | Remove managed install units / not delete project content | Linked project and ownership state | Managed units removed with confirmation; user content preserved | Modified or unowned path / inspect rather than force deletion | | cg-update --list | List versions before updating / not infer root docs identity | Installed source and release access | Version list; update/pin/fix forms change installation only when selected | Network or local-change blocker / resolve, then follow versioning | | cg-kilo --version | Launch through containment checks / not bypass unsupported host state | Installed Kilo and supported minimum/capabilities | Preflight result and child Kilo output; failure blocks launch | Failed containment or projection / use reported remedy, not direct launch | | cg-brain-init --repo example/team-brain --manager example-manager | Configure optional team knowledge / not send private project data automatically | Reviewed repository, manager, GitHub authority | Team Brain configuration/scaffolding; confirm sharing scope | Missing authority or repository / resolve before setup | | cg-index query --intent work --query \"navigation\" --budget 700 --format md | Retrieve local lessons / not treat stale lessons as authority | Valid .cg-docs/ sources and Python | Bounded source-linked retrieval; warnings are not test proof | Invalid metadata / repair sources; use cg-index --brain for rebuild | | cg-render-artifact --validate-only .cg-docs/plans/example.md | Validate a saved typed artifact / not render generic prose as a Plan | Existing project-contained Plan or Brainstorm; replace example path | Validation only; explicit render creates derived view; --check tests freshness | Schema error / fix canonical Markdown, never execute HTML | | cg-publish-markdown --validate-only docs/manual.md | Validate generic Markdown / not bypass typed-artifact checks | Contained Markdown/resources, valid destination ownership | Validation; explicit publication writes a derived document view | Unsafe resource or ownership collision / repair source or approved destination | | cg-token-audit --root . --output-dir .cg-docs/cost --format both --recommendations | Produce context-cost artifacts / not run correctness tests | Project source and wrapper dependencies | JSON/Markdown cost reports and recommendations; review estimates | Missing telemetry / label limitations, then inspect recommendations | | cg-skill --format json help | Inspect lifecycle operations / not treat read output as apply permission | Installed dispatcher and local descriptors | Stable result envelope; full operation checklist covers all 12 operations | Nonzero exit / follow exact remediation; never treat as partial success | | cg-test-summary --root . --format json | Summarize an existing test run / not run tests | Fresh tests/last-run.json; POSIX wrapper or Python form | Bounded summary and redacted source artifact; check timestamp/completeness | Missing/stale run / execute the actual safe tests first | | cg-diff-summary --root . --format md | Inspect a bounded git diff / not approve changes | Git repository; POSIX wrapper or Python form | Changed files/risk summary and redacted source artifact | Missing baseline / select a valid scope, then inspect actual diff | | cg-log-summary --root . --format json | Summarize branch commits / not infer uncommitted changes | Git history; POSIX wrapper or Python form | First-parent summary; verify relevant commits before publication | Missing history / obtain the correct history, then review diff | | cg-tree-summary --root . --max-entries 120 --format md | Inspect a bounded tree / not claim omitted files are absent | Readable project; POSIX wrapper or Python form | Bounded inventory with exclusions; use focused inspection next | Entry limit / narrow the requested scope | | cg-problems-summary --root . --input problems.json --format json | Summarize supplied diagnostics / not claim editor state without input | Actual diagnostics JSON/text; POSIX wrapper or Python form | Summary or explicit unavailable result; verify input freshness | Missing/malformed input / obtain diagnostics, then fix selected errors | | cg-release plan --version 1.5.0-rc.1 --json | Preview a release / not enable the disabled publisher | Installed standalone controller and validated policy | Non-reserving plan; start, status, resume have separate effects and checks | Policy/installation blocker / use controller guidance, not an implicit legacy fallback |",
+      "text": "| Command and example | Use when / do not use when | Prerequisites | Expected output and verification or approval boundary | Common failure / next useful step | | cg-help --help | Inspect backend CLI syntax / not send query text through the shell | Installed wrapper and Python 3.8+ | Usage text only; prepared-file transport and host certification are separate | Missing wrapper / check installation; do not invent a query invocation | | cg-autopilot-control inspect | Read control eligibility / not start autonomous execution | Installed helper, explicit root, plan, batches and base arguments | Read-only eligible/blocked report; no production execution | Missing required arguments / inspect CLI usage and the autopilot contract | Examples below run in a terminal at the project root unless noted. Installation must put the wrapper on PATH. For Windows summary examples, replace the wrapper with python scripts/cg_summary.py test|diff|log|tree|problems as applicable; the vertical bars denote alternatives, not literal shell syntax. | Command and example | Use when / do not use when | Prerequisites | Expected output and verification or approval boundary | Common failure / next useful step | | cg-link --platforms copilot | Link a project / not overwrite user-owned units | Installed source, project root, chosen host | Managed links/copies and ownership record; review reported conflicts | Conflicting user file / preserve it and follow installation recovery | | cg-unlink | Remove managed install units / not delete project content | Linked project and ownership state | Managed units removed with confirmation; user content preserved | Modified or unowned path / inspect rather than force deletion | | cg-update --list | List versions before updating / not infer root docs identity | Installed source and release access | Version list; update/pin/fix forms change installation only when selected | Network or local-change blocker / resolve, then follow versioning | | cg-kilo --version | Launch through containment checks / not bypass unsupported host state | Installed Kilo and supported minimum/capabilities | Preflight result and child Kilo output; failure blocks launch | Failed containment or projection / use reported remedy, not direct launch | | cg-brain-init --repo example/team-brain --manager example-manager | Configure optional team knowledge / not send private project data automatically | Reviewed repository, manager, GitHub authority | Team Brain configuration/scaffolding; confirm sharing scope | Missing authority or repository / resolve before setup | | cg-index query --intent work --query \"navigation\" --budget 700 --format md | Retrieve local lessons / not treat stale lessons as authority | Valid .cg-docs/ sources and Python | Bounded source-linked retrieval; warnings are not test proof | Invalid metadata / repair sources; use cg-index --brain for rebuild | | cg-render-artifact --validate-only .cg-docs/plans/example.md | Validate a saved typed artifact / not render generic prose as a Plan | Existing project-contained Plan or Brainstorm; replace example path | Validation only; explicit render creates derived view; --check tests freshness | Schema error / fix canonical Markdown, never execute HTML | | cg-publish-markdown --validate-only docs/manual.md | Validate generic Markdown / not bypass typed-artifact checks | Contained Markdown/resources, valid destination ownership | Validation; explicit publication writes a derived document view | Unsafe resource or ownership collision / repair source or approved destination | | cg-token-audit --root . --output-dir .cg-docs/cost --format both --recommendations | Produce context-cost artifacts / not run correctness tests | Project source and wrapper dependencies | JSON/Markdown cost reports and recommendations; review estimates | Missing telemetry / label limitations, then inspect recommendations | | cg-skill --format json help | Inspect lifecycle operations / not treat read output as apply permission | Installed dispatcher and local descriptors | Stable result envelope; full operation checklist covers all 12 operations | Nonzero exit / follow exact remediation; never treat as partial success | | cg-test-summary --root . --format json | Summarize an existing test run / not run tests | Fresh tests/last-run.json; POSIX wrapper or Python form | Bounded summary and redacted source artifact; check timestamp/completeness | Missing/stale run / execute the actual safe tests first | | cg-diff-summary --root . --format md | Inspect a bounded git diff / not approve changes | Git repository; POSIX wrapper or Python form | Changed files/risk summary and redacted source artifact | Missing baseline / select a valid scope, then inspect actual diff | | cg-log-summary --root . --format json | Summarize branch commits / not infer uncommitted changes | Git history; POSIX wrapper or Python form | First-parent summary; verify relevant commits before publication | Missing history / obtain the correct history, then review diff | | cg-tree-summary --root . --max-entries 120 --format md | Inspect a bounded tree / not claim omitted files are absent | Readable project; POSIX wrapper or Python form | Bounded inventory with exclusions; use focused inspection next | Entry limit / narrow the requested scope | | cg-problems-summary --root . --input problems.json --format json | Summarize supplied diagnostics / not claim editor state without input | Actual diagnostics JSON/text; POSIX wrapper or Python form | Summary or explicit unavailable result; verify input freshness | Missing/malformed input / obtain diagnostics, then fix selected errors | | cg-release plan --version 1.5.0-rc.1 --json | Preview a release / not enable the disabled publisher | Installed standalone controller and validated policy | Non-reserving plan; start, status, resume have separate effects and checks | Policy/installation blocker / use controller guidance, not an implicit legacy fallback |",
       "suite": "shared",
       "kind": "section"
     },
@@ -3760,7 +3778,7 @@
       "section": "shell-commands",
       "title": "Complete Reference",
       "heading": "Shell Commands",
-      "text": "Core install commands are available from PowerShell on Windows and from bash/zsh on macOS. The cg-*-summary wrappers are bash wrappers in bin/; use them from bash/zsh or run python scripts/cg_summary.py <kind> directly on Windows. | Command | Where to run | Purpose | | cg-link [--platforms <list>] | Project root | Link all supported platforms by default: Copilot .github/, Claude Code .claude/, Codex .agents/, OpenCode .opencode/, and Kilo .kilo/. Use --platforms copilot or another comma-separated list to narrow the install. | | cg-unlink | Project root | Remove Compound GPID-managed install units and manifest-managed copied files while preserving user-owned platform content. | | cg-update [<version>\\|latest\\|--list\\|--fix] | Anywhere | Update, pin, unpin, list releases, or repair a Compound GPID installation. | | cg-kilo [<kilo arguments>] | Project root | Certified Kilo launch. For projects with Codex/Claude roots, validates containment and disables external skill discovery only in the child Kilo process; direct launches are unsupported. | | cg-brain-init | Project root | Initialize or configure Team Brain integration and scaffold the central GitHub repository configuration. Usage: cg-brain-init --repo <owner/name> --manager <github-username>. | | cg-index | Project root | Build or query the local .cg-docs/ Knowledge Brain index. | | cg-index --brain | Project root | Rebuild generated Brain artifacts such as BRAIN.md, topic files, and brain-index.json. | | cg-render-artifact <source> | Project root | Validate and explicitly render one Brainstorm or Plan, even when automatic HTML is disabled. | | cg-render-artifact --automatic <source> | Project root | Always validate; write HTML only when artifact-html: true is configured. | | cg-render-artifact --validate-only <source> | Project root | Validate one canonical artifact without writing HTML. | | cg-render-artifact --check <source> | Project root | Print current and exit code 0 only for an exact current view; print missing or stale and exit code 1 otherwise. Input/usage errors return exit code 2. | | cg-publish-markdown <source> | Project root | Publish one project-contained generic Markdown file to the mirrored .cg-docs/views/documents/ path. | | cg-publish-markdown --automatic <source> | Project root | Validate generic Markdown and publish only when artifact-html: true is configured. | | cg-publish-markdown --validate-only [--theme reference] <source> | Project root | Validate generic source, output identity, local resources, and theme without inspecting or writing output. | | cg-publish-markdown --check [--theme reference] <source> | Project root | Reproduce expected schema-2 bytes; return exit code 0 for current, 1 for missing/stale, and 2 for invalid input. | | cg-publish-markdown --output <documents-view.html> <source> | Project root | Publish to one portable relative destination under .cg-docs/views/documents/. | | cg-token-audit --root . --output-dir .cg-docs/cost --format both --recommendations | Project root | Generate context-cost reports, token dashboard artifacts, regression checks, and compact recommendations. | | cg-test-summary --root . --format json | Project root | Summarize tests/last-run.json without running tests and store a redacted source artifact. | | cg-diff-summary --root . --format md | Project root | Summarize changed files, hunks, and risk tags while storing the full redacted diff artifact. | | cg-log-summary --root . --format json | Project root | Summarize branch-local first-parent commits and notable files. | | cg-tree-summary --root . --max-entries 120 --format md | Project root | Summarize a bounded repository tree while excluding generated outputs, dependencies, and caches. | | cg-problems-summary --root . --input problems.json --format json | Project root | Summarize optional diagnostics JSON or text; reports unavailable when no diagnostics input is provided. | | python scripts/cg_project_manifest.py [--root <path>] [--output <path>] [--platforms copilot,kilo] [--validate] [--check-stale <manifest>] [--ensure-state] | Project root | cg-project-manifest — resolve and validate the canonical committed active project manifest (.compound-gpid/active-manifest.json) from the strict config plus the versioned module registry. Records config/registry hashes, schema versions (config-schema-version), selected suites, derived and explicit capabilities, the resolved module closure, canonical platform ids, platform eligibility, and the projection plan digest. Immutable selection validity is separated from mutable projection ownership. Exit codes: 0 success, 1 resolution/validation failure, 2 missing or invalid project root. | | python scripts/cg_projection_benchmark.py [--root <path>] [--profiles cg-only,cr-only,mixed,capability-python] [--validate] | Project root | cg-projection-benchmark — emit deterministic before-state profile baseline matrices (.cg-docs/cost/skill-loading-baseline.json + .md) for projection. Per profile: requested command/capability, expected route, expected hard-stop or catalog summary, expected inventory digest, and a supported-host procedure. Token estimates are heuristic (chars/4) and never claim savings; unavailable required host evidence is a blocking unavailable, never a zero. Exit codes: 0 success, 1 validation/oracle failure, 2 missing or invalid project root. | Windows installs include matching .cmd wrappers for the core install commands where platform-specific launch behavior is required. Generic publishing uses the frozen reference theme version 1 and provenance schema 2. Every destination has one source owner identified by sourcePath, documentType, and outputPath. Existing corrupt or differently owned output fails without mutation. Brainstorms and Plans retain strict validation and must use cg-render-artifact; generic publishing cannot act as a schema bypass.",
+      "text": "Core install commands are available from PowerShell on Windows and from bash/zsh on macOS. The cg-*-summary wrappers are bash wrappers in bin/; use them from bash/zsh or run python scripts/cg_summary.py <kind> directly on Windows. | Command | Where to run | Purpose | | cg-link [--platforms <list>] | Project root | Link all supported platforms by default: Copilot .github/, Claude Code .claude/, Codex .agents/, OpenCode .opencode/, and Kilo .kilo/. Use --platforms copilot or another comma-separated list to narrow the install. | | cg-unlink | Project root | Remove Compound GPID-managed install units and manifest-managed copied files while preserving user-owned platform content. | | cg-update [<version>\\|latest\\|--list\\|--fix] | Anywhere | Update, pin, unpin, list releases, or repair a Compound GPID installation. | | cg-kilo [<kilo arguments>] | Project root | Certified Kilo launch. For projects with Codex/Claude roots, validates containment and disables external skill discovery only in the child Kilo process; direct launches are unsupported. | | cg-brain-init | Project root | Initialize or configure Team Brain integration and scaffold the central GitHub repository configuration. Usage: cg-brain-init --repo <owner/name> --manager <github-username>. | | cg-index | Project root | Build or query the local .cg-docs/ Knowledge Brain index. | | cg-index --brain | Project root | Rebuild generated Brain artifacts such as BRAIN.md, topic files, and brain-index.json. | | cg-render-artifact <source> | Project root | Validate and explicitly render one Brainstorm or Plan, even when automatic HTML is disabled. | | cg-render-artifact --automatic <source> | Project root | Always validate; write HTML only when artifact-html: true is configured. | | cg-render-artifact --validate-only <source> | Project root | Validate one canonical artifact without writing HTML. | | cg-render-artifact --check <source> | Project root | Print current and exit code 0 only for an exact current view; print missing or stale and exit code 1 otherwise. Input/usage errors return exit code 2. | | cg-publish-markdown <source> | Project root | Publish one project-contained generic Markdown file to the mirrored .cg-docs/views/documents/ path. | | cg-publish-markdown --automatic <source> | Project root | Validate generic Markdown and publish only when artifact-html: true is configured. | | cg-publish-markdown --validate-only [--theme reference] <source> | Project root | Validate generic source, output identity, local resources, and theme without inspecting or writing output. | | cg-publish-markdown --check [--theme reference] <source> | Project root | Reproduce expected schema-2 bytes; return exit code 0 for current, 1 for missing/stale, and 2 for invalid input. | | cg-publish-markdown --output <documents-view.html> <source> | Project root | Publish to one portable relative destination under .cg-docs/views/documents/. | | cg-token-audit --root . --output-dir .cg-docs/cost --format both --recommendations | Project root | Generate context-cost reports, token dashboard artifacts, regression checks, and compact recommendations. | | cg-test-summary --root . --format json | Project root | Summarize tests/last-run.json without running tests and store a redacted source artifact. | | cg-diff-summary --root . --format md | Project root | Summarize changed files, hunks, and risk tags while storing the full redacted diff artifact. | | cg-log-summary --root . --format json | Project root | Summarize branch-local first-parent commits and notable files. | | cg-tree-summary --root . --max-entries 120 --format md | Project root | Summarize a bounded repository tree while excluding generated outputs, dependencies, and caches. | | cg-autopilot-control inspect --root <path> [--plan <path>] [--batches <segments>] [--base <branch>] [--resume <cursor>] | Project root | Read-only Kilo autopilot control helper. Prints one JSON report on stdout with \"status\": \"eligible\" or \"blocked\"; completed inspections exit 0 for either status, so callers must inspect status and blockers. Invocation errors exit 1 without a report; diagnostics go to stderr. Never writes and never derives the project root from its install location. All other helper operations return operation-not-implemented until native qualification completes. | | cg-problems-summary --root . --input problems.json --format json | Project root | Summarize optional diagnostics JSON or text; reports unavailable when no diagnostics input is provided. | | python scripts/cg_project_manifest.py [--root <path>] [--output <path>] [--platforms copilot,kilo] [--validate] [--check-stale <manifest>] [--ensure-state] | Project root | cg-project-manifest — resolve and validate the canonical committed active project manifest (.compound-gpid/active-manifest.json) from the strict config plus the versioned module registry. Records config/registry hashes, schema versions (config-schema-version), selected suites, derived and explicit capabilities, the resolved module closure, canonical platform ids, platform eligibility, and the projection plan digest. Immutable selection validity is separated from mutable projection ownership. Exit codes: 0 success, 1 resolution/validation failure, 2 missing or invalid project root. | | python scripts/cg_projection_benchmark.py [--root <path>] [--profiles cg-only,cr-only,mixed,capability-python] [--validate] | Project root | cg-projection-benchmark — emit deterministic before-state profile baseline matrices (.cg-docs/cost/skill-loading-baseline.json + .md) for projection. Per profile: requested command/capability, expected route, expected hard-stop or catalog summary, expected inventory digest, and a supported-host procedure. Token estimates are heuristic (chars/4) and never claim savings; unavailable required host evidence is a blocking unavailable, never a zero. Exit codes: 0 success, 1 validation/oracle failure, 2 missing or invalid project root. | Windows installs include matching .cmd wrappers for the core install commands where platform-specific launch behavior is required. Generic publishing uses the frozen reference theme version 1 and provenance schema 2. Every destination has one source owner identified by sourcePath, documentType, and outputPath. Existing corrupt or differently owned output fails without mutation. Brainstorms and Plans retain strict validation and must use cg-render-artifact; generic publishing cannot act as a schema bypass.",
       "suite": "shared",
       "kind": "section"
     },
@@ -3778,7 +3796,7 @@
       "section": "copilot-chat-prompts",
       "title": "Complete Reference",
       "heading": "Copilot Chat Prompts",
-      "text": "| Prompt | Model | Purpose | | /cg-brain-rebuild | Copilot model picker | Rebuild the project knowledge brain (BRAIN.md + indexes). | | /cg-brainstorm | Copilot model picker | Brainstorm answers about what to build and how. Use when requirements are fuzzy. | | /cg-commit-push-pr | Copilot model picker | Stage changes into logical commits, push, and open a PR with plan-driven description. | | /cg-compound-gpid-rd | Copilot model picker | Research public GitHub repos for features to integrate into Compound GPID and manage the review registry. Developer-only. | | /cg-compound-refresh | Copilot model picker | Audit and refresh .cg-docs/solutions/ for staleness, drift, and consolidation opportunities. | | /cg-compound | Copilot model picker | Capture a solved problem as reusable knowledge. Offers canonical .github/ updates; the user applies them manually after fixing a non-trivial issue. | | /cg-devtag | Copilot model picker | Create a dev tag (v&lt;MAJOR&gt;.&lt;MINOR&gt;.&lt;PATCH&gt;.9000+) on the current branch and push it to origin. Enables end-to-end installation testing via cg-update before an official release. Developer-only. | | /cg-diagnose | Copilot model picker | Diagnose VS Code crashes. Inspects logs, classifies the crash category, checks for uncommitted work, and recommends recovery steps. | | /cg-fix-problems | Copilot model picker | Interactive VS Code diagnostics fixer. Scans all workspace files for errors, warnings, and info diagnostics, lets the user select scope and severity, then applies fixes. Dispatches @cg-fix-problems agent. | | /cg-fix-triage | Copilot model picker | Apply review findings from a saved review report. Fixes all findings or a subset by ID/priority. | | /cg-fixbug | Copilot model picker | Structured bug-fix workflow: establish the expected-behavior source in Step 1.5, perform test-gap classification in Step 2.5, and require red-green proof. | | /cg-ideate | Copilot model picker | Generate, critique, and filter improvement ideas for the project. Use before /cg-brainstorm when you want to discover what to work on next. | | /cg-issues | Copilot model picker | Manage GitHub Issues linked to roadmap work items. Modes: status (default, read-only), backfill, link, adopt, setup. | | /cg-light-work | Copilot model picker | Qualify and execute one small technical task with bounded discovery, light review, and explicit compounding consent. | | /cg-plan-review | Copilot model picker | Review an implementation plan for risks, over-engineering, missing edge cases, and flawed assumptions. Use after /cg-plan or on any existing plan. | | /cg-plan | Copilot model picker | Create a structured implementation plan with research. Use after brainstorming or when requirements are clear. | | /cg-release | Copilot model picker | Run the standalone release controller with unchanged arguments. Generic plan/start/status/resume needs no GPID charter. Explicit legacy bridge/recovery remains GPID-only. | | /cg-render-doc | Copilot model picker | Render a workflow artifact or generic Markdown document to curated HTML. Routes typed artifacts to cg-render-artifact and generic documents to cg-publish-markdown. Supports --theme selection (reference or editorial). | | /cg-resume | Copilot model picker | Load context and resume interrupted work. Use at the start of a session to pick up where you left off. | | /cg-review | Copilot model picker | Run multi-agent code review on recent changes. Produces prioritized P0/P1/P2/P3 findings. | | /cg-roadmap-view | Copilot model picker | Visualize the project roadmap in chat. Supports flags: --milestone, --tasks, --detail, --status, --wip, --plan, --help. Dispatches @cg-roadmap-view agent for rendering. | | /cg-setup | Copilot model picker | Configure Compound GPID for this project and load context for returning projects. | | /cg-skill | Copilot model picker | Discover, import, validate, activate, update, audit, deprecate, and remove skills through one lifecycle command. | | /cg-strategy | Copilot model picker | Strategic project visioning and direction-setting. Use when you have a full project in mind to structure, or when you need to rethink direction mid-project. Dispatches @cg-roadmap for all roadmap writes. | | /cg-token-audit | Copilot model picker | Analyze Compound GPID token/context usage and suggest cost-efficient workflow choices. | | /cg-verify-pr | Copilot model picker | Check CI status on current PR, classify failures, and auto-fix with review agents. Use --propose for observe-only diagnosis. | | /cg-wiki | Copilot model picker | Manage the project wiki: initialize, rebuild pages, restructure sections, check status, or convert to GitHub Wiki format. | | /cg-work | Copilot model picker | Implement a /cg-plan plan. Supports /cg-work [phaseX], review, and deviate controls. |",
+      "text": "| Prompt | Model | Purpose | | /cg-autopilot | Copilot model picker | Coordinate Kilo autopilot bootstrap probes; production execution is not enabled. | | /cg-brain-rebuild | Copilot model picker | Rebuild the project knowledge brain (BRAIN.md + indexes). | | /cg-brainstorm | Copilot model picker | Brainstorm answers about what to build and how. Use when requirements are fuzzy. | | /cg-commit-push-pr | Copilot model picker | Stage changes into logical commits, push, and open a PR with plan-driven description. | | /cg-compound-gpid-rd | Copilot model picker | Research public GitHub repos for features to integrate into Compound GPID and manage the review registry. Developer-only. | | /cg-compound-refresh | Copilot model picker | Audit and refresh .cg-docs/solutions/ for staleness, drift, and consolidation opportunities. | | /cg-compound | Copilot model picker | Capture a solved problem as reusable knowledge. Offers canonical .github/ updates; the user applies them manually after fixing a non-trivial issue. | | /cg-devtag | Copilot model picker | Create a dev tag (v&lt;MAJOR&gt;.&lt;MINOR&gt;.&lt;PATCH&gt;.9000+) on the current branch and push it to origin. Enables end-to-end installation testing via cg-update before an official release. Developer-only. | | /cg-diagnose | Copilot model picker | Diagnose VS Code crashes. Inspects logs, classifies the crash category, checks for uncommitted work, and recommends recovery steps. | | /cg-fix-problems | Copilot model picker | Interactive VS Code diagnostics fixer. Scans all workspace files for errors, warnings, and info diagnostics, lets the user select scope and severity, then applies fixes. Dispatches @cg-fix-problems agent. | | /cg-fix-triage | Copilot model picker | Apply review findings from a saved review report. Fixes all findings or a subset by ID/priority. | | /cg-fixbug | Copilot model picker | Structured bug-fix workflow: establish the expected-behavior source in Step 1.5, perform test-gap classification in Step 2.5, and require red-green proof. | | /cg-help | Copilot model picker | Find evidence-backed Compound GPID slash and shell command help. | | /cg-ideate | Copilot model picker | Generate, critique, and filter improvement ideas for the project. Use before /cg-brainstorm when you want to discover what to work on next. | | /cg-issues | Copilot model picker | Manage GitHub Issues linked to roadmap work items. Modes: status (default, read-only), backfill, link, adopt, setup. | | /cg-light-work | Copilot model picker | Qualify and execute one small technical task with bounded discovery, light review, and explicit compounding consent. | | /cg-plan-review | Copilot model picker | Review an implementation plan for risks, over-engineering, missing edge cases, and flawed assumptions. Use after /cg-plan or on any existing plan. | | /cg-plan | Copilot model picker | Create a structured implementation plan with research. Use after brainstorming or when requirements are clear. | | /cg-release | Copilot model picker | Run the standalone release controller with unchanged arguments. Generic plan/start/status/resume needs no GPID charter. Explicit legacy bridge/recovery remains GPID-only. | | /cg-render-doc | Copilot model picker | Render a workflow artifact or generic Markdown document to curated HTML. Routes typed artifacts to cg-render-artifact and generic documents to cg-publish-markdown. Supports --theme selection (reference or editorial). | | /cg-resume | Copilot model picker | Load context and resume interrupted work. Use at the start of a session to pick up where you left off. | | /cg-review | Copilot model picker | Run multi-agent code review on recent changes. Produces prioritized P0/P1/P2/P3 findings. | | /cg-roadmap-view | Copilot model picker | Visualize the project roadmap in chat. Supports flags: --milestone, --tasks, --detail, --status, --wip, --plan, --help. Dispatches @cg-roadmap-view agent for rendering. | | /cg-setup | Copilot model picker | Configure Compound GPID for this project and load context for returning projects. | | /cg-skill | Copilot model picker | Discover, import, validate, activate, update, audit, deprecate, and remove skills through one lifecycle command. | | /cg-strategy | Copilot model picker | Strategic project visioning and direction-setting. Use when you have a full project in mind to structure, or when you need to rethink direction mid-project. Dispatches @cg-roadmap for all roadmap writes. | | /cg-token-audit | Copilot model picker | Analyze Compound GPID token/context usage and suggest cost-efficient workflow choices. | | /cg-verify-pr | Copilot model picker | Check CI status on current PR, classify failures, and auto-fix with review agents. Use --propose for observe-only diagnosis. | | /cg-wiki | Copilot model picker | Manage the project wiki: initialize, rebuild pages, restructure sections, check status, or convert to GitHub Wiki format. | | /cg-work | Copilot model picker | Implement a /cg-plan plan. Supports /cg-work [phaseX], review, and deviate controls. |",
       "suite": "shared",
       "kind": "section"
     },
@@ -3797,6 +3815,15 @@
       "title": "Complete Reference",
       "heading": "/cg-verify-pr Exact Diagnosis And Repair Contract",
       "text": "/cg-verify-pr requests the open PR's actual baseRefName in the same statusCheckRollup metadata query and halts if that base is unavailable. It uses that $baseBranch for every fetch, merge-base, rebase, changed-file comparison, preflight, and trailer-history operation; it never infers a base from a remote symbolic ref. For each failed check, the prompt reads its detailsUrl and accepts only a GitHub Actions job URL containing both identifiers. It retrieves the exact failed job with: gh run view <run-id> --job <job-id> --log-failed Missing, non-Actions, unparseable, or unavailable URLs/logs use a manual route: open the check provider's details page, obtain the exact run/job IDs and failed step output, and do not select a latest run by workflow name or recency. Auto-fix first runs git status --porcelain and stops on any pre-existing staged, unstaged, or untracked change. After a clean baseline, the prompt runs scripts/cg_pr_preflight.py with $baseBranch and the PR changed files to select the exact focused local reproduction. A certified-host Kilo failure confirmed by the exact job log may use the certified-host remediation path; Kilo generic-not-applicable is neutral capability evidence, and generic linker failure is never Kilo integration proof. Only post-baseline targeted paths are staged. One verification pass creates exactly one fix(ci) commit with one unique CI-Fix-Round: <PR>/<N> trailer in $mergeBase..HEAD; historical fix(ci): subjects do not count. A rebase uses the resolved PR base, and --force-with-lease is used only after that rebase. Certified-host Kilo evidence is separate from generic CI. Configure the protected repository variables CG_KILO_CERTIFIED_RUNNER, CG_KILO_CERTIFIED_VERSION, and CG_KILO_CERTIFIED_SHA256, and require maintainer approval for the cg-kilo-certified environment. The certified job runs only on a protected default-branch push or an explicitly requested workflow dispatch for that same default branch, checks out that trusted ref, compares the preflight-reported executable version and SHA-256 before launch, and uploads kilo-preflight.json and inventory evidence. Missing configuration produces a neutral generic-not-applicable summary; generic CI never claims real-host integration.",
+      "suite": "shared",
+      "kind": "section"
+    },
+    {
+      "page": "reference",
+      "section": "autopilot-kilo-operating-contract",
+      "title": "Complete Reference",
+      "heading": "Autopilot (Kilo) Operating Contract",
+      "text": "/cg-autopilot coordinates phased plan batches end to end through stage children. This section documents the specified operating contract. Production execution is not enabled yet: the command is probe-only today and returns blocked: bootstrap-only for fresh/resume pipeline arguments until native qualification completes. The control modules under scripts/autopilot/ and the journey tests under scripts/tests/ validate the contract offline. Command forms (documented syntax; examples do not use invented flags): /cg-autopilot --plan .cg-docs/plans/<plan>.md --batches 1-3 --base origin/dev /cg-autopilot --resume .cg-docs/active-state/current.json A strict v1 phased plan is required: validation rejects oversized plans, missing completion-contract sections, duplicate phase numbers, and a current phase outside the completed prefix. Fresh runs require a clean checkout of the release branch and an explicitly selected base; the required base is recorded in the marker and cursor and every publication/CI observation rechecks exact repository, PR, head, and base instead of inferring them. Stage ordering is enforced: work (one stage per phase) → prepare-publication → review → (triage → prepare-publication → verify-review) → compound → publish → verify-pr → next batch. Generation precedes affected review; review always precedes preparation of the reviewed payload, and publication cannot push payload drift — regenerating a drifted inventory invalidates the intent and returns to preparation plus affected review. Only the parent writes the versioned cursor; stage children return cursor-update-request events (report-created, phase-boundary, blocked-stop) and the parent checkpoints expected bytes after settle and read-back. Scoped approvals and repair rounds. Review findings first ask a scoped question before any effect; an acknowledged needs-input settles released-no-effect only when the parent verifies unchanged HEAD, index, worktree, plan, report, and remote identities and no test or external action started. Partial effects charge the round; failed and uncertain attempts keep their charge; reservations are never refunded. Caps: two charged review/fix rounds per batch, two CI rounds per repository PR across batches and resumes (counted from CI-Fix-Round: <PR>/<round> trailers in $mergeBase..HEAD). Canceled CI is never implicit success; at most one explicitly approved rerun per batch is accepted. CI observation and deadline extension. Observation waits on pending checks, routes failure/timeout to exact diagnosis through gh run view <run-id> --job <job-id> --log-failed with redaction and an 8 KiB diagnostic bound, and blocks on missing, stale, or malformed rolls. One immutable original UTC deadline is recorded at first observation. extend-ci-deadline is parent-only, applies exactly once from an explicit approval with a duration and exact scope, moves only the waiting deadline (never repair slots, permissions, or evidence gates), stores old/new/original values plus history, and replays the same request ID idempotently. A changed scope, a shorter deadline, or a missing observation requires a new decision instead of silent rebasing. Consumer-owned reproduction. Source classification uses tracked canonical evidence, never helper location or directory existence; consumers without a local Compound GPID scripts/test layout reproduce failures with validated consumer test argv through the verified general execution leaf, never installed source tests. Pester always runs through the canonical safe execution-child runner. Limits and nesting. Whole-document reads are complete-file bounded evidence (2 MiB per document, 128 MiB aggregate per validation operation); parent frames are bounded (8192 bytes per returned frame, 65536 cumulative bytes per primary context) and exhaustion pauses before another dispatch — never truncates and never resets within a session. Conditional nesting is limited (at most three depth levels with full input validation at each), and runtime qualification is separate from semantic approval: a matching hash or effect-start receipt records that an operation wrote before proceeding and does not prove correctness or unchanged state; envelopes are correlation records, not security credentials; the coordination marker is an ownership record, not a lock against a privileged writer. Installed helper setup. The control helper cg-autopilot-control is installed with the other shell commands from bin/. Its only enabled operation is a read-only inspect: cg-autopilot-control inspect --root . [--plan <path>] [--batches <segments>] [--base <branch>] [--resume <cursor>] inspect prints one JSON report on stdout (\"status\": \"eligible\" or \"blocked\" with normalized specs or typed blockers). Completed inspections exit 0 for either status; callers must inspect status and blockers rather than infer eligibility from the exit code. Invocation errors exit 1 without a report. The helper keeps diagnostics on stderr and never writes or derives a project root from its install location. Remaining operations answer operation-not-implemented until native qualification completes. Recovery without force. An interrupted run reconciles through the read-only resume path first: the parent reloads the marker and cursor, detects open transactions, interrupted effects, and unacknowledged results, and finishes an interrupted checkpoint only with the exact expected payload digest. Quarantined and foreign bytes stay in place as evidence and block progression instead of being overwritten. Do not delete markers, rewrite the cursor by hand, force-push, or run broad git repairs to resolve control state. The advanced ideas autopilot-hard-stage-deadlines and autopilot-enforced-writer-isolation remain deferred roadmap items and are not part of the current contract.",
       "suite": "shared",
       "kind": "section"
     },
@@ -4633,7 +4660,7 @@
       "section": "the-loop",
       "title": "Detailed Workflow Manual",
       "heading": "The Loop",
-      "text": "Setup -> Strategy -> Ideate -> Brainstorm -> Plan -> [Plan Review] -> Work -> Review -> [Commit+Push -> Verify PR] -> Compound -> Wiki ^ ^ ^ ^ ^ ^ ^ (vision/rethink) (discover) (one task) Fix Bug Refresh Refresh (auto-updated by Compound) Resume (re-entry at any stage) Roadmap View (read-only snapshot at any stage) The diagram shows the technical /cg-* loop. Research projects use the parallel /cr-* loop above. Prompts are not interactive commands — invoke a prompt, answer its questions when asked, and let it run to completion. Native target note: .github/ is canonical for GitHub Copilot. Generated .claude/, .agents/, .opencode/, and .kilo/ trees provide native command, skill, agent, instruction, and shared-contract layouts for the other hosts. Project Charter (compound-gpid.md): Before any workflow step, Copilot reads your project's charter to understand objective, deliverables, constraints, and current focus. Create or update it via /cg-setup. The charter has exactly four sections (Objective, Key Deliverables, Constraints, Current Focus) — content that doesn't fit belongs elsewhere (see /cg-setup for where each type belongs). Content removed from the charter is archived to .cg-docs/archive/charter-history.md. /cg-resume will nudge you if last-reviewed is missing or more than 30 days old.",
+      "text": "Setup -> Strategy -> Ideate -> Brainstorm -> Plan -> [Plan Review] -> Work -> Review -> [Commit+Push -> Verify PR] -> Compound -> Wiki ^ ^ ^ ^ ^ ^ ^ (vision/rethink) (discover) (one task) Fix Bug Refresh Refresh (auto-updated by Compound) Resume (re-entry at any stage) Roadmap View (read-only snapshot at any stage) The diagram shows the technical /cg-* loop. Research projects use the parallel /cr-* loop above. Prompts are not interactive commands — invoke a prompt, answer its questions when asked, and let it run to completion. Native target note: .github/ is canonical for GitHub Copilot. Generated .claude/, .agents/, .opencode/, and .kilo/ trees provide native command, skill, agent, instruction, and shared-contract layouts for the other hosts. { \"schemaVersion\": 1, \"workflows\": [ { \"id\": \"installation-and-setup\", \"title\": \"Install a project workflow\", \"summary\": \"Link the selected platform assets, then configure the project.\", \"supportedSuites\": [\"cg\"], \"intents\": [\"configure a new Compound GPID project\", \"link and initialize a project\"], \"prerequisites\": [\"Compound GPID is installed on the machine.\"], \"steps\": [ {\"order\": 1, \"commandId\": \"shell:cg-link\", \"purpose\": \"Link selected platform assets.\", \"evidence\": [{\"sourcePath\": \"docs/installation.md\", \"sourceSection\": \"step-3---link-your-project-once-per-project\"}]}, {\"order\": 2, \"commandId\": \"slash:cg-setup\", \"purpose\": \"Create or validate project configuration and context.\", \"evidence\": [{\"sourcePath\": \".github/prompts/cg-setup.prompt.md\", \"sourceSection\": \"process\"}]} ], \"sourcePath\": \"docs/workflow.md\", \"sourceSection\": \"the-loop\" }, { \"id\": \"research-delivery-loop\", \"title\": \"Complete an evidence-backed research task\", \"summary\": \"Scope, plan, implement, review, and capture a research result.\", \"supportedSuites\": [\"cr\"], \"intents\": [\"complete an economics research task\", \"run the research workflow\"], \"prerequisites\": [\"The cr suite is active.\"], \"steps\": [ {\"order\": 1, \"commandId\": \"slash:cr-brainstorm\", \"purpose\": \"Clarify the research question and methodology.\", \"evidence\": [{\"sourcePath\": \".github/prompts/cr-brainstorm.prompt.md\", \"sourceSection\": \"process\"}]}, {\"order\": 2, \"commandId\": \"slash:cr-plan\", \"purpose\": \"Create an evidence and integrity aware research plan.\", \"evidence\": [{\"sourcePath\": \".github/prompts/cr-plan.prompt.md\", \"sourceSection\": \"process\"}]}, {\"order\": 3, \"commandId\": \"slash:cr-work\", \"purpose\": \"Implement the approved research plan.\", \"evidence\": [{\"sourcePath\": \".github/prompts/cr-work.prompt.md\", \"sourceSection\": \"process\"}]}, {\"order\": 4, \"commandId\": \"slash:cr-review\", \"purpose\": \"Review code, methods, and research integrity.\", \"evidence\": [{\"sourcePath\": \".github/prompts/cr-review.prompt.md\", \"sourceSection\": \"process\"}]}, {\"order\": 5, \"commandId\": \"slash:cr-compound\", \"purpose\": \"Capture a verified reusable research lesson.\", \"evidence\": [{\"sourcePath\": \".github/prompts/cr-compound.prompt.md\", \"sourceSection\": \"process\"}]} ], \"sourcePath\": \"docs/workflow.md\", \"sourceSection\": \"modular-suites\" }, { \"id\": \"review-and-fix\", \"title\": \"Review and resolve findings\", \"summary\": \"Review changes, apply selected findings, and verify convergence.\", \"supportedSuites\": [\"cg\"], \"intents\": [\"review and fix code changes\", \"resolve saved review findings\"], \"prerequisites\": [\"Implementation changes are ready for review.\"], \"steps\": [ {\"order\": 1, \"commandId\": \"slash:cg-review\", \"purpose\": \"Create prioritized review findings.\", \"evidence\": [{\"sourcePath\": \".github/prompts/cg-review.prompt.md\", \"sourceSection\": \"process\"}]}, {\"order\": 2, \"commandId\": \"slash:cg-fix-triage\", \"purpose\": \"Apply and track selected findings.\", \"evidence\": [{\"sourcePath\": \".github/prompts/cg-fix-triage.prompt.md\", \"sourceSection\": \"process\"}]}, {\"order\": 3, \"commandId\": \"slash:cg-review\", \"purpose\": \"Verify that the fixes converge.\", \"evidence\": [{\"sourcePath\": \".github/prompts/cg-review.prompt.md\", \"sourceSection\": \"process\"}]} ], \"sourcePath\": \"docs/workflow.md\", \"sourceSection\": \"the-loop\" }, { \"id\": \"technical-delivery-loop\", \"title\": \"Complete a technical delivery task\", \"summary\": \"Clarify, plan, implement, review, integrate, and capture technical work.\", \"supportedSuites\": [\"cg\"], \"intents\": [\"complete a software delivery task\", \"run the technical workflow\"], \"prerequisites\": [\"The cg suite is active.\"], \"steps\": [ {\"order\": 1, \"commandId\": \"slash:cg-brainstorm\", \"purpose\": \"Clarify fuzzy requirements when needed.\", \"evidence\": [{\"sourcePath\": \".github/prompts/cg-brainstorm.prompt.md\", \"sourceSection\": \"process\"}]}, {\"order\": 2, \"commandId\": \"slash:cg-plan\", \"purpose\": \"Create a completion-bound implementation plan.\", \"evidence\": [{\"sourcePath\": \".github/prompts/cg-plan.prompt.md\", \"sourceSection\": \"process\"}]}, {\"order\": 3, \"commandId\": \"slash:cg-plan-review\", \"purpose\": \"Challenge the plan before implementation.\", \"evidence\": [{\"sourcePath\": \".github/prompts/cg-plan-review.prompt.md\", \"sourceSection\": \"process\"}]}, {\"order\": 4, \"commandId\": \"slash:cg-work\", \"purpose\": \"Implement and verify the approved plan.\", \"evidence\": [{\"sourcePath\": \".github/prompts/cg-work.prompt.md\", \"sourceSection\": \"process\"}]}, {\"order\": 5, \"commandId\": \"slash:cg-review\", \"purpose\": \"Find behavioral regressions and missing tests.\", \"evidence\": [{\"sourcePath\": \".github/prompts/cg-review.prompt.md\", \"sourceSection\": \"process\"}]}, {\"order\": 6, \"commandId\": \"slash:cg-commit-push-pr\", \"purpose\": \"Commit, push, and open the pull request.\", \"evidence\": [{\"sourcePath\": \".github/prompts/cg-commit-push-pr.prompt.md\", \"sourceSection\": \"process\"}]}, {\"order\": 7, \"commandId\": \"slash:cg-verify-pr\", \"purpose\": \"Verify pull-request checks.\", \"evidence\": [{\"sourcePath\": \".github/prompts/cg-verify-pr.prompt.md\", \"sourceSection\": \"process\"}]}, {\"order\": 8, \"commandId\": \"slash:cg-compound\", \"purpose\": \"Capture reusable verified knowledge.\", \"evidence\": [{\"sourcePath\": \".github/prompts/cg-compound.prompt.md\", \"sourceSection\": \"process\"}]} ], \"sourcePath\": \"docs/workflow.md\", \"sourceSection\": \"the-loop\" } ] } Project Charter (compound-gpid.md): Before any workflow step, Copilot reads your project's charter to understand objective, deliverables, constraints, and current focus. Create or update it via /cg-setup. The charter has exactly four sections (Objective, Key Deliverables, Constraints, Current Focus) — content that doesn't fit belongs elsewhere (see /cg-setup for where each type belongs). Content removed from the charter is archived to .cg-docs/archive/charter-history.md. /cg-resume will nudge you if last-reviewed is missing or more than 30 days old.",
       "suite": "shared",
       "kind": "section"
     },

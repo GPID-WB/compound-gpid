@@ -90,8 +90,10 @@ def _load_manifest(root: Path, *, skip_stale_check: bool = False) -> dict[str, A
                 manifest_health="missing",
             )
         try:
-            data = json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError) as exc:
+            from help.catalog import load_strict_json_bytes
+
+            data = load_strict_json_bytes(path.read_bytes(), source=ACTIVE_MANIFEST_PATH)
+        except (OSError, ValueError) as exc:
             raise CatalogError(f"Active manifest is unreadable or malformed: {exc}") from exc
         errors = pm.validate_manifest(data)
         if errors:
@@ -187,18 +189,26 @@ def filter_catalog(
 
 
 COMPACT_FIELDS = (
-    "id", "purpose", "capability", "available", "activationCost", "lifecycle"
+    "id", "purpose", "capability", "availability", "manifestHealth",
+    "activationCost", "origin", "lifecycle",
 )
 FULL_EXTRA_FIELDS = (
-    "sourcePath", "sourceProvenance", "eligibility", "inactiveReason",
-    "importStatus", "owner", "supportedPlatforms", "taskTriggers", "successorId",
+    "owner", "sourcePath", "provenanceIdentity", "selectors",
+    "supportedSuites", "supportedPlatforms", "inactiveReason",
+    "prospectiveReason", "taskTriggers", "successorId",
 )
+
+
+def _projected(rows: List[dict[str, Any]], *, full: bool) -> List[dict[str, Any]]:
+    """Project internal rows through the public record contract."""
+    return [catalog_service.public_record(row, full=full) for row in rows]
 
 
 def format_compact(rows: List[dict[str, Any]]) -> str:
     """Compact table: id, purpose, capability, availability, cost."""
     if not rows:
         return "(no matching skills)"
+    rows = _projected(rows, full=False)
     widths = {}
     for field in COMPACT_FIELDS:
         widths[field] = max(
@@ -225,6 +235,7 @@ def format_full(rows: List[dict[str, Any]]) -> str:
     """Full table with all metadata fields."""
     if not rows:
         return "(no matching skills)"
+    rows = _projected(rows, full=True)
     all_fields = COMPACT_FIELDS + FULL_EXTRA_FIELDS
     widths = {}
     for field in all_fields:
@@ -256,9 +267,11 @@ def _display_value(value: Any) -> str:
 
 
 def format_json(rows: List[dict[str, Any]], compact: bool = False) -> str:
-    """JSON output. Compact strips extended fields."""
+    """JSON output. Compact projects through the public compact contract."""
     if compact:
-        rows = [{k: r[k] for k in COMPACT_FIELDS if k in r} for r in rows]
+        rows = _projected(rows, full=False)
+    else:
+        rows = _projected(rows, full=True)
     return json.dumps(rows, indent=2, sort_keys=True) + "\n"
 
 
@@ -317,7 +330,7 @@ def check_inventory_leaks(
     This extends the closure and generated-target tests from
     ``test_target_closure.py`` and ``test_context_budget.py`` to inspect
     all emitted commands, agents, skills, instructions, shared assets, root
-    adapters, configs, and catalog rows for inactive asset paths or references.
+    adapters, and configs for inactive asset paths or references.
     """
     if manifest is None:
         manifest = _load_manifest(root)
@@ -325,39 +338,21 @@ def check_inventory_leaks(
         registry = _load_registry(root)
 
     closure = set(manifest["selection"]["moduleClosure"])
-    closure_globs = sorted(budget.loadable_asset_globs(registry, closure))
     leaks: list[str] = []
-
-    # Check catalog rows for inactive references
-    catalog = manifest.get("catalogRecords", [])
-    for row in catalog:
-        if not isinstance(row, dict):
-            continue
-        if not row.get("available") and row.get("capability"):
-            # Inactive catalog entries are expected; only flag if they appear
-            # in the active inventory (which would be a leak)
-            pass
 
     # Check if any canonical asset outside the closure is referenced by
     # assets inside the closure
     all_assets = validator.canonical_assets(root)
-    active_assets = [
-        a for a in all_assets
-        if any(validator.glob_match(pattern, a) for pattern in closure_globs)
-    ]
-
-    # Read each active asset and check for references to inactive assets
-    inactive_assets = [
-        a for a in all_assets
-        if not any(validator.glob_match(pattern, a) for pattern in closure_globs)
-    ]
+    active_assets = []
+    inactive_assets = []
+    for asset_path in all_assets:
+        if budget.asset_is_loadable(registry, closure, asset_path):
+            active_assets.append(asset_path)
+        else:
+            inactive_assets.append(asset_path)
     inactive_set = set(inactive_assets)
 
-    import re
-    runtime_ref_re = re.compile(
-        r"(?<![A-Za-z0-9_.-])\.github/(prompts|skills|agents|instructions|shared)/"
-        r"[^\s`'\"<>)/][^\s`'\"<>)]*"
-    )
+    runtime_ref_re = validator.CANONICAL_RUNTIME_PATH_PATTERN
 
     for asset_path in active_assets:
         full_path = root / asset_path
@@ -375,17 +370,6 @@ def check_inventory_leaks(
                     f"Active asset '{asset_path}' references inactive asset '{ref_path}'"
                 )
 
-    # Check catalog records embedded in manifest for inactive skill content
-    for row in catalog:
-        if not isinstance(row, dict):
-            continue
-        skill_id = row.get("id")
-        available = row.get("available", True)
-        if not available:
-            # An inactive catalog row should not have been loaded into
-            # any active command/agent context
-            pass
-
     return sorted(set(leaks))
 
 
@@ -399,7 +383,8 @@ def main(argv: Optional[list[str]] = None) -> int:
         description="Static manifest-backed skill catalog and capability router."
     )
     parser.add_argument("--root", default=".", help="Project root (default: .)")
-    parser.add_argument("--compact", action="store_true", default=True, help="Compact output (default)")
+    parser.add_argument("--compact", action="store_true", help="Compact output (default)")
+    parser.add_argument("--no-compact", action="store_true", help="Full output (same as --full)")
     parser.add_argument("--full", action="store_true", help="Full output with all metadata")
     parser.add_argument("--id", default=None, dest="id_query", help="Filter by skill id or purpose substring")
     parser.add_argument("--capability", default=None, help="Filter by capability id")
@@ -482,7 +467,7 @@ def main(argv: Optional[list[str]] = None) -> int:
         provenance=args.provenance,
     )
 
-    is_full = args.full
+    is_full = args.full or args.no_compact
     if args.format == "json":
         output = format_json(rows, compact=not is_full)
     elif is_full:

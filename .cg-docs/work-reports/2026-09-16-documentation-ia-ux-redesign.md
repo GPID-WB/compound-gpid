@@ -2371,3 +2371,22 @@ source-bound support evidence for any Gate C runtime claims. Resume redesign
 after checking those actual merged sources. The ordered final review/triage/
 compound/commit-push-PR/five-minute-wait/verify pipeline remains pending because
 its prerequisite phases have not completed. No push, PR or deployment occurred.
+
+## Run 20: Complete the Missing Canonical Help Documentation Integration
+
+The user clarified that the help command was already merged and asked how the
+missing integration is obtained. Running `/cg-help` does not create source code.
+The prior external-blocker interpretation was too narrow: Step 6 already scopes
+`scripts/help/`, one documentation owner and writer adoption. This run implements
+the missing canonical writer/checker in that owner, using the existing help
+Plan's phase 6 specification, then continues the authorized redesign phases.
+It does not introduce a competing catalog or mark the separate help Plan complete.
+The original authorization to execute all redesign phases remains in effect.
+
+The repeat merge uses canonical origin/dev 7a4df8c6. Its already-observed merge
+regressions are reconciled: new commands have explicit bounded editorial rows,
+skill-management reflects the registry's shared-suite support, and the dispatch
+test preserves both independently authorized inputs. The historical v2 generator
+and runtime are captured from de64bf06 before the new output contract is enabled.
+Step 6 initial implementation/red-green work is active; its functional repair
+allowance is 0/2 before the first complete post-implementation verification.

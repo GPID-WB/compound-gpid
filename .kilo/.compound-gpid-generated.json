@@ -25,6 +25,20 @@
       "executable": false
     },
     {
+      "path": ".kilo/agents/cg-autopilot.md",
+      "source": ".github/agents/cg-autopilot.agent.md",
+      "kind": "agent",
+      "sha256": "9893e79db389dcae0634b6234996be5d17d252d4ce235903e40051b72306587d",
+      "executable": false
+    },
+    {
+      "path": ".kilo/agents/cg-bootstrap-leaf.md",
+      "source": ".github/agents/cg-bootstrap-leaf.agent.md",
+      "kind": "agent",
+      "sha256": "bfdd80af0c0db36abc3b2eb2be1f776f5bef0f4e809d409cfaea077ca6657785",
+      "executable": false
+    },
+    {
       "path": ".kilo/agents/cg-code-quality.md",
       "source": ".github/agents/cg-code-quality.agent.md",
       "kind": "agent",
@@ -49,7 +63,7 @@
       "path": ".kilo/agents/cg-fix-problems.md",
       "source": ".github/agents/cg-fix-problems.agent.md",
       "kind": "agent",
-      "sha256": "790cd84948abd7ee9e4e65b19a57fd9341be19e271a8704037ea53e69d861303",
+      "sha256": "913873aac806a4bcad6c4c1d2e015365c11870a8c7fc3a4ab545689dba264e1b",
       "executable": false
     },
     {
@@ -130,6 +144,13 @@
       "executable": false
     },
     {
+      "path": ".kilo/agents/cg-workflow-stage.md",
+      "source": ".github/agents/cg-workflow-stage.agent.md",
+      "kind": "agent",
+      "sha256": "d1996592078da503876458d9b3466573eddaf001325d182da19cdceff284790c",
+      "executable": false
+    },
+    {
       "path": ".kilo/agents/cr-academic-writing.md",
       "source": ".github/agents/cr-academic-writing.agent.md",
       "kind": "agent",
@@ -207,6 +228,13 @@
       "executable": false
     },
     {
+      "path": ".kilo/commands/cg-autopilot.md",
+      "source": ".github/prompts/cg-autopilot.prompt.md",
+      "kind": "command",
+      "sha256": "f91307d9b31a3143ef92b0235a305602c0e0ad9e0da21953eef3a4bb6a0ea1ec",
+      "executable": false
+    },
+    {
       "path": ".kilo/commands/cg-brain-rebuild.md",
       "source": ".github/prompts/cg-brain-rebuild.prompt.md",
       "kind": "command",
@@ -224,7 +252,7 @@
       "path": ".kilo/commands/cg-commit-push-pr.md",
       "source": ".github/prompts/cg-commit-push-pr.prompt.md",
       "kind": "command",
-      "sha256": "f4b292fcd7e735560a90b9b3f76a675f6d13eb08da865bd7c1f26f1b5b0cd49b",
+      "sha256": "ac3bb6a6ca303d380f697dde47bb23541dbc6e6f6bccc335c5dc60c721e6af28",
       "executable": false
     },
     {
@@ -245,7 +273,7 @@
       "path": ".kilo/commands/cg-compound.md",
       "source": ".github/prompts/cg-compound.prompt.md",
       "kind": "command",
-      "sha256": "fa2e978166d7440037e8e4a9f18227b4c4ace94c662742dbe3a2ad8e13792ca0",
+      "sha256": "07cefe788cb45800795fbf63965712a6b9dda646670d15303e40b75cfe703fa0",
       "executable": false
     },
     {
@@ -273,7 +301,7 @@
       "path": ".kilo/commands/cg-fix-triage.md",
       "source": ".github/prompts/cg-fix-triage.prompt.md",
       "kind": "command",
-      "sha256": "5bb61bca1de9d171dbeffb2708321c6d19ff3497691c66c3f52a00f96fe6f236",
+      "sha256": "f9e38ee7bdc0a99d7df4908e4733be18a644921daa4eaf2f165e5deaa7ff9a3f",
       "executable": false
     },
     {
@@ -281,6 +309,13 @@
       "source": ".github/prompts/cg-fixbug.prompt.md",
       "kind": "command",
       "sha256": "ed1dc0cdc0bc6ff2003377ec8746bd570bb5e64dfc7e3832f02ee28fbd94e1b1",
+      "executable": false
+    },
+    {
+      "path": ".kilo/commands/cg-help.md",
+      "source": ".github/prompts/cg-help.prompt.md",
+      "kind": "command",
+      "sha256": "ced278afdf7d542a2ee10225c8830297a6dbf24a6a30be46905e2d9bdd3a3d70",
       "executable": false
     },
     {
@@ -336,14 +371,14 @@
       "path": ".kilo/commands/cg-resume.md",
       "source": ".github/prompts/cg-resume.prompt.md",
       "kind": "command",
-      "sha256": "bf09fdaf3f4bad368135d5ae5071011374ab3e20fd57499056fefffb9ec92b0c",
+      "sha256": "28028d26fc5f36628c6479914f0a2ac1fe6f8ade552fe6fc61faaaf7d5746ce7",
       "executable": false
     },
     {
       "path": ".kilo/commands/cg-review.md",
       "source": ".github/prompts/cg-review.prompt.md",
       "kind": "command",
-      "sha256": "6161675e1b445dcb24ff10082d90f2803db0e73954dae00fc5cf8e39979552de",
+      "sha256": "d9774637b89141ac16081925f898613cb2ca10ce90cc2e209611dafdddbb8436",
       "executable": false
     },
     {
@@ -385,7 +420,7 @@
       "path": ".kilo/commands/cg-verify-pr.md",
       "source": ".github/prompts/cg-verify-pr.prompt.md",
       "kind": "command",
-      "sha256": "ee9e128a80cf3c738424a6be5ac4ca26a1a64f047e5a4098a1f5110d5338bc58",
+      "sha256": "644164a3128744ca2a3df1748688768d6cadf679d80322d7eab8f376fd57cf8f",
       "executable": false
     },
     {
@@ -399,7 +434,7 @@
       "path": ".kilo/commands/cg-work.md",
       "source": ".github/prompts/cg-work.prompt.md",
       "kind": "command",
-      "sha256": "4dae5f148ca2380372f91cd6bab9576f66ed9269ef8b5386e667a368082a0916",
+      "sha256": "3558e29b500514bf72f9b306476febd7bd643cd5d1423fb758a41cdff4b041c6",
       "executable": false
     },
     {
@@ -441,7 +476,7 @@
       "path": ".kilo/commands/resume-templates.md",
       "source": ".github/prompts/resume-templates.md",
       "kind": "prompt-support",
-      "sha256": "d1e723b3f3ef06f19920476280d5f4b84670c8b2cff9198568afaee71906b114",
+      "sha256": "25da60de3c13fd64245114cae773cbb67123e1deaf1d36f27fda629587f052a0",
       "executable": false
     },
     {
@@ -501,10 +536,45 @@
       "executable": false
     },
     {
+      "path": ".kilo/plugin-support/cg-native-evidence/evidence.mjs",
+      "source": ".github/plugin-support/cg-native-evidence/evidence.mjs",
+      "kind": "native-plugin",
+      "sha256": "4b9d8b1a950f98597783b7d1056e60b3b9ccecab463fcd125348b7ebd04d2cb0",
+      "executable": false
+    },
+    {
+      "path": ".kilo/plugin-support/cg-native-evidence/records.mjs",
+      "source": ".github/plugin-support/cg-native-evidence/records.mjs",
+      "kind": "native-plugin",
+      "sha256": "e3a0f81b7080f366f172c6fac0a14a657d198880a51e56ff730f1f888751dd4c",
+      "executable": false
+    },
+    {
+      "path": ".kilo/plugin-support/cg-native-evidence/transport.mjs",
+      "source": ".github/plugin-support/cg-native-evidence/transport.mjs",
+      "kind": "native-plugin",
+      "sha256": "a8052547fdc24ac64ec21f5a367097fa69bb2d703760e341ef69e99aa9d933a4",
+      "executable": false
+    },
+    {
+      "path": ".kilo/plugin-support/cg-native-evidence/wire.mjs",
+      "source": ".github/plugin-support/cg-native-evidence/wire.mjs",
+      "kind": "native-plugin",
+      "sha256": "3ffc0eced0709513aa5ea0160d6edb42bed7cc1f87a1462d66d36b3efd015c34",
+      "executable": false
+    },
+    {
+      "path": ".kilo/plugins/cg-native-evidence.js",
+      "source": ".github/plugins/cg-native-evidence.js",
+      "kind": "native-plugin",
+      "sha256": "d6dbb70d14daaa25ad9f18e5c71cbfea7939d2a741e6cf13448006a4ea2c5db1",
+      "executable": false
+    },
+    {
       "path": ".kilo/shared/active-state.contract.md",
       "source": ".github/shared/active-state.contract.md",
       "kind": "shared",
-      "sha256": "edd87c90746d753bd4bcf3e869b5e19eddfa78dc8eaacb6a8c264191dd6d9604",
+      "sha256": "85654da33c857344dd163ff4dc9e95d8c55462b2e1e7d262653de3f0a45ca9f7",
       "executable": false
     },
     {
@@ -515,17 +585,31 @@
       "executable": false
     },
     {
+      "path": ".kilo/shared/autopilot-stage.contract.md",
+      "source": ".github/shared/autopilot-stage.contract.md",
+      "kind": "shared",
+      "sha256": "80c4b95fcc18bc1ea50d1a88a5188d9aeba283fb3d5c3fecddc4388d21d75816",
+      "executable": false
+    },
+    {
       "path": ".kilo/shared/context-loading.contract.md",
       "source": ".github/shared/context-loading.contract.md",
       "kind": "shared",
-      "sha256": "1a02f20f9adef1d94a42787e504e811f8b008567f29dde20a55b8f8bfa2f7c2c",
+      "sha256": "f7e75f45d8f050af5b147728ef0d6b541fb2de783f191e34574846f0718cf459",
       "executable": false
     },
     {
       "path": ".kilo/shared/goal-execution.contract.md",
       "source": ".github/shared/goal-execution.contract.md",
       "kind": "shared",
-      "sha256": "9ad11c319a913f6efeadbf243040d22a691d07dec658eb59f154623b5b96c7ff",
+      "sha256": "bb8ab8781c2c74b0367c647996cb931d03cb42852f13381760cdaba1ddbf84e7",
+      "executable": false
+    },
+    {
+      "path": ".kilo/shared/help-catalog.json",
+      "source": ".github/shared/help-catalog.json",
+      "kind": "shared",
+      "sha256": "572ecb9151261bc65c3d649641e87a8a60e6593d14e0b67768f2d99ac61fdbb4",
       "executable": false
     },
     {
@@ -561,6 +645,13 @@
       "source": ".github/shared/review-routing.contract.md",
       "kind": "shared",
       "sha256": "946815d708ee716235fd7af3958cd6b4b40dd3176ec66d4a9e0d61453a67ed28",
+      "executable": false
+    },
+    {
+      "path": ".kilo/shared/shell-commands.json",
+      "source": ".github/shared/shell-commands.json",
+      "kind": "shared",
+      "sha256": "c20960f57943d192c8712508bdd7bd077184fb15881dcbe6b09ab201b34e1d79",
       "executable": false
     },
     {
@@ -823,6 +914,13 @@
       "executable": false
     },
     {
+      "path": ".kilo/shared/skill-management/release-attestations/v1.2.0.9019.json",
+      "source": ".github/shared/skill-management/release-attestations/v1.2.0.9019.json",
+      "kind": "shared",
+      "sha256": "52574cde208cdf8a254f6a0a74b67370ca19f24639ca5130cfcf33418dc52cc8",
+      "executable": false
+    },
+    {
       "path": ".kilo/shared/snapshot-research-modes.json",
       "source": ".github/shared/snapshot-research-modes.json",
       "kind": "shared",
@@ -833,7 +931,7 @@
       "path": ".kilo/shared/target-mapping.json",
       "source": ".github/shared/target-mapping.json",
       "kind": "shared",
-      "sha256": "7fd36441e3ad8bb66b2ff039474605b01a487342090cacb9ed0c4324fff9f525",
+      "sha256": "8fa4def636b102454f3232946e49a6b12883d7025f9d1f6b004da90c0bf33ae8",
       "executable": false
     },
     {

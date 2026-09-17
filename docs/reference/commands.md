@@ -191,6 +191,14 @@ next useful action; it is not an automatic command chain.
 
 ## Maintainer Entries
 
+The merged help assets are present, but host runtime certification is a separate
+gate. A listed command does not establish that an installed host supports it.
+
+| Command and example | Use when / do not use when | Prerequisites | Expected output and verification or approval boundary | Common failure / next useful step |
+| --- | --- | --- | --- | --- |
+| `/cg-help` | Find catalog-backed command information / not execute the described task | Installed backend, fresh catalog, and verified host transport | Bounded lookup or recovery text; host support remains unverified until source-bound evidence passes | Missing backend or unsupported transport / stop and use the command reference |
+| `/cg-autopilot` | Inspect the approved Kilo bootstrap-probe workflow / not run production autopilot | Kilo contract and explicit probe authorization; unsupported on other hosts | Probe evidence only; production execution remains disabled | Unsupported host or missing authorization / use ordinary workflow commands |
+
 These operations are distinct from ordinary project delivery. Maintainer-only
 and Development labels describe role/risk, not another suite. No example below
 authorizes a release, tag, or repository mutation.
@@ -202,6 +210,11 @@ authorizes a release, tag, or repository mutation.
 | `/cg-release plan --version 1.5.0-rc.1 --json` | Preview a generic release request / not use legacy recovery implicitly | Separately installed controller and its repository policy; no GPID charter required in generic mode | Read-only non-reserving plan; start needs confirmation; submitted/published is not complete | Missing CLI or disabled publisher / report blocker; see [Release Controller](../release-controller.md) |
 
 ## Shell Entry Checklist
+
+| Command and example | Use when / do not use when | Prerequisites | Expected output and verification or approval boundary | Common failure / next useful step |
+| --- | --- | --- | --- | --- |
+| `cg-help --help` | Inspect backend CLI syntax / not send query text through the shell | Installed wrapper and Python 3.8+ | Usage text only; prepared-file transport and host certification are separate | Missing wrapper / check installation; do not invent a query invocation |
+| `cg-autopilot-control inspect` | Read control eligibility / not start autonomous execution | Installed helper, explicit root, plan, batches and base arguments | Read-only eligible/blocked report; no production execution | Missing required arguments / inspect CLI usage and the autopilot contract |
 
 Examples below run in a terminal at the project root unless noted. Installation
 must put the wrapper on PATH. For Windows summary examples, replace the wrapper

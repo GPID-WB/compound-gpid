@@ -1,0 +1,9 @@
+{
+  "name": "cg-native-evidence-sdk-fixture",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Locked SDK fixture for offline API tests, not a runtime compatibility allowlist.",
+  "dependencies": {
+    "@kilocode/sdk": "7.6.2"
+  }
+}

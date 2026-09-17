@@ -110,6 +110,37 @@ The repository's `adapters/` directory is a superseded compatibility path.
 Generated native trees are the current default and should be used for new
 installations.
 
+## Kilo autopilot requirements
+
+`/cg-autopilot` is the only command that needs a specific runtime. It requires
+Kilo with the dedicated primary `cg-autopilot` agent installed and natively
+selected; document flags, envelopes, or copied tool lists never substitute for
+actual native selection. The parent coordinates and validates child results but
+never implements fixes or runs tests itself, so the primary session must have
+a foreground Task tool available for stage children and at most three
+conditional-nesting levels with full input validation at each level.
+
+Requirements are explicit and scoped:
+
+- One dedicated primary agent (`cg-autopilot`) with its own model-assignment
+  and permission settings; existing user-owned configuration is preserved and
+  never rewritten by setup.
+- Parent context budgets (8192 bytes per returned frame, 65536 cumulative
+  bytes per primary context) pause before another dispatch; they never
+  truncate and never reset within the same session.
+- The control helper `cg-autopilot-control` is installed with the other shell
+  commands; `inspect` is its only enabled operation today. See the [Autopilot
+  (Kilo) Operating Contract](../reference.md) for the full fresh/resume
+  syntax, scoped approvals, repair rounds, and recovery behavior.
+- Production execution is not enabled: the command is probe-only and returns
+  `blocked: bootstrap-only` for fresh/resume pipeline arguments until native
+  qualification completes. Unsupported adapters, missing qualification, and
+  safe-pause boundaries are reported as typed blockers, never worked around.
+
+No user or global Kilo configuration is modified by the autopilot contract;
+runtime containment, capability, and trust checks follow the ordinary Kilo
+installation policy.
+
 ## Detailed references
 
 - [Context Files](../context-files.md) covers lifecycle, charter quality, and platform architecture.

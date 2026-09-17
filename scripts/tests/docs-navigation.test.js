@@ -156,7 +156,7 @@ test("continuing CI selects the complete bounded docs Node test inventory", () =
 test("CI recovery repairs the lockfile only on explicit boolean dispatch opt-in", () => {
   const dispatch = workflow.match(/^  workflow_dispatch:\n[\s\S]*?(?=^\S)/m)[0];
   assert.match(dispatch, /^      repair_docs_lockfile:\n        description: .+\n        type: boolean\n        required: false\n        default: false$/m);
-  assert.equal((dispatch.match(/^      \w+:/gm) || []).length, 1);
+  assert.deepEqual(dispatch.match(/^      \w+:/gm), ["      repair_docs_lockfile:", "      subject_commit:"]);
   const repair = workflowStep("Repair docs lockfile (explicit dispatch only)");
   assert.match(repair, /^        if: github.event_name == 'workflow_dispatch' && inputs.repair_docs_lockfile == true$/m);
   assert.match(repair, /^        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund$/m);

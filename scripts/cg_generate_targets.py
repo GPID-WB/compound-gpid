@@ -47,6 +47,18 @@ from skill_management.services import bundles as bundle_service
 
 TARGET_MAPPING_PATH = ".github/shared/target-mapping.json"
 MODULE_REGISTRY_PATH = ".github/shared/module-registry.json"
+CANONICAL_HELP_PROMPT_PATH = ".github/prompts/cg-help.prompt.md"
+DEFERRED_HELP_SHARED_SOURCES = frozenset({
+    ".github/shared/help-catalog.json",
+    ".github/shared/shell-commands.json",
+})
+HELP_ARGUMENT_SOURCES = {
+    "copilot": {"source": "invocation-tail", "token": "", "fidelity": "model-visible"},
+    "claude-code": {"source": "native-placeholder", "token": "$ARGUMENTS", "fidelity": "native-placeholder"},
+    "codex": {"source": "native-placeholder", "token": "$ARGUMENTS", "fidelity": "native-placeholder"},
+    "opencode": {"source": "generated-block", "token": "$ARGUMENTS", "fidelity": "model-visible"},
+    "kilo": {"source": "generated-block", "token": "$ARGUMENTS", "fidelity": "model-visible"},
+}
 
 
 @functools.lru_cache(maxsize=1)
@@ -74,6 +86,13 @@ CANONICAL_PROMPTS_GLOB = ".github/prompts/*.prompt.md"
 CANONICAL_AGENTS_GLOB = ".github/agents/*.agent.md"
 CANONICAL_SKILLS_GLOB = ".github/skills/*/SKILL.md"
 CANONICAL_INSTRUCTIONS_GLOB = ".github/instructions/*.instructions.md"
+NATIVE_EVIDENCE_ASSETS = (
+    ".github/plugins/cg-native-evidence.js",
+    ".github/plugin-support/cg-native-evidence/wire.mjs",
+    ".github/plugin-support/cg-native-evidence/transport.mjs",
+    ".github/plugin-support/cg-native-evidence/records.mjs",
+    ".github/plugin-support/cg-native-evidence/evidence.mjs",
+)
 MARKDOWN_LINK_PATTERN = bundle_service.MARKDOWN_LINK_PATTERN
 MARKDOWN_REFERENCE_PATTERN = bundle_service.MARKDOWN_REFERENCE_PATTERN
 CANONICAL_RUNTIME_PATH_PATTERN = re.compile(
@@ -107,6 +126,12 @@ class PathSafetyError(ValueError):
 
 class MappingValidationError(ValueError):
     """Raised when target mapping validation fails."""
+
+
+class CanonicalAssets(dict):
+    """Keep selected help closure evidence without emitting a synthetic asset."""
+
+    help_required = False
 
 
 @dataclass(frozen=True)
@@ -336,6 +361,108 @@ def _validate_projected_categories(prefix: str, categories: Any) -> list[str]:
     return errors
 
 
+def _validate_asset_metadata(target: dict[str, Any]) -> list[str]:
+    """Validate complete Kilo bootstrap routing without permissive defaults.
+
+    Args:
+        target: One target mapping record.
+    Returns:
+        Validation errors, empty for absent or valid metadata.
+    Examples:
+        >>> _validate_asset_metadata({"id": "kilo"})
+        []
+    """
+    if "assetMetadata" not in target:
+        return []
+    metadata = target["assetMetadata"]
+    label = "assetMetadata"
+    if target.get("id") != "kilo" or not isinstance(metadata, dict):
+        return [f"{label}: only a Kilo object is supported"]
+    task_targets = {
+        "cg-autopilot.agent.md": {"cg-workflow-stage"},
+        "cg-workflow-stage.agent.md": {"cg-code-quality", "cg-fix-problems", "cg-bootstrap-leaf"},
+        "cg-fix-problems.agent.md": {"general"},
+    }
+    expected: dict[str, Any] = {
+        "cg-autopilot.prompt.md": {"agent": "cg-autopilot", "subtask": False},
+        "cg-bootstrap-leaf.agent.md": {
+            "mode": "subagent",
+            "permission": {
+                "*": "deny", "read": "allow", "glob": "allow", "grep": "allow",
+                "cg_native_identity": "ask",
+                "bash": {
+                    "*": "deny",
+                    "git branch --show-current*": "allow",
+                    "git rev-parse*": "allow",
+                    "git status --porcelain*": "allow",
+                },
+            },
+        },
+    }
+    for asset, children in task_targets.items():
+        permissions: dict[str, Any] = {
+            "task": {"*": "ask", **{child: "allow" for child in sorted(children)}}}
+        if asset == "cg-fix-problems.agent.md":
+            expected[asset] = {"permission": permissions}
+        else:
+            expected[asset] = {
+                "mode": "primary" if asset == "cg-autopilot.agent.md" else "subagent",
+                "permission": {"*": "deny", "read": "allow", "glob": "allow",
+                               "grep": "allow", "cg_native_identity": "ask",
+                               "cg_native_evidence": "ask", **permissions},
+            }
+    errors: list[str] = []
+
+    def compare(actual: Any, required: Any, path: str) -> None:
+        """Append exact field/type errors for the fixed bootstrap metadata tree."""
+        if isinstance(required, dict):
+            if not isinstance(actual, dict):
+                errors.append(f"{path}: required object")
+                return
+            missing, unknown = set(required) - set(actual), set(actual) - set(required)
+            if missing:
+                errors.append(f"{path}: required fields: {', '.join(sorted(missing))}")
+            if unknown:
+                errors.append(f"{path}: unknown fields: {', '.join(sorted(map(str, unknown)))}")
+            for key in sorted(set(required) & set(actual)):
+                compare(actual[key], required[key], f"{path}.{key}")
+        elif type(actual) is not type(required) or actual != required:
+            expected_text = "false" if required is False else required
+            errors.append(f"{path}: must be {expected_text}")
+
+    compare(metadata, expected, label)
+    return errors
+
+
+def _validated_asset_metadata(source: dict[str, Any], target: dict[str, Any]) -> dict[str, Any]:
+    """Return checked per-asset metadata before native frontmatter emission.
+
+    Args:
+        source: Canonical asset with its relative_path.
+        target: Native target record; only Kilo supports overrides.
+    Returns:
+        The asset's complete overrides, or empty for an ordinary asset.
+    Raises:
+        MappingValidationError: Invalid or absent required bootstrap metadata.
+    Examples:
+        >>> _validated_asset_metadata({"relative_path": "ordinary.md"}, {"id": "kilo"})
+        {}
+    """
+    errors = _validate_asset_metadata(target)
+    if errors:
+        raise MappingValidationError("; ".join(errors))
+    name = PurePosixPath(source.get("relative_path", "")).name
+    metadata = target.get("assetMetadata", {})
+    if target.get("id") == "kilo" and name in {
+        "cg-autopilot.prompt.md", "cg-autopilot.agent.md", "cg-workflow-stage.agent.md",
+        "cg-bootstrap-leaf.agent.md",
+    } and name not in metadata:
+        errors.append(f"{name}: required bootstrap metadata")
+    if errors:
+        raise MappingValidationError("; ".join(errors))
+    return metadata.get(name, {})
+
+
 def validate_target_mapping(data: dict[str, Any]) -> list[str]:
     """Validate target-mapping.json structure. Returns list of error messages (empty = valid)."""
     errors: list[str] = []
@@ -387,6 +514,12 @@ def validate_target_mapping(data: dict[str, Any]) -> list[str]:
             errors.append(f"{prefix}: modelMapping is not supported; targets inherit the user's platform selection")
 
         errors.extend(_validate_capabilities(prefix, target.get("capabilities", {})))
+        errors.extend(_validate_asset_metadata(target))
+        if "argumentSource" in target and (
+            tid not in HELP_ARGUMENT_SOURCES
+            or target["argumentSource"] != HELP_ARGUMENT_SOURCES[tid]
+        ):
+            errors.append(f"{prefix}.argumentSource: invalid platform source/token/fidelity")
         errors.extend(_validate_formats(prefix, target.get("formats", {})))
         errors.extend(_validate_output_paths(prefix, target.get("outputPaths", {})))
         errors.extend(_validate_install_units(prefix, target.get("installUnits")))
@@ -502,18 +635,30 @@ def build_generation_plan(
     if errors:
         raise MappingValidationError("target-mapping.json validation failed:\n- " + "\n- ".join(errors))
     validate_mapping_paths(root, mapping)
+    help_present = getattr(assets, "help_required", False) or any(
+        item["relative_path"] == CANONICAL_HELP_PROMPT_PATH
+        for item in assets["prompts"]
+    )
+    if help_present:
+        missing = [target["id"] for target in mapping["targets"]
+                   if "argumentSource" not in target]
+        if missing:
+            raise MappingValidationError("argumentSource required for help: " + ", ".join(missing))
     by_target: dict[str, TargetResult] = {}
-    lookups = _build_asset_lookup(assets)
     for target in mapping["targets"]:
         if (
             target.get("generatedTreePath") is None
             and not target.get("projectedCategories")
         ):
             continue
-        render_context = (lookups, _runtime_destination_map(target, assets))
+        target_assets = _assets_for_native_target(target, assets)
+        render_context = (
+            _build_asset_lookup(target_assets),
+            _runtime_destination_map(target, target_assets),
+        )
         rendered = tuple(sorted(
-            (_render_output_entry(target, entry, assets, render_context)
-             for entry in build_output_manifest(target, assets)),
+            (_render_output_entry(target, entry, target_assets, render_context)
+             for entry in build_output_manifest(target, target_assets)),
             key=lambda entry: entry.destination,
         ))
         _validate_output_namespace(target["id"], rendered)
@@ -526,6 +671,27 @@ def build_generation_plan(
         key=lambda entry: entry.destination,
     ))
     return GenerationPlan(entries, by_target)
+
+
+def _assets_for_native_target(
+    target: dict[str, Any],
+    assets: dict[str, list[dict[str, Any]]],
+) -> dict[str, list[dict[str, Any]]]:
+    """Defer help shared outputs until the canonical help prompt exists."""
+    prompt_exists = any(
+        prompt["relative_path"] == CANONICAL_HELP_PROMPT_PATH
+        for prompt in assets["prompts"]
+    )
+    if target.get("generatedTreePath") is None or prompt_exists:
+        return assets
+
+    filtered = dict(assets)
+    filtered["shared"] = [
+        asset
+        for asset in assets["shared"]
+        if asset["relative_path"] not in DEFERRED_HELP_SHARED_SOURCES
+    ]
+    return filtered
 
 
 def _validate_output_namespace(
@@ -561,21 +727,13 @@ def _validate_output_namespace(
 # ---------------------------------------------------------------------------
 
 def _load_module_registry(root: Path) -> Optional[dict[str, Any]]:
-    """Return a securely captured module registry, or ``None`` when absent."""
-    try:
-        content = secure_fs.secure_read_bytes(
-            root,
-            MODULE_REGISTRY_PATH,
-            reject_hardlinks=True,
-            max_bytes=MAX_CANONICAL_CONTROL_BYTES,
-        )
-    except FileNotFoundError:
+    """Return a strictly captured module registry, or ``None`` when absent."""
+    path = root / MODULE_REGISTRY_PATH
+    if not path.exists():
         return None
-    try:
-        data = json.loads(content.decode("utf-8", errors="strict"))
-    except (UnicodeDecodeError, json.JSONDecodeError):
-        return None
-    return data if isinstance(data, dict) else None
+    from skill_management.services import registry as registry_service
+
+    return registry_service.load_registry_snapshot(root).to_dict()
 
 
 def _registry_owned_skill_dir_names(
@@ -602,13 +760,9 @@ def _registry_owned_skill_dir_names(
         if not skill_file.exists():
             continue
         candidate = f".github/skills/{entry.name}/SKILL.md"
-        if any(
-            isinstance(pattern, str)
-            and path_policy.glob_match(pattern, candidate)
-            for module in registry.get("modules", [])
-            if isinstance(module, dict)
-            for pattern in module.get("ownedAssets", [])
-        ):
+        from skill_management.services.registry import matching_asset_owners
+
+        if matching_asset_owners(registry, candidate):
             names.add(entry.name)
         else:
             raise ValueError(
@@ -624,16 +778,12 @@ def _loadable_owned_asset_globs(
 ) -> Optional[set[str]]:
     """Return owned-asset glob patterns loadable under the active suites.
 
-    With a module registry, omitted suites mean all public suites (cg and cr),
-    not every internal module. Repositories without a registry retain the
-    legacy unfiltered fixture behavior. Explicit suites derive the loadable
-    module set through cg_context_budget.
+    Omitted suites preserve the legacy unfiltered scan. Explicit suites derive
+    the loadable module set through cg_context_budget.
     """
-    if active_suites is None and (
-        registry is None or registry.get("schemaVersion") != 2
-    ):
+    if active_suites is None:
         return None
-    selected_suites = tuple(active_suites) if active_suites is not None else ("cg", "cr")
+    selected_suites = tuple(active_suites)
     try:
         import cg_context_budget as context
     except ImportError as exc:
@@ -654,11 +804,14 @@ def scan_canonical_assets(
     root: Path,
     active_suites: Optional[Sequence[str]] = None,
     loadable_globs: Optional[Iterable[str]] = None,
+    loadable_module_ids: Optional[Iterable[str]] = None,
     control_snapshot: Optional[CanonicalControlSnapshot] = None,
 ) -> dict[str, list[dict[str, Any]]]:
     """Scan .github/ canonical assets and return structured metadata.
 
-    Returns dict with keys: prompts, agents, skills, instructions.
+    Returns categorized prompts, help sidecars, agents, skills, instructions,
+    prompt support, and shared files. Help sidecars are inventory-only inputs;
+    they are never emitted as command bodies.
     Each value is a list of dicts with: path, relative_path, frontmatter, body.
 
     When ``active_suites`` is provided, only assets owned by loadable modules
@@ -671,14 +824,16 @@ def scan_canonical_assets(
     committed active manifest's resolved closure rather than re-deriving
     selection from raw project config at publish time.
     """
-    assets: dict[str, list[dict[str, Any]]] = {
+    assets = CanonicalAssets({
         "prompts": [],
         "agents": [],
         "skills": [],
         "instructions": [],
         "prompt_support": [],
+        "help_sidecars": [],
         "shared": [],
-    }
+        "native_plugins": [],
+    })
 
     module_registry = (
         control_snapshot.module_registry
@@ -699,7 +854,34 @@ def scan_canonical_assets(
             module_registry,
         )
 
+    selected_module_ids = (
+        set(loadable_module_ids) if loadable_module_ids is not None else None
+    )
+    if (
+        selected_module_ids is None
+        and module_registry
+        and active_suites is not None
+    ):
+        import cg_context_budget as context
+
+        selected_suites = list(active_suites)
+        selected_module_ids = context.loadable_module_ids(
+            module_registry, selected_suites
+        )
+
+    assets.help_required = (root / CANONICAL_HELP_PROMPT_PATH).is_file() or bool(
+        module_registry and any(module.get("id") == "cap-help"
+                                for module in module_registry.get("modules", []))
+        and (selected_module_ids is None or "cap-help" in selected_module_ids)
+    )
+
     def _is_loadable(rel_path: str) -> bool:
+        if selected_module_ids is not None and module_registry is not None:
+            import cg_context_budget as context
+
+            return context.asset_is_loadable(
+                module_registry, selected_module_ids, rel_path
+            )
         if loadable_filter is None:
             return True
         return any(
@@ -724,6 +906,7 @@ def scan_canonical_assets(
         (CANONICAL_SKILLS_GLOB, "skills"),
         (CANONICAL_INSTRUCTIONS_GLOB, "instructions"),
         (".github/prompts/*.md", "prompt_support"),
+        (".github/prompts/*.help.json", "help_sidecars"),
     ]:
         for path in sorted(root.glob(pattern)):
             if category == "prompt_support" and path.name.endswith(".prompt.md"):
@@ -750,12 +933,29 @@ def scan_canonical_assets(
                     max_bytes=MAX_CANONICAL_ASSET_BYTES,
                 )
                 content = _decode_canonical_text(content_bytes)
-                asset["frontmatter"] = _get_parse_frontmatter()(
-                    content,
-                    source=path,
+                asset["frontmatter"] = (
+                    {}
+                    if category == "help_sidecars"
+                    else _get_parse_frontmatter()(content, source=path)
                 )
                 asset["body"] = content
             assets[category].append(asset)
+
+    # Exact Kilo-only passive code inventory, never an autoload-directory glob.
+    if any(os.path.lexists(root / relative) for relative in NATIVE_EVIDENCE_ASSETS):
+        for relative in NATIVE_EVIDENCE_ASSETS:
+            if not _is_loadable(relative):
+                continue
+            content = secure_fs.secure_read_bytes(
+                root, PurePosixPath(relative), reject_hardlinks=True,
+                max_bytes=MAX_CANONICAL_ASSET_BYTES,
+            )
+            if len(content.splitlines()) >= 300:
+                raise ValueError(f"Native evidence module exceeds line bound: {relative}")
+            assets["native_plugins"].append({
+                "relative_path": relative, "content": content,
+                "filename": PurePosixPath(relative).name,
+            })
 
     shared_paths = path_policy.inventory_shared_assets(
         root,
@@ -1302,6 +1502,14 @@ def build_output_manifest(
     if not projected_categories and output_paths.get("config"):
         manifest.append({"path": output_paths["config"], "source": "target-mapping", "type": "config"})
 
+    if target["id"] == "kilo" and not projected_categories:
+        for asset in assets.get("native_plugins", []):
+            relative = asset["relative_path"]
+            if relative not in NATIVE_EVIDENCE_ASSETS:
+                raise ValueError(f"Unknown native evidence resource: {relative}")
+            manifest.append({"path": f"{gtp}/{relative[len('.github/'):]}",
+                             "source": relative, "type": "native-plugin"})
+
     return manifest
 
 
@@ -1312,7 +1520,7 @@ def build_output_manifest(
 def _format_frontmatter(
     fm: dict[str, Any],
     body: str,
-    extra_fields: dict[str, Optional[str]],
+    extra_fields: dict[str, Any],
 ) -> str:
     """Format a native file with frontmatter from canonical source.
 
@@ -1336,7 +1544,20 @@ def _format_frontmatter(
 
 
 def _yaml_scalar(value: Any) -> str:
-    """Serialize a deterministic YAML-compatible scalar."""
+    """Serialize a typed YAML value with deterministic flow-map ordering.
+
+    Args:
+        value: A scalar or validated metadata map.
+    Returns:
+        YAML-compatible text, retaining Boolean types and ordered maps.
+    Examples:
+        >>> _yaml_scalar(False)
+        'false'
+        >>> _yaml_scalar({"task": {"general": "allow", "*": "deny"}})
+        '{"task": {"*": "deny", "general": "allow"}}'
+    """
+    if isinstance(value, (bool, dict)):
+        return json.dumps(value, ensure_ascii=True, sort_keys=True)
     text = str(value)
     if re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._ /-]*", text) and text.casefold() not in {
         "null", "true", "false", "yes", "no", "on", "off",
@@ -1362,10 +1583,19 @@ def _with_arguments_block(body: str, target_id: str) -> str:
 
 
 def _build_asset_lookup(assets: dict[str, list[dict[str, Any]]]) -> dict[str, dict[str, dict[str, Any]]]:
-    """Build per-category lookup dicts keyed by relative_path for O(1) access."""
+    """Build per-category lookup dicts keyed by relative_path for O(1) access.
+
+    Skill bundle resources are indexed once into a flat ``skill-resource``
+    map, so per-file rendering never rescans every skill's bundle files.
+    """
     lookups: dict[str, dict[str, dict[str, Any]]] = {}
     for category, items in assets.items():
         lookups[category] = {item["relative_path"]: item for item in items}
+    skill_resources: dict[str, dict[str, Any]] = {}
+    for skill in assets["skills"]:
+        for item in skill.get("bundle_files", []) or []:
+            skill_resources[item["relative_path"]] = item
+    lookups["skill-resource"] = skill_resources
     return lookups
 
 
@@ -1473,16 +1703,10 @@ def _render_output_entry(
         "fallback-agent": "agents",
         "prompt-support": "prompt_support", "instruction": "instructions",
         "shared": "shared",
+        "native-plugin": "native_plugins",
     }.get(kind)
     if kind == "skill-resource":
-        for skill in assets["skills"]:
-            source = next(
-                (item for item in skill.get("bundle_files", [])
-                 if item["relative_path"] == source_identity),
-                None,
-            )
-            if source is not None:
-                break
+        source = lookups.get("skill-resource", {}).get(source_identity)
         if source is None:
             raise ValueError(f"Manifest references unknown skill resource: {source_identity}")
     elif category is not None:
@@ -1494,7 +1718,7 @@ def _render_output_entry(
         text = _emit_command(source, target)
     elif kind == "skill":
         text = source["body"]
-    elif kind == "skill-resource":
+    elif kind in ("skill-resource", "native-plugin"):
         content = source["content"]
     elif kind == "agent":
         text = _emit_agent(source, target)
@@ -1511,7 +1735,7 @@ def _render_output_entry(
     else:
         raise ValueError(f"Unsupported output type: {kind}")
 
-    if kind not in ("skill-resource", "shared"):
+    if kind not in ("skill-resource", "shared", "native-plugin"):
         if kind in ("command", "skill", "agent", "fallback-agent",
                     "prompt-support", "instruction"):
             text = _rewrite_runtime_dependencies(
@@ -1876,10 +2100,47 @@ def _emit_command(
     """Emit a platform-native command file from a canonical prompt."""
     fm = source["frontmatter"]
     body = source["body"]
+    if source.get("relative_path") == CANONICAL_HELP_PROMPT_PATH:
+        argument = target["argumentSource"]
+        if argument["source"] != "invocation-tail":
+            if argument["source"] == "native-placeholder":
+                instruction = (
+                    "Use the native-placeholder invocation value below as query text.\n"
+                    "An absent value means an empty query.\n\n```text\n"
+                    + argument["token"] + "\n```\n"
+                )
+            else:
+                instruction = (
+                    "Use the generated Invocation Arguments block below as query text.\n"
+                    "An absent value means an empty query. This source is model-visible:\n"
+                    "it is the query text received by the host, not byte-exact keystrokes.\n"
+                )
+            instruction += "If required text is omitted or a placeholder is unsubstituted, stop with the fixed recovery below.\n"
+            # The ``<!-- help-argument-source:start/end -->`` marker pair in
+            # the canonical help prompt delimits the region that receives the
+            # generated invocation instruction above. The emitted file for an
+            # invocation-tail target must carry that block, so the canonical
+            # prompt must keep the marker pair; a dropped pair would leave the
+            # markers verbatim in the emitted body instead of raising.
+            body = re.sub(
+                r"(?s)(<!-- help-argument-source:start -->).*?(<!-- help-argument-source:end -->)",
+                lambda match: match[1] + "\n" + instruction + match[2], body,
+            )
+        if target["id"] != "copilot":
+            marker = "--platform copilot"
+            replaced = body.replace(marker, "--platform " + target["id"])
+            if marker in replaced:
+                raise ValueError(
+                    "canonical help prompt marker {!r} is missing from {}".format(
+                        marker, source.get("relative_path", "the help prompt")
+                    )
+                )
+            body = replaced
     if target["id"] in ("claude-code", "codex"):
         return _format_frontmatter(fm, body, {})
     elif target["id"] in ("opencode", "kilo"):
-        return _format_frontmatter(fm, _with_arguments_block(body, target["id"]), {})
+        metadata = _validated_asset_metadata(source, target)
+        return _format_frontmatter(fm, _with_arguments_block(body, target["id"]), metadata)
     else:
         return body
 
@@ -1907,7 +2168,8 @@ def _emit_agent(
     elif target["id"] in ("claude-code",):
         return _format_frontmatter(fm, body, {})
     elif target["id"] in ("opencode", "kilo"):
-        return _format_frontmatter(fm, body, {"mode": "subagent"})
+        metadata = _validated_asset_metadata(source, target)
+        return _format_frontmatter(fm, body, {"mode": "subagent", **metadata})
     else:
         return body
 

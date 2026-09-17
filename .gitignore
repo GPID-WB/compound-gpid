@@ -110,6 +110,7 @@ pr-result.txt
 .compound-gpid/projection-ownership.json
 .compound-gpid/projection-transaction.json
 .compound-gpid/active/
+.compound-gpid/runtime/
 .compound-gpid/generations/
 .compound-gpid/staging/
 .compound-gpid/quarantine/

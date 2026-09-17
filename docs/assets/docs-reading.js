@@ -3,7 +3,7 @@
   "use strict";
   let observer, article, toc, headings = [], offset = 88;
   const labels = { "suite-cg": ["technical", "Technical (CG)"], "suite-cr": ["research", "Research (CR)"],
-    "cap-skill-management": ["technical", "Technical (CG)"] };
+    "cap-skill-management": ["shared", "Shared"] };
   const identity = owner => labels[owner] || ["shared", "Shared"];
 
   /** Create a labelled presentation badge from declared canonical module ownership. */

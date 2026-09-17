@@ -15,11 +15,209 @@ import cg_generate_targets as gen
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
+@pytest.mark.parametrize("asset,keys", [
+    ("cg-autopilot.prompt.md", ("agent",)),
+    ("cg-autopilot.prompt.md", ("subtask",)),
+    ("cg-autopilot.agent.md", ("mode",)),
+    ("cg-autopilot.agent.md", ("permission",)),
+    ("cg-autopilot.agent.md", ("permission", "*")),
+    ("cg-autopilot.agent.md", ("permission", "task")),
+    ("cg-autopilot.agent.md", ("permission", "task", "cg-workflow-stage")),
+    ("cg-workflow-stage.agent.md", ("mode",)),
+    ("cg-workflow-stage.agent.md", ("permission",)),
+    ("cg-workflow-stage.agent.md", ("permission", "*")),
+    ("cg-workflow-stage.agent.md", ("permission", "task")),
+    ("cg-workflow-stage.agent.md", ("permission", "task", "cg-bootstrap-leaf")),
+    ("cg-fix-problems.agent.md", ("permission", "task")),
+    ("cg-bootstrap-leaf.agent.md", ("mode",)),
+    ("cg-bootstrap-leaf.agent.md", ("permission",)),
+    ("cg-bootstrap-leaf.agent.md", ("permission", "bash")),
+    ("cg-bootstrap-leaf.agent.md", ("permission", "bash", "git rev-parse*")),
+    ("cg-bootstrap-leaf.agent.md", ("permission", "cg_native_identity")),
+])
+def test_metadata_missing_required_field_fails(asset: str, keys: tuple[str, ...]) -> None:
+    """Remove one field from a valid map; no sibling defect may mask it."""
+    data = _load_repo_mapping()
+    target = next(t for t in data["targets"] if t["id"] == "kilo")
+    node = target["assetMetadata"][asset]
+    for key in keys[:-1]:
+        node = node[key]
+    del node[keys[-1]]
+    errors = gen.validate_target_mapping(data)
+    assert any(f"assetMetadata.{asset}" in e and "required" in e for e in errors)
+    category = "prompts" if asset.endswith(".prompt.md") else "agents"
+    source = {"relative_path": f".github/{category}/{asset}",
+              "frontmatter": {"description": "Probe"}, "body": "Probe"}
+    emit = gen._emit_command if category == "prompts" else gen._emit_agent
+    with pytest.raises(gen.MappingValidationError, match="required"):
+        emit(source, target)
+
+
+@pytest.mark.parametrize("value", [True, 1, None, [], {}, "false"])
+def test_subtask_requires_literal_false(value: object) -> None:
+    """Only Boolean false routes the command to its dedicated primary."""
+    data = _load_repo_mapping()
+    target = next(t for t in data["targets"] if t["id"] == "kilo")
+    target["assetMetadata"]["cg-autopilot.prompt.md"]["subtask"] = value
+    assert "assetMetadata.cg-autopilot.prompt.md.subtask: must be false" in gen.validate_target_mapping(data)
+
+
+@pytest.mark.parametrize("value", [True, 1, None, [], {}, "invalid", "ask", "deny"])
+def test_task_action_validation_is_not_masked_by_missing_fallback(value: object) -> None:
+    """A complete otherwise-valid map isolates the action's type/value check."""
+    data = _load_repo_mapping()
+    target = next(t for t in data["targets"] if t["id"] == "kilo")
+    target["assetMetadata"]["cg-workflow-stage.agent.md"]["permission"]["task"]["cg-bootstrap-leaf"] = value
+    assert gen.validate_target_mapping(data) == [
+        "assetMetadata.cg-workflow-stage.agent.md.permission.task.cg-bootstrap-leaf: must be allow"]
+
+
+def test_unknown_task_target_validation_is_not_masked() -> None:
+    """Keep deny fallback and all required targets while adding one unknown."""
+    data = _load_repo_mapping()
+    target = next(t for t in data["targets"] if t["id"] == "kilo")
+    target["assetMetadata"]["cg-workflow-stage.agent.md"]["permission"]["task"]["unknown"] = "allow"
+    assert gen.validate_target_mapping(data) == [
+        "assetMetadata.cg-workflow-stage.agent.md.permission.task: unknown fields: unknown"]
+
+
+@pytest.mark.parametrize("asset", ["cg-autopilot.agent.md", "cg-workflow-stage.agent.md", "cg-bootstrap-leaf.agent.md"])
+def test_missing_asset_metadata_entry_fails(asset: str) -> None:
+    """Removing a whole bootstrap entry cannot restore permissive defaults."""
+    data = _load_repo_mapping()
+    target = next(t for t in data["targets"] if t["id"] == "kilo")
+    del target["assetMetadata"][asset]
+    assert any("assetMetadata" in e and "required" in e for e in gen.validate_target_mapping(data))
+
+
+@pytest.mark.parametrize("asset,key", [
+    ("cg-autopilot.agent.md", "permission"),
+    ("cg-workflow-stage.agent.md", "permission"),
+    ("cg-fix-problems.agent.md", "permission"),
+])
+def test_task_fallback_never_allows(asset: str, key: str) -> None:
+    """A wildcard allow fallback is rejected for every bootstrap Task map.
+    The leaf has no Task map at all and is rejected separately."""
+    data = _load_repo_mapping()
+    target = next(t for t in data["targets"] if t["id"] == "kilo")
+    task = target["assetMetadata"][asset][key]["task"]
+    task["*"] = "allow"
+    errors = gen.validate_target_mapping(data)
+    assert any(f"assetMetadata.{asset}.{key}.task.*" in e for e in errors)
+
+
+def test_wildcard_tool_allow_is_rejected() -> None:
+    """The leaf cannot gain an unrestricted tool fallback."""
+    data = _load_repo_mapping()
+    target = next(t for t in data["targets"] if t["id"] == "kilo")
+    assert target["assetMetadata"]["cg-bootstrap-leaf.agent.md"]["permission"]["*"] == "deny"
+    target["assetMetadata"]["cg-bootstrap-leaf.agent.md"]["permission"]["*"] = "allow"
+    assert any("assetMetadata.cg-bootstrap-leaf.agent.md.permission.*" in e
+               for e in gen.validate_target_mapping(data))
+
+
+def test_leaf_with_task_key_is_rejected() -> None:
+    """A leaf never delegates; a task map on the leaf is an unknown field."""
+    data = _load_repo_mapping()
+    target = next(t for t in data["targets"] if t["id"] == "kilo")
+    target["assetMetadata"]["cg-bootstrap-leaf.agent.md"]["permission"]["task"] = {"*": "ask", "general": "allow"}
+    errors = gen.validate_target_mapping(data)
+    assert any("assetMetadata.cg-bootstrap-leaf.agent.md.permission" in e and "unknown" in e
+               for e in errors)
+
+
+def test_leaf_git_only_bash_map_is_required() -> None:
+    """The leaf's bash map is closed: only the contract's read-only Git probes."""
+    data = _load_repo_mapping()
+    target = next(t for t in data["targets"] if t["id"] == "kilo")
+    bash = target["assetMetadata"]["cg-bootstrap-leaf.agent.md"]["permission"]["bash"]
+    assert bash["*"] == "deny"
+    assert set(bash) == {"*", "git branch --show-current*", "git rev-parse*", "git status --porcelain*"}
+    bash["git commit*"] = "allow"
+    assert any("assetMetadata.cg-bootstrap-leaf.agent.md.permission.bash" in e and "unknown" in e
+               for e in gen.validate_target_mapping(data))
+
+
+def test_leaf_has_native_identity_ask_only() -> None:
+    """The leaf gains exactly cg_native_identity ask, no delegation or write surface."""
+    data = _load_repo_mapping()
+    target = next(t for t in data["targets"] if t["id"] == "kilo")
+    permission = target["assetMetadata"]["cg-bootstrap-leaf.agent.md"]["permission"]
+    assert permission["cg_native_identity"] == "ask"
+    assert permission["*"] == "deny"
+    for forbidden in ("task", "edit", "webfetch", "network", "model"):
+        assert forbidden not in permission
+    assert permission["bash"] == {
+        "*": "deny", "git branch --show-current*": "allow",
+        "git rev-parse*": "allow", "git status --porcelain*": "allow"}
+    assert gen.validate_target_mapping(data) == []
+
+
+def test_leaf_body_verifies_native_identity_before_probes() -> None:
+    """The leaf must call cg_native_identity once and fail closed before any bash."""
+    body = (REPO_ROOT / ".github/agents/cg-bootstrap-leaf.agent.md").read_text(encoding="utf-8")
+    assert "cg_native_identity" in body
+    assert "native-identity-unverified" in body
+    assert "qualification" in body
+
+
+def test_missing_bootstrap_metadata_blocks_emission() -> None:
+    """Even direct emission must not supply the ordinary subagent default."""
+    target = next(t for t in _load_repo_mapping()["targets"] if t["id"] == "kilo")
+    del target["assetMetadata"]
+    source = {"relative_path": ".github/agents/cg-autopilot.agent.md",
+              "frontmatter": {"description": "Probe"}, "body": "Probe"}
+    with pytest.raises(gen.MappingValidationError, match="required bootstrap metadata"):
+        gen._emit_agent(source, target)
+
+
+@pytest.mark.parametrize("target_id", ["copilot", "claude-code", "codex", "opencode"])
+def test_asset_metadata_is_kilo_only(target_id: str) -> None:
+    """Other adapters cannot receive Kilo routing metadata."""
+    data = _load_repo_mapping()
+    target = next(t for t in data["targets"] if t["id"] == target_id)
+    target["assetMetadata"] = {"cg-autopilot.prompt.md": {"subtask": False}}
+    assert any("assetMetadata" in error for error in gen.validate_target_mapping(data))
+
+
+def test_typed_bootstrap_metadata_validates() -> None:
+    """Allow typed command routing and a closed parent Task permission map."""
+    data = _load_repo_mapping()
+    assert gen.validate_target_mapping(data) == []
+
+
 def _load_repo_mapping() -> dict:
     return json.loads((REPO_ROOT / ".github/shared/target-mapping.json").read_text(encoding="utf-8"))
 
 
 class TestTargetMappingSchema:
+    @pytest.mark.parametrize("target_id,source,token,fidelity", [
+        ("copilot", "invocation-tail", "", "model-visible"),
+        ("claude-code", "native-placeholder", "$ARGUMENTS", "native-placeholder"),
+        ("codex", "native-placeholder", "$ARGUMENTS", "native-placeholder"),
+        ("opencode", "generated-block", "$ARGUMENTS", "model-visible"),
+        ("kilo", "generated-block", "$ARGUMENTS", "model-visible"),
+    ])
+    def test_help_argument_source_production_complete(self, target_id, source, token, fidelity):
+        target = next(t for t in _load_repo_mapping()["targets"] if t["id"] == target_id)
+        assert target.get("argumentSource") == {
+            "source": source, "token": token, "fidelity": fidelity,
+        }
+
+    @pytest.mark.parametrize("value", [None, {}, "tail", {
+        "source": "invocation-tail", "token": "$ARGUMENTS", "fidelity": "native-placeholder"
+    }, {"source": "invocation-tail", "token": "", "fidelity": "model-visible", "extra": True}])
+    def test_help_argument_source_invalid_is_rejected(self, value):
+        mapping = _load_repo_mapping()
+        mapping["targets"][0]["argumentSource"] = value
+        assert any("argumentSource" in error for error in gen.validate_target_mapping(mapping))
+
+    def test_help_argument_source_remains_optional_for_legacy_mapping(self):
+        mapping = _load_repo_mapping()
+        for target in mapping["targets"]:
+            target.pop("argumentSource", None)
+        assert gen.validate_target_mapping(mapping) == []
+
     def test_repo_target_mapping_validates(self) -> None:
         data = _load_repo_mapping()
         errors = gen.validate_target_mapping(data)

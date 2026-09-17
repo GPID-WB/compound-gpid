@@ -797,6 +797,7 @@ class TestPhase6Benchmark:
             "/cg-fix-triage",
             "/cg-compound",
             "/cg-resume",
+            "/cg-autopilot",
             "/cg-diagnose",
             "/cg-token-audit",
         ]
@@ -906,6 +907,7 @@ class TestPhase6Benchmark:
             "/cg-fix-triage",
             "/cg-compound",
             "/cg-resume",
+            "/cg-autopilot",
             "/cg-diagnose",
             "/cg-token-audit",
             "Knowledge Brain/context lookup",
@@ -1006,7 +1008,7 @@ class TestPhase6Benchmark:
         assert {path.name for path in paths} == set(audit.TOKEN_ARTIFACT_FILENAMES)
         token_payload = json.loads((token_dir / "token-audit.json").read_text(encoding="utf-8"))
         assert token_payload["schema_version"] == 1
-        assert len(token_payload["workflow_telemetry"]["workflows"]) == 10
+        assert len(token_payload["workflow_telemetry"]["workflows"]) == 11
         light_work_token = next(
             row
             for row in token_payload["workflow_telemetry"]["workflows"]
@@ -1016,7 +1018,7 @@ class TestPhase6Benchmark:
 
         context_payload = json.loads((token_dir / "context-map.json").read_text(encoding="utf-8"))
         assert context_payload["schema_version"] == 1
-        assert len(context_payload["workflows"]) == 10
+        assert len(context_payload["workflows"]) == 11
         assert any(
             row["workflow"] == "/cg-light-work"
             and row["path"] == ".github/prompts/cg-light-work.prompt.md"
@@ -1029,7 +1031,7 @@ class TestPhase6Benchmark:
         assert "run_in_terminal" in token_audit_context["tool_references"]
 
         cost_rows = list(csv.DictReader(io.StringIO((token_dir / "workflow-costs.csv").read_text(encoding="utf-8"))))
-        assert len(cost_rows) == 10
+        assert len(cost_rows) == 11
         assert any(row["workflow"] == "/cg-light-work" for row in cost_rows)
         token_audit_cost = next(row for row in cost_rows if row["workflow"] == "/cg-token-audit")
         assert token_audit_cost["command_output_status"] == "not_observed"

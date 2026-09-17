@@ -164,16 +164,20 @@ def desired_plan_digest(
     platforms: list[str],
     selected_project_skills: Optional[dict[str, str]] = None,
     project_bundle_records: Optional[list[dict[str, str]]] = None,
+    ownership_exclusions: Optional[dict[str, list[str]]] = None,
 ) -> str:
     """Deterministic digest of the desired projection plan inputs."""
+    digest_inputs = {
+        "closure": closure_ids,
+        "globs": globs,
+        "platforms": platforms,
+        "selectedProjectSkills": selected_project_skills or {},
+        "projectBundles": project_bundle_records or [],
+    }
+    if ownership_exclusions:
+        digest_inputs["ownershipExclusions"] = ownership_exclusions
     canonical = json.dumps(
-        {
-            "closure": closure_ids,
-            "globs": globs,
-            "platforms": platforms,
-            "selectedProjectSkills": selected_project_skills or {},
-            "projectBundles": project_bundle_records or [],
-        },
+        digest_inputs,
         sort_keys=True,
         separators=(",", ":"),
     )
@@ -357,6 +361,7 @@ def resolve_active_manifest(
         raise ManifestResolutionError(str(exc)) from exc
     closure_ids = sorted(loadable_ids)
     closure_globs = sorted(budget.loadable_asset_globs(registry, loadable_ids))
+    ownership_exclusions = budget.ownership_exclusions(registry, loadable_ids)
     derived_ids = budget.capability_ids_by_selector(registry, settings, suites)
     registry_hash = combined_snapshot.canonical_digest
     registry_version = combined_snapshot.canonical.registry.get("schemaVersion")
@@ -408,6 +413,7 @@ def resolve_active_manifest(
             "capabilities": explicit,
             "derivedCapabilities": derived_ids,
             "moduleClosure": closure_ids,
+            "ownershipExclusions": ownership_exclusions,
             "selectedProjectSkills": selected_project_skills,
             "platforms": selected_platforms,
             "catalogDigest": catalog_digest,
@@ -417,6 +423,7 @@ def resolve_active_manifest(
                 selected_platforms,
                 selected_project_skills,
                 selected_project_bundle_records,
+                ownership_exclusions,
             ),
         },
         "platformEligibility": _platform_eligibility(
@@ -452,6 +459,7 @@ def immutable_selection_fields(manifest: dict[str, Any]) -> dict[str, Any]:
         "provenanceDigest": selection.get("provenanceDigest"),
         "sourceRevision": selection.get("sourceRevision"),
         "moduleClosure": selection.get("moduleClosure"),
+        "ownershipExclusions": selection.get("ownershipExclusions", {}),
         "selectedProjectSkills": selection.get("selectedProjectSkills"),
         "platforms": selection.get("platforms"),
         "catalogDigest": selection.get("catalogDigest"),
@@ -539,6 +547,20 @@ def validate_manifest(manifest: Any) -> list[str]:
                 errors.append(
                     "selection.selectedProjectSkills keys must match project-skill-<bundle-id>"
                 )
+    exclusions = selection.get("ownershipExclusions")
+    if exclusions is not None and (
+        not isinstance(exclusions, dict)
+        or any(
+            not isinstance(module_id, str)
+            or not isinstance(patterns, list)
+            or patterns != sorted(set(patterns))
+            or any(not isinstance(pattern, str) for pattern in patterns)
+            for module_id, patterns in exclusions.items()
+        )
+    ):
+        errors.append(
+            "selection.ownershipExclusions must be a sorted string-list map"
+        )
     return errors
 
 
@@ -555,6 +577,137 @@ def validate_ownership_state(state: dict[str, Any]) -> list[str]:
     elif not isinstance(entries, dict):
         errors.append("projection-ownership.json 'entries' must be an object of path -> checksum records")
     return errors
+
+
+def help_command_paths(
+    source_root: Path, catalog: dict, platform: str, suites: list[str]
+) -> dict[str, str]:
+    """Derive exact active slash paths from the validated target mapping.
+
+    Args: source_root: Installed clone. catalog: Validated help catalog.
+        platform: Adapter ID. suites: Proved active suite selection.
+    Returns: Consumer-relative path -> clone-relative path, without scanning.
+    Raises: ManifestResolutionError for missing/ambiguous mapping evidence.
+    Example: help_command_paths(source, catalog, 'kilo', ['cg']).
+    """
+    import cg_generate_targets as targets
+
+    mapping = targets.load_target_mapping(source_root)
+    selected = [item for item in mapping["targets"] if item["id"] == platform]
+    if len(selected) != 1:
+        raise ManifestResolutionError("help platform is missing or ambiguous")
+    target = selected[0]
+    directory = target["outputPaths"]["commands"]
+    suffix = ".prompt.md" if target["formats"]["commandFormat"] == "github-prompt" else ".md"
+    paths = {}
+    for command in catalog["commands"]:
+        if command["kind"] != "slash" or not set(command["supportedSuites"]) & set(suites):
+            continue
+        if platform not in command["supportedPlatforms"]:
+            continue
+        relative = directory + "/" + command["id"].split(":", 1)[1] + suffix
+        paths[relative] = relative
+    return dict(sorted(paths.items()))
+
+
+def validate_help_activation(
+    root: Path, source_root: Path, catalog: dict, platform: str
+) -> list[str]:
+    """Prove strict manifest activation or the linker's no-config legacy mode.
+
+    Args: root: Consumer root. source_root: Installed clone. catalog: Validated
+        command evidence. platform: Adapter ID, never inferred from files.
+    Returns: Validated active suite names. Does not mutate or scan the project.
+    Raises: ManifestResolutionError/OSError for any incomplete proof.
+    Example: validate_help_activation(project, clone, catalog, 'kilo').
+    """
+    import os
+    import cg_generate_targets as targets
+    import secure_fs
+    from help.catalog import load_strict_json_bytes, MAX_JSON_BYTES
+
+    def read(relative: str, base: Path = root) -> bytes:
+        """Read one exact regular path without links, aliases, or unbounded bytes."""
+        return secure_fs.secure_read_bytes(base, relative, reject_hardlinks=True, max_bytes=MAX_JSON_BYTES)
+
+    def present(relative: str) -> bool:
+        """Count dangling links as present so unsafe evidence cannot select legacy."""
+        return os.path.lexists(str(root / relative))
+
+    has_config = present(LOCAL_CONFIG_PATH)
+    has_manifest = present(ACTIVE_MANIFEST_PATH)
+    if has_manifest:
+        committed = load_strict_json_bytes(read(ACTIVE_MANIFEST_PATH), source=ACTIVE_MANIFEST_PATH)
+        errors = validate_manifest(committed)
+        if errors:
+            raise ManifestResolutionError("; ".join(errors))
+        if not has_config:
+            raise ManifestResolutionError("active manifest requires strict project config")
+        # Match resolve_active_manifest's existing read_text universal-newline
+        # semantics while obtaining the bytes through pinned secure handles.
+        config_text = read(LOCAL_CONFIG_PATH).decode("utf-8").replace("\r\n", "\n").replace("\r", "\n")
+        current = resolve_active_manifest(root, config_text=config_text,
+                                         platforms=committed["selection"]["platforms"], source_root=source_root)
+        errors = manifest_stale(committed, current)
+        if committed["selection"]["suites"] != current["selection"]["suites"]:
+            errors.append("suites")
+        if platform not in current["selection"]["platforms"]:
+            errors.append("platform")
+        if "cap-help" not in current["selection"]["moduleClosure"]:
+            errors.append("cap-help")
+        if errors:
+            raise ManifestResolutionError("stale or contradictory active manifest: " + ", ".join(errors))
+        suites = current["selection"]["suites"]
+    else:
+        # Both current link implementations use config presence, not suites
+        # presence, to select manifest-driven installation.
+        if has_config or present(OWNERSHIP_STATE_PATH) or present(TRANSACTION_JOURNAL_PATH):
+            raise ManifestResolutionError("projection mode requires a valid active manifest")
+        suites = ["cg"]
+        registry = _load_registry(source_root)
+        if "cap-help" not in budget.loadable_module_ids(registry, suites):
+            raise ManifestResolutionError("legacy CG closure lacks cap-help")
+    mapping = targets.load_target_mapping(source_root)
+    target = next((item for item in mapping["targets"] if item["id"] == platform), None)
+    if target is None:
+        raise ManifestResolutionError("unknown help platform")
+    paths = help_command_paths(source_root, catalog, platform, suites)
+    if not paths:
+        raise ManifestResolutionError("no expected active command paths")
+    directory = target["outputPaths"]["commands"]
+    units = [item for item in target["installUnits"] if item["target"] == directory
+             and item["strategy"] in {"link-directory", "copy-directory"}]
+    linked = False
+    identity = None
+    link = root / directory
+    secure_fs.revalidate_destination_ancestors(root, link)
+    if len(units) == 1 and os.path.lexists(str(link)):
+        metadata = link.lstat()
+        linked = (link.is_symlink() or bool(getattr(metadata, "st_file_attributes", 0) & 0x400))
+        if linked:
+            if link.resolve(strict=True) != (source_root / units[0]["source"]).resolve(strict=True):
+                raise ManifestResolutionError("command link does not target the installed clone")
+            identity = (metadata.st_dev, metadata.st_ino, metadata.st_mtime_ns)
+    if not has_manifest and not linked:
+        if len(units) != 1 or units[0]["strategy"] != "copy-directory":
+            raise ManifestResolutionError("no recognized non-projected legacy command installation")
+        marker_path = directory + "/.compound-gpid-managed-copy.json"
+        marker = load_strict_json_bytes(read(marker_path), source=marker_path)
+        if not isinstance(marker, dict) or set(marker) != {"schemaVersion", "source", "files"} or marker["schemaVersion"] != 1 or marker["source"] != units[0]["source"] or not isinstance(marker["files"], dict):
+            raise ManifestResolutionError("invalid legacy managed-copy proof")
+        for relative, source_relative in paths.items():
+            name = relative[len(directory) + 1:]
+            if marker["files"].get(name) != _sha256_bytes(read(source_relative, source_root)):
+                raise ManifestResolutionError("incomplete legacy managed-copy command proof: " + relative)
+    for relative, source_relative in paths.items():
+        expected = read(source_relative, source_root)
+        if not expected or (not linked and read(relative) != expected):
+            raise ManifestResolutionError("missing or inconsistent projected command: " + relative)
+    if linked:
+        metadata = link.lstat()
+        if identity != (metadata.st_dev, metadata.st_ino, metadata.st_mtime_ns) or link.resolve(strict=True) != (source_root / units[0]["source"]).resolve(strict=True):
+            raise ManifestResolutionError("command link changed during activation proof")
+    return suites
 
 
 def validate_transaction_journal(journal: dict[str, Any]) -> list[str]:

@@ -25,6 +25,20 @@
       "executable": false
     },
     {
+      "path": ".claude/agents/cg-autopilot.md",
+      "source": ".github/agents/cg-autopilot.agent.md",
+      "kind": "agent",
+      "sha256": "d31d0d0631cdf2aa9bf93fd512ea8039c2cccaca89fd4f353978be452aec09ad",
+      "executable": false
+    },
+    {
+      "path": ".claude/agents/cg-bootstrap-leaf.md",
+      "source": ".github/agents/cg-bootstrap-leaf.agent.md",
+      "kind": "agent",
+      "sha256": "cdd31c0b9c224d7fd955069926ec6bf315efa6c57a770a0c2047199c6faf77d6",
+      "executable": false
+    },
+    {
       "path": ".claude/agents/cg-code-quality.md",
       "source": ".github/agents/cg-code-quality.agent.md",
       "kind": "agent",
@@ -49,7 +63,7 @@
       "path": ".claude/agents/cg-fix-problems.md",
       "source": ".github/agents/cg-fix-problems.agent.md",
       "kind": "agent",
-      "sha256": "d80083816a638befee99c622726dd621c901af5b87018a432a740de5cab608a9",
+      "sha256": "618df6d3f5b1b5054087b48b5d6ca2235bd8fd5f85cd7d1be78c76939a393254",
       "executable": false
     },
     {
@@ -130,6 +144,13 @@
       "executable": false
     },
     {
+      "path": ".claude/agents/cg-workflow-stage.md",
+      "source": ".github/agents/cg-workflow-stage.agent.md",
+      "kind": "agent",
+      "sha256": "64ac6eb4944ee35aa6231f74c54922b81be6ff02b2473dfc74ae32568608bc41",
+      "executable": false
+    },
+    {
       "path": ".claude/agents/cr-academic-writing.md",
       "source": ".github/agents/cr-academic-writing.agent.md",
       "kind": "agent",
@@ -207,6 +228,13 @@
       "executable": false
     },
     {
+      "path": ".claude/commands/cg-autopilot.md",
+      "source": ".github/prompts/cg-autopilot.prompt.md",
+      "kind": "command",
+      "sha256": "897c90c9bb59d39f67d3389d6535517f66c4c8a5c54b5be52bf376d7227aa988",
+      "executable": false
+    },
+    {
       "path": ".claude/commands/cg-brain-rebuild.md",
       "source": ".github/prompts/cg-brain-rebuild.prompt.md",
       "kind": "command",
@@ -224,7 +252,7 @@
       "path": ".claude/commands/cg-commit-push-pr.md",
       "source": ".github/prompts/cg-commit-push-pr.prompt.md",
       "kind": "command",
-      "sha256": "1abeaf9166f58a697666ce6956c05481de36c9618d1d8cd497a5ddf09f086b8b",
+      "sha256": "71700ad4e50994d3b4d34bfb16d55ce5cfee8c8c2904e7bd40e9e66e1df05b29",
       "executable": false
     },
     {
@@ -245,7 +273,7 @@
       "path": ".claude/commands/cg-compound.md",
       "source": ".github/prompts/cg-compound.prompt.md",
       "kind": "command",
-      "sha256": "b92f2c9863dd1f6bfd17166f559e7e37915e1bdd6a022b814a3a6fcf0477a30f",
+      "sha256": "3e8d0c757708b9865a50c419de60a367a1bd954e2033cb799a7095de8d2754d2",
       "executable": false
     },
     {
@@ -273,7 +301,7 @@
       "path": ".claude/commands/cg-fix-triage.md",
       "source": ".github/prompts/cg-fix-triage.prompt.md",
       "kind": "command",
-      "sha256": "904dc4f16eabec77d984f6b2e0afe053287a54f684cd9681b9396ceb0738a073",
+      "sha256": "3c33212b6ab52a94f1057cdd5d4155e8ced040ae35313c25b1d4ed21d0aad8ee",
       "executable": false
     },
     {
@@ -281,6 +309,13 @@
       "source": ".github/prompts/cg-fixbug.prompt.md",
       "kind": "command",
       "sha256": "495efde4edd2a25df7fd31622f89b0d7c6d92fc6ebccdcf5e5605bc0280422ce",
+      "executable": false
+    },
+    {
+      "path": ".claude/commands/cg-help.md",
+      "source": ".github/prompts/cg-help.prompt.md",
+      "kind": "command",
+      "sha256": "971ae584590e18fd8d488c531247cce04bddc5174c6a262552a42386d2bcf1bf",
       "executable": false
     },
     {
@@ -336,14 +371,14 @@
       "path": ".claude/commands/cg-resume.md",
       "source": ".github/prompts/cg-resume.prompt.md",
       "kind": "command",
-      "sha256": "94321287caf36280ea8495613ed962e8ddd2d9f4c4a6b875787c1ce449b02842",
+      "sha256": "ba489d0bb5b2a734c3fc14d6b4ae3f3074fe1e7b11a00f908830a9174ca979c7",
       "executable": false
     },
     {
       "path": ".claude/commands/cg-review.md",
       "source": ".github/prompts/cg-review.prompt.md",
       "kind": "command",
-      "sha256": "25e15e80a638c76a262607e5580e3f6ece73f3e7156c1d85a82bfd77782ad8a3",
+      "sha256": "c148a8d2ff4c3a152c4adb53ce2925ff08a23543f82bf891dd035f35a8507593",
       "executable": false
     },
     {
@@ -385,7 +420,7 @@
       "path": ".claude/commands/cg-verify-pr.md",
       "source": ".github/prompts/cg-verify-pr.prompt.md",
       "kind": "command",
-      "sha256": "a8fbc32ad38b94f9906b3ac4b6c2acc9e0ea48efa4a1cab7e05deade7e993139",
+      "sha256": "b165770105b5bfaccb19f617c531477b530754bf36bd33f13ea827e0e86b1afb",
       "executable": false
     },
     {
@@ -399,7 +434,7 @@
       "path": ".claude/commands/cg-work.md",
       "source": ".github/prompts/cg-work.prompt.md",
       "kind": "command",
-      "sha256": "867e29ca838344a8beae5ff4408114001e18427fff133077e51eda26cca058fa",
+      "sha256": "3d4c783da8d0185671d4e3635ca88d12508655ed35fb3bbdd939a4f6387cdd0f",
       "executable": false
     },
     {
@@ -441,7 +476,7 @@
       "path": ".claude/commands/resume-templates.md",
       "source": ".github/prompts/resume-templates.md",
       "kind": "prompt-support",
-      "sha256": "d1e723b3f3ef06f19920476280d5f4b84670c8b2cff9198568afaee71906b114",
+      "sha256": "25da60de3c13fd64245114cae773cbb67123e1deaf1d36f27fda629587f052a0",
       "executable": false
     },
     {
@@ -497,7 +532,7 @@
       "path": ".claude/shared/active-state.contract.md",
       "source": ".github/shared/active-state.contract.md",
       "kind": "shared",
-      "sha256": "edd87c90746d753bd4bcf3e869b5e19eddfa78dc8eaacb6a8c264191dd6d9604",
+      "sha256": "071f6d2031ade8ec1364c1cdf12340a70c41bba39690599526661a452568ca9a",
       "executable": false
     },
     {
@@ -508,17 +543,31 @@
       "executable": false
     },
     {
+      "path": ".claude/shared/autopilot-stage.contract.md",
+      "source": ".github/shared/autopilot-stage.contract.md",
+      "kind": "shared",
+      "sha256": "e2d40ea79b4b9de2068092cb7cc0657939459eda99a81cbea2d2f1491548b17e",
+      "executable": false
+    },
+    {
       "path": ".claude/shared/context-loading.contract.md",
       "source": ".github/shared/context-loading.contract.md",
       "kind": "shared",
-      "sha256": "1a02f20f9adef1d94a42787e504e811f8b008567f29dde20a55b8f8bfa2f7c2c",
+      "sha256": "f7e75f45d8f050af5b147728ef0d6b541fb2de783f191e34574846f0718cf459",
       "executable": false
     },
     {
       "path": ".claude/shared/goal-execution.contract.md",
       "source": ".github/shared/goal-execution.contract.md",
       "kind": "shared",
-      "sha256": "bb9a71b884add1978d7f35e5afd1c21656a4cf09bdcb8b97144cad5ab52caba5",
+      "sha256": "62e663082a2f4cd5d4e8082b881e3039a5d1e11e443468d32be968baefeb36d8",
+      "executable": false
+    },
+    {
+      "path": ".claude/shared/help-catalog.json",
+      "source": ".github/shared/help-catalog.json",
+      "kind": "shared",
+      "sha256": "572ecb9151261bc65c3d649641e87a8a60e6593d14e0b67768f2d99ac61fdbb4",
       "executable": false
     },
     {
@@ -554,6 +603,13 @@
       "source": ".github/shared/review-routing.contract.md",
       "kind": "shared",
       "sha256": "946815d708ee716235fd7af3958cd6b4b40dd3176ec66d4a9e0d61453a67ed28",
+      "executable": false
+    },
+    {
+      "path": ".claude/shared/shell-commands.json",
+      "source": ".github/shared/shell-commands.json",
+      "kind": "shared",
+      "sha256": "c20960f57943d192c8712508bdd7bd077184fb15881dcbe6b09ab201b34e1d79",
       "executable": false
     },
     {
@@ -816,6 +872,13 @@
       "executable": false
     },
     {
+      "path": ".claude/shared/skill-management/release-attestations/v1.2.0.9019.json",
+      "source": ".github/shared/skill-management/release-attestations/v1.2.0.9019.json",
+      "kind": "shared",
+      "sha256": "52574cde208cdf8a254f6a0a74b67370ca19f24639ca5130cfcf33418dc52cc8",
+      "executable": false
+    },
+    {
       "path": ".claude/shared/snapshot-research-modes.json",
       "source": ".github/shared/snapshot-research-modes.json",
       "kind": "shared",
@@ -826,7 +889,7 @@
       "path": ".claude/shared/target-mapping.json",
       "source": ".github/shared/target-mapping.json",
       "kind": "shared",
-      "sha256": "7fd36441e3ad8bb66b2ff039474605b01a487342090cacb9ed0c4324fff9f525",
+      "sha256": "8fa4def636b102454f3232946e49a6b12883d7025f9d1f6b004da90c0bf33ae8",
       "executable": false
     },
     {

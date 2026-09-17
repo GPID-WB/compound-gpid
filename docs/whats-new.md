@@ -4,6 +4,39 @@ Release history and notable changes across Compound GPID from structured
 release payloads.
 
 <!-- cg:auto:release-notes -->
+### v1.2.0.9019 — v1.2.0.9019 - Asynchronous Release Controller
+
+*2026-09-15T22:29:55Z*
+
+**New — Release Controller Features**
+- Add asynchronous controller core with standalone locked Python package
+- Integrate disabled GPID controller with SemVer ordering
+- Wire guarded controller workflows and source-bound build/publish contracts
+- Bind release snapshots to verified producer bytes
+- Add disabled asynchronous release controller via merge PR
+
+**Fixed — CI and Merge Fixes**
+- Raise package matrix timeout to thirty minutes
+- Keep bridge_client within module line limit
+- Stop forwarding PowerShell module path into bridge child
+- Repair release portability and safe diagnostics
+- Integrate dev into release controller branch
+
+**Internal — Documentation and Maintenance**
+- Capture release validation and authority lessons in knowledge docs
+- Preserve controller history and dev PR handoff in workflow docs
+- Record asynchronous controller delivery and live deferral in plan docs
+- Document controller operation and deferred rollout
+- Regenerate release interfaces for Kilo, OpenCode, Codex, and Claude
+- Verify reader migration and GPID producer contracts
+- Record v1.2.0.9017 attestation
+- Accept new release-docs artifact layout in the Pages verifier
+- Read ruleset-based default-branch protection in the legacy release authority
+
+[View source tag](https://github.com/GPID-WB/compound-gpid/tree/v1.2.0.9019)
+
+---
+
 ### v1.2.0.9018 — v1.2.0.9018 - Asynchronous Release Controller
 
 *2026-09-15T10:24:57Z*

@@ -1,10 +1,10 @@
 # 🧠 Project Brain — Part 1
 
-_Generated 2026-09-14_
+_Generated 2026-09-16_
 
 ## Roadmap.Json / Test Scenarios / Cg-Work
 
-_Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 432 entities
+_Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 433 entities
 
 - **[Rename prompts, agents, and skills with cg- prefix; add WIP banner and manual](.cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md)** · `brainstorm` · _decided_ · `2026-03-02`
   > The project's prompts, agents, and skills lack a consistent naming prefix, making it unclear which files belong to th…
@@ -124,6 +124,8 @@ _Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 432 entities
   > <!-- Valid status values: decided, in-progress, abandoned -->
 - **[User-facing Compound Research Handbook and Isolated Dev Preview](.cg-docs/brainstorms/2026-09-03-cr-research-handbook-and-dev-preview.md)** · `brainstorm` · _decided_ · `2026-09-03`
   > <!-- Created 2026-09-03. -->
+- **[Evidence-Backed /cg-help Command](.cg-docs/brainstorms/2026-09-04-cg-help-command.md)** · `brainstorm` · _decided_ · `2026-09-04`
+  > Compound GPID has an auto-generated command reference and documentation site, but it does not have an in-chat help co…
 - **[Unified lightweight workflow command for small technical tasks](.cg-docs/brainstorms/2026-09-04-cg-light-work-unified-small-task-workflow.md)** · `brainstorm` · _decided_ · `2026-09-04`
   > <!-- Valid status values: decided, in-progress, abandoned -->
 - **[Minimal adaptive grilling for the Compound GPID workflow](.cg-docs/brainstorms/2026-09-04-minimal-adaptive-grilling.md)** · `brainstorm` · _decided_ · `2026-09-04`
@@ -706,6 +708,10 @@ _Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 432 entities
   > Reviewed the uncommitted changes on `feat/cr-ml-skill-redesign` relative to `HEAD` (`1ef1227`). The review included t…
 - **[2026-09-04-minimal-adaptive-grilling-review](.cg-docs/reviews/2026-09-04-minimal-adaptive-grilling-review.md)** · `review` · _—_ · `2026-09-08`
   > **Review mode**: standard **Files reviewed**: 29 implementation and workflow-record paths **Findings**: 15 (P0: 0, P1…
+- **[2026-09-08-evidence-backed-cg-help-command-verify-review-2](.cg-docs/reviews/2026-09-08-evidence-backed-cg-help-command-verify-review-2.md)** · `review` · _—_ · `2026-09-16`
+  > **Date**: 2026-09-16 **Mode**: verify (light-only) **Type**: verification **Parent review**: `.cg-docs/reviews/2026-0…
+- **[2026-09-08-evidence-backed-cg-help-command-verify-review](.cg-docs/reviews/2026-09-08-evidence-backed-cg-help-command-verify-review.md)** · `review` · _—_ · `2026-09-15`
+  > **Date**: 2026-09-15 **Mode**: verify (light-only) **Type**: verification **Parent review**: `.cg-docs/reviews/2026-0…
 - **[2026-09-11-generic-asynchronous-release-controller-phase2-review](.cg-docs/reviews/2026-09-11-generic-asynchronous-release-controller-phase2-review.md)** · `review` · _—_ · `2026-09-11`
   > Review and independent repair verification complete; all eight findings are fixed. Embedded `/cg-work phase2 review:a…
 - **[2026-09-11-generic-asynchronous-release-controller-phase2-verify-review-2](.cg-docs/reviews/2026-09-11-generic-asynchronous-release-controller-phase2-verify-review-2.md)** · `review` · _—_ · `2026-09-11`
@@ -866,9 +872,5 @@ _Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 432 entities
   > Kilo in VS Code on Windows and Positron on macOS repeatedly reported:
 - **[cg-link ignored singular --platform flag](.cg-docs/solutions/bugs/2026-08-21-cg-link-singular-platform-flag.md)** · `solution` · _—_ · `2026-08-21`
   > On version `v1.2.0.9006`, running `cg-link --platform kilo` produced warnings that `--platform` and `kilo` were unrec…
-- **[Release drift ignore checks spawn thousands of Git processes](.cg-docs/solutions/bugs/2026-08-26-release-drift-ignore-checks-spawn-thousands-of-git-processes.md)** · `solution` · _—_ · `2026-08-26`
-  > The `/cg-release` packaging gate took more than 20 minutes in the full workflow. The native packaging test portion al…
-- **[Trusted dispatch requires immutable anchors and captured bytes](.cg-docs/solutions/bugs/2026-08-31-trust-anchor-captured-byte-dispatch.md)** · `solution` · _—_ · `2026-08-31`
-  > The private skill-management dispatcher used local Git origin and branch data to grant maintainer authority. A fixtur…
 
 _…continues in [BRAIN-02.md](BRAIN-02.md)_
