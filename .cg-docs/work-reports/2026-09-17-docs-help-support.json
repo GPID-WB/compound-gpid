@@ -1,7 +1,147 @@
 {
-  "subjectCommit": "9e2ed0008c46a210e0381ab55b337009ea33a996",
-  "probeCommit": "9e2ed0008c46a210e0381ab55b337009ea33a996",
-  "probeTree": "2f0ee60c0037ed3bef6bc310bf964077c2b60ec6",
+  "platforms": [
+    {
+      "canonicalPromptSha256": "98e25d9e26471cee70b8f8cd2c6f170ef8b048b79c5f56a077949b2c8e0395f2",
+      "catalogSha256": "48cd6f7e1bca89b74c3dd5bba31d49a339ad66320a0abfef90baf7ea355ac30c",
+      "catalogSourceDigest": "4632a9870fbdc1d77cf267e6d9830b4198cf0e9847a20754a1b55833a2d554b2",
+      "generatedPromptSha256": "82d621d0339649b62acd1c359ccd96caab8bd76fcf9bf5434600d867a4d68141",
+      "host": null,
+      "platform": "claude-code",
+      "probeContractVersion": 1,
+      "probes": [],
+      "reason": "No certified host was exercised for this platform.",
+      "runAt": "2026-09-17T19:14:30Z",
+      "runtimeStatus": "unverified-no-certified-host",
+      "staticResults": {
+        "argumentSource": "passed",
+        "asset": "passed",
+        "transport": "passed"
+      },
+      "targetMappingSha256": "8fa4def636b102454f3232946e49a6b12883d7025f9d1f6b004da90c0bf33ae8"
+    },
+    {
+      "canonicalPromptSha256": "98e25d9e26471cee70b8f8cd2c6f170ef8b048b79c5f56a077949b2c8e0395f2",
+      "catalogSha256": "48cd6f7e1bca89b74c3dd5bba31d49a339ad66320a0abfef90baf7ea355ac30c",
+      "catalogSourceDigest": "4632a9870fbdc1d77cf267e6d9830b4198cf0e9847a20754a1b55833a2d554b2",
+      "generatedPromptSha256": "9bb1d4e53c099c816e5aa4ff427efdc260f8a773279f4e07a5a1dc80e63c1ec7",
+      "host": null,
+      "platform": "codex",
+      "probeContractVersion": 1,
+      "probes": [],
+      "reason": "No certified host was exercised for this platform.",
+      "runAt": "2026-09-17T19:14:30Z",
+      "runtimeStatus": "unverified-no-certified-host",
+      "staticResults": {
+        "argumentSource": "passed",
+        "asset": "passed",
+        "transport": "passed"
+      },
+      "targetMappingSha256": "8fa4def636b102454f3232946e49a6b12883d7025f9d1f6b004da90c0bf33ae8"
+    },
+    {
+      "canonicalPromptSha256": "98e25d9e26471cee70b8f8cd2c6f170ef8b048b79c5f56a077949b2c8e0395f2",
+      "catalogSha256": "48cd6f7e1bca89b74c3dd5bba31d49a339ad66320a0abfef90baf7ea355ac30c",
+      "catalogSourceDigest": "4632a9870fbdc1d77cf267e6d9830b4198cf0e9847a20754a1b55833a2d554b2",
+      "generatedPromptSha256": "98e25d9e26471cee70b8f8cd2c6f170ef8b048b79c5f56a077949b2c8e0395f2",
+      "host": null,
+      "platform": "copilot",
+      "probeContractVersion": 1,
+      "probes": [],
+      "reason": "No certified host was exercised for this platform.",
+      "runAt": "2026-09-17T19:14:30Z",
+      "runtimeStatus": "unverified-no-certified-host",
+      "staticResults": {
+        "argumentSource": "passed",
+        "asset": "passed",
+        "transport": "passed"
+      },
+      "targetMappingSha256": "8fa4def636b102454f3232946e49a6b12883d7025f9d1f6b004da90c0bf33ae8"
+    },
+    {
+      "canonicalPromptSha256": "98e25d9e26471cee70b8f8cd2c6f170ef8b048b79c5f56a077949b2c8e0395f2",
+      "catalogSha256": "48cd6f7e1bca89b74c3dd5bba31d49a339ad66320a0abfef90baf7ea355ac30c",
+      "catalogSourceDigest": "4632a9870fbdc1d77cf267e6d9830b4198cf0e9847a20754a1b55833a2d554b2",
+      "generatedPromptSha256": "c5c96e255779bf226ec85841da0873b668ce5f4a3db5793da4a48ad90740015e",
+      "host": {
+        "observedSha256": "2dd7a1ec0a5a56fc925f30c3a107a0e52dce6c6b18216a86a3ebaffe1643d594",
+        "observedVersion": "7.4.20",
+        "pinnedSha256": "2dd7a1ec0a5a56fc925f30c3a107a0e52dce6c6b18216a86a3ebaffe1643d594",
+        "pinnedVersion": "7.4.20"
+      },
+      "platform": "kilo",
+      "probeContractVersion": 1,
+      "probes": [
+        {
+          "arguments": [
+            "run",
+            "--format",
+            "json",
+            "--command",
+            "cg-help"
+          ],
+          "name": "overview",
+          "outcome": "passed",
+          "receivedQuerySha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "arguments": [
+            "run",
+            "--format",
+            "json",
+            "--command",
+            "cg-help"
+          ],
+          "name": "exact",
+          "outcome": "passed",
+          "receivedQuerySha256": "b23a860739870f496a9c6f75f48e3acaa735204c7af0a1296c36197a6bcca5ad"
+        },
+        {
+          "arguments": [
+            "run",
+            "--format",
+            "json",
+            "--command",
+            "cg-help"
+          ],
+          "name": "metacharacters",
+          "outcome": "passed",
+          "receivedQuerySha256": "bf83364c92b69441de418d0574c1264bfeed2d37df577eaa1a871a8b3e08a60f"
+        }
+      ],
+      "reason": "",
+      "runAt": "2026-09-17T19:14:30Z",
+      "runtimeStatus": "verified",
+      "staticResults": {
+        "argumentSource": "passed",
+        "asset": "passed",
+        "transport": "passed"
+      },
+      "targetMappingSha256": "8fa4def636b102454f3232946e49a6b12883d7025f9d1f6b004da90c0bf33ae8"
+    },
+    {
+      "canonicalPromptSha256": "98e25d9e26471cee70b8f8cd2c6f170ef8b048b79c5f56a077949b2c8e0395f2",
+      "catalogSha256": "48cd6f7e1bca89b74c3dd5bba31d49a339ad66320a0abfef90baf7ea355ac30c",
+      "catalogSourceDigest": "4632a9870fbdc1d77cf267e6d9830b4198cf0e9847a20754a1b55833a2d554b2",
+      "generatedPromptSha256": "e501a6e76a79fc0538293639a749ab7e00b80c546255740d27768576580b198d",
+      "host": null,
+      "platform": "opencode",
+      "probeContractVersion": 1,
+      "probes": [],
+      "reason": "No certified host was exercised for this platform.",
+      "runAt": "2026-09-17T19:14:30Z",
+      "runtimeStatus": "unverified-no-certified-host",
+      "staticResults": {
+        "argumentSource": "passed",
+        "asset": "passed",
+        "transport": "passed"
+      },
+      "targetMappingSha256": "8fa4def636b102454f3232946e49a6b12883d7025f9d1f6b004da90c0bf33ae8"
+    }
+  ],
+  "probeCommit": "4358ca4f46881d1373109be6f712b02ed1bc72ee",
+  "probeTree": "d86b9b07b9bb5d7e9febf317515d72bebe659d89",
+  "schemaVersion": 1,
+  "sensitiveDigest": "7d444414160f61275e7afdeaf6c5ce1f54897d56f4b9dddb901a2099982c039b",
   "sensitivePaths": [
     {
       "mode": "100644",
@@ -66,7 +206,7 @@
     {
       "mode": "100644",
       "path": ".agents/commands/cg-help.md",
-      "sha256": "6deebf7baa3ac7a373f8beedbc3e0e086fa751de0cb961f9df6c0c285963241f"
+      "sha256": "9bb1d4e53c099c816e5aa4ff427efdc260f8a773279f4e07a5a1dc80e63c1ec7"
     },
     {
       "mode": "100644",
@@ -191,7 +331,7 @@
     {
       "mode": "100644",
       "path": ".agents/shared/help-catalog.json",
-      "sha256": "572ecb9151261bc65c3d649641e87a8a60e6593d14e0b67768f2d99ac61fdbb4"
+      "sha256": "48cd6f7e1bca89b74c3dd5bba31d49a339ad66320a0abfef90baf7ea355ac30c"
     },
     {
       "mode": "100644",
@@ -256,7 +396,7 @@
     {
       "mode": "100644",
       "path": ".claude/commands/cg-help.md",
-      "sha256": "971ae584590e18fd8d488c531247cce04bddc5174c6a262552a42386d2bcf1bf"
+      "sha256": "82d621d0339649b62acd1c359ccd96caab8bd76fcf9bf5434600d867a4d68141"
     },
     {
       "mode": "100644",
@@ -381,7 +521,7 @@
     {
       "mode": "100644",
       "path": ".claude/shared/help-catalog.json",
-      "sha256": "572ecb9151261bc65c3d649641e87a8a60e6593d14e0b67768f2d99ac61fdbb4"
+      "sha256": "48cd6f7e1bca89b74c3dd5bba31d49a339ad66320a0abfef90baf7ea355ac30c"
     },
     {
       "mode": "100644",
@@ -516,12 +656,12 @@
     {
       "mode": "100644",
       "path": ".github/prompts/cg-help.help.json",
-      "sha256": "ef7164e8ec2890e5dd9a85dfddfa357a44174530d3fad4daed23e60a179afa35"
+      "sha256": "e438bb8a96f42539874174e9fa6aa16d2df56c385c05b25cfbdd4c2aeaf5c246"
     },
     {
       "mode": "100644",
       "path": ".github/prompts/cg-help.prompt.md",
-      "sha256": "f7ad4602d6e71f542c778ed1b298a054e3059a5688f91abf5f6672b57d24983a"
+      "sha256": "98e25d9e26471cee70b8f8cd2c6f170ef8b048b79c5f56a077949b2c8e0395f2"
     },
     {
       "mode": "100644",
@@ -746,7 +886,7 @@
     {
       "mode": "100644",
       "path": ".github/shared/help-catalog.json",
-      "sha256": "572ecb9151261bc65c3d649641e87a8a60e6593d14e0b67768f2d99ac61fdbb4"
+      "sha256": "48cd6f7e1bca89b74c3dd5bba31d49a339ad66320a0abfef90baf7ea355ac30c"
     },
     {
       "mode": "100644",
@@ -831,7 +971,7 @@
     {
       "mode": "100644",
       "path": ".kilo/commands/cg-help.md",
-      "sha256": "8fdac9beda11b7f143e8aeffcdc3c93c3b75571287670713e34dd573f781753b"
+      "sha256": "c5c96e255779bf226ec85841da0873b668ce5f4a3db5793da4a48ad90740015e"
     },
     {
       "mode": "100644",
@@ -956,7 +1096,7 @@
     {
       "mode": "100644",
       "path": ".kilo/shared/help-catalog.json",
-      "sha256": "572ecb9151261bc65c3d649641e87a8a60e6593d14e0b67768f2d99ac61fdbb4"
+      "sha256": "48cd6f7e1bca89b74c3dd5bba31d49a339ad66320a0abfef90baf7ea355ac30c"
     },
     {
       "mode": "100644",
@@ -1021,7 +1161,7 @@
     {
       "mode": "100644",
       "path": ".opencode/commands/cg-help.md",
-      "sha256": "35d830a1b2bca97b5ca8d48dc1af253f10c851fd4856cdf509bd7ae141ae9428"
+      "sha256": "e501a6e76a79fc0538293639a749ab7e00b80c546255740d27768576580b198d"
     },
     {
       "mode": "100644",
@@ -1146,7 +1286,7 @@
     {
       "mode": "100644",
       "path": ".opencode/shared/help-catalog.json",
-      "sha256": "572ecb9151261bc65c3d649641e87a8a60e6593d14e0b67768f2d99ac61fdbb4"
+      "sha256": "48cd6f7e1bca89b74c3dd5bba31d49a339ad66320a0abfef90baf7ea355ac30c"
     },
     {
       "mode": "100644",
@@ -1366,7 +1506,7 @@
     {
       "mode": "100644",
       "path": "scripts/cg_generate_help_catalog.py",
-      "sha256": "8e19b1bd47d2b47a31292fb9e645d2653455ecc0829a9f8474a43368e547dc96"
+      "sha256": "2147e2ab8c491a7d56bee4706d34064525d5fd891c6c079a9a1091b5ea7aaa35"
     },
     {
       "mode": "100644",
@@ -1446,7 +1586,7 @@
     {
       "mode": "100644",
       "path": "scripts/help/documentation.py",
-      "sha256": "b29a33d7efed6d0e626cdcce9a7a20685b827ed7112e0605bc9c0300903e5b63"
+      "sha256": "1a654ee6b6f5220d07dbfbda5925cf22af8ec1908a4a4b88ce87ca144cb29545"
     },
     {
       "mode": "100644",
@@ -1586,7 +1726,7 @@
     {
       "mode": "100644",
       "path": "scripts/tests/test_skill_management_migration.py",
-      "sha256": "97b4205d23de0d0026735ec77dfb4eff8d883f9391a78b00e37dbb9354471010"
+      "sha256": "8c0f421fa091a4ced173516a0e6739b48d29dba7f6d794e5051a2d0fbe25f550"
     },
     {
       "mode": "100644",
@@ -1671,148 +1811,8 @@
     {
       "mode": "100644",
       "path": "tests/prompt-tools.Tests.ps1",
-      "sha256": "9395be9035b8ca820db21c50ec2c159a52ea479f3f47e4c93a1f95110329fd91"
+      "sha256": "7100b006b1866dbb4577ad5978e6a1ad891d275a313f2a628276787e12fe02e1"
     }
   ],
-  "sensitiveDigest": "93e83fe9d0f5314dfb9fdd519c8021bd0baa76b2e814b7804410a79d939768d6",
-  "schemaVersion": 1,
-  "platforms": [
-    {
-      "platform": "claude-code",
-      "catalogSourceDigest": "1c38dd0afd0e78025a4b8518b3533872282017d6a0bd4b1e8c33ad3a5493bc47",
-      "catalogSha256": "572ecb9151261bc65c3d649641e87a8a60e6593d14e0b67768f2d99ac61fdbb4",
-      "canonicalPromptSha256": "f7ad4602d6e71f542c778ed1b298a054e3059a5688f91abf5f6672b57d24983a",
-      "targetMappingSha256": "8fa4def636b102454f3232946e49a6b12883d7025f9d1f6b004da90c0bf33ae8",
-      "generatedPromptSha256": "971ae584590e18fd8d488c531247cce04bddc5174c6a262552a42386d2bcf1bf",
-      "staticResults": {
-        "asset": "passed",
-        "argumentSource": "passed",
-        "transport": "passed"
-      },
-      "runtimeStatus": "unverified-no-certified-host",
-      "host": null,
-      "probeContractVersion": 1,
-      "probes": [],
-      "runAt": "2026-09-17T17:31:41Z",
-      "reason": "No certified host was exercised for this platform."
-    },
-    {
-      "platform": "codex",
-      "catalogSourceDigest": "1c38dd0afd0e78025a4b8518b3533872282017d6a0bd4b1e8c33ad3a5493bc47",
-      "catalogSha256": "572ecb9151261bc65c3d649641e87a8a60e6593d14e0b67768f2d99ac61fdbb4",
-      "canonicalPromptSha256": "f7ad4602d6e71f542c778ed1b298a054e3059a5688f91abf5f6672b57d24983a",
-      "targetMappingSha256": "8fa4def636b102454f3232946e49a6b12883d7025f9d1f6b004da90c0bf33ae8",
-      "generatedPromptSha256": "6deebf7baa3ac7a373f8beedbc3e0e086fa751de0cb961f9df6c0c285963241f",
-      "staticResults": {
-        "asset": "passed",
-        "argumentSource": "passed",
-        "transport": "passed"
-      },
-      "runtimeStatus": "unverified-no-certified-host",
-      "host": null,
-      "probeContractVersion": 1,
-      "probes": [],
-      "runAt": "2026-09-17T17:31:41Z",
-      "reason": "No certified host was exercised for this platform."
-    },
-    {
-      "platform": "copilot",
-      "catalogSourceDigest": "1c38dd0afd0e78025a4b8518b3533872282017d6a0bd4b1e8c33ad3a5493bc47",
-      "catalogSha256": "572ecb9151261bc65c3d649641e87a8a60e6593d14e0b67768f2d99ac61fdbb4",
-      "canonicalPromptSha256": "f7ad4602d6e71f542c778ed1b298a054e3059a5688f91abf5f6672b57d24983a",
-      "targetMappingSha256": "8fa4def636b102454f3232946e49a6b12883d7025f9d1f6b004da90c0bf33ae8",
-      "generatedPromptSha256": "f7ad4602d6e71f542c778ed1b298a054e3059a5688f91abf5f6672b57d24983a",
-      "staticResults": {
-        "asset": "passed",
-        "argumentSource": "passed",
-        "transport": "passed"
-      },
-      "runtimeStatus": "unverified-no-certified-host",
-      "host": null,
-      "probeContractVersion": 1,
-      "probes": [],
-      "runAt": "2026-09-17T17:31:41Z",
-      "reason": "No certified host was exercised for this platform."
-    },
-    {
-      "platform": "kilo",
-      "catalogSourceDigest": "1c38dd0afd0e78025a4b8518b3533872282017d6a0bd4b1e8c33ad3a5493bc47",
-      "catalogSha256": "572ecb9151261bc65c3d649641e87a8a60e6593d14e0b67768f2d99ac61fdbb4",
-      "canonicalPromptSha256": "f7ad4602d6e71f542c778ed1b298a054e3059a5688f91abf5f6672b57d24983a",
-      "targetMappingSha256": "8fa4def636b102454f3232946e49a6b12883d7025f9d1f6b004da90c0bf33ae8",
-      "generatedPromptSha256": "8fdac9beda11b7f143e8aeffcdc3c93c3b75571287670713e34dd573f781753b",
-      "staticResults": {
-        "asset": "passed",
-        "argumentSource": "passed",
-        "transport": "passed"
-      },
-      "runtimeStatus": "verified",
-      "host": {
-        "observedSha256": "2dd7a1ec0a5a56fc925f30c3a107a0e52dce6c6b18216a86a3ebaffe1643d594",
-        "observedVersion": "7.4.20",
-        "pinnedSha256": "2dd7a1ec0a5a56fc925f30c3a107a0e52dce6c6b18216a86a3ebaffe1643d594",
-        "pinnedVersion": "7.4.20"
-      },
-      "probeContractVersion": 1,
-      "probes": [
-        {
-          "arguments": [
-            "run",
-            "--format",
-            "json",
-            "--command",
-            "cg-help"
-          ],
-          "name": "overview",
-          "outcome": "passed",
-          "receivedQuerySha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-        },
-        {
-          "arguments": [
-            "run",
-            "--format",
-            "json",
-            "--command",
-            "cg-help"
-          ],
-          "name": "exact",
-          "outcome": "passed",
-          "receivedQuerySha256": "b23a860739870f496a9c6f75f48e3acaa735204c7af0a1296c36197a6bcca5ad"
-        },
-        {
-          "arguments": [
-            "run",
-            "--format",
-            "json",
-            "--command",
-            "cg-help"
-          ],
-          "name": "metacharacters",
-          "outcome": "passed",
-          "receivedQuerySha256": "bf83364c92b69441de418d0574c1264bfeed2d37df577eaa1a871a8b3e08a60f"
-        }
-      ],
-      "runAt": "2026-09-17T17:31:41Z",
-      "reason": ""
-    },
-    {
-      "platform": "opencode",
-      "catalogSourceDigest": "1c38dd0afd0e78025a4b8518b3533872282017d6a0bd4b1e8c33ad3a5493bc47",
-      "catalogSha256": "572ecb9151261bc65c3d649641e87a8a60e6593d14e0b67768f2d99ac61fdbb4",
-      "canonicalPromptSha256": "f7ad4602d6e71f542c778ed1b298a054e3059a5688f91abf5f6672b57d24983a",
-      "targetMappingSha256": "8fa4def636b102454f3232946e49a6b12883d7025f9d1f6b004da90c0bf33ae8",
-      "generatedPromptSha256": "35d830a1b2bca97b5ca8d48dc1af253f10c851fd4856cdf509bd7ae141ae9428",
-      "staticResults": {
-        "asset": "passed",
-        "argumentSource": "passed",
-        "transport": "passed"
-      },
-      "runtimeStatus": "unverified-no-certified-host",
-      "host": null,
-      "probeContractVersion": 1,
-      "probes": [],
-      "runAt": "2026-09-17T17:31:41Z",
-      "reason": "No certified host was exercised for this platform."
-    }
-  ]
+  "subjectCommit": "4358ca4f46881d1373109be6f712b02ed1bc72ee"
 }

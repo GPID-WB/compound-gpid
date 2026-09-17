@@ -1,7 +1,8 @@
 ---
 date: 2026-09-16
 title: "Documentation Information Architecture and UX Redesign"
-status: active
+status: completed
+completed-date: 2026-09-17
 scope: "Deep"
 brainstorm: null
 language: "both"
@@ -9,9 +10,9 @@ estimated-effort: "large"
 deviation-policy: "ask"
 artifact-schema-version: 1
 phases: 5
-completed-phases: [1, 2, 3, 4]
+completed-phases: [1, 2, 3, 4, 5]
 current-phase: 5
-failing-steps: [7]
+failing-steps: []
 execution-report: .cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign.md
 tags: [documentation, information-architecture, accessibility, navigation, github-pages, cg-help]
 ---

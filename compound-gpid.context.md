@@ -397,6 +397,18 @@ Wiki-aware prompts (`/cg-wiki`, `/cg-compound`) read these HTML comment directiv
   trusted default-branch checkout, and reviewed executable version/SHA-256
   evidence. See `.cg-docs/solutions/git-workflows/2026-08-21-pr-ci-preflight-native-target-kilo-capability-gates.md`.
 
+### Verified documentation and help evidence (2026-09-17)
+
+- The help writer emits one validated catalog/documents snapshot; projections
+  must consume that envelope without reopening catalog facts after validation.
+- Native help evidence binds its entire declared source inventory, including
+  documentation helpers. Refresh proof after any bound input changes; preserve
+  exact query, fixed-operation and unchanged-display assertions. Static adapter
+  parity does not establish runtime support for an untested host or model.
+- Help-owned wiki marker interiors are written only by the canonical help
+  documentation writer. See
+  `.cg-docs/solutions/testing-patterns/2026-09-17-docs-snapshots-and-native-help-evidence.md`.
+
 ## Python Registry Mutation Conventions
 
 - Parse rewritable JSON numbers exactly; binary floats do not preserve unknown

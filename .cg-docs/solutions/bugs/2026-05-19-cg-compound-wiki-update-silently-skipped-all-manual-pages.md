@@ -133,4 +133,5 @@ ID, then add `<!-- cg:auto:<id> -->` / `<!-- cg:auto:end -->` markers to that pa
 
 ## Related
 
+- [Validated documentation snapshots and native evidence](../testing-patterns/2026-09-17-docs-snapshots-and-native-help-evidence.md)
 - [2026-05-18-compound-gpid-repo-not-wired-as-wiki-consumer.md](2026-05-18-compound-gpid-repo-not-wired-as-wiki-consumer.md) — prior bug: the wiki folder was not configured at all. This bug is the follow-on: folder was configured, but all pages were `manual`.

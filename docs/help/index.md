@@ -6,11 +6,6 @@ plugin clone.
 
 ## Command help
 
-Current-source runtime certification is pending. Fresh native Kilo probes on
-`5ef13ead27386220a87a9e1b4b6b66fdd34c7c8b` failed because the host added progress
-prose to the required exact response. The table and examples below record a
-historical passing build; they do not establish support for the current source.
-
 Use the [command browser](../reference/commands.md) to find slash commands,
 terminal commands, and complete workflows. Its catalog is checked against the
 command definitions during the documentation build.
@@ -18,7 +13,7 @@ command definitions during the documentation build.
 The examples below are supported only for the verified Kilo configuration
 listed here. Static adapter checks pass for all five hosts; runtime status is separate.
 
-| Host | Historical runtime status | Tested configuration |
+| Host | Runtime status | Tested configuration |
 |---|---|---|
 | Claude Code | Unverified | No certified runtime probe |
 | Codex | Unverified | No certified runtime probe |
@@ -42,7 +37,7 @@ If it reports unavailable help, check the installation and project linking befor
 retrying; do not replace the response with guessed commands.
 
 Evidence was collected on 2026-09-17 for source commit
-`9e2ed0008c46a210e0381ab55b337009ea33a996`, using a process-only model selection.
+`4358ca4f46881d1373109be6f712b02ed1bc72ee`, using a process-only model selection.
 Overview, exact lookup, punctuation preservation, and unchanged result delivery
 passed. This evidence does not certify other models, host versions, or operating
 systems. Maintainers can recheck the stored source bindings with:

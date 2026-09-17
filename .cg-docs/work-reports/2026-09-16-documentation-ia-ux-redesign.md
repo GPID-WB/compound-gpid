@@ -2659,3 +2659,58 @@ definition repin, catalog and documentation outputs will be regenerated before
 committing the exact native subject. No receipt, query, shell-command or final
 output assertion is removed or relaxed. Current-source certification remains
 pending until all three real host flows pass on that subject.
+
+Attempt 1/1 passed on 4358ca4f46881d1373109be6f712b02ed1bc72ee: all three native
+flows passed in 134.79 seconds with every strict assertion retained. The genuine
+fragment supplied the new combined source-bound evidence; the unchanged support
+verifier accepts it against the final working tree. Kilo 7.4.20 on macOS using
+the process-only openai/gpt-5.6-terra/high configuration is the only verified
+runtime row. The four other hosts retain static-only/unverified runtime status.
+Earlier failed probes remain recorded in Run 27 and its evidence artifact.
+
+The final repair checks pass: 261 focused adapter/generation/documentation tests
+(two integration cases deselected), 199 Node docs tests, 52 browser tests with
+21 axe scans, current catalog/documentation/support checks and frozen legacy
+fixture checks. The canonical Pester runner passed 3,008 tests, zero failures,
+three Windows-only skips, filteredFiles null, at 2026-09-17T19:12:29Z. It started
+before the checkpoint commit, so its recorded HEAD is 5ef13ead; the tested
+working files already included the new prompt/assertion and are in 4358ca4f.
+No cleanup issues were reported. The verify reviewer checked the new prompt,
+both exact assertions and generated adapter/catalog hashes: no findings.
+
+## Run 29: Final Phase Completion, Triage and Compounding
+
+All required phase evidence V1-V9 and constraints C1-C7 now pass on the final
+affected source. The sole approved exception remains human screen-reader and
+actual 200% zoom visual review, recorded in Run 18. Historical phase evidence
+is retained; refreshed phase 5 evidence records the final fingerprint, exact
+native subject and current test counts. The plan and matched roadmap feature
+are complete. The separate help plan is not changed or declared complete.
+
+Verification review has no remaining findings. Triage resolved four P2 items
+and explicitly skipped the P3 sequential-write advisory. Compounding captured
+`2026-09-17-docs-snapshots-and-native-help-evidence.md`, linked the two relevant
+older lessons in both directions, and enriched the Wiki Configuration section
+of project context. Solution YAML and local links validate. The artifact
+renderer supports brainstorms/plans, so its unsupported-solution rejection was
+not treated as a solution validation result; schema/link validation was used.
+
+Wiki update review validated its manifest and preserved all externally owned
+help blocks. The canonical writer check passes and the authorized help guide
+now names the current evidence; no additional automatic wiki rewrite is needed.
+`cg-index` is unavailable on PATH, so its optional local brain rebuild was
+skipped as prescribed. No team-brain push is configured. The temporary handoff
+is removed after saving this durable completion record.
+
+Final publication remains in progress: fresh prepare and committed preflight,
+push/open PR to dev only, a full five-minute wait, then exact-head CI verification.
+The release controller remains disabled; no deployment or merge is authorized.
+
+The fresh repair prepare preflight passed all nine commands: 3,383 native Python
+tests, all three module checks, 1,015 controller package tests, 18 controller
+profile/launcher tests, pinned uv, ruff and package build. Native skips (12),
+integration deselections (three), and profile/launcher skips (two) remain
+separately recorded. Log: `/private/tmp/cg-prose-prepare.log`. Repeat docs builds
+are byte-identical. No source changes follow this gate; the final commit adds
+only verified evidence, guide/derived search text, lesson/context and completion
+records. The exact final remote CI result will be attached to the PR's head.

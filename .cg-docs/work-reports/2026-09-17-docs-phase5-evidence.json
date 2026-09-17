@@ -1,34 +1,38 @@
 {
   "phase": 5,
-  "workingTreeBase": "9e2ed0008c46a210e0381ab55b337009ea33a996",
-  "workingTreeNote": "Help implementation at native subject; docs/help/index.md and derived search index added before all final docs and Pester checks.",
+  "workingTreeBase": "4358ca4f46881d1373109be6f712b02ed1bc72ee",
+  "workingTreeNote": "Exact native subject plus final help evidence and guide; later changes only reports, lesson/context and completion metadata.",
   "fingerprintVersion": 3,
-  "fingerprint": "d7e5505f3d9015098d0b3f6480f350cbf632439498e181c6b67e91bffd8a2e53",
+  "fingerprint": "8b56d9dd6a3b34c56ff0f6df58be91975f808c8f1509c909f0b2f59c61fbf0de",
   "node": {
-    "passed": 198,
+    "passed": 199,
     "failed": 0,
-    "command": "TMPDIR=/private/tmp npm run test:docs-automation"
+    "command": "TMPDIR=/private/tmp npm run test:docs-automation",
+    "log": "/private/tmp/cg-prose-node.log"
   },
   "browser": {
-    "passed": 50,
+    "passed": 52,
     "failed": 0,
     "axeScans": 21,
-    "reportSha256": "576791b1217777efebe4a492093f821280b368c009bc5ed03e8a503cd03e65a0",
-    "command": "TMPDIR=/private/tmp PLAYWRIGHT_JSON_OUTPUT_NAME=test-results/docs-phase5-browser.json npm run test:docs-browser -- --reporter=line,json"
+    "reportSha256": "7ad9e089b3a059cd4d054267179e9fa0b770d717e460cf5ae6a7894a0e3559ce",
+    "command": "TMPDIR=/private/tmp PLAYWRIGHT_JSON_OUTPUT_NAME=test-results/docs-prose-browser.json npm run test:docs-browser -- --reporter=line,json",
+    "log": "/private/tmp/cg-prose-browser.log"
   },
   "offline": {
     "passed": 549,
     "failed": 0,
     "source": "9bc8245d054362ed1b56c8cd33d4ae11a03ee5b8",
-    "log": "/private/tmp/cg-phase5-python-final.log"
+    "log": "/private/tmp/cg-phase5-python-final.log",
+    "qualification": "Historical full help suite; final prompt/generated changes verified by current 261-test focused suite and real native probes."
   },
   "renewedProbeStatic": {
-    "passed": 53,
+    "passed": 261,
     "failed": 0,
-    "command": "PYTHONPATH=scripts python3 -m pytest scripts/tests/test_kilo_coexistence.py -m 'not integration' -q"
+    "deselected": 2,
+    "log": "/private/tmp/cg-prose-static.log"
   },
   "native": {
-    "subjectCommit": "9e2ed0008c46a210e0381ab55b337009ea33a996",
+    "subjectCommit": "4358ca4f46881d1373109be6f712b02ed1bc72ee",
     "platform": "kilo",
     "version": "7.4.20",
     "os": "macOS",
@@ -41,16 +45,17 @@
       "metacharacters"
     ],
     "testCommand": "python3 -m pytest scripts/tests/test_kilo_coexistence.py -m integration -k certified_kilo_help_observed_flows -q",
-    "log": "/private/tmp/cg-phase5-kilo-renewal.log",
+    "log": "/private/tmp/cg-prose-native.log",
     "evidence": ".cg-docs/work-reports/2026-09-17-docs-help-support.json",
-    "verifierCommand": "python3 scripts/cg_verify_help_support.py --evidence .cg-docs/work-reports/2026-09-17-docs-help-support.json"
+    "verifierCommand": "python3 scripts/cg_verify_help_support.py --evidence .cg-docs/work-reports/2026-09-17-docs-help-support.json",
+    "seconds": 134.79
   },
   "pester": {
-    "gitSha": "9e2ed000",
-    "ranAt": "2026-09-17T17:34:13Z",
+    "gitSha": "5ef13ead",
+    "ranAt": "2026-09-17T19:12:29Z",
     "passed": true,
-    "totalCount": 3010,
-    "passedCount": 3007,
+    "totalCount": 3011,
+    "passedCount": 3008,
     "failedCount": 0,
     "skippedCount": 3,
     "failFast": false,
@@ -87,8 +92,8 @@
       },
       {
         "name": "prompt-tools",
-        "total": 1795,
-        "passed": 1795,
+        "total": 1796,
+        "passed": 1796,
         "failed": 0,
         "skipped": 0
       },
@@ -210,5 +215,18 @@
   "exceptions": [
     "Human screen-reader review and actual 200% zoom visual review explicitly deferred in Run18; no automated or host evidence waiver."
   ],
-  "qualification": "Three Windows-only Pester skips; macOS junction placeholders are not Windows junction proof. Controller remains disabled; no deployment."
+  "qualification": "Three Windows-only Pester skips; macOS junction placeholders are not Windows junction proof. Controller remains disabled; no deployment.",
+  "pesterSourceNote": "Runner began before checkpoint commit; tested dirty files already contained prompt/assertion changes now committed at 4358ca4f.",
+  "preparePreflight": {
+    "passed": true,
+    "commandsPassed": 9,
+    "nativePassed": 3383,
+    "nativeSkipped": 12,
+    "nativeDeselected": 3,
+    "controllerPassed": 1015,
+    "profileLauncherPassed": 18,
+    "profileLauncherSkipped": 2,
+    "log": "/private/tmp/cg-prose-prepare.log",
+    "command": "python3 scripts/cg_pr_preflight.py --phase prepare --base origin/dev --run-native-target --format json"
+  }
 }
