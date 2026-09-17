@@ -55,7 +55,7 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     modes.add_argument("--bootstrap-docs-markers", action="store_true", help="Explicitly migrate recognized legacy documentation tables.")
     modes.add_argument("--write-docs", action="store_true", help="Write catalog-owned documentation sections.")
     modes.add_argument("--check-docs", action="store_true", help="Check catalog-owned documentation without writing.")
-    modes.add_argument("--stdout-docs", action="store_true", help="Emit independently expected document strings as JSON.")
+    modes.add_argument("--stdout-docs", action="store_true", help="Emit expected documents and their validated catalog snapshot as JSON.")
     modes.add_argument(
         "--preview-definition-digest",
         metavar="QUALIFIED_ID",
@@ -124,7 +124,7 @@ def main(
                 documentation.check_documents(root)
                 result = {"status": "current"}
             else:
-                result = documentation.expected_documents(root)
+                result = documentation.expected_bundle(root)
             _write(output_stream, _json_bytes(result))
         elif arguments.stdout:
             _write(output_stream, catalog.generate_catalog_bytes(root))

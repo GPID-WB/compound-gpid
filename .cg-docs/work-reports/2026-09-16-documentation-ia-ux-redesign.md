@@ -2519,3 +2519,76 @@ native fixture's message argv: the fixed single-space sentence is passed as
 separate words, keeping punctuation inert in subprocess arguments. No query
 fingerprint, operation, shell-command or deterministic-output assertion changes.
 All three cases will run against the new committed subject before certification.
+
+Renewal 1/1 passed on `9e2ed0008c46a210e0381ab55b337009ea33a996`:
+one native integration test exercised and passed all three flows in 148.40
+seconds. The exact query fingerprints, fixed shell operations and unchanged
+final Markdown all passed. Its authentic fragment was combined with Git-object
+bindings into `2026-09-17-docs-help-support.json`; the unmodified strict support
+verifier accepts it against the current tree. No runtime success is asserted
+for Claude Code, Codex, Copilot or OpenCode. Verified scope is macOS, Kilo
+7.4.20 and the process-only openai/gpt-5.6-terra/high configuration.
+
+## Run 25: All Five Implementation Phases Verified
+
+Phase 5 guidance distinguishes browser discovery from native help, documents
+only the tested overview/exact examples and names the exact runtime scope and
+source commit. The continuing docs suite validates those claims against the
+actual verifier, and rejects a renamed help evidence anchor even when the
+catalog digest itself is unchanged.
+
+Final checks: 198 Node tests, 50 browser tests including 21 axe scans, catalog
+and documentation freshness, site validation and repeat-build checks all pass.
+The preceding stable-source offline suite passed 549 tests; the only subsequent
+help change was the approved native fixture argv repair, whose 53 offline tests
+and real three-case host probe pass. The dedicated executor ran the canonical
+unfiltered Pester gate at 2026-09-17T17:34:13Z: 3,010 total, 3,007 passed,
+zero failed and three Windows-only skips; filteredFiles null, failFast false,
+no cleanup issues. MacOS junction placeholders are not Windows proof.
+`2026-09-17-docs-phase5-evidence.json` binds the tested docs working tree with
+fingerprint version 3 and records commands, counts, host evidence and exceptions.
+
+V1-V9 and C1-C7 are satisfied by the phase evidence and final affected checks.
+The sole accepted evidence exception remains Run 18's human screen-reader and
+actual 200% zoom visual review deferral. No new waiver or missing automated test
+is accepted. Controller rollout remains an external publication prerequisite;
+the publisher is disabled and no deployment is authorized or attempted.
+
+All five implementation phases are complete. The authorized final full review,
+verify review, triage, compounding, dev PR and CI verification pipeline is in
+progress. Implementation completion does not assert that this final pipeline
+or publication is complete.
+
+## Run 26: Full Review Corrections and Broader Preflight
+
+The full review found P2.1 retained-page controls, P2.2 input request bursts and
+repeated tokenization, and P2.3 split catalog snapshots. The independent code
+reviewer supplied quality/performance/architecture results; a separate trust
+worker was blocked by the service filter and was not retried. The main agent
+completed those remaining roles locally; this limitation is in the review.
+
+P2.1 and P2.2 new browser regressions failed with zero retained command cards
+instead of 57 and seven metadata requests instead of one. They pass after
+preserving the existing verified DOM and restoring controls, debouncing text
+input, coalescing concurrent identity checks and caching prepared ranking fields.
+Cached data still requires a fresh identity check before display. P2.3's new
+Node regression failed when facts were mutated after strict validation; it now
+passes because the Python writer emits one validated catalog/documents envelope.
+Its catalog bytes come from the strict expected output and are compared to one
+secure read; neither Python nor Node reopens facts after validation.
+
+The publication preflight required uv0.11.3 rather than the machine's0.9.2;
+the pinned version was installed in `/private/tmp/cg-docs-preflight-tools`.
+Its broader native test selection then found four stale assertions (P2.4).
+They now require isolated producer-input generation and explicit paired
+verification, and allow retired names only in the indexed migration section.
+A negative case still rejects those names in an active command row. All35
+targeted Python cases pass. No production requirement or expected runtime query
+was weakened. The P3 sequential multi-file-write observation remains advisory;
+freshness checks continue to reject partial output.
+
+The implementation status is active during final revalidation. The native help
+runtime logic is unchanged, but the documentation writer belongs to its bound
+source inventory, so the authentic host evidence must be retaken on the new
+commit. This is source-freshness validation after separately authorized review
+fixes; the previously approved native argv renewal passed and is not reset.

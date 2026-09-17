@@ -8,10 +8,9 @@ const data = require("./docs-source.js");
 /** Independently validate canonical help and compute docs/index output without writing. */
 function prepareHelp(root) {
   const python = process.platform === "win32" ? "python" : "python3";
-  const documents = JSON.parse(execFileSync(python,
+  const { documents, catalog } = JSON.parse(execFileSync(python,
     [path.join(__dirname, "cg_generate_help_catalog.py"), "--root", root, "--stdout-docs"],
     { encoding: "utf8", timeout: 60000, maxBuffer: 8388608 }));
-  const catalog = JSON.parse(fs.readFileSync(data.unlinked(path.join(root, ".github/shared/help-catalog.json"))));
   const routes = JSON.parse(fs.readFileSync(data.unlinked(path.join(root, "docs/reference/command-routes.json"))));
   const manifest = JSON.parse(fs.readFileSync(path.join(root, "docs/navigation.json")));
   const pages = contract.validateManifest(manifest), registered = new Map(pages.map(p => [p.id, p]));

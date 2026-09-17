@@ -8,7 +8,7 @@
   const pathPattern = /^(?:\.nojekyll|[A-Za-z0-9_-][A-Za-z0-9_./-]*)$/;
   const safePath = value => typeof value === "string" && pathPattern.test(value) && value.split("/").every(p => p && p !== "." && p !== "..");
   const fail = message => { const error = Error(message); error.buildChanged = true; throw error; };
-  let metadata, active, channelName, base, local, locked = false, ready = false;
+  let metadata, active, channelName, base, local, checking, locked = false, ready = false;
 
   /** Validate bounded channel identities and digests before using any data or destination. */
   function validate(value) {
@@ -87,9 +87,11 @@
   /** Cached search/data may be reused only while their original channel identity remains current. */
   async function assertCurrent() {
     if (local) return;
-    try {
-      if (!active || locked || JSON.stringify(await readJson(new URL("channels.json", base))) !== JSON.stringify(metadata)) fail("Channel manifest changed");
-    } catch (error) { throw changed(error); }
+    if (!active || locked) throw changed(Error("Channel manifest changed"));
+    checking ||= readJson(new URL("channels.json", base)).then(value => {
+      if (JSON.stringify(value) !== JSON.stringify(metadata)) fail("Channel manifest changed");
+    }).catch(error => { throw changed(error); }).finally(() => { checking = null; });
+    return checking;
   }
 
   function label() {

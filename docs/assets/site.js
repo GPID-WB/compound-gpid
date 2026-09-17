@@ -132,6 +132,18 @@ async function loadManifest() {
   DocsSearch.init(manifest, document.querySelector("[data-build-identity]").textContent);
 }
 
+function mountDocument(config, parsed, retainedNodes = null) {
+  if (retainedNodes) documentView.replaceChildren(...retainedNodes);
+  else documentView.innerHTML = renderBlocks(parsed.blocks);
+  DocsReading.mount(config, pages);
+  if (!retainedNodes) { DocsTools.mount(documentView); DocsCommands.mount(documentView, config); }
+  const sourceLink = document.querySelector("[data-document-source]");
+  sourceLink.href = verifiedSource ? DocsTools.repositoryUrl(config.file.split("/").at(-1), config.file, verifiedSource.sha) : config.file;
+  sourceLink.textContent = verifiedSource ? "View source at this revision" : "Raw Markdown (unverified build)"; sourceLink.hidden = false;
+  const issue = document.querySelector("[data-page-issue]"); issue.hidden = !verifiedSource;
+  if (verifiedSource) issue.href = DocsTools.issueUrl(config.id, verifiedSource.channel, verifiedSource.sha);
+}
+
 async function renderRoute() {
   const raw = getRoute();
   if (location.hash === "#content") {
@@ -139,7 +151,7 @@ async function renderRoute() {
     document.querySelector("#content").focus({ preventScroll: true }); return;
   }
   const { page, section } = DocsContract.resolveRoute(pages, raw.page, raw.section);
-  const retained = { page: activePage, document: activeDocument };
+  const retained = { page: activePage, document: activeDocument, nodes: [...documentView.childNodes] };
   lastDocumentRoute = location.hash || "#home";
   const request = ++navigationRequest;
   DocsReading.updateNavigation(page, pages);
@@ -178,24 +190,16 @@ async function renderRoute() {
     const markdown = await DocsIdentity.read(config.file);
     if (request !== navigationRequest) return;
     const parsed = DocsContract.parseDocument(markdown); activeDocument = parsed;
-    documentView.innerHTML = renderBlocks(parsed.blocks);
-    DocsReading.mount(config, pages);
-    DocsTools.mount(documentView);
-    DocsCommands.mount(documentView, config);
-    const sourceLink = document.querySelector("[data-document-source]");
-    sourceLink.href = verifiedSource ? DocsTools.repositoryUrl(config.file.split("/").at(-1), config.file, verifiedSource.sha) : config.file;
-    sourceLink.textContent = verifiedSource ? "View source at this revision" : "Raw Markdown (unverified build)"; sourceLink.hidden = false;
-    const issue = document.querySelector("[data-page-issue]"); issue.hidden = !verifiedSource;
-    if (verifiedSource) issue.href = DocsTools.issueUrl(config.id, verifiedSource.channel, verifiedSource.sha);
+    mountDocument(config, parsed);
     DocsReading.move(section, parsed, config, focusSection);
     if (!focusSection) document.querySelector("#content").focus({ preventScroll: true });
   } catch (error) {
     if (request !== navigationRequest) return;
     if (error.buildChanged && retained.document) {
-      activePage = retained.page; activeDocument = retained.document; documentView.innerHTML = renderBlocks(activeDocument.blocks);
+      activePage = retained.page; activeDocument = retained.document;
       document.title = `${pageMap.get(activePage).title} | Compound GPID`;
       DocsReading.updateNavigation(activePage, pages);
-      DocsReading.mount(pageMap.get(activePage), pages); DocsTools.mount(documentView);
+      mountDocument(pageMap.get(activePage), activeDocument, retained.nodes);
       return;
     }
     activeDocument = null; DocsReading.clear();

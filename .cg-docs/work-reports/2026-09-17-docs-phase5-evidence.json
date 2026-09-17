@@ -1,0 +1,214 @@
+{
+  "phase": 5,
+  "workingTreeBase": "9e2ed0008c46a210e0381ab55b337009ea33a996",
+  "workingTreeNote": "Help implementation at native subject; docs/help/index.md and derived search index added before all final docs and Pester checks.",
+  "fingerprintVersion": 3,
+  "fingerprint": "d7e5505f3d9015098d0b3f6480f350cbf632439498e181c6b67e91bffd8a2e53",
+  "node": {
+    "passed": 198,
+    "failed": 0,
+    "command": "TMPDIR=/private/tmp npm run test:docs-automation"
+  },
+  "browser": {
+    "passed": 50,
+    "failed": 0,
+    "axeScans": 21,
+    "reportSha256": "576791b1217777efebe4a492093f821280b368c009bc5ed03e8a503cd03e65a0",
+    "command": "TMPDIR=/private/tmp PLAYWRIGHT_JSON_OUTPUT_NAME=test-results/docs-phase5-browser.json npm run test:docs-browser -- --reporter=line,json"
+  },
+  "offline": {
+    "passed": 549,
+    "failed": 0,
+    "source": "9bc8245d054362ed1b56c8cd33d4ae11a03ee5b8",
+    "log": "/private/tmp/cg-phase5-python-final.log"
+  },
+  "renewedProbeStatic": {
+    "passed": 53,
+    "failed": 0,
+    "command": "PYTHONPATH=scripts python3 -m pytest scripts/tests/test_kilo_coexistence.py -m 'not integration' -q"
+  },
+  "native": {
+    "subjectCommit": "9e2ed0008c46a210e0381ab55b337009ea33a996",
+    "platform": "kilo",
+    "version": "7.4.20",
+    "os": "macOS",
+    "model": "openai/gpt-5.6-terra",
+    "reasoningEffort": "high",
+    "configurationScope": "process-only KILO_CONFIG_CONTENT",
+    "passedCases": [
+      "overview",
+      "exact",
+      "metacharacters"
+    ],
+    "testCommand": "python3 -m pytest scripts/tests/test_kilo_coexistence.py -m integration -k certified_kilo_help_observed_flows -q",
+    "log": "/private/tmp/cg-phase5-kilo-renewal.log",
+    "evidence": ".cg-docs/work-reports/2026-09-17-docs-help-support.json",
+    "verifierCommand": "python3 scripts/cg_verify_help_support.py --evidence .cg-docs/work-reports/2026-09-17-docs-help-support.json"
+  },
+  "pester": {
+    "gitSha": "9e2ed000",
+    "ranAt": "2026-09-17T17:34:13Z",
+    "passed": true,
+    "totalCount": 3010,
+    "passedCount": 3007,
+    "failedCount": 0,
+    "skippedCount": 3,
+    "failFast": false,
+    "filteredFiles": null,
+    "skipped": [],
+    "files": [
+      {
+        "name": "charter",
+        "total": 19,
+        "passed": 19,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "local-config",
+        "total": 3,
+        "passed": 3,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "helpers",
+        "total": 38,
+        "passed": 38,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "roadmap",
+        "total": 100,
+        "passed": 100,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "prompt-tools",
+        "total": 1795,
+        "passed": 1795,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "model-assignments",
+        "total": 221,
+        "passed": 221,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "pester-safety",
+        "total": 84,
+        "passed": 84,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "ps51-compat",
+        "total": 18,
+        "passed": 18,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "create-release",
+        "total": 120,
+        "passed": 120,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "bash-scripts",
+        "total": 142,
+        "passed": 142,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "install",
+        "total": 1,
+        "passed": 0,
+        "failed": 0,
+        "skipped": 1
+      },
+      {
+        "name": "cg-index",
+        "total": 70,
+        "passed": 70,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "run-tests-runner",
+        "total": 40,
+        "passed": 40,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "update",
+        "total": 145,
+        "passed": 143,
+        "failed": 0,
+        "skipped": 2
+      },
+      {
+        "name": "release-version-readers",
+        "total": 9,
+        "passed": 9,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "docs-automation",
+        "total": 24,
+        "passed": 24,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "docs-preview",
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "wiki",
+        "total": 126,
+        "passed": 126,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "parity",
+        "total": 43,
+        "passed": 43,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "link",
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "unlink",
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0
+      }
+    ],
+    "failures": []
+  },
+  "exceptions": [
+    "Human screen-reader review and actual 200% zoom visual review explicitly deferred in Run18; no automated or host evidence waiver."
+  ],
+  "qualification": "Three Windows-only Pester skips; macOS junction placeholders are not Windows junction proof. Controller remains disabled; no deployment."
+}

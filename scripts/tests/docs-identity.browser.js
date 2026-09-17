@@ -51,6 +51,37 @@ module.exports = function identityCases() {
       await expect(page.locator("[data-build-identity]")).toHaveText(channel ? "Published: main@11111111" : "Development: dev@22222222");
     });
 
+    test("deployment drift retains the complete verified command page", async ({ page }) => {
+      await page.goto(`${origin}/paired/compound-gpid/#page=commands`);
+      await expect(page.locator(".command-card")).toHaveCount(57);
+      const source = await page.locator("[data-document-source]").getAttribute("href");
+      await page.route("**/channels.json", route => route.fulfill({ status: 503, body: "changed" }));
+      await page.evaluate(() => { location.hash = "page=modular-guide"; });
+      await expect(page.locator("[data-build-notice]")).toBeVisible();
+      await expect(page.locator(".command-card")).toHaveCount(57);
+      await expect(page.locator("[data-document-source]")).toBeVisible();
+      await expect(page.locator("[data-document-source]")).toHaveAttribute("href", source);
+      await expect(page.locator("[data-page-issue]")).toBeVisible();
+    });
+
+    test("typing bursts perform one fresh identity check per settled query", async ({ page }) => {
+      await page.goto(`${origin}/paired/compound-gpid/#page=commands`);
+      await expect(page.locator(".command-card")).toHaveCount(57);
+      let requests = 0;
+      await page.route("**/channels.json", route => { requests++; return route.continue(); });
+      await page.locator('[data-command-filter="query"]').pressSequentially("cg-help", { delay: 15 });
+      await expect(page.locator(".command-card")).toHaveCount(2);
+      expect(requests).toBe(1);
+      await page.getByRole("button", { name: "Search documentation", exact: true }).click();
+      await page.locator("[data-search-input]").fill("module");
+      await expect(page.locator(".search-result").first()).toBeVisible();
+      requests = 0;
+      await page.locator("[data-search-input]").fill("");
+      await page.locator("[data-search-input]").pressSequentially("survey", { delay: 15 });
+      await expect(page.locator(".search-result").first()).toBeVisible();
+      expect(requests).toBe(1);
+    });
+
     for (const failure of ["metadata", "identity", "html", "script", "css", "helper"]) test(`rejects ${failure} integrity failure without a verified label`, async ({ page }) => {
       if (failure === "metadata") await page.route("**/channels.json", route => route.fulfill({ status: 503, body: "unavailable" }));
       if (failure === "identity") await page.route("**/channels.json", async route => {

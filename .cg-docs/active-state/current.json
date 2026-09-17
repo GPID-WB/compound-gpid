@@ -1,7 +1,7 @@
 {
   "schemaVersion": "compound-gpid-active-state-v1",
-  "updatedAt": "2026-09-17T17:25:00Z",
-  "workflow": "/cg-work",
+  "updatedAt": "2026-09-17T17:36:00Z",
+  "workflow": "/cg-review",
   "status": "active",
   "branch": "improve-website-design",
   "plan": ".cg-docs/plans/2026-09-16-documentation-ia-ux-redesign.md",
@@ -90,8 +90,8 @@
     },
     {
       "id": "V8-V9",
-      "status": "phase5-step7-failed-native-metacharacters-probe-repair2of2-renewal-requested",
-      "artifact": ".cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign.md"
+      "status": "passed-phase5-source-bound-Kilo-198node-50browser-3007fullpester",
+      "artifact": ".cg-docs/work-reports/2026-09-17-docs-phase5-evidence.json"
     }
   ],
   "unresolvedDecisions": [],
@@ -99,12 +99,12 @@
     {
       "kind": "temporary-handoff",
       "path": "HANDOFF.md",
-      "status": "run21-gateA-and-gateB-passed-gateC-pending"
+      "status": "all-five-phases-verified-final-review-active"
     },
     {
       "kind": "execution-report",
       "path": ".cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign.md",
-      "status": "run21-gateA-and-gateB-passed-gateC-pending"
+      "status": "all-five-phases-verified-final-review-active"
     },
     {
       "kind": "browser-tests",
@@ -127,5 +127,5 @@
       "status": "historical-unrelated-workflow"
     }
   ],
-  "nextCommand": "/cg-work phase5 review:auto .cg-docs/plans/2026-09-16-documentation-ia-ux-redesign.md"
+  "nextCommand": "/cg-review mode:verify"
 }

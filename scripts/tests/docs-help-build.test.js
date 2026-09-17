@@ -3,6 +3,22 @@ const test = require("node:test"), assert = require("node:assert/strict"), fs = 
 const { prepareHelp } = require("../docs-help-build.js");
 const { modernSource } = require("./docs-publishing-fixture.js");
 
+test("documents and browser facts use the same validated catalog snapshot", t => {
+  const root = modernSource(); t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const file = path.join(root, ".github/shared/help-catalog.json"), original = JSON.parse(fs.readFileSync(file));
+  const cp = require("node:child_process"), execute = cp.execFileSync;
+  cp.execFileSync = (...args) => {
+    const result = execute(...args), changed = structuredClone(original);
+    changed.commands[0].summary = "MUTATED AFTER VALIDATION"; fs.writeFileSync(file, JSON.stringify(changed));
+    return result;
+  };
+  const modulePath = require.resolve("../docs-help-build.js"); delete require.cache[modulePath];
+  try {
+    const result = require(modulePath).prepareHelp(root);
+    assert.equal(result.projection.commands[0].summary, original.commands[0].summary);
+  } finally { cp.execFileSync = execute; delete require.cache[modulePath]; }
+});
+
 test("complete catalog projection preserves kind IDs, shared eligibility and repeated workflow steps", () => {
   const build = prepareHelp(path.resolve(__dirname, "../.."));
   const catalog = require("../../.github/shared/help-catalog.json");

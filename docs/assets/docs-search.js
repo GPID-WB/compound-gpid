@@ -10,6 +10,7 @@
   const normalize = value => value.normalize("NFC").toLowerCase().replace(/\s+/g, " ").trim();
   // Keep the leading slash: chat prompts and same-name shell commands are distinct.
   const tokens = value => normalize(value).match(/\/?[\p{L}\p{N}\p{M}_]+(?:-[\p{L}\p{N}\p{M}_]+)*/gu) || [];
+  const rankingCache = new WeakMap();
 
   /** Validate a complete projection against navigation before caching it; returns the index.
    * Example: validateIndex(JSON.parse(responseText), manifest).
@@ -46,10 +47,13 @@
     const terms = [...new Set(tokens(query))], phrase = normalize(query);
     if (!terms.length) return [];
     const scored = [];
-    index.entries.forEach((entry, position) => {
+    if (!rankingCache.has(index)) rankingCache.set(index, index.entries.map(entry => {
       const title = normalize(entry.title), heading = normalize(entry.heading), body = normalize(entry.text);
       const titleTokens = tokens(title), headingTokens = tokens(heading), bodyTokens = tokens(body);
       const all = new Set([...titleTokens, ...headingTokens, ...bodyTokens]);
+      return { entry, title, heading, body, titleTokens, headingTokens, all };
+    }));
+    rankingCache.get(index).forEach(({ entry, title, heading, titleTokens, headingTokens, all }, position) => {
       if (!terms.every(term => all.has(term))) return;
       const score = heading === phrase ? 100 : title === phrase ? (entry.section === null ? 95 : 90)
         : terms.every(term => headingTokens.includes(term)) ? 80
@@ -75,7 +79,7 @@
   function init(manifest, channelLabel) {
     const dialog = document.querySelector("[data-search-dialog]"), input = document.querySelector("[data-search-input]");
     const container = document.querySelector("[data-search-results]");
-    let pending, request = 0, selected = -1, opener;
+    let pending, timer, request = 0, selected = -1, opener;
     function message(value, role = "status") {
       const node = document.createElement("p"); node.className = "search-hint";
       node.setAttribute("role", role); node.textContent = value; container.replaceChildren(node);
@@ -85,8 +89,8 @@
       if (!query.trim()) { message("Try install, survey, review, or cg-update."); return; }
       message("Searching documentation...");
       try {
-        await DocsIdentity.assertCurrent();
-        if (!pending) pending = DocsIdentity.read("assets/search-index.json").then(text => {
+        if (pending) await DocsIdentity.assertCurrent();
+        else pending = DocsIdentity.read("assets/search-index.json").then(text => {
           return validateIndex(JSON.parse(text), manifest);
         }).catch(error => { pending = null; throw error; });
         const index = await pending;
@@ -116,7 +120,11 @@
       if (!dialog.open) { opener = document.activeElement; dialog.showModal(); perform(input.value); }
       input.focus();
     };
-    input.addEventListener("input", () => perform(input.value));
+    input.addEventListener("input", () => {
+      request++; clearTimeout(timer);
+      if (!input.value.trim()) { selected = -1; message("Try install, survey, review, or cg-update."); return; }
+      timer = setTimeout(() => perform(input.value), 150);
+    });
     container.addEventListener("click", event => { if (event.target.closest(".search-result")) dialog.close(); });
     container.addEventListener("focusin", event => {
       const link = event.target.closest(".search-result"); if (!link) return;
@@ -127,7 +135,7 @@
     dialog.addEventListener("close", () => {
       // Native close events are queued; an old event must not cancel a reopen.
       if (dialog.open) return;
-      request += 1; opener?.focus();
+      request += 1; clearTimeout(timer); opener?.focus();
     });
     document.addEventListener("keydown", event => {
       if ((event.ctrlKey || event.metaKey) && !event.altKey && event.key.toLowerCase() === "k") { event.preventDefault(); openDialog(); }

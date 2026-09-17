@@ -176,6 +176,16 @@ def test_old_names_remain_only_in_explicit_migration_text() -> None:
         content = path.read_text(encoding="utf-8", errors="strict")
         for old_name in OLD_NAMES:
             if old_name in content:
+                if relative == "docs/assets/search-index.json":
+                    index = json.loads(content)
+                    assert old_name not in json.dumps({k: v for k, v in index.items() if k != "entries"})
+                    for entry in index["entries"]:
+                        if old_name in json.dumps(entry):
+                            assert (entry["page"], entry["section"], entry["kind"]) == (
+                                "skill-management", "migrate-existing-workflows", "section"
+                            ), (old_name, relative, "outside indexed migration section")
+                            assert old_name not in json.dumps({k: v for k, v in entry.items() if k != "text"})
+                    continue
                 if relative == "docs/skills/management/index.md":
                     before, marker, after = content.partition(
                         "\n## Migrate Existing Workflows\n"
@@ -189,6 +199,24 @@ def test_old_names_remain_only_in_explicit_migration_text() -> None:
     for old_name, paths in occurrences.items():
         assert set(paths) <= MIGRATION_REFERENCES, (old_name, paths)
         assert "docs/skills/management/index.md" in paths
+
+
+def test_search_index_cannot_present_retired_commands_outside_migration(tmp_path, monkeypatch):
+    """The derived migration row is allowed; an active-command row is not."""
+    guide = tmp_path / "docs/skills/management/index.md"
+    guide.parent.mkdir(parents=True)
+    guide.write_text("# Skills\n\n## Migrate Existing Workflows\n" + " ".join(OLD_NAMES))
+    index = tmp_path / "docs/assets/search-index.json"
+    index.parent.mkdir(parents=True)
+    entry = {"page": "skill-management", "section": "migrate-existing-workflows", "kind": "section", "text": " ".join(OLD_NAMES)}
+    index.write_text(json.dumps({"entries": [entry]}))
+    monkeypatch.setitem(globals(), "REPO_ROOT", tmp_path)
+    monkeypatch.setitem(globals(), "_active_text_files", lambda root: (guide, index))
+    test_old_names_remain_only_in_explicit_migration_text()
+    entry["page"] = "commands"
+    index.write_text(json.dumps({"entries": [entry]}))
+    with pytest.raises(AssertionError, match="outside indexed migration section"):
+        test_old_names_remain_only_in_explicit_migration_text()
 
 
 @pytest.mark.parametrize("old_name", OLD_NAMES)

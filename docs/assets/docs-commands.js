@@ -117,15 +117,14 @@
     const retry = node("button", "Retry command catalog"); retry.type = "button"; retry.hidden = true;
     const results = node("div"); results.dataset.commandResults = "";
     panel.append(filters, status, retry, results); documentView.querySelector("h1").after(panel);
-    let revision = 0;
+    let revision = 0, timer;
     async function render() {
       const request = ++revision; retry.hidden = true;
       try {
-        await DocsIdentity.assertCurrent();
         if (!cached) {
           pending ||= DocsIdentity.read("assets/command-index.json").then(JSON.parse).then(validate).then(value => (cached = value)).finally(() => { pending = null; });
           await pending;
-        }
+        } else await DocsIdentity.assertCurrent();
         if (request !== revision || !panel.isConnected) return;
         const rows = select(cached, suite.value, kind.value, query.value);
         results.replaceChildren(...rows.map(row => card(row, cached)));
@@ -137,7 +136,11 @@
         retry.hidden = !!error.buildChanged;
       }
     }
-    filters.addEventListener("input", render); filters.addEventListener("change", render); retry.addEventListener("click", render); render();
+    query.addEventListener("input", () => {
+      revision++; clearTimeout(timer); timer = setTimeout(render, 150);
+    });
+    for (const select of [suite, kind]) select.addEventListener("change", () => { clearTimeout(timer); render(); });
+    retry.addEventListener("click", render); render();
   }
   return { validate, select, mount };
 });

@@ -146,9 +146,24 @@ def expected_documents(root: Path) -> Dict[str, str]:
     Raises: ValueError for stale catalog, missing or malformed markers.
     Example: expected_documents(Path('.')) is a no-write build operation.
     """
+    return expected_bundle(root)["documents"]
+
+
+def expected_bundle(root: Path) -> dict:
+    """Return documents and their single validated catalog snapshot.
+
+    Args: root: Canonical repository root.
+    Returns: A catalog/documents envelope for the protected website builder.
+    Raises: ValueError for stale sources, catalog or documentation ownership.
+    Example: expected_bundle(Path('.'))['catalog'] supplies browser facts.
+    """
     _validate_ownership(root)
-    catalog.check_catalog(root)
-    value = catalog.load_strict_json(root / catalog.CATALOG_OUTPUT_PATH)
+    expected = catalog.generate_catalog_bytes(root)
+    observed = secure_fs.secure_read_bytes(root, catalog.CATALOG_OUTPUT_PATH,
+                                          reject_hardlinks=True, max_bytes=catalog.MAX_JSON_BYTES)
+    if observed != expected:
+        raise catalog.HelpCatalogStaleError("help catalog is stale or unexpected")
+    value = catalog.load_strict_json_bytes(expected, source="validated catalog snapshot")
     outputs = {}
     for name in TARGETS:
         text = _read(root, name)
@@ -159,7 +174,7 @@ def expected_documents(root: Path) -> Dict[str, str]:
             _, start, end, _ = markers[key]
             text = text[:start] + render_table(value, key) + text[end:]
         outputs[name] = text
-    return outputs
+    return {"catalog": value, "documents": outputs}
 
 
 def _validate_ownership(root: Path) -> None:
