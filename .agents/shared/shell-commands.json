@@ -19,7 +19,7 @@
       "relatedCommands": [{"id": "slash:cg-autopilot", "relation": "related"}],
       "sourcePath": "bin/cg-autopilot-control",
       "definitionSources": ["bin/cg-autopilot-control", "bin/cg-autopilot-control.cmd", "install.ps1", "scripts/cg_autopilot.py", "scripts/install.sh"],
-      "definitionDigest": "55f1cf462afd019527c63b1ed8a3e44cef460274e08320345c4ec9e1c66a3607",
+      "definitionDigest": "fe49cd33277caaa496d59c8fb68a52109df1ad1a1c3aedca45e88f11eae11d6b",
       "documentationTargets": [],
       "supportedPlatforms": ["kilo"],
       "supportedOS": ["posix", "windows"],

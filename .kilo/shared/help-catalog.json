@@ -29,7 +29,7 @@
         "--resume is mutually exclusive with --plan, --batches and --base.",
         "Inspection does not enable production autopilot execution."
       ],
-      "definitionDigest": "55f1cf462afd019527c63b1ed8a3e44cef460274e08320345c4ec9e1c66a3607",
+      "definitionDigest": "fe49cd33277caaa496d59c8fb68a52109df1ad1a1c3aedca45e88f11eae11d6b",
       "definitionSources": [
         "bin/cg-autopilot-control",
         "bin/cg-autopilot-control.cmd",
@@ -3887,7 +3887,7 @@
   ],
   "generatorVersion": "1.0.0",
   "schemaVersion": 1,
-  "sourceDigest": "394bef1faff544d95fa304f4555a5b060f6483fc7623d58d3f1522f5763eff43",
+  "sourceDigest": "1c38dd0afd0e78025a4b8518b3533872282017d6a0bd4b1e8c33ad3a5493bc47",
   "suites": [
     {
       "activation": {
