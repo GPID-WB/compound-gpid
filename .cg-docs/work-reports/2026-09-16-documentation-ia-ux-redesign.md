@@ -2451,3 +2451,26 @@ The real subject inventory now binds 334 paths instead of raising KeyError.
 This is a verifier repair checkpoint, not phase 5 completion or native help
 certification. The next operation runs the existing exact-subject Kilo probes
 in a detached worktree with the observed host version/hash explicitly pinned.
+
+## Run 23: Native Help Probe Repairs
+
+Kilo 7.4.20 passed containment with the pinned launcher SHA-256
+`2dd7a1ec0a5a56fc925f30c3a107a0e52dce6c6b18216a86a3ebaffe1643d594`.
+The default provider had no tool-capable endpoint; the historical gpt-5.4 model
+was unsupported by the available ChatGPT authentication. A process-only
+`KILO_CONFIG_CONTENT` selected the locally listed `openai/gpt-5.6-terra` with
+high reasoning effort. Global provider and privacy settings were unchanged.
+
+The first executed flow used the inherited parent PWD despite subprocess cwd,
+then failed projection validation. Repair 1/2 sets fixture PWD, drops OLDPWD,
+and asserts the observer's exact isolated root before any backend call. The
+rerun on 3b9d913a passed overview, but exact lookup received an empty query.
+Read-only inspection of that probe's own host event records confirmed the
+expanded argument block contained `/cg-help`; the model wrote empty content.
+
+Repair 2/2 clarifies the generated-block adapter contract: the host already
+removed the invocation, so the entire argument block, including leading slash
+and punctuation, must be copied unchanged. Empty lookup is valid only for an
+empty block. The same strict three-case native probe must pass on the new
+committed subject before any verified runtime claim. No receipt or assertion
+is relaxed. Phase 5 and Gate C remain incomplete at this repair checkpoint.

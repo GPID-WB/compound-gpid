@@ -315,7 +315,7 @@
       "path": ".kilo/commands/cg-help.md",
       "source": ".github/prompts/cg-help.prompt.md",
       "kind": "command",
-      "sha256": "ced278afdf7d542a2ee10225c8830297a6dbf24a6a30be46905e2d9bdd3a3d70",
+      "sha256": "8fdac9beda11b7f143e8aeffcdc3c93c3b75571287670713e34dd573f781753b",
       "executable": false
     },
     {

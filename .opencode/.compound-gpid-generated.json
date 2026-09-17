@@ -315,7 +315,7 @@
       "path": ".opencode/commands/cg-help.md",
       "source": ".github/prompts/cg-help.prompt.md",
       "kind": "command",
-      "sha256": "dd68efb8b4553112cdb8421be6d1023fede476effdb9ef63f87725b948486db5",
+      "sha256": "35d830a1b2bca97b5ca8d48dc1af253f10c851fd4856cdf509bd7ae141ae9428",
       "executable": false
     },
     {
