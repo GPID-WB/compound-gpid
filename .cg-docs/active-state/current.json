@@ -1,6 +1,6 @@
 {
   "schemaVersion": "compound-gpid-active-state-v1",
-  "updatedAt": "2026-09-17T16:56:30Z",
+  "updatedAt": "2026-09-17T17:25:00Z",
   "workflow": "/cg-work",
   "status": "active",
   "branch": "improve-website-design",
@@ -90,7 +90,7 @@
     },
     {
       "id": "V8-V9",
-      "status": "pending-prior-gate",
+      "status": "phase5-step7-failed-native-metacharacters-probe-repair2of2-renewal-requested",
       "artifact": ".cg-docs/work-reports/2026-09-16-documentation-ia-ux-redesign.md"
     }
   ],

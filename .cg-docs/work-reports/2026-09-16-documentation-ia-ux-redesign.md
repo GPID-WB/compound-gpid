@@ -2474,3 +2474,40 @@ and punctuation, must be copied unchanged. Empty lookup is valid only for an
 empty block. The same strict three-case native probe must pass on the new
 committed subject before any verified runtime claim. No receipt or assertion
 is relaxed. Phase 5 and Gate C remain incomplete at this repair checkpoint.
+
+The repair 2/2 rerun on `9bc8245d054362ed1b56c8cd33d4ae11a03ee5b8`
+passed overview and exact flow validation. Metacharacter backend operations
+completed, but its received fingerprint failed the unchanged exact-byte check:
+expected `bf83364c92b69441de418d0574c1264bfeed2d37df577eaa1a871a8b3e08a60f`,
+observed `29db4b23b3c6129a81c5f1ab9ed5d45ba2f9e3d1ba944568335246fdca6db4be`.
+The probe's own expanded invocation contained outer quotation marks and escaped
+inner quotes that were absent from the original public fixture. Its write tool
+then escaped the inner quotes again. No passing fragment or combined support
+artifact was emitted. The probe log is
+`/private/tmp/cg-phase5-kilo-probes-arguments.log` (1 failed, 54 deselected,
+146.45 seconds). Exact-subject inspection is limited to these test sessions.
+
+Step 7 is recorded failing. The concrete proposed additional repair is confined
+to native test invocation: pass this fixed, single-space fixture as separate
+message arguments, preserving shell metacharacters as argv data, rather than
+letting the CLI quote a whole sentence. Keep the received fingerprint and final
+output assertions unchanged; rerun all three cases on the new committed subject.
+A one-attempt renewal was requested under the workflow's exhausted repair limit.
+Until approved and verified, Gate C, phase 5, final review and publication remain
+pending. The current docs generator and site checks pass; no runtime support
+claim has been published.
+
+Final stable-source offline verification: 549 passed, two integration cases
+deselected in 244.97 seconds (`/private/tmp/cg-phase5-python-final.log`), covering
+test_help_catalog, test_help_query, test_cg_help, test_help_support,
+test_help_documentation, test_target_documentation, test_cg_generate_targets,
+test_target_determinism, test_target_ownership and test_kilo_coexistence with
+`PYTHONPATH=scripts python3 -m pytest ... -m 'not integration' -q`.
+The separate final generator/ownership/determinism/documentation run passed 203
+tests in 4.84 seconds. An earlier overlapping offline run retained the previous
+generator in memory while files were regenerated and failed its current-plan
+parity assertion; the stable-source rerun above supersedes that result.
+`python3 scripts/cg_generate_help_catalog.py --check-docs`,
+`node scripts/rebuild-docs.js --check --all` and
+`node scripts/check-docs-site.js` all pass (76 pages, seven groups).
+These are scoped checks, not the missing phase 5 full-suite completion gate.

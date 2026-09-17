@@ -14,7 +14,18 @@ explicitly closes search; reduced-motion transitions use zero duration to avoid
 stale inherited theme colors. The second two-attempt renewal is used and passed.
 Source changes are uncommitted on `improve-website-design`.
 
-**Current work: phase 5 help runtime evidence; phase 4 is complete.** Run 21 and
+**Current work: phase 5, step 7, awaits one additional repair approval.**
+Phases 1-4 are complete. Run 23 records the two native-probe repairs and exact
+remaining failure. Current implementation is `9bc8245d`: all 549 offline
+catalog/transport/adapter checks pass, and all 203 generation/ownership checks
+pass. Real Kilo overview and exact lookup pass; the punctuation fixture fails
+the strict received-byte check because the CLI adds quoting to the single
+sentence argument. No runtime certification artifact or positive support claim
+was created. The proposed one-attempt repair is test-harness argv handling only;
+retain every strict receipt assertion and rerun all three probes on a fresh
+committed subject after approval. The final review/push/PR pipeline is pending.
+
+**Phase 4 is complete.** Run 21 and
 `2026-09-17-docs-phase4-evidence.json` record 196 Node, 50 browser, 318 help,
 245 adapter/documentation, and 3,007 full Pester passing tests (zero failures;
 three platform skips). The canonical writer and command browser now exist.
