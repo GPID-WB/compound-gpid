@@ -339,8 +339,11 @@ def test_certified_kilo_help_observed_flows(tmp_path: Path) -> None:
         environment.pop("OLDPWD", None)
         environment[preflight.CONTAINMENT_ENVIRONMENT] = "1"
         environment["PATH"] = str(bin_dir) + os.pathsep + environment.get("PATH", "")
-        # Native host argv carries public fixture input as data, never shell text.
-        result = subprocess.run([str(executable), *support.PROBE_ARGUMENTS, text],
+        # Kilo quotes message arguments containing spaces before expanding its
+        # command template. These fixed single-space fixtures must therefore use
+        # separate message words; shell metacharacters remain inert argv data.
+        message_words = text.split(" ") if text else []
+        result = subprocess.run([str(executable), *support.PROBE_ARGUMENTS, *message_words],
                                 cwd=root, env=environment, capture_output=True, timeout=180, check=False)
         assert result.returncode == 0, "Certified host command failed"
         assert len(result.stdout) <= preflight.MAX_HOST_OUTPUT_BYTES

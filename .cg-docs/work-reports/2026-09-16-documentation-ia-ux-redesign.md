@@ -2511,3 +2511,11 @@ parity assertion; the stable-source rerun above supersedes that result.
 `node scripts/rebuild-docs.js --check --all` and
 `node scripts/check-docs-site.js` all pass (76 pages, seven groups).
 These are scoped checks, not the missing phase 5 full-suite completion gate.
+
+## Run 24: Approved Native Probe Renewal
+
+The user approved one additional repair attempt. Renewal 1/1 changes only the
+native fixture's message argv: the fixed single-space sentence is passed as
+separate words, keeping punctuation inert in subprocess arguments. No query
+fingerprint, operation, shell-command or deterministic-output assertion changes.
+All three cases will run against the new committed subject before certification.
