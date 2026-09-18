@@ -4,6 +4,24 @@ description: "Run the standalone release controller with unchanged arguments. Ge
 
 # Release
 
+## Step 0.5: Parse Approval Controls
+
+Before any tool dispatch, classify the invocation using only its arguments.
+Generic `plan`, `start`, `status`, and `resume` keep argument-preserving dispatch
+below; do not consume their flags as legacy approvals. Reject `--auto-approve` in
+generic mode. Only explicit legacy selectors enter the legacy flow. Reject
+conflicting selectors or mixed generic and legacy modes before dispatch.
+
+In legacy mode, parse `--auto-approve` and record `<auto-approve>` (default false).
+Reject `--auto-approve` for three-component stable tags. Require an explicit valid
+four-component tag, either as the new tag or `--resume <tag>`; reject ambiguity.
+The flag pre-approves scan continuation, semver, name, notes, the publication
+decision, payload/evidence PRs, automated merges, Reserve, Finalize and
+non-interactive resume for that tag only. It never grants missing maintainer
+authority, selects Bridge/Recovery, changes source eligibility, overrides guards,
+or enables the disabled controller. Without it, retain each confirmation below;
+stable releases keep manual merges and interactive confirmation.
+
 ## Argument-Preserving Dispatch
 
 For `plan`, `start`, `status`, or `resume`, call the installed `cg-release` CLI
@@ -73,9 +91,16 @@ Parse optional arguments from the user's invocation message before running any s
   four-component `vX.Y.Z.<build>` prerelease tag. A supplied tag overrides the
   scanner's semver suggestion but still requires confirmation in Step 1f. A
   four-component tag always sets `<prerelease>` to `true`; it must be published
-  with GitHub's prerelease flag rather than as a stable release. Stable tags are
-  released from `main`; four-component prerelease tags are released directly
-  from `dev`.
+   with GitHub's prerelease flag rather than as a stable release. Stable source
+   branches are the protected remote policy's `production_branches` plus the
+   remotely discovered default branch. Prereleases may use any verified same-repository remote branch,
+   including `dev`. No stable branch override exists.
+- `--source-branch <branch>`: explicit source identity, not an authorization
+  override. Otherwise use the attached checkout branch; detached checkouts require explicit
+  source identity. Validate the Git ref and canonical origin, remote ref name and
+  SHA. Set `<release-branch>` to this verified source, never from tag shape.
+  Read deployment policy only from the exact protected remote default revision;
+  malformed policy or an unknown/foreign branch is a hard stop.
 - `--since <value>`: Override the default 60-day scan window floor.
   - If value matches `^\d+$` (digits only, e.g., `--since 90`): treat as days.
   - If value matches `^\d{4}-\d{2}-\d{2}$` (e.g., `--since 2026-03-01`): treat as an ISO cutoff date. If the parsed date is after today, warn the user and fall back to the 60-day default.
@@ -90,7 +115,8 @@ Parse optional arguments from the user's invocation message before running any s
   the new-release scan, payload creation, commit, and tag creation steps. It
   validates the committed immutable payload and exact annotated tag, repairs or
   verifies the Release reservation first, then resumes deployment and Finalize.
-  Explicit user confirmation is still required before Reserve or Finalize.
+   Explicit user confirmation is still required before Reserve or Finalize
+   unless the valid legacy `--auto-approve` invocation supplied that approval.
 
 ## Process
 
@@ -126,7 +152,18 @@ if (Test-Path -LiteralPath releases/latest.json) {
 - If no immutable payloads and no `releases/latest.json` exist, `<latest-tag>` is
   `null` — this is the first release.
 - Never use unrestricted `git describe` as the release baseline. Temporary
-  `/cg-devtag` tags do not have durable payloads and must not truncate the scan.
+   `/cg-devtag` tags do not have durable payloads and must not truncate the scan.
+
+For a stranded payload, stop the later-release scan. First confirm the target has
+no local or remote annotated tag, Release, or attestation (query failures are not
+absence). The maintainer decides whether to complete this release or retire it
+through a reviewed revert PR. Completion requires the exact merged payload commit:
+under specific authorization, create its annotated local tag and use the explicit
+legacy selector with `--resume <tag>`, or start a fresh authorized Reserve flow.
+Resume requires that existing annotated tag. This repair is not pre-approved by
+auto approval for a later tag: never auto-publish or create a repair tag on the
+flow's own initiative. Any partial existing pair instead needs read-only inspection
+and the authorized resume path, never replacement or rollback.
 
 **1b. Get the tag date** (skip if `<latest-tag>` is `null`):
 
@@ -169,6 +206,8 @@ The body may contain blank paragraphs. The scanner must preserve it so
 If the output exceeds 500 lines, warn the user before proceeding:
 > The commit log contains more than 500 lines — this is a large scan. Context truncation is possible. Proceed? (yes / no)
 
+Under `<auto-approve>`, print this warning and continue without asking.
+
 **1e. Dispatch `@cg-release-scanner`:**
 
 Pass the following inputs:
@@ -200,13 +239,15 @@ Present to the user:
 If the scan summary shows excluded entries, note:
 > _N commits and M .cg-docs entries older than the scan window were excluded from this report._
 
+Under `<auto-approve>`, print the semver suggestion but retain the explicitly
+requested tag and continue without asking. Otherwise obtain confirmation.
 Record the confirmed `<next-tag>` — all subsequent steps reference it.
 Set `<prerelease>` to `true` when `<next-tag>` has four numeric components and
 to `false` when it has three. This derivation is mandatory even when the user
 supplied the tag directly.
-Set `<release-branch>` to `dev` when `<prerelease>` is `true`; otherwise set it
-to `main`. Stable releases must never be cut from `dev`, and four-component
-prereleases must be publishable directly from `dev`.
+Retain the verified `<release-branch>` from argument parsing. Source eligibility
+and protected default controller authority are separate. Neither stable nor
+prerelease sources must contain the current default tip just to use its controller.
 
 ### Step 2: Check SCHEMA_VERSION
 
@@ -281,35 +322,12 @@ After writing, save the file as `RELEASE_NOTES.md` in the repo root.
 
 ### Step 4: Present a confirmation summary
 
-Before presenting any publication claim or asking for confirmation, run the
-authoritative complete native preflight. This command owns the registered pytest
-and module-check lists; do not copy those lists into this prompt:
-
-```powershell
-python scripts/cg_pr_preflight.py --phase committed --full-gate --run-native-target
-```
-
-Run this as one blocking foreground call with an explicit tool timeout of
-`7200000` milliseconds (120 minutes), not the default `120000` milliseconds.
-The runner permits 1800 seconds for the full controller package tests and 600
-seconds for each other command. The outer budget covers all nine sequential
-commands plus inspection overhead. Progress is flushed to stderr;
-child output is captured until each command ends, and the final result is on stdout.
-Silence between stage messages is not evidence of a hang. Do not use background
-execution, polling, or an automatic retry after a timeout. If the tool cannot
-provide this budget, or the call is interrupted, **halt** and report the preflight
-as incomplete. A timeout is not a passing gate. Diagnose the reported stage before
-any retry; never substitute `--phase prepare` for the required committed gate.
-
-If Python cannot be resolved or the authoritative preflight exits nonzero,
-**halt**. Report the failure and do not present a ready-to-publish summary, invoke
-`create-release.ps1`, call a GitHub API, or claim the release is ready. Do not weaken
-drift checks when regenerated targets differ from committed `HEAD`.
-
-Show the user a summary before executing anything:
+Show the publication decision before creating a payload PR. This is approval to
+prepare and validate a release, not proof that it is ready or published. The full
+gate runs at the payload commit in Step 5, before tag creation and Reserve.
 
 ```
-Ready to publish:
+Proposed publication (validation pending):
 
   Tag:             <proposed-tag>
   Name:            <proposed-name>  (derive from the top feature in New Features, formatted as "<tag> - <short feature title>")
@@ -326,7 +344,10 @@ Release notes preview:
 Confirm? (yes / adjust tag / adjust name / edit notes first)
 ```
 
-Wait for the user's explicit confirmation before proceeding to Step 5.
+Wait for the user's explicit confirmation before proceeding to Step 5 unless
+`<auto-approve>` is true. In that case print the same tag/name/notes summary and
+continue: the invocation pre-approved this publication decision. Do not silently
+change its tag or expand its scope.
 
 If the user asks to adjust the tag or name, update accordingly and re-display the summary.
 If the user wants to edit the notes, pause — they will edit `RELEASE_NOTES.md` directly and then confirm.
@@ -350,10 +371,12 @@ Release creation, before any documentation query or wait.
    `RELEASE_NOTES.md`), or `HEAD` differs
    from `origin/<release-branch>`. Halt safely on a non-fast-forward release
    branch rather than creating a release from a stale checkout. Do not require
-   a four-component prerelease commit on `dev` to contain the current `main`
-   tip; exact `origin/dev` lineage is the prerelease authorization boundary.
+    any source commit to contain the current default tip. Exact verified source
+    identity and remote lineage are the source authorization boundary.
    A clean detached checkout at the exact authorized commit is allowed. Prepare
-   payload changes on a feature branch for the reviewed PR below.
+    payload changes on `release/<next-tag>-payload`, created from that exact source
+    tip, for the reviewed PR below. A preexisting branch must be reconciled, never
+    reset or overwritten. Pass explicit source identity from detached checkouts.
 
 2. Extract exactly one fenced JSON object from the scanner's `## Release
    Payload` section. Parse it before writing any payload. It must contain only a
@@ -411,14 +434,64 @@ Release creation, before any documentation query or wait.
    If no staged diff exists because both payload files are already byte-identical,
    do not create an empty commit.
 
-6. Push the payload feature branch and open a reviewed PR to `<release-branch>`.
-   Require all tests green before merging. Do not tag the unmerged feature commit
-   or a local payload commit. After merge, fetch `<release-branch>` and check out
-   its exact current remote commit with the payload present. Verify clean status
-   and `HEAD == origin/<release-branch>` again. Never bypass protected-branch PR
-   requirements with a direct release-branch push.
-   Use `--no-follow-tags` for this feature-branch push so `push.followTags=true`
-   cannot publish unrelated annotated local tags before Reserve.
+6. Push the payload feature branch with `--no-follow-tags` and use
+   `gh pr create --body-file <body-path> --base <release-branch> --head release/<next-tag>-payload`.
+   Any PR edit also uses `--body-file`, never inline shell-interpolated prose.
+   Before requesting automatic merge, verify `allow_auto_merge` and the effective
+   required checks for this actual destination branch read-only. They must enforce
+   the two Pester platform jobs, two Native target Python gate platform jobs and
+   Conventional Commits PR title, using the exact reviewed contexts. Verify rebase
+   merging is enabled. Missing, weak or unknown enforcement blocks automation;
+   permission to release from a branch does not imply auto-merge is configured there.
+   Do not write repository settings or substitute bypass permissions.
+
+   Immediately run the authoritative complete native preflight at the exact
+   committed PR-head SHA in parallel with PR CI. Keep this local source checkout
+   unchanged until the call returns. The receipt emitter creates a producer-owned fresh LF clone
+   at that SHA, using command-local Git settings without persistent config writes.
+   It owns the registered pytest and module-check lists; do not copy those lists.
+   Allocate a unique `<gated-receipt-path>` in the system temp directory,
+   outside the working tree. Use that exact path in this command and bind the
+   same path to Reserve, Finalize and resume calls; the alias `<receipt-path>`
+   below always refers to this exact uniquely allocated path:
+
+   ```powershell
+   python scripts/cg_pr_preflight.py --phase committed --full-gate --run-native-target --emit-receipt <gated-receipt-path>
+   ```
+
+   Use one blocking foreground call with an explicit tool timeout of
+   `7200000` milliseconds (120 minutes), not the default `120000` milliseconds.
+   Child budgets are 1800 seconds for controller package tests and 600 seconds for
+   each other command. Progress is flushed to stderr; stdout carries the result.
+   Silence is not a hang. Do not use background execution, polling,
+   or an automatic retry after a timeout for this local gate. Remote PR CI runs
+   independently during the blocking call. An unavailable budget, interrupt,
+   unresolved Python or nonzero exit means halt with incomplete/failed evidence;
+   do not create a tag, invoke Reserve or claim readiness. Diagnose before retry;
+   never substitute `--phase prepare` or weaken committed drift checks.
+   Require a valid receipt for the exact commit/tree before continuing. The receipt
+   digest detects corruption; it is not remote authorization or a signature.
+
+   Require all tests green before merging. For prereleases request
+   `gh pr merge --auto --rebase <pr-url>` only after the local gate succeeds;
+   stable releases keep manual merges. Do not assume rebase preserves the SHA.
+   Use the same bounded observation protocol for payload and evidence PRs:
+   `PR_POLL_TIMEOUT_MINUTES = 60`, interval 30 seconds, measured with a monotonic
+   deadline. Read PR identity, destination, state and required checks; report status.
+   A failed required check, closed-unmerged PR, unknown state or API failure means
+   halt with the PR URL and state. On poll expiry with pending checks, blocked-stop
+   with the PR URL and state report; never admin-merge, bypass, or blind-retry.
+   A timeout does not cancel an already requested auto-merge; report that it can
+   still merge remotely. Reconcile that PR before any later retry.
+
+   After a verified merge, fetch `<release-branch>` and check out its exact current
+   remote commit. Verify clean status, both payload bytes, and
+   `HEAD == origin/<release-branch>`. If this SHA differs from the gated PR head,
+   allow one conditioned re-execution at this actual source tip with a fresh receipt
+   path. Verify payload identity first; a newer/different payload halts. After that
+   gate re-fetch and require the tip still equals the gated SHA; another advance
+   halts rather than looping. Do not tag an unmerged feature commit. Never bypass
+   protected-branch PR requirements with a direct source-branch push.
 
    Verify the required active repository rulesets before creating the tag:
    `Protect release tags` must block all updates and deletions for
@@ -427,6 +500,17 @@ Release creation, before any documentation query or wait.
    `Protect dev` must block deletion and force-pushes for `refs/heads/dev`
    without bypass actors. Halt before tag creation if any rule is absent or
    weaker than this contract.
+
+   For stable tags, before creating the local tag, compare the tag producer's
+   artifact contract with the controller at the exact protected remote default
+   revision using the same conservative contract as `Assert-CgStableDocsContract`.
+   Require the current extraction, composition, official-state seal and upload
+   contract. Unknown layout or changed authority halts with the exact file/ref and
+   protected-controller repair needed. Reserve independently enforces this before
+   remote publication. Do not execute workflow text as a check, force default-tip
+   ancestry, or automatically create a default-to-source sync PR. Any protected
+   controller repair needs separate reviewed authorization. For prereleases,
+   default advancement is informational hygiene, not a source eligibility gate.
 
 7. Verify or create the exact annotated LOCAL tag on the clean merged payload
    commit. Do not push the tag manually. Do not use an unconditional `git tag` command:
@@ -450,7 +534,7 @@ Release creation, before any documentation query or wait.
    With the confirmed final name and exact final `RELEASE_NOTES.md` body, run:
 
    ```powershell
-   .\create-release.ps1 -Phase Reserve -LegacyOperation <legacy-operation> -Tag <tag> -Name "<name>" -NotesFile RELEASE_NOTES.md
+   .\create-release.ps1 -Phase Reserve -LegacyOperation <legacy-operation> -SourceBranch <release-branch> -PreflightReceipt <receipt-path> -Tag <tag> -Name "<name>" -NotesFile RELEASE_NOTES.md
    ```
 
    Reserve runs local, payload, exact-tree native, credential, ruleset, historical
@@ -464,11 +548,19 @@ Release creation, before any documentation query or wait.
    blindly repeat POST, force a tag push, or delete/PATCH a Release as rollback.
 
    Read `release-result.txt`: `CREATED|` and `EXISTS|` confirm the reservation only,
-   NOT lifecycle completion. If absent or the script fails, halt and report the
-   known pair state. Resume Reserve to reconcile or repair before downstream gates.
+   NOT lifecycle completion. If absent, stale, or the script fails, perform read-only reconciliation
+   of the exact raw/peeled tag and Release metadata. Report the known pair state;
+   a missing file alone is not proof of missing publication. Re-enter the authorized
+   resume path to verify or repair through Reserve before downstream gates. Resume
+   can write; read-only inspection alone does not authorize it. The script's bounded
+   draft-race reconciliation reads both lookup and list; exhaustion halts, never
+   an alternate publisher or blind POST retry.
 
 8. Wait for the unprivileged `release-docs.yml` push run for the exact tag and
-   commit. Verify its successful conclusion and record its database ID. Then
+   commit. Verify its successful conclusion and record its database ID.
+   For prereleases, require the exact successful build attempt, job, steps, and artifact
+   checked by Finalize. Do not wait for a Pages controller or pass PagesRunId.
+   For stable tags only, then
    identify the successful `release-pages.yml` `workflow_run` controller whose run name
    is exactly `Deploy docs from <release-docs database ID>`. Halt on a missing,
    failed, or mismatched build or deployment, but leave the Release and tag intact.
@@ -480,9 +572,9 @@ Release creation, before any documentation query or wait.
 
 ### Resume An Interrupted Release
 
-When invoked with `--resume <tag>`, derive `<prerelease>` and
-`<release-branch>` from the tag using the same three-component/`main` and
-four-component/`dev` policy as a new release. Require a clean checkout at the
+When invoked with `--resume <tag>`, derive `<prerelease>` from tag shape and verify
+the explicit or attached `<release-branch>` under the same remote source policy.
+Require a clean checkout at the
 exact tag commit; a detached checkout is allowed so resume remains possible
 after the release branch advances. Do not prepare a new scanner payload.
 Confirm all of the following before retrying any publication step:
@@ -506,7 +598,12 @@ commit at clean `HEAD`; that commit must remain on the authorized
 at exact current `origin/<release-branch>`. The immutable payload must be present
 and valid. Restore the exact previously confirmed title and notes from the
 recorded release context; do not invent replacement metadata. Present the exact
-tag, payload, name, body, and remote pair state and obtain explicit confirmation.
+tag, payload, name, body, and remote pair state and obtain explicit confirmation
+unless `<auto-approve>` pre-approved this exact tag. In that case print the state
+and continue non-interactively without changing the recorded metadata. Reuse an
+external receipt only after exact tag commit/tree validation. If absent or invalid,
+run the Step 5 receipt gate once at the clean tag checkout before Reserve; source
+advancement does not change the tag SHA to gate. Never reuse a newer tip's receipt.
 Run `-Phase Reserve` first to repair or verify the reservation, BEFORE any
 documentation wait. Then resume Step 5.8 and Step 6. Never overwrite an immutable
 payload or create a new tag during resume. Never delete an existing Release on
@@ -516,10 +613,17 @@ attestation for this tag, which the script verifies byte-for-byte for retry.
 ### Step 6: Finalize And Commit Evidence
 
 Only after Reserve has confirmed the exact tag/Release pair and Step 5.8 has
-observed successful tag-site deployment, run with the recorded exact run IDs:
+observed the required build/deployment evidence, run with the recorded exact run IDs.
+For a four-component prerelease:
 
 ```powershell
-.\create-release.ps1 -Phase Finalize -LegacyOperation <legacy-operation> -Tag <tag> -Name "<name>" -NotesFile RELEASE_NOTES.md -BuildRunId <build-id> -PagesRunId <pages-id>
+.\create-release.ps1 -Phase Finalize -LegacyOperation <legacy-operation> -SourceBranch <release-branch> -PreflightReceipt <receipt-path> -Tag <tag> -Name "<name>" -NotesFile RELEASE_NOTES.md -BuildRunId <build-id> -Prerelease
+```
+
+For a stable three-component release:
+
+```powershell
+.\create-release.ps1 -Phase Finalize -LegacyOperation <legacy-operation> -SourceBranch <release-branch> -PreflightReceipt <receipt-path> -Tag <tag> -Name "<name>" -NotesFile RELEASE_NOTES.md -BuildRunId <build-id> -PagesRunId <pages-id>
 ```
 
 Finalize must not push tags or create, edit, or delete Releases. It requires the
@@ -541,7 +645,7 @@ deployment evidence remains supported without a new deployment.
 
 Finalize also requires the
 existing exact Release, successful `release-docs.yml` push run at the tag SHA,
-and successful `release-pages.yml` controller `Deploy docs from <build-id>`, then
+and, for stable tags only, successful `release-pages.yml` controller `Deploy docs from <build-id>`, then
 creates or verifies the canonical release-attestation entry. The optional run IDs
 avoid ambiguity after retries; without IDs the exact chain must be unique.
 An attestation failure leaves the pair intact but blocks lifecycle completion.
@@ -553,16 +657,29 @@ Draft releases are not supported by this durable publication flow. Do not pass
 Add `-Prerelease` whenever `<prerelease>` is `true`. Four-component tags always
 set it to `true`; do not publish `vX.Y.Z.<build>` as a stable GitHub Release.
 
-After Finalize, require `FINALIZED|<id>|<url>` in `release-result.txt`. A missing
-result or error is a failed workflow; do not claim completion from stale output.
+After Finalize, require `FINALIZED|<id>|<url>` in `release-result.txt` as the immediate
+channel. For missing/stale output, use read-only pair/attestation inspection and the
+authorized resume path to re-verify Finalize; do not claim completion from stale output.
+An error remains a blocked workflow. Never fabricate a result or attestation.
 Never display credential helper output during authentication diagnosis.
 
 Then run `python scripts/cg_generate_targets.py --all`. Review the canonical
-attestation, all generated attestation copies, and ownership manifests. Run the
-required Python tests, canonical safe Pester, and native preflight. Through a
-reviewed PR to `<release-branch>` with tests green before merge, commit the
-canonical and generated evidence. Only after those records are committed and
-verified may you report lifecycle completion with the Release URL. The reservation
+attestation, all generated attestation copies, and ownership manifests. Create a
+separate evidence branch from the current verified source tip, preserving any
+source advancement; transfer only this tag's canonical and generated evidence.
+Validate that the diff contains only the attestation and its deterministic copies
+and required ownership manifests. Any unrelated or conflicting change halts.
+No separate local full gate at the evidence commit: the evidence PR's required checks
+provide GitHub-enforced verification, not a reused tag receipt for a different tree.
+Verify those effective required checks for the destination before relying on them.
+Commit only the reviewed evidence paths, push `--no-follow-tags`, and use
+`gh pr create --body-file <body-path> --base <release-branch> --head <evidence-branch>`.
+Prereleases use `gh pr merge --auto --rebase <evidence-pr-url>` and the same bounded
+poll protocol; stable merges remain manual. If settings/checks are unavailable,
+halt rather than bypass. Only after those records are merged and their exact bytes
+verified on the remote source branch may you report lifecycle completion.
+The original tag remains unchanged. Report the Release URL only with that verified
+lifecycle status. The reservation
 remains published if evidence generation, tests, or the evidence PR fails.
 Neither Reserve nor Finalize promotes a Release to GitHub's latest stable release.
 Any later stable promotion is a separate, explicitly authorized maintainer action
@@ -572,15 +689,25 @@ Do not add a promotion PATCH to either phase or treat reservation as promotion a
 ## Rules
 
 - Never run `create-release.ps1` without explicit user confirmation in Step 4,
-  or the equivalent resume confirmation. Reserve requires validated merged
+  the equivalent resume confirmation, or valid exact-tag legacy auto approval.
+  Reserve is the only publisher; no release-API tag creation or fallback publisher
+  is permitted. Payload PRs follow the publication decision, never precede it.
+  Reserve requires validated merged
   payloads and the exact annotated local tag. Finalize additionally requires the
-  published pair and successful exact tag-site deployment.
+  published pair and exact successful build evidence (plus deployment for stable).
 - Never manually push a bare release tag in normal release instructions. Reserve
   owns the tag push plus immediate Release. Never delete/PATCH a Release or move
   a protected tag to recover from downstream failures.
 - Never modify `SCHEMA_VERSION` automatically. Warn only.
-- Require stable three-component tags on `main` and four-component prerelease
-  tags on `dev`; never weaken this branch/tag matrix.
+- Require stable three-component sources in protected remote `production_branches`
+  or the remote default. Allow prereleases from any verified same-repository remote branch.
+  No local policy, tag-shape branch inference, ancestry-to-default or stable override
+  may replace this policy. Keep exact source/tag/SHA and authority rechecks.
+- Option A is a docs destination policy: prereleases need a tag build, not full-site
+  deployment. Only dev refreshes `/dev/`; other source branches have no promised
+  preview. Previews preserve authenticated durable official bytes. Protected remote
+  activation, an authorized official snapshot seed and preview verification are
+  separate required rollout evidence; local tests cannot establish activation.
 - Require an active repository tag ruleset named `Protect release tags` that
   blocks all updates and deletions for `refs/tags/v*` without exclusions or
   bypass actors before API publication.
