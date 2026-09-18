@@ -78,3 +78,4 @@ Supporting generator controls:
 - `.cg-docs/reviews/2026-08-12-automated-documentation-deployment-review.md`
 - `.cg-docs/solutions/git-workflows/2026-08-11-merge-generated-brain-files-and-additive-ci-conflicts.md`
 - `.cg-docs/solutions/testing-patterns/2026-07-31-review-artifacts-must-use-machine-readable-finding-maps-and-stable-validation-evidence.md`
+- `.cg-docs/solutions/git-workflows/2026-09-17-docs-preview-durable-official-snapshot.md`

@@ -95,6 +95,7 @@ ran.
 - `.cg-docs/plans/2026-07-27-canonical-native-packaging-foundation.md`
 - `.cg-docs/solutions/environment-issues/2026-08-14-kilo-contained-launch-and-no-follow-copy.md`
 - `.cg-docs/solutions/bugs/2026-08-20-kilo-cross-adapter-skill-autodiscovery.md`
+- `.cg-docs/solutions/git-workflows/2026-09-17-preflight-receipt-commit-tree-lf-provenance.md`
 - `.cg-docs/solutions/testing-patterns/2026-04-17-canonical-run-tests-json-artifact-decouples-test-results-from-agent-context.md`
 - `scripts/cg_pr_preflight.py`
 - `.github/workflows/tests.yml`
