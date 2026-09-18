@@ -484,6 +484,22 @@ cleanup stay separate.
 > **Consumer project users**: `/cg-release plan|start|status|resume` uses the
 > standalone controller and needs no GPID charter in generic mode. Its optional
 > GPID profile and explicit legacy bridge/recovery paths remain GPID-specific.
+
+For an authorized legacy prerelease, use an explicit selector and source, for
+example `/cg-release --legacy-bridge v1.2.0.9020 --source-branch dev --auto-approve`.
+This example is not authorization to publish. The flag pre-approves that exact
+four-component release's decisions, not its security checks. Stable `x.y.z`
+sources must be configured deployment branches or the remote default; prerelease
+`x.y.z.<build>` sources may be any verified same-repository branch. Automated PR
+merges also require effective required checks on that destination branch.
+The payload commit receives an external full-preflight receipt before tagging;
+Reserve owns publication, and Finalize verifies the exact tag build. Stable
+releases additionally require the protected Pages chain and retain manual merges.
+Prereleases do not deploy the full official site; only dev has the `/dev/` preview.
+Use `--resume <tag>` with the explicit legacy selector and source to reconcile an
+interrupted release; it requires the existing annotated tag and exact metadata.
+Protected remote activation and official snapshot seeding remain separate rollout
+gates. Neither local tests nor auto approval establish those gates as passed.
 > `/cg-compound-gpid-rd` remains restricted to Compound GPID maintenance.
 
 | Prompt | Purpose | Distribution |
