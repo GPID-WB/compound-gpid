@@ -213,15 +213,22 @@ function validatePagesWorkflows(builder, controller) {
       throw new Error(`${name} must recheck authority after upload and before deployment.`);
     }
   }
+  if (/ref: main\b|sources\/main|branches\/main/.test(jobs.get("deploy-dev"))) {
+    throw new Error("deploy-dev must compose the preview from the verified official snapshot, never a moving main checkout.");
+  }
   requireTokens(jobs.get("deploy-dev"), "deploy-dev", [
-    "ref: main", "path: sources/main", "ref: ${{ steps.authority.outputs.release_sha }}",
-    "path: sources/dev", "node scripts/legacy-pages.js import-dev sources/dev dev-artifact",
-    '--main-root sources/main --dev-root sources/dev',
-    'branches/dev" --jq .commit.sha)', 'branches/main" --jq .commit.sha)',
+    "ref: ${{ steps.authority.outputs.release_sha }}", "path: sources/dev",
+    "node scripts/legacy-pages.js restore-official official-source official-state.json",
+    "node scripts/legacy-pages.js import-dev sources/dev dev-artifact",
+    "--main-root official-source --dev-root sources/dev",
+    "node scripts/legacy-pages.js stamp-preview official-state.json combined-artifact",
+    "node scripts/legacy-pages.js recheck-official official-state.json",
+    'branches/dev" --jq .commit.sha)',
   ]);
   requireTokens(jobs.get("deploy"), "deploy", [
     "Artifact digest mismatch", "Artifact file list mismatch", "merge-base --is-ancestor",
     "Refusing to deploy an older release artifact", "Recheck release is still newest",
+    "node scripts/legacy-pages.js seal-official release-source release-artifact",
     'cmp -s "release-validation/releases/$RELEASE_TAG.json" release-validation/releases/latest.json',
   ]);
 }
