@@ -4824,7 +4824,8 @@ Describe "cg-release.prompt.md - dispatches cg-release-scanner" {
 
     It "catch-all when release-result.txt is absent or unrecognized" {
         ($content -match 'After Finalize, require `FINALIZED\|<id>\|<url>`') | Should -Be $true
-        ($content -match '(?s)A missing\s+result or error is a failed workflow') | Should -Be $true
+        ($content -match 'For missing/stale output, use read-only pair/attestation inspection') | Should -Be $true
+        ($content -match 'An error remains a blocked workflow') | Should -Be $true
         ($content -match 'do not claim completion from stale output') | Should -Be $true
     }
 
@@ -4834,6 +4835,87 @@ Describe "cg-release.prompt.md - dispatches cg-release-scanner" {
 }
 
 # ---------------------------------------------------------------------------
+Describe "cg-release.prompt.md - prerelease automation contract" {
+    $content = Get-Content (Join-Path $repoRoot '.github/prompts/cg-release.prompt.md') -Raw -Encoding UTF8
+
+    It "parses auto approval before dispatch without enabling the generic controller" {
+        $parse = $content.IndexOf('## Step 0.5: Parse Approval Controls')
+        $dispatch = $content.IndexOf('## Argument-Preserving Dispatch')
+        $parse | Should -BeGreaterThan -1
+        $dispatch | Should -BeGreaterThan $parse
+        $content | Should -Match 'Reject `--auto-approve` for three-component stable tags'
+        $content | Should -Match 'Only explicit `--legacy-bridge` or `--legacy-recovery`'
+        $content | Should -Match 'Pass the supplied arguments unchanged'
+    }
+
+    It "uses verified source identity instead of the obsolete main-dev matrix" {
+        $content | Should -Match 'production_branches'
+        $content | Should -Match 'any verified same-repository remote branch'
+        $content | Should -Match 'detached checkouts require explicit'
+        $content | Should -Not -Match 'Set `<release-branch>` to `dev`'
+        $content | Should -Not -Match 'three-component/`main`'
+        $content | Should -Not -Match 'Require stable three-component tags on `main`'
+    }
+
+    It "passes source identity and receipt to each publication phase" {
+        $calls = @([regex]::Matches($content, '(?m)^[ \t]*\.\\create-release\.ps1[^\r\n]+'))
+        $calls.Count | Should -BeGreaterThan 1
+        foreach ($call in $calls) {
+            $call.Value | Should -Match '-SourceBranch <release-branch>'
+            $call.Value | Should -Match '-PreflightReceipt <receipt-path>'
+            $call.Value | Should -Match '-LegacyOperation <legacy-operation>'
+        }
+    }
+
+    It "documents producer-owned receipt isolation and conditioned SHA recovery" {
+        $content | Should -Match '--emit-receipt <gated-receipt-path>'
+        $content | Should -Match 'producer-owned fresh LF clone'
+        $content | Should -Match 'outside the working tree'
+        $content | Should -Match 'in parallel with PR CI'
+        $content | Should -Match 'one conditioned re-execution'
+        $content | Should -Match 'origin/<release-branch>'
+        $content | Should -Match '7200000'
+    }
+
+    It "requires safe PR automation and bounded observation" {
+        $content | Should -Match 'gh pr create --body-file'
+        $content | Should -Match 'gh pr merge --auto --rebase'
+        $content | Should -Match '--no-follow-tags'
+        $content | Should -Match 'PR_POLL_TIMEOUT_MINUTES = 60'
+        $content | Should -Match 'failed required check'
+        $content | Should -Match 'poll expiry'
+        $content | Should -Match 'never admin-merge'
+        $content | Should -Match 'stable releases keep manual merges'
+    }
+
+    It "keeps stranded payload recovery an explicit maintainer decision" {
+        $content | Should -Match 'stranded payload'
+        $content | Should -Match 'no local or remote annotated tag, Release, or attestation'
+        $content | Should -Match 'reviewed revert PR'
+        $content | Should -Match 'never auto-publish'
+    }
+
+    It "separates prerelease build evidence from stable deployment evidence" {
+        $prereleaseCall = [regex]::Match($content, '(?m)^\.\\create-release\.ps1 -Phase Finalize[^\r\n]*-Prerelease[^\r\n]*').Value
+        $prereleaseCall.Length | Should -BeGreaterThan 0
+        $prereleaseCall | Should -Match '-BuildRunId <build-id>'
+        $prereleaseCall | Should -Not -Match '-PagesRunId'
+        $stableCall = [regex]::Match($content, '(?m)^\.\\create-release\.ps1 -Phase Finalize[^\r\n]*-PagesRunId <pages-id>[^\r\n]*').Value
+        $stableCall.Length | Should -BeGreaterThan 0
+        $stableCall | Should -Match '-BuildRunId <build-id>'
+        $stableCall | Should -Not -Match '-Prerelease'
+        $content | Should -Match 'exact successful build attempt, job, steps, and artifact'
+    }
+
+    It "uses required checks for evidence and preserves noninteractive resume guards" {
+        $content | Should -Match 'evidence PR.*required checks'
+        $content | Should -Match 'No separate local full gate at the evidence commit'
+        $content | Should -Match 'non-interactive resume'
+        $content | Should -Match 'read-only reconciliation'
+        $content | Should -Not -Match 'gh release create'
+    }
+}
+
 # cg-skill-project-scanner - existence and structure
 # ---------------------------------------------------------------------------
 

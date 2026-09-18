@@ -160,12 +160,13 @@ class TestReleaseGateTargets:
 
     def test_release_prompt_requires_gate_before_execute(self) -> None:
         content = (REPO_ROOT / ".github/prompts/cg-release.prompt.md").read_text(encoding="utf-8")
-        execute = content.index("### Step 5: Create and publish the durable release source")
-        before_execute = content[:execute].lower()
-        assert "non-draft github release" in before_execute
-        assert "authoritative complete native preflight" in before_execute
-        assert "release gate" in before_execute or "preflight" in before_execute
-        assert "halt" in before_execute
+        payload_commit = content.index('chore(release): prepare <next-tag> payload')
+        gate = content.index("authoritative complete native preflight")
+        receipt = content.index('--run-native-target --emit-receipt <gated-receipt-path>')
+        tag = content.index('git tag -a <next-tag>')
+        reserve = content.index('.\\create-release.ps1 -Phase Reserve')
+        assert payload_commit < gate < receipt < tag < reserve
+        assert "halt" in content[receipt:tag].lower()
 
     def test_generator_runs_clean_against_repo(self) -> None:
         """Generator must run without error against the real repo."""

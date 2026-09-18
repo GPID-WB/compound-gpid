@@ -324,10 +324,11 @@ Describe "create-release.ps1 - native packaging preflight" {
         $scriptContent | Should -Not -Match 'rev-parse[^\r\n]+\|\s*Select-Object'
     }
 
-    It "enforces the stable-main and prerelease-dev branch matrix" {
+    It "selects an explicit or attached source branch while retaining remote lineage checks" {
         $scriptContent | Should -Match '\$isPrereleaseTag\s*=\s*\$Tag -cmatch'
-        $scriptContent | Should -Match '\$releaseBranch\s*=\s*"main"'
-        $scriptContent | Should -Match 'if \(\$isPrereleaseTag\) \{ \$releaseBranch = "dev" \}'
+        $scriptContent | Should -Match '\$releaseBranch\s*=\s*\$SourceBranch'
+        $scriptContent | Should -Match 'symbolic-ref --quiet --short HEAD'
+        $scriptContent | Should -Match 'detached release checkout requires explicit -SourceBranch'
         $scriptContent | Should -Match 'merge-base --is-ancestor \$ExpectedCommit \$branchCommit'
         $scriptContent | Should -Match 'new remote tag requires HEAD at exact current origin/'
         $scriptContent | Should -Not -Match 'merge-base --is-ancestor \$remoteMainCommit \$headCommit'
@@ -387,6 +388,13 @@ Describe "create-release.ps1 - native packaging preflight" {
         $scriptContent | Should -Match 'Remove-Item -LiteralPath \$preflightRoot -Recurse -Force'
     }
 
+    It "accepts an optional preflight receipt without removing the full gate" {
+        $scriptContent | Should -Match '\[string\]\$PreflightReceipt'
+        $scriptContent | Should -Match 'Preflight receipt accepted for'
+        $scriptContent | Should -Match 'skipping re-run'
+        $scriptContent | Should -Match '--phase committed --full-gate --run-native-target'
+    }
+
     It "writes reviewed attestation only in Finalize after reservation returns" {
         $scriptContent | Should -Match 'scripts/cg_release_attestation\.py'
         $scriptContent | Should -Match '--review-reference "release=\$headCommit"'
@@ -427,7 +435,28 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
             PagesEvent = 'workflow_run'; ArtifactDigest = ('sha256:' + ('e' * 64))
             PolicySha = ('d' * 40)
             BadDefaultRef = $false; BadDeployJob = $false; BadDeployment = $false; WithdrawAfterArtifact = $false
+            MainAncestorExit = 0; WorkflowReadExit = 0
+            CurrentBranch = 'dev'; SourceBranchExists = $true; SourceAncestorExit = 0
+            ProductionBranches = @('main'); PolicyJson = $null
+            RevokeSourceAfterPush = $false
+            BuildAttempt = 1; BuildJobs = @(); BuildArtifacts = @()
+            Producer = (Get-Content (Join-Path $PSScriptRoot '../.github/workflows/release-docs.yml') -Raw)
+            Controller = (Get-Content (Join-Path $PSScriptRoot '../.github/workflows/release-pages.yml') -Raw)
         }
+        $script:state.Tree = ('c' * 40)
+        $requiredBuildSteps = @('Check out immutable tag commit', 'Set up Node', 'Validate tag, lineage, and durable payload',
+            'Build complete documentation tree', 'Validate tagged documentation site', 'Require isolated release metadata',
+            'Upload isolated release documentation artifact')
+        $stepNumber = 0
+        $script:state.BuildJobs = @([pscustomobject]@{ id = 60; name = 'build'; run_id = 10; run_attempt = 1;
+            head_sha = $script:state.Head; status = 'completed'; conclusion = 'success';
+            started_at = '2026-09-17T00:00:00Z'; completed_at = '2026-09-17T00:02:00Z';
+            steps = @($requiredBuildSteps | ForEach-Object { $stepNumber++; [pscustomobject]@{name = $_; number = $stepNumber; status = 'completed'; conclusion = 'success'} }) })
+        $script:state.BuildArtifacts = @([pscustomobject]@{ id = 30; name = 'release-docs-site'; expired = $false;
+            digest = ('sha256:' + ('e' * 64)); created_at = '2026-09-17T00:01:00Z';
+            workflow_run = [pscustomobject]@{id = 10; head_sha = $script:state.Head} })
+        $script:state.Python = (Get-Command python -CommandType Application -ErrorAction Stop).Source
+        Copy-Item (Join-Path $PSScriptRoot '../scripts/cg_pr_preflight.py') (Join-Path $script:fixture 'scripts/cg_pr_preflight.py')
         $script:expected = [pscustomobject]@{
             id = 123; html_url = "https://github.com/GPID-WB/compound-gpid/releases/tag/v1.2.0.9015"
             tag_name = $script:state.Tag; target_commitish = $script:state.Head
@@ -452,13 +481,22 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
             }
             switch -Regex ($call) {
                 ' remote get-url ' { return $script:state.Origin }
+                ' symbolic-ref --quiet --short HEAD$' {
+                    if (-not $script:state.CurrentBranch) { $global:LASTEXITCODE = 1; return }
+                    return $script:state.CurrentBranch
+                }
+                ' check-ref-format ' { return }
+                ' rev-parse --verify HEAD\^\{tree\}' { return $script:state.Tree }
                 ' rev-parse --verify HEAD' { return $script:state.Head }
                 ' rev-parse --verify origin/' { return $script:state.Tip }
                 ' rev-parse --verify .*\^\{commit\}' { return $script:state.Head }
                 ' rev-parse --verify refs/tags/' { return $script:state.Object }
                 ' tag --list ' { return $script:state.Tag }
                 ' cat-file -t ' { return $script:state.TagType }
-                ' ls-remote --heads ' { return "$($script:state.Tip)`t$($args[-1])" }
+                ' ls-remote --heads ' {
+                    if (-not $script:state.SourceBranchExists) { return }
+                    return "$($script:state.Tip)`t$($args[-1])"
+                }
                 ' ls-remote --tags ' {
                     if ($script:state.Remote) {
                         return @("$($script:state.RemoteObject)`trefs/tags/$($script:state.Tag)", "$($script:state.RemoteCommit)`trefs/tags/$($script:state.Tag)^{}")
@@ -466,13 +504,27 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
                     return
                 }
                 ' status --porcelain ' { return $script:state.Dirty }
+                ' merge-base --is-ancestor origin/main ' {
+                    $global:LASTEXITCODE = $script:state.MainAncestorExit
+                    return
+                }
+                ' show [0-9a-f]{40}:\.github/workflows/release-docs\.yml$' {
+                    $global:LASTEXITCODE = $script:state.WorkflowReadExit
+                    return $script:state.Producer
+                }
+                ' show [0-9a-f]{40}:\.github/workflows/release-pages\.yml$' {
+                    $global:LASTEXITCODE = $script:state.WorkflowReadExit
+                    return $script:state.Controller
+                }
                 ' push origin ' {
+                    if ($script:state.RevokeSourceAfterPush) { $script:state.ProductionBranches = @() }
                     if ($script:state.CutoverAfterPush) { $script:state.PolicyEnabled = $true; $script:state.PolicySha = ('e' * 40) }
                     if ($script:state.PushMode -ne 'absent') { $script:state.Remote = $true }
                     if ($script:state.PushMode -ne 'success') { $global:LASTEXITCODE = 1; throw "uncertain push" }
                     return
                 }
-                ' fetch origin | merge-base --is-ancestor | clone --quiet | config core\.| checkout --detach ' { return }
+                ' merge-base --is-ancestor ' { $global:LASTEXITCODE = $script:state.SourceAncestorExit; return }
+                ' fetch origin | clone --quiet | config core\.| checkout --detach ' { return }
                 default { throw "Unmocked git call blocked: $call" }
             }
         }
@@ -482,7 +534,15 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
             if ($args[0] -eq '--version') { return 'Python 3.11.0' }
             $call = $args -join ' '
             $script:state.Calls.Add("python $call")
-            if ($call -match 'cg_pr_preflight.py') { $global:LASTEXITCODE = $script:state.PreflightExit; return }
+            if ($call -match 'cg_pr_preflight.py') {
+                if ($args -contains '--verify-receipt') {
+                    & $script:state.Python @args
+                    $global:LASTEXITCODE = $LASTEXITCODE
+                    return
+                }
+                $global:LASTEXITCODE = $script:state.PreflightExit
+                return
+            }
             if ($call -match 'cg_release_attestation.py') {
                 if ($args -contains '--check') { $global:LASTEXITCODE = $script:state.CheckExit }
                 else { $global:LASTEXITCODE = $script:state.AttestationExit }
@@ -496,6 +556,7 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
             $global:LASTEXITCODE = $script:state.NodeExit
         }
         Mock Get-Command { [pscustomobject]@{ Source = 'Invoke-CgFixtureNode' } } -ParameterFilter { $Name -eq 'node' }
+        Mock Start-Sleep { }
         Mock Invoke-RestMethod {
             param($Uri, $Method, $Headers, $Body)
             $script:state = $global:CgReleaseTestState
@@ -514,7 +575,8 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
                 throw 'classic branch protection endpoint must not be read'
             }
             if ($Uri -ceq "https://api.github.com/repos/GPID-WB/compound-gpid/contents/.release-controller.json?ref=$($script:state.PolicySha)") {
-                $json = @{ enabled = $script:state.PolicyEnabled } | ConvertTo-Json -Compress
+                $json = @{ enabled = $script:state.PolicyEnabled; production_branches = $script:state.ProductionBranches } | ConvertTo-Json -Compress
+                if ($null -ne $script:state.PolicyJson) { $json = $script:state.PolicyJson }
                 return [pscustomobject]@{ type='file'; encoding='base64'; content=[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($json)) }
             }
             if ($Uri -match '/contents/\.github/release-recovery/') { return $script:state.RecoveryRecord }
@@ -579,7 +641,7 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
                 return $script:state.Release
             }
             if ($Uri -match 'release-docs.yml/runs|actions/runs/10$') {
-                $run = [pscustomobject]@{ id = 10; head_sha = $script:state.Head; head_branch = $script:state.Tag; event = 'push'; path = '.github/workflows/release-docs.yml'; status = 'completed'; conclusion = $script:state.DocsStatus }
+                $run = [pscustomobject]@{ id = 10; run_attempt = $script:state.BuildAttempt; head_sha = $script:state.Head; head_branch = $script:state.Tag; event = 'push'; path = '.github/workflows/release-docs.yml'; status = 'completed'; conclusion = $script:state.DocsStatus }
                 if ($script:state.BadChain) { $run.head_sha = ('c' * 40) }
                 if ($Uri -match 'actions/runs/10$') { return $run }
                 return [pscustomobject]@{ workflow_runs = @($run) }
@@ -593,6 +655,12 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
                 if ($script:state.WithdrawAfterArtifact) { $script:state.RecoveryRecord = $null }
                 return [pscustomobject]@{ id=30; name='release-docs-site'; workflow_run=@{id=10;head_sha=$script:state.Head}; digest=$script:state.ArtifactDigest; expired=$false }
             }
+            if ($Uri -match '/actions/runs/10/attempts/[0-9]+/jobs\?') {
+                return [pscustomobject]@{total_count = $script:state.BuildJobs.Count; jobs = $script:state.BuildJobs}
+            }
+            if ($Uri -match '/actions/runs/10/artifacts\?') {
+                return [pscustomobject]@{total_count = $script:state.BuildArtifacts.Count; artifacts = $script:state.BuildArtifacts}
+            }
             if ($Uri -match '/actions/runs/20/attempts/1/jobs\?') {
                 return [pscustomobject]@{ total_count=1; jobs=@([pscustomobject]@{id=40;run_id=20;run_attempt=1;name='deploy';html_url='https://github.com/GPID-WB/compound-gpid/actions/runs/20/job/40';status='completed';conclusion=$(if ($script:state.BadDeployJob) {'skipped'} else {'success'});steps=@(@{name='Deploy to GitHub Pages';conclusion='success'})}) }
             }
@@ -601,10 +669,13 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
             throw "Unmocked HTTP call blocked: $Method $Uri"
         }
         function Invoke-FixtureRelease {
-            param([string]$Phase = 'Reserve', [switch]$ExactRuns, [switch]$Timing, [string]$Operation = 'Bridge')
+            param([string]$Phase = 'Reserve', [switch]$ExactRuns, [switch]$BuildOnly, [switch]$Timing, [string]$Operation = 'Bridge', [string]$PreflightReceipt, [string]$SourceBranch)
             $parameters = @{ Tag = $script:state.Tag; Name = $script:expected.name; NotesFile = (Join-Path $script:fixture 'notes.md'); Phase = $Phase; LegacyOperation = $Operation }
             if ($ExactRuns) { $parameters.BuildRunId = 10; $parameters.PagesRunId = 20 }
+            if ($BuildOnly) { $parameters.BuildRunId = 10 }
             if ($Timing) { $parameters.Timing = $true }
+            if ($PreflightReceipt) { $parameters.PreflightReceipt = $PreflightReceipt }
+            if ($SourceBranch) { $parameters.SourceBranch = $SourceBranch }
             & (Join-Path $script:fixture 'create-release.ps1') @parameters
         }
         function Set-FixtureRecoveryRecord {
@@ -613,6 +684,47 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
             $raw = $record | ConvertTo-Json -Compress
             $raw = $raw -replace '"schema_version":1(?=[,}])', ('"schema_version":' + $SchemaJson)
             $script:state.RecoveryRecord = [pscustomobject]@{type='file';encoding='base64';content=[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($raw))}
+        }
+        function Set-FixtureStable {
+            $script:state.CurrentBranch = 'main'
+            Remove-Item (Join-Path $script:fixture 'releases/v1.2.0.9015.json')
+            $script:state.Tag = 'v1.2.0'
+            $script:expected.tag_name = 'v1.2.0'; $script:expected.name = 'v1.2.0 - Pairing'
+            $script:expected.html_url = 'https://github.com/GPID-WB/compound-gpid/releases/tag/v1.2.0'
+            $script:expected.prerelease = $false
+            @{ tag = $script:state.Tag; name = $script:expected.name; url = $script:expected.html_url; publishedAt = '2026-09-10T00:00:00Z' } |
+                ConvertTo-Json | Set-Content (Join-Path $script:fixture 'releases/v1.2.0.json')
+        }
+        function New-FixtureReceipt {
+            param([string]$Case = 'valid')
+            $path = Join-Path $TestDrive ('receipt-' + [guid]::NewGuid().ToString('N') + '.json')
+            # Use real Python for the cross-language wire format; no gate or network calls.
+            $code = @'
+import hashlib, json, sys
+from pathlib import Path
+sys.path.insert(0, sys.argv[1])
+import cg_pr_preflight as p
+commands = p.selected_native_commands(p.full_gate_selection(), Path('.'))
+data = dict(schema_version=1, commit_sha='a'*40, tree_sha='c'*40,
+            line_ending_provenance={'core.autocrlf':'false','core.eol':'lf'},
+            timestamp='2026-09-17T00:00:00+00:00',
+            commands=[list(c) for c in commands], exit_codes=[0]*len(commands))
+case = sys.argv[3]
+if case == 'commit': data['commit_sha'] = 'e'*40
+if case == 'tree': data['tree_sha'] = 'e'*40
+if case == 'non-lf': data['line_ending_provenance']['core.eol'] = 'crlf'
+if case == 'failed-command': data['exit_codes'][0] = 1
+if case == 'partial': data['commands'] = data['commands'][:-1]
+if case == 'other-python':
+    for command in data['commands']:
+        if command[0] == sys.executable: command[0] = str(Path(sys.executable).parent / 'another-venv' / 'python.exe')
+data['digest'] = hashlib.sha256(json.dumps(data, sort_keys=True, separators=(',', ':'), ensure_ascii=False).encode()).hexdigest()
+if case == 'digest': data['digest'] = 'f'*64
+Path(sys.argv[2]).write_text('{' if case == 'malformed' else json.dumps(data), encoding='utf-8')
+'@
+            & $script:state.Python -c $code (Join-Path $script:fixture 'scripts') $path $Case
+            if ($LASTEXITCODE -ne 0) { throw 'Receipt fixture generation failed.' }
+            return $path
         }
     }
     AfterEach {
@@ -631,6 +743,262 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
         } finally { [Console]::SetError($previous) }
         $writer.ToString() | Should -Not -Match '"kind":"timing"'
         $writer.Dispose()
+    }
+    It 'publishes a prerelease from verified source branch <Branch>' -TestCases @(
+        @{ Branch = 'dev' }, @{ Branch = 'feature/release-test' }, @{ Branch = 'production' }
+    ) {
+        param($Branch)
+        Invoke-FixtureRelease -SourceBranch $Branch
+        $script:state.Release.prerelease | Should -Be $true
+        ($script:state.Calls -join "`n") | Should -Match ([regex]::Escape("ls-remote --heads origin refs/heads/$Branch"))
+    }
+    It 'publishes stable only from an authorized source branch <Branch>' -TestCases @(
+        @{ Branch = 'production' }, @{ Branch = 'deploy/1.x' }
+    ) {
+        param($Branch)
+        Set-FixtureStable
+        $script:state.ProductionBranches = @('deploy/1.x')
+        Invoke-FixtureRelease -SourceBranch $Branch
+        $script:state.Release.prerelease | Should -Be $false
+        ($script:state.Calls -join "`n") | Should -Match ([regex]::Escape("ls-remote --heads origin refs/heads/$Branch"))
+    }
+    It 'rejects stable feature source even when its commit also exists on main' {
+        Set-FixtureStable
+        { Invoke-FixtureRelease -SourceBranch 'feature/release-test' } | Should -Throw 'Stable release source branch'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
+    }
+    It 'rechecks deployment branch authorization before Release POST after tag push' {
+        Set-FixtureStable
+        $script:state.RevokeSourceAfterPush = $true
+        { Invoke-FixtureRelease -SourceBranch 'main' } | Should -Throw 'Stable release source branch'
+        $script:state.Remote | Should -Be $true
+        ($script:state.Calls -join "`n") | Should -Not -Match 'api Post'
+    }
+    It 'rejects unsafe source branch <Branch> before remote effects' -TestCases @(
+        @{ Branch = '../bad' }, @{ Branch = '--all' }, @{ Branch = 'bad name' },
+        @{ Branch = 'branch@{1}' }, @{ Branch = 'branch.lock' }
+    ) {
+        param($Branch)
+        { Invoke-FixtureRelease -SourceBranch $Branch } | Should -Throw 'Invalid release source branch name'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'fetch origin|push origin|api Post'
+    }
+    It 'requires an explicit source branch for a detached release checkout' {
+        $script:state.CurrentBranch = $null
+        { Invoke-FixtureRelease } | Should -Throw 'SourceBranch'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
+    }
+    It 'accepts an explicit verified source branch in a detached checkout' {
+        $script:state.CurrentBranch = $null
+        Invoke-FixtureRelease -SourceBranch 'feature/release-test'
+        $script:state.Release.id | Should -Be 123
+    }
+    It 'rejects a source branch absent from the canonical remote' {
+        $script:state.SourceBranchExists = $false
+        { Invoke-FixtureRelease -SourceBranch 'feature/missing' } | Should -Throw 'remote release branch'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
+    }
+    It 'rejects a new tag not at the exact selected source tip' {
+        $script:state.Tip = ('f' * 40)
+        { Invoke-FixtureRelease -SourceBranch 'feature/release-test' } | Should -Throw 'exact current origin/feature/release-test'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
+    }
+    It 'rejects resumed prerelease outside selected source lineage' {
+        $script:state.Remote = $true; $script:state.Release = $script:expected
+        $script:state.SourceAncestorExit = 1
+        { Invoke-FixtureRelease -Phase Finalize -BuildOnly -SourceBranch 'feature/release-test' } | Should -Throw 'Release lineage mismatch'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'cg_release_attestation.py|push origin|api Post'
+    }
+    It 'rejects malformed remote production branch policy <Policy>' -TestCases @(
+        @{ Policy = '{"enabled":false,"production_branches":"feature/release-test"}' },
+        @{ Policy = '{"enabled":false,"production_branches":[null]}' },
+        @{ Policy = '{"enabled":false,"production_branches":["../bad"]}' },
+        @{ Policy = '{"enabled":false,"production_branches":["main"],"production_branches":["feature/release-test"]}' }
+    ) {
+        param($Policy)
+        Set-FixtureStable
+        $script:state.PolicyJson = $Policy
+        { Invoke-FixtureRelease -SourceBranch 'feature/release-test' } | Should -Throw 'production_branches'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
+    }
+    It 'checks stable docs layout against exact protected default before the tag push' {
+        Set-FixtureStable
+        Invoke-FixtureRelease
+        $calls = $script:state.Calls -join "`n"
+        $calls | Should -Not -Match 'merge-base --is-ancestor origin/main'
+        $calls | Should -Match 'show a{40}:\.github/workflows/release-docs.yml'
+        $calls | Should -Match 'show d{40}:\.github/workflows/release-pages.yml'
+        $calls.IndexOf(':.github/workflows/release-pages.yml') | Should -BeLessThan $calls.IndexOf('push origin')
+    }
+    It 'halts stable publication when the controller accepts only the old site layout' {
+        Set-FixtureStable
+        $script:state.Controller = $script:state.Controller.Replace('process.env.ISOLATED_RELEASE === "true" ? "docs" : "site"', '"site"')
+        { Invoke-FixtureRelease } | Should -Throw 'sync the protected controller on production first'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
+    }
+    It 'rejects controller contract drift in <Old>' -TestCases @(
+        @{ Old = '.docs-build-metadata.json'; New = '.other-metadata.json' },
+        @{ Old = 'path: release-artifact'; New = 'path: other-artifact' },
+        @{ Old = "ISOLATED_RELEASE: `${{ steps.authority.outputs.dev_artifact_id != '' }}"; New = 'ISOLATED_RELEASE: false' }
+    ) {
+        param($Old, $New)
+        Set-FixtureStable
+        $script:state.Controller = $script:state.Controller.Replace($Old, $New)
+        { Invoke-FixtureRelease } | Should -Throw 'sync the protected controller on production first'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
+    }
+    It 'does not force configured stable source to contain the protected default tip' {
+        Set-FixtureStable
+        $script:state.Remote = $true
+        $script:state.MainAncestorExit = 1
+        Invoke-FixtureRelease
+        $script:state.Release.prerelease | Should -Be $false
+        ($script:state.Calls -join "`n") | Should -Not -Match 'merge-base --is-ancestor origin/main'
+        ($script:state.Calls -join "`n") | Should -Match 'show d{40}:\.github/workflows/release-pages.yml'
+    }
+    It 'rejects extraction and composition path drift in <Old>' -TestCases @(
+        @{ Old = 'path: release-dev-artifact'; New = 'path: other-dev-artifact' },
+        @{ Old = 'import-dev current-dev release-dev-artifact'; New = 'import-dev current-dev other-dev-artifact' },
+        @{ Old = 'import-docs release-source release-artifact'; New = 'import-docs release-source other-artifact' },
+        @{ Old = '--out composed-artifact'; New = '--out other-composition' },
+        @{ Old = 'mv composed-artifact release-artifact'; New = 'mv composed-artifact other-artifact' },
+        @{ Old = 'path: release-artifact/site'; New = 'path: release-artifact/docs' },
+        @{ Old = 'path: current-dev'; New = 'path: other-dev' },
+        @{ Old = 'path: release-source'; New = 'path: other-source' }
+    ) {
+        param($Old, $New)
+        Set-FixtureStable
+        $original = $script:state.Controller
+        $script:state.Controller = $original.Replace($Old, $New)
+        $script:state.Controller | Should -Not -BeExactly $original
+        { Invoke-FixtureRelease } | Should -Throw 'sync the protected controller on production first'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
+    }
+    It 'rejects a sealing step that drops the existing recovery token' {
+        Set-FixtureStable
+        $pattern = '(?ms)^      - name: Seal durable official snapshot in the Pages artifact\r?\n.*?(?=^      - |\z)'
+        $block = [regex]::Match($script:state.Controller, $pattern).Value
+        $block.Length | Should -BeGreaterThan 0
+        $changed = $block.Replace('steps.recovery-authority.outputs.token || github.token', 'github.token')
+        $changed | Should -Not -Be $block
+        $script:state.Controller = $script:state.Controller.Replace($block, $changed)
+        { Invoke-FixtureRelease } | Should -Throw "step 'Seal durable official snapshot in the Pages artifact'"
+        ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
+    }
+    It 'rejects <Mutation> controller step <Step>' -TestCases @(
+        @{ Step = 'Download isolated dev documentation'; Mutation = 'missing' },
+        @{ Step = 'Download isolated dev documentation'; Mutation = 'skipped' },
+        @{ Step = 'Compose isolated producer artifacts with protected code'; Mutation = 'missing' },
+        @{ Step = 'Compose isolated producer artifacts with protected code'; Mutation = 'skipped' },
+        @{ Step = 'Seal durable official snapshot in the Pages artifact'; Mutation = 'missing' },
+        @{ Step = 'Seal durable official snapshot in the Pages artifact'; Mutation = 'skipped' },
+        @{ Step = 'Upload verified release Pages artifact'; Mutation = 'missing' },
+        @{ Step = 'Upload verified release Pages artifact'; Mutation = 'skipped' }
+    ) {
+        param($Step, $Mutation)
+        Set-FixtureStable
+        $pattern = '(?ms)^      - name: ' + [regex]::Escape($Step) + '\r?\n.*?(?=^      - |\z)'
+        $block = [regex]::Match($script:state.Controller, $pattern).Value
+        $block | Should -Not -BeNullOrEmpty
+        $replacement = ''
+        if ($Mutation -eq 'skipped') {
+            $replacement = $block.Replace("if: steps.authority.outputs.dev_artifact_id != ''", 'if: false')
+            if ($replacement -ceq $block) {
+                $replacement = $block.Replace("- name: $Step", "- name: $Step`n        if: false")
+            }
+        }
+        $script:state.Controller = $script:state.Controller.Replace($block, $replacement)
+        { Invoke-FixtureRelease } | Should -Throw 'sync the protected controller on production first'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
+    }
+    It 'rejects composition moved before artifact extraction' {
+        Set-FixtureStable
+        $pattern = '(?ms)^      - name: Compose isolated producer artifacts with protected code\r?\n.*?(?=^      - |\z)'
+        $block = [regex]::Match($script:state.Controller, $pattern).Value
+        $block | Should -Not -BeNullOrEmpty
+        $script:state.Controller = $script:state.Controller.Replace($block, '').Replace(
+            '      - name: Download isolated dev documentation', $block + '      - name: Download isolated dev documentation')
+        { Invoke-FixtureRelease } | Should -Throw 'out of extraction/composition order'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
+    }
+    It 'fails closed when exact workflow content cannot be read' {
+        Set-FixtureStable
+        $script:state.WorkflowReadExit = 128
+        { Invoke-FixtureRelease } | Should -Throw 'release-docs.yml'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
+    }
+    It 'rejects stable producer metadata or upload layout drift' -TestCases @(
+        @{ Old = 'docs/'; New = 'other/' },
+        @{ Old = '.docs-build-metadata.json'; New = '.other-metadata.json' },
+        @{ Old = 'include-hidden-files: true'; New = 'include-hidden-files: false' }
+    ) {
+        param($Old, $New)
+        Set-FixtureStable
+        $script:state.Producer = $script:state.Producer.Replace($Old, $New)
+        { Invoke-FixtureRelease } | Should -Throw 'release-docs.yml'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
+    }
+    It 'skips main-tip and docs-contract checks for prereleases' {
+        $script:state.MainAncestorExit = 1
+        $script:state.WorkflowReadExit = 128
+        Invoke-FixtureRelease
+        ($script:state.Calls -join "`n") | Should -Not -Match 'merge-base --is-ancestor origin/main| show .*release-(docs|pages)\.yml'
+        $script:state.Release.id | Should -Be 123
+    }
+    It 'falls back to the full gate for a missing receipt' {
+        Invoke-FixtureRelease -PreflightReceipt (Join-Path $TestDrive 'missing-receipt.json')
+        ($script:state.Calls -join "`n") | Should -Match 'clone --quiet'
+        ($script:state.Calls -join "`n") | Should -Match '--phase committed --full-gate --run-native-target'
+    }
+    It 'reuses exact successful LF receipt evidence in <Phase>' -TestCases @(
+        @{ Phase = 'Reserve' }, @{ Phase = 'Finalize' }
+    ) {
+        param($Phase)
+        if ($Phase -eq 'Finalize') { $script:state.Remote = $true; $script:state.Release = $script:expected }
+        $receipt = New-FixtureReceipt
+        Invoke-FixtureRelease -Phase $Phase -PreflightReceipt $receipt
+        ($script:state.Calls -join "`n") | Should -Match '--verify-receipt'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'clone --quiet|--run-native-target'
+        Get-Content (Join-Path $script:fixture 'release-result.txt') | Should -Match '^(CREATED|FINALIZED)\|'
+    }
+    It 'runs the full gate for invalid receipt <Case>' -TestCases @(
+        @{ Case = 'commit' }, @{ Case = 'tree' }, @{ Case = 'non-lf' },
+        @{ Case = 'digest' }, @{ Case = 'malformed' }, @{ Case = 'partial' },
+        @{ Case = 'failed-command' }
+    ) {
+        param($Case)
+        $receipt = New-FixtureReceipt -Case $Case
+        Invoke-FixtureRelease -PreflightReceipt $receipt
+        ($script:state.Calls -join "`n") | Should -Match 'clone --quiet'
+        ($script:state.Calls -join "`n") | Should -Match '--phase committed --full-gate --run-native-target'
+    }
+    It 'keeps the clean checkout guard even with a valid receipt' {
+        $receipt = New-FixtureReceipt
+        $script:state.Dirty = @(' M create-release.ps1')
+        { Invoke-FixtureRelease -PreflightReceipt $receipt } | Should -Throw 'Release checkout must be clean'
+        ($script:state.Calls -join "`n") | Should -Not -Match '--verify-receipt|credential fill|push origin|api Post'
+    }
+    It 'accepts the same logical gate from a different Python executable path' {
+        $receipt = New-FixtureReceipt -Case 'other-python'
+        Invoke-FixtureRelease -PreflightReceipt $receipt
+        ($script:state.Calls -join "`n") | Should -Match '--verify-receipt'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'clone --quiet|--run-native-target|another-venv'
+    }
+    It 'keeps the current remote tip guard even with a valid receipt' {
+        $receipt = New-FixtureReceipt
+        $script:state.Tip = ('e' * 40)
+        { Invoke-FixtureRelease -PreflightReceipt $receipt } | Should -Throw 'exact current origin/dev'
+        ($script:state.Calls -join "`n") | Should -Not -Match '--verify-receipt|credential fill|push origin|api Post'
+    }
+    It 'retains the full gate when no receipt is supplied' {
+        Invoke-FixtureRelease
+        ($script:state.Calls -join "`n") | Should -Match 'clone --quiet'
+        ($script:state.Calls -join "`n") | Should -Match '--phase committed --full-gate --run-native-target'
+    }
+    It 'does not publish when the missing-receipt fallback gate fails' {
+        $script:state.PreflightExit = 7
+        { Invoke-FixtureRelease -PreflightReceipt (Join-Path $TestDrive 'missing-receipt.json') } |
+            Should -Throw 'preflight failed with exit code 7'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'credential fill|push origin|api Post'
     }
     It 'rejects routine new publication through Recovery before any write' {
         { Invoke-FixtureRelease -Operation Recovery } | Should -Throw 'Explicit reviewed historical recovery authority is required; routine new publication is forbidden.'
@@ -706,6 +1074,7 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
         ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post|cg_release_attestation.py'
     }
     It 'finalizes the exact reviewed historical manual deployment after cutover' {
+        Set-FixtureStable
         $script:state.Remote=$true; $script:state.Release=$script:expected; $script:state.PolicyEnabled=$true
         $script:state.PagesEvent='workflow_dispatch'
         Set-FixtureRecoveryRecord
@@ -714,6 +1083,7 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
         ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
     }
     It 'rejects a substituted historical artifact before attestation effects' {
+        Set-FixtureStable
         $script:state.Remote=$true; $script:state.Release=$script:expected; $script:state.PolicyEnabled=$true
         $script:state.PagesEvent='workflow_dispatch'; $script:state.ArtifactDigest=('sha256:' + ('f' * 64))
         Set-FixtureRecoveryRecord
@@ -721,6 +1091,7 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
         ($script:state.Calls -join "`n") | Should -Not -Match 'cg_release_attestation.py|push origin|api Post'
     }
     It 'rejects withdrawal of the historical grant after artifact validation' {
+        Set-FixtureStable
         $script:state.Remote=$true; $script:state.Release=$script:expected; $script:state.PolicyEnabled=$true
         $script:state.PagesEvent='workflow_dispatch'; $script:state.WithdrawAfterArtifact=$true
         Set-FixtureRecoveryRecord
@@ -728,14 +1099,17 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
         ($script:state.Calls -join "`n") | Should -Not -Match 'cg_release_attestation.py'
     }
     It 'rejects an all-skipped deployment wrapper on another default ref' {
+        Set-FixtureStable
         $script:state.Remote=$true; $script:state.Release=$script:expected; $script:state.BadDefaultRef=$true
         { Invoke-FixtureRelease -Phase Finalize -ExactRuns } | Should -Throw 'protected default'
     }
     It 'rejects a successful wrapper with a skipped protected deploy job' {
+        Set-FixtureStable
         $script:state.Remote=$true; $script:state.Release=$script:expected; $script:state.BadDeployJob=$true
         { Invoke-FixtureRelease -Phase Finalize -ExactRuns } | Should -Throw 'protected deploy job'
     }
     It 'rejects a successful wrapper without successful deployment evidence' {
+        Set-FixtureStable
         $script:state.Remote=$true; $script:state.Release=$script:expected; $script:state.BadDeployment=$true
         { Invoke-FixtureRelease -Phase Finalize -ExactRuns } | Should -Throw 'deployment result'
     }
@@ -803,15 +1177,10 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
         { Invoke-FixtureRelease } | Should -Throw 'Incomplete GitHub release list'
         ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
     }
-    It 'reserves a stable release only from exact origin/main without requiring a branch name' {
-        Remove-Item (Join-Path $script:fixture 'releases/v1.2.0.9015.json')
-        $script:state.Tag = 'v1.2.0'
-        $script:expected.tag_name = 'v1.2.0'; $script:expected.name = 'v1.2.0 - Pairing'
-        $script:expected.html_url = 'https://github.com/GPID-WB/compound-gpid/releases/tag/v1.2.0'
-        $script:expected.prerelease = $false
-        @{ tag = $script:state.Tag; name = $script:expected.name; url = $script:expected.html_url; publishedAt = '2026-09-10T00:00:00Z' } |
-            ConvertTo-Json | Set-Content (Join-Path $script:fixture 'releases/v1.2.0.json')
-        Invoke-FixtureRelease
+    It 'reserves a stable release from exact configured source with explicit branch identity' {
+        Set-FixtureStable
+        $script:state.CurrentBranch = $null
+        Invoke-FixtureRelease -SourceBranch 'main'
         $calls = $script:state.Calls -join "`n"
         $calls | Should -Match 'refs/heads/main'
         $calls | Should -Not -Match 'refs/heads/dev|branch --show-current|symbolic-ref'
@@ -940,7 +1309,60 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
         $script:state.Remote = $true; $script:state.Release = $script:expected; $script:state.BadChain = $true
         { Invoke-FixtureRelease -Phase Finalize -ExactRuns } | Should -Throw 'release-docs.yml'
     }
-    It 'requires successful Pages and leaves the pair intact' {
+    It 'finalizes a prerelease with only the exact build and no deployment reads' {
+        $script:state.Remote = $true; $script:state.Release = $script:expected
+        $script:state.PagesStatus = 'failure'
+        Invoke-FixtureRelease -Phase Finalize -BuildOnly
+        Get-Content (Join-Path $script:fixture 'release-result.txt') | Should -Match '^FINALIZED\|'
+        $calls = $script:state.Calls -join "`n"
+        $calls | Should -Match '/actions/runs/10'
+        $calls | Should -Not -Match 'release-pages.yml/runs|/actions/runs/20|/deployments|push origin|api Post'
+        $calls.LastIndexOf('cg_release_attestation.py') | Should -BeGreaterThan $calls.IndexOf('/actions/runs/10')
+    }
+    It 'rejects a failed exact prerelease build without reading a controller' {
+        $script:state.Remote = $true; $script:state.Release = $script:expected
+        $script:state.DocsStatus = 'failure'
+        { Invoke-FixtureRelease -Phase Finalize -BuildOnly } | Should -Throw 'release-docs.yml'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'release-pages.yml/runs|/actions/runs/20|cg_release_attestation.py'
+    }
+    It 'rejects a green prerelease wrapper with <Failure> release build evidence' -TestCases @(
+        @{Failure = 'skipped-job'}, @{Failure = 'missing-job'}, @{Failure = 'wrong-attempt'},
+        @{Failure = 'wrong-sha'}, @{Failure = 'missing-step'}, @{Failure = 'skipped-step'},
+        @{Failure = 'missing-artifact'}, @{Failure = 'expired-artifact'}, @{Failure = 'wrong-artifact-run'},
+        @{Failure = 'wrong-artifact-sha'}, @{Failure = 'old-attempt-artifact'}, @{Failure = 'duplicate-artifact'}
+        @{Failure = 'invalid-digest'}, @{Failure = 'step-order'}
+    ) {
+        param($Failure)
+        $script:state.Remote = $true; $script:state.Release = $script:expected
+        switch ($Failure) {
+            'skipped-job' { $script:state.BuildJobs[0].conclusion = 'skipped' }
+            'missing-job' { $script:state.BuildJobs = @([pscustomobject]@{name = 'build-dev'; conclusion = 'success'}) }
+            'wrong-attempt' { $script:state.BuildAttempt = 2 }
+            'wrong-sha' { $script:state.BuildJobs[0].head_sha = ('f' * 40) }
+            'missing-step' { $script:state.BuildJobs[0].steps = @($script:state.BuildJobs[0].steps | Where-Object { $_.number -ne 4 }) }
+            'skipped-step' { $script:state.BuildJobs[0].steps[3].conclusion = 'skipped' }
+            'missing-artifact' { $script:state.BuildArtifacts = @() }
+            'expired-artifact' { $script:state.BuildArtifacts[0].expired = $true }
+            'wrong-artifact-run' { $script:state.BuildArtifacts[0].workflow_run.id = 99 }
+            'wrong-artifact-sha' { $script:state.BuildArtifacts[0].workflow_run.head_sha = ('f' * 40) }
+            'old-attempt-artifact' { $script:state.BuildArtifacts[0].created_at = '2026-09-16T00:01:00Z' }
+            'duplicate-artifact' { $script:state.BuildArtifacts = @($script:state.BuildArtifacts[0], $script:state.BuildArtifacts[0]) }
+            'invalid-digest' { $script:state.BuildArtifacts[0].digest = 'sha256:bad' }
+            'step-order' { $script:state.BuildJobs[0].steps[3].number = 1 }
+        }
+        { Invoke-FixtureRelease -Phase Finalize -BuildOnly } | Should -Throw 'release-docs'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'release-pages.yml/runs|/actions/runs/20|cg_release_attestation.py'
+    }
+    It 'attests a successful exact retried build attempt without requiring Pages' {
+        $script:state.Remote = $true; $script:state.Release = $script:expected
+        $script:state.BuildAttempt = 2; $script:state.BuildJobs[0].run_attempt = 2
+        Invoke-FixtureRelease -Phase Finalize -BuildOnly
+        Get-Content (Join-Path $script:fixture 'release-result.txt') | Should -Match '^FINALIZED\|'
+        ($script:state.Calls -join "`n") | Should -Match '/actions/runs/10/attempts/2/jobs'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'release-pages.yml/runs|/actions/runs/20'
+    }
+    It 'requires successful Pages for stable Finalize and leaves the pair intact' {
+        Set-FixtureStable
         $script:state.Remote = $true; $script:state.Release = $script:expected; $script:state.PagesStatus = 'failure'
         { Invoke-FixtureRelease -Phase Finalize } | Should -Throw 'release-pages.yml'
         $script:state.Release.id | Should -Be 123
@@ -951,6 +1373,7 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
         @{ Field = 'PagesPath'; Value = '.github/workflows/pages.yml' }
     ) {
         param($Field, $Value)
+        Set-FixtureStable
         $script:state.Remote = $true; $script:state.Release = $script:expected; $script:state[$Field] = $Value
         { Invoke-FixtureRelease -Phase Finalize -ExactRuns } | Should -Throw 'release-pages.yml'
         ($script:state.Calls -join "`n") | Should -Not -Match 'cg_release_attestation.py|push origin|api Post'
@@ -960,7 +1383,8 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
         { Invoke-FixtureRelease -Phase Finalize } | Should -Throw 'not eligible for lifecycle attestation'
         $script:state.Calls.Count | Should -Be 0
     }
-    It 'finalizes the exact successful chain then attests without remote mutations' {
+    It 'finalizes the exact stable chain then attests without remote mutations' {
+        Set-FixtureStable
         $script:state.Remote = $true; $script:state.Release = $script:expected
         Invoke-FixtureRelease -Phase Finalize -ExactRuns
         Get-Content (Join-Path $script:fixture 'release-result.txt') | Should -Match '^FINALIZED\|'
@@ -993,5 +1417,167 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
     It 'rejects arbitrary dirty files even with a canonical attestation' {
         $script:state.Dirty = @('?? arbitrary.txt', '?? .github/shared/skill-management/release-attestations/v1.2.0.9015.json')
         { Invoke-FixtureRelease } | Should -Throw 'must be clean'
+    }
+}
+
+Describe 'create-release.ps1 - bounded read-only reservation reconciliation' {
+    BeforeEach {
+        $tokens = $null; $errors = $null
+        $ast = [System.Management.Automation.Language.Parser]::ParseFile(
+            (Join-Path $PSScriptRoot '../create-release.ps1'), [ref]$tokens, [ref]$errors)
+        foreach ($functionName in @('Get-CgReleaseReservation', 'ConvertTo-CgNormalizedReleaseText')) {
+            $definition = $ast.Find({ param($node)
+                $node -is [System.Management.Automation.Language.FunctionDefinitionAst] -and
+                $node.Name -eq $functionName
+            }, $true)
+            . ([scriptblock]::Create($definition.Extent.Text))
+        }
+        $Tag = 'v1.2.0.9015'; $Name = 'Pairing'; $headCommit = ('a' * 40)
+        $recordedPayload = @{ url = 'https://example.invalid/release' }
+        $script:raceRead = 0
+        $script:raceMode = 'settles-present'
+        $script:raceField = 'id'
+        $script:raceRelease = [pscustomobject]@{
+            id = 123; html_url = $recordedPayload.url; tag_name = $Tag; name = $Name
+            body = 'Exact notes'; target_commitish = $headCommit; prerelease = $true
+            draft = $false; published_at = '2026-09-10T00:00:00Z'
+        }
+        function Invoke-CgReleaseApi { param($Uri, $Method = 'Get', [switch]$AllowNotFound) }
+        function Get-CgPublishedReleases { }
+        function Assert-CgReleaseMetadata { param($Release, $ExpectedTag, $ExpectedName, $ExpectedCommit, $ExpectedUrl, [switch]$CheckBody) }
+        Mock Invoke-CgReleaseApi {
+            $script:raceRead++
+            if ($script:raceMode -eq 'absent') { return $null }
+            if ($script:raceMode -eq 'settles-absent' -and $script:raceRead -ge 2) { return $null }
+            return $script:raceRelease
+        }
+        Mock Get-CgPublishedReleases {
+            if ($script:raceMode -eq 'settles-fields' -or $script:raceMode -eq 'persistent-fields') {
+                $listedRelease = $script:raceRelease.PSObject.Copy()
+                if ($script:raceRead -eq 1 -or $script:raceMode -eq 'persistent-fields') {
+                    if ($script:raceField -eq 'id') { $listedRelease.id = 456 }
+                    else { $listedRelease.draft = $true }
+                }
+                return @{ 'v1.2.0.9015' = $listedRelease }
+            }
+            if ($script:raceMode -eq 'consistent' -or
+                ($script:raceMode -eq 'settles-present' -and $script:raceRead -ge 2)) {
+                return @{ 'v1.2.0.9015' = $script:raceRelease }
+            }
+            return @{}
+        }
+        Mock Assert-CgReleaseMetadata { }
+        Mock Start-Sleep { }
+    }
+    It 'accepts a settled pair after re-reading both surfaces' {
+        $result = Get-CgReleaseReservation -RaceAttempts 3 -RaceDelaySeconds 0
+        $result.id | Should -Be 123
+        Assert-MockCalled Invoke-CgReleaseApi -Times 2 -Exactly -Scope It
+        Assert-MockCalled Get-CgPublishedReleases -Times 2 -Exactly -Scope It
+        Assert-MockCalled Assert-CgReleaseMetadata -Times 2 -Exactly -Scope It
+    }
+    It 'accepts a settled absent pair without metadata checks' {
+        $script:raceMode = 'settles-absent'
+        $result = Get-CgReleaseReservation -RaceAttempts 3 -RaceDelaySeconds 0
+        $result | Should -BeNullOrEmpty
+        Assert-MockCalled Invoke-CgReleaseApi -Times 2 -Exactly -Scope It
+        Assert-MockCalled Get-CgPublishedReleases -Times 2 -Exactly -Scope It
+        Assert-MockCalled Assert-CgReleaseMetadata -Times 0 -Exactly -Scope It
+    }
+    It 'accepts two absent surfaces immediately' {
+        $script:raceMode = 'absent'
+        Get-CgReleaseReservation -RaceAttempts 3 -RaceDelaySeconds 0 | Should -BeNullOrEmpty
+        Assert-MockCalled Invoke-CgReleaseApi -Times 1 -Exactly -Scope It
+        Assert-MockCalled Get-CgPublishedReleases -Times 1 -Exactly -Scope It
+        Assert-MockCalled Start-Sleep -Times 0 -Exactly -Scope It
+    }
+    It 'reconciles transient disagreement in <Field> before validating metadata' -TestCases @(
+        @{ Field = 'id' }, @{ Field = 'draft' }
+    ) {
+        param($Field)
+        $script:raceMode = 'settles-fields'; $script:raceField = $Field
+        (Get-CgReleaseReservation -RaceAttempts 3 -RaceDelaySeconds 0).id | Should -Be 123
+        Assert-MockCalled Invoke-CgReleaseApi -Times 2 -Exactly -Scope It
+        Assert-MockCalled Get-CgPublishedReleases -Times 2 -Exactly -Scope It
+        Assert-MockCalled Assert-CgReleaseMetadata -Times 2 -Exactly -Scope It
+    }
+    It 'preserves the ID conflict diagnostic after bounded reconciliation' {
+        $script:raceMode = 'persistent-fields'
+        { Get-CgReleaseReservation -RaceAttempts 2 -RaceDelaySeconds 0 } | Should -Throw 'Conflicting GitHub Release IDs'
+        Assert-MockCalled Invoke-CgReleaseApi -Times 2 -Exactly -Scope It
+        Assert-MockCalled Get-CgPublishedReleases -Times 2 -Exactly -Scope It
+    }
+    It 'throws the conflict only after the requested bound without remote writes' {
+        $script:raceMode = 'persistent'
+        { Get-CgReleaseReservation -RaceAttempts 3 -RaceDelaySeconds 0 } |
+            Should -Throw 'Conflicting GitHub Release lookup and list'
+        Assert-MockCalled Invoke-CgReleaseApi -Times 3 -Exactly -Scope It
+        Assert-MockCalled Get-CgPublishedReleases -Times 3 -Exactly -Scope It
+        # Pester records an omitted Method as null rather than the stub's Get default.
+        Assert-MockCalled Invoke-CgReleaseApi -Times 0 -Exactly -Scope It -ParameterFilter { $Method -and $Method -ne 'Get' }
+        Assert-MockCalled Start-Sleep -Times 0 -Exactly -Scope It
+    }
+    It 'returns a consistent first pair without sleeping' {
+        $script:raceMode = 'consistent'
+        (Get-CgReleaseReservation -RaceAttempts 3 -RaceDelaySeconds 0).id | Should -Be 123
+        Assert-MockCalled Invoke-CgReleaseApi -Times 1 -Exactly -Scope It
+        Assert-MockCalled Start-Sleep -Times 0 -Exactly -Scope It
+    }
+    It 'distinguishes explicit write methods from an omitted default GET in the mock filter' {
+        $null = Invoke-CgReleaseApi -Uri 'https://example.invalid' -Method Post
+        Assert-MockCalled Invoke-CgReleaseApi -Times 1 -Exactly -Scope It -ParameterFilter { $Method -and $Method -ne 'Get' }
+    }
+    It 'gives authorized legacy resume routes without claiming resume is read-only' {
+        $script:raceMode = 'persistent'
+        $message = ''
+        try { Get-CgReleaseReservation -RaceAttempts 1 -RaceDelaySeconds 0 }
+        catch { $message = $_.Exception.Message }
+        $message | Should -Match '/cg-release --legacy-bridge --resume v1\.2\.0\.9015'
+        $message | Should -Match '/cg-release --legacy-recovery --resume v1\.2\.0\.9015'
+        $message | Should -Match 'Inspect the tag and Release state read-only first'
+        $message | Should -Match 'only with separate authorization'
+        $message | Should -Match 'Resume requires confirmation and may run Reserve or Finalize; it is not read-only'
+    }
+    It 'sleeps only between attempts and never after the final attempt' {
+        $script:raceMode = 'persistent'
+        { Get-CgReleaseReservation -RaceAttempts 3 -RaceDelaySeconds 15 } |
+            Should -Throw 'Conflicting GitHub Release lookup and list'
+        Assert-MockCalled Start-Sleep -Times 2 -Exactly -Scope It -ParameterFilter { $Seconds -eq 15 }
+    }
+    It 'uses the fast one-attempt override without sleeping' {
+        $script:raceMode = 'persistent'
+        { Get-CgReleaseReservation -RaceAttempts 1 -RaceDelaySeconds 0 } | Should -Throw 'Conflicting GitHub Release lookup and list'
+        Assert-MockCalled Invoke-CgReleaseApi -Times 1 -Exactly -Scope It
+        Assert-MockCalled Get-CgPublishedReleases -Times 1 -Exactly -Scope It
+        Assert-MockCalled Start-Sleep -Times 0 -Exactly -Scope It
+    }
+}
+
+Describe 'create-release.ps1 - no-fallback and classic-protection audit' {
+    It 'keeps the script and prompt free of fallback publication and rollback commands' {
+        foreach ($relative in @('../create-release.ps1', '../.github/prompts/cg-release.prompt.md')) {
+            $content = Get-Content (Join-Path $PSScriptRoot $relative) -Raw
+            $content | Should -Not -Match 'gh\s+release\s+create'
+            $content | Should -Not -Match '(?i)(-Method\s+(Delete|Patch)|gh\s+api\s+[^\r\n]*(-X|--method)\s+(DELETE|PATCH))'
+            $content | Should -Not -Match '/git/refs'
+        }
+        $scriptContent = Get-Content (Join-Path $PSScriptRoot '../create-release.ps1') -Raw
+        ([regex]::Matches($scriptContent, '-Method Post -Body \$payload')).Count | Should -Be 1
+        $scriptContent | Should -Match 'Assert-CgRemoteTagCommit[\s\S]*-Method Post -Body \$payload'
+        $scriptContent | Should -Match 'read-only'
+        $scriptContent | Should -Match 'Resume Reserve'
+        $promptContent = Get-Content (Join-Path $PSScriptRoot '../.github/prompts/cg-release.prompt.md') -Raw
+        $promptContent | Should -Match '--resume'
+    }
+    It 'does not read classic protection endpoints in the script or workflow family' {
+        $paths = @((Join-Path $PSScriptRoot '../create-release.ps1'),
+            (Join-Path $PSScriptRoot '../scripts/release-legacy-authority.ps1'))
+        $workflowPaths = @(Get-ChildItem (Join-Path $PSScriptRoot '../.github/workflows/release-controller*.yml') | ForEach-Object { $_.FullName })
+        $workflowPaths.Count | Should -BeGreaterThan 0
+        $paths += $workflowPaths
+        foreach ($path in $paths) {
+            $content = (Get-Content $path | Where-Object { $_ -notmatch '^\s*#' }) -join "`n"
+            $content | Should -Not -Match '/branches/[^\s]+/protection'
+        }
     }
 }

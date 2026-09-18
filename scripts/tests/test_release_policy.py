@@ -25,8 +25,13 @@ def test_release_branch_matrix_is_explicit() -> None:
     prompt = _read(".github/prompts/cg-release.prompt.md")
     script = _read("create-release.ps1")
 
-    assert "Set `<release-branch>` to `dev` when `<prerelease>` is `true`" in prompt
-    assert 'if ($isPrereleaseTag) { $releaseBranch = "dev" }' in script
+    assert "production_branches" in prompt
+    assert "remotely discovered default branch" in prompt
+    assert "any verified same-repository remote branch" in prompt
+    assert "-SourceBranch <release-branch>" in prompt
+    assert "$releaseBranch = $SourceBranch" in script
+    assert "symbolic-ref --quiet --short HEAD" in script
+    assert "detached release checkout requires explicit -SourceBranch" in script
     assert "$Tag -cmatch '^v\\d+\\.\\d+\\.\\d+\\.\\d+$'" in script
     assert "Draft releases are not supported" in script
 
@@ -37,14 +42,32 @@ def test_prerelease_lineage_does_not_depend_on_main() -> None:
     builder = _read(".github/workflows/release-docs.yml")
     controller = _read(".github/workflows/release-pages.yml")
 
-    assert "exact `origin/dev` lineage is the prerelease authorization boundary" in prompt
+    assert "identity and remote lineage are the source authorization boundary" in prompt
     assert "merge-base --is-ancestor origin/main HEAD" not in prompt
     assert "Prerelease branch is stale: origin/main" not in script
-    assert "merge-base --is-ancestor $remoteMainCommit $headCommit" not in script
+    stable_start = script.index("function Assert-CgStableDocsContract {")
+    stable_end = script.index('\nif ([string]::IsNullOrWhiteSpace($Name))', stable_start)
+    stable_gate = script[stable_start:stable_end]
+    prerelease_path = script[:stable_start] + script[stable_end:]
+    assert "$controllerCommit = $Authority.Commit" in stable_gate
+    assert 'show "$controllerCommit`:.github/workflows/release-pages.yml"' in stable_gate
+    assert "merge-base --is-ancestor origin/main" not in stable_gate
+    assert "merge-base --is-ancestor origin/main" not in prerelease_path
+    assert "merge-base --is-ancestor $remoteMainCommit $headCommit" not in prerelease_path
+    stable_call = (
+        "if (-not $isPrereleaseTag) { "
+        "Assert-CgStableDocsContract -ExpectedCommit $headCommit -Authority $authority }"
+    )
+    assert script.count("Assert-CgStableDocsContract -ExpectedCommit $headCommit -Authority $authority }") == 1
+    assert stable_call in script
+    assert script.index('if ($Phase -eq "Reserve") {') < script.index(stable_call)
+    assert script.index(stable_call) < script.index('push origin --no-follow-tags')
     assert 'git merge-base --is-ancestor "$RELEASE_SHA" "origin/$required_branch"' in builder
     assert 'git merge-base --is-ancestor "$RELEASE_SHA" "origin/$required_branch"' in controller
     assert 'git fetch origin "$required_branch"' in builder
     assert 'git fetch origin "$required_branch"' in controller
+    assert "release-version.js --resolve-source" in builder
+    assert "release-version.js --resolve-source" in controller
     assert "git fetch origin main dev" not in builder
     assert "git fetch origin main dev" not in controller
     assert 'git merge-base --is-ancestor origin/main "$RELEASE_SHA"' not in builder
@@ -55,10 +78,10 @@ def test_all_materialized_release_commands_allow_prereleases_from_dev() -> None:
     for relative in RELEASE_PROMPTS:
         prompt = _read(relative)
 
-        assert (
-            "Set `<release-branch>` to `dev` when `<prerelease>` is `true`" in prompt
-        )
-        assert "four-component prerelease tags are released directly" in prompt
+        assert "any verified same-repository remote branch" in prompt
+        assert "including `dev`" in prompt
+        assert "production_branches" in prompt
+        assert "Set `<release-branch>` to `dev`" not in prompt
         assert (
             "Require a clean, up-to-date `main` checkout before writing payloads"
             not in prompt
@@ -195,6 +218,41 @@ def test_tag_build_is_unprivileged_and_both_builders_use_protected_controller() 
     assert "workflow_run:" not in pages
 
 
+def test_prerelease_docs_destination_is_separate_from_source_authority() -> None:
+    """Only stable tag classification enables the privileged full-site job."""
+    controller = yaml.load(_read(".github/workflows/release-pages.yml"), Loader=yaml.BaseLoader)
+    jobs = controller["jobs"]
+    classifier = jobs["classify"]
+    assert classifier["permissions"] == {"contents": "read", "actions": "read"}
+    assert "environment" not in classifier
+    assert jobs["deploy"]["needs"] == "classify"
+    assert "needs.classify.outputs.full_site == 'true'" in jobs["deploy"]["if"]
+    classify_step = next(step for step in classifier["steps"] if step.get("id") == "tag")
+    assert 'node scripts/release-version.js --full-site-tag "$RELEASE_TAG"' in classify_step["run"]
+    assert classify_step["env"]["RELEASE_TAG"] == "${{ github.event.workflow_run.head_branch }}"
+    assert "needs" not in jobs["deploy-dev"]
+    pages = yaml.load(_read(".github/workflows/pages.yml"), Loader=yaml.BaseLoader)
+    assert "releases/**" in pages["on"]["push"]["paths"]
+    assert ".github/shared/**" not in pages["on"]["push"]["paths"]
+
+
+def test_official_sealing_preserves_existing_recovery_token_authority() -> None:
+    """Recovery sealing uses the same App token as initial and final checks."""
+    workflow = yaml.load(_read(".github/workflows/release-pages.yml"), Loader=yaml.BaseLoader)
+    steps = workflow["jobs"]["deploy"]["steps"]
+    token = "${{ steps.recovery-authority.outputs.token || github.token }}"
+    initial = next(step for step in steps if step.get("id") == "authority")
+    seal = next(step for step in steps if step.get("name") == "Seal durable official snapshot in the Pages artifact")
+    final = next(step for step in steps if step.get("name") == "Recheck release is still newest")
+    assert initial["env"]["GH_TOKEN"] == token
+    assert seal["env"]["GH_TOKEN"] == token
+    assert final["env"]["GH_TOKEN"] == token
+    assert seal["run"] == "node scripts/legacy-pages.js seal-official release-source release-artifact"
+    app = next(step for step in steps if step.get("id") == "recovery-authority")
+    assert "workflow_dispatch" in app["if"]
+    assert app["with"]["permission-administration"] == "read"
+
+
 def test_combined_docs_build_validates_legacy_main_separately_from_dev() -> None:
     workflow = _read(".github/workflows/docs-site-build.yml")
 
@@ -217,7 +275,7 @@ def test_combined_docs_build_does_not_rebuild_legacy_main_source() -> None:
     assert "--root \"$GITHUB_WORKSPACE/sources/dev\" --all" not in workflow
 
 
-def test_dev_builder_has_no_authority_and_controller_uses_main_as_content_only() -> None:
+def test_dev_builder_has_no_authority_and_controller_preserves_authenticated_official_data() -> None:
     pages = _read(".github/workflows/pages.yml")
     controller = yaml.load(
         _read(".github/workflows/release-pages.yml"), Loader=yaml.BaseLoader
@@ -241,15 +299,19 @@ def test_dev_builder_has_no_authority_and_controller_uses_main_as_content_only()
     steps = controller["steps"]
     checkouts = [s["with"] for s in steps if s.get("uses", "").startswith("actions/checkout@")]
     assert [(s.get("path"), s["ref"]) for s in checkouts] == [
-        (None, "${{ github.sha }}"), ("sources/main", "main"),
+        (None, "${{ github.sha }}"),
         ("sources/dev", "${{ steps.authority.outputs.release_sha }}"),
     ]
     assert all(s["persist-credentials"] == "false" for s in checkouts)
-    download = next(s["with"] for s in steps if s.get("uses", "").startswith("actions/download-artifact@"))
+    download = next(s["with"] for s in steps if s.get("uses", "").startswith("actions/download-artifact@") and s["with"]["path"] == "dev-artifact")
     assert download["run-id"] == "${{ github.event.workflow_run.id }}"
     assert download["artifact-ids"] == "${{ steps.authority.outputs.artifact_id }}"
     runs = "\n".join(s.get("run", "") for s in steps)
     assert "scripts/legacy-pages.js import-dev sources/dev dev-artifact" in runs
+    assert "scripts/legacy-pages.js restore-official official-source official-state.json" in runs
+    assert "scripts/legacy-pages.js recheck-official official-state.json" in runs
+    assert "scripts/legacy-pages.js stamp-preview official-state.json combined-artifact" in runs
+    assert "--main-root official-source" in runs
     assert "scripts/assemble-docs-site.js --verify combined-artifact" in runs
     assert "rebuild-docs.js" not in runs
     assert "node sources/" not in runs

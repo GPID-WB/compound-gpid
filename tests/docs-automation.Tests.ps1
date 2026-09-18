@@ -80,7 +80,7 @@ Describe "Pages exact-artifact deployment contracts" {
         $pagesWorkflow | Should -Match 'scripts/rebuild-docs\.js --all'
         $releasePagesWorkflow | Should -Match 'scripts/assemble-docs-site\.js'
         $releasePagesWorkflow | Should -Match 'path: combined-artifact/site'
-        $releasePagesWorkflow | Should -Match 'path:\s*sources/main'
+        $releasePagesWorkflow | Should -Match 'restore-official official-source official-state.json'
         $releasePagesWorkflow | Should -Match '--main-root'
         $releasePagesWorkflow | Should -Match '--dev-root'
         $releasePagesWorkflow | Should -Match 'legacy-pages.js import-dev sources/dev dev-artifact'
@@ -96,23 +96,23 @@ Describe "Pages exact-artifact deployment contracts" {
         $releasePagesWorkflow | Should -Match 'Build release documentation'
         $releasePagesWorkflow | Should -Match 'name: Deploy release documentation'
         $releasePagesWorkflow | Should -Match 'merge-base --is-ancestor'
-        $releasePagesWorkflow | Should -Match 'release-version.js --legacy-docs-branch "\$RELEASE_TAG"'
+        $releasePagesWorkflow | Should -Match 'release-version.js --resolve-source'
         $releaseWorkflow | Should -Match 'rebuild-docs\.js --all'
     }
 
-    It "accepts dev-series pre-release tags (v1.2.0.900x) in the unprivileged builder" {
-        $releaseWorkflow | Should -Match 'release-version.js --legacy-docs-branch "\$RELEASE_TAG"'
+    It "classifies four-component prereleases without making them full-site deployments" {
+        $releaseWorkflow | Should -Match 'release-version.js --resolve-source'
         $helper = Join-Path $repoRoot 'scripts/release-version.js'
-        (& node $helper --legacy-docs-branch v1.2.0.9004) | Should -BeExactly 'dev'
+        (& node $helper --full-site-tag v1.2.0.9004) | Should -BeExactly 'false'
         $LASTEXITCODE | Should -Be 0
-        (& node $helper --legacy-docs-branch v1.2.0) | Should -BeExactly 'main'
+        (& node $helper --full-site-tag v1.2.0) | Should -BeExactly 'true'
         $LASTEXITCODE | Should -Be 0
         & node -e 'const a=require(''node:assert/strict''), h=require(process.argv[1]); for(const t of [''v1.2'',''v1.2.0-rc.1'',''../v1.2.0'']) a.throws(()=>h.legacyDocsBranch(t));' $helper
         $LASTEXITCODE | Should -Be 0
     }
 
-    It "binds stable tags to main and prerelease tags to dev" {
-        $releaseWorkflow | Should -Match 'required_branch="\$\(node scripts/release-version.js --legacy-docs-branch'
+    It "binds tags to remotely authorized source branches rather than a fixed main-dev map" {
+        $releaseWorkflow | Should -Match 'required_branch="\$\(node scripts/release-version.js --resolve-source'
         $releaseWorkflow | Should -Match 'git fetch origin "\$required_branch"'
         $releaseWorkflow | Should -Not -Match 'git fetch origin main dev'
         $releaseWorkflow | Should -Match 'is-ancestor "\$RELEASE_SHA" "origin/\$required_branch"'
@@ -200,6 +200,8 @@ Describe "Release payload sequencing contracts" {
         $payloadIndex = $releasePrompt.IndexOf('releases/<next-tag>.json')
         $validateIndex = $releasePrompt.IndexOf('--validate-payload releases/<next-tag>.json')
         $commitIndex = $releasePrompt.IndexOf('chore(release): prepare <next-tag> payload')
+        $gateIndex = $releasePrompt.IndexOf('python scripts/cg_pr_preflight.py --phase committed --full-gate --run-native-target --emit-receipt')
+        $mergeIndex = $releasePrompt.IndexOf('gh pr merge --auto --rebase <pr-url>')
         $tagIndex = $releasePrompt.IndexOf('git tag -a <next-tag>')
         $deployIndex = $releasePrompt.IndexOf('Wait for the unprivileged `release-docs.yml`')
         $apiIndex = $releasePrompt.IndexOf('.\create-release.ps1 -Phase Reserve')
@@ -207,11 +209,14 @@ Describe "Release payload sequencing contracts" {
         $payloadIndex | Should -BeGreaterThan -1
         $validateIndex | Should -BeGreaterThan $payloadIndex
         $commitIndex | Should -BeGreaterThan $validateIndex
-        $tagIndex | Should -BeGreaterThan $commitIndex
+        $gateIndex | Should -BeGreaterThan $commitIndex
+        $mergeIndex | Should -BeGreaterThan $gateIndex
+        $tagIndex | Should -BeGreaterThan $mergeIndex
         $deployIndex | Should -BeGreaterThan $tagIndex
         $apiIndex | Should -BeGreaterThan $tagIndex
         $apiIndex | Should -BeLessThan $deployIndex
         $finalizeIndex | Should -BeGreaterThan $deployIndex
+        $releasePrompt.IndexOf('--head <evidence-branch>') | Should -BeGreaterThan $finalizeIndex
     }
 
     It "uses record delimiters, idempotent tag handling, and an explicit resume path" {
@@ -226,14 +231,17 @@ Describe "Release payload sequencing contracts" {
         $releasePrompt | Should -Match 'Never overwrite an immutable[\s\S]*payload or create a new tag during resume'
     }
 
-    It "maps stable releases to main and four-component prereleases to dev" {
-        $releasePrompt | Should -Match 'Set `<release-branch>` to `dev` when `<prerelease>` is `true`; otherwise set it[\s\S]*to `main`'
+    It "binds stable sources to remote policy and prereleases to any verified remote branch" {
+        $releasePrompt | Should -Match 'production_branches'
+        $releasePrompt | Should -Match 'any verified same-repository remote branch'
+        $releasePrompt | Should -Match 'remotely discovered default branch'
         $releasePrompt | Should -Match 'git fetch origin <release-branch> --tags'
         $releasePrompt | Should -Match 'git rev-parse origin/<release-branch>'
         $releasePrompt | Should -Match 'Require all tests green before merging'
         $releasePrompt | Should -Not -Match 'git push origin <next-tag>|git push origin <release-branch>'
         $releasePrompt | Should -Not -Match 'merge-base --is-ancestor origin/main HEAD'
-        $releasePrompt | Should -Match 'exact `origin/dev` lineage is the prerelease authorization boundary'
+        $releasePrompt | Should -Match 'identity and remote lineage are the source authorization boundary'
+        $releasePrompt | Should -Match '-SourceBranch <release-branch>'
         $releasePrompt | Should -Not -Match 'Require a clean, up-to-date `main` checkout before writing payloads'
     }
 
