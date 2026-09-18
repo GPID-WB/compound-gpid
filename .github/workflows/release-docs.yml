@@ -29,8 +29,9 @@ jobs:
         env:
           RELEASE_TAG: ${{ github.ref_name }}
           RELEASE_SHA: ${{ github.sha }}
+          GH_TOKEN: ${{ github.token }}
         run: |
-          required_branch="$(node scripts/release-version.js --legacy-docs-branch "$RELEASE_TAG")"
+          required_branch="$(node scripts/release-version.js --resolve-source)"
           git fetch origin "$required_branch" "refs/tags/$RELEASE_TAG:refs/tags/$RELEASE_TAG"
           test "$(git rev-list -n 1 "$RELEASE_TAG")" = "$RELEASE_SHA"
           git merge-base --is-ancestor "$RELEASE_SHA" "origin/$required_branch"
