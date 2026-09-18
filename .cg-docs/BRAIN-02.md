@@ -1,11 +1,19 @@
 # 🧠 Project Brain — Part 2
 
-_Generated 2026-09-16_
+_Generated 2026-09-19_
 
-## Roadmap.Json / Test Scenarios / Cg-Work _(continued from Part 1)_
+## Test Scenarios / Roadmap.Json / Cg-Work _(continued from Part 1)_
 
-_Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 163 entities
+_Keywords: `test scenarios` · `roadmap.json` · `cg-work`_ · 176 entities
 
+- **[Windows cg-link Kilo parse failures — enforce copy-directory instead of junctions](.cg-docs/solutions/bugs/2026-08-11-windows-link-kilo-copy-directory-parse-failure.md)** · `solution` · _—_ · `2026-08-11`
+  > Opening a project in VS Code or Positron with the Compound GPID plugin installed (v1.1.9+) reported the same error fo…
+- **[Pages immutable-ref gate rejects dev-series pre-release tags \(v1.2.0.900x\)](.cg-docs/solutions/bugs/2026-08-14-pages-immutable-ref-gate-rejects-dev-series-pre-release-tags.md)** · `solution` · _—_ · `2026-08-14`
+  > The tag-triggered Pages deployment failed for the pre-release release `v1.2.0.9004`. Running [31748306075](https://gi…
+- **[Kilo cross-adapter skill auto-discovery resolves linked skills outside project](.cg-docs/solutions/bugs/2026-08-20-kilo-cross-adapter-skill-autodiscovery.md)** · `solution` · _—_ · `2026-08-20`
+  > Kilo in VS Code on Windows and Positron on macOS repeatedly reported:
+- **[cg-link ignored singular --platform flag](.cg-docs/solutions/bugs/2026-08-21-cg-link-singular-platform-flag.md)** · `solution` · _—_ · `2026-08-21`
+  > On version `v1.2.0.9006`, running `cg-link --platform kilo` produced warnings that `--platform` and `kilo` were unrec…
 - **[Release drift ignore checks spawn thousands of Git processes](.cg-docs/solutions/bugs/2026-08-26-release-drift-ignore-checks-spawn-thousands-of-git-processes.md)** · `solution` · _—_ · `2026-08-26`
   > The `/cg-release` packaging gate took more than 20 minutes in the full workflow. The native packaging test portion al…
 - **[Trusted dispatch requires immutable anchors and captured bytes](.cg-docs/solutions/bugs/2026-08-31-trust-anchor-captured-byte-dispatch.md)** · `solution` · _—_ · `2026-08-31`
@@ -98,6 +106,14 @@ _Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 163 entities
   > PR #141 exposed several failures that local guidance did not catch before a remote run: interpreter cache files could…
 - **[Release controller authority and evidence must stay bound at each continuation](.cg-docs/solutions/git-workflows/2026-09-13-release-controller-authority-and-evidence-boundaries.md)** · `solution` · _—_ · `2026-09-13`
   > The asynchronous controller has durable intents, remote effects, result records, and recovery paths. An authority che…
+- **[Docs previews restore durable official bytes from the protected Pages origin instead of stale build artifacts](.cg-docs/solutions/git-workflows/2026-09-17-docs-preview-durable-official-snapshot.md)** · `solution` · _—_ · `2026-09-17`
+  > The dev preview refreshed when `release-pages.yml`'s controller deployed the full site. Pilot review (phase 3, P1.2, …
+- **[Preflight receipts bind exact commit, tree, LF provenance and owner so one full gate serves one commit](.cg-docs/solutions/git-workflows/2026-09-17-preflight-receipt-commit-tree-lf-provenance.md)** · `solution` · _—_ · `2026-09-17`
+  > The v1.2.0.9018/9019 sessions ran the native preflight (~33 minutes) three to four times per commit (Step 4 gate, Res…
+- **[Stable releases deploy only from configured deployment branches or the remote default; prereleases use any verified branch](.cg-docs/solutions/git-workflows/2026-09-17-release-source-branch-policy-clarified.md)** · `solution` · _—_ · `2026-09-17`
+  > `create-release.ps1` assigned main/dev from tag shape and enforced that branch's remote lineage; `release-docs.yml` u…
+- **[Auto-merge and Protect dev required checks must be verified read-only before release automation relies on them](.cg-docs/solutions/git-workflows/2026-09-17-repo-settings-auto-merge-protect-dev-required-checks.md)** · `solution` · _—_ · `2026-09-17`
+  > The prerelease overlap design needs GitHub-enforced auto-merge on dev: payload and evidence PRs merge via `gh pr merg…
 - **[Pre-compute GRP once for blocks with multiple aggregations over the same grouping](.cg-docs/solutions/performance-issues/2026-03-18-grp-precomputation-for-multi-aggregation.md)** · `solution` · _—_ · `2026-03-18`
   > A common pattern in GPID welfare code computes several statistics by region in consecutive calls: Each call passes `g…
 - **[Full model audit — classification methodology and results](.cg-docs/solutions/performance-issues/2026-04-07-model-audit-classification.md)** · `solution` · _applied_ · `2026-04-07`
@@ -302,6 +318,16 @@ _Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 163 entities
   > The unfiltered full Pester gate passed its assertions but left fixture directories behind. The supervised run of `202…
 - **[Prompt-count sentinel in model-assignments tests must change with every .github/prompts/*.prompt.md addition](.cg-docs/solutions/testing-patterns/2026-09-15-prompt-count-sentinel-prompt-additions-sync.md)** · `solution` · _—_ · `2026-09-15`
   > The Step 7 full Pester gate (`2026-09-14T19:29:01Z` – `19:32:15Z`) failed with a genuine, StrictMode-independent regr…
+- **[Runner harness leaking Set-StrictMode or ErrorActionPreference into the canonical Pester scope invalidates full-gate results](.cg-docs/solutions/testing-patterns/2026-09-15-runner-harness-leak-invalidates-pester-gates.md)** · `solution` · _—_ · `2026-09-15`
+  > Two supervised full-gate attempts were invalidated by harness contamination of the canonical Pester scope: 1. **Stric…
+- **[Dedicated task-runner substitution keeps executed evidence flowing when execution_subagent is unavailable](.cg-docs/solutions/testing-patterns/2026-09-17-dedicated-task-runner-substitution-for-execution-subagent.md)** · `solution` · _—_ · `2026-09-17`
+  > During the 2026-09-17 prerelease-automation phases, the implementation thread had neither `execution_subagent` nor a …
+- **[Build documentation from one validated snapshot and refresh native evidence](.cg-docs/solutions/testing-patterns/2026-09-17-docs-snapshots-and-native-help-evidence.md)** · `solution` · _—_ · `2026-09-17`
+  > A documentation projection reopened the help catalog after its Python writer validated and rendered the tables. A fil…
+- **[Documented quarantine skip marker for time-boxed flake root-causes, never a silent skip](.cg-docs/solutions/testing-patterns/2026-09-17-documented-quarantine-skip-marker-for-flakes.md)** · `solution` · _—_ · `2026-09-17`
+  > `test_lost_response_and_unreadable_observation_remain_unknown_until_fresh_recovery [asset-package.whl]` failed once o…
+- **[Pester runs use runner registry filter names and preserved last-run artifacts between jobs](.cg-docs/solutions/testing-patterns/2026-09-17-pester-runner-registry-filter-names-and-artifact-preservation.md)** · `solution` · _—_ · `2026-09-17`
+  > `tests/Run-Tests.ps1 -File create-release.Tests.ps1` rejected the filename at the very first phase baseline (2026-09-…
 - **[Full backlog structuring into five milestones](.cg-docs/strategy/2026-04-06-full-backlog-structuring.md)** · `strategy` · _—_ · `2026-04-06`
   > - Project charter and roadmap.json already in place. - Roadmap had 1 milestone (Quality Loop) with 6 idea-stage featu…
 - **[Workflow automation and external patterns research](.cg-docs/strategy/2026-04-13-workflow-automation-research.md)** · `strategy` · _—_ · `2026-04-13`
@@ -338,8 +364,12 @@ _Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 163 entities
 _Keywords: `architecture research
 objective` · `ongoing ideas
 objective` · `workflow maturity
-objective`_ · 160 entities
+objective`_ · 167 entities
 
+- **[2026-09-16-documentation-ia-ux-redesign-review](.cg-docs/reviews/2026-09-16-documentation-ia-ux-redesign-review.md)** · `review` · _—_ · `2026-09-17`
+  > Scope: origin/dev through 9e2ed000 plus phase 5 guidance and genuine host evidence. Full routing applies because publ…
+- **[2026-09-16-documentation-ia-ux-redesign-verify-review](.cg-docs/reviews/2026-09-16-documentation-ia-ux-redesign-verify-review.md)** · `review` · _—_ · `2026-09-17`
+  > Reviewed the explicit P2.1-P2.4 fixes with cg-code-quality and cg-testing roles. The prior full review remains the pa…
 - **[@cg-fix-problems agent \(auto-dispatched by /cg-work\)](roadmap.json#cg-fix-problems-agent)** · `feature` · _done_ · `—`
   > @cg-fix-problems agent (auto-dispatched by /cg-work)
 - **[/cg-fix-problems user-facing prompt](roadmap.json#cg-fix-problems-prompt)** · `feature` · _done_ · `—`
@@ -426,8 +456,12 @@ objective`_ · 160 entities
   > Study GSD-2 and Superpowers workflow patterns
 - **[Stage control knobs for workflow prompts \(blocked on external workflow research\)](roadmap.json#stage-control-knobs)** · `feature` · _idea_ · `—`
   > Stage control knobs for workflow prompts (blocked on external workflow research)
-- **[Autonomous pipeline command /cg-autopilot \(blocked on workflow research + hooks evaluation\)](roadmap.json#autonomous-pipeline-autopilot)** · `feature` · _idea_ · `—`
-  > Autonomous pipeline command /cg-autopilot (blocked on workflow research + hooks evaluation)
+- **[Autonomous pipeline command /cg-autopilot](roadmap.json#autonomous-pipeline-autopilot)** · `feature` · _active_ · `—`
+  > Autonomous pipeline command /cg-autopilot
+- **[Autopilot hard stage deadlines](roadmap.json#autopilot-hard-stage-deadlines)** · `feature` · _idea_ · `—`
+  > Autopilot hard stage deadlines
+- **[Autopilot enforced writer isolation](roadmap.json#autopilot-enforced-writer-isolation)** · `feature` · _idea_ · `—`
+  > Autopilot enforced writer isolation
 - **[Copilot CLI execution with worktrees \(Model C\)](roadmap.json#copilot-cli-model-c-execution)** · `feature` · _idea_ · `—`
   > Copilot CLI execution with worktrees (Model C)
 - **[Verification commands — configurable post-task checks](roadmap.json#verification-commands-post-task)** · `feature` · _idea_ · `—`
@@ -540,6 +574,10 @@ objective`_ · 160 entities
   > Dual-Deployment: Dev Branch Docs at /dev/
 - **[Unified /cg-light-work command for small technical tasks](roadmap.json#unified-cg-light-work-command-for-small-technical-tasks)** · `feature` · _done_ · `—`
   > Unified /cg-light-work command for small technical tasks
+- **[Documentation Information Architecture and UX Redesign](roadmap.json#documentation-ia-ux-redesign)** · `feature` · _done_ · `—`
+  > Documentation Information Architecture and UX Redesign
+- **[cg-release prerelease automation: zero-pause flow under 45 minutes](roadmap.json#cg-release-prerelease-automation-zero-pause-flow-under-45-minutes)** · `feature` · _active_ · `—`
+  > cg-release prerelease automation: zero-pause flow under 45 minutes
 - **[Full-scope indexer \(all .cg-docs/ + roadmap features\)](roadmap.json#brain-full-scope-indexer)** · `feature` · _done_ · `—`
   > Full-scope indexer (all .cg-docs/ + roadmap features)
 - **[Topic/theme extraction \(auto-cluster artifacts into concepts\)](roadmap.json#brain-topic-extraction)** · `feature` · _done_ · `—`
@@ -604,6 +642,8 @@ objective`_ · 160 entities
   > Active-manifest install/update and cross-platform parity matrix
 - **[Token Efficiency vs modular priority resolution](roadmap.json#token-efficiency-vs-modular-priority-resolution)** · `feature` · _planned_ · `—`
   > Token Efficiency vs modular priority resolution
+- **[Merged worktrees with uncommitted WIP must never be auto-deleted](roadmap.json#merged-worktrees-with-uncommitted-wip-must-never-be-auto-deleted)** · `feature` · _idea_ · `—`
+  > Merged worktrees with uncommitted WIP must never be auto-deleted
 - **[Audit current context and model usage](roadmap.json#token-audit-context-model)** · `feature` · _idea_ · `—`
   > Audit current context and model usage
 - **[Define model tiers and escalation rules](roadmap.json#model-tier-definitions)** · `feature` · _idea_ · `—`
@@ -708,6 +748,17 @@ _Keywords: `contracts.py` · `cg_skill.py` · `cg_generate_targets.py`_ · 3 ent
   > **Review mode**: light verification **Parent review**: `.cg-docs/reviews/2026-08-28-scalable-skill-management-suite-r…
 - **[2026-08-28-scalable-skill-management-suite-verify-review](.cg-docs/reviews/2026-08-28-scalable-skill-management-suite-verify-review.md)** · `review` · _—_ · `2026-08-31`
   > **Review mode**: light verification **Parent review**: `.cg-docs/reviews/2026-08-28-scalable-skill-management-suite-r…
+
+## Repair / Findings / Round
+
+_Keywords: `repair` · `findings` · `round`_ · 3 entities
+
+- **[2026-09-16-cg-release-prerelease-automation-phase1-review](.cg-docs/reviews/2026-09-16-cg-release-prerelease-automation-phase1-review.md)** · `review` · _—_ · `2026-09-17`
+  > Parent supplied completed full-route review results from reviewer task `ses_f530fa096ffed2DDrrKHB2gkZE`: 10/10 requir…
+- **[2026-09-16-cg-release-prerelease-automation-phase2-review](.cg-docs/reviews/2026-09-16-cg-release-prerelease-automation-phase2-review.md)** · `review` · _—_ · `2026-09-17`
+  > Parent supplied full-route review from task `ses_f52bf40bbffeMlCyfowYj1ayAA`: 10/10 specifications complete, two find…
+- **[2026-09-16-cg-release-prerelease-automation-phase3-review](.cg-docs/reviews/2026-09-16-cg-release-prerelease-automation-phase3-review.md)** · `review` · _—_ · `2026-09-17`
+  > Parent supplied full-route review from `ses_f500045e6ffeO3eQZ2tY87ZkFl`: 10/10 specifications complete, three P1 manu…
 
 ## Secure_Fs.Py / Validation / Parser.Py
 
