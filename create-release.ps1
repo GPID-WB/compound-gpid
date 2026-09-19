@@ -324,10 +324,10 @@ function Assert-CgStableDocsContract {
           RELEASE_TAG: ${{ steps.authority.outputs.release_tag }}
           RELEASE_SHA: ${{ steps.authority.outputs.release_sha }}
         run: |
-          node scripts/legacy-pages.js import-docs release-source release-artifact
-          node scripts/legacy-pages.js import-dev current-dev release-dev-artifact
+          node scripts/legacy-pages.js import-docs release-source release-artifact verified-staging/release
+          node scripts/legacy-pages.js import-dev current-dev release-dev-artifact verified-staging/dev
           dev_sha="$(git -C current-dev rev-parse HEAD)"
-          node scripts/assemble-docs-site.js --main-root release-source --dev-root current-dev --out composed-artifact --main-sha "$RELEASE_SHA" --dev-sha "$dev_sha" --main-branch "$RELEASE_BRANCH" --main-ref "$RELEASE_TAG"
+          node scripts/assemble-docs-site.js --main-root release-source --dev-root current-dev --main-build verified-staging/release --dev-build verified-staging/dev --out composed-artifact --main-sha "$RELEASE_SHA" --dev-sha "$dev_sha" --main-branch "$RELEASE_BRANCH" --main-ref "$RELEASE_TAG"
           mv release-artifact release-build-artifact
           mv composed-artifact release-artifact
 '@
