@@ -2738,7 +2738,7 @@
       "constraints": [
         "Developer-only and guarded to the canonical repository."
       ],
-      "definitionDigest": "ff92d18ab5ca5798414b8d2b927f4c54a8a3521767fa91f20039a7efd2193946",
+      "definitionDigest": "3d6dad45c9297f04d654e72fd8e2024da8d97d33d93e7fb9d2c8a5a8cc7c0154",
       "definitionSources": [
         ".github/prompts/cg-release.prompt.md"
       ],
@@ -3887,7 +3887,7 @@
   ],
   "generatorVersion": "1.0.0",
   "schemaVersion": 1,
-  "sourceDigest": "4632a9870fbdc1d77cf267e6d9830b4198cf0e9847a20754a1b55833a2d554b2",
+  "sourceDigest": "3016533fe4558e1d113b6aa032fc73ed257abb1183a61d685fd62e33acd97e55",
   "suites": [
     {
       "activation": {
