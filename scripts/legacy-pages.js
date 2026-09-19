@@ -8,6 +8,22 @@ const { execFileSync } = require('node:child_process');
 function fail(message) { throw Error('legacy-pages: ' + message); }
 function positive(value) { return Number.isSafeInteger(value) && value > 0; }
 
+// Bounded GET only. Reused by authority and official deployment snapshot reads.
+function githubGet(endpoint, transport, optional = false) {
+  let raw, failed = false;
+  try {
+    raw = transport('gh', ['api', '--method', 'GET', '--hostname', 'github.com', '--include', endpoint],
+      {encoding: 'utf8', timeout: 20000, maxBuffer: 4194304, stdio: ['ignore', 'pipe', 'pipe']});
+  } catch (error) { failed = true; raw = error.stdout; }
+  if (!raw || raw.length > 4194304) fail('bounded remote authority read failed');
+  const text = raw.toString().replace(/\r\n/g, '\n'), split = text.indexOf('\n\n');
+  const status = text.match(/^HTTP\/[\d.]+ (\d{3})\b/);
+  if (split < 0 || !status) fail('unverifiable HTTP response');
+  if (optional && status[1] === '404') return null;
+  if (failed || status[1] !== '200') fail('remote authority read failed');
+  return JSON.parse(text.slice(split + 2));
+}
+
 // Example: check(process.env). All remote calls are GETs; transport is outer I/O only.
 function check(env, transport = execFileSync) {
   const slug = env.GITHUB_REPOSITORY;
@@ -19,24 +35,7 @@ function check(env, transport = execFileSync) {
       !positive(repoId) || !positive(runId) || !positive(actorId) ||
       !['dev', 'release', 'recovery'].includes(mode)) fail('invalid request identity');
   const base = `repos/${slug}`;
-  function get(endpoint, optional = false) {
-    let raw, failed = false;
-    try {
-      raw = transport('gh', ['api', '--method', 'GET', '--hostname', 'github.com', '--include', endpoint],
-        {encoding: 'utf8', timeout: 20000, maxBuffer: 4194304, stdio: ['ignore', 'pipe', 'pipe']});
-    } catch (error) {
-      failed = true;
-      raw = error.stdout;
-      if (!raw || raw.length > 4194304) fail('bounded remote authority read failed');
-    }
-    const text = raw.toString().replace(/\r\n/g, '\n');
-    const split = text.indexOf('\n\n');
-    const status = text.match(/^HTTP\/[\d.]+ (\d{3})\b/);
-    if (split < 0 || !status) fail('unverifiable HTTP response');
-    if (optional && status[1] === '404') return null;
-    if (failed || status[1] !== '200') fail('remote authority read failed');
-    return JSON.parse(text.slice(split + 2));
-  }
+  const get = (endpoint, optional = false) => githubGet(endpoint, transport, optional);
   function document(file, sha) {
     const value = get(`${base}/contents/${file}?ref=${sha}`, true);
     if (value === null) return null;
@@ -91,7 +90,11 @@ function check(env, transport = execFileSync) {
   if (artifacts.length !== 1 || !positive(artifact.id) || artifact.expired !== false ||
       artifact.workflow_run?.id !== runId || artifact.workflow_run.head_sha !== run.head_sha ||
       !/^sha256:[0-9a-f]{64}$/.test(artifact.digest)) fail('exact artifact identity is invalid');
-  if (mode !== 'dev') require('./release-version.js').legacyDocsBranch(run.head_branch);
+  if (mode !== 'dev') {
+    const versions = require('./release-version.js');
+    versions.legacyDocsBranch(run.head_branch);
+    if (versions.parseReleaseTag(run.head_branch).legacy) fail('prerelease full-site deployment is disabled');
+  }
   if (mode === 'recovery') {
     const record = document(`.github/release-recovery/${run.head_branch}.json`, branch.commit.sha);
     const ref = get(`${base}/git/ref/tags/${encodeURIComponent(run.head_branch)}`);
@@ -133,19 +136,23 @@ function importDev(source, artifact, staging) {
   return require('./docs-provenance.js').importVerified(source, artifact, staging);
 }
 
+module.exports = {check, verifyArchive, importDev, githubGet};
 
 if (require.main === module) {
   try {
-    if (process.argv[2] === 'check') {
-      const result = check(process.env);
+    if (['check', 'restore-official'].includes(process.argv[2])) {
+      const result = process.argv[2] === 'check' ? check(process.env) :
+        require('./legacy-official-snapshot.js').restoreOfficial(process.env, process.argv[3], process.argv[4]);
       if (process.env.GITHUB_OUTPUT) fs.appendFileSync(process.env.GITHUB_OUTPUT,
         Object.entries(result).map(([k, v]) => `${k}=${v}\n`).join(''));
     } else if (process.argv[2] === 'archive') verifyArchive(process.env, process.argv[3], process.argv[4]);
-    else if (['import-dev', 'import-docs'].includes(process.argv[2])) importDev(process.argv[3], process.argv[4], process.argv[5]);
+else if (['import-dev', 'import-docs'].includes(process.argv[2])) importDev(process.argv[3], process.argv[4], process.argv[5]);
+    else if (process.argv[2] === 'seal-official') require('./legacy-official-snapshot.js').sealOfficial(process.env, process.argv[3], process.argv[4]);
+    else if (process.argv[2] === 'stamp-preview') require('./legacy-official-snapshot.js').stampPreview(process.env, process.argv[3], process.argv[4]);
+    else if (process.argv[2] === 'recheck-official') require('./legacy-official-snapshot.js').recheckOfficial(process.env, process.argv[3]);
     else fail('unknown operation');
   } catch (error) {
-    console.error(error.message.startsWith('legacy-pages:') ? error.message : 'legacy-pages: bounded verification failed');
+    console.error(/^(legacy-pages|official-snapshot):/.test(error.message) ? error.message : 'legacy-pages: bounded verification failed');
     process.exitCode = 1;
   }
 }
-module.exports = {check, verifyArchive, importDev};

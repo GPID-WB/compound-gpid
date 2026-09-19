@@ -2,6 +2,22 @@
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
+function Assert-CgReleaseBranchName {
+    <# Validate an unqualified source branch before using it in Git/API arguments.
+    Example: Assert-CgReleaseBranchName -Branch 'deploy/1.x'. No remote writes.
+    #>
+    param([AllowNull()][string]$Branch)
+    if ([string]::IsNullOrEmpty($Branch) -or $Branch.Length -gt 1024 -or
+        $Branch.StartsWith('-') -or $Branch.EndsWith('.') -or
+        $Branch -cmatch '[\x00-\x20\x7f~^:?*\[\\]' -or
+        $Branch.Contains('..') -or $Branch.Contains('@{') -or
+        @($Branch.Split('/') | Where-Object { $_ -eq '' -or $_.StartsWith('.') -or $_.EndsWith('.lock') }).Count -gt 0) {
+        throw 'Invalid release source branch name.'
+    }
+    git -C $PSScriptRoot check-ref-format "refs/heads/$Branch" 2>$null | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw 'Invalid release source branch name.' }
+}
+
 function Get-CgLegacyRemoteDocument {
     <# Read data at an exact protected-default commit. Example: Get-CgLegacyRemoteDocument '.release-controller.json' $sha. #>
     param([string]$Path, [string]$Commit)
@@ -19,17 +35,21 @@ function Get-CgLegacyRemoteDocument {
     if ($Path -ceq '.release-controller.json' -and @($keys | Where-Object { $_ -ceq 'enabled' }).Count -ne 1) {
         throw 'Remote cutover policy has ambiguous enabled authority.'
     }
+    if ($Path -ceq '.release-controller.json' -and @($keys | Where-Object { $_ -ceq 'production_branches' }).Count -gt 1) {
+        throw 'Remote production_branches policy is ambiguous.'
+    }
     return ($raw | ConvertFrom-Json)
 }
 
 function Assert-CgLegacyAuthority {
     <# Recheck before each effect. Recovery keeps an existing stranded tag or a reviewed historical identity.
-    Example: $authority = Assert-CgLegacyAuthority -Operation Recovery -ReleaseTag $Tag -Commit $sha -Object $oid -RemoteTag $remote.
+    Example: $authority = Assert-CgLegacyAuthority -Operation Recovery -ReleaseTag $Tag -Commit $sha -Object $oid -RemoteTag $remote -SourceBranch 'dev'.
     Returns exact protected-default SHA and the optional reviewed historical record. No writes.
     #>
     param(
         [ValidateSet('Bridge', 'Recovery')][string]$Operation,
         [string]$ReleaseTag, [string]$Commit, [string]$Object, $RemoteTag,
+        [Parameter(Mandatory)][string]$SourceBranch,
         [switch]$RequireRecoveryRecord
     )
     $base = 'https://api.github.com/repos/GPID-WB/compound-gpid'
@@ -70,6 +90,21 @@ function Assert-CgLegacyAuthority {
     $policy = Get-CgLegacyRemoteDocument -Path '.release-controller.json' -Commit $branch.commit.sha
     if ($null -ne $policy -and ($policy.enabled -isnot [bool] -or ($Operation -eq 'Bridge' -and $policy.enabled))) {
         throw 'Legacy Bridge is disabled after remote controller cutover or with invalid policy.'
+    }
+    Assert-CgReleaseBranchName -Branch $SourceBranch
+    $productionBranches = @()
+    if ($null -ne $policy -and $null -ne $policy.PSObject.Properties['production_branches']) {
+        if ($policy.production_branches -isnot [array]) { throw 'Remote production_branches must be an array of branch names.' }
+        foreach ($productionBranch in $policy.production_branches) {
+            if ($productionBranch -isnot [string]) { throw 'Remote production_branches contains an invalid branch.' }
+            try { Assert-CgReleaseBranchName -Branch $productionBranch }
+            catch { throw 'Remote production_branches contains an invalid branch.' }
+            $productionBranches += $productionBranch
+        }
+    }
+    if ($ReleaseTag -cmatch '^v\d+\.\d+\.\d+$' -and
+        $SourceBranch -cne $repo.default_branch -and $productionBranches -cnotcontains $SourceBranch) {
+        throw "Stable release source branch '$SourceBranch' is neither a configured deployment branch nor the remote default."
     }
     $actor = Invoke-CgReleaseApi -Uri 'https://api.github.com/user'
     if ([string]$actor.id -cnotmatch '^[1-9][0-9]*$' -or [string]$actor.login -cnotmatch '^[A-Za-z0-9-]+$') { throw 'Current legacy actor authority is unavailable.' }

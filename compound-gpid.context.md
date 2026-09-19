@@ -260,6 +260,46 @@ rules that help Copilot produce accurate outputs across all prompts and sessions
   pipeline step 11 commit. See
   [authority and evidence boundaries](.cg-docs/solutions/git-workflows/2026-09-13-release-controller-authority-and-evidence-boundaries.md).
 
+### Release prerelease automation (2026-09-17)
+
+- **Source-branch policy**: official `x.y.z` releases deploy only from the
+  protected remote policy's `production_branches` or the remote default;
+  prerelease `x.y.z.<build>` may originate from any verified same-repository
+  branch, including dev. Trust the exact protected remote default commit, never
+  the source branch's editable policy; detached checkouts need an explicit
+  `-SourceBranch`. See
+  [source-branch policy](.cg-docs/solutions/git-workflows/2026-09-17-release-source-branch-policy-clarified.md).
+- **Preflight receipts**: `cg_pr_preflight.py --emit-receipt <external-path>`
+  emits canonical JSON (commit/tree SHA, LF provenance, command list, exit
+  codes, SHA-256 digest) only after a complete successful committed gate;
+  `create-release.ps1 -PreflightReceipt` reuses it only on exact
+  commit/tree/digest/LF match and always fails safe to a full re-run. Receipts
+  stay outside the working tree; the producer owns a fresh command-local LF
+  clone (`git -c core.autocrlf=false -c core.eol=lf`), and destination
+  ownership is exclusive while the receipt lives. See
+  [receipt design](.cg-docs/solutions/git-workflows/2026-09-17-preflight-receipt-commit-tree-lf-provenance.md).
+- **Repo settings (V10, verified read-only 2026-09-17 after maintainer
+  action ~21:41Z/22:07Z)**: `allow_auto_merge: true`; ruleset "Protect dev"
+  (id 21338685, refs/heads/dev, strict required-checks policy) requires Pester
+  macos-14/windows-2022, Native target Python gate macos-14/windows-2022, and
+  PR title Conventional Commits, with 0 approvals and merge/squash/rebase
+  allowed. Verify read-only before relying on automation; missing settings are
+  a blocked-stop. See
+  [settings verification](.cg-docs/solutions/git-workflows/2026-09-17-repo-settings-auto-merge-protect-dev-required-checks.md).
+- **Docs previews** restore durable official bytes from the protected Pages
+  origin (`cg-official-snapshot.json` sealed by the protected official
+  deployment), never from expired build artifacts, history scans, or main.
+  See [durable snapshot](.cg-docs/solutions/git-workflows/2026-09-17-docs-preview-durable-official-snapshot.md).
+- **Test execution in long sessions**: `tests/Run-Tests.ps1` filters by
+  registry names (`-File create-release`, not filenames); preserve
+  `tests/last-run.json` between back-to-back Pester jobs and never overlap
+  jobs. The dedicated task-runner substitution (approved 2026-09-17) uses
+  exact RUNNER_REQUEST command lists with returned executed evidence and never
+  waives evidence. See
+  [runner registry](.cg-docs/solutions/testing-patterns/2026-09-17-pester-runner-registry-filter-names-and-artifact-preservation.md)
+  and
+  [task-runner substitution](.cg-docs/solutions/testing-patterns/2026-09-17-dedicated-task-runner-substitution-for-execution-subagent.md).
+
 ## Install/Link Script Conventions
 
 - **CI bypass flag pattern**: Scripts with interactive confirmation prompts (`Read-Host`, `read -r`) must support a `[switch]$Force` (PowerShell) / `--yes -y` (bash) bypass flag. Both short and long forms required in bash. Prompt strings must be inside the `if (-not $Force)` / `if [[ "$FORCE" -eq 0 ]]` block to keep CI logs clean. Always invoke scripts with `& "script.ps1"` (not `pwsh -File`) within `shell: pwsh` CI steps. Test the guard count with `Measure-Object` (exact count assertion) — `Should -Match` short-circuits on first hit and misses a missing second guard. See `.cg-docs/solutions/testing-patterns/2026-05-13-ci-bypass-flag-force-yes-interactive-scripts.md`.

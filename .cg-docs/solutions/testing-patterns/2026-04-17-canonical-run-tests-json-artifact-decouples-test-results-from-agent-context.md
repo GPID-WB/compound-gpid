@@ -121,3 +121,5 @@ the canonical runner rule as Rule 8 and the `execution_subagent` rule as Rule 9.
 - `tests/Run-Tests.ps1` — canonical runner implementation
 - `tests/run-tests-runner.Tests.ps1` — tests for the runner itself
 - `.cg-docs/solutions/testing-patterns/2026-07-31-review-artifacts-must-use-machine-readable-finding-maps-and-stable-validation-evidence.md` — follow-on rule: `tests/last-run.json` is safe as a bounded latest-run summary, not as immutable historical evidence in committed reports
+- `.cg-docs/solutions/testing-patterns/2026-09-17-pester-runner-registry-filter-names-and-artifact-preservation.md` — registry filter names and preserving last-run artifacts between back-to-back jobs
+- `.cg-docs/solutions/testing-patterns/2026-09-17-dedicated-task-runner-substitution-for-execution-subagent.md` — approved runner-substitution protocol when `execution_subagent` is unavailable

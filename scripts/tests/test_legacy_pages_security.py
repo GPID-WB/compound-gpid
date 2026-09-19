@@ -39,17 +39,44 @@ def test_release_and_mutable_dev_execute_on_separate_runners():
 def test_legacy_deploys_use_protected_controller_and_final_fresh_authority():
     value = workflow('release-pages.yml')
     assert value['concurrency'] == {'group': 'pages', 'cancel-in-progress': False}
-    for job in value['jobs'].values():
+    jobs = value['jobs']
+    for job in jobs.values():
         steps = job['steps']
         root_checkouts = [step for step in steps if 'actions/checkout@' in step.get('uses', '')
                           and 'path' not in step.get('with', {})]
         assert len(root_checkouts) == 1
         assert root_checkouts[0]['with']['ref'] == '${{ github.sha }}'
         assert root_checkouts[0]['with']['persist-credentials'] is False
+        assert not any('rebuild-docs.js --all' in step.get('run', '') for step in steps)
+    deploying = {name for name, job in jobs.items()
+                 if any('actions/deploy-pages@' in step.get('uses', '')
+                        for step in job['steps'])}
+    assert deploying == {'deploy', 'deploy-dev'}
+    for name in deploying:
+        steps = jobs[name]['steps']
         assert 'legacy-pages.js check' in steps[-2]['run']
         assert 'actions/deploy-pages@' in steps[-1]['uses']
-        assert not any('rebuild-docs.js --all' in step.get('run', '') for step in steps)
         assert any('legacy-pages.js archive' in step.get('run', '') for step in steps)
+
+
+def test_legacy_classify_gate_runs_protected_code_without_deployment_permissions():
+    value = workflow('release-pages.yml')
+    jobs = value['jobs']
+    assert set(jobs) == {'classify', 'deploy', 'deploy-dev'}
+    gate = jobs['classify']
+    assert gate.get('permissions') == {'contents': 'read', 'actions': 'read'}
+    assert gate.get('environment') is None
+    steps = gate['steps']
+    assert steps[0]['uses'].startswith('actions/checkout@')
+    assert steps[0]['with']['ref'] == '${{ github.sha }}'
+    assert steps[0]['with']['persist-credentials'] is False
+    assert not any('actions/deploy-pages@' in step.get('uses', '') for step in steps)
+    assert not any('legacy-pages.js' in step.get('run', '') for step in steps)
+    assert not any('download-artifact' in step.get('uses', '')
+                   or 'upload-pages-artifact' in step.get('uses', '') for step in steps)
+    assert 'node scripts/release-version.js --full-site-tag' in steps[-1]['run']
+    assert jobs['deploy']['needs'] == 'classify'
+    assert "needs.classify.outputs.full_site == 'true'" in jobs['deploy']['if']
 
 
 def test_gpid_deployment_rechecks_after_environment_delay_and_artifact_upload():

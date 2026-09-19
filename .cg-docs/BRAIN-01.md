@@ -1,10 +1,10 @@
 # 🧠 Project Brain — Part 1
 
-_Generated 2026-09-16_
+_Generated 2026-09-19_
 
-## Roadmap.Json / Test Scenarios / Cg-Work
+## Test Scenarios / Roadmap.Json / Cg-Work
 
-_Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 433 entities
+_Keywords: `test scenarios` · `roadmap.json` · `cg-work`_ · 433 entities
 
 - **[Rename prompts, agents, and skills with cg- prefix; add WIP banner and manual](.cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md)** · `brainstorm` · _decided_ · `2026-03-02`
   > The project's prompts, agents, and skills lack a consistent naming prefix, making it unclear which files belong to th…
@@ -130,6 +130,8 @@ _Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 433 entities
   > <!-- Valid status values: decided, in-progress, abandoned -->
 - **[Minimal adaptive grilling for the Compound GPID workflow](.cg-docs/brainstorms/2026-09-04-minimal-adaptive-grilling.md)** · `brainstorm` · _decided_ · `2026-09-04`
   > <!-- Valid status values: decided, in-progress, abandoned -->
+- **[cg-release prerelease automation: zero-pause flow under 45 minutes](.cg-docs/brainstorms/2026-09-16-cg-release-prerelease-automation.md)** · `brainstorm` · _decided_ · `2026-09-16`
+  > The v1.2.0.9018/9019 release sessions (2026-09-15/16) measured the prerelease pipeline at over 3 hours wall-clock wit…
 - **[2026-04-23-compound-engineering-full-review](.cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md)** · `review` · _—_ · `2026-04-23`
   > Compound Engineering is the most architecturally similar project to compound-gpid. It follows an identical philosophy…
 - **[2026-04-23-gsd-2-full-review](.cg-docs/competitive-reviews/2026-04-23-gsd-2-full-review.md)** · `review` · _—_ · `2026-04-23`
@@ -382,6 +384,12 @@ _Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 433 entities
   > Improve `/cg-brainstorm` with the smallest complete adaptive-grilling pilot. The command will discover facts before a…
 - **[Generic asynchronous release controller](.cg-docs/plans/2026-09-11-generic-asynchronous-release-controller.md)** · `plan` · _active_ · `2026-09-11`
   > Implement a standalone deterministic release controller with `plan`, `start`, `status`, and `resume`, plus a thin `/c…
+- **[Implement Kilo-First Autopilot](.cg-docs/plans/2026-09-11-kilo-first-autopilot.md)** · `plan` · _active_ · `2026-09-11`
+  > Implement a Kilo-first `/cg-autopilot` that executes phased plan batches through fresh foreground Task children in on…
+- **[cg-release prerelease automation: zero-pause flow under 45 minutes](.cg-docs/plans/2026-09-16-cg-release-prerelease-automation.md)** · `plan` · _active_ · `2026-09-16`
+  > Make `/cg-release <tag> --auto-approve` run a four-component prerelease from a clean dev checkout to a published, att…
+- **[Documentation Information Architecture and UX Redesign](.cg-docs/plans/2026-09-16-documentation-ia-ux-redesign.md)** · `plan` · _completed_ · `2026-09-16`
+  > Make it easy to choose the correct suite, find a command by task, follow a complete procedure, and identify the docum…
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
 - **[2026-03-30-fix-triage-prompt-review](.cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md)** · `review` · _—_ · `—`
@@ -864,13 +872,5 @@ _Keywords: `roadmap.json` · `test scenarios` · `cg-work`_ · 433 entities
   > `compound-gpid.local.md` was absent from every fresh git worktree and clone. Team members had to manually copy the fi…
 - **[Typed-invalid gh CLI JSON payloads must map to the API-error exit code, not a crash](.cg-docs/solutions/bugs/2026-08-10-typed-invalid-gh-cli-payloads-crash-exit-code-contract.md)** · `solution` · _—_ · `2026-08-10`
   > The Compound GPID issue readiness validator (`scripts/issues/readiness.py`) documents an exit-code contract: 0 = read…
-- **[Windows cg-link Kilo parse failures — enforce copy-directory instead of junctions](.cg-docs/solutions/bugs/2026-08-11-windows-link-kilo-copy-directory-parse-failure.md)** · `solution` · _—_ · `2026-08-11`
-  > Opening a project in VS Code or Positron with the Compound GPID plugin installed (v1.1.9+) reported the same error fo…
-- **[Pages immutable-ref gate rejects dev-series pre-release tags \(v1.2.0.900x\)](.cg-docs/solutions/bugs/2026-08-14-pages-immutable-ref-gate-rejects-dev-series-pre-release-tags.md)** · `solution` · _—_ · `2026-08-14`
-  > The tag-triggered Pages deployment failed for the pre-release release `v1.2.0.9004`. Running [31748306075](https://gi…
-- **[Kilo cross-adapter skill auto-discovery resolves linked skills outside project](.cg-docs/solutions/bugs/2026-08-20-kilo-cross-adapter-skill-autodiscovery.md)** · `solution` · _—_ · `2026-08-20`
-  > Kilo in VS Code on Windows and Positron on macOS repeatedly reported:
-- **[cg-link ignored singular --platform flag](.cg-docs/solutions/bugs/2026-08-21-cg-link-singular-platform-flag.md)** · `solution` · _—_ · `2026-08-21`
-  > On version `v1.2.0.9006`, running `cg-link --platform kilo` produced warnings that `--platform` and `kilo` were unrec…
 
 _…continues in [BRAIN-02.md](BRAIN-02.md)_

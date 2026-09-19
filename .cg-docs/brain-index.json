@@ -1,5 +1,5 @@
 {
-  "edge_count": 403,
+  "edge_count": 424,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -545,6 +545,24 @@
       "edge_type": "decided_from",
       "source": ".cg-docs/plans/2026-09-11-generic-asynchronous-release-controller.md",
       "target": ".cg-docs/brainstorms/2026-09-11-generic-asynchronous-release-controller.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-09-11-kilo-first-autopilot.md",
+      "target": ".cg-docs/brainstorms/2026-09-11-kilo-first-autopilot-architecture.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-09-12-autopilot-native-evidence-revision.md",
+      "target": ".cg-docs/brainstorms/2026-09-11-kilo-first-autopilot-architecture.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-09-16-cg-release-prerelease-automation.md",
+      "target": ".cg-docs/brainstorms/2026-09-16-cg-release-prerelease-automation.md",
       "target_missing": false
     },
     {
@@ -1778,9 +1796,51 @@
       "target_missing": false
     },
     {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-09-16-cg-release-prerelease-automation-phase1-review.md",
+      "target": ".cg-docs/plans/2026-09-16-cg-release-prerelease-automation.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-09-16-cg-release-prerelease-automation-phase2-review.md",
+      "target": ".cg-docs/plans/2026-09-16-cg-release-prerelease-automation.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-09-16-cg-release-prerelease-automation-phase3-review.md",
+      "target": ".cg-docs/plans/2026-09-16-cg-release-prerelease-automation.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-09-16-documentation-ia-ux-redesign-review.md",
+      "target": ".cg-docs/plans/2026-09-16-documentation-ia-ux-redesign.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-09-16-documentation-ia-ux-redesign-verify-review.md",
+      "target": ".cg-docs/plans/2026-09-16-documentation-ia-ux-redesign.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "verifies",
+      "source": ".cg-docs/reviews/2026-09-16-documentation-ia-ux-redesign-verify-review.md",
+      "target": ".cg-docs/reviews/2026-09-16-documentation-ia-ux-redesign-review.md",
+      "target_missing": false
+    },
+    {
       "edge_type": "references",
       "source": ".cg-docs/solutions/bugs/2026-09-15-cmd-findstr-pattern-splitting-accepts-store-stub.md",
       "target": ".cg-docs/plans/2026-09-08-evidence-backed-cg-help-command.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/bugs/2026-09-16-kilo-deny-first-task-baseline-blocks-subagent-dispatch.md",
+      "target": ".cg-docs/plans/2026-09-11-kilo-first-autopilot.md",
       "target_missing": false
     },
     {
@@ -1817,6 +1877,30 @@
       "edge_type": "references",
       "source": ".cg-docs/solutions/git-workflows/2026-09-13-release-controller-authority-and-evidence-boundaries.md",
       "target": ".cg-docs/plans/2026-09-11-generic-asynchronous-release-controller.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/git-workflows/2026-09-17-docs-preview-durable-official-snapshot.md",
+      "target": ".cg-docs/plans/2026-09-16-cg-release-prerelease-automation.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/git-workflows/2026-09-17-preflight-receipt-commit-tree-lf-provenance.md",
+      "target": ".cg-docs/plans/2026-09-16-cg-release-prerelease-automation.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/git-workflows/2026-09-17-release-source-branch-policy-clarified.md",
+      "target": ".cg-docs/plans/2026-09-16-cg-release-prerelease-automation.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/git-workflows/2026-09-17-repo-settings-auto-merge-protect-dev-required-checks.md",
+      "target": ".cg-docs/plans/2026-09-16-cg-release-prerelease-automation.md",
       "target_missing": false
     },
     {
@@ -1955,6 +2039,36 @@
       "edge_type": "references",
       "source": ".cg-docs/solutions/testing-patterns/2026-09-15-runner-harness-leak-invalidates-pester-gates.md",
       "target": ".cg-docs/plans/2026-09-08-evidence-backed-cg-help-command.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/testing-patterns/2026-09-16-native-evidence-edge-budget-requires-fresh-probe-session.md",
+      "target": ".cg-docs/plans/2026-09-12-autopilot-native-evidence-revision.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/testing-patterns/2026-09-17-dedicated-task-runner-substitution-for-execution-subagent.md",
+      "target": ".cg-docs/plans/2026-09-16-cg-release-prerelease-automation.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/testing-patterns/2026-09-17-docs-snapshots-and-native-help-evidence.md",
+      "target": ".cg-docs/plans/2026-09-16-documentation-ia-ux-redesign.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/testing-patterns/2026-09-17-documented-quarantine-skip-marker-for-flakes.md",
+      "target": ".cg-docs/plans/2026-09-16-cg-release-prerelease-automation.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/testing-patterns/2026-09-17-pester-runner-registry-filter-names-and-artifact-preservation.md",
+      "target": ".cg-docs/plans/2026-09-16-cg-release-prerelease-automation.md",
       "target_missing": false
     },
     {
@@ -2234,6 +2348,12 @@
       "target_missing": false
     },
     {
+      "edge_type": "references",
+      "source": ".cg-docs/brainstorms/2026-09-16-cg-release-prerelease-automation.md",
+      "target": ".cg-docs/plans/2026-09-16-cg-release-prerelease-automation.md",
+      "target_missing": false
+    },
+    {
       "edge_type": "implements",
       "source": ".cg-docs/plans/2026-04-06-review-finding-status-tracking.md",
       "target": "roadmap.json#review-finding-status-tracking",
@@ -2417,6 +2537,12 @@
       "edge_type": "implements",
       "source": ".cg-docs/plans/2026-09-03-cr-ml-skill-redesign.md",
       "target": "roadmap.json#cr-ml-skill-redesign-for-econometricians",
+      "target_missing": false
+    },
+    {
+      "edge_type": "implements",
+      "source": ".cg-docs/plans/2026-09-16-documentation-ia-ux-redesign.md",
+      "target": "roadmap.json#documentation-ia-ux-redesign",
       "target_missing": false
     }
   ],
@@ -4390,6 +4516,69 @@
         "queued",
         "approach",
         "/cg-release"
+      ]
+    },
+    {
+      "date": "2026-09-11",
+      "entity_type": "brainstorm",
+      "path": ".cg-docs/brainstorms/2026-09-11-kilo-first-autopilot-architecture.md",
+      "slug": "2026-09-11-kilo-first-autopilot-architecture",
+      "status": "decided",
+      "summary": "The existing roadmap feature `architecture-research/autonomous-pipeline-autopilot` needs an implementation-ready architecture for long phased plans. The objective is one command that advances phase batches through work, review, fixes, conditional knowledge capture, publication, and passing PR checks, with fresh agent contexts and no overlapping pipeline writers.",
+      "tags": [
+        "autopilot",
+        "workflow",
+        "kilo",
+        "phased-execution",
+        "recovery",
+        "context-budget",
+        "ci"
+      ],
+      "title": "Kilo-First Autopilot Architecture",
+      "top_keywords": [
+        "cg-work",
+        "/cg-work",
+        "agent manager",
+        "cg-autopilot",
+        "approach",
+        "foreground task parent",
+        "verified stage boundaries",
+        "kilo",
+        "cg-review",
+        "autopilot"
+      ]
+    },
+    {
+      "date": "2026-09-16",
+      "entity_type": "brainstorm",
+      "path": ".cg-docs/brainstorms/2026-09-16-cg-release-prerelease-automation.md",
+      "slug": "2026-09-16-cg-release-prerelease-automation",
+      "status": "decided",
+      "summary": "The v1.2.0.9018/9019 release sessions (2026-09-15/16) measured the prerelease pipeline at over 3 hours wall-clock with four-plus interactive pauses. Measured problems, all observed first-hand:",
+      "tags": [
+        "release",
+        "automation",
+        "prerelease",
+        "cg-release",
+        "create-release",
+        "preflight-receipt",
+        "auto-merge",
+        "docs-deployment",
+        "latency",
+        "pester"
+      ],
+      "title": "cg-release prerelease automation: zero-pause flow under 45 minutes",
+      "top_keywords": [
+        "release-pages.yml",
+        "create-release.ps1",
+        "cg-release",
+        "release-docs.yml",
+        "release-result.txt",
+        "--auto-approve",
+        "prerelease",
+        "releases/**",
+        "automation",
+        "cg_pr_preflight.py"
       ]
     },
     {
@@ -8154,6 +8343,125 @@
         "journal.py",
         "resume",
         "release-pages.yml"
+      ]
+    },
+    {
+      "date": "2026-09-11",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-09-11-kilo-first-autopilot.md",
+      "slug": "2026-09-11-kilo-first-autopilot",
+      "status": "active",
+      "summary": "Implement a Kilo-first `/cg-autopilot` that executes phased plan batches through fresh foreground Task children in one worktree, validates each operation against durable evidence, and advances only after review, publication and exact-head CI acceptance. Preserve explicit human stops and fail safely when the runtime, ownership, state or evidence cannot support continuation.",
+      "tags": [
+        "autopilot",
+        "kilo",
+        "phased-execution",
+        "recovery",
+        "ci",
+        "context-budget"
+      ],
+      "title": "Implement Kilo-First Autopilot",
+      "top_keywords": [
+        "test scenarios",
+        "implement",
+        "recovery.py",
+        "phase",
+        "cg-work",
+        "queries.py",
+        "cg-autopilot",
+        "needs-input",
+        "evidence",
+        "contract"
+      ]
+    },
+    {
+      "date": "2026-09-12",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-09-12-autopilot-native-evidence-revision.md",
+      "slug": "2026-09-12-autopilot-native-evidence-revision",
+      "status": "blocked",
+      "summary": "Implement the smallest supported worktree-local native-evidence plugin for the unavailable bootstrap identity and independent native Task evidence paths. On 2026-09-13 the user explicitly selected **Approve Local Plugin**, including the corresponding bounded Original plan revision, source/runtime changes, dependency installation, focused tests, policies and generated ownership. The former planning-only restriction is superseded. This is execution approval, not a V1 waiver, production authorization or reset of an Original budget.",
+      "tags": [
+        "autopilot",
+        "kilo",
+        "native-evidence",
+        "implementation",
+        "safety"
+      ],
+      "title": "Implement Autopilot Native Evidence Revision",
+      "top_keywords": [
+        "general",
+        "parentid",
+        "cg_native_identity",
+        "cg-native-evidence",
+        "callid",
+        "2026-09-11-kilo-first-autopilot.md",
+        "contract",
+        "cg_native_evidence",
+        "ci-reporter-01",
+        "native-evidence-revision-01"
+      ]
+    },
+    {
+      "date": "2026-09-16",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-09-16-cg-release-prerelease-automation.md",
+      "slug": "2026-09-16-cg-release-prerelease-automation",
+      "status": "active",
+      "summary": "Make `/cg-release <tag> --auto-approve` run a four-component prerelease from a clean dev checkout to a published, attested, evidence-committed state with zero interactive pauses and exactly one full preflight per commit, using rebase auto-merge and a gate that runs in parallel with PR CI so the measured window from payload commit to published+attested stays at or under 45 minutes and the full flow (invocation to evidence merged) stays at or under 90 minutes — while stable releases keep interactive confirmation and manual merges, and no publication fallback path exists anywhere.",
+      "tags": [
+        "release",
+        "automation",
+        "prerelease",
+        "cg-release",
+        "create-release",
+        "preflight-receipt",
+        "auto-merge",
+        "docs-deployment",
+        "pester",
+        "latency"
+      ],
+      "title": "cg-release prerelease automation: zero-pause flow under 45 minutes",
+      "top_keywords": [
+        "create-release.ps1",
+        "test_release_policy.py",
+        "release-pages.yml",
+        "cg-release",
+        "pages.yml",
+        "test_release_gate_targets.py",
+        "test_cg_pr_preflight.py",
+        "test scenarios",
+        "release-docs.yml",
+        "create-release.tests.ps1"
+      ]
+    },
+    {
+      "date": "2026-09-16",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-09-16-documentation-ia-ux-redesign.md",
+      "slug": "2026-09-16-documentation-ia-ux-redesign",
+      "status": "completed",
+      "summary": "Make it easy to choose the correct suite, find a command by task, follow a complete procedure, and identify the documentation build being read. Preserve the current static site, Markdown sources, editorial visual style, public links, and protected publishing controls.",
+      "tags": [
+        "documentation",
+        "information-architecture",
+        "accessibility",
+        "navigation",
+        "github-pages",
+        "cg-help"
+      ],
+      "title": "Documentation Information Architecture and UX Redesign",
+      "top_keywords": [
+        "channels.json",
+        "npm run test:docs-browser",
+        "node scripts/check-docs-site.js",
+        "skill management",
+        "node scripts/rebuild-docs.js --check --all",
+        "test scenarios",
+        "phase",
+        "npm run test:docs-automation",
+        "gate",
+        "/cg-help"
       ]
     },
     {
@@ -12887,6 +13195,116 @@
       ]
     },
     {
+      "date": "2026-09-17",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-09-16-cg-release-prerelease-automation-phase1-review.md",
+      "slug": "2026-09-16-cg-release-prerelease-automation-phase1-review",
+      "status": "",
+      "summary": "Parent supplied completed full-route review results from reviewer task `ses_f530fa096ffed2DDrrKHB2gkZE`: 10/10 required specifications complete, 3 findings (0 P0, 1 P1, 2 P2, 0 P3), all tagged manual. This report preserves the supplied findings; individual reviewer transcripts remain with the parent. Scope: Phase 1 receipt producer, consumer, tests, and workflow records only.",
+      "tags": [],
+      "title": "2026-09-16-cg-release-prerelease-automation-phase1-review",
+      "top_keywords": [
+        "cg_pr_preflight.py",
+        "findings",
+        "final",
+        "review",
+        "phase",
+        "source",
+        "closure",
+        "scope",
+        "repair",
+        "status"
+      ]
+    },
+    {
+      "date": "2026-09-17",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-09-16-cg-release-prerelease-automation-phase2-review.md",
+      "slug": "2026-09-16-cg-release-prerelease-automation-phase2-review",
+      "status": "",
+      "summary": "Parent supplied full-route review from task `ses_f52bf40bbffeMlCyfowYj1ayAA`: 10/10 specifications complete, two findings (0 P0, 1 P1, 1 P2, 0 P3). Scope is Phase 2 only. Phase 1 review and accepted receipt evidence are unchanged. Individual reviewer transcripts remain with the parent.",
+      "tags": [],
+      "title": "2026-09-16-cg-release-prerelease-automation-phase2-review",
+      "top_keywords": [
+        "8bc05e51",
+        "create-release",
+        "focused python",
+        "full pester",
+        "cg-release",
+        "create-release.ps1",
+        "phase",
+        "review",
+        "findings",
+        "authorized"
+      ]
+    },
+    {
+      "date": "2026-09-17",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-09-16-cg-release-prerelease-automation-phase3-review.md",
+      "slug": "2026-09-16-cg-release-prerelease-automation-phase3-review",
+      "status": "",
+      "summary": "Parent supplied full-route review from `ses_f500045e6ffeO3eQZ2tY87ZkFl`: 10/10 specifications complete, three P1 manual findings. Scope is Phase 3 and the clarified source-branch policy. Phase 1/2 accepted evidence remains historical baseline. The user authorized in-scope repairs on 2026-09-17. No finding is closed until executed regression tests and independent delta review confirm it.",
+      "tags": [],
+      "title": "2026-09-16-cg-release-prerelease-automation-phase3-review",
+      "top_keywords": [
+        "round",
+        "repair",
+        "findings",
+        "verification",
+        "repair round",
+        "full pester",
+        "release-pages.yml",
+        "token",
+        "final",
+        "phase"
+      ]
+    },
+    {
+      "date": "2026-09-17",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-09-16-documentation-ia-ux-redesign-review.md",
+      "slug": "2026-09-16-documentation-ia-ux-redesign-review",
+      "status": "",
+      "summary": "Scope: origin/dev through 9e2ed000 plus phase 5 guidance and genuine host evidence. Full routing applies because publication and schema contracts changed.",
+      "tags": [],
+      "title": "2026-09-16-documentation-ia-ux-redesign-review",
+      "top_keywords": [
+        "review",
+        "additional",
+        "documentation",
+        "results",
+        "redesign",
+        "role",
+        "execution",
+        "limitation",
+        "docs/assets/site.js:194",
+        "docs/assets/docs-search.js:83"
+      ]
+    },
+    {
+      "date": "2026-09-17",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-09-16-documentation-ia-ux-redesign-verify-review.md",
+      "slug": "2026-09-16-documentation-ia-ux-redesign-verify-review",
+      "status": "",
+      "summary": "Reviewed the explicit P2.1-P2.4 fixes with cg-code-quality and cg-testing roles. The prior full review remains the parent; its advisory P3.1 remains skipped.",
+      "tags": [],
+      "title": "2026-09-16-documentation-ia-ux-redesign-verify-review",
+      "top_keywords": [
+        "review",
+        "verification",
+        "documentation",
+        "redesign",
+        "documentation redesign verification review\n\nreviewed",
+        "2026-09-16-documentation-ia-ux-redesign-review.md",
+        "2026-09-16-documentation-ia-ux-redesign.md",
+        "findings",
+        "cg-docs",
+        "remains"
+      ]
+    },
+    {
       "date": "2026-08-17",
       "entity_type": "solution",
       "path": ".cg-docs/solutions/architecture/2026-08-17-capability-router-hard-stop.md",
@@ -15351,6 +15769,37 @@
       ]
     },
     {
+      "date": "2026-09-16",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/bugs/2026-09-16-kilo-deny-first-task-baseline-blocks-subagent-dispatch.md",
+      "slug": "2026-09-16-kilo-deny-first-task-baseline-blocks-subagent-dispatch",
+      "status": "confirmed-by-human",
+      "summary": "The cg-autopilot bootstrap graph required a primary agent (`cg-autopilot`) to dispatch a subagent stage (`cg-workflow-stage`) which itself dispatches reviewer, fix, and restricted-leaf children through the native Task tool. The permission maps used deny-first Task baselines with narrow allow exceptions, e.g. the stage map `task: {\"*\": \"deny\", \"cg-code-quality\": \"allow\", \"cg-fix-problems\": \"allow\"}`. Native probes showed the stage subagent had no effective Task tool at all: - Probe `phase1-20260914-stage-general-02` (edge `stage-general`): receipt `blocked: native-dispatch-unavailable`; stage `ses_f5eac919bffe5BOuMjyVSWtcgO` observed with effective tools `[cg_native_identity, read]` only; leaf never reached. Report section \"Bootstrap Probe Stage-General Edge Blocked 2026-09-14T19:22:45Z\". - Probe `phase1-20260914-stage-reviewer-01` (edge `stage-reviewer`): receipt `blocked: dispatch-tool-unavailable`; stage...",
+      "tags": [
+        "kilo",
+        "permissions",
+        "task-tool",
+        "deny-inheritance",
+        "subagent",
+        "autopilot",
+        "target-mapping",
+        "probe"
+      ],
+      "title": "Kilo deny-first Task baselines block subagent dispatch through inherited denies",
+      "top_keywords": [
+        "task",
+        "test_native_evidence.py",
+        "2026-09-11-kilo-first-autopilot.md",
+        "cg-autopilot",
+        "target-mapping.json",
+        "subagent",
+        "kilo",
+        "ask",
+        "general",
+        "allowed"
+      ]
+    },
+    {
       "date": "2026-03-04",
       "entity_type": "solution",
       "path": ".cg-docs/solutions/build-errors/2026-03-04-get-item-target-is-string-array.md",
@@ -16646,6 +17095,121 @@
         "2026-09-12-phase4-final-evidence.json",
         "2026-09-12-phase5-final-evidence.json",
         "2026-09-13-generic-asynchronous-release-controller-phase6-p1.15-continuations-verification.md"
+      ]
+    },
+    {
+      "date": "2026-09-17",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/git-workflows/2026-09-17-docs-preview-durable-official-snapshot.md",
+      "slug": "2026-09-17-docs-preview-durable-official-snapshot",
+      "status": "",
+      "summary": "The dev preview refreshed when `release-pages.yml`'s controller deployed the full site. Pilot review (phase 3, P1.2, P1.4, P1.5) found ordinary previews broke when the producer artifact expired (retention ~1 day), more than 100 workflow runs intervened, or the source branch's payload advanced — and a repair that reused main content would break the protected/static-data trust boundary of the docs chain.",
+      "tags": [
+        "docs",
+        "deployment",
+        "pages",
+        "snapshot",
+        "preview",
+        "provenance"
+      ],
+      "title": "Docs previews restore durable official bytes from the protected Pages origin instead of stale build artifacts",
+      "top_keywords": [
+        "official",
+        "preview",
+        "durable",
+        "snapshot",
+        "release-pages.yml",
+        "cg-official-snapshot.json",
+        "pages",
+        "2026-09-16-cg-release-prerelease-automation.md",
+        "github-pages",
+        "problem"
+      ]
+    },
+    {
+      "date": "2026-09-17",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/git-workflows/2026-09-17-preflight-receipt-commit-tree-lf-provenance.md",
+      "slug": "2026-09-17-preflight-receipt-commit-tree-lf-provenance",
+      "status": "",
+      "summary": "The v1.2.0.9018/9019 sessions ran the native preflight (~33 minutes) three to four times per commit (Step 4 gate, Reserve temp-clone re-run, Finalize re-run, evidence step), pushing a single prerelease past three hours wall-clock. There was no way for Reserve or Finalize to know a specific clean commit had already passed the full gate.",
+      "tags": [
+        "preflight",
+        "receipt",
+        "provenance",
+        "line-endings",
+        "clean-clone",
+        "ownership",
+        "fail-safe"
+      ],
+      "title": "Preflight receipts bind exact commit, tree, LF provenance and owner so one full gate serves one commit",
+      "top_keywords": [
+        "commit",
+        "provenance",
+        "preflight",
+        "exact",
+        "tree",
+        "owner",
+        "receipts",
+        "bind",
+        "2026-09-16-cg-release-prerelease-automation.md",
+        "commit_sha"
+      ]
+    },
+    {
+      "date": "2026-09-17",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/git-workflows/2026-09-17-release-source-branch-policy-clarified.md",
+      "slug": "2026-09-17-release-source-branch-policy-clarified",
+      "status": "",
+      "summary": "`create-release.ps1` assigned main/dev from tag shape and enforced that branch's remote lineage; `release-docs.yml` used a helper that returned only main/dev and checked ancestor membership. That meant feature-branch prereleases were impossible, while the user's single requirement was: only official `x.y.z` releases may deploy from deployment branches or the default branch; prereleases of the form `x.y.z.<build>` may come from any branch, including dev.",
+      "tags": [
+        "release",
+        "source-branch",
+        "branch-policy",
+        "production-branches",
+        "prerelease"
+      ],
+      "title": "Stable releases deploy only from configured deployment branches or the remote default; prereleases use any verified branch",
+      "top_keywords": [
+        "branch",
+        "deployment",
+        "branches",
+        "default",
+        "prerelease",
+        "verified",
+        "release",
+        "source-branch",
+        "create-release.ps1",
+        "release-docs.yml"
+      ]
+    },
+    {
+      "date": "2026-09-17",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/git-workflows/2026-09-17-repo-settings-auto-merge-protect-dev-required-checks.md",
+      "slug": "2026-09-17-repo-settings-auto-merge-protect-dev-required-checks",
+      "status": "",
+      "summary": "The prerelease overlap design needs GitHub-enforced auto-merge on dev: payload and evidence PRs merge via `gh pr merge --auto`, so \"Protect dev\" must require the same checks as \"Protect main\". First read-only verification (2026-09-17) found `allow_auto_merge: false` and \"Protect dev\" carrying only `deletion` and `non_fast_forward` rules — no required status checks and no PR review rule.",
+      "tags": [
+        "repo-settings",
+        "auto-merge",
+        "rulesets",
+        "required-checks",
+        "verification"
+      ],
+      "title": "Auto-merge and Protect dev required checks must be verified read-only before release automation relies on them",
+      "top_keywords": [
+        "auto-merge",
+        "updated_at",
+        "allow_auto_merge: true",
+        "dev",
+        "verification",
+        "protect",
+        "required",
+        "2026-09-16-cg-release-prerelease-automation.md",
+        "settings",
+        "repo"
       ]
     },
     {
@@ -20273,6 +20837,149 @@
       ]
     },
     {
+      "date": "2026-09-16",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-09-16-native-evidence-edge-budget-requires-fresh-probe-session.md",
+      "slug": "2026-09-16-native-evidence-edge-budget-requires-fresh-probe-session",
+      "status": "confirmed-by-human",
+      "summary": "Native bootstrap probes intermittently returned `blocked: edge-limit` or `blocked: native-identity-unverified` receipts while the parent's own `cg_native_identity` call stayed healthy. Repeated attempts in the same session failed identically, looking like a permission or metadata defect: - Child `ses_f5ed7494effeJwc3SPTIbAS6RK`: `cg_native_identity` returned `blocked: edge-limit` while its parent identity read was healthy (report \"Live Passive Identity Observed 2026-09-14T18:24:51Z\"). - Probe `phase1-20260914-stage-general-03`: attempt 2 receipt `native-identity-unverified`, child identity blocked `edge-limit` (report \"Fresh Probe Outcomes 2026-09-15T14:00:44Z\"). - Probe `phase1-20260915-stage-fix-general-02`: blocked `native-identity-unverified` after three actual attempts, no effects — dispatch #5 in that session tripped the cap (report \"Phase 6 Step 16 Final Native Conformance Round 2026-09-16T02:37:36Z\").",
+      "tags": [
+        "kilo",
+        "native-evidence",
+        "plugin",
+        "edge-budget",
+        "probe-hygiene",
+        "session",
+        "autopilot",
+        "bounded-observer"
+      ],
+      "title": "Bounded native-evidence edge budget requires a fresh low-edge session for clean probes",
+      "top_keywords": [
+        "cg_native_identity",
+        "edge-limit",
+        "session",
+        "native-evidence",
+        "native-identity-unverified",
+        "cg-autopilot",
+        "blocked: edge-limit",
+        ".cg-docs/work-reports/2026-09-11-kilo-first-autopilot.md",
+        "budget",
+        "fresh"
+      ]
+    },
+    {
+      "date": "2026-09-17",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-09-17-dedicated-task-runner-substitution-for-execution-subagent.md",
+      "slug": "2026-09-17-dedicated-task-runner-substitution-for-execution-subagent",
+      "status": "",
+      "summary": "During the 2026-09-17 prerelease-automation phases, the implementation thread had neither `execution_subagent` nor a nested task tool. Every Pester and Python evidence gate had to be executed elsewhere, and the evidence had to reach the implementation thread without being fabricated, summarized out of existence, or treated as a waiver.",
+      "tags": [
+        "task-runner",
+        "execution-subagent",
+        "run-tests",
+        "pester",
+        "evidence-handoff",
+        "release-automation"
+      ],
+      "title": "Dedicated task-runner substitution keeps executed evidence flowing when execution_subagent is unavailable",
+      "top_keywords": [
+        "execution_subagent",
+        "tests/last-run.json",
+        "task-runner",
+        "last-run.json",
+        "dedicated",
+        "substitution",
+        "2026-09-16-cg-release-prerelease-automation.md",
+        "task",
+        "filteredfiles",
+        "runner_request"
+      ]
+    },
+    {
+      "date": "2026-09-17",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-09-17-docs-snapshots-and-native-help-evidence.md",
+      "slug": "2026-09-17-docs-snapshots-and-native-help-evidence",
+      "status": "",
+      "summary": "A documentation projection reopened the help catalog after its Python writer validated and rendered the tables. A file change between those reads produced different command facts and documentation from one nominal build. Separately, final review changed a documentation writer included in the native help evidence inventory, making the earlier successful Kilo proof stale.",
+      "tags": [
+        "documentation",
+        "provenance",
+        "native-help",
+        "regression-tests"
+      ],
+      "title": "Build documentation from one validated snapshot and refresh native evidence",
+      "top_keywords": [
+        "documentation",
+        "validated",
+        "build",
+        "snapshot",
+        "2026-09-16-documentation-ia-ux-redesign.md",
+        "problem",
+        "root",
+        "cause",
+        "solution",
+        "prevention"
+      ]
+    },
+    {
+      "date": "2026-09-17",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-09-17-documented-quarantine-skip-marker-for-flakes.md",
+      "slug": "2026-09-17-documented-quarantine-skip-marker-for-flakes",
+      "status": "",
+      "summary": "`test_lost_response_and_unreadable_observation_remain_unknown_until_fresh_recovery [asset-package.whl]` failed once on macos-latest-py3.11 with `E_PROCESS_ARGUMENT` inside the shared `prepare()` helper of the strict fake transport tests, while passing in four other runs. One contradictory CI signal can block merges indefinitely, and a silent `skip` would hide a possible real bug.",
+      "tags": [
+        "flaky-test",
+        "quarantine",
+        "skip-marker",
+        "timebox",
+        "ci-noise"
+      ],
+      "title": "Documented quarantine skip marker for time-boxed flake root-causes, never a silent skip",
+      "top_keywords": [
+        "skip",
+        "quarantine",
+        "e_process_argument",
+        "apply_edits",
+        "prepare()",
+        "documented",
+        "marker",
+        "2026-09-16-cg-release-prerelease-automation.md",
+        "git",
+        "cause"
+      ]
+    },
+    {
+      "date": "2026-09-17",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/testing-patterns/2026-09-17-pester-runner-registry-filter-names-and-artifact-preservation.md",
+      "slug": "2026-09-17-pester-runner-registry-filter-names-and-artifact-preservation",
+      "status": "",
+      "summary": "`tests/Run-Tests.ps1 -File create-release.Tests.ps1` rejected the filename at the very first phase baseline (2026-09-17). Later phases ran many filtered and full-suite Pester jobs back to back; without a preservation step, each job silently overwrote the previous run's `tests/last-run.json`, destroying the evidence trail the workflow needed.",
+      "tags": [
+        "pester",
+        "run-tests",
+        "last-run-json",
+        "artifact-preservation",
+        "runner-registry"
+      ],
+      "title": "Pester runs use runner registry filter names and preserved last-run artifacts between jobs",
+      "top_keywords": [
+        "last-run.json",
+        "run-tests.ps1",
+        "pester",
+        "create-release",
+        "prompt-tools",
+        "docs-automation",
+        "docs-preview",
+        "tests/last-run.json",
+        "runner",
+        "registry"
+      ]
+    },
+    {
       "date": "2026-04-06",
       "entity_type": "strategy",
       "path": ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
@@ -21751,21 +22458,65 @@
       "entity_type": "feature",
       "path": "roadmap.json#autonomous-pipeline-autopilot",
       "slug": "autonomous-pipeline-autopilot",
-      "status": "idea",
-      "summary": "Autonomous pipeline command /cg-autopilot (blocked on workflow research + hooks evaluation)",
+      "status": "active",
+      "summary": "Autonomous pipeline command /cg-autopilot",
       "tags": [],
-      "title": "Autonomous pipeline command /cg-autopilot (blocked on workflow research + hooks evaluation)",
+      "title": "Autonomous pipeline command /cg-autopilot",
       "top_keywords": [
         "cg-autopilot",
         "architecture research\nobjective",
         "autonomous",
         "pipeline",
-        "workflow",
-        "research",
-        "hooks",
         "command",
-        "blocked",
-        "evaluation"
+        "feature",
+        "milestone",
+        "architecture",
+        "research",
+        "objective"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#autopilot-hard-stage-deadlines",
+      "slug": "autopilot-hard-stage-deadlines",
+      "status": "idea",
+      "summary": "Autopilot hard stage deadlines",
+      "tags": [],
+      "title": "Autopilot hard stage deadlines",
+      "top_keywords": [
+        "architecture research\nobjective",
+        "stage",
+        "autopilot",
+        "hard",
+        "deadlines",
+        "feature",
+        "milestone",
+        "architecture",
+        "research",
+        "objective"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#autopilot-enforced-writer-isolation",
+      "slug": "autopilot-enforced-writer-isolation",
+      "status": "idea",
+      "summary": "Autopilot enforced writer isolation",
+      "tags": [],
+      "title": "Autopilot enforced writer isolation",
+      "top_keywords": [
+        "architecture research\nobjective",
+        "autopilot",
+        "enforced",
+        "writer",
+        "isolation",
+        "feature",
+        "milestone",
+        "architecture",
+        "research",
+        "objective"
       ]
     },
     {
@@ -23003,6 +23754,50 @@
     {
       "date": "",
       "entity_type": "feature",
+      "path": "roadmap.json#documentation-ia-ux-redesign",
+      "slug": "documentation-ia-ux-redesign",
+      "status": "done",
+      "summary": "Documentation Information Architecture and UX Redesign",
+      "tags": [],
+      "title": "Documentation Information Architecture and UX Redesign",
+      "top_keywords": [
+        "documentation information architecture",
+        "redesign\nmilestone",
+        "workflow maturity\nobjective",
+        "documentation",
+        "information",
+        "architecture",
+        "redesign",
+        "feature",
+        "milestone",
+        "workflow"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
+      "path": "roadmap.json#cg-release-prerelease-automation-zero-pause-flow-under-45-minutes",
+      "slug": "cg-release-prerelease-automation-zero-pause-flow-under-45-minutes",
+      "status": "active",
+      "summary": "cg-release prerelease automation: zero-pause flow under 45 minutes",
+      "tags": [],
+      "title": "cg-release prerelease automation: zero-pause flow under 45 minutes",
+      "top_keywords": [
+        "workflow maturity\nobjective",
+        "cg-release",
+        "prerelease",
+        "automation",
+        "zero-pause",
+        "flow",
+        "under",
+        "minutes",
+        "feature",
+        "milestone"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
       "path": "roadmap.json#brain-full-scope-indexer",
       "slug": "brain-full-scope-indexer",
       "status": "done",
@@ -23707,6 +24502,28 @@
     {
       "date": "",
       "entity_type": "feature",
+      "path": "roadmap.json#merged-worktrees-with-uncommitted-wip-must-never-be-auto-deleted",
+      "slug": "merged-worktrees-with-uncommitted-wip-must-never-be-auto-deleted",
+      "status": "idea",
+      "summary": "Merged worktrees with uncommitted WIP must never be auto-deleted",
+      "tags": [],
+      "title": "Merged worktrees with uncommitted WIP must never be auto-deleted",
+      "top_keywords": [
+        "ongoing ideas\nobjective",
+        "merged",
+        "worktrees",
+        "uncommitted",
+        "wip",
+        "must",
+        "never",
+        "auto-deleted",
+        "milestone",
+        "ideas"
+      ]
+    },
+    {
+      "date": "",
+      "entity_type": "feature",
       "path": "roadmap.json#token-audit-context-model",
       "slug": "token-audit-context-model",
       "status": "idea",
@@ -24321,13 +25138,13 @@
       ]
     }
   ],
-  "entity_count": 840,
-  "generated": "2026-09-16",
+  "entity_count": 866,
+  "generated": "2026-09-19",
   "schema_version": "0.2.0",
-  "topic_count": 6,
+  "topic_count": 7,
   "topics": [
     {
-      "entity_count": 596,
+      "entity_count": 609,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -24391,6 +25208,7 @@
         ".cg-docs/brainstorms/2026-09-04-cg-help-command.md",
         ".cg-docs/brainstorms/2026-09-04-cg-light-work-unified-small-task-workflow.md",
         ".cg-docs/brainstorms/2026-09-04-minimal-adaptive-grilling.md",
+        ".cg-docs/brainstorms/2026-09-16-cg-release-prerelease-automation.md",
         ".cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-gsd-2-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-superpowers-full-review.md",
@@ -24517,6 +25335,9 @@
         ".cg-docs/plans/2026-09-04-cg-light-work-unified-small-task-workflow.md",
         ".cg-docs/plans/2026-09-04-minimal-adaptive-grilling.md",
         ".cg-docs/plans/2026-09-11-generic-asynchronous-release-controller.md",
+        ".cg-docs/plans/2026-09-11-kilo-first-autopilot.md",
+        ".cg-docs/plans/2026-09-16-cg-release-prerelease-automation.md",
+        ".cg-docs/plans/2026-09-16-documentation-ia-ux-redesign.md",
         ".cg-docs/plans/phase2-model-governance-cleanup.md",
         ".cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md",
         ".cg-docs/reviews/2026-04-01-cg-strategy-and-roadmap-fix-review.md",
@@ -24808,6 +25629,10 @@
         ".cg-docs/solutions/git-workflows/2026-08-13-verified-pages-artifact-and-release-tag-gates.md",
         ".cg-docs/solutions/git-workflows/2026-08-21-pr-ci-preflight-native-target-kilo-capability-gates.md",
         ".cg-docs/solutions/git-workflows/2026-09-13-release-controller-authority-and-evidence-boundaries.md",
+        ".cg-docs/solutions/git-workflows/2026-09-17-docs-preview-durable-official-snapshot.md",
+        ".cg-docs/solutions/git-workflows/2026-09-17-preflight-receipt-commit-tree-lf-provenance.md",
+        ".cg-docs/solutions/git-workflows/2026-09-17-release-source-branch-policy-clarified.md",
+        ".cg-docs/solutions/git-workflows/2026-09-17-repo-settings-auto-merge-protect-dev-required-checks.md",
         ".cg-docs/solutions/performance-issues/2026-03-18-grp-precomputation-for-multi-aggregation.md",
         ".cg-docs/solutions/performance-issues/2026-04-07-model-audit-classification.md",
         ".cg-docs/solutions/security/2026-08-17-tar-slip-toctou-dos-quarantine-pipeline.md",
@@ -24910,6 +25735,11 @@
         ".cg-docs/solutions/testing-patterns/2026-09-13-clean-default-release-gates-and-executable-fixtures.md",
         ".cg-docs/solutions/testing-patterns/2026-09-15-pester-testdrive-long-path-cleanup-failure.md",
         ".cg-docs/solutions/testing-patterns/2026-09-15-prompt-count-sentinel-prompt-additions-sync.md",
+        ".cg-docs/solutions/testing-patterns/2026-09-15-runner-harness-leak-invalidates-pester-gates.md",
+        ".cg-docs/solutions/testing-patterns/2026-09-17-dedicated-task-runner-substitution-for-execution-subagent.md",
+        ".cg-docs/solutions/testing-patterns/2026-09-17-docs-snapshots-and-native-help-evidence.md",
+        ".cg-docs/solutions/testing-patterns/2026-09-17-documented-quarantine-skip-marker-for-flakes.md",
+        ".cg-docs/solutions/testing-patterns/2026-09-17-pester-runner-registry-filter-names-and-artifact-preservation.md",
         ".cg-docs/strategy/2026-04-06-full-backlog-structuring.md",
         ".cg-docs/strategy/2026-04-13-workflow-automation-research.md",
         ".cg-docs/strategy/2026-04-15-move-testing-skills-to-skills-enhancement.md",
@@ -24927,16 +25757,18 @@
         ".cg-docs/strategy/2026-07-30-trusted-external-capability-adoption.md"
       ],
       "keywords": [
-        "roadmap.json",
         "test scenarios",
+        "roadmap.json",
         "cg-work"
       ],
-      "label": "Roadmap.Json / Test Scenarios / Cg-Work",
-      "slug": "roadmap-json-test-scenarios-cg-work"
+      "label": "Test Scenarios / Roadmap.Json / Cg-Work",
+      "slug": "test-scenarios-roadmap-json-cg-work"
     },
     {
-      "entity_count": 160,
+      "entity_count": 167,
       "entity_paths": [
+        ".cg-docs/reviews/2026-09-16-documentation-ia-ux-redesign-review.md",
+        ".cg-docs/reviews/2026-09-16-documentation-ia-ux-redesign-verify-review.md",
         "roadmap.json#cg-fix-problems-agent",
         "roadmap.json#cg-fix-problems-prompt",
         "roadmap.json#testing-skill-r",
@@ -24981,6 +25813,8 @@
         "roadmap.json#study-gsd2-superpowers-patterns",
         "roadmap.json#stage-control-knobs",
         "roadmap.json#autonomous-pipeline-autopilot",
+        "roadmap.json#autopilot-hard-stage-deadlines",
+        "roadmap.json#autopilot-enforced-writer-isolation",
         "roadmap.json#copilot-cli-model-c-execution",
         "roadmap.json#verification-commands-post-task",
         "roadmap.json#auto-triggered-skills-via-hooks",
@@ -25037,6 +25871,8 @@
         "roadmap.json#automated-documentation-deployment-and-whats-new-page",
         "roadmap.json#dual-deployment-dev-branch-docs-at-dev",
         "roadmap.json#unified-cg-light-work-command-for-small-technical-tasks",
+        "roadmap.json#documentation-ia-ux-redesign",
+        "roadmap.json#cg-release-prerelease-automation-zero-pause-flow-under-45-minutes",
         "roadmap.json#brain-full-scope-indexer",
         "roadmap.json#brain-topic-extraction",
         "roadmap.json#brain-relationship-detection",
@@ -25069,6 +25905,7 @@
         "roadmap.json#active-manifest-platform-adapters",
         "roadmap.json#active-manifest-install-update-parity-matrix",
         "roadmap.json#token-efficiency-vs-modular-priority-resolution",
+        "roadmap.json#merged-worktrees-with-uncommitted-wip-must-never-be-auto-deleted",
         "roadmap.json#token-audit-context-model",
         "roadmap.json#model-tier-definitions",
         "roadmap.json#model-policy-tests",
@@ -25157,6 +25994,21 @@
       ],
       "label": "Contracts.Py / Cg_Skill.Py / Cg_Generate_Targets.Py",
       "slug": "contracts-py-cg-skill-py-cg-generate-targets-py"
+    },
+    {
+      "entity_count": 3,
+      "entity_paths": [
+        ".cg-docs/reviews/2026-09-16-cg-release-prerelease-automation-phase1-review.md",
+        ".cg-docs/reviews/2026-09-16-cg-release-prerelease-automation-phase2-review.md",
+        ".cg-docs/reviews/2026-09-16-cg-release-prerelease-automation-phase3-review.md"
+      ],
+      "keywords": [
+        "repair",
+        "findings",
+        "round"
+      ],
+      "label": "Repair / Findings / Round",
+      "slug": "repair-findings-round"
     },
     {
       "entity_count": 3,
