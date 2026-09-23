@@ -89,7 +89,7 @@ test("captured v2 producer remains independently verifiable; mixed v2/v3 identit
 });
 
 test("native help guidance matches current source-bound support evidence", () => {
-  const root = path.resolve(__dirname, "../.."), relative = ".cg-docs/work-reports/2026-09-17-docs-help-support.json";
+  const root = path.resolve(__dirname, "../.."), relative = ".cg-docs/work-reports/2026-09-23-docs-help-support.json";
   const proof = JSON.parse(fs.readFileSync(path.join(root, relative)));
   require("node:child_process").execFileSync(process.platform === "win32" ? "python" : "python3",
     [path.join(root, "scripts/cg_verify_help_support.py"), "--root", root, "--evidence", relative], { timeout: 30000 });
