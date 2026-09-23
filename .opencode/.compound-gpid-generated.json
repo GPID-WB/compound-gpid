@@ -357,7 +357,7 @@
       "path": ".opencode/commands/cg-release.md",
       "source": ".github/prompts/cg-release.prompt.md",
       "kind": "command",
-      "sha256": "7c5846dbde88b5828dd03b31a28ccbaeca2700597d47180402509bbc7a49d0de",
+      "sha256": "f22f3d75efefa99b3549279e875c1e687c7adfcf3871909d5988bfe86431a7d2",
       "executable": false
     },
     {
@@ -574,7 +574,7 @@
       "path": ".opencode/shared/help-catalog.json",
       "source": ".github/shared/help-catalog.json",
       "kind": "shared",
-      "sha256": "48cd6f7e1bca89b74c3dd5bba31d49a339ad66320a0abfef90baf7ea355ac30c",
+      "sha256": "7f3066333d9e72234fe610118a1375d1ba7768effb59cd85c41fea531dd155dd",
       "executable": false
     },
     {

@@ -800,6 +800,12 @@
           "description": "Redesign the existing static docs navigation and separate in-page TOC, consolidate Skill Management, explain CG/CR, improve task-based command guides and local discovery, and verify Published/root plus /dev/ identity. Core Gate A ships independently; catalog integration and help runtime claims need Gates B/C.",
           "status": "done",
           "plan": ".cg-docs/plans/2026-09-16-documentation-ia-ux-redesign.md"
+        },
+        {
+          "id": "cg-release-prerelease-automation-zero-pause-flow-under-45-minutes",
+          "title": "cg-release prerelease automation: zero-pause flow under 45 minutes",
+          "status": "active",
+          "plan": ".cg-docs/plans/2026-09-16-cg-release-prerelease-automation.md"
         }
       ]
     },
@@ -1038,6 +1044,12 @@
           "title": "Token Efficiency vs modular priority resolution",
           "description": "Resolve the tension between the charter's Current Focus (Token Efficiency) and the modular architecture plan. Either add a Phase 0 step to update the charter, or explicitly document the prioritization change.",
           "status": "planned",
+          "plan": null
+        },
+        {
+          "id": "merged-worktrees-with-uncommitted-wip-must-never-be-auto-deleted",
+          "title": "Merged worktrees with uncommitted WIP must never be auto-deleted",
+          "status": "idea",
           "plan": null
         }
       ]

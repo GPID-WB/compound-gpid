@@ -16,14 +16,17 @@ release preflight. Selection-only and native-only operations keep Python 3.8+.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import re
 import subprocess
 import sys
+import tempfile
 import time
 from dataclasses import dataclass, field, replace
-from pathlib import Path
+from datetime import datetime, timezone
+from pathlib import Path, PureWindowsPath
 from typing import Any, Iterable, Mapping, Sequence, Tuple
 
 PYTHON = sys.executable
@@ -46,6 +49,8 @@ ZERO_REVISION = "0" * 40
 MAX_CAPTURED_OUTPUT_BYTES = 8 * 1024
 MAX_KILO_RESULT_BYTES = 2 * 1024 * 1024
 MAX_CACHE_REPORT_PATHS = 100
+MAX_RECEIPT_BYTES = 1024 * 1024
+RECEIPT_GIT_OPTIONS = ("-c", "core.autocrlf=false", "-c", "core.eol=lf")
 MODULE_CHECKS = ("dependencies", "cross-suite", "ownership")
 GENERATED_ROOTS = (".agents", ".claude", ".kilo", ".opencode")
 OWNERSHIP_MANIFEST_NAME = ".compound-gpid-generated.json"
@@ -1225,6 +1230,152 @@ def render_result(result: PreflightResult, output_format: str = "text") -> str:
     return "\n".join(lines)
 
 
+def _receipt_state(root: Path) -> dict[str, Any]:
+    """Capture identity and effective command-local LF settings without config writes."""
+    values: list[str] = []
+    for arguments in (
+        ("rev-parse", "--verify", "HEAD^{commit}"),
+        ("rev-parse", "--verify", "HEAD^{tree}"),
+        ("config", "--get", "core.autocrlf"),
+        ("config", "--get", "core.eol"),
+        ("status", "--porcelain", "--untracked-files=all"),
+    ):
+        result = _run_git(root, (*RECEIPT_GIT_OPTIONS, *arguments))
+        if not result.ok:
+            raise ValueError("Receipt requires readable Git identity and LF configuration")
+        values.append(result.stdout.strip())
+    commit, tree, autocrlf, eol, changes = values
+    if not all(re.fullmatch(r"[0-9a-f]{40}", value) for value in (commit, tree)):
+        raise ValueError("Receipt requires exact commit and tree identities")
+    if changes or autocrlf != "false" or eol != "lf":
+        raise ValueError("Receipt requires a clean checkout with core.autocrlf=false and core.eol=lf")
+    return {
+        "commit_sha": commit, "tree_sha": tree,
+        "line_ending_provenance": {"core.autocrlf": autocrlf, "core.eol": eol},
+    }
+
+
+def _receipt_json(payload: Mapping[str, Any]) -> bytes:
+    """Encode the receipt wire format with sorted keys, compact JSON and UTF-8."""
+    return json.dumps(payload, sort_keys=True, separators=(",", ":"),
+                      ensure_ascii=False, allow_nan=False).encode("utf-8")
+
+
+def _write_preflight_receipt(path: Path, state: Mapping[str, Any], result: PreflightResult) -> None:
+    """Atomically publish successful full-gate evidence to an external path."""
+    expected = selected_native_commands(full_gate_selection(), Path("."), phase="committed")
+    if (result.exit_code != 0 or result.phase != "committed"
+            or tuple(item.command for item in result.command_results) != expected
+            or any(item.returncode != 0 for item in result.command_results)):
+        raise ValueError("Receipt requires every command in the complete committed release gate")
+    payload = {
+        "schema_version": 1, **state,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "commands": [list(item.command) for item in result.command_results],
+        "exit_codes": [item.returncode for item in result.command_results],
+    }
+    payload["digest"] = hashlib.sha256(_receipt_json(payload)).hexdigest()
+    temporary: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(dir=path.parent, prefix=".preflight-", suffix=".tmp", delete=False) as handle:
+            temporary = Path(handle.name)
+            handle.write(_receipt_json(payload) + b"\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary, path)
+    finally:
+        if temporary is not None and temporary.exists():
+            temporary.unlink()
+
+
+def _receipt_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    """Reject duplicate JSON keys rather than accepting ambiguous evidence."""
+    result: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("Duplicate receipt key")
+        result[key] = value
+    return result
+
+
+def _receipt_commands_match(commands: Any) -> bool:
+    """Match exact logical gates while allowing one different Python executable path.
+
+    Interpreter paths are recorded evidence only, never executed by the verifier.
+    Every argument, command position, and non-Python executable remains exact.
+    """
+    expected = selected_native_commands(full_gate_selection(), Path("."), phase="committed")
+    if not isinstance(commands, list) or len(commands) != len(expected):
+        return False
+    interpreter = None
+    for actual, command in zip(commands, expected):
+        if not isinstance(actual, list) or not actual or not all(isinstance(arg, str) for arg in actual):
+            return False
+        if command[0] != PYTHON:
+            if actual != list(command):
+                return False
+        else:
+            if (actual[1:] != list(command[1:]) or not actual[0]
+                    or not (Path(actual[0]).is_absolute() or PureWindowsPath(actual[0]).is_absolute())):
+                return False
+            if interpreter is not None and actual[0] != interpreter:
+                return False
+            interpreter = actual[0]
+    return True
+
+
+def verify_preflight_receipt(path: Path, commit_sha: str, tree_sha: str) -> bool:
+    """Verify local full-gate evidence for an exact release commit and tree.
+
+    Args:
+        path: Receipt produced by ``--emit-receipt``, outside the checkout.
+        commit_sha: Expected HEAD commit from the release caller.
+        tree_sha: Expected HEAD tree from the release caller.
+
+    Returns:
+        False for missing, malformed, altered, partial or non-LF evidence.
+        The digest detects corruption; it is not a signature or remote authority.
+
+    Example:
+        ``verify_preflight_receipt(Path(receipt), head_commit, head_tree)``
+    """
+    try:
+        if path.is_symlink() or not path.is_file():
+            return False
+        with path.open("rb") as handle:
+            raw = handle.read(MAX_RECEIPT_BYTES + 1)
+        if len(raw) > MAX_RECEIPT_BYTES:
+            return False
+        payload = json.loads(raw.decode("utf-8"), object_pairs_hook=_receipt_object)
+        fields = {"schema_version", "commit_sha", "tree_sha", "line_ending_provenance",
+                  "timestamp", "commands", "exit_codes", "digest"}
+        if not isinstance(payload, dict) or set(payload) != fields:
+            return False
+        if type(payload["schema_version"]) is not int or payload["schema_version"] != 1:
+            return False
+        if not all(re.fullmatch(r"[0-9a-f]{40}", value) for value in (commit_sha, tree_sha)):
+            return False
+        if payload["commit_sha"] != commit_sha or payload["tree_sha"] != tree_sha:
+            return False
+        if payload["line_ending_provenance"] != {"core.autocrlf": "false", "core.eol": "lf"}:
+            return False
+        expected = selected_native_commands(full_gate_selection(), Path("."), phase="committed")
+        if not _receipt_commands_match(payload["commands"]):
+            return False
+        codes = payload["exit_codes"]
+        if (not isinstance(codes, list) or len(codes) != len(expected)
+                or any(type(code) is not int or code != 0 for code in codes)):
+            return False
+        stamp = datetime.fromisoformat(payload["timestamp"].replace("Z", "+00:00"))
+        if stamp.utcoffset() != timezone.utc.utcoffset(stamp):
+            return False
+        digest = payload.pop("digest")
+        return (isinstance(digest, str) and re.fullmatch(r"[0-9a-f]{64}", digest) is not None
+                and digest == hashlib.sha256(_receipt_json(payload)).hexdigest())
+    except (OSError, ValueError, TypeError, AttributeError, RecursionError):
+        return False
+
+
 def _build_parser() -> argparse.ArgumentParser:
     """Build the command-line parser for the preflight."""
     parser = argparse.ArgumentParser(description=__doc__)
@@ -1240,6 +1391,12 @@ def _build_parser() -> argparse.ArgumentParser:
                         help="registered native producer excludes the separately required package CI")
     parser.add_argument("--selection-only", "--select-only", action="store_true", dest="selection_only")
     parser.add_argument("--run-native-target", action="store_true", help="execute selected native commands")
+    parser.add_argument("--emit-receipt", type=Path,
+                        help="run in an owned fresh LF clone and write evidence to an exclusive external path")
+    parser.add_argument("--verify-receipt", type=Path,
+                        help="verify a local receipt without running gates (release-script interface)")
+    parser.add_argument("--expected-commit", help=argparse.SUPPRESS)
+    parser.add_argument("--expected-tree", help=argparse.SUPPRESS)
     parser.add_argument(
         "--kilo-result-json", "--kilo-result", dest="kilo_result_json",
         type=Path, help="bounded JSON result from cg_kilo_preflight.py",
@@ -1253,6 +1410,68 @@ def main(argv: Sequence[str] | None = None) -> int:
     """Run selection and, optionally, the native target."""
     args = _build_parser().parse_args(argv)
     root = args.root.expanduser().resolve()
+    if args.verify_receipt is not None:
+        if (args.emit_receipt or args.run_native_target or not args.expected_commit or not args.expected_tree):
+            sys.stderr.write("Receipt verification requires expected commit/tree and no gate execution.\n")
+            return 2
+        return 0 if verify_preflight_receipt(args.verify_receipt, args.expected_commit, args.expected_tree) else 1
+    if args.emit_receipt is not None and args.run_native_target and not args.selection_only:
+        lock_fd = None
+        lock_path = None
+        try:
+            supplied_path = args.emit_receipt.expanduser().absolute()
+            if supplied_path.is_symlink():
+                raise ValueError("Receipt path must not be a symbolic link")
+            receipt_path = supplied_path.resolve()
+            try:
+                receipt_path.relative_to(root)
+            except ValueError:
+                pass
+            else:
+                raise ValueError("Receipt path must be outside the working tree")
+            # Hold ownership through invalidation, gate execution and publication.
+            # A crash leaves a lock for manual recovery, never an automatic takeover.
+            lock_path = receipt_path.with_name(receipt_path.name + ".lock")
+            try:
+                lock_fd = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+            except FileExistsError:
+                raise ValueError("Receipt destination is owned by another run; gate not started") from None
+            # Invalidate the caller's previous evidence before any new gate can fail.
+            if receipt_path.exists():
+                receipt_path.unlink()
+            if not args.full_gate or args.phase != "committed" or args.gate_owner != "local":
+                raise ValueError("Receipt requires --phase committed --full-gate with the local gate owner")
+            receipt_state = _receipt_state(root)
+            # Git status and config cannot prove physical bytes in the caller's
+            # checkout (normalization and index flags can hide edits). Own checkout.
+            with tempfile.TemporaryDirectory(prefix="cg-receipt-") as temporary:
+                checkout = Path(temporary) / "checkout"
+                operations = (
+                    (root, ("clone", "--quiet", "--no-hardlinks",
+                            "--no-checkout", str(root), str(checkout))),
+                    (checkout, ("checkout", "--detach", "--quiet", receipt_state["commit_sha"])),
+                )
+                for directory, arguments in operations:
+                    if not _run_git(directory, (*RECEIPT_GIT_OPTIONS, *arguments)).ok:
+                        raise ValueError("Could not prepare the owned LF receipt checkout")
+                if _receipt_state(checkout) != receipt_state:
+                    raise ValueError("Owned receipt checkout does not match the selected commit")
+                return _execute_preflight(args, checkout, receipt_path, receipt_state)
+        except (OSError, ValueError) as exc:
+            sys.stderr.write(f"Receipt not emitted: {exc}\n")
+            return 2
+        finally:
+            if lock_fd is not None:
+                os.close(lock_fd)
+                lock_path.unlink()
+    return _execute_preflight(args, root)
+
+
+def _execute_preflight(
+    args: argparse.Namespace, root: Path, receipt_path: Path | None = None,
+    receipt_state: Mapping[str, Any] | None = None,
+) -> int:
+    """Run selected gates, optionally publishing evidence under caller-held ownership."""
     if args.run_native_target and not args.selection_only:
         sys.stderr.write(f"Preflight: inspecting selection and cache (phase={args.phase}).\n")
         sys.stderr.flush()
@@ -1302,6 +1521,15 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.run_native_target and not args.selection_only and result.exit_code == 0:
         run = run_native_target(root, result.selection, phase=args.phase, gate_owner=args.gate_owner)
         result = replace(result, command_results=run.commands)
+
+    if receipt_path is not None and result.exit_code == 0:
+        try:
+            if _receipt_state(root) != receipt_state:
+                raise ValueError("Checkout identity or LF configuration changed during the gate")
+            _write_preflight_receipt(receipt_path, receipt_state, result)
+        except (OSError, ValueError) as exc:
+            sys.stderr.write(f"Receipt not emitted: {exc}\n")
+            return 2
 
     output = "json" if args.json else args.format
     sys.stdout.write(render_result(result, output) + "\n")

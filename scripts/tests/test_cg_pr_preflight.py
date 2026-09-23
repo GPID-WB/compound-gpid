@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import io
+import hashlib
 import json
 import subprocess
 from pathlib import Path
@@ -10,6 +11,366 @@ import cg_pr_preflight as preflight
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
+@pytest.fixture
+def receipt_run(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> tuple[Path, Path]:
+    """Use deterministic Git identities and commands, with external receipt storage."""
+    root = tmp_path / "checkout"
+    root.mkdir()
+    receipt = tmp_path / "receipt.json"
+    monkeypatch.setattr(preflight, "inspect_cache_artifacts", lambda _: preflight.CacheReport())
+
+    def git(_root: Path, arguments: tuple[str, ...]) -> preflight.GitResult:
+        if arguments[:4] == preflight.RECEIPT_GIT_OPTIONS:
+            arguments = arguments[4:]
+        text = " ".join(arguments)
+        if "HEAD^{commit}" in text:
+            value = "a" * 40
+        elif "HEAD^{tree}" in text:
+            value = "b" * 40
+        elif "core.autocrlf" in text:
+            value = "false"
+        elif "core.eol" in text:
+            value = "lf"
+        elif "status" in arguments:
+            value = ""
+        elif "clone" in arguments or "checkout" in arguments or arguments[:1] == ("config",):
+            value = ""
+        else:
+            raise AssertionError(f"Unexpected Git query: {arguments}")
+        return preflight.GitResult(0, value, "")
+
+    monkeypatch.setattr(preflight, "_run_git", git)
+    monkeypatch.setattr(
+        preflight, "run_native_target",
+        lambda root, selection, **kwargs: preflight.NativeRunResult(tuple(
+            preflight.CommandResult(command, 0)
+            for command in preflight.selected_native_commands(selection, root, **kwargs)
+        )),
+    )
+    return root, receipt
+
+
+def test_receipt_verification_allows_a_different_python_location(
+    receipt_run: tuple[Path, Path], monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    root, receipt = receipt_run
+    assert preflight.main(["--root", str(root), "--phase", "committed", "--full-gate",
+                           "--run-native-target", "--emit-receipt", str(receipt)]) == 0
+    payload = json.loads(receipt.read_text(encoding="utf-8"))
+    payload.pop("digest")
+    for command in payload["commands"]:
+        if command[0] == preflight.PYTHON:
+            command[0] = str(root / "other-venv" / "python.exe")
+    payload["digest"] = hashlib.sha256(json.dumps(
+        payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()).hexdigest()
+    receipt.write_text(json.dumps(payload), encoding="utf-8")
+    def must_not_execute(*args: object, **kwargs: object) -> None:
+        raise AssertionError("Verifier must not execute a receipt-supplied interpreter")
+    monkeypatch.setattr(preflight.subprocess, "run", must_not_execute)
+    assert preflight.verify_preflight_receipt(receipt, "a" * 40, "b" * 40)
+
+
+def test_receipt_destination_has_exclusive_ownership(
+    receipt_run: tuple[Path, Path], monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    root, receipt = receipt_run
+    argv = ["--root", str(root), "--phase", "committed", "--full-gate",
+            "--run-native-target", "--emit-receipt", str(receipt)]
+    original_run = preflight.run_native_target
+    calls = []
+    def first_run(*args: object, **kwargs: object) -> preflight.NativeRunResult:
+        calls.append("owner")
+        # A second invocation collides deterministically while the first owns the gate.
+        monkeypatch.setattr(preflight, "run_native_target", lambda *a, **kw:
+                            pytest.fail("A colliding invocation must not start a gate"))
+        assert preflight.main(argv) == 2
+        return original_run(*args, **kwargs)
+    monkeypatch.setattr(preflight, "run_native_target", first_run)
+    assert preflight.main(argv) == 0
+    assert calls == ["owner"]
+    assert preflight.verify_preflight_receipt(receipt, "a" * 40, "b" * 40)
+    # A later owner must invalidate the completed receipt before its own failure.
+    monkeypatch.setattr(preflight, "run_native_target", lambda *a, **kw:
+                        preflight.NativeRunResult((preflight.CommandResult(("uv", "--version"), 1),)))
+    assert preflight.main(argv) == 1
+    assert not receipt.exists()
+    assert not receipt.with_name(receipt.name + ".lock").exists()
+
+
+@pytest.mark.parametrize("change", ["relative-interpreter", "mixed-interpreters", "argument", "uv"])
+def test_logical_command_contract_rejects_substitutions(change: str) -> None:
+    commands = [list(command) for command in preflight.selected_native_commands(
+        preflight.full_gate_selection(), Path("."))]
+    python_commands = [command for command in commands if command[0] == preflight.PYTHON]
+    if change == "relative-interpreter":
+        for command in python_commands:
+            command[0] = "python"
+    elif change == "mixed-interpreters":
+        python_commands[0][0] = str(Path(preflight.PYTHON).parent / "other" / "python")
+    elif change == "argument":
+        python_commands[0][-1] = "--collect-only"
+    else:
+        commands[0][0] = "different-tool"
+    assert not preflight._receipt_commands_match(commands)
+
+
+@pytest.mark.parametrize("hidden_change", ["normalized-crlf", "assume-unchanged", "skip-worktree"])
+def test_receipt_gate_owns_fresh_checkout_with_actual_lf_bytes(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, hidden_change: str,
+) -> None:
+    source = tmp_path / "source"
+    source.mkdir()
+    def git(*arguments: str) -> str:
+        return subprocess.run(["git", "-C", str(source), *preflight.RECEIPT_GIT_OPTIONS, *arguments], check=True,
+                              capture_output=True, text=True).stdout.strip()
+    git("init")
+    (source / ".gitattributes").write_bytes(b"*.py text eol=lf\n*.cmd text eol=crlf\n")
+    (source / "code.py").write_bytes(b"answer = 42\n")
+    (source / "launcher.cmd").write_bytes(b"@echo off\r\n")
+    git("add", ".")
+    git("-c", "user.name=Receipt Test", "-c", "user.email=receipt@example.invalid",
+        "-c", "commit.gpgsign=false", "commit", "-m", "test: receipt fixture")
+    if hidden_change == "normalized-crlf":
+        (source / "code.py").write_bytes(b"answer = 42\r\n")
+        # Refresh Git's stat cache through its clean filter. The index still
+        # contains the original LF blob while the working file retains CRLF.
+        git("add", "code.py")
+        assert git("rev-parse", ":code.py") == git("rev-parse", "HEAD:code.py")
+        assert (source / "code.py").read_bytes() == b"answer = 42\r\n"
+    else:
+        git("update-index", "--" + hidden_change, "code.py")
+        (source / "code.py").write_bytes(b"answer = 0\r\n")
+    assert git("status", "--porcelain") == ""
+    observed = []
+    def run(root: Path, selection: preflight.ChangeSelection, **kwargs: object) -> preflight.NativeRunResult:
+        assert root != source
+        local_config = subprocess.run(["git", "-C", str(root), "config", "--local", "--get-regexp",
+                                       r"^core\.(autocrlf|eol)$"], capture_output=True, text=True)
+        assert local_config.returncode == 1
+        assert local_config.stdout == ""
+        assert (root / "code.py").read_bytes() == b"answer = 42\n"
+        assert (root / "launcher.cmd").read_bytes() == b"@echo off\r\n"
+        observed.append(root)
+        return preflight.NativeRunResult(tuple(preflight.CommandResult(command, 0)
+            for command in preflight.selected_native_commands(selection, root, **kwargs)))
+    monkeypatch.setattr(preflight, "run_native_target", run)
+    receipt = tmp_path / "receipt.json"
+    assert preflight.main(["--root", str(source), "--phase", "committed", "--full-gate",
+                           "--run-native-target", "--emit-receipt", str(receipt)]) == 0
+    assert preflight.verify_preflight_receipt(receipt, git("rev-parse", "HEAD"), git("rev-parse", "HEAD^{tree}"))
+    assert len(observed) == 1
+    assert not observed[0].exists()
+
+
+@pytest.mark.parametrize("operation", ["clone", "autocrlf", "eol", "checkout"])
+def test_owned_receipt_checkout_failure_never_starts_gate_or_leaves_evidence(
+    receipt_run: tuple[Path, Path], monkeypatch: pytest.MonkeyPatch, operation: str,
+) -> None:
+    root, receipt = receipt_run
+    receipt.write_text("stale evidence", encoding="utf-8")
+    original_git = preflight._run_git
+    clone_paths = []
+    def git(directory: Path, arguments: tuple[str, ...]) -> preflight.GitResult:
+        assert arguments[:4] == preflight.RECEIPT_GIT_OPTIONS
+        logical = arguments[4:]
+        if "clone" in arguments:
+            clone = Path(arguments[-1])
+            clone.mkdir()
+            clone_paths.append(clone)
+        selected = (
+            (operation == "clone" and "clone" in arguments)
+            or (operation == "autocrlf" and directory != root and logical == ("config", "--get", "core.autocrlf"))
+            or (operation == "eol" and directory != root and logical == ("config", "--get", "core.eol"))
+            or (operation == "checkout" and logical[:1] == ("checkout",))
+        )
+        return preflight.GitResult(1, "", "injected failure") if selected else original_git(directory, arguments)
+    monkeypatch.setattr(preflight, "_run_git", git)
+    monkeypatch.setattr(preflight, "run_native_target", lambda *a, **kw:
+                        pytest.fail("Failed checkout preparation must not start a gate"))
+    assert preflight.main(["--root", str(root), "--phase", "committed", "--full-gate",
+                           "--run-native-target", "--emit-receipt", str(receipt)]) == 2
+    assert not receipt.exists()
+    assert not receipt.with_name(receipt.name + ".lock").exists()
+    assert len(clone_paths) == 1
+    assert not clone_paths[0].parent.exists()
+
+
+def test_emit_receipt_binds_successful_full_gate(receipt_run: tuple[Path, Path]) -> None:
+    root, receipt = receipt_run
+    assert preflight.main([
+        "--root", str(root), "--phase", "committed", "--full-gate",
+        "--run-native-target", "--emit-receipt", str(receipt),
+    ]) == 0
+    payload = json.loads(receipt.read_text(encoding="utf-8"))
+    digest = payload.pop("digest")
+    canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    assert digest == hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+    assert payload["schema_version"] == 1
+    assert payload["commit_sha"] == "a" * 40
+    assert payload["tree_sha"] == "b" * 40
+    assert payload["line_ending_provenance"] == {"core.autocrlf": "false", "core.eol": "lf"}
+    assert payload["timestamp"].endswith(("Z", "+00:00"))
+    expected = preflight.selected_native_commands(preflight.full_gate_selection(), root)
+    assert payload["commands"] == [list(command) for command in expected]
+    assert payload["exit_codes"] == [0] * len(expected)
+    assert list(receipt.parent.glob("*.tmp")) == []
+    assert preflight.verify_preflight_receipt(receipt, "a" * 40, "b" * 40)
+    assert preflight.main(["--verify-receipt", str(receipt), "--expected-commit", "a" * 40,
+                           "--expected-tree", "b" * 40]) == 0
+
+
+@pytest.mark.parametrize("field,value", [
+    ("commit_sha", "c" * 40), ("tree_sha", "c" * 40),
+    ("schema_version", True), ("schema_version", 1.0), ("schema_version", "1"),
+    ("schema_version", 2), ("line_ending_provenance", {"core.autocrlf": "true", "core.eol": "crlf"}),
+    ("commands", []), ("commands", [["echo", "success"]]), ("exit_codes", []),
+    ("timestamp", None), ("timestamp", "invalid"), ("timestamp", "2026-09-17T00:00:00"),
+    ("digest", "f" * 64),
+])
+def test_verify_receipt_rejects_invalid_evidence_even_with_new_digest(
+    receipt_run: tuple[Path, Path], field: str, value: object,
+) -> None:
+    root, receipt = receipt_run
+    assert preflight.main(["--root", str(root), "--phase", "committed", "--full-gate",
+                           "--run-native-target", "--emit-receipt", str(receipt)]) == 0
+    payload = json.loads(receipt.read_text(encoding="utf-8"))
+    payload.pop("digest")
+    if field != "digest":
+        payload[field] = value
+    canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    payload["digest"] = value if field == "digest" else hashlib.sha256(canonical.encode()).hexdigest()
+    receipt.write_text(json.dumps(payload), encoding="utf-8")
+    assert not preflight.verify_preflight_receipt(receipt, "a" * 40, "b" * 40)
+
+
+@pytest.mark.parametrize("code", [1, False, "0", 0.0])
+def test_verify_receipt_requires_integer_zero_exit_codes(
+    receipt_run: tuple[Path, Path], code: object,
+) -> None:
+    root, receipt = receipt_run
+    assert preflight.main(["--root", str(root), "--phase", "committed", "--full-gate",
+                           "--run-native-target", "--emit-receipt", str(receipt)]) == 0
+    payload = json.loads(receipt.read_text(encoding="utf-8"))
+    payload.pop("digest")
+    payload["exit_codes"][0] = code
+    payload["digest"] = hashlib.sha256(json.dumps(
+        payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()).hexdigest()
+    receipt.write_text(json.dumps(payload), encoding="utf-8")
+    assert not preflight.verify_preflight_receipt(receipt, "a" * 40, "b" * 40)
+
+
+@pytest.mark.parametrize("raw", [b"{", b"[]", b"null", b"true", b"\xff", b'{"digest":1,"digest":2}'])
+def test_verify_receipt_rejects_malformed_documents(tmp_path: Path, raw: bytes) -> None:
+    receipt = tmp_path / "receipt.json"
+    receipt.write_bytes(raw)
+    assert not preflight.verify_preflight_receipt(receipt, "a" * 40, "b" * 40)
+
+
+def test_verify_receipt_missing_or_oversized_file_fails_closed(tmp_path: Path) -> None:
+    receipt = tmp_path / "receipt.json"
+    assert not preflight.verify_preflight_receipt(receipt, "a" * 40, "b" * 40)
+    receipt.write_bytes(b" " * (preflight.MAX_RECEIPT_BYTES + 1))
+    assert not preflight.verify_preflight_receipt(receipt, "a" * 40, "b" * 40)
+
+
+@pytest.mark.parametrize("change", ["commit", "tree", "dirty", "config", "incomplete", "replace-error"])
+def test_emit_receipt_checks_end_state_and_atomic_write(
+    receipt_run: tuple[Path, Path], monkeypatch: pytest.MonkeyPatch, change: str,
+) -> None:
+    root, receipt = receipt_run
+    original_run = preflight.run_native_target
+    original_git = preflight._run_git
+
+    def run(*args: object, **kwargs: object) -> preflight.NativeRunResult:
+        result = original_run(*args, **kwargs)
+        def git(root: Path, arguments: tuple[str, ...]) -> preflight.GitResult:
+            text = " ".join(arguments)
+            if ((change == "commit" and "HEAD^{commit}" in text)
+                    or (change == "tree" and "HEAD^{tree}" in text)):
+                return preflight.GitResult(0, "c" * 40, "")
+            if change == "dirty" and "status" in arguments:
+                return preflight.GitResult(0, " M changed.py", "")
+            if change == "config" and "core.eol" in arguments:
+                return preflight.GitResult(0, "crlf", "")
+            return original_git(root, arguments)
+        monkeypatch.setattr(preflight, "_run_git", git)
+        return preflight.NativeRunResult(result.commands[:-1]) if change == "incomplete" else result
+
+    monkeypatch.setattr(preflight, "run_native_target", run)
+    if change == "replace-error":
+        def fail_replace(*args: object) -> None:
+            raise OSError("injected replace failure")
+        monkeypatch.setattr(preflight.os, "replace", fail_replace)
+    assert preflight.main(["--root", str(root), "--phase", "committed", "--full-gate",
+                           "--run-native-target", "--emit-receipt", str(receipt)]) != 0
+    assert not receipt.exists()
+    assert list(receipt.parent.glob("*.tmp")) == []
+
+
+@pytest.mark.parametrize("flags", [
+    [], ["--selection-only"], ["--run-native-target", "--selection-only"],
+])
+def test_emit_receipt_never_certifies_selection_only(
+    receipt_run: tuple[Path, Path], flags: list[str],
+) -> None:
+    root, receipt = receipt_run
+    assert preflight.main([
+        "--root", str(root), "--phase", "committed", "--full-gate",
+        "--emit-receipt", str(receipt), *flags,
+    ]) == 0
+    assert not receipt.exists()
+
+
+@pytest.mark.parametrize("failure", ["command", "selection", "interrupted"])
+def test_emit_receipt_never_leaves_success_after_failed_gate(
+    receipt_run: tuple[Path, Path], monkeypatch: pytest.MonkeyPatch, failure: str,
+) -> None:
+    root, receipt = receipt_run
+    receipt.write_text('{"old": "receipt"}', encoding="utf-8")
+    if failure == "selection":
+        monkeypatch.setattr(preflight, "inspect_cache_artifacts",
+                            lambda _: preflight.CacheReport(fatal=True))
+    elif failure == "command":
+        monkeypatch.setattr(preflight, "run_native_target", lambda *a, **kw:
+                            preflight.NativeRunResult((preflight.CommandResult(("uv", "--version"), 1),)))
+    else:
+        def interrupted(*args: object, **kwargs: object) -> None:
+            raise KeyboardInterrupt
+        monkeypatch.setattr(preflight, "run_native_target", interrupted)
+    argv = ["--root", str(root), "--phase", "committed", "--full-gate",
+            "--run-native-target", "--emit-receipt", str(receipt)]
+    if failure == "interrupted":
+        with pytest.raises(KeyboardInterrupt):
+            preflight.main(argv)
+    else:
+        assert preflight.main(argv) != 0
+    assert not receipt.exists()
+    assert not receipt.with_name(receipt.name + ".lock").exists()
+
+
+@pytest.mark.parametrize("condition", ["prepare", "partial", "profile", "dirty", "in-tree"])
+def test_emit_receipt_rejects_insufficient_release_evidence(
+    receipt_run: tuple[Path, Path], monkeypatch: pytest.MonkeyPatch, condition: str,
+) -> None:
+    root, receipt = receipt_run
+    phase = "prepare" if condition == "prepare" else "committed"
+    flags = ["--changed-file", "README.md"] if condition == "partial" else ["--full-gate"]
+    if condition == "profile":
+        flags += ["--gate-owner", "gpid-native-profile"]
+    if condition == "dirty":
+        original_git = preflight._run_git
+        monkeypatch.setattr(preflight, "_run_git", lambda root, args:
+                            preflight.GitResult(0, " M scripts/cg_pr_preflight.py", "")
+                            if "status" in args else original_git(root, args))
+    if condition == "in-tree":
+        receipt = root / "receipt.json"
+    assert preflight.main([
+        "--root", str(root), "--phase", phase, *flags,
+        "--run-native-target", "--emit-receipt", str(receipt),
+    ]) != 0
+    assert not receipt.exists()
 
 
 def test_native_producer_installs_pinned_controller_tool_before_preflight() -> None:

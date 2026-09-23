@@ -146,5 +146,8 @@ legacy baseline.
 - [Immutable trust anchors and captured bytes](../bugs/2026-08-31-trust-anchor-captured-byte-dispatch.md)
 - [Default test environments and executable fixtures](../testing-patterns/2026-09-13-clean-default-release-gates-and-executable-fixtures.md)
 - [Windows GPG socket path diagnosis](../environment-issues/2026-09-13-windows-gpg-agent-socket-path-budget.md)
+- [Preflight receipt identity binding](../git-workflows/2026-09-17-preflight-receipt-commit-tree-lf-provenance.md)
+- [Release source-branch policy](../git-workflows/2026-09-17-release-source-branch-policy-clarified.md)
+- [Auto-merge and Protect dev settings verification](../git-workflows/2026-09-17-repo-settings-auto-merge-protect-dev-required-checks.md)
 - [Integration contract](../../../.github/shared/release-controller.contract.md)
 - [Controller operator guide](../../../docs/release-controller.md)

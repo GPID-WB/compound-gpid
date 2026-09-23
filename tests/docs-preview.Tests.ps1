@@ -61,18 +61,20 @@ Describe "Split dev builder and protected Pages controller contracts" {
         $pagesWorkflow | Should -Not -Match 'workflow_run:'
     }
 
-    It "checks out main as content and uses protected default code as controller" {
+    It "restores authenticated official data and uses protected default code as controller" {
         $pagesWorkflow | Should -Match 'ref:.*github.sha'
         $devController = [regex]::Match($releasePagesWorkflow, '(?s)\n  deploy-dev:.*').Value
         $devController | Should -Match 'ref:.*github.sha'
-        $devController | Should -Match 'ref:\s*main'
-        $devController | Should -Match 'path:\s*sources/main'
+        $devController | Should -Not -Match 'ref:\s*main'
+        $devController | Should -Match 'legacy-pages.js restore-official official-source official-state.json'
+        $devController | Should -Match '--main-root official-source'
+        $devController | Should -Match 'legacy-pages.js recheck-official official-state.json'
         $devController | Should -Match 'ref:.*steps.authority.outputs.release_sha'
         $devController | Should -Match 'path:\s*sources/dev'
         $devController | Should -Match 'legacy-pages.js import-dev sources/dev dev-artifact'
         $devController | Should -Match 'scripts/assemble-docs-site\.js'
         $devController | Should -Match '--verify combined-artifact'
-        $devController | Should -Match '--main-root sources/main --dev-root sources/dev'
+        $devController | Should -Match '--main-root official-source --dev-root sources/dev'
         $devController | Should -Match 'combined-artifact/site'
         $devController | Should -Match 'run-id:.*github.event.workflow_run.id'
         $devController | Should -Match 'artifact-ids:.*steps.authority.outputs.artifact_id'

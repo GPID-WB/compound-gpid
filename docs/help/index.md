@@ -18,7 +18,7 @@ listed here. Static adapter checks pass for all five hosts; runtime status is se
 | Claude Code | Unverified | No certified runtime probe |
 | Codex | Unverified | No certified runtime probe |
 | GitHub Copilot | Unverified | No certified runtime probe |
-| Kilo | Verified | macOS, Kilo 7.4.20, `openai/gpt-5.6-terra`, high reasoning effort |
+| Kilo | Verified | Windows, Kilo 7.7.7, process-only OpenRouter model `openrouter/google/gemini-2.5-pro` |
 | OpenCode | Unverified | No certified runtime probe |
 
 In the verified Kilo configuration, open a project linked to the development
@@ -36,14 +36,22 @@ answer. Running `/cg-help` does not install the backend or generate documentatio
 If it reports unavailable help, check the installation and project linking before
 retrying; do not replace the response with guessed commands.
 
-Evidence was collected on 2026-09-17 for source commit
-`4358ca4f46881d1373109be6f712b02ed1bc72ee`, using a process-only model selection.
+Evidence was collected on 2026-09-23 for source commit
+`2db8aa69fbc8caec5bc1657de8c443ccf0a35bdc`, using a process-only OpenRouter
+model selection, not Kilo Gateway. The observed Kilo 7.7.7 executable SHA-256 was
+`ef75e680fa644d33aacbf881fc43449ee86c305f9120032775bde18705963aa5`.
+The selected model is recorded from the probe process configuration; the
+support evidence schema does not independently bind its model ID.
+The source checkout keeps `.gitattributes` in LF form on Windows for exact
+source-bound verification.
+These host details identify this test run; they are not a consumer version pin or
+ceiling, and the selected model is not a claim of universal model support.
 Overview, exact lookup, punctuation preservation, and unchanged result delivery
 passed. This evidence does not certify other models, host versions, or operating
 systems. Maintainers can recheck the stored source bindings with:
 
 ```sh
-python3 scripts/cg_verify_help_support.py --evidence .cg-docs/work-reports/2026-09-17-docs-help-support.json
+python scripts/cg_verify_help_support.py --evidence .cg-docs/work-reports/2026-09-23-docs-help-support.json
 ```
 
 ## Choose the problem

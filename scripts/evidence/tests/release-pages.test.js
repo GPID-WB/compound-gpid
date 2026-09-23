@@ -138,7 +138,7 @@ test("retains the protected controller, exact build identity, lineage, and newes
     "RELEASE_TAG: ${{ steps.authority.outputs.release_tag }}",
     "RELEASE_SHA: ${{ steps.authority.outputs.release_sha }}",
     'node scripts/legacy-pages.js check',
-    'required_branch="$(node scripts/release-version.js --legacy-docs-branch "$RELEASE_TAG")"',
+    'required_branch="$(node scripts/release-version.js --resolve-source)"',
     'test "$(git rev-list -n 1 "$RELEASE_TAG")" = "$RELEASE_SHA"',
     'git merge-base --is-ancestor "$RELEASE_SHA" "origin/$required_branch"',
     'git fetch origin "$required_branch" "refs/tags/$RELEASE_TAG:refs/tags/$RELEASE_TAG"',
@@ -147,11 +147,12 @@ test("retains the protected controller, exact build identity, lineage, and newes
     'git fetch origin "$RELEASE_BRANCH"',
     "cmp -s release-validation/releases/latest.json release-validation/recheck-latest.json",
   ]) assert.ok(workflow.includes(guard), `Missing guard: ${guard}`);
-  const {legacyDocsBranch} = require('../../release-version.js');
-  assert.equal(legacyDocsBranch('v1.2.3'), 'main');
-  assert.equal(legacyDocsBranch('v1.2.3.9000'), 'dev');
-  assert.throws(() => legacyDocsBranch('v1.2.3-rc.1'));
-  assert.throws(() => legacyDocsBranch('v1.2'));
+  const {assertReleaseSource} = require('../../release-version.js');
+  assert.equal(assertReleaseSource('v1.2.3', 'deploy/2.x', 'production', {production_branches: ['deploy/2.x']}), 'deploy/2.x');
+  assert.equal(assertReleaseSource('v1.2.3.9000', 'feature/test', 'production', null), 'feature/test');
+  assert.throws(() => assertReleaseSource('v1.2.3', 'feature/test', 'production', null));
+  assert.throws(() => assertReleaseSource('v1.2.3-rc.1', 'production', 'production', null));
+  assert.throws(() => assertReleaseSource('v1.2', 'production', 'production', null));
   assert.ok(!workflow.includes('git merge-base --is-ancestor origin/main "$RELEASE_SHA"'),
     "Dev releases use selected-branch lineage, not the moving main tip");
   assert.ok(workflow.indexOf("name: Recheck release is still newest")

@@ -1,5 +1,6 @@
 # Ensure bash scripts always use LF line endings in the repo
 # (prevents CRLF corruption when checked out on Windows)
+.gitattributes   text eol=lf
 *.md            text eol=lf
 *.json          text eol=lf
 *.toml          text eol=lf

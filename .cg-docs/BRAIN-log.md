@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-09-16 · 671 artifacts (newest first) + 169 roadmap features_
+_Generated 2026-09-19 · 692 artifacts (newest first) + 174 roadmap features_
 
 ## undated
 
@@ -127,10 +127,49 @@ _Generated 2026-09-16 · 671 artifacts (newest first) + 169 roadmap features_
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
 
+## 2026-09-17
+
+- **[2026-09-16-cg-release-prerelease-automation-phase1-review](.cg-docs/reviews/2026-09-16-cg-release-prerelease-automation-phase1-review.md)** · `review` · _—_ · `2026-09-17`
+  > Parent supplied completed full-route review results from reviewer task `ses_f530fa096ffed2DDrrKHB2gkZE`: 10/10 requir…
+- **[2026-09-16-cg-release-prerelease-automation-phase2-review](.cg-docs/reviews/2026-09-16-cg-release-prerelease-automation-phase2-review.md)** · `review` · _—_ · `2026-09-17`
+  > Parent supplied full-route review from task `ses_f52bf40bbffeMlCyfowYj1ayAA`: 10/10 specifications complete, two find…
+- **[2026-09-16-cg-release-prerelease-automation-phase3-review](.cg-docs/reviews/2026-09-16-cg-release-prerelease-automation-phase3-review.md)** · `review` · _—_ · `2026-09-17`
+  > Parent supplied full-route review from `ses_f500045e6ffeO3eQZ2tY87ZkFl`: 10/10 specifications complete, three P1 manu…
+- **[2026-09-16-documentation-ia-ux-redesign-review](.cg-docs/reviews/2026-09-16-documentation-ia-ux-redesign-review.md)** · `review` · _—_ · `2026-09-17`
+  > Scope: origin/dev through 9e2ed000 plus phase 5 guidance and genuine host evidence. Full routing applies because publ…
+- **[2026-09-16-documentation-ia-ux-redesign-verify-review](.cg-docs/reviews/2026-09-16-documentation-ia-ux-redesign-verify-review.md)** · `review` · _—_ · `2026-09-17`
+  > Reviewed the explicit P2.1-P2.4 fixes with cg-code-quality and cg-testing roles. The prior full review remains the pa…
+- **[Auto-merge and Protect dev required checks must be verified read-only before release automation relies on them](.cg-docs/solutions/git-workflows/2026-09-17-repo-settings-auto-merge-protect-dev-required-checks.md)** · `solution` · _—_ · `2026-09-17`
+  > The prerelease overlap design needs GitHub-enforced auto-merge on dev: payload and evidence PRs merge via `gh pr merg…
+- **[Build documentation from one validated snapshot and refresh native evidence](.cg-docs/solutions/testing-patterns/2026-09-17-docs-snapshots-and-native-help-evidence.md)** · `solution` · _—_ · `2026-09-17`
+  > A documentation projection reopened the help catalog after its Python writer validated and rendered the tables. A fil…
+- **[Dedicated task-runner substitution keeps executed evidence flowing when execution_subagent is unavailable](.cg-docs/solutions/testing-patterns/2026-09-17-dedicated-task-runner-substitution-for-execution-subagent.md)** · `solution` · _—_ · `2026-09-17`
+  > During the 2026-09-17 prerelease-automation phases, the implementation thread had neither `execution_subagent` nor a …
+- **[Docs previews restore durable official bytes from the protected Pages origin instead of stale build artifacts](.cg-docs/solutions/git-workflows/2026-09-17-docs-preview-durable-official-snapshot.md)** · `solution` · _—_ · `2026-09-17`
+  > The dev preview refreshed when `release-pages.yml`'s controller deployed the full site. Pilot review (phase 3, P1.2, …
+- **[Documented quarantine skip marker for time-boxed flake root-causes, never a silent skip](.cg-docs/solutions/testing-patterns/2026-09-17-documented-quarantine-skip-marker-for-flakes.md)** · `solution` · _—_ · `2026-09-17`
+  > `test_lost_response_and_unreadable_observation_remain_unknown_until_fresh_recovery [asset-package.whl]` failed once o…
+- **[Pester runs use runner registry filter names and preserved last-run artifacts between jobs](.cg-docs/solutions/testing-patterns/2026-09-17-pester-runner-registry-filter-names-and-artifact-preservation.md)** · `solution` · _—_ · `2026-09-17`
+  > `tests/Run-Tests.ps1 -File create-release.Tests.ps1` rejected the filename at the very first phase baseline (2026-09-…
+- **[Preflight receipts bind exact commit, tree, LF provenance and owner so one full gate serves one commit](.cg-docs/solutions/git-workflows/2026-09-17-preflight-receipt-commit-tree-lf-provenance.md)** · `solution` · _—_ · `2026-09-17`
+  > The v1.2.0.9018/9019 sessions ran the native preflight (~33 minutes) three to four times per commit (Step 4 gate, Res…
+- **[Stable releases deploy only from configured deployment branches or the remote default; prereleases use any verified branch](.cg-docs/solutions/git-workflows/2026-09-17-release-source-branch-policy-clarified.md)** · `solution` · _—_ · `2026-09-17`
+  > `create-release.ps1` assigned main/dev from tag shape and enforced that branch's remote lineage; `release-docs.yml` u…
+
 ## 2026-09-16
 
 - **[2026-09-08-evidence-backed-cg-help-command-verify-review-2](.cg-docs/reviews/2026-09-08-evidence-backed-cg-help-command-verify-review-2.md)** · `review` · _—_ · `2026-09-16`
   > **Date**: 2026-09-16 **Mode**: verify (light-only) **Type**: verification **Parent review**: `.cg-docs/reviews/2026-0…
+- **[Bounded native-evidence edge budget requires a fresh low-edge session for clean probes](.cg-docs/solutions/testing-patterns/2026-09-16-native-evidence-edge-budget-requires-fresh-probe-session.md)** · `solution` · _confirmed-by-human_ · `2026-09-16`
+  > Native bootstrap probes intermittently returned `blocked: edge-limit` or `blocked: native-identity-unverified` receip…
+- **[cg-release prerelease automation: zero-pause flow under 45 minutes](.cg-docs/brainstorms/2026-09-16-cg-release-prerelease-automation.md)** · `brainstorm` · _decided_ · `2026-09-16`
+  > The v1.2.0.9018/9019 release sessions (2026-09-15/16) measured the prerelease pipeline at over 3 hours wall-clock wit…
+- **[cg-release prerelease automation: zero-pause flow under 45 minutes](.cg-docs/plans/2026-09-16-cg-release-prerelease-automation.md)** · `plan` · _active_ · `2026-09-16`
+  > Make `/cg-release <tag> --auto-approve` run a four-component prerelease from a clean dev checkout to a published, att…
+- **[Documentation Information Architecture and UX Redesign](.cg-docs/plans/2026-09-16-documentation-ia-ux-redesign.md)** · `plan` · _completed_ · `2026-09-16`
+  > Make it easy to choose the correct suite, find a command by task, follow a complete procedure, and identify the docum…
+- **[Kilo deny-first Task baselines block subagent dispatch through inherited denies](.cg-docs/solutions/bugs/2026-09-16-kilo-deny-first-task-baseline-blocks-subagent-dispatch.md)** · `solution` · _confirmed-by-human_ · `2026-09-16`
+  > The cg-autopilot bootstrap graph required a primary agent (`cg-autopilot`) to dispatch a subagent stage (`cg-workflow…
 
 ## 2026-09-15
 
@@ -193,6 +232,8 @@ _Generated 2026-09-16 · 671 artifacts (newest first) + 169 roadmap features_
   > **Review complete; changes required.** All ten spec analyses returned usable results. There are **34 open findings: 1…
 - **[2026-09-12-generic-asynchronous-release-controller-phase6-verification](.cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase6-verification.md)** · `review` · _changes-required_ · `2026-09-12`
   > **Verdict: Changes required.** All ten independent review analyses and evidence handoffs are complete. Of the 34 orig…
+- **[Implement Autopilot Native Evidence Revision](.cg-docs/plans/2026-09-12-autopilot-native-evidence-revision.md)** · `plan` · _blocked_ · `2026-09-12`
+  > Implement the smallest supported worktree-local native-evidence plugin for the unavailable bootstrap identity and ind…
 
 ## 2026-09-11
 
@@ -214,6 +255,10 @@ _Generated 2026-09-16 · 671 artifacts (newest first) + 169 roadmap features_
   > Replace the current plugin-specific `/cg-release` workflow with a generic release tool. The reported problem is relea…
 - **[Generic asynchronous release controller](.cg-docs/plans/2026-09-11-generic-asynchronous-release-controller.md)** · `plan` · _active_ · `2026-09-11`
   > Implement a standalone deterministic release controller with `plan`, `start`, `status`, and `resume`, plus a thin `/c…
+- **[Implement Kilo-First Autopilot](.cg-docs/plans/2026-09-11-kilo-first-autopilot.md)** · `plan` · _active_ · `2026-09-11`
+  > Implement a Kilo-first `/cg-autopilot` that executes phased plan batches through fresh foreground Task children in on…
+- **[Kilo-First Autopilot Architecture](.cg-docs/brainstorms/2026-09-11-kilo-first-autopilot-architecture.md)** · `brainstorm` · _decided_ · `2026-09-11`
+  > The existing roadmap feature `architecture-research/autonomous-pipeline-autopilot` needs an implementation-ready arch…
 - **[Single-record help repin blocked by multiple stale definitions](.cg-docs/solutions/bugs/2026-09-11-single-record-help-repin-multiple-stale-definitions.md)** · `solution` · _—_ · `2026-09-11`
   > Preview and explicit reviewed repin of `shell:cg-brain-init` failed when both its definition and the unrelated `shell…
 
@@ -1715,8 +1760,12 @@ _Generated 2026-09-16 · 671 artifacts (newest first) + 169 roadmap features_
   > Automated Documentation Deployment and What's New Page
 - **[Automatic post-PR CI verification and universal PR targeting](roadmap.json#automatic-post-pr-verification-handoff)** · `feature` · _done_ · `—`
   > Automatic post-PR CI verification and universal PR targeting
-- **[Autonomous pipeline command /cg-autopilot \(blocked on workflow research + hooks evaluation\)](roadmap.json#autonomous-pipeline-autopilot)** · `feature` · _idea_ · `—`
-  > Autonomous pipeline command /cg-autopilot (blocked on workflow research + hooks evaluation)
+- **[Autonomous pipeline command /cg-autopilot](roadmap.json#autonomous-pipeline-autopilot)** · `feature` · _active_ · `—`
+  > Autonomous pipeline command /cg-autopilot
+- **[Autopilot enforced writer isolation](roadmap.json#autopilot-enforced-writer-isolation)** · `feature` · _idea_ · `—`
+  > Autopilot enforced writer isolation
+- **[Autopilot hard stage deadlines](roadmap.json#autopilot-hard-stage-deadlines)** · `feature` · _idea_ · `—`
+  > Autopilot hard stage deadlines
 - **[Auto-trigger brain rebuild on /cg-compound](roadmap.json#brain-auto-rebuild-on-compound)** · `feature` · _done_ · `—`
   > Auto-trigger brain rebuild on /cg-compound
 - **[Full-scope indexer \(all .cg-docs/ + roadmap features\)](roadmap.json#brain-full-scope-indexer)** · `feature` · _done_ · `—`
@@ -1761,6 +1810,8 @@ _Generated 2026-09-16 · 671 artifacts (newest first) + 169 roadmap features_
   > /cg-help — comprehensive interactive help system
 - **[Split /cg-release into Haiku scan + Sonnet drafting](roadmap.json#cg-release-haiku-sonnet-split)** · `feature` · _done_ · `—`
   > Split /cg-release into Haiku scan + Sonnet drafting
+- **[cg-release prerelease automation: zero-pause flow under 45 minutes](roadmap.json#cg-release-prerelease-automation-zero-pause-flow-under-45-minutes)** · `feature` · _active_ · `—`
+  > cg-release prerelease automation: zero-pause flow under 45 minutes
 - **[/cg-release scan scope limited to last 60 days](roadmap.json#cg-release-scan-scope-60-days)** · `feature` · _done_ · `—`
   > /cg-release scan scope limited to last 60 days
 - **[/cg-setup --refresh mode for non-destructive re-configuration](roadmap.json#cg-setup-refresh-mode)** · `feature` · _idea_ · `—`
@@ -1813,6 +1864,8 @@ _Generated 2026-09-16 · 671 artifacts (newest first) + 169 roadmap features_
   > Cross-model review — adversarial model diversity
 - **[Append-only DECISIONS.md register for methodology and architecture choices \[from GSD\]](roadmap.json#decisions-register)** · `feature` · _idea_ · `—`
   > Append-only DECISIONS.md register for methodology and architecture choices [from GSD]
+- **[Documentation Information Architecture and UX Redesign](roadmap.json#documentation-ia-ux-redesign)** · `feature` · _done_ · `—`
+  > Documentation Information Architecture and UX Redesign
 - **[Dual-audience Brainstorm and Plan artifacts with human-readable HTML](roadmap.json#dual-audience-brainstorm-and-plan-artifacts-with-human-readable-html)** · `feature` · _done_ · `—`
   > Dual-audience Brainstorm and Plan artifacts with human-readable HTML
 - **[Dual-Deployment: Dev Branch Docs at /dev/](roadmap.json#dual-deployment-dev-branch-docs-at-dev)** · `feature` · _idea_ · `—`
@@ -1855,6 +1908,8 @@ _Generated 2026-09-16 · 671 artifacts (newest first) + 169 roadmap features_
   > Fail-closed manifest and skill-integrity validation
 - **[Add mattpocock/skills to competitive review sources](roadmap.json#mattpocock-skills-review-source)** · `feature` · _idea_ · `—`
   > Add mattpocock/skills to competitive review sources
+- **[Merged worktrees with uncommitted WIP must never be auto-deleted](roadmap.json#merged-worktrees-with-uncommitted-wip-must-never-be-auto-deleted)** · `feature` · _idea_ · `—`
+  > Merged worktrees with uncommitted WIP must never be auto-deleted
 - **[Minimal adaptive grilling for the Compound GPID workflow](roadmap.json#minimal-adaptive-grilling-for-the-compound-gpid-workflow)** · `feature` · _idea_ · `—`
   > Minimal adaptive grilling for the Compound GPID workflow
 - **[Add model-policy tests](roadmap.json#model-policy-tests)** · `feature` · _idea_ · `—`

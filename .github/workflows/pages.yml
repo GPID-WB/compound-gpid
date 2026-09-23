@@ -9,6 +9,7 @@ on:
       - '.github/skills/**'
       - '.github/agents/**'
       - 'docs/**'
+      - 'releases/**'
       - 'scripts/rebuild-docs.js'
       - 'scripts/docs-*.js'
       - 'scripts/docs-legacy-v1/**'
