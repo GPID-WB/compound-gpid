@@ -1,6 +1,6 @@
 # 🧠 Project Brain
 
-_Generated 2026-09-19 · 866 entities · 7 topics · 424 edges_
+_Generated 2026-09-24 · 871 entities · 7 topics · 428 edges_
 
 ## How to Use
 
@@ -13,7 +13,7 @@ _Generated 2026-09-19 · 866 entities · 7 topics · 424 edges_
 
 | # | Topic | Entities | File |
 |---|-------|----------|------|
-| 1 | [Test Scenarios / Roadmap.Json / Cg-Work](BRAIN-01.md#test-scenarios-roadmap-json-cg-work) | 609 | BRAIN-01.md |
+| 1 | [Test Scenarios / Roadmap.Json / Cg-Work](BRAIN-01.md#test-scenarios-roadmap-json-cg-work) | 615 | BRAIN-01.md |
 | 2 | [Architecture Research Objective / Ongoing Ideas Objective / Workflow Maturity Objective](BRAIN-02.md#architecture-research-objective-ongoing-ideas-objective-workflow-maturity-objective) | 167 | BRAIN-02.md |
 | 3 | [Expand Compound Research / Responsible Research Partner Objective / Research](BRAIN-02.md#expand-compound-research-responsible-research-partner-objective-research) | 9 | BRAIN-02.md |
 | 4 | [Scripts/Cg_Kilo_Preflight.Py / Link.Sh / Cg_Kilo_Preflight.Py](BRAIN-02.md#scripts-cg-kilo-preflight-py-link-sh-cg-kilo-preflight-py) | 4 | BRAIN-02.md |
@@ -25,21 +25,21 @@ _Generated 2026-09-19 · 866 entities · 7 topics · 424 edges_
 
 | Type | Count |
 |------|-------|
-| brainstorm | 70 |
+| brainstorm | 71 |
 | feature | 174 |
-| plan | 132 |
-| review | 222 |
-| solution | 253 |
+| plan | 134 |
+| review | 223 |
+| solution | 254 |
 | strategy | 15 |
 
-_68 entities not assigned to any topic_
+_67 entities not assigned to any topic_
 
 ## Relationship Summary
 
 | Edge Type | Count |
 |-----------|-------|
-| decided_from | 94 |
+| decided_from | 95 |
 | implements | 32 |
-| references | 87 |
-| reviews | 128 |
+| references | 89 |
+| reviews | 129 |
 | verifies | 83 |

@@ -1,6 +1,6 @@
 # 🧠 Project Brain — Chronological Log
 
-_Generated 2026-09-19 · 692 artifacts (newest first) + 174 roadmap features_
+_Generated 2026-09-24 · 697 artifacts (newest first) + 174 roadmap features_
 
 ## undated
 
@@ -126,6 +126,22 @@ _Generated 2026-09-19 · 692 artifacts (newest first) + 174 roadmap features_
   > Plan: `.cg-docs/plans/2026-06-23-token-dashboard-regression-checks.md`
 - **[phase2-model-governance-cleanup](.cg-docs/plans/phase2-model-governance-cleanup.md)** · `plan` · _—_ · `—`
   > **Status**: Ready for implementation **Implementor**: Codex **Validator**: GitHub Copilot / VS Code **Created**: 2026…
+
+## 2026-09-24
+
+- **[2026-09-24-legacy-first-routine-prerelease-review](.cg-docs/reviews/2026-09-24-legacy-first-routine-prerelease-review.md)** · `review` · _—_ · `2026-09-24`
+  > Requested `mode:verify`; resolved to a normal `full` security-risk review, **not** a verification of fixes. The most …
+- **[Legacy-first routine four-part prerelease](.cg-docs/plans/2026-09-24-legacy-first-routine-prerelease.md)** · `plan` · _completed_ · `2026-09-24`
+  > Make `/cg-release vX.Y.Z.<build>` the GPID routine prerelease request using the existing PowerShell Reserve and Final…
+- **[Route routine four-part prereleases through the existing publisher without claiming atomic cutover](.cg-docs/solutions/git-workflows/2026-09-24-routine-prerelease-reuse-and-cutover-boundary.md)** · `solution` · _—_ · `2026-09-24`
+  > GPID needed a routine `/cg-release vX.Y.Z.<build>` path while the new release controller remained disabled. Treating …
+
+## 2026-09-23
+
+- **[Controller-first routine release with four-part prereleases](.cg-docs/brainstorms/2026-09-23-controller-first-routine-release.md)** · `brainstorm` · _decided_ · `2026-09-23`
+  > PR #179 is merged into `dev` (worktree HEAD `48001ab4`). Bare `/cg-release v1.2.0.9020` is not a routine operation. T…
+- **[Controller-first routine release with four-part prereleases](.cg-docs/plans/2026-09-23-controller-first-routine-release.md)** · `plan` · _blocked_ · `2026-09-23`
+  > Superseded on 2026-09-24 by `.cg-docs/plans/2026-09-24-legacy-first-routine-prerelease.md`. Phase 1 stopped before im…
 
 ## 2026-09-17
 
