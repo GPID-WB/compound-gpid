@@ -63,7 +63,7 @@ at commit
 
 1. `compound-gpid.md` still describes a GitHub Copilot-centered deliverable and
    a future cross-agent evaluation, while committed release evidence describes
-   native Copilot, Claude Code, Codex, and OpenCode targets.
+   native Copilot, Claude Code, Codex, OpenCode, and Kilo targets.
 2. `ROADMAP.md` marks Phase 1 in progress although all listed Phase 1 items are
    checked, and it conflicts with `roadmap.json` on Team Brain and later work.
 3. `RELEASE_NOTES.md` should identify its release and date at the heading level.

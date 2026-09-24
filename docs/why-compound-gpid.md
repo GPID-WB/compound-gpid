@@ -55,7 +55,7 @@ packaging, catalogs, and operating policies.
 | Core loop | The observed upstream workflow includes brainstorm, plan, work, simplify, review, and compound, plus an autonomous delivery path. | The documented loop emphasizes brainstorm, plan, work, review, fix triage, and compound, with explicit review artifacts and selective finding resolution. |
 | Domain guidance | The current upstream catalog is mostly general software/product guidance. | The canonical catalog includes R, Stata, Python, econometrics, survey, welfare, poverty, visualization, reproducibility, and institutional-writing guidance. |
 | Review structure | Upstream selects review personas based on the diff and is report-only by default unless mutation is authorized. | Compound GPID separates review agents and deterministic routes, and restricts automatic fixes for statistically sensitive areas. |
-| Packaging | Upstream currently packages its capabilities as skills for several hosts. | Compound GPID authors canonical assets in `.github/` and generates committed native trees for Copilot, Claude Code, Codex, and OpenCode. |
+| Packaging | Upstream currently packages its capabilities as skills for several hosts. | Compound GPID authors canonical assets in `.github/` and generates committed native trees for Copilot, Claude Code, Codex, OpenCode, and Kilo. |
 
 Counts are not used as a quality comparison: the projects package prompts,
 personas, agents, skills, and supporting references differently.

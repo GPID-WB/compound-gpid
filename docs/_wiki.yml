@@ -13,11 +13,16 @@ pages:
     title: "Workflow"
     ownership: "manual"
     order: 2
+  - id: "modular-guide"
+    file: "modular-guide.md"
+    title: "Modular Guide"
+    ownership: "manual"
+    order: 3
   - id: "reference"
     file: "reference.md"
     title: "Reference"
     ownership: "auto"
-    order: 3
+    order: 4
     sections:
       - id: "shell-commands"
         managed: true
@@ -27,45 +32,45 @@ pages:
     file: "context-files.md"
     title: "Context Files"
     ownership: "manual"
-    order: 4
+    order: 5
   - id: "model-guide"
     file: "model-guide.md"
     title: "Model Guide"
     ownership: "manual"
-    order: 5
+    order: 6
   - id: "team-brain-schema"
     file: "team-brain-schema.md"
     title: "Team Brain Schema"
     ownership: "manual"
-    order: 6
+    order: 7
   - id: "retrieval-backends"
     file: "retrieval-backends.md"
     title: "Retrieval Backends"
     ownership: "manual"
-    order: 7
+    order: 8
   - id: "snapshot-external-research"
     file: "snapshot-external-research.md"
     title: "Snapshot and External Research"
     ownership: "manual"
-    order: 8
+    order: 9
   - id: "versioning"
     file: "versioning.md"
     title: "Versioning"
     ownership: "manual"
-    order: 9
+    order: 10
   - id: "troubleshooting"
     file: "troubleshooting.md"
     title: "Troubleshooting"
     ownership: "manual"
-    order: 10
+    order: 11
   - id: "manual"
     file: "manual.md"
     title: "Manual"
     ownership: "manual"
-    order: 11
+    order: 12
   - id: "competitive-reviews"
     file: "competitive-reviews.md"
     title: "Competitive Reviews"
     ownership: "manual"
-    order: 12
-lastUpdated: "2026-07-31"
+    order: 13
+lastUpdated: "2026-08-10"

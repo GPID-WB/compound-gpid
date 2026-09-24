@@ -100,7 +100,7 @@ def _relative_inventory(root: Path) -> set[str]:
 
 
 def _canonical_skills(root: Path = REPO_ROOT) -> tuple[Path, ...]:
-    return tuple(sorted(path for path in (root / ".github/skills").glob("cg-skill-*") if path.is_dir()))
+    return tuple(sorted(path for path in (root / ".github/skills").glob("*") if path.is_dir()))
 
 
 def _local_markdown_targets(markdown: Path, bundle_root: Path) -> tuple[Path, ...]:

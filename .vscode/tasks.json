@@ -4,11 +4,24 @@
         {
             "label": "Run all Pester tests (safe)",
             "type": "shell",
-            "command": "powershell",
+            "command": "pwsh",
             "args": [
                 "-ExecutionPolicy", "Bypass",
-                "-File", "${workspaceFolder}\\tests\\Run-Tests.ps1"
+                "-File", "${workspaceFolder}/tests/Run-Tests.ps1"
             ],
+            "windows": {
+                "command": "powershell",
+                "args": [
+                    "-ExecutionPolicy", "Bypass",
+                    "-File", "${workspaceFolder}\\tests\\Run-Tests.ps1"
+                ]
+            },
+            "osx": {
+                "command": "pwsh"
+            },
+            "linux": {
+                "command": "pwsh"
+            },
             "group": {
                 "kind": "test",
                 "isDefault": true
@@ -24,12 +37,26 @@
         {
             "label": "Run Pester tests (FailFast)",
             "type": "shell",
-            "command": "powershell",
+            "command": "pwsh",
             "args": [
                 "-ExecutionPolicy", "Bypass",
-                "-File", "${workspaceFolder}\\tests\\Run-Tests.ps1",
+                "-File", "${workspaceFolder}/tests/Run-Tests.ps1",
                 "-FailFast"
             ],
+            "windows": {
+                "command": "powershell",
+                "args": [
+                    "-ExecutionPolicy", "Bypass",
+                    "-File", "${workspaceFolder}\\tests\\Run-Tests.ps1",
+                    "-FailFast"
+                ]
+            },
+            "osx": {
+                "command": "pwsh"
+            },
+            "linux": {
+                "command": "pwsh"
+            },
             "group": "test",
             "presentation": {
                 "reveal": "always",

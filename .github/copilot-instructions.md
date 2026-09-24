@@ -189,4 +189,27 @@ After solving a non-trivial problem, use `/cg-compound` to capture the solution 
 
 When a prompt contains a "Consult Brain" step, load `cg-skill-brain-query` — it teaches how to navigate BRAIN.md, extract relevant takeaways and gotchas, evaluate and prioritize findings, resolve contradictions, and detect stale entries. The calling prompt's step provides the search directive (what to look for); the skill provides the protocol (how to search and apply findings).
 
+## Modular Suites
+
+`.github/shared/module-registry.json` is the ownership and dependency source of
+truth. It defines the kernel, reusable capability packs, and the independent
+technical (`suite-cg`) and research (`suite-cr`) suites. Every canonical asset
+has one owner, and suites may share capabilities but may not depend directly on
+one another.
+
+Projects select workflows with `suites:` in `compound-gpid.local.md`:
+
+- `suites: [cg]` activates the technical `/cg-*` workflow and is the default.
+- `suites: [cr]` activates the research `/cr-*` workflow.
+- `suites: [cg, cr]` activates both through shared capability dependencies.
+
+Generated platform trees are filtered to the selected suites plus their
+transitive capability dependencies and the kernel. `/cg-review` remains the
+technical review entry point; `/cr-review` owns research-task classification,
+research integrity checks, and conditional CR agent dispatch.
+
+The research suite follows the lifecycle `Scope -> Evidence -> Theory -> Method
+-> Execute -> Verify -> Communicate -> Maintain`. Silent research correctness
+failures are P0 and block release until resolved.
+
 <!-- Pester Safety Rules appear at the top of this file -->

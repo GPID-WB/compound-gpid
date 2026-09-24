@@ -112,7 +112,7 @@ FILE_REF_RE = re.compile(
     re.IGNORECASE,
 )
 AGENT_REF_RE = re.compile(r"@cg-[a-z-]+")
-SKILL_REF_RE = re.compile(r"cg-skill-[a-z-]+")
+SKILL_REF_RE = re.compile(r"[a-z0-9]+-skill-[a-z0-9-]+")
 TOOL_REF_RE = re.compile(r"\b(?:read_file|edit_file|run_in_terminal|grep_search|semantic_search)\b")
 LOAD_VERB_RE = re.compile(r"\b(?:must read|load .+skill|consult|dispatch)\b", re.IGNORECASE)
 WORKFLOW_TOOL_REF_RE = re.compile(
@@ -295,6 +295,38 @@ RELEASE_READINESS_CHECKLIST = [
     "Pester safe runner passes in VS Code/PowerShell.",
     "Manual VS Code/Copilot runtime checklist is complete.",
 ]
+
+
+def _resolve_brain_query_skill(root: Path) -> Path:
+    """Resolve the kernel brain-query skill directory namespace-agnostically.
+
+    Prefers a skill directory declared in the module registry whose owning
+    module is ``kernel`` and whose id contains ``brain-query``; falls back to
+    the legacy ``cg-skill-brain-query`` path so pre-registry setups keep working.
+    """
+    legacy = root / ".github" / "skills" / "cg-skill-brain-query"
+    registry_path = root / ".github" / "shared" / "module-registry.json"
+    if not registry_path.exists():
+        return legacy
+    try:
+        registry = json.loads(registry_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return legacy
+    for module in registry.get("modules", []):
+        if not isinstance(module, dict) or module.get("layer") != "kernel":
+            continue
+        for pattern in module.get("ownedAssets", []):
+            if not isinstance(pattern, str):
+                continue
+            if "brain-query" not in pattern:
+                continue
+            normalized = pattern.rstrip("/")
+            if not normalized.endswith("SKILL.md"):
+                normalized = f"{normalized}/SKILL.md"
+            candidate = root / normalized
+            if candidate.is_file():
+                return candidate.parent
+    return legacy
 
 
 def estimate_tokens(text: str) -> int:
@@ -1303,7 +1335,8 @@ def build_benchmark_summary(root: Path, report: dict[str, Any]) -> dict[str, Any
         for row in telemetry.get("workflows", [])
     ]
 
-    brain_skill = root / ".github" / "skills" / "cg-skill-brain-query" / "SKILL.md"
+    brain_skill_root = _resolve_brain_query_skill(root)
+    brain_skill = brain_skill_root / "SKILL.md"
     brain_text = brain_skill.read_text(encoding="utf-8-sig") if brain_skill.exists() else ""
     brain_rows = [
         row for row in context_rows
@@ -1315,7 +1348,7 @@ def build_benchmark_summary(root: Path, report: dict[str, Any]) -> dict[str, Any
     workflows.append(
         {
             "workflow": "Knowledge Brain/context lookup",
-            "path": ".github/skills/cg-skill-brain-query/SKILL.md",
+            "path": brain_skill_root.relative_to(root).as_posix() + "/SKILL.md",
             "available": brain_skill.exists(),
             "characters": len(brain_text) if brain_text else None,
             "estimated_tokens": estimate_tokens(brain_text) if brain_text else None,
@@ -1423,7 +1456,8 @@ def _legacy_benchmark_from_report(report: dict[str, Any]) -> dict[str, Any]:
                 ),
             }
         )
-    brain_path = ".github/skills/cg-skill-brain-query/SKILL.md"
+    brain_skill_root = _resolve_brain_query_skill(root)
+    brain_path = brain_skill_root.relative_to(root).as_posix() + "/SKILL.md"
     brain_file = files_by_path.get(brain_path, {})
     brain_counts = _count_context_levels([
         row for row in context_rows
@@ -1550,7 +1584,8 @@ def build_guardrails(root: Path, report: dict[str, Any]) -> dict[str, list[dict[
     ):
         fail(".github/prompts/cg-work.prompt.md", "/cg-work review:auto/manual/none behavior drifted")
 
-    brain_path = root / ".github" / "skills" / "cg-skill-brain-query" / "SKILL.md"
+    brain_skill_root = _resolve_brain_query_skill(root)
+    brain_path = brain_skill_root / "SKILL.md"
     brain_text = brain_path.read_text(encoding="utf-8-sig") if brain_path.exists() else ""
     if not _text_contains_all(
         brain_text,
@@ -1560,7 +1595,7 @@ def build_guardrails(root: Path, report: dict[str, Any]) -> dict[str, list[dict[
             r"(must not read it wholesale|prompt agents must not read it wholesale)",
         ],
     ):
-        fail(".github/skills/cg-skill-brain-query/SKILL.md", "Knowledge Brain query-first or no-wholesale-index rule drifted")
+        fail(brain_skill_root.relative_to(root).as_posix() + "/SKILL.md", "Knowledge Brain query-first or no-wholesale-index rule drifted")
 
     counts = report.get("benchmark", {}).get("review_agent_counts", {}).get("counts", {})
     for mode, expected in EXPECTED_REVIEW_AGENT_COUNTS.items():

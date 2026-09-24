@@ -22,7 +22,7 @@ REQUIRED_CONTRACT_PHRASES = [
     "Prompt files are executable instructions",
     ".github/skills/<skill-name>/SKILL.md",
     ".github/agents/cg-*.agent.md",
-    "cg-skill-*",
+    "<prefix>-skill-*",
     "@cg-*",
     "ExitPlanMode: ignore",
     ".github/copilot-instructions.md",

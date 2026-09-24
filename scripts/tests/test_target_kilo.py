@@ -1,4 +1,4 @@
-"""Tests for Kilo target generation.
+﻿"""Tests for Kilo target generation.
 
 Run from repo root:
     python3 -m pytest scripts/tests/test_target_kilo.py -v
@@ -81,7 +81,7 @@ class TestKiloTreeStructure:
             assert content.split("---", 2)[-1].strip(), f"Missing agent prompt: {agent_file}"
 
     def test_every_skill_has_a_skill_file(self) -> None:
-        skills = list((REPO_ROOT / ".github/skills").glob("cg-skill-*/SKILL.md"))
+        skills = list((REPO_ROOT / ".github/skills").glob("*/SKILL.md"))
         for skill in skills:
             skill_name = skill.parent.name
             assert (REPO_ROOT / ".kilo/skills" / skill_name / "SKILL.md").exists(), f"Missing skill: {skill_name}"

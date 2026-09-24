@@ -1,6 +1,6 @@
 # Workflow Token Budget Baseline
 
-_Generated: 2026-07-31T10:58:19-04:00@c80f66e6828f_
+_Generated: 2026-08-07T19:20:40-04:00@d716ce703e14_
 
 > Token estimates are heuristic (chars/4) and intended for directional audit use.
 
@@ -10,8 +10,8 @@ repository probes.
 
 ## Source Scope
 
-- Source files counted: 118
-- Source estimated tokens: 495800
+- Source files counted: 157
+- Source estimated tokens: 602133
 - Workflow rows: 9
 - Workflows with prompt source observed: 9
 - Workflows without prompt source observed: 0
@@ -23,13 +23,13 @@ artifacts. They are not part of the normal workflow source-pressure scan.
 
 | Workflow | Path | Tokens | Refs | Context Risk | Dispatch | Command Output | Summary |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| /cg-brainstorm | .github/prompts/cg-brainstorm.prompt.md | 3798 | 34 | 0 | limited | not_observed | not_observed |
-| /cg-plan | .github/prompts/cg-plan.prompt.md | 3345 | 25 | 0 | limited | not_observed | not_observed |
-| /cg-work | .github/prompts/cg-work.prompt.md | 5117 | 56 | 0 | conditional | not_observed | not_observed |
-| /cg-review | .github/prompts/cg-review.prompt.md | 4889 | 58 | 0 | conditional | not_observed | not_observed |
+| /cg-brainstorm | .github/prompts/cg-brainstorm.prompt.md | 3965 | 34 | 0 | limited | not_observed | not_observed |
+| /cg-plan | .github/prompts/cg-plan.prompt.md | 3507 | 26 | 0 | limited | not_observed | not_observed |
+| /cg-work | .github/prompts/cg-work.prompt.md | 5315 | 57 | 0 | conditional | not_observed | not_observed |
+| /cg-review | .github/prompts/cg-review.prompt.md | 5032 | 58 | 0 | conditional | not_observed | not_observed |
 | /cg-fix-triage | .github/prompts/cg-fix-triage.prompt.md | 2223 | 22 | 0 | none | not_observed | not_observed |
 | /cg-compound | .github/prompts/cg-compound.prompt.md | 2400 | 28 | 0 | limited | not_observed | not_observed |
-| /cg-resume | .github/prompts/cg-resume.prompt.md | 3153 | 19 | 0 | limited | not_observed | not_observed |
+| /cg-resume | .github/prompts/cg-resume.prompt.md | 3152 | 19 | 0 | limited | not_observed | not_observed |
 | /cg-diagnose | .github/prompts/cg-diagnose.prompt.md | 2642 | 16 | 0 | none | not_observed | not_observed |
 | /cg-token-audit | .github/prompts/cg-token-audit.prompt.md | 784 | 14 | 0 | none | not_observed | not_observed |
 

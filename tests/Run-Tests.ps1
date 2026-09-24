@@ -115,6 +115,8 @@ if ($File -and $File.Count -gt 0 -and $testNames.Count -eq 0) {
 
 $totalPassed = 0
 $totalFailed = 0
+$totalSkipped = 0
+$totalAccounted = 0
 $failedNames = @()
 $skippedNames = @()
 $earlyExit   = $false  # set to $true only when -FailFast breaks the loop early
@@ -122,8 +124,26 @@ $earlyExit   = $false  # set to $true only when -FailFast breaks the loop early
 # Detect Pester major version once. Pester 5+ requires the PesterConfiguration
 # API; the legacy positional-argument invocation (used for Pester 3/4) triggers
 # a deprecated-parameter-set warning in Pester 5 and may misreport PassedCount.
-$pesterMod   = Get-Module Pester -ErrorAction SilentlyContinue
-if (-not $pesterMod) { Import-Module Pester -ErrorAction SilentlyContinue; $pesterMod = Get-Module Pester }
+#
+# Version selection: this suite is written for Pester 4.10.1 (Should -Be syntax,
+# top-level helper dot-sourcing). Pester 5's discovery/run scope separation breaks
+# helper visibility and mass-fails otherwise-valid tests. On machines with multiple
+# Pester versions installed, a bare Get-Module/Import-Module selects the highest
+# (5.x) and produces spurious failures — so prefer the pinned 4.10.1 when present,
+# and fall back to whatever is available otherwise (e.g. Windows CI with only 4.10.1).
+$requiredPester = [version]'4.10.1'
+$pesterMod = Get-Module Pester -ErrorAction SilentlyContinue
+if (-not $pesterMod -or $pesterMod.Version -ne $requiredPester) {
+    $havePinned = Get-Module -ListAvailable Pester | Where-Object { $_.Version -eq $requiredPester }
+    if ($havePinned) {
+        Remove-Module Pester -Force -ErrorAction SilentlyContinue
+        Import-Module Pester -RequiredVersion $requiredPester -ErrorAction SilentlyContinue
+        $pesterMod = Get-Module Pester
+    } elseif (-not $pesterMod) {
+        Import-Module Pester -ErrorAction SilentlyContinue
+        $pesterMod = Get-Module Pester
+    }
+}
 $pesterMajor = if ($pesterMod) { [int]$pesterMod.Version.Major } else { 3 }
 
 # Artifact data — initialized before the loop.
@@ -174,6 +194,9 @@ foreach ($name in $testNames) {
 
     $totalPassed += $r.PassedCount
     $totalFailed += $r.FailedCount
+    $fileSkipped = $r.TotalCount - $r.PassedCount - $r.FailedCount
+    $totalSkipped += $fileSkipped
+    $totalAccounted += $r.TotalCount
 
     # Append per-file summary to artifact data.
     $filesArray.Add([pscustomobject]@{
@@ -181,6 +204,7 @@ foreach ($name in $testNames) {
         total  = $r.TotalCount
         passed = $r.PassedCount
         failed = $r.FailedCount
+        skipped = $fileSkipped
     }) | Out-Null
 
     if ($r.FailedCount -gt 0) {
@@ -276,9 +300,10 @@ $artifact = [pscustomobject]@{
     gitSha        = $gitSha
     ranAt         = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
     passed        = ($totalFailed -eq 0)
-    totalCount    = $totalPassed + $totalFailed
+    totalCount    = $totalAccounted
     passedCount   = $totalPassed
     failedCount   = $totalFailed
+    skippedCount  = $totalSkipped
     failFast      = [bool]$earlyExit
     filteredFiles = if ($File) { @($File) } else { $null }
     skipped       = $skippedNames
@@ -293,4 +318,9 @@ try {
     Write-Warning "WARNING: Failed to write test artifact: $_"
 }
 
-if ($totalFailed -gt 0) { $global:LASTEXITCODE = 1; return }
+if ($totalFailed -gt 0) {
+    $global:LASTEXITCODE = 1
+    if ($MyInvocation.InvocationName -ne '.') { exit 1 }
+    return
+}
+$global:LASTEXITCODE = 0

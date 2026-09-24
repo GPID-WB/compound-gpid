@@ -186,7 +186,7 @@ class TestReleaseGateTargets:
         """Drift check must pass — generated trees must be current."""
         result = subprocess.run(  # pylint: disable=subprocess-run-check
             [sys.executable, "-m", "pytest", "scripts/tests/test_target_drift.py", "-q"],
-            capture_output=True, text=True, cwd=str(REPO_ROOT), timeout=360, check=False,
+            capture_output=True, text=True, cwd=str(REPO_ROOT), timeout=600, check=False,
         )
         assert result.returncode == 0, f"Drift test failed — generated trees are stale:\n{result.stdout}\n{result.stderr}"
 

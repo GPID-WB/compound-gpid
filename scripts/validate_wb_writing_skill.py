@@ -22,7 +22,38 @@ from typing import Any
 from urllib.parse import urlparse
 
 PARENT_PLAN_PATH = ".cg-docs/plans/2026-07-23-wb-institutional-report-writing-skill.md"
-SKILL_ROOT = Path(".github/skills/cg-skill-wb-report-writing")
+DEFAULT_SKILL_ROOT = Path(".github/skills/cg-skill-wb-report-writing")
+
+
+def _resolve_skill_root(root: Path = Path(".")) -> Path:
+    """Resolve the wb-report-writing skill directory namespace-agnostically.
+
+    Prefers the skill directory owned by the ``cap-wb-report-writing`` module in
+    the module registry; falls back to the legacy ``cg-skill-wb-report-writing``
+    path so pre-registry setups keep working.
+    """
+    registry_path = root / ".github" / "shared" / "module-registry.json"
+    if registry_path.exists():
+        try:
+            registry = json.loads(registry_path.read_text(encoding="utf-8"))
+            for module in registry.get("modules", []):
+                if not isinstance(module, dict) or module.get("id") != "cap-wb-report-writing":
+                    continue
+                for pattern in module.get("ownedAssets", []):
+                    if not isinstance(pattern, str) or "wb-report-writing" not in pattern:
+                        continue
+                    normalized = pattern.rstrip("/")
+                    if not normalized.endswith("SKILL.md"):
+                        normalized = f"{normalized}/SKILL.md"
+                    candidate = root / normalized
+                    if candidate.is_file():
+                        return candidate.parent
+        except (OSError, json.JSONDecodeError):
+            pass
+    return DEFAULT_SKILL_ROOT
+
+
+SKILL_ROOT = _resolve_skill_root()
 SOURCE_PACK_DIR = SKILL_ROOT / "references" / "source-packs"
 EVAL_RESULTS_DIR = SKILL_ROOT / "evals" / "results"
 

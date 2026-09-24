@@ -2,6 +2,63 @@
   "schemaVersion": "compound-gpid-roadmap-v1",
   "milestones": [
     {
+      "id": "responsible-research-partner",
+      "title": "Responsible Research Partner",
+      "objective": "Expand Compound Research from a journal-paper econometrics assistant into a responsible, provenance-aware partner for the full lifecycle of policy-relevant measurement and economic research.",
+      "status": "in-progress",
+      "features": [
+        {
+          "id": "cr-evidence-provenance-spine",
+          "title": "CR evidence and provenance spine with repo-local corpus default",
+          "description": "Add structured source manifests, claim-to-evidence matrices, verification status, original-document authority, citation auditing, and opt-in external research without hallucinated sources or locators.",
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-07-30-cr-evidence-provenance-spine.md"
+        },
+        {
+          "id": "cr-measurement-classification-archetype",
+          "title": "CR Measurement/Classification research archetype",
+          "description": "Add a ninth research archetype covering composite indicators, clustering, threshold mapping, weighting sensitivity, cluster validity, and established measurement methodology.",
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-07-30-cr-measurement-classification-archetype.md"
+        },
+        {
+          "id": "cr-measurement-comparability-controls",
+          "title": "P0 comparability controls for measurement and indicator work",
+          "description": "Enforce comparability across countries or other units and over time, including vintage versioning, ranking stability, coverage artifacts, spurious cluster checks, and attribution of changes to data versus method.",
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-07-30-cr-measurement-classification-archetype.md"
+        },
+        {
+          "id": "cr-scoping-and-normative-gates",
+          "title": "Research scoping and normative-decision gates",
+          "description": "Make scoping a first-class artifact and require human approval of value-laden specifications at brainstorm and plan gates, with re-escalation when new normative choices arise during work.",
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-07-30-cr-scoping-normative-gates.md"
+        },
+        {
+          "id": "cr-responsible-lifecycle-method-packs",
+          "title": "Responsible lifecycle and method-pack retrofit",
+          "description": "Converge toward Scope, Evidence, Theory, Method, Execute, Verify, Communicate, Maintain, while preserving backward compatibility for structural-econometrics and ML workflows.",
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-07-30-cr-method-pack-retrofit.md"
+        },
+        {
+          "id": "cr-second-measurement-use-case-validation",
+          "title": "Validate the Measurement archetype with a second use case",
+          "description": "Test whether the Measurement/Classification archetype generalizes beyond the Beyond GDP classification exemplar before broad implementation.",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "cr-team-evidence-library",
+          "title": "Team-level evidence library",
+          "description": "Explore a separately governed, searchable institutional asset where verified sources and claim-evidence records compound across research projects.",
+          "status": "idea",
+          "plan": null
+        }
+      ]
+    },
+    {
       "id": "quality-loop",
       "title": "Quality Loop",
       "objective": "Close the correctness gap in the work cycle by auto-fixing diagnostics, enforcing per-step test verification, and giving the team validated testing patterns for R.",
@@ -342,6 +399,12 @@
           "description": "Run the first controlled external-skill adoption through the provenance and intake system by adapting Awesome Copilot's `github-actions-hardening` skill under a Compound GPID `cg-skill-*` namespace. This feature is blocked until `external asset provenance and controlled intake` is implemented and verified. Pin the upstream source to an immutable commit, preserve license and attribution evidence, document all local changes, and import the complete non-executable skill bundle through the canonical `.github/` source. Align upstream severity with Compound GPID's P0-P3 system and integrate the skill into existing `cg-version-control` and `cg-adversarial` review paths when `.github/workflows/*.yml` or `.yaml` files are in scope; do not create a redundant general review agent. Adapt the guidance to cover GitHub Actions trust boundaries, untrusted expression interpolation, privileged triggers, fork code execution, least-privilege `GITHUB_TOKEN` permissions, immutable action references, credential persistence, secrets, artifacts, caches, OIDC, and self-hosted runner exposure. Use the adapted skill to audit Compound GPID's current workflows and produce concrete remediation findings. Verify recursive bundle parity, reference closure, isolated native installation, and discoverability on GitHub Copilot, Claude Code, Codex, and OpenCode. The pilot must demonstrate that the intake, adaptation, packaging, review integration, and update process works end to end; it must not broaden into marketplace publication, automatic external installation, or unrelated repository-security automation.",
           "status": "idea",
           "plan": null
+        },
+        {
+          "id": "modular-compound-gpid-architecture-for-technical-and-research-suites",
+          "title": "Modular Compound GPID architecture for technical and research suites",
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-08-07-modular-compound-gpid.md"
         }
       ]
     },
@@ -820,6 +883,27 @@
           "description": "Let a user turn any Markdown document, not only Brainstorm or Plan artifacts, into an easy-to-read, beautiful, responsive, accessible, printable, self-contained offline HTML document. Create a reusable `cg-skill-markdown-publishing` knowledge and orchestration skill, a user-facing `/cg-render-doc` command, and a deterministic implementation surface such as `cg-render-markdown`; the skill orchestrates the renderer and never asks a model to invent bespoke HTML on every run. Reuse the completed dual-audience artifact renderer where contracts genuinely overlap, but add a generic Markdown parser and document-model path instead of pretending arbitrary documents satisfy Brainstorm or Plan schemas. Support modes such as `/cg-render-doc path/to/document.md`, `--theme <name>`, `--check`, an explicit output path when it can be supported safely, and clear regeneration plus current/stale behavior. Define a small curated theme system suitable for technical, report, and editorial documents; themes affect presentation only and never semantics. Required behavior includes headings and navigation, tables, code blocks, links, safely local or embedded images, structurally recognized callouts, long-document handling, desktop and mobile responsiveness, accessibility, print CSS, deterministic source hashes, visible and machine-readable provenance, a safe URL policy, escaped raw HTML, restrictive offline CSP, secure root-contained writes where publication and rollback use non-replacing collision semantics that preserve concurrent winners plus quarantine/recovery artifacts when a destination name is occupied, exact-byte freshness, concise recovery guidance, and no runtime network, model, or Open Design dependency. Source Markdown remains canonical; HTML is derived, regenerable, excluded from model-context ingestion by default, and never edited as authority. Version 1 is one-file Markdown-to-HTML only. Historical bulk backfill, PDF, image, or hosted publishing, live editing, AI summaries, and arbitrary plugin execution remain separate future extensions rather than entering the first release. Deliver canonical assets under `.github/` plus generated Claude Code, Codex, and OpenCode parity, cross-platform launchers and installers, documentation, and focused tests. Acceptance requires deterministic snapshots; security and adversarial tests; accessibility and print checks; responsive evidence; freshness and tamper checks; secure write and collision tests; installer and launcher parity; generated-target drift checks; and documentation. This is the generalization successor to `workflow-maturity/dual-audience-brainstorm-and-plan-artifacts-with-human-readable-html`; historical backfill remains a separate sibling feature.",
           "status": "active",
           "plan": ".cg-docs/plans/2026-08-03-generic-markdown-reference-publishing-core-v2.md"
+        },
+        {
+          "id": "cr-asset-classification-mapping",
+          "title": "CR asset classification mapping",
+          "description": "Classify all ~30 CR assets from feat/compound-research-v2 into modules (kernel, capability packs, research suite) before Phase 3 of the modular plan. Each cr-prompt, cr-agent, cr-skill needs an explicit ownership decision.",
+          "status": "planned",
+          "plan": null
+        },
+        {
+          "id": "context-budget-enforcement-design",
+          "title": "Context-budget enforcement design",
+          "description": "Design how AI agents enforce registry-based loading rules. Specify compound-gpid.local.md schema extension for suites: field, how each platform adapter reads it, and whether enforcement is instruction-level (AI compliance) or generator-level (code).",
+          "status": "planned",
+          "plan": null
+        },
+        {
+          "id": "token-efficiency-vs-modular-priority-resolution",
+          "title": "Token Efficiency vs modular priority resolution",
+          "description": "Resolve the tension between the charter's Current Focus (Token Efficiency) and the modular architecture plan. Either add a Phase 0 step to update the charter, or explicitly document the prioritization change.",
+          "status": "planned",
+          "plan": null
         }
       ]
     },

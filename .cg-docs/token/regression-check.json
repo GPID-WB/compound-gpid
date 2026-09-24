@@ -4,8 +4,13 @@
     "status": "not_supplied",
     "workflows": []
   },
-  "failures": [],
-  "generated": "2026-07-31T10:58:19-04:00@c80f66e6828f",
+  "failures": [
+    {
+      "path": "(always-on instructions)",
+      "reason": "always-on instruction estimated tokens > 6000"
+    }
+  ],
+  "generated": "2026-08-07T19:20:40-04:00@d716ce703e14",
   "generated_kind": "volatile",
   "measurement_policy": {
     "failure_rule": "guardrail failures fail the regression check; advisory warnings remain warnings",
@@ -13,12 +18,96 @@
     "token_estimate": "chars/4 heuristic"
   },
   "schema_version": 1,
-  "status": "baseline",
-  "status_reason": "No baseline comparison was supplied; current audit is the baseline.",
+  "status": "fail",
+  "status_reason": "Deterministic guardrail failures are present.",
   "warnings": [
+    {
+      "path": ".github/prompts/cg-review.prompt.md",
+      "reason": "high-frequency prompt estimated tokens > 5000"
+    },
     {
       "path": ".github/prompts/cg-work.prompt.md",
       "reason": "high-frequency prompt estimated tokens > 5000"
+    },
+    {
+      "path": ".github/agents/cr-econometric-reasoning.agent.md",
+      "reason": "context-loading risk requires review: .cg-docs/"
+    },
+    {
+      "path": ".github/agents/cr-econometric-reasoning.agent.md",
+      "reason": "context-loading risk requires review: .cg-docs/"
+    },
+    {
+      "path": ".github/agents/cr-identification-audit.agent.md",
+      "reason": "context-loading risk requires review: .cg-docs/"
+    },
+    {
+      "path": ".github/agents/cr-mathematical-verification.agent.md",
+      "reason": "context-loading risk requires review: .cg-docs/"
+    },
+    {
+      "path": ".github/agents/cr-mathematical-verification.agent.md",
+      "reason": "context-loading risk requires review: .cg-docs/"
+    },
+    {
+      "path": ".github/agents/cr-ml-methodology.agent.md",
+      "reason": "context-loading risk requires review: .cg-docs/"
+    },
+    {
+      "path": ".github/agents/cr-provenance-audit.agent.md",
+      "reason": "context-loading risk requires review: .cg-docs/"
+    },
+    {
+      "path": ".github/agents/cr-publication-output.agent.md",
+      "reason": "context-loading risk requires review: .cg-docs/"
+    },
+    {
+      "path": ".github/agents/cr-research-integrity.agent.md",
+      "reason": "context-loading risk requires review: .cg-docs/"
+    },
+    {
+      "path": ".github/agents/cr-specification-analysis.agent.md",
+      "reason": "context-loading risk requires review: .cg-docs/"
+    },
+    {
+      "path": ".github/prompts/cg-release.prompt.md",
+      "reason": "context-loading risk requires review: .cg-docs/"
+    },
+    {
+      "path": ".github/prompts/cg-release.prompt.md",
+      "reason": "context-loading risk requires review: .cg-docs"
+    },
+    {
+      "path": ".github/prompts/cg-release.prompt.md",
+      "reason": "context-loading risk requires review: .cg-docs"
+    },
+    {
+      "path": ".github/prompts/cr-brainstorm.prompt.md",
+      "reason": "context-loading risk requires review: compound-gpid.context.md"
+    },
+    {
+      "path": ".github/prompts/cr-plan.prompt.md",
+      "reason": "context-loading risk requires review: roadmap.json"
+    },
+    {
+      "path": ".github/prompts/cr-plan.prompt.md",
+      "reason": "context-loading risk requires review: .cg-docs/"
+    },
+    {
+      "path": ".github/prompts/cr-work.prompt.md",
+      "reason": "context-loading risk requires review: roadmap.json"
+    },
+    {
+      "path": ".github/prompts/cr-work.prompt.md",
+      "reason": "context-loading risk requires review: .cg-docs/"
+    },
+    {
+      "path": ".github/skills/cr-skill-research-integrity/SKILL.md",
+      "reason": "context-loading risk requires review: .cg-docs/"
+    },
+    {
+      "path": ".github/skills/cr-skill-research-integrity/SKILL.md",
+      "reason": "context-loading risk requires review: .cg-docs/"
     },
     {
       "path": "docs/philosophy.md",
@@ -35,7 +124,7 @@
   ],
   "workflow_budget": [
     {
-      "estimated_tokens": 3798,
+      "estimated_tokens": 3965,
       "path": ".github/prompts/cg-brainstorm.prompt.md",
       "status": "pass",
       "threshold_failure": 6000,
@@ -43,7 +132,7 @@
       "workflow": "/cg-brainstorm"
     },
     {
-      "estimated_tokens": 3345,
+      "estimated_tokens": 3507,
       "path": ".github/prompts/cg-plan.prompt.md",
       "status": "pass",
       "threshold_failure": 6000,
@@ -51,7 +140,7 @@
       "workflow": "/cg-plan"
     },
     {
-      "estimated_tokens": 5117,
+      "estimated_tokens": 5315,
       "path": ".github/prompts/cg-work.prompt.md",
       "status": "warn",
       "threshold_failure": 6000,
@@ -59,9 +148,9 @@
       "workflow": "/cg-work"
     },
     {
-      "estimated_tokens": 4889,
+      "estimated_tokens": 5032,
       "path": ".github/prompts/cg-review.prompt.md",
-      "status": "pass",
+      "status": "warn",
       "threshold_failure": 6000,
       "threshold_warning": 5000,
       "workflow": "/cg-review"
@@ -83,7 +172,7 @@
       "workflow": "/cg-compound"
     },
     {
-      "estimated_tokens": 3153,
+      "estimated_tokens": 3152,
       "path": ".github/prompts/cg-resume.prompt.md",
       "status": "pass",
       "threshold_failure": 6000,
