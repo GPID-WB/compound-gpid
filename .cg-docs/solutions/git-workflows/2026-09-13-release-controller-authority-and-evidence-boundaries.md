@@ -151,3 +151,4 @@ legacy baseline.
 - [Auto-merge and Protect dev settings verification](../git-workflows/2026-09-17-repo-settings-auto-merge-protect-dev-required-checks.md)
 - [Integration contract](../../../.github/shared/release-controller.contract.md)
 - [Controller operator guide](../../../docs/release-controller.md)
+- [Routine prerelease reuse and accepted cutover boundary](2026-09-24-routine-prerelease-reuse-and-cutover-boundary.md)
