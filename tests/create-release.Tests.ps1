@@ -288,9 +288,9 @@ Describe "create-release.ps1 - parameter validation (integration)" {
         $scriptPath = Join-Path (Join-Path $PSScriptRoot "..") "create-release.ps1"
         { & $scriptPath -LegacyOperation Recovery -Tag "v1.0.0" -Name "Test" -NotesFile (Join-Path $TestDrive "nonexistent.md") } | Should -Throw
     }
-    It "rejects routine legacy publication before any remote operation" {
+    It "requires an explicit publication operation before any remote call" {
         $scriptPath = Join-Path (Join-Path $PSScriptRoot "..") "create-release.ps1"
-        { & $scriptPath -Tag "v1.0.0" -Name "Test" -NotesFile (Join-Path $TestDrive "notes.md") } | Should -Throw 'Routine publication uses cg-release start'
+        { & $scriptPath -Tag "v1.0.0" -Name "Test" -NotesFile (Join-Path $TestDrive "notes.md") } | Should -Throw 'requires explicit -LegacyOperation'
     }
 }
 
@@ -430,7 +430,7 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
             CredentialExit = 0; Calls = [System.Collections.Generic.List[string]]::new()
             Origin = 'https://github.com/GPID-WB/compound-gpid.git'
             PagesName = 'Deploy docs from 10'; PagesPath = '.github/workflows/release-pages.yml'
-            Default = 'production'; PolicyEnabled = $false; CutoverAfterPush = $false
+            Default = 'production'; PolicyEnabled = $false; PolicyAbsent = $false; CutoverAfterPush = $false
             Protected = $true; Role = 'admin'; RecoveryRecord = $null; BadRuleset = $false
             PagesEvent = 'workflow_run'; ArtifactDigest = ('sha256:' + ('e' * 64))
             PolicySha = ('d' * 40)
@@ -575,6 +575,7 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
                 throw 'classic branch protection endpoint must not be read'
             }
             if ($Uri -ceq "https://api.github.com/repos/GPID-WB/compound-gpid/contents/.release-controller.json?ref=$($script:state.PolicySha)") {
+                if ($script:state.PolicyAbsent) { return $null }
                 $json = @{ enabled = $script:state.PolicyEnabled; production_branches = $script:state.ProductionBranches } | ConvertTo-Json -Compress
                 if ($null -ne $script:state.PolicyJson) { $json = $script:state.PolicyJson }
                 return [pscustomobject]@{ type='file'; encoding='base64'; content=[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($json)) }
@@ -751,6 +752,29 @@ Path(sys.argv[2]).write_text('{' if case == 'malformed' else json.dumps(data), e
         Invoke-FixtureRelease -SourceBranch $Branch
         $script:state.Release.prerelease | Should -Be $true
         ($script:state.Calls -join "`n") | Should -Match ([regex]::Escape("ls-remote --heads origin refs/heads/$Branch"))
+    }
+    It 'publishes a routine prerelease with the existing Reserve and build-only Finalize checks' {
+        Invoke-FixtureRelease -Operation Routine -SourceBranch 'dev'
+        $script:state.Release.prerelease | Should -Be $true
+        $script:state.Remote | Should -Be $true
+        $script:state.Calls -join "`n" | Should -Match 'api Post'
+        Invoke-FixtureRelease -Operation Routine -Phase Finalize -BuildOnly -SourceBranch 'dev'
+        Get-Content (Join-Path $script:fixture 'release-result.txt') | Should -Match '^FINALIZED\|'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'release-pages.yml/runs'
+    }
+    It 'rejects a stable tag in the routine lane before any remote write' {
+        Set-FixtureStable
+        { Invoke-FixtureRelease -Operation Routine -SourceBranch 'main' } | Should -Throw 'Routine publication requires a four-component prerelease tag'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
+    }
+    It 'rejects a routine release when the controller is enabled or the remote policy is absent' {
+        $script:state.PolicyEnabled = $true
+        { Invoke-FixtureRelease -Operation Routine -SourceBranch 'dev' } | Should -Throw 'Routine publication requires a disabled remote controller policy'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
+        $script:state.PolicyEnabled = $false
+        $script:state.PolicyAbsent = $true
+        { Invoke-FixtureRelease -Operation Routine -SourceBranch 'dev' } | Should -Throw 'Routine publication requires a disabled remote controller policy'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
     }
     It 'publishes stable only from an authorized source branch <Branch>' -TestCases @(
         @{ Branch = 'production' }, @{ Branch = 'deploy/1.x' }
@@ -1032,6 +1056,15 @@ Path(sys.argv[2]).write_text('{' if case == 'malformed' else json.dumps(data), e
         $script:state.CutoverAfterPush = $true
         { Invoke-FixtureRelease } | Should -Throw 'Legacy Bridge is disabled after remote controller cutover or with invalid policy.'
         $script:state.Remote | Should -Be $true
+        ($script:state.Calls -join "`n") | Should -Not -Match 'api Post'
+    }
+    It 'stops Routine after a cutover following tag push without creating a Release' {
+        $script:state.CutoverAfterPush = $true
+        { Invoke-FixtureRelease -Operation Routine -SourceBranch 'dev' } | Should -Throw 'Routine publication requires a disabled remote controller policy.'
+        $script:state.Remote | Should -Be $true
+        $script:state.RemoteObject | Should -Be $script:state.Object
+        $script:state.RemoteCommit | Should -Be $script:state.Head
+        ($script:state.Calls -join "`n") | Should -Match 'push origin'
         ($script:state.Calls -join "`n") | Should -Not -Match 'api Post'
     }
     It 'allows current maintainer recovery of the exact stranded remote tag after cutover' {

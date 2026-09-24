@@ -123,7 +123,7 @@ repository and manager identities shown in its invocation.
 | cg-log-summary &#91;arguments&#93; | CG, CR | Create a bounded summary of recent branch commits. |
 | cg-problems-summary --input &lt;diagnostics-file&gt; &#91;arguments&#93; | CG, CR | Create a bounded summary of editor or diagnostics problem output. |
 | cg-publish-markdown &#91;--automatic&#124;--validate-only&#124;--check&#93; &#91;--theme &lt;theme&gt;&#93; &lt;source&gt; | CG, CR | Publish one generic Markdown document to deterministic curated HTML. |
-| cg-release plan &#91;version&#93; &#124; cg-release start &#91;--resume&#93; &#124; cg-release status | CG | Create a guarded Compound GPID GitHub Release with curated notes. |
+| cg-release plan&#124;start&#124;status&#124;resume &#91;args&#93; &#124; cg-release --legacy-routine &#91;prepared args&#93; | CG | Run generic release controller commands or a prepared GPID PowerShell publication. |
 | cg-render-artifact &#91;--automatic&#124;--validate-only&#124;--check&#93; &lt;source&gt; | CG, CR | Validate, render, or check one typed workflow artifact. |
 | cg-skill --project-root . --format &lt;human&#124;json&gt; &lt;operation&gt; &#91;arguments&#93; | CG, CR | Run the descriptor-driven skill lifecycle dispatcher. |
 | cg-test-summary &#91;arguments&#93; | CG, CR | Create a bounded summary of existing test-runner output. |
@@ -188,7 +188,7 @@ user-controlled selection, see the [Model Guide](model-guide.md).
 | /cg-light-work &#91;--no-branch&#124;--no-brain&#124;--no-html&#93; &lt;task&gt; | CG | Qualify and execute one small technical task with bounded discovery, light review, and explicit compounding consent. |
 | /cg-plan | CG | Create a structured implementation plan with research. Use after brainstorming or when requirements are clear. |
 | /cg-plan-review | CG | Review an implementation plan for risks, over-engineering, missing edge cases, and flawed assumptions. Use after /cg-plan or on any existing plan. |
-| /cg-release &#91;version&#93; | CG | Run the standalone release controller with unchanged arguments. Generic plan/start/status/resume needs no GPID charter. Explicit legacy bridge/recovery remains GPID-only. |
+| /cg-release vX.Y.Z.&lt;build&gt; &#91;--source-branch branch&#93; | CG | Run generic controller commands unchanged or publish a GPID four-part prerelease through the existing PowerShell release flow. |
 | /cg-render-doc &lt;source&gt; &#91;--theme reference&#124;editorial&#93; | CG | Render a workflow artifact or generic Markdown document to curated HTML. Routes typed artifacts to cg-render-artifact and generic documents to cg-publish-markdown. Supports --theme selection &#40;reference or editorial&#41;. |
 | /cg-resume | CG | Load context and resume interrupted work. Use at the start of a session to pick up where you left off. |
 | /cg-review &#91;light&#124;standard&#124;data-risk&#124;architecture&#124;full&#93; &#91;mode:autofix&#124;mode:verify&#93; | CG | Run multi-agent code review on recent changes. Produces prioritized P0/P1/P2/P3 findings. |
@@ -483,12 +483,15 @@ cleanup stay separate.
 
 > **Consumer project users**: `/cg-release plan|start|status|resume` uses the
 > standalone controller and needs no GPID charter in generic mode. Its optional
-> GPID profile and explicit legacy bridge/recovery paths remain GPID-specific.
+> GPID profile, routine four-part prereleases, and explicit legacy bridge/recovery
+> paths remain GPID-specific.
 
-For an authorized legacy prerelease, use an explicit selector and source, for
-example `/cg-release --legacy-bridge v1.2.0.9020 --source-branch dev --auto-approve`.
-This example is not authorization to publish. The flag pre-approves that exact
-four-component release's decisions, not its security checks. Stable `x.y.z`
+For a routine prerelease, use `/cg-release v1.2.0.9020 --source-branch dev` from
+a clean checkout at that branch's current remote tip. The slash command prepares
+the release notes and payload before it calls the existing publisher; the bare
+native `cg-release` executable does not do this preparation. An optional
+`--auto-approve` pre-approves that exact four-component release's decisions,
+not its security checks. Stable `x.y.z`
 sources must be configured deployment branches or the remote default; prerelease
 `x.y.z.<build>` sources may be any verified same-repository branch. Automated PR
 merges also require effective required checks on that destination branch.
@@ -496,8 +499,11 @@ The payload commit receives an external full-preflight receipt before tagging;
 Reserve owns publication, and Finalize verifies the exact tag build. Stable
 releases additionally require the protected Pages chain and retain manual merges.
 Prereleases do not deploy the full official site; only dev has the `/dev/` preview.
-Use `--resume <tag>` with the explicit legacy selector and source to reconcile an
-interrupted release; it requires the existing annotated tag and exact metadata.
+Use `/cg-release --resume <tag> --source-branch <branch>` to reconcile an
+interrupted routine prerelease; it requires the existing annotated tag and exact
+metadata. Explicit `--legacy-bridge` and `--legacy-recovery` remain separate
+exceptional operations. The controller stays disabled; this routine path does
+not claim exclusive GitHub publication authority against other write users.
 Protected remote activation and official snapshot seeding remain separate rollout
 gates. Neither local tests nor auto approval establish those gates as passed.
 > `/cg-compound-gpid-rd` remains restricted to Compound GPID maintenance.

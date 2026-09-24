@@ -1,10 +1,10 @@
 {
   "id": "slash:cg-release", "name": "/cg-release", "kind": "slash", "ownerModule": "suite-cg", "supportedSuites": ["cg"],
-  "category": "maintenance", "summary": "Create a guarded Compound GPID GitHub Release with curated notes.", "aliases": [],
-  "intents": ["publish a Compound GPID release", "prepare release notes and tag"], "usage": "/cg-release [version]", "examples": ["/cg-release"],
-  "prerequisites": ["Run in the canonical repository with release authority."], "outputs": ["A confirmed GitHub Release and tag."],
+  "category": "maintenance", "summary": "Publish a GPID four-part prerelease with curated notes; preserve generic controller commands.", "aliases": [],
+  "intents": ["publish a Compound GPID prerelease", "prepare release notes and tag"], "usage": "/cg-release vX.Y.Z.<build> [--source-branch branch]", "examples": ["/cg-release v1.2.0.9020 --source-branch dev"],
+  "prerequisites": ["Run GPID publication in the canonical repository with release authority."], "outputs": ["A controller request or, after publication checks, a GitHub Release and tag."],
   "constraints": ["Developer-only and guarded to the canonical repository."], "relatedCommands": [{"id": "slash:cg-devtag", "relation": "related"}],
-  "sourcePath": ".github/prompts/cg-release.prompt.md", "definitionSources": [".github/prompts/cg-release.prompt.md"], "definitionDigest": "3d6dad45c9297f04d654e72fd8e2024da8d97d33d93e7fb9d2c8a5a8cc7c0154",
+  "sourcePath": ".github/prompts/cg-release.prompt.md", "definitionSources": [".github/prompts/cg-release.prompt.md"], "definitionDigest": "7d8e9b0bf36f5da5c2e0108cee355ed3f823666700f98d9615c7cbf4f5fe9915",
   "documentationTargets": [], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["any"],
   "availability": {"status": "conditional", "evidence": [{"os": "any", "sourcePath": ".github/prompts/cg-release.prompt.md"}]},
   "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]

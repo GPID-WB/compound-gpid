@@ -317,11 +317,13 @@ until separate setup, bridge and rollout review. `start` confirms/rechecks and
 returns a durable locator, not an immediate published Release. Use `status` and
 `resume` with that locator; `--yes` does not replace protected approval.
 
-Legacy four-part bridge/recovery remains separately authorized GPID tooling through
-`--legacy-bridge` or `--legacy-recovery`. It retains the clean `dev`/`main` policy
-and all payload, tag and docs checks. The positional `/cg-release v...` interface
-is not the new routine command. Historical procedures below describe temporary
-four-part tooling only, not new-format publication or a baseline source.
+For a GPID routine four-part prerelease, use `/cg-release v1.2.0.9020
+--source-branch dev`. The slash workflow prepares a reviewed payload and invokes
+the existing PowerShell publisher for Reserve and Finalize while the controller
+stays disabled. This is not the generic SemVer controller `start` path. The native
+`cg-release` executable cannot prepare a bare tag; it requires the slash workflow.
+Bridge and historical Recovery remain separately authorized via
+`--legacy-bridge` and `--legacy-recovery`. Stable publication is not made routine.
 
 Published prerelease tags are immutable release records. Do not delete or reuse
 them; increment the build component for the next candidate.

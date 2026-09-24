@@ -49,7 +49,8 @@ checkout branch; detached checkouts must provide it explicitly. Stable releases
 require the protected remote policy's production_branches or remote default.
 
 .PARAMETER LegacyOperation
-Required. Bridge permits reviewed legacy publication only before the cutover
+Required. Routine permits four-component prereleases while the remote controller
+is disabled. Bridge permits reviewed legacy publication only before the cutover
 recorded on the protected remote default. Recovery requires current maintainer authority and an
 existing exact remote tag or a reviewed historical record on that protected ref.
 Recovery cannot be used for routine new publication. Tags and published bytes stay
@@ -89,14 +90,14 @@ param(
     [switch]$Timing,
     [string]$PreflightReceipt,
     [string]$SourceBranch,
-    [ValidateSet("Bridge", "Recovery")][string]$LegacyOperation
+    [ValidateSet("Bridge", "Recovery", "Routine")][string]$LegacyOperation
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
 if (-not $LegacyOperation) {
-    throw "Routine publication uses cg-release start. Legacy publication requires explicit -LegacyOperation Bridge or Recovery."
+    throw "Release publication requires explicit -LegacyOperation Routine, Bridge, or Recovery."
 }
 . (Join-Path $PSScriptRoot 'scripts/release-legacy-authority.ps1')
 
@@ -150,6 +151,9 @@ if ($Tag -cnotmatch '^v\d+\.\d+\.\d+(\.\d+)?$') {
     exit 1
 }
 $isPrereleaseTag = $Tag -cmatch '^v\d+\.\d+\.\d+\.\d+$'
+if ($LegacyOperation -eq 'Routine' -and $Tag -cnotmatch '^v[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$') {
+    throw 'Routine publication requires a four-component prerelease tag.'
+}
 if ($Draft.IsPresent) {
     throw "Draft releases are not supported by the durable release publication flow."
 }

@@ -40,7 +40,7 @@ def test_windows_fixture_executables_run_before_product_dispatch(tmp_path, kind)
 @pytest.mark.parametrize("kind", SHELLS)
 @pytest.mark.parametrize(
     "operation",
-    ["plan", "start", "status", "resume", "--legacy-bridge", "--legacy-recovery"],
+    ["plan", "start", "status", "resume", "--legacy-bridge", "--legacy-recovery", "--legacy-routine"],
 )
 def test_real_shell_preserves_argv_exit_and_does_not_recurse(tmp_path, kind, operation):
     root, env, shell = setup_shell(tmp_path, kind)
@@ -52,7 +52,7 @@ def test_real_shell_preserves_argv_exit_and_does_not_recurse(tmp_path, kind, ope
         assert Path(actual[2]) == root / "create-release.ps1"
         assert actual[3:5] == [
             "-LegacyOperation",
-            "Bridge" if operation == "--legacy-bridge" else "Recovery",
+            operation.removeprefix("--legacy-").capitalize(),
         ]
         assert actual[5:] == args[1:]
     else:
@@ -136,6 +136,19 @@ def test_launcher_routes_all_four_commands_without_shell_reparsing():
         )
         assert calls[0][-len(argv) :] == list(argv)
         assert calls[0][1:4] == ["-I", "-m", "cg_release.cli"]
+
+
+def test_bare_four_part_tag_requires_the_slash_workflow(capsys):
+    """The launcher cannot create release notes or a payload from a bare tag."""
+    spec = importlib.util.spec_from_file_location(
+        "release_launcher", ROOT / "scripts/cg_release_cli.py"
+    )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    calls = []
+    assert module.main(["v1.2.0.9020"], run=lambda command: calls.append(command)) == 2
+    assert not calls
+    assert "/cg-release v1.2.0.9020" in capsys.readouterr().err
 
 
 def test_all_five_slash_interfaces_use_same_cli():

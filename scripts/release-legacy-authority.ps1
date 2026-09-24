@@ -1,4 +1,4 @@
-# Fresh remote authority for explicit legacy bridge and historical recovery.
+# Fresh remote authority for routine prereleases, legacy bridge, and recovery.
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
@@ -47,7 +47,7 @@ function Assert-CgLegacyAuthority {
     Returns exact protected-default SHA and the optional reviewed historical record. No writes.
     #>
     param(
-        [ValidateSet('Bridge', 'Recovery')][string]$Operation,
+        [ValidateSet('Routine', 'Bridge', 'Recovery')][string]$Operation,
         [string]$ReleaseTag, [string]$Commit, [string]$Object, $RemoteTag,
         [Parameter(Mandatory)][string]$SourceBranch,
         [switch]$RequireRecoveryRecord
@@ -88,6 +88,9 @@ function Assert-CgLegacyAuthority {
         throw 'Legacy protected-default review authority is insufficient.'
     }
     $policy = Get-CgLegacyRemoteDocument -Path '.release-controller.json' -Commit $branch.commit.sha
+    if ($Operation -eq 'Routine' -and ($null -eq $policy -or $policy.enabled -isnot [bool] -or $policy.enabled)) {
+        throw 'Routine publication requires a disabled remote controller policy.'
+    }
     if ($null -ne $policy -and ($policy.enabled -isnot [bool] -or ($Operation -eq 'Bridge' -and $policy.enabled))) {
         throw 'Legacy Bridge is disabled after remote controller cutover or with invalid policy.'
     }

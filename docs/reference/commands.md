@@ -66,7 +66,7 @@ recipes, not a second generated facts catalog.
 | /cg-light-work &#91;--no-branch&#124;--no-brain&#124;--no-html&#93; &lt;task&gt; | CG | Qualify and execute one small technical task with bounded discovery, light review, and explicit compounding consent. |
 | /cg-plan | CG | Create a structured implementation plan with research. Use after brainstorming or when requirements are clear. |
 | /cg-plan-review | CG | Review an implementation plan for risks, over-engineering, missing edge cases, and flawed assumptions. Use after /cg-plan or on any existing plan. |
-| /cg-release &#91;version&#93; | CG | Run the standalone release controller with unchanged arguments. Generic plan/start/status/resume needs no GPID charter. Explicit legacy bridge/recovery remains GPID-only. |
+| /cg-release vX.Y.Z.&lt;build&gt; &#91;--source-branch branch&#93; | CG | Run generic controller commands unchanged or publish a GPID four-part prerelease through the existing PowerShell release flow. |
 | /cg-render-doc &lt;source&gt; &#91;--theme reference&#124;editorial&#93; | CG | Render a workflow artifact or generic Markdown document to curated HTML. Routes typed artifacts to cg-render-artifact and generic documents to cg-publish-markdown. Supports --theme selection &#40;reference or editorial&#41;. |
 | /cg-resume | CG | Load context and resume interrupted work. Use at the start of a session to pick up where you left off. |
 | /cg-review &#91;light&#124;standard&#124;data-risk&#124;architecture&#124;full&#93; &#91;mode:autofix&#124;mode:verify&#93; | CG | Run multi-agent code review on recent changes. Produces prioritized P0/P1/P2/P3 findings. |
@@ -136,7 +136,7 @@ source checkout, with the same options. Do not add a leading slash.
 | cg-log-summary &#91;arguments&#93; | CG, CR | Create a bounded summary of recent branch commits. |
 | cg-problems-summary --input &lt;diagnostics-file&gt; &#91;arguments&#93; | CG, CR | Create a bounded summary of editor or diagnostics problem output. |
 | cg-publish-markdown &#91;--automatic&#124;--validate-only&#124;--check&#93; &#91;--theme &lt;theme&gt;&#93; &lt;source&gt; | CG, CR | Publish one generic Markdown document to deterministic curated HTML. |
-| cg-release plan &#91;version&#93; &#124; cg-release start &#91;--resume&#93; &#124; cg-release status | CG | Create a guarded Compound GPID GitHub Release with curated notes. |
+| cg-release plan&#124;start&#124;status&#124;resume &#91;args&#93; &#124; cg-release --legacy-routine &#91;prepared args&#93; | CG | Run generic release controller commands or a prepared GPID PowerShell publication. |
 | cg-render-artifact &#91;--automatic&#124;--validate-only&#124;--check&#93; &lt;source&gt; | CG, CR | Validate, render, or check one typed workflow artifact. |
 | cg-skill --project-root . --format &lt;human&#124;json&gt; &lt;operation&gt; &#91;arguments&#93; | CG, CR | Run the descriptor-driven skill lifecycle dispatcher. |
 | cg-test-summary &#91;arguments&#93; | CG, CR | Create a bounded summary of existing test-runner output. |
