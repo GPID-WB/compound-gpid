@@ -39,6 +39,8 @@ FULL_PACKAGE_TEST_COMMAND = (
     *CONTROLLER_GATE_PREFIX, "pytest", "packages/cg-release/tests", "-q",
 )
 NATIVE_COMMAND_TIMEOUT_SECONDS = 600
+# The full native pytest target can exceed the generic command budget on Windows.
+NATIVE_PYTEST_TIMEOUT_SECONDS = 1800
 # Two complete offline package runs took 727.73s and 723.64s on Windows.
 FULL_PACKAGE_TEST_TIMEOUT_SECONDS = 1800
 CONTROLLER_UV_PREREQUISITE = (
@@ -954,11 +956,14 @@ def run_native_target(
         if commands is not None
         else selected_native_commands(selected, root, phase=phase, gate_owner=gate_owner)
     )
+    native_pytest_command = native_commands(root, phase=phase)[0]
     results: list[CommandResult] = []
     for index, command in enumerate(command_list, start=1):
         started = time.monotonic()
         timeout = (FULL_PACKAGE_TEST_TIMEOUT_SECONDS
                    if command == FULL_PACKAGE_TEST_COMMAND
+                   else NATIVE_PYTEST_TIMEOUT_SECONDS
+                   if command == native_pytest_command
                    else NATIVE_COMMAND_TIMEOUT_SECONDS)
         sys.stderr.write(
             f"Preflight: starting native command {index}/{len(command_list)} "
