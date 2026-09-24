@@ -357,7 +357,7 @@
       "path": ".claude/commands/cg-release.md",
       "source": ".github/prompts/cg-release.prompt.md",
       "kind": "command",
-      "sha256": "3d6dad45c9297f04d654e72fd8e2024da8d97d33d93e7fb9d2c8a5a8cc7c0154",
+      "sha256": "7d8e9b0bf36f5da5c2e0108cee355ed3f823666700f98d9615c7cbf4f5fe9915",
       "executable": false
     },
     {
@@ -567,7 +567,7 @@
       "path": ".claude/shared/help-catalog.json",
       "source": ".github/shared/help-catalog.json",
       "kind": "shared",
-      "sha256": "7f3066333d9e72234fe610118a1375d1ba7768effb59cd85c41fea531dd155dd",
+      "sha256": "5c5c5aedc6a138ad6d764cd3d14553a1c5259364c51e7381691ce7ea302c5d0e",
       "executable": false
     },
     {
@@ -609,7 +609,7 @@
       "path": ".claude/shared/shell-commands.json",
       "source": ".github/shared/shell-commands.json",
       "kind": "shared",
-      "sha256": "c20960f57943d192c8712508bdd7bd077184fb15881dcbe6b09ab201b34e1d79",
+      "sha256": "8026813490d3390cb2aeded89bc6963dc6390e7b0a9245c18cb38f9dddad4ac2",
       "executable": false
     },
     {
