@@ -395,7 +395,7 @@ def verify_evidence(root: Path, evidence: dict) -> None:
     """Validate schema, subject ancestry and unchanged sensitive bytes.
 
     Args: root: Current Git checkout. evidence: Parsed support JSON.
-    Raises: ValueError on missing, stale, unsafe, failed or unverified Kilo proof.
+    Raises: ValueError on missing, stale, unsafe, or inconsistent source evidence.
     Example: verify_evidence(Path('.'), evidence).
     """
     schema = _schema()

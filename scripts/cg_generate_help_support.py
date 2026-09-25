@@ -23,6 +23,7 @@ def _parser() -> argparse.ArgumentParser:
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
+    """Write the exact current source manifest to the single managed path."""
     args = _parser().parse_args(argv)
     root = Path(args.root).resolve()
     if args.output != OUTPUT_PATH:
