@@ -3360,7 +3360,7 @@
       "constraints": [
         "Propose mode is observe-only."
       ],
-      "definitionDigest": "b165770105b5bfaccb19f617c531477b530754bf36bd33f13ea827e0e86b1afb",
+      "definitionDigest": "b1a58fc11990ff8ee946d696a1f85ab9706fef9a0094e4f32461d56d8c625665",
       "definitionSources": [
         ".github/prompts/cg-verify-pr.prompt.md"
       ],
@@ -3887,7 +3887,7 @@
   ],
   "generatorVersion": "1.0.0",
   "schemaVersion": 1,
-  "sourceDigest": "fd77c44c085125b900b9d6412f77e5323e56486f101fdbadeee85eb93b7b52ee",
+  "sourceDigest": "42e47132a4d4a0869845508e0942006072a21ed719fb70168ac3a4b27735dbc4",
   "suites": [
     {
       "activation": {

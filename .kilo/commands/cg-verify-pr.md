@@ -10,7 +10,12 @@ You are a senior developer checking whether the current pull request's CI checks
 
 - **READ**: Any file in the workspace.
 - **MODIFY**: Source and test files related to CI fix (auto-fix mode only).
-- **NEVER**: Modify `.cg-docs/` files, plan files, or `roadmap.json` directly.
+- **NEVER**: Modify plan files, `roadmap.json`, or arbitrary `.cg-docs/` files.
+- **NARROW EVIDENCE REPAIR**: In auto-fix mode only, the exact stale current-help
+  manifest failure may run `python scripts/cg_generate_help_support.py` and modify
+  only `.cg-docs/work-reports/docs-help-support-current.json`. This manifest is
+  host-neutral source/static evidence; never add a runtime, host, model, provider,
+  operating-system, or certification claim during this repair.
 - **`--propose` mode**:
   - READ-only.
   - No file creation or modification.
@@ -185,7 +190,19 @@ For every failing check, use only that check's `detailsUrl` from `statusCheckRol
    > - 🏗️ Build errors (N): `<file>`
    > - 🖥️ Platform-specific (N): `<platform>` only — `<check-name>`
    >
-   > [Auto-fix mode: applying fixes now. | Propose mode: see suggested fixes below.]"
+    > [Auto-fix mode: applying fixes now. | Propose mode: see suggested fixes below.]"
+
+7. A failed Browser evidence-manifest test is eligible for the narrow evidence
+   repair only when its exact job log reports stale or changed help-sensitive
+   source bindings and the worktree is clean. After the clean-tree check in Step
+   4, run the canonical generator without alternative output flags, then run:
+   `python scripts/cg_verify_help_support.py --evidence
+   .cg-docs/work-reports/docs-help-support-current.json`. Require the generator
+   to change only that exact manifest. Run the exact failed Browser test and
+   generated-target/catalog checks before staging. If any other `.cg-docs` path
+   changes, any runtime field appears, or the failure is not exact source drift,
+   halt for a separately authorized workflow. Never run a live host or model to
+   repair this manifest.
 
 ### Step 4: Fix Round
 

@@ -420,7 +420,7 @@
       "path": ".claude/commands/cg-verify-pr.md",
       "source": ".github/prompts/cg-verify-pr.prompt.md",
       "kind": "command",
-      "sha256": "b165770105b5bfaccb19f617c531477b530754bf36bd33f13ea827e0e86b1afb",
+      "sha256": "b1a58fc11990ff8ee946d696a1f85ab9706fef9a0094e4f32461d56d8c625665",
       "executable": false
     },
     {
@@ -567,7 +567,7 @@
       "path": ".claude/shared/help-catalog.json",
       "source": ".github/shared/help-catalog.json",
       "kind": "shared",
-      "sha256": "5c5c5aedc6a138ad6d764cd3d14553a1c5259364c51e7381691ce7ea302c5d0e",
+      "sha256": "1600f98c6282c23d86c3c45ee4c4efc0286adf49ac1cc3460a48e4696e8daf5f",
       "executable": false
     },
     {
