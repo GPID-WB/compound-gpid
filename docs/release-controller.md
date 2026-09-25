@@ -210,6 +210,9 @@ launcher exposes `--legacy-routine` only for already prepared publisher inputs;
 bare tags need the slash workflow to prepare notes and payloads. Bridge and
 Recovery remain explicit via `--legacy-bridge` and `--legacy-recovery`. Normal
 publisher checks still apply. Routine and Bridge are refused after cutover.
+Routine reads and rechecks the disabled policy at its exact verified remote source
+branch revision. It does not require the repository default branch to carry that
+policy. Bridge and Recovery retain their protected-default authority checks.
 Routine is not an atomic cutover lock. Keep the controller disabled for the
 whole publication. If a cutover occurs after tag push, the script stops before
 Release POST and the exact tag can be stranded. Reconcile that tag and remote

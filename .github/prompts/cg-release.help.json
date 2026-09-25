@@ -4,7 +4,7 @@
   "intents": ["publish a Compound GPID prerelease", "prepare release notes and tag"], "usage": "/cg-release vX.Y.Z.<build> [--source-branch branch]", "examples": ["/cg-release v1.2.0.9020 --source-branch dev"],
   "prerequisites": ["Run GPID publication in the canonical repository with release authority."], "outputs": ["A controller request or, after publication checks, a GitHub Release and tag."],
   "constraints": ["Developer-only and guarded to the canonical repository."], "relatedCommands": [{"id": "slash:cg-devtag", "relation": "related"}],
-  "sourcePath": ".github/prompts/cg-release.prompt.md", "definitionSources": [".github/prompts/cg-release.prompt.md"], "definitionDigest": "7d8e9b0bf36f5da5c2e0108cee355ed3f823666700f98d9615c7cbf4f5fe9915",
+  "sourcePath": ".github/prompts/cg-release.prompt.md", "definitionSources": [".github/prompts/cg-release.prompt.md"], "definitionDigest": "25bb5531b2e3d35583fa7c036b454c32467eb2b0f77c0831c9710d6e8c7a958c",
   "documentationTargets": [], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["any"],
   "availability": {"status": "conditional", "evidence": [{"os": "any", "sourcePath": ".github/prompts/cg-release.prompt.md"}]},
   "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]

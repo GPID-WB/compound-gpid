@@ -430,10 +430,11 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
             CredentialExit = 0; Calls = [System.Collections.Generic.List[string]]::new()
             Origin = 'https://github.com/GPID-WB/compound-gpid.git'
             PagesName = 'Deploy docs from 10'; PagesPath = '.github/workflows/release-pages.yml'
-            Default = 'production'; PolicyEnabled = $false; PolicyAbsent = $false; CutoverAfterPush = $false
+            Default = 'production'; PolicyEnabled = $false; PolicyAbsent = $false
+            DefaultPolicyAbsent = $false; SourcePolicyAbsent = $false; CutoverAfterPush = $false
             Protected = $true; Role = 'admin'; RecoveryRecord = $null; BadRuleset = $false
             PagesEvent = 'workflow_run'; ArtifactDigest = ('sha256:' + ('e' * 64))
-            PolicySha = ('d' * 40)
+            PolicySha = ('d' * 40); SourcePolicySha = ('a' * 40)
             BadDefaultRef = $false; BadDeployJob = $false; BadDeployment = $false; WithdrawAfterArtifact = $false
             MainAncestorExit = 0; WorkflowReadExit = 0
             CurrentBranch = 'dev'; SourceBranchExists = $true; SourceAncestorExit = 0
@@ -518,7 +519,11 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
                 }
                 ' push origin ' {
                     if ($script:state.RevokeSourceAfterPush) { $script:state.ProductionBranches = @() }
-                    if ($script:state.CutoverAfterPush) { $script:state.PolicyEnabled = $true; $script:state.PolicySha = ('e' * 40) }
+                    if ($script:state.CutoverAfterPush) {
+                        $script:state.PolicyEnabled = $true
+                        $script:state.PolicySha = ('e' * 40)
+                        $script:state.SourcePolicySha = ('e' * 40)
+                    }
                     if ($script:state.PushMode -ne 'absent') { $script:state.Remote = $true }
                     if ($script:state.PushMode -ne 'success') { $global:LASTEXITCODE = 1; throw "uncertain push" }
                     return
@@ -565,8 +570,10 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
             if ($Uri -ceq 'https://api.github.com/repos/GPID-WB/compound-gpid') {
                 return [pscustomobject]@{ id = 123; full_name = 'GPID-WB/compound-gpid'; default_branch = $script:state.Default; fork = $false }
             }
-            if ($Uri -match '/branches/production$') {
-                return [pscustomobject]@{ name = 'production'; protected = $script:state.Protected; commit = [pscustomobject]@{ sha = $script:state.PolicySha } }
+            if ($Uri -match '/branches/(.+)$' -and $Uri -notmatch '/protection$') {
+                $name = [uri]::UnescapeDataString($Matches[1])
+                $sha = if ($name -ceq $script:state.Default) { $script:state.PolicySha } else { $script:state.SourcePolicySha }
+                return [pscustomobject]@{ name = $name; protected = $script:state.Protected; commit = [pscustomobject]@{ sha = $sha } }
             }
             if ($Uri -match '/branches/production/protection$') {
                 # The classic branch-protection endpoint reports 404 when only
@@ -575,7 +582,13 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
                 throw 'classic branch protection endpoint must not be read'
             }
             if ($Uri -ceq "https://api.github.com/repos/GPID-WB/compound-gpid/contents/.release-controller.json?ref=$($script:state.PolicySha)") {
-                if ($script:state.PolicyAbsent) { return $null }
+                if ($script:state.PolicyAbsent -or $script:state.DefaultPolicyAbsent) { return $null }
+                $json = @{ enabled = $script:state.PolicyEnabled; production_branches = $script:state.ProductionBranches } | ConvertTo-Json -Compress
+                if ($null -ne $script:state.PolicyJson) { $json = $script:state.PolicyJson }
+                return [pscustomobject]@{ type='file'; encoding='base64'; content=[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($json)) }
+            }
+            if ($Uri -ceq "https://api.github.com/repos/GPID-WB/compound-gpid/contents/.release-controller.json?ref=$($script:state.SourcePolicySha)") {
+                if ($script:state.PolicyAbsent -or $script:state.SourcePolicyAbsent) { return $null }
                 $json = @{ enabled = $script:state.PolicyEnabled; production_branches = $script:state.ProductionBranches } | ConvertTo-Json -Compress
                 if ($null -ne $script:state.PolicyJson) { $json = $script:state.PolicyJson }
                 return [pscustomobject]@{ type='file'; encoding='base64'; content=[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($json)) }
@@ -762,6 +775,20 @@ Path(sys.argv[2]).write_text('{' if case == 'malformed' else json.dumps(data), e
         Get-Content (Join-Path $script:fixture 'release-result.txt') | Should -Match '^FINALIZED\|'
         ($script:state.Calls -join "`n") | Should -Not -Match 'release-pages.yml/runs'
     }
+    It 'binds Routine policy to the exact source branch without reading the protected default' {
+        $script:state.DefaultPolicyAbsent = $true
+        Invoke-FixtureRelease -Operation Routine -SourceBranch 'dev'
+        $calls = $script:state.Calls -join "`n"
+        $calls | Should -Match '/branches/dev'
+        $calls | Should -Match ('/contents/\.release-controller\.json\?ref=' + ('a' * 40))
+        $calls | Should -Not -Match '/branches/production|/rulesets/4|\?ref=d{40}'
+    }
+    It 'stops a new Routine release when the source branch advances after exact-tip validation' {
+        $script:state.SourcePolicySha = ('f' * 40)
+        { Invoke-FixtureRelease -Operation Routine -SourceBranch 'dev' } |
+            Should -Throw 'Routine source policy no longer matches the exact release commit.'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
+    }
     It 'rejects a stable tag in the routine lane before any remote write' {
         Set-FixtureStable
         { Invoke-FixtureRelease -Operation Routine -SourceBranch 'main' } | Should -Throw 'Routine publication requires a four-component prerelease tag'
@@ -769,11 +796,11 @@ Path(sys.argv[2]).write_text('{' if case == 'malformed' else json.dumps(data), e
     }
     It 'rejects a routine release when the controller is enabled or the remote policy is absent' {
         $script:state.PolicyEnabled = $true
-        { Invoke-FixtureRelease -Operation Routine -SourceBranch 'dev' } | Should -Throw 'Routine publication requires a disabled remote controller policy'
+        { Invoke-FixtureRelease -Operation Routine -SourceBranch 'dev' } | Should -Throw 'Routine publication requires a disabled controller policy at the exact remote source revision'
         ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
         $script:state.PolicyEnabled = $false
-        $script:state.PolicyAbsent = $true
-        { Invoke-FixtureRelease -Operation Routine -SourceBranch 'dev' } | Should -Throw 'Routine publication requires a disabled remote controller policy'
+        $script:state.SourcePolicyAbsent = $true
+        { Invoke-FixtureRelease -Operation Routine -SourceBranch 'dev' } | Should -Throw 'Routine publication requires a disabled controller policy at the exact remote source revision'
         ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
     }
     It 'publishes stable only from an authorized source branch <Branch>' -TestCases @(
@@ -1060,7 +1087,7 @@ Path(sys.argv[2]).write_text('{' if case == 'malformed' else json.dumps(data), e
     }
     It 'stops Routine after a cutover following tag push without creating a Release' {
         $script:state.CutoverAfterPush = $true
-        { Invoke-FixtureRelease -Operation Routine -SourceBranch 'dev' } | Should -Throw 'Routine publication requires a disabled remote controller policy.'
+        { Invoke-FixtureRelease -Operation Routine -SourceBranch 'dev' } | Should -Throw 'Routine publication requires a disabled controller policy at the exact remote source revision.'
         $script:state.Remote | Should -Be $true
         $script:state.RemoteObject | Should -Be $script:state.Object
         $script:state.RemoteCommit | Should -Be $script:state.Head

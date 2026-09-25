@@ -19,7 +19,7 @@ function Assert-CgReleaseBranchName {
 }
 
 function Get-CgLegacyRemoteDocument {
-    <# Read data at an exact protected-default commit. Example: Get-CgLegacyRemoteDocument '.release-controller.json' $sha. #>
+    <# Read data at an exact remote commit. Example: Get-CgLegacyRemoteDocument '.release-controller.json' $sha. #>
     param([string]$Path, [string]$Commit)
     $value = Invoke-CgReleaseApi -Uri "https://api.github.com/repos/GPID-WB/compound-gpid/contents/$($Path)?ref=$Commit" -AllowNotFound
     if ($null -eq $value) { return $null }
@@ -44,7 +44,7 @@ function Get-CgLegacyRemoteDocument {
 function Assert-CgLegacyAuthority {
     <# Recheck before each effect. Recovery keeps an existing stranded tag or a reviewed historical identity.
     Example: $authority = Assert-CgLegacyAuthority -Operation Recovery -ReleaseTag $Tag -Commit $sha -Object $oid -RemoteTag $remote -SourceBranch 'dev'.
-    Returns exact protected-default SHA and the optional reviewed historical record. No writes.
+    Returns the exact authority SHA and the optional reviewed historical record. No writes.
     #>
     param(
         [ValidateSet('Routine', 'Bridge', 'Recovery')][string]$Operation,
@@ -57,44 +57,50 @@ function Assert-CgLegacyAuthority {
     if ($repo.full_name -cne 'GPID-WB/compound-gpid' -or $repo.fork -ne $false -or
         [string]$repo.id -cnotmatch '^[1-9][0-9]*$' -or
         [string]$repo.default_branch -cnotmatch '^[A-Za-z0-9][A-Za-z0-9/_.-]*$') { throw 'Protected remote repository authority is invalid.' }
-    $branchName = [uri]::EscapeDataString([string]$repo.default_branch)
-    $branch = Invoke-CgReleaseApi -Uri "$base/branches/$branchName"
-    if ($branch.protected -isnot [bool] -or -not $branch.protected -or
-        $branch.name -cne $repo.default_branch -or $branch.commit.sha -cnotmatch '^[0-9a-f]{40}$') {
-        throw 'Legacy authority requires the protected remote default branch.'
-    }
-    # The default branch is protected by repository rulesets. The classic
-    # /branches/{branch}/protection endpoint reports 404 "Branch not protected"
-    # and must not be read. The active default-branch ruleset carries the
-    # deletion, non-fast-forward, pull-request, and required status check
-    # authority the classic settings used to provide.
-    $defaultRuleset = Get-CgRepositoryRuleset -RulesetName "Protect main" -RulesetTarget "branch"
-    $defaultRuleTypes = @($defaultRuleset.rules | ForEach-Object { [string]$_.type })
-    $defaultIncludes = @($defaultRuleset.conditions.ref_name.include | ForEach-Object { [string]$_ })
-    $defaultExcludes = @($defaultRuleset.conditions.ref_name.exclude | ForEach-Object { [string]$_ })
-    $defaultBypass = @($defaultRuleset.bypass_actors)
-    $defaultBypassOk = $true
-    foreach ($actor in $defaultBypass) {
-        if ([string]$actor.actor_type -cne 'RepositoryRole' -or [int]$actor.actor_id -ne 5 -or
-            [string]$actor.bypass_mode -cne 'always') { $defaultBypassOk = $false }
-    }
-    if ($defaultRuleTypes -cnotcontains 'deletion' -or
-        $defaultRuleTypes -cnotcontains 'non_fast_forward' -or
-        $defaultRuleTypes -cnotcontains 'pull_request' -or
-        $defaultRuleTypes -cnotcontains 'required_status_checks' -or
-        ($defaultIncludes -cnotcontains "refs/heads/$($repo.default_branch)" -and
-            $defaultIncludes -cnotcontains '~DEFAULT_BRANCH') -or
-        $defaultExcludes.Count -ne 0 -or -not $defaultBypassOk) {
-        throw 'Legacy protected-default review authority is insufficient.'
-    }
-    $policy = Get-CgLegacyRemoteDocument -Path '.release-controller.json' -Commit $branch.commit.sha
-    if ($Operation -eq 'Routine' -and ($null -eq $policy -or $policy.enabled -isnot [bool] -or $policy.enabled)) {
-        throw 'Routine publication requires a disabled remote controller policy.'
-    }
-    if ($null -ne $policy -and ($policy.enabled -isnot [bool] -or ($Operation -eq 'Bridge' -and $policy.enabled))) {
-        throw 'Legacy Bridge is disabled after remote controller cutover or with invalid policy.'
-    }
     Assert-CgReleaseBranchName -Branch $SourceBranch
+    if ($Operation -eq 'Routine') {
+        $branchName = [uri]::EscapeDataString($SourceBranch)
+        $branch = Invoke-CgReleaseApi -Uri "$base/branches/$branchName"
+        if ($branch.name -cne $SourceBranch -or $branch.commit.sha -cnotmatch '^[0-9a-f]{40}$') {
+            throw 'Routine authority requires the exact current remote source branch.'
+        }
+        $policy = Get-CgLegacyRemoteDocument -Path '.release-controller.json' -Commit $branch.commit.sha
+        if ($null -eq $policy -or $policy.enabled -isnot [bool] -or $policy.enabled) {
+            throw 'Routine publication requires a disabled controller policy at the exact remote source revision.'
+        }
+    } else {
+        $branchName = [uri]::EscapeDataString([string]$repo.default_branch)
+        $branch = Invoke-CgReleaseApi -Uri "$base/branches/$branchName"
+        if ($branch.protected -isnot [bool] -or -not $branch.protected -or
+            $branch.name -cne $repo.default_branch -or $branch.commit.sha -cnotmatch '^[0-9a-f]{40}$') {
+            throw 'Legacy authority requires the protected remote default branch.'
+        }
+        # The active default-branch ruleset carries the authority the classic
+        # branch-protection endpoint used to provide.
+        $defaultRuleset = Get-CgRepositoryRuleset -RulesetName "Protect main" -RulesetTarget "branch"
+        $defaultRuleTypes = @($defaultRuleset.rules | ForEach-Object { [string]$_.type })
+        $defaultIncludes = @($defaultRuleset.conditions.ref_name.include | ForEach-Object { [string]$_ })
+        $defaultExcludes = @($defaultRuleset.conditions.ref_name.exclude | ForEach-Object { [string]$_ })
+        $defaultBypass = @($defaultRuleset.bypass_actors)
+        $defaultBypassOk = $true
+        foreach ($actor in $defaultBypass) {
+            if ([string]$actor.actor_type -cne 'RepositoryRole' -or [int]$actor.actor_id -ne 5 -or
+                [string]$actor.bypass_mode -cne 'always') { $defaultBypassOk = $false }
+        }
+        if ($defaultRuleTypes -cnotcontains 'deletion' -or
+            $defaultRuleTypes -cnotcontains 'non_fast_forward' -or
+            $defaultRuleTypes -cnotcontains 'pull_request' -or
+            $defaultRuleTypes -cnotcontains 'required_status_checks' -or
+            ($defaultIncludes -cnotcontains "refs/heads/$($repo.default_branch)" -and
+                $defaultIncludes -cnotcontains '~DEFAULT_BRANCH') -or
+            $defaultExcludes.Count -ne 0 -or -not $defaultBypassOk) {
+            throw 'Legacy protected-default review authority is insufficient.'
+        }
+        $policy = Get-CgLegacyRemoteDocument -Path '.release-controller.json' -Commit $branch.commit.sha
+        if ($null -ne $policy -and ($policy.enabled -isnot [bool] -or ($Operation -eq 'Bridge' -and $policy.enabled))) {
+            throw 'Legacy Bridge is disabled after remote controller cutover or with invalid policy.'
+        }
+    }
     $productionBranches = @()
     if ($null -ne $policy -and $null -ne $policy.PSObject.Properties['production_branches']) {
         if ($policy.production_branches -isnot [array]) { throw 'Remote production_branches must be an array of branch names.' }
@@ -143,9 +149,12 @@ function Assert-CgLegacyAuthority {
     }
     $current = Invoke-CgReleaseApi -Uri "$base/branches/$branchName"
     $currentRepo = Invoke-CgReleaseApi -Uri $base
-    if ($current.commit.sha -cne $branch.commit.sha -or $current.protected -ne $true -or
-        $currentRepo.default_branch -cne $repo.default_branch) { throw 'Protected default policy changed during legacy authority checks.' }
-    return [pscustomobject]@{ Commit = $branch.commit.sha; Branch = $repo.default_branch; Record = $record; Actor = $actor.id }
+    if ($current.commit.sha -cne $branch.commit.sha -or $current.name -cne $branch.name -or
+        $currentRepo.id -ne $repo.id -or $currentRepo.full_name -cne $repo.full_name -or
+        ($Operation -ne 'Routine' -and ($current.protected -ne $true -or $currentRepo.default_branch -cne $repo.default_branch))) {
+        throw $(if ($Operation -eq 'Routine') { 'Remote source policy changed during Routine authority checks.' } else { 'Protected default policy changed during legacy authority checks.' })
+    }
+    return [pscustomobject]@{ Commit = $branch.commit.sha; Branch = $branch.name; Record = $record; Actor = $actor.id }
 }
 
 function Assert-CgLegacyDeployment {
