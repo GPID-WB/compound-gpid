@@ -2,47 +2,47 @@
   "platforms": [
     {
       "canonicalPromptSha256": "98e25d9e26471cee70b8f8cd2c6f170ef8b048b79c5f56a077949b2c8e0395f2",
-      "catalogSha256": "1600f98c6282c23d86c3c45ee4c4efc0286adf49ac1cc3460a48e4696e8daf5f",
-      "catalogSourceDigest": "42e47132a4d4a0869845508e0942006072a21ed719fb70168ac3a4b27735dbc4",
+      "catalogSha256": "5428ec12bb3eaf71019d65cb5d2b72a44f35e74e423f666e9612b19c71ae98fc",
+      "catalogSourceDigest": "babc62101d36ff98569eae632a134f78568ab85b20f53ea368b36264d0953af2",
       "generatedPromptSha256": "82d621d0339649b62acd1c359ccd96caab8bd76fcf9bf5434600d867a4d68141",
       "platform": "claude-code",
       "targetMappingSha256": "8fa4def636b102454f3232946e49a6b12883d7025f9d1f6b004da90c0bf33ae8"
     },
     {
       "canonicalPromptSha256": "98e25d9e26471cee70b8f8cd2c6f170ef8b048b79c5f56a077949b2c8e0395f2",
-      "catalogSha256": "1600f98c6282c23d86c3c45ee4c4efc0286adf49ac1cc3460a48e4696e8daf5f",
-      "catalogSourceDigest": "42e47132a4d4a0869845508e0942006072a21ed719fb70168ac3a4b27735dbc4",
+      "catalogSha256": "5428ec12bb3eaf71019d65cb5d2b72a44f35e74e423f666e9612b19c71ae98fc",
+      "catalogSourceDigest": "babc62101d36ff98569eae632a134f78568ab85b20f53ea368b36264d0953af2",
       "generatedPromptSha256": "9bb1d4e53c099c816e5aa4ff427efdc260f8a773279f4e07a5a1dc80e63c1ec7",
       "platform": "codex",
       "targetMappingSha256": "8fa4def636b102454f3232946e49a6b12883d7025f9d1f6b004da90c0bf33ae8"
     },
     {
       "canonicalPromptSha256": "98e25d9e26471cee70b8f8cd2c6f170ef8b048b79c5f56a077949b2c8e0395f2",
-      "catalogSha256": "1600f98c6282c23d86c3c45ee4c4efc0286adf49ac1cc3460a48e4696e8daf5f",
-      "catalogSourceDigest": "42e47132a4d4a0869845508e0942006072a21ed719fb70168ac3a4b27735dbc4",
+      "catalogSha256": "5428ec12bb3eaf71019d65cb5d2b72a44f35e74e423f666e9612b19c71ae98fc",
+      "catalogSourceDigest": "babc62101d36ff98569eae632a134f78568ab85b20f53ea368b36264d0953af2",
       "generatedPromptSha256": "98e25d9e26471cee70b8f8cd2c6f170ef8b048b79c5f56a077949b2c8e0395f2",
       "platform": "copilot",
       "targetMappingSha256": "8fa4def636b102454f3232946e49a6b12883d7025f9d1f6b004da90c0bf33ae8"
     },
     {
       "canonicalPromptSha256": "98e25d9e26471cee70b8f8cd2c6f170ef8b048b79c5f56a077949b2c8e0395f2",
-      "catalogSha256": "1600f98c6282c23d86c3c45ee4c4efc0286adf49ac1cc3460a48e4696e8daf5f",
-      "catalogSourceDigest": "42e47132a4d4a0869845508e0942006072a21ed719fb70168ac3a4b27735dbc4",
+      "catalogSha256": "5428ec12bb3eaf71019d65cb5d2b72a44f35e74e423f666e9612b19c71ae98fc",
+      "catalogSourceDigest": "babc62101d36ff98569eae632a134f78568ab85b20f53ea368b36264d0953af2",
       "generatedPromptSha256": "c5c96e255779bf226ec85841da0873b668ce5f4a3db5793da4a48ad90740015e",
       "platform": "kilo",
       "targetMappingSha256": "8fa4def636b102454f3232946e49a6b12883d7025f9d1f6b004da90c0bf33ae8"
     },
     {
       "canonicalPromptSha256": "98e25d9e26471cee70b8f8cd2c6f170ef8b048b79c5f56a077949b2c8e0395f2",
-      "catalogSha256": "1600f98c6282c23d86c3c45ee4c4efc0286adf49ac1cc3460a48e4696e8daf5f",
-      "catalogSourceDigest": "42e47132a4d4a0869845508e0942006072a21ed719fb70168ac3a4b27735dbc4",
+      "catalogSha256": "5428ec12bb3eaf71019d65cb5d2b72a44f35e74e423f666e9612b19c71ae98fc",
+      "catalogSourceDigest": "babc62101d36ff98569eae632a134f78568ab85b20f53ea368b36264d0953af2",
       "generatedPromptSha256": "e501a6e76a79fc0538293639a749ab7e00b80c546255740d27768576580b198d",
       "platform": "opencode",
       "targetMappingSha256": "8fa4def636b102454f3232946e49a6b12883d7025f9d1f6b004da90c0bf33ae8"
     }
   ],
   "schemaVersion": 2,
-  "sensitiveDigest": "9c38a403b6a22a7c8408b8545d26deea0a9df4fd3144bec970226f700ce29078",
+  "sensitiveDigest": "6918cf903926c42b0d6c3a0d13d7177ecebb851a3774f484e5103fa4c13a8ecb",
   "sensitivePaths": [
     {
       "mode": "100644",
@@ -137,7 +137,7 @@
     {
       "mode": "100644",
       "path": ".agents/commands/cg-release.md",
-      "sha256": "7d8e9b0bf36f5da5c2e0108cee355ed3f823666700f98d9615c7cbf4f5fe9915"
+      "sha256": "25bb5531b2e3d35583fa7c036b454c32467eb2b0f77c0831c9710d6e8c7a958c"
     },
     {
       "mode": "100644",
@@ -232,7 +232,7 @@
     {
       "mode": "100644",
       "path": ".agents/shared/help-catalog.json",
-      "sha256": "1600f98c6282c23d86c3c45ee4c4efc0286adf49ac1cc3460a48e4696e8daf5f"
+      "sha256": "5428ec12bb3eaf71019d65cb5d2b72a44f35e74e423f666e9612b19c71ae98fc"
     },
     {
       "mode": "100644",
@@ -327,7 +327,7 @@
     {
       "mode": "100644",
       "path": ".claude/commands/cg-release.md",
-      "sha256": "7d8e9b0bf36f5da5c2e0108cee355ed3f823666700f98d9615c7cbf4f5fe9915"
+      "sha256": "25bb5531b2e3d35583fa7c036b454c32467eb2b0f77c0831c9710d6e8c7a958c"
     },
     {
       "mode": "100644",
@@ -422,7 +422,7 @@
     {
       "mode": "100644",
       "path": ".claude/shared/help-catalog.json",
-      "sha256": "1600f98c6282c23d86c3c45ee4c4efc0286adf49ac1cc3460a48e4696e8daf5f"
+      "sha256": "5428ec12bb3eaf71019d65cb5d2b72a44f35e74e423f666e9612b19c71ae98fc"
     },
     {
       "mode": "100644",
@@ -617,12 +617,12 @@
     {
       "mode": "100644",
       "path": ".github/prompts/cg-release.help.json",
-      "sha256": "ace7b1630c53f65e7f1781542bd1bb1c07e3678b65d539183727420f3d97ddef"
+      "sha256": "ca9c9d64bcf09bc4084e50dc505930c6f2fa4b0a5ed713f83b0214860a91cff5"
     },
     {
       "mode": "100644",
       "path": ".github/prompts/cg-release.prompt.md",
-      "sha256": "7d8e9b0bf36f5da5c2e0108cee355ed3f823666700f98d9615c7cbf4f5fe9915"
+      "sha256": "25bb5531b2e3d35583fa7c036b454c32467eb2b0f77c0831c9710d6e8c7a958c"
     },
     {
       "mode": "100644",
@@ -787,7 +787,7 @@
     {
       "mode": "100644",
       "path": ".github/shared/help-catalog.json",
-      "sha256": "1600f98c6282c23d86c3c45ee4c4efc0286adf49ac1cc3460a48e4696e8daf5f"
+      "sha256": "5428ec12bb3eaf71019d65cb5d2b72a44f35e74e423f666e9612b19c71ae98fc"
     },
     {
       "mode": "100644",
@@ -902,7 +902,7 @@
     {
       "mode": "100644",
       "path": ".kilo/commands/cg-release.md",
-      "sha256": "cef0fba0f06cf95116a42572289ddf8a515c3e5c3015d8b555e294672a6082eb"
+      "sha256": "4fa01ed1ecb9b5f09472db1b8433400bebff43f4d035ca0e211dad2a5a6a5970"
     },
     {
       "mode": "100644",
@@ -997,7 +997,7 @@
     {
       "mode": "100644",
       "path": ".kilo/shared/help-catalog.json",
-      "sha256": "1600f98c6282c23d86c3c45ee4c4efc0286adf49ac1cc3460a48e4696e8daf5f"
+      "sha256": "5428ec12bb3eaf71019d65cb5d2b72a44f35e74e423f666e9612b19c71ae98fc"
     },
     {
       "mode": "100644",
@@ -1092,7 +1092,7 @@
     {
       "mode": "100644",
       "path": ".opencode/commands/cg-release.md",
-      "sha256": "229b5a697724189ec5b5e652d3fe16b22d7b7a2d0eb0faedbc0514abd9e892ad"
+      "sha256": "9615a901070aaa2b1218b5a250309be897fa8283633e0fc72afa270fb3d59c13"
     },
     {
       "mode": "100644",
@@ -1187,7 +1187,7 @@
     {
       "mode": "100644",
       "path": ".opencode/shared/help-catalog.json",
-      "sha256": "1600f98c6282c23d86c3c45ee4c4efc0286adf49ac1cc3460a48e4696e8daf5f"
+      "sha256": "5428ec12bb3eaf71019d65cb5d2b72a44f35e74e423f666e9612b19c71ae98fc"
     },
     {
       "mode": "100644",
@@ -1720,6 +1720,6 @@
       "sha256": "56ac4a4a6f0bbb932d61687dd7655b5c32f339ef47a7df55fd6ce6044c7a5354"
     }
   ],
-  "subjectCommit": "012b1d930cd10aefd0d5dfec74447d01bdddb41b",
-  "subjectTree": "21fe4b3dbfdbcf0b943f21324adadc9ff8b44105"
+  "subjectCommit": "67bd7353c4fe77572c98bc5ff9bcd8d1d0c1e959",
+  "subjectTree": "476e2f7ecfc2dfd02bfb544d1c26c1379f57126c"
 }
