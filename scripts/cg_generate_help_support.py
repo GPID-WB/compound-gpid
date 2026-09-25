@@ -4,11 +4,10 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
-import tempfile
 from pathlib import Path
 from typing import Optional, Sequence
 
+import secure_fs
 from help import catalog, support
 
 
@@ -28,27 +27,14 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     root = Path(args.root).resolve()
     if args.output != OUTPUT_PATH:
         raise SystemExit("output must be " + OUTPUT_PATH)
-    output = root / OUTPUT_PATH
-    if not output.parent.is_dir():
+    if not root.joinpath(OUTPUT_PATH).parent.is_dir():
         raise SystemExit("support evidence directory is missing")
     subject = support._git(root, "rev-parse", "HEAD").decode().strip()
     catalog.check_catalog(root)
     evidence = support.build_evidence(root, subject)
     support.verify_evidence(root, evidence)
     content = (json.dumps(evidence, indent=2, sort_keys=True) + "\n").encode("utf-8")
-    temporary = None
-    try:
-        with tempfile.NamedTemporaryFile(
-            dir=output.parent, prefix=".help-support-", suffix=".tmp", delete=False
-        ) as handle:
-            temporary = Path(handle.name)
-            handle.write(content)
-            handle.flush()
-            os.fsync(handle.fileno())
-        os.replace(temporary, output)
-    finally:
-        if temporary is not None and temporary.exists():
-            temporary.unlink()
+    secure_fs.secure_write_bytes(root, Path(OUTPUT_PATH), content)
     print(OUTPUT_PATH)
     return 0
 

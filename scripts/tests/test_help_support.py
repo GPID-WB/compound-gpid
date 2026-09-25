@@ -226,7 +226,16 @@ def test_generator_writes_only_the_stable_current_manifest(history, monkeypatch)
     generator = importlib.import_module("cg_generate_help_support")
     root.joinpath(".cg-docs/work-reports").mkdir(parents=True)
     monkeypatch.setattr(generator.catalog, "check_catalog", lambda _: None)
+    writes = []
+    original_write = generator.secure_fs.secure_write_bytes
+
+    def capture_write(write_root, relative, content):
+        writes.append((write_root, relative))
+        return original_write(write_root, relative, content)
+
+    monkeypatch.setattr(generator.secure_fs, "secure_write_bytes", capture_write)
     assert generator.main(["--root", str(root)]) == 0
+    assert writes == [(root.resolve(), Path(generator.OUTPUT_PATH))]
     actual = json.loads(root.joinpath(generator.OUTPUT_PATH).read_text(encoding="utf-8"))
     assert actual == evidence
     with pytest.raises(SystemExit, match="output must be"):
