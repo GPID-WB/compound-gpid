@@ -783,13 +783,13 @@
         "cg"
       ],
       "category": "maintenance",
-      "summary": "Create a guarded Compound GPID GitHub Release with curated notes.",
+      "summary": "Run generic release controller commands or a prepared GPID PowerShell publication.",
       "aliases": [],
       "intents": [
         "publish a Compound GPID release",
         "prepare release notes and tag"
       ],
-      "usage": "cg-release plan [version] | cg-release start [--resume] | cg-release status",
+      "usage": "cg-release plan|start|status|resume [args] | cg-release --legacy-routine [prepared args]",
       "examples": [
         "cg-release plan",
         "cg-release start"
@@ -798,7 +798,7 @@
         "Run in the canonical repository with release authority."
       ],
       "outputs": [
-        "A confirmed GitHub Release and tag."
+        "A controller request or, after prepared publication checks, a GitHub Release and tag."
       ],
       "constraints": [
         "Developer-only and guarded to the canonical repository."
@@ -821,7 +821,7 @@
         "scripts/cg_release_cli.py",
         "scripts/install.sh"
       ],
-      "definitionDigest": "73a858a44c24cd3672f0f4a5e9b0b4e927060586512fc3e44829f0f81bf99797",
+      "definitionDigest": "e7c5dde5deda60701577f7309b1a42edf5c9ff6bc096d2c61d4ea84634af8f55",
       "documentationTargets": [],
       "supportedPlatforms": [
         "claude-code",

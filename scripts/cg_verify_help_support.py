@@ -37,8 +37,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser.add_argument(
         "--evidence",
         help=(
-            "Required path to the review support-evidence JSON artifact "
-            "(e.g. .cg-docs/work-reports/<date>-<command>-support.json). "
+            "Required path to the source/static support-evidence JSON artifact "
+            "(e.g. .cg-docs/work-reports/docs-help-support-current.json). "
             "There is no usable default: a fixed default would silently point "
             "at a stale or absent artifact."
         ),
@@ -48,7 +48,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     if args.evidence is None:
         sys.stderr.write(
             "--evidence is required; pass the review support-evidence JSON "
-            "artifact (e.g. --evidence .cg-docs/work-reports/<artifact>-support.json)\n"
+            "artifact (e.g. --evidence .cg-docs/work-reports/docs-help-support-current.json)\n"
         )
         return 2
     try:
@@ -61,7 +61,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             catalog.HelpCatalogStaleError) as error:
         sys.stderr.write("Help support verification failed: {}\n".format(error))
         return 2
-    sys.stdout.write("Help support evidence is current; runtime claims are limited to verified rows.\n")
+    sys.stdout.write(
+        "Help source/static evidence is current for all five adapters; "
+        "no live runtime claim is made.\n"
+    )
     return 0
 
 

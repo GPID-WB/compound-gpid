@@ -148,8 +148,14 @@ def test_full_package_timeout_is_bounded_and_exclusive(monkeypatch, tmp_path, ow
     )
     assert result.exit_code == 0
     assert len(calls) == (9 if owner == "local" else 5)
+    native_pytest = preflight.native_commands(tmp_path)[0]
     for argv, timeout in calls:
-        assert timeout == (1800 if "packages/cg-release/tests" in argv else 600)
+        expected = (preflight.FULL_PACKAGE_TEST_TIMEOUT_SECONDS
+                    if argv == preflight.FULL_PACKAGE_TEST_COMMAND
+                    else preflight.NATIVE_PYTEST_TIMEOUT_SECONDS
+                    if argv == native_pytest
+                    else preflight.NATIVE_COMMAND_TIMEOUT_SECONDS)
+        assert timeout == expected
 
 
 def test_filtered_package_command_keeps_default_timeout(monkeypatch, tmp_path):

@@ -478,14 +478,16 @@ def test_controller_missing_runtime_does_not_pass_or_download(
     assert "No interpreter found" in result.commands[1].stderr
 
 
-@pytest.mark.parametrize("command, timeout", [
-    (("first",), 600),
-    (preflight.FULL_PACKAGE_TEST_COMMAND, 1800),
+@pytest.mark.parametrize("command, timeout, phase", [
+    (("first",), 600, "committed"),
+    (preflight.native_commands(REPO_ROOT)[0], 1800, "committed"),
+    (preflight.native_commands(REPO_ROOT, phase="prepare")[0], 1800, "prepare"),
+    (preflight.FULL_PACKAGE_TEST_COMMAND, 1800, "committed"),
 ])
 @pytest.mark.parametrize("outcome", [0, 1, "timeout"])
 def test_native_progress_is_flushed_and_failures_stop_execution(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path, outcome: object,
-    command: tuple[str, ...], timeout: int,
+    command: tuple[str, ...], timeout: int, phase: str,
 ) -> None:
     """Progress precedes the blocking child and preserves the failure contract."""
     class ProgressStream(io.StringIO):
@@ -508,7 +510,7 @@ def test_native_progress_is_flushed_and_failures_stop_execution(
         return subprocess.CompletedProcess(argv, outcome, "child output", "")
 
     monkeypatch.setattr(preflight.subprocess, "run", run)
-    result = preflight.run_native_target(tmp_path, commands=(command, ("second",)))
+    result = preflight.run_native_target(tmp_path, commands=(command, ("second",)), phase=phase)
     assert result.exit_code == (127 if outcome == "timeout" else outcome)
     assert len(calls) == (2 if outcome == 0 else 1)
     assert f"exited {result.exit_code} after" in progress.flushed
@@ -542,10 +544,13 @@ def test_native_progress_preserves_json_stdout(
 def test_release_prompt_requires_blocking_budget_and_no_blind_retry() -> None:
     """Release calls must outlive child budgets without weakening the gate."""
     prompt = (REPO_ROOT / ".github/prompts/cg-release.prompt.md").read_text(encoding="utf-8")
-    assert "`7200000` milliseconds (120 minutes)" in prompt
+    assert "`9000000` milliseconds (150 minutes)" in prompt
     commands = preflight.selected_native_commands(preflight.full_gate_selection(), REPO_ROOT)
-    assert 7200 > sum(preflight.FULL_PACKAGE_TEST_TIMEOUT_SECONDS
+    native_pytest = preflight.native_commands(REPO_ROOT)[0]
+    assert 9000 > sum(preflight.FULL_PACKAGE_TEST_TIMEOUT_SECONDS
                       if command == preflight.FULL_PACKAGE_TEST_COMMAND
+                      else preflight.NATIVE_PYTEST_TIMEOUT_SECONDS
+                      if command == native_pytest
                       else preflight.NATIVE_COMMAND_TIMEOUT_SECONDS for command in commands)
     assert "blocking foreground call" in prompt
     assert "or an automatic retry after a timeout" in prompt

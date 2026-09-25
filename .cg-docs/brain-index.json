@@ -1,5 +1,5 @@
 {
-  "edge_count": 424,
+  "edge_count": 428,
   "edges": [
     {
       "edge_type": "decided_from",
@@ -563,6 +563,12 @@
       "edge_type": "decided_from",
       "source": ".cg-docs/plans/2026-09-16-cg-release-prerelease-automation.md",
       "target": ".cg-docs/brainstorms/2026-09-16-cg-release-prerelease-automation.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "decided_from",
+      "source": ".cg-docs/plans/2026-09-23-controller-first-routine-release.md",
+      "target": ".cg-docs/brainstorms/2026-09-23-controller-first-routine-release.md",
       "target_missing": false
     },
     {
@@ -1832,6 +1838,12 @@
       "target_missing": false
     },
     {
+      "edge_type": "reviews",
+      "source": ".cg-docs/reviews/2026-09-24-legacy-first-routine-prerelease-review.md",
+      "target": ".cg-docs/plans/2026-09-24-legacy-first-routine-prerelease.md",
+      "target_missing": false
+    },
+    {
       "edge_type": "references",
       "source": ".cg-docs/solutions/bugs/2026-09-15-cmd-findstr-pattern-splitting-accepts-store-stub.md",
       "target": ".cg-docs/plans/2026-09-08-evidence-backed-cg-help-command.md",
@@ -1901,6 +1913,12 @@
       "edge_type": "references",
       "source": ".cg-docs/solutions/git-workflows/2026-09-17-repo-settings-auto-merge-protect-dev-required-checks.md",
       "target": ".cg-docs/plans/2026-09-16-cg-release-prerelease-automation.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/solutions/git-workflows/2026-09-24-routine-prerelease-reuse-and-cutover-boundary.md",
+      "target": ".cg-docs/plans/2026-09-24-legacy-first-routine-prerelease.md",
       "target_missing": false
     },
     {
@@ -2351,6 +2369,12 @@
       "edge_type": "references",
       "source": ".cg-docs/brainstorms/2026-09-16-cg-release-prerelease-automation.md",
       "target": ".cg-docs/plans/2026-09-16-cg-release-prerelease-automation.md",
+      "target_missing": false
+    },
+    {
+      "edge_type": "references",
+      "source": ".cg-docs/brainstorms/2026-09-23-controller-first-routine-release.md",
+      "target": ".cg-docs/plans/2026-09-23-controller-first-routine-release.md",
       "target_missing": false
     },
     {
@@ -4579,6 +4603,36 @@
         "releases/**",
         "automation",
         "cg_pr_preflight.py"
+      ]
+    },
+    {
+      "date": "2026-09-23",
+      "entity_type": "brainstorm",
+      "path": ".cg-docs/brainstorms/2026-09-23-controller-first-routine-release.md",
+      "slug": "2026-09-23-controller-first-routine-release",
+      "status": "decided",
+      "summary": "PR #179 is merged into `dev` (worktree HEAD `48001ab4`). Bare `/cg-release v1.2.0.9020` is not a routine operation. The command currently passes only `plan`, `start`, `status`, and `resume` to the standalone controller; explicit legacy Bridge and Recovery are not routine fallbacks. The controller accepts exact SemVer and is disabled in `.release-controller.json`. The prior Routine draft cannot be used: its read-only authority check cannot prevent a cutover before a tag or GitHub Release write. The current controller's journal owner protects controller publishers, not the legacy writer or activation.",
+      "tags": [
+        "release",
+        "prerelease",
+        "controller",
+        "github-actions",
+        "ci-cd",
+        "cutover",
+        "recovery"
+      ],
+      "title": "Controller-first routine release with four-part prereleases",
+      "top_keywords": [
+        "dev",
+        "routine",
+        "release",
+        "publisher",
+        "approach",
+        "v1.2.0.9020",
+        "controller",
+        "four-part",
+        "prereleases",
+        "controller-first"
       ]
     },
     {
@@ -8462,6 +8516,62 @@
         "npm run test:docs-automation",
         "gate",
         "/cg-help"
+      ]
+    },
+    {
+      "date": "2026-09-23",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-09-23-controller-first-routine-release.md",
+      "slug": "2026-09-23-controller-first-routine-release",
+      "status": "blocked",
+      "summary": "Superseded on 2026-09-24 by `.cg-docs/plans/2026-09-24-legacy-first-routine-prerelease.md`. Phase 1 stopped before implementation. Keep its blocked work report as the record of the rejected exclusive-gateway design, not an instruction to resume cutover.",
+      "tags": [
+        "release",
+        "controller",
+        "prerelease",
+        "github-actions",
+        "ci-cd",
+        "cutover",
+        "recovery"
+      ],
+      "title": "Controller-first routine release with four-part prereleases",
+      "top_keywords": [
+        "cg-release",
+        "test scenarios",
+        "v1.2.0.9020",
+        "phase",
+        "dev",
+        ".release-controller.json",
+        "create-release.ps1",
+        "publication_control.py",
+        "release-controller.json",
+        "release_profile_install.py"
+      ]
+    },
+    {
+      "date": "2026-09-24",
+      "entity_type": "plan",
+      "path": ".cg-docs/plans/2026-09-24-legacy-first-routine-prerelease.md",
+      "slug": "2026-09-24-legacy-first-routine-prerelease",
+      "status": "completed",
+      "summary": "Make `/cg-release vX.Y.Z.<build>` the GPID routine prerelease request using the existing PowerShell Reserve and Finalize publisher. Keep the controller disabled; do not add a second publisher, change GitHub settings, or publish a live release as part of this implementation.",
+      "tags": [
+        "release",
+        "prerelease",
+        "legacy-publisher"
+      ],
+      "title": "Legacy-first routine four-part prerelease",
+      "top_keywords": [
+        "routine",
+        "prerelease",
+        "prompt-tools",
+        "legacy-first",
+        "four-part",
+        "scope",
+        "create-release",
+        "objective",
+        "approved",
+        "verification"
       ]
     },
     {
@@ -13305,6 +13415,28 @@
       ]
     },
     {
+      "date": "2026-09-24",
+      "entity_type": "review",
+      "path": ".cg-docs/reviews/2026-09-24-legacy-first-routine-prerelease-review.md",
+      "slug": "2026-09-24-legacy-first-routine-prerelease-review",
+      "status": "",
+      "summary": "Requested `mode:verify`; resolved to a normal `full` security-risk review, **not** a verification of fixes. The most recent eligible report by frontmatter date and filename is `.cg-docs/reviews/2026-09-16-documentation-ia-ux-redesign-review.md` (date 2026-09-17, four fixed findings). Its fixed blocks concern the docs UI, search and help projection, not this Routine publisher. The related September 17 prerelease Phase 3 review also predates these new changes. Suppressing this release scope under either prior report would not review the new path.",
+      "tags": [],
+      "title": "2026-09-24-legacy-first-routine-prerelease-review",
+      "top_keywords": [
+        "create-release.ps1",
+        "review",
+        "release-legacy-authority.ps1",
+        "create-release.tests.ps1",
+        "routine",
+        "report",
+        "prerelease",
+        "route",
+        "scope",
+        "verification"
+      ]
+    },
+    {
       "date": "2026-08-17",
       "entity_type": "solution",
       "path": ".cg-docs/solutions/architecture/2026-08-17-capability-router-hard-stop.md",
@@ -17210,6 +17342,34 @@
         "2026-09-16-cg-release-prerelease-automation.md",
         "settings",
         "repo"
+      ]
+    },
+    {
+      "date": "2026-09-24",
+      "entity_type": "solution",
+      "path": ".cg-docs/solutions/git-workflows/2026-09-24-routine-prerelease-reuse-and-cutover-boundary.md",
+      "slug": "2026-09-24-routine-prerelease-reuse-and-cutover-boundary",
+      "status": "",
+      "summary": "GPID needed a routine `/cg-release vX.Y.Z.<build>` path while the new release controller remained disabled. Treating the four-part request as a controller `start`, or making exceptional Bridge/Recovery the normal fallback, would not provide that path. A second publisher would also split the established payload, tag, Release, build, and attestation checks. The reviewed Reserve path has a separate limit: a controller cutover between the last policy read and tag push can leave an exact remote tag without a matching GitHub Release.",
+      "tags": [
+        "routine-prerelease",
+        "powershell-publisher",
+        "cutover",
+        "exact-tag-recovery",
+        "evidence-boundaries"
+      ],
+      "title": "Route routine four-part prereleases through the existing publisher without claiming atomic cutover",
+      "top_keywords": [
+        "create-release.ps1",
+        "cutover",
+        "fixed",
+        "--resume <tag>",
+        "routine",
+        "release-result.txt",
+        "cg-release",
+        "2026-09-24-legacy-first-routine-prerelease.md",
+        "2026-09-24-legacy-first-routine-prerelease-review.md",
+        "release_notes.md"
       ]
     },
     {
@@ -25138,13 +25298,13 @@
       ]
     }
   ],
-  "entity_count": 866,
-  "generated": "2026-09-19",
+  "entity_count": 871,
+  "generated": "2026-09-24",
   "schema_version": "0.2.0",
   "topic_count": 7,
   "topics": [
     {
-      "entity_count": 609,
+      "entity_count": 615,
       "entity_paths": [
         ".cg-docs/brainstorms/2026-03-02-rename-prefix-and-documentation.md",
         ".cg-docs/brainstorms/2026-03-03-global-install-and-project-setup.md",
@@ -25208,7 +25368,9 @@
         ".cg-docs/brainstorms/2026-09-04-cg-help-command.md",
         ".cg-docs/brainstorms/2026-09-04-cg-light-work-unified-small-task-workflow.md",
         ".cg-docs/brainstorms/2026-09-04-minimal-adaptive-grilling.md",
+        ".cg-docs/brainstorms/2026-09-11-generic-asynchronous-release-controller.md",
         ".cg-docs/brainstorms/2026-09-16-cg-release-prerelease-automation.md",
+        ".cg-docs/brainstorms/2026-09-23-controller-first-routine-release.md",
         ".cg-docs/competitive-reviews/2026-04-23-compound-engineering-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-gsd-2-full-review.md",
         ".cg-docs/competitive-reviews/2026-04-23-superpowers-full-review.md",
@@ -25338,6 +25500,8 @@
         ".cg-docs/plans/2026-09-11-kilo-first-autopilot.md",
         ".cg-docs/plans/2026-09-16-cg-release-prerelease-automation.md",
         ".cg-docs/plans/2026-09-16-documentation-ia-ux-redesign.md",
+        ".cg-docs/plans/2026-09-23-controller-first-routine-release.md",
+        ".cg-docs/plans/2026-09-24-legacy-first-routine-prerelease.md",
         ".cg-docs/plans/phase2-model-governance-cleanup.md",
         ".cg-docs/reviews/2026-03-30-fix-triage-prompt-review.md",
         ".cg-docs/reviews/2026-04-01-cg-strategy-and-roadmap-fix-review.md",
@@ -25526,6 +25690,7 @@
         ".cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-phase7-verify-review.md",
         ".cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-precommitrepairverify.md",
         ".cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-step9-fix-triage.md",
+        ".cg-docs/reviews/2026-09-24-legacy-first-routine-prerelease-review.md",
         ".cg-docs/solutions/bugs/2026-03-18-broken-relative-links-in-nested-skill-files.md",
         ".cg-docs/solutions/bugs/2026-03-18-unclosed-code-fence-corrupts-markdown-rendering.md",
         ".cg-docs/solutions/bugs/2026-03-19-explicit-unpin-does-not-persist-missing-state-file-write.md",
@@ -25633,6 +25798,7 @@
         ".cg-docs/solutions/git-workflows/2026-09-17-preflight-receipt-commit-tree-lf-provenance.md",
         ".cg-docs/solutions/git-workflows/2026-09-17-release-source-branch-policy-clarified.md",
         ".cg-docs/solutions/git-workflows/2026-09-17-repo-settings-auto-merge-protect-dev-required-checks.md",
+        ".cg-docs/solutions/git-workflows/2026-09-24-routine-prerelease-reuse-and-cutover-boundary.md",
         ".cg-docs/solutions/performance-issues/2026-03-18-grp-precomputation-for-multi-aggregation.md",
         ".cg-docs/solutions/performance-issues/2026-04-07-model-audit-classification.md",
         ".cg-docs/solutions/security/2026-08-17-tar-slip-toctou-dos-quarantine-pipeline.md",

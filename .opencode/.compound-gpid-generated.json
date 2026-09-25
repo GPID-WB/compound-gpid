@@ -357,7 +357,7 @@
       "path": ".opencode/commands/cg-release.md",
       "source": ".github/prompts/cg-release.prompt.md",
       "kind": "command",
-      "sha256": "f22f3d75efefa99b3549279e875c1e687c7adfcf3871909d5988bfe86431a7d2",
+      "sha256": "229b5a697724189ec5b5e652d3fe16b22d7b7a2d0eb0faedbc0514abd9e892ad",
       "executable": false
     },
     {
@@ -420,7 +420,7 @@
       "path": ".opencode/commands/cg-verify-pr.md",
       "source": ".github/prompts/cg-verify-pr.prompt.md",
       "kind": "command",
-      "sha256": "c7e16c846267c6a37bf716d0754f53d7453b0730ee09f2ca09c50d9826d978be",
+      "sha256": "04c9936a96b22d2315f80bf02970397a275806407a1bef80bd52325856344628",
       "executable": false
     },
     {
@@ -574,7 +574,7 @@
       "path": ".opencode/shared/help-catalog.json",
       "source": ".github/shared/help-catalog.json",
       "kind": "shared",
-      "sha256": "7f3066333d9e72234fe610118a1375d1ba7768effb59cd85c41fea531dd155dd",
+      "sha256": "1600f98c6282c23d86c3c45ee4c4efc0286adf49ac1cc3460a48e4696e8daf5f",
       "executable": false
     },
     {
@@ -616,7 +616,7 @@
       "path": ".opencode/shared/shell-commands.json",
       "source": ".github/shared/shell-commands.json",
       "kind": "shared",
-      "sha256": "c20960f57943d192c8712508bdd7bd077184fb15881dcbe6b09ab201b34e1d79",
+      "sha256": "8026813490d3390cb2aeded89bc6963dc6390e7b0a9245c18cb38f9dddad4ac2",
       "executable": false
     },
     {

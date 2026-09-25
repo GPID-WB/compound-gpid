@@ -89,18 +89,17 @@ test("captured v2 producer remains independently verifiable; mixed v2/v3 identit
 });
 
 test("native help guidance matches current source-bound support evidence", () => {
-  const root = path.resolve(__dirname, "../.."), relative = ".cg-docs/work-reports/2026-09-23-docs-help-support.json";
+  const root = path.resolve(__dirname, "../.."), relative = ".cg-docs/work-reports/docs-help-support-current.json";
   const proof = JSON.parse(fs.readFileSync(path.join(root, relative)));
   require("node:child_process").execFileSync(process.platform === "win32" ? "python" : "python3",
     [path.join(root, "scripts/cg_verify_help_support.py"), "--root", root, "--evidence", relative], { timeout: 30000 });
   const text = fs.readFileSync(path.join(root, "docs/help/index.md"), "utf8");
   const names = { "claude-code": "Claude Code", codex: "Codex", copilot: "GitHub Copilot", kilo: "Kilo", opencode: "OpenCode" };
   for (const row of proof.platforms) {
-    const expected = row.runtimeStatus === "verified" ? "Verified" : "Unverified";
-    assert.ok(text.includes(`| ${names[row.platform]} | ${expected} |`), row.platform);
+    assert.ok(text.includes(`| ${names[row.platform]} | Current | Not certified |`), row.platform);
   }
-  assert.ok(text.includes(proof.subjectCommit));
-  assert.ok(text.includes("only for the verified Kilo configuration"));
+  assert.equal(proof.schemaVersion, 2);
+  assert.ok(text.includes("does not certify live runtime behavior"));
 });
 
 test("renaming a help evidence anchor fails even when the committed catalog digest is unchanged", t => {

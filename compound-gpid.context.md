@@ -300,6 +300,19 @@ rules that help Copilot produce accurate outputs across all prompts and sessions
   and
   [task-runner substitution](.cg-docs/solutions/testing-patterns/2026-09-17-dedicated-task-runner-substitution-for-execution-subagent.md).
 
+### Legacy-First Routine Prereleases (2026-09-24)
+
+- A bare `/cg-release vX.Y.Z.<build>` or ordinary four-part `--resume` uses
+  the existing PowerShell Reserve/Finalize publisher with `Routine` while the
+  protected remote controller policy remains disabled. Generic controller
+  commands and exceptional Bridge/Recovery are separate. The post-tag-push
+  policy recheck can stop the Release POST but cannot make cutover atomic:
+  review P1.1 was skipped by explicit user decision, not fixed. Reconcile
+  exact remote tag/Release state read-only before separately authorized
+  recovery; never move the tag or treat offline green tests as proof of live
+  reliability or exclusive publication. See
+  [Routine prerelease reuse and cutover boundary](.cg-docs/solutions/git-workflows/2026-09-24-routine-prerelease-reuse-and-cutover-boundary.md).
+
 ## Install/Link Script Conventions
 
 - **CI bypass flag pattern**: Scripts with interactive confirmation prompts (`Read-Host`, `read -r`) must support a `[switch]$Force` (PowerShell) / `--yes -y` (bash) bypass flag. Both short and long forms required in bash. Prompt strings must be inside the `if (-not $Force)` / `if [[ "$FORCE" -eq 0 ]]` block to keep CI logs clean. Always invoke scripts with `& "script.ps1"` (not `pwsh -File`) within `shell: pwsh` CI steps. Test the guard count with `Measure-Object` (exact count assertion) — `Should -Match` short-circuits on first hit and misses a missing second guard. See `.cg-docs/solutions/testing-patterns/2026-05-13-ci-bypass-flag-force-yes-interactive-scripts.md`.

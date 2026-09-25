@@ -1,5 +1,5 @@
 ---
-description: "Run the standalone release controller with unchanged arguments. Generic plan/start/status/resume needs no GPID charter. Explicit legacy bridge/recovery remains GPID-only."
+description: "Run generic controller commands unchanged or publish a GPID four-part prerelease through the existing PowerShell release flow."
 ---
 
 # Release
@@ -8,13 +8,19 @@ description: "Run the standalone release controller with unchanged arguments. Ge
 
 Before any tool dispatch, classify the invocation using only its arguments.
 Generic `plan`, `start`, `status`, and `resume` keep argument-preserving dispatch
-below; do not consume their flags as legacy approvals. Reject `--auto-approve` in
-generic mode. Only explicit legacy selectors enter the legacy flow. Reject
-conflicting selectors or mixed generic and legacy modes before dispatch.
+below; do not consume their flags as publication approvals. Reject `--auto-approve`
+in generic mode. A bare four-component tag selects `Routine` for the existing
+PowerShell publisher; `--resume <four-component tag>` without an exceptional
+selector resumes that same operation. A bare three-component stable tag is not
+a routine request; stable publication still needs explicit `--legacy-bridge` or
+an authorized historical `--legacy-recovery`. Only explicit `--legacy-bridge` or `--legacy-recovery`
+selects exceptional legacy operations. Reject conflicting
+selectors, unknown flags, mixed generic/GPID modes, or multiple tags before dispatch.
 
-In legacy mode, parse `--auto-approve` and record `<auto-approve>` (default false).
-Reject `--auto-approve` for three-component stable tags. Require an explicit valid
-four-component tag, either as the new tag or `--resume <tag>`; reject ambiguity.
+In GPID publication mode, parse `--auto-approve` and record `<auto-approve>` (default false).
+Reject `--auto-approve` for three-component stable tags. Routine requires an
+explicit valid four-component tag, either as the new tag or `--resume <tag>`;
+reject ambiguity.
 The flag pre-approves scan continuation, semver, name, notes, the publication
 decision, payload/evidence PRs, automated merges, Reserve, Finalize and
 non-interactive resume for that tag only. It never grants missing maintainer
@@ -41,13 +47,19 @@ Never infer pins, repository IDs, secrets, settings or live verification results
 
 **Stop after the CLI returns. Do not execute the legacy process below.**
 
-Only explicit `--legacy-bridge` or `--legacy-recovery` selects the legacy process
-below. These paths still require specific maintainer authorization and every
-existing legacy guard. Set `<legacy-operation>` to `Bridge` or `Recovery` and
-pass `-LegacyOperation <legacy-operation>` to every `create-release.ps1` call.
-The GPID CLI wrapper supports the same explicit flags and forwards all remaining
-PowerShell arguments without changing them. Routine release requests cannot use
-this path. After cutover, Bridge is rejected; historical Recovery remains available.
+GPID four-component routine prereleases select the existing process below with
+`<legacy-operation> = Routine`. For example, `/cg-release v1.2.0.9020
+--source-branch dev` starts the reviewed payload, tag/Release, and build flow;
+it does not submit to the disabled controller. A `--resume <tag>` request without
+an exceptional selector resumes Routine only for a four-component tag. Explicit
+`--legacy-bridge` or `--legacy-recovery` instead selects Bridge or Recovery.
+Pass `-LegacyOperation <legacy-operation>` to every `create-release.ps1` call.
+Routine is refused when the remote controller is enabled; Bridge is also refused
+after cutover, while historical Recovery remains available. All paths require
+specific maintainer authority and the existing publisher's checks. The native
+`cg-release` executable cannot prepare release notes and payloads from a bare tag:
+it reports how to use the slash workflow. Its `--legacy-routine` selector accepts
+only prepared PowerShell arguments, not a bare-tag publication request.
 The exact protected remote default policy is authority, not `main` or a local
 policy copy. Recovery requires current maintainer authority and an existing exact
 remote annotated tag, or an explicit reviewed historical record at
@@ -56,7 +68,7 @@ a routine new release. Recheck this authority before each consequential effect.
 `@cg-release-scanner` supplies optional editorial notes only. It cannot resolve
 controller versions, approvals, release lines, authority, or completion.
 
-## Legacy Bridge And Recovery
+## GPID Routine Prerelease, Bridge And Recovery
 
 You are a senior developer preparing a GitHub Release for the GPID-WB/compound-gpid repository.
 
@@ -158,12 +170,22 @@ For a stranded payload, stop the later-release scan. First confirm the target ha
 no local or remote annotated tag, Release, or attestation (query failures are not
 absence). The maintainer decides whether to complete this release or retire it
 through a reviewed revert PR. Completion requires the exact merged payload commit:
-under specific authorization, create its annotated local tag and use the explicit
-legacy selector with `--resume <tag>`, or start a fresh authorized Reserve flow.
+under specific authorization, create its annotated local tag, then use
+`/cg-release --resume <tag> --source-branch <branch>` for a four-part Routine
+prerelease, or start a fresh authorized Reserve flow. The resume command never
+creates a local tag. Bridge and Recovery remain exceptional selectors with their
+own authority rules; do not use them to repair an ordinary Routine payload.
 Resume requires that existing annotated tag. This repair is not pre-approved by
 auto approval for a later tag: never auto-publish or create a repair tag on the
 flow's own initiative. Any partial existing pair instead needs read-only inspection
 and the authorized resume path, never replacement or rollback.
+
+Routine is a best-effort single publisher, not an atomic cutover lock. Keep the
+remote controller disabled for the entire Routine publication; other write users
+or an administrator can still change authority. If policy changes after a tag
+push, stop before Release POST, retain the exact tag, and request authorized
+read-only reconciliation. Do not retry publication or enable the controller to
+repair an interrupted pair without a separate reviewed decision.
 
 **1b. Get the tag date** (skip if `<latest-tag>` is `null`):
 
@@ -460,9 +482,10 @@ Release creation, before any documentation query or wait.
    ```
 
    Use one blocking foreground call with an explicit tool timeout of
-   `7200000` milliseconds (120 minutes), not the default `120000` milliseconds.
-   Child budgets are 1800 seconds for controller package tests and 600 seconds for
-   each other command. Progress is flushed to stderr; stdout carries the result.
+    `9000000` milliseconds (150 minutes), not the default `120000` milliseconds.
+    Child budgets are 1800 seconds for the native pytest and controller package
+    tests, and 600 seconds for each other command. Progress is flushed to stderr;
+    stdout carries the result.
    Silence is not a hang. Do not use background execution, polling,
    or an automatic retry after a timeout for this local gate. Remote PR CI runs
    independently during the blocking call. An unavailable budget, interrupt,

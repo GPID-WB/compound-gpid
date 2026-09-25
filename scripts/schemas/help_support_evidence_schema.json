@@ -1,16 +1,15 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "compound-gpid-help-support-v1",
+  "$id": "compound-gpid-help-support-v2",
   "type": "object", "additionalProperties": false,
-  "required": ["schemaVersion", "subjectCommit", "probeCommit", "probeTree", "sensitivePaths", "sensitiveDigest", "platforms"],
+  "required": ["schemaVersion", "subjectCommit", "subjectTree", "sensitivePaths", "sensitiveDigest", "platforms"],
   "properties": {
-    "schemaVersion": {"type": "integer", "const": 1},
+    "schemaVersion": {"type": "integer", "const": 2},
     "subjectCommit": {"$ref": "#/$defs/commit"},
-    "probeCommit": {"$ref": "#/$defs/commit"},
-    "probeTree": {"$ref": "#/$defs/commit"},
+    "subjectTree": {"$ref": "#/$defs/commit"},
     "sensitivePaths": {"type": "array", "minItems": 1, "maxItems": 8192, "items": {"$ref": "#/$defs/path"}},
     "sensitiveDigest": {"$ref": "#/$defs/digest"},
-    "platforms": {"type": "array", "minItems": 5, "maxItems": 5, "items": {"$ref": "#/$defs/platform"}}
+    "platforms": {"type": "array", "minItems": 5, "maxItems": 5, "items": {"$ref": "#/$defs/platformBinding"}}
   },
   "helpSensitivePatterns": [
     ".gitattributes",
@@ -21,7 +20,7 @@
     ".claude/commands/*.md", ".agents/commands/*.md", ".opencode/commands/*.md", ".kilo/commands/*.md",
     ".claude/shared/help-*.json", ".agents/shared/help-*.json", ".opencode/shared/help-*.json", ".kilo/shared/help-*.json",
     "scripts/help/*.py", "scripts/cg_help.py", "scripts/cg_generate_help_catalog.py",
-    "scripts/cg_verify_help_support.py", "scripts/cg_generate_targets.py", "scripts/cg_kilo_preflight.py",
+    "scripts/cg_generate_help_support.py", "scripts/cg_verify_help_support.py", "scripts/cg_generate_targets.py", "scripts/cg_kilo_preflight.py",
     "scripts/secure_fs.py", "scripts/cg_project_manifest.py", "scripts/cg_project_projection.py",
     "scripts/cg_context_budget.py", "scripts/cg_validate_modules.py", "scripts/cg_pr_preflight.py",
     "scripts/skill_management/services/registry.py", "scripts/schemas/help*.json",
@@ -59,24 +58,14 @@
         "receivedQuerySha256": {"$ref": "#/$defs/digest"}, "outcome": {"enum": ["passed", "failed"]}
       }
     },
-    "platform": {
+    "platformBinding": {
       "type": "object", "additionalProperties": false,
-      "required": ["platform", "catalogSourceDigest", "catalogSha256", "canonicalPromptSha256", "targetMappingSha256", "generatedPromptSha256", "staticResults", "runtimeStatus", "host", "probeContractVersion", "probes", "runAt", "reason"],
+      "required": ["platform", "catalogSourceDigest", "catalogSha256", "canonicalPromptSha256", "targetMappingSha256", "generatedPromptSha256"],
       "properties": {
         "platform": {"enum": ["claude-code", "codex", "copilot", "kilo", "opencode"]},
         "catalogSourceDigest": {"$ref": "#/$defs/digest"}, "catalogSha256": {"$ref": "#/$defs/digest"},
         "canonicalPromptSha256": {"$ref": "#/$defs/digest"}, "targetMappingSha256": {"$ref": "#/$defs/digest"},
-        "generatedPromptSha256": {"$ref": "#/$defs/digest"},
-        "staticResults": {
-          "type": "object", "additionalProperties": false, "required": ["asset", "argumentSource", "transport"],
-          "properties": {"asset": {"enum": ["passed", "failed"]}, "argumentSource": {"enum": ["passed", "failed"]}, "transport": {"enum": ["passed", "failed"]}}
-        },
-        "runtimeStatus": {"enum": ["verified", "unverified-no-certified-host", "failed"]},
-        "host": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/host"}]},
-        "probeContractVersion": {"type": "integer", "const": 1},
-        "probes": {"type": "array", "maxItems": 3, "items": {"$ref": "#/$defs/probe"}},
-        "runAt": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"},
-        "reason": {"type": "string", "pattern": "^[ -~]{0,240}$"}
+        "generatedPromptSha256": {"$ref": "#/$defs/digest"}
       }
     }
   }

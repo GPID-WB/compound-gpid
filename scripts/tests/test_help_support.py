@@ -1,7 +1,6 @@
 """Step7 source-bound support evidence and offline host protocol tests."""
 from __future__ import annotations
 
-import copy
 import hashlib
 import importlib
 import importlib.util
@@ -58,22 +57,7 @@ def history(tmp_path):
     git(root, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid",
         "commit", "-m", "subject")
     subject = git(root, "rev-parse", "HEAD")
-    bindings = support.subject_bindings(root, subject)
-    evidence = dict(schemaVersion=1, subjectCommit=subject, probeCommit=subject,
-                    probeTree=git(root, "rev-parse", "HEAD^{tree}"), **bindings)
-    evidence["platforms"] = []
-    for platform in sorted(support.PROMPT_ROOTS):
-        row = dict(platform=platform, **support.platform_bindings(root, subject, platform),
-                   staticResults={"asset": "passed", "argumentSource": "passed", "transport": "passed"},
-                   runtimeStatus="unverified-no-certified-host", host=None,
-                   probeContractVersion=1, probes=[], runAt="2026-09-14T00:00:00Z",
-                   reason="No certified host is configured.")
-        if platform == "kilo":
-            row.update(runtimeStatus="verified", reason="", host={
-                "pinnedVersion": "7.4.20", "observedVersion": "7.4.20",
-                "pinnedSha256": "b" * 64, "observedSha256": "b" * 64})
-            row["probes"] = successful_probes(support)
-        evidence["platforms"].append(row)
+    evidence = support.build_evidence(root, subject)
     return support, root, evidence
 
 
@@ -119,9 +103,7 @@ def test_subject_verifier_accepts_declared_crlf_but_rejects_mixed_or_changed_byt
     wrapper.write_bytes(b"@echo off\r\nexit /b 0\r\n")
     commit(root, "declared Windows checkout")
     subject = git(root, "rev-parse", "HEAD")
-    evidence.update(subjectCommit=subject, probeCommit=subject, probeTree=git(root, "rev-parse", "HEAD^{tree}"), **support.subject_bindings(root, subject))
-    for row in evidence["platforms"]:
-        row.update(support.platform_bindings(root, subject, row["platform"]))
+    evidence = support.build_evidence(root, subject)
     support.verify_evidence(root, evidence)
     wrapper.write_bytes(b"@echo off\r\nexit /b 0\n")
     with pytest.raises(ValueError, match="working bytes"):
@@ -164,7 +146,7 @@ def test_support_accepts_exact_subject_and_evidence_only_followup(history):
     support.verify_evidence(root, evidence)
 
 
-@pytest.mark.parametrize("field", ["subjectCommit", "probeCommit", "probeTree", "sensitiveDigest"])
+@pytest.mark.parametrize("field", ["subjectCommit", "subjectTree", "sensitiveDigest"])
 def test_support_rejects_missing_foreign_identity_or_digest(history, field):
     support, root, evidence = history
     evidence[field] = "f" * (64 if field == "sensitiveDigest" else 40)
@@ -207,45 +189,57 @@ def test_support_rejects_existing_default_checkout_instead_of_exact_subject(hist
     support, root, evidence = history
     write(root, "default-only.txt", "default branch moved\n")
     commit(root, "default branch differs from certified subject")
-    evidence["probeCommit"] = git(root, "rev-parse", "HEAD")
-    with pytest.raises(ValueError, match="Probe commit"):
+    evidence["subjectCommit"] = git(root, "rev-parse", "HEAD")
+    with pytest.raises(ValueError, match="Subject tree"):
         support.verify_evidence(root, evidence)
 
 
-@pytest.mark.parametrize("mutation", ["failed", "unverified-kilo", "host-hash", "host-version",
-                                       "missing-probe", "failed-probe", "fingerprint", "static",
-                                       "unknown", "raw-query", "duplicate", "future-schema", "date"])
-def test_support_status_schema_and_certification_fail_closed(history, mutation):
+@pytest.mark.parametrize("mutation", ["missing-platform", "raw-query", "duplicate",
+                                       "future-schema", "runtime-claim"])
+def test_support_schema_and_platform_matrix_fail_closed(history, mutation):
     support, root, evidence = history
-    row = next(item for item in evidence["platforms"] if item["platform"] == "kilo")
-    if mutation == "failed":
-        row["runtimeStatus"] = "failed"
-    elif mutation == "unverified-kilo":
-        row.update(runtimeStatus="unverified-no-certified-host", host=None, probes=[], reason="absent")
-    elif mutation == "host-hash":
-        row["host"]["observedSha256"] = "c" * 64
-    elif mutation == "host-version":
-        row["host"]["observedVersion"] = "7.4.21"
-    elif mutation == "missing-probe":
-        row["probes"].pop()
-    elif mutation == "failed-probe":
-        row["probes"][0]["outcome"] = "failed"
-    elif mutation == "fingerprint":
-        row["probes"][0]["receivedQuerySha256"] = "e" * 64
-    elif mutation == "static":
-        row["staticResults"]["transport"] = "failed"
-    elif mutation == "unknown":
-        row["runtimeStatus"] = "unknown"
+    if mutation == "missing-platform":
+        evidence["platforms"].pop()
     elif mutation == "raw-query":
-        row["query"] = "secret input"
+        evidence["query"] = "secret input"
     elif mutation == "duplicate":
-        evidence["platforms"][0] = copy.deepcopy(row)
-    elif mutation == "date":
-        row["runAt"] = "not UTC"
+        evidence["platforms"][0] = dict(evidence["platforms"][3])
+    elif mutation == "runtime-claim":
+        evidence["runtimeCertifications"] = []
     else:
-        evidence["schemaVersion"] = 2
+        evidence["schemaVersion"] = 3
     with pytest.raises(ValueError):
         support.verify_evidence(root, evidence)
+
+
+def test_support_has_no_required_host_or_runtime_claim(history):
+    support, root, evidence = history
+    assert all(set(row) == {
+        "platform", "catalogSourceDigest", "catalogSha256",
+        "canonicalPromptSha256", "targetMappingSha256", "generatedPromptSha256",
+    } for row in evidence["platforms"])
+    support.verify_evidence(root, evidence)
+
+
+def test_generator_writes_only_the_stable_current_manifest(history, monkeypatch):
+    support, root, evidence = history
+    generator = importlib.import_module("cg_generate_help_support")
+    root.joinpath(".cg-docs/work-reports").mkdir(parents=True)
+    monkeypatch.setattr(generator.catalog, "check_catalog", lambda _: None)
+    writes = []
+    original_write = generator.secure_fs.secure_write_bytes
+
+    def capture_write(write_root, relative, content):
+        writes.append((write_root, relative))
+        return original_write(write_root, relative, content)
+
+    monkeypatch.setattr(generator.secure_fs, "secure_write_bytes", capture_write)
+    assert generator.main(["--root", str(root)]) == 0
+    assert writes == [(root.resolve(), Path(generator.OUTPUT_PATH))]
+    actual = json.loads(root.joinpath(generator.OUTPUT_PATH).read_text(encoding="utf-8"))
+    assert actual == evidence
+    with pytest.raises(SystemExit, match="output must be"):
+        generator.main(["--root", str(root), "--output", "support.json"])
 
 
 @pytest.mark.parametrize("received", ["$ARGUMENTS", "", "plan review ; normalized"])

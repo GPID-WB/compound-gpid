@@ -140,7 +140,7 @@
       "path": ".agents/commands/cg-release.md",
       "source": ".github/prompts/cg-release.prompt.md",
       "kind": "command",
-      "sha256": "3d6dad45c9297f04d654e72fd8e2024da8d97d33d93e7fb9d2c8a5a8cc7c0154",
+      "sha256": "7d8e9b0bf36f5da5c2e0108cee355ed3f823666700f98d9615c7cbf4f5fe9915",
       "executable": false
     },
     {
@@ -203,7 +203,7 @@
       "path": ".agents/commands/cg-verify-pr.md",
       "source": ".github/prompts/cg-verify-pr.prompt.md",
       "kind": "command",
-      "sha256": "b165770105b5bfaccb19f617c531477b530754bf36bd33f13ea827e0e86b1afb",
+      "sha256": "b1a58fc11990ff8ee946d696a1f85ab9706fef9a0094e4f32461d56d8c625665",
       "executable": false
     },
     {
@@ -350,7 +350,7 @@
       "path": ".agents/shared/help-catalog.json",
       "source": ".github/shared/help-catalog.json",
       "kind": "shared",
-      "sha256": "7f3066333d9e72234fe610118a1375d1ba7768effb59cd85c41fea531dd155dd",
+      "sha256": "1600f98c6282c23d86c3c45ee4c4efc0286adf49ac1cc3460a48e4696e8daf5f",
       "executable": false
     },
     {
@@ -392,7 +392,7 @@
       "path": ".agents/shared/shell-commands.json",
       "source": ".github/shared/shell-commands.json",
       "kind": "shared",
-      "sha256": "c20960f57943d192c8712508bdd7bd077184fb15881dcbe6b09ab201b34e1d79",
+      "sha256": "8026813490d3390cb2aeded89bc6963dc6390e7b0a9245c18cb38f9dddad4ac2",
       "executable": false
     },
     {

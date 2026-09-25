@@ -10,20 +10,21 @@ Use the [command browser](../reference/commands.md) to find slash commands,
 terminal commands, and complete workflows. Its catalog is checked against the
 command definitions during the documentation build.
 
-The examples below are supported only for the verified Kilo configuration
-listed here. Static adapter checks pass for all five hosts; runtime status is separate.
+The current source manifest binds the canonical help definitions, catalog, and
+generated command assets for all five adapters. It does not certify live runtime behavior
+for any host. Host-specific runtime observations are optional evidence and are
+not required to distribute or use the plugin.
 
-| Host | Runtime status | Tested configuration |
+| Host | Source/static status | Live runtime certification |
 |---|---|---|
-| Claude Code | Unverified | No certified runtime probe |
-| Codex | Unverified | No certified runtime probe |
-| GitHub Copilot | Unverified | No certified runtime probe |
-| Kilo | Verified | Windows, Kilo 7.7.7, process-only OpenRouter model `openrouter/google/gemini-2.5-pro` |
-| OpenCode | Unverified | No certified runtime probe |
+| Claude Code | Current | Not certified |
+| Codex | Current | Not certified |
+| GitHub Copilot | Current | Not certified |
+| Kilo | Current | Not certified |
+| OpenCode | Current | Not certified |
 
-In the verified Kilo configuration, open a project linked to the development
-installation, with the `cg-help` backend available on PATH. Use these lookups in
-the host's command input:
+In a linked project with the `cg-help` backend available on PATH, use these
+lookups in the host's command input:
 
 ```text
 /cg-help
@@ -36,23 +37,19 @@ answer. Running `/cg-help` does not install the backend or generate documentatio
 If it reports unavailable help, check the installation and project linking before
 retrying; do not replace the response with guessed commands.
 
-Evidence was collected on 2026-09-23 for source commit
-`2db8aa69fbc8caec5bc1657de8c443ccf0a35bdc`, using a process-only OpenRouter
-model selection, not Kilo Gateway. The observed Kilo 7.7.7 executable SHA-256 was
-`ef75e680fa644d33aacbf881fc43449ee86c305f9120032775bde18705963aa5`.
-The selected model is recorded from the probe process configuration; the
-support evidence schema does not independently bind its model ID.
-The source checkout keeps `.gitattributes` in LF form on Windows for exact
-source-bound verification.
-These host details identify this test run; they are not a consumer version pin or
-ceiling, and the selected model is not a claim of universal model support.
-Overview, exact lookup, punctuation preservation, and unchanged result delivery
-passed. This evidence does not certify other models, host versions, or operating
-systems. Maintainers can recheck the stored source bindings with:
+The manifest records the exact source commit and Git-object digests. Its five
+platform rows are source bindings, not stored test-result strings. CI separately
+checks the catalog, generated targets, and platform test suites. Maintainers can
+regenerate and verify the current bindings without a model or hosted agent:
 
 ```sh
-python scripts/cg_verify_help_support.py --evidence .cg-docs/work-reports/2026-09-23-docs-help-support.json
+python scripts/cg_generate_help_support.py
+python scripts/cg_verify_help_support.py --evidence .cg-docs/work-reports/docs-help-support-current.json
 ```
+
+The dated 2026-09-23 file is retained as historical Kilo probe evidence. It is
+not the current cross-platform support manifest and does not set a Kilo version
+floor, ceiling, provider, model, operating-system, or consumer requirement.
 
 ## Choose the problem
 

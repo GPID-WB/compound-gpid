@@ -1,11 +1,19 @@
 # 🧠 Project Brain — Part 2
 
-_Generated 2026-09-19_
+_Generated 2026-09-24_
 
 ## Test Scenarios / Roadmap.Json / Cg-Work _(continued from Part 1)_
 
-_Keywords: `test scenarios` · `roadmap.json` · `cg-work`_ · 176 entities
+_Keywords: `test scenarios` · `roadmap.json` · `cg-work`_ · 181 entities
 
+- **[Evidence capture must pass the bundled axe source at the audit call site](.cg-docs/solutions/bugs/2026-08-04-evidence-capture-axe-audit-call-site-wiring.md)** · `solution` · _—_ · `2026-08-04`
+  > The browser evidence producer loaded the bundled `axe-core` source and defined `runAxeAudit(page, axeSource)`, but th…
+- **[Kilo platform missing markdown_source permission for symlinked commands](.cg-docs/solutions/bugs/2026-08-05-kilo-markdown-source-permission.md)** · `solution` · _—_ · `2026-08-05`
+  > After running `cg-link --platform kilo`, the `.kilo/commands/` directory is correctly symlinked to the compound-gpid …
+- **[compound-gpid.local.md gitignored causing missing config in fresh worktrees and clones](.cg-docs/solutions/bugs/2026-08-06-compound-gpid-local-md-gitignored-missing-in-worktrees.md)** · `solution` · _—_ · `2026-08-06`
+  > `compound-gpid.local.md` was absent from every fresh git worktree and clone. Team members had to manually copy the fi…
+- **[Typed-invalid gh CLI JSON payloads must map to the API-error exit code, not a crash](.cg-docs/solutions/bugs/2026-08-10-typed-invalid-gh-cli-payloads-crash-exit-code-contract.md)** · `solution` · _—_ · `2026-08-10`
+  > The Compound GPID issue readiness validator (`scripts/issues/readiness.py`) documents an exit-code contract: 0 = read…
 - **[Windows cg-link Kilo parse failures — enforce copy-directory instead of junctions](.cg-docs/solutions/bugs/2026-08-11-windows-link-kilo-copy-directory-parse-failure.md)** · `solution` · _—_ · `2026-08-11`
   > Opening a project in VS Code or Positron with the Compound GPID plugin installed (v1.1.9+) reported the same error fo…
 - **[Pages immutable-ref gate rejects dev-series pre-release tags \(v1.2.0.900x\)](.cg-docs/solutions/bugs/2026-08-14-pages-immutable-ref-gate-rejects-dev-series-pre-release-tags.md)** · `solution` · _—_ · `2026-08-14`
@@ -114,6 +122,8 @@ _Keywords: `test scenarios` · `roadmap.json` · `cg-work`_ · 176 entities
   > `create-release.ps1` assigned main/dev from tag shape and enforced that branch's remote lineage; `release-docs.yml` u…
 - **[Auto-merge and Protect dev required checks must be verified read-only before release automation relies on them](.cg-docs/solutions/git-workflows/2026-09-17-repo-settings-auto-merge-protect-dev-required-checks.md)** · `solution` · _—_ · `2026-09-17`
   > The prerelease overlap design needs GitHub-enforced auto-merge on dev: payload and evidence PRs merge via `gh pr merg…
+- **[Route routine four-part prereleases through the existing publisher without claiming atomic cutover](.cg-docs/solutions/git-workflows/2026-09-24-routine-prerelease-reuse-and-cutover-boundary.md)** · `solution` · _—_ · `2026-09-24`
+  > GPID needed a routine `/cg-release vX.Y.Z.<build>` path while the new release controller remained disabled. Treating …
 - **[Pre-compute GRP once for blocks with multiple aggregations over the same grouping](.cg-docs/solutions/performance-issues/2026-03-18-grp-precomputation-for-multi-aggregation.md)** · `solution` · _—_ · `2026-03-18`
   > A common pattern in GPID welfare code computes several statistics by region in consecutive calls: Each call passes `g…
 - **[Full model audit — classification methodology and results](.cg-docs/solutions/performance-issues/2026-04-07-model-audit-classification.md)** · `solution` · _applied_ · `2026-04-07`

@@ -1,4 +1,4 @@
-"""Verify source-bound help support evidence; never create certification claims.
+"""Build and verify host-neutral source-bound help support evidence.
 
 Example: verify_evidence(Path('.'), parsed_evidence). Git operations are read-only.
 All evidence strings are data. Fixed schema patterns define the sensitive surface.
@@ -284,6 +284,25 @@ def platform_bindings(root: Path, subject: str, platform: str) -> Dict[str, str]
                 generatedPromptSha256=_sha(blobs[generated]))
 
 
+def build_evidence(root: Path, subject: str) -> dict:
+    """Build deterministic static/source evidence for all generated adapters.
+
+    The result contains no live-host, model, operating-system, or runtime claim.
+    """
+    _commit(root, subject)
+    evidence = dict(
+        schemaVersion=2,
+        subjectCommit=subject,
+        subjectTree=_git(root, "rev-parse", subject + "^{tree}").decode().strip(),
+        **subject_bindings(root, subject),
+    )
+    evidence["platforms"] = [
+        dict(platform=platform, **platform_bindings(root, subject, platform))
+        for platform in sorted(PROMPT_ROOTS)
+    ]
+    return evidence
+
+
 def validate_probe(receipt: dict) -> None:
     """Reject a failed probe or a host that changed/omitted the received query."""
     schema = _schema()
@@ -373,10 +392,10 @@ def checkout_bytes(path: str, blob: bytes, attributes: bytes) -> bytes:
 
 
 def verify_evidence(root: Path, evidence: dict) -> None:
-    """Validate schema, status, subject ancestry and unchanged sensitive bytes.
+    """Validate schema, subject ancestry and unchanged sensitive bytes.
 
     Args: root: Current Git checkout. evidence: Parsed support JSON.
-    Raises: ValueError on missing, stale, unsafe, failed or unverified Kilo proof.
+    Raises: ValueError on missing, stale, unsafe, or inconsistent source evidence.
     Example: verify_evidence(Path('.'), evidence).
     """
     schema = _schema()
@@ -385,10 +404,8 @@ def verify_evidence(root: Path, evidence: dict) -> None:
         raise ValueError("schemaVersion must be an integer")
     subject = evidence["subjectCommit"]
     _commit(root, subject)
-    if evidence["probeCommit"] != subject:
-        raise ValueError("Probe commit does not match subjectCommit")
-    if evidence["probeTree"] != _git(root, "rev-parse", subject + "^{tree}").decode().strip():
-        raise ValueError("Probe tree does not match subjectCommit")
+    if evidence["subjectTree"] != _git(root, "rev-parse", subject + "^{tree}").decode().strip():
+        raise ValueError("Subject tree does not match subjectCommit")
     try:
         _git(root, "merge-base", "--is-ancestor", subject, "HEAD")
     except ValueError as error:
@@ -426,20 +443,3 @@ def verify_evidence(root: Path, evidence: dict) -> None:
         binding = platform_bindings(root, subject, row["platform"])
         if any(row[key] != value for key, value in binding.items()):
             raise ValueError("Platform subject binding mismatch: " + row["platform"])
-        # Literal-Z RFC3339: Python 3.8/3.9 fromisoformat rejects "Z" forms.
-        _require_rfc3339_utc(row["runAt"])
-        if any(value != "passed" for value in row["staticResults"].values()):
-            raise ValueError("All platform static checks must pass")
-        if row["runtimeStatus"] == "failed":
-            raise ValueError("Executed failed runtime probe blocks support")
-        if row["runtimeStatus"] == "unverified-no-certified-host":
-            if row["platform"] == "kilo" or row["host"] is not None or row["probes"] or not row["reason"]:
-                raise ValueError("Invalid unverified host status; Kilo certification is required")
-            continue
-        host = row["host"]
-        if host is None or row["reason"] or host["pinnedVersion"] != host["observedVersion"] or host["pinnedSha256"] != host["observedSha256"]:
-            raise ValueError("Certified host version/hash mismatch")
-        if [probe["name"] for probe in row["probes"]] != list(PROBE_CASES):
-            raise ValueError("Every exact probe is required in contract order")
-        for probe in row["probes"]:
-            validate_probe(probe)

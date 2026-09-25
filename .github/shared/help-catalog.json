@@ -849,7 +849,7 @@
       "constraints": [
         "Developer-only and guarded to the canonical repository."
       ],
-      "definitionDigest": "73a858a44c24cd3672f0f4a5e9b0b4e927060586512fc3e44829f0f81bf99797",
+      "definitionDigest": "e7c5dde5deda60701577f7309b1a42edf5c9ff6bc096d2c61d4ea84634af8f55",
       "definitionSources": [
         "bin/cg-release",
         "bin/cg-release.cmd",
@@ -870,7 +870,7 @@
       "kind": "shell",
       "name": "cg-release",
       "outputs": [
-        "A confirmed GitHub Release and tag."
+        "A controller request or, after prepared publication checks, a GitHub Release and tag."
       ],
       "ownerModule": "suite-cg",
       "prerequisites": [
@@ -887,7 +887,7 @@
         }
       ],
       "sourcePath": "bin/cg-release",
-      "summary": "Create a guarded Compound GPID GitHub Release with curated notes.",
+      "summary": "Run generic release controller commands or a prepared GPID PowerShell publication.",
       "supportedOS": [
         "posix",
         "windows"
@@ -902,7 +902,7 @@
       "supportedSuites": [
         "cg"
       ],
-      "usage": "cg-release plan [version] | cg-release start [--resume] | cg-release status"
+      "usage": "cg-release plan|start|status|resume [args] | cg-release --legacy-routine [prepared args]"
     },
     {
       "activation": [
@@ -2738,27 +2738,27 @@
       "constraints": [
         "Developer-only and guarded to the canonical repository."
       ],
-      "definitionDigest": "3d6dad45c9297f04d654e72fd8e2024da8d97d33d93e7fb9d2c8a5a8cc7c0154",
+      "definitionDigest": "7d8e9b0bf36f5da5c2e0108cee355ed3f823666700f98d9615c7cbf4f5fe9915",
       "definitionSources": [
         ".github/prompts/cg-release.prompt.md"
       ],
       "documentationTargets": [],
       "examples": [
-        "/cg-release"
+        "/cg-release v1.2.0.9020 --source-branch dev"
       ],
       "id": "slash:cg-release",
       "intents": [
-        "publish a Compound GPID release",
+        "publish a Compound GPID prerelease",
         "prepare release notes and tag"
       ],
       "kind": "slash",
       "name": "/cg-release",
       "outputs": [
-        "A confirmed GitHub Release and tag."
+        "A controller request or, after publication checks, a GitHub Release and tag."
       ],
       "ownerModule": "suite-cg",
       "prerequisites": [
-        "Run in the canonical repository with release authority."
+        "Run GPID publication in the canonical repository with release authority."
       ],
       "relatedCommands": [
         {
@@ -2767,7 +2767,7 @@
         }
       ],
       "sourcePath": ".github/prompts/cg-release.prompt.md",
-      "summary": "Run the standalone release controller with unchanged arguments. Generic plan/start/status/resume needs no GPID charter. Explicit legacy bridge/recovery remains GPID-only.",
+      "summary": "Run generic controller commands unchanged or publish a GPID four-part prerelease through the existing PowerShell release flow.",
       "supportedOS": [
         "any"
       ],
@@ -2781,7 +2781,7 @@
       "supportedSuites": [
         "cg"
       ],
-      "usage": "/cg-release [version]"
+      "usage": "/cg-release vX.Y.Z.<build> [--source-branch branch]"
     },
     {
       "activation": [
@@ -3360,7 +3360,7 @@
       "constraints": [
         "Propose mode is observe-only."
       ],
-      "definitionDigest": "b165770105b5bfaccb19f617c531477b530754bf36bd33f13ea827e0e86b1afb",
+      "definitionDigest": "b1a58fc11990ff8ee946d696a1f85ab9706fef9a0094e4f32461d56d8c625665",
       "definitionSources": [
         ".github/prompts/cg-verify-pr.prompt.md"
       ],
@@ -3887,7 +3887,7 @@
   ],
   "generatorVersion": "1.0.0",
   "schemaVersion": 1,
-  "sourceDigest": "3016533fe4558e1d113b6aa032fc73ed257abb1183a61d685fd62e33acd97e55",
+  "sourceDigest": "42e47132a4d4a0869845508e0942006072a21ed719fb70168ac3a4b27735dbc4",
   "suites": [
     {
       "activation": {

@@ -203,9 +203,19 @@ are not these receipts. The disabled bridge workflow requires explicit real-brid
 authorization and fresh maintainer authority; `verify_bridge` rereads exact run,
 job, artifact and receipt identities remotely.
 
-The GPID launcher exposes `--legacy-bridge` and `--legacy-recovery` only for separate
-authorized operations. It supplies `-LegacyOperation Bridge` or `Recovery` to
-`create-release.ps1`; normal checks still apply. Bridge is refused after cutover.
+The GPID slash command routes bare four-part tags to the existing publisher as
+`-LegacyOperation Routine` while the controller is disabled. This route does not
+provide exclusive GitHub API authority against other write users. The native
+launcher exposes `--legacy-routine` only for already prepared publisher inputs;
+bare tags need the slash workflow to prepare notes and payloads. Bridge and
+Recovery remain explicit via `--legacy-bridge` and `--legacy-recovery`. Normal
+publisher checks still apply. Routine and Bridge are refused after cutover.
+Routine is not an atomic cutover lock. Keep the controller disabled for the
+whole publication. If a cutover occurs after tag push, the script stops before
+Release POST and the exact tag can be stranded. Reconcile that tag and remote
+Release state read-only before a separately authorized recovery; never retry
+the POST blindly or move/delete the tag. Other write users can still publish
+outside the script. This accepted limitation is not a reliability guarantee.
 Recovery requires an existing stranded identity or reviewed historical recovery
 record and cannot create routine new releases. `/cg-devtag` remains separate
 temporary four-part tooling, never a new-format controller baseline. No cleanup of

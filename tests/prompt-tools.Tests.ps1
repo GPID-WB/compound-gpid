@@ -4844,8 +4844,12 @@ Describe "cg-release.prompt.md - prerelease automation contract" {
         $parse | Should -BeGreaterThan -1
         $dispatch | Should -BeGreaterThan $parse
         $content | Should -Match 'Reject `--auto-approve` for three-component stable tags'
+        $content | Should -Match 'A bare four-component tag selects `Routine`'
         $content | Should -Match 'Only explicit `--legacy-bridge` or `--legacy-recovery`'
         $content | Should -Match 'Pass the supplied arguments unchanged'
+        $content | Should -Match 'Routine is refused when the remote controller is enabled'
+        $content | Should -Match 'Keep the\s+remote controller disabled for the entire Routine publication'
+        $content | Should -Match 'do not use them to repair an ordinary Routine payload'
     }
 
     It "uses verified source identity instead of the obsolete main-dev matrix" {
@@ -4874,7 +4878,7 @@ Describe "cg-release.prompt.md - prerelease automation contract" {
         $content | Should -Match 'in parallel with PR CI'
         $content | Should -Match 'one conditioned re-execution'
         $content | Should -Match 'origin/<release-branch>'
-        $content | Should -Match '7200000'
+        $content | Should -Match '9000000'
     }
 
     It "requires safe PR automation and bounded observation" {

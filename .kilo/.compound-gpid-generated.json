@@ -357,7 +357,7 @@
       "path": ".kilo/commands/cg-release.md",
       "source": ".github/prompts/cg-release.prompt.md",
       "kind": "command",
-      "sha256": "8b7a0d14305a5b04115220971af96b390a47e118e1a52206631357500b5f2d19",
+      "sha256": "cef0fba0f06cf95116a42572289ddf8a515c3e5c3015d8b555e294672a6082eb",
       "executable": false
     },
     {
@@ -420,7 +420,7 @@
       "path": ".kilo/commands/cg-verify-pr.md",
       "source": ".github/prompts/cg-verify-pr.prompt.md",
       "kind": "command",
-      "sha256": "644164a3128744ca2a3df1748688768d6cadf679d80322d7eab8f376fd57cf8f",
+      "sha256": "2c9d383ccaa5076824c4cb7e6d8432ae6baf2c6772c67996f119cf8daf40fe70",
       "executable": false
     },
     {
@@ -609,7 +609,7 @@
       "path": ".kilo/shared/help-catalog.json",
       "source": ".github/shared/help-catalog.json",
       "kind": "shared",
-      "sha256": "7f3066333d9e72234fe610118a1375d1ba7768effb59cd85c41fea531dd155dd",
+      "sha256": "1600f98c6282c23d86c3c45ee4c4efc0286adf49ac1cc3460a48e4696e8daf5f",
       "executable": false
     },
     {
@@ -651,7 +651,7 @@
       "path": ".kilo/shared/shell-commands.json",
       "source": ".github/shared/shell-commands.json",
       "kind": "shared",
-      "sha256": "c20960f57943d192c8712508bdd7bd077184fb15881dcbe6b09ab201b34e1d79",
+      "sha256": "8026813490d3390cb2aeded89bc6963dc6390e7b0a9245c18cb38f9dddad4ac2",
       "executable": false
     },
     {
