@@ -140,7 +140,7 @@
       "path": ".agents/commands/cg-release.md",
       "source": ".github/prompts/cg-release.prompt.md",
       "kind": "command",
-      "sha256": "7d8e9b0bf36f5da5c2e0108cee355ed3f823666700f98d9615c7cbf4f5fe9915",
+      "sha256": "25bb5531b2e3d35583fa7c036b454c32467eb2b0f77c0831c9710d6e8c7a958c",
       "executable": false
     },
     {
@@ -350,7 +350,7 @@
       "path": ".agents/shared/help-catalog.json",
       "source": ".github/shared/help-catalog.json",
       "kind": "shared",
-      "sha256": "1600f98c6282c23d86c3c45ee4c4efc0286adf49ac1cc3460a48e4696e8daf5f",
+      "sha256": "5428ec12bb3eaf71019d65cb5d2b72a44f35e74e423f666e9612b19c71ae98fc",
       "executable": false
     },
     {

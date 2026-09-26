@@ -60,8 +60,9 @@ specific maintainer authority and the existing publisher's checks. The native
 `cg-release` executable cannot prepare release notes and payloads from a bare tag:
 it reports how to use the slash workflow. Its `--legacy-routine` selector accepts
 only prepared PowerShell arguments, not a bare-tag publication request.
-The exact protected remote default policy is authority, not `main` or a local
-policy copy. Recovery requires current maintainer authority and an existing exact
+Routine reads the disabled controller policy from its exact verified remote
+source revision, not the repository default or a local copy. Bridge and Recovery
+read authority from the exact protected remote default. Recovery requires current maintainer authority and an existing exact
 remote annotated tag, or an explicit reviewed historical record at
 `.github/release-recovery/<tag>.json` on that protected default. It cannot create
 a routine new release. Recheck this authority before each consequential effect.
@@ -111,8 +112,10 @@ Parse optional arguments from the user's invocation message before running any s
   override. Otherwise use the attached checkout branch; detached checkouts require explicit
   source identity. Validate the Git ref and canonical origin, remote ref name and
   SHA. Set `<release-branch>` to this verified source, never from tag shape.
-  Read deployment policy only from the exact protected remote default revision;
-  malformed policy or an unknown/foreign branch is a hard stop.
+  For Routine, read the disabled controller policy from the exact current remote
+  source revision. For Bridge and Recovery, read deployment policy from the exact
+  protected remote default revision. Malformed policy or an unknown/foreign branch
+  is a hard stop.
 - `--since <value>`: Override the default 60-day scan window floor.
   - If value matches `^\d+$` (digits only, e.g., `--since 90`): treat as days.
   - If value matches `^\d{4}-\d{2}-\d{2}$` (e.g., `--since 2026-03-01`): treat as an ISO cutoff date. If the parsed date is after today, warn the user and fall back to the 60-day default.

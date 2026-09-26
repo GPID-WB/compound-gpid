@@ -806,6 +806,10 @@ if ($Phase -eq "Reserve") {
     }
     Assert-CgRemoteReleaseLineage -ExpectedCommit $headCommit -Branch $releaseBranch -RequireTip:($null -eq $remoteTag)
     $authority = Assert-CgLegacyAuthority -Operation $LegacyOperation -ReleaseTag $Tag -Commit $headCommit -Object $tagObject -RemoteTag $remoteTag -SourceBranch $releaseBranch
+    if ($LegacyOperation -eq 'Routine' -and $null -eq $remoteTag -and
+        ($authority.Branch -cne $releaseBranch -or $authority.Commit -cne $headCommit)) {
+        throw 'Routine source policy no longer matches the exact release commit.'
+    }
     if (-not $isPrereleaseTag) { Assert-CgStableDocsContract -ExpectedCommit $headCommit -Authority $authority }
     $currentAuthority = Assert-CgLegacyAuthority -Operation $LegacyOperation -ReleaseTag $Tag -Commit $headCommit -Object $tagObject -RemoteTag $remoteTag -SourceBranch $releaseBranch
     if ($currentAuthority.Commit -cne $authority.Commit -or $currentAuthority.Branch -cne $authority.Branch) {
