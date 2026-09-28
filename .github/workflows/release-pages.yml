@@ -14,8 +14,31 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  classify:
     if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      full_site: ${{ steps.tag.outputs.full_site }}
+    steps:
+      - name: Classify release tag before privileged deployment
+        id: tag
+        env:
+          RELEASE_TAG: ${{ github.event.workflow_run.head_branch }}
+        run: |
+          if [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "full_site=false" >> "$GITHUB_OUTPUT"
+          elif [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "full_site=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Unsupported release tag: $RELEASE_TAG"
+            exit 1
+          fi
+
+  deploy:
+    needs: classify
+    if: needs.classify.outputs.full_site == 'true' && github.event.workflow_run.conclusion == 'success'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
