@@ -171,3 +171,21 @@ test("retains the protected controller, exact build identity, lineage, and newes
   assert.ok(workflow.indexOf("name: Recheck release is still newest")
     < workflow.indexOf("name: Deploy to GitHub Pages"));
 });
+
+test("skips four-part tags before artifact access or privileged Pages deployment", () => {
+  const classify = workflow.match(/^  classify:\n([\s\S]*?)(?=^  deploy:\n)/m)?.[1];
+  assert.ok(classify, "An unprivileged classifier must precede deploy");
+  assert.match(classify, /permissions:\n      contents: read\n/);
+  assert.doesNotMatch(classify, /pages: write|id-token: write|download-artifact|deploy-pages/);
+  assert.match(classify, /RELEASE_TAG: \$\{\{ github\.event\.workflow_run\.head_branch \}\}/);
+  const fourPart = classify.match(/if \[\[ "\$RELEASE_TAG" =~ (\^v[^\s]+) \]\]; then\n            echo "full_site=false"/);
+  const threePart = classify.match(/elif \[\[ "\$RELEASE_TAG" =~ (\^v[^\s]+) \]\]; then\n            echo "full_site=true"/);
+  assert.ok(fourPart);
+  assert.ok(threePart);
+  assert.equal(new RegExp(fourPart[1]).test("v1.2.0.9020"), true);
+  assert.equal(new RegExp(fourPart[1]).test("v1.2.0"), false);
+  assert.equal(new RegExp(threePart[1]).test("v1.2.0"), true);
+  assert.equal(new RegExp(threePart[1]).test("v1.2.0.9020"), false);
+  assert.match(workflow, /  deploy:\n    needs: classify\n    if: needs\.classify\.outputs\.full_site == 'true'/);
+  assert.ok(workflow.indexOf("  classify:") < workflow.indexOf("  deploy:"));
+});
