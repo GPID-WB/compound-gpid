@@ -45,12 +45,13 @@ Four-component prereleases do not require or inspect a Pages deployment.
 
 .PARAMETER SourceBranch
 Same-repository source branch, verified against origin. Defaults to the attached
-checkout branch; detached checkouts must provide it explicitly. Stable releases
-require the protected remote policy's production_branches or remote default.
+checkout branch; detached checkouts must provide it explicitly. Routine permits
+dev for both tag shapes; exceptional stable operations keep their source policy.
 
 .PARAMETER LegacyOperation
-Required. Routine permits four-component prereleases while the remote controller
-is disabled. Bridge permits reviewed legacy publication only before the cutover
+Required. Routine permits three-component releases and four-component
+prereleases while the remote controller is disabled. Bridge permits reviewed
+legacy publication only before the cutover
 recorded on the protected remote default. Recovery requires current maintainer authority and an
 existing exact remote tag or a reviewed historical record on that protected ref.
 Recovery cannot be used for routine new publication. Tags and published bytes stay
@@ -67,6 +68,10 @@ Timing does not authorize a release or change its validation requirements.
 Optional external JSON receipt from cg_pr_preflight.py --emit-receipt. Both phases
 reuse only exact commit/tree, complete successful command, digest and LF evidence.
 Missing or invalid evidence runs the existing isolated full gate instead.
+
+.PARAMETER Resume
+Explicitly resume Reserve for the same exact tag and Release identity. Without
+this switch, Routine Reserve refuses an existing remote tag or Release.
 
 .EXAMPLE
 .\create-release.ps1 -Phase Finalize -LegacyOperation Recovery -SourceBranch dev -Tag v1.2.0.9008 -Name "v1.2.0.9008 - Test release" -NotesFile RELEASE_NOTES.md -Prerelease
@@ -90,6 +95,7 @@ param(
     [switch]$Timing,
     [string]$PreflightReceipt,
     [string]$SourceBranch,
+    [switch]$Resume,
     [ValidateSet("Bridge", "Recovery", "Routine")][string]$LegacyOperation
 )
 
@@ -143,6 +149,7 @@ if (Test-Path -LiteralPath $resultFile) { Remove-Item -LiteralPath $resultFile -
 if ($Phase -eq "Reserve" -and ($BuildRunId -or $PagesRunId)) {
     throw "Documentation run IDs apply only to Finalize."
 }
+if ($Resume -and $Phase -ne 'Reserve') { throw '-Resume applies only to Reserve.' }
 
 # Enforce semver tag format (v<major>.<minor>.<patch> or v<major>.<minor>.<patch>.<dev>)
 # The four-component form (e.g. v0.12.0.9000) follows the R convention for dev prereleases.
@@ -151,9 +158,6 @@ if ($Tag -cnotmatch '^v\d+\.\d+\.\d+(\.\d+)?$') {
     exit 1
 }
 $isPrereleaseTag = $Tag -cmatch '^v\d+\.\d+\.\d+\.\d+$'
-if ($LegacyOperation -eq 'Routine' -and $Tag -cnotmatch '^v[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$') {
-    throw 'Routine publication requires a four-component prerelease tag.'
-}
 if ($Draft.IsPresent) {
     throw "Draft releases are not supported by the durable release publication flow."
 }
@@ -443,6 +447,9 @@ $tagObject = git -C $PSScriptRoot rev-parse --verify "refs/tags/$Tag" 2>$null
 if ($LASTEXITCODE -ne 0 -or $tagObject -cnotmatch '^[0-9a-f]{40}$') { throw "Could not resolve local tag object." }
 $remoteTag = Get-CgRemoteTagIdentity -ReleaseTag $Tag
 if ($null -ne $remoteTag) { Assert-CgRemoteTagCommit -ReleaseTag $Tag -ExpectedCommit $headCommit }
+if ($Phase -eq 'Reserve' -and $LegacyOperation -eq 'Routine' -and -not $Resume -and $null -ne $remoteTag) {
+    throw "New Routine publication refuses an existing remote tag '$Tag'; inspect it and use explicit --resume for the same identity."
+}
 if ($Phase -eq "Finalize" -and $null -eq $remoteTag) { throw "Finalize requires the existing remote tag." }
 Assert-CgRemoteReleaseLineage -ExpectedCommit $headCommit -Branch $releaseBranch -RequireTip:($null -eq $remoteTag)
 $worktreeChanges = @(git -C $PSScriptRoot status --porcelain --untracked-files=all 2>$null)
@@ -786,6 +793,9 @@ foreach ($record in @($immutablePayloads | Select-Object -Skip 1)) {
 }
 $existingRelease = Get-CgReleaseReservation
 if ($null -ne $existingRelease -and $null -eq $remoteTag) { throw "Existing Release has no matching remote tag." }
+if ($Phase -eq 'Reserve' -and $LegacyOperation -eq 'Routine' -and -not $Resume -and $null -ne $existingRelease) {
+    throw "New Routine publication refuses an existing GitHub Release '$Tag'; inspect it and use explicit --resume for the same identity."
+}
 $null = Assert-CgLegacyAuthority -Operation $LegacyOperation -ReleaseTag $Tag -Commit $headCommit -Object $tagObject -RemoteTag $remoteTag -SourceBranch $releaseBranch
 $gateCompleted = $true
 } finally {
@@ -806,10 +816,9 @@ if ($Phase -eq "Reserve") {
     }
     Assert-CgRemoteReleaseLineage -ExpectedCommit $headCommit -Branch $releaseBranch -RequireTip:($null -eq $remoteTag)
     $authority = Assert-CgLegacyAuthority -Operation $LegacyOperation -ReleaseTag $Tag -Commit $headCommit -Object $tagObject -RemoteTag $remoteTag -SourceBranch $releaseBranch
-    if (-not $isPrereleaseTag) { Assert-CgStableDocsContract -ExpectedCommit $headCommit -Authority $authority }
     $currentAuthority = Assert-CgLegacyAuthority -Operation $LegacyOperation -ReleaseTag $Tag -Commit $headCommit -Object $tagObject -RemoteTag $remoteTag -SourceBranch $releaseBranch
     if ($currentAuthority.Commit -cne $authority.Commit -or $currentAuthority.Branch -cne $authority.Branch) {
-        throw 'Protected controller authority changed after docs-contract verification.'
+        throw 'Protected controller authority changed before publication.'
     }
     if ($null -eq $remoteTag) {
         # No distributed atomicity: after an uncertain push, read back exact identity.
@@ -913,6 +922,8 @@ if ($isPrereleaseTag) {
 }
 $historicalDeployment = $false
 if (-not $isPrereleaseTag) {
+$docsAuthority = Assert-CgLegacyAuthority -Operation $LegacyOperation -ReleaseTag $Tag -Commit $headCommit -Object $tagObject -RemoteTag $remoteTag -SourceBranch $releaseBranch
+Assert-CgStableDocsContract -ExpectedCommit $headCommit -Authority $docsAuthority
 $controllerRunName = "Deploy docs from $($matchingBuildRuns[0].id)"
 $pagesRunsUri = "https://api.github.com/repos/GPID-WB/compound-gpid/actions/workflows/release-pages.yml/runs?event=workflow_run&per_page=100"
 if ($PagesRunId) {

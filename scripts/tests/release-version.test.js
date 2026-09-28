@@ -28,12 +28,12 @@ test("legacy docs guards parse all reader identities but reject controller owner
   assert.throws(() => legacyDocsBranch("v01.0.0"), /tag/i);
 });
 
-test("stable source policy accepts configured deployment branches and remote default", () => {
+test("stable source policy accepts dev, configured deployment branches and remote default", () => {
   const policy = {production_branches: ["deploy/1.x"]};
   assert.equal(assertReleaseSource("v1.2.3", "production", "production", policy), "production");
+  assert.equal(assertReleaseSource("v1.2.3", "dev", "production", policy), "dev");
   assert.equal(assertReleaseSource("v1.2.3", "deploy/1.x", "production", policy), "deploy/1.x");
   assert.throws(() => assertReleaseSource("v1.2.3", "feature/test", "production", policy), /Stable release source branch/);
-  assert.throws(() => assertReleaseSource("v1.2.3", "dev", "production", policy), /Stable release source branch/);
 });
 
 test("four-component source policy accepts any valid same-repository candidate branch", () => {
@@ -51,8 +51,9 @@ test("source policy rejects malformed branch authority instead of treating it as
   }
 });
 
-test("missing legacy production policy permits only the remote default for stable releases", () => {
+test("missing legacy production policy permits dev or the remote default for stable releases", () => {
   assert.equal(assertReleaseSource("v1.2.3", "production", "production", null), "production");
+  assert.equal(assertReleaseSource("v1.2.3", "dev", "production", null), "dev");
   assert.throws(() => assertReleaseSource("v1.2.3", "main", "production", null), /Stable release source branch/);
   assert.equal(assertReleaseSource("v1.2.3.4", "feature/test", "production", null), "feature/test");
 });
@@ -92,6 +93,8 @@ function sourceFixture(tag = "v1.2.3.4", branch = "feature/test") {
     else if (endpoint === `/branches/${encodeURIComponent(state.source)}`) {
       if (state.absent) return 'HTTP/2.0 404 Not Found\n\n{}';
       value = {name: state.source, commit: {sha: comparisons && state.changed ? "d".repeat(40) : tip}};
+    } else if (endpoint.startsWith('/branches/')) {
+      return 'HTTP/2.0 404 Not Found\n\n{}';
     } else if (endpoint.startsWith(`/compare/${sha}...`)) {
       comparisons++;
       value = {base_commit: {sha}, merge_base_commit: {sha: state.status === "diverged" ? "d".repeat(40) : sha}, status: state.status};
@@ -110,7 +113,7 @@ test("tag build resolves a prerelease feature branch with remote policy and exac
 });
 
 test("stable docs accepts either the remote default or an explicitly configured deployment source", () => {
-  for (const branch of ["production", "deploy/1.x"]) {
+  for (const branch of ["dev", "production", "deploy/1.x"]) {
     const f = sourceFixture("v1.2.3", branch);
     f.env.RELEASE_SOURCE_BRANCH = branch;
     assert.equal(resolveReleaseSource(f.env, f.transport), branch);
@@ -119,6 +122,32 @@ test("stable docs accepts either the remote default or an explicitly configured 
   f.env.RELEASE_SOURCE_BRANCH = "feature/test";
   assert.throws(() => resolveReleaseSource(f.env, f.transport), /Stable release source branch/);
   assert.ok(!f.state.calls.some(call => call.includes("/compare/")));
+});
+
+test("stable tag build selects dev only with exact lineage and latest payload", () => {
+  const f = sourceFixture("v1.2.3", "dev");
+  f.state.branches = ["dev"];
+  assert.equal(resolveReleaseSource(f.env, f.transport), "dev");
+  assert.ok(f.state.calls.includes('/branches/dev'));
+  assert.ok(f.state.calls.includes(`/compare/${"a".repeat(40)}...${"c".repeat(40)}`));
+  const wrong = sourceFixture("v1.2.3", "dev");
+  wrong.env.RELEASE_SOURCE_BRANCH = "feature/test";
+  assert.throws(() => resolveReleaseSource(wrong.env, wrong.transport), /Stable release source branch/);
+  assert.ok(!wrong.state.calls.some(call => call.includes('/compare/')));
+  const outdated = sourceFixture("v1.2.3", "dev");
+  outdated.env.RELEASE_SOURCE_BRANCH = "dev";
+  outdated.state.latestByCommit["c".repeat(40)] = JSON.stringify({tag: "v1.2.3.4"});
+  assert.throws(() => resolveReleaseSource(outdated.env, outdated.transport), /current payload/);
+  const unrelated = sourceFixture("v1.2.3", "dev");
+  unrelated.env.RELEASE_SOURCE_BRANCH = "dev";
+  unrelated.state.status = "diverged";
+  assert.throws(() => resolveReleaseSource(unrelated.env, unrelated.transport), /No eligible remote source/);
+  for (const mode of ["recovery", "bridge"]) {
+    const exceptional = sourceFixture("v1.2.3", "dev");
+    exceptional.env.LEGACY_MODE = mode;
+    exceptional.env.RELEASE_SOURCE_BRANCH = "dev";
+    assert.throws(() => resolveReleaseSource(exceptional.env, exceptional.transport), /Stable release source branch/);
+  }
 });
 
 test("source resolution rejects unavailable, unrelated, moved or unauthorized remote evidence", () => {

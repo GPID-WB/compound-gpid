@@ -2738,16 +2738,19 @@
       "constraints": [
         "Developer-only and guarded to the canonical repository."
       ],
-      "definitionDigest": "7d8e9b0bf36f5da5c2e0108cee355ed3f823666700f98d9615c7cbf4f5fe9915",
+      "definitionDigest": "8cef9c9c9f0550d75112bf841400a0d20a51a36144e57ccd48696aef4b4dea50",
       "definitionSources": [
         ".github/prompts/cg-release.prompt.md"
       ],
       "documentationTargets": [],
       "examples": [
-        "/cg-release v1.2.0.9020 --source-branch dev"
+        "/cg-release v1.2.0.9021",
+        "/cg-release v1.2.0",
+        "/cg-release --resume v1.2.0"
       ],
       "id": "slash:cg-release",
       "intents": [
+        "publish a Compound GPID release",
         "publish a Compound GPID prerelease",
         "prepare release notes and tag"
       ],
@@ -2767,7 +2770,7 @@
         }
       ],
       "sourcePath": ".github/prompts/cg-release.prompt.md",
-      "summary": "Run generic controller commands unchanged or publish a GPID four-part prerelease through the existing PowerShell release flow.",
+      "summary": "Run generic controller commands unchanged or publish a GPID release through the existing PowerShell release flow.",
       "supportedOS": [
         "any"
       ],
@@ -2781,7 +2784,7 @@
       "supportedSuites": [
         "cg"
       ],
-      "usage": "/cg-release vX.Y.Z.<build> [--source-branch branch]"
+      "usage": "/cg-release vX.Y.Z[.<build>] [--source-branch branch]"
     },
     {
       "activation": [

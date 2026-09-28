@@ -1,5 +1,5 @@
 ---
-description: "Run generic controller commands unchanged or publish a GPID four-part prerelease through the existing PowerShell release flow."
+description: "Run generic controller commands unchanged or publish a GPID release through the existing PowerShell release flow."
 ---
 
 # Release
@@ -9,17 +9,15 @@ description: "Run generic controller commands unchanged or publish a GPID four-p
 Before any tool dispatch, classify the invocation using only its arguments.
 Generic `plan`, `start`, `status`, and `resume` keep argument-preserving dispatch
 below; do not consume their flags as publication approvals. Reject `--auto-approve`
-in generic mode. A bare four-component tag selects `Routine` for the existing
-PowerShell publisher; `--resume <four-component tag>` without an exceptional
-selector resumes that same operation. A bare three-component stable tag is not
-a routine request; stable publication still needs explicit `--legacy-bridge` or
-an authorized historical `--legacy-recovery`. Only explicit `--legacy-bridge` or `--legacy-recovery`
+in generic mode. A bare three- or four-component numeric tag selects `Routine`
+for the existing PowerShell publisher; `--resume <tag>` without an exceptional
+selector resumes that same exact operation. Only explicit `--legacy-bridge` or `--legacy-recovery`
 selects exceptional legacy operations. Reject conflicting
 selectors, unknown flags, mixed generic/GPID modes, or multiple tags before dispatch.
 
 In GPID publication mode, parse `--auto-approve` and record `<auto-approve>` (default false).
 Reject `--auto-approve` for three-component stable tags. Routine requires an
-explicit valid four-component tag, either as the new tag or `--resume <tag>`;
+explicit valid three- or four-component tag, either as the new tag or `--resume <tag>`;
 reject ambiguity.
 The flag pre-approves scan continuation, semver, name, notes, the publication
 decision, payload/evidence PRs, automated merges, Reserve, Finalize and
@@ -47,11 +45,13 @@ Never infer pins, repository IDs, secrets, settings or live verification results
 
 **Stop after the CLI returns. Do not execute the legacy process below.**
 
-GPID four-component routine prereleases select the existing process below with
-`<legacy-operation> = Routine`. For example, `/cg-release v1.2.0.9020
---source-branch dev` starts the reviewed payload, tag/Release, and build flow;
-it does not submit to the disabled controller. A `--resume <tag>` request without
-an exceptional selector resumes Routine only for a four-component tag. Explicit
+GPID three-component full releases and four-component prereleases select the
+existing process below with `<legacy-operation> = Routine`. For example,
+`/cg-release v1.2.0.9021` or `/cg-release v1.2.0` on a clean, current `dev`
+checkout starts the reviewed payload, tag/Release, and build flow; it does not
+submit to the disabled controller. Use `--source-branch dev` for a detached
+checkout. Never reuse a published tag such as `v1.2.0.9020`. A `--resume <tag>`
+request without an exceptional selector resumes Routine for either tag shape. Explicit
 `--legacy-bridge` or `--legacy-recovery` instead selects Bridge or Recovery.
 Pass `-LegacyOperation <legacy-operation>` to every `create-release.ps1` call.
 Routine is refused when the remote controller is enabled; Bridge is also refused
@@ -68,7 +68,7 @@ a routine new release. Recheck this authority before each consequential effect.
 `@cg-release-scanner` supplies optional editorial notes only. It cannot resolve
 controller versions, approvals, release lines, authority, or completion.
 
-## GPID Routine Prerelease, Bridge And Recovery
+## GPID Routine Release, Bridge And Recovery
 
 You are a senior developer preparing a GitHub Release for the GPID-WB/compound-gpid repository.
 
@@ -103,10 +103,11 @@ Parse optional arguments from the user's invocation message before running any s
   four-component `vX.Y.Z.<build>` prerelease tag. A supplied tag overrides the
   scanner's semver suggestion but still requires confirmation in Step 1f. A
   four-component tag always sets `<prerelease>` to `true`; it must be published
-   with GitHub's prerelease flag rather than as a stable release. Stable source
-   branches are the protected remote policy's `production_branches` plus the
-   remotely discovered default branch. Prereleases may use any verified same-repository remote branch,
-   including `dev`. No stable branch override exists.
+   with GitHub's prerelease flag rather than as a stable release. Ordinary Routine
+   releases of either shape use verified `dev`; exceptional stable Bridge/Recovery
+   sources remain the protected remote policy's `production_branches` plus the
+   remotely discovered default branch. Other verified same-repository branches
+   remain eligible for prereleases. Tag shape never selects a source branch.
 - `--source-branch <branch>`: explicit source identity, not an authorization
   override. Otherwise use the attached checkout branch; detached checkouts require explicit
   source identity. Validate the Git ref and canonical origin, remote ref name and
@@ -129,6 +130,7 @@ Parse optional arguments from the user's invocation message before running any s
   verifies the Release reservation first, then resumes deployment and Finalize.
    Explicit user confirmation is still required before Reserve or Finalize
    unless the valid legacy `--auto-approve` invocation supplied that approval.
+   Pass `-Resume` only to this request's Reserve call, never to a new request.
 
 ## Process
 
@@ -171,8 +173,8 @@ no local or remote annotated tag, Release, or attestation (query failures are no
 absence). The maintainer decides whether to complete this release or retire it
 through a reviewed revert PR. Completion requires the exact merged payload commit:
 under specific authorization, create its annotated local tag, then use
-`/cg-release --resume <tag> --source-branch <branch>` for a four-part Routine
-prerelease, or start a fresh authorized Reserve flow. The resume command never
+`/cg-release --resume <tag> --source-branch <branch>` for Routine on either
+tag shape, or start a fresh authorized Reserve flow. The resume command never
 creates a local tag. Bridge and Recovery remain exceptional selectors with their
 own authority rules; do not use them to repair an ordinary Routine payload.
 Resume requires that existing annotated tag. This repair is not pre-approved by
@@ -370,6 +372,9 @@ Wait for the user's explicit confirmation before proceeding to Step 5 unless
 `<auto-approve>` is true. In that case print the same tag/name/notes summary and
 continue: the invocation pre-approved this publication decision. Do not silently
 change its tag or expand its scope.
+For a new request, inspect the exact remote tag and both GitHub Release surfaces
+(including drafts) before preparing a payload PR. If any identity already exists,
+stop and report it; only the explicit `--resume <tag>` path may reconcile it.
 
 If the user asks to adjust the tag or name, update accordingly and re-display the summary.
 If the user wants to edit the notes, pause — they will edit `RELEASE_NOTES.md` directly and then confirm.
@@ -524,16 +529,14 @@ Release creation, before any documentation query or wait.
    without bypass actors. Halt before tag creation if any rule is absent or
    weaker than this contract.
 
-   For stable tags, before creating the local tag, compare the tag producer's
-   artifact contract with the controller at the exact protected remote default
-   revision using the same conservative contract as `Assert-CgStableDocsContract`.
-   Require the current extraction, composition, official-state seal and upload
-   contract. Unknown layout or changed authority halts with the exact file/ref and
-   protected-controller repair needed. Reserve independently enforces this before
-   remote publication. Do not execute workflow text as a check, force default-tip
-   ancestry, or automatically create a default-to-source sync PR. Any protected
-   controller repair needs separate reviewed authorization. For prereleases,
-   default advancement is informational hygiene, not a source eligibility gate.
+   Before creating a local tag for a new request, inspect the exact remote tag
+   object and GitHub Release lookup and complete list (including drafts). Refuse
+   any existing remote tag or Release for this version; do not reinterpret a new
+   request as resume, even if the metadata matches. API failures are not absence.
+   Only explicit `--resume <tag>` may continue the exact identity. Stable Pages
+   controller compatibility is checked at Finalize, not before Reserve. Its
+   failure must not prevent the initial GitHub Release publication. Do not force
+   default-tip ancestry or automatically create a default-to-source sync PR.
 
 7. Verify or create the exact annotated LOCAL tag on the clean merged payload
    commit. Do not push the tag manually. Do not use an unconditional `git tag` command:
@@ -570,8 +573,10 @@ Release creation, before any documentation query or wait.
    uncertain push or POST, reconcile exact tag and Release state read-only. Never
    blindly repeat POST, force a tag push, or delete/PATCH a Release as rollback.
 
-   Read `release-result.txt`: `CREATED|` and `EXISTS|` confirm the reservation only,
-   NOT lifecycle completion. If absent, stale, or the script fails, perform read-only reconciliation
+   Read `release-result.txt`: `CREATED|` confirms a new reservation; `EXISTS|`
+   is valid only for explicit resume, not a new publication. Both confirm
+   reservation only, NOT lifecycle completion. If absent, stale, or the script
+   fails, perform read-only reconciliation
    of the exact raw/peeled tag and Release metadata. Report the known pair state;
    a missing file alone is not proof of missing publication. Re-enter the authorized
    resume path to verify or repair through Reserve before downstream gates. Resume
@@ -591,7 +596,12 @@ Release creation, before any documentation query or wait.
     at the verified protected remote default revision. The default branch name
     is not necessarily `main`. Do not invoke `/cg-wiki` or
    rebuild documentation from this prompt; the release build and protected
-   controller own the immutable complete-build deployment.
+   controller own the immutable complete-build deployment. The older protected
+   `main` controller does not yet support the isolated `dev`-cut stable build.
+   If its run fails or is missing, report the Release URL and `published;
+   documentation/attestation pending`, the exact failed run ID, and the next
+   read-only inspection step. Do not call it unpublished or complete; protected
+   Pages repair is a separate reviewed follow-up.
 
 ### Resume An Interrupted Release
 
@@ -627,7 +637,8 @@ and continue non-interactively without changing the recorded metadata. Reuse an
 external receipt only after exact tag commit/tree validation. If absent or invalid,
 run the Step 5 receipt gate once at the clean tag checkout before Reserve; source
 advancement does not change the tag SHA to gate. Never reuse a newer tip's receipt.
-Run `-Phase Reserve` first to repair or verify the reservation, BEFORE any
+Run `-Phase Reserve -Resume` with all the same exact tag, source, name, notes and
+receipt arguments from Step 5.7 to repair or verify the reservation, BEFORE any
 documentation wait. Then resume Step 5.8 and Step 6. Never overwrite an immutable
 payload or create a new tag during resume. Never delete an existing Release on
 downstream failure. The only allowed untracked change is the exact canonical
@@ -722,8 +733,10 @@ Do not add a promotion PATCH to either phase or treat reservation as promotion a
   owns the tag push plus immediate Release. Never delete/PATCH a Release or move
   a protected tag to recover from downstream failures.
 - Never modify `SCHEMA_VERSION` automatically. Warn only.
-- Require stable three-component sources in protected remote `production_branches`
-  or the remote default. Allow prereleases from any verified same-repository remote branch.
+- Permit Routine three-component sources from verified remote `dev` as well as the
+  protected remote `production_branches` or remote default. Keep exceptional
+  Bridge/Recovery stable source restrictions. Allow prereleases from any verified
+  same-repository remote branch.
   No local policy, tag-shape branch inference, ancestry-to-default or stable override
   may replace this policy. Keep exact source/tag/SHA and authority rechecks.
 - Option A is a docs destination policy: prereleases need a tag build, not full-site

@@ -50,14 +50,14 @@ function validBranch(branch) {
 }
 
 /** Check source eligibility; callers must separately verify remote branch/commit identity. */
-function assertReleaseSource(tag, branch, defaultBranch, policy) {
+function assertReleaseSource(tag, branch, defaultBranch, policy, allowRoutineDev = true) {
   // Preserve the boundary with the separately authorized async controller.
   legacyDocsBranch(tag);
   if (!validBranch(branch) || !validBranch(defaultBranch)) throw new Error("Invalid release source branch");
   const production = policy?.production_branches === undefined ? [] : policy.production_branches;
   if (!Array.isArray(production) || !production.every(validBranch)) throw new Error("Invalid production_branches policy");
-  if (!parseReleaseTag(tag).legacy && branch !== defaultBranch && !production.includes(branch)) {
-    throw new Error("Stable release source branch is neither a configured deployment branch nor the remote default");
+  if (!parseReleaseTag(tag).legacy && !(allowRoutineDev && branch === "dev") && branch !== defaultBranch && !production.includes(branch)) {
+    throw new Error("Stable release source branch is neither dev, a configured deployment branch, nor the remote default");
   }
   return branch;
 }
@@ -70,6 +70,7 @@ function assertReleaseSource(tag, branch, defaultBranch, policy) {
 function resolveReleaseSource(env, transport = require("node:child_process").execFileSync) {
   const slug = env.GITHUB_REPOSITORY, repoId = Number(env.GITHUB_REPOSITORY_ID);
   const tag = env.RELEASE_TAG, sha = env.RELEASE_SHA;
+  const allowRoutineDev = !["recovery", "bridge"].includes(env.LEGACY_MODE);
   if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(slug) || !Number.isSafeInteger(repoId) || repoId <= 0 ||
       !/^[0-9a-f]{40}$/.test(sha)) throw new Error("Invalid release source identity");
   legacyDocsBranch(tag);
@@ -127,9 +128,9 @@ function resolveReleaseSource(env, transport = require("node:child_process").exe
   }
   let candidates;
   if (env.RELEASE_SOURCE_BRANCH) {
-    candidates = [assertReleaseSource(tag, env.RELEASE_SOURCE_BRANCH, repo.default_branch, policy)];
+    candidates = [assertReleaseSource(tag, env.RELEASE_SOURCE_BRANCH, repo.default_branch, policy, allowRoutineDev)];
   } else if (!parseReleaseTag(tag).legacy) {
-    candidates = [...new Set([repo.default_branch, ...(policy?.production_branches || [])])];
+    candidates = [...new Set([...(allowRoutineDev ? ["dev"] : []), repo.default_branch, ...(policy?.production_branches || [])])];
   } else {
     candidates = [];
     const maxBranchPages = 20;
@@ -147,7 +148,7 @@ function resolveReleaseSource(env, transport = require("node:child_process").exe
     const branch = get(branchPath, true);
     if (branch === null) continue;
     if (branch.name !== candidate || !/^[0-9a-f]{40}$/.test(branch.commit?.sha)) throw new Error("Invalid remote source branch identity");
-    assertReleaseSource(tag, candidate, repo.default_branch, policy);
+    assertReleaseSource(tag, candidate, repo.default_branch, policy, allowRoutineDev);
     const comparison = get(`${base}/compare/${sha}...${branch.commit.sha}`);
     if (comparison.base_commit?.sha !== sha || comparison.merge_base_commit?.sha !== sha ||
         !["ahead", "identical"].includes(comparison.status)) continue;

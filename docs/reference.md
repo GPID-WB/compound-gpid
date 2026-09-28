@@ -188,7 +188,7 @@ user-controlled selection, see the [Model Guide](model-guide.md).
 | /cg-light-work &#91;--no-branch&#124;--no-brain&#124;--no-html&#93; &lt;task&gt; | CG | Qualify and execute one small technical task with bounded discovery, light review, and explicit compounding consent. |
 | /cg-plan | CG | Create a structured implementation plan with research. Use after brainstorming or when requirements are clear. |
 | /cg-plan-review | CG | Review an implementation plan for risks, over-engineering, missing edge cases, and flawed assumptions. Use after /cg-plan or on any existing plan. |
-| /cg-release vX.Y.Z.&lt;build&gt; &#91;--source-branch branch&#93; | CG | Run generic controller commands unchanged or publish a GPID four-part prerelease through the existing PowerShell release flow. |
+| /cg-release vX.Y.Z&#91;.&lt;build&gt;&#93; &#91;--source-branch branch&#93; | CG | Run generic controller commands unchanged or publish a GPID release through the existing PowerShell release flow. |
 | /cg-render-doc &lt;source&gt; &#91;--theme reference&#124;editorial&#93; | CG | Render a workflow artifact or generic Markdown document to curated HTML. Routes typed artifacts to cg-render-artifact and generic documents to cg-publish-markdown. Supports --theme selection &#40;reference or editorial&#41;. |
 | /cg-resume | CG | Load context and resume interrupted work. Use at the start of a session to pick up where you left off. |
 | /cg-review &#91;light&#124;standard&#124;data-risk&#124;architecture&#124;full&#93; &#91;mode:autofix&#124;mode:verify&#93; | CG | Run multi-agent code review on recent changes. Produces prioritized P0/P1/P2/P3 findings. |
@@ -483,29 +483,53 @@ cleanup stay separate.
 
 > **Consumer project users**: `/cg-release plan|start|status|resume` uses the
 > standalone controller and needs no GPID charter in generic mode. Its optional
-> GPID profile, routine four-part prereleases, and explicit legacy bridge/recovery
+> GPID profile, routine numeric releases, and explicit legacy bridge/recovery
 > paths remain GPID-specific.
 
-For a routine prerelease, use `/cg-release v1.2.0.9020 --source-branch dev` from
-a clean checkout at that branch's current remote tip. The slash command prepares
+For a new GPID release, use `/cg-release v1.2.0.9021` (prerelease) or
+`/cg-release v1.2.0` (full Release) from a clean checkout at the current remote
+`dev` tip. Use `--source-branch dev` for a detached checkout. The slash command prepares
 the release notes and payload before it calls the existing publisher; the bare
 native `cg-release` executable does not do this preparation. An optional
 `--auto-approve` pre-approves that exact four-component release's decisions,
-not its security checks. Stable `x.y.z`
-sources must be configured deployment branches or the remote default; prerelease
+not its security checks; full releases require manual confirmation. Routine full
+releases can use verified `dev`; exceptional Bridge/Recovery stable sources retain
+the configured deployment-branch or remote-default restriction. Prerelease
 `x.y.z.<build>` sources may be any verified same-repository branch. Automated PR
 merges also require effective required checks on that destination branch.
 The payload commit receives an external full-preflight receipt before tagging;
 Reserve owns publication, and Finalize verifies the exact tag build. Stable
 releases additionally require the protected Pages chain and retain manual merges.
+The current protected `main` Pages controller cannot yet deploy a `dev`-cut full
+release's isolated docs. Reserve still publishes the GitHub Release; report
+`published; documentation/attestation pending` with the failed Pages run until a
+separately reviewed controller repair permits Finalize. Do not report it unpublished.
 Prereleases do not deploy the full official site; only dev has the `/dev/` preview.
 Use `/cg-release --resume <tag> --source-branch <branch>` to reconcile an
-interrupted routine prerelease; it requires the existing annotated tag and exact
-metadata. Explicit `--legacy-bridge` and `--legacy-recovery` remain separate
+interrupted Routine release; it requires the existing annotated tag and exact
+metadata. New requests refuse any existing remote tag or Release, including drafts.
+Explicit `--legacy-bridge` and `--legacy-recovery` remain separate
 exceptional operations. The controller stays disabled; this routine path does
 not claim exclusive GitHub publication authority against other write users.
-Protected remote activation and official snapshot seeding remain separate rollout
-gates. Neither local tests nor auto approval establish those gates as passed.
+Protected remote activation and official snapshot seeding apply to the separate
+Pages preview rollout, not to the GitHub Release POST.
+
+For another project, copy a short `/cg-release <version>` instruction rather than
+GPID's payload or PowerShell scripts. Set that project's version grammar, then
+require a verified same-repository source SHA, its package-specific version/build
+steps, and a successful project test gate. Before any write, inspect both the
+remote tag and GitHub Releases (including drafts); refuse collisions. Confirm the
+tag, title, notes, and `prerelease` flag derived from the version; create the
+annotated tag at that exact SHA. Push only that tag with `git push origin
+--no-follow-tags refs/tags/<tag>:refs/tags/<tag>` and read back its raw tag object
+and peeled commit; both must match the local tag and verified SHA. Only then use
+`gh release create <tag> --verify-tag` with `--title`, `--notes-file`, and
+`--prerelease` only for a prerelease. The verification flag prevents `gh` from
+creating a missing remote tag at the default-branch tip. Read back the Release
+identity and define project-specific partial-state recovery instructions; never
+move a published tag as rollback. This creates a GitHub Release, not a CRAN/PyPI/npm package;
+tag push and Release creation are not atomic or exclusive against other writers.
+
 > `/cg-compound-gpid-rd` remains restricted to Compound GPID maintenance.
 
 | Prompt | Purpose | Distribution |

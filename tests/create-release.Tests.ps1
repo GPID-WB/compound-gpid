@@ -634,6 +634,7 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
                 $posted.body | Should -BeExactly $script:expected.body
                 $posted.target_commitish | Should -BeExactly $script:state.Head
                 $posted.draft | Should -Be $false
+                $posted.prerelease | Should -Be $script:expected.prerelease
                 ($posted.make_latest -is [string]) | Should -Be $true
                 $posted.make_latest | Should -BeExactly 'false'
                 if ($script:state.PostMode -ne 'absent') { $script:state.Release = $script:expected.PSObject.Copy() }
@@ -670,11 +671,12 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
             throw "Unmocked HTTP call blocked: $Method $Uri"
         }
         function Invoke-FixtureRelease {
-            param([string]$Phase = 'Reserve', [switch]$ExactRuns, [switch]$BuildOnly, [switch]$Timing, [string]$Operation = 'Bridge', [string]$PreflightReceipt, [string]$SourceBranch)
+            param([string]$Phase = 'Reserve', [switch]$ExactRuns, [switch]$BuildOnly, [switch]$Timing, [switch]$Resume, [string]$Operation = 'Bridge', [string]$PreflightReceipt, [string]$SourceBranch)
             $parameters = @{ Tag = $script:state.Tag; Name = $script:expected.name; NotesFile = (Join-Path $script:fixture 'notes.md'); Phase = $Phase; LegacyOperation = $Operation }
             if ($ExactRuns) { $parameters.BuildRunId = 10; $parameters.PagesRunId = 20 }
             if ($BuildOnly) { $parameters.BuildRunId = 10 }
             if ($Timing) { $parameters.Timing = $true }
+            if ($Resume) { $parameters.Resume = $true }
             if ($PreflightReceipt) { $parameters.PreflightReceipt = $PreflightReceipt }
             if ($SourceBranch) { $parameters.SourceBranch = $SourceBranch }
             & (Join-Path $script:fixture 'create-release.ps1') @parameters
@@ -762,10 +764,32 @@ Path(sys.argv[2]).write_text('{' if case == 'malformed' else json.dumps(data), e
         Get-Content (Join-Path $script:fixture 'release-result.txt') | Should -Match '^FINALIZED\|'
         ($script:state.Calls -join "`n") | Should -Not -Match 'release-pages.yml/runs'
     }
-    It 'rejects a stable tag in the routine lane before any remote write' {
+    It 'publishes a full Routine release from verified dev without a pre-Reserve Pages check' {
         Set-FixtureStable
-        { Invoke-FixtureRelease -Operation Routine -SourceBranch 'main' } | Should -Throw 'Routine publication requires a four-component prerelease tag'
-        ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
+        $script:state.Controller = 'older protected controller without isolated docs support'
+        Invoke-FixtureRelease -Operation Routine -SourceBranch 'dev'
+        $script:state.Release.prerelease | Should -Be $false
+        Get-Content (Join-Path $script:fixture 'release-result.txt') | Should -Match '^CREATED\|'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'show .*release-pages\.yml|release-pages.yml/runs'
+        @($script:state.Calls | Where-Object { $_ -match '^api Post ' }).Count | Should -Be 1
+    }
+    It 'routes <Shape> through Routine and keeps publication after docs fail' -TestCases @(
+        @{ Shape = 'full'; Prerelease = $false }, @{ Shape = 'four-part'; Prerelease = $true }
+    ) {
+        param($Shape, $Prerelease)
+        if ($Shape -eq 'full') { Set-FixtureStable }
+        $prompt = Get-Content (Join-Path $PSScriptRoot '../.github/prompts/cg-release.prompt.md') -Raw -Encoding UTF8
+        $prompt | Should -Match 'A bare three- or four-component numeric tag selects `Routine`'
+        $prompt | Should -Match 'Run `-Phase Reserve -Resume`'
+        $script:state.Controller = 'unsupported protected Pages layout'
+        Invoke-FixtureRelease -Operation Routine -SourceBranch 'dev'
+        $script:state.Release.prerelease | Should -Be $Prerelease
+        Get-Content (Join-Path $script:fixture 'release-result.txt') | Should -Match '^CREATED\|123\|'
+        $script:state.DocsStatus = 'failure'
+        { Invoke-FixtureRelease -Operation Routine -Phase Finalize -SourceBranch 'dev' } | Should -Throw 'release-docs.yml'
+        $script:state.Release.id | Should -Be 123
+        Test-Path (Join-Path $script:fixture 'release-result.txt') | Should -Be $false
+        @($script:state.Calls | Where-Object { $_ -match '^api Post ' }).Count | Should -Be 1
     }
     It 'rejects a routine release when the controller is enabled or the remote policy is absent' {
         $script:state.PolicyEnabled = $true
@@ -774,6 +798,11 @@ Path(sys.argv[2]).write_text('{' if case == 'malformed' else json.dumps(data), e
         $script:state.PolicyEnabled = $false
         $script:state.PolicyAbsent = $true
         { Invoke-FixtureRelease -Operation Routine -SourceBranch 'dev' } | Should -Throw 'Routine publication requires a disabled remote controller policy'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
+    }
+    It 'does not let an exceptional stable Bridge source use dev' {
+        Set-FixtureStable
+        { Invoke-FixtureRelease -Operation Bridge -SourceBranch 'dev' } | Should -Throw 'Stable release source branch'
         ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
     }
     It 'publishes stable only from an authorized source branch <Branch>' -TestCases @(
@@ -844,20 +873,24 @@ Path(sys.argv[2]).write_text('{' if case == 'malformed' else json.dumps(data), e
         { Invoke-FixtureRelease -SourceBranch 'feature/release-test' } | Should -Throw 'production_branches'
         ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
     }
-    It 'checks stable docs layout against exact protected default before the tag push' {
+    It 'checks stable docs layout against exact protected default only during Finalize' {
         Set-FixtureStable
         Invoke-FixtureRelease
+        ($script:state.Calls -join "`n") | Should -Not -Match 'show .*release-(docs|pages)\.yml'
+        Invoke-FixtureRelease -Phase Finalize
         $calls = $script:state.Calls -join "`n"
         $calls | Should -Not -Match 'merge-base --is-ancestor origin/main'
         $calls | Should -Match 'show a{40}:\.github/workflows/release-docs.yml'
         $calls | Should -Match 'show d{40}:\.github/workflows/release-pages.yml'
-        $calls.IndexOf(':.github/workflows/release-pages.yml') | Should -BeLessThan $calls.IndexOf('push origin')
+        $calls.IndexOf(':.github/workflows/release-pages.yml') | Should -BeGreaterThan $calls.IndexOf('api Post')
     }
-    It 'halts stable publication when the controller accepts only the old site layout' {
+    It 'leaves stable publication intact when the controller accepts only the old site layout' {
         Set-FixtureStable
         $script:state.Controller = $script:state.Controller.Replace('process.env.ISOLATED_RELEASE === "true" ? "docs" : "site"', '"site"')
-        { Invoke-FixtureRelease } | Should -Throw 'sync the protected controller on production first'
-        ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
+        Invoke-FixtureRelease -Operation Routine -SourceBranch 'dev'
+        { Invoke-FixtureRelease -Operation Routine -SourceBranch 'dev' -Phase Finalize } | Should -Throw 'sync the protected controller on production first'
+        $script:state.Release.id | Should -Be 123
+        ($script:state.Calls -join "`n") | Should -Match 'push origin|api Post'
     }
     It 'rejects controller contract drift in <Old>' -TestCases @(
         @{ Old = '.docs-build-metadata.json'; New = '.other-metadata.json' },
@@ -867,8 +900,9 @@ Path(sys.argv[2]).write_text('{' if case == 'malformed' else json.dumps(data), e
         param($Old, $New)
         Set-FixtureStable
         $script:state.Controller = $script:state.Controller.Replace($Old, $New)
-        { Invoke-FixtureRelease } | Should -Throw 'sync the protected controller on production first'
-        ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
+        $script:state.Remote = $true; $script:state.Release = $script:expected
+        { Invoke-FixtureRelease -Phase Finalize } | Should -Throw 'sync the protected controller on production first'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post|cg_release_attestation.py'
     }
     It 'does not force configured stable source to contain the protected default tip' {
         Set-FixtureStable
@@ -877,6 +911,7 @@ Path(sys.argv[2]).write_text('{' if case == 'malformed' else json.dumps(data), e
         Invoke-FixtureRelease
         $script:state.Release.prerelease | Should -Be $false
         ($script:state.Calls -join "`n") | Should -Not -Match 'merge-base --is-ancestor origin/main'
+        Invoke-FixtureRelease -Phase Finalize
         ($script:state.Calls -join "`n") | Should -Match 'show d{40}:\.github/workflows/release-pages.yml'
     }
     It 'rejects extraction and composition path drift in <Old>' -TestCases @(
@@ -898,7 +933,8 @@ Path(sys.argv[2]).write_text('{' if case == 'malformed' else json.dumps(data), e
         $original = $script:state.Controller
         $script:state.Controller = $original.Replace($Old, $New)
         $script:state.Controller | Should -Not -BeExactly $original
-        { Invoke-FixtureRelease } | Should -Throw 'sync the protected controller on production first'
+        $script:state.Remote = $true; $script:state.Release = $script:expected
+        { Invoke-FixtureRelease -Phase Finalize } | Should -Throw 'sync the protected controller on production first'
         ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
     }
     It 'rejects a sealing step that drops the existing recovery token' {
@@ -909,7 +945,8 @@ Path(sys.argv[2]).write_text('{' if case == 'malformed' else json.dumps(data), e
         $changed = $block.Replace('steps.recovery-authority.outputs.token || github.token', 'github.token')
         $changed | Should -Not -Be $block
         $script:state.Controller = $script:state.Controller.Replace($block, $changed)
-        { Invoke-FixtureRelease } | Should -Throw "step 'Seal durable official snapshot in the Pages artifact'"
+        $script:state.Remote = $true; $script:state.Release = $script:expected
+        { Invoke-FixtureRelease -Phase Finalize } | Should -Throw "step 'Seal durable official snapshot in the Pages artifact'"
         ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
     }
     It 'rejects <Mutation> controller step <Step>' -TestCases @(
@@ -935,7 +972,8 @@ Path(sys.argv[2]).write_text('{' if case == 'malformed' else json.dumps(data), e
             }
         }
         $script:state.Controller = $script:state.Controller.Replace($block, $replacement)
-        { Invoke-FixtureRelease } | Should -Throw 'sync the protected controller on production first'
+        $script:state.Remote = $true; $script:state.Release = $script:expected
+        { Invoke-FixtureRelease -Phase Finalize } | Should -Throw 'sync the protected controller on production first'
         ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
     }
     It 'rejects composition moved before artifact extraction' {
@@ -945,13 +983,15 @@ Path(sys.argv[2]).write_text('{' if case == 'malformed' else json.dumps(data), e
         $block | Should -Not -BeNullOrEmpty
         $script:state.Controller = $script:state.Controller.Replace($block, '').Replace(
             '      - name: Download isolated dev documentation', $block + '      - name: Download isolated dev documentation')
-        { Invoke-FixtureRelease } | Should -Throw 'out of extraction/composition order'
+        $script:state.Remote = $true; $script:state.Release = $script:expected
+        { Invoke-FixtureRelease -Phase Finalize } | Should -Throw 'out of extraction/composition order'
         ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
     }
     It 'fails closed when exact workflow content cannot be read' {
         Set-FixtureStable
         $script:state.WorkflowReadExit = 128
-        { Invoke-FixtureRelease } | Should -Throw 'release-docs.yml'
+        $script:state.Remote = $true; $script:state.Release = $script:expected
+        { Invoke-FixtureRelease -Phase Finalize } | Should -Throw 'release-docs.yml'
         ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
     }
     It 'rejects stable producer metadata or upload layout drift' -TestCases @(
@@ -962,7 +1002,8 @@ Path(sys.argv[2]).write_text('{' if case == 'malformed' else json.dumps(data), e
         param($Old, $New)
         Set-FixtureStable
         $script:state.Producer = $script:state.Producer.Replace($Old, $New)
-        { Invoke-FixtureRelease } | Should -Throw 'release-docs.yml'
+        $script:state.Remote = $true; $script:state.Release = $script:expected
+        { Invoke-FixtureRelease -Phase Finalize } | Should -Throw 'release-docs.yml'
         ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
     }
     It 'skips main-tip and docs-contract checks for prereleases' {
@@ -1197,9 +1238,33 @@ Path(sys.argv[2]).write_text('{' if case == 'malformed' else json.dumps(data), e
     }
     It 'accepts a matching retry on authorized lineage after the branch advances without push or POST' {
         $script:state.Remote = $true; $script:state.Release = $script:expected; $script:state.Tip = ('c' * 40)
-        Invoke-FixtureRelease
+        Invoke-FixtureRelease -Operation Routine -Resume
         Get-Content (Join-Path $script:fixture 'release-result.txt') | Should -Match '^EXISTS\|'
         ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post|actions/'
+    }
+    It 'refuses an existing remote tag on a new Routine request even without a Release' {
+        $script:state.Remote = $true
+        { Invoke-FixtureRelease -Operation Routine } | Should -Throw 'New Routine publication refuses an existing remote tag'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
+    }
+    It 'refuses an existing matching pair on a new Routine request' {
+        $script:state.Remote = $true; $script:state.Release = $script:expected
+        { Invoke-FixtureRelease -Operation Routine } | Should -Throw 'New Routine publication refuses an existing remote tag'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
+    }
+    It 'resumes an exact unpaired remote tag with only one Release POST' {
+        $script:state.Remote = $true
+        Invoke-FixtureRelease -Operation Routine -Resume
+        @($script:state.Calls | Where-Object { $_ -match '^api Post ' }).Count | Should -Be 1
+        ($script:state.Calls -join "`n") | Should -Not -Match 'push origin'
+    }
+    It 'resumes a full Routine pair without reposting or requiring Pages' {
+        Set-FixtureStable
+        $script:state.Remote = $true; $script:state.Release = $script:expected
+        $script:state.Controller = 'older protected controller'
+        Invoke-FixtureRelease -Operation Routine -Resume -SourceBranch 'dev'
+        Get-Content (Join-Path $script:fixture 'release-result.txt') | Should -Match '^EXISTS\|'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post|show .*release-pages.yml'
     }
     It 'accepts multiple records in a non-enumerated REST array' {
         $script:state.ListExtras = @(
@@ -1336,11 +1401,13 @@ Path(sys.argv[2]).write_text('{' if case == 'malformed' else json.dumps(data), e
         $script:state.Release.name | Should -Be 'conflict'
     }
     It 'leaves the Release intact when docs fail during Finalize' {
-        Invoke-FixtureRelease
+        Set-FixtureStable
+        Invoke-FixtureRelease -Operation Routine -SourceBranch 'dev'
         $script:state.DocsStatus = 'failure'
-        { Invoke-FixtureRelease -Phase Finalize } | Should -Throw 'release-docs.yml'
+        { Invoke-FixtureRelease -Operation Routine -Phase Finalize -SourceBranch 'dev' } | Should -Throw 'release-docs.yml'
         $script:state.Release.id | Should -Be 123
         Test-Path (Join-Path $script:fixture 'release-result.txt') | Should -Be $false
+        ($script:state.Calls -join "`n") | Should -Not -Match 'api Patch|api Delete'
     }
     It 'rejects a successful docs run at the wrong SHA' {
         $script:state.Remote = $true; $script:state.Release = $script:expected; $script:state.BadChain = $true

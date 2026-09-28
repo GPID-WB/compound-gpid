@@ -66,7 +66,7 @@ recipes, not a second generated facts catalog.
 | /cg-light-work &#91;--no-branch&#124;--no-brain&#124;--no-html&#93; &lt;task&gt; | CG | Qualify and execute one small technical task with bounded discovery, light review, and explicit compounding consent. |
 | /cg-plan | CG | Create a structured implementation plan with research. Use after brainstorming or when requirements are clear. |
 | /cg-plan-review | CG | Review an implementation plan for risks, over-engineering, missing edge cases, and flawed assumptions. Use after /cg-plan or on any existing plan. |
-| /cg-release vX.Y.Z.&lt;build&gt; &#91;--source-branch branch&#93; | CG | Run generic controller commands unchanged or publish a GPID four-part prerelease through the existing PowerShell release flow. |
+| /cg-release vX.Y.Z&#91;.&lt;build&gt;&#93; &#91;--source-branch branch&#93; | CG | Run generic controller commands unchanged or publish a GPID release through the existing PowerShell release flow. |
 | /cg-render-doc &lt;source&gt; &#91;--theme reference&#124;editorial&#93; | CG | Render a workflow artifact or generic Markdown document to curated HTML. Routes typed artifacts to cg-render-artifact and generic documents to cg-publish-markdown. Supports --theme selection &#40;reference or editorial&#41;. |
 | /cg-resume | CG | Load context and resume interrupted work. Use at the start of a session to pick up where you left off. |
 | /cg-review &#91;light&#124;standard&#124;data-risk&#124;architecture&#124;full&#93; &#91;mode:autofix&#124;mode:verify&#93; | CG | Run multi-agent code review on recent changes. Produces prioritized P0/P1/P2/P3 findings. |

@@ -231,9 +231,10 @@ Describe "Release payload sequencing contracts" {
         $releasePrompt | Should -Match 'Never overwrite an immutable[\s\S]*payload or create a new tag during resume'
     }
 
-    It "binds stable sources to remote policy and prereleases to any verified remote branch" {
+    It "allows Routine full releases from dev and prereleases from verified branches" {
         $releasePrompt | Should -Match 'production_branches'
-        $releasePrompt | Should -Match 'any verified same-repository remote branch'
+        $releasePrompt | Should -Match 'releases of either shape use verified `dev`'
+        $releasePrompt | Should -Match 'verified same-repository branches'
         $releasePrompt | Should -Match 'remotely discovered default branch'
         $releasePrompt | Should -Match 'git fetch origin <release-branch> --tags'
         $releasePrompt | Should -Match 'git rev-parse origin/<release-branch>'

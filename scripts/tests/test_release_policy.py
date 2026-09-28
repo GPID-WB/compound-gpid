@@ -1,4 +1,4 @@
-"""Fast semantic contracts for secure stable and dev-prerelease publication."""
+"""Fast semantic contracts for secure full and prerelease publication."""
 
 import os
 import re
@@ -27,7 +27,7 @@ def test_release_branch_matrix_is_explicit() -> None:
 
     assert "production_branches" in prompt
     assert "remotely discovered default branch" in prompt
-    assert "any verified same-repository remote branch" in prompt
+    assert "verified same-repository branches" in prompt
     assert "-SourceBranch <release-branch>" in prompt
     assert "$releaseBranch = $SourceBranch" in script
     assert "symbolic-ref --quiet --short HEAD" in script
@@ -54,14 +54,11 @@ def test_prerelease_lineage_does_not_depend_on_main() -> None:
     assert "merge-base --is-ancestor origin/main" not in stable_gate
     assert "merge-base --is-ancestor origin/main" not in prerelease_path
     assert "merge-base --is-ancestor $remoteMainCommit $headCommit" not in prerelease_path
-    stable_call = (
-        "if (-not $isPrereleaseTag) { "
-        "Assert-CgStableDocsContract -ExpectedCommit $headCommit -Authority $authority }"
-    )
-    assert script.count("Assert-CgStableDocsContract -ExpectedCommit $headCommit -Authority $authority }") == 1
-    assert stable_call in script
-    assert script.index('if ($Phase -eq "Reserve") {') < script.index(stable_call)
-    assert script.index(stable_call) < script.index('push origin --no-follow-tags')
+    stable_call = "Assert-CgStableDocsContract -ExpectedCommit $headCommit -Authority $docsAuthority"
+    assert script.count(stable_call) == 1
+    assert script.index('push origin --no-follow-tags') < script.index(stable_call)
+    assert script.index('# Finalize is read-only remotely.') < script.index(stable_call)
+    assert 'if (-not $isPrereleaseTag) {\n$docsAuthority' in script
     assert 'git merge-base --is-ancestor "$RELEASE_SHA" "origin/$required_branch"' in builder
     assert 'git merge-base --is-ancestor "$RELEASE_SHA" "origin/$required_branch"' in controller
     assert 'git fetch origin "$required_branch"' in builder
@@ -78,14 +75,22 @@ def test_all_materialized_release_commands_allow_prereleases_from_dev() -> None:
     for relative in RELEASE_PROMPTS:
         prompt = _read(relative)
 
-        assert "any verified same-repository remote branch" in prompt
-        assert "including `dev`" in prompt
+        assert "verified same-repository branches" in prompt
+        assert "releases of either shape use verified `dev`" in prompt
         assert "production_branches" in prompt
         assert "Set `<release-branch>` to `dev`" not in prompt
         assert (
             "Require a clean, up-to-date `main` checkout before writing payloads"
             not in prompt
         )
+
+
+def test_copied_release_instruction_never_creates_a_default_branch_tag() -> None:
+    instructions = _read("docs/reference.md").split("For another project,", 1)[1]
+    assert "git push origin\n--no-follow-tags refs/tags/<tag>:refs/tags/<tag>" in instructions
+    assert "raw tag object\nand peeled commit" in instructions
+    assert "gh release create <tag> --verify-tag" in instructions
+    assert instructions.index("git push origin") < instructions.index("gh release create <tag> --verify-tag")
 
 
 def test_release_rulesets_and_exact_run_chain_are_required() -> None:

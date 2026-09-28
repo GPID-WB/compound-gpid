@@ -357,7 +357,7 @@
       "path": ".kilo/commands/cg-release.md",
       "source": ".github/prompts/cg-release.prompt.md",
       "kind": "command",
-      "sha256": "cef0fba0f06cf95116a42572289ddf8a515c3e5c3015d8b555e294672a6082eb",
+      "sha256": "3e490dea104404939d0b5786a699cd1ed42bd1150bd9b36576cc4a0700b5def0",
       "executable": false
     },
     {
@@ -609,7 +609,7 @@
       "path": ".kilo/shared/help-catalog.json",
       "source": ".github/shared/help-catalog.json",
       "kind": "shared",
-      "sha256": "1600f98c6282c23d86c3c45ee4c4efc0286adf49ac1cc3460a48e4696e8daf5f",
+      "sha256": "7a27a45d636d05ef1507b72ca9a6efbe17b644d20c8a97bc671fc1fb8e97bf84",
       "executable": false
     },
     {

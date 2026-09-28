@@ -1072,6 +1072,11 @@ check the Copilot UI if that identity matters.
 
 **When to use**: Preview a release, submit an explicitly approved request, inspect
 its progress, or request reconciliation through the standalone controller.
+For GPID's working PowerShell Routine, use `/cg-release <new-version>` on a clean,
+current `dev` checkout: `vX.Y.Z.<build>` makes a prerelease and `vX.Y.Z` makes a
+full GitHub Release. Use `--resume <tag>` only for an interrupted exact identity.
+The full Release can be `published; documentation/attestation pending` while the
+older protected Pages controller awaits separate repair.
 
 **What happens**: `/cg-release plan|start|status|resume` passes arguments unchanged
 to the installed CLI. `plan` is read-only and non-reserving; `start` confirms and
