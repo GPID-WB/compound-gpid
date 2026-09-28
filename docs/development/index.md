@@ -143,7 +143,7 @@ sandbox and timing proof are deferred, not passed. Ordinary PR CI remains requir
 |----------|---------|---------------------|
 | `v<major>.<minor>.<patch>` | Stable release | Release |
 | `v<major>.<minor>.<patch>-<channel>.<number>` | Strict SemVer prerelease, such as `v1.5.0-rc.10` | Prerelease |
-| `v<major>.<minor>.<patch>.<build>` | Historical/bridge compatibility path, conventionally `9000+`; never reinterpreted as a suffix | Prerelease |
+| `v<major>.<minor>.<patch>.<build>` | Routine prerelease and historical/bridge compatibility, conventionally `9000+`; never reinterpreted as a suffix | Prerelease |
 
 Preview an explicit version through the thin command:
 
@@ -152,8 +152,9 @@ Preview an explicit version through the thin command:
 ```
 
 The declared line must include that source branch. `start` confirms and rechecks;
-`status` and `resume` use the portable request locator. Only explicit authorized
-legacy bridge/recovery can enter `create-release.ps1`. Published tags, assets and
+`status` and `resume` use the portable request locator. A bare numeric GPID tag
+uses PowerShell Routine while the controller is disabled; explicit authorized
+legacy bridge/recovery remain separate. Published tags, assets and
 historical payloads must not be deleted, moved or reused. See the
 [operator guide](../release-controller.md) for the setup and recovery boundary.
 
@@ -164,10 +165,13 @@ commit, immutable payload SHA-256, and every tagged deprecation-record digest in
 post-release artifact provides future plugin-removal grace evidence and must not
 be edited or backfilled by hand.
 
-The retained legacy policy requires stable releases from a clean `main` checkout matching
-`origin/main`. Four-component prereleases must be prepared directly from a
-clean `dev` checkout matching `origin/dev`; their exact tag remains eligible for
-resume after `dev` advances.
+Routine full releases and four-component prereleases normally start from a clean
+`dev` checkout at `origin/dev`; their exact tag remains eligible for explicit
+resume after `dev` advances. Exceptional stable Bridge/Recovery sources remain
+limited to configured production branches or the protected remote default.
+Reserve publishes the full GitHub Release before Pages. The protected `main`
+controller's older layout cannot yet deploy isolated `dev`-cut full docs, so
+stable Finalize stays pending until a separate reviewed Pages repair succeeds.
 
 Repository settings must include an active tag ruleset named `Protect release
 tags` for `refs/tags/v*`. It must block updates, non-fast-forward updates, and

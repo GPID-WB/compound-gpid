@@ -1,4 +1,4 @@
-# Fresh remote authority for routine prereleases, legacy bridge, and recovery.
+# Fresh remote authority for routine releases, legacy bridge, and recovery.
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
@@ -106,6 +106,7 @@ function Assert-CgLegacyAuthority {
         }
     }
     if ($ReleaseTag -cmatch '^v\d+\.\d+\.\d+$' -and
+        -not ($Operation -ceq 'Routine' -and $SourceBranch -ceq 'dev') -and
         $SourceBranch -cne $repo.default_branch -and $productionBranches -cnotcontains $SourceBranch) {
         throw "Stable release source branch '$SourceBranch' is neither a configured deployment branch nor the remote default."
     }

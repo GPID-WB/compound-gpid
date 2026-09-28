@@ -317,13 +317,16 @@ until separate setup, bridge and rollout review. `start` confirms/rechecks and
 returns a durable locator, not an immediate published Release. Use `status` and
 `resume` with that locator; `--yes` does not replace protected approval.
 
-For a GPID routine four-part prerelease, use `/cg-release v1.2.0.9020
---source-branch dev`. The slash workflow prepares a reviewed payload and invokes
+For a new GPID Routine prerelease, use `/cg-release v1.2.0.9021` from a clean
+current `dev` checkout; use `/cg-release v1.2.0` for a full Release. The already
+published `v1.2.0.9020` must not be reused. The slash workflow prepares a
+reviewed payload and invokes
 the existing PowerShell publisher for Reserve and Finalize while the controller
 stays disabled. This is not the generic SemVer controller `start` path. The native
 `cg-release` executable cannot prepare a bare tag; it requires the slash workflow.
 Bridge and historical Recovery remain separately authorized via
-`--legacy-bridge` and `--legacy-recovery`. Stable publication is not made routine.
+`--legacy-bridge` and `--legacy-recovery`. A full GitHub Release is published at
+Reserve even when its Pages deployment and attestation remain pending.
 
 Published prerelease tags are immutable release records. Do not delete or reuse
 them; increment the build component for the next candidate.

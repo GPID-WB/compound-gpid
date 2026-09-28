@@ -4844,7 +4844,8 @@ Describe "cg-release.prompt.md - prerelease automation contract" {
         $parse | Should -BeGreaterThan -1
         $dispatch | Should -BeGreaterThan $parse
         $content | Should -Match 'Reject `--auto-approve` for three-component stable tags'
-        $content | Should -Match 'A bare four-component tag selects `Routine`'
+        $content | Should -Match 'A bare three- or four-component numeric tag selects `Routine`'
+        $content | Should -Match '`--resume <tag>` without an exceptional'
         $content | Should -Match 'Only explicit `--legacy-bridge` or `--legacy-recovery`'
         $content | Should -Match 'Pass the supplied arguments unchanged'
         $content | Should -Match 'Routine is refused when the remote controller is enabled'
@@ -4854,7 +4855,8 @@ Describe "cg-release.prompt.md - prerelease automation contract" {
 
     It "uses verified source identity instead of the obsolete main-dev matrix" {
         $content | Should -Match 'production_branches'
-        $content | Should -Match 'any verified same-repository remote branch'
+        $content | Should -Match 'verified same-repository branches'
+        $content | Should -Match 'releases of either shape use verified `dev`'
         $content | Should -Match 'detached checkouts require explicit'
         $content | Should -Not -Match 'Set `<release-branch>` to `dev`'
         $content | Should -Not -Match 'three-component/`main`'
@@ -4897,6 +4899,14 @@ Describe "cg-release.prompt.md - prerelease automation contract" {
         $content | Should -Match 'no local or remote annotated tag, Release, or attestation'
         $content | Should -Match 'reviewed revert PR'
         $content | Should -Match 'never auto-publish'
+    }
+
+    It "refuses existing identities on new requests and reports published stable follow-up accurately" {
+        $content | Should -Match 'Refuse\s+any existing remote tag or Release'
+        $content | Should -Match 'Run `-Phase Reserve -Resume`'
+        $content | Should -Match 'Stable Pages\s+controller compatibility is checked at Finalize, not before Reserve'
+        $content | Should -Match 'published;\s+documentation/attestation pending'
+        $content | Should -Not -Match 'A bare three-component stable tag is not'
     }
 
     It "separates prerelease build evidence from stable deployment evidence" {
