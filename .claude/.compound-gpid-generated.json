@@ -886,6 +886,13 @@
       "executable": false
     },
     {
+      "path": ".claude/shared/skill-management/release-attestations/v1.2.0.9021.json",
+      "source": ".github/shared/skill-management/release-attestations/v1.2.0.9021.json",
+      "kind": "shared",
+      "sha256": "e46ee202ef2e50ab5ec1307d898224e3226c1ef47bdd80cfc51a07688f24cda4",
+      "executable": false
+    },
+    {
       "path": ".claude/shared/snapshot-research-modes.json",
       "source": ".github/shared/snapshot-research-modes.json",
       "kind": "shared",
