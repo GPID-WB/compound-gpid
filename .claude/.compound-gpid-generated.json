@@ -567,7 +567,7 @@
       "path": ".claude/shared/help-catalog.json",
       "source": ".github/shared/help-catalog.json",
       "kind": "shared",
-      "sha256": "7a27a45d636d05ef1507b72ca9a6efbe17b644d20c8a97bc671fc1fb8e97bf84",
+      "sha256": "f0b91653e87c5d1de3614a583c182802482d8ffcd76e2b20d13c35dfbf3f2d82",
       "executable": false
     },
     {
