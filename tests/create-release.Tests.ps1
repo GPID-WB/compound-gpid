@@ -924,6 +924,8 @@ Path(sys.argv[2]).write_text('{' if case == 'malformed' else json.dumps(data), e
         @{ Old = ' import-docs release-source release-artifact verified-staging/release'; New = ' import-docs release-source release-artifact' },
         @{ Old = '--out composed-artifact'; New = '--out other-composition' },
         @{ Old = 'mv composed-artifact release-artifact'; New = 'mv composed-artifact other-artifact' },
+        @{ Old = 'dev_sha="$(git -C current-dev rev-parse HEAD)"'; New = 'dev_sha="$(git -C release-source rev-parse HEAD)"' },
+        @{ Old = 'seal-official release-source release-artifact current-dev "$dev_sha"'; New = 'seal-official release-source release-artifact current-dev "$RELEASE_SHA"' },
         @{ Old = 'path: release-artifact/site'; New = 'path: release-artifact/docs' },
         @{ Old = 'path: current-dev'; New = 'path: other-dev' },
         @{ Old = 'path: release-source'; New = 'path: other-source' }

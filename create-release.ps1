@@ -364,7 +364,9 @@ function Assert-CgStableDocsContract {
         'Compose isolated producer artifacts with protected code' = '^' + [regex]::Escape(($compositionContract -replace "`r`n", "`n")) + '\s*$'
         'Seal durable official snapshot in the Pages artifact' = '(?s)^      - name: Seal durable official snapshot in the Pages artifact\n' +
             '        env:\n          GH_TOKEN: \$\{\{ steps\.recovery-authority\.outputs\.token \|\| github\.token \}\}\n' +
-            '        run: node scripts/legacy-pages\.js seal-official release-source release-artifact\s*$'
+            '        run: \|\n' +
+            '          dev_sha="\$\(git -C current-dev rev-parse HEAD\)"\n' +
+            '          node scripts/legacy-pages\.js seal-official release-source release-artifact current-dev "\$dev_sha"\s*$'
         'Upload verified release Pages artifact' = '(?s)^      - name: Upload verified release Pages artifact\n' +
             '        uses: actions/upload-pages-artifact@[0-9a-f]{40}[^\n]*\n        with:\n' +
             '          path: release-artifact/site\s*$'
