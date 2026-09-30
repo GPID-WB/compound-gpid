@@ -242,7 +242,7 @@ def test_prerelease_docs_destination_is_separate_from_source_authority() -> None
 
 
 def test_official_sealing_preserves_existing_recovery_token_authority() -> None:
-    """Recovery sealing uses the same App token as initial and final checks."""
+    """Recovery sealing binds the exact dev source with the existing App token."""
     workflow = yaml.load(_read(".github/workflows/release-pages.yml"), Loader=yaml.BaseLoader)
     steps = workflow["jobs"]["deploy"]["steps"]
     token = "${{ steps.recovery-authority.outputs.token || github.token }}"
@@ -252,7 +252,10 @@ def test_official_sealing_preserves_existing_recovery_token_authority() -> None:
     assert initial["env"]["GH_TOKEN"] == token
     assert seal["env"]["GH_TOKEN"] == token
     assert final["env"]["GH_TOKEN"] == token
-    assert seal["run"] == "node scripts/legacy-pages.js seal-official release-source release-artifact"
+    assert seal["run"].splitlines() == [
+        'dev_sha="$(git -C current-dev rev-parse HEAD)"',
+        'node scripts/legacy-pages.js seal-official release-source release-artifact current-dev "$dev_sha"',
+    ]
     app = next(step for step in steps if step.get("id") == "recovery-authority")
     assert "workflow_dispatch" in app["if"]
     assert app["with"]["permission-administration"] == "read"
