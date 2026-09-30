@@ -1,0 +1,1 @@
+"""Deterministic help catalog contracts."""

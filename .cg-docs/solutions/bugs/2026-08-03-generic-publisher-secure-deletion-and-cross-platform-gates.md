@@ -137,3 +137,4 @@ Focused triage validation passed:
 - `.cg-docs/solutions/testing-patterns/2026-07-28-handle-relative-filesystem-mutations-and-real-boundary-tests.md` - final-boundary race injection and real managed-output assertions
 - `.cg-docs/reviews/2026-08-03-generic-markdown-reference-publishing-core-v2-verify-review.md` - verification findings and fixed-status ledger
 - `.cg-docs/plans/2026-08-03-generic-markdown-reference-publishing-core-v2.md` - authoritative generic publishing Plan
+- `.cg-docs/solutions/testing-patterns/2026-08-13-release-gate-fixtures-and-derived-evidence-hashes.md` - runtime-faithful release fixtures and derived evidence hash validation

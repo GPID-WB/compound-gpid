@@ -1,0 +1,49 @@
+{
+  "$schema": "compound-gpid-schema-subset-v1",
+  "$id": "cg-skill-audit-v1",
+  "$defs": {
+    "arguments": {
+      "type": "object",
+      "properties": {
+        "positionals": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1},
+          "maxItems": 1
+        },
+        "provenance": {"type": "boolean"},
+        "references": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    },
+    "reference": {
+      "type": "object",
+      "properties": {
+        "skillId": {"type": "string", "minLength": 1},
+        "root": {"type": "string", "enum": ["project", "source"]},
+        "path": {"type": "string", "minLength": 1},
+        "line": {"type": "integer", "minimum": 1},
+        "classification": {"type": "string", "enum": ["active", "migration", "historical"]},
+        "category": {"type": "string", "minLength": 1},
+        "alias": {"type": "string", "minLength": 1}
+      },
+      "required": ["skillId", "root", "path", "line", "classification", "category", "alias"],
+      "additionalProperties": false
+    },
+    "resultData": {
+      "type": "object",
+      "properties": {
+        "manifestHealth": {"type": "string", "enum": ["fresh", "missing", "stale", "invalid"]},
+        "auditedIds": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "filters": {
+          "type": "array",
+          "items": {"type": "string", "enum": ["provenance", "references"]},
+          "uniqueItems": true
+        },
+        "referenceDigest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "references": {"type": "array", "items": {"$ref": "#/$defs/reference"}}
+      },
+      "required": ["manifestHealth", "auditedIds", "filters", "referenceDigest", "references"],
+      "additionalProperties": false
+    }
+  }
+}

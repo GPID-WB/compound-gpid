@@ -1,0 +1,11 @@
+{
+  "id": "slash:cg-plan-review", "name": "/cg-plan-review", "kind": "slash", "ownerModule": "suite-cg", "supportedSuites": ["cg"],
+  "category": "design", "summary": "Review an implementation plan for risks, gaps, and flawed assumptions.", "aliases": [],
+  "intents": ["challenge an implementation plan", "review plan completeness"], "usage": "/cg-plan-review", "examples": ["/cg-plan-review"],
+  "prerequisites": ["An implementation plan to review."], "outputs": ["Prioritized plan findings and user decisions."],
+  "constraints": ["Reviews the plan and does not implement it."], "relatedCommands": [{"id": "slash:cg-work", "relation": "next"}],
+  "sourcePath": ".github/prompts/cg-plan-review.prompt.md", "definitionSources": [".github/prompts/cg-plan-review.prompt.md"], "definitionDigest": "f7c9f0e8b2a50830d44a163211f70294e075ccc3a51280a777d0f8a6357543a6",
+  "documentationTargets": [], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["any"],
+  "availability": {"status": "available", "evidence": [{"os": "any", "sourcePath": ".github/prompts/cg-plan-review.prompt.md"}]},
+  "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
+}

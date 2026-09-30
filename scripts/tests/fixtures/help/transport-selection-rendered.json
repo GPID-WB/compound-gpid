@@ -1,0 +1,1 @@
+{"schemaVersion":1,"operation":"selection-rendered","requestId":"123e4567-e89b-12d3-a456-426614174000","result":{"state":"exact","catalogDigest":"0000000000000000000000000000000000000000000000000000000000000000","evidenceIds":["slash:cg-skill"],"display":{"format":"markdown","content":"Selected"},"warnings":[],"recovery":[],"data":{"commandId":"slash:cg-skill"}}}

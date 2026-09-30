@@ -1,0 +1,11 @@
+{
+  "id": "slash:cg-diagnose", "name": "/cg-diagnose", "kind": "slash", "ownerModule": "suite-cg", "supportedSuites": ["cg"],
+  "category": "assurance", "summary": "Diagnose VS Code crashes and recommend safe recovery steps.", "aliases": [],
+  "intents": ["diagnose a VS Code crash", "inspect editor crash logs"], "usage": "/cg-diagnose", "examples": ["/cg-diagnose"],
+  "prerequisites": ["Accessible VS Code logs on the current machine."], "outputs": ["A classified crash diagnosis and recovery guidance."],
+  "constraints": ["Reads diagnostics and does not silently mutate project files."], "relatedCommands": [{"id": "slash:cg-resume", "relation": "next"}],
+  "sourcePath": ".github/prompts/cg-diagnose.prompt.md", "definitionSources": [".github/prompts/cg-diagnose.prompt.md"], "definitionDigest": "dcff7ae1ad317f06632bf4078455f50ea36ab6b4d4f6bf8ac3118c429f045a31",
+  "documentationTargets": [], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["any"],
+  "availability": {"status": "conditional", "evidence": [{"os": "any", "sourcePath": ".github/prompts/cg-diagnose.prompt.md"}]},
+  "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
+}

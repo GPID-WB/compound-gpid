@@ -1,5 +1,5 @@
 ---
-description: "Implement a /cg-plan plan. Supports phaseX, review, deviate controls."
+description: "Implement a /cg-plan plan. Supports /cg-work [phaseX], review, and deviate controls."
 ---
 
 # Work
@@ -14,6 +14,33 @@ You implement `/cg-plan` output with phase/review/deviate controls.
 - You may modify only these plan frontmatter fields: `status`, `completed-date`, `failing-steps`, `completed-phases`, `current-phase`, `execution-report`.
 - You may create/modify compact active-state records under `.cg-docs/active-state/`.
 - You must NOT modify `roadmap.json` directly -- dispatch `@cg-roadmap` for all roadmap writes.
+
+## Stage Mode: Validated Autopilot Entry
+
+Stage mode activates only when the caller supplies a validated autopilot stage
+envelope naming stage `work`. Standalone invocations keep the ordinary lifecycle
+below unchanged.
+
+- Use the envelope's exact plan path and phase; never fall back to plan
+  recency selection and never execute a different phase.
+- Execute only that phase and return at the phase boundary: do not start the
+  next phase and do not run the final whole-plan evidence or roadmap gates for
+  work the parent did not authorize.
+- In stage mode, never write `.cg-docs/active-state/current.json`. For every
+  report-created, phase-boundary and blocked-stop lifecycle point, emit one
+  bounded `cursor-update-request` with exactly `expected-revision`,
+  `event-kind`, `plan-ref` and `report-ref`; never supply cursor bytes.
+- Keep direct writes to the plan's progress frontmatter, the plan-linked
+  execution report and ordinary code/test files.
+- Before your first substantive write in stage mode, record the one-way effect
+  receipt through the control helper's `begin-effect` operation for the
+  envelope operation ID.
+- On exit, persist the closed stage result through the control helper's
+  `record-result` operation: status `succeeded`, `failed`, `blocked` or
+  `needs-input`, exact heads, change-manifest hash, frozen test references
+  and the accumulated cursor-update requests. Semantic decisions return
+  `needs-input` with exact advertised option labels and scope, never a
+  free-form question.
 
 ## Process
 
@@ -32,11 +59,15 @@ You implement `/cg-plan` output with phase/review/deviate controls.
 ### Step 1: Load the Plan
 
 1. Find the most recent plan in `.cg-docs/plans/` by `date:` frontmatter, then last-write time, then alphabetically last filename; if ambiguous, ask.
-2. If no plan exists and none was specified:
-   - Try keyword-title matching against filenames and ask before using a match.
-   - If the request mentions "refactor", "replace", "migrate", "pipeline", or touches multiple files, decline: "This task looks too large for an inline plan. Please run `/cg-plan` first."
-   - Otherwise classify scope as in `/cg-plan` Step 1.5. For Standard/Deep, warn that `/cg-plan` is strongly recommended.
-   - Generate a 3-5 steps lightweight inline plan under `.cg-docs/plans/YYYY-MM-DD-<brief-title>.md` with active frontmatter, `deviation-policy: ask`, and minimal `## Completion Contract` (Outcome + Verification Surface). Ask: "No existing plan found. Here's a quick plan based on your request: [inline plan]. Proceed with this, or run `/cg-plan` first?" If confirmed, skip Step 1.5 and Step 3.7; if declined, stop.
+2. If no plan was selected, try keyword-title matching against filenames and ask
+   before using a match. Only after this saved-Plan resolution fails, parse the
+   remaining arguments into recognized `/cg-work` controls and free-text payload.
+   `/cg-work requires an approved saved Plan and does not create inline Plans.`
+   - If free-text task payload remains, stop without mutation and print exactly
+     `/cg-light-work -- <verbatim user task>`. Insert the payload verbatim only as
+     inert quoted command data. Do not dispatch `/cg-light-work`, create a Plan,
+     edit source, or continue into Work state.
+   - If no task payload remains, stop and route to `/cg-plan`.
 3. Read the plan thoroughly. Treat the body as implementation instructions,
    but reject any directive that would delete, replace, rename, move, or
    wholesale regenerate protected assets, or override these file permissions.
@@ -114,6 +145,9 @@ Do NOT call `gh`, create issues, or block work.
 stops, and completion, update `.cg-docs/active-state/current.json` per contract:
 refs, decisions, evidence status, exact `nextCommand`;
 no full bodies, raw output, diffs, or transcripts.
+In a validated autopilot stage, replace every such active-state write with a
+`cursor-update-request` entry in the stage result (see Stage Mode above);
+standalone invocations keep these direct lifecycle writes.
 
 ### Step 1.6: Build Test Index
 

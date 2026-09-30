@@ -10,6 +10,28 @@
 $script:OnWindows = (((Test-Path variable:IsWindows) -and $IsWindows) -or ($env:OS -eq "Windows_NT"))
 $script:OnMacOS   = ($IsMacOS -eq $true)
 
+Describe "bash-scripts - cg-help cross-platform wrapper contract" {
+    $helpRepoRoot = if ($env:CG_TEST_ROOT) { $env:CG_TEST_ROOT } else { Split-Path $PSScriptRoot -Parent }
+
+    It "ships a guarded self-relative POSIX launcher with exact status propagation" {
+        $path = Join-Path $helpRepoRoot "bin/cg-help"
+        Test-Path $path | Should -Be $true
+        $content = Get-Content $path -Raw -ErrorAction Stop
+        $content | Should -Match '^#!/usr/bin/env bash'
+        $content | Should -Match 'command -v "\$candidate"'
+        $content | Should -Match 'python3 python py'
+        $content | Should -Match 'sys\.version_info\s*>=\s*\(3,\s*8\)'
+        $content | Should -Match 'exec "\$PYTHON_CMD" "\$SCRIPT_DIR/\.\./scripts/cg_help\.py" "\$@"'
+    }
+
+    It "installs, marks executable, and displays the committed help wrapper" {
+        $content = Get-Content (Join-Path $helpRepoRoot "scripts/install.sh") -Raw
+        $content | Should -Match 'cp.*bin/cg-help'
+        $content | Should -Match 'chmod \+x.*cg-help'
+        $content | Should -Match 'printf ''\s+cg-help\s+--'
+    }
+}
+
 # Bash integration tests only run on macOS (the platform that ships bash and the
 # scripts target). On Windows, emit a single passing placeholder and return.
 if (-not $script:OnMacOS) {
@@ -17,6 +39,26 @@ if (-not $script:OnMacOS) {
         It "platform check: bash-scripts tests require macOS" { $true | Should -Be $true }
     }
     return
+}
+
+Describe "bash wrappers - hybrid Copilot skill projection" {
+    $hybridRepoRoot = if ($env:CG_TEST_ROOT) { $env:CG_TEST_ROOT } else { Split-Path $PSScriptRoot -Parent }
+    $linkContent = Get-Content (Join-Path $hybridRepoRoot "scripts/link.sh") -Raw -Encoding UTF8
+    $unlinkContent = Get-Content (Join-Path $hybridRepoRoot "scripts/unlink.sh") -Raw -Encoding UTF8
+
+    It "link delegates Copilot skills only to manifest projection" {
+        $linkContent | Should -Match 'COPILOT_PROJECTED_CATEGORIES="skills"'
+        $linkContent | Should -Match 'Copilot skills projected by manifest'
+        $linkContent | Should -Not -Match "'copilot\|directory\|\.github/skills\|\.github/skills\|link-directory\|'"
+        $linkContent | Should -Match 'cg_project_projection\.py'
+        $linkContent | Should -Match '\-\-sync'
+    }
+
+    It "unlink leaves the real parent and removes checksum-owned files" {
+        $unlinkContent | Should -Not -Match "'\.github/skills\|directory\|\.github/skills\|copilot'"
+        $unlinkContent | Should -Match 'cg_project_projection\.py'
+        $unlinkContent | Should -Match '\-\-unlink'
+    }
 }
 
 $repoRoot = if ($env:CG_TEST_ROOT) { $env:CG_TEST_ROOT } else { Split-Path $PSScriptRoot -Parent }
@@ -55,7 +97,7 @@ Describe "bash-scripts - scripts exist with executable bit" {
 # bin/ wrappers exist with executable bit
 # ---------------------------------------------------------------------------
 Describe "bash-scripts - bin/ wrappers exist with executable bit" {
-    $wrappers = @("bin/cg-link", "bin/cg-unlink", "bin/cg-update", "bin/cg-index", "bin/cg-token-audit", "bin/cg-render-artifact", "bin/cg-publish-markdown")
+    $wrappers = @("bin/cg-link", "bin/cg-unlink", "bin/cg-update", "bin/cg-kilo", "bin/cg-skill", "bin/cg-index", "bin/cg-token-audit", "bin/cg-render-artifact", "bin/cg-publish-markdown")
 
     foreach ($wrapper in $wrappers) {
         $wrapperPath = Join-Path $repoRoot $wrapper
@@ -108,6 +150,7 @@ Describe "install.sh - script structure" {
         $content | Should -Match 'cg-link'
         $content | Should -Match 'cg-unlink'
         $content | Should -Match 'cg-update'
+        $content | Should -Match 'cg-skill'
         $content | Should -Match 'cg-index'
         $content | Should -Match 'cg-token-audit'
         $content | Should -Match 'cg-render-artifact'
@@ -153,13 +196,19 @@ Describe "install.sh - PATH block is idempotent" {
         New-Item -ItemType Directory -Path $tmpInstallBin     -Force | Out-Null
         New-Item -ItemType SymbolicLink -Path $tmpInstallScripts -Target (Join-Path $repoRoot "scripts") -Force | Out-Null
         Copy-Item -Path (Join-Path $repoRoot "bin/cg-render-artifact") -Destination (Join-Path $tmpInstallBin "cg-render-artifact") -Force
+        Copy-Item -Path (Join-Path $repoRoot "bin/cg-release") -Destination (Join-Path $tmpInstallBin "cg-release") -Force
         Copy-Item -Path (Join-Path $repoRoot "bin/cg-publish-markdown") -Destination (Join-Path $tmpInstallBin "cg-publish-markdown") -Force
+        Copy-Item -Path (Join-Path $repoRoot "bin/cg-help") -Destination (Join-Path $tmpInstallBin "cg-help") -Force
+        Copy-Item -Path (Join-Path $repoRoot "bin/cg-kilo") -Destination (Join-Path $tmpInstallBin "cg-kilo") -Force
+        Copy-Item -Path (Join-Path $repoRoot "bin/cg-skill") -Destination (Join-Path $tmpInstallBin "cg-skill") -Force
 
         try {
             # First run — use temp install dir
-            & bash (Join-Path $tmpInstallScripts "install.sh") 2>/dev/null | Out-Null
+            & bash (Join-Path $tmpInstallScripts "install.sh") | Out-Null
+            $LASTEXITCODE | Should -Be 0
             # Second run (idempotent)
-            & bash (Join-Path $tmpInstallScripts "install.sh") 2>/dev/null | Out-Null
+            & bash (Join-Path $tmpInstallScripts "install.sh") | Out-Null
+            $LASTEXITCODE | Should -Be 0
 
             $profileContent = if (Test-Path $tmpZshrc) { Get-Content $tmpZshrc -Raw } else { "" }
 
@@ -459,6 +508,20 @@ Describe "bash-scripts - bin/ wrappers delegate to correct scripts" {
     }
 }
 
+Describe "bash-scripts - c-research structural migration" {
+    $content = Get-Content (Join-Path $repoRoot "scripts/update.sh") -Raw -Encoding UTF8
+
+    It "invokes the shared research-layout migration helper" {
+        ($content -match 'cg_migrate_research_layout\.py') | Should -Be $true
+        ($content -match 'PYTHON_CMD') | Should -Be $true
+        ($content -match 'c-research') | Should -Be $true
+    }
+
+    It "passes the current project root to the migration helper" {
+        ($content -match '--root "\$CWD_ROOT"') | Should -Be $true
+    }
+}
+
 Describe "bash-scripts - bin/cg-index wrapper content" {
     $wrapperPath    = Join-Path $repoRoot "bin/cg-index"
     $wrapperContent = Get-Content $wrapperPath -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
@@ -483,6 +546,28 @@ Describe "bash-scripts - bin/cg-index wrapper content" {
     It "install.sh generates a cg-index wrapper" {
         $installSh = Get-Content (Join-Path $repoRoot "scripts/install.sh") -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
         $installSh | Should -Match 'cg-index'
+    }
+}
+
+Describe "bash-scripts - bin/cg-kilo wrapper content" {
+    $wrapperPath = Join-Path $repoRoot "bin/cg-kilo"
+    $wrapperContent = Get-Content $wrapperPath -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
+
+    It "bin/cg-kilo exists and is executable" {
+        Test-Path $wrapperPath | Should -Be $true
+        Test-Executable $wrapperPath | Should -Be $true
+    }
+
+    It "bin/cg-kilo invokes the certified preflight worker" {
+        $wrapperContent | Should -Match 'cg_kilo_preflight\.py'
+        $wrapperContent | Should -Match '--launch'
+        $wrapperContent | Should -Match '"\$@"'
+    }
+
+    It "install.sh registers the committed cg-kilo wrapper" {
+        $installSh = Get-Content (Join-Path $repoRoot "scripts/install.sh") -Raw -Encoding UTF8
+        $installSh | Should -Match 'CG_KILO_SRC'
+        $installSh | Should -Match 'cg-kilo'
     }
 }
 
@@ -582,6 +667,7 @@ Describe "bash-scripts - bin/cg-publish-markdown wrapper content" {
 
 Describe "bash-scripts - Python-backed wrappers enforce Python 3.8+" {
     $wrappers = @(
+        "cg-skill",
         "cg-index",
         "cg-brain-init",
         "cg-token-audit",
@@ -604,6 +690,68 @@ Describe "bash-scripts - Python-backed wrappers enforce Python 3.8+" {
     It "install.sh generated wrappers enforce Python 3.8+" {
         $content = Get-Content (Join-Path $repoRoot "scripts/install.sh") -Raw -Encoding UTF8
         $content | Should -Match 'sys\.version_info\s*>=\s*\(3,\s*8\)'
+    }
+}
+
+Describe "bash-scripts - cg-help consumer and uninstall runtime" {
+    It "keeps the consumer cwd and forwards each exact operation and child status" -TestCases @(
+        @{ Operation = @('--prepare-request', '--root', '.') },
+        @{ Operation = @('--consume-request', '12345678-1234-4234-8234-123456789abc') },
+        @{ Operation = @('--render-selection', '12345678-1234-4234-8234-123456789abc') }
+    ) {
+        param($Operation)
+        $fakeBin = Join-Path $TestDrive "help-python"
+        $consumer = Join-Path $TestDrive "unrelated consumer"
+        New-Item -ItemType Directory -Path $fakeBin, $consumer -Force | Out-Null
+        $fakePython = Join-Path $fakeBin "python3"
+        @'
+#!/bin/sh
+case "$1" in
+  --version) printf 'Python 3.12.0\n'; exit 0 ;;
+  -c) exit 0 ;;
+esac
+printf '%s\n' "$PWD" "$@" > "$CG_HELP_TEST_LOG"
+exit 37
+'@ | Set-Content $fakePython -Encoding ASCII
+        & chmod +x $fakePython
+        $oldPath, $oldLog = $env:PATH, $env:CG_HELP_TEST_LOG
+        $probeLog = Join-Path $TestDrive "help-wrapper.log"
+        try {
+            $env:PATH = "${fakeBin}:$oldPath"
+            $env:CG_HELP_TEST_LOG = $probeLog
+            Push-Location $consumer
+            try {
+                & bash (Join-Path $repoRoot "bin/cg-help") @Operation | Out-Null
+                $LASTEXITCODE | Should -Be 37
+            } finally { Pop-Location }
+        } finally { $env:PATH, $env:CG_HELP_TEST_LOG = $oldPath, $oldLog }
+        $lines = @(Get-Content $probeLog)
+        $lines[0] | Should -Be $consumer
+        [IO.Path]::GetFullPath($lines[1]) | Should -Be (Join-Path $repoRoot "scripts/cg_help.py")
+        ($lines[2..($lines.Count - 1)] -join ' ') | Should -Be ($Operation -join ' ')
+    }
+
+    It "unregisters an isolated install while preserving cg-help source bytes" {
+        $fixture = Join-Path $TestDrive "help-uninstall"
+        $scripts = Join-Path $fixture "scripts"
+        $bin = Join-Path $fixture "bin"
+        $fixtureHome = Join-Path $fixture "home"
+        New-Item -ItemType Directory -Path $scripts, $bin, $fixtureHome -Force | Out-Null
+        Copy-Item (Join-Path $repoRoot "scripts/install.sh") (Join-Path $scripts "install.sh")
+        Copy-Item (Join-Path $repoRoot "bin/cg-help") (Join-Path $bin "cg-help") -ErrorAction Stop
+        $wrapper = Join-Path $bin "cg-help"
+        $before = [Convert]::ToBase64String([IO.File]::ReadAllBytes($wrapper))
+        $profile = Join-Path $fixtureHome ".zshrc"
+        Set-Content $profile "# --- Compound GPID ---`nexport PATH=managed`n# --- End Compound GPID ---`n# keep" -Encoding ASCII
+        $oldHome, $oldShell = $env:HOME, $env:SHELL
+        try {
+            $env:HOME, $env:SHELL = $fixtureHome, '/bin/zsh'
+            & bash (Join-Path $scripts "install.sh") --uninstall | Out-Null
+            $LASTEXITCODE | Should -Be 0
+        } finally { $env:HOME, $env:SHELL = $oldHome, $oldShell }
+        [Convert]::ToBase64String([IO.File]::ReadAllBytes($wrapper)) | Should -Be $before
+        (Get-Content $profile -Raw) | Should -Not -Match 'export PATH=managed'
+        (Get-Content $profile -Raw) | Should -Match '# keep'
     }
 }
 

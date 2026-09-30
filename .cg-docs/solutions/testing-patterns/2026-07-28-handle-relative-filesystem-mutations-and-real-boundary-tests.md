@@ -47,7 +47,10 @@ Race tests inject replacements at `_before_secure_replace` and `_before_secure_u
 
 ## Related
 
+- `.cg-docs/solutions/bugs/2026-09-02-c-research-migration-security-and-boundary.md` — applies the handle-relative mutation and real-boundary testing pattern to research-layout migration and evidence-root containment
 - `.cg-docs/solutions/bugs/2026-08-01-secure-publication-rollback-must-not-clobber.md` — follow-up: publication and rollback need non-replacing collision semantics even after parent handles are pinned
 - `.cg-docs/solutions/bugs/2026-05-20-python-path-startswith-bypass-use-relative-to.md`
 - `.cg-docs/solutions/bugs/2026-06-11-llm-prose-only-syscall-is-unenforceable.md`
 - `.cg-docs/reviews/2026-07-28-canonical-native-packaging-foundation-verify-review.md`
+- `.cg-docs/solutions/bugs/2026-08-31-trust-anchor-captured-byte-dispatch.md` -- extends the same identity rule to reads, dynamic code execution, and Git authority
+- `.cg-docs/solutions/data-quality/2026-08-28-exact-json-registry-mutation-boundaries.md` - uses the real final secure-write hook to prove rollback and byte preservation

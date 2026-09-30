@@ -1,0 +1,22 @@
+[
+  {
+    "__typename": "CheckRun",
+    "name": "native-targets",
+    "status": "COMPLETED",
+    "conclusion": "SUCCESS",
+    "detailsUrl": null
+  },
+  {
+    "__typename": "CheckRun",
+    "name": "pester-prompt-tools",
+    "status": "IN_PROGRESS",
+    "conclusion": null,
+    "detailsUrl": "https://github.com/o/r/actions/runs/1001/job/2001"
+  },
+  {
+    "__typename": "StatusContext",
+    "context": "continuous-integration/legacy",
+    "state": "SUCCESS",
+    "targetUrl": "https://github.com/o/r/actions/runs/1002"
+  }
+]

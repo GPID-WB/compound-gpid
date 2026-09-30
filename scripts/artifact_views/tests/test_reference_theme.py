@@ -45,7 +45,7 @@ def test_reference_extraction_preserves_strict_render_bytes() -> None:
         "7c6ab9fb46b041076d17c14de67b5adf2633f3a997f2d80e5d45550ae943541e"
     )
     assert _hash("strict_deep_plan.md", ArtifactKind.PLAN) == (
-        "ef228693ae916302f52495f486e4b0749d72ab9bba45c337e4ee6bb13de0cec9"
+        "f4e3cdb8d7a74a87a1745c19a305b75e3827057097dd191a4db4b9b1e08ad0ce"
     )
 
 

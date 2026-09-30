@@ -32,3 +32,4 @@ For future token-bounded tools, test the final rendered output size. A payload-l
 - `.cg-docs/plans/2026-06-23-knowledge-brain-query-budgeted-retrieval.md`
 - `.cg-docs/solutions/testing-patterns/2026-06-08-token-optimization-benchmark-guardrails.md`
 - `.cg-docs/solutions/testing-patterns/2026-06-22-workflow-telemetry-source-path-tool-extraction.md`
+- `.cg-docs/solutions/data-quality/2026-08-28-exact-json-registry-mutation-boundaries.md` - applies the final-rendered-size rule to a persistent JSON registry

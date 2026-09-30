@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "tag": "v1.2.0.9004",
+  "publishedAt": "2026-08-13T21:53:34Z",
+  "releaseDate": "2026-08-13",
+  "name": "v1.2.0.9004 - Automated documentation deployments and What's New page",
+  "url": "https://github.com/GPID-WB/compound-gpid/releases/tag/v1.2.0.9004",
+  "sourceUrl": "https://github.com/GPID-WB/compound-gpid/tree/v1.2.0.9004",
+  "sections": [
+    {
+      "kind": "new",
+      "title": "Automated documentation deployments and What's New page",
+      "entries": [
+        "Automated verified documentation site deployments",
+        "Tracked deployable release payloads"
+      ]
+    },
+    {
+      "kind": "fixed",
+      "title": "CI corrections",
+      "entries": [
+        "Refreshed target characterization contracts"
+      ]
+    },
+    {
+      "kind": "internal",
+      "title": "Internal and workflow improvements",
+      "entries": [
+        "Recorded documentation deployment evidence"
+      ]
+    }
+  ]
+}

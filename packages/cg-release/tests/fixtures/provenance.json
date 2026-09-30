@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "repository_id": 123,
+  "request_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "dispatch_nonce": "0123456789abcdef0123456789abcdef",
+  "workflow_path": ".github/workflows/release-controller-ci.yml",
+  "controller_workflow_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "controller_workflow_ref": "refs/heads/main",
+  "release_source_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "release_tree": "cccccccccccccccccccccccccccccccccccccccc",
+  "policy_digest": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "controller_digest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+  "run_id": 456,
+  "run_attempt": 1,
+  "jobs": [{"job_id":789,"name":"package-ubuntu-24.04-py3.11","conclusion":"success"}],
+  "required_checks_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+  "build_inputs_digest": "1111111111111111111111111111111111111111111111111111111111111111",
+  "toolchain_digest": "2222222222222222222222222222222222222222222222222222222222222222",
+  "inventory_digest": "3333333333333333333333333333333333333333333333333333333333333333",
+  "profile_version": null
+}

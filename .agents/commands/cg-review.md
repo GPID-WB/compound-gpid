@@ -1,5 +1,5 @@
 ---
-description: Run multi-agent code review on recent changes. Produces prioritized P0/P1/P2/P3 findings.
+description: "Run multi-agent code review on recent changes. Produces prioritized P0/P1/P2/P3 findings."
 ---
 
 <!-- Review agents dispatched by this prompt (update this list when adding/removing agents):
@@ -12,6 +12,28 @@ description: Run multi-agent code review on recent changes. Produces prioritized
 # Review
 
 You are a review orchestrator that coordinates multiple specialized review agents to analyze code changes.
+
+## Stage Mode: Validated Autopilot Entry
+
+Stage mode activates only when the caller supplies a validated autopilot stage
+envelope naming stage `review` or `verify-review`. Standalone invocations keep
+the ordinary recency-based workflow below unchanged.
+
+- `review` stage: review the exact prepared content scope from the envelope,
+  persist the complete routed coverage/findings report **before** the
+  autofix/questions step, and record the one-way effect receipt through the
+  control helper's `begin-effect` operation before the first write.
+- `verify-review` stage: run `mode:verify` against the exact eligible parent
+  review from the envelope scope. Never select a review by recency and never
+  fall back to a normal review when the eligible report is unavailable.
+- Before verify-review, the parent regenerates affected source outputs; the
+  verify pass never regenerates them itself.
+- In stage mode, save the review report with explicit `report-type` and
+  `parent-report` identity (collision-safe) and return those identities.
+- Return semantic decisions as `needs-input` with exact advertised option
+  labels and scope instead of free-form questions.
+- On exit, persist the closed stage result through the control helper's
+  `record-result` operation.
 
 ## Process
 

@@ -433,7 +433,8 @@ Describe "cg-setup.prompt.md - wiki scaffold integration" {
     }
 
     It "handles @cg-wiki dispatch failure gracefully" {
-        ($content -match '/cg-wiki rebuild') | Should -Be $true
+        ($content -match '/cg-wiki init') | Should -Be $true
+        ($content -match '/cg-wiki rebuild') | Should -Be $false
     }
 
     It "contains Mode B wiki offer (B1.1.6)" {
@@ -700,11 +701,12 @@ Describe "docs/_wiki.yml - reference.md is auto-ownership for command-reference 
         ($ymlContent -match 'managed:\s*true') | Should -Be $true
     }
 
-    It "reference.md entry registers shell-commands as a managed section" {
-        # The shell command table contains exact CLI names such as
-        # cg-token-audit. Keeping it outside markers makes wiki updates skip
-        # even when the detailed command section is managed.
-        ($ymlContent -match '(?ms)^\s*-\s+id:\s*[''"]{0,1}reference[''"]{0,1}(?:(?!^\s{2}-\s+id:).)*?^\s{6}-\s+id:\s*[''"]{0,1}shell-commands[''"]{0,1}(?:(?!^\s{2}-\s+id:).)*?managed:\s*true') | Should -Be $true
+    It "reference.md entry registers isolated technical and research command sections" {
+        foreach ($section in @('help-commands', 'help-research-commands', 'help-shell-commands')) {
+            ($ymlContent -match ('(?ms)^\s{6}- id: "' + $section + '"\r?\n\s{8}managed: true\r?\n\s{8}generator: "help-catalog"')) | Should -Be $true
+        }
+        ($ymlContent -match 'files: \["reference.md", "reference/commands.md"\]') | Should -Be $true
+        ($ymlContent -match 'cg_generate_help_catalog.py --check-docs') | Should -Be $true
     }
 }
 
@@ -722,8 +724,33 @@ Describe "docs/reference.md - contains cg:auto section markers for plugin-manage
         ($content -match '<!--\s*cg:auto:end\s*-->') | Should -Be $true
     }
 
-    It "docs/reference.md wraps the shell command table in a managed section" {
-        ($content -match '(?s)<!--\s*cg:auto:shell-commands\s*-->.*cg-token-audit.*<!--\s*cg:auto:end\s*-->') | Should -Be $true
+    It "docs/reference.md has non-overlapping technical and research command markers" {
+        ($content -match '<!--\s*cg:auto:help-commands\s*-->') | Should -Be $true
+        ($content -match '<!--\s*cg:auto:help-research-commands\s*-->') | Should -Be $true
+        ($content -match '<!--\s*cg:auto:help-shell-commands\s*-->') | Should -Be $true
+        ([regex]::Matches($content, '<!--\s*cg:auto:end\s*-->').Count) | Should -Be 3
+    }
+}
+
+Describe "docs/whats-new.md - generated release ownership" {
+    $manifestFile = Join-Path $repoRoot "docs\_wiki.yml"
+    $pageFile = Join-Path $repoRoot "docs\whats-new.md"
+    $manifest = if (Test-Path $manifestFile) { Get-Content $manifestFile -Raw -Encoding UTF8 } else { "" }
+    $page = if (Test-Path $pageFile) { Get-Content $pageFile -Raw -Encoding UTF8 } else { "" }
+
+    It "registers What's New as an auto-owned release-notes page" {
+        ($manifest -match '(?s)id:\s*[''"]{0,1}whats-new[''"]{0,1}.*?ownership:\s*[''"]{0,1}auto[''"]{0,1}.*?release-notes') | Should -Be $true
+    }
+
+    It "contains the generated release marker pair and deterministic empty state" {
+        ($page -match '<!--\s*cg:auto:release-notes\s*-->') | Should -Be $true
+        ($page -match '<!--\s*cg:auto:end\s*-->') | Should -Be $true
+        $releaseFiles = @(Get-ChildItem (Join-Path $repoRoot "releases") -Filter "v*.json" -File -ErrorAction SilentlyContinue)
+        if ($releaseFiles.Count -eq 0) {
+            ($page -match 'No releases published yet') | Should -Be $true
+        } else {
+            ($page -match '(?m)^### v\d+\.\d+\.\d+') | Should -Be $true
+        }
     }
 }
 

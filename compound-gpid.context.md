@@ -25,6 +25,8 @@ rules that help Copilot produce accurate outputs across all prompts and sessions
 
 - **Within-prompt section drift — operational step and Safety Rules summary diverge silently**: When a rule (e.g., an injection blocklist) appears in both a detailed operational step and a high-level Safety Rules / Constraints / Rules summary section, updating one without the other leaves the summary stale. After any fix that adds tokens, conditions, or edge cases to an operational step, immediately search the same file for a matching summary bullet and sync it. Treat the operational step as canonical; the summary is a derived view. Add a co-authored test asserting the key tokens appear in the file (a single presence check covers both sections if neither can be missing). See `.cg-docs/solutions/testing-patterns/2026-06-11-within-prompt-section-drift.md`.
 
+- **Shared review-routing changes require entry-point and test-layer audits**: When `.github/shared/review-routing.contract.md` changes mode enums, precedence, or agent-composition semantics, immediately audit every prompt that exposes or specializes the route (`/cg-review`, `/cg-work review:*`, `/cr-review`) and add co-authored prompt-contract assertions in both the general and specialized test suites. Do not assume `full` subsumes `research`; if reviewer families differ, use additive composition rather than winner-take-all precedence. See `.cg-docs/solutions/testing-patterns/2026-07-30-review-routing-contract-changes-must-update-all-entry-points-and-coverage-layers.md`.
+
 - **Agent mode coverage must match user-facing subcommands**: For every mode in an `*.agent.md`, the dispatching prompt must expose it as a named subcommand — or explicitly document it as intentionally internal-only. Designing a mode as "infrastructure dispatched only by `/cg-setup`" fails when projects add the feature mid-lifecycle and users have no non-destructive bootstrap path. Check: when adding a new agent mode, immediately verify a corresponding subcommand exists in the dispatching prompt (or add one). See `.cg-docs/solutions/bugs/2026-05-15-cg-wiki-no-user-facing-init-path-for-existing-projects.md`.
 
 - **Self-defeating guardrail exceptions must anchor to prior artifacts**: Guardrail exceptions that can be invoked retroactively from the same evidence the rule prevents are self-defeating. Anchor exceptions to prior artifacts (plan steps, explicit user signatures) rather than inferred outcomes the AI can fabricate after the fact. See `.cg-docs/solutions/bugs/2026-04-15-self-defeating-guardrail-exception-in-llm-prompts.md`.
@@ -54,6 +56,10 @@ rules that help Copilot produce accurate outputs across all prompts and sessions
 - **Strict platform config files use sidecar manifest checksums, not inline markers**: JSON config files such as `.opencode/opencode.json` cannot contain marker comments. Managed copied files are tracked in `.compound-gpid/managed-files.json` with source path and SHA-256 checksum. `cg-update` refreshes a copied file only if its current checksum still matches the manifest; user-modified files are skipped and left in place. `cg-unlink` removes copied files only when the checksum still matches and otherwise drops CG ownership.
 
 - **Codex / Claude Code compatibility belongs in `AGENTS.md`, not `.github/` assets**: This repository's `.github/prompts`, `.github/skills`, `.github/agents`, and `.github/copilot-instructions.md` are designed for GitHub Copilot. When adapting the workflow for Codex or Claude Code, add dispatch rules and tool mappings to `AGENTS.md` only. Keep `AGENTS.md` explicitly scoped to Codex / Claude Code so it does not imply changed Copilot behavior. See `.cg-docs/solutions/environment-issues/2026-06-06-codex-claude-code-cg-prompt-dispatch-adapter.md`. (Note: the generated native trees now provide first-class platform support; `AGENTS.md` remains as a root-level adapter for the source repo itself.)
+
+- **Adaptive prompt branches need evidence-first, complete, bounded transitions**: Discover relevant facts before the first material user choice. For every response branch, name the exact return step and repeat all lifecycle gates invalidated by the answer. Mark terminal branches as explicit exceptions to later unconditional steps, and give optional loops a one-shot working-memory flag or a fixed bound. Test each rule inside its owning section with guarded `IndexOf()`/`Substring()` assertions; whole-file phrase presence is not sufficient. See `.cg-docs/solutions/testing-patterns/2026-09-08-fact-first-prompts-need-branch-complete-tests.md`.
+
+- **Kilo plus Codex/Claude requires the certified child-process boundary**: A project containing Kilo and `.agents/skills` or `.claude/skills` must launch Kilo through `cg-kilo`, which verifies the local projection and sets `KILO_DISABLE_EXTERNAL_SKILLS=1` only for the child process. Direct Kilo launches are unsupported for that combined configuration. Local-content/frontmatter failures, Kilo host schema failures, and external-root discovery must remain separately diagnosable. Kilo copy-directory synchronization must reject links/reparse points and preserve user-modified files through checksum ownership. See `.cg-docs/solutions/environment-issues/2026-08-14-kilo-contained-launch-and-no-follow-copy.md`.
 
 ## Testing Conventions
 
@@ -109,6 +115,8 @@ rules that help Copilot produce accurate outputs across all prompts and sessions
 
 - **Cross-file state contracts need a same-session consumer audit**: When a fix changes an allowed status value, marker vocabulary, or enum that appears in docs, validator code, fixtures, and behavioral tests, update every consumer in the same session and verify with `/cg-review mode:verify`. File-local green tests are insufficient: cross-file drift can survive until an independent pass re-reads the whole contract surface. Treat review frontmatter as the machine-readable status source of truth; review body prose may remain historical unless intentionally rewritten. See `.cg-docs/solutions/testing-patterns/2026-07-24-cross-file-contract-state-must-align-docs-validator-tests.md`.
 
+- **Review artifacts that feed automation need machine-readable frontmatter and stable evidence references**: If a saved review will be consumed by `/cg-fix-triage`, its frontmatter must be a `findings:` status map keyed by finding ID (`open|fixed|skipped`) — not a prose status/count summary. Likewise, committed work reports must not cite `tests/last-run.json` as immutable historical evidence because the file is overwritten by later runs; cite the validation run event or a timestamped snapshot instead. See `.cg-docs/solutions/testing-patterns/2026-07-31-review-artifacts-must-use-machine-readable-finding-maps-and-stable-validation-evidence.md`.
+
 - **Instruction file `applyTo:` frontmatter needs Pester test coverage**: The `applyTo:` field must have Pester tests asserting it exists and includes expected file patterns (e.g., `**/*.R, **/*.r, **/*.Rmd` for `r.instructions.md`). Silent routing failure is invisible without test coverage. See `.cg-docs/solutions/testing-patterns/2026-04-08-instruction-file-applyto-frontmatter-silent-failure.md`.
 
 - **New prompt or agent addition requires updating 7 files**: Adding a prompt or agent requires updates to: `docs/model-guide.md`, `docs/reference.md`, `copilot-instructions.md`, two test files, `model-assignments.Tests.ps1`, and `prompt-tools.Tests.ps1`. Agents must use the standard finding format (`** [P0.N] **`) or `cg-review` quality checks fail silently. See `.cg-docs/solutions/testing-patterns/2026-04-08-new-prompt-agent-addition-checklist.md`.
@@ -138,6 +146,8 @@ rules that help Copilot produce accurate outputs across all prompts and sessions
 
 - **Shared positive validator fixtures must be audited when input validity tightens**: If a validator starts rejecting a value previously tolerated in positive-path data (for example placeholder `example.org` evidence), update every shared `valid_*` fixture in the same session. A stale positive fixture can break multiple tests even when the validator logic is correct. Re-run the narrow test file that imports the helper before trusting broader suite results. See `.cg-docs/solutions/testing-patterns/2026-07-24-positive-validator-fixtures-must-avoid-placeholder-evidence.md`.
 
+- **Single-command model overrides need dedicated roles and baseline-aware audits**: When only one prompt or agent should move to a new model, add a dedicated model-catalog role plus per-target mapping instead of reusing a shared role. If the repository already has missing catalog assignments or other model-governance debt, capture a before/after `scripts/cg_audit_context.py` inventory and assert only the approved delta. Regenerate native trees and add focused Python/Pester guardrails for the exact slice. See `.cg-docs/solutions/testing-patterns/2026-08-03-single-command-model-overrides-need-dedicated-roles-and-baseline-audits.md`.
+
 - **SKILL.md contracts need behavioral Pester tests**: New `SKILL.md` files must have behavioral Pester describe blocks testing their contracts (all-open default, no-delegate rule, empty-result response, frontmatter mutation instructions). Prose contracts regress invisibly without behavioral coverage. See `.cg-docs/solutions/testing-patterns/2026-04-20-behavioral-pester-tests-for-skill-md-files.md`.
 
 - **Test fixtures must represent the function's actual input contract, not the surrounding document**: Fixtures including delimiters or wrappers the function doesn't receive produce false-positive passes by testing tolerance, not core logic. See `.cg-docs/solutions/testing-patterns/2026-04-21-test-fixture-must-match-function-input-contract.md`.
@@ -160,7 +170,21 @@ rules that help Copilot produce accurate outputs across all prompts and sessions
 
 - **Filesystem race tests must inject at the final mutation boundary**: Pathname validation (`stat`, hash, symlink checks) is not a guarantee for a later pathname mutation. Use root-anchored no-follow directory handles and handle-relative replacement. For stale deletion, atomically quarantine the name, verify the quarantined object, then unlink it. Tests must swap paths immediately before replace/quarantine and assert real managed outputs or credential/API boundaries, not unrelated sentinels. See `.cg-docs/solutions/testing-patterns/2026-07-28-handle-relative-filesystem-mutations-and-real-boundary-tests.md`.
 
-- **Secure publication and rollback must preserve concurrent winners**: Pinned parent handles do not make replacing publication or rollback safe. Publish with non-replacing rename semantics; restore quarantines only when the original name is absent, and preserve the recovery artifact on collision. Let the process umask constrain new files, avoid optional pathname parent pruning after secure deletion, and read model-context inputs once through pinned no-follow handles with hard-link rejection. See `.cg-docs/solutions/bugs/2026-08-01-secure-publication-rollback-must-not-clobber.md`.
+### Release Gate Evidence (2026-09-13)
+
+- Run the exact default package gate in a fresh isolated locked environment;
+  optional dependency groups and a warmed venv cannot prove its dependency
+  contract. Keep package test dependencies out of runtime-only distributions.
+  Prove mock executable startup and exact argv before diagnosing a launcher.
+  See [clean default gates](.cg-docs/solutions/testing-patterns/2026-09-13-clean-default-release-gates-and-executable-fixtures.md).
+- On the tested Windows MSYS GPG host, use a fresh short private child `TEMP`/`TMP`
+  directly under the approved parent; no nested `package` suffix. Pytest
+  `--basetemp` alone does not control the controller's GPG home. Preserve signing
+  assertions and global environment settings. See
+  [GPG socket path evidence](.cg-docs/solutions/environment-issues/2026-09-13-windows-gpg-agent-socket-path-budget.md).
+- Record failed assertions, cleanup, skips, host scope and source identity
+  separately. Zero failed assertions is not successful cleanup; absent skip
+  details remain unknown. Do not sum overlapping gates or rewrite failed runs.
 
 ## Bash Scripting Conventions
 
@@ -222,15 +246,84 @@ rules that help Copilot produce accurate outputs across all prompts and sessions
 
 - **Windows junction cleanup in CI requires `cmd /c rmdir` — not `Remove-Item -Recurse`**: `Remove-Item -Recurse` follows junction links into the source tree on Windows, corrupting the linked directory. Use `cmd /c rmdir /s /q` in GitHub Actions for junction teardown — it treats junctions as atomic entries. See `.cg-docs/solutions/git-workflows/2026-05-13-e2e-smoke-test-github-actions-windows-junction-teardown.md`.
 
+### Release Controller Continuations (2026-09-13)
+
+- Renew applicable human authority before each separately started continuation
+  effect after intervening reads or completed operations. Preserve authorized
+  prefixes and unresolved intents. This finite contract is not atomic GitHub
+  permission/effect enforcement. Reviewed recovery retains exact source/tag
+  identity and independent protected approval.
+- Decision `D-2026-09-13-defer-live-rollout` keeps the publisher disabled and live
+  bridge, native clean-client, release-mode CI, sandbox and performance evidence
+  deferred, not passed. It does not defer local checks or ordinary PR CI. V8
+  still requires the exact committed preflight after the separately authorized
+  pipeline step 11 commit. See
+  [authority and evidence boundaries](.cg-docs/solutions/git-workflows/2026-09-13-release-controller-authority-and-evidence-boundaries.md).
+
+### Release prerelease automation (2026-09-17)
+
+- **Source-branch policy**: official `x.y.z` releases deploy only from the
+  protected remote policy's `production_branches` or the remote default;
+  prerelease `x.y.z.<build>` may originate from any verified same-repository
+  branch, including dev. Trust the exact protected remote default commit, never
+  the source branch's editable policy; detached checkouts need an explicit
+  `-SourceBranch`. See
+  [source-branch policy](.cg-docs/solutions/git-workflows/2026-09-17-release-source-branch-policy-clarified.md).
+- **Preflight receipts**: `cg_pr_preflight.py --emit-receipt <external-path>`
+  emits canonical JSON (commit/tree SHA, LF provenance, command list, exit
+  codes, SHA-256 digest) only after a complete successful committed gate;
+  `create-release.ps1 -PreflightReceipt` reuses it only on exact
+  commit/tree/digest/LF match and always fails safe to a full re-run. Receipts
+  stay outside the working tree; the producer owns a fresh command-local LF
+  clone (`git -c core.autocrlf=false -c core.eol=lf`), and destination
+  ownership is exclusive while the receipt lives. See
+  [receipt design](.cg-docs/solutions/git-workflows/2026-09-17-preflight-receipt-commit-tree-lf-provenance.md).
+- **Repo settings (V10, verified read-only 2026-09-17 after maintainer
+  action ~21:41Z/22:07Z)**: `allow_auto_merge: true`; ruleset "Protect dev"
+  (id 21338685, refs/heads/dev, strict required-checks policy) requires Pester
+  macos-14/windows-2022, Native target Python gate macos-14/windows-2022, and
+  PR title Conventional Commits, with 0 approvals and merge/squash/rebase
+  allowed. Verify read-only before relying on automation; missing settings are
+  a blocked-stop. See
+  [settings verification](.cg-docs/solutions/git-workflows/2026-09-17-repo-settings-auto-merge-protect-dev-required-checks.md).
+- **Docs previews** restore durable official bytes from the protected Pages
+  origin (`cg-official-snapshot.json` sealed by the protected official
+  deployment), never from expired build artifacts, history scans, or main.
+  See [durable snapshot](.cg-docs/solutions/git-workflows/2026-09-17-docs-preview-durable-official-snapshot.md).
+- **Test execution in long sessions**: `tests/Run-Tests.ps1` filters by
+  registry names (`-File create-release`, not filenames); preserve
+  `tests/last-run.json` between back-to-back Pester jobs and never overlap
+  jobs. The dedicated task-runner substitution (approved 2026-09-17) uses
+  exact RUNNER_REQUEST command lists with returned executed evidence and never
+  waives evidence. See
+  [runner registry](.cg-docs/solutions/testing-patterns/2026-09-17-pester-runner-registry-filter-names-and-artifact-preservation.md)
+  and
+  [task-runner substitution](.cg-docs/solutions/testing-patterns/2026-09-17-dedicated-task-runner-substitution-for-execution-subagent.md).
+
+### Legacy-First Routine Prereleases (2026-09-24)
+
+- A bare `/cg-release vX.Y.Z.<build>` or ordinary four-part `--resume` uses
+  the existing PowerShell Reserve/Finalize publisher with `Routine` while the
+  protected remote controller policy remains disabled. Generic controller
+  commands and exceptional Bridge/Recovery are separate. The post-tag-push
+  policy recheck can stop the Release POST but cannot make cutover atomic:
+  review P1.1 was skipped by explicit user decision, not fixed. Reconcile
+  exact remote tag/Release state read-only before separately authorized
+  recovery; never move the tag or treat offline green tests as proof of live
+  reliability or exclusive publication. See
+  [Routine prerelease reuse and cutover boundary](.cg-docs/solutions/git-workflows/2026-09-24-routine-prerelease-reuse-and-cutover-boundary.md).
+
 ## Install/Link Script Conventions
 
 - **CI bypass flag pattern**: Scripts with interactive confirmation prompts (`Read-Host`, `read -r`) must support a `[switch]$Force` (PowerShell) / `--yes -y` (bash) bypass flag. Both short and long forms required in bash. Prompt strings must be inside the `if (-not $Force)` / `if [[ "$FORCE" -eq 0 ]]` block to keep CI logs clean. Always invoke scripts with `& "script.ps1"` (not `pwsh -File`) within `shell: pwsh` CI steps. Test the guard count with `Measure-Object` (exact count assertion) — `Should -Match` short-circuits on first hit and misses a missing second guard. See `.cg-docs/solutions/testing-patterns/2026-05-13-ci-bypass-flag-force-yes-interactive-scripts.md`.
 
 - **Gate interactive offers on preconditions, not just command availability**: `cg-link` runs before `/cg-setup` — `.cg-docs/` does not exist yet on a freshly-linked project. Any post-link offer must verify its own preconditions (e.g., required directories exist) before prompting the user, not just check whether the command is installed. Offering `cg-index` at link time always fails on new projects because `.cg-docs/solutions/` is absent. The rule: if an action requires project content created by `/cg-setup`, it belongs in `/cg-setup` — not in `cg-link`. See `.cg-docs/solutions/bugs/2026-05-13-cg-link-bootstrap-index-offer-fails-on-empty-projects.md`.
 
-- **Removed managed install units require checksum-guarded migration**: When a generated or copied asset is removed from `target-mapping.json`, both `link.ps1` and `link.sh` must inspect prior managed-files manifests, delete only unchanged legacy files, preserve user-modified files, and drop stale ownership records. Add parity assertions and upgrade fixtures for both outcomes. See `.cg-docs/solutions/testing-patterns/2026-07-31-advisory-inheritance-audit-and-legacy-cleanup.md`.
+- **c-research migration is an explicit, root-anchored output boundary**: Legacy research files must be classified before movement; reserved input directories are never migrated, and every approved source is read, published, verified, and deleted through root-anchored no-follow operations. Apply mode blocks on operational legacy references and destination conflicts. Linked consumers share an all-suite native target baseline, so `suites:` controls project-level workflow eligibility rather than rewriting the global target tree. See `.cg-docs/solutions/bugs/2026-09-02-c-research-migration-security-and-boundary.md`.
 
-- **Kilo requires project-local markdown sources — never junction `.kilo/` to the global install**: Kilo (and upstream regression #12391) rejects agents/skills whose markdown resolves outside the project root through junctions/symlinks, surfacing as a misleading "Failed to parse agent" cascade for every file. The Kilo install units in `target-mapping.json` must use `copy-directory` (checksum-managed local copies with a `.compound-gpid-managed-copy.json` marker), on Windows AND POSIX. When users hit "Failed to parse agent", re-run `cg-link --platforms kilo` to migrate an old junctioned install. Never implement a per-unit strategy in only one of `link.ps1`/`link.sh` — parity + a mapping-level test are required. See `.cg-docs/solutions/bugs/2026-08-11-windows-link-kilo-copy-directory-parse-failure.md`.
+- **Manifest-driven consumers must skip legacy junction install for native generated-tree platforms**: When `compound-gpid.local.md` exists, `link.ps1`/`link.sh` must skip the legacy link-directory install of native generated-tree roots (`.claude/`, `.agents/`, `.opencode/`). The projection synchronizer materializes them as real directories instead. Running both junction install and projection `--sync` in the same link invocation causes `_reject_unsafe_destination` to abort on reparse-point ancestors. Gate: `$manifestDriven -and $nativeProjected -and $installUnit.type -eq "directory"`. See `.cg-docs/solutions/environment-issues/2026-08-17-manifest-driven-install-gate-prevents-junction-conflicts.md`.
+
+- **Windows staged-file publication requires `\\?\` long-path prefix**: Any `CreateFileW`/`open`/`rename` call in `secure_fs.py` operating on staged paths (under `.compound-gpid/staging/<tx>/<root>/...`) must use the `_windows_long_path` helper to prepend `\\?\` for paths that may exceed MAX_PATH 260. Deep canonical skill files (284+ chars) fail with `WinError 3` without the prefix. Apply the helper unconditionally — it is a no-op on non-Windows. See `.cg-docs/solutions/bugs/2026-08-17-windows-long-path-staged-publication.md`.
 
 ## Agent Design Conventions
 
@@ -292,11 +385,51 @@ rules that help Copilot produce accurate outputs across all prompts and sessions
 
 - **All topic labels interpolated into Markdown pipe-table rows must pass through `_sanitize_inline()`**: The topic clusterer may produce labels containing embedded newlines (e.g., `"Fix / Repair\nData Quality"`). A raw newline inside a `|…|` table cell produces a syntactically broken second row that begins with the post-newline text rather than `|`. Apply `_sanitize_inline()` to every field interpolated into a pipe-table cell in `renderer.py` — the function already collapses newlines to spaces and escapes `]`, `(`, `)`. Extends to any future multi-line field (slugs, summaries, keywords). See `.cg-docs/solutions/bugs/2026-06-10-brain-renderer-multiline-label-breaks-pipe-table.md`.
 
-- **Inheritance audits must distinguish absent metadata from explicit nulls**: For frontmatter, use key presence (`"model" in fm`) rather than only the parsed value so `model: null` cannot evade forbidden execution-metadata checks. Validate malformed advisory payloads defensively and keep runtime model availability explicitly unverified. See `.cg-docs/solutions/testing-patterns/2026-07-31-advisory-inheritance-audit-and-legacy-cleanup.md`.
+- **Secure publication and rollback must preserve concurrent winners**: Pinned parent handles do not make replacing publication or rollback safe. Publish with non-replacing rename semantics; restore quarantines only when the original name is absent, and preserve the recovery artifact on collision. Let the process umask constrain new files, avoid optional pathname parent pruning after secure deletion, and read model-context inputs once through pinned no-follow handles with hard-link rejection. See `.cg-docs/solutions/bugs/2026-08-01-secure-publication-rollback-must-not-clobber.md`.
 
-- **For gh-CLI-driven tools with a documented exit-code contract, guard response *shape*, not just JSON syntax**: `json.loads()` guards `JSONDecodeError` only. A valid-JSON payload with the wrong types (`"number": "abc"`, a JSON array where an object is expected, `projectItems.nodes` not a list of dicts) raises uncaught `ValueError`/`TypeError`/`AttributeError` during field extraction → traceback and exit 1, indistinguishable from a crash for a consumer branching on the exit-code contract (0/2/3/4 for `cg-issue-ready`). Wrap each extraction block in `try/except (ValueError, TypeError, AttributeError)` and re-raise as the documented API error (e.g., `ApiError(f"malformed <label> response from gh: ...")`), and keep deliberate-absent paths distinct (returning `None` for "issue not in any project" is valid; a present-but-garbage field is an API error). Add one regression test per remote call site feeding a wrong-shape payload. See `.cg-docs/solutions/bugs/2026-08-10-typed-invalid-gh-cli-payloads-crash-exit-code-contract.md`.
+- **Browser evidence manifests must require every referenced file**: Capture must fail before writing a manifest when a referenced source, view, PDF, or screenshot is missing or empty. Validate existence, non-empty content, and SHA-256 unconditionally; never hide a missing artifact behind an existence guard. See `.cg-docs/solutions/testing-patterns/2026-08-10-evidence-manifest-tests-require-referenced-files.md`.
 
-- **Offline fixtures that mimic an external CLI must be verbatim mirrors of the CLI's wire format**: a fixture hand-crafting "nicer" keys (e.g., `headRef` instead of gh's `headRefName`) silently loses data when real CLI output is copied in, and an empty fixture array hides the drift (no test covers it). Document the convention in the fixture paragraph and align `FixtureClient` parsing with `GhCliClient` key-for-key, including author `{"login": ...}` normalization. See `.cg-docs/solutions/testing-patterns/2026-08-10-gh-cli-fixture-json-keys-must-match-client-parsing.md`.
+- **GitHub workflow dispatch must fail closed and verify mutation responses**: Select a live branch only for an exact explicit opt-in; every other value stays dry-run. A successful CLI exit does not prove a GitHub mutation persisted; parse the response and validate its expected shape, treating present-but-wrong data as an API/configuration error. See `.cg-docs/solutions/testing-patterns/2026-08-11-workflow-dispatch-boolean-fail-open-verify-mutations.md`.
+
+- **Removed managed install units require checksum-guarded migration**: When a generated or copied asset is removed from `target-mapping.json`, both link scripts must inspect prior managed-file manifests, remove only unchanged legacy files, preserve user-modified files, and drop stale ownership records. Add parity assertions and upgrade fixtures for both outcomes. See `.cg-docs/solutions/testing-patterns/2026-07-31-advisory-inheritance-audit-and-legacy-cleanup.md`.
+
+- **Kilo requires project-local markdown sources**: Kilo install units must use checksum-managed `copy-directory` semantics rather than junctioning markdown outside the consumer project. Keep the strategy identical in PowerShell and POSIX link flows, with mapping-level parity tests. See `.cg-docs/solutions/bugs/2026-08-11-windows-link-kilo-copy-directory-parse-failure.md`.
+
+- **Inheritance audits distinguish absent metadata from explicit nulls**: Check key presence (`"model" in frontmatter`) so `model: null` cannot evade execution-metadata validation. Validate malformed advisory data defensively and keep runtime model availability explicitly unverified. See `.cg-docs/solutions/testing-patterns/2026-07-31-advisory-inheritance-audit-and-legacy-cleanup.md`.
+
+- **CLI integrations validate response shape, not only JSON syntax**: A valid JSON response with wrong field types can raise uncaught extraction errors and violate a documented exit-code contract. Guard each extraction block, distinguish deliberate absence from malformed present data, and add wrong-shape regression fixtures for every remote call site. See `.cg-docs/solutions/bugs/2026-08-10-typed-invalid-gh-cli-payloads-crash-exit-code-contract.md`.
+
+- **External-CLI fixtures must mirror production wire format verbatim**: Fixture keys and nested shapes must match the real client exactly, including field names and author objects. A hand-crafted nicer schema or empty fixture can silently hide parser drift. See `.cg-docs/solutions/testing-patterns/2026-08-10-gh-cli-fixture-json-keys-must-match-client-parsing.md`.
+
+- **Trusted dynamic dispatch must bind authority and execution to immutable identities**: Mutable Git origin strings, branch names, and local remote refs are not authority. Require ancestry from an immutable canonical commit or equivalent external anchor. For dynamic Python handlers, read once through a root-anchored no-follow handle with hard-link rejection, then compile and execute the captured bytes; import-then-check executes untrusted module code too early. Reuse the same captured-byte rule for validator content scans. See `.cg-docs/solutions/bugs/2026-08-31-trust-anchor-captured-byte-dispatch.md`.
+
+### Strict project config and capability selection (manifest-driven)
+
+- `compound-gpid.local.md` now uses a strict restricted grammar (UTF-8 no BOM,
+  ASCII keys, quoted/simple scalars, inline lists only). The only allowed
+  absent-field legacy default is `suites:` -> `[cg]`; malformed present values,
+  duplicate keys, anchors/tags/block scalars, and unknown keys fail with exact
+  line remediation. Authoritative reference: `docs/configuration.md` and
+  `scripts/parsing_utils.py::parse_strict_config`.
+- `scripts/cg_project_manifest.py` resolves the versioned module registry (v2
+  with `capabilities[]`) plus strict config into the committed
+  `.compound-gpid/active-manifest.json`. Capability selection is additive:
+  config selectors (e.g. `language: both` derives all language packs) extend the
+  suite closure; explicit `capabilities:` can add but never remove. Suite
+  eligibility compares user-facing names (`cg`/`cr`), and platform ids use the
+  canonical `claude-code` spelling from `target-mapping.json`.
+- `scripts/cg_projection_benchmark.py` records the before-state baseline matrix
+  (`.cg-docs/cost/skill-loading-baseline.json` / `.md`); unavailable required
+  host evidence is a blocking `unavailable`, never a zero.
+- `/cg-skill <operation>` is the only public skill-management namespace. The
+  `cg` suite selects `cap-skill-management`; mutating operations always plan
+  before digest-bound apply, and generated projections are never edited by hand.
+- **Captured dynamic Python execution includes the dependency closure**: securing
+  only the selected handler is insufficient because its imports resolve and
+  execute code again. Capture and validate all repository-local dependencies
+  before execution. When replacing text reads with byte capture, restore required
+  UTF-8 and LF normalization explicitly while preserving opaque resources byte
+  for byte. See `.cg-docs/solutions/bugs/2026-09-02-captured-byte-trust-must-cover-dependency-closure.md`.
 
 ## Wiki Configuration
 
@@ -305,3 +438,45 @@ Wiki-aware prompts (`/cg-wiki`, `/cg-compound`) read these HTML comment directiv
 <!-- folder: docs -->
 <!-- audience: plugin users (developers integrating Compound GPID into their projects) -->
 <!-- tone: technical, concise -->
+
+### PR CI preflight and Kilo capability gates (2026-08-21)
+
+- The committed `scripts/cg_pr_preflight.py` is the authoritative native CI
+  selector. Prepare mode excludes only the HEAD-based drift test because
+  generated output is expected to be uncommitted before staging; committed mode
+  includes drift, all deterministic native tests, and the three module gates.
+- Generic Kilo host absence is reported as `generic-not-applicable`, not as
+  integration evidence. Real host checks require the protected certified job,
+  trusted default-branch checkout, and reviewed executable version/SHA-256
+  evidence. See `.cg-docs/solutions/git-workflows/2026-08-21-pr-ci-preflight-native-target-kilo-capability-gates.md`.
+
+### Verified documentation and help evidence (2026-09-17)
+
+- The help writer emits one validated catalog/documents snapshot; projections
+  must consume that envelope without reopening catalog facts after validation.
+- Native help evidence binds its entire declared source inventory, including
+  documentation helpers. Refresh proof after any bound input changes; preserve
+  exact query, fixed-operation and unchanged-display assertions. Static adapter
+  parity does not establish runtime support for an untested host or model.
+- Help-owned wiki marker interiors are written only by the canonical help
+  documentation writer. See
+  `.cg-docs/solutions/testing-patterns/2026-09-17-docs-snapshots-and-native-help-evidence.md`.
+
+## Python Registry Mutation Conventions
+
+- Parse rewritable JSON numbers exactly; binary floats do not preserve unknown
+  numeric fields.
+- Validate the complete success response and bounded rendered registry before
+  expected-state publication.
+- Test the real final secure-write boundary and assert exact source restoration,
+  not only mocked writer failure.
+- Treat registry ownership as a consumer-closure contract: every ownership,
+  routing, activation, removal, and generation decision must use the central
+  exclusion-aware resolver. Preserve missing optional fields at legacy
+  boundaries, and use exact phase-scoped deferral sets when generated output is
+  intentionally scheduled for a later phase. See
+  `.cg-docs/solutions/testing-patterns/2026-09-09-registry-ownership-metadata-needs-consumer-closure-tests.md`.
+- Validate every registry identity field before building keyed maps or sets.
+  Require non-empty string values, test each duplicate field independently, and
+  call validation next to the canonical registry before derived constants. See
+  `.cg-docs/solutions/data-quality/2026-09-09-validate-registry-identities-before-derived-maps.md`.

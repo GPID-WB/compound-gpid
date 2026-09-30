@@ -1,13 +1,25 @@
 name: Deploy documentation site
+# Created 2026-09-10.
 
 on:
   push:
-    branches: [main]
+    branches: [dev]
     paths:
-      - 'docs/**'
-      - 'scripts/check-docs-site.js'
-      - '.github/workflows/pages.yml'
+      - '.github/prompts/**'
       - '.github/skills/**'
+      - '.github/agents/**'
+      - 'docs/**'
+      - 'releases/**'
+      - 'scripts/rebuild-docs.js'
+      - 'scripts/docs-*.js'
+      - 'scripts/docs-legacy-v1/**'
+      - '.github/shared/module-registry.json'
+      - '.github/shared/help-catalog.json'
+      - '.github/shared/shell-commands.json'
+      - 'scripts/check-docs-site.js'
+      - 'scripts/assemble-docs-site.js'
+      - '.github/workflows/docs-site-build.yml'
+      - '.github/workflows/pages.yml'
   workflow_dispatch:
 
 permissions:
@@ -18,30 +30,38 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  deploy-dev-preview:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       contents: read
-      pages: write
-      id-token: write
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@v5
-
-      - name: Validate documentation site
-        run: node scripts/check-docs-site.js
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Check out exact unprivileged dev source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
         with:
-          path: docs
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
 
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4.4.0
+        with:
+          node-version: "22"
+
+      - name: Build and validate development documentation source
+        if: github.ref == 'refs/heads/dev'
+        run: |
+          node scripts/rebuild-docs.js --all
+          node scripts/check-docs-site.js
+
+      # The protected workflow_run controller composes this artifact as static data.
+      - name: Upload exact-run development documentation
+        if: github.ref == 'refs/heads/dev'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: legacy-dev-docs
+          path: |
+            docs/
+            .docs-build-metadata.json
+          include-hidden-files: true
+          if-no-files-found: error

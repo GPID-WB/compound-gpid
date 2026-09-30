@@ -2,6 +2,76 @@
   "schemaVersion": "compound-gpid-roadmap-v1",
   "milestones": [
     {
+      "id": "responsible-research-partner",
+      "title": "Responsible Research Partner",
+      "objective": "Expand Compound Research from a journal-paper econometrics assistant into a responsible, provenance-aware partner for the full lifecycle of policy-relevant measurement and economic research.",
+      "status": "in-progress",
+      "features": [
+        {
+          "id": "cr-evidence-provenance-spine",
+          "title": "CR evidence and provenance spine with repo-local corpus default",
+          "description": "Add structured source manifests, claim-to-evidence matrices, verification status, original-document authority, citation auditing, and opt-in external research without hallucinated sources or locators.",
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-07-30-cr-evidence-provenance-spine.md"
+        },
+        {
+          "id": "cr-measurement-classification-archetype",
+          "title": "CR Measurement/Classification research archetype",
+          "description": "Add a ninth research archetype covering composite indicators, clustering, threshold mapping, weighting sensitivity, cluster validity, and established measurement methodology.",
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-07-30-cr-measurement-classification-archetype.md"
+        },
+        {
+          "id": "cr-measurement-comparability-controls",
+          "title": "P0 comparability controls for measurement and indicator work",
+          "description": "Enforce comparability across countries or other units and over time, including vintage versioning, ranking stability, coverage artifacts, spurious cluster checks, and attribution of changes to data versus method.",
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-07-30-cr-measurement-classification-archetype.md"
+        },
+        {
+          "id": "cr-scoping-and-normative-gates",
+          "title": "Research scoping and normative-decision gates",
+          "description": "Make scoping a first-class artifact and require human approval of value-laden specifications at brainstorm and plan gates, with re-escalation when new normative choices arise during work.",
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-07-30-cr-scoping-normative-gates.md"
+        },
+        {
+          "id": "cr-responsible-lifecycle-method-packs",
+          "title": "Responsible lifecycle and method-pack retrofit",
+          "description": "Converge toward Scope, Evidence, Theory, Method, Execute, Verify, Communicate, Maintain, while preserving backward compatibility for structural-econometrics and ML workflows.",
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-07-30-cr-method-pack-retrofit.md"
+        },
+        {
+          "id": "cr-second-measurement-use-case-validation",
+          "title": "Validate the Measurement archetype with a second use case",
+          "description": "Test whether the Measurement/Classification archetype generalizes beyond the Beyond GDP classification exemplar before broad implementation.",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "cr-team-evidence-library",
+          "title": "Team-level evidence library",
+          "description": "Explore a separately governed, searchable institutional asset where verified sources and claim-evidence records compound across research projects.",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "cr-local-evidence-workbench-for-verifiable-research-claims",
+          "title": "CR Local Evidence Workbench for Verifiable Research Claims",
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-08-12-cr-local-evidence-workbench-revised.md"
+        },
+        {
+          "id": "root-level-c-research-output-workspace-and-migration",
+          "title": "Root-level c-research output workspace and migration",
+          "description": "Separate canonical research-question and study outputs from Compound GPID process documentation. Create an artifact-type-organized root-level c-research/ workspace when the cr suite is active; keep data/ and other inputs separate; migrate legacy research outputs into the root-level c-research/ workspace; update canonical CR references, setup scaffolding, tests, documentation, and generated targets; preserve shared .cg-docs/ records, evidence-fixtures/, inbox/, and generated views.",
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-09-02-c-research-output-workspace-migration.md"
+        }
+      ]
+    },
+    {
       "id": "quality-loop",
       "title": "Quality Loop",
       "objective": "Close the correctness gap in the work cycle by auto-fixing diagnostics, enforcing per-step test verification, and giving the team validated testing patterns for R.",
@@ -138,9 +208,21 @@
           "plan": null
         },
         {
+          "id": "scalable-skill-management-suite",
+          "title": "Scalable Skill Management Suite",
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-08-28-scalable-skill-management-suite.md"
+        },
+        {
+          "id": "project-authored-skills",
+          "title": "Project-authored skills",
+          "description": "Add future `/cg-skill create --scope project` support for project-owned skills without upstream import provenance, with a distinct provenance and approval model.",
+          "status": "idea",
+          "plan": null
+        },
+        {
           "id": "skill-description-consistency-audit",
-          "title": "Skill discovery metadata and trigger-quality audit",
-          "description": "Audit and improve every canonical Compound GPID skill's discovery metadata so relevant skills activate reliably without increasing always-loaded context or causing false-positive activation. Define a project-owned description contract covering WHAT the skill enables, WHEN it must load, concrete file types and user scenarios, likely user vocabulary, important positive triggers, and explicit near-miss or should-not-trigger boundaries where needed. Establish reasonable minimum and maximum description lengths as one part of quality rather than treating length as the objective. Inventory all canonical skills, classify internal versus user-facing discovery behavior, and update descriptions without changing skill semantics. Add deterministic validation for name/folder alignment, required namespace, description presence and bounds, duplicate identities, catalog parity, and cross-platform generated metadata parity. Add behavioral discovery probes for representative positive requests, negative requests, adjacent-skill ambiguity, language/dialect routing, and internal-only skills. Coordinate with progressive disclosure, SkillOpt research, documentation catalogs, and target generation, but keep SkillOpt as a separate later optimization mechanism. Success means users and agents can predict why a skill loads, relevant skills are discoverable using natural user wording, unrelated skills do not activate, and all four supported platforms expose equivalent metadata.",
+          "title": "Skill description consistency audit and optimization",
           "status": "idea",
           "plan": null
         },
@@ -183,6 +265,18 @@
           "description": "Extend the completed World Bank report-writing source-pack foundation into a reusable provenance and verification contract for high-stakes institutional claims. Preserve existing source identity, approval status, terminology dependencies, exact evidence paths, source hierarchy, citation placeholders, visible verification markers, and fixed validator artifacts. Add claim-to-source traceability, immutable or versioned source identity where available, retrieval and last-verified dates, source reachability checks where network policy permits, stale-source handling, explicit unavailable/unknown outcomes, and evidence that a cited source actually supports the attributed claim rather than merely having a valid URL or repository path. Define boundaries for public versus internal or restricted sources and prevent confidential claims or search terms from being sent to external services without approval. Integrate source verification into `cg-skill-wb-report-writing` and related writing workflows instead of adding a generic always-active verification agent. Distinguish source existence, source accessibility, citation correctness, factual support, and final human acceptance as separate states. Success means every material statistic, method, regulatory statement, or institutional claim can be traced to approved evidence with honest unresolved markers, while the system never invents sources, silently treats URL shape as factual verification, or exposes restricted material.",
           "status": "idea",
           "plan": null
+        },
+        {
+          "id": "skill-description-length-cap",
+          "title": "Skill description length cap with test enforcement [from CE]",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "cr-ml-skill-redesign-for-econometricians",
+          "title": "CR ML Skill Redesign for Econometricians",
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-09-03-cr-ml-skill-redesign.md"
         }
       ]
     },
@@ -280,7 +374,22 @@
         },
         {
           "id": "autonomous-pipeline-autopilot",
-          "title": "Autonomous pipeline command /cg-autopilot (blocked on workflow research + hooks evaluation)",
+          "title": "Autonomous pipeline command /cg-autopilot",
+          "description": "Explore Kilo-first execution from canonical .github sources with honest generated adapter capability gates. Use a dedicated lightweight parent and a fresh foreground cg-workflow-stage Task child per operation in one worktree/branch; preserve /cg-work phaseN review:none. Use deterministic validation, state and CI helpers; exact plan/report identity and read-back evidence; opt-in stage execution that preserves standalone command semantics and direct writes; verified Task permissions and conditional depth3; scoped human approvals; a crash-safe reference-only cursor; clean publication checkpoints; bounded review/CI loops that preserve the existing PR-scoped two-round CI cap; an explicit base and exact-head CI green gate; and compact results. Keep basic dirty-tree checks, cooperative locks, evidence reconciliation and uncertain-owner safe stops in core v1. Pause safely rather than claim hard stage termination or exclusive writer ownership. This is brainstorm scope, not implementation or plan completion.",
+          "status": "active",
+          "plan": ".cg-docs/plans/2026-09-11-kilo-first-autopilot.md"
+        },
+        {
+          "id": "autopilot-hard-stage-deadlines",
+          "title": "Autopilot hard stage deadlines",
+          "description": "Beyond version1, evaluate runtime-enforced elapsed-time deadlines, supervised agent processes and descendant-process termination checks. Cover hung tools, cancellation and interruption without allowing retry while an earlier writer might survive. Preserve scoped approvals and existing safety gates. Hard stage deadlines are separate from v1 bounded CI polling and safe-pause recovery; do not claim process termination implies rollback.",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "autopilot-enforced-writer-isolation",
+          "title": "Autopilot enforced writer isolation",
+          "description": "Beyond version1, research enforceable writer ownership/isolation and runtime-backed interrupted-child reconciliation for the same-worktree pipeline. Define which writers/platforms the mechanism can control and verify fencing and stale-owner recovery before claiming exclusivity. Keep basic dirty-tree checks, cooperative locks, evidence reconciliation and uncertain-owner safe stops in core v1; do not add separate worktrees per stage or duplicate workflow-status-resume.",
           "status": "idea",
           "plan": null
         },
@@ -332,16 +441,29 @@
         {
           "id": "attribution-documentation",
           "title": "External asset provenance and controlled intake",
-          "description": "Establish the authoritative governance and intake system for adopting external skills, agents, instructions, scripts, templates, or other AI-assistance assets into Compound GPID. The system must record the upstream repository URL, immutable commit SHA, exact source paths, retrieval/import date, upstream and imported-file SHA-256 hashes, license and attribution obligations, reviewer identity, approval status, local destination mapping, adaptation summary, and refresh/removal history. Updates must compare two pinned upstream revisions and surface source changes for human review rather than merely regenerating local hashes. Intake must inspect all content as untrusted data; assess prompt-injection language, guardrail bypasses, remote-shell execution, automatic package execution, floating dependencies, executable resources, unsafe paths, credentials, network behavior, and runtime assumptions; and distinguish automated advisory findings from human approval. Define explicit outcomes for approved, rejected, quarantined, superseded, removed, and update-pending assets. Integrate with the completed atomic packaging and generated-target system without changing `.github/` as the canonical source. Initial implementation must remain narrowly focused on controlled intake and provenance, not create a public marketplace, generalized dependency DSL, automatic installation from arbitrary repositories, or implicit trust based on catalog inclusion.",
+          "description": "Establish the authoritative governance and intake system for adopting external skills, agents, instructions, scripts, templates, or other AI-assistance assets into Compound GPID. The system must record the upstream repository URL, immutable commit SHA, exact source paths, retrieval/import date, upstream and imported-file SHA-256 hashes, license and attribution obligations, reviewer identity, approval status, local destination mapping, adaptation summary, and refresh/removal history. Updates must compare two pinned upstream revisions and surface source changes for human review rather than merely regenerating local hashes. Intake must inspect all content as untrusted data; assess prompt-injection language, guardrail bypasses, remote-shell execution, automatic package execution, floating dependencies, executable resources, unsafe paths, credentials, network behavior, and runtime assumptions; and distinguish automated advisory findings from human approval. Define explicit outcomes for approved, rejected, quarantined, superseded, removed, and update-pending assets. Integrate with the completed atomic packaging and generated-target system without changing `.github/` as the canonical source. This is the required prerequisite for the later quarantined vendoring workflow and its GitHub Actions pilot. Initial implementation must remain narrowly focused on controlled intake and provenance, not create a public marketplace, generalized dependency DSL, automatic installation from arbitrary repositories, or implicit trust based on catalog inclusion.",
           "status": "idea",
           "plan": null
         },
         {
+          "id": "quarantined-external-skill-vendoring",
+          "title": "Quarantined external-skill vendoring workflow",
+          "description": "Extend, but do not duplicate, `attribution-documentation` after its controlled-intake and provenance controls are implemented. Add `/cg-skill import <repo>@<sha> <path>` to stage only pinned external content in quarantine; perform static security, path, license, and provenance checks; require explicit human approval; and produce a review diff. Automation may make only mechanical namespace and path adaptations, then vendors an approved non-executable bundle into canonical `.github/skills/`. Define custom-skill collision handling through separate managed and user roots. Do not create a public marketplace, automatic installation from arbitrary GitHub repositories, or remote runtime fetches.",
+          "status": "active",
+          "plan": ".cg-docs/plans/2026-08-13-manifest-driven-skill-loading.md"
+        },
+        {
           "id": "github-actions-supply-chain-hardening-pilot",
           "title": "GitHub Actions hardening external-skill pilot",
-          "description": "Run the first controlled external-skill adoption through the provenance and intake system by adapting Awesome Copilot's `github-actions-hardening` skill under a Compound GPID `cg-skill-*` namespace. This feature is blocked until `external asset provenance and controlled intake` is implemented and verified. Pin the upstream source to an immutable commit, preserve license and attribution evidence, document all local changes, and import the complete non-executable skill bundle through the canonical `.github/` source. Align upstream severity with Compound GPID's P0-P3 system and integrate the skill into existing `cg-version-control` and `cg-adversarial` review paths when `.github/workflows/*.yml` or `.yaml` files are in scope; do not create a redundant general review agent. Adapt the guidance to cover GitHub Actions trust boundaries, untrusted expression interpolation, privileged triggers, fork code execution, least-privilege `GITHUB_TOKEN` permissions, immutable action references, credential persistence, secrets, artifacts, caches, OIDC, and self-hosted runner exposure. Use the adapted skill to audit Compound GPID's current workflows and produce concrete remediation findings. Verify recursive bundle parity, reference closure, isolated native installation, and discoverability on GitHub Copilot, Claude Code, Codex, and OpenCode. The pilot must demonstrate that the intake, adaptation, packaging, review integration, and update process works end to end; it must not broaden into marketplace publication, automatic external installation, or unrelated repository-security automation.",
+          "description": "Run the first controlled external-skill adoption through the provenance and intake system by adapting Awesome Copilot's `github-actions-hardening` skill under a Compound GPID `cg-skill-*` namespace. This feature is blocked until both `attribution-documentation` and `quarantined-external-skill-vendoring` are implemented and verified. Pin the upstream source to an immutable commit, preserve license and attribution evidence, document all local changes, and import the complete non-executable skill bundle through the canonical `.github/` source. Align upstream severity with Compound GPID's P0-P3 system and integrate the skill into existing `cg-version-control` and `cg-adversarial` review paths when `.github/workflows/*.yml` or `.yaml` files are in scope; do not create a redundant general review agent. Adapt the guidance to cover GitHub Actions trust boundaries, untrusted expression interpolation, privileged triggers, fork code execution, least-privilege `GITHUB_TOKEN` permissions, immutable action references, credential persistence, secrets, artifacts, caches, OIDC, and self-hosted runner exposure. Use the adapted skill to audit Compound GPID's current workflows and produce concrete remediation findings. Verify recursive bundle parity, reference closure, isolated native installation, and discoverability on GitHub Copilot, Claude Code, Codex, and OpenCode. The pilot must demonstrate that the intake, adaptation, packaging, review integration, and update process works end to end; it must not broaden into marketplace publication, automatic external installation, or unrelated repository-security automation.",
           "status": "idea",
           "plan": null
+        },
+        {
+          "id": "modular-compound-gpid-architecture-for-technical-and-research-suites",
+          "title": "Modular Compound GPID architecture for technical and research suites",
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-08-07-modular-compound-gpid.md"
         }
       ]
     },
@@ -349,7 +471,7 @@
       "id": "competitive-prompt-enhancements",
       "title": "Competitive Prompt Enhancements",
       "objective": "Adopt the highest-value patterns identified in the April 2026 competitive review of compound-engineering, superpowers, and GSD-2 — focusing on traceability, inline quality gates, structured debugging, and knowledge capture improvements across workflow prompts.",
-      "status": "planned",
+      "status": "in-progress",
       "features": [
         {
           "id": "brainstorm-plan-id-traceability",
@@ -396,7 +518,7 @@
         {
           "id": "brainstorm-depth-grill-mode",
           "title": "Brainstorm depth overhaul — grill-me mode + grill-with-docs skill",
-          "description": "Relentlessly inquisitive questioning in /cg-brainstorm until user and agent reach deep shared understanding. Inspired by mattpocock's grill-with-docs: challenge against domain glossary, sharpen fuzzy language, discuss concrete scenarios, cross-reference with code. Two modes: 'grill me' (agent questions user's idea) and 'grill with docs' (agent challenges plan against existing project knowledge/BRAIN.md). Captures resolved terminology and decisions inline.",
+          "description": "Deferred Deep-only advanced follow-up. Consider it only if evidence from the minimal adaptive grilling pilot shows repeated context loss, false completion, or decision drift. Keep persistent decision graphs, multi-session grilling, glossary or ADR behavior, and broader /cr-brainstorm sharing out of the minimal pilot.",
           "status": "idea",
           "plan": null
         },
@@ -406,6 +528,19 @@
           "description": "Cross-cutting prompt that can be invoked at any stage. Reports: confidence level in the current approach, explicit assumptions being made, unknowns that remain unresolved, and what new information would change the conclusion. Complements /cg-review (which finds problems) with epistemic self-awareness (what we don't know we don't know).",
           "status": "idea",
           "plan": null
+        },
+        {
+          "id": "minimal-adaptive-grilling-for-the-compound-gpid-workflow",
+          "title": "Minimal adaptive grilling for the Compound GPID workflow",
+          "description": "First minimal pilot: update the existing cg-skill-brainstorming and /cg-brainstorm logic to distinguish facts from decisions and select only material decisions through a dependency frontier. Ask one question by default, with adaptive rounds capped at 2-3 independent questions. Stop interviewing when remaining uncertainties would not materially affect the minimum viable solution, confirm the minimal design, and only then offer optional added complexity. Preserve existing lifecycle gates and add no persistent decision infrastructure.",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "rename-repository-review-command-and-add-registry-management-flags",
+          "title": "Rename repository review command and add registry management flags",
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-08-28-compound-gpid-rd-command.md"
         }
       ]
     },
@@ -505,8 +640,8 @@
           "id": "cg-help-interactive",
           "title": "/cg-help — comprehensive interactive help system",
           "description": "Teach users how to use the plugin with context-aware guidance. Extremely powerful and comprehensive — covers all commands, workflows, decision trees. Auto-updates as features are added (generates from prompt/skill/agent metadata). Supports: 'what can I do?', 'how do I X?', 'what's the difference between X and Y?', workflow walkthroughs, and progressive disclosure for beginners vs. power users.",
-          "status": "idea",
-          "plan": null
+          "status": "active",
+          "plan": ".cg-docs/plans/2026-09-08-evidence-backed-cg-help-command.md"
         },
         {
           "id": "project-scanner-evidence-reality-gaps",
@@ -621,8 +756,8 @@
         {
           "id": "automatic-post-pr-verification-handoff",
           "title": "Automatic post-PR CI verification and universal PR targeting",
-          "status": "idea",
-          "plan": null,
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-08-21-pr-ci-preflight-and-kilo-capability-gates.md",
           "description": "Make `/cg-commit-push-pr` and `/cg-verify-pr` one continuous, reliable PR workflow. After creating a new PR or pushing commits to an existing PR, `/cg-commit-push-pr` must retain the PR number and URL, poll GitHub non-blockingly every 20-30 seconds for up to five minutes, and begin the shared verification workflow as soon as status checks appear. Do not use `gh pr checks --watch`, an unconditional multi-minute sleep, or an indefinite terminal process. Handle checks appearing immediately, delayed check registration, no configured checks, GitHub API or authentication failures, rate limits, user cancellation, and timeout expiry with explicit outcomes. If checks do not appear within five minutes, leave the PR successfully created and provide a resumable `/cg-verify-pr --pr <number-or-url>` handoff rather than treating the PR operation as failed. Refactor verification behavior into one shared contract or implementation surface so `/cg-commit-push-pr` embeds the same logic as `/cg-verify-pr` without duplicating and drifting two copies. Preserve existing pass, pending, failure classification, platform-specific warnings, two-round auto-fix cap, targeted staging, rebase safety, and force-with-lease restrictions. After checks appear, report success when all checks pass, diagnose and optionally fix failures according to the active verification mode, or report pending checks with a precise continuation command. Generalize `/cg-verify-pr` so it works for any accessible GitHub pull request, regardless of whether it was created by Compound GPID, created manually, opened by another tool, associated with a plan, or submitted from a fork. Support PR resolution from the current branch by default and explicit `--pr <number-or-url>` targeting. Remove error messages and assumptions requiring `/cg-commit-push-pr` as the creator. Separate observation from mutation: any accessible PR may be inspected, but automatic fixes and pushes require a matching local checkout, a clean and verified head branch, write permission, and a safe push target. Fork PRs, external contributors, detached checkouts, mismatched heads, or read-only permissions must fall back to observe-only diagnosis unless the user explicitly establishes a writable local workflow. Add deterministic tests for immediate, delayed, empty, pending, successful, failed, timed-out, cancelled, externally created, forked, and explicitly targeted PR scenarios. Success means every PR creation ends with an automatic verification attempt, while `/cg-verify-pr` remains independently usable as the universal PR diagnosis and remediation command."
         },
         {
@@ -637,6 +772,40 @@
             "issueUrl": "https://github.com/GPID-WB/compound-gpid/issues/127",
             "createdAt": "2026-08-06"
           }
+        },
+        {
+          "id": "automated-documentation-deployment-and-whats-new-page",
+          "title": "Automated Documentation Deployment and What's New Page",
+          "description": "Automated wiki rebuild on merge to main, bot-committed docs from canonical sources, and a What's New page generated from structured release payloads. Plan in .cg-docs/brainstorms/2026-08-12-automated-documentation-deployment.md.",
+          "status": "active",
+          "plan": ".cg-docs/plans/2026-08-12-automated-documentation-deployment.md"
+        },
+        {
+          "id": "dual-deployment-dev-branch-docs-at-dev",
+          "title": "Dual-Deployment: Dev Branch Docs at /dev/",
+          "description": "Composite Pages artifact with main docs at root and dev docs under /dev/ subdirectory. Pushes to both main and dev that touch docs/ trigger deployment with separate concurrency groups. Includes dev-mode banner for /dev/ visitors. Deferred from the automated-documentation brainstorm (2026-08-12).",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "unified-cg-light-work-command-for-small-technical-tasks",
+          "title": "Unified /cg-light-work command for small technical tasks",
+          "description": "Add `/cg-light-work` as the unified workflow for small technical tasks. It provides bounded workspace-first discovery, strict hard safety routing, overridable size gates with approval, a standard Plan/Work Report/Review Report lifecycle, targeted light review and revalidation, and explicit compounding opt-in. Make `/cg-work` plan-only and provide a copy-ready redirect for inline tasks. Brainstorm context: `.cg-docs/brainstorms/2026-09-04-cg-light-work-unified-small-task-workflow.md`.",
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-09-04-cg-light-work-unified-small-task-workflow.md"
+        },
+        {
+          "id": "documentation-ia-ux-redesign",
+          "title": "Documentation Information Architecture and UX Redesign",
+          "description": "Redesign the existing static docs navigation and separate in-page TOC, consolidate Skill Management, explain CG/CR, improve task-based command guides and local discovery, and verify Published/root plus /dev/ identity. Core Gate A ships independently; catalog integration and help runtime claims need Gates B/C.",
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-09-16-documentation-ia-ux-redesign.md"
+        },
+        {
+          "id": "cg-release-prerelease-automation-zero-pause-flow-under-45-minutes",
+          "title": "cg-release prerelease automation: zero-pause flow under 45 minutes",
+          "status": "active",
+          "plan": ".cg-docs/plans/2026-09-16-cg-release-prerelease-automation.md"
         }
       ]
     },
@@ -820,6 +989,68 @@
           "description": "Let a user turn any Markdown document, not only Brainstorm or Plan artifacts, into an easy-to-read, beautiful, responsive, accessible, printable, self-contained offline HTML document. Create a reusable `cg-skill-markdown-publishing` knowledge and orchestration skill, a user-facing `/cg-render-doc` command, and a deterministic implementation surface such as `cg-render-markdown`; the skill orchestrates the renderer and never asks a model to invent bespoke HTML on every run. Reuse the completed dual-audience artifact renderer where contracts genuinely overlap, but add a generic Markdown parser and document-model path instead of pretending arbitrary documents satisfy Brainstorm or Plan schemas. Support modes such as `/cg-render-doc path/to/document.md`, `--theme <name>`, `--check`, an explicit output path when it can be supported safely, and clear regeneration plus current/stale behavior. Define a small curated theme system suitable for technical, report, and editorial documents; themes affect presentation only and never semantics. Required behavior includes headings and navigation, tables, code blocks, links, safely local or embedded images, structurally recognized callouts, long-document handling, desktop and mobile responsiveness, accessibility, print CSS, deterministic source hashes, visible and machine-readable provenance, a safe URL policy, escaped raw HTML, restrictive offline CSP, secure root-contained writes where publication and rollback use non-replacing collision semantics that preserve concurrent winners plus quarantine/recovery artifacts when a destination name is occupied, exact-byte freshness, concise recovery guidance, and no runtime network, model, or Open Design dependency. Source Markdown remains canonical; HTML is derived, regenerable, excluded from model-context ingestion by default, and never edited as authority. Version 1 is one-file Markdown-to-HTML only. Historical bulk backfill, PDF, image, or hosted publishing, live editing, AI summaries, and arbitrary plugin execution remain separate future extensions rather than entering the first release. Deliver canonical assets under `.github/` plus generated Claude Code, Codex, and OpenCode parity, cross-platform launchers and installers, documentation, and focused tests. Acceptance requires deterministic snapshots; security and adversarial tests; accessibility and print checks; responsive evidence; freshness and tamper checks; secure write and collision tests; installer and launcher parity; generated-target drift checks; and documentation. This is the generalization successor to `workflow-maturity/dual-audience-brainstorm-and-plan-artifacts-with-human-readable-html`; historical backfill remains a separate sibling feature.",
           "status": "active",
           "plan": ".cg-docs/plans/2026-08-03-generic-markdown-reference-publishing-core-v2.md"
+        },
+        {
+          "id": "cr-asset-classification-mapping",
+          "title": "CR asset classification mapping",
+          "description": "Classify all ~30 CR assets from feat/compound-research-v2 into modules (kernel, capability packs, research suite) before Phase 3 of the modular plan. Each cr-prompt, cr-agent, cr-skill needs an explicit ownership decision.",
+          "status": "planned",
+          "plan": null
+        },
+        {
+          "id": "context-budget-enforcement-design",
+          "title": "Context-budget enforcement design",
+          "description": "After the baseline `token-audit-context-model`, make suite filtering work in normal link and update flows through generator and adapter enforcement rather than suite-selection prose alone. Specify the `compound-gpid.local.md` suite configuration, emitted inventory, and platform-adapter behavior as the first delivery step toward capability profiles. Enforcement must be generated artifacts and code, not only model instructions, and must not cause CG-only projects to ship every language pack. Capability-profile resolution, integrity checks, and active-manifest adapters follow this suite-filtering step.",
+          "status": "planned",
+          "plan": null
+        },
+        {
+          "id": "capability-profile-manifest-resolution",
+          "title": "Capability profiles and active project-manifest resolution",
+          "description": "Following suite filtering, replace suite-only closure with explicit capability profiles. Suites choose workflow namespaces, while `compound-gpid.local.md` selects language, dialect, tooling, and domain capability packs. Resolve one active project manifest from both sources so CG-only projects include only their selected packs, with clear validation for unsupported or ambiguous combinations. This foundation precedes manifest integrity, adapter generation, and install/update parity testing.",
+          "status": "planned",
+          "plan": null
+        },
+        {
+          "id": "mandatory-base-capabilities-generated-enforcement",
+          "title": "Narrow mandatory base capabilities with generated enforcement",
+          "description": "Define the minimal capability baseline used by active-manifest projects: a kernel runtime and manifest resolver plus a compact hard-stop router. Keep domain, language, Pester, Brain, and Git skills task-triggered rather than always active. Implement this boundary as generated artifacts and enforcement code, not model prose alone, during capability-profile delivery and before integrity and adapter work.",
+          "status": "planned",
+          "plan": null
+        },
+        {
+          "id": "manifest-integrity-fail-closed-validation",
+          "title": "Fail-closed manifest and skill-integrity validation",
+          "description": "After capability profiles are resolved, reject malformed or missing registries and configurations rather than silently falling back. Validate every named skill import, report actionable diagnostics for missing capabilities or configuration, and add generation/install coverage proving that invalid inputs fail closed before active-manifest adapters are emitted.",
+          "status": "planned",
+          "plan": null
+        },
+        {
+          "id": "active-manifest-platform-adapters",
+          "title": "Generate platform adapters from the active manifest",
+          "description": "Generate root and platform adapters from the validated active manifest so enabled `/cg-*` and `/cr-*` namespaces and selected skill paths exactly match the project configuration. Replace hard-coded `/cg-*` assumptions and wildcard all-skills messaging; do not expose unselected language, domain, or research assets. Deliver after fail-closed integrity validation and before the parity matrix.",
+          "status": "planned",
+          "plan": null
+        },
+        {
+          "id": "active-manifest-install-update-parity-matrix",
+          "title": "Active-manifest install/update and cross-platform parity matrix",
+          "description": "After manifest integrity and adapter generation, test install and update output for suite-only, CR-only, mixed, capability-specific, invalid-configuration, and external-collision cases on Windows and POSIX. Assert emitted inventories and routes exactly match the manifest, with no unrelated skills, commands, or namespace-routing leaks; include managed-versus-user root collision behavior for future reviewed external bundles.",
+          "status": "planned",
+          "plan": null
+        },
+        {
+          "id": "token-efficiency-vs-modular-priority-resolution",
+          "title": "Token Efficiency vs modular priority resolution",
+          "description": "Resolve the tension between the charter's Current Focus (Token Efficiency) and the modular architecture plan. Either add a Phase 0 step to update the charter, or explicitly document the prioritization change.",
+          "status": "planned",
+          "plan": null
+        },
+        {
+          "id": "merged-worktrees-with-uncommitted-wip-must-never-be-auto-deleted",
+          "title": "Merged worktrees with uncommitted WIP must never be auto-deleted",
+          "status": "idea",
+          "plan": null
         }
       ]
     },
@@ -827,12 +1058,12 @@
       "id": "token-optimization-model-governance",
       "title": "Token Optimization & Model Governance",
       "objective": "Reduce AI-credit cost and context burden by auditing token usage, defining model tiers with escalation rules, shrinking always-on context, splitting large prompts into thin entrypoints, adding stage-specific context contracts, and making review cheaper with deterministic pre-checks.",
-      "status": "planned",
+      "status": "in-progress",
       "features": [
         {
           "id": "token-audit-context-model",
           "title": "Audit current context and model usage",
-          "description": "Measure the current token and AI-credit burden of Compound GPID. Covers prompt files, agent files, skills, instructions, shared files, documentation references, Knowledge Brain artifacts, and explicit model declarations. Produces: context/model audit script, context audit report, model-declaration inventory, list of largest context-cost sources, list of prompts/agents with missing or expensive model assignments.",
+          "description": "Priority first: measure the current token and AI-credit burden of Compound GPID before context-reduction or manifest changes. Covers prompt files, agent files, skills, instructions, shared files, documentation references, Knowledge Brain artifacts, and explicit model declarations. Produces: context/model audit script, context audit report, model-declaration inventory, list of largest context-cost sources, list of prompts/agents with missing or expensive model assignments. Its baseline gates suite filtering, capability profiles, and before/after benchmarking.",
           "status": "idea",
           "plan": null
         },
@@ -867,21 +1098,21 @@
         {
           "id": "shrink-always-on-context",
           "title": "Shrink always-on context",
-          "description": "Reduce the size of instructions loaded automatically. The root Copilot instruction template should act as a short router, not a full manual. Produces: smaller .github/copilot-instructions.template.md, smaller instruction-router files, less repeated always-on text, clear pointers to stage-specific prompts/skills/context files.",
+          "description": "After the baseline audit, reduce the size of instructions loaded automatically. The root Copilot instruction template should act as a short router, not a full manual, and its active paths should align with the resolved project manifest. Produces: smaller .github/copilot-instructions.template.md, smaller instruction-router files, less repeated always-on text, clear pointers to stage-specific prompts, skills, and context files.",
           "status": "idea",
           "plan": null
         },
         {
           "id": "prompt-skill-split",
           "title": "Split large prompts into thin entrypoints and on-demand skills",
-          "description": "Refactor large slash prompts so they act as workflow entrypoints rather than carrying all reusable doctrine. Move repeated or specialized guidance into skills and reference files loaded only when relevant. Produces: smaller prompt files, more focused skill landing pages, reusable doctrine in skill references, less duplication across prompts/agents/instructions.",
+          "description": "Refactor large slash prompts so they act as workflow entrypoints rather than carrying all reusable doctrine. Move repeated or specialized guidance into manifest-selected skills and reference files loaded only when relevant. Produces: smaller prompt files, more focused skill landing pages, reusable doctrine in skill references, less duplication across prompts, agents, and instructions; verify the result against the audit baseline.",
           "status": "idea",
           "plan": null
         },
         {
           "id": "stage-context-contracts",
           "title": "Add stage-specific context contracts",
-          "description": "Define exactly what each workflow stage should read, avoid, and produce. Prevents broad context loading and makes the workflow more interpretable. Produces: context-contract files for major stages, explicit read-first lists, explicit do-not-read-by-default lists, required output schemas for each stage, context expansion rules requiring stated reason before loading broader context.",
+          "description": "Define exactly what each workflow stage should read, avoid, and produce, using active-manifest eligibility rather than broad all-skills assumptions. Prevents broad context loading and makes the workflow more interpretable. Produces: context-contract files for major stages, explicit read-first lists, explicit do-not-read-by-default lists, required output schemas for each stage, and context-expansion rules requiring a stated reason before loading broader context.",
           "status": "idea",
           "plan": null
         },
@@ -895,7 +1126,14 @@
         {
           "id": "token-benchmark-before-after",
           "title": "Benchmark before and after",
-          "description": "Run comparable tasks before and after optimization to measure whether changes actually reduce context burden and model cost without degrading workflow quality. Produces: before/after benchmark report, estimated token burden by workflow, model usage comparison, quality notes from real Copilot runtime tests, list of remaining optimization candidates.",
+          "description": "Run comparable tasks against the initial audit baseline and after optimization to measure whether suite filtering, active-manifest routing, and context changes reduce burden and model cost without degrading workflow quality. Produces: before/after benchmark report, estimated token burden by workflow, model usage comparison, quality notes from real Copilot runtime tests, and a list of remaining optimization candidates.",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "manifest-backed-skills-discovery-catalog",
+          "title": "Manifest-backed skills discovery catalog and /cg-skills",
+          "description": "After active-manifest integrity, adapter, and parity work, generate a static discovery catalog from the registry and skill frontmatter. Add on-demand `/cg-skills` discovery rather than injecting all skill descriptions into every session. Each record must state id, purpose, module owner, capability, suite and platform eligibility, activation cost, and provenance. The catalog supports measured context reduction and local discovery only; it must not become a public marketplace or remote runtime fetch mechanism.",
           "status": "idea",
           "plan": null
         },
@@ -903,6 +1141,20 @@
           "id": "token-optimization-compound",
           "title": "Capture the learning",
           "description": "After the optimization cycle is validated, capture the reusable lesson through the Compound GPID knowledge workflow. Produces: .cg-docs/solutions/ entry documenting the optimization pattern, updated Knowledge Brain artifacts, guidance for future prompt/agent/skill/model-governance changes.",
+          "status": "idea",
+          "plan": null
+        },
+        {
+          "id": "cr-work-gpt-5-6-luna-model-governance",
+          "title": "Assign GPT-5.6 Luna to /cr-work with native-target governance",
+          "description": "Assign GPT-5.6 Luna to the canonical /cr-work prompt, register the research-execution role in model governance, generate target-appropriate Codex and Claude mappings while preserving OpenCode inheritance, and synchronize documentation and tests without changing other assignments.",
+          "status": "done",
+          "plan": ".cg-docs/plans/2026-08-02-cr-work-gpt-5-6-luna-plan.md"
+        },
+        {
+          "id": "cr-prompt-model-catalog-baseline",
+          "title": "Baseline model-catalog coverage for remaining CR prompts",
+          "description": "Establish baseline model-catalog coverage for /cr-brainstorm, /cr-plan, /cr-review, and /cr-compound so the model audit distinguishes intentional existing CR catalog debt from new routing changes. This is separate from the current /cr-work GPT-5.6 Luna plan and covers catalog roles, documentation synchronization, and scoped audit coverage.",
           "status": "idea",
           "plan": null
         }

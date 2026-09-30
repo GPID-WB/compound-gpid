@@ -1,0 +1,42 @@
+{
+  "$schema": "compound-gpid-schema-subset-v1",
+  "$id": "cg-skill-help-v1",
+  "$defs": {
+    "arguments": {
+      "type": "object",
+      "properties": {
+        "positionals": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1},
+          "maxItems": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "resultData": {
+      "type": "object",
+      "properties": {
+        "manifestHealth": {"type": "string", "enum": ["fresh", "missing", "stale", "invalid"]},
+        "prospective": {"type": "boolean"},
+        "remediation": {"type": "string", "minLength": 1},
+        "operations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "operation": {"type": "string", "minLength": 1},
+              "roles": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+              "phases": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+              "workflow": {"type": "string", "minLength": 1},
+              "documentation": {"type": "string", "minLength": 1}
+            },
+            "required": ["operation", "roles", "phases", "workflow", "documentation"],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": ["manifestHealth", "prospective", "remediation", "operations"],
+      "additionalProperties": false
+    }
+  }
+}

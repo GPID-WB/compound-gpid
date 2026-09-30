@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "tag": "v1.2.0.9020",
+  "publishedAt": "2026-09-26T14:01:39Z",
+  "releaseDate": "2026-09-26",
+  "name": "v1.2.0.9020 - Routine development prereleases",
+  "url": "https://github.com/GPID-WB/compound-gpid/releases/tag/v1.2.0.9020",
+  "sourceUrl": "https://github.com/GPID-WB/compound-gpid/tree/v1.2.0.9020",
+  "sections": [
+    {
+      "kind": "new",
+      "title": "Release, documentation, help, and autopilot",
+      "entries": [
+        "Route four-part routine prerelease requests through the PowerShell Reserve and Finalize publisher, separate from exceptional Bridge and Recovery operations.",
+        "Add commit-bound preflight receipts, verified release-source handling, and a durable official-site snapshot for documentation previews.",
+        "Add a workflow-oriented documentation browser with search, navigation, and a canonical command catalog.",
+        "Add evidence-backed cg-help answers and provenance-bound catalog generation.",
+        "Add Kilo-first autopilot control modules, stage-mode workflows, bounded evidence, and native identity checks."
+      ]
+    },
+    {
+      "kind": "fixed",
+      "title": "Reliability fixes",
+      "entries": [
+        "Preserve verified documentation snapshots, mobile navigation targets, and complete source-bound help arguments.",
+        "Harden help evidence and manifest writes, installer and ownership checks, and the native pytest preflight time budget."
+      ]
+    },
+    {
+      "kind": "internal",
+      "title": "Tests and generated assets",
+      "entries": [
+        "Extend release, help, autopilot, installer, and documentation tests; regenerate native adapter assets and record review and cutover evidence."
+      ]
+    }
+  ]
+}

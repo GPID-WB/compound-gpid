@@ -1,0 +1,11 @@
+{
+  "id": "slash:cr-work", "name": "/cr-work", "kind": "slash", "ownerModule": "suite-cr", "supportedSuites": ["cr"],
+  "category": "research", "summary": "Implement a research plan with provenance and integrity controls.", "aliases": [],
+  "intents": ["implement a research plan", "execute one research plan phase"], "usage": "/cr-work [phaseX]", "examples": ["/cr-work phase1"],
+  "prerequisites": ["A validated research plan."], "outputs": ["Implemented research code and evidence artifacts."],
+  "constraints": ["Enforces seed, provenance, and specification logging requirements."], "relatedCommands": [{"id": "slash:cr-review", "relation": "next"}],
+  "sourcePath": ".github/prompts/cr-work.prompt.md", "definitionSources": [".github/prompts/cr-work.prompt.md"], "definitionDigest": "35ab9d31d835bcaff948462e4b12593f994425de470cb2982a5cf3dec70b77ad",
+  "documentationTargets": [], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["any"],
+  "availability": {"status": "available", "evidence": [{"os": "any", "sourcePath": ".github/prompts/cr-work.prompt.md"}]},
+  "activation": [{"suite": "cr", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
+}

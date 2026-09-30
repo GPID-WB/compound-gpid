@@ -1,0 +1,5 @@
+---
+name: valid
+description: "Valid fixture."
+---
+# Body

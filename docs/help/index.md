@@ -4,6 +4,53 @@ Start with the smallest recovery path. Preserve user files and capture the
 actual error before using repair commands that discard changes in the global
 plugin clone.
 
+## Command help
+
+Use the [command browser](../reference/commands.md) to find slash commands,
+terminal commands, and complete workflows. Its catalog is checked against the
+command definitions during the documentation build.
+
+The current source manifest binds the canonical help definitions, catalog, and
+generated command assets for all five adapters. It does not certify live runtime behavior
+for any host. Host-specific runtime observations are optional evidence and are
+not required to distribute or use the plugin.
+
+| Host | Source/static status | Live runtime certification |
+|---|---|---|
+| Claude Code | Current | Not certified |
+| Codex | Current | Not certified |
+| GitHub Copilot | Current | Not certified |
+| Kilo | Current | Not certified |
+| OpenCode | Current | Not certified |
+
+In a linked project with the `cg-help` backend available on PATH, use these
+lookups in the host's command input:
+
+```text
+/cg-help
+/cg-help /cg-help
+```
+
+The first returns the command overview; the second explains `/cg-help` itself.
+The host transfers the query through a prepared file and relays the backend's
+answer. Running `/cg-help` does not install the backend or generate documentation.
+If it reports unavailable help, check the installation and project linking before
+retrying; do not replace the response with guessed commands.
+
+The manifest records the exact source commit and Git-object digests. Its five
+platform rows are source bindings, not stored test-result strings. CI separately
+checks the catalog, generated targets, and platform test suites. Maintainers can
+regenerate and verify the current bindings without a model or hosted agent:
+
+```sh
+python scripts/cg_generate_help_support.py
+python scripts/cg_verify_help_support.py --evidence .cg-docs/work-reports/docs-help-support-current.json
+```
+
+The dated 2026-09-23 file is retained as historical Kilo probe evidence. It is
+not the current cross-platform support manifest and does not set a Kilo version
+floor, ceiling, provider, model, operating-system, or consumer requirement.
+
 ## Choose the problem
 
 | Symptom | First check | Detailed path |

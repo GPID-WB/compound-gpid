@@ -1,0 +1,11 @@
+{
+  "id": "slash:cg-issues", "name": "/cg-issues", "kind": "slash", "ownerModule": "suite-cg", "supportedSuites": ["cg"],
+  "category": "integration", "summary": "Manage GitHub Issues linked to Compound GPID roadmap work.", "aliases": [],
+  "intents": ["link roadmap work to GitHub Issues", "inspect issue synchronization status"], "usage": "/cg-issues [status|backfill|link|adopt|setup]", "examples": ["/cg-issues status"],
+  "prerequisites": ["A GitHub repository and roadmap data."], "outputs": ["Issue status or validated issue-link mutations."],
+  "constraints": ["Status is the default read-only mode."], "relatedCommands": [{"id": "slash:cg-roadmap-view", "relation": "related"}],
+  "sourcePath": ".github/prompts/cg-issues.prompt.md", "definitionSources": [".github/prompts/cg-issues.prompt.md"], "definitionDigest": "a291301a46ba3b6cc5f53609c3c75afd9d4640bb69a9e5a65b36e9a0de037e3f",
+  "documentationTargets": [], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["any"],
+  "availability": {"status": "conditional", "evidence": [{"os": "any", "sourcePath": ".github/prompts/cg-issues.prompt.md"}]},
+  "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
+}

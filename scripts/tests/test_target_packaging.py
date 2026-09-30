@@ -28,6 +28,12 @@ TARGET_SKILL_ROOTS = {
     "opencode": ".opencode/skills",
     "kilo": ".kilo/skills",
 }
+TARGET_COMMAND_ROOTS = {
+    "claude-code": ".claude/commands",
+    "codex": ".agents/commands",
+    "opencode": ".opencode/commands",
+    "kilo": ".kilo/commands",
+}
 
 
 def _write_bytes(path: Path, content: bytes) -> Path:
@@ -100,7 +106,22 @@ def _relative_inventory(root: Path) -> set[str]:
 
 
 def _canonical_skills(root: Path = REPO_ROOT) -> tuple[Path, ...]:
-    return tuple(sorted(path for path in (root / ".github/skills").glob("cg-skill-*") if path.is_dir()))
+    if root == REPO_ROOT:
+        assets = gen.scan_canonical_assets(root, active_suites=("cg", "cr"))
+        return tuple(
+            sorted(Path(item["path"]).parent for item in assets["skills"])
+        )
+    return tuple(sorted(path for path in (root / ".github/skills").glob("*") if path.is_dir()))
+
+
+def test_public_management_skill_is_atomic_in_every_generated_tree() -> None:
+    management = "cg-skill-management"
+    canonical = REPO_ROOT / ".github/skills" / management
+    expected = _relative_inventory(canonical)
+    assert "SKILL.md" in expected
+    for skill_root in TARGET_SKILL_ROOTS.values():
+        generated = REPO_ROOT / skill_root / management
+        assert _relative_inventory(generated) == expected
 
 
 def _local_markdown_targets(markdown: Path, bundle_root: Path) -> tuple[Path, ...]:
@@ -174,6 +195,32 @@ def test_every_canonical_skill_recursively_matches_all_generated_targets() -> No
                 else:
                     assert hashlib.sha256(output.read_bytes()).digest() == hashlib.sha256(source.read_bytes()).digest()
                 assert _is_executable(output) == _is_executable(source)
+
+
+def test_pilot_command_and_ownership_match_current_generation_plan() -> None:
+    plan = _plan(REPO_ROOT)
+
+    for target_id, command_root in TARGET_COMMAND_ROOTS.items():
+        destination = f"{command_root}/cg-brainstorm.md"
+        result = plan.by_target[target_id]
+        entry = next(
+            item for item in result.entries if item.destination == destination
+        )
+        output = REPO_ROOT / destination
+        manifest_path = (
+            REPO_ROOT / result.target_root / gen.OWNERSHIP_MANIFEST_NAME
+        )
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        owned = next(
+            item for item in manifest["files"] if item["path"] == destination
+        )
+
+        assert entry.source == ".github/prompts/cg-brainstorm.prompt.md"
+        assert entry.kind == "command"
+        assert output.read_bytes() == entry.content
+        assert owned["source"] == entry.source
+        assert owned["kind"] == entry.kind
+        assert owned["sha256"] == entry.sha256
 
 
 def test_fixture_packages_nested_unknown_binary_and_executable_resources_in_all_targets(

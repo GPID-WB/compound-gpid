@@ -1,0 +1,8 @@
+{
+  "revision": "b94f585c8a485dfb03965ca9711fb83257aaa7de",
+  "kind": "offline-fixture-only",
+  "sha256": {
+    "update.ps1": "d7e36fb6ed6c090a3c94cb98fff445c2062d215bf80c9eb570584322d24b1371",
+    "update.sh": "dae1f27e81b52231f383ce9889a63ce1517f6bc3ba93701513f88652612aecec"
+  }
+}

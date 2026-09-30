@@ -1,0 +1,11 @@
+[
+  {"case": "ambiguous", "query": "cg-skill", "expectedState": "candidates", "expectedEvidenceIds": ["shell:cg-skill", "slash:cg-skill"]},
+  {"case": "exact-shell", "query": "shell:cg-skill", "expectedState": "exact", "expectedEvidenceIds": ["shell:cg-skill"]},
+  {"case": "exact-slash", "query": "/cg-work", "expectedState": "exact", "expectedEvidenceIds": ["slash:cg-work"]},
+  {"case": "inactive-suite", "query": "research review", "expectedState": "candidates", "expectedEvidenceIds": ["slash:cr-review"]},
+  {"case": "natural-language", "query": "review my recent code changes", "expectedState": "candidates", "expectedEvidenceIds": ["slash:cg-review"]},
+  {"case": "no-argument", "query": "", "expectedState": "overview", "expectedEvidenceIds": []},
+  {"case": "typo", "query": "cg-wrok", "expectedState": "exact", "expectedEvidenceIds": ["slash:cg-work"]},
+  {"case": "unsupported", "query": "run a direct agent", "expectedState": "unsupported", "expectedEvidenceIds": []},
+  {"case": "workflow", "query": "plan implement review and open a pull request", "expectedState": "workflow", "expectedEvidenceIds": ["technical-delivery-loop"]}
+]

@@ -1,6 +1,7 @@
 # Review Routing Contract
 
-Canonical routing contract for `/cg-review` and `/cg-work review:*`.
+Canonical routing contract for `/cg-review`, `/cg-work review:*`, and the fixed
+light Review stage in `/cg-light-work`.
 
 ## Modes
 
@@ -37,6 +38,10 @@ Resolve exactly one route using this precedence:
 
 `mode:verify` is light-only and exempt from staged broad routing. `--report-only`
 changes triage behavior, not risk classification.
+
+`/cg-light-work` can use only `light`, after its qualification gates exclude all
+higher-risk classes. This narrow applicability changes no mode, precedence, or
+agent membership.
 
 Explicit user modes win whenever present. Auto risk-class routing applies only
 when no explicit mode is requested. For example, `/cg-review light` resolves to

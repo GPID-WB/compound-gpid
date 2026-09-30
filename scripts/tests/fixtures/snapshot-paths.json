@@ -1,0 +1,17 @@
+[
+  {"paths": ["extra.txt", "nested/a+b-c_1.txt"], "valid": true},
+  {"paths": ["extra file.txt"], "valid": false},
+  {"paths": ["assets"], "valid": false},
+  {"paths": ["Assets/other.txt"], "valid": false},
+  {"paths": ["a/b.txt", "a"], "valid": false},
+  {"paths": ["a/b.txt", "A/c.txt"], "valid": false},
+  {"paths": ["a./b.txt"], "valid": false},
+  {"paths": ["nul.txt"], "valid": false},
+  {"paths": ["constructor/b.txt"], "valid": false},
+  {"paths": ["dev"], "valid": false},
+  {"paths": ["releases/x.txt"], "valid": false},
+  {"paths": ["../escape"], "valid": false},
+  {"paths": ["a\\b.txt"], "valid": false},
+  {"paths": ["a:b.txt"], "valid": false},
+  {"paths": ["caf\u00e9.txt"], "valid": false}
+]

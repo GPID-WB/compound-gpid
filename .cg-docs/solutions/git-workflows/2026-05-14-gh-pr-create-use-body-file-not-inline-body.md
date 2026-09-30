@@ -73,3 +73,4 @@ rm -f "$tmp"
 - `.cg-docs/solutions/testing-patterns/2026-04-29-two-phase-injection-guard-for-agent-file-reads.md` — prompt injection via untrusted file content
 - `.cg-docs/solutions/bugs/2026-06-11-cli-injection-in-llm-driven-gh-prompts.md` — extends `--body-file` pattern to `--label` quoting, `--title` sanitization, and symlink traversal prevention
 - `.cg-docs/solutions/git-workflows/2026-03-04-git-pull-stderr-swallowed-by-redirect.md`
+- `.cg-docs/solutions/git-workflows/2026-09-17-repo-settings-auto-merge-protect-dev-required-checks.md` — settings verification prerequisite for automated PR merges

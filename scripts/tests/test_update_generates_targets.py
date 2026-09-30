@@ -13,6 +13,7 @@ import re
 import os
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -58,6 +59,7 @@ def _run_isolated_update(tmp_path: Path, failure: str) -> tuple[subprocess.Compl
     python_body = (
         "#!/bin/sh\n"
         "[ \"$1\" = '--version' ] && { printf '%s\\n' 'Python 3.11.0'; exit 0; }\n"
+        "[ \"$1\" = '-c' ] && exit 0\n"
         "exit 9\n"
     )
     if failure == "Python unavailable":
@@ -157,6 +159,64 @@ class TestUpdateShRegeneratesTargets:
         assert "managed-files.json" in content
         assert "Refreshed managed platform file" in content
 
+    def test_real_legacy_tree_blocks_without_deleting_source(self, tmp_path: Path) -> None:
+        """Run update.sh against a legacy tree and require fail-closed migration."""
+        if os.name == "nt":
+            pytest.skip("POSIX update.sh execution is not available on Windows")
+        install = tmp_path / "install"
+        (install / "scripts").mkdir(parents=True)
+        (install / ".github/shared").mkdir(parents=True)
+        shutil.copy2(REPO_ROOT / "scripts/update.sh", install / "scripts/update.sh")
+        for name in (
+            "cg_migrate_research_layout.py",
+            "research_layout.py",
+            "secure_fs.py",
+        ):
+            shutil.copy2(REPO_ROOT / "scripts" / name, install / "scripts" / name)
+        (install / ".github/shared/target-mapping.json").write_text("{}\n", encoding="utf-8")
+        (install / "scripts/cg_generate_targets.py").write_text(
+            "raise SystemExit(0)\n", encoding="utf-8"
+        )
+        (install / ".cg-version").write_text("latest", encoding="utf-8")
+
+        project = tmp_path / "consumer"
+        (project / ".github").mkdir(parents=True)
+        source = project / ".cg-docs/research/evidence/ledger.yaml"
+        source.parent.mkdir(parents=True)
+        source.write_text("sources: []\n", encoding="utf-8")
+
+        fake_bin = tmp_path / "bin"
+        fake_bin.mkdir()
+        _write_executable(
+            fake_bin / "git",
+            "#!/bin/sh\n"
+            "case \"$1 $2\" in\n"
+            "  'rev-parse --abbrev-ref') printf '%s\\n' main ;;\n"
+            "  'rev-parse --short') printf '%s\\n' abc123 ;;\n"
+            "  *) exit 0 ;;\n"
+            "esac\n",
+        )
+        _write_executable(
+            fake_bin / "python3",
+            f"#!/bin/sh\nexec {sys.executable} \"$@\"\n",
+        )
+        env = os.environ.copy()
+        env["PATH"] = f"{fake_bin}{os.pathsep}/usr/bin:/bin"
+
+        result = subprocess.run(
+            ["bash", str(install / "scripts/update.sh")],
+            capture_output=True,
+            text=True,
+            cwd=project,
+            env=env,
+            timeout=30,
+        )
+
+        assert result.returncode != 0
+        assert "explicit output approval" in (result.stdout + result.stderr)
+        assert source.exists()
+        assert not (project / "c-research/evidence/ledger.yaml").exists()
+
 
 class TestResolvePythonCommandConsistency:
     """Verify Resolve-PythonCommand is present in helpers.ps1 and matches
@@ -233,9 +293,14 @@ class TestCommitPushPrRegeneratesTargets:
         assert "target-mapping.json" in content
         assert "cg_generate_targets.py" in content
 
-    def test_checks_github_diff_before_regenerating(self, content: str) -> None:
-        assert "git diff HEAD" in content
-        assert ".github/" in content
+    def test_regenerates_unconditionally_and_refreshes_staging_inventory(self, content: str) -> None:
+        assert "Run the generator unconditionally" in content
+        assert "Rerun `git status --short`" in content
+
+    def test_runs_authoritative_ci_equivalent_gates_before_staging(self, content: str) -> None:
+        assert "cg_pr_preflight.py --phase prepare" in content
+        assert "pester_files" in content
+        assert "check-docs-site.js" in content
 
     def test_generation_failure_halts_before_staging(self, content: str) -> None:
         failure = content.index("If generation fails")
@@ -253,3 +318,10 @@ class TestCommitPushPrRegeneratesTargets:
         assert ".claude/" in content
         assert ".agents/" in content
         assert ".opencode/" in content
+        assert ".kilo/" in content
+
+    def test_runs_committed_preflight_after_commits_and_before_push(self, content: str) -> None:
+        post_commit = content.index("### Step 4.5: Post-Commit Generated Drift Gate")
+        push = content.index("### Step 5: Push")
+        assert post_commit < push
+        assert "cg_pr_preflight.py --phase committed" in content[post_commit:push]

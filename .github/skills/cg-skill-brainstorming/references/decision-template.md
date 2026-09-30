@@ -18,13 +18,13 @@ Examples:
 ---
 date: YYYY-MM-DD
 title: "Descriptive Title"
-status: decided        # draft | decided | superseded
+status: decided
+scope: "<Lightweight|Standard|Deep|Focused|Extended|Strategic>"
+artifact-schema-version: 1
 chosen-approach: "Approach Name"
-participants:
-  - Name 1
-  - Name 2
 tags: [tag1, tag2]
 ---
+<!-- Valid status values: decided, in-progress, abandoned -->
 ```
 
 ```markdown
@@ -49,7 +49,10 @@ Description of the approach.
 **Cons**: ...
 **Effort**: Small / Medium / Large
 
-### Approach 2: Name
+<!-- Add another Approach heading only for each additional materially different
+approach that was actually considered. Omit it when only one viable path existed. -->
+
+### Approach 2: Name (optional)
 Description of the approach.
 
 **Pros**: ...
@@ -59,11 +62,11 @@ Description of the approach.
 ## Decision
 Which approach was chosen and why. Reference specific requirements that drove the decision.
 
-## Consequences
-What are the implications of this decision? What trade-offs are we accepting?
-
 ## Next Steps
-Concrete actions for handoff to `/cg-plan`:
+For Software/Data work, list concrete actions for handoff to `/cg-plan`. For
+Thinking Partner work, list follow-up decisions, experiments, or stakeholder
+consultations instead.
+
 1. Action 1
 2. Action 2
 3. Action 3

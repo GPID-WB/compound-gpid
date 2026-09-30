@@ -1,4 +1,4 @@
-﻿---
+---
 description: "Handles atomic roadmap.json writes: add/remove milestones and features, update statuses, link plans. The only agent users interact with directly. For strategic restructuring (rethinking scope or priorities), use `/cg-strategy`."
 tools: ['read', 'write']
 user-invocable: true

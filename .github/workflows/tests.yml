@@ -2,9 +2,25 @@ name: Pester tests
 
 on:
   push:
-    branches: [ main, 'feat/**', 'fix/**', 'chore/**' ]
+    branches: [ main, dev, 'feat/**', 'fix/**', 'chore/**' ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, dev ]
+  workflow_dispatch:
+    inputs:
+      repair_docs_lockfile:
+        description: "One-time docs lockfile recovery; download and review the artifact before committing"
+        type: boolean
+        required: false
+        default: false
+      subject_commit:
+        description: "Exact same-repository 40-hex pre-evidence commit for approved Kilo certification"
+        required: true
+        type: string
+        pattern: "^[0-9a-f]{40}$"
+        pattern-error: "subject_commit must be a full 40-hex commit SHA"
+
+# Native target coverage is owned by scripts/cg_pr_preflight.py, not by a
+# second workflow list.
 
 jobs:
   browser-evidence:
@@ -14,21 +30,367 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
-      - uses: actions/setup-node@v4
+        id: checkout
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4.4.0
+        id: node
         with:
           node-version: "22"
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0
+        with:
+          python-version: "3.11"
+      - name: Check canonical help documentation
+        run: |
+          python scripts/cg_generate_help_catalog.py --check
+          python scripts/cg_generate_help_catalog.py --check-docs
+          python -m pip install pytest
+          python -m pytest scripts/tests/test_help_documentation.py -q
+      - name: Repair docs lockfile (explicit dispatch only)
+        id: repair
+        if: github.event_name == 'workflow_dispatch' && inputs.repair_docs_lockfile == true
+        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
       - name: Install Node test dependencies
-        run: npm install
+        id: dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Run documentation automation tests
+        id: docs_automation
+        run: npm run test:docs-automation
       - name: Install Chromium for evidence capture
+        id: chromium
         run: npx playwright install --with-deps chromium
+      - name: Run documentation browser tests
+        id: docs_browser
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_NAME: test-results/docs-browser.json
+        run: npm run test:docs-browser -- --reporter=line,json
       - name: Capture browser evidence manifest
+        id: capture
         run: npm run capture
       - name: Run browser evidence tests
+        id: evidence_tests
         run: npm test
+      - name: Record docs browser provenance
+        if: always()
+        shell: bash
+        env:
+          STEP_RESULTS: ${{ toJSON(steps) }}
+          REPAIR_REQUESTED: ${{ github.event_name == 'workflow_dispatch' && inputs.repair_docs_lockfile == true }}
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const { execFileSync } = require('node:child_process');
+          const { createHash } = require('node:crypto');
+          // Failed setup must produce diagnostic nulls, not invented versions or passing outcomes.
+          const optional = read => { try { return read(); } catch { return null; } };
+          const hash = bytes => createHash('sha256').update(bytes).digest('hex');
+          const digest = file => optional(() => hash(fs.readFileSync(file)));
+          const command = (tool, args) => execFileSync(tool, args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+          const steps = JSON.parse(process.env.STEP_RESULTS);
+          const commands = {
+            repair: 'npm install --package-lock-only --ignore-scripts --no-audit --no-fund',
+            dependencies: 'npm ci --ignore-scripts --no-audit --no-fund',
+            docs_automation: 'npm run test:docs-automation',
+            chromium: 'npx playwright install --with-deps chromium',
+            docs_browser: 'npm run test:docs-browser -- --reporter=line,json',
+            capture: 'npm run capture',
+            evidence_tests: 'npm test',
+          };
+          const packages = optional(() => JSON.parse(fs.readFileSync('package.json')).devDependencies) || {};
+          const manifest = {
+            schemaVersion: 1,
+            recordedAt: new Date().toISOString(),
+            repository: process.env.GITHUB_REPOSITORY,
+            eventName: process.env.GITHUB_EVENT_NAME,
+            ref: process.env.GITHUB_REF,
+            eventSha: process.env.GITHUB_SHA,
+            checkedOutSha: optional(() => command('git', ['rev-parse', 'HEAD'])),
+            runId: process.env.GITHUB_RUN_ID,
+            runAttempt: process.env.GITHUB_RUN_ATTEMPT,
+            repairRequested: process.env.REPAIR_REQUESTED === 'true',
+            versions: {
+              node: process.version,
+              npm: optional(() => command('npm', ['--version'])),
+              packages: Object.fromEntries(Object.keys(packages).map(name => [name,
+                optional(() => JSON.parse(fs.readFileSync(`node_modules/${name}/package.json`)).version)])),
+              chromium: optional(() => command(require('playwright').chromium.executablePath(), ['--version'])),
+            },
+            packageJsonSha256: digest('package.json'),
+            checkedInLockfileSha256: optional(() => hash(execFileSync('git', ['show', 'HEAD:package-lock.json']))),
+            lockfileSha256: digest('package-lock.json'),
+            browserResultsSha256: digest('test-results/docs-browser.json'),
+            commands,
+            steps: Object.fromEntries(['checkout', 'node', ...Object.keys(commands)].map(id => [id, {
+              outcome: steps[id]?.outcome || 'unknown', conclusion: steps[id]?.conclusion || 'unknown',
+            }])),
+          };
+          fs.mkdirSync('test-results', { recursive: true });
+          fs.writeFileSync('test-results/docs-browser-provenance.json', JSON.stringify(manifest, null, 2) + '\n');
+          if (!/^[0-9a-f]{40}$/.test(manifest.checkedOutSha) || manifest.checkedOutSha !== manifest.eventSha) {
+            throw new Error('Checkout SHA does not match the event SHA');
+          }
+          if (steps.docs_browser?.outcome === 'success' && !manifest.browserResultsSha256) {
+            throw new Error('Browser results missing after a successful test step');
+          }
+          NODE
+      - name: Upload docs browser recovery evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        with:
+          name: docs-browser-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 7
+          path: |
+            package.json
+            package-lock.json
+            test-results/docs-browser.json
+            test-results/docs-browser/
+            test-results/docs-browser-provenance.json
+          if-no-files-found: error
+
+  kilo-capability-report:
+    name: Generic Kilo capability report
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    outputs:
+      outcome: ${{ steps.capability.outputs.outcome }}
+    steps:
+      - name: Record generic Kilo capability
+        id: capability
+        shell: bash
+        env:
+          CG_KILO_CERTIFIED_RUNNER: ${{ vars.CG_KILO_CERTIFIED_RUNNER }}
+          CG_KILO_CERTIFIED_VERSION: ${{ vars.CG_KILO_CERTIFIED_VERSION }}
+          CG_KILO_CERTIFIED_SHA256: ${{ vars.CG_KILO_CERTIFIED_SHA256 }}
+        run: |
+          set -euo pipefail
+          configured=true
+          if [[ -z "$CG_KILO_CERTIFIED_RUNNER" || \
+                -z "$CG_KILO_CERTIFIED_VERSION" || \
+                -z "$CG_KILO_CERTIFIED_SHA256" ]]; then
+            configured=false
+          fi
+
+          if [[ "$configured" == true ]]; then
+            cat > kilo-capability.json <<'JSON'
+          {"outcome":"generic-not-applicable","certified_configuration_present":true,"generic_ci_real_host_integration":false,"message":"Certified-host configuration is present, but generic CI did not run real-host integration."}
+          JSON
+          else
+            cat > kilo-capability.json <<'JSON'
+          {"outcome":"generic-not-applicable","certified_configuration_present":false,"generic_ci_real_host_integration":false,"message":"Certified-host runner, version, or SHA-256 configuration is absent; generic CI did not run real-host integration."}
+          JSON
+          fi
+
+          printf 'outcome=generic-not-applicable\n' >> "$GITHUB_OUTPUT"
+          {
+            echo "### Kilo capability"
+            echo "- Outcome: \`generic-not-applicable\`"
+            echo "- Certified-host configuration present: \`$configured\`"
+            echo "- Generic CI did not run real-host integration."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload bounded Kilo capability summary
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        with:
+          name: kilo-capability-summary
+          path: kilo-capability.json
+          if-no-files-found: error
+
+  kilo-certified-subject:
+    name: Validate exact Kilo subject on a hosted runner
+    if: >-
+      ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/dev' &&
+          github.ref_protected && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
+          vars.CG_KILO_CERTIFIED_RUNNER != '' && vars.CG_KILO_CERTIFIED_VERSION != '' && vars.CG_KILO_CERTIFIED_SHA256 != '' }}
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    outputs:
+      subject: ${{ steps.subject.outputs.subject }}
+    steps:
+      - name: Validate same-repository subject before scheduling the certified runner
+        id: subject
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea9  # v7.0.1
+        env:
+          SUBJECT_COMMIT: ${{ github.event_name == 'push' && github.sha || inputs.subject_commit }}
+        with:
+          script: |
+            const subject = process.env.SUBJECT_COMMIT;
+            if (typeof subject !== 'string' || subject.length !== 40 || !/^[0-9a-f]{40}$/.test(subject)) throw new Error('Full 40-hex subject_commit required');
+            if (context.payload.repository.full_name !== `${context.repo.owner}/${context.repo.repo}` || context.payload.repository.fork) {
+              throw new Error('Fork or foreign repository cannot certify a subject');
+            }
+            const commit = await github.rest.repos.getCommit({...context.repo, ref: subject});
+            if (commit.data.sha !== subject) throw new Error('Same-repository subject SHA mismatch');
+            core.setOutput('subject', subject);
+
+  kilo-certified-integration:
+    name: Certified Kilo host integration
+    needs: kilo-certified-subject
+    if: >-
+      ${{
+        github.event_name != 'pull_request' &&
+        github.ref == 'refs/heads/dev' && github.ref_protected &&
+        needs.kilo-certified-subject.result == 'success' &&
+        needs.kilo-certified-subject.outputs.subject != '' &&
+        vars.CG_KILO_CERTIFIED_RUNNER != '' &&
+        vars.CG_KILO_CERTIFIED_VERSION != '' &&
+        vars.CG_KILO_CERTIFIED_SHA256 != '' &&
+        (
+          github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        )
+      }}
+    runs-on: ${{ vars.CG_KILO_CERTIFIED_RUNNER }}
+    environment: cg-kilo-certified
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          ref: ${{ needs.kilo-certified-subject.outputs.subject }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Require detached exact approved subject
+        shell: bash
+        env:
+          SUBJECT_COMMIT: ${{ needs.kilo-certified-subject.outputs.subject }}
+        run: |
+          set -euo pipefail
+          [[ "$SUBJECT_COMMIT" =~ ^[0-9a-f]{40}$ ]]
+          git cat-file -e "$SUBJECT_COMMIT^{commit}"
+          git checkout --detach "$SUBJECT_COMMIT"
+          [[ "$(git rev-parse HEAD)" == "$SUBJECT_COMMIT" ]]
+          if git symbolic-ref -q HEAD; then exit 1; fi
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0
+        with:
+          python-version: "3.11"
+
+      - name: Install certified-host test dependency
+        run: python -m pip install pytest
+
+      - name: Run certified-host Kilo preflight
+        shell: bash
+        run: |
+          set +e
+          python scripts/cg_kilo_preflight.py --host-only --json > kilo-preflight.json 2> kilo-preflight.stderr
+          preflight_exit=$?
+          set -e
+          printf '%s\n' "$preflight_exit" > kilo-preflight.exit
+          if [[ "$preflight_exit" -ne 0 ]]; then
+            echo "::error title=certified-host::Kilo preflight exited with status $preflight_exit."
+          fi
+          exit 0
+
+      - name: Verify certified-host Kilo evidence
+        shell: bash
+        env:
+          CG_KILO_CERTIFIED_VERSION: ${{ vars.CG_KILO_CERTIFIED_VERSION }}
+          CG_KILO_CERTIFIED_SHA256: ${{ vars.CG_KILO_CERTIFIED_SHA256 }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          def fail(message):
+              print(f"::error title=certified-host::{message}")
+              raise SystemExit(1)
+
+          try:
+              payload = json.loads(Path("kilo-preflight.json").read_text(encoding="utf-8"))
+              preflight_exit = int(Path("kilo-preflight.exit").read_text(encoding="utf-8").strip())
+          except (OSError, ValueError, TypeError, json.JSONDecodeError) as exc:
+              fail(f"Kilo preflight evidence is malformed: {exc}")
+
+          if not isinstance(payload, dict):
+              fail("Kilo preflight evidence is not a JSON object.")
+          if preflight_exit != 0 or payload.get("status") != "ok":
+              fail(
+                  "Kilo preflight did not report successful certified-host status: "
+                  f"status={payload.get('status')!r}, exit_code={preflight_exit}."
+              )
+
+          expected_version = os.environ["CG_KILO_CERTIFIED_VERSION"]
+          observed_version = payload.get("kilo_version")
+          if observed_version != expected_version:
+              fail(
+                  "Configured Kilo version does not match the observed host: "
+                  f"expected={expected_version!r}, observed={observed_version!r}."
+              )
+
+          expected_hash = os.environ["CG_KILO_CERTIFIED_SHA256"].casefold()
+          observed_hash = payload.get("kilo_executable_sha256")
+          if not isinstance(observed_hash, str) or observed_hash.casefold() != expected_hash:
+              fail("Configured Kilo executable SHA-256 does not match the observed host.")
+          PY
+
+      - name: Launch certified-host cg-kilo (POSIX)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          set +e
+          chmod +x bin/cg-kilo
+          bin/cg-kilo --version > cg-kilo-launch.log 2>&1
+          launch_exit=$?
+          set -e
+          if [[ "$launch_exit" -ne 0 ]]; then
+            echo "::error title=certified-host::cg-kilo launch failed with status $launch_exit."
+            exit 1
+          fi
+
+      - name: Launch certified-host cg-kilo (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $log = Join-Path $env:GITHUB_WORKSPACE "cg-kilo-launch.log"
+          & "$env:GITHUB_WORKSPACE\bin\cg-kilo.cmd" --version *> $log
+          $launchExit = $LASTEXITCODE
+          if ($launchExit -ne 0) {
+            Write-Output "::error title=certified-host::cg-kilo launch failed with status $launchExit."
+            exit 1
+          }
+
+      - name: Run certified-host Kilo coexistence integration
+        shell: bash
+        env:
+          CG_HELP_SUBJECT_COMMIT: ${{ needs.kilo-certified-subject.outputs.subject }}
+          CG_KILO_CERTIFIED_VERSION: ${{ vars.CG_KILO_CERTIFIED_VERSION }}
+          CG_KILO_CERTIFIED_SHA256: ${{ vars.CG_KILO_CERTIFIED_SHA256 }}
+        run: |
+          set -euo pipefail
+          executable="$(python -c 'import json; from pathlib import Path; print(json.loads(Path("kilo-preflight.json").read_text(encoding="utf-8")).get("kilo_executable") or "")')"
+          if [[ -z "$executable" ]]; then
+            echo "::error title=certified-host::Preflight did not identify the executable used for integration evidence."
+            exit 1
+          fi
+          CG_KILO_CERTIFIED_EXECUTABLE="$executable" \
+            python -m pytest scripts/tests/test_kilo_coexistence.py -m integration -q
+
+      - name: Upload certified-host Kilo evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        with:
+          name: kilo-certified-evidence
+          path: |
+            kilo-preflight.json
+            kilo-preflight.stderr
+            kilo-preflight.exit
+            cg-kilo-launch.log
+            kilo-help-probes.json
+          if-no-files-found: ignore
 
   native-targets:
     name: Native target Python gate on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    env:
+      CG_NATIVE_EVIDENCE_REQUIRE_SDK: "1"
+      CG_NATIVE_EVIDENCE_SDK_CLIENT: ${{ github.workspace }}/scripts/tests/native-sdk/node_modules/@kilocode/sdk/dist/client.js
     permissions:
       contents: read
     strategy:
@@ -39,33 +401,61 @@ jobs:
             backend_marker: backend_windows
           - os: macos-14
             backend_marker: backend_posix
+          - os: ubuntu-24.04
+            backend_marker: backend_posix
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          # The preflight must compare the event's actual base/before revision.
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4.4.0
+        with:
+          node-version: "24.x"
+      # Locked SDK is an offline test fixture, not a Kilo runtime version policy.
+      - name: Install isolated native SDK test fixture
+        run: npm ci --prefix scripts/tests/native-sdk --ignore-scripts --no-audit --no-fund
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0
         with:
           python-version: "3.11"
-      - name: Install Python test dependency
-        run: python -m pip install pytest
-      - name: Run required native target gate
-        run: >-
-          python -m pytest
-          scripts/tests/test_target_mapping.py
-          scripts/tests/test_cg_generate_targets.py
-          scripts/tests/test_target_path_safety.py
-          scripts/tests/test_target_packaging.py
-          scripts/tests/test_target_ownership.py
-          scripts/tests/test_target_closure.py
-          scripts/tests/test_target_determinism.py
-          scripts/tests/test_target_drift.py
-          scripts/tests/test_target_claude.py
-          scripts/tests/test_target_codex.py
-          scripts/tests/test_target_opencode.py
-          scripts/tests/test_target_kilo.py
-          scripts/tests/test_target_documentation.py
-          scripts/tests/test_model_advisory.py
-          scripts/tests/test_audit_context.py
-          scripts/tests/test_issue_readiness.py
-          -q
+      - name: Install Python test dependencies
+        run: python -m pip install pytest pyyaml
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: "22"
+      - name: Install pinned controller preflight tool
+        run: python -m pip install uv==0.11.3
+      - name: Run authoritative native target preflight
+        shell: bash
+        env:
+          CG_EVENT_NAME: ${{ github.event_name }}
+          CG_PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          CG_PUSH_BEFORE_SHA: ${{ github.event.before }}
+          CG_DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          set -euo pipefail
+          common=(--phase committed --format text --default-branch "$CG_DEFAULT_BRANCH" --run-native-target)
+          if [[ "$CG_EVENT_NAME" == "pull_request" ]]; then
+            if [[ -z "$CG_PR_BASE_SHA" ]]; then
+              echo "ERROR: pull_request.base.sha was not supplied; refusing to guess a base." >&2
+              exit 2
+            fi
+            python scripts/cg_pr_preflight.py "${common[@]}" --base "$CG_PR_BASE_SHA"
+          elif [[ -n "$CG_PUSH_BEFORE_SHA" && "$CG_PUSH_BEFORE_SHA" != "0000000000000000000000000000000000000000" ]]; then
+            if git rev-parse --verify --quiet "${CG_PUSH_BEFORE_SHA}^{commit}" >/dev/null; then
+              python scripts/cg_pr_preflight.py "${common[@]}" --base "$CG_PUSH_BEFORE_SHA"
+            else
+              echo "Push-before revision is unavailable; requesting explicit full-gate fallback."
+              python scripts/cg_pr_preflight.py "${common[@]}" --full-gate
+            fi
+          else
+            echo "No usable push-before revision; requesting explicit full-gate fallback."
+            python scripts/cg_pr_preflight.py "${common[@]}" --full-gate
+          fi
+
+      # The preflight owns the former native list, including deterministic
+      # test_kilo_coexistence.py, test_kilo_copy.py, and test_cg_pr_preflight.py.
+      # It also runs --check-dependencies, --check-cross-suite, and
+      # --check-ownership; this comment is not a second executable test list.
 
       - name: Run generic publisher and security Python gate
         run: >-
@@ -114,9 +504,35 @@ jobs:
             publisher-backend-results.xml
           if-no-files-found: ignore
 
+  python38-compat:
+    name: Python 3.8 skill-management compatibility
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0
+        with:
+          python-version: "3.8"
+      - name: Install Python 3.8 test dependencies
+        run: python -m pip install pytest pyyaml
+      - name: Run contracts, planning, registry, admission, generation, and projection tests
+        run: >-
+          python -m pytest
+          scripts/tests/test_skill_management_contracts.py
+          scripts/tests/test_skill_management_planning.py
+          scripts/tests/test_project_skill_registry.py
+          scripts/tests/test_import_skill.py
+          scripts/tests/test_cg_generate_targets.py
+          scripts/tests/test_project_projection.py
+          -q
+      - name: Run existing-runtime version reader contracts
+        run: python -m pytest scripts/tests/test_release_version_readers.py -k "attestation or build_metadata" -q
+
   test:
     name: Pester on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    needs: kilo-capability-report
     permissions:
       contents: read
 
@@ -161,7 +577,14 @@ jobs:
       - name: E2E smoke test (Windows)
         if: success() && runner.os == 'Windows'
         shell: pwsh
+        env:
+          CG_KILO_CAPABILITY: ${{ needs.kilo-capability-report.outputs.outcome }}
         run: |
+          if ($env:CG_KILO_CAPABILITY -ne 'generic-not-applicable') {
+            throw "Generic E2E received unexpected Kilo capability: $env:CG_KILO_CAPABILITY"
+          }
+          Write-Host "Kilo capability: $env:CG_KILO_CAPABILITY (generic CI did not run real-host integration)."
+
           # Pre-clean any stale e2e-project from a prior run (handles self-hosted
           # runner reuse where $RUNNER_TEMP persists between jobs).
           $e2eDir = "$env:RUNNER_TEMP\e2e-project"
@@ -170,8 +593,8 @@ jobs:
           Set-Location $e2eDir
           $env:CG_SKIP_UPDATE = "1"
 
-          # 1. Link
-          & "$env:GITHUB_WORKSPACE\scripts\link.ps1"
+          # 1. Link only host-independent adapters.
+          & "$env:GITHUB_WORKSPACE\scripts\link.ps1" -Platforms "copilot,claude-code,codex,opencode"
 
           # 2. Assert junction and file accessibility
           $junction = Get-Item ".github\prompts" -ErrorAction Stop
@@ -179,11 +602,10 @@ jobs:
               throw "Expected .github\prompts to be a Junction, got: $($junction.LinkType)"
           }
           if (-not (Test-Path ".github\prompts\cg-setup.prompt.md")) {
-              throw "cg-setup.prompt.md not accessible through the junction"
+            throw "cg-setup.prompt.md not accessible through the junction"
           }
-
           # 3. Idempotency: link a second time - must not error
-          & "$env:GITHUB_WORKSPACE\scripts\link.ps1"
+          & "$env:GITHUB_WORKSPACE\scripts\link.ps1" -Platforms "copilot,claude-code,codex,opencode"
 
           # 4. Unlink (-Force skips interactive confirmation in CI)
           & "$env:GITHUB_WORKSPACE\scripts\unlink.ps1" -Force
@@ -191,6 +613,9 @@ jobs:
           # 5. Assert clean state: junction removed
           if (Test-Path ".github\prompts") {
               throw "Expected .github\prompts to be removed after unlink, but it still exists"
+          }
+          foreach ($path in @(".claude\skills", ".agents\skills", ".opencode\skills")) {
+            if (Test-Path -LiteralPath $path) { throw "Managed path remains after unlink: $path" }
           }
           # 6. Assert .gitignore was cleaned up after unlink
           if (Test-Path ".gitignore") {
@@ -273,7 +698,16 @@ jobs:
       - name: E2E smoke test (macOS)
         if: success() && runner.os == 'macOS'
         shell: bash
+        env:
+          CG_KILO_CAPABILITY: ${{ needs.kilo-capability-report.outputs.outcome }}
         run: |
+          set -euo pipefail
+          if [[ "$CG_KILO_CAPABILITY" != "generic-not-applicable" ]]; then
+            echo "ERROR: Generic E2E received unexpected Kilo capability: $CG_KILO_CAPABILITY" >&2
+            exit 1
+          fi
+          echo "Kilo capability: $CG_KILO_CAPABILITY (generic CI did not run real-host integration)."
+
           # Pre-clean any stale e2e-project from a prior run (handles self-hosted
           # runner reuse). rm -rf on macOS does not follow symlinks.
           E2E_DIR="$RUNNER_TEMP/e2e-project"
@@ -281,19 +715,18 @@ jobs:
           mkdir -p "$E2E_DIR"
           cd "$E2E_DIR"
 
-          # 1. Link
-          CG_SKIP_UPDATE=1 bash "$GITHUB_WORKSPACE/scripts/link.sh"
+          # 1. Link only host-independent adapters.
+          CG_SKIP_UPDATE=1 bash "$GITHUB_WORKSPACE/scripts/link.sh" --platforms "copilot,claude-code,codex,opencode"
 
           # 2. Assert symlink and file accessibility
           if [[ ! -L ".github/prompts" ]]; then
               echo "ERROR: Expected .github/prompts to be a symlink" >&2; exit 1
           fi
           if [[ ! -f ".github/prompts/cg-setup.prompt.md" ]]; then
-              echo "ERROR: cg-setup.prompt.md not accessible through the symlink" >&2; exit 1
+            echo "ERROR: cg-setup.prompt.md not accessible through the symlink" >&2; exit 1
           fi
-
           # 3. Idempotency: link a second time - must not error
-          CG_SKIP_UPDATE=1 bash "$GITHUB_WORKSPACE/scripts/link.sh"
+          CG_SKIP_UPDATE=1 bash "$GITHUB_WORKSPACE/scripts/link.sh" --platforms "copilot,claude-code,codex,opencode"
 
           # 4. Unlink (--yes skips interactive confirmation in CI)
           bash "$GITHUB_WORKSPACE/scripts/unlink.sh" --yes
@@ -302,10 +735,14 @@ jobs:
           if [[ -e ".github/prompts" ]]; then
               echo "ERROR: Expected .github/prompts to be removed after unlink, but it still exists" >&2; exit 1
           fi
+          for path in .claude/skills .agents/skills .opencode/skills; do
+            [[ ! -e "$path" && ! -L "$path" ]] || { echo "ERROR: Managed path remains after unlink: $path" >&2; exit 1; }
+          done
           # 6. Assert .gitignore was cleaned up after unlink
           if [[ -f ".gitignore" ]] && grep -q '\.github/prompts/' ".gitignore"; then
               echo "ERROR: .gitignore CG entries not cleaned after unlink" >&2; exit 1
           fi
+
           echo "E2E smoke test passed."
 
       - name: E2E smoke test teardown (macOS)

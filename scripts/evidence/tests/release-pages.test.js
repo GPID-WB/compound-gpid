@@ -16,12 +16,6 @@ const verifier = workflow.match(/node - "\$RELEASE_TAG" <<'NODE'\n([\s\S]*?)\n  
   .replace(/^          /gm, "");
 const uploadPath = workflow.match(/name: Upload verified release Pages artifact[\s\S]*?path: ([^\n]+)/)[1];
 
-/** Mirror the controller's SITE_DIR export: the new docs layout wins when present. */
-function resolveUploadDir(f) {
-  const detected = fs.existsSync(path.join(f.artifact, "docs")) ? "docs" : "site";
-  return path.join(f.artifact, detected);
-}
-
 /** Create a minimal combined-site artifact and run the controller against it. */
 function fixture(t, tag = "v1.2.3.4") {
   const cwd = fs.mkdtempSync(path.join(os.tmpdir(), "release-pages-test-"));
@@ -60,27 +54,17 @@ for (const tag of ["v1.2.3", "v1.2.3.4"]) {
     assert.equal(fs.existsSync(path.join(f.artifact, "docs")), false);
     const result = f.run();
     assert.equal(result.status, 0, result.stderr);
-    assert.equal(uploadPath, "release-artifact/${{ env.SITE_DIR }}");
-    assert.equal(resolveUploadDir(f), f.site);
-    assert.equal(fs.existsSync(path.join(resolveUploadDir(f), "dev/index.html")), true);
+    assert.equal(path.resolve(f.cwd, uploadPath), f.site);
+    assert.equal(fs.existsSync(path.join(f.cwd, uploadPath, "dev/index.html")), true);
   });
 }
 
-test("accepts the new docs layout when the site directory is absent", (t) => {
+test("rejects a missing site even when the old docs directory exists", (t) => {
   const f = fixture(t);
   fs.renameSync(f.site, path.join(f.artifact, "docs"));
   const result = f.run();
-  assert.equal(result.status, 0, result.stderr);
-  assert.equal(resolveUploadDir(f), path.join(f.artifact, "docs"));
-  assert.equal(fs.existsSync(path.join(resolveUploadDir(f), "dev/index.html")), true);
-});
-
-test("rejects an artifact with neither site nor docs", (t) => {
-  const f = fixture(t);
-  fs.rmSync(f.site, { recursive: true, force: true });
-  const result = f.run();
   assert.notEqual(result.status, 0);
-  assert.match(result.stderr, /Artifact is missing the documentation tree/);
+  assert.match(result.stderr, /ENOENT.*release-artifact[\\/]site/);
 });
 
 test("rejects changed site bytes", (t) => {
@@ -145,29 +129,32 @@ test("rejects symbolic links inside the site", (t) => {
 
 test("retains the protected controller, exact build identity, lineage, and newest-release gates", () => {
   for (const guard of [
-    'workflows: ["Build release documentation"]',
-    "if: github.event.workflow_run.conclusion == 'success'",
+    'workflows: ["Build release documentation", "Deploy documentation site"]',
+    "github.event.workflow_run.conclusion == 'success'",
     "name: github-pages",
-    "ref: main",
-    "name: release-docs-site",
-    "run-id: ${{ github.event.workflow_run.id }}",
-    "RELEASE_TAG: ${{ github.event.workflow_run.head_branch }}",
-    "RELEASE_SHA: ${{ github.event.workflow_run.head_sha }}",
-    'required_branch="main"',
-    'if [[ "$RELEASE_TAG" =~ ^v[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+$ ]]; then\n            required_branch="dev"',
-    'elif [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\\.[0-9]+\\.[0-9]+$ ]]; then',
+    "ref: ${{ github.sha }}",
+    "artifact-ids: ${{ steps.authority.outputs.artifact_id }}",
+    "run-id: ${{ inputs.build_run_id || github.event.workflow_run.id }}",
+    "RELEASE_TAG: ${{ steps.authority.outputs.release_tag }}",
+    "RELEASE_SHA: ${{ steps.authority.outputs.release_sha }}",
+    'node scripts/legacy-pages.js check',
+    'required_branch="$(node scripts/release-version.js --resolve-source)"',
     'test "$(git rev-list -n 1 "$RELEASE_TAG")" = "$RELEASE_SHA"',
     'git merge-base --is-ancestor "$RELEASE_SHA" "origin/$required_branch"',
-    'if [ "$required_branch" = "dev" ]; then\n            git merge-base --is-ancestor origin/main "$RELEASE_SHA"',
+    'git fetch origin "$required_branch" "refs/tags/$RELEASE_TAG:refs/tags/$RELEASE_TAG"',
     'cmp -s "release-validation/releases/$RELEASE_TAG.json" release-validation/releases/latest.json',
     'cmp -s "release-validation/releases/$RELEASE_TAG.json" release-validation/current-latest.json',
     'git fetch origin "$RELEASE_BRANCH"',
     "cmp -s release-validation/releases/latest.json release-validation/recheck-latest.json",
-    'const siteDir = fs.existsSync(path.join(root, "docs")) ? "docs" : "site"',
-    'echo "SITE_DIR=docs" >> "$GITHUB_ENV"',
-    'echo "SITE_DIR=site" >> "$GITHUB_ENV"',
-    "path: release-artifact/${{ env.SITE_DIR }}",
   ]) assert.ok(workflow.includes(guard), `Missing guard: ${guard}`);
+  const {assertReleaseSource} = require('../../release-version.js');
+  assert.equal(assertReleaseSource('v1.2.3', 'deploy/2.x', 'production', {production_branches: ['deploy/2.x']}), 'deploy/2.x');
+  assert.equal(assertReleaseSource('v1.2.3.9000', 'feature/test', 'production', null), 'feature/test');
+  assert.throws(() => assertReleaseSource('v1.2.3', 'feature/test', 'production', null));
+  assert.throws(() => assertReleaseSource('v1.2.3-rc.1', 'production', 'production', null));
+  assert.throws(() => assertReleaseSource('v1.2', 'production', 'production', null));
+  assert.ok(!workflow.includes('git merge-base --is-ancestor origin/main "$RELEASE_SHA"'),
+    "Dev releases use selected-branch lineage, not the moving main tip");
   assert.ok(workflow.indexOf("name: Recheck release is still newest")
     < workflow.indexOf("name: Deploy to GitHub Pages"));
 });
@@ -175,17 +162,19 @@ test("retains the protected controller, exact build identity, lineage, and newes
 test("skips four-part tags before artifact access or privileged Pages deployment", () => {
   const classify = workflow.match(/^  classify:\n([\s\S]*?)(?=^  deploy:\n)/m)?.[1];
   assert.ok(classify, "An unprivileged classifier must precede deploy");
-  assert.match(classify, /permissions:\n      contents: read\n/);
+  assert.match(classify, /permissions:\n      contents: read\n      actions: read\n/);
   assert.doesNotMatch(classify, /pages: write|id-token: write|download-artifact|deploy-pages/);
+  assert.match(classify, /ref: \$\{\{ github\.sha \}\}/);
   assert.match(classify, /RELEASE_TAG: \$\{\{ github\.event\.workflow_run\.head_branch \}\}/);
-  const fourPart = classify.match(/if \[\[ "\$RELEASE_TAG" =~ (\^v[^\s]+) \]\]; then\n            echo "full_site=false"/);
-  const threePart = classify.match(/elif \[\[ "\$RELEASE_TAG" =~ (\^v[^\s]+) \]\]; then\n            echo "full_site=true"/);
-  assert.ok(fourPart);
-  assert.ok(threePart);
-  assert.equal(new RegExp(fourPart[1]).test("v1.2.0.9020"), true);
-  assert.equal(new RegExp(fourPart[1]).test("v1.2.0"), false);
-  assert.equal(new RegExp(threePart[1]).test("v1.2.0"), true);
-  assert.equal(new RegExp(threePart[1]).test("v1.2.0.9020"), false);
+  assert.match(classify, /node scripts\/release-version\.js --full-site-tag "\$RELEASE_TAG"/);
+  const classifier = path.join(root, "scripts/release-version.js");
+  for (const [tag, expected] of [["v1.2.0", "true"], ["v1.2.0.9020", "false"]]) {
+    const result = spawnSync(process.execPath, [classifier, "--full-site-tag", tag], {
+      encoding: "utf8", timeout: 10000,
+    });
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(result.stdout.trim(), expected);
+  }
   assert.match(workflow, /  deploy:\n    needs: classify\n    if: needs\.classify\.outputs\.full_site == 'true'/);
   assert.ok(workflow.indexOf("  classify:") < workflow.indexOf("  deploy:"));
 });

@@ -78,6 +78,7 @@ def run_git(root: Path, args: list[str], check: bool = False) -> subprocess.Comp
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         check=False,
+        timeout=30,
     )
     if check and result.returncode != 0:
         raise SummaryError(result.stderr.strip() or f"git {' '.join(args)} failed")

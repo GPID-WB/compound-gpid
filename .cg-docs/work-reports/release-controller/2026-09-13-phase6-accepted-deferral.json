@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-09-13T13:38:34Z",
+  "updatedAt": "2026-09-13T13:45:17Z",
+  "status": "Success-under-deferral",
+  "decisionId": "D-2026-09-13-defer-live-rollout",
+  "plan": ".cg-docs/plans/2026-09-11-generic-asynchronous-release-controller.md",
+  "executionReport": ".cg-docs/work-reports/2026-09-11-generic-asynchronous-release-controller.md",
+  "branch": "improve-cg-release",
+  "head": "b94f585c8a485dfb03965ca9711fb83257aaa7de",
+  "declaredSourceFrozenAt": "2026-09-13T03:51:37Z",
+  "sourceIdentityQualification": "Declared freeze and HEAD are not a cryptographic identity of dirty contents. This continuation changes only plan/report/checkpoint evidence, not implementation or tests.",
+  "approval": {
+    "messageAt": "2026-09-13T13:36:27Z",
+    "answer": "Defer Live Rollout",
+    "description": "Explicitly revise acceptance to finish local implementation, documentation, reviews and the PR. Record bridge delivery, live CI, sandbox trials and performance proof as deferred, not passed. Keep the publisher disabled.",
+    "policy": "ask",
+    "runtimeOverride": null,
+    "authorizedHere": "Revise V6/V7/V8 and phase scope; finalize Phase6 under the accepted exception; update durable report, completion metadata and current state.",
+    "notAuthorizedHere": ["phase7", "implementation", "publisher-activation", "remote-operations", "credentials-or-settings", "commit", "push", "PR-creation"]
+  },
+  "acceptedExceptions": [
+    {"id": "V6", "status": "accepted-deferral", "reason": "Actual bridge delivery, native Windows/Unix clean-client qualification and registered source-bound release CI are not recorded; separate target/setup/delivery authority is needed.", "effect": "Local Phase6 completion is permitted; live evidence remains deferred, not passed; publisher stays disabled."},
+    {"id": "V7", "status": "accepted-live-deferral-local-work-not-started", "reason": "No authorized sandbox/native-host/final-SHA/security/remote-identity/timing proof is supplied.", "effect": "Retain complete Step13 live obligations; Phase7 offline harness and tested documentation remain to do."},
+    {"id": "V8-live", "status": "accepted-deferral", "reason": "Actual source-bound six-cell release-mode CI and aggregate are absent with the deferred rollout evidence.", "effect": "Defer release-mode CI only; preserve local tests, reviews, ordinary PR CI and committed gate."},
+    {"id": "V8-sequencing", "status": "pending-final-pipeline-obligation", "reason": "Candidate is uncommitted and planned pipeline step11 commit is not yet authorized.", "effect": "Local phase checkpoints may precede pipeline step11. Do not move the commit earlier. V8 and final pipeline/whole-plan acceptance remain pending until committed preflight and ordinary PR CI pass."}
+  ],
+  "deferredRolloutObligations": [
+    {"id": "D1-bridge", "status": "deferred-not-passed", "required": "Reviewed legacy-channel bridge; published tag/Release ID, trusted revision, commit/tree/tag-object and previous/bridge/successor identities; archive digests and producer/run/attempt/job/artifact evidence; actual Windows and native Unix old updater -> delivered bridge -> new-format pin clean-client receipts bound to delivered bytes."},
+    {"id": "D2-release-ci", "status": "deferred-not-passed", "required": "Reviewed target/setup and real repository/producer/controller identities; workflow revision, sealed request/source SHA/nonce, actual release-mode run/attempt, all six Python3.11/3.12 Windows/Linux/macOS jobs, Ruff, aggregate and native/profile results; non-integration-branch merged/squashed final-SHA proof. Ordinary PR CI is not deferred."},
+    {"id": "D3-sandbox", "status": "deferred-not-passed", "required": "Complete generic and GPID Step13 trials, including protected settings/App role denials, hostile-source/approval/signing probes, exact tag/assets/latest identities, concurrency and lost-response/second-machine recovery, expiry/journal restore, branch advancement, dev composition and post-hook/resume; exact executed argv, exits, authorizations and remote records."},
+    {"id": "D4-performance", "status": "deferred-not-passed", "required": "At least ten sequential warm-dependency starts; exclude only confirmation wait; min/median/p95 and all failures; p95<=120 seconds; environment/history size; separate queue/review/approval/build/publication/recovery intervals and comparable legacy workload where available. No missing baseline or speedup claim is passed."}
+  ],
+  "retainedPipelineObligations": {
+    "committedGate": {"status": "pending-not-executed", "after": "Planned pipeline step11 commit, only when separately authorized; distinct from plan implementation Step11 reader migration.", "command": "python scripts/cg_pr_preflight.py --phase committed --full-gate --run-native-target", "earlyCommitAllowed": false, "prepareIsSubstitute": false},
+    "ordinaryPR": {"status": "pending-not-created-here", "required": true},
+    "ordinaryPRCI": {"status": "pending-not-executed", "required": true, "includes": "Ordinary six-cell package matrix and stable release-controller-ci aggregate plus other required PR checks.", "coveredByLiveDeferral": false},
+    "wholePlanAndFinalPipelineAcceptance": "pending; do not mark V8 passed until retained requirements are executed successfully"
+  },
+  "review": {
+    "artifact": ".cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-phase6-P1.15-continuations-verification.md",
+    "confirmedFixed": 42,
+    "open": 0,
+    "new": 0,
+    "unverified": 0,
+    "auditRowsConfirmed": 15,
+    "rerunHere": false,
+    "qualification": "Finite source/fixture review; no atomic multi-API permission, live deployment or clean-client proof. Prior findings are fixed by independent verification, not by this exception."
+  },
+  "localGates": {
+    "artifact": ".cg-docs/work-reports/release-controller/2026-09-13-phase6-P1.15-continuations-040753Z-validation.json",
+    "status": "passed-with-retained-qualifications",
+    "rerunHere": false,
+    "prepare": {"selected": 9, "executed": 9, "passed": 9, "failed": 0, "committed": false},
+    "package": {"passed": 952, "failed": 0, "errors": 0, "skipped": 0},
+    "native": {"passed": 2592, "failed": 0, "skipped": 50, "deselected": 2},
+    "profileLaunchers": {"passed": 28, "failed": 0},
+    "pester": {"total": 2937, "passed": 2935, "failed": 0, "skipped": 2, "filteredFiles": null, "filesExecuted": 21},
+    "node": {"passed": 106, "failed": 0, "skipped": 0},
+    "planParity": {"passed": 56, "failed": 0, "skipped": 8},
+    "modulesLintBuild": "Three module checks, Ruff, wheel and sdist passed",
+    "qualifications": ["Counts overlap; do not sum as unique coverage.", "Pester cleanup errors remain; individual update skip names/reasons are absent; zero failed assertions does not prove successful cleanup.", "Native selection excludes integration; platform skips and Windows Bash placeholder do not prove native Unix/Python3.8 execution.", "Node uses the approved portable file-link boundary on win32/EPERM, not native Windows file-symlink qualification.", "Prepare does not prove a reviewed committed candidate, live CI, bridge delivery, deployment or performance target."]
+  },
+  "verificationSurface": {
+    "V1-V5": "previously accepted and preserved; not rerun here",
+    "V6": {"localEvidence": "passed-with-qualifications", "liveEvidence": "deferred-not-passed", "acceptedException": "D-2026-09-13-defer-live-rollout", "completionDecision": "Success-under-deferral", "unqualifiedPass": false},
+    "V7": {"localPhase": "not-started", "liveEvidence": "deferred-not-passed"},
+    "V8": {"status": "pending", "localFinalEvidence": "not-yet-assessed", "releaseModeLiveCI": "deferred-not-passed", "committedGateAndOrdinaryPRCI": "required-later-pipeline-obligations-not-passed"}
+  },
+  "counterState": {"step11ImplementationUsed": 1, "step12ImplementationUsed": 2, "implementationLimitPerStep": 2, "functionalRepairsResolved": true, "reviewRepairCyclesCompleted": 2, "postVerificationResidualRepairs": 3, "newFunctionalAttempts": 0, "reset": false},
+  "reportingChecks": {
+    "initialPlanValidation": "passed",
+    "revisedPlanValidation": "passed after correcting Step14 Tests metadata label; not a product-test recovery",
+    "disabledInstallationCheck": "passed",
+    "historicalPayloadAndAttestationDiffExitCode": 0,
+    "publisherEnabled": false,
+    "finalCheckpointReadBack": "verified: completed1-6 written and reread before current7; plan active; current pointer handoff with V6 accepted deferral, V7 unstarted, V8 pending and no unresolved scope decision",
+    "finalPlanValidation": "passed after completion metadata",
+    "jsonSyntaxValidation": "accepted-deferral record and current pointer passed python -m json.tool",
+    "finalWhitespaceCheck": "passed: no-index checks for untracked plan/report/evidence and tracked current-pointer diff"
+  },
+  "checkpoint": {
+    "phase6Complete": true,
+    "completionDecision": "Success-under-deferral; phase metadata written and reread in crash-safe order",
+    "completedPhases": [1, 2, 3, 4, 5, 6],
+    "currentPhase": 7,
+    "planStatus": "active",
+    "phase7Started": false,
+    "nextCommand": "/cg-work phase7 review:auto .cg-docs/plans/2026-09-11-generic-asynchronous-release-controller.md",
+    "nextCommandOwner": "parent; not executed here",
+    "writeOrder": "Persist approval/report/evidence; append6 to completed-phases and reread; then current-phase7; finalize report/evidence/current pointer and verify."
+  },
+  "preservedHistory": [
+    ".cg-docs/work-reports/release-controller/2026-09-13-phase6-final-evidence.json",
+    ".cg-docs/active-state/2026-09-13-release-controller-phase6-V6-blocked.json",
+    "All prior review, failed/passed gate and phase artifacts remain unchanged; original requirements and V6/V7/V8 rows are retained in the dated plan revision."
+  ],
+  "restrictions": {"implementationChanged": false, "testsChanged": false, "publisherActivated": false, "remoteOperations": false, "commits": false, "pushOrPR": false, "phase7": false, "roadmapChanged": false, "historicalEvidenceOverwritten": false}
+}

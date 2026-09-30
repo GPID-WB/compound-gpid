@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "enabled": false,
+  "repository_id": 123,
+  "host": "github.com",
+  "tag_prefix": "v",
+  "production_branches": ["main"],
+  "release_lines": [{"id": "current", "branches": ["main"], "minimum_core": [1, 0, 0], "maximum_core_exclusive": [2, 0, 0]}],
+  "bootstrap": [],
+  "metadata": [{"kind": "json", "path": "package.json", "pointer": "/version"}],
+  "changelog": {"path": "CHANGELOG.md", "marker": "<!-- release -->"},
+  "build": {"argv": ["python", "-m", "build"], "cwd": ".", "lock_paths": ["uv.lock"], "artifacts": [{"name": "package.whl", "path": "dist/package.whl", "media_type": "application/zip", "required": true, "max_bytes": 1048576}], "max_artifacts": 10, "max_total_bytes": 10485760},
+  "required_checks": [{"name": "release-controller-ci", "app_id": 15368, "workflow_path": ".github/workflows/release-controller-ci.yml", "stage": "preparation-and-release"}],
+  "controller": {"revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "wheel_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"},
+  "state_branch": "release-controller-state",
+  "journal_root": "dddddddddddddddddddddddddddddddddddddddd",
+  "apps": {"control": 100, "control_slug": "release-control", "publishing": 200},
+  "signing_required": false,
+  "allowed_signing_fingerprints": [],
+  "environments": {"control": "release-control", "publish": "release-publish", "override": "release-override"},
+  "timeouts": {"read_seconds": 20, "read_attempts": 3, "start_seconds": 120, "watch_seconds": 600, "poll_seconds": 5, "job_minutes": 30},
+  "gpid_profile": null
+}

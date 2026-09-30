@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "compound-gpid-help-support-v2",
+  "type": "object", "additionalProperties": false,
+  "required": ["schemaVersion", "subjectCommit", "subjectTree", "sensitivePaths", "sensitiveDigest", "platforms"],
+  "properties": {
+    "schemaVersion": {"type": "integer", "const": 2},
+    "subjectCommit": {"$ref": "#/$defs/commit"},
+    "subjectTree": {"$ref": "#/$defs/commit"},
+    "sensitivePaths": {"type": "array", "minItems": 1, "maxItems": 8192, "items": {"$ref": "#/$defs/path"}},
+    "sensitiveDigest": {"$ref": "#/$defs/digest"},
+    "platforms": {"type": "array", "minItems": 5, "maxItems": 5, "items": {"$ref": "#/$defs/platformBinding"}}
+  },
+  "helpSensitivePatterns": [
+    ".gitattributes",
+    ".github/prompts/*.prompt.md", ".github/prompts/*.help.json",
+    ".github/shared/help-*.json", ".github/shared/shell-commands.json",
+    ".github/shared/module-registry.json", ".github/shared/target-mapping.json",
+    ".github/workflows/tests.yml", ".github/copilot-instructions.md",
+    ".claude/commands/*.md", ".agents/commands/*.md", ".opencode/commands/*.md", ".kilo/commands/*.md",
+    ".claude/shared/help-*.json", ".agents/shared/help-*.json", ".opencode/shared/help-*.json", ".kilo/shared/help-*.json",
+    "scripts/help/*.py", "scripts/cg_help.py", "scripts/cg_generate_help_catalog.py",
+    "scripts/cg_generate_help_support.py", "scripts/cg_verify_help_support.py", "scripts/cg_generate_targets.py", "scripts/cg_kilo_preflight.py",
+    "scripts/secure_fs.py", "scripts/cg_project_manifest.py", "scripts/cg_project_projection.py",
+    "scripts/cg_context_budget.py", "scripts/cg_validate_modules.py", "scripts/cg_pr_preflight.py",
+    "scripts/skill_management/services/registry.py", "scripts/schemas/help*.json",
+    "scripts/schemas/target_mapping_schema.json", "scripts/schemas/module_registry_schema.json",
+    "scripts/tests/test_help*.py", "scripts/tests/test_cg_help.py", "scripts/tests/test_kilo_coexistence.py",
+    "scripts/tests/test_cg_pr_preflight.py", "scripts/tests/test_target*.py", "scripts/tests/test_cg_generate_targets.py",
+    "scripts/tests/test_project_projection.py", "scripts/tests/test_module_registry.py",
+    "scripts/tests/test_skill_management_migration.py", "tests/prompt-tools.Tests.ps1",
+    "bin/cg-help*", "bin/cg-kilo*", "bin/cg-link*", "bin/cg-update*", "install.ps1",
+    "scripts/install.sh", "scripts/link.ps1", "scripts/link.sh", "scripts/update.ps1", "scripts/update.sh"
+  ],
+  "$defs": {
+    "commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "path": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "mode", "sha256"],
+      "properties": {"path": {"type": "string", "minLength": 1}, "mode": {"enum": ["100644", "100755"]}, "sha256": {"$ref": "#/$defs/digest"}}
+    },
+    "host": {
+      "type": "object", "additionalProperties": false,
+      "required": ["pinnedVersion", "observedVersion", "pinnedSha256", "observedSha256"],
+      "properties": {
+        "pinnedVersion": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._+-]{0,79}$"},
+        "observedVersion": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._+-]{0,79}$"},
+        "pinnedSha256": {"$ref": "#/$defs/digest"}, "observedSha256": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "probe": {
+      "type": "object", "additionalProperties": false,
+      "required": ["name", "arguments", "receivedQuerySha256", "outcome"],
+      "properties": {
+        "name": {"enum": ["overview", "exact", "metacharacters"]},
+        "arguments": {"type": "array", "minItems": 5, "maxItems": 5, "items": {"type": "string"}},
+        "receivedQuerySha256": {"$ref": "#/$defs/digest"}, "outcome": {"enum": ["passed", "failed"]}
+      }
+    },
+    "platformBinding": {
+      "type": "object", "additionalProperties": false,
+      "required": ["platform", "catalogSourceDigest", "catalogSha256", "canonicalPromptSha256", "targetMappingSha256", "generatedPromptSha256"],
+      "properties": {
+        "platform": {"enum": ["claude-code", "codex", "copilot", "kilo", "opencode"]},
+        "catalogSourceDigest": {"$ref": "#/$defs/digest"}, "catalogSha256": {"$ref": "#/$defs/digest"},
+        "canonicalPromptSha256": {"$ref": "#/$defs/digest"}, "targetMappingSha256": {"$ref": "#/$defs/digest"},
+        "generatedPromptSha256": {"$ref": "#/$defs/digest"}
+      }
+    }
+  }
+}

@@ -33,6 +33,7 @@ import io
 import json
 import re
 import subprocess
+from collections.abc import Mapping
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Iterable, Sequence
@@ -112,7 +113,7 @@ FILE_REF_RE = re.compile(
     re.IGNORECASE,
 )
 AGENT_REF_RE = re.compile(r"@cg-[a-z-]+")
-SKILL_REF_RE = re.compile(r"cg-skill-[a-z-]+")
+SKILL_REF_RE = re.compile(r"[a-z0-9]+-skill-[a-z0-9-]+")
 TOOL_REF_RE = re.compile(r"\b(?:read_file|edit_file|run_in_terminal|grep_search|semantic_search)\b")
 LOAD_VERB_RE = re.compile(r"\b(?:must read|load .+skill|consult|dispatch)\b", re.IGNORECASE)
 WORKFLOW_TOOL_REF_RE = re.compile(
@@ -210,17 +211,70 @@ CONTEXT_MAINTENANCE_RE = re.compile(
     re.IGNORECASE,
 )
 
+
+def validate_workflow_registry(
+    registry: Sequence[Mapping[str, Any]],
+) -> None:
+    """Validate stable workflow registry identities before deriving maps.
+
+    Args:
+        registry: Workflow rows with ``workflow_id``, ``workflow``, and ``path``.
+
+    Raises:
+        ValueError: If a row lacks three non-empty string fields or duplicates
+            an identifier, command, or source path.
+
+    Example:
+        ``validate_workflow_registry(WORKFLOW_REGISTRY)``
+    """
+    seen_ids: set[str] = set()
+    seen_workflows: set[str] = set()
+    seen_paths: set[str] = set()
+    for index, row in enumerate(registry, start=1):
+        if not isinstance(row, Mapping):
+            raise ValueError(
+                f"Workflow registry row {index} must contain non-empty string fields"
+            )
+        values: dict[str, str] = {}
+        for key in ("workflow_id", "workflow", "path"):
+            value = row.get(key)
+            if not isinstance(value, str) or not value.strip():
+                raise ValueError(
+                    f"Workflow registry row {index} must contain non-empty string fields"
+                )
+            values[key] = value
+
+        workflow_id = values["workflow_id"]
+        if workflow_id in seen_ids:
+            raise ValueError(f"Duplicate workflow_id: {workflow_id}")
+        seen_ids.add(workflow_id)
+
+        workflow = values["workflow"]
+        if workflow in seen_workflows:
+            raise ValueError(f"Duplicate workflow command: {workflow}")
+        seen_workflows.add(workflow)
+
+        path = values["path"]
+        if path in seen_paths:
+            raise ValueError(f"Duplicate workflow path: {path}")
+        seen_paths.add(path)
+
+
 WORKFLOW_REGISTRY = (
     {"workflow_id": "cg-brainstorm", "workflow": "/cg-brainstorm", "path": ".github/prompts/cg-brainstorm.prompt.md"},
     {"workflow_id": "cg-plan", "workflow": "/cg-plan", "path": ".github/prompts/cg-plan.prompt.md"},
     {"workflow_id": "cg-work", "workflow": "/cg-work", "path": ".github/prompts/cg-work.prompt.md"},
+    {"workflow_id": "cg-light-work", "workflow": "/cg-light-work", "path": ".github/prompts/cg-light-work.prompt.md"},
     {"workflow_id": "cg-review", "workflow": "/cg-review", "path": ".github/prompts/cg-review.prompt.md"},
     {"workflow_id": "cg-fix-triage", "workflow": "/cg-fix-triage", "path": ".github/prompts/cg-fix-triage.prompt.md"},
     {"workflow_id": "cg-compound", "workflow": "/cg-compound", "path": ".github/prompts/cg-compound.prompt.md"},
     {"workflow_id": "cg-resume", "workflow": "/cg-resume", "path": ".github/prompts/cg-resume.prompt.md"},
+    {"workflow_id": "cg-autopilot", "workflow": "/cg-autopilot", "path": ".github/prompts/cg-autopilot.prompt.md"},
     {"workflow_id": "cg-diagnose", "workflow": "/cg-diagnose", "path": ".github/prompts/cg-diagnose.prompt.md"},
     {"workflow_id": "cg-token-audit", "workflow": "/cg-token-audit", "path": ".github/prompts/cg-token-audit.prompt.md"},
 )
+
+validate_workflow_registry(WORKFLOW_REGISTRY)
 
 BENCHMARK_PROMPTS = {
     row["workflow"]: row["path"]
@@ -233,6 +287,7 @@ ORDINARY_CONTEXT_GUARDRAIL_PROMPTS = {
     ".github/prompts/cg-brainstorm.prompt.md",
     ".github/prompts/cg-plan.prompt.md",
     ".github/prompts/cg-work.prompt.md",
+    ".github/prompts/cg-light-work.prompt.md",
     ".github/prompts/cg-review.prompt.md",
     ".github/prompts/cg-resume.prompt.md",
 }
@@ -256,7 +311,7 @@ ACCEPT_WARNING_PATHS = {
     ".github/agents/cg-learnings-researcher.agent.md",
     ".github/prompts/cg-compound-refresh.prompt.md",
     ".github/prompts/cg-issues.prompt.md",
-    ".github/prompts/cg-review-repos.prompt.md",
+    ".github/prompts/cg-compound-gpid-rd.prompt.md",
     ".github/prompts/cg-setup.prompt.md",
     ".github/prompts/cg-strategy.prompt.md",
     ".github/prompts/cg-token-audit.prompt.md",
@@ -295,6 +350,38 @@ RELEASE_READINESS_CHECKLIST = [
     "Pester safe runner passes in VS Code/PowerShell.",
     "Manual VS Code/Copilot runtime checklist is complete.",
 ]
+
+
+def _resolve_brain_query_skill(root: Path) -> Path:
+    """Resolve the kernel brain-query skill directory namespace-agnostically.
+
+    Prefers a skill directory declared in the module registry whose owning
+    module is ``kernel`` and whose id contains ``brain-query``; falls back to
+    the legacy ``cg-skill-brain-query`` path so pre-registry setups keep working.
+    """
+    legacy = root / ".github" / "skills" / "cg-skill-brain-query"
+    registry_path = root / ".github" / "shared" / "module-registry.json"
+    if not registry_path.exists():
+        return legacy
+    try:
+        registry = json.loads(registry_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return legacy
+    for module in registry.get("modules", []):
+        if not isinstance(module, dict) or module.get("layer") != "kernel":
+            continue
+        for pattern in module.get("ownedAssets", []):
+            if not isinstance(pattern, str):
+                continue
+            if "brain-query" not in pattern:
+                continue
+            normalized = pattern.rstrip("/")
+            if not normalized.endswith("SKILL.md"):
+                normalized = f"{normalized}/SKILL.md"
+            candidate = root / normalized
+            if candidate.is_file():
+                return candidate.parent
+    return legacy
 
 
 def estimate_tokens(text: str) -> int:
@@ -435,6 +522,45 @@ def scan_files(root: Path) -> tuple[list[dict[str, Any]], dict[str, dict[str, in
     return files, by_category
 
 
+def scan_skill_metadata(root: Path) -> list[dict[str, Any]]:
+    """Return advertised skill metadata for every canonical skill SKILL.md.
+
+    Metadata is read from the skill directory name (stable id) and the parsed
+    frontmatter ``description`` only — never from the skill body. Used by the
+    projection benchmark to capture the "advertised skill metadata" baseline
+    without loading inactive skill bodies into ordinary context.
+
+    Args:
+        root: Repository root path.
+
+    Returns:
+        Sorted list of dicts with ``id``, ``path``, ``description``, and
+        ``chars`` (frontmatter + body length heuristic, kept minimal).
+    """
+    rows: list[dict[str, Any]] = []
+    skills_dir = root / ".github" / "skills"
+    if not skills_dir.is_dir():
+        return rows
+    for entry in sorted(skills_dir.iterdir()):
+        if not entry.is_dir() or entry.is_symlink():
+            continue
+        skill_file = entry / "SKILL.md"
+        if not skill_file.is_file():
+            continue
+        content = skill_file.read_text(encoding="utf-8-sig")
+        frontmatter = parse_frontmatter(content)
+        description = frontmatter.get("description", "")
+        if not isinstance(description, str):
+            description = ""
+        rows.append({
+            "id": entry.name,
+            "path": f".github/skills/{entry.name}/SKILL.md",
+            "description": description,
+            "chars": len(content),
+        })
+    return sorted(rows, key=lambda row: row["id"])
+
+
 def extract_model_declarations(root: Path, files: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
     """Extract forbidden executable model metadata from prompts and agents."""
     declarations: list[dict[str, Any]] = []
@@ -491,23 +617,18 @@ def validate_local_advisory_config(root: Path) -> list[str]:
     if not path.exists():
         return []
     content = path.read_text(encoding="utf-8-sig")
-    if "model-advisory:" not in content:
+    if not re.search(r"(?m)^model-advisory[ \t]*:", content):
         return []
     lines = content.splitlines()
-    starts = [index for index, line in enumerate(lines) if line.strip() == "model-advisory:"]
+    starts = [
+        index for index, line in enumerate(lines)
+        if re.match(r"^model-advisory[ \t]*:", line)
+    ]
     if not starts:
         return []
-    start = starts[0]
-    section: list[tuple[int, str]] = []
-    for index, line in enumerate(lines[start + 1:], start=start + 2):
-        if line.strip() == "---" or (line and not line[0].isspace()):
-            break
-        section.append((index, line))
     errors: list[str] = []
-    if not any(re.match(r"^\s+enabled\s*:", line) for _, line in section):
-        errors.append("compound-gpid.local.md model-advisory block is missing enabled")
-    if not any(re.match(r"^\s+(examples|preferences)\s*:", line) for _, line in section):
-        errors.append("compound-gpid.local.md model-advisory block is missing examples or preferences")
+    if len(starts) > 1:
+        errors.append("compound-gpid.local.md contains duplicate model-advisory blocks")
     bundled_ids: set[str] = set()
     examples_path = root / MODEL_ADVISORY_EXAMPLES_PATH
     if examples_path.exists():
@@ -521,24 +642,39 @@ def validate_local_advisory_config(root: Path) -> list[str]:
         except (OSError, json.JSONDecodeError):
             pass
 
-    for index, line in section:
-        match = re.match(r"^\s+([^:#]+?)\s*:", line)
-        if not match:
-            continue
-        key = match.group(1).strip()
-        key_lower = key.casefold()
-        value = line.split(":", 1)[1].strip().strip("\"'")
-        indent = len(line) - len(line.lstrip())
-        if key_lower in FORBIDDEN_ADVISORY_KEYS:
-            errors.append(f"compound-gpid.local.md line {index} contains executable advisory key")
-        elif indent == 2 and key_lower not in {"enabled", "examples", "preferences"}:
-            errors.append(f"compound-gpid.local.md line {index} contains unsupported advisory field: {key}")
-        elif key_lower == "enabled" and value.casefold() not in {"true", "false"}:
-            errors.append(f"compound-gpid.local.md line {index} enabled must be true or false")
-        elif key_lower in {"effort", "strongeffort", "economicaleffort"} and value not in ADVISORY_EFFORT_LABELS:
-            errors.append(f"compound-gpid.local.md line {index} uses unsupported advisory effort: {value}")
-        elif key_lower in {"strong", "economical", "example", "exampleref"} and bundled_ids and value not in bundled_ids:
-            errors.append(f"compound-gpid.local.md line {index} references unknown advisory example: {value}")
+    for start in starts:
+        header_value = lines[start].split(":", 1)[1].split("#", 1)[0].strip()
+        section: list[tuple[int, str]] = []
+        for index, line in enumerate(lines[start + 1:], start=start + 2):
+            if re.fullmatch(r"---[ \t]*", line) or (line and not line[0].isspace()):
+                break
+            section.append((index, line))
+        if header_value:
+            errors.append("compound-gpid.local.md model-advisory must use a nested block")
+        if any("\t" in line for _, line in section):
+            errors.append("compound-gpid.local.md model-advisory contains tab indentation")
+        if not any(re.match(r"^\s+enabled\s*:", line) for _, line in section):
+            errors.append("compound-gpid.local.md model-advisory block is missing enabled")
+        if not any(re.match(r"^\s+(examples|preferences)\s*:", line) for _, line in section):
+            errors.append("compound-gpid.local.md model-advisory block is missing examples or preferences")
+        for index, line in section:
+            match = re.match(r"^\s+([^:#]+?)\s*:", line)
+            if not match:
+                continue
+            key = match.group(1).strip()
+            key_lower = key.casefold()
+            value = line.split(":", 1)[1].strip().strip("\"'")
+            indent = len(line) - len(line.lstrip())
+            if key_lower in FORBIDDEN_ADVISORY_KEYS:
+                errors.append(f"compound-gpid.local.md line {index} contains executable advisory key")
+            elif indent == 2 and key_lower not in {"enabled", "examples", "preferences"}:
+                errors.append(f"compound-gpid.local.md line {index} contains unsupported advisory field: {key}")
+            elif key_lower == "enabled" and value.casefold() not in {"true", "false"}:
+                errors.append(f"compound-gpid.local.md line {index} enabled must be true or false")
+            elif key_lower in {"effort", "strongeffort", "economicaleffort"} and value not in ADVISORY_EFFORT_LABELS:
+                errors.append(f"compound-gpid.local.md line {index} uses unsupported advisory effort: {value}")
+            elif key_lower in {"strong", "economical", "example", "exampleref"} and bundled_ids and value not in bundled_ids:
+                errors.append(f"compound-gpid.local.md line {index} references unknown advisory example: {value}")
     return errors
 
 
@@ -744,9 +880,19 @@ def count_dispatch_burden(path: str, content: str) -> dict[str, Any]:
         Dict with keys: ``path``, ``dispatch_refs``, ``conditional_routing``,
         ``broad_dispatch``, ``burden_level``.
     """
-    dispatch_refs = len(set(AGENT_REF_RE.findall(content)))
-    conditional_routing = bool(CONDITIONAL_ROUTING_RE.search(content))
-    broad_dispatch = bool(BROAD_DISPATCH_RE.search(content)) and not conditional_routing
+    dispatch_content = content
+    if path == ".github/prompts/cg-light-work.prompt.md":
+        fixed_review = re.search(
+            r"(?ms)^### Stage 5:.*?(?=^### Stage 6:|\Z)",
+            content,
+        )
+        if fixed_review:
+            dispatch_content = fixed_review.group(0)
+    dispatch_refs = len(set(AGENT_REF_RE.findall(dispatch_content)))
+    conditional_routing = bool(CONDITIONAL_ROUTING_RE.search(dispatch_content))
+    broad_dispatch = (
+        bool(BROAD_DISPATCH_RE.search(dispatch_content)) and not conditional_routing
+    )
     if conditional_routing:
         burden_level = "conditional"
     elif broad_dispatch or dispatch_refs >= 8:
@@ -1008,27 +1154,6 @@ def _count_context_levels(rows: Sequence[dict[str, Any]], path: str | None = Non
         "justified": sum(1 for row in selected if row.get("level") == "justified"),
         "targeted": sum(1 for row in selected if row.get("level") == "targeted"),
     }
-
-
-def validate_workflow_registry(registry: Sequence[dict[str, str]]) -> None:
-    """Validate stable workflow registry rows.
-
-    Args:
-        registry: Sequence of dicts with ``workflow_id``, ``workflow``, and
-            ``path`` keys.
-
-    Raises:
-        ValueError: If a required key is missing or a workflow id is duplicated.
-    """
-    seen: set[str] = set()
-    for index, row in enumerate(registry, start=1):
-        for key in ("workflow_id", "workflow", "path"):
-            if not row.get(key):
-                raise ValueError(f"Workflow registry row {index} is missing {key}")
-        workflow_id = row["workflow_id"]
-        if workflow_id in seen:
-            raise ValueError(f"Duplicate workflow_id: {workflow_id}")
-        seen.add(workflow_id)
 
 
 def _observability(status: str, measurement_note: str) -> dict[str, str]:
@@ -1303,7 +1428,8 @@ def build_benchmark_summary(root: Path, report: dict[str, Any]) -> dict[str, Any
         for row in telemetry.get("workflows", [])
     ]
 
-    brain_skill = root / ".github" / "skills" / "cg-skill-brain-query" / "SKILL.md"
+    brain_skill_root = _resolve_brain_query_skill(root)
+    brain_skill = brain_skill_root / "SKILL.md"
     brain_text = brain_skill.read_text(encoding="utf-8-sig") if brain_skill.exists() else ""
     brain_rows = [
         row for row in context_rows
@@ -1315,7 +1441,7 @@ def build_benchmark_summary(root: Path, report: dict[str, Any]) -> dict[str, Any
     workflows.append(
         {
             "workflow": "Knowledge Brain/context lookup",
-            "path": ".github/skills/cg-skill-brain-query/SKILL.md",
+            "path": brain_skill_root.relative_to(root).as_posix() + "/SKILL.md",
             "available": brain_skill.exists(),
             "characters": len(brain_text) if brain_text else None,
             "estimated_tokens": estimate_tokens(brain_text) if brain_text else None,
@@ -1423,7 +1549,8 @@ def _legacy_benchmark_from_report(report: dict[str, Any]) -> dict[str, Any]:
                 ),
             }
         )
-    brain_path = ".github/skills/cg-skill-brain-query/SKILL.md"
+    brain_skill_root = _resolve_brain_query_skill(root)
+    brain_path = brain_skill_root.relative_to(root).as_posix() + "/SKILL.md"
     brain_file = files_by_path.get(brain_path, {})
     brain_counts = _count_context_levels([
         row for row in context_rows
@@ -1550,7 +1677,8 @@ def build_guardrails(root: Path, report: dict[str, Any]) -> dict[str, list[dict[
     ):
         fail(".github/prompts/cg-work.prompt.md", "/cg-work review:auto/manual/none behavior drifted")
 
-    brain_path = root / ".github" / "skills" / "cg-skill-brain-query" / "SKILL.md"
+    brain_skill_root = _resolve_brain_query_skill(root)
+    brain_path = brain_skill_root / "SKILL.md"
     brain_text = brain_path.read_text(encoding="utf-8-sig") if brain_path.exists() else ""
     if not _text_contains_all(
         brain_text,
@@ -1560,7 +1688,7 @@ def build_guardrails(root: Path, report: dict[str, Any]) -> dict[str, list[dict[
             r"(must not read it wholesale|prompt agents must not read it wholesale)",
         ],
     ):
-        fail(".github/skills/cg-skill-brain-query/SKILL.md", "Knowledge Brain query-first or no-wholesale-index rule drifted")
+        fail(brain_skill_root.relative_to(root).as_posix() + "/SKILL.md", "Knowledge Brain query-first or no-wholesale-index rule drifted")
 
     counts = report.get("benchmark", {}).get("review_agent_counts", {}).get("counts", {})
     for mode, expected in EXPECTED_REVIEW_AGENT_COUNTS.items():
@@ -1762,37 +1890,43 @@ def build_token_efficiency_recommendations(report: dict[str, Any]) -> list[dict[
 
 def _deterministic_generated_stamp(root: Path) -> str:
     """Return a deterministic generated stamp when git metadata is available."""
-    git_dir = subprocess.run(
-        ["git", "-C", str(root), "rev-parse", "--git-dir"],
-        capture_output=True,
-        text=True,
-        timeout=10,
-        check=False,
-    )
+    try:
+        git_dir = subprocess.run(
+            ["git", "-C", str(root), "rev-parse", "--git-dir"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return "unknown-revision"
     if git_dir.returncode != 0:
-        return datetime.now().isoformat(timespec="seconds")
+        return "unknown-revision"
 
-    head_sha = subprocess.run(
-        ["git", "-C", str(root), "rev-parse", "HEAD"],
-        capture_output=True,
-        text=True,
-        timeout=10,
-        check=False,
-    )
-    head_time = subprocess.run(
-        ["git", "-C", str(root), "show", "-s", "--format=%cI", "HEAD"],
-        capture_output=True,
-        text=True,
-        timeout=10,
-        check=False,
-    )
+    try:
+        head_sha = subprocess.run(
+            ["git", "-C", str(root), "rev-parse", "HEAD"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+        head_time = subprocess.run(
+            ["git", "-C", str(root), "show", "-s", "--format=%cI", "HEAD"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return "unknown-revision"
     if head_sha.returncode == 0 and head_time.returncode == 0:
         sha = head_sha.stdout.strip()
         commit_time = head_time.stdout.strip()
         if sha and commit_time:
             return f"{commit_time}@{sha[:12]}"
 
-    return datetime.now().isoformat(timespec="seconds")
+    return "unknown-revision"
 
 
 def build_report(root: Path) -> dict[str, Any]:

@@ -34,8 +34,9 @@ Compound GPID uses a **global clone + per-project junction** model on Windows:
 | Path | Purpose | Committed? |
 |------|---------|-----------|
 | `compound-gpid.md` | Project charter: objectives, deliverables, constraints, current focus | Yes |
-| `compound-gpid.local.md` | Per-user config: language, review depth | No (gitignored) |
+| `compound-gpid.local.md` | Shared config: language, review depth, and active suites | Yes (committed) |
 | `.cg-docs/` | Brainstorms, plans, captured solutions | Yes |
+| `c-research/` | Root-level CR research outputs, created when `cr` is active | Yes |
 | `roadmap.json` | Milestone/feature tracking (future) | Yes |
 
 ## Optional Model Advisory Preferences
@@ -93,13 +94,26 @@ Check if `compound-gpid.local.md` already exists in the project root.
 > 2. **Standard** — All 8 review agents. Best for most work. *(recommended)*
 > 3. **Thorough** — All 8 agents + cross-referencing past learnings. Best for major features and refactors.
 
+**Question 3.5: Active Suites**
+
+> Which workflow suites should this project activate?
+> 1. **Technical only** — `suites: [cg]` *(default)*
+> 2. **Research only** — `suites: [cr]`
+> 3. **Technical + research** — `suites: [cg, cr]`
+
 ### Step 3: Write Config
+
+Ask Question 3.5 before writing the config, then substitute the selected value
+for the `suites:` placeholder. The written frontmatter must contain exactly
+`[cg]`, `[cr]`, or `[cg, cr]`; select `[cr]` or `[cg, cr]` whenever the project
+requires research workflows.
 
 Create `compound-gpid.local.md` in the project root with the following format:
 
 ```markdown
 ---
 language: "<r|python|stata|both|all|other>"
+suites: [<cg|cr|cg, cr>]
 r-syntax: "<data.table-collapse|tidyverse>"  # Only when language includes R
 project-type: "<package|analysis|dashboard|api|tool|other>"
 review-depth: "<light|standard|thorough>"
@@ -109,7 +123,7 @@ cg-schema-version: ""
 
 # Compound GPID — Project Config
 
-This file configures Compound GPID for this project. It is gitignored and local to your machine.
+This file configures Compound GPID for this project. It is version-controlled and shared across the team.
 
 ## Language: <language>
 ## Project Type: <project-type>
@@ -134,14 +148,10 @@ After writing the local config, optionally create a committed project charter.
 - Do NOT add `compound-gpid.md` to `.gitignore` -- it must be committed.
 - If the user skips all charter questions, do not create the file.
 
-### Step 4: Update .gitignore
+### Step 4: Protect shared configuration
 
-Check if `compound-gpid.local.md` is in `.gitignore`. If not, add it:
-
-```gitignore
-# Compound GPID local config
-compound-gpid.local.md
-```
+Ensure `compound-gpid.local.md` is not ignored. It declares team-wide language,
+suite, and review defaults and must remain version-controlled.
 
 ### Step 5: Create .cg-docs/ Structure
 
@@ -167,6 +177,14 @@ If the `.cg-docs/` directory doesn't exist, create the full structure:
     └── git-workflows/
         └── .gitkeep
 ```
+
+If the research suite is enabled (`suites:` includes `cr`), create the
+root-level `c-research/` artifact-type directories (`evidence/`,
+`manuscripts/`, `normative-decisions/`, `scoping/`, `derivations/`,
+`specifications/`, `results/`, `replication/`, `eda/`, `measurement/`, and
+`vintages/`). These are research outputs only; keep data and other inputs
+outside the tree. If `cr` is disabled later, preserve an existing
+`c-research/` workspace and its contents.
 
 ### Step 6: Confirm
 

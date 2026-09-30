@@ -1,0 +1,8 @@
+---
+name: multiline-quoted
+description: "A folded double-quoted scalar
+  whose continuation contains a colon: still part of the scalar."
+single-note: 'A folded single-quoted scalar
+  whose continuation also contains a colon: still part of the scalar.'
+---
+# Body

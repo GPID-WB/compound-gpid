@@ -1,0 +1,51 @@
+{
+  "$schema": "compound-gpid-schema-subset-v1",
+  "$id": "cg-skill-create-v1",
+  "$defs": {
+    "arguments": {
+      "type": "object",
+      "properties": {
+        "positionals": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1},
+          "minItems": 1,
+          "maxItems": 1
+        },
+        "scope": {"type": "string", "const": "permanent"},
+        "description": {"type": "string", "minLength": 1},
+        "owner": {"type": "string", "minLength": 1},
+        "capability": {"type": "string", "minLength": 1},
+        "suites": {"type": "string", "minLength": 1},
+        "platforms": {"type": "string", "minLength": 1},
+        "activation_cost": {"type": "string", "enum": ["low", "medium", "high"]},
+        "triggers": {"type": "string", "minLength": 1},
+        "selectors": {"type": "string", "minLength": 2},
+        "approver": {"type": "string", "minLength": 1},
+        "review_reference": {"type": "string", "minLength": 1},
+        "references": {"type": "string"},
+        "workflows": {"type": "string"},
+        "examples": {"type": "string"},
+        "resources": {"type": "string"},
+        "resource_classes": {"type": "string"}
+      },
+      "required": [
+        "positionals", "scope", "description", "owner", "capability",
+        "suites", "platforms", "activation_cost", "triggers", "selectors",
+        "approver", "review_reference"
+      ],
+      "additionalProperties": false
+    },
+    "resultData": {
+      "type": "object",
+      "properties": {
+        "status": {"type": "string", "enum": ["planned", "committed", "blocked"]},
+        "skillId": {"type": "string"},
+        "owner": {"type": "string"},
+        "capability": {"type": "string"},
+        "availability": {"type": "string", "const": "inactive"}
+      },
+      "required": ["status", "skillId", "owner", "capability", "availability"],
+      "additionalProperties": false
+    }
+  }
+}

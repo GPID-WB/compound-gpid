@@ -5,7 +5,7 @@ description: "Requirement elicitation and decision capture. Helps clarify fuzzy 
 
 # Brainstorming Skill
 
-Supports the `/cg-brainstorm` prompt with structured workflows for requirement elicitation and decision capture.
+Supports the `/cg-brainstorm` prompt with structured workflows for requirement elicitation and decision capture. The requirement-elicitation workflow is the shared adaptive decision protocol for `/cg-brainstorm`.
 
 ## When to Use
 

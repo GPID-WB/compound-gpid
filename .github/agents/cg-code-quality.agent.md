@@ -1,4 +1,4 @@
-﻿---
+---
 description: "Reviews code for style consistency, linting issues, DRY violations, and naming conventions. Trilingual R/Python/Stata."
 tools: ['read', 'search']
 user-invocable: false

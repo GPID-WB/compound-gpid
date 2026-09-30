@@ -1,0 +1,10 @@
+---
+name: {{NAME}}
+description: {{DESCRIPTION}}
+owner: {{OWNER}}
+capability: {{CAPABILITY}}
+{{RESOURCE_CLASSES}}---
+
+# {{TITLE}}
+
+Use this skill only for its focused documented purpose.

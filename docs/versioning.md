@@ -8,6 +8,36 @@ This page explains how to choose which version of Compound GPID runs on your mac
 
 ## Overview
 
+### Documentation channels
+
+The website has two moving channels: **Published** at the site root and
+**Development** under `dev/`. They are not archives for every installed release.
+The footer of an upgraded page identifies its verified source tag or branch and
+commit. Four-component release tags are marked as prereleases. Use the source
+link or [release notes](whats-new.md) to inspect older versions.
+
+The channel selector keeps the current page and section when the destination
+supports them. A missing destination opens its homepage or the page top with an
+explanation and return link. Before leaving for an older site, a confirmation
+shows the destination and a copyable return URL: that older site may have no
+verified footer or switch back. Browser Back also returns to the original page.
+
+If a deployment changes while a page is open, the site keeps any previously
+verified article, stops loading new content, and offers **Reload**. An unavailable
+build identity is not a stable-version claim. Unstamped local previews display
+`Local preview: version unavailable` and disable channel switching.
+
+For maintainers, `channels.json`, shell stamps, and asset hashes are generated
+only in the paired artifact. Protected code verifies producer output against
+unchanged source checkouts before importing into separate staging. The v1
+compatibility path retains the captured legacy generator; v2 independently
+generates the section index and checks the upgraded shell. HTML references
+content-addressed local assets with integrity attributes. Both channels and the
+public metadata are verified before upload. Local validation does not establish
+that the protected publishing controller supports these contracts; controller
+rollout requires its existing separate review. The release controller remains
+disabled.
+
 By default `cg-update` tracks the `main` branch and always pulls the newest commit. You can instead **pin** to a specific tagged release for stability, or switch back to tracking main at any time — all with a single command.
 
 | Situation | Command |
@@ -249,19 +279,68 @@ If missing or corrupted, delete it and run `cg-update` — it defaults to `lates
 
 ---
 
-## Dev tags (maintainer-only)
+## Four-component prerelease tags (maintainer-only)
 
-Dev tags follow the convention `v<MAJOR>.<MINOR>.<PATCH>.<DEV>` where DEV starts at 9000 (e.g. `v0.1.0.9000`, `v0.1.0.9001`). They are used to test a pre-release commit end-to-end via `cg-update` **before** merging to `main` and cutting an official release.
+Historical prerelease tags follow `v<MAJOR>.<MINOR>.<PATCH>.<BUILD>` where
+BUILD starts at 9000 (for example, `v1.2.0.9000` and `v1.2.0.9001`). They let
+maintainers publish an installable GitHub prerelease and test the complete
+release path through `cg-update` before promoting a stable three-component
+release.
 
-**Dev tags are invisible to regular users:**
+Updated readers also accept strict SemVer tags such as `v1.5.0-rc.2` and
+`v1.5.0-rc.10`, with numeric identifier ordering. Stable sorts after prereleases
+of the same core. Four-part versions use their separate legacy ordering; old
+pins and historical bytes are not renamed or converted. A delivered compatibility
+bridge and actual native clean-client qualification are required before writer
+enablement. Both are deferred, not passed; the publisher remains disabled.
+See [Release Controller](release-controller.md) for lines, projections and latest
+selection. The updater's `latest` preference still means tracking `main`, not the
+controller's highest-stable GitHub Release classification.
 
-- `cg-update --list` shows only 3-component release tags.
-- The "Newer release available" hint is never triggered by a dev tag.
+**Prerelease tags stay out of the stable update channel:**
+
+- `cg-update --list` hides prereleases; `--show-dev` includes them.
+- The "Newer release available" hint is never triggered by a prerelease tag.
 - `cg-update` (bare) and `cg-update latest` pull `main` and are unaware of any tags.
+- Testers can install a known prerelease explicitly with `cg-update v1.2.0.9008`.
 
-### Creating a dev tag
+### Publishing an installable prerelease
 
-Use the `/cg-devtag` prompt in Copilot Chat — it auto-increments from the latest dev tag for the current base version, confirms with you, and pushes:
+The new four-command interface previews strict SemVer without publication:
+
+```text
+/cg-release plan --version 1.5.0-rc.1 --branch dev --line current --json
+```
+
+This needs a trusted policy whose line includes `dev`. The publisher is disabled
+until separate setup, bridge and rollout review. `start` confirms/rechecks and
+returns a durable locator, not an immediate published Release. Use `status` and
+`resume` with that locator; `--yes` does not replace protected approval.
+
+For a new GPID Routine prerelease, use `/cg-release v1.2.0.9021` from a clean
+current `dev` checkout; use `/cg-release v1.2.0` for a full Release. The already
+published `v1.2.0.9020` must not be reused. The slash workflow prepares a
+reviewed payload and invokes
+the existing PowerShell publisher for Reserve and Finalize while the controller
+stays disabled. This is not the generic SemVer controller `start` path. The native
+`cg-release` executable cannot prepare a bare tag; it requires the slash workflow.
+Bridge and historical Recovery remain separately authorized via
+`--legacy-bridge` and `--legacy-recovery`. A full GitHub Release is published at
+Reserve even when its Pages deployment and attestation remain pending.
+
+Published prerelease tags are immutable release records. Do not delete or reuse
+them; increment the build component for the next candidate.
+
+On the retained legacy path, only repository administrators can create release-shaped `v*` tags. The `dev`
+branch rejects deletion and force-pushes, and published tags reject every update
+or deletion. The new controller instead stages and verifies a draft before final
+publication; this does not permit modification of any published identity.
+
+### Creating a temporary dev tag
+
+Use `/cg-devtag` only for temporary branch testing that does not create a GitHub
+Release. It auto-increments from the latest dev tag for the current base
+version, confirms with you, and pushes:
 
 ```
 /cg-devtag
@@ -274,7 +353,7 @@ git tag v0.1.0.9000
 git push origin v0.1.0.9000
 ```
 
-### Testing with a dev tag
+### Testing with a prerelease or temporary dev tag
 
 From any linked project:
 
@@ -284,9 +363,11 @@ cg-update v0.1.0.9000
 
 This checks out the tagged commit in the global clone. All linked projects immediately see the new code via junctions.
 
-### Cleaning up
+### Cleaning up temporary tags
 
-After testing, delete the dev tag locally and from the remote:
+Delete a tag only when it was created temporarily with `/cg-devtag` and never
+published as a GitHub Release. After testing, delete that temporary tag locally
+and from the remote:
 
 ```powershell
 git tag -d v0.1.0.9000
