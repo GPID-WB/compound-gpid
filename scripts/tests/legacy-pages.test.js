@@ -2,14 +2,15 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { check, verifyArchive, importDev } = require('../legacy-pages.js');
-const {readOfficial, restoreOfficial, sealOfficial, stampPreview, recheckOfficial, FILE} = require('../legacy-official-snapshot.js');
+const {readOfficial, restoreOfficial, sealOfficial, buildPreview, stampPreview, recheckOfficial, FILE} = require('../legacy-official-snapshot.js');
 
 test('preview imports verified official docs rather than validating a moving main tree', () => {
   const fs = require('node:fs'), path = require('node:path');
   const root = path.resolve(__dirname, '../..');
   const workflow = fs.readFileSync(path.join(root, '.github/workflows/release-pages.yml'), 'utf8');
   assert.ok(workflow.includes('node scripts/legacy-pages.js restore-official official-source official-state.json'));
-  assert.ok(workflow.includes('node scripts/legacy-pages.js seal-official release-source release-artifact'));
+  assert.ok(workflow.includes('node scripts/legacy-pages.js seal-official release-source release-artifact current-dev "$dev_sha"'));
+  assert.ok(workflow.includes('node scripts/legacy-pages.js build-preview official-state.json sources/dev verified-staging/dev combined-artifact "$DEV_SHA"'));
   assert.ok(!workflow.includes('ref: main'));
   assert.ok(workflow.includes('node scripts/legacy-pages.js recheck-official official-state.json'));
 });
@@ -85,6 +86,7 @@ function officialFixture(t) {
       assert.equal(args[0], '--disable');
       assert.ok(args.includes('--proto')); assert.ok(args.includes('=https'));
       assert.ok(!args.some(arg => arg.includes('Authorization')));
+      if (args.at(-1).includes('/channels.json?verify=')) return Buffer.from(JSON.stringify(f.state.manifest));
       assert.match(args.at(-1), /^https:\/\/owner.github.io\/repo\/cg-official-snapshot.json\?verify=/);
       return Buffer.from(JSON.stringify(f.state.value) + '\n');
     }
@@ -173,6 +175,122 @@ test('stable deploy then dev payload preview preserves every official site byte'
   f.state.value = previewValue; f.state.currentPublisher = {...previewValue.publisher};
   assert.deepEqual(readOfficial(f.env, f.transport).value.official, previewValue.official);
   assert.throws(() => recheckOfficial(f.env, stateFile, f.transport), /state changed/);
+});
+
+test('schema-1 sealed legacy official cannot claim canonical producer provenance with upgraded dev', t => {
+  const fs = require('node:fs'), path = require('node:path');
+  const {modernSource, modernArtifact} = require('./docs-publishing-fixture.js');
+  const {writeCombinedSite} = require('../assemble-docs-site.js');
+  const f = officialFixture(t), legacyDocs = path.join(__dirname, 'fixtures/docs-redesign/legacy/docs');
+  fs.rmSync(path.join(f.officialSource, 'docs'), {recursive: true});
+  fs.cpSync(legacyDocs, path.join(f.officialSource, 'docs'), {recursive: true});
+  for (const [name, text] of Object.entries(require('./fixtures/docs-redesign/legacy-documents.json'))) {
+    const file = path.join(f.officialSource, 'docs', name);
+    fs.mkdirSync(path.dirname(file), {recursive: true});
+    fs.writeFileSync(file, text);
+  }
+  fs.writeFileSync(path.join(f.officialSource, 'docs/.nojekyll'), '');
+  const stable = path.join(f.root, 'legacy-stable');
+  writeCombinedSite({mainRoot: f.officialSource, devRoot: f.source('legacy-dev'), out: stable,
+    mainSha: 'c'.repeat(40), devSha: 'b'.repeat(40), mainBranch: 'deploy/2.x', mainRef: 'v2.0.0'});
+  sealOfficial({...f.env, GITHUB_RUN_ID: '50', GITHUB_JOB: 'deploy', LEGACY_MODE: 'release',
+    BUILD_RUN_ID: '11', RELEASE_BRANCH: 'deploy/2.x'}, f.officialSource, stable, f.transport);
+  f.state.value = JSON.parse(fs.readFileSync(path.join(stable, 'site', FILE)));
+  assert.equal(f.state.value.schemaVersion, 1);
+  const restored = path.join(f.root, 'legacy-restored'), stateFile = path.join(f.root, 'legacy-state.json');
+  assert.equal(restoreOfficial(f.env, restored, stateFile, f.transport).snapshot_schema, 1);
+  assert.deepEqual(fs.readdirSync(restored), ['docs'], 'restoration does not claim missing canonical producer code');
+
+  const dev = modernSource(), artifact = modernArtifact(dev), staging = path.join(f.root, 'verified-dev');
+  t.after(() => { fs.rmSync(dev, {recursive: true, force: true}); fs.rmSync(artifact, {recursive: true, force: true}); });
+  importDev(dev, artifact, staging);
+  const preview = path.join(f.root, 'legacy-plus-upgraded-dev');
+  assert.throws(() => writeCombinedSite({mainRoot: restored, devRoot: dev, devBuild: staging,
+    out: preview, mainSha: 'c'.repeat(40), devSha: 'e'.repeat(40),
+    mainBranch: 'deploy/2.x', mainRef: 'v2.0.0'}), /unknown canonical producer/);
+  assert.equal(fs.existsSync(preview), false);
+});
+
+test('upgraded stable seal and preview preserve transformed published bytes across dev changes', t => {
+  const fs = require('node:fs'), path = require('node:path');
+  const {modernSource} = require('./docs-publishing-fixture.js');
+  const {writeCombinedSite, digestTree} = require('../assemble-docs-site.js');
+  const {hash} = require('../docs-source.js');
+  const f = officialFixture(t), main = modernSource(), dev = modernSource();
+  t.after(() => { fs.rmSync(main, {recursive: true, force: true}); fs.rmSync(dev, {recursive: true, force: true}); });
+  const stable = path.join(f.root, 'upgraded'), preview = path.join(f.root, 'upgraded-preview');
+  const sealEnv = {...f.env, GITHUB_RUN_ID: '50', GITHUB_JOB: 'deploy', LEGACY_MODE: 'release', BUILD_RUN_ID: '11', RELEASE_BRANCH: 'deploy/2.x'};
+  const args = {mainRoot: main, devRoot: dev, mainSha: 'c'.repeat(40), devSha: 'b'.repeat(40),
+    mainBranch: 'deploy/2.x', mainRef: 'v2.0.0'};
+  writeCombinedSite({...args, out: stable});
+  const before = digestTree(path.join(stable, 'site'));
+  sealOfficial(sealEnv, main, stable, dev, args.devSha, f.transport);
+  const sealed = JSON.parse(fs.readFileSync(path.join(stable, 'site', FILE)));
+  assert.equal(sealed.schemaVersion, 2);
+  assert.equal(sealed.canonical.files['index.html'], hash(fs.readFileSync(path.join(main, 'docs/index.html'))));
+  assert.equal(sealed.official.record.files['index.html'], before['index.html']);
+  assert.notEqual(sealed.canonical.files['index.html'], sealed.official.record.files['index.html']);
+  assert.ok(!Object.hasOwn(sealed.official.files, 'channels.json'));
+  assert.ok(!Object.keys(sealed.official.files).some(name => name.startsWith('dev/')));
+  assert.equal(Object.keys(sealed.canonical).includes('files'), true);
+  assert.equal(Object.keys(sealed.canonical).includes('bytes'), false);
+  const stableMetadata = JSON.parse(fs.readFileSync(path.join(stable, '.docs-build-metadata.json')));
+  assert.deepEqual(stableMetadata.site.files, digestTree(path.join(stable, 'site')));
+  assert.equal(stableMetadata.site.files[FILE], hash(fs.readFileSync(path.join(stable, 'site', FILE))));
+
+  f.state.value = sealed;
+  f.state.manifest = JSON.parse(fs.readFileSync(path.join(stable, 'site/channels.json')));
+  const stateFile = path.join(f.root, 'upgraded-state.json');
+  restoreOfficial(f.env, path.join(f.root, 'published-data'), stateFile, f.transport);
+  fs.appendFileSync(path.join(dev, 'docs/index.html'), '\n<!-- changed current dev -->\n');
+  buildPreview(f.env, stateFile, dev, undefined, preview, 'e'.repeat(40));
+  recheckOfficial(f.env, stateFile, f.transport);
+  const after = digestTree(path.join(preview, 'site'));
+  assert.deepEqual(JSON.parse(fs.readFileSync(path.join(preview, '.docs-build-metadata.json'))).site.files, after);
+  for (const [name, digest] of Object.entries(sealed.official.record.files)) assert.equal(after[name], digest, name);
+  assert.notEqual(after['dev/index.html'], before['dev/index.html']);
+  assert.notEqual(after['channels.json'], before['channels.json']);
+  const previewState = JSON.parse(fs.readFileSync(path.join(preview, 'site', FILE)));
+  assert.deepEqual(previewState.official, sealed.official);
+  assert.deepEqual(previewState.publishedChannel, sealed.publishedChannel);
+  assert.throws(() => stampPreview(f.env, stateFile, preview), /canonical dev root/);
+  const poisonedPreview = Buffer.from('forged dev page');
+  fs.writeFileSync(path.join(preview, 'site/dev/index.html'), poisonedPreview);
+  const previewMetadata = path.join(preview, '.docs-build-metadata.json');
+  const forgedMetadata = JSON.parse(fs.readFileSync(previewMetadata));
+  forgedMetadata.site.files['dev/index.html'] = hash(poisonedPreview);
+  fs.writeFileSync(previewMetadata, JSON.stringify(forgedMetadata));
+  assert.throws(() => stampPreview(f.env, stateFile, preview, dev, 'e'.repeat(40)), /canonical expected output/);
+  f.state.value = previewState; f.state.currentPublisher = {...previewState.publisher};
+  f.state.manifest = JSON.parse(fs.readFileSync(path.join(preview, 'site/channels.json')));
+  assert.equal(readOfficial(f.env, f.transport).value.official.record.files['index.html'], before['index.html']);
+  assert.throws(() => recheckOfficial(f.env, stateFile, f.transport), /state changed/);
+
+  const forged = path.join(f.root, 'forged-upgraded');
+  fs.cpSync(stable, forged, {recursive: true});
+  fs.rmSync(path.join(forged, 'site', FILE));
+  const poisoned = Buffer.from('<html><body>forged published site</body></html>');
+  fs.writeFileSync(path.join(forged, 'site/index.html'), poisoned);
+  const metadataFile = path.join(forged, '.docs-build-metadata.json');
+  const metadata = JSON.parse(fs.readFileSync(metadataFile));
+  metadata.site.files['index.html'] = hash(poisoned);
+  fs.writeFileSync(metadataFile, JSON.stringify(metadata));
+  const manifestFile = path.join(forged, 'site/channels.json');
+  const manifest = JSON.parse(fs.readFileSync(manifestFile));
+  manifest.channels.published.files['index.html'] = hash(poisoned);
+  fs.writeFileSync(manifestFile, JSON.stringify(manifest, null, 2) + '\n');
+  metadata.site.files['channels.json'] = hash(fs.readFileSync(manifestFile));
+  fs.writeFileSync(metadataFile, JSON.stringify(metadata));
+  assert.throws(() => sealOfficial(sealEnv, main, forged, main, args.devSha, f.transport), /canonical expected output|paired output/);
+
+  const forgedState = JSON.parse(fs.readFileSync(stateFile));
+  forgedState.official.files['index.html'] = poisoned.toString('base64');
+  forgedState.official.record.files['index.html'] = hash(poisoned);
+  forgedState.official.record.snapshotDigest = hash(require('../snapshot-data.js').snapshotIdentity(forgedState.official.record));
+  forgedState.publishedChannel.record.files['index.html'] = hash(poisoned);
+  forgedState.publishedChannel.digest = hash(JSON.stringify(forgedState.publishedChannel.record));
+  f.state.value = forgedState;
+  assert.throws(() => readOfficial(f.env, f.transport), /served published channel/);
 });
 
 test('protected remote default other than main selects cutover authority', () => {

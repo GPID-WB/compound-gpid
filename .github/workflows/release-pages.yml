@@ -237,7 +237,9 @@ jobs:
       - name: Seal durable official snapshot in the Pages artifact
         env:
           GH_TOKEN: ${{ steps.recovery-authority.outputs.token || github.token }}
-        run: node scripts/legacy-pages.js seal-official release-source release-artifact
+        run: |
+          dev_sha="$(git -C current-dev rev-parse HEAD)"
+          node scripts/legacy-pages.js seal-official release-source release-artifact current-dev "$dev_sha"
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b  # v5.0.0
@@ -319,9 +321,13 @@ jobs:
         run: |
           set -euo pipefail
           node scripts/legacy-pages.js import-dev sources/dev dev-artifact verified-staging/dev
-          node scripts/assemble-docs-site.js --main-root official-source --dev-root sources/dev --dev-build verified-staging/dev --out combined-artifact --main-sha "$OFFICIAL_SHA" --dev-sha "$DEV_SHA" --main-branch "$OFFICIAL_BRANCH" --main-ref "$OFFICIAL_TAG"
-          node scripts/assemble-docs-site.js --verify combined-artifact --main-root official-source --dev-root sources/dev --main-sha "$OFFICIAL_SHA" --dev-sha "$DEV_SHA" --main-branch "$OFFICIAL_BRANCH" --main-ref "$OFFICIAL_TAG"
-          node scripts/legacy-pages.js stamp-preview official-state.json combined-artifact
+          if [ '${{ steps.official.outputs.snapshot_schema }}' = '2' ]; then
+            node scripts/legacy-pages.js build-preview official-state.json sources/dev verified-staging/dev combined-artifact "$DEV_SHA"
+          else
+            node scripts/assemble-docs-site.js --main-root official-source --dev-root sources/dev --dev-build verified-staging/dev --out combined-artifact --main-sha "$OFFICIAL_SHA" --dev-sha "$DEV_SHA" --main-branch "$OFFICIAL_BRANCH" --main-ref "$OFFICIAL_TAG"
+            node scripts/assemble-docs-site.js --verify combined-artifact --main-root official-source --dev-root sources/dev --main-sha "$OFFICIAL_SHA" --dev-sha "$DEV_SHA" --main-branch "$OFFICIAL_BRANCH" --main-ref "$OFFICIAL_TAG"
+            node scripts/legacy-pages.js stamp-preview official-state.json combined-artifact
+          fi
       - uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b
       - uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa
         with:

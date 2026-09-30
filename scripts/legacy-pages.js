@@ -147,8 +147,9 @@ if (require.main === module) {
         Object.entries(result).map(([k, v]) => `${k}=${v}\n`).join(''));
     } else if (process.argv[2] === 'archive') verifyArchive(process.env, process.argv[3], process.argv[4]);
 else if (['import-dev', 'import-docs'].includes(process.argv[2])) importDev(process.argv[3], process.argv[4], process.argv[5]);
-    else if (process.argv[2] === 'seal-official') require('./legacy-official-snapshot.js').sealOfficial(process.env, process.argv[3], process.argv[4]);
-    else if (process.argv[2] === 'stamp-preview') require('./legacy-official-snapshot.js').stampPreview(process.env, process.argv[3], process.argv[4]);
+    else if (process.argv[2] === 'seal-official') require('./legacy-official-snapshot.js').sealOfficial(process.env, process.argv[3], process.argv[4], process.argv[5], process.argv[6]);
+    else if (process.argv[2] === 'build-preview') require('./legacy-official-snapshot.js').buildPreview(process.env, process.argv[3], process.argv[4], process.argv[5], process.argv[6], process.argv[7]);
+    else if (process.argv[2] === 'stamp-preview') require('./legacy-official-snapshot.js').stampPreview(process.env, process.argv[3], process.argv[4], process.argv[5], process.argv[6]);
     else if (process.argv[2] === 'recheck-official') require('./legacy-official-snapshot.js').recheckOfficial(process.env, process.argv[3]);
     else fail('unknown operation');
   } catch (error) {

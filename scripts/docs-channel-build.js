@@ -130,4 +130,37 @@ function verify(artifact, mainRoot, devRoot, identity = {}) {
   if (JSON.stringify(metadata.site?.files) !== JSON.stringify(source.digests(actual))) fail("final artifact digest mismatch");
   return 0;
 }
-module.exports = { upgraded, channel, expectedPair, assemble, verify, LEGACY_RUNTIMES };
+
+/** Compose a preview from previously verified published output, never from a surrogate main source. */
+function previewPair(published, devRoot, devSha, devBuild) {
+  const dev = channel(devRoot, "development", { sha: devSha, branch: "dev", ref: "dev" }, devBuild);
+  const channels = { schemaVersion: "compound-gpid-docs-channels-v1",
+    channels: { published: published.record, development: dev.record } };
+  if ([published.record.fingerprintVersion, dev.record.fingerprintVersion].includes(2) &&
+    [published.record.fingerprintVersion, dev.record.fingerprintVersion].includes(3)) fail("historical v2 recovery cannot be paired with v3");
+  contract.validateChannels(channels);
+  const files = new Map([...published.files, ...[...dev.files].map(([name, bytes]) => [`dev/${name}`, bytes])]);
+  files.set("channels.json", json(channels));
+  const metadata = { schemaVersion: 2, version: "2", sources: {
+    main: { ...published.record.source, fingerprint: published.record.fingerprint },
+    dev: { ...dev.record.source, fingerprint: dev.record.fingerprint },
+  }, site: { files: source.digests(files) } };
+  return { files, metadata };
+}
+
+function composePreview(published, devRoot, devSha, devBuild, out) {
+  source.separate(out, [devRoot, devBuild].filter(Boolean));
+  const { files, metadata } = previewPair(published, devRoot, devSha, devBuild);
+  source.writeTree(out, new Map([...files].map(([name, bytes]) => [`site/${name}`, bytes])).set(".docs-build-metadata.json", json(metadata)),
+    [devRoot, devBuild].filter(Boolean));
+  return 0;
+}
+
+function verifyPreview(artifact, published, devRoot, devSha) {
+  const tree = source.readTree(artifact);
+  if ([...tree.keys()].some(name => name !== ".docs-build-metadata.json" && !name.startsWith("site/"))) fail("unexpected preview artifact inventory");
+  const { files, metadata } = previewPair(published, devRoot, devSha);
+  source.equalFiles(tree, new Map([...files].map(([name, bytes]) => [`site/${name}`, bytes])).set(".docs-build-metadata.json", json(metadata)), "preview output");
+  return 0;
+}
+module.exports = { upgraded, channel, expectedPair, assemble, verify, composePreview, verifyPreview, LEGACY_RUNTIMES };
