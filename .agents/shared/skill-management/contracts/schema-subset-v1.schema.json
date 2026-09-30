@@ -1,0 +1,186 @@
+{
+  "$schema": "compound-gpid-schema-subset-v1",
+  "$id": "compound-gpid-schema-subset-v1",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "compound-gpid-schema-subset-v1"
+    },
+    "$id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "$ref": {
+      "type": "string",
+      "pattern": "^#(?:/.*)?$"
+    },
+    "$defs": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/schemaNode"
+      }
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "array",
+        "boolean",
+        "integer",
+        "null",
+        "number",
+        "object",
+        "string"
+      ]
+    },
+    "properties": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/schemaNode"
+      }
+    },
+    "required": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "additionalProperties": {},
+    "items": {
+      "$ref": "#/$defs/schemaNode"
+    },
+    "enum": {
+      "type": "array",
+      "items": {},
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "const": {},
+    "pattern": {
+      "type": "string"
+    },
+    "minLength": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "maxLength": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "minimum": {
+      "type": "number"
+    },
+    "maximum": {
+      "type": "number"
+    },
+    "minItems": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "maxItems": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "uniqueItems": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "$schema",
+    "$id"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "schemaNode": {
+      "type": "object",
+      "properties": {
+        "$schema": {
+          "type": "string",
+          "const": "compound-gpid-schema-subset-v1"
+        },
+        "$id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "$ref": {
+          "type": "string",
+          "pattern": "^#(?:/.*)?$"
+        },
+        "$defs": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/schemaNode"
+          }
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "array",
+            "boolean",
+            "integer",
+            "null",
+            "number",
+            "object",
+            "string"
+          ]
+        },
+        "properties": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/schemaNode"
+          }
+        },
+        "required": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "additionalProperties": {},
+        "items": {
+          "$ref": "#/$defs/schemaNode"
+        },
+        "enum": {
+          "type": "array",
+          "items": {},
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "const": {},
+        "pattern": {
+          "type": "string"
+        },
+        "minLength": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "maxLength": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "minimum": {
+          "type": "number"
+        },
+        "maximum": {
+          "type": "number"
+        },
+        "minItems": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "maxItems": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "uniqueItems": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

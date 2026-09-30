@@ -16,6 +16,10 @@ _SCRIPTS_DIR = str(Path(__file__).parent)
 if _SCRIPTS_DIR not in sys.path:
     sys.path.insert(0, _SCRIPTS_DIR)
 
+# Establish the dispatcher's captured core before test collection imports any
+# skill-management helper through Python's normal importer.
+import cg_skill  # noqa: E402,F401
+
 
 @pytest.fixture
 def require_symlink_support(tmp_path: Path) -> None:

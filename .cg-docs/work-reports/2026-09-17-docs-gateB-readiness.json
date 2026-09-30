@@ -1,0 +1,57 @@
+{
+  "date": "2026-09-17",
+  "phase": 4,
+  "gate": "B",
+  "status": "blocked-prerequisite",
+  "canonicalDev": "7a4df8c652b0c2feed0a681aaae6580cf4c4b49a",
+  "upstreamHelpPlan": ".cg-docs/plans/2026-09-08-evidence-backed-cg-help-command.md",
+  "upstreamCompletedPhases": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "upstreamCurrentPhase": 5,
+  "catalog": {
+    "sourceDigest": "1c38dd0afd0e78025a4b8518b3533872282017d6a0bd4b1e8c33ad3a5493bc47",
+    "sha256": "572ecb9151261bc65c3d649641e87a8a60e6593d14e0b67768f2d99ac61fdbb4",
+    "commands": 53,
+    "workflows": 4,
+    "hasLightWork": true,
+    "cleanCheckoutCheck": "passed"
+  },
+  "missingMergedInterfaces": [
+    "--bootstrap-docs-markers",
+    "--write-docs",
+    "--check-docs"
+  ],
+  "catalogCliHelp": "usage: cg_generate_help_catalog.py [-h] [--root ROOT] (--write | --check |\n                                   --stdout |\n                                   --preview-definition-digest QUALIFIED_ID |\n                                   --repin-definition-digest QUALIFIED_ID)\n                                   [--reviewed]\n\nGenerate or verify the deterministic command help catalog.\n\noptions:\n  -h, --help            show this help message and exit\n  --root ROOT           Canonical Compound GPID source root.\n  --write               Atomically write the catalog.\n  --check               Check catalog freshness.\n  --stdout              Write expected catalog bytes to stdout.\n  --preview-definition-digest QUALIFIED_ID\n                        Preview one named record's current and computed\n                        definition digest.\n  --repin-definition-digest QUALIFIED_ID\n                        Refresh one named record's digest after metadata\n                        review.\n  --reviewed            Confirm that the one record selected for repinning was\n                        reviewed.\n",
+  "ownership": "Help plan phase 6 step 11 documentation writer and wiki ownership transfer not implemented in merged dev. Preserve existing documentation writer until this gate passes.",
+  "trialMerge": {
+    "status": "aborted safely; no merge in branch history",
+    "conflictsResolved": [
+      ".cg-docs/active-state/current.json",
+      ".github/workflows/tests.yml"
+    ],
+    "catalogCheck": "passed after restoring the existing batch wrapper to declared CRLF; no repin",
+    "docsNode": {
+      "passed": 188,
+      "failed": 3,
+      "failures": [
+        "new autopilot/help entry checklist rows absent",
+        "skill-management badge no longer matches merged shared-suite support",
+        "dispatch input count now includes required subject_commit"
+      ]
+    },
+    "pythonReadiness": {
+      "passed": 181,
+      "errors": 34,
+      "status": "interrupted after prerequisite blocker established; not a completed gate",
+      "error": "fixture module registry rejects .github/shared/help-catalog.json as unowned"
+    },
+    "nativeDryRun": "1542 prospective output files; this is not drift/parity proof",
+    "patch": "/private/tmp/cg-help-readiness-integration.patch"
+  },
+  "gateC": "not executed; prerequisite Gate B blocked and no committed support evidence JSON found under canonical .cg-docs",
+  "phase3Checkpoint": "de64bf066da79842223e2ebdc6252c69f0a94d88"
+}

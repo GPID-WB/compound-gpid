@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "tag": "v1.2.0.9016",
+  "publishedAt": "2026-09-11T16:57:58Z",
+  "releaseDate": "2026-09-11",
+  "name": "v1.2.0.9016 - Qualified light-work command",
+  "url": "https://github.com/GPID-WB/compound-gpid/releases/tag/v1.2.0.9016",
+  "sourceUrl": "https://github.com/GPID-WB/compound-gpid/tree/v1.2.0.9016",
+  "sections": [
+    {
+      "kind": "new",
+      "title": "Qualified light-work command",
+      "entries": [
+        "Add /cg-light-work as a bounded workflow for small tasks with qualification, planning, review, and compounding gates.",
+        "Redirect unmatched inline tasks from /cg-work and register /cg-light-work in context and model audits."
+      ]
+    },
+    {
+      "kind": "fixed",
+      "title": "Release preflight",
+      "entries": [
+        "Correct preflight timeout and migration scan scope."
+      ]
+    },
+    {
+      "kind": "internal",
+      "title": "Documentation, verification, and repository maintenance",
+      "entries": [
+        "Document task routing, approval gates, execution evidence, and completed planning records.",
+        "Test qualification gates, plan-only redirects, audit identity, token limits, review burden, suite filtering, and generated target provenance.",
+        "Generate /cg-light-work assets for Kilo, OpenCode, Claude, and Codex with updated lifecycle contracts.",
+        "Document registry identity validation before derived maps and rebuild knowledge indexes.",
+        "Integrate development branches and record release attestation."
+      ]
+    }
+  ]
+}

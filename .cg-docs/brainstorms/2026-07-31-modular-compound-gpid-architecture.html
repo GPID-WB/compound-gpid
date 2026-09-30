@@ -1,0 +1,2173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Human-readable architecture decision for modularizing Compound GPID into a kernel, reusable capability packs, and technical and research suites.">
+  <title>Modular Compound GPID Architecture</title>
+  <style>
+    :root {
+      --ink: #181816;
+      --muted: #5d625f;
+      --paper: #fbfbf8;
+      --white: #ffffff;
+      --line: #d8dcd8;
+      --soft-line: #e9ebe8;
+      --coral: #e94f2d;
+      --coral-soft: #fff0eb;
+      --teal: #087c70;
+      --teal-soft: #e8f5f2;
+      --blue: #2856c7;
+      --blue-soft: #edf1ff;
+      --yellow: #f2c84b;
+      --yellow-soft: #fff8dc;
+      --success: #18734c;
+      --danger: #b8322a;
+      --content: 1180px;
+      --radius: 6px;
+      --header-height: 64px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: calc(var(--header-height) + 24px);
+    }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: "Trebuchet MS", "Gill Sans", sans-serif;
+      font-size: 17px;
+      line-height: 1.65;
+      letter-spacing: 0;
+    }
+
+    button,
+    a,
+    code {
+      font: inherit;
+      letter-spacing: 0;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    code {
+      padding: 0.12em 0.34em;
+      border: 1px solid #d9d9d3;
+      border-radius: 3px;
+      background: #f1f1ed;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.88em;
+      overflow-wrap: anywhere;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    p {
+      margin-top: 0;
+    }
+
+    h1,
+    h2,
+    h3 {
+      font-family: Georgia, "Times New Roman", serif;
+      font-weight: 700;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      max-width: 950px;
+      margin-bottom: 22px;
+      font-size: 76px;
+    }
+
+    h2 {
+      max-width: 820px;
+      margin-bottom: 22px;
+      font-size: 46px;
+    }
+
+    h3 {
+      margin-bottom: 16px;
+      font-size: 30px;
+    }
+
+    h4 {
+      margin-bottom: 12px;
+      font-size: 17px;
+      line-height: 1.35;
+      text-transform: uppercase;
+    }
+
+    ul,
+    ol {
+      margin-top: 0;
+      padding-left: 1.25rem;
+    }
+
+    li + li {
+      margin-top: 9px;
+    }
+
+    .skip-link {
+      position: fixed;
+      z-index: 1000;
+      top: 8px;
+      left: 8px;
+      padding: 9px 12px;
+      transform: translateY(-160%);
+      border-radius: 4px;
+      background: var(--ink);
+      color: var(--white);
+    }
+
+    .skip-link:focus {
+      transform: translateY(0);
+    }
+
+    .progress {
+      position: fixed;
+      z-index: 1001;
+      inset: 0 auto auto 0;
+      width: 0;
+      height: 4px;
+      background: var(--coral);
+    }
+
+    .site-header {
+      position: sticky;
+      z-index: 100;
+      top: 0;
+      height: var(--header-height);
+      border-bottom: 1px solid var(--line);
+      background: rgba(251, 251, 248, 0.96);
+      backdrop-filter: blur(14px);
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: min(calc(100% - 40px), var(--content));
+      height: 100%;
+      margin: 0 auto;
+      gap: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      min-width: max-content;
+      gap: 12px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 34px;
+      height: 34px;
+      place-items: center;
+      border: 2px solid var(--ink);
+      border-radius: 4px;
+      background: var(--yellow);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 15px;
+    }
+
+    .brand-label {
+      font-size: 14px;
+      line-height: 1.2;
+      text-transform: uppercase;
+    }
+
+    .site-nav {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+    }
+
+    .site-nav a {
+      position: relative;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .site-nav a::after {
+      position: absolute;
+      right: 0;
+      bottom: -8px;
+      left: 0;
+      height: 2px;
+      transform: scaleX(0);
+      background: var(--coral);
+      content: "";
+      transform-origin: left;
+      transition: transform 180ms ease;
+    }
+
+    .site-nav a:hover,
+    .site-nav a[aria-current="true"] {
+      color: var(--ink);
+    }
+
+    .site-nav a[aria-current="true"]::after {
+      transform: scaleX(1);
+    }
+
+    .print-button {
+      min-height: 38px;
+      padding: 7px 13px;
+      border: 1px solid var(--ink);
+      border-radius: 4px;
+      background: transparent;
+      color: var(--ink);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .print-button:hover,
+    .print-button:focus-visible {
+      background: var(--ink);
+      color: var(--white);
+    }
+
+    .hero {
+      position: relative;
+      display: flex;
+      min-height: calc(100svh - 170px);
+      overflow: hidden;
+      border-bottom: 1px solid var(--line);
+      background-color: var(--paper);
+      background-image:
+        linear-gradient(rgba(24, 24, 22, 0.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(24, 24, 22, 0.045) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+
+    .hero::before {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 24%;
+      height: 12px;
+      background: var(--coral);
+      content: "";
+    }
+
+    .hero::after {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: 41%;
+      height: 10px;
+      background: var(--teal);
+      content: "";
+    }
+
+    .hero-inner {
+      position: relative;
+      display: grid;
+      align-content: center;
+      width: min(calc(100% - 40px), var(--content));
+      margin: 0 auto;
+      padding: 62px 0 72px;
+    }
+
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      margin-bottom: 22px;
+      gap: 10px;
+      color: var(--teal);
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      width: 30px;
+      height: 3px;
+      background: currentColor;
+      content: "";
+    }
+
+    .hero-lead {
+      max-width: 850px;
+      margin-bottom: 34px;
+      color: #3f4441;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 23px;
+      line-height: 1.5;
+    }
+
+    .hero-lower {
+      display: grid;
+      grid-template-columns: 1fr 1.45fr;
+      align-items: end;
+      gap: 48px;
+    }
+
+    .meta-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin: 0;
+      border-top: 1px solid var(--ink);
+    }
+
+    .meta-item {
+      padding: 12px 12px 12px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .meta-item dt {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .meta-item dd {
+      margin: 2px 0 0;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .architecture-mini {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 44px 1.35fr 44px 0.9fr;
+      align-items: stretch;
+      min-height: 150px;
+    }
+
+    .mini-layer {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-width: 0;
+      padding: 18px;
+      border: 2px solid var(--ink);
+      border-radius: var(--radius);
+      box-shadow: 6px 6px 0 var(--ink);
+    }
+
+    .mini-layer strong {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 21px;
+    }
+
+    .mini-layer span {
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .mini-suites {
+      background: var(--coral-soft);
+    }
+
+    .mini-capabilities {
+      background: var(--teal-soft);
+    }
+
+    .mini-kernel {
+      background: var(--yellow-soft);
+    }
+
+    .mini-arrow {
+      display: grid;
+      place-items: center;
+      color: var(--ink);
+      font-size: 25px;
+      font-weight: 700;
+    }
+
+    .section-band {
+      padding: 96px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section-band.white {
+      background: var(--white);
+    }
+
+    .section-band.green {
+      background: #f0f7f4;
+    }
+
+    .section-band.warm {
+      background: #fff6f1;
+    }
+
+    .section-inner {
+      width: min(calc(100% - 40px), var(--content));
+      margin: 0 auto;
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: 190px 1fr;
+      margin-bottom: 52px;
+      gap: 48px;
+    }
+
+    .section-index {
+      padding-top: 9px;
+      color: var(--coral);
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .section-summary {
+      max-width: 760px;
+      margin-bottom: 0;
+      color: var(--muted);
+      font-size: 20px;
+    }
+
+    .context-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.75fr);
+      gap: 72px;
+    }
+
+    .narrative p {
+      max-width: 760px;
+    }
+
+    .narrative p:first-child::first-letter {
+      float: left;
+      margin: 7px 10px 0 0;
+      color: var(--coral);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 60px;
+      font-weight: 700;
+      line-height: 0.75;
+    }
+
+    .evidence-panel {
+      align-self: start;
+      border-top: 4px solid var(--ink);
+    }
+
+    .evidence-title {
+      padding: 16px 0;
+      border-bottom: 1px solid var(--line);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .metric {
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      align-items: baseline;
+      padding: 15px 0;
+      border-bottom: 1px solid var(--line);
+      gap: 18px;
+    }
+
+    .metric strong {
+      color: var(--blue);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 32px;
+      line-height: 1;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.35;
+    }
+
+    .signal-box {
+      margin-top: 22px;
+      padding: 18px;
+      border-left: 5px solid var(--coral);
+      background: var(--coral-soft);
+      font-size: 14px;
+    }
+
+    .signal-box strong {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .requirements-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 52px 64px;
+    }
+
+    .requirement-group {
+      padding-top: 20px;
+      border-top: 5px solid var(--ink);
+    }
+
+    .requirement-group:nth-child(1) {
+      border-color: var(--coral);
+    }
+
+    .requirement-group:nth-child(2) {
+      border-color: var(--teal);
+    }
+
+    .requirement-group:nth-child(3) {
+      border-color: var(--blue);
+    }
+
+    .requirement-group:nth-child(4) {
+      border-color: var(--yellow);
+    }
+
+    .requirement-group h3 {
+      font-size: 26px;
+    }
+
+    .requirement-group li {
+      padding-left: 5px;
+    }
+
+    .risk-strip {
+      display: grid;
+      grid-template-columns: 160px repeat(3, 1fr);
+      margin-top: 64px;
+      border: 2px solid var(--ink);
+      border-radius: var(--radius);
+      background: var(--ink);
+      color: var(--white);
+      overflow: hidden;
+    }
+
+    .risk-label,
+    .risk-item {
+      padding: 20px;
+    }
+
+    .risk-label {
+      display: grid;
+      place-items: center start;
+      color: var(--yellow);
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .risk-item {
+      border-left: 1px solid #55554f;
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.4;
+    }
+
+    .layer-stack {
+      display: grid;
+      max-width: 960px;
+      margin: 0 auto;
+      gap: 18px;
+    }
+
+    .layer-row {
+      display: grid;
+      grid-template-columns: 190px 1fr;
+      min-height: 138px;
+      border: 2px solid var(--ink);
+      border-radius: var(--radius);
+      box-shadow: 7px 7px 0 rgba(24, 24, 22, 0.13);
+      overflow: hidden;
+    }
+
+    .layer-name {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 22px;
+      border-right: 2px solid var(--ink);
+      color: var(--ink);
+    }
+
+    .layer-row:nth-child(1) .layer-name {
+      background: var(--coral);
+      color: var(--white);
+    }
+
+    .layer-row:nth-child(2) .layer-name {
+      background: var(--teal);
+      color: var(--white);
+    }
+
+    .layer-row:nth-child(3) .layer-name {
+      background: var(--yellow);
+    }
+
+    .layer-number {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .layer-name strong {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 28px;
+    }
+
+    .layer-content {
+      display: grid;
+      align-content: center;
+      padding: 22px 28px;
+      background: var(--white);
+    }
+
+    .layer-content p {
+      margin-bottom: 12px;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      padding: 4px 8px;
+      border: 1px solid var(--line);
+      border-radius: 3px;
+      background: #f7f7f4;
+      color: #454945;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .architecture-rule {
+      max-width: 760px;
+      margin: 42px auto 0;
+      padding: 20px 24px;
+      border-left: 5px solid var(--blue);
+      background: var(--blue-soft);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 20px;
+      line-height: 1.5;
+    }
+
+    .comparison-table-wrap {
+      margin-bottom: 62px;
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--white);
+    }
+
+    .comparison-table {
+      width: 100%;
+      min-width: 780px;
+      border-collapse: collapse;
+      font-size: 15px;
+    }
+
+    .comparison-table th,
+    .comparison-table td {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .comparison-table thead th {
+      background: var(--ink);
+      color: var(--white);
+      font-size: 13px;
+      text-transform: uppercase;
+    }
+
+    .comparison-table tbody th {
+      width: 22%;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 17px;
+    }
+
+    .comparison-table tbody tr:last-child th,
+    .comparison-table tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .comparison-table .selected-row {
+      background: var(--teal-soft);
+    }
+
+    .recommendation {
+      display: inline-block;
+      padding: 4px 7px;
+      border-radius: 3px;
+      background: var(--success);
+      color: var(--white);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .approach {
+      position: relative;
+      display: grid;
+      grid-template-columns: 120px minmax(0, 1fr);
+      padding: 58px 0 66px;
+      border-top: 2px solid var(--ink);
+      gap: 34px;
+    }
+
+    .approach:last-child {
+      padding-bottom: 0;
+    }
+
+    .approach-number {
+      color: #d2d5d1;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 88px;
+      font-weight: 700;
+      line-height: 0.85;
+    }
+
+    .approach.selected .approach-number {
+      color: var(--teal);
+    }
+
+    .approach-heading {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      gap: 30px;
+    }
+
+    .approach-heading h3 {
+      max-width: 690px;
+      margin-bottom: 0;
+      font-size: 34px;
+    }
+
+    .effort {
+      min-width: 112px;
+      padding: 8px 10px;
+      border: 1px solid var(--ink);
+      border-radius: 3px;
+      background: var(--white);
+      font-size: 12px;
+      font-weight: 700;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .approach-summary {
+      max-width: 850px;
+      color: #3f4441;
+      font-size: 19px;
+    }
+
+    .approach-detail {
+      max-width: 900px;
+    }
+
+    .tradeoffs {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-top: 34px;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .tradeoff-column {
+      padding: 24px 28px 18px 0;
+    }
+
+    .tradeoff-column + .tradeoff-column {
+      padding-right: 0;
+      padding-left: 28px;
+      border-left: 1px solid var(--line);
+    }
+
+    .tradeoff-title {
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
+      gap: 10px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 21px;
+      font-weight: 700;
+    }
+
+    .tradeoff-mark {
+      display: grid;
+      width: 26px;
+      height: 26px;
+      flex: 0 0 26px;
+      place-items: center;
+      border-radius: 3px;
+      color: var(--white);
+      font-family: "Trebuchet MS", sans-serif;
+      font-size: 19px;
+      font-weight: 700;
+    }
+
+    .pros .tradeoff-mark {
+      background: var(--success);
+    }
+
+    .cons .tradeoff-mark {
+      background: var(--danger);
+    }
+
+    .tradeoff-column ul {
+      padding-left: 1.1rem;
+      font-size: 15px;
+    }
+
+    .approach-verdict {
+      margin-top: 24px;
+      padding-left: 18px;
+      border-left: 4px solid var(--ink);
+      font-size: 15px;
+    }
+
+    .approach.selected .approach-verdict {
+      border-color: var(--teal);
+    }
+
+    .decision-band {
+      position: relative;
+      padding: 96px 0;
+      overflow: hidden;
+      background: var(--ink);
+      color: var(--white);
+    }
+
+    .decision-band::before {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 28%;
+      height: 10px;
+      background: var(--yellow);
+      content: "";
+    }
+
+    .decision-band::after {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: 38%;
+      height: 10px;
+      background: var(--coral);
+      content: "";
+    }
+
+    .decision-grid {
+      display: grid;
+      grid-template-columns: 0.75fr 1.25fr;
+      gap: 80px;
+    }
+
+    .decision-label {
+      color: var(--yellow);
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .decision-band h2 {
+      margin-top: 18px;
+      color: var(--white);
+    }
+
+    .decision-lead {
+      margin-bottom: 30px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 23px;
+      line-height: 1.48;
+    }
+
+    .decision-copy p {
+      color: #d9dbd6;
+    }
+
+    .decision-copy strong {
+      color: var(--white);
+    }
+
+    .dependency-layout {
+      display: grid;
+      grid-template-columns: 0.8fr 1.2fr;
+      align-items: start;
+      gap: 72px;
+    }
+
+    .dependency-rules {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: rule;
+    }
+
+    .dependency-rules li {
+      position: relative;
+      min-height: 60px;
+      margin: 0;
+      padding: 14px 0 14px 54px;
+      border-bottom: 1px solid var(--line);
+      counter-increment: rule;
+    }
+
+    .dependency-rules li::before {
+      position: absolute;
+      top: 14px;
+      left: 0;
+      display: grid;
+      width: 34px;
+      height: 34px;
+      place-items: center;
+      border: 2px solid var(--ink);
+      border-radius: 50%;
+      content: counter(rule);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .dependency-map {
+      display: grid;
+      padding: 24px;
+      border: 2px solid var(--ink);
+      border-radius: var(--radius);
+      background: var(--white);
+      box-shadow: 8px 8px 0 var(--yellow);
+      gap: 16px;
+    }
+
+    .map-level {
+      padding: 19px;
+      border: 2px solid var(--ink);
+      border-radius: 4px;
+    }
+
+    .map-level strong {
+      display: block;
+      margin-bottom: 4px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 21px;
+    }
+
+    .map-level span {
+      display: block;
+      color: #474b48;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .map-suites {
+      background: var(--coral-soft);
+    }
+
+    .map-capabilities {
+      background: var(--teal-soft);
+    }
+
+    .map-kernel {
+      background: var(--yellow-soft);
+    }
+
+    .map-arrow {
+      height: 22px;
+      border-left: 2px solid var(--ink);
+      margin: -5px auto;
+    }
+
+    .map-note {
+      padding: 14px;
+      border: 1px dashed var(--danger);
+      border-radius: 4px;
+      color: var(--danger);
+      font-size: 13px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .compatibility-grid {
+      display: grid;
+      grid-template-columns: 0.8fr 1.2fr;
+      gap: 72px;
+    }
+
+    .compatibility-intro {
+      padding-top: 22px;
+      border-top: 5px solid var(--blue);
+    }
+
+    .compatibility-intro p {
+      color: var(--muted);
+      font-size: 20px;
+    }
+
+    .compatibility-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .compatibility-list li {
+      position: relative;
+      margin: 0;
+      padding: 18px 16px 18px 50px;
+      border-top: 1px solid var(--line);
+    }
+
+    .compatibility-list li:last-child {
+      border-bottom: 1px solid var(--line);
+    }
+
+    .compatibility-list li::before {
+      position: absolute;
+      top: 21px;
+      left: 12px;
+      display: grid;
+      width: 22px;
+      height: 22px;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--blue);
+      color: var(--white);
+      content: "=";
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .timeline {
+      position: relative;
+      max-width: 920px;
+      margin-left: 58px;
+      padding-left: 58px;
+      counter-reset: step;
+    }
+
+    .timeline::before {
+      position: absolute;
+      top: 10px;
+      bottom: 10px;
+      left: 17px;
+      width: 2px;
+      background: var(--ink);
+      content: "";
+    }
+
+    .timeline-step {
+      position: relative;
+      margin-bottom: 12px;
+      padding: 18px 22px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--white);
+      counter-increment: step;
+    }
+
+    .timeline-step::before {
+      position: absolute;
+      top: 18px;
+      left: -58px;
+      display: grid;
+      width: 36px;
+      height: 36px;
+      place-items: center;
+      border: 2px solid var(--ink);
+      border-radius: 50%;
+      background: var(--yellow);
+      content: counter(step);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .timeline-step strong {
+      display: block;
+      margin-bottom: 4px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 19px;
+    }
+
+    .question-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      border-top: 2px solid var(--ink);
+    }
+
+    .question {
+      min-height: 175px;
+      margin: 0;
+      padding: 26px 30px 26px 0;
+      border-bottom: 1px solid var(--line);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 21px;
+      line-height: 1.45;
+    }
+
+    .question:nth-child(even) {
+      padding-right: 0;
+      padding-left: 30px;
+      border-left: 1px solid var(--line);
+    }
+
+    .question::before {
+      display: block;
+      margin-bottom: 10px;
+      color: var(--coral);
+      content: "Open question";
+      font-family: "Trebuchet MS", sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .page-footer {
+      padding: 44px 0;
+      background: var(--ink);
+      color: #cfd1cc;
+      font-size: 13px;
+    }
+
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: min(calc(100% - 40px), var(--content));
+      margin: 0 auto;
+      gap: 30px;
+    }
+
+    .footer-inner strong {
+      color: var(--white);
+    }
+
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 7px;
+    }
+
+    .footer-tag {
+      padding: 3px 7px;
+      border: 1px solid #55564f;
+      border-radius: 3px;
+      color: #dcddd8;
+    }
+
+    [data-reveal] {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 500ms ease, transform 500ms ease;
+    }
+
+    [data-reveal].is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .hero .eyebrow,
+    .hero h1,
+    .hero-lead,
+    .hero-lower {
+      animation: intro-rise 620ms both;
+    }
+
+    .hero h1 {
+      animation-delay: 70ms;
+    }
+
+    .hero-lead {
+      animation-delay: 140ms;
+    }
+
+    .hero-lower {
+      animation-delay: 210ms;
+    }
+
+    @keyframes intro-rise {
+      from {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 980px) {
+      .site-nav a:nth-child(2),
+      .site-nav a:nth-child(4) {
+        display: none;
+      }
+
+      h1 {
+        font-size: 58px;
+      }
+
+      h2 {
+        font-size: 40px;
+      }
+
+      .hero-lower,
+      .context-grid,
+      .decision-grid,
+      .dependency-layout,
+      .compatibility-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-lower {
+        gap: 36px;
+      }
+
+      .architecture-mini {
+        min-height: 136px;
+      }
+
+      .context-grid,
+      .dependency-layout,
+      .compatibility-grid {
+        gap: 42px;
+      }
+
+      .risk-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .risk-label {
+        min-height: 58px;
+      }
+
+      .risk-item {
+        border-top: 1px solid #55554f;
+        border-left: 0;
+      }
+
+      .decision-grid {
+        gap: 30px;
+      }
+    }
+
+    @media (max-width: 720px) {
+      :root {
+        --header-height: 56px;
+      }
+
+      body {
+        font-size: 16px;
+      }
+
+      .header-inner,
+      .hero-inner,
+      .section-inner,
+      .footer-inner {
+        width: min(calc(100% - 28px), var(--content));
+      }
+
+      .brand-label,
+      .site-nav {
+        display: none;
+      }
+
+      .header-inner {
+        gap: 12px;
+      }
+
+      .print-button {
+        margin-left: auto;
+      }
+
+      .hero {
+        min-height: auto;
+      }
+
+      .hero-inner {
+        padding: 42px 0 50px;
+      }
+
+      h1 {
+        font-size: 43px;
+      }
+
+      h2 {
+        font-size: 34px;
+      }
+
+      h3 {
+        font-size: 26px;
+      }
+
+      .hero-lead {
+        margin-bottom: 26px;
+        font-size: 19px;
+      }
+
+      .hero-lower {
+        gap: 28px;
+      }
+
+      .architecture-mini {
+        grid-template-columns: 1fr 18px 1fr 18px 1fr;
+        min-height: 76px;
+        gap: 0;
+      }
+
+      .mini-layer {
+        min-height: 76px;
+        padding: 9px;
+        box-shadow: 3px 3px 0 var(--ink);
+      }
+
+      .mini-layer strong {
+        font-size: 15px;
+        line-height: 1.15;
+      }
+
+      .mini-layer span {
+        display: none;
+      }
+
+      .mini-arrow {
+        height: auto;
+        transform: none;
+        font-size: 15px;
+      }
+
+      .section-band,
+      .decision-band {
+        padding: 68px 0;
+      }
+
+      .section-head {
+        grid-template-columns: 1fr;
+        margin-bottom: 38px;
+        gap: 8px;
+      }
+
+      .section-summary {
+        font-size: 18px;
+      }
+
+      .requirements-grid,
+      .tradeoffs,
+      .question-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .requirements-grid {
+        gap: 38px;
+      }
+
+      .layer-row {
+        grid-template-columns: 1fr;
+      }
+
+      .layer-name {
+        min-height: 94px;
+        border-right: 0;
+        border-bottom: 2px solid var(--ink);
+      }
+
+      .approach {
+        grid-template-columns: 1fr;
+        padding: 48px 0;
+        gap: 18px;
+      }
+
+      .approach-number {
+        font-size: 62px;
+      }
+
+      .approach-heading {
+        display: block;
+      }
+
+      .approach-heading h3 {
+        margin-bottom: 16px;
+        font-size: 29px;
+      }
+
+      .effort {
+        display: inline-block;
+      }
+
+      .tradeoff-column,
+      .tradeoff-column + .tradeoff-column {
+        padding: 22px 0;
+        border-left: 0;
+      }
+
+      .tradeoff-column + .tradeoff-column {
+        border-top: 1px solid var(--line);
+      }
+
+      .decision-lead {
+        font-size: 20px;
+      }
+
+      .timeline {
+        margin-left: 0;
+        padding-left: 42px;
+      }
+
+      .timeline::before {
+        left: 14px;
+      }
+
+      .timeline-step {
+        padding: 16px;
+      }
+
+      .timeline-step::before {
+        left: -44px;
+        width: 30px;
+        height: 30px;
+      }
+
+      .question,
+      .question:nth-child(even) {
+        min-height: 0;
+        padding: 24px 0;
+        border-left: 0;
+      }
+
+      .footer-inner {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .tag-list {
+        justify-content: flex-start;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+
+      [data-reveal] {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    @media print {
+      :root {
+        --paper: #ffffff;
+      }
+
+      body {
+        color: #000000;
+        font-size: 11pt;
+      }
+
+      .site-header,
+      .progress,
+      .print-button {
+        display: none !important;
+      }
+
+      .hero {
+        min-height: auto;
+        background: #ffffff;
+      }
+
+      .hero-inner,
+      .section-band,
+      .decision-band {
+        padding-top: 28px;
+        padding-bottom: 28px;
+      }
+
+      .section-band,
+      .decision-band,
+      .approach,
+      .timeline-step,
+      .layer-row {
+        break-inside: avoid;
+      }
+
+      [data-reveal] {
+        opacity: 1;
+        transform: none;
+      }
+
+      .decision-band,
+      .page-footer {
+        background: #ffffff;
+        color: #000000;
+      }
+
+      .decision-band h2,
+      .decision-band p,
+      .decision-band strong,
+      .page-footer,
+      .page-footer strong {
+        color: #000000;
+      }
+
+      .decision-label {
+        color: #000000;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <div class="progress" id="progress" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="#overview" aria-label="Compound GPID architecture overview">
+        <span class="brand-mark" aria-hidden="true">CG</span>
+        <span class="brand-label">Architecture<br>Decision</span>
+      </a>
+      <nav class="site-nav" aria-label="Page sections">
+        <a href="#context">Context</a>
+        <a href="#requirements">Requirements</a>
+        <a href="#approaches">Approaches</a>
+        <a href="#decision">Decision</a>
+        <a href="#next-steps">Next steps</a>
+      </nav>
+      <button class="print-button" id="print-button" type="button" title="Open the browser print dialog">Print / PDF</button>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <section class="hero" id="overview" aria-labelledby="page-title">
+      <div class="hero-inner">
+        <p class="eyebrow">Decided architecture / Deep scope / 31 July 2026</p>
+        <h1 id="page-title">Modular Compound GPID</h1>
+        <p class="hero-lead">A maintainable structure for a shared platform, reusable capabilities, and distinct technical and research workflows - without breaking the product users already know.</p>
+
+        <div class="hero-lower">
+          <dl class="meta-list" aria-label="Decision metadata">
+            <div class="meta-item">
+              <dt>Status</dt>
+              <dd>Decided</dd>
+            </div>
+            <div class="meta-item">
+              <dt>Scope</dt>
+              <dd>Deep</dd>
+            </div>
+            <div class="meta-item">
+              <dt>Chosen approach</dt>
+              <dd>Layered registry</dd>
+            </div>
+            <div class="meta-item">
+              <dt>Canonical source</dt>
+              <dd><code>.github/</code></dd>
+            </div>
+          </dl>
+
+          <div class="architecture-mini" aria-label="Three layers: user-facing suites depend on capability packs, which depend on the platform kernel">
+            <div class="mini-layer mini-suites">
+              <strong>Suites</strong>
+              <span><code>cg-*</code> technical<br><code>cr-*</code> research</span>
+            </div>
+            <div class="mini-arrow" aria-hidden="true">&rarr;</div>
+            <div class="mini-layer mini-capabilities">
+              <strong>Capability packs</strong>
+              <span>Languages, testing, reproducibility, data quality, visualization</span>
+            </div>
+            <div class="mini-arrow" aria-hidden="true">&rarr;</div>
+            <div class="mini-layer mini-kernel">
+              <strong>Kernel</strong>
+              <span>Contracts, routing, knowledge, packaging</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-band white" id="context" data-section="context">
+      <div class="section-inner">
+        <div class="section-head" data-reveal>
+          <div class="section-index">01 / Context</div>
+          <div>
+            <h2>Why a revamp is needed now</h2>
+            <p class="section-summary">The research suite is no longer a small extension. It is large enough to expose architectural boundaries that naming conventions alone cannot enforce.</p>
+          </div>
+        </div>
+
+        <div class="context-grid">
+          <div class="narrative" data-reveal>
+            <p>Compound GPID currently combines product infrastructure, reusable technical knowledge, and user-facing technical workflows under the <code>cg-*</code> namespace. The <code>origin/feat/compound-research-v2</code> branch adds a substantial research suite under <code>cr-*</code>: 11 research agents, 5 research prompts, 14 research skills, 2 new instruction domains, and integrations with existing CG workflows and shared contracts.</p>
+            <p>Relative to <code>main</code>, the branch changes 305 files, including generated Claude Code, Codex, and OpenCode targets.</p>
+            <p>A May 2026 brainstorm had already chosen a single-repository module system with <code>shared</code>, <code>engineering</code>, and <code>research</code> tags. This session deliberately reopened that decision. The newer branch demonstrates that the research behavior is valuable, but it also exposes incomplete architectural boundaries.</p>
+            <p>The revamp's primary goal is <strong>maintainability</strong>: core maintainers must be able to improve a shared capability or one suite without silently breaking another. A modest learning curve is acceptable if the manual and help system make suite selection and composition clear.</p>
+          </div>
+
+          <aside class="evidence-panel" aria-label="Research branch evidence" data-reveal>
+            <div class="evidence-title">The branch in numbers</div>
+            <div class="metric"><strong>305</strong><span>files changed relative to <code>main</code></span></div>
+            <div class="metric"><strong>11</strong><span>research agents</span></div>
+            <div class="metric"><strong>5</strong><span>research prompts</span></div>
+            <div class="metric"><strong>14</strong><span>research skills</span></div>
+            <div class="metric"><strong>2</strong><span>new instruction domains</span></div>
+            <div class="signal-box">
+              <strong>Concrete architecture signal</strong>
+              The canonical generator discovers skills through a hard-coded <code>.github/skills/cg-skill-*</code> glob even though the branch contains generated <code>cr-skill-*</code> trees.
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-band green" id="requirements" data-section="requirements">
+      <div class="section-inner">
+        <div class="section-head" data-reveal>
+          <div class="section-index">02 / Requirements</div>
+          <div>
+            <h2>What the architecture must protect</h2>
+            <p class="section-summary">The redesign is not a license to replace everything. It must preserve stable workflows while making ownership, composition, and regression boundaries explicit.</p>
+          </div>
+        </div>
+
+        <div class="requirements-grid">
+          <section class="requirement-group" data-reveal>
+            <h3>Product and governance</h3>
+            <ul>
+              <li>Keep a single repository, a single installation path, and one product version and release train.</li>
+              <li>Optimize for core maintainers. A public third-party plugin API and marketplace are not required in this revamp.</li>
+              <li>Preserve stable user workflows, especially <code>/cg-*</code>, the compound lifecycle, <code>.cg-docs/</code>, and installation behavior.</li>
+              <li>Permit a versioned, automated migration of project configuration and internal manifests.</li>
+              <li>Treat the research branch as a behavioral specification: preserve validated research capabilities, task taxonomy, and research-integrity safeguards while refactoring ownership and orchestration.</li>
+            </ul>
+          </section>
+
+          <section class="requirement-group" data-reveal>
+            <h3>User-facing suites</h3>
+            <ul>
+              <li>Keep explicit suite commands rather than relying on an opaque universal router.</li>
+              <li>Retain <code>cg-*</code> as the general technical suite and <code>cr-*</code> as the research and analytical suite.</li>
+              <li>Let a suite compose reusable capabilities automatically. Users should not need to know dependency names.</li>
+              <li>Support soft project preferences such as technical-only or technical-plus-research. Preferences shape setup, help, recommendations, and default guidance; every explicitly invoked installed command remains usable.</li>
+              <li>Make the CG-versus-CR choice understandable through concise help, examples, and task-oriented documentation.</li>
+            </ul>
+          </section>
+
+          <section class="requirement-group" data-reveal>
+            <h3>Architecture and safety</h3>
+            <ul>
+              <li>Separate the product into three layers: a small platform kernel, reusable capability packs, and user-facing suites.</li>
+              <li>Give every canonical prompt, agent, skill, instruction, and shared contract exactly one declared owner.</li>
+              <li>Prevent direct suite-to-suite dependencies. Both CG and CR must consume reusable implementation knowledge through capability packs.</li>
+              <li>Keep <code>.github/</code> as the canonical runtime source in the first revamp and continue generating committed native platform trees from it.</li>
+              <li>Make canonical asset discovery namespace-agnostic. Adding a registered suite or capability must not require another hard-coded prefix branch in the generator.</li>
+              <li>Validate ownership, dependency closure, acyclic dependencies, forbidden cross-suite references, generated-target parity, and compatibility in CI.</li>
+              <li>Treat context size as an architecture constraint. Inactive suites may be installed, but their domain instructions and skills must not be loaded into routine sessions by default.</li>
+            </ul>
+          </section>
+
+          <section class="requirement-group" data-reveal>
+            <h3>Scope boundaries</h3>
+            <ul>
+              <li>Deliver the architecture foundation and migrate the technical and research suites in the first revamp.</li>
+              <li>Design for future writing, presentation, dashboard, and application suites, but do not implement them in this iteration.</li>
+              <li>Use one product version. Independence comes from boundaries and tests, not separate release calendars.</li>
+              <li>Use project module preferences as a guidance and context boundary, not as access control or physical asset filtering.</li>
+              <li>Preserve CR behavior while reorganizing its prompts, agents, and skills around the new ownership model.</li>
+            </ul>
+          </section>
+        </div>
+
+        <div class="risk-strip" aria-label="Highest priority failure modes" data-reveal>
+          <div class="risk-label">Prevent first</div>
+          <div class="risk-item">A shared change silently breaks a suite.</div>
+          <div class="risk-item">Additional modules inflate routine context and instruction load.</div>
+          <div class="risk-item">Users cannot tell which suite should own a task.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-band white" id="architecture" data-section="architecture">
+      <div class="section-inner">
+        <div class="section-head" data-reveal>
+          <div class="section-index">03 / Target model</div>
+          <div>
+            <h2>Three layers, one product</h2>
+            <p class="section-summary">Suites express user intent. Capability packs provide reusable expertise. The kernel coordinates the system without becoming a miscellaneous shared bucket.</p>
+          </div>
+        </div>
+
+        <div class="layer-stack" data-reveal>
+          <div class="layer-row">
+            <div class="layer-name">
+              <span class="layer-number">Layer 3 / Intent</span>
+              <strong>Suites</strong>
+            </div>
+            <div class="layer-content">
+              <p>User-facing orchestration. The technical suite owns <code>cg-*</code>; the research suite owns <code>cr-*</code> and its domain-specific integrity, identification, measurement, econometric, and academic-writing behavior.</p>
+              <div class="chip-row" aria-label="Suite examples">
+                <span class="chip">CG technical</span>
+                <span class="chip">CR research</span>
+                <span class="chip">future writing</span>
+                <span class="chip">future apps</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="layer-row">
+            <div class="layer-name">
+              <span class="layer-number">Layer 2 / Expertise</span>
+              <strong>Capability packs</strong>
+            </div>
+            <div class="layer-content">
+              <p>Reusable implementation knowledge consumed by any suite that declares it. Capabilities may depend on the kernel and, where justified, on other capabilities - never on a suite.</p>
+              <div class="chip-row" aria-label="Capability examples">
+                <span class="chip">R / Python / Stata</span>
+                <span class="chip">testing</span>
+                <span class="chip">reproducibility</span>
+                <span class="chip">data quality</span>
+                <span class="chip">visualization</span>
+                <span class="chip">publication output</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="layer-row">
+            <div class="layer-name">
+              <span class="layer-number">Layer 1 / Platform</span>
+              <strong>Kernel</strong>
+            </div>
+            <div class="layer-content">
+              <p>Configuration and schema migration, lifecycle and context contracts, active state, Knowledge Brain and roadmap integration, model and review routing, canonical generation, installation, release, and architecture validation.</p>
+              <div class="chip-row" aria-label="Kernel examples">
+                <span class="chip">configuration</span>
+                <span class="chip">contracts</span>
+                <span class="chip">routing</span>
+                <span class="chip">knowledge</span>
+                <span class="chip">packaging</span>
+                <span class="chip">validation</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p class="architecture-rule" data-reveal>Suite manifests declare required capabilities. A suite may not depend directly on another suite. Registry validation and contract tests turn that rule into a release gate.</p>
+      </div>
+    </section>
+
+    <section class="section-band warm" id="approaches" data-section="approaches">
+      <div class="section-inner">
+        <div class="section-head" data-reveal>
+          <div class="section-index">04 / Alternatives</div>
+          <div>
+            <h2>Three approaches considered</h2>
+            <p class="section-summary">The options differ mainly in where boundaries live, how much of the current packaging system they replace, and how strongly they prevent hidden coupling.</p>
+          </div>
+        </div>
+
+        <div class="comparison-table-wrap" data-reveal>
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th scope="col">Approach</th>
+                <th scope="col">Boundary</th>
+                <th scope="col">Migration risk</th>
+                <th scope="col">Long-term isolation</th>
+                <th scope="col">Verdict</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="selected-row">
+                <th scope="row">1. Layered registry</th>
+                <td>Validated ownership and dependency metadata over <code>.github/</code></td>
+                <td>Large but incremental</td>
+                <td>Strong, with CI enforcement</td>
+                <td><span class="recommendation">Chosen</span></td>
+              </tr>
+              <tr>
+                <th scope="row">2. Physical packages</th>
+                <td>Top-level source directories and generated runtime trees</td>
+                <td>Very large</td>
+                <td>Strongest filesystem clarity</td>
+                <td>Defer</td>
+              </tr>
+              <tr>
+                <th scope="row">3. Broad shared bucket</th>
+                <td><code>shared | engineering | research</code> tags</td>
+                <td>Medium</td>
+                <td>Weak as suites multiply</td>
+                <td>Migration waypoint only</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <article class="approach selected" data-reveal>
+          <div class="approach-number" aria-hidden="true">01</div>
+          <div>
+            <div class="approach-heading">
+              <h3>Layered Registry Over the Canonical Tree</h3>
+              <span class="effort">Effort: Large</span>
+            </div>
+            <p class="approach-summary">Keep <code>.github/</code> canonical and introduce a validated architecture registry for the kernel, capability packs, and suites.</p>
+            <div class="approach-detail">
+              <p>The kernel owns product-level infrastructure. Capability packs own reusable implementation knowledge. Suites own user-facing intent and orchestration. Suite manifests declare required capabilities, and CI verifies every asset's owner and every dependency edge.</p>
+              <p>This is logical modularity rather than a physical source relocation. It strengthens the current canonical-to-native pipeline instead of replacing it.</p>
+            </div>
+            <div class="tradeoffs">
+              <div class="tradeoff-column pros">
+                <div class="tradeoff-title"><span class="tradeoff-mark" aria-hidden="true">+</span>Pros</div>
+                <ul>
+                  <li>Enforces ownership and dependency boundaries without replacing the current canonical runtime and packaging model.</li>
+                  <li>Lets shared improvements reach both suites through explicit capability packs.</li>
+                  <li>Supports incremental migration and rollback.</li>
+                  <li>Keeps one release compatibility matrix.</li>
+                  <li>Provides most of the isolation value of physical packages at lower cost.</li>
+                </ul>
+              </div>
+              <div class="tradeoff-column cons">
+                <div class="tradeoff-title"><span class="tradeoff-mark" aria-hidden="true">-</span>Cons</div>
+                <ul>
+                  <li>Boundaries are logical rather than visible as top-level source directories.</li>
+                  <li>The registry, dependency validator, and compatibility tests become load-bearing infrastructure.</li>
+                  <li>Capability granularity and neutral internal naming require careful design.</li>
+                </ul>
+              </div>
+            </div>
+            <p class="approach-verdict"><strong>Recommended and chosen.</strong> It provides enforceable isolation while preserving the recently hardened <code>.github/</code> canonical-source model.</p>
+          </div>
+        </article>
+
+        <article class="approach" data-reveal>
+          <div class="approach-number" aria-hidden="true">02</div>
+          <div>
+            <div class="approach-heading">
+              <h3>Physically Modular Source Packages</h3>
+              <span class="effort">Effort: Very large</span>
+            </div>
+            <p class="approach-summary">Move canonical content into source packages such as <code>packages/kernel/</code>, <code>packages/capabilities/testing/</code>, <code>packages/suites/technical/</code>, and <code>packages/suites/research/</code>.</p>
+            <div class="approach-detail">
+              <p>Under this model, both <code>.github/</code> and all native platform trees would be generated from the package source. Ownership is physically obvious, and directory structure reinforces dependency rules.</p>
+            </div>
+            <div class="tradeoffs">
+              <div class="tradeoff-column pros">
+                <div class="tradeoff-title"><span class="tradeoff-mark" aria-hidden="true">+</span>Pros</div>
+                <ul>
+                  <li>Makes ownership and module contents immediately visible in the filesystem.</li>
+                  <li>Gives future modules a clean package template.</li>
+                  <li>Allows directory boundaries to reinforce dependency rules.</li>
+                </ul>
+              </div>
+              <div class="tradeoff-column cons">
+                <div class="tradeoff-title"><span class="tradeoff-mark" aria-hidden="true">-</span>Cons</div>
+                <ul>
+                  <li>Makes <code>.github/</code> a second generated layer and replaces a recently hardened canonical-to-native packaging model.</li>
+                  <li>Requires broad changes to paths, references, tests, adapters, install logic, and contributor workflows.</li>
+                  <li>Greatly increases migration, rollback, and generated-drift risk.</li>
+                  <li>Is disproportionate while only two suites need migration.</li>
+                </ul>
+              </div>
+            </div>
+            <p class="approach-verdict"><strong>Not justified in the first revamp.</strong> Reconsider it later only if logical registry boundaries prove difficult to maintain.</p>
+          </div>
+        </article>
+
+        <article class="approach" data-reveal>
+          <div class="approach-number" aria-hidden="true">03</div>
+          <div>
+            <div class="approach-heading">
+              <h3>Parallel Suites With a Broad Shared Bucket</h3>
+              <span class="effort">Effort: Medium</span>
+            </div>
+            <p class="approach-summary">Complete the branch's existing <code>shared | engineering | research</code> tagging model, keep parallel CG and CR commands, and let CR workflows reuse CG-owned agents and skills directly.</p>
+            <div class="approach-detail">
+              <p>This is the closest option to the current research branch. It gets CR working fastest, but leaves ownership and dependency boundaries implicit precisely where future modules need them to become explicit.</p>
+            </div>
+            <div class="tradeoffs">
+              <div class="tradeoff-column pros">
+                <div class="tradeoff-title"><span class="tradeoff-mark" aria-hidden="true">+</span>Pros</div>
+                <ul>
+                  <li>Closest to the current research branch.</li>
+                  <li>Fastest route to shipping the research suite.</li>
+                  <li>Requires the least immediate restructuring.</li>
+                </ul>
+              </div>
+              <div class="tradeoff-column cons">
+                <div class="tradeoff-title"><span class="tradeoff-mark" aria-hidden="true">-</span>Cons</div>
+                <ul>
+                  <li>Encourages a growing, weakly defined <code>shared</code> bucket.</li>
+                  <li>Leaves CR coupled to technical-suite ownership.</li>
+                  <li>Does not make dependency closure or ownership reliably enforceable.</li>
+                  <li>Scales through conditionals as new suites appear.</li>
+                  <li>Does not adequately prevent shared changes from breaking a suite.</li>
+                </ul>
+              </div>
+            </div>
+            <p class="approach-verdict"><strong>Useful only as a migration waypoint.</strong> It is the simplest short-term merge strategy, not the maintainable final architecture.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="decision-band" id="decision" data-section="decision">
+      <div class="section-inner decision-grid">
+        <div data-reveal>
+          <div class="decision-label">The decision</div>
+          <h2>Choose the layered registry.</h2>
+        </div>
+        <div class="decision-copy" data-reveal>
+          <p class="decision-lead">Preserve <code>.github/</code> as canonical. Add enforceable ownership and dependency boundaries. Let CG and CR share capabilities without depending on each other's workflows.</p>
+          <p>This approach best satisfies the maintainability goal. It preserves the stable <code>/cg-*</code> surface while allowing research workflows to use coding, testing, visualization, and reproducibility capabilities without making the research suite depend on the technical suite.</p>
+          <p><strong>Approach 3</strong> may be used only as a temporary migration state while assets are classified. <strong>Approach 2</strong> remains a possible later evolution if the logical registry proves difficult to maintain, but physical relocation is not justified in the first revamp.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-band white" id="dependencies" data-section="dependencies">
+      <div class="section-inner">
+        <div class="section-head" data-reveal>
+          <div class="section-index">05 / Dependency rules</div>
+          <div>
+            <h2>Coupling must point downward</h2>
+            <p class="section-summary">The registry is valuable only if its rules are executable. Every runtime reference must be explainable through this graph.</p>
+          </div>
+        </div>
+
+        <div class="dependency-layout">
+          <ol class="dependency-rules" data-reveal>
+            <li>Kernel code and contracts do not depend on capability packs or suites.</li>
+            <li>Capability packs may depend on the kernel and declared capability packs.</li>
+            <li>Suites may depend on the kernel and declared capability packs.</li>
+            <li>Suites do not depend on other suites.</li>
+            <li>Every asset has one owner, and every runtime reference resolves through the declared dependency graph.</li>
+            <li>Platform adapters and generated targets are projections of the same canonical registry, not separate module implementations.</li>
+          </ol>
+
+          <div class="dependency-map" aria-label="Allowed dependency direction" data-reveal>
+            <div class="map-level map-suites">
+              <strong>Suites</strong>
+              <span>CG technical and CR research declare capabilities.</span>
+            </div>
+            <div class="map-arrow" aria-hidden="true"></div>
+            <div class="map-level map-capabilities">
+              <strong>Capability packs</strong>
+              <span>Reusable expertise may compose other declared capabilities.</span>
+            </div>
+            <div class="map-arrow" aria-hidden="true"></div>
+            <div class="map-level map-kernel">
+              <strong>Kernel</strong>
+              <span>Stable product contracts and lifecycle infrastructure.</span>
+            </div>
+            <div class="map-note">Forbidden: CG suite &harr; CR suite dependency</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-band green" id="compatibility" data-section="compatibility">
+      <div class="section-inner">
+        <div class="section-head" data-reveal>
+          <div class="section-index">06 / Compatibility</div>
+          <div>
+            <h2>Change the internals, preserve the workflow</h2>
+            <p class="section-summary">The redesign gets room to evolve configuration and manifests, but not permission to casually break the product's established user-facing loop.</p>
+          </div>
+        </div>
+
+        <div class="compatibility-grid">
+          <div class="compatibility-intro" data-reveal>
+            <h3>Compatibility position</h3>
+            <p>Stable workflows, migratable configuration.</p>
+            <p>One repository, one install, one version, and one knowledge system remain the governing product model.</p>
+          </div>
+          <ul class="compatibility-list" data-reveal>
+            <li>Existing <code>/cg-*</code> commands remain the technical suite's stable interface.</li>
+            <li>Existing <code>.cg-docs/</code> artifacts and the compound lifecycle remain shared product infrastructure.</li>
+            <li>CR behavior is preserved while its direct dependencies on CG-owned behavior are replaced with capability-pack dependencies.</li>
+            <li>Existing shared <code>cg-skill-*</code> identifiers may require compatibility aliases if neutral capability identifiers are introduced. The exact naming and deprecation policy belongs in the implementation plan.</li>
+            <li>Project module configuration may move to a new schema, but migration must be automated, idempotent, and backward compatible for a defined transition period.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-band white" id="next-steps" data-section="next-steps">
+      <div class="section-inner">
+        <div class="section-head" data-reveal>
+          <div class="section-index">07 / Next steps</div>
+          <div>
+            <h2>From decision to migration</h2>
+            <p class="section-summary">The implementation should establish evidence and contracts before it moves orchestration. The research branch is imported by behavior and ownership, not merged wholesale.</p>
+          </div>
+        </div>
+
+        <div class="timeline" data-reveal>
+          <div class="timeline-step">
+            <strong>Produce the phased plan</strong>
+            Use <code>/cg-plan</code> for a Deep-scope implementation plan on <code>refactor/modular-compound-gpid</code>.
+          </div>
+          <div class="timeline-step">
+            <strong>Inventory and classify every canonical asset</strong>
+            Assign each prompt, agent, skill, instruction, and contract to the kernel, a capability pack, the technical suite, or the research suite. Record ambiguous ownership instead of defaulting it to <code>shared</code>.
+          </div>
+          <div class="timeline-step">
+            <strong>Define the minimal registry</strong>
+            Settle the schema, capability granularity, neutral internal identifiers, compatibility aliases, and dependency validation rules.
+          </div>
+          <div class="timeline-step">
+            <strong>Characterize behavior before refactoring</strong>
+            Add tests for current CG workflows and selected CR branch behavior before moving or changing orchestration.
+          </div>
+          <div class="timeline-step">
+            <strong>Make generation namespace-agnostic</strong>
+            Remove prefix-specific discovery and prove complete CG/CR parity across Copilot, Claude Code, Codex, and OpenCode.
+          </div>
+          <div class="timeline-step">
+            <strong>Migrate main before importing CR</strong>
+            Classify and migrate main's assets first, then import CR intellectual content by suite and capability rather than merging the research branch wholesale.
+          </div>
+          <div class="timeline-step">
+            <strong>Prove mixed research implementation</strong>
+            Demonstrate one <code>/cr-work</code> path using research reasoning, R or Python implementation, testing, reproducibility, and publication output without a direct dependency on the technical suite.
+          </div>
+          <div class="timeline-step">
+            <strong>Build the compatibility matrix</strong>
+            Cover CG-only preferences, CR-only preferences, mixed projects, legacy configuration, generated-target drift, and context-budget limits.
+          </div>
+          <div class="timeline-step">
+            <strong>Write the task-oriented manual</strong>
+            Explain suite selection, capability composition, module preferences, maintainer extension rules, and migration from the current package.
+          </div>
+          <div class="timeline-step">
+            <strong>Update the charter after approval</strong>
+            Expand Key Deliverables and Current Focus only after the corresponding scope change is explicitly approved.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-band warm" id="open-questions" data-section="open-questions">
+      <div class="section-inner">
+        <div class="section-head" data-reveal>
+          <div class="section-index">08 / Planning questions</div>
+          <div>
+            <h2>Decisions still to make</h2>
+            <p class="section-summary">The direction is settled. These implementation choices remain open and should be answered in the phased plan.</p>
+          </div>
+        </div>
+
+        <div class="question-grid" data-reveal>
+          <p class="question">Where should the registry live, and should ownership be centralized, distributed in per-pack manifests, or represented by a validated combination?</p>
+          <p class="question">What is the smallest useful capability-pack granularity without creating a dependency graph that is harder to maintain than the current shared layer?</p>
+          <p class="question">Which currently <code>cg-*</code> skills are genuinely technical-suite assets, and which are neutral capabilities that need aliases or eventual renaming?</p>
+          <p class="question">Which CR branch tests and artifacts form the minimum behavioral baseline for migration?</p>
+          <p class="question">What measurable context budget should CG-only, CR-only, and mixed sessions satisfy?</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="page-footer">
+    <div class="footer-inner">
+      <div>
+        <strong>Compound GPID architecture brainstorm</strong><br>
+        Decision captured 31 July 2026
+      </div>
+      <div class="tag-list" aria-label="Topics">
+        <span class="footer-tag">architecture</span>
+        <span class="footer-tag">modularity</span>
+        <span class="footer-tag">compound-research</span>
+        <span class="footer-tag">technical-suite</span>
+        <span class="footer-tag">capability-packs</span>
+        <span class="footer-tag">routing</span>
+        <span class="footer-tag">packaging</span>
+        <span class="footer-tag">migration</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      "use strict";
+
+      var progress = document.getElementById("progress");
+      var printButton = document.getElementById("print-button");
+      var navLinks = Array.prototype.slice.call(document.querySelectorAll(".site-nav a"));
+      var sections = Array.prototype.slice.call(document.querySelectorAll("[data-section]"));
+      var revealItems = Array.prototype.slice.call(document.querySelectorAll("[data-reveal]"));
+
+      function updateProgress() {
+        var scrollable = document.documentElement.scrollHeight - window.innerHeight;
+        var ratio = scrollable > 0 ? window.scrollY / scrollable : 0;
+        progress.style.width = Math.min(100, Math.max(0, ratio * 100)) + "%";
+      }
+
+      window.addEventListener("scroll", updateProgress, { passive: true });
+      window.addEventListener("resize", updateProgress);
+      updateProgress();
+
+      printButton.addEventListener("click", function () {
+        window.print();
+      });
+
+      if ("IntersectionObserver" in window) {
+        var revealObserver = new IntersectionObserver(function (entries, observer) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("is-visible");
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { rootMargin: "0px 0px -8% 0px", threshold: 0.08 });
+
+        revealItems.forEach(function (item) {
+          revealObserver.observe(item);
+        });
+
+        var sectionObserver = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (!entry.isIntersecting) {
+              return;
+            }
+            navLinks.forEach(function (link) {
+              var isCurrent = link.getAttribute("href") === "#" + entry.target.id;
+              if (isCurrent) {
+                link.setAttribute("aria-current", "true");
+              } else {
+                link.removeAttribute("aria-current");
+              }
+            });
+          });
+        }, { rootMargin: "-25% 0px -65% 0px", threshold: 0 });
+
+        sections.forEach(function (section) {
+          sectionObserver.observe(section);
+        });
+      } else {
+        revealItems.forEach(function (item) {
+          item.classList.add("is-visible");
+        });
+      }
+    }());
+  </script>
+</body>
+</html>

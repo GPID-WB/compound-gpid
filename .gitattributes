@@ -1,5 +1,6 @@
 # Ensure bash scripts always use LF line endings in the repo
 # (prevents CRLF corruption when checked out on Windows)
+.gitattributes   text eol=lf
 *.md            text eol=lf
 *.json          text eol=lf
 *.toml          text eol=lf
@@ -7,9 +8,23 @@
 *.ps1           text eol=lf
 *.sh            text eol=lf
 bin/cg-*        text eol=lf
+**/cg-skill-management/templates/*.svg text eol=lf
+**/cg-skill-management/templates/*.txt text eol=lf
 *.yml           text eol=lf
 *.yaml          text eol=lf
 *.html          text eol=lf
+*.js            text eol=lf
+*.mjs           text eol=lf
+
+# Native plugin ownership hashes must survive Windows checkout without conversion.
+.github/plugins/*.js text eol=lf
+.github/plugin-support/cg-native-evidence/*.mjs text eol=lf
+.kilo/plugins/*.js text eol=lf
+.kilo/plugin-support/cg-native-evidence/*.mjs text eol=lf
 
 # Ensure Windows batch wrappers keep CRLF (required by CMD.EXE)
 bin/*.cmd       text eol=crlf
+
+# Historical reader bytes are SHA-256 pinned in the adjacent source.json.
+scripts/tests/fixtures/release-bridge/update.ps1.fixture -text
+scripts/tests/fixtures/release-bridge/update.sh.fixture -text

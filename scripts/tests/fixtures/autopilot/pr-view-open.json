@@ -1,0 +1,9 @@
+{
+  "url": "https://github.com/o/r/pull/42",
+  "number": 42,
+  "title": "feat(autopilot): publication and CI observation",
+  "state": "OPEN",
+  "baseRefName": "origin/dev",
+  "headRefName": "cg-autopilot",
+  "headRefOid": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+}

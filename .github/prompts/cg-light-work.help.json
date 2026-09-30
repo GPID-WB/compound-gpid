@@ -1,0 +1,11 @@
+{
+  "id": "slash:cg-light-work", "name": "/cg-light-work", "kind": "slash", "ownerModule": "suite-cg", "supportedSuites": ["cg"],
+  "category": "delivery", "summary": "Qualify and execute one small technical task with bounded discovery, light review, and explicit compounding consent.", "aliases": [],
+  "intents": ["execute one small technical task", "complete a lightweight low-risk task"], "usage": "/cg-light-work [--no-branch|--no-brain|--no-html] <task>", "examples": ["/cg-light-work -- document the --no-html option"],
+  "prerequisites": ["A single cohesive small task in a Git workspace with a resolvable HEAD."], "outputs": ["Implemented approved changes with deterministic and focused review evidence."],
+  "constraints": ["Lightweight approval cannot override a hard or structural gate.", "Stage 2 is limited to two discovery rounds.", "Review may run each light agent at most twice."], "relatedCommands": [{"id": "slash:cg-work", "relation": "next"}, {"id": "slash:cg-review", "relation": "related"}],
+  "sourcePath": ".github/prompts/cg-light-work.prompt.md", "definitionSources": [".github/prompts/cg-light-work.prompt.md"], "definitionDigest": "3860c22a6436309905707908523b1f23489d0488a25d576d4d88fe3c89bef8fd",
+  "documentationTargets": [], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["any"],
+  "availability": {"status": "conditional", "evidence": [{"os": "any", "sourcePath": ".github/prompts/cg-light-work.prompt.md"}]},
+  "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
+}

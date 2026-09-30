@@ -1,0 +1,38 @@
+{
+  "$schema": "compound-gpid-schema-subset-v1",
+  "$id": "cg-skill-remove-v1",
+  "$defs": {
+    "arguments": {
+      "type": "object",
+      "properties": {
+        "positionals": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1},
+          "minItems": 1,
+          "maxItems": 1
+        },
+        "approver": {"type": "string", "minLength": 1},
+        "review_reference": {"type": "string", "minLength": 1},
+        "migrations": {"type": "string"},
+        "grace_exception": {"type": "boolean"},
+        "grace_reason": {"type": "string", "minLength": 1}
+      },
+      "required": ["positionals", "approver", "review_reference"],
+      "additionalProperties": false
+    },
+    "resultData": {
+      "type": "object",
+      "properties": {
+        "status": {"type": "string", "enum": ["planned", "committed", "blocked"]},
+        "skillId": {"type": "string"},
+        "origin": {"type": "string"},
+        "tombstoneDigest": {"type": "string"},
+        "graceEvidence": {"type": "string"},
+        "removedPaths": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "remainingReferences": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+      },
+      "required": ["status", "skillId", "origin", "tombstoneDigest", "graceEvidence", "removedPaths", "remainingReferences"],
+      "additionalProperties": false
+    }
+  }
+}

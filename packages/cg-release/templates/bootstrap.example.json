@@ -1,0 +1,68 @@
+{
+  "enabled": false,
+  "purpose": "Reviewed expected-readback example, not an automatic settings mutation payload",
+  "journal_bootstrap": {
+    "branch": "release-controller-state",
+    "require_orphan_root": true,
+    "require_empty_root_tree": true,
+    "pin_exact_root_in_protected_policy": "journal_root",
+    "reviewed_setup_pr_required": true,
+    "never_recreate_missing_existing_state": true
+  },
+  "rulesets": [
+    {
+      "name": "State updates require control App",
+      "target": "branch", "enforcement": "active",
+      "conditions": {"ref_name": {"include": ["refs/heads/release-controller-state"], "exclude": []}},
+      "bypass_actors": [{"actor_id": 100, "actor_type": "Integration", "bypass_mode": "always"}],
+      "rules": [{"type": "update"}]
+    },
+    {
+      "name": "State history cannot be replaced or deleted",
+      "target": "branch", "enforcement": "active",
+      "conditions": {"ref_name": {"include": ["refs/heads/release-controller-state"], "exclude": []}},
+      "bypass_actors": [],
+      "rules": [{"type": "deletion"}, {"type": "non_fast_forward"}]
+    },
+    {
+      "name": "Tag creation requires separate App",
+      "target": "tag", "enforcement": "active",
+      "conditions": {"ref_name": {"include": ["refs/tags/v*"], "exclude": []}},
+      "bypass_actors": [{"actor_id": 200, "actor_type": "Integration", "bypass_mode": "always"}],
+      "rules": [{"type": "creation"}]
+    },
+    {
+      "name": "Published tag identity cannot be moved or deleted",
+      "target": "tag", "enforcement": "active",
+      "conditions": {"ref_name": {"include": ["refs/tags/v*"], "exclude": []}},
+      "bypass_actors": [],
+      "rules": [{"type": "update"}, {"type": "deletion"}, {"type": "non_fast_forward"}]
+    }
+  ],
+  "default_branch_protection": {
+    "enforce_admins": {"enabled": true},
+    "allow_force_pushes": {"enabled": false},
+    "allow_deletions": {"enabled": false},
+    "required_pull_request_reviews": {
+      "required_approving_review_count": 1,
+      "dismiss_stale_reviews": true,
+      "bypass_pull_request_allowances": {"apps": [], "users": [], "teams": []}
+    }
+  },
+  "environments": {
+    "all": {
+      "deployment_branch_policy": {"protected_branches": false, "custom_branch_policies": true},
+      "branch_policies": [{"name": "main", "type": "branch"}]
+    },
+    "publish_and_override": {
+      "can_admins_bypass": false,
+      "required_reviewers": {"prevent_self_review": true, "reviewers": "Reviewed User/Team IDs, never the request payload"},
+      "secret_names": ["RELEASE_CONTROL_APP_ID", "RELEASE_CONTROL_APP_PRIVATE_KEY", "RELEASE_PUBLISHING_APP_ID", "RELEASE_PUBLISHING_APP_PRIVATE_KEY"]
+    },
+    "control": {
+      "secret_names": ["RELEASE_CONTROL_APP_ID", "RELEASE_CONTROL_APP_PRIVATE_KEY"]
+    },
+    "repository_or_organization_fallback_credentials": "Forbidden for all listed credential slots"
+  },
+  "activation": "Replace reviewed workflow/package/wheel/root/App pins, install active default-ref workflow, verify all controls, then enable policy in a reviewed PR. No real setup or authority is implied by this file."
+}

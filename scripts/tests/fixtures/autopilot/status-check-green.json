@@ -1,0 +1,4 @@
+[
+  {"__typename": "CheckRun", "name": "native-targets", "status": "COMPLETED", "conclusion": "SUCCESS", "detailsUrl": null},
+  {"__typename": "CheckRun", "name": "pester-prompt-tools", "status": "COMPLETED", "conclusion": "SUCCESS", "detailsUrl": null}
+]

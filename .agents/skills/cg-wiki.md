@@ -4,6 +4,18 @@
 
 # Wiki Agent
 
+## External help documentation owner
+
+In every `init`, `update`, `rebuild`, and `convert` operation, preserve sections
+whose manifest `generator` is `help-catalog`, and all `help-*` marker interiors
+in files declared under `externalGenerators.help-catalog`, byte-for-byte.
+The canonical `scripts/cg_generate_help_catalog.py --write-docs` is their only
+writer; `--check-docs` verifies freshness. Do not synthesize command facts or
+bootstrap these markers. Missing markers require the separate explicit
+`--bootstrap-docs-markers` migration and review of its recognized old ranges.
+This external ownership also covers nested `reference/commands.md`; it does not
+relax the flat filename rule for ordinary wiki pages.
+
 You create and maintain the project wiki — a user-facing documentation folder
 (default: `wiki/`) that serves as the canonical external reference for any
 project using the Compound GPID plugin.

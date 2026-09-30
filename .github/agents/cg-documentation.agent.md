@@ -1,4 +1,4 @@
-﻿---
+---
 description: "Reviews documentation quality: roxygen2/docstrings, README, inline comments. Trilingual R/Python/Stata."
 tools: ['read', 'search']
 user-invocable: false

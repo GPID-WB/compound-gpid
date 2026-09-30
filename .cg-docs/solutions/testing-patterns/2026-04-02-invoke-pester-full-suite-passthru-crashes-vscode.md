@@ -118,3 +118,5 @@ single, small, non-junction-creating test file.
 - [2026-04-09-pester-2amp1-pipe-failure-debugging-trigger.md](./2026-04-09-pester-2amp1-pipe-failure-debugging-trigger.md)
   — Third recurrence: `2>&1 | Select-String` specifically triggered by failure-debugging
   mode, even when agent knows the rules. Rule #5 added to copilot-instructions.md.
+- [2026-09-17-pester-runner-registry-filter-names-and-artifact-preservation.md](./2026-09-17-pester-runner-registry-filter-names-and-artifact-preservation.md)
+  — Runner registry filter names and `tests/last-run.json` preservation between jobs (2026-09-17 release phases).

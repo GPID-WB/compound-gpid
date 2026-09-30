@@ -1,0 +1,224 @@
+{
+  "phase": 4,
+  "workingTreeBase": "73b3a385e40a35487db7f02d65fee00ddc33b1b0",
+  "workingTreeNote": "Phase 4 implementation, before checkpoint commit. Fingerprint binds source bytes; Pester gitSha alone is not the tested-tree identity.",
+  "fingerprintVersion": 3,
+  "fingerprint": "126adb151daaaf350f194e3e3820afc58f3d93ccde7cf2c9c7303d2fcf3c3424",
+  "node": {
+    "passed": 196,
+    "failed": 0,
+    "command": "TMPDIR=/private/tmp npm run test:docs-automation"
+  },
+  "browser": {
+    "passed": 50,
+    "failed": 0,
+    "axeScans": 21,
+    "reportSha256": "a6f86cf40155918a1b969ab5ba41550bd7b3911faf3a4c302f17a74ef9ed7f8b",
+    "command": "TMPDIR=/private/tmp npm run test:docs-browser -- --reporter=line,json"
+  },
+  "help": {
+    "passed": 318,
+    "failed": 0,
+    "command": "PYTHONPATH=scripts python3 -m pytest scripts/tests/test_help_catalog.py scripts/tests/test_help_query.py scripts/tests/test_cg_help.py scripts/tests/test_help_support.py scripts/tests/test_help_documentation.py scripts/tests/test_target_documentation.py -q"
+  },
+  "nativeParity": {
+    "passed": 245,
+    "failed": 0,
+    "command": "PYTHONPATH=scripts python3 -m pytest scripts/tests/test_cg_generate_targets.py scripts/tests/test_target_determinism.py scripts/tests/test_target_ownership.py scripts/tests/test_target_documentation.py scripts/tests/test_skill_management_completeness.py scripts/tests/test_yaml_frontmatter_lint.py -q",
+    "repeatGeneration": "all four target trees byte-identical",
+    "moduleChecks": [
+      "dependencies",
+      "cross-suite",
+      "ownership"
+    ]
+  },
+  "pester": {
+    "gitSha": "73b3a385",
+    "ranAt": "2026-09-17T16:54:57Z",
+    "passed": true,
+    "totalCount": 3010,
+    "passedCount": 3007,
+    "failedCount": 0,
+    "skippedCount": 3,
+    "failFast": false,
+    "filteredFiles": null,
+    "skipped": [],
+    "files": [
+      {
+        "name": "charter",
+        "total": 19,
+        "passed": 19,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "local-config",
+        "total": 3,
+        "passed": 3,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "helpers",
+        "total": 38,
+        "passed": 38,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "roadmap",
+        "total": 100,
+        "passed": 100,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "prompt-tools",
+        "total": 1795,
+        "passed": 1795,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "model-assignments",
+        "total": 221,
+        "passed": 221,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "pester-safety",
+        "total": 84,
+        "passed": 84,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "ps51-compat",
+        "total": 18,
+        "passed": 18,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "create-release",
+        "total": 120,
+        "passed": 120,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "bash-scripts",
+        "total": 142,
+        "passed": 142,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "install",
+        "total": 1,
+        "passed": 0,
+        "failed": 0,
+        "skipped": 1
+      },
+      {
+        "name": "cg-index",
+        "total": 70,
+        "passed": 70,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "run-tests-runner",
+        "total": 40,
+        "passed": 40,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "update",
+        "total": 145,
+        "passed": 143,
+        "failed": 0,
+        "skipped": 2
+      },
+      {
+        "name": "release-version-readers",
+        "total": 9,
+        "passed": 9,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "docs-automation",
+        "total": 24,
+        "passed": 24,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "docs-preview",
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "wiki",
+        "total": 126,
+        "passed": 126,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "parity",
+        "total": 43,
+        "passed": 43,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "link",
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "unlink",
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0
+      }
+    ],
+    "failures": []
+  },
+  "pesterCommand": ". tests/Run-Tests.ps1",
+  "pesterRecovery": "1/2 used; 15 old table-contract failures repaired, semantics retained",
+  "platformLimits": [
+    "Windows installation, CLM, ANSI tests skipped on macOS",
+    "link/unlink are platform placeholders; no Windows junction proof",
+    "Human screen-reader and real-zoom visual deferral remains the sole approved exception"
+  ],
+  "catalog": {
+    "commands": 53,
+    "workflows": 4,
+    "kindIdsPreserved": true,
+    "sharedEligibility": "supportedSuites plus canonical ownerModule",
+    "writer": "scripts/help/documentation.py",
+    "routes": "docs/reference/command-routes.json"
+  },
+  "compatibility": {
+    "legacyFixtureUntouched": true,
+    "v2ArchiveSource": "de64bf066da79842223e2ebdc6252c69f0a94d88",
+    "v2ArchiveExactFiles": 19,
+    "supportedPairs": [
+      "v1/v3",
+      "v3/v3",
+      "v2/v2 recovery"
+    ],
+    "rejectedPair": "v2/v3 because historical v2 runtime cannot parse v3 metadata"
+  },
+  "publication": "No deployment; protected controller enablement remains separate"
+}

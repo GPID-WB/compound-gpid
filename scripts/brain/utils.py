@@ -11,13 +11,14 @@ from __future__ import annotations
 
 import csv
 import io
+import json
 import os
 import re
 import tempfile
 import time
 import warnings
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 # ---------------------------------------------------------------------------
 # Scalar coercion
@@ -32,6 +33,40 @@ _INT_RE = re.compile(r"^-?\d+$")
 
 # Inline list: [a, b, c] or ["a", "b"]
 _INLINE_LIST_RE = re.compile(r"^\[([^\]]*)\]$")
+_YAML_DOUBLE_ESCAPE_RE = re.compile(
+    r"\\(?:x[0-9A-Fa-f]{2}|u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8}|[0abtnvfre \"\\/N_LP_])"
+)
+
+
+def _decode_yaml_double_quoted(value: str) -> str:
+    """Decode YAML-only escapes after JSON's shared escape subset fails."""
+    named = {
+        "0": "\0",
+        "a": "\a",
+        "b": "\b",
+        "t": "\t",
+        "n": "\n",
+        "v": "\v",
+        "f": "\f",
+        "r": "\r",
+        "e": "\x1b",
+        " ": " ",
+        '"': '"',
+        "\\": "\\",
+        "/": "/",
+        "N": "\x85",
+        "_": "\xa0",
+        "L": "\u2028",
+        "P": "\u2029",
+    }
+
+    def replace(match: re.Match[str]) -> str:
+        escape = match.group(0)[1:]
+        if escape[0] in ("x", "u", "U"):
+            return chr(int(escape[1:], 16))
+        return named[escape]
+
+    return _YAML_DOUBLE_ESCAPE_RE.sub(replace, value)
 
 
 def _coerce(value: str) -> Any:
@@ -72,12 +107,15 @@ def _coerce(value: str) -> Any:
         return v  # Keep dates as ISO 8601 strings
     if _INT_RE.match(v):
         return int(v)
-    # Strip optional surrounding quotes
-    if (
-        (v.startswith('"') and v.endswith('"'))
-        or (v.startswith("'") and v.endswith("'"))
-    ):
-        return v[1:-1]
+    # Decode double-quoted YAML scalars through JSON (the shared escape subset)
+    # so generated adapters do not double-escape canonical descriptions.
+    if v.startswith('"') and v.endswith('"'):
+        try:
+            return json.loads(v)
+        except json.JSONDecodeError:
+            return _decode_yaml_double_quoted(v[1:-1])
+    if v.startswith("'") and v.endswith("'"):
+        return v[1:-1].replace("''", "'")
     return v
 
 
@@ -109,12 +147,81 @@ def _parse_inline_list(raw: str) -> Optional[List[Any]]:
     return items
 
 
+def _strip_inline_yaml_comment(raw: str) -> str:
+    """Strip an inline YAML comment while preserving quoted ``#`` characters."""
+    quote: Optional[str] = None
+    escaped = False
+    for index, char in enumerate(raw):
+        if quote == '"':
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == quote:
+                quote = None
+            continue
+        if quote == "'":
+            if char == quote:
+                quote = None
+            continue
+        if char in ('"', "'"):
+            quote = char
+        elif char == "#" and index > 0 and raw[index - 1].isspace():
+            return raw[:index].rstrip()
+    return raw.rstrip()
+
+
 # ---------------------------------------------------------------------------
 # Frontmatter parser (regex-based, best-effort, no PyYAML dependency)
 # ---------------------------------------------------------------------------
 
 
-def parse_frontmatter(text: str) -> Dict[str, Any]:
+_FRONTMATTER_OPEN_RE = re.compile(r"^---[ \t]*(?:\r?\n|$)")
+_FRONTMATTER_CLOSE_RE = re.compile(r"(?m)^---[ \t]*\r?$")
+
+
+def _quoted_scalar_complete(value: str) -> bool:
+    """Return whether a single- or double-quoted YAML scalar is closed."""
+    stripped = value.strip()
+    if not stripped or stripped[0] not in ("'", '"'):
+        return True
+    quote = stripped[0]
+    index = 1
+    while index < len(stripped):
+        if quote == '"' and stripped[index] == "\\":
+            index += 2
+            continue
+        if stripped[index] == quote:
+            if quote == "'" and index + 1 < len(stripped) and stripped[index + 1] == "'":
+                index += 2
+                continue
+            return not stripped[index + 1:].strip()
+        index += 1
+    return False
+
+
+def _fallback_yaml(
+    block: str,
+    source: Optional[Union[str, os.PathLike[str]]],
+) -> Dict[str, Any]:
+    """Parse ``block`` with optional PyYAML when the lightweight parser fails."""
+    try:
+        import yaml  # type: ignore[import-not-found]
+    except ImportError:
+        return {}
+    try:
+        parsed = yaml.safe_load(block)
+    except Exception as error:  # PyYAML is optional; preserve best-effort behavior.
+        label = os.fspath(source) if source is not None else "<string>"
+        warnings.warn(f"PyYAML fallback could not parse frontmatter in {label}: {error}", stacklevel=3)
+        return {}
+    return parsed if isinstance(parsed, dict) else {}
+
+
+def parse_frontmatter(
+    text: str,
+    source: Optional[Union[str, os.PathLike[str]]] = None,
+) -> Dict[str, Any]:
     """Extract YAML frontmatter from markdown text.
 
     Handles only the simple key: value pairs used in .cg-docs/ files:
@@ -140,22 +247,47 @@ def parse_frontmatter(text: str) -> Dict[str, Any]:
         '2026-05-19'
     """
     clean = text.lstrip("\ufeff\r\n")
-    if not clean.startswith("---"):
+    opening = _FRONTMATTER_OPEN_RE.match(clean)
+    if not opening:
         return {}
 
-    end = clean.find("\n---", 3)
-    if end == -1:
+    closing = _FRONTMATTER_CLOSE_RE.search(clean, opening.end())
+    if not closing:
         return {}
 
-    block = clean[3:end].strip()
+    block = clean[opening.end():closing.start()].strip("\r\n")
     result: Dict[str, Any] = {}
     current_key: Optional[str] = None
     current_list: Optional[List[str]] = None
+    current_scalar_key: Optional[str] = None
+    current_scalar_lines: Optional[List[str]] = None
 
-    for line in block.splitlines():
-        stripped = line.strip()
+    def flush_scalar() -> None:
+        nonlocal current_scalar_key, current_scalar_lines
+        if current_scalar_key is None or current_scalar_lines is None:
+            return
+        result[current_scalar_key] = _coerce(" ".join(current_scalar_lines).strip())
+        current_scalar_key = None
+        current_scalar_lines = None
+
+    lines = block.split("\n")
+    line_index = 0
+    while line_index < len(lines):
+        stripped = lines[line_index].rstrip("\r").strip()
+        line_index += 1
         if not stripped or stripped.startswith("#"):
             continue
+
+        if (
+            current_scalar_key is not None
+            and current_scalar_lines is not None
+            and line[:1].isspace()
+            and ":" not in stripped.partition(" #")[0]
+        ):
+            current_scalar_lines.append(stripped)
+            continue
+
+        flush_scalar()
 
         # Continuation of a block list (  - item)
         if stripped.startswith("- ") and current_key is not None and current_list is not None:
@@ -174,9 +306,18 @@ def parse_frontmatter(text: str) -> Dict[str, Any]:
 
         key, _, raw_value = stripped.partition(":")
         key = key.strip()
-        raw_value = raw_value.strip()
+        raw_value = raw_value.rstrip("\r").strip()
+        if raw_value.startswith(("'", '"')) and not _quoted_scalar_complete(raw_value):
+            folded = [raw_value]
+            while line_index < len(lines):
+                continuation = lines[line_index].rstrip("\r").strip()
+                line_index += 1
+                folded.append(continuation)
+                raw_value = " ".join(part for part in folded if part)
+                if _quoted_scalar_complete(raw_value):
+                    break
         # Strip inline YAML comments (e.g. "status: active # deprecated" → "active")
-        if " #" in raw_value:
+        if not raw_value.startswith(("'", '"')) and " #" in raw_value:
             raw_value = raw_value.split(" #")[0].rstrip()
 
         if not raw_value:
@@ -197,10 +338,31 @@ def parse_frontmatter(text: str) -> Dict[str, Any]:
             result[key] = inline
         else:
             result[key] = _coerce(raw_value)
+            if raw_value.startswith(('"', "'")) and not raw_value.endswith(raw_value[0]):
+                current_scalar_key = key
+                current_scalar_lines = [raw_value]
 
     # Flush trailing block list
     if current_list is not None and current_key is not None and current_list:
         result[current_key] = current_list
+
+    flush_scalar()
+
+    # Fall back only when the block actually declares skill/agent metadata that
+    # the lightweight parser missed. Normal plans and reviews intentionally omit
+    # name/description and must not pay for a second full YAML parse.
+    declared_metadata = tuple(
+        key
+        for key in ("name", "description")
+        if re.search(rf"(?m)(?:^|[{{,]\s*){key}\s*:", block)
+    )
+    if block and any(key not in result for key in declared_metadata):
+        fallback = _fallback_yaml(block, source)
+        recovered = any(key not in result and key in fallback for key in declared_metadata)
+        if recovered:
+            label = os.fspath(source) if source is not None else "<string>"
+            warnings.warn(f"Used PyYAML fallback for frontmatter in {label}", stacklevel=2)
+            return fallback
 
     return result
 

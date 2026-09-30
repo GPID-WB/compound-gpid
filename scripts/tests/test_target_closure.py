@@ -215,9 +215,20 @@ Load `.github/shared/completion.contract.md`.
     assert f"{target['outputPaths']['shared']}/completion.contract.md" in command
 
 
-def test_unresolved_required_canonical_runtime_dependency_is_rejected(tmp_path: Path) -> None:
+@pytest.mark.parametrize("source_file", [
+    ".github/prompts/cg-demo.prompt.md",
+    ".github/shared/README.MD",
+    ".github/shared/README.Markdown",
+])
+def test_unresolved_required_canonical_runtime_dependency_is_rejected(
+    tmp_path: Path, source_file: str,
+) -> None:
     source = tmp_path / "source"
-    _canonical_fixture(source, "Load `.github/shared/missing.contract.md`.")
+    _canonical_fixture(source)
+    body = "Load `.github/shared/missing.contract.md`."
+    if source_file.endswith(".prompt.md"):
+        body = "---\ndescription: Demo command\n---\n\n" + body
+    _write(source, source_file, body)
 
     with pytest.raises(ValueError, match=r"missing\.contract\.md|unresolved|dependency"):
         _plan(source, _mapping_target("claude-code"))
@@ -265,3 +276,36 @@ def test_cli_availability_reporting_is_separate_from_required_static_closure(
     assert unavailable["cliEvidence"] == "unavailable"
     assert available["cliEvidence"] == "available-not-run"
     assert "skip" not in unavailable.values()
+
+
+# ---------------------------------------------------------------------------
+# Step 10: Inactive-reference leak detection in generated targets
+# ---------------------------------------------------------------------------
+
+
+def test_generated_target_content_has_no_inactive_canonical_references(
+    tmp_path: Path,
+) -> None:
+    """All canonical .github/ references in generated target content must
+    resolve to assets within the same closure (no inactive references leak)."""
+    source = tmp_path / "source"
+    _canonical_fixture(source)
+    # Add a CR skill that is NOT in the CG closure
+    _write(
+        source,
+        ".github/skills/cr-skill-demo/SKILL.md",
+        "---\nname: cr-skill-demo\ndescription: CR skill\n---\nbody\n",
+    )
+    target = _mapping_target("kilo")
+    plan = _plan(source, target)
+
+    for entry in plan.by_target["kilo"].entries:
+        text = entry.content.decode("utf-8") if isinstance(entry.content, bytes) else entry.content
+        refs = CANONICAL_RUNTIME_REFERENCE.findall(text)
+        for ref in refs:
+            # Every reference in generated output must have been rewritten
+            # to a platform-local path; canonical .github/ refs must not leak
+            assert not ref.startswith(".github/"), (
+                f"Generated target {entry.destination} contains unresolved "
+                f"canonical reference: {ref}"
+            )

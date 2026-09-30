@@ -32,6 +32,9 @@ param(
     [string]$Version,
     # Display available releases and exit without updating.
     [switch]$List,
+    # Include pre-releases and legacy development tags in --list.
+    [Alias('show-dev')]
+    [switch]$ShowDev,
     # Repair the installation: clean untracked files, discard local changes,
     # and pull the latest code. Use when cg-update fails due to dirty state.
     [switch]$Fix
@@ -45,6 +48,24 @@ $ErrorActionPreference = "Stop"
 $CompoundGpidDir = Split-Path $PSScriptRoot -Parent
 
 . (Join-Path $PSScriptRoot "helpers.ps1")
+
+$earlyUpdateProjectRoot = (Get-Location).Path
+$earlyUpdateIsSourceInstall = [System.IO.Path]::GetFullPath($earlyUpdateProjectRoot).TrimEnd('\', '/') -ieq
+    [System.IO.Path]::GetFullPath($CompoundGpidDir).TrimEnd('\', '/')
+$earlyUpdateHasCompatibilityRoot = (Test-Path -LiteralPath (Join-Path $earlyUpdateProjectRoot ".agents\skills")) -or
+    (Test-Path -LiteralPath (Join-Path $earlyUpdateProjectRoot ".claude\skills"))
+if (-not $env:CG_INTERNAL_CALL -and -not $earlyUpdateIsSourceInstall -and
+    (Test-Path -LiteralPath (Join-Path $earlyUpdateProjectRoot ".kilo\skills")) -and
+    $earlyUpdateHasCompatibilityRoot) {
+    try {
+        [void](Invoke-CgKiloPreflight -ProjectRoot $earlyUpdateProjectRoot -RequireCoexistence -HostOnly)
+    } catch {
+        $preflightExitCode = 1
+        if ($_.Exception.Data.Contains("CgExitCode")) { $preflightExitCode = [int]$_.Exception.Data["CgExitCode"] }
+        Write-Error "Update is blocked by Kilo host preflight: $_"
+        exit $preflightExitCode
+    }
+}
 
 # Clean up profile functions from early installs. Those functions invoke or
 # dot-source the scripts directly and can shadow the CLM-safe .cmd wrappers on PATH.
@@ -68,15 +89,61 @@ $CopilotInstructionsMarker = "<!-- compound-gpid:managed -->"
 # Contains "latest" to track main, or a tag name (e.g. v0.2.0) to pin.
 $VersionFile = Join-Path $CompoundGpidDir ".cg-version"
 
-# Regex that matches 3-component release tags only (e.g. v0.2.0).
-# Dev tags (4-component, e.g. v0.2.0.9000) are intentionally excluded -- they are
-# invisible to users and must never appear in --list, the newer-release hint, or error suggestions.
-$ReleaseTagPattern = '^v\d+\.\d+\.\d+$'
+# BEGIN RELEASE READERS
+$VersionNumber = '(?:0|[1-9][0-9]*)'
+$VersionIdentifier = '(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)'
+$VersionCore = "$VersionNumber\.$VersionNumber\.$VersionNumber"
+$VersionSuffix = "(?:-$VersionIdentifier(?:\.$VersionIdentifier)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?"
+$ReleaseTagPattern = "\Av$VersionCore(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?\z"
+$VersionAcceptPattern = "\A(?:latest|v$VersionCore$VersionSuffix|v[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)\z"
 
-# Regex that accepts all valid version inputs: release tags, dev tags, and 'latest'.
-# Used in the CLI argument guard and the .cg-version format validator.
-# Case-sensitive (-cmatch/-cnotmatch): git tag names are case-sensitive; 'V0.2.0' != 'v0.2.0'.
-$VersionAcceptPattern = '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$'
+function Compare-CgReleaseTags {
+    <# Compare validated tags by SemVer; four-part legacy tags use a separate lane.
+       Example: Compare-CgReleaseTags v1.0.0-rc.2 v1.0.0-rc.10 returns -1. #>
+    param([string]$Left, [string]$Right)
+    foreach ($tag in @($Left, $Right)) {
+        if ($tag -ceq 'latest' -or $tag -cnotmatch $VersionAcceptPattern) { throw "Invalid release tag: $tag" }
+    }
+    $a = ($Left.Substring(1) -split '\+', 2)[0] -split '-', 2
+    $b = ($Right.Substring(1) -split '\+', 2)[0] -split '-', 2
+    $ac = $a[0] -split '\.'; $bc = $b[0] -split '\.'
+    $al = 2; $bl = 2
+    if ($ac.Count -eq 4) { $al = 0 } elseif ($a.Count -eq 2) { $al = 1 }
+    if ($bc.Count -eq 4) { $bl = 0 } elseif ($b.Count -eq 2) { $bl = 1 }
+    $ap = @(); $bp = @()
+    if ($al -eq 0) { $ap = @($ac[3]) } elseif ($al -eq 1) { $ap = @($a[1] -split '\.') }
+    if ($bl -eq 0) { $bp = @($bc[3]) } elseif ($bl -eq 1) { $bp = @($b[1] -split '\.') }
+    for ($i = 0; $i -lt (4 + [Math]::Max($ap.Count, $bp.Count)); $i++) {
+        if ($i -lt 3) { $x = $ac[$i]; $y = $bc[$i] }
+        elseif ($i -eq 3) {
+            if ($al -ne $bl) { return [Math]::Sign($al - $bl) }
+            continue
+        } else {
+            $j = $i - 4
+            if ($j -ge $ap.Count -or $j -ge $bp.Count) { return [Math]::Sign($ap.Count - $bp.Count) }
+            $x = $ap[$j]; $y = $bp[$j]
+        }
+        $xn = $x -cmatch '\A[0-9]+\z'; $yn = $y -cmatch '\A[0-9]+\z'
+        if ($xn -and $yn) {
+            $x = $x.TrimStart('0'); $y = $y.TrimStart('0')
+            if ($x.Length -ne $y.Length) { return [Math]::Sign($x.Length - $y.Length) }
+        } elseif ($xn -ne $yn) { if ($xn) { return -1 } else { return 1 } }
+        $result = [Math]::Sign([string]::CompareOrdinal($x, $y))
+        if ($result -ne 0) { return $result }
+    }
+    return 0
+}
+
+function Sort-CgReleaseTags {
+    <# Sort validated tags newest first without culture or integer-width effects.
+       Example: Sort-CgReleaseTags @('v1.0.0', 'v2.0.0'). #>
+    param([string[]]$Tags)
+    $sorted = [System.Collections.Generic.List[string]]::new()
+    foreach ($tag in $Tags) { $sorted.Add($tag) }
+    $sorted.Sort([System.Comparison[string]]{ param($a, $b) -(Compare-CgReleaseTags $a $b) })
+    return $sorted.ToArray()
+}
+# END RELEASE READERS
 
 # --- Validate install exists ---
 if (-not (Test-Path $CompoundGpidDir)) {
@@ -179,10 +246,10 @@ try {
             Write-Warning "git fetch --tags failed (exit $LASTEXITCODE) -- showing cached tag data. Check your network connection."
         }
 
-        $tags = @(git tag --list "v*" --sort=-version:refname 2>$null)
-        # Only show 3-component release tags to users; dev tags (4-component) are
-        # a maintainer-only escape hatch and must never appear in normal output.
-        $releaseTags = @($tags | Where-Object { $_ -match $ReleaseTagPattern })
+        $tags = @(git tag --list "v*" 2>$null)
+        $listPattern = $ReleaseTagPattern
+        if ($ShowDev) { $listPattern = $VersionAcceptPattern }
+        $releaseTags = @(Sort-CgReleaseTags @($tags | Where-Object { $_ -cmatch $listPattern }))
 
         # Use the already-resolved $versionMode (avoids redundant file read + normalisation)
         $currentPin = $versionMode
@@ -192,6 +259,9 @@ try {
             $modeLabel = "main (latest)"
         } elseif ($isDevPin) {
             $modeLabel = "$currentPin (dev -- not listed above)"
+            if ($ShowDev) { $modeLabel = "$currentPin (legacy dev)" }
+        } elseif ($currentPin.Split('+')[0].Contains('-')) {
+            $modeLabel = "$currentPin (pre-release)"
         } else {
             $modeLabel = "$currentPin (pinned)"
         }
@@ -202,7 +272,7 @@ try {
         # release tags only (3-component) to exclude dev tags from the marker logic.
         $installedTag = $null
         if ($currentPin -eq "latest") {
-            $headTags = @(git tag --points-at HEAD 2>$null | Where-Object { $_ -match $ReleaseTagPattern })
+            $headTags = @(Sort-CgReleaseTags @(git tag --points-at HEAD 2>$null | Where-Object { $_ -cmatch $listPattern }))
             if ($headTags) { $installedTag = $headTags[0] }
         }
 
@@ -211,7 +281,10 @@ try {
         if ($releaseTags) {
             foreach ($tag in $releaseTags) {
                 if ($tag -eq $currentPin -or $tag -eq $installedTag) { $marker = '  <-- current' } else { $marker = '' }
-                Write-Host "  $tag$marker"
+                $label = ''
+                if ($tag -cmatch '^v[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$') { $label = ' (legacy dev)' }
+                elseif ($tag.Split('+')[0].Contains('-')) { $label = ' (pre-release)' }
+                Write-Host "  $tag$label$marker"
             }
         } else {
             Write-Host "  No releases found." -ForegroundColor DarkGray
@@ -223,6 +296,7 @@ try {
         Write-Host ""
         Write-Host '  cg-update <version>  -- pin to a specific release' -ForegroundColor DarkGray
         Write-Host "  cg-update latest     -- unpin and track main" -ForegroundColor DarkGray
+        Write-Host "  cg-update --list --show-dev -- include pre-releases and legacy dev tags" -ForegroundColor DarkGray
         Write-Host ""
         exit 0
     }
@@ -301,10 +375,11 @@ try {
             Write-Host "Already up to date." -ForegroundColor Green
         }
 
-        # --- Regenerate platform trees after pull (source repo only) ---
+        # --- Regenerate the shared all-suite platform baseline after pull ---
         # If this is the compound-gpid source repo, regenerate .claude/, .agents/,
-        # and .opencode/ from the updated .github/ canonical assets so linked
-        # consumer projects see fresh platform trees via their junctions/symlinks.
+        # and .opencode/ from the updated .github/ canonical assets. Linked
+        # consumer projects share this baseline; their suites: setting controls
+        # workflow eligibility and must not filter the global tree per consumer.
         $targetMapping = Join-Path $CompoundGpidDir ".github/shared/target-mapping.json"
         $generatorScript = Join-Path $CompoundGpidDir "scripts/cg_generate_targets.py"
         if (-not (Test-Path $targetMapping)) {
@@ -338,9 +413,9 @@ try {
         }
 
         # Capture all tags once; derive latestTag, tagExists, and similar from the same list.
-        $allTags     = @(git tag --list "v*" --sort=-version:refname 2>$null)
+        $allTags     = @(git tag --list "v*" 2>$null)
         # Filter to release-only once; reuse for latestTag and similar -- never show dev tags to users.
-        $releaseTags = @($allTags | Where-Object { $_ -match $ReleaseTagPattern })
+        $releaseTags = @(Sort-CgReleaseTags @($allTags | Where-Object { $_ -cmatch $ReleaseTagPattern }))
         $latestTag   = $releaseTags | Select-Object -First 1
 
         # Validate the tag exists before attempting checkout or persisting preference.
@@ -417,12 +492,41 @@ if (-not $env:CG_INTERNAL_CALL -and (Test-Path $cwdManifestPath)) {
         -CompoundGpidDir $CompoundGpidDir)
 }
 
+# Re-run the Kilo containment gate for an already linked consumer project. The
+# internal cg-link update is skipped here; link.ps1 runs the gate after copying
+# the fresh project-local Kilo projection.
+$cwdKiloSkills = Join-Path (Get-Location) ".kilo\skills"
+$cwdHasCompatibilityRoot = (Test-Path -LiteralPath (Join-Path (Get-Location) ".agents\skills")) -or
+    (Test-Path -LiteralPath (Join-Path (Get-Location) ".claude\skills"))
+$cwdIsSourceInstall = [System.IO.Path]::GetFullPath((Get-Location).Path).TrimEnd('\', '/') -ieq
+    [System.IO.Path]::GetFullPath($CompoundGpidDir).TrimEnd('\', '/')
+if (-not $env:CG_INTERNAL_CALL -and -not $cwdIsSourceInstall -and
+    (Test-Path -LiteralPath $cwdKiloSkills) -and
+    ((Test-Path -LiteralPath (Join-Path (Get-Location) ".compound-gpid")) -or $cwdHasCompatibilityRoot)) {
+    try {
+        if ($cwdHasCompatibilityRoot) {
+            $kiloPreflight = Invoke-CgKiloPreflight -ProjectRoot (Get-Location).Path -RequireCoexistence
+        } else {
+            $kiloPreflight = Invoke-CgKiloPreflight -ProjectRoot (Get-Location).Path -LocalOnly
+        }
+        Write-Host "Kilo preflight: $($kiloPreflight.status)" -ForegroundColor DarkGray
+        if ($kiloPreflight.certified_launch_required) {
+            Write-Host "Certified launch required: cg-kilo (direct Kilo launches unsupported with compatibility roots)." -ForegroundColor Yellow
+        }
+    } catch {
+        $preflightExitCode = 1
+        if ($_.Exception.Data.Contains("CgExitCode")) { $preflightExitCode = [int]$_.Exception.Data["CgExitCode"] }
+        Write-Error "Update is blocked by Kilo coexistence preflight: $_"
+        exit $preflightExitCode
+    }
+}
+
 Write-Host ""
 # --- Structural migration: docs/ -> .cg-docs/ ---
 # Applies only when run from a linked project. Migrates docs/brainstorms/,
 # docs/plans/, docs/solutions/ to .cg-docs/ if they still exist at the old path.
 # Idempotent: safe to run multiple times across multiple projects.
-if (-not $env:CG_INTERNAL_CALL -and (Test-Path $cwdGithub)) {
+if (Test-Path $cwdGithub) {
     $cwdRoot      = Get-Location
     $cgDocsDir    = Join-Path $cwdRoot ".cg-docs"
     $dirsToMigrate = @("brainstorms", "plans", "solutions")
@@ -488,6 +592,26 @@ if (-not $env:CG_INTERNAL_CALL -and (Test-Path $cwdGithub)) {
         Write-Host ""
         Write-Host "Structural migration complete: knowledge base moved to .cg-docs/" -ForegroundColor Green
         Write-Host ""
+    }
+
+    # --- Structural migration: legacy CR outputs -> c-research/ ---
+    # Use the shared Python helper so Windows and macOS apply the same
+    # conflict-safe, idempotent research-output migration.
+    $legacyResearchRoot = Join-Path $cwdRoot ".cg-docs\research"
+    $researchMigrationScript = Join-Path $CompoundGpidDir "scripts\cg_migrate_research_layout.py"
+    $legacyResearchItem = Get-Item -LiteralPath $legacyResearchRoot -Force -ErrorAction SilentlyContinue
+    if ($legacyResearchItem -and (Test-Path $researchMigrationScript)) {
+        $researchPyCmd = Resolve-PythonCommand
+        if (-not $researchPyCmd) {
+            throw "Python is required for c-research migration but was not found (checked: python3, python, py)."
+        }
+        Write-Host "  Migrating legacy CR research outputs to c-research/..." -ForegroundColor DarkGray
+        & $researchPyCmd $researchMigrationScript --root $cwdRoot
+        if ($LASTEXITCODE -ne 0) {
+            throw "c-research structural migration failed with exit code $LASTEXITCODE"
+        }
+    } elseif ($legacyResearchItem) {
+        throw "Research-layout migration helper not found at: $researchMigrationScript"
     }
 
     # --- Schema version: stamp compound-gpid.local.md ---
@@ -571,10 +695,51 @@ To fix:
     }
 }
 
+# Apply the research migration for native-target-only projects that do not have
+# a .github link. The linked-project block above handles the other case.
+if (-not (Test-Path $cwdGithub)) {
+    $cwdRoot = Get-Location
+    $legacyResearchRoot = Join-Path $cwdRoot ".cg-docs\research"
+    $researchMigrationScript = Join-Path $CompoundGpidDir "scripts\cg_migrate_research_layout.py"
+    $legacyResearchItem = Get-Item -LiteralPath $legacyResearchRoot -Force -ErrorAction SilentlyContinue
+    if ($legacyResearchItem -and (Test-Path $researchMigrationScript)) {
+        $researchPyCmd = Resolve-PythonCommand
+        if (-not $researchPyCmd) {
+            throw "Python is required for c-research migration but was not found (checked: python3, python, py)."
+        }
+        Write-Host "  Migrating legacy CR research outputs to c-research/..." -ForegroundColor DarkGray
+        & $researchPyCmd $researchMigrationScript --root $cwdRoot
+        if ($LASTEXITCODE -ne 0) {
+            throw "c-research structural migration failed with exit code $LASTEXITCODE"
+        }
+    } elseif ($legacyResearchItem) {
+        throw "Research-layout migration helper not found at: $researchMigrationScript"
+    }
+}
+
 # Remind users running from outside a linked project that per-project notices are skipped
 if (-not $env:CG_INTERNAL_CALL -and -not (Test-Path $cwdGithub)) {
     Write-Host ""
     Write-Host "Tip: run cg-update from your project root to apply per-project migration notices." -ForegroundColor DarkGray
+}
+
+# --- Manifest-driven projection recovery/verification (consumer projects) ---
+# A consumer project with a committed active manifest has a journaled,
+# project-local projection. After the pull, recover any interrupted
+# publication and verify ownership; do not rewrite the immutable selection.
+$updateProjectRoot = (Get-Location).Path
+$updateManagedDir = Join-Path $updateProjectRoot ".compound-gpid"
+$updateIsSourceInstall = [System.IO.Path]::GetFullPath($updateProjectRoot).TrimEnd('\', '/') -ieq
+    [System.IO.Path]::GetFullPath($CompoundGpidDir).TrimEnd('\', '/')
+if (-not $env:CG_INTERNAL_CALL -and -not $updateIsSourceInstall -and
+    (Test-Path -LiteralPath (Join-Path $updateManagedDir "active-manifest.json"))) {
+    try {
+        [void](Invoke-CgProjection -ProjectRoot $updateProjectRoot -SourceRoot $CompoundGpidDir -Mode sync)
+        Write-Host "Project projection synced and verified in current project." -ForegroundColor DarkGray
+    } catch {
+        Write-Error "Update is blocked by manifest projection failure: $_"
+        exit 1
+    }
 }
 
 # --- Version status display ---
@@ -590,7 +755,7 @@ if ($versionMode -eq "latest") {
     Write-Host "Current version: $versionMode ($pinLabel)" -ForegroundColor DarkGray
     Write-Host "Run: cg-update latest   to unpin and track main." -ForegroundColor DarkGray
     # Hint when a newer release is available (only if we have fresh tag data)
-    if ($latestTag -and $latestTag -ne $versionMode) {
+    if ($latestTag -and (Compare-CgReleaseTags $latestTag $versionMode) -gt 0) {
         Write-Host ""
         Write-Host "Newer release available: $latestTag" -ForegroundColor Yellow
         Write-Host "Run: cg-update $latestTag" -ForegroundColor Yellow

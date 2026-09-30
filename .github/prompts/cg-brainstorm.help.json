@@ -1,0 +1,11 @@
+{
+  "id": "slash:cg-brainstorm", "name": "/cg-brainstorm", "kind": "slash", "ownerModule": "suite-cg", "supportedSuites": ["cg"],
+  "category": "design", "summary": "Clarify fuzzy requirements and select an implementation approach.", "aliases": [],
+  "intents": ["clarify a fuzzy task", "compare solution approaches"], "usage": "/cg-brainstorm", "examples": ["/cg-brainstorm"],
+  "prerequisites": ["A task or decision that needs clarification."], "outputs": ["A reviewed brainstorm decision artifact."],
+  "constraints": ["Use planning directly when requirements are already precise."], "relatedCommands": [{"id": "slash:cg-plan", "relation": "next"}],
+  "sourcePath": ".github/prompts/cg-brainstorm.prompt.md", "definitionSources": [".github/prompts/cg-brainstorm.prompt.md"], "definitionDigest": "cbcdc2a8314facc96dd6ec12cff8139fb0f40b37e505c8a103d8b1ea484893fd",
+  "documentationTargets": [{"path": "docs/workflow.md", "section": "1-brainstorm-cg-brainstorm"}], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["any"],
+  "availability": {"status": "available", "evidence": [{"os": "any", "sourcePath": ".github/prompts/cg-brainstorm.prompt.md"}]},
+  "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
+}

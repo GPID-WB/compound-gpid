@@ -7,8 +7,8 @@ findings:
   P0.1: fixed
   P0.2: fixed
   P1.1: fixed
-  P1.2: open
-  P1.3: open
+  P1.2: fixed
+  P1.3: fixed
   P2.1: fixed
   P2.2: fixed
   P2.3: fixed
@@ -20,7 +20,7 @@ findings:
   P3.1: fixed
   P3.2: fixed
   P3.3: fixed
-  P3.4: open
+  P3.4: skipped
 ---
 
 ## Review Report

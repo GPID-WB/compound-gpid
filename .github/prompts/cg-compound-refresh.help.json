@@ -1,0 +1,11 @@
+{
+  "id": "slash:cg-compound-refresh", "name": "/cg-compound-refresh", "kind": "slash", "ownerModule": "suite-cg", "supportedSuites": ["cg"],
+  "category": "knowledge", "summary": "Audit saved solutions for staleness, drift, and consolidation.", "aliases": [],
+  "intents": ["audit old solutions", "refresh the knowledge base"], "usage": "/cg-compound-refresh", "examples": ["/cg-compound-refresh"],
+  "prerequisites": ["Existing solution artifacts under .cg-docs/solutions/."], "outputs": ["A reviewed solution refresh result."],
+  "constraints": ["Archives obsolete knowledge instead of deleting it."], "relatedCommands": [{"id": "slash:cg-brain-rebuild", "relation": "next"}],
+  "sourcePath": ".github/prompts/cg-compound-refresh.prompt.md", "definitionSources": [".github/prompts/cg-compound-refresh.prompt.md"], "definitionDigest": "889b20ed52fe8b208dc1c2921873db019d0b9b6f6e8f72f7da21f658582b01be",
+  "documentationTargets": [], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["any"],
+  "availability": {"status": "available", "evidence": [{"os": "any", "sourcePath": ".github/prompts/cg-compound-refresh.prompt.md"}]},
+  "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
+}

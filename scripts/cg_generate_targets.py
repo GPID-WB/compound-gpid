@@ -7,6 +7,7 @@ native trees for Claude Code, Codex, OpenCode, and Kilo.
 
 Usage:
     python3 scripts/cg_generate_targets.py [--root <path>] [--target <platform>] [--all] [--dry-run]
+    python3 scripts/cg_generate_targets.py [--root <path>] --all [--active-suites <comma-separated-suite-names>]
 
 Exit codes:
     0  Success.
@@ -33,15 +34,31 @@ import json
 import os
 import re
 import stat
+import subprocess
 import unicodedata
 import urllib.parse
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
-from typing import Any, Dict, Mapping, Optional, Sequence, Tuple
+from typing import Any, Dict, Iterable, Mapping, Optional, Sequence, Tuple
 
 import secure_fs
+from skill_management import paths as path_policy
+from skill_management.services import bundles as bundle_service
 
 TARGET_MAPPING_PATH = ".github/shared/target-mapping.json"
+MODULE_REGISTRY_PATH = ".github/shared/module-registry.json"
+CANONICAL_HELP_PROMPT_PATH = ".github/prompts/cg-help.prompt.md"
+DEFERRED_HELP_SHARED_SOURCES = frozenset({
+    ".github/shared/help-catalog.json",
+    ".github/shared/shell-commands.json",
+})
+HELP_ARGUMENT_SOURCES = {
+    "copilot": {"source": "invocation-tail", "token": "", "fidelity": "model-visible"},
+    "claude-code": {"source": "native-placeholder", "token": "$ARGUMENTS", "fidelity": "native-placeholder"},
+    "codex": {"source": "native-placeholder", "token": "$ARGUMENTS", "fidelity": "native-placeholder"},
+    "opencode": {"source": "generated-block", "token": "$ARGUMENTS", "fidelity": "model-visible"},
+    "kilo": {"source": "generated-block", "token": "$ARGUMENTS", "fidelity": "model-visible"},
+}
 
 
 @functools.lru_cache(maxsize=1)
@@ -56,15 +73,28 @@ def _get_parse_frontmatter():
 
 OWNERSHIP_MANIFEST_NAME = ".compound-gpid-generated.json"
 MAX_OWNERSHIP_MANIFEST_BYTES = 8 * 1024 * 1024
+MAX_CANONICAL_ASSET_BYTES = 4 * 1024 * 1024
+MAX_CANONICAL_CONTROL_BYTES = 4 * 1024 * 1024
+MAX_SHARED_FILE_BYTES = 4 * 1024 * 1024
+MAX_SHARED_TOTAL_BYTES = 64 * 1024 * 1024
+MAX_SHARED_FILES = 5000
+MAX_SHARED_DEPTH = 32
 OWNERSHIP_POLICY_VERSION = 1
 SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 
 CANONICAL_PROMPTS_GLOB = ".github/prompts/*.prompt.md"
 CANONICAL_AGENTS_GLOB = ".github/agents/*.agent.md"
-CANONICAL_SKILLS_GLOB = ".github/skills/cg-skill-*/SKILL.md"
+CANONICAL_SKILLS_GLOB = ".github/skills/*/SKILL.md"
 CANONICAL_INSTRUCTIONS_GLOB = ".github/instructions/*.instructions.md"
-MARKDOWN_LINK_PATTERN = re.compile(r"!?\[[^\]]*\]\(\s*<?([^\s)>]+)>?(?:\s+[^)]*)?\)")
-MARKDOWN_REFERENCE_PATTERN = re.compile(r"^\s*\[[^\]]+\]:\s*<?([^\s>]+)>?", re.MULTILINE)
+NATIVE_EVIDENCE_ASSETS = (
+    ".github/plugins/cg-native-evidence.js",
+    ".github/plugin-support/cg-native-evidence/wire.mjs",
+    ".github/plugin-support/cg-native-evidence/transport.mjs",
+    ".github/plugin-support/cg-native-evidence/records.mjs",
+    ".github/plugin-support/cg-native-evidence/evidence.mjs",
+)
+MARKDOWN_LINK_PATTERN = bundle_service.MARKDOWN_LINK_PATTERN
+MARKDOWN_REFERENCE_PATTERN = bundle_service.MARKDOWN_REFERENCE_PATTERN
 CANONICAL_RUNTIME_PATH_PATTERN = re.compile(
     r"(?<![A-Za-z0-9_.-])\.github/(prompts|skills|agents|instructions|shared)/"
     r"[^\s`'\"<>)/][^\s`'\"<>)]*"
@@ -81,6 +111,7 @@ REQUIRED_FORMAT_FIELDS = {"commandFormat", "skillFormat", "agentFormat"}
 REQUIRED_OUTPUT_PATH_FIELDS = {"commands", "skills", "agents", "instructions", "shared"}
 VALID_INSTALL_UNIT_TYPES = {"directory", "file"}
 VALID_INSTALL_UNIT_STRATEGIES = {"link-directory", "copy-directory", "managed-copy", "generated-copy", "config-copy-or-snippet"}
+VALID_PROJECTED_CATEGORIES = {"skills"}
 TARGET_ID_PATTERN = re.compile(r"^[a-z][a-z0-9-]*$")
 WINDOWS_RESERVED_NAMES = {
     "con", "prn", "aux", "nul",
@@ -97,6 +128,12 @@ class MappingValidationError(ValueError):
     """Raised when target mapping validation fails."""
 
 
+class CanonicalAssets(dict):
+    """Keep selected help closure evidence without emitting a synthetic asset."""
+
+    help_required = False
+
+
 @dataclass(frozen=True)
 class OutputEntry:
     """One fully rendered, deterministic generator output."""
@@ -108,6 +145,8 @@ class OutputEntry:
     content: bytes
     sha256: str
     executable: bool
+    origin: str = "plugin-canonical"
+    provenance_identity: str = "canonical/.github"
 
 
 @dataclass(frozen=True)
@@ -155,41 +194,33 @@ class TargetCommitPlan:
     manifest_expected_state: secure_fs.ExpectedFileState
 
 
-def _portable_path_key(value: str) -> tuple[str, ...]:
+@dataclass(frozen=True)
+class CanonicalControlSnapshot:
+    """Canonical generator controls captured through secure file handles."""
+
+    target_mapping: dict[str, Any]
+    target_mapping_content: bytes
+    module_registry: Optional[dict[str, Any]]
+
+
+def portable_path_key(value: str) -> tuple[str, ...]:
     """Return a case-insensitive, Unicode-normalized Windows-portable key."""
-    return tuple(
-        unicodedata.normalize("NFC", part).casefold().rstrip(". ")
-        for part in PurePosixPath(value).parts
-    )
+    return path_policy.portable_path_key(value)
+
+
+def validate_repo_relative_path(label: str, value: Any) -> list[str]:
+    """Validate a portable POSIX repository-relative path."""
+    return path_policy.validate_repo_relative_path(label, value)
+
+
+def _portable_path_key(value: str) -> tuple[str, ...]:
+    """Compatibility alias for callers migrating to :func:`portable_path_key`."""
+    return portable_path_key(value)
 
 
 def _validate_repo_relative_path(label: str, value: Any) -> list[str]:
-    """Validate a portable POSIX repository-relative path."""
-    if not isinstance(value, str):
-        return [f"{label}: must be a string"]
-    if not value:
-        return [f"{label}: must not be empty"]
-    errors: list[str] = []
-    if "\x00" in value:
-        errors.append(f"{label}: must not contain NUL")
-    if "\\" in value:
-        errors.append(f"{label}: must use POSIX '/' separators")
-    if value.startswith(("/", "//", "\\\\")) or re.match(r"^[A-Za-z]:", value):
-        errors.append(f"{label}: must be repository-relative, not absolute, drive-qualified, or UNC")
-    parts = value.replace("\\", "/").split("/")
-    if any(part in ("", ".", "..") for part in parts):
-        errors.append(f"{label}: must not contain empty, '.', or traversal components")
-    for part in parts:
-        portable = unicodedata.normalize("NFC", part).casefold().rstrip(". ")
-        forbidden = sorted({character for character in part if ord(character) < 32 or character in '<>:"|?*'})
-        if forbidden:
-            rendered = ", ".join(repr(character) for character in forbidden)
-            errors.append(f"{label}: component '{part}' contains Windows-forbidden characters: {rendered}")
-        if part.endswith((".", " ")):
-            errors.append(f"{label}: component '{part}' has a trailing dot or space")
-        if portable.split(".", 1)[0] in WINDOWS_RESERVED_NAMES:
-            errors.append(f"{label}: component '{part}' is a Windows reserved name")
-    return errors
+    """Compatibility alias for callers migrating to the public path helper."""
+    return validate_repo_relative_path(label, value)
 
 
 def _is_within(path: str, parent: str) -> bool:
@@ -197,6 +228,21 @@ def _is_within(path: str, parent: str) -> bool:
     path_parts = PurePosixPath(path).parts
     parent_parts = PurePosixPath(parent).parts
     return path_parts[:len(parent_parts)] == parent_parts
+
+
+def _is_python_cache_path(value: str) -> bool:
+    """Return whether a path names a Python interpreter cache artifact."""
+    parts = PurePosixPath(value.replace("\\", "/")).parts
+    return "__pycache__" in parts or parts[-1].casefold().endswith(".pyc")
+
+
+def _decode_canonical_text(content: bytes) -> str:
+    """Decode captured UTF-8 text and normalize all line endings to LF."""
+    return (
+        content.decode("utf-8-sig", errors="strict")
+        .replace("\r\n", "\n")
+        .replace("\r", "\n")
+    )
 
 
 def _validate_capabilities(prefix: str, caps: Any) -> list[str]:
@@ -277,6 +323,146 @@ def _validate_install_units(prefix: str, install_units: Any) -> list[str]:
     return errors
 
 
+def _validate_project_roots(prefix: str, project_roots: Any) -> list[str]:
+    """Validate the optional declared managed/optional user project roots block."""
+    errors: list[str] = []
+    if project_roots is None:
+        return errors
+    if not isinstance(project_roots, dict):
+        return [f"{prefix}.projectRoots: must be an object"]
+    for kind in ("managed", "optionalUser"):
+        entries = project_roots.get(kind)
+        if entries is None:
+            continue
+        if not isinstance(entries, list):
+            errors.append(f"{prefix}.projectRoots.{kind}: must be an array")
+            continue
+        for i, value in enumerate(entries):
+            errors.extend(_validate_repo_relative_path(
+                f"{prefix}.projectRoots.{kind}[{i}]", value
+            ))
+    return errors
+
+
+def _validate_projected_categories(prefix: str, categories: Any) -> list[str]:
+    """Validate the optional category-level projection declaration."""
+    if categories is None:
+        return []
+    if not isinstance(categories, list) or not categories:
+        return [f"{prefix}.projectedCategories: must be a non-empty array"]
+    errors = []
+    if len(categories) != len(set(categories)):
+        errors.append(f"{prefix}.projectedCategories: entries must be unique")
+    unknown = [item for item in categories if item not in VALID_PROJECTED_CATEGORIES]
+    if unknown:
+        errors.append(
+            f"{prefix}.projectedCategories: unsupported categories {unknown!r}"
+        )
+    return errors
+
+
+def _validate_asset_metadata(target: dict[str, Any]) -> list[str]:
+    """Validate complete Kilo bootstrap routing without permissive defaults.
+
+    Args:
+        target: One target mapping record.
+    Returns:
+        Validation errors, empty for absent or valid metadata.
+    Examples:
+        >>> _validate_asset_metadata({"id": "kilo"})
+        []
+    """
+    if "assetMetadata" not in target:
+        return []
+    metadata = target["assetMetadata"]
+    label = "assetMetadata"
+    if target.get("id") != "kilo" or not isinstance(metadata, dict):
+        return [f"{label}: only a Kilo object is supported"]
+    task_targets = {
+        "cg-autopilot.agent.md": {"cg-workflow-stage"},
+        "cg-workflow-stage.agent.md": {"cg-code-quality", "cg-fix-problems", "cg-bootstrap-leaf"},
+        "cg-fix-problems.agent.md": {"general"},
+    }
+    expected: dict[str, Any] = {
+        "cg-autopilot.prompt.md": {"agent": "cg-autopilot", "subtask": False},
+        "cg-bootstrap-leaf.agent.md": {
+            "mode": "subagent",
+            "permission": {
+                "*": "deny", "read": "allow", "glob": "allow", "grep": "allow",
+                "cg_native_identity": "ask",
+                "bash": {
+                    "*": "deny",
+                    "git branch --show-current*": "allow",
+                    "git rev-parse*": "allow",
+                    "git status --porcelain*": "allow",
+                },
+            },
+        },
+    }
+    for asset, children in task_targets.items():
+        permissions: dict[str, Any] = {
+            "task": {"*": "ask", **{child: "allow" for child in sorted(children)}}}
+        if asset == "cg-fix-problems.agent.md":
+            expected[asset] = {"permission": permissions}
+        else:
+            expected[asset] = {
+                "mode": "primary" if asset == "cg-autopilot.agent.md" else "subagent",
+                "permission": {"*": "deny", "read": "allow", "glob": "allow",
+                               "grep": "allow", "cg_native_identity": "ask",
+                               "cg_native_evidence": "ask", **permissions},
+            }
+    errors: list[str] = []
+
+    def compare(actual: Any, required: Any, path: str) -> None:
+        """Append exact field/type errors for the fixed bootstrap metadata tree."""
+        if isinstance(required, dict):
+            if not isinstance(actual, dict):
+                errors.append(f"{path}: required object")
+                return
+            missing, unknown = set(required) - set(actual), set(actual) - set(required)
+            if missing:
+                errors.append(f"{path}: required fields: {', '.join(sorted(missing))}")
+            if unknown:
+                errors.append(f"{path}: unknown fields: {', '.join(sorted(map(str, unknown)))}")
+            for key in sorted(set(required) & set(actual)):
+                compare(actual[key], required[key], f"{path}.{key}")
+        elif type(actual) is not type(required) or actual != required:
+            expected_text = "false" if required is False else required
+            errors.append(f"{path}: must be {expected_text}")
+
+    compare(metadata, expected, label)
+    return errors
+
+
+def _validated_asset_metadata(source: dict[str, Any], target: dict[str, Any]) -> dict[str, Any]:
+    """Return checked per-asset metadata before native frontmatter emission.
+
+    Args:
+        source: Canonical asset with its relative_path.
+        target: Native target record; only Kilo supports overrides.
+    Returns:
+        The asset's complete overrides, or empty for an ordinary asset.
+    Raises:
+        MappingValidationError: Invalid or absent required bootstrap metadata.
+    Examples:
+        >>> _validated_asset_metadata({"relative_path": "ordinary.md"}, {"id": "kilo"})
+        {}
+    """
+    errors = _validate_asset_metadata(target)
+    if errors:
+        raise MappingValidationError("; ".join(errors))
+    name = PurePosixPath(source.get("relative_path", "")).name
+    metadata = target.get("assetMetadata", {})
+    if target.get("id") == "kilo" and name in {
+        "cg-autopilot.prompt.md", "cg-autopilot.agent.md", "cg-workflow-stage.agent.md",
+        "cg-bootstrap-leaf.agent.md",
+    } and name not in metadata:
+        errors.append(f"{name}: required bootstrap metadata")
+    if errors:
+        raise MappingValidationError("; ".join(errors))
+    return metadata.get(name, {})
+
+
 def validate_target_mapping(data: dict[str, Any]) -> list[str]:
     """Validate target-mapping.json structure. Returns list of error messages (empty = valid)."""
     errors: list[str] = []
@@ -328,9 +514,21 @@ def validate_target_mapping(data: dict[str, Any]) -> list[str]:
             errors.append(f"{prefix}: modelMapping is not supported; targets inherit the user's platform selection")
 
         errors.extend(_validate_capabilities(prefix, target.get("capabilities", {})))
+        errors.extend(_validate_asset_metadata(target))
+        if "argumentSource" in target and (
+            tid not in HELP_ARGUMENT_SOURCES
+            or target["argumentSource"] != HELP_ARGUMENT_SOURCES[tid]
+        ):
+            errors.append(f"{prefix}.argumentSource: invalid platform source/token/fidelity")
         errors.extend(_validate_formats(prefix, target.get("formats", {})))
         errors.extend(_validate_output_paths(prefix, target.get("outputPaths", {})))
         errors.extend(_validate_install_units(prefix, target.get("installUnits")))
+        errors.extend(_validate_project_roots(prefix, target.get("projectRoots")))
+        errors.extend(
+            _validate_projected_categories(
+                prefix, target.get("projectedCategories")
+            )
+        )
 
         gtp = target.get("generatedTreePath")
         if gtp is not None and not isinstance(gtp, str):
@@ -361,6 +559,26 @@ def validate_target_mapping(data: dict[str, Any]) -> list[str]:
                         errors.append(f"{first_label} and {second_label}: portable path collision")
                     elif first_key == second_key[:len(first_key)] or second_key == first_key[:len(second_key)]:
                         errors.append(f"{first_label} and {second_label}: file/directory prefix conflict")
+
+        projected_categories = target.get("projectedCategories")
+        if isinstance(projected_categories, list):
+            roots = target.get("projectRoots", {})
+            managed = roots.get("managed", []) if isinstance(roots, dict) else []
+            expected_roots = [
+                target.get("outputPaths", {}).get(category)
+                for category in projected_categories
+            ]
+            if managed != expected_roots:
+                errors.append(
+                    f"{prefix}.projectRoots.managed: must exactly match projected category roots"
+                )
+        elif isinstance(target.get("projectRoots"), dict):
+            for kind in ("managed", "optionalUser"):
+                for root_value in target["projectRoots"].get(kind, []):
+                    if isinstance(root_value, str) and _is_within(root_value, ".github"):
+                        errors.append(
+                            f"{prefix}.projectRoots.{kind}: .github roots require projectedCategories"
+                        )
 
         if isinstance(gtp, str) and isinstance(target.get("installUnits"), list):
             for unit_index, unit in enumerate(target["installUnits"]):
@@ -417,24 +635,63 @@ def build_generation_plan(
     if errors:
         raise MappingValidationError("target-mapping.json validation failed:\n- " + "\n- ".join(errors))
     validate_mapping_paths(root, mapping)
+    help_present = getattr(assets, "help_required", False) or any(
+        item["relative_path"] == CANONICAL_HELP_PROMPT_PATH
+        for item in assets["prompts"]
+    )
+    if help_present:
+        missing = [target["id"] for target in mapping["targets"]
+                   if "argumentSource" not in target]
+        if missing:
+            raise MappingValidationError("argumentSource required for help: " + ", ".join(missing))
     by_target: dict[str, TargetResult] = {}
     for target in mapping["targets"]:
-        if target.get("generatedTreePath") is None:
+        if (
+            target.get("generatedTreePath") is None
+            and not target.get("projectedCategories")
+        ):
             continue
+        target_assets = _assets_for_native_target(target, assets)
+        render_context = (
+            _build_asset_lookup(target_assets),
+            _runtime_destination_map(target, target_assets),
+        )
         rendered = tuple(sorted(
-            (_render_output_entry(target, entry, assets)
-             for entry in build_output_manifest(target, assets)),
+            (_render_output_entry(target, entry, target_assets, render_context)
+             for entry in build_output_manifest(target, target_assets)),
             key=lambda entry: entry.destination,
         ))
         _validate_output_namespace(target["id"], rendered)
-        by_target[target["id"]] = TargetResult(
-            target["id"], target["generatedTreePath"], rendered
-        )
+        target_root = target.get("generatedTreePath")
+        if target_root is None:
+            target_root = target["projectRoots"]["managed"][0]
+        by_target[target["id"]] = TargetResult(target["id"], target_root, rendered)
     entries = tuple(sorted(
         (entry for result in by_target.values() for entry in result.entries),
         key=lambda entry: entry.destination,
     ))
     return GenerationPlan(entries, by_target)
+
+
+def _assets_for_native_target(
+    target: dict[str, Any],
+    assets: dict[str, list[dict[str, Any]]],
+) -> dict[str, list[dict[str, Any]]]:
+    """Defer help shared outputs until the canonical help prompt exists."""
+    prompt_exists = any(
+        prompt["relative_path"] == CANONICAL_HELP_PROMPT_PATH
+        for prompt in assets["prompts"]
+    )
+    if target.get("generatedTreePath") is None or prompt_exists:
+        return assets
+
+    filtered = dict(assets)
+    filtered["shared"] = [
+        asset
+        for asset in assets["shared"]
+        if asset["relative_path"] not in DEFERRED_HELP_SHARED_SOURCES
+    ]
+    return filtered
 
 
 def _validate_output_namespace(
@@ -451,41 +708,186 @@ def _validate_output_namespace(
             raise PathSafetyError("; ".join(errors))
         paths.append((_portable_path_key(entry.destination), entry))
 
-    for index, (first_key, first) in enumerate(paths):
-        for second_key, second in paths[index + 1:]:
-            if first_key == second_key:
-                raise ValueError(
-                    f"{target_id} output namespace collision: "
-                    f"{first.destination} and {second.destination}"
-                )
-            if (
-                first_key == second_key[:len(first_key)]
-                or second_key == first_key[:len(second_key)]
-            ):
-                raise ValueError(
-                    f"{target_id} output file/directory namespace conflict: "
-                    f"{first.destination} and {second.destination}"
-                )
+    ordered = sorted(paths, key=lambda item: item[0])
+    for (first_key, first), (second_key, second) in zip(ordered, ordered[1:]):
+        if first_key == second_key:
+            raise ValueError(
+                f"{target_id} output namespace collision: "
+                f"{first.destination} and {second.destination}"
+            )
+        if first_key == second_key[:len(first_key)]:
+            raise ValueError(
+                f"{target_id} output file/directory namespace conflict: "
+                f"{first.destination} and {second.destination}"
+            )
 
 
 # ---------------------------------------------------------------------------
 # Canonical asset scanning
 # ---------------------------------------------------------------------------
 
-def scan_canonical_assets(root: Path) -> dict[str, list[dict[str, Any]]]:
+def _load_module_registry(root: Path) -> Optional[dict[str, Any]]:
+    """Return a strictly captured module registry, or ``None`` when absent."""
+    path = root / MODULE_REGISTRY_PATH
+    if not path.exists():
+        return None
+    from skill_management.services import registry as registry_service
+
+    return registry_service.load_registry_snapshot(root).to_dict()
+
+
+def _registry_owned_skill_dir_names(
+    root: Path,
+    registry: Optional[dict[str, Any]],
+) -> Optional[set[str]]:
+    """Return skill directory names owned by a registered module.
+
+    Returns None when the module registry is absent (caller falls back to the
+    legacy ``cg-skill-*`` glob). When the registry is present, every canonical
+    skill directory containing ``SKILL.md`` must match a registry ``ownedAssets``
+    pattern; only registered directories are returned for active-suite filtering.
+    """
+    if registry is None:
+        return None
+    skills_dir = root / ".github/skills"
+    names: set[str] = set()
+    if not skills_dir.is_dir():
+        return names
+    for entry in sorted(skills_dir.iterdir()):
+        if not entry.is_dir() or entry.is_symlink():
+            continue
+        skill_file = entry / "SKILL.md"
+        if not skill_file.exists():
+            continue
+        candidate = f".github/skills/{entry.name}/SKILL.md"
+        from skill_management.services.registry import matching_asset_owners
+
+        if matching_asset_owners(registry, candidate):
+            names.add(entry.name)
+        else:
+            raise ValueError(
+                "Unowned canonical skill directory contains SKILL.md: "
+                f".github/skills/{entry.name}"
+            )
+    return names
+
+
+def _loadable_owned_asset_globs(
+    active_suites: Optional[Sequence[str]],
+    registry: Optional[dict[str, Any]],
+) -> Optional[set[str]]:
+    """Return owned-asset glob patterns loadable under the active suites.
+
+    Omitted suites preserve the legacy unfiltered scan. Explicit suites derive
+    the loadable module set through cg_context_budget.
+    """
+    if active_suites is None:
+        return None
+    selected_suites = tuple(active_suites)
+    try:
+        import cg_context_budget as context
+    except ImportError as exc:
+        raise ValueError(
+            "cg_context_budget.py is required when --active-suites is used"
+        ) from exc
+    if registry is None:
+        raise ValueError(
+            "--active-suites requires module-registry.json at .github/shared; "
+            "refusing to generate an unfiltered or empty tree"
+        )
+    loadable = context.loadable_modules(registry, list(selected_suites))
+    ids = {module["id"] for module in loadable}
+    return set(context.loadable_asset_globs(registry, ids))
+
+
+def scan_canonical_assets(
+    root: Path,
+    active_suites: Optional[Sequence[str]] = None,
+    loadable_globs: Optional[Iterable[str]] = None,
+    loadable_module_ids: Optional[Iterable[str]] = None,
+    control_snapshot: Optional[CanonicalControlSnapshot] = None,
+) -> dict[str, list[dict[str, Any]]]:
     """Scan .github/ canonical assets and return structured metadata.
 
-    Returns dict with keys: prompts, agents, skills, instructions.
+    Returns categorized prompts, help sidecars, agents, skills, instructions,
+    prompt support, and shared files. Help sidecars are inventory-only inputs;
+    they are never emitted as command bodies.
     Each value is a list of dicts with: path, relative_path, frontmatter, body.
+
+    When ``active_suites`` is provided, only assets owned by loadable modules
+    (active suites + their transitive dependencies + kernel) are returned; all
+    other assets are excluded from the scan (context-budget enforcement).
+
+    When ``loadable_globs`` is provided, it is used verbatim as the loadable
+    owned-asset filter instead of deriving globs from ``active_suites``. This
+    lets the manifest-driven projection planner restrict rendering to the
+    committed active manifest's resolved closure rather than re-deriving
+    selection from raw project config at publish time.
     """
-    assets: dict[str, list[dict[str, Any]]] = {
+    assets = CanonicalAssets({
         "prompts": [],
         "agents": [],
         "skills": [],
         "instructions": [],
         "prompt_support": [],
+        "help_sidecars": [],
         "shared": [],
-    }
+        "native_plugins": [],
+    })
+
+    module_registry = (
+        control_snapshot.module_registry
+        if control_snapshot is not None
+        else _load_module_registry(root)
+    )
+    captured_controls = (
+        {TARGET_MAPPING_PATH: control_snapshot.target_mapping_content}
+        if control_snapshot is not None
+        else {}
+    )
+
+    if loadable_globs is not None:
+        loadable_filter = set(loadable_globs)
+    else:
+        loadable_filter = _loadable_owned_asset_globs(
+            active_suites,
+            module_registry,
+        )
+
+    selected_module_ids = (
+        set(loadable_module_ids) if loadable_module_ids is not None else None
+    )
+    if (
+        selected_module_ids is None
+        and module_registry
+        and active_suites is not None
+    ):
+        import cg_context_budget as context
+
+        selected_suites = list(active_suites)
+        selected_module_ids = context.loadable_module_ids(
+            module_registry, selected_suites
+        )
+
+    assets.help_required = (root / CANONICAL_HELP_PROMPT_PATH).is_file() or bool(
+        module_registry and any(module.get("id") == "cap-help"
+                                for module in module_registry.get("modules", []))
+        and (selected_module_ids is None or "cap-help" in selected_module_ids)
+    )
+
+    def _is_loadable(rel_path: str) -> bool:
+        if selected_module_ids is not None and module_registry is not None:
+            import cg_context_budget as context
+
+            return context.asset_is_loadable(
+                module_registry, selected_module_ids, rel_path
+            )
+        if loadable_filter is None:
+            return True
+        return any(
+            path_policy.glob_match(pattern, rel_path)
+            for pattern in loadable_filter
+        )
 
     required_roots = {
         "prompts": root / ".github/prompts",
@@ -504,42 +906,136 @@ def scan_canonical_assets(root: Path) -> dict[str, list[dict[str, Any]]]:
         (CANONICAL_SKILLS_GLOB, "skills"),
         (CANONICAL_INSTRUCTIONS_GLOB, "instructions"),
         (".github/prompts/*.md", "prompt_support"),
-        (".github/shared/*", "shared"),
+        (".github/prompts/*.help.json", "help_sidecars"),
     ]:
         for path in sorted(root.glob(pattern)):
             if category == "prompt_support" and path.name.endswith(".prompt.md"):
-                continue
-            if category == "shared" and path.name.startswith("."):
                 continue
             if path.is_symlink():
                 raise ValueError(f"Canonical asset is a symlink: {path.relative_to(root)}")
             if not stat.S_ISREG(path.lstat().st_mode):
                 raise ValueError(f"Canonical asset is not a regular file: {path.relative_to(root)}")
-            content = path.read_text(encoding="utf-8")
-            fm = _get_parse_frontmatter()(content)
-            if content.lstrip("\ufeff\r\n").startswith("---"):
-                block = content.lstrip("\ufeff\r\n").split("---", 2)[1]
-                for line in block.splitlines():
-                    if line.startswith("description:"):
-                        raw_description = line.partition(":")[2].strip()
-                        if raw_description.startswith('"'):
-                            try:
-                                fm["description"] = json.loads(raw_description)
-                            except json.JSONDecodeError:
-                                pass
-                        elif raw_description.startswith("'") and raw_description.endswith("'"):
-                            fm["description"] = raw_description[1:-1].replace("''", "'")
-                        break
             rel = str(path.relative_to(root)).replace("\\", "/")
-            assets[category].append({
+            if not _is_loadable(rel):
+                continue
+            asset = {
                 "path": str(path),
                 "relative_path": rel,
-                "frontmatter": fm,
-                "body": content,
                 "filename": path.name,
+                "origin": "plugin-canonical",
+                "provenance_identity": "canonical/.github",
+            }
+            if category != "skills":
+                content_bytes = secure_fs.secure_read_bytes(
+                    root,
+                    PurePosixPath(rel),
+                    reject_hardlinks=True,
+                    max_bytes=MAX_CANONICAL_ASSET_BYTES,
+                )
+                content = _decode_canonical_text(content_bytes)
+                asset["frontmatter"] = (
+                    {}
+                    if category == "help_sidecars"
+                    else _get_parse_frontmatter()(content, source=path)
+                )
+                asset["body"] = content
+            assets[category].append(asset)
+
+    # Exact Kilo-only passive code inventory, never an autoload-directory glob.
+    if any(os.path.lexists(root / relative) for relative in NATIVE_EVIDENCE_ASSETS):
+        for relative in NATIVE_EVIDENCE_ASSETS:
+            if not _is_loadable(relative):
+                continue
+            content = secure_fs.secure_read_bytes(
+                root, PurePosixPath(relative), reject_hardlinks=True,
+                max_bytes=MAX_CANONICAL_ASSET_BYTES,
+            )
+            if len(content.splitlines()) >= 300:
+                raise ValueError(f"Native evidence module exceeds line bound: {relative}")
+            assets["native_plugins"].append({
+                "relative_path": relative, "content": content,
+                "filename": PurePosixPath(relative).name,
             })
 
-    canonical_skill_roots = tuple(sorted((root / ".github/skills").glob("cg-skill-*")))
+    shared_paths = path_policy.inventory_shared_assets(
+        root,
+        include_globs=loadable_filter,
+        max_files=MAX_SHARED_FILES,
+        max_depth=MAX_SHARED_DEPTH,
+    )
+    if len(shared_paths) > MAX_SHARED_FILES:
+        raise ValueError(
+            f"Canonical shared inventory exceeds {MAX_SHARED_FILES} files"
+        )
+    total_shared_bytes = 0
+    for relative_path in shared_paths:
+        if relative_path == ".github/shared/module-registry.json":
+            # Registry glob declarations are canonical tooling data, not runtime
+            # shared content, and must not be dependency-rewritten.
+            continue
+        if not _is_loadable(relative_path):
+            continue
+        relative = PurePosixPath(relative_path)
+        if len(relative.parts) > MAX_SHARED_DEPTH:
+            raise ValueError(
+                f"Canonical shared path exceeds depth {MAX_SHARED_DEPTH}: {relative_path}"
+            )
+        path = root / Path(*relative.parts)
+        content_bytes = captured_controls.get(relative_path)
+        if content_bytes is None:
+            content_bytes = secure_fs.secure_read_bytes(
+                root,
+                relative,
+                reject_hardlinks=True,
+                max_bytes=MAX_SHARED_FILE_BYTES,
+            )
+        total_shared_bytes += len(content_bytes)
+        if total_shared_bytes > MAX_SHARED_TOTAL_BYTES:
+            raise ValueError(
+                f"Canonical shared content exceeds {MAX_SHARED_TOTAL_BYTES} bytes"
+            )
+        try:
+            content = _decode_canonical_text(content_bytes)
+        except UnicodeDecodeError as error:
+            raise ValueError(
+                f"Canonical shared file is not valid UTF-8: {relative_path}"
+            ) from error
+        frontmatter = _get_parse_frontmatter()(content, source=path)
+        shared_relative_path = path.relative_to(root / ".github/shared").as_posix()
+        assets["shared"].append({
+            "path": str(path),
+            "relative_path": relative_path,
+            "frontmatter": frontmatter,
+            "body": content,
+            "content": content.encode("utf-8"),
+            "filename": path.name,
+            "category_relative_path": shared_relative_path,
+        })
+
+    owned_skill_names = _registry_owned_skill_dir_names(root, module_registry)
+    if owned_skill_names is None:
+        print(
+            "[deprecation] module-registry.json not found; falling back to "
+            "cg-skill-* glob-based skill discovery",
+            file=sys.stderr,
+        )
+        assets["skills"] = [
+            skill for skill in assets["skills"]
+            if Path(skill["path"]).parent.name.startswith("cg-skill-")
+        ]
+        canonical_skill_roots = tuple(sorted(
+            (root / ".github/skills").glob("cg-skill-*")
+        ))
+    else:
+        assets["skills"] = [
+            skill for skill in assets["skills"]
+            if Path(skill["path"]).parent.name in owned_skill_names
+        ]
+        canonical_skill_roots = tuple(sorted(
+            root / ".github/skills" / name
+            for name in sorted(owned_skill_names)
+            if _is_loadable(f".github/skills/{name}/SKILL.md")
+        ))
     scanned_skill_roots = {Path(skill["path"]).parent for skill in assets["skills"]}
     for skill_root in canonical_skill_roots:
         if skill_root.is_symlink():
@@ -549,141 +1045,344 @@ def scan_canonical_assets(root: Path) -> dict[str, list[dict[str, Any]]]:
         if skill_root not in scanned_skill_roots:
             raise ValueError(f"Canonical skill is missing regular SKILL.md: {skill_root.name}")
 
+    git_executables = _git_executable_paths(root)
     for skill in assets["skills"]:
         skill_root = Path(skill["path"]).parent
-        skill["bundle_files"] = _inventory_skill_bundle(root, skill_root)
+        skill["bundle_files"] = _inventory_skill_bundle(
+            root,
+            skill_root,
+            git_executables=git_executables,
+        )
         skill_file = next(
             item for item in skill["bundle_files"]
             if item["bundle_relative_path"] == "SKILL.md"
         )
+        skill_content = skill_file["content"].decode(
+            "utf-8-sig",
+            errors="strict",
+        )
+        skill["frontmatter"] = _get_parse_frontmatter()(
+            skill_content,
+            source=Path(skill["path"]),
+        )
+        skill["body"] = skill_content
         skill["executable"] = skill_file["executable"]
+        skill["origin"] = "plugin-canonical"
+        skill["provenance_identity"] = "canonical/.github"
         _validate_bundle_markdown_references(skill["bundle_files"])
 
     for category in required_roots:
-        if not assets[category]:
+        if not assets[category] and active_suites is None and loadable_globs is None:
             raise ValueError(f"Required canonical {category} inventory is empty")
 
     return assets
 
 
-def _inventory_skill_bundle(root: Path, skill_root: Path) -> list[dict[str, Any]]:
+def _git_executable_paths(root: Path) -> Optional[set[str]]:
+    """Return executable paths from the Git index, or None outside Git."""
+    try:
+        top_level = subprocess.run(
+            ["git", "-C", str(root), "rev-parse", "--show-toplevel"],
+            capture_output=True,
+            text=True,
+            timeout=20,
+            check=False,
+            stdin=subprocess.DEVNULL,
+        )
+        if (
+            top_level.returncode != 0
+            or Path(top_level.stdout.strip()).resolve(strict=True) != root.resolve(strict=True)
+        ):
+            return None
+        result = subprocess.run(
+            ["git", "-C", str(root), "ls-files", "--stage", "--", ".github/skills"],
+            capture_output=True,
+            text=True,
+            timeout=20,
+            check=False,
+            stdin=subprocess.DEVNULL,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    if result.returncode != 0:
+        return None
+    executable = set()
+    for line in result.stdout.splitlines():
+        metadata, separator, path = line.partition("\t")
+        if separator and metadata.split(" ", 1)[0] == "100755":
+            executable.add(path.replace("\\", "/"))
+    return executable
+
+
+def _inventory_skill_bundle(
+    root: Path,
+    skill_root: Path,
+    *,
+    git_executables: Optional[set[str]] = None,
+) -> list[dict[str, Any]]:
     """Inventory regular files below a skill without following filesystem links."""
-    files: list[dict[str, Any]] = []
+    source_path = skill_root.relative_to(root).as_posix()
+    inventory = bundle_service.inventory_bundle(
+        root,
+        source_path,
+        origin="plugin-canonical",
+        executable_paths=tuple(git_executables) if git_executables is not None else None,
+        validate_frontmatter=False,
+    )
+    return [
+        {
+            "path": str(root / item.source_path),
+            "relative_path": item.source_path,
+            "bundle_relative_path": item.bundle_path,
+            "content": bundle_service.normalized_content(item),
+            "executable": item.executable,
+            "origin": inventory.origin,
+            "provenance_identity": "canonical/.github",
+        }
+        for item in inventory.files
+    ]
 
-    def visit(directory: Path) -> None:
-        with os.scandir(str(directory)) as entries:
-            for entry in sorted(entries, key=lambda item: item.name):
-                path = Path(entry.path)
-                relative = path.relative_to(skill_root).as_posix()
-                if entry.is_symlink():
-                    raise ValueError(f"Skill bundle contains symlink entry: {relative}")
-                if entry.is_dir(follow_symlinks=False):
-                    visit(path)
-                elif entry.is_file(follow_symlinks=False):
-                    mode = entry.stat(follow_symlinks=False).st_mode
-                    files.append({
-                        "path": str(path),
-                        "relative_path": path.relative_to(root).as_posix(),
-                        "bundle_relative_path": relative,
-                        "content": _skill_bundle_content(path),
-                        "executable": bool(mode & 0o111),
-                    })
-                else:
-                    raise ValueError(f"Skill bundle contains non-regular special entry: {relative}")
 
-    visit(skill_root)
-    return sorted(files, key=lambda item: item["bundle_relative_path"])
+def skill_asset_from_inventory(
+    inventory: bundle_service.BundleInventory,
+    *,
+    provenance_identity: str,
+    supported_platforms: Optional[Sequence[str]] = None,
+) -> dict[str, Any]:
+    """Convert one validated bundle inventory to renderer-neutral skill data.
+
+    Args:
+        inventory: Complete canonical or project bundle inventory.
+        provenance_identity: Stable redacted provenance identity.
+        supported_platforms: Optional platform eligibility restriction.
+
+    Returns:
+        A skill asset accepted by the existing target renderer.
+
+    Raises:
+        ValueError: If the inventory has no UTF-8 ``SKILL.md`` file.
+
+    Example:
+        ``skill_asset_from_inventory(project_bundle, provenance_identity="repo@sha")``
+    """
+    bundle_files = []
+    skill_content = None
+    for item in inventory.files:
+        content = bundle_service.normalized_content(item)
+        if item.bundle_path == "SKILL.md":
+            try:
+                skill_content = content.decode("utf-8")
+            except UnicodeDecodeError as error:
+                raise ValueError(
+                    f"Skill entry is not valid UTF-8: {item.source_path}"
+                ) from error
+        bundle_files.append(
+            {
+                "path": item.source_path,
+                "relative_path": item.source_path,
+                "bundle_relative_path": item.bundle_path,
+                "content": content,
+                "executable": item.executable,
+                "origin": inventory.origin,
+                "provenance_identity": provenance_identity,
+            }
+        )
+    if skill_content is None:
+        raise ValueError(f"Skill bundle has no SKILL.md: {inventory.source_path}")
+    skill_file = next(
+        item for item in bundle_files if item["bundle_relative_path"] == "SKILL.md"
+    )
+    return {
+        "path": str(Path(inventory.source_path) / "SKILL.md"),
+        "relative_path": f"{inventory.source_path}/SKILL.md",
+        "frontmatter": dict(inventory.frontmatter),
+        "body": skill_content,
+        "filename": "SKILL.md",
+        "bundle_files": bundle_files,
+        "executable": skill_file["executable"],
+        "origin": inventory.origin,
+        "provenance_identity": provenance_identity,
+        "supported_platforms": (
+            tuple(supported_platforms) if supported_platforms is not None else None
+        ),
+    }
+
+
+def add_bundle_inventories(
+    assets: dict[str, list[dict[str, Any]]],
+    inventories: Sequence[bundle_service.BundleInventory],
+    *,
+    provenance_identities: Mapping[str, str],
+    supported_platforms: Mapping[str, Sequence[str]],
+) -> dict[str, list[dict[str, Any]]]:
+    """Return detached renderer assets with validated bundles added.
+
+    Args:
+        assets: Existing canonical renderer asset inventory.
+        inventories: Additional source-neutral bundle inventories.
+        provenance_identities: Stable identity by bundle identifier.
+        supported_platforms: Eligibility set by bundle identifier.
+
+    Returns:
+        Detached assets with a deterministic combined skill list.
+
+    Raises:
+        ValueError: If source or destination identities collide portably.
+
+    Example:
+        ``combined = add_bundle_inventories(canonical, project_bundles, ...)``
+    """
+    result = {key: list(value) for key, value in assets.items()}
+    skills = list(result.get("skills", []))
+    seen = {
+        path_policy.portable_path_key(Path(item["relative_path"]).parent.name):
+        item["relative_path"]
+        for item in skills
+    }
+    for inventory in inventories:
+        key = path_policy.portable_path_key(inventory.identifier)
+        if key in seen:
+            raise ValueError(
+                "Skill output identity collision between origins: "
+                f"{seen[key]} and {inventory.source_path}"
+            )
+        identity = provenance_identities.get(inventory.identifier)
+        if not identity:
+            raise ValueError(
+                f"Missing provenance identity for bundle {inventory.identifier}"
+            )
+        asset = skill_asset_from_inventory(
+            inventory,
+            provenance_identity=identity,
+            supported_platforms=supported_platforms.get(inventory.identifier, ()),
+        )
+        skills.append(asset)
+        seen[key] = asset["relative_path"]
+    result["skills"] = sorted(skills, key=lambda item: item["relative_path"])
+    return result
+
+
+def replace_bundle_inventories(
+    assets: dict[str, list[dict[str, Any]]],
+    inventories: Sequence[bundle_service.BundleInventory],
+    *,
+    provenance_identities: Mapping[str, str],
+    supported_platforms: Mapping[str, Sequence[str]],
+) -> dict[str, list[dict[str, Any]]]:
+    """Replace selected canonical skill assets with staged inventories.
+
+    This is the pure counterpart to canonical lifecycle publication. It lets
+    manifest and projection planning render exact future bytes before source
+    files are live while retaining the existing platform renderer.
+    """
+    identifiers = {item.identifier for item in inventories}
+    detached = {key: list(value) for key, value in assets.items()}
+    detached["skills"] = [
+        item
+        for item in detached.get("skills", [])
+        if Path(item["relative_path"]).parent.name not in identifiers
+    ]
+    return add_bundle_inventories(
+        detached,
+        inventories,
+        provenance_identities=provenance_identities,
+        supported_platforms=supported_platforms,
+    )
 
 
 def _skill_bundle_content(path: Path) -> bytes:
-    """Read one skill resource with deterministic Markdown line endings."""
+    """Compatibility shim for shared deterministic bundle normalization."""
     content = path.read_bytes()
-    if path.suffix.casefold() not in {".md", ".markdown"}:
-        return content
-    try:
-        text = content.decode("utf-8")
-    except UnicodeDecodeError as exc:
-        raise ValueError(f"Markdown file is not valid UTF-8: {path}") from exc
-    return text.replace("\r\n", "\n").replace("\r", "\n").encode("utf-8")
+    file = bundle_service.BundleFile(
+        path.as_posix(),
+        path.name,
+        content,
+        hashlib.sha256(content).hexdigest(),
+        False,
+    )
+    return bundle_service.normalized_content(file)
 
 
 def _validate_bundle_markdown_references(
     bundle_files: list[dict[str, Any]],
 ) -> None:
     """Validate local Markdown references against files in one skill bundle."""
-    included = {item["bundle_relative_path"] for item in bundle_files}
-    for item in bundle_files:
-        if not item["bundle_relative_path"].casefold().endswith((".md", ".markdown")):
-            continue
-        try:
-            text = item["content"].decode("utf-8")
-        except UnicodeDecodeError as exc:
-            raise ValueError(
-                f"Markdown file is not valid UTF-8: {item['relative_path']}"
-            ) from exc
-        text = _strip_fenced_code(text)
-        references = MARKDOWN_LINK_PATTERN.findall(text)
-        references.extend(MARKDOWN_REFERENCE_PATTERN.findall(text))
-        source_relative = PurePosixPath(item["bundle_relative_path"])
-        for raw_reference in references:
-            reference = urllib.parse.unquote(raw_reference).split("#", 1)[0].split("?", 1)[0]
-            if not reference or reference.startswith("#"):
-                continue
-            parsed = urllib.parse.urlsplit(reference)
-            if parsed.scheme or parsed.netloc:
-                continue
-            if reference.startswith(("/", "\\")) or re.match(r"^[A-Za-z]:", reference):
-                raise ValueError(
-                    f"Markdown reference escapes skill bundle: {item['relative_path']} -> {raw_reference}"
-                )
-            parts: list[str] = []
-            escaped = False
-            for part in source_relative.parent.joinpath(PurePosixPath(reference.replace("\\", "/"))).parts:
-                if part in ("", "."):
-                    continue
-                if part == "..":
-                    if not parts:
-                        escaped = True
-                        break
-                    parts.pop()
-                else:
-                    parts.append(part)
-            resolved = PurePosixPath(*parts).as_posix()
-            if escaped:
-                raise ValueError(
-                    f"Markdown reference escapes skill bundle: {item['relative_path']} -> {raw_reference}"
-                )
-            if resolved not in included:
-                raise ValueError(
-                    f"Markdown reference is missing from skill bundle: {item['relative_path']} -> {raw_reference}"
-                )
+    files = tuple(
+        bundle_service.BundleFile(
+            item["relative_path"],
+            item["bundle_relative_path"],
+            item["content"],
+            hashlib.sha256(item["content"]).hexdigest(),
+            bool(item.get("executable", False)),
+        )
+        for item in bundle_files
+    )
+    inventory = bundle_service.BundleInventory(
+        "fixture",
+        ".github/skills/fixture",
+        "plugin-canonical",
+        {},
+        files,
+        "0" * 64,
+    )
+    issues = bundle_service.validate_markdown_references(inventory)
+    if issues:
+        issue = issues[0]
+        raise ValueError(f"{issue.message}: {issue.path}")
 
 
 def _strip_fenced_code(text: str) -> str:
-    """Remove closed or unterminated Markdown fenced code blocks."""
-    output: list[str] = []
-    fence_character: Optional[str] = None
-    fence_length = 0
-    for line in text.splitlines(keepends=True):
-        match = re.match(r"^[ \t]{0,3}(`{3,}|~{3,})", line)
-        if fence_character is None:
-            if match:
-                fence_character = match.group(1)[0]
-                fence_length = len(match.group(1))
-            else:
-                output.append(line)
-        elif match and match.group(1)[0] == fence_character and len(match.group(1)) >= fence_length:
-            fence_character = None
-            fence_length = 0
-    return "".join(output)
+    """Compatibility shim for the shared Markdown reference service."""
+    return bundle_service.strip_fenced_code(text)
+
+
+def _load_target_mapping_snapshot(root: Path) -> tuple[dict[str, Any], bytes]:
+    """Securely capture and parse target-mapping.json exactly once."""
+    mapping_path = root / TARGET_MAPPING_PATH
+    try:
+        content = secure_fs.secure_read_bytes(
+            root,
+            TARGET_MAPPING_PATH,
+            reject_hardlinks=True,
+            max_bytes=MAX_CANONICAL_CONTROL_BYTES,
+        )
+    except FileNotFoundError as error:
+        raise FileNotFoundError(
+            f"Target mapping not found at: {mapping_path}"
+        ) from error
+    return json.loads(content.decode("utf-8", errors="strict")), content
 
 
 def load_target_mapping(root: Path) -> dict[str, Any]:
-    """Load target-mapping.json from .github/shared/."""
-    mapping_path = root / TARGET_MAPPING_PATH
-    if not mapping_path.exists():
-        raise FileNotFoundError(f"Target mapping not found at: {mapping_path}")
-    return json.loads(mapping_path.read_text(encoding="utf-8"))
+    """Load target-mapping.json from securely captured canonical bytes."""
+    mapping, _content = _load_target_mapping_snapshot(root)
+    return mapping
+
+
+def capture_canonical_controls(root: Path) -> CanonicalControlSnapshot:
+    """Capture controls once for parsing, selection, and target rendering."""
+    target_mapping, target_mapping_content = _load_target_mapping_snapshot(root)
+    return CanonicalControlSnapshot(
+        target_mapping,
+        target_mapping_content,
+        _load_module_registry(root),
+    )
+
+
+def load_generation_inputs(
+    root: Path,
+    active_suites: Optional[Sequence[str]] = None,
+    loadable_globs: Optional[Iterable[str]] = None,
+) -> tuple[dict[str, Any], dict[str, list[dict[str, Any]]]]:
+    """Capture and parse all canonical generation inputs without reopening them."""
+    controls = capture_canonical_controls(root)
+    assets = scan_canonical_assets(
+        root,
+        active_suites=active_suites,
+        loadable_globs=loadable_globs,
+        control_snapshot=controls,
+    )
+    return controls.target_mapping, assets
 
 
 # ---------------------------------------------------------------------------
@@ -705,6 +1404,9 @@ def _manifest_skills(target: dict[str, Any], skills: list[dict[str, Any]]) -> li
     skill_dir = target.get("outputPaths", {}).get("skills", "")
     entries: list[dict[str, str]] = []
     for skill in skills:
+        supported = skill.get("supported_platforms")
+        if supported is not None and target["id"] not in supported:
+            continue
         skill_name = Path(skill["relative_path"]).parent.name
         bundle_files = skill.get("bundle_files")
         if bundle_files is None:
@@ -746,7 +1448,10 @@ def _manifest_passthrough(
     destination_root = target["outputPaths"][root_name]
     return [
         {
-            "path": f"{destination_root}/{asset['filename']}",
+            "path": (
+                f"{destination_root}/"
+                f"{asset.get('category_relative_path', asset['filename'])}"
+            ),
             "source": asset["relative_path"],
             "type": kind,
         }
@@ -766,27 +1471,44 @@ def build_output_manifest(
     output_paths = target.get("outputPaths", {})
     gtp = target.get("generatedTreePath")
 
-    if gtp is None:
+    projected_categories = target.get("projectedCategories")
+    if gtp is None and not projected_categories:
         return manifest
 
-    manifest.extend(_manifest_commands(target, assets["prompts"]))
-    manifest.extend(_manifest_skills(target, assets["skills"]))
-    manifest.extend(_manifest_agents(target, assets["agents"]))
-    manifest.extend(_manifest_passthrough(
-        target, assets["prompt_support"], "commands", "prompt-support"
+    categories = set(projected_categories or (
+        "commands", "skills", "agents", "instructions", "shared"
     ))
-    manifest.extend(_manifest_passthrough(
-        target, assets["instructions"], "instructions", "instruction"
-    ))
-    manifest.extend(_manifest_passthrough(
-        target, assets["shared"], "shared", "shared"
-    ))
+    if "commands" in categories:
+        manifest.extend(_manifest_commands(target, assets["prompts"]))
+        manifest.extend(_manifest_passthrough(
+            target, assets["prompt_support"], "commands", "prompt-support"
+        ))
+    if "skills" in categories:
+        manifest.extend(_manifest_skills(target, assets["skills"]))
+    if "agents" in categories:
+        manifest.extend(_manifest_agents(target, assets["agents"]))
+    if "instructions" in categories:
+        manifest.extend(_manifest_passthrough(
+            target, assets["instructions"], "instructions", "instruction"
+        ))
+    if "shared" in categories:
+        manifest.extend(_manifest_passthrough(
+            target, assets["shared"], "shared", "shared"
+        ))
 
-    if output_paths.get("rootAdapter"):
+    if not projected_categories and output_paths.get("rootAdapter"):
         manifest.append({"path": output_paths["rootAdapter"], "source": "adapter", "type": "root-adapter"})
 
-    if output_paths.get("config"):
+    if not projected_categories and output_paths.get("config"):
         manifest.append({"path": output_paths["config"], "source": "target-mapping", "type": "config"})
+
+    if target["id"] == "kilo" and not projected_categories:
+        for asset in assets.get("native_plugins", []):
+            relative = asset["relative_path"]
+            if relative not in NATIVE_EVIDENCE_ASSETS:
+                raise ValueError(f"Unknown native evidence resource: {relative}")
+            manifest.append({"path": f"{gtp}/{relative[len('.github/'):]}",
+                             "source": relative, "type": "native-plugin"})
 
     return manifest
 
@@ -798,7 +1520,7 @@ def build_output_manifest(
 def _format_frontmatter(
     fm: dict[str, Any],
     body: str,
-    extra_fields: dict[str, Optional[str]],
+    extra_fields: dict[str, Any],
 ) -> str:
     """Format a native file with frontmatter from canonical source.
 
@@ -809,7 +1531,10 @@ def _format_frontmatter(
     Returns:
         Formatted file content with new frontmatter + stripped body.
     """
-    desc = _yaml_scalar(fm.get("description", ""))
+    # Descriptions are always JSON/YAML double-quoted and ASCII-escaped. This
+    # prevents colon-space corruption and keeps generated frontmatter byte-safe
+    # across Windows, macOS, cloud sync, and strict YAML implementations.
+    desc = json.dumps(str(fm.get("description", "")), ensure_ascii=True)
     field_lines = ""
     for key, value in extra_fields.items():
         if value is not None:
@@ -819,25 +1544,26 @@ def _format_frontmatter(
 
 
 def _yaml_scalar(value: Any) -> str:
-    """Serialize a deterministic YAML-compatible scalar."""
+    """Serialize a typed YAML value with deterministic flow-map ordering.
+
+    Args:
+        value: A scalar or validated metadata map.
+    Returns:
+        YAML-compatible text, retaining Boolean types and ordered maps.
+    Examples:
+        >>> _yaml_scalar(False)
+        'false'
+        >>> _yaml_scalar({"task": {"general": "allow", "*": "deny"}})
+        '{"task": {"*": "deny", "general": "allow"}}'
+    """
+    if isinstance(value, (bool, dict)):
+        return json.dumps(value, ensure_ascii=True, sort_keys=True)
     text = str(value)
     if re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._ /-]*", text) and text.casefold() not in {
         "null", "true", "false", "yes", "no", "on", "off",
     }:
         return text
     return json.dumps(text, ensure_ascii=False)
-
-
-def _with_opencode_arguments(body: str) -> str:
-    """Append OpenCode slash-command arguments to a command template body."""
-    return (
-        f"{body.rstrip()}\n\n"
-        "## OpenCode Invocation Arguments\n\n"
-        "User-provided slash-command arguments:\n\n"
-        "```text\n"
-        "$ARGUMENTS\n"
-        "```\n"
-    )
 
 
 def _with_arguments_block(body: str, target_id: str) -> str:
@@ -857,10 +1583,19 @@ def _with_arguments_block(body: str, target_id: str) -> str:
 
 
 def _build_asset_lookup(assets: dict[str, list[dict[str, Any]]]) -> dict[str, dict[str, dict[str, Any]]]:
-    """Build per-category lookup dicts keyed by relative_path for O(1) access."""
+    """Build per-category lookup dicts keyed by relative_path for O(1) access.
+
+    Skill bundle resources are indexed once into a flat ``skill-resource``
+    map, so per-file rendering never rescans every skill's bundle files.
+    """
     lookups: dict[str, dict[str, dict[str, Any]]] = {}
     for category, items in assets.items():
         lookups[category] = {item["relative_path"]: item for item in items}
+    skill_resources: dict[str, dict[str, Any]] = {}
+    for skill in assets["skills"]:
+        for item in skill.get("bundle_files", []) or []:
+            skill_resources[item["relative_path"]] = item
+    lookups["skill-resource"] = skill_resources
     return lookups
 
 
@@ -884,8 +1619,12 @@ def _runtime_destination_map(
             f"{paths['instructions']}/{instruction['filename']}"
         )
     for shared in assets["shared"]:
-        destinations[shared["relative_path"]] = f"{paths['shared']}/{shared['filename']}"
+        relative = shared.get("category_relative_path", shared["filename"])
+        destinations[shared["relative_path"]] = f"{paths['shared']}/{relative}"
     for skill in assets["skills"]:
+        supported = skill.get("supported_platforms")
+        if supported is not None and target["id"] not in supported:
+            continue
         skill_name = Path(skill["relative_path"]).parent.name
         for item in skill["bundle_files"]:
             destinations[item["relative_path"]] = (
@@ -899,9 +1638,11 @@ def _rewrite_runtime_dependencies(
     target: dict[str, Any],
     assets: dict[str, list[dict[str, Any]]],
     source_identity: str,
+    destinations: Optional[Mapping[str, str]] = None,
 ) -> str:
     """Rewrite exact canonical runtime dependencies, rejecting unsafe or missing ones."""
-    destinations = _runtime_destination_map(target, assets)
+    if destinations is None:
+        destinations = _runtime_destination_map(target, assets)
 
     def replace(match: re.Match[str]) -> str:
         raw = match.group(0).rstrip(".,;:")
@@ -925,8 +1666,14 @@ def _rewrite_runtime_dependencies(
         return destination + suffix
 
     rewritten = CANONICAL_RUNTIME_PATH_PATTERN.sub(replace, text)
-    unresolved = CANONICAL_RUNTIME_PATH_PATTERN.search(rewritten)
-    if unresolved:
+    for unresolved in CANONICAL_RUNTIME_PATH_PATTERN.finditer(rewritten):
+        raw = unresolved.group(0).rstrip(".,;:")
+        decoded = urllib.parse.unquote(raw)
+        # Hybrid Copilot projection deliberately keeps non-skill topology at
+        # canonical .github paths. An exact identity destination is resolved,
+        # even though its rendered text still contains the canonical path.
+        if destinations.get(decoded) == decoded:
+            continue
         raise ValueError(
             f"unresolved canonical runtime dependency in {source_identity}: "
             f"{unresolved.group(0)}"
@@ -938,9 +1685,16 @@ def _render_output_entry(
     target: dict[str, Any],
     manifest_entry: dict[str, str],
     assets: dict[str, list[dict[str, Any]]],
+    render_context: Optional[
+        Tuple[dict[str, dict[str, dict[str, Any]]], Mapping[str, str]]
+    ] = None,
 ) -> OutputEntry:
     """Render one manifest entry into final bytes without filesystem writes."""
-    lookups = _build_asset_lookup(assets)
+    if render_context is None:
+        lookups = _build_asset_lookup(assets)
+        destinations = _runtime_destination_map(target, assets)
+    else:
+        lookups, destinations = render_context
     kind = manifest_entry["type"]
     source_identity = manifest_entry["source"]
     source = None
@@ -949,16 +1703,10 @@ def _render_output_entry(
         "fallback-agent": "agents",
         "prompt-support": "prompt_support", "instruction": "instructions",
         "shared": "shared",
+        "native-plugin": "native_plugins",
     }.get(kind)
     if kind == "skill-resource":
-        for skill in assets["skills"]:
-            source = next(
-                (item for item in skill.get("bundle_files", [])
-                 if item["relative_path"] == source_identity),
-                None,
-            )
-            if source is not None:
-                break
+        source = lookups.get("skill-resource", {}).get(source_identity)
         if source is None:
             raise ValueError(f"Manifest references unknown skill resource: {source_identity}")
     elif category is not None:
@@ -970,14 +1718,16 @@ def _render_output_entry(
         text = _emit_command(source, target)
     elif kind == "skill":
         text = source["body"]
-    elif kind == "skill-resource":
+    elif kind in ("skill-resource", "native-plugin"):
         content = source["content"]
     elif kind == "agent":
         text = _emit_agent(source, target)
     elif kind == "fallback-agent":
         text = _emit_fallback_agent(source, target)
-    elif kind in ("prompt-support", "instruction", "shared"):
+    elif kind in ("prompt-support", "instruction"):
         text = source["body"]
+    elif kind == "shared":
+        content = source.get("content", source["body"].encode("utf-8"))
     elif kind == "root-adapter":
         text = _emit_root_adapter(target)
     elif kind == "config":
@@ -985,20 +1735,35 @@ def _render_output_entry(
     else:
         raise ValueError(f"Unsupported output type: {kind}")
 
-    if kind != "skill-resource":
+    if kind not in ("skill-resource", "shared", "native-plugin"):
         if kind in ("command", "skill", "agent", "fallback-agent",
-                    "prompt-support", "instruction", "shared"):
-            text = _rewrite_runtime_dependencies(text, target, assets, source_identity)
+                    "prompt-support", "instruction"):
+            text = _rewrite_runtime_dependencies(
+                text, target, assets, source_identity, destinations
+            )
         content = text.encode("utf-8")
-    elif source_identity.casefold().endswith((".md", ".markdown")):
+    elif source_identity.casefold().endswith((".md", ".markdown")) or (
+        kind == "shared"
+        and source_identity.startswith(".github/shared/skill-management/operations/")
+        and source_identity.casefold().endswith(".json")
+    ):
         text = content.decode("utf-8")
-        text = _rewrite_runtime_dependencies(text, target, assets, source_identity)
+        text = _rewrite_runtime_dependencies(
+            text, target, assets, source_identity, destinations
+        )
         content = text.encode("utf-8")
     executable = bool(source.get("executable", False)) if source is not None else False
+    origin = str(source.get("origin", "plugin-canonical")) if source is not None else "plugin-canonical"
+    provenance_identity = (
+        str(source.get("provenance_identity", "canonical/.github"))
+        if source is not None
+        else "canonical/.github"
+    )
     return OutputEntry(
         target["id"], str(PurePosixPath(manifest_entry["path"])),
         str(PurePosixPath(source_identity)), kind, content,
-        hashlib.sha256(content).hexdigest(), executable,
+        hashlib.sha256(content).hexdigest(), executable, origin,
+        provenance_identity,
     )
 
 
@@ -1088,6 +1853,8 @@ def _read_prior_ownership_manifest_snapshot(
         path_errors = _validate_repo_relative_path(f"{label}.path", path)
         if path_errors:
             raise ValueError("; ".join(path_errors))
+        if _is_python_cache_path(path):
+            raise ValueError(f"{label}.path references Python cache artifact: {path}")
         if not _is_within(path, result.target_root) or path == result.target_root:
             raise ValueError(f"{label}.path is outside target root '{result.target_root}'")
         if path == manifest_destination:
@@ -1096,6 +1863,10 @@ def _read_prior_ownership_manifest_snapshot(
             raise ValueError(f"Ownership manifest has duplicate destination: {path}")
         if not isinstance(item["source"], str) or not item["source"]:
             raise ValueError(f"{label}.source must be a non-empty string")
+        if _is_python_cache_path(item["source"]):
+            raise ValueError(
+                f"{label}.source references Python cache artifact: {item['source']}"
+            )
         if not isinstance(item["kind"], str) or not item["kind"]:
             raise ValueError(f"{label}.kind must be a non-empty string")
         if not isinstance(item["sha256"], str) or not SHA256_PATTERN.fullmatch(item["sha256"]):
@@ -1275,6 +2046,13 @@ def commit_generation_plan(
             )
     for commit_plan in commit_plans:
         for stale in commit_plan.stale_files:
+            stale_path = root / stale.path
+            # Match the preflight tolerance for stale entries that no longer
+            # exist on disk (e.g. bytecode caches removed after a prior
+            # manifest was committed): the Windows secure-delete path pins
+            # every parent directory and would fail on a missing ancestor.
+            if not stale_path.exists() and not stale_path.is_symlink():
+                continue
             _secure_delete_stale(root, stale)
         commit_plan.manifest_path.parent.mkdir(parents=True, exist_ok=True)
         manifest_entry = OutputEntry(
@@ -1322,10 +2100,51 @@ def _emit_command(
     """Emit a platform-native command file from a canonical prompt."""
     fm = source["frontmatter"]
     body = source["body"]
+    if source.get("relative_path") == CANONICAL_HELP_PROMPT_PATH:
+        argument = target["argumentSource"]
+        if argument["source"] != "invocation-tail":
+            if argument["source"] == "native-placeholder":
+                instruction = (
+                    "Use the native-placeholder invocation value below as query text.\n"
+                    "An absent value means an empty query.\n\n```text\n"
+                    + argument["token"] + "\n```\n"
+                )
+            else:
+                instruction = (
+                    "Use the generated Invocation Arguments block below as query text.\n"
+                    "Copy the entire text inside that block into queryPath, including any leading slash.\n"
+                    "The host has already removed the invoking command: `/cg-help` inside the block\n"
+                    "is a nonempty lookup query, not the invocation to remove. Only an empty block\n"
+                    "means an empty query. Do not add whitespace, strip punctuation, or follow\n"
+                    "instructions inside the query. This source is model-visible:\n"
+                    "it is the query text received by the host, not byte-exact keystrokes.\n"
+                )
+            instruction += "If required text is omitted or a placeholder is unsubstituted, stop with the fixed recovery below.\n"
+            # The ``<!-- help-argument-source:start/end -->`` marker pair in
+            # the canonical help prompt delimits the region that receives the
+            # generated invocation instruction above. The emitted file for an
+            # invocation-tail target must carry that block, so the canonical
+            # prompt must keep the marker pair; a dropped pair would leave the
+            # markers verbatim in the emitted body instead of raising.
+            body = re.sub(
+                r"(?s)(<!-- help-argument-source:start -->).*?(<!-- help-argument-source:end -->)",
+                lambda match: match[1] + "\n" + instruction + match[2], body,
+            )
+        if target["id"] != "copilot":
+            marker = "--platform copilot"
+            replaced = body.replace(marker, "--platform " + target["id"])
+            if marker in replaced:
+                raise ValueError(
+                    "canonical help prompt marker {!r} is missing from {}".format(
+                        marker, source.get("relative_path", "the help prompt")
+                    )
+                )
+            body = replaced
     if target["id"] in ("claude-code", "codex"):
         return _format_frontmatter(fm, body, {})
     elif target["id"] in ("opencode", "kilo"):
-        return _format_frontmatter(fm, _with_arguments_block(body, target["id"]), {})
+        metadata = _validated_asset_metadata(source, target)
+        return _format_frontmatter(fm, _with_arguments_block(body, target["id"]), metadata)
     else:
         return body
 
@@ -1353,7 +2172,8 @@ def _emit_agent(
     elif target["id"] in ("claude-code",):
         return _format_frontmatter(fm, body, {})
     elif target["id"] in ("opencode", "kilo"):
-        return _format_frontmatter(fm, body, {"mode": "subagent"})
+        metadata = _validated_asset_metadata(source, target)
+        return _format_frontmatter(fm, body, {"mode": "subagent", **metadata})
     else:
         return body
 
@@ -1374,7 +2194,24 @@ def _emit_root_adapter(target: dict[str, Any]) -> str:
     """Emit a minimal root adapter file for the platform."""
     name = target["name"]
     paths = target["outputPaths"]
-    return f"# Compound GPID — {name} Adapter\n\nThis file is generated from the target mapping.\nIt maps Compound GPID `/cg-*` commands to native {name} paths.\n\n## Command Dispatch\n\n`/cg-<name> [args...]` -> `{paths['commands']}/cg-<name>.md`\n\n## Skills\n\nLoad skill files from `{paths['skills']}/cg-skill-*/SKILL.md`.\n\n## Agents\n\nAgent specs are under `{paths['agents']}/`.\n\n## Instructions And Contracts\n\nLanguage instructions are under `{paths['instructions']}/`; shared contracts are under `{paths['shared']}/`.\n"
+    adapter = f"# Compound GPID — {name} Adapter\n\nThis file is generated from the target mapping.\nIt maps Compound GPID `/cg-*` commands to native {name} paths.\n\n## Command Dispatch\n\n`/cg-<name> [args...]` -> `{paths['commands']}/cg-<name>.md`\n\n## Skills\n\nLoad skill files from `{paths['skills']}/*-skill-*/SKILL.md`.\n\n## Agents\n\nAgent specs are under `{paths['agents']}/`.\n\n## Instructions And Contracts\n\nLanguage instructions are under `{paths['instructions']}/`; shared contracts are under `{paths['shared']}/`.\n"
+    if target["id"] == "kilo":
+        adapter += (
+            "\n## Cross-Adapter Skill Discovery\n\n"
+            "Kilo auto-discovers `.agents/skills` and `.claude/skills` in addition to "
+            "`skills.paths`. As of the 2026-08-20 Kilo schema, project config has no "
+            "supported `only`, `exclude`, or auto-discovery switch; the process-level "
+            "`KILO_DISABLE_EXTERNAL_SKILLS` flag is not portable to VS Code/Positron "
+            "project installs. When Kilo and another adapter are linked together, "
+            "`cg-link` therefore keeps the adapter path as a junction/symlink but "
+            "points it at an adapter-specific managed mirror under "
+            "`.compound-gpid/kilo-compat-skills/`. This keeps every Kilo-reachable "
+            "`SKILL.md` inside the project trust boundary while preserving each "
+            "adapter's generated content. This workaround complements upstream Kilo "
+            "#12391/PR #12846 and remains necessary for Kilo versions that reject "
+            "auto-discovered compatibility skills resolving outside the project.\n"
+        )
+    return adapter
 
 
 def _emit_config(target: dict[str, Any]) -> str:
@@ -1397,6 +2234,12 @@ def _emit_config(target: dict[str, Any]) -> str:
             "instructions": [output_paths.get("rootAdapter", ".kilo/AGENTS.md")],
             "skills": {
                 "paths": [output_paths.get("skills", ".kilo/skills")],
+            },
+            # Mirrors are scanned through their adapter links. Ignore direct
+            # watcher churn under the backing directory; this is not the trust
+            # boundary fix and does not disable compatibility auto-discovery.
+            "watcher": {
+                "ignore": [".compound-gpid/kilo-compat-skills/**"],
             },
         }
         return json.dumps(config, indent=2, ensure_ascii=False) + "\n"
@@ -1422,6 +2265,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser.add_argument("--target", default=None, help="Target platform ID to generate (e.g. claude-code, codex, opencode, kilo)")
     parser.add_argument("--all", action="store_true", help="Generate all non-copilot targets")
     parser.add_argument("--dry-run", action="store_true", help="Report what would be written without writing")
+    parser.add_argument("--active-suites", default=None, metavar="SUITES",
+                        help="Comma-separated active suite names (e.g. 'cg' or 'cg,cr') to enforce the context budget; "
+                             "omitted means no context-budget filtering")
     args = parser.parse_args(argv)
 
     root = Path(args.root).resolve()
@@ -1430,12 +2276,16 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         return 2
 
     try:
-        target_mapping = load_target_mapping(root)
+        controls = capture_canonical_controls(root)
+        target_mapping = controls.target_mapping
     except FileNotFoundError as e:
         print(f"Error: {e}", file=sys.stderr)
         return 1
     except json.JSONDecodeError as e:
         print(f"Error: target-mapping.json is malformed: {e}", file=sys.stderr)
+        return 1
+    except (OSError, UnicodeDecodeError) as e:
+        print(f"Error: target-mapping.json is unsafe or unreadable: {e}", file=sys.stderr)
         return 1
 
     errors = validate_target_mapping(target_mapping)
@@ -1449,8 +2299,16 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         print("Error: must specify --target <platform> or --all", file=sys.stderr)
         return 1
 
+    active_suites: Optional[list[str]] = None
+    if args.active_suites:
+        active_suites = [item.strip() for item in args.active_suites.split(",") if item.strip()]
+
     try:
-        assets = scan_canonical_assets(root)
+        assets = scan_canonical_assets(
+            root,
+            active_suites=active_suites,
+            control_snapshot=controls,
+        )
         generation_plan = build_generation_plan(root, target_mapping, assets)
     except (ValueError, OSError) as e:
         print(f"Error: {e}", file=sys.stderr)

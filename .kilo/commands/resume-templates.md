@@ -28,6 +28,28 @@ Language: <language> | Type: <project-type> | Review depth: <review-depth>
 
 ---
 
+## Autopilot Reconciliation
+
+> Include this block FIRST — before the Active State Snapshot, every pending
+> work section and every nudge — when Step 2g found an unfinished autopilot
+> run.
+
+```markdown
+### ⚙️ Unfinished Autopilot Run
+Run: `<run-id>` | Revision: `<revision>` | Next action: `<next-action>`
+
+→ Resume exactly with:
+`/cg-autopilot --resume .cg-docs/active-state/current.json`
+
+The autopilot parent reconciles the run first. An expired CI window leads to
+a scoped extension decision inside the parent. `/cg-resume` never runs the
+control helper, never extends a deadline, and
+never writes the private control event; only the
+separately approved parent helper transition writes that event.
+```
+
+---
+
 ## Pending Work Sections
 
 ```markdown
@@ -115,6 +137,10 @@ Uncommitted changes: <count files changed, or "none">
 ```
 
 Adapt the options to what's actually available. If only one option applies, just suggest it directly.
+
+If Step 2g collected an unfinished autopilot run, the primary suggestion is
+exactly the recommended `/cg-autopilot --resume ...` command — do not offer a
+`/cg-work phaseX` substitute while the autopilot run is unfinished.
 
 If `roadmap.json` exists and any `in-progress` milestone has features with `status: "idea"`, add:
 

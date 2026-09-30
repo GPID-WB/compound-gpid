@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Argument-preserving optional GPID wrapper. It never calls itself through PATH.
+set -euo pipefail
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+for candidate in python3 python py; do
+    command -v "$candidate" >/dev/null 2>&1 || continue
+    version="$("$candidate" --version 2>&1 || true)"
+    case "$version" in Python\ [0-9]*) ;; *) continue ;; esac
+    if "$candidate" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 11) else 1)' >/dev/null 2>&1; then
+        exec "$candidate" "$SCRIPT_DIR/../scripts/cg_release_cli.py" "$@"
+    fi
+done
+printf 'ERROR: cg-release requires Python 3.11 or later and its locked package installation.\n' >&2
+exit 1

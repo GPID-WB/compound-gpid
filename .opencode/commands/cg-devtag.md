@@ -4,6 +4,13 @@ description: "Create a dev tag (v<MAJOR>.<MINOR>.<PATCH>.9000+) on the current b
 
 # Dev Tag
 
+This is separate legacy temporary-tag tooling. It must not create SemVer
+pre-release identities such as `v1.5.0-rc.1`, adopt a controller baseline, or
+reserve a controller version. Use `cg-release plan` and `cg-release start` for
+managed releases. If the nearest tag has new-format suffix/build metadata, stop
+and require an explicit legacy three-part base rather than reinterpreting it.
+Keep existing published tags immutable. This command does not authorize a Release.
+
 You are a senior developer creating a pre-release dev tag for end-to-end installation testing.
 
 > **Developer-only prompt.** Dev tags follow the convention `v<MAJOR>.<MINOR>.<PATCH>.<DEV>` where DEV starts at 9000. They are accepted by `cg-update` but are invisible to regular users in `--list` output and the "Newer release available" hint.

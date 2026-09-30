@@ -1,0 +1,131 @@
+{
+  "$schema": "compound-gpid-schema-subset-v1",
+  "$id": "cg-project-skill-registry-v1",
+  "type": "object",
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "cg-project-skill-registry-v1"
+    },
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "records": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/record"
+      }
+    }
+  },
+  "required": [
+    "schema",
+    "schemaVersion",
+    "records"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "record": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "maxLength": 80
+        },
+        "origin": {
+          "type": "string",
+          "const": "project-imported"
+        },
+        "owner": {
+          "type": "string",
+          "const": "project-local"
+        },
+        "capability": {
+          "type": "string",
+          "pattern": "^project-skill-[a-z][a-z0-9-]*$"
+        },
+        "activationMode": {
+          "type": "string",
+          "const": "explicit-only"
+        },
+        "sourcePath": {
+          "type": "string",
+          "pattern": "^\\.compound-gpid/skills/[a-z][a-z0-9-]*$"
+        },
+        "supportedSuites": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "cg",
+              "cr"
+            ]
+          },
+          "minItems": 1,
+          "maxItems": 2,
+          "uniqueItems": true
+        },
+        "supportedPlatforms": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "copilot",
+              "claude-code",
+              "codex",
+              "opencode",
+              "kilo"
+            ]
+          },
+          "minItems": 1,
+          "maxItems": 5,
+          "uniqueItems": true
+        },
+        "admission": {
+          "type": "string",
+          "enum": [
+            "quarantined",
+            "approved",
+            "rejected"
+          ]
+        },
+        "lifecycle": {
+          "type": "string",
+          "enum": [
+            "current",
+            "deprecated",
+            "removed"
+          ]
+        },
+        "provenanceId": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$"
+        },
+        "bundleDigest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "successorId": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$"
+        }
+      },
+      "required": [
+        "id",
+        "origin",
+        "owner",
+        "capability",
+        "activationMode",
+        "sourcePath",
+        "supportedSuites",
+        "supportedPlatforms",
+        "admission",
+        "lifecycle",
+        "provenanceId",
+        "bundleDigest"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

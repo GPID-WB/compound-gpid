@@ -20,6 +20,24 @@ if (-not $script:OnWindows) {
 
 . (Join-Path $PSScriptRoot "..\scripts\helpers.ps1")
 
+Describe "install.ps1 - cg-release.cmd source" {
+    It "rejects Store stubs with one complete regular expression" {
+        $content = Get-Content -LiteralPath (Join-Path $PSScriptRoot "../bin/cg-release.cmd") -Raw
+        ([regex]::Matches($content, 'findstr /i /r /c:"\^Python \[0-9\]"')).Count | Should -Be 3
+    }
+    It "ships the committed argument-preserving launcher" {
+        $launcher = Join-Path $PSScriptRoot "../bin/cg-release.cmd"
+        Test-Path -LiteralPath $launcher | Should -Be $true
+        $content = Get-Content -LiteralPath $launcher -Raw
+        $content | Should -Match 'for /f'
+        $content | Should -Match 'where python3\s+>nul'
+        $content | Should -Match 'where python\s+>nul'
+        $content | Should -Match 'where py\s+>nul'
+        $content | Should -Match 'cg_release_cli\.py.*%\*'
+        $content | Should -Match 'exit /b %ERRORLEVEL%'
+    }
+}
+
 function Get-PythonForCgIndexSmoke {
     foreach ($cmd in @("python3", "python", "py")) {
         $found = Get-Command $cmd -ErrorAction SilentlyContinue
@@ -496,6 +514,40 @@ Describe "install.ps1 - cg-brain-init.cmd copy" {
     }
 }
 
+Describe "install.ps1 - cg-kilo.cmd copy" {
+    Context "single source of truth" {
+        It "cg-kilo.cmd exists in the committed bin/ directory" {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            Test-Path (Join-Path $repoRoot "bin\cg-kilo.cmd") | Should -Be $true
+        }
+
+        It "cg-kilo.cmd guards every Python probe with a where pre-check" {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $content = Get-Content (Join-Path $repoRoot "bin\cg-kilo.cmd") -Raw
+            ($content -match 'for /f') | Should -Be $true
+            ($content -match 'where python3\s+>nul') | Should -Be $true
+            ($content -match 'where python\s+>nul') | Should -Be $true
+            ($content -match 'where py\s+>nul') | Should -Be $true
+        }
+
+        It "cg-kilo.cmd invokes the preflight worker and forwards arguments" {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $content = Get-Content (Join-Path $repoRoot "bin\cg-kilo.cmd") -Raw
+            ($content -match 'cg_kilo_preflight\.py') | Should -Be $true
+            ($content -match '--launch') | Should -Be $true
+            ($content -match '%\*') | Should -Be $true
+            ($content -match 'exit /b %ERRORLEVEL%') | Should -Be $true
+        }
+
+        It "install.ps1 copies the committed cg-kilo.cmd" {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $installScript = Get-Content (Join-Path $repoRoot "install.ps1") -Raw
+            ($installScript -match 'cgKiloCmdSrc.*cg-kilo\.cmd') | Should -Be $true
+            ($installScript -match 'Copy-Item.*cgKiloCmdSrc') | Should -Be $true
+        }
+    }
+}
+
 Describe "install.ps1 - cg-token-audit.cmd copy" {
     Context "single source of truth" {
         It "cg-token-audit.cmd exists in the committed bin/ directory" {
@@ -554,6 +606,113 @@ Describe "install.ps1 - cg-token-audit.cmd copy" {
                     }
                 }
             } | Should -Not -Throw
+        }
+    }
+}
+
+Describe "install.ps1 - cg-autopilot-control.cmd copy" {
+    Context "single source of truth" {
+        It "cg-autopilot-control.cmd exists in the committed bin/ directory" {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $cmdFile  = Join-Path $repoRoot "bin\cg-autopilot-control.cmd"
+            Test-Path $cmdFile | Should -Be $true
+        }
+
+        It "cg-autopilot-control.cmd contains the for /f Python resolution pattern" {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $cmdFile  = Join-Path $repoRoot "bin\cg-autopilot-control.cmd"
+            $content  = Get-Content $cmdFile -Raw
+            ($content -match 'for /f') | Should -Be $true
+        }
+
+        It "cg-autopilot-control.cmd guards each python probe with a 'where' pre-check to prevent stderr leak" {
+            # Regression guard: without the 'where' pre-check, for /f
+            # ('python3 --version 2^>^&1') leaks the "'python3' is not
+            # recognized" error to outer stderr when python3 is absent from
+            # PATH (NativeCommandError under PowerShell).
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $cmdFile  = Join-Path $repoRoot "bin\cg-autopilot-control.cmd"
+            $content  = Get-Content $cmdFile -Raw
+            ($content -match 'where python3\s+>nul') | Should -Be $true
+            ($content -match 'where python\s+>nul')  | Should -Be $true
+            ($content -match 'where py\s+>nul')      | Should -Be $true
+        }
+
+        It "cg-autopilot-control.cmd rejects Windows Store stubs with the Python version check" {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $cmdFile  = Join-Path $repoRoot "bin\cg-autopilot-control.cmd"
+            $content  = Get-Content $cmdFile -Raw
+            ($content -match 'findstr /i "\^Python \[0-9\]"') | Should -Be $true
+            ($content -match 'sys\.version_info\s*>=\s*\(3,\s*8\)') | Should -Be $true
+        }
+
+        It "cg-autopilot-control.cmd references cg_autopilot.py wrapper-relative" {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $cmdFile  = Join-Path $repoRoot "bin\cg-autopilot-control.cmd"
+            $content  = Get-Content $cmdFile -Raw
+            ($content -match 'cg_autopilot\.py') | Should -Be $true
+            ($content -match '%~dp0\.\.\\scripts\\cg_autopilot\.py') | Should -Be $true
+        }
+
+        It "install.ps1 copies cg-autopilot-control.cmd rather than generating it inline" {
+            $repoRoot      = Split-Path $PSScriptRoot -Parent
+            $installScript = Get-Content (Join-Path $repoRoot "install.ps1") -Raw
+            ($installScript -match 'cgAutopilotControlCmdSrc.*cg-autopilot-control\.cmd') | Should -Be $true
+            ($installScript -match 'Copy-Item.*cgAutopilotControlCmdSrc') | Should -Be $true
+        }
+
+        It "does not throw when cg-autopilot-control.cmd source and destination are the same path" {
+            $compoundDir = Join-Path $TestDrive ".compound-gpid"
+            $binDir      = Join-Path $compoundDir "bin"
+            New-Item -ItemType Directory -Path $binDir -Force | Out-Null
+
+            $src = Join-Path $compoundDir "bin\cg-autopilot-control.cmd"
+            $dst = Join-Path $binDir "cg-autopilot-control.cmd"
+            Set-Content -Path $src -Value "@echo off" -NoNewline
+
+            {
+                if (Test-Path $src) {
+                    $srcFull = [System.IO.Path]::GetFullPath($src)
+                    $dstFull = [System.IO.Path]::GetFullPath($dst)
+                    if ($srcFull -ieq $dstFull) {
+                        $null = $true
+                    } else {
+                        Copy-Item -Path $src -Destination $dst -Force -ErrorAction Stop
+                    }
+                }
+            } | Should -Not -Throw
+        }
+    }
+}
+
+Describe "install.ps1 - cg-skill.cmd copy" {
+    Context "single source of truth" {
+        BeforeAll {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $cmdFile = Join-Path $repoRoot "bin\cg-skill.cmd"
+            $content = Get-Content $cmdFile -Raw -Encoding UTF8
+            $installContent = Get-Content (Join-Path $repoRoot "install.ps1") -Raw -Encoding UTF8
+        }
+
+        It "cg-skill.cmd exists in the committed bin directory" {
+            Test-Path $cmdFile | Should -Be $true
+        }
+
+        It "guards every Python probe with a where pre-check" {
+            ($content -match 'where python3\s+>nul') | Should -Be $true
+            ($content -match 'where python\s+>nul') | Should -Be $true
+            ($content -match 'where py\s+>nul') | Should -Be $true
+        }
+
+        It "uses for /f version checks and calls cg_skill.py" {
+            ($content -match 'for /f') | Should -Be $true
+            ($content -match 'cg_skill\.py') | Should -Be $true
+            ($content -match 'call %PYTHON_CMD%') | Should -Be $true
+        }
+
+        It "is registered by install.ps1" {
+            ($installContent -match 'cgSkillCmdSrc.*cg-skill\.cmd') | Should -Be $true
+            ($installContent -match 'Copy-Item.*cgSkillCmdSrc') | Should -Be $true
         }
     }
 }
@@ -678,7 +837,8 @@ Describe "Python-backed CMD launchers - runtime selection and status parity" {
         "cg-brain-init.cmd",
         "cg-token-audit.cmd",
         "cg-render-artifact.cmd",
-        "cg-publish-markdown.cmd"
+        "cg-publish-markdown.cmd",
+        "cg-autopilot-control.cmd"
     )
     $launcherCases = @($launchers | ForEach-Object { @{ Launcher = $_ } })
 
@@ -743,6 +903,144 @@ exit /b 38
     }
 }
 
+Describe "install.ps1 - cg-help safe transport wrapper" {
+    $helpRepoRoot = Split-Path $PSScriptRoot -Parent
+    $helpWrapper = Join-Path $helpRepoRoot "bin\cg-help.cmd"
+
+    It "ships a committed cg-help.cmd with guarded Python version probes" {
+        Test-Path $helpWrapper | Should -Be $true
+        $content = Get-Content $helpWrapper -Raw -ErrorAction Stop
+        $content | Should -Match 'for /f'
+        $content | Should -Match 'where python3\s+>nul'
+        $content | Should -Match 'where python\s+>nul'
+        $content | Should -Match 'where py\s+>nul'
+        $content | Should -Match 'findstr.*\^Python \[0-9\]'
+        $content | Should -Match 'sys\.version_info\s*>=\s*\(3,\s*8\)'
+        $content | Should -Match '%~dp0\.\.\\scripts\\cg_help\.py'
+        $content | Should -Match '(?m)^call %PYTHON_CMD%.*%\*'
+        $content | Should -Match '(?m)^exit /b %ERRORLEVEL%'
+    }
+
+    It "installs the committed wrapper and includes it in both displayed inventories" {
+        $content = Get-Content (Join-Path $helpRepoRoot "install.ps1") -Raw
+        $content | Should -Match 'cgHelpCmdSrc.*bin\\cg-help\.cmd'
+        $content | Should -Match 'Copy-Item.*cgHelpCmdSrc'
+        $content | Should -Match 'Registered:.*cg-help'
+        $content | Should -Match 'Write-Host\s+"\s+cg-help\s+--'
+    }
+
+    It "passes only fixed operation arguments and preserves consumer cwd and exit status" -TestCases @(
+        @{ Operation = '--prepare-request --root .' },
+        @{ Operation = '--consume-request 12345678-1234-4234-8234-123456789abc' },
+        @{ Operation = '--render-selection 12345678-1234-4234-8234-123456789abc' }
+    ) {
+        param($Operation)
+        Test-Path $helpWrapper | Should -Be $true
+        $fakeBin = Join-Path $TestDrive "help-python"
+        $consumer = Join-Path $TestDrive "unrelated consumer"
+        New-Item -ItemType Directory -Path $fakeBin, $consumer -Force | Out-Null
+        $probeLog = Join-Path $TestDrive "help-wrapper.log"
+        @'
+@echo off
+if "%~1"=="--version" (echo Python 3.12.0& exit /b 0)
+if "%~1"=="-c" exit /b 0
+>"%CG_HELP_TEST_LOG%" echo %CD%
+>>"%CG_HELP_TEST_LOG%" echo %~f1
+>>"%CG_HELP_TEST_LOG%" echo %2 %3 %4
+exit /b 37
+'@ | Set-Content (Join-Path $fakeBin "python3.cmd") -Encoding ASCII
+        $oldPath, $oldLog = $env:PATH, $env:CG_HELP_TEST_LOG
+        try {
+            $env:PATH = "$fakeBin;$env:SystemRoot\System32;$env:SystemRoot"
+            $env:CG_HELP_TEST_LOG = $probeLog
+            Push-Location $consumer
+            try {
+                & cmd /d /c "`"$helpWrapper`" $Operation" | Out-Null
+                $LASTEXITCODE | Should -Be 37
+            } finally { Pop-Location }
+        } finally {
+            $env:PATH, $env:CG_HELP_TEST_LOG = $oldPath, $oldLog
+        }
+        $lines = @(Get-Content $probeLog)
+        $lines[0] | Should -Be $consumer
+        $lines[1] | Should -Be (Join-Path $helpRepoRoot "scripts\cg_help.py")
+        $lines[2].Trim() | Should -Be $Operation
+    }
+
+    It "rejects absent Python and Store stubs without running them as interpreters (<Mode>)" -TestCases @(
+        @{ Mode = 'absent' }, @{ Mode = 'store-stub' }, @{ Mode = 'fallback' }
+    ) {
+        param($Mode)
+        Test-Path $helpWrapper | Should -Be $true
+        $fakeBin = Join-Path $TestDrive "help-probe-$Mode"
+        $consumer = Join-Path $TestDrive "help-probe-$Mode-cwd"
+        New-Item -ItemType Directory -Path $fakeBin, $consumer -Force | Out-Null
+        # Keep CMD support tools available without exposing system Python launchers.
+        foreach ($tool in @('cmd.exe', 'where.exe', 'findstr.exe')) {
+            Copy-Item (Join-Path "$env:SystemRoot\System32" $tool) $fakeBin -ErrorAction Stop
+        }
+        $cmdPath = Join-Path $fakeBin 'cmd.exe'
+        $stubLog = Join-Path $TestDrive "help-probe-$Mode-stub.log"
+        if ($Mode -ne 'absent') {
+            @'
+@echo off
+if "%~1"=="--version" (echo Python was not found& exit /b 0)
+>>"%CG_HELP_TEST_STUB_LOG%" echo rejected stub executed
+exit /b 91
+'@ | Set-Content (Join-Path $fakeBin "python3.cmd") -Encoding ASCII
+        }
+        if ($Mode -eq 'fallback') {
+            @'
+@echo off
+if "%~1"=="--version" (echo Python 3.12.0& exit /b 0)
+if "%~1"=="-c" exit /b 0
+exit /b 38
+'@ | Set-Content (Join-Path $fakeBin "python.cmd") -Encoding ASCII
+        }
+        $oldPath, $oldComSpec, $oldPathExt, $oldStubLog = $env:PATH, $env:ComSpec, $env:PATHEXT, $env:CG_HELP_TEST_STUB_LOG
+        $errorPath = Join-Path $TestDrive "help-probe-$Mode.err"
+        try {
+            $env:PATH = $fakeBin
+            $env:ComSpec = $cmdPath
+            $env:PATHEXT = '.COM;.EXE;.BAT;.CMD'
+            $env:CG_HELP_TEST_STUB_LOG = $stubLog
+            Push-Location $consumer -ErrorAction Stop
+            try {
+                foreach ($candidate in @('python3', 'python', 'py')) {
+                    $expectedPath = $null
+                    if (($candidate -eq 'python3' -and $Mode -ne 'absent') -or
+                        ($candidate -eq 'python' -and $Mode -eq 'fallback')) {
+                        $expectedPath = Join-Path $fakeBin "$candidate.cmd"
+                    }
+                    $resolved = @(& $cmdPath /d /c "where $candidate 2>nul")
+                    $probeStatus = $LASTEXITCODE
+                    if ($expectedPath) {
+                        $probeStatus | Should -Be 0
+                        $resolved.Count | Should -Be 1
+                        $resolved[0] | Should -Be $expectedPath
+                    } else {
+                        $probeStatus | Should -Be 1
+                        $resolved.Count | Should -Be 0
+                    }
+                }
+                $output = & $cmdPath /d /c "`"$helpWrapper`" --prepare-request --root . 2> `"$errorPath`""
+                $status = $LASTEXITCODE
+            } finally { Pop-Location }
+        } finally {
+            $env:PATH, $env:ComSpec, $env:PATHEXT, $env:CG_HELP_TEST_STUB_LOG = $oldPath, $oldComSpec, $oldPathExt, $oldStubLog
+        }
+        Test-Path $stubLog | Should -Be $false
+        $output | Should -BeNullOrEmpty
+        if ($Mode -eq 'fallback') {
+            $status | Should -Be 38
+        } else {
+            $status | Should -Be 1
+            (Get-Content $errorPath -Raw) | Should -Match 'Python is not available'
+            (Get-Content $errorPath -Raw) | Should -Not -Match 'is not recognized'
+        }
+    }
+}
+
 Describe "install.ps1 - -Uninstall flag" {
     Context "param block" {
         It "install.ps1 declares an -Uninstall switch parameter" {
@@ -795,6 +1093,10 @@ Describe "install.ps1 - -Uninstall flag" {
             Copy-Item (Join-Path $repoRoot "scripts\helpers.ps1") (Join-Path $fixtureScripts "helpers.ps1")
             $wrapper = Join-Path $fixtureBin "cg-index.cmd"
             Set-Content -Path $wrapper -Value "@echo off`r`nexit /b 0" -Encoding ASCII
+            $helpSource = Join-Path $repoRoot "bin\cg-help.cmd"
+            $helpCopy = Join-Path $fixtureBin "cg-help.cmd"
+            Copy-Item $helpSource $helpCopy -ErrorAction Stop
+            $helpBytes = [Convert]::ToBase64String([IO.File]::ReadAllBytes($helpCopy))
             $registryLog = Join-Path $fixtureRoot "registry.log"
             @'
 @echo off
@@ -820,6 +1122,7 @@ exit /b 1
             }
             (Test-Path $wrapper) | Should -Be $true
             (Get-Content $wrapper -Raw) | Should -Match 'exit /b 0'
+            [Convert]::ToBase64String([IO.File]::ReadAllBytes($helpCopy)) | Should -Be $helpBytes
             (Get-Content $registryLog -Raw) | Should -Match 'query HKCU\\Environment /v PATH'
         }
     }

@@ -1,0 +1,263 @@
+"""Public cg-skill migration and old-surface retirement tests."""
+from __future__ import annotations
+
+import json
+import subprocess
+from pathlib import Path
+
+import pytest
+
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+OLD_NAMES = ("cg-find-skill", "cg-import-skill")
+GENERATED_COMMAND_ROOTS = (
+    ".claude/commands",
+    ".agents/commands",
+    ".opencode/commands",
+    ".kilo/commands",
+)
+MIGRATION_REFERENCES = {
+    "docs/skills/management/index.md",
+    "install.ps1",
+    "scripts/install.sh",
+}
+
+
+def _active_text_files(root: Path) -> tuple[Path, ...]:
+    """Scan source-owned files, not ignored or independent nested worktrees."""
+    roots = (
+        ".github",
+        ".claude",
+        ".agents",
+        ".opencode",
+        ".kilo",
+        "bin",
+        "docs",
+        "scripts",
+    )
+    result = subprocess.run(
+        ["git", "ls-files", "--cached", "--others", "--exclude-standard", "-z",
+         "--", *roots],
+        cwd=root, capture_output=True, text=True, encoding="utf-8",
+        timeout=30, check=True,
+    )
+    files = []
+    for relative in result.stdout.split("\0"):
+        path = root / relative
+        if not relative or not path.is_file() or Path(relative).parts[:2] == ("scripts", "tests"):
+            continue
+        if path.suffix.casefold() in {".md", ".json", ".py", ".ps1", ".sh", ".cmd"}:
+            files.append(path)
+    files.extend((root / "install.ps1", root / "compound-gpid.context.md"))
+    return tuple(sorted(set(files)))
+
+
+@pytest.mark.parametrize("ignored", [False, True])
+@pytest.mark.parametrize("git_file", [False, True])
+def test_migration_scan_respects_repository_ownership(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, ignored: bool, git_file: bool
+) -> None:
+    """Nested Git boundaries cannot hide source-owned native release content."""
+    root = tmp_path / "source"
+    root.mkdir()
+    subprocess.run(["git", "init", str(root)], capture_output=True, check=True)
+    owned = {
+        ".kilo/commands/current.md": "cg-find-skill",
+        ".kilo/worktrees/owned/record.md": "source-owned content",
+        "docs/skills/management/index.md": (
+            "# Skill Management\n\n## Migrate Existing Workflows\n\n"
+            + " ".join(OLD_NAMES)
+        ),
+        "install.ps1": "",
+        "compound-gpid.context.md": "",
+    }
+    for relative, content in owned.items():
+        path = root / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content, encoding="utf-8")
+    subprocess.run(["git", "add", "."], cwd=root, capture_output=True, check=True)
+    if ignored:
+        (root / ".gitignore").write_text(".kilo/worktrees/\n", encoding="utf-8")
+    nested = root / ".kilo/worktrees/independent"
+    command = ["git", "init"]
+    if git_file:
+        command.extend(["--separate-git-dir", str(tmp_path / "nested-git")])
+    subprocess.run([*command, str(nested)], capture_output=True, check=True)
+    (nested / "retired.md").write_text(" ".join(OLD_NAMES), encoding="utf-8")
+    untracked = root / ".kilo/commands/new command.md"
+    untracked.write_text("new native command", encoding="utf-8")
+
+    assert set(_active_text_files(root)) == {root / path for path in owned} | {untracked}
+    monkeypatch.setitem(globals(), "REPO_ROOT", root)
+    with pytest.raises(AssertionError, match="current.md"):
+        test_old_names_remain_only_in_explicit_migration_text()
+    (root / ".kilo/commands/current.md").write_text("cg-skill", encoding="utf-8")
+    test_old_names_remain_only_in_explicit_migration_text()
+
+
+def test_migration_scan_fails_closed_without_git_ownership(tmp_path: Path) -> None:
+    """A failed Git query must not silently produce an empty scan."""
+    with pytest.raises(subprocess.CalledProcessError):
+        _active_text_files(tmp_path)
+
+
+def test_public_prompt_and_wrappers_replace_old_surfaces() -> None:
+    assert (REPO_ROOT / ".github/prompts/cg-skill.prompt.md").is_file()
+    assert (REPO_ROOT / "bin/cg-skill").is_file()
+    assert (REPO_ROOT / "bin/cg-skill.cmd").is_file()
+    for old_name in OLD_NAMES:
+        assert not (REPO_ROOT / f".github/prompts/{old_name}.prompt.md").exists()
+        for root in GENERATED_COMMAND_ROOTS:
+            assert not (REPO_ROOT / root / f"{old_name}.md").exists()
+    assert not (REPO_ROOT / "bin/cg-find-skill").exists()
+    assert not (REPO_ROOT / "bin/cg-find-skill.cmd").exists()
+    for root in GENERATED_COMMAND_ROOTS:
+        assert (REPO_ROOT / root / "cg-skill.md").is_file()
+
+
+def test_windows_wrapper_uses_guarded_python_detection_and_exact_entrypoint() -> None:
+    content = (REPO_ROOT / "bin/cg-skill.cmd").read_text(encoding="utf-8")
+    for candidate in ("python3", "python", "py"):
+        assert f"where {candidate} >nul 2>&1" in content
+        assert f"call {candidate} -c" in content
+    assert 'call %PYTHON_CMD% "%~dp0..\\scripts\\cg_skill.py" %*' in content
+    assert "exit /b %ERRORLEVEL%" in content
+
+
+def test_posix_wrapper_resolves_python_and_forwards_arguments() -> None:
+    content = (REPO_ROOT / "bin/cg-skill").read_text(encoding="utf-8")
+    assert content.startswith("#!/usr/bin/env bash\n")
+    assert "for candidate in python3 python py" in content
+    assert 'exec "$PYTHON_CMD" "$SCRIPT_DIR/../scripts/cg_skill.py" "$@"' in content
+
+
+def test_skill_management_is_a_public_cross_suite_capability() -> None:
+    registry = json.loads(
+        (REPO_ROOT / ".github/shared/module-registry.json").read_text(encoding="utf-8")
+    )
+    capability = next(
+        item for item in registry["capabilities"] if item["id"] == "skill-management"
+    )
+    suite = next(item for item in registry["modules"] if item["id"] == "suite-cg")
+    assert capability["owningModule"] == "cap-skill-management"
+    assert capability["supportedSuites"] == ["cg", "cr"]
+    assert capability["configSelectors"] == []
+    assert "/cg-skill" in capability["taskTriggers"]
+    assert "cap-skill-management" in suite["dependsOn"]
+    research_suite = next(
+        item for item in registry["modules"] if item["id"] == "suite-cr"
+    )
+    assert "cap-skill-management" in research_suite["dependsOn"]
+
+
+def test_help_metadata_migration_keeps_existing_public_skill_surfaces() -> None:
+    registry = json.loads(
+        (REPO_ROOT / ".github/shared/module-registry.json").read_text(encoding="utf-8")
+    )
+    help_module = next(item for item in registry["modules"] if item["id"] == "cap-help")
+
+    assert help_module["ownedAssets"] == [
+        ".github/prompts/cg-help.help.json",
+        ".github/prompts/cg-help.prompt.md",
+        ".github/shared/help-catalog.json",
+        ".github/shared/shell-commands.json",
+    ]
+    assert (REPO_ROOT / ".github/prompts/cg-skill.help.json").is_file()
+    assert (REPO_ROOT / ".github/prompts/cg-skill.prompt.md").is_file()
+    assert (REPO_ROOT / ".github/prompts/cg-help.prompt.md").is_file()
+    assert (REPO_ROOT / ".github/prompts/cg-help.help.json").is_file()
+
+
+
+def test_old_names_remain_only_in_explicit_migration_text() -> None:
+    occurrences = {name: [] for name in OLD_NAMES}
+    for path in _active_text_files(REPO_ROOT):
+        relative = path.relative_to(REPO_ROOT).as_posix()
+        content = path.read_text(encoding="utf-8", errors="strict")
+        for old_name in OLD_NAMES:
+            if old_name in content:
+                if relative == "docs/assets/search-index.json":
+                    index = json.loads(content)
+                    assert old_name not in json.dumps({k: v for k, v in index.items() if k != "entries"})
+                    for entry in index["entries"]:
+                        if old_name in json.dumps(entry):
+                            assert (entry["page"], entry["section"], entry["kind"]) == (
+                                "skill-management", "migrate-existing-workflows", "section"
+                            ), (old_name, relative, "outside indexed migration section")
+                            assert old_name not in json.dumps({k: v for k, v in entry.items() if k != "text"})
+                    continue
+                if relative == "docs/skills/management/index.md":
+                    before, marker, after = content.partition(
+                        "\n## Migrate Existing Workflows\n"
+                    )
+                    migration, _, following = after.partition("\n## ")
+                    assert marker and old_name in migration, (old_name, relative)
+                    assert old_name not in before and old_name not in following, (
+                        old_name, relative, "outside migration section"
+                    )
+                occurrences[old_name].append(relative)
+    for old_name, paths in occurrences.items():
+        assert set(paths) <= MIGRATION_REFERENCES, (old_name, paths)
+        assert "docs/skills/management/index.md" in paths
+
+
+def test_search_index_cannot_present_retired_commands_outside_migration(tmp_path, monkeypatch):
+    """The derived migration row is allowed; an active-command row is not."""
+    guide = tmp_path / "docs/skills/management/index.md"
+    guide.parent.mkdir(parents=True)
+    guide.write_text("# Skills\n\n## Migrate Existing Workflows\n" + " ".join(OLD_NAMES))
+    index = tmp_path / "docs/assets/search-index.json"
+    index.parent.mkdir(parents=True)
+    entry = {"page": "skill-management", "section": "migrate-existing-workflows", "kind": "section", "text": " ".join(OLD_NAMES)}
+    index.write_text(json.dumps({"entries": [entry]}))
+    monkeypatch.setitem(globals(), "REPO_ROOT", tmp_path)
+    monkeypatch.setitem(globals(), "_active_text_files", lambda root: (guide, index))
+    test_old_names_remain_only_in_explicit_migration_text()
+    entry["page"] = "commands"
+    index.write_text(json.dumps({"entries": [entry]}))
+    with pytest.raises(AssertionError, match="outside indexed migration section"):
+        test_old_names_remain_only_in_explicit_migration_text()
+
+
+@pytest.mark.parametrize("old_name", OLD_NAMES)
+@pytest.mark.parametrize("position", ["before", "after"])
+def test_retired_names_outside_unified_migration_section_are_rejected(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, old_name: str, position: str
+) -> None:
+    """Allow the moved migration section, not retired guidance elsewhere."""
+    guide = tmp_path / "docs/skills/management/index.md"
+    guide.parent.mkdir(parents=True)
+    content = (
+        "# Skill Management\n\n## Migrate Existing Workflows\n\n"
+        + " ".join(OLD_NAMES)
+        + "\n\n## Operation Reference\n"
+    )
+    content = old_name + "\n" + content if position == "before" else content + old_name
+    guide.write_text(content, encoding="utf-8")
+    monkeypatch.setitem(globals(), "REPO_ROOT", tmp_path)
+    monkeypatch.setitem(globals(), "_active_text_files", lambda _root: (guide,))
+    with pytest.raises(AssertionError, match="outside migration section"):
+        test_old_names_remain_only_in_explicit_migration_text()
+
+
+def test_public_navigation_and_benchmark_use_cg_skill() -> None:
+    navigation = json.loads((REPO_ROOT / "docs/navigation.json").read_text(encoding="utf-8"))
+    groups = [group for group in navigation["groups"] if group["title"] == "Skills"]
+    assert len(groups) == 1
+    assert not any(group["title"] == "Skill Management" for group in navigation["groups"])
+    pages = groups[0]["pages"]
+    assert [page["id"] for page in pages if page.get("sidebar", True)] == [
+        "skills", "skill-management"
+    ]
+    assert len([
+        page for page in pages
+        if Path(page["file"]).parts[:2] == ("skills", "management")
+    ]) == 29
+    importing = next(page for page in pages if page["id"] == "importing-skills")
+    assert importing["sidebar"] is False
+    assert importing["redirect"]["page"] == "skill-management"
+    benchmark = (REPO_ROOT / "scripts/cg_projection_benchmark.py").read_text(
+        encoding="utf-8"
+    )
+    assert '"requestedCommand": "/cg-skill find"' in benchmark
+    assert '"expectedRoute": "suite-cg"' in benchmark

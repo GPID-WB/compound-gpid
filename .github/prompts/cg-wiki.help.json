@@ -1,0 +1,11 @@
+{
+  "id": "slash:cg-wiki", "name": "/cg-wiki", "kind": "slash", "ownerModule": "suite-cg", "supportedSuites": ["cg"],
+  "category": "knowledge", "summary": "Initialize, inspect, rebuild, restructure, or convert the project wiki.", "aliases": [],
+  "intents": ["manage project wiki pages", "rebuild generated wiki sections"], "usage": "/cg-wiki [status|init|rebuild|restructure|convert|help]", "examples": ["/cg-wiki status"],
+  "prerequisites": ["A project wiki configuration or permission to initialize it."], "outputs": ["Wiki status or controlled wiki updates."],
+  "constraints": ["Preserves manual content outside managed section markers."], "relatedCommands": [{"id": "slash:cg-compound", "relation": "related"}],
+  "sourcePath": ".github/prompts/cg-wiki.prompt.md", "definitionSources": [".github/prompts/cg-wiki.prompt.md"], "definitionDigest": "46815556cbe701ceb23850faaafea398197b77e1982a1c03e89b65dbadb0bca2",
+  "documentationTargets": [], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["any"],
+  "availability": {"status": "available", "evidence": [{"os": "any", "sourcePath": ".github/prompts/cg-wiki.prompt.md"}]},
+  "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
+}

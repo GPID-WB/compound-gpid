@@ -25,6 +25,82 @@ Use the narrowest artifact, section, snippet, or structured field that can answe
 | 3 | Targeted tactical context | Relevant headings/snippets from `compound-gpid.context.md`; roadmap feature/milestone records relevant to the current plan, feature, or status update | State why the specific section or record is needed. Prefer heading search or structured JSON parsing. |
 | 4 | Justified full expansion | Full `compound-gpid.context.md`, full `roadmap.json`, full `.cg-docs/BRAIN-log.md`, full `BRAIN-NN.md`, or full `brain-index.json` | Only when the workflow explicitly requires whole-file semantics. State the reason and the expected decision the full read supports. |
 
+## Module-Suite Context Budget (AI-agent compliance)
+
+Before loading a skill or instruction file, check whether its owning module's suite
+is declared active in `compound-gpid.local.md`'s `suites:` field. If not active,
+skip it. For example, with `suites: [cg]` only, files owned by the research suite
+(`cr-*` prompts, agents, skills, and the research instruction files) are not loaded
+into routine sessions; the same applies to the technical suite when it is inactive.
+
+- Active suites plus their transitive dependencies plus kernel form the loadable set.
+- Generator-level filtering is available as an explicit isolated-build option.
+	The linked native trees are shared all-suite distribution baselines, so
+	`cg-update` must not filter the global tree for one consumer. The project-level
+	`suites:` rule is an instruction/eligibility contract for AI agents and is NOT
+	programmatically verifiable by automated tests. Do not claim automated
+	verification of this instruction.
+- When `suites:` is absent, the default is `[cg]` (backward compatible).
+
+## Autopilot Parent Context Limits
+
+The autopilot parent measures complete returned frames — the closed stage
+result bytes plus its own metadata and any warnings — before another
+dispatch:
+
+- Complete stage JSON stays within 4096 UTF-8 bytes.
+- Per-frame ceiling: 8192 bytes for one complete returned frame.
+- Cumulative allowance: 65536 returned-frame bytes per primary parent
+  context.
+- When a frame exceeds its ceiling or the cumulative allowance would be
+  exceeded, the parent pauses before the next dispatch. It never truncates a
+  frame, never drops metadata or warnings to fit a budget, and never claims a
+  fresh-context reset within the same session.
+- A verified
+  fresh primary context resets only that context's returned-frame allowance.
+  Reservation, repair-round, CI-round, usage-counter and deadline state never
+  reset; deadline changes require the explicitly approved
+  extension transition.
+
+## Manifest-Aware Capability Routing
+
+When a command explicitly requests a capability (by id, task trigger, or
+skill reference) and that capability is not active in the project manifest,
+use the capability router to produce a structured hard-stop before doing any
+work:
+
+```bash
+python scripts/cg_skill_catalog.py --route <capability-id>
+```
+
+The router returns:
+- **inactiveReason**: why the capability is absent (selector mismatch, suite
+  ineligibility, or module not in closure)
+- **selector**: the authoritative config selector (field/operator/value) when
+  the capability is selector-driven
+- **remedy**: the exact `compound-gpid.local.md` field change and `cg-update`
+  command needed
+
+**Hard-stop behavior**: when the router returns `found: false`, stop before
+work. Do NOT:
+- Silently fall back to all-skill global source
+- Write a transient session projection
+- Alter configuration
+- Imply that instructions alone enforce selection
+- Continue with degraded partial output
+
+**Inactive reference leak detection**: generated targets, catalog rows, and
+adapter/config files must not contain references to assets outside the
+selected closure. Run the leak check to verify:
+
+```bash
+python scripts/cg_skill_catalog.py --check-leaks
+```
+
+The stable `/cg-*` and `/cr-*` workflow namespaces are preserved. Skill
+discovery and lifecycle management use the action-first `/cg-skill <operation>`
+namespace.
+
 ## Artifact Rules
 
 - `.cg-docs/BRAIN.md` is the small agent-facing meta-index and may be read by Brain query flows.

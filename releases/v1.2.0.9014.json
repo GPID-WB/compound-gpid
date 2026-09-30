@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "tag": "v1.2.0.9014",
+  "publishedAt": "2026-09-09T23:35:19Z",
+  "releaseDate": "2026-09-10",
+  "name": "v1.2.0.9014 - Research and evidence capabilities",
+  "url": "https://github.com/GPID-WB/compound-gpid/releases/tag/v1.2.0.9014",
+  "sourceUrl": "https://github.com/GPID-WB/compound-gpid/tree/v1.2.0.9014",
+  "sections": [
+    {
+      "kind": "new",
+      "title": "Research and evidence capabilities",
+      "entries": [
+        "Added CR ML methodology references and secured the canonical c-research migration workspace.",
+        "Added the AI knowledge work presentation with provenance artifacts.",
+        "Delivered the local evidence workbench across Markdown, ingestion, retrieval proposals, and verification."
+      ]
+    },
+    {
+      "kind": "fixed",
+      "title": "Documentation and workflow fixes",
+      "entries": [
+        "Preserved separate main and dev documentation validation and published the dev handbook artifact.",
+        "Aligned documentation, resolver, setup, release-gate, and evidence workbench contracts."
+      ]
+    },
+    {
+      "kind": "internal",
+      "title": "Documentation, testing, and maintenance",
+      "entries": [
+        "Refreshed audit, roadmap, target bundle, gate, workflow, and research catalog artifacts.",
+        "Expanded CR ML routing and safeguard coverage and aligned methodology safeguards.",
+        "Recorded release evidence and integrated branch changes."
+      ]
+    }
+  ]
+}

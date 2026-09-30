@@ -3,10 +3,27 @@
 Delivery workflows implement a reviewed plan or a bounded bug fix and preserve
 enough state to restart safely.
 
+## Complete a qualified small task
+
+Use `/cg-light-work <task>` only for a qualified small, low-risk technical task.
+The first user gate approves and saves the Plan before source edits. The command
+then maintains a Work Report and a Review Report. Its mandatory fixed light
+Review runs deterministic checks followed by `@cg-code-quality` and
+`@cg-testing`. It allows one initial Review pass and, only if Review fixes change
+files, one verification pass.
+
+After convergence, the second user gate asks for explicit compounding opt-in.
+Skipping compounding has no permanent knowledge side effect. Reproducible bugs
+use `/cg-fixbug`; research, statistical, and publication work uses `/cr-*`.
+Larger, ambiguous, security-sensitive, schema, dependency, or destructive work
+uses `/cg-brainstorm` -> `/cg-plan` -> `/cg-work`.
+
 ## Implement a plan
 
-Run `/cg-work` after a plan exists. For phased work, select a phase explicitly
-when needed:
+Run `/cg-work` after an approved Plan is saved. It executes that Plan; unmatched
+inline tasks receive a copy-ready `/cg-light-work -- <verbatim user task>`
+redirect and are not dispatched. For phased work, select a phase explicitly when
+needed:
 
 ```text
 /cg-work phase1

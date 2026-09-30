@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "note": "Phase 1 retains every public route. Phase 2 consolidates these narratives into the named guide sections; operation references retain their paths.",
+  "narratives": {
+    "skill-management": "start-here",
+    "skill-management-lifecycle": "lifecycle-and-safety",
+    "skill-management-consumers": "use-skills-in-a-project",
+    "skill-management-discovery": "use-skills-in-a-project",
+    "skill-management-project-import": "use-skills-in-a-project",
+    "skill-management-activation": "use-skills-in-a-project",
+    "skill-management-availability": "use-skills-in-a-project",
+    "skill-management-remediation": "diagnose-and-recover",
+    "skill-management-maintainers": "maintain-plugin-skills",
+    "skill-management-creation": "maintain-plugin-skills",
+    "skill-management-vendoring": "maintain-plugin-skills",
+    "skill-management-registry": "maintain-plugin-skills",
+    "skill-management-updates": "maintain-plugin-skills",
+    "skill-management-retirement": "maintain-plugin-skills",
+    "skill-management-release": "maintain-plugin-skills",
+    "skill-management-security": "security-and-provenance",
+    "skill-management-migration": "migrate-existing-workflows",
+    "importing-skills": "use-skills-in-a-project"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "tag": "v1.2.0.9011",
+  "publishedAt": "2026-08-31T19:43:29Z",
+  "releaseDate": "2026-08-31",
+  "name": "v1.2.0.9011 - Transactional repository review",
+  "url": "https://github.com/GPID-WB/compound-gpid/releases/tag/v1.2.0.9011",
+  "sourceUrl": "https://github.com/GPID-WB/compound-gpid/tree/v1.2.0.9011",
+  "sections": [
+    {
+      "kind": "new",
+      "title": "Transactional repository review",
+      "entries": [
+        "Added secure exact-state repository review transactions with add, remove, review, and reconciliation modes."
+      ]
+    },
+    {
+      "kind": "fixed",
+      "title": "CI and source detection fixes",
+      "entries": [
+        "Normalized pull request status contexts and link errors in CI.",
+        "Improved source repository detection through Git provenance."
+      ]
+    },
+    {
+      "kind": "internal",
+      "title": "Repository workflow support",
+      "entries": [
+        "Regenerated native command adapters and refreshed ownership manifests.",
+        "Documented the repository review workflow and implementation knowledge.",
+        "Added coverage for secure mutations, source detection, races, and adapter parity."
+      ]
+    }
+  ]
+}

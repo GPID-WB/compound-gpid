@@ -4,6 +4,12 @@ Archived "Current Focus" entries from `compound-gpid.md`.
 
 ---
 
+## 2026-09-30 - Documentation Bot Constraint
+
+> Automated documentation bot commits exempted — bot commits to `main` for documentation rebuilds from reviewed canonical sources (`.github/prompts/`, `.github/skills/`, `.github/agents/`) are exempt from feature-branch review; all bot commits are idempotent renders of canonical data
+
+Replaced with reviewed documentation PRs against protected `main`.
+
 ## 2026-05-05 → 2026-06-22
 
 > Workflow Maturity — improving the plan→execute cycle with branch creation from /cg-plan, smarter test-awareness in /cg-fixbug, and optional GitHub Issues integration for team coordination via gh CLI.

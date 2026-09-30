@@ -1,0 +1,28 @@
+{
+  "$schema": "compound-gpid-schema-subset-v1",
+  "$id": "cg-skill-validate-v1",
+  "$defs": {
+    "arguments": {
+      "type": "object",
+      "properties": {
+        "all": {"type": "boolean"},
+        "positionals": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1},
+          "maxItems": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "resultData": {
+      "type": "object",
+      "properties": {
+        "manifestHealth": {"type": "string", "enum": ["fresh", "missing", "stale", "invalid"]},
+        "validatedIds": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "descriptorOperations": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+      },
+      "required": ["manifestHealth", "validatedIds", "descriptorOperations"],
+      "additionalProperties": false
+    }
+  }
+}

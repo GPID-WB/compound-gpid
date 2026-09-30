@@ -1,11 +1,13 @@
 {
   "schemaVersion": 1,
-  "description": "Maps canonical .github/ assets to native platform trees. Read by scripts/cg_generate_targets.py to emit platform-specific command, skill, and agent files.",
+  "description": "Maps canonical .github/ assets to native platform trees, including the argument-preserving cg-release CLI interface on all five targets. Read by scripts/cg_generate_targets.py; never hand-edit generated commands.",
   "targets": [
     {
       "id": "copilot",
+      "argumentSource": {"source": "invocation-tail", "token": "", "fidelity": "model-visible"},
       "name": "GitHub Copilot",
       "generatedTreePath": null,
+      "projectedCategories": ["skills"],
       "capabilities": {
         "supportsNativeCommands": true,
         "supportsNativeSkills": true,
@@ -25,9 +27,12 @@
         "instructions": ".github/instructions",
         "shared": ".github/shared"
       },
+      "projectRoots": {
+        "managed": [".github/skills"],
+        "optionalUser": []
+      },
       "installUnits": [
         { "type": "directory", "source": ".github/prompts", "target": ".github/prompts", "strategy": "link-directory" },
-        { "type": "directory", "source": ".github/skills", "target": ".github/skills", "strategy": "link-directory" },
         { "type": "directory", "source": ".github/agents", "target": ".github/agents", "strategy": "link-directory" },
         { "type": "directory", "source": ".github/instructions", "target": ".github/instructions", "strategy": "link-directory" },
         { "type": "directory", "source": ".github/shared", "target": ".github/shared", "strategy": "link-directory" },
@@ -36,6 +41,7 @@
     },
     {
       "id": "claude-code",
+      "argumentSource": {"source": "native-placeholder", "token": "$ARGUMENTS", "fidelity": "native-placeholder"},
       "name": "Claude Code",
       "generatedTreePath": ".claude",
       "capabilities": {
@@ -58,17 +64,22 @@
         "shared": ".claude/shared",
         "rootAdapter": ".claude/CLAUDE.md"
       },
+      "projectRoots": {
+        "managed": [".claude"],
+        "optionalUser": []
+      },
       "installUnits": [
         { "type": "directory", "source": ".claude/commands", "target": ".claude/commands", "strategy": "link-directory" },
         { "type": "directory", "source": ".claude/skills", "target": ".claude/skills", "strategy": "link-directory" },
         { "type": "directory", "source": ".claude/agents", "target": ".claude/agents", "strategy": "link-directory" },
         { "type": "directory", "source": ".claude/instructions", "target": ".claude/instructions", "strategy": "link-directory" },
         { "type": "directory", "source": ".claude/shared", "target": ".claude/shared", "strategy": "link-directory" },
-         { "type": "file", "source": ".claude/CLAUDE.md", "target": ".claude/CLAUDE.md", "strategy": "managed-copy" }
+        { "type": "file", "source": ".claude/CLAUDE.md", "target": ".claude/CLAUDE.md", "strategy": "managed-copy" }
       ]
     },
     {
       "id": "codex",
+      "argumentSource": {"source": "native-placeholder", "token": "$ARGUMENTS", "fidelity": "native-placeholder"},
       "name": "Codex",
       "generatedTreePath": ".agents",
       "capabilities": {
@@ -92,17 +103,22 @@
         "shared": ".agents/shared",
         "rootAdapter": ".agents/AGENTS.md"
       },
+      "projectRoots": {
+        "managed": [".agents"],
+        "optionalUser": []
+      },
       "installUnits": [
         { "type": "directory", "source": ".agents/commands", "target": ".agents/commands", "strategy": "link-directory" },
         { "type": "directory", "source": ".agents/skills", "target": ".agents/skills", "strategy": "link-directory" },
         { "type": "directory", "source": ".agents/subagents", "target": ".agents/subagents", "strategy": "link-directory" },
         { "type": "directory", "source": ".agents/instructions", "target": ".agents/instructions", "strategy": "link-directory" },
         { "type": "directory", "source": ".agents/shared", "target": ".agents/shared", "strategy": "link-directory" },
-         { "type": "file", "source": ".agents/AGENTS.md", "target": ".agents/AGENTS.md", "strategy": "managed-copy" }
+        { "type": "file", "source": ".agents/AGENTS.md", "target": ".agents/AGENTS.md", "strategy": "managed-copy" }
       ]
     },
     {
       "id": "opencode",
+      "argumentSource": {"source": "generated-block", "token": "$ARGUMENTS", "fidelity": "model-visible"},
       "name": "OpenCode",
       "generatedTreePath": ".opencode",
       "capabilities": {
@@ -126,6 +142,10 @@
         "rootAdapter": ".opencode/AGENTS.md",
         "config": ".opencode/opencode.json"
       },
+      "projectRoots": {
+        "managed": [".opencode"],
+        "optionalUser": []
+      },
       "installUnits": [
         { "type": "directory", "source": ".opencode/commands", "target": ".opencode/commands", "strategy": "link-directory" },
         { "type": "directory", "source": ".opencode/skills", "target": ".opencode/skills", "strategy": "link-directory" },
@@ -144,8 +164,58 @@
     },
     {
       "id": "kilo",
+      "argumentSource": {"source": "generated-block", "token": "$ARGUMENTS", "fidelity": "model-visible"},
       "name": "Kilo",
       "generatedTreePath": ".kilo",
+      "assetMetadata": {
+        "cg-autopilot.prompt.md": {
+          "agent": "cg-autopilot",
+          "subtask": false
+        },
+        "cg-autopilot.agent.md": {
+          "mode": "primary",
+          "permission": {
+            "*": "deny",
+            "read": "allow",
+            "glob": "allow",
+            "grep": "allow",
+            "cg_native_identity": "ask",
+            "cg_native_evidence": "ask",
+            "task": {"*": "ask", "cg-workflow-stage": "allow"}
+          }
+        },
+        "cg-bootstrap-leaf.agent.md": {
+          "mode": "subagent",
+          "permission": {
+            "*": "deny",
+            "read": "allow",
+            "glob": "allow",
+            "grep": "allow",
+            "cg_native_identity": "ask",
+            "bash": {
+              "*": "deny",
+              "git branch --show-current*": "allow",
+              "git rev-parse*": "allow",
+              "git status --porcelain*": "allow"
+            }
+          }
+        },
+        "cg-fix-problems.agent.md": {
+          "permission": {"task": {"*": "ask", "general": "allow"}}
+        },
+        "cg-workflow-stage.agent.md": {
+          "mode": "subagent",
+          "permission": {
+            "*": "deny",
+            "read": "allow",
+            "glob": "allow",
+            "grep": "allow",
+            "cg_native_identity": "ask",
+            "cg_native_evidence": "ask",
+            "task": {"*": "ask", "cg-code-quality": "allow", "cg-fix-problems": "allow", "cg-bootstrap-leaf": "allow"}
+          }
+        }
+      },
       "capabilities": {
         "supportsNativeCommands": true,
         "supportsNativeSkills": true,
@@ -166,6 +236,10 @@
         "shared": ".kilo/shared",
         "rootAdapter": ".kilo/AGENTS.md",
         "config": ".kilo/kilo.json"
+      },
+      "projectRoots": {
+        "managed": [".kilo"],
+        "optionalUser": []
       },
       "installUnits": [
         { "type": "directory", "source": ".kilo/commands", "target": ".kilo/commands", "strategy": "copy-directory" },

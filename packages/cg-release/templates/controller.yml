@@ -1,0 +1,81 @@
+# Disabled example. Bootstrap requires a reviewed setup PR and verified settings.
+# Replace the explicit pins below with reviewed values, then review enablement.
+name: Release controller
+on:
+  issues:
+    types: [opened]
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+    inputs:
+      operation:
+        type: choice
+        options: [scan, reconcile, abandon, recover]
+        default: scan
+      request_id:
+        type: string
+      reason:
+        type: string
+      recovery_digest:
+        type: string
+permissions:
+  contents: read
+  issues: read
+  actions: read
+concurrency:
+  group: release-controller-control
+  cancel-in-progress: false
+jobs:
+  control:
+    if: ${{ false && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: release-control
+    env:
+      CG_RELEASE_CONTROLLER_REVISION: REPLACE_WITH_REVIEWED_40_HEX_CONTROLLER_REVISION
+      CG_RELEASE_WHEEL_SHA256: REPLACE_WITH_REVIEWED_64_HEX_WHEEL_DIGEST
+      CONTROLLER_WHEEL_URL: https://example.invalid/reviewed-controller.whl
+      CONTROLLER_WHEEL_FILENAME: cg_release-0.1.0-py3-none-any.whl
+      OPERATION: ${{ inputs.operation || 'scan' }}
+      REQUEST_ID: ${{ inputs.request_id }}
+      REASON: ${{ inputs.reason }}
+      RECOVERY_DIGEST: ${{ inputs.recovery_digest }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: REPLACE_WITH_CONTROLLER_OWNER/CONTROLLER_REPOSITORY
+          ref: REPLACE_WITH_REVIEWED_40_HEX_CONTROLLER_REVISION
+          persist-credentials: false
+      - name: Install verified controller and locked dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install uv==0.11.3
+          uv sync --project packages/cg-release --python 3.12 --locked --no-install-project
+          curl --fail --proto '=https' --tlsv1.2 "$CONTROLLER_WHEEL_URL" -o "$CONTROLLER_WHEEL_FILENAME"
+          printf '%s  %s\n' "$CG_RELEASE_WHEEL_SHA256" "$CONTROLLER_WHEEL_FILENAME" | sha256sum --check --strict
+          uv pip install --link-mode copy --python packages/cg-release/.venv/bin/python --no-deps "$CONTROLLER_WHEEL_FILENAME"
+      - name: Acquire repository-scoped control App credential
+        id: app
+        uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349
+        with:
+          app-id: ${{ secrets.RELEASE_CONTROL_APP_ID }}
+          private-key: ${{ secrets.RELEASE_CONTROL_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ github.event.repository.name }}
+          permission-contents: write
+          permission-issues: write
+          permission-pull-requests: write
+          permission-actions: write
+          permission-administration: read
+          permission-environments: read
+          permission-secrets: read
+      - name: Process bounded durable work
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          packages/cg-release/.venv/bin/python -m cg_release.controller \
+            --operation "$OPERATION" --request-id "$REQUEST_ID" --reason "$REASON" \
+            --recovery-digest "$RECOVERY_DIGEST"

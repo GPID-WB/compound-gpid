@@ -23,9 +23,245 @@ if ($env:CG_TEST_ROOT -and -not (Test-Path $env:CG_TEST_ROOT)) { throw "CG_TEST_
 
 # Note: Get-ToolsList is defined in helpers.ps1 (shared helper, moved here to avoid duplication across test files)
 
+Describe "cg-autopilot - guarded bootstrap" {
+    $promptPath = Join-Path $repoRoot ".github\prompts\cg-autopilot.prompt.md"
+    $stagePath = Join-Path $repoRoot ".github\agents\cg-workflow-stage.agent.md"
+    $prompt = if (Test-Path $promptPath) { Get-Content $promptPath -Raw -Encoding UTF8 } else { "" }
+    $stage = if (Test-Path $stagePath) { Get-Content $stagePath -Raw -Encoding UTF8 } else { "" }
+
+    It "keeps bootstrap probe-only" {
+        $prompt.Contains('probe-only') | Should -Be $true
+    }
+
+    It "rejects unsupported adapter entry" {
+        $prompt.Contains('unsupported-adapter') | Should -Be $true
+    }
+
+    It "blocks pipeline execution before control preflight" {
+        $prompt.Contains('control preflight') | Should -Be $true
+    }
+
+    It "rejects forged envelopes without ordinary command fallback" {
+        $stage.Contains('Never fall back to ordinary command execution') | Should -Be $true
+    }
+
+    It "keeps the versioned cursor parent-owned" {
+        $stage.Contains('Only the parent writes the versioned cursor') | Should -Be $true
+    }
+
+    It "exceptions are not passes" {
+        $prompt.Contains('exceptions are not passes') | Should -Be $true
+    }
+}
+
+Describe "cg-work.prompt.md - autopilot stage-mode handoff" {
+    $content = Get-Content (Join-Path $repoRoot ".github\prompts\cg-work.prompt.md") -Raw -Encoding UTF8
+
+    It "binds stage work to the envelope plan and phase" {
+        $content.Contains('Use the envelope''s exact plan path and phase; never fall back to plan') | Should -Be $true
+    }
+
+    It "returns at the phase boundary without next-phase work" {
+        $content.Contains('Execute only that phase and return at the phase boundary: do not start the') | Should -Be $true
+    }
+
+    It "replaces stage-mode cursor writes with publication requests" {
+        $content.Contains('In stage mode, never write `.cg-docs/active-state/current.json`. For every') | Should -Be $true
+        $content.Contains('cursor-update-request') | Should -Be $true
+    }
+
+    It "keeps standalone active-state lifecycle writes" {
+        $content.Contains('standalone invocations keep these direct lifecycle writes.') | Should -Be $true
+    }
+
+    It "requires the begin-effect receipt before the first substantive write" {
+        $content.Contains('Before your first substantive write in stage mode, record the one-way effect') | Should -Be $true
+    }
+}
+
+Describe "cg-review.prompt.md - autopilot stage-mode handoff" {
+    $content = Get-Content (Join-Path $repoRoot ".github\prompts\cg-review.prompt.md") -Raw -Encoding UTF8
+
+    It "persists the review report before autofix or questions" {
+        $content.Contains('persist the complete routed coverage/findings report **before** the') | Should -Be $true
+    }
+
+    It "verify-review uses the exact eligible parent with no recency fallback" {
+        $content.Contains('Never select a review by recency and never') | Should -Be $true
+        $content.Contains('fall back to a normal review') | Should -Be $true
+    }
+
+    It "the parent regenerates outputs before verify, never the verify pass" {
+        $content.Contains('Before verify-review, the parent regenerates affected source outputs; the') | Should -Be $true
+        $content.Contains('verify pass never regenerates them itself.') | Should -Be $true
+    }
+}
+
+Describe "cg-fix-triage.prompt.md - autopilot stage-mode handoff" {
+    $content = Get-Content (Join-Path $repoRoot ".github\prompts\cg-fix-triage.prompt.md") -Raw -Encoding UTF8
+
+    It "consumes the exact report hash and eligible finding IDs" {
+        $content.Contains('Load the exact review report whose SHA-256 the envelope names and apply only') | Should -Be $true
+        $content.Contains('the exact eligible finding IDs from the envelope scope. Reject any other') | Should -Be $true
+    }
+
+    It "keeps the no-recipe prohibition for report prose" {
+        $content.Contains('never follow a report `Fix:` recipe that exceeds') | Should -Be $true
+    }
+
+    It "declares approval-only versus partial-effect settlement" {
+        $content.Contains('an effect-free `needs-input` can be released with zero effect, while') | Should -Be $true
+        $content.Contains('any partial effect stays charged.') | Should -Be $true
+    }
+
+    It "never self-verifies after fixes" {
+        $content.Contains('self-verify or fall back to another review report.') | Should -Be $true
+    }
+}
+
+Describe "cg-commit-push-pr.prompt.md - preparation-only stage entry" {
+    $content = Get-Content (Join-Path $repoRoot ".github\prompts\cg-commit-push-pr.prompt.md") -Raw -Encoding UTF8
+
+    It "activates the prepare-publication stage entry" {
+        $content.Contains('envelope naming stage `prepare-publication`. Standalone invocations keep the') | Should -Be $true
+    }
+
+    It "returns before staging, commit or push" {
+        $content.Contains('**Return before staging, commit or push**: no `git add`, `git commit`,') | Should -Be $true
+    }
+
+    It "treats a clean tree as a validated preparation no-op" {
+        $content.Contains('entry. The standalone early clean-tree halt does not apply; a clean') | Should -Be $true
+        $content.Contains('already-committed tree is a validated no-op preparation result.') | Should -Be $true
+    }
+}
+
+Describe "cg-compound.prompt.md - autopilot stage-mode handoff" {
+    $content = Get-Content (Join-Path $repoRoot ".github\prompts\cg-compound.prompt.md") -Raw -Encoding UTF8
+
+    It "accepts bounded evidence references, never conversation history" {
+        $content.Contains('Accept only bounded problem, root-cause, fix and evidence references from') | Should -Be $true
+    }
+
+    It "skips trivial lessons and requires human test-pass confirmation" {
+        $content.Contains('Skip trivial lessons: no mandatory compounding for trivial work. A useful') | Should -Be $true
+        $content.Contains('lesson requires the applicable human test-pass confirmation before the') | Should -Be $true
+    }
+
+    It "declares secondary effects separately and never collapses flags" {
+        $content.Contains('Declare secondary effects separately: the solution document,') | Should -Be $true
+        $content.Contains('suppress only their own steps; they never suppress the other') | Should -Be $true
+    }
+
+    It "pauses before unapproved scope expansion" {
+        $content.Contains('Pause with a `needs-input` decision before any unapproved scope expansion') | Should -Be $true
+    }
+}
+
+Describe "shared contracts - autopilot stage-mode cursor and report identity" {
+    $activeState = Get-Content (Join-Path $repoRoot ".github\shared\active-state.contract.md") -Raw -Encoding UTF8
+    $goalContract = Get-Content (Join-Path $repoRoot ".github\shared\goal-execution.contract.md") -Raw -Encoding UTF8
+
+    It "active-state contract blocks child cursor writes in stage mode" {
+        $activeState.Contains('Inside a validated autopilot stage, the `/cg-work` child never writes the') | Should -Be $true
+        $activeState.Contains('Standalone invocations keep the direct lifecycle writes') | Should -Be $true
+    }
+
+    It "goal-execution contract names the stage report identity" {
+        $goalContract.Contains('**Autopilot stage mode**: inside a validated autopilot work stage, the') | Should -Be $true
+        $goalContract.Contains('never newest-file selection') | Should -Be $true
+    }
+}
+
+
+Describe "cg-help deterministic answer boundary" {
+    $helpPath = Join-Path $repoRoot ".github/prompts/cg-help.prompt.md"
+    $helpText = if (Test-Path $helpPath) { Get-Content $helpPath -Raw -Encoding UTF8 } else { "" }
+
+    It "ships a thin prompt with separate metadata" {
+        Test-Path $helpPath | Should -Be $true
+        Test-Path (Join-Path $repoRoot ".github/prompts/cg-help.help.json") | Should -Be $true
+        $helpText.Length | Should -BeLessThan 7000
+        $helpText.Contains('definitionDigest') | Should -Be $false
+        $helpText.Contains('$ARGUMENTS') | Should -Be $false
+    }
+    It "requires prepare validation before each structured write" {
+        $helpText.Contains('--prepare-request --root .') | Should -Be $true
+        $helpText.Contains('Before every write') | Should -Be $true
+        $helpText.Contains('structured file-write tool') | Should -Be $true
+        $helpText.Contains('UUID-derived path') | Should -Be $true
+        $helpText.Contains('selection-prepared') | Should -Be $true
+    }
+    It "relays only deterministic content and stops unsafe fallback" {
+        $helpText.Contains('Do not compose') | Should -Be $true
+        $helpText.Contains('unchanged') | Should -Be $true
+        $helpText.Contains('Never scan') | Should -Be $true
+        $helpText.Contains('transport-error') | Should -Be $true
+        $helpText.Contains('at most three') | Should -Be $true
+        $helpText.Contains('--render-selection <uuid>') | Should -Be $true
+    }
+    It "suppresses progress prose throughout the help transport" {
+        $flat = [regex]::Replace($helpText, '\s+', ' ')
+        ($flat -match 'Do not send progress updates, preambles, or intermediate commentary before or between tools\.') | Should -Be $true
+        ($flat -match 'Emit user-visible text only when relaying the final backend display or fixed recovery\.') | Should -Be $true
+    }
+}
+
 # ---------------------------------------------------------------------------
 # cg-render-doc.prompt.md must exclude generated views from publishing
 # ---------------------------------------------------------------------------
+
+Describe "cg-commit-push-pr.prompt.md - Step 6 help-catalog gate" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-commit-push-pr.prompt.md"
+    $content = if (Test-Path $promptFile) { Get-Content $promptFile -Raw -Encoding UTF8 } else { "" }
+    $flat = [regex]::Replace($content, "\s+", " ")
+
+    It "runs the help catalog check unconditionally before native-target generation" {
+        ($flat -match 'scripts/cg_generate_help_catalog\.py --check') | Should -Be $true
+        ($flat -match 'unconditionally') | Should -Be $true
+    }
+
+    It "treats exit code 2 as a source-validation hard stop" {
+        ($flat -match 'Exit code 2 is a source-validation hard stop') | Should -Be $true
+    }
+
+    It "halts for a stale definition digest and requires a preview before repin" {
+        ($flat -match 'stale `definitionDigest`|stale ``definitionDigest``') | Should -Be $true
+        ($flat -match '--preview-definition-digest') | Should -Be $true
+        ($flat -match 'halt before native-target generation') | Should -Be $true
+    }
+
+    It "requires reviewed one-record repin and never auto-repins" {
+        ($flat -match '--repin-definition-digest') | Should -Be $true
+        ($flat -match '--reviewed') | Should -Be $true
+        ($flat -match 'Never auto-repin a definition from this workflow or from a bulk catalog-generation path') | Should -Be $true
+    }
+
+    It "distinguishes exit 3 stale output from exit 4 or other hard-stop failures" {
+        ($flat -match 'Exit code 3 means only that the validated catalog output is missing or stale') | Should -Be $true
+        ($flat -match 'Exit code 3 is the trigger to run') | Should -Be $true
+        ($flat -match 'Exit code 4 or any other nonzero/ambiguous result is a hard stop') | Should -Be $true
+        ($flat -match 'Never treat source-validation or I/O failure as ordinary output drift') | Should -Be $true
+    }
+
+    It "writes the catalog only after reviewed digests and stops on any nonzero write" {
+        ($flat -match 'scripts/cg_generate_help_catalog\.py --write') | Should -Be $true
+        ($flat -match 'Any nonzero result halts before native-target generation and staging') | Should -Be $true
+        ($flat -match 'Do not stage a partial or previously stale catalog') | Should -Be $true
+    }
+
+    It "reruns the check after the write and requires exit code 0" {
+        ($flat -match 'Rerun') | Should -Be $true
+        ($flat -match 'after the write and require exit code 0 before continuing') | Should -Be $true
+        ($flat -match 'A nonzero or partial result is a hard stop') | Should -Be $true
+    }
+
+    It "keeps views and documentation prose out of the catalog drift boundary" {
+        ($flat -match '\.cg-docs/views/\*\*') | Should -Be $true
+        ($flat -match 'are not catalog source-digest or drift inputs') | Should -Be $true
+        ($flat -match 'do not broaden the generator''s evidence boundary') | Should -Be $true
+    }
+}
 
 Describe "cg-render-doc.prompt.md - generated views routing" {
     $promptFile = Join-Path $repoRoot ".github\prompts\cg-render-doc.prompt.md"
@@ -33,6 +269,25 @@ Describe "cg-render-doc.prompt.md - generated views routing" {
 
     It "explicitly excludes .cg-docs/views/ generated outputs" {
         ($content -match '\.cg-docs/views/') | Should -Be $true
+    }
+}
+
+Describe "cg-skill public dispatcher migration" {
+    $prompt = Join-Path $repoRoot ".github\prompts\cg-skill.prompt.md"
+    $content = if (Test-Path $prompt) { Get-Content $prompt -Raw -Encoding UTF8 } else { "" }
+
+    It "ships one public cg-skill prompt and removes old prompts" {
+        Test-Path $prompt | Should -Be $true
+        Test-Path (Join-Path $repoRoot ".github\prompts\cg-find-skill.prompt.md") | Should -Be $false
+        Test-Path (Join-Path $repoRoot ".github\prompts\cg-import-skill.prompt.md") | Should -Be $false
+    }
+
+    It "uses descriptor dispatch and plan/apply safety" {
+        ($content -match 'cg-skill-management') | Should -Be $true
+        ($content -match 'cg-skill --project-root \. --format json') | Should -Be $true
+        ($content -match 'Mutating operations plan by default') | Should -Be $true
+        ($content -match 'Never add, infer, reuse, or modify an apply digest') | Should -Be $true
+        ($content -match 'Do not accept a role override') | Should -Be $true
     }
 }
 
@@ -165,6 +420,7 @@ Describe "cg-strategy.prompt.md - frontmatter" {
         }
 
         It "inherits the Copilot model picker without model frontmatter" {
+            $frontmatter | Should -Not -BeNullOrEmpty
             ($frontmatter -notmatch '(?m)^\s*model:') | Should -Be $true
         }
     }
@@ -1423,31 +1679,371 @@ Describe "cg-review.prompt.md - P0 BLOCKING in report template" {
 }
 
 # ---------------------------------------------------------------------------
-# P1.30 â€” cg-work inline plan fallback
+# cg-work plan-only intake boundary
 # ---------------------------------------------------------------------------
 
-Describe "cg-work.prompt.md - inline plan fallback" {
+Describe "cg-work.prompt.md - plan-only intake boundary" {
     $promptFile = Join-Path $repoRoot ".github\prompts\cg-work.prompt.md"
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
-    It "describes lightweight inline plan fallback when no plan found" {
-        ($content -match 'lightweight inline plan') | Should -Be $true
+    It "keeps saved-Plan resolution before the inline-task redirect" {
+        $savedPlan = $content.IndexOf("Find the most recent plan")
+        $keywordMatch = $content.IndexOf("keyword-title matching")
+        $redirect = $content.IndexOf("/cg-work requires an approved saved Plan")
+        $savedPlan | Should -BeGreaterThan -1
+        $keywordMatch | Should -BeGreaterThan $savedPlan
+        $redirect | Should -BeGreaterThan $keywordMatch
     }
 
-    It "inline plan is described as 3-5 steps" {
-        ($content -match '3.5 steps') | Should -Be $true
+    It "states that cg-work requires an approved saved Plan" {
+        ($content -match '/cg-work requires an approved saved Plan') | Should -Be $true
     }
 
-    It "offers Proceed with this or run /cg-plan option" {
-        ($content -match 'Proceed with this.*cg-plan') | Should -Be $true
+    It "states that cg-work does not create inline Plans" {
+        ($content -match 'does not create inline Plans') | Should -Be $true
     }
 
-    It "skips roadmap linking Step 1.5 when using inline plan" {
-        ($content -match 'Skip Step 1\.5') | Should -Be $true
+    It "returns the exact delimited small-task redirect" {
+        ($content -match '/cg-light-work -- <verbatim user task>') | Should -Be $true
     }
 
-    It "saves inline plan to .cg-docs/plans/ before implementing" {
-        ($content -match '\.cg-docs[/\\]plans.*YYYY-MM-DD') | Should -Be $true
+    It "routes empty unmatched input to cg-plan" {
+        ($content -match 'no task payload.*`/cg-plan`') | Should -Be $true
+    }
+
+    It "does not dispatch cg-light-work from the redirect" {
+        ($content -match 'Do not dispatch `/cg-light-work`') | Should -Be $true
+    }
+
+    It "removes inline Plan creation instructions" {
+        ($content -match 'Generate a 3-5 steps lightweight inline plan') | Should -Be $false
+        ($content -match 'Proceed with this, or run `/cg-plan` first') | Should -Be $false
+    }
+}
+
+Describe "workflow guidance - cg-work plan-only boundary" {
+    $workflowFile = Join-Path $repoRoot "docs\workflow.md"
+    $referenceFile = Join-Path $repoRoot "docs\reference.md"
+    $workflow = Get-Content $workflowFile -Raw -Encoding UTF8
+    $reference = Get-Content $referenceFile -Raw -Encoding UTF8
+
+    It "removes stale cg-work scope-classification and inline-Plan guidance" {
+        ($reference -match '(?s)/cg-brainstorm.{0,80}/cg-plan.{0,80}/cg-work.{0,80}all classify the task scope') | Should -Be $false
+        ($workflow -match '(?s)/cg-work.{0,160}(?:generates?|creates?|handles?).{0,80}inline.{0,40}plan') | Should -Be $false
+        ($workflow -match '(?m)^\*\*Inline plan handling\*\*') | Should -Be $false
+    }
+}
+
+# ---------------------------------------------------------------------------
+# cg-light-work deterministic command contract
+# ---------------------------------------------------------------------------
+
+Describe "cg-light-work.prompt.md - deterministic small-task contract" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-light-work.prompt.md"
+    $content = if (Test-Path $promptFile) { Get-Content $promptFile -Raw -Encoding UTF8 } else { "" }
+
+    It "exists as a canonical command-only orchestrator" {
+        Test-Path $promptFile | Should -Be $true
+        ($content -match 'command-only orchestrator') | Should -Be $true
+        ($content -match 'broad writable lifecycle agent') | Should -Be $false
+    }
+
+    foreach ($contract in @(
+        'context-loading.contract.md',
+        'artifact-view.contract.md',
+        'goal-execution.contract.md',
+        'active-state.contract.md',
+        'review-routing.contract.md',
+        'model-advisory.contract.md'
+    )) {
+        It "references $contract" {
+            ($content -match [regex]::Escape($contract)) | Should -Be $true
+        }
+    }
+
+    foreach ($control in @('--no-branch', '--no-brain', '--no-html')) {
+        It "supports the $control control" {
+            ($content -match [regex]::Escape($control)) | Should -Be $true
+        }
+    }
+
+    It "parses controls only from the leading control segment" {
+        ($content -match 'leading control segment') | Should -Be $true
+        ($content -match '(?s)first non-control token\s+starts the task') | Should -Be $true
+    }
+
+    It "uses the delimiter to preserve all remaining task text verbatim" {
+        ($content -match '`--` ends the control segment') | Should -Be $true
+        ($content -match 'remaining text is the task verbatim') | Should -Be $true
+    }
+
+    It "warns and deduplicates repeated supported controls" {
+        ($content -match 'Warn and deduplicate repeated supported controls') | Should -Be $true
+    }
+
+    It "rejects unsupported leading controls before work" {
+        ($content -match '(?s)Reject an unsupported leading\s+`--\*` control') | Should -Be $true
+    }
+
+    It "hard-stops on an empty task" {
+        ($content -match '(?s)empty task remainder is a hard\s+stop') | Should -Be $true
+    }
+
+    It "defines literal argument examples" {
+        ($content -match 'document the --no-html option') | Should -Be $true
+        ($content -match '-- --force should remain literal') | Should -Be $true
+    }
+
+    It "requires workspace-first discovery before questions" {
+        $facts = $content.IndexOf("Workspace Facts First")
+        $questions = $content.IndexOf("Bounded Questions")
+        $facts | Should -BeGreaterThan -1
+        $questions | Should -BeGreaterThan $facts
+        ($content -match '(?s)charter.*local configuration.*git.*relevant files.*tests.*instructions.*similar') | Should -Be $true
+    }
+
+    It "runs at most one bounded Brain query" {
+        ($content -match 'at most one bounded Brain query') | Should -Be $true
+    }
+
+    It "uses a preliminary status and definitive task-local snapshot" {
+        ($content -match 'preliminary `git status --short`') | Should -Be $true
+        ($content -match 'definitive task-local snapshot') | Should -Be $true
+        ($content -match 'initial-status\.txt') | Should -Be $true
+        ($content -match 'initial-tracked\.diff') | Should -Be $true
+        ($content -match 'initial-untracked\.json') | Should -Be $true
+        ($content -match 'SHA-256') | Should -Be $true
+    }
+
+    It "defines fail-closed repository and branch handling" {
+        ($content -match '(?s)non-git workspace.*stop') | Should -Be $true
+        ($content -match '(?s)without a resolvable `HEAD`.*stop') | Should -Be $true
+        ($content -match '(?s)detached HEAD.*--no-branch') | Should -Be $true
+        ($content -match 'refs/remotes/origin/HEAD') | Should -Be $true
+        ($content -match '(?s)existing `main`.*existing `master`') | Should -Be $true
+        ($content -match 'limit the full name to 60 characters') | Should -Be $true
+    }
+
+    It "defines all dirty and branch-conflict choices" {
+        ($content -match '(?s)dirty default branch.*stash.*branch anyway.*stop') | Should -Be $true
+        ($content -match '(?s)existing feature branch.*retain') | Should -Be $true
+        ($content -match '(?s)derived name already exists.*switch') | Should -Be $true
+        ($content -match '(?s)create, switch, or stash failure.*blocks source edits') | Should -Be $true
+    }
+
+    It "handles tracked and untracked snapshot overlap separately" {
+        ($content -match '(?s)tracked-file overlap.*continue here.*standard workflow.*stop') | Should -Be $true
+        ($content -match '(?s)untracked-file overlap.*stop') | Should -Be $true
+    }
+
+    $hardGateRows = [ordered]@{
+        H1 = 'Reproducible defect, regression, or root-cause investigation -> `/cg-fixbug`'
+        H2 = 'Research, econometric, statistical, survey, poverty, welfare, weights, measurement, classification, or publication output -> `/cr-brainstorm` and `/cr-*`'
+        H3 = 'PII, secrets, credentials, auth, permissions, or security-sensitive behavior -> `/cg-brainstorm` with full safety review'
+        H4 = 'Destructive filesystem or data operation; deployment, release, install, update, link, unlink, or publishing -> `/cg-brainstorm` and the standard cycle'
+        H5 = 'Schema or data migration; public API contract; dependency change; module boundary; concurrency; broad performance architecture -> `/cg-brainstorm` and the standard cycle'
+        H6 = 'Required evidence cannot run safely or completion would use static inspection only -> standard Plan and blocked-stop handling'
+        H7 = 'Charter conflict or an unapproved protected boundary -> stop and resolve through the standard cycle'
+    }
+    foreach ($gate in $hardGateRows.Keys) {
+        It "defines the exact hard gate $gate contract" {
+            $row = "| $gate | $($hardGateRows[$gate]) |"
+            ($content -match "(?m)^$([regex]::Escape($row))$") | Should -Be $true
+        }
+    }
+
+    It "routes bug and research hard gates exactly" {
+        ($content -match '(?m)^\| H1 \|.*`/cg-fixbug`') | Should -Be $true
+        ($content -match '(?m)^\| H2 \|.*`/cr-brainstorm`') | Should -Be $true
+    }
+
+    It "routes safety architecture and unverifiable work to the standard cycle" {
+        ($content -match '(?m)^\| H3 \|.*security') | Should -Be $true
+        ($content -match '(?m)^\| H4 \|.*destructive') | Should -Be $true
+        ($content -match '(?m)^\| H5 \|.*dependency') | Should -Be $true
+        ($content -match '(?m)^\| H6 \|.*static inspection') | Should -Be $true
+        ($content -match '(?m)^\| H7 \|.*charter') | Should -Be $true
+    }
+
+    It "evaluates hard gates before size gates and fails closed on unknown risk" {
+        $hard = $content.IndexOf("H1-H7")
+        $size = $content.IndexOf("S1-S10")
+        $hard | Should -BeGreaterThan -1
+        $size | Should -BeGreaterThan $hard
+        ($content -match 'Unknown risk fails closed') | Should -Be $true
+    }
+
+    $sizeGateRows = [ordered]@{
+        S1 = 'One cohesive observable outcome and at most one user-visible behavior change'
+        S2 = 'One subsystem, package, command, component, or documentation concern'
+        S3 = 'At most 3 manually edited implementation files'
+        S4 = 'At most 3 directly coupled test, documentation, or configuration files and at most 6 manually edited non-generated files total'
+        S5 = 'At most 150 estimated non-generated changed lines, excluding formatting-only changes'
+        S6 = 'At most 6 atomic implementation steps in 1 or 2 execution phases'
+        S7 = 'Implementation and targeted verification fit within half a developer day'
+        S8 = 'At most 3 targeted verification commands and 2 targeted test files, expected at or below 10 minutes'
+        S9 = 'No new runtime or development dependency, migration, schema, public contract, or reusable abstraction layer'
+        S10 = 'No unresolved material decision after the two-round discovery budget'
+    }
+    foreach ($gate in $sizeGateRows.Keys) {
+        It "defines the exact size gate $gate contract" {
+            $row = "| $gate | $($sizeGateRows[$gate]) |"
+            ($content -match "(?m)^$([regex]::Escape($row))$") | Should -Be $true
+        }
+    }
+
+    It "makes only estimate gates overridable" {
+        ($content -match 'S1, S2, S6, S9, and S10 are structural') | Should -Be $true
+        ($content -match '(?s)Only S3-S5, S7, and S8.*estimates') | Should -Be $true
+        ($content -match 'scope: Standard') | Should -Be $true
+    }
+
+    It "limits discovery to two rounds and two independent questions per round" {
+        ($content -match '(?s)at most two discovery\s+rounds') | Should -Be $true
+        ($content -match '(?s)at most two independent questions per round') | Should -Be $true
+        ($content -match 'zero questions') | Should -Be $true
+        ($content -match 'third round.*`/cg-brainstorm`') | Should -Be $true
+    }
+
+    It "presents all ordered Plan preview sections" {
+        $previewStart = $content.IndexOf("Plan Preview And Approval")
+        $previewEnd = $content.IndexOf("Approve this /cg-light-work Plan?", $previewStart)
+        $previewStart | Should -BeGreaterThan -1
+        $previewEnd | Should -BeGreaterThan $previewStart
+        $preview = $content.Substring($previewStart, $previewEnd - $previewStart)
+        $orderedSections = @(
+            'Scope verdict', 'Outcome', 'Decisions and assumptions',
+            'In scope / Out of scope', 'Files', 'Execution',
+            'Verification Surface', 'Review and resolution',
+            'Blocked-stop conditions'
+        )
+        $previous = -1
+        foreach ($section in $orderedSections) {
+            $position = $preview.IndexOf($section)
+            $position | Should -BeGreaterThan $previous
+            $previous = $position
+        }
+    }
+
+    It "uses the exact three-choice Plan approval gate" {
+        ($content -match 'Approve this /cg-light-work Plan\?') | Should -Be $true
+        ($content -match '1\. Approve, save the Plan, and execute\.') | Should -Be $true
+        ($content -match '2\. Revise the Plan\.') | Should -Be $true
+        ($content -match '3\. Stop and use the standard workflow\.') | Should -Be $true
+    }
+
+    It "requires approved Plan persistence and validation before source edits" {
+        $approval = $content.IndexOf("Approve this /cg-light-work Plan?")
+        $persistence = $content.IndexOf("Persist the approved Plan")
+        $sourceEdits = $content.IndexOf("Begin source edits")
+        $approval | Should -BeGreaterThan -1
+        $persistence | Should -BeGreaterThan $approval
+        $sourceEdits | Should -BeGreaterThan $persistence
+        ($content -match '(?s)successful\s+canonical Markdown validation') | Should -Be $true
+    }
+
+    It "requires standard Plan Work Report and Review Report artifacts" {
+        ($content -match '(?s)standard Plan') | Should -Be $true
+        ($content -match '(?s)standard Work\s+Report') | Should -Be $true
+        ($content -match '(?s)standard Review Report') | Should -Be $true
+        ($content -match 'findings: map') | Should -Be $true
+    }
+
+    It "enforces executed evidence and two focused correction attempts" {
+        ($content -match 'executed evidence') | Should -Be $true
+        ($content -match '(?s)at most two\s+focused correction attempts') | Should -Be $true
+        ($content -match 'static inspection alone') | Should -Be $true
+    }
+
+    It "runs deterministic checks before fixed light reviewers" {
+        $checks = $content.IndexOf("Deterministic Checks First")
+        $review = $content.IndexOf("Focused Agent Review")
+        $checks | Should -BeGreaterThan -1
+        $review | Should -BeGreaterThan $checks
+        ($content -match '@cg-code-quality') | Should -Be $true
+        ($content -match '@cg-testing') | Should -Be $true
+    }
+
+    It "requires usable output from each reviewer" {
+        ($content -match '(?s)finding or explicit no-issues\s+statement') | Should -Be $true
+        ($content -match 'changed-file context') | Should -Be $true
+        ($content -match '(?s)at least two non-header lines') | Should -Be $true
+        ($content -match '(?s)Incomplete Reviews.*not run') | Should -Be $true
+    }
+
+    It "defines finding states and disposition tags" {
+        ($content -match '(?s)`open`, `fixed`, or\s+`skipped`') | Should -Be $true
+        ($content -match '(?s)`safe_auto`, `manual`, or `advisory`') | Should -Be $true
+    }
+
+    It "defines independent priority resolution rules" {
+        ($content -match 'P0 and P1.*block completion') | Should -Be $true
+        ($content -match 'unfixed P2.*explicit recorded exception.*`skipped`') | Should -Be $true
+        ($content -match 'P3.*advisory') | Should -Be $true
+        ($content -match 'Apply only.*`safe_auto`') | Should -Be $true
+    }
+
+    It "caps Review at initial and verification passes" {
+        ($content -match 'initial pass') | Should -Be $true
+        ($content -match 'verification pass') | Should -Be $true
+        ($content -match 'at most twice total') | Should -Be $true
+        ($content -match 'stable finding IDs') | Should -Be $true
+        ($content -match '(?s)third\s+pass.*standard review.*fix-triage') | Should -Be $true
+    }
+
+    It "reruns stale evidence after every Review edit" {
+        ($content -match '(?s)post-Review edit.*invalidates affected evidence') | Should -Be $true
+        ($content -match '(?s)Rerun.*syntax.*lint.*test.*parity.*diff') | Should -Be $true
+    }
+
+    It "defines the exact completion write order" {
+        $workReport = $content.IndexOf("Finalize Work Report evidence")
+        $reviewStatus = $content.IndexOf("Finalize Review finding statuses")
+        $planStatus = $content.IndexOf("Mark the Plan and Work Report completed")
+        $activeState = $content.IndexOf("Complete compact active state")
+        $roadmap = $content.IndexOf('Dispatch `@cg-roadmap`')
+        $workReport | Should -BeGreaterThan -1
+        $reviewStatus | Should -BeGreaterThan $workReport
+        $planStatus | Should -BeGreaterThan $reviewStatus
+        $activeState | Should -BeGreaterThan $planStatus
+        $roadmap | Should -BeGreaterThan $activeState
+    }
+
+    It "defines all structured summary sections" {
+        foreach ($section in @('Changes Applied', 'Review Findings', 'Resolutions', 'Verification', 'Artifacts', 'Remaining Items')) {
+            ($content -match [regex]::Escape($section)) | Should -Be $true
+        }
+    }
+
+    It "uses the exact three-choice compounding gate" {
+        ($content -match '1\. Skip compounding') | Should -Be $true
+        ($content -match '2\. Compound into this project') | Should -Be $true
+        ($content -match '3\. Compound locally and share to Team Brain') | Should -Be $true
+    }
+
+    It "forbids every permanent side effect when compounding is skipped" {
+        ($content -match 'do not write a Solution') | Should -Be $true
+        ($content -match '(?s)do not.*rebuild.*Brain') | Should -Be $true
+        ($content -match '(?s)do not.*update.*context') | Should -Be $true
+        ($content -match '(?s)do not.*update.*wiki') | Should -Be $true
+        ($content -match '(?s)do not.*push to Team Brain') | Should -Be $true
+    }
+
+    It "defines local capture and privacy-filtered Team Brain sharing" {
+        ($content -match '(?s)local\s+compounding.*standard categorized Solution') | Should -Be $true
+        ($content -match '(?s)privacy\s+filter.*cg-index --push-entry') | Should -Be $true
+    }
+
+    It "lists representative deterministic contract cases without claiming LLM execution" {
+        foreach ($case in @(
+            'automatic qualification', 'zero-question discovery', 'two-round discovery',
+            'size override', 'H1 bug route', 'H2 research route', 'scope growth',
+            'safe Review fix', 'non-convergence', 'no-learning skip',
+            'local compounding', 'privacy-blocked Team Brain sharing'
+        )) {
+            ($content -match [regex]::Escape($case)) | Should -Be $true
+        }
+        ($content -match '(?s)contract cases.*not end-to-end LLM execution tests') | Should -Be $true
     }
 }
 
@@ -2080,7 +2676,7 @@ Describe "context layer - all 17 prompts reference compound-gpid.context.md" {
         "cg-plan-review",
         "cg-resume",
         "cg-review",
-        "cg-review-repos",
+        "cg-compound-gpid-rd",
         "cg-strategy",
         "cg-verify-pr",
         "cg-work"
@@ -2626,6 +3222,37 @@ Describe "cg-setup.prompt.md - Mode B returning project" {
     }
 }
 
+Describe "cg-setup.prompt.md - active suite configuration" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-setup.prompt.md"
+    $templateFile = Join-Path $repoRoot ".github\prompts\setup-templates.md"
+    $promptContent = Get-Content $promptFile -Raw -Encoding UTF8
+    $templateContent = Get-Content $templateFile -Raw -Encoding UTF8
+
+    It "includes active suites in the local config template" {
+        ($templateContent -match '(?m)^suites:') | Should -Be $true
+    }
+
+    It "offers research-capable suite choices during setup" {
+        ($promptContent -match '(?i)active suites') | Should -Be $true
+        ($promptContent -match 'suites: \[cr\]') | Should -Be $true
+        ($promptContent -match 'suites: \[cg, cr\]') | Should -Be $true
+    }
+
+    It "asks for active suites in the normal new-project configuration flow" {
+        $a2Section = [regex]::Match($promptContent, '(?s)#### A2\. Confidence-based configuration.*?(?=#### A3)').Value
+        ($a2Section -match '(?i)active suites') | Should -Be $true
+    }
+
+    It "writes the selected suite value instead of the template default" {
+        ($templateContent -match '(?m)^suites: \[<cg\|cr\|cg, cr>\]$') | Should -Be $true
+        ($promptContent -match '(?i)replace the `suites:` placeholder with the exact value selected') | Should -Be $true
+    }
+
+    It "allows returning projects to update active suites" {
+        ($promptContent -match '(?i)Would you like to update any configuration.*active suites') | Should -Be $true
+    }
+}
+
 # ---------------------------------------------------------------------------
 # setup-templates.md - Charter Quality Gate section (Phase 2)
 # ---------------------------------------------------------------------------
@@ -2874,6 +3501,11 @@ Describe "cg-setup.prompt.md - Mode B quality gate" {
         ($content -match 'B0\.5') | Should -Be $true
     }
 
+    It "wiki initialization fallback directs users to /cg-wiki init" {
+        ($content -match 'Wiki initialization skipped.*`/cg-wiki init`') | Should -Be $true
+        ($content -notmatch 'Wiki initialization skipped.*`/cg-wiki rebuild`') | Should -Be $true
+    }
+
     It "Mode B B4 instructs carrying forward cg-schema-version on rewrite" {
         ($content -match 'carry forward.*cg-schema-version|cg-schema-version.*unchanged') | Should -Be $true
     }
@@ -2910,20 +3542,24 @@ Describe "link.ps1 - success message guidance" {
 }
 
 # ---------------------------------------------------------------------------
-# cg-review-repos.prompt.md - file existence, frontmatter, guardrail, and content
-# (Developer-only prompt for competitive repo analysis)
+# cg-compound-gpid-rd.prompt.md - rename and four-mode prompt contract
+# (Developer-only prompt for Compound GPID repository research)
 # ---------------------------------------------------------------------------
 
-Describe "cg-review-repos.prompt.md - file existence" {
-    $promptFile = Join-Path $repoRoot ".github\prompts\cg-review-repos.prompt.md"
+Describe "cg-compound-gpid-rd.prompt.md - canonical paths" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-compound-gpid-rd.prompt.md"
 
     It "exists in the repository" {
         Test-Path $promptFile | Should -Be $true
     }
+
+    It "old canonical prompt path is absent" {
+        Test-Path (Join-Path $repoRoot ".github\prompts\cg-review-repos.prompt.md") | Should -Be $false
+    }
 }
 
-Describe "cg-review-repos.prompt.md - frontmatter" {
-    $promptFile = Join-Path $repoRoot ".github\prompts\cg-review-repos.prompt.md"
+Describe "cg-compound-gpid-rd.prompt.md - frontmatter" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-compound-gpid-rd.prompt.md"
     $frontmatter = if (Test-Path $promptFile) { Get-Frontmatter -FilePath $promptFile } else { "" }
 
     Context "required frontmatter fields" {
@@ -2937,20 +3573,21 @@ Describe "cg-review-repos.prompt.md - frontmatter" {
     }
 }
 
-Describe "cg-review-repos.prompt.md - no tool restriction" {
-    $promptFile = Join-Path $repoRoot ".github\prompts\cg-review-repos.prompt.md"
+Describe "cg-compound-gpid-rd.prompt.md - no tool restriction" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-compound-gpid-rd.prompt.md"
 
     Context "orchestrator must have unrestricted tools" {
         $frontmatter = if (Test-Path $promptFile) { Get-Frontmatter -FilePath $promptFile } else { "" }
 
         It "does not have a tools: key" {
+            $frontmatter | Should -Not -BeNullOrEmpty
             ($frontmatter -notmatch '(?m)^\s*tools:') | Should -Be $true
         }
     }
 }
 
-Describe "cg-review-repos.prompt.md - dev-repo guardrail" {
-    $promptFile = Join-Path $repoRoot ".github\prompts\cg-review-repos.prompt.md"
+Describe "cg-compound-gpid-rd.prompt.md - scope and dev-repo guardrail" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-compound-gpid-rd.prompt.md"
     $content = if (Test-Path $promptFile) { Get-Content $promptFile -Raw -Encoding UTF8 } else { "" }
 
     It "checks compound-gpid.md for project-name" {
@@ -2965,116 +3602,734 @@ Describe "cg-review-repos.prompt.md - dev-repo guardrail" {
     It "guardrail checks exact case-sensitive value 'Compound GPID'" {
         ($content -match '"Compound GPID"') | Should -Be $true
     }
-}
 
-Describe "cg-review-repos.prompt.md - content structure" {
-    $promptFile = Join-Path $repoRoot ".github\prompts\cg-review-repos.prompt.md"
-    $content = if (Test-Path $promptFile) { Get-Content $promptFile -Raw -Encoding UTF8 } else { "" }
-
-    It "references --full flag for initial assessment mode" {
-        ($content -match '--full') | Should -Be $true
+    It "defines rd as research-development" {
+        ($content -match 'rd means `research-development`') | Should -Be $true
     }
 
-    # P3.5: case-insensitive --full flag matching must be documented
-    It "specifies case-insensitive --full flag matching" {
-        ($content -match 'case-insensitive') | Should -Be $true
+    It "limits this iteration to public GitHub repository research" {
+        ($content -match 'public GitHub repository research') | Should -Be $true
+    }
+
+    It "states that the command is for Compound GPID maintainers" {
+        ($content -match 'Compound GPID maintainers') | Should -Be $true
+    }
+}
+
+Describe "cg-compound-gpid-rd.prompt.md - mode parsing and ordering" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-compound-gpid-rd.prompt.md"
+    $content = if (Test-Path $promptFile) { Get-Content $promptFile -Raw -Encoding UTF8 } else { "" }
+    $guardrailIndex = $content.IndexOf("## Step 0: Dev-Repo Guardrail")
+    $modeIndex = $content.IndexOf("Parse the invocation arguments")
+    $registryIndex = $content.IndexOf("## Step 1: Validate And Project Registry State")
+    $fetchIndex = $content.IndexOf("fetch_webpage")
+    $utilityIndex = $content.IndexOf("scripts/cg_compound_gpid_rd_registry.py")
+    $modeBlock = if ($modeIndex -ge 0 -and $registryIndex -gt $modeIndex) {
+        $content.Substring($modeIndex, $registryIndex - $modeIndex)
+    } else { "" }
+
+    It "parses invocation arguments after the developer guardrail" {
+        $guardrailIndex | Should -BeGreaterThan -1
+        $modeIndex | Should -BeGreaterThan $guardrailIndex
+    }
+
+    It "parses invocation arguments before reading the registry" {
+        $registryIndex | Should -BeGreaterThan $modeIndex
+    }
+
+    It "parses invocation arguments before the first web fetch" {
+        $fetchIndex | Should -BeGreaterThan $modeIndex
+    }
+
+    It "parses invocation arguments before the registry utility call" {
+        $utilityIndex | Should -BeGreaterThan $modeIndex
+    }
+
+    It "parses invocation arguments before any write" {
+        ($modeBlock -match 'before any write') | Should -Be $true
+    }
+
+    It "defines the four modes as mutually exclusive" {
+        ($modeBlock -match 'four mutually exclusive modes') | Should -Be $true
+    }
+
+    It "defines delta mode as having no mode flag" {
+        ($modeBlock -match 'Delta has no mode flag') | Should -Be $true
+    }
+
+    It "references --full flag for initial assessment mode" {
+        ($modeBlock -match '--full') | Should -Be $true
+    }
+
+    It "references --add with a URL value" {
+        ($modeBlock -match '--add <URL>') | Should -Be $true
+    }
+
+    It "references --remove with an ID value" {
+        ($modeBlock -match '--remove <id>') | Should -Be $true
+    }
+
+    It "matches mode flag names case-insensitively" {
+        ($modeBlock -match 'mode flag names case-insensitively') | Should -Be $true
+    }
+
+    It "preserves URL values while matching flags" {
+        ($modeBlock -match 'preserve URL values') | Should -Be $true
+    }
+
+    It "preserves ID values while matching flags" {
+        ($modeBlock -match 'preserve ID values') | Should -Be $true
+    }
+
+    It "rejects missing mode values" {
+        ($modeBlock -match 'missing values') | Should -Be $true
+    }
+
+    It "rejects duplicate mode flags" {
+        ($modeBlock -match 'duplicate mode flags') | Should -Be $true
+    }
+
+    It "rejects combined mode flags" {
+        ($modeBlock -match 'combined mode flags') | Should -Be $true
+    }
+
+    It "rejects extra positional values" {
+        ($modeBlock -match 'extra positional values') | Should -Be $true
+    }
+
+    It "rejects unknown flags" {
+        ($modeBlock -match 'unknown flags') | Should -Be $true
+    }
+
+    It "makes every invalid invocation a hard stop" {
+        ($modeBlock -match 'Invalid invocation arguments are a hard stop') | Should -Be $true
+    }
+}
+
+Describe "cg-compound-gpid-rd.prompt.md - Python launcher and utility preflight" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-compound-gpid-rd.prompt.md"
+    $content = if (Test-Path $promptFile) { Get-Content $promptFile -Raw -Encoding UTF8 } else { "" }
+    $sharedStart = $content.IndexOf("## Step 1: Validate And Project Registry State")
+    $sharedEnd = $content.IndexOf("### Add Mode", $sharedStart + 1)
+    $sharedContent = $content.Substring($sharedStart, $sharedEnd - $sharedStart)
+    $python3Index = $sharedContent.IndexOf('`python3`')
+    $pythonIndex = $sharedContent.IndexOf('`python`', $python3Index + 1)
+    $pyIndex = $sharedContent.IndexOf('`py`', $pythonIndex + 1)
+
+    It "checks python3 before python" {
+        $python3Index | Should -BeGreaterThan -1
+        $pythonIndex | Should -BeGreaterThan $python3Index
+    }
+
+    It "checks python before py" {
+        $pyIndex | Should -BeGreaterThan $pythonIndex
+    }
+
+    It "uses a version probe for each Python candidate" {
+        ($sharedContent -match 'version probe') | Should -Be $true
+    }
+
+    It "requires Python 3.8 or newer" {
+        ($sharedContent -match 'Python 3\.8 or newer') | Should -Be $true
+    }
+
+    It "hard-stops when no valid Python launcher is available" {
+        ($sharedContent -match '(?s)Hard-stop if.*no candidate.*Python 3\.8 or newer') | Should -Be $true
+    }
+
+    It "hard-stops when the root-qualified registry utility is missing" {
+        ($sharedContent -match 'Hard-stop if the root-qualified utility is missing') | Should -Be $true
+    }
+
+    It "uses the validated state command in all four modes" {
+        ($sharedContent -match 'state.*all four modes|all four modes.*state') | Should -Be $true
+    }
+
+    It "uses a quoted root-qualified utility path" {
+        ($sharedContent -match [regex]::Escape('"<repo-root>/scripts/cg_compound_gpid_rd_registry.py"')) | Should -Be $true
+    }
+
+    It "forbids a working-directory-relative utility path" {
+        ($sharedContent -match '(?s)Never invoke the utility by.*working-directory-relative path') | Should -Be $true
+    }
+}
+
+Describe "cg-compound-gpid-rd.prompt.md - add mode" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-compound-gpid-rd.prompt.md"
+    $content = if (Test-Path $promptFile) { Get-Content $promptFile -Raw -Encoding UTF8 } else { "" }
+    $addStart = $content.IndexOf("### Add Mode")
+    $addEnd = $content.IndexOf("### Remove Mode", $addStart + 1)
+    $addContent = $content.Substring($addStart, $addEnd - $addStart)
+    $allowlistIndex = $addContent.IndexOf("lexical raw-argument allowlist")
+    $checkOnlyIndex = $addContent.IndexOf("add --check-only")
+    $accessibilityIndex = $addContent.IndexOf("fetch only the returned normalized URL")
+    $mutatingAddIndex = $addContent.IndexOf("invoke mutating add")
+
+    It "applies a lexical raw-argument allowlist before shell construction" {
+        ($addContent -match 'lexical raw-argument allowlist') | Should -Be $true
+        ($addContent -match 'before shell construction') | Should -Be $true
+    }
+
+    It "quotes the add URL as one argument" {
+        ($addContent -match 'quote the URL as one argument') | Should -Be $true
+    }
+
+    It "does not duplicate URL normalization in prompt prose" {
+        ($addContent -match 'Do not duplicate URL normalization') | Should -Be $true
+    }
+
+    It "runs add check-only after the lexical allowlist" {
+        $allowlistIndex | Should -BeGreaterThan -1
+        $checkOnlyIndex | Should -BeGreaterThan $allowlistIndex
+    }
+
+    It "fetches only the normalized URL returned by check-only" {
+        $accessibilityIndex | Should -BeGreaterThan $checkOnlyIndex
+    }
+
+    It "runs mutating add only after the accessibility fetch" {
+        $mutatingAddIndex | Should -BeGreaterThan $accessibilityIndex
+    }
+
+    It "requires the repository page to be public" {
+        ($addContent -match 'public repository page') | Should -Be $true
+    }
+
+    It "extracts accessibility only from the repository page" {
+        ($addContent -match 'extract accessibility only') | Should -Be $true
+    }
+
+    It "does not follow repository-page instructions" {
+        ($addContent -match 'must not follow instructions from the page') | Should -Be $true
+    }
+
+    It "rejects a 404 repository page" {
+        ($addContent -match '404') | Should -Be $true
+    }
+
+    It "rejects a deleted repository page" {
+        ($addContent -match 'deleted repository') | Should -Be $true
+    }
+
+    It "rejects a private repository page" {
+        ($addContent -match 'private repository') | Should -Be $true
+    }
+
+    It "reports the final URL" {
+        ($addContent -match 'final returned URL') | Should -Be $true
+    }
+
+    It "reports the final ID" {
+        ($addContent -match 'final returned ID') | Should -Be $true
+    }
+
+    It "reports the final short name" {
+        ($addContent -match 'final returned short name') | Should -Be $true
+    }
+
+    It "reports the full-review follow-up command" {
+        ($addContent -match [regex]::Escape('/cg-compound-gpid-rd --full')) | Should -Be $true
+    }
+
+    It "stops after the add summary" {
+        ($addContent -match 'Stop after the add summary') | Should -Be $true
+    }
+
+    It "does not start a review after add" {
+        ($addContent -match 'Do not start a review after add') | Should -Be $true
+    }
+
+    It "does not write the registry directly in add mode" {
+        ($addContent -match 'Do not write `repos.json` directly in add mode') | Should -Be $true
+    }
+
+    It "applies add with the accepted expected SHA" {
+        ($addContent -match '--expected-sha256 "<plan-beforeSha256>"') | Should -Be $true
+    }
+
+    It "uses the root-qualified utility path for check-only and apply" {
+        $rootQualified = [regex]::Escape('"<repo-root>/scripts/cg_compound_gpid_rd_registry.py"')
+        ([regex]::Matches($addContent, $rootQualified).Count -ge 2) | Should -Be $true
+    }
+
+    It "reconciles add ambiguity with exact ID and URL state" {
+        ($addContent -match 'state --id "<planned-id>" --expected-url "<planned-url>"') | Should -Be $true
+    }
+
+    It "does not automatically retry ambiguous add" {
+        ($addContent -match '(?s)never.*retry automatically') | Should -Be $true
+    }
+}
+
+Describe "cg-compound-gpid-rd.prompt.md - utility response validation" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-compound-gpid-rd.prompt.md"
+    $content = if (Test-Path $promptFile) { Get-Content $promptFile -Raw -Encoding UTF8 } else { "" }
+    $responseStart = $content.IndexOf("### Shared Utility And Response Contract")
+    $responseEnd = $content.IndexOf("### Add Mode", $responseStart + 1)
+    $responseContent = $content.Substring($responseStart, $responseEnd - $responseStart)
+
+    It "requires check-only before expected-sha256 apply" {
+        ($responseContent -match '--check-only') | Should -Be $true
+        ($responseContent -match '--expected-sha256') | Should -Be $true
+    }
+
+    It "defines stale expected SHA as a definite precommit rejection" {
+        ($responseContent -match '(?s)stale hash.*definite exit-1.*precommit rejection') | Should -Be $true
+    }
+
+    It "defines add remove and review-repo response keys" {
+        ($responseContent -match 'Add, remove, and review-repo responses have exactly') | Should -Be $true
+        ($responseContent -match 'beforeSha256') | Should -Be $true
+        ($responseContent -match 'afterSha256') | Should -Be $true
+        ($responseContent -match 'beforeScopeDigestSha256') | Should -Be $true
+        ($responseContent -match 'afterScopeDigestSha256') | Should -Be $true
+        ($responseContent -match '`repo`') | Should -Be $true
+        ($responseContent -match '`warnings`') | Should -Be $true
+    }
+
+    It "defines review-full response keys independently" {
+        ($responseContent -match '`review-full` responses have exactly') | Should -Be $true
+        ($responseContent -match '`reviewedIds`') | Should -Be $true
+        ($responseContent -match '`failedIds`') | Should -Be $true
+        ($responseContent -match '`rootReview`') | Should -Be $true
+        ($responseContent -match 'beforeScopeDigestSha256') | Should -Be $true
+        ($responseContent -match 'afterScopeDigestSha256') | Should -Be $true
+    }
+
+    It "defines exit 3 as ambiguous" {
+        ($responseContent -match '(?s)Exit 3.*ambiguous') | Should -Be $true
+    }
+
+    It "treats timeout and missing partial or invalid output as ambiguous" {
+        ($responseContent -match 'timeout') | Should -Be $true
+        ($responseContent -match 'missing/partial/invalid output') | Should -Be $true
+    }
+
+    It "treats unexpected post-dispatch stderr as ambiguous" {
+        ($responseContent -match 'unexpected stderr after apply dispatch is ambiguous') | Should -Be $true
+    }
+
+    It "reconciles ambiguous outcomes with read-only state" {
+        ($responseContent -match 'invoke read-only `state` once') | Should -Be $true
+        ($responseContent -match 'before hash') | Should -Be $true
+        ($responseContent -match 'after-hash') | Should -Be $true
+    }
+
+    It "forbids automatic mutation retry" {
+        ($responseContent -match '(?s)Never retry an\s+ambiguous mutation automatically') | Should -Be $true
+        ($responseContent -match 'Do not invoke the mutating command again') | Should -Be $true
+    }
+
+    It "treats committed warnings as success" {
+        ($responseContent -match 'warnings.*committed success') | Should -Be $true
+    }
+
+    It "lists every fixed warning code" {
+        ($responseContent -match 'secure-fs-recovery-preserved') | Should -Be $true
+        ($responseContent -match 'secure-fs-cleanup-durability-unconfirmed') | Should -Be $true
+        ($responseContent -match 'secure-fs-temporary-cleanup-failed') | Should -Be $true
+        ($responseContent -match 'secure-fs-runtime-warning') | Should -Be $true
+    }
+
+    It "requires canonical add identity fields" {
+        ($responseContent -match 'canonical string `url`') | Should -Be $true
+        ($responseContent -match 'string `id`') | Should -Be $true
+        ($responseContent -match 'string `shortName`') | Should -Be $true
+        ($responseContent -match 'canonical string `releasesUrl`') | Should -Be $true
+        ($responseContent -match [regex]::Escape('`lastReviewedRelease == null`')) | Should -Be $true
+    }
+}
+
+Describe "cg-compound-gpid-rd.prompt.md - release shell boundary" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-compound-gpid-rd.prompt.md"
+    $content = if (Test-Path $promptFile) { Get-Content $promptFile -Raw -Encoding UTF8 } else { "" }
+    $boundaryStart = $content.IndexOf('> **Release shell boundary**')
+    $boundaryEnd = $content.IndexOf('> **Tool verification**', $boundaryStart + 1)
+    $boundary = if ($boundaryStart -ge 0 -and $boundaryEnd -gt $boundaryStart) {
+        $content.Substring($boundaryStart, $boundaryEnd - $boundaryStart)
+    } else { "" }
+
+    It "validates a strict bounded ASCII release before utility or process construction" {
+        ($boundary -match 'before any\s+> utility call') | Should -Be $true
+        ($boundary -match '1-128 ASCII characters') | Should -Be $true
+        ($boundary -match [regex]::Escape('^[A-Za-z0-9][A-Za-z0-9._+/-]{0,127}$')) | Should -Be $true
+    }
+
+    It "explicitly rejects all required release attack classes" {
+        foreach ($token in @('empty value', 'leading', '$()', 'backticks', 'quote', 'whitespace', '&', 'semicolon', 'controls', 'non-ASCII', 'overlength')) {
+            ($boundary -match [regex]::Escape($token)) | Should -Be $true
+        }
+    }
+
+    It "quotes each release as one separate process argument" {
+        ($boundary -match 'quote each new or expected release as one\s+> separate process argument') | Should -Be $true
+        ($boundary -match 'Never concatenate a release') | Should -Be $true
+    }
+
+    It "requires utility parity for new and expected releases" {
+        ($boundary -match 'utility enforces the same allowlist for stored, new, and expected') | Should -Be $true
+    }
+}
+
+Describe "cg-compound-gpid-rd.prompt.md - remove mode" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-compound-gpid-rd.prompt.md"
+    $content = if (Test-Path $promptFile) { Get-Content $promptFile -Raw -Encoding UTF8 } else { "" }
+    $removeStart = $content.IndexOf("### Remove Mode")
+    $removeEnd = $content.IndexOf("## Step 1.5: Concept Mapping Reference", $removeStart + 1)
+    $removeContent = $content.Substring($removeStart, $removeEnd - $removeStart)
+
+    It "pre-validates the remove ID allowlist" {
+        ($removeContent -match 'pre-validate the ID allowlist') | Should -Be $true
+    }
+
+    It "locates the exact registry entry" {
+        ($removeContent -match 'locate the exact entry') | Should -Be $true
+    }
+
+    It "shows the matching ID" {
+        ($removeContent -match 'show the matching ID') | Should -Be $true
+    }
+
+    It "shows the matching URL" {
+        ($removeContent -match 'show the matching URL') | Should -Be $true
+    }
+
+    It "uses the exact case-sensitive confirmation prompt" {
+        $confirmation = "Type the exact case-sensitive ID '<id>' to remove it, or type 'cancel'."
+        ($removeContent -match [regex]::Escape($confirmation)) | Should -Be $true
+    }
+
+    It "requires the complete response to equal the ID exactly" {
+        ($removeContent -match 'complete response equals the ID exactly') | Should -Be $true
+    }
+
+    It "rejects generic yes or no responses without writing" {
+        ($removeContent -match 'Generic yes/no responses produce no write') | Should -Be $true
+    }
+
+    It "rejects leading whitespace without writing" {
+        ($removeContent -match 'Leading whitespace produces no write') | Should -Be $true
+    }
+
+    It "rejects trailing whitespace without writing" {
+        ($removeContent -match 'Trailing whitespace produces no write') | Should -Be $true
+    }
+
+    It "rejects case variants without writing" {
+        ($removeContent -match 'Case variants produce no write') | Should -Be $true
+    }
+
+    It "treats cancellation as no write" {
+        ($removeContent -match 'Cancellation produces no write') | Should -Be $true
+    }
+
+    It "treats a missing ID as no write" {
+        ($removeContent -match 'A missing ID produces no write') | Should -Be $true
+    }
+
+    It "runs remove check-only before confirmation apply" {
+        ($removeContent -match 'remove --id.*--check-only') | Should -Be $true
+    }
+
+    It "passes the confirmed ID through --id" {
+        ($removeContent -match '--id "<confirmed-id>"') | Should -Be $true
+    }
+
+    It "passes the confirmed ID through --confirm-id" {
+        ($removeContent -match '--confirm-id "<confirmed-id>"') | Should -Be $true
+    }
+
+    It "binds remove apply to the displayed expected URL" {
+        ($removeContent -match '--expected-url "<displayed-url>"') | Should -Be $true
+    }
+
+    It "binds remove apply to the accepted plan hash" {
+        ($removeContent -match '--expected-sha256 "<plan-beforeSha256>"') | Should -Be $true
+    }
+
+    It "reconciles remove ambiguity through exact state relation" {
+        ($removeContent -match 'state --id "<confirmed-id>" --expected-url "<displayed-url>"') | Should -Be $true
+    }
+
+    It "never retries an ambiguous remove automatically" {
+        ($removeContent -match 'Never retry automatically') | Should -Be $true
+    }
+
+    It "does not write the registry directly in remove mode" {
+        ($removeContent -match 'Do not write `repos.json` directly in remove mode') | Should -Be $true
+    }
+
+    It "preserves review history when removing a registry entry" {
+        ($removeContent -match 'Preserve all review history') | Should -Be $true
+    }
+
+    It "stops before review execution after remove" {
+        ($removeContent -match 'Stop before review execution after remove') | Should -Be $true
+    }
+}
+
+Describe "cg-compound-gpid-rd.prompt.md - empty registry routing" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-compound-gpid-rd.prompt.md"
+    $content = if (Test-Path $promptFile) { Get-Content $promptFile -Raw -Encoding UTF8 } else { "" }
+
+    It "allows add mode with an empty registry" {
+        ($content -match 'Add mode accepts an empty registry') | Should -Be $true
+    }
+
+    It "allows remove mode to create an empty registry" {
+        ($content -match 'Remove mode can create an empty registry') | Should -Be $true
+    }
+
+    It "stops full review mode on an empty registry" {
+        ($content -match 'Full review mode stops on an empty registry') | Should -Be $true
+    }
+
+    It "stops delta review mode on an empty registry" {
+        ($content -match 'Delta review mode stops on an empty registry') | Should -Be $true
+    }
+
+    It "directs empty review modes to --add" {
+        ($content -match 'use `--add`') | Should -Be $true
+    }
+}
+
+Describe "cg-compound-gpid-rd.prompt.md - preserved review contracts" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-compound-gpid-rd.prompt.md"
+    $content = if (Test-Path $promptFile) { Get-Content $promptFile -Raw -Encoding UTF8 } else { "" }
+    $registryStart = $content.IndexOf("## Step 1: Validate And Project Registry State")
+    $registryEnd = $content.IndexOf("## Step 1.25: Registry Transaction Contract", $registryStart + 1)
+    $registryContent = $content.Substring($registryStart, $registryEnd - $registryStart)
+    $conceptStart = $content.IndexOf("## Step 1.5: Concept Mapping Reference")
+    $conceptEnd = $content.IndexOf("## Step 2: Review Execution", $conceptStart + 1)
+    $conceptContent = $content.Substring($conceptStart, $conceptEnd - $conceptStart)
+    $reviewStart = $content.IndexOf("## Step 2: Review Execution")
+    $reviewEnd = $content.IndexOf("## Step 3: Decision Criteria Filter", $reviewStart + 1)
+    $reviewContent = $content.Substring($reviewStart, $reviewEnd - $reviewStart)
+    $updateStart = $content.IndexOf("## Step 4: Registry Update")
+    $updateEnd = $content.IndexOf("## Step 5: Summary", $updateStart + 1)
+    $updateContent = $content.Substring($updateStart, $updateEnd - $updateStart)
+
+    It "preserves full assessment mode" {
+        ($reviewContent -match 'Full Assessment Mode') | Should -Be $true
+    }
+
+    It "preserves delta review mode" {
+        ($reviewContent -match 'Delta Review Mode') | Should -Be $true
     }
 
     It "references repos.json registry file" {
-        ($content -match 'repos\.json') | Should -Be $true
+        ($registryContent -match 'repos\.json') | Should -Be $true
     }
 
     It "feature card template includes Compatibility field" {
-        ($content -match 'Compatibility:') | Should -Be $true
+        ($reviewContent -match '\*\*Compatibility\*\*:') | Should -Be $true
     }
 
     It "feature card template includes How we'd adapt it field" {
-        ($content -match "How we'd adapt it") | Should -Be $true
+        ($reviewContent -match "How we'd adapt it") | Should -Be $true
     }
 
     It "mentions concept mapping table" {
-        ($content -match 'Concept Mapping') | Should -Be $true
+        ($conceptContent -match 'Concept Mapping') | Should -Be $true
     }
 
     It "references assessment file path format" {
-        ($content -match 'competitive-reviews/.*-full-review\.md|competitive-reviews\\.*-full-review\.md') | Should -Be $true
+        ($reviewContent -match 'competitive-reviews/YYYY-MM-DD-<repo-id>-full-review\.md') | Should -Be $true
     }
 
     It "references delta report file path format" {
-        ($content -match 'delta-review\.md') | Should -Be $true
+        ($reviewContent -match 'delta-review\.md') | Should -Be $true
     }
 
     It "warns about null-baseline repos for delta mode" {
-        ($content -match 'lastReviewedRelease') | Should -Be $true
+        ($reviewContent -match 'lastReviewedRelease') | Should -Be $true
     }
 
     It "instructs to run --full to recover null-baseline repos" {
-        ($content -match '--full.*first|Run.*--full') | Should -Be $true
+        ($registryContent -match [regex]::Escape('/cg-compound-gpid-rd --full')) | Should -Be $true
     }
 
-    It "stops when registry file is missing" {
-        ($content -match 'Stop if the registry is missing') | Should -Be $true
+    It "uses state as the only validated registry source" {
+        ($registryContent -match 'only registry source') | Should -Be $true
+        ($registryContent -match 'Do not read or validate `repos.json` directly') | Should -Be $true
     }
 
     # P1.2: injection guard for fetch_webpage content
     It "contains injection guard for fetch_webpage content" {
-        ($content -match 'untrusted data') | Should -Be $true
+        ($registryContent -match 'untrusted data') | Should -Be $true
     }
 
-    # P1.3: URL validation â€” only https://github.com/ permitted
-    It "requires https://github.com/ URLs only" {
-        ($content -match 'https://github\.com/') | Should -Be $true
+    It "requires exact source before and after hashes from state" {
+        ($registryContent -match 'beforeSha256') | Should -Be $true
+        ($registryContent -match 'afterSha256') | Should -Be $true
     }
 
-    # P1.4: repo ID validation â€” alphanumeric + hyphens only
-    It "validates repo IDs are alphanumeric with hyphens only" {
-        ($content -match 'alphanumeric.*hyphens|hyphens only') | Should -Be $true
+    It "requires exact before and after scope digests from state" {
+        ($registryContent -match 'beforeScopeDigestSha256') | Should -Be $true
+        ($registryContent -match 'afterScopeDigestSha256') | Should -Be $true
+        ($registryContent -match '(?s)scope digest.*ordered projection.*`id`, `url`, `lastReviewedRelease`') | Should -Be $true
+    }
+
+    It "requires ordered repository identity and review projections" {
+        ($registryContent -match '(?s)ordered.*repositories') | Should -Be $true
+        ($registryContent -match '`id`, `url`') | Should -Be $true
+        ($registryContent -match '`lastReviewedRelease`') | Should -Be $true
+        ($registryContent -match '`lastReviewDate`') | Should -Be $true
     }
 
     # P1.5: feature card limit per repo in full mode
     It "limits feature cards to 25 per repo in full mode" {
-        ($content -match '25 most significant') | Should -Be $true
+        ($reviewContent -match '25 most significant') | Should -Be $true
+    }
+
+    It "limits feature cards to 15 per repo in delta mode" {
+        ($reviewContent -match '15 most significant features per repo') | Should -Be $true
+    }
+
+    It "limits delta processing to 10 releases" {
+        ($reviewContent -match '10 most recent') | Should -Be $true
+    }
+
+    It "warns before a full review of more than four repos" {
+        ($reviewContent -match 'more than 4 entries') | Should -Be $true
     }
 
     # P1.6a: registry write strategy â€” per-repo immediately
     It "instructs updating registry per-repo immediately (not at end)" {
-        ($content -match 'per-repo immediately') | Should -Be $true
+        ($updateContent -match 'per.repo immediately') | Should -Be $true
     }
 
-    # P1.6b: registry write strategy â€” replace entire file
-    It "instructs replacing the entire repos.json file on each write" {
-        ($content -match 'entire file') | Should -Be $true
+    It "forbids direct full and delta registry writes" {
+        ($content -match 'No mode may write, replace, patch, or restore `repos.json` directly') | Should -Be $true
+        ($updateContent -notmatch 'replace the \*\*entire file\*\*') | Should -Be $true
     }
 
     # P2.4: lastFullReviewNote behavior on partial failure
     It "specifies lastFullReviewNote behavior on partial failure" {
-        ($content -match 'lastFullReviewNote') | Should -Be $true
+        ($updateContent -match 'lastFullReviewNote') | Should -Be $true
     }
 
     # P3.2: lastFullReviewNote must be removed on successful full review
     It "specifies lastFullReviewNote is removed on successful full review" {
-        ($content -match 'remove.*lastFullReviewNote|lastFullReviewNote.*removed') | Should -Be $true
+        ($updateContent -match 'remove[s]? `lastFullReviewNote`') | Should -Be $true
     }
 
-    # P2.12: branch-specific tests for new validation paths
-    It "validates releasesUrl ends with /releases" {
-        ($content -match 'ends with.*releases|/releases') | Should -Be $true
+    It "updates review state through review-repo check-only and apply" {
+        ($updateContent -match 'review-repo') | Should -Be $true
+        ($updateContent -match '--check-only') | Should -Be $true
+        ($updateContent -match '--expected-sha256') | Should -Be $true
     }
 
-    It "validates date formats as YYYY-MM-DD" {
-        ($content -match 'YYYY-MM-DD') | Should -Be $true
+    It "binds review-repo planning to the accepted chain and prior projection" {
+        ($updateContent -match '--expected-chain-sha256 "<accepted-chain-sha256>"') | Should -Be $true
+        ($updateContent -match '--expected-last-reviewed-release') | Should -Be $true
+        ($updateContent -match '--expected-last-reviewed-release-null') | Should -Be $true
+        ($updateContent -match '--expected-last-review-date "<prior-date>"') | Should -Be $true
+        ($updateContent -match '--expected-last-review-date-null') | Should -Be $true
+        ($updateContent -match '--expected-last-review-date-absent') | Should -Be $true
+        ($updateContent -match 'do not plan whatever current state exists') | Should -Be $true
     }
 
-    It "validates shortName uniqueness" {
-        ($content -match 'shortName.*unique|unique.*shortName|Duplicate shortName') | Should -Be $true
+    It "advances one accepted chain only after success or exact reconciliation" {
+        ($updateContent -match '(?s)set `<accepted-chain-sha256>`.*response\s+`afterSha256`') | Should -Be $true
+        ($updateContent -match '(?s)set `<accepted-scope-digest-sha256>`.*`afterScopeDigestSha256`') | Should -Be $true
+        ($updateContent -match 'Advance the chain only when') | Should -Be $true
+    }
+
+    It "finalizes full review state through review-full check-only and apply" {
+        ($updateContent -match 'review-full') | Should -Be $true
+        ($updateContent -match '--outcome complete') | Should -Be $true
+        ($updateContent -match '--outcome partial') | Should -Be $true
+    }
+
+    It "binds review-full planning to the last accepted chain and scope digest" {
+        ($updateContent -match '--expected-chain-sha256 "<accepted-chain-sha256>"') | Should -Be $true
+        ($updateContent -match '--expected-scope-digest-sha256 "<accepted-scope-digest-sha256>"') | Should -Be $true
+        ($updateContent -match 'same-ID URL replacement') | Should -Be $true
+        ($updateContent -match 'release regression') | Should -Be $true
+        ($updateContent -match 'added or removed repository') | Should -Be $true
+        ($updateContent -match 'changed root review state') | Should -Be $true
+    }
+
+    It "keeps review-full apply bound to the plan before SHA and secure expected state" {
+        ($updateContent -match '(?s)apply identical.*only\s+`--expected-sha256 "<plan-beforeSha256>"`') | Should -Be $true
+        ($updateContent -match 'secure writer''s\s+expected file state') | Should -Be $true
+        ($updateContent -match 'omit the two\s+check-only expected-chain flags') | Should -Be $true
+    }
+
+    It "uses root-qualified review utility paths" {
+        ($updateContent -match [regex]::Escape('"<repo-root>/scripts/cg_compound_gpid_rd_registry.py"')) | Should -Be $true
     }
 
     It "specifies collision policy for same-day re-runs" {
-        ($content -match 'same-day re-run|-2.*-3|-3.*-2') | Should -Be $true
+        ($reviewContent -match 'same-day re-run') | Should -Be $true
     }
 
-    It "validates root-level lastFullReview date separately from per-repo dates" {
-        ($content -match 'root-level|registry root') | Should -Be $true
+    It "caps same-day collision retries at 20" {
+        ($reviewContent -match 'counter exceeds 20') | Should -Be $true
+    }
+
+    It "reconciles review updates through read-only state without automatic retry" {
+        ($updateContent -match 'read-only `state`') | Should -Be $true
+        ($updateContent -match 'Never retry automatically') | Should -Be $true
+    }
+}
+
+Describe "cg-compound-gpid-rd.prompt.md - registry transaction boundaries" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-compound-gpid-rd.prompt.md"
+    $content = if (Test-Path $promptFile) { Get-Content $promptFile -Raw -Encoding UTF8 } else { "" }
+    $stateStart = $content.IndexOf("## Step 1: Validate And Project Registry State")
+    $transactionStart = $content.IndexOf("## Step 1.25: Registry Transaction Contract")
+    $addStart = $content.IndexOf("### Add Mode", $transactionStart + 1)
+    $removeStart = $content.IndexOf("### Remove Mode", $addStart + 1)
+    $conceptStart = $content.IndexOf("## Step 1.5: Concept Mapping Reference", $removeStart + 1)
+    $updateStart = $content.IndexOf("## Step 4: Registry Update")
+    $summaryStart = $content.IndexOf("## Step 5: Summary", $updateStart + 1)
+    $stateContent = $content.Substring($stateStart, $transactionStart - $stateStart)
+    $transactionContent = $content.Substring($transactionStart, $addStart - $transactionStart)
+    $addContent = $content.Substring($addStart, $removeStart - $addStart)
+    $removeContent = $content.Substring($removeStart, $conceptStart - $removeStart)
+    $updateContent = $content.Substring($updateStart, $summaryStart - $updateStart)
+
+    It "state section makes read-only state mandatory for all four modes" {
+        ($stateContent -match 'state.*all four modes|all four modes.*state') | Should -Be $true
+        ($stateContent -match '`state` never writes') | Should -Be $true
+    }
+
+    It "transaction section defines check-only then expected-hash apply" {
+        ($transactionContent -match '--check-only') | Should -Be $true
+        ($transactionContent -match '--expected-sha256') | Should -Be $true
+    }
+
+    It "transaction section defines exit 3 and warning codes" {
+        ($transactionContent -match '(?s)Exit 3.*ambiguous') | Should -Be $true
+        ($transactionContent -match 'secure-fs-recovery-preserved') | Should -Be $true
+        ($transactionContent -match 'secure-fs-runtime-warning') | Should -Be $true
+    }
+
+    It "add section reconciles through state and never retries" {
+        ($addContent -match 'state --id.*--expected-url') | Should -Be $true
+        ($addContent -match '(?s)never.*retry automatically') | Should -Be $true
+    }
+
+    It "remove section binds displayed URL and hash" {
+        ($removeContent -match '--expected-url "<displayed-url>"') | Should -Be $true
+        ($removeContent -match '--expected-sha256 "<plan-beforeSha256>"') | Should -Be $true
+    }
+
+    It "review section has no direct full or delta registry write" {
+        ($updateContent -match 'review-repo') | Should -Be $true
+        ($updateContent -match 'review-full') | Should -Be $true
+        ($updateContent -notmatch 'replace.*entire.*repos\.json') | Should -Be $true
+    }
+
+    It "all utility invocation sections use root-qualified paths" {
+        $relativeInvocation = '<pythonCommand>\s+scripts/cg_compound_gpid_rd_registry\.py'
+        ($stateContent -notmatch $relativeInvocation) | Should -Be $true
+        ($addContent -notmatch $relativeInvocation) | Should -Be $true
+        ($removeContent -notmatch $relativeInvocation) | Should -Be $true
+        ($updateContent -notmatch $relativeInvocation) | Should -Be $true
+        ($content -match [regex]::Escape('"<repo-root>/scripts/cg_compound_gpid_rd_registry.py"')) | Should -Be $true
     }
 }
 
@@ -3111,17 +4366,78 @@ Describe "competitive-reviews/repos.json - registry" {
         $json.schemaVersion | Should -Be $json.schemaVersion.Trim()
     }
 
-    # P2.2: count sentinel â€” update when adding a new repo to repos.json
-    It "has repos array with exactly 3 entries" {
-        $json.repos.Count | Should -Be 3
+    It "has a repos array field" {
+        ($json.PSObject.Properties.Name -contains 'repos') | Should -Be $true
+        ($json.repos -is [System.Array]) | Should -Be $true
     }
 
     foreach ($repoEntry in @(if ($null -ne $json) { $json.repos } else { @() })) {
         It "repo '$($repoEntry.id)' has required fields" {
-            $repoEntry.id | Should -Not -BeNullOrEmpty
-            $repoEntry.url | Should -Not -BeNullOrEmpty
-            $repoEntry.releasesUrl | Should -Not -BeNullOrEmpty
-            $repoEntry.shortName | Should -Not -BeNullOrEmpty
+            $fieldNames = @($repoEntry.PSObject.Properties.Name)
+            ($fieldNames -contains 'id') | Should -Be $true
+            ($fieldNames -contains 'url') | Should -Be $true
+            ($fieldNames -contains 'releasesUrl') | Should -Be $true
+            ($fieldNames -contains 'shortName') | Should -Be $true
+            ($fieldNames -contains 'lastReviewedRelease') | Should -Be $true
+        }
+
+        It "repo '$($repoEntry.id)' has a valid id" {
+            ($repoEntry.id -is [string]) | Should -Be $true
+            ($repoEntry.id -match '^[a-zA-Z0-9][a-zA-Z0-9-]*$') | Should -Be $true
+            $repoEntry.id.Length | Should -BeLessOrEqual 50
+        }
+
+        It "repo '$($repoEntry.id)' has canonical GitHub URLs" {
+            ($repoEntry.url -is [string]) | Should -Be $true
+            ($repoEntry.url -match '^https://github\.com/[^/]+/[^/]+$') | Should -Be $true
+            $repoEntry.releasesUrl | Should -BeExactly ($repoEntry.url + '/releases')
+        }
+
+        It "repo '$($repoEntry.id)' has a valid shortName" {
+            ($repoEntry.shortName -is [string]) | Should -Be $true
+            ($repoEntry.shortName -match '^[a-zA-Z0-9]{1,10}$') | Should -Be $true
+        }
+
+        It "repo '$($repoEntry.id)' has a shell-safe lastReviewedRelease" {
+            ($null -eq $repoEntry.lastReviewedRelease -or $repoEntry.lastReviewedRelease -is [string]) | Should -Be $true
+            if ($null -ne $repoEntry.lastReviewedRelease) {
+                ($repoEntry.lastReviewedRelease -cmatch '^[A-Za-z0-9][A-Za-z0-9._+/-]{0,127}$') | Should -Be $true
+                $repoEntry.lastReviewedRelease.Length | Should -BeLessOrEqual 128
+            }
+        }
+
+        It "repo '$($repoEntry.id)' has a valid optional lastReviewDate" {
+            if ($repoEntry.PSObject.Properties.Name -contains 'lastReviewDate' -and $null -ne $repoEntry.lastReviewDate) {
+                ($repoEntry.lastReviewDate -match '^\d{4}-\d{2}-\d{2}$') | Should -Be $true
+            }
+        }
+    }
+
+    It "has unique repo IDs" {
+        $ids = @($json.repos | ForEach-Object { $_.id })
+        @($ids | Sort-Object -Unique).Count | Should -Be $ids.Count
+    }
+
+    It "has case-insensitively unique shortNames" {
+        $shortNames = @($json.repos | ForEach-Object { $_.shortName.ToLowerInvariant() })
+        @($shortNames | Sort-Object -Unique).Count | Should -Be $shortNames.Count
+    }
+
+    It "has case-insensitively unique repository URLs" {
+        $urls = @($json.repos | ForEach-Object { $_.url.ToLowerInvariant() })
+        @($urls | Sort-Object -Unique).Count | Should -Be $urls.Count
+    }
+
+    It "has a valid optional lastFullReview" {
+        if ($json.PSObject.Properties.Name -contains 'lastFullReview' -and $null -ne $json.lastFullReview) {
+            ($json.lastFullReview -match '^\d{4}-\d{2}-\d{2}$') | Should -Be $true
+        }
+    }
+
+    It "has a valid optional lastFullReviewNote" {
+        if ($json.PSObject.Properties.Name -contains 'lastFullReviewNote') {
+            ($json.lastFullReviewNote -is [string]) | Should -Be $true
+            $json.lastFullReviewNote | Should -Not -BeNullOrEmpty
         }
     }
 }
@@ -3507,7 +4823,10 @@ Describe "cg-release.prompt.md - dispatches cg-release-scanner" {
     }
 
     It "catch-all when release-result.txt is absent or unrecognized" {
-        ($content -match 'may have failed|release-result\.txt.*absent|neither.*CREATED') | Should -Be $true
+        ($content -match 'After Finalize, require `FINALIZED\|<id>\|<url>`') | Should -Be $true
+        ($content -match 'For missing/stale output, use read-only pair/attestation inspection') | Should -Be $true
+        ($content -match 'An error remains a blocked workflow') | Should -Be $true
+        ($content -match 'do not claim completion from stale output') | Should -Be $true
     }
 
     It "documents halt condition when scanner returns no output" {
@@ -3516,6 +4835,101 @@ Describe "cg-release.prompt.md - dispatches cg-release-scanner" {
 }
 
 # ---------------------------------------------------------------------------
+Describe "cg-release.prompt.md - prerelease automation contract" {
+    $content = Get-Content (Join-Path $repoRoot '.github/prompts/cg-release.prompt.md') -Raw -Encoding UTF8
+
+    It "parses auto approval before dispatch without enabling the generic controller" {
+        $parse = $content.IndexOf('## Step 0.5: Parse Approval Controls')
+        $dispatch = $content.IndexOf('## Argument-Preserving Dispatch')
+        $parse | Should -BeGreaterThan -1
+        $dispatch | Should -BeGreaterThan $parse
+        $content | Should -Match 'Reject `--auto-approve` for three-component stable tags'
+        $content | Should -Match 'A bare three- or four-component numeric tag selects `Routine`'
+        $content | Should -Match '`--resume <tag>` without an exceptional'
+        $content | Should -Match 'Only explicit `--legacy-bridge` or `--legacy-recovery`'
+        $content | Should -Match 'Pass the supplied arguments unchanged'
+        $content | Should -Match 'Routine is refused when the remote controller is enabled'
+        $content | Should -Match 'Keep the\s+remote controller disabled for the entire Routine publication'
+        $content | Should -Match 'do not use them to repair an ordinary Routine payload'
+    }
+
+    It "uses verified source identity instead of the obsolete main-dev matrix" {
+        $content | Should -Match 'production_branches'
+        $content | Should -Match 'verified same-repository branches'
+        $content | Should -Match 'releases of either shape use verified `dev`'
+        $content | Should -Match 'detached checkouts require explicit'
+        $content | Should -Not -Match 'Set `<release-branch>` to `dev`'
+        $content | Should -Not -Match 'three-component/`main`'
+        $content | Should -Not -Match 'Require stable three-component tags on `main`'
+    }
+
+    It "passes source identity and receipt to each publication phase" {
+        $calls = @([regex]::Matches($content, '(?m)^[ \t]*\.\\create-release\.ps1[^\r\n]+'))
+        $calls.Count | Should -BeGreaterThan 1
+        foreach ($call in $calls) {
+            $call.Value | Should -Match '-SourceBranch <release-branch>'
+            $call.Value | Should -Match '-PreflightReceipt <receipt-path>'
+            $call.Value | Should -Match '-LegacyOperation <legacy-operation>'
+        }
+    }
+
+    It "documents producer-owned receipt isolation and conditioned SHA recovery" {
+        $content | Should -Match '--emit-receipt <gated-receipt-path>'
+        $content | Should -Match 'producer-owned fresh LF clone'
+        $content | Should -Match 'outside the working tree'
+        $content | Should -Match 'in parallel with PR CI'
+        $content | Should -Match 'one conditioned re-execution'
+        $content | Should -Match 'origin/<release-branch>'
+        $content | Should -Match '9000000'
+    }
+
+    It "requires safe PR automation and bounded observation" {
+        $content | Should -Match 'gh pr create --body-file'
+        $content | Should -Match 'gh pr merge --auto --rebase'
+        $content | Should -Match '--no-follow-tags'
+        $content | Should -Match 'PR_POLL_TIMEOUT_MINUTES = 60'
+        $content | Should -Match 'failed required check'
+        $content | Should -Match 'poll expiry'
+        $content | Should -Match 'never admin-merge'
+        $content | Should -Match 'stable releases keep manual merges'
+    }
+
+    It "keeps stranded payload recovery an explicit maintainer decision" {
+        $content | Should -Match 'stranded payload'
+        $content | Should -Match 'no local or remote annotated tag, Release, or attestation'
+        $content | Should -Match 'reviewed revert PR'
+        $content | Should -Match 'never auto-publish'
+    }
+
+    It "refuses existing identities on new requests and reports published stable follow-up accurately" {
+        $content | Should -Match 'Refuse\s+any existing remote tag or Release'
+        $content | Should -Match 'Run `-Phase Reserve -Resume`'
+        $content | Should -Match 'Stable Pages\s+controller compatibility is checked at Finalize, not before Reserve'
+        $content | Should -Match 'published;\s+documentation/attestation pending'
+        $content | Should -Not -Match 'A bare three-component stable tag is not'
+    }
+
+    It "separates prerelease build evidence from stable deployment evidence" {
+        $prereleaseCall = [regex]::Match($content, '(?m)^\.\\create-release\.ps1 -Phase Finalize[^\r\n]*-Prerelease[^\r\n]*').Value
+        $prereleaseCall.Length | Should -BeGreaterThan 0
+        $prereleaseCall | Should -Match '-BuildRunId <build-id>'
+        $prereleaseCall | Should -Not -Match '-PagesRunId'
+        $stableCall = [regex]::Match($content, '(?m)^\.\\create-release\.ps1 -Phase Finalize[^\r\n]*-PagesRunId <pages-id>[^\r\n]*').Value
+        $stableCall.Length | Should -BeGreaterThan 0
+        $stableCall | Should -Match '-BuildRunId <build-id>'
+        $stableCall | Should -Not -Match '-Prerelease'
+        $content | Should -Match 'exact successful build attempt, job, steps, and artifact'
+    }
+
+    It "uses required checks for evidence and preserves noninteractive resume guards" {
+        $content | Should -Match 'evidence PR.*required checks'
+        $content | Should -Match 'No separate local full gate at the evidence commit'
+        $content | Should -Match 'non-interactive resume'
+        $content | Should -Match 'read-only reconciliation'
+        $content | Should -Not -Match 'gh release create'
+    }
+}
+
 # cg-skill-project-scanner - existence and structure
 # ---------------------------------------------------------------------------
 
@@ -3811,7 +5225,7 @@ Describe "docs/reference.md - phased plan documentation" {
     $content = if (Test-Path $refFile) { Get-Content $refFile -Raw -Encoding UTF8 } else { "" }
 
     It "/cg-work entry documents phaseX argument syntax" {
-        ($content -match '/cg-work \[phaseX\]|cg-work phase') | Should Be $true
+        ([System.Net.WebUtility]::HtmlDecode($content) -match '/cg-work \[phaseX\]|cg-work phase') | Should Be $true
     }
 
     It "documents phases: frontmatter field as a convenience hint" {
@@ -4738,6 +6152,162 @@ Describe "cg-commit-push-pr.prompt.md - frontmatter" {
     }
 }
 
+Describe "cg-commit-push-pr.prompt.md - Step 1.5 source detection" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-commit-push-pr.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+    $stepStart = $content.IndexOf("### Step 1.5: Regenerate Platform Trees")
+    $stepEnd = $content.IndexOf("### Step 2: Analyze Changes", $stepStart + 1)
+    $stepContent = if ($stepStart -ge 0 -and $stepEnd -gt $stepStart) {
+        $content.Substring($stepStart, $stepEnd - $stepStart)
+    } else { "" }
+
+    It "finds Step 1.5" {
+        $stepStart | Should -BeGreaterThan -1
+    }
+
+    It "ends the scoped block before Step 2" {
+        $stepEnd | Should -BeGreaterThan $stepStart
+    }
+
+    It "sets the source decision exactly once" {
+        ($stepContent -match [regex]::Escape('Set `$isCompoundGpidSource` exactly once')) | Should -Be $true
+    }
+
+    It "never recomputes the retained source decision" {
+        ($stepContent -match [regex]::Escape('never recompute')) | Should -Be $true
+    }
+
+    It "uses root marker evidence from initial HEAD" {
+        ($stepContent -match [regex]::Escape('`$initialHead`, the current stage-0 index')) | Should -Be $true
+    }
+
+    It "uses root marker evidence from the current stage-0 index" {
+        ($stepContent -match [regex]::Escape('current stage-0 index')) | Should -Be $true
+    }
+
+    It "uses root marker evidence from the resolved base" {
+        ($stepContent -match [regex]::Escape('`$resolvedBaseCommit`')) | Should -Be $true
+    }
+
+    It "supports canonical-pair bootstrap evidence" {
+        ($stepContent -match [regex]::Escape('`$bootstrapSourceEvidence` is true only when both canonical contract paths')) | Should -Be $true
+    }
+
+    It "supports only the initial untracked marker bootstrap exception" {
+        ($stepContent -match [regex]::Escape('The only stage-0 exception is the initial untracked marker bootstrap')) | Should -Be $true
+    }
+
+    It "does not use worktree existence as source evidence" {
+        ($stepContent -match [regex]::Escape('Do not use worktree existence')) | Should -Be $true
+    }
+
+    It "does not use adapter-local mappings as source evidence" {
+        ($stepContent -match '(?s)any\s+adapter-local mapping') | Should -Be $true
+    }
+
+    It "constructs the canonical mapping from non-rewritable root components" {
+        ($stepContent -match '(?s)separate root\s+components `"\.github"`, `"shared"`, and `"target-mapping\.json"`') | Should -Be $true
+    }
+
+    It "halts on Git inspection ambiguity" {
+        ($stepContent -match [regex]::Escape('inspection ambiguity is a hard stop')) | Should -Be $true
+    }
+
+    It "requires initial and base entries to be regular blobs before evidence or use" {
+        ($stepContent -match '(?s)Before a present result can count as evidence or authorize reading or\s+executing.*initial-HEAD and\s+base tree entry.*object type exactly `blob`.*mode exactly `100644`\s+or `100755`') | Should -Be $true
+    }
+
+    It "requires stage-0 index entries to be regular blobs before evidence or use" {
+        ($stepContent -match '(?s)present index entry to be stage 0.*object type\s+exactly `blob`.*mode exactly `100644` or `100755`') | Should -Be $true
+        ($stepContent -match [regex]::Escape('git cat-file -t <object-id>')) | Should -Be $true
+    }
+
+    It "rejects mode 120000 before source classification or file use" {
+        ($stepContent -match '(?s)Mode `120000`.*hard stops.*consumer') | Should -Be $true
+    }
+
+    It "applies cached deletion checks independently to all three source paths" {
+        ($stepContent -match '(?s)cached\s+deletion rule applies independently to the marker, canonical mapping, and\s+generator') | Should -Be $true
+    }
+
+    foreach ($sourceContractName in @('marker', 'canonical mapping', 'generator')) {
+        It "rejects mode 120000 for the $sourceContractName contract path" {
+            ($stepContent -match 'Mode `120000`') | Should -Be $true
+            ($stepContent -match [regex]::Escape($sourceContractName)) | Should -Be $true
+        }
+
+        It "treats cached deletion of the $sourceContractName as a hard stop" {
+            ($stepContent -match 'git rm --cached') | Should -Be $true
+            ($stepContent -match '(?s)cached\s+deletion rule applies independently to the marker, canonical mapping, and\s+generator') | Should -Be $true
+        }
+    }
+
+    It "does not let physical path presence contradict Git absence classification" {
+        ($stepContent -match '(?s)Git absence and physical worktree presence cannot coexist as positive source\s+evidence') | Should -Be $true
+        ($stepContent -match '(?s)physical path.*can\s+never make a Git-absent path present.*never classify an ordinary\s+consumer') | Should -Be $true
+        ($stepContent -match '(?s)Check if .*target-mapping\.json.*exists AND.*cg_generate_targets\.py.*exists') | Should -Be $false
+    }
+
+    It "skips ordinary consumers before resolving Python" {
+        $consumerSkip = $stepContent.IndexOf('If `$isCompoundGpidSource` is false')
+        $pythonResolution = $stepContent.IndexOf('Resolve a working Python command')
+        $consumerSkip | Should -BeGreaterThan -1
+        $pythonResolution | Should -BeGreaterThan $consumerSkip
+    }
+
+    It "lets consumers skip source-only generation without error" {
+        ($stepContent -match [regex]::Escape('remaining generation and source-only preflight work in this step without')) | Should -Be $true
+    }
+
+    It "lets consumers skip the post-commit source gate without error" {
+        ($stepContent -match [regex]::Escape('skip Step 4.5 without error')) | Should -Be $true
+    }
+
+    It "requires stage-0 source contract entries" {
+        ($stepContent -match [regex]::Escape('Require exactly one stage-0 index entry')) | Should -Be $true
+    }
+
+    It "requires physical regular non-link source files" {
+        ($stepContent -match [regex]::Escape('regular non-link files under `$repoRoot`')) | Should -Be $true
+    }
+
+    It "halts on staged source contract deletion" {
+        ($stepContent -match [regex]::Escape('A missing stage-0 entry is a staged deletion')) | Should -Be $true
+    }
+
+    It "halts on unstaged source contract deletion" {
+        ($stepContent -match [regex]::Escape('A missing physical file is an unstaged deletion')) | Should -Be $true
+    }
+
+    It "requires the exact marker JSON keys" {
+        ($stepContent -match [regex]::Escape('Require exactly the top-level keys')) | Should -Be $true
+    }
+
+    It "requires marker schema version one" {
+        ($stepContent -match [regex]::Escape('integer `schemaVersion == 1`')) | Should -Be $true
+    }
+
+    It "requires the source marker kind" {
+        ($stepContent -match [regex]::Escape('string `kind == "compound-gpid-source"`')) | Should -Be $true
+    }
+
+    It "does not contain a rewritten Claude mapping identity" {
+        ($stepContent -match [regex]::Escape('.claude/shared/target-mapping.json')) | Should -Be $false
+    }
+
+    It "does not contain a rewritten Codex mapping identity" {
+        ($stepContent -match [regex]::Escape('.agents/shared/target-mapping.json')) | Should -Be $false
+    }
+
+    It "does not contain a rewritten OpenCode mapping identity" {
+        ($stepContent -match [regex]::Escape('.opencode/shared/target-mapping.json')) | Should -Be $false
+    }
+
+    It "does not contain a rewritten Kilo mapping identity" {
+        ($stepContent -match [regex]::Escape('.kilo/shared/target-mapping.json')) | Should -Be $false
+    }
+}
+
 Describe "cg-commit-push-pr.prompt.md - structure" {
     $promptFile = Join-Path $repoRoot ".github\prompts\cg-commit-push-pr.prompt.md"
     $content = Get-Content $promptFile -Raw -Encoding UTF8
@@ -4844,8 +6414,93 @@ Describe "cg-commit-push-pr.prompt.md - structure" {
         ($content -match 'GitHub Pull Request.*extension|vscode.*github|github-pull-request_create|VS Code.*extension.*PR|extension.*PR.*creation') | Should -Be $true
     }
 
+    It "regenerates all target trees and refreshes the staging inventory before Step 2" {
+        $generation = $content.IndexOf("Run the generator unconditionally")
+        $staging = $content.IndexOf("### Step 2")
+        $generation | Should -BeGreaterThan -1
+        $staging | Should -BeGreaterThan $generation
+        ($content -match 'Rerun `git status --short`') | Should -Be $true
+        ($content -match '\.claude/') | Should -Be $true
+        ($content -match '\.agents/') | Should -Be $true
+        ($content -match '\.opencode/') | Should -Be $true
+        ($content -match '\.kilo/') | Should -Be $true
+    }
+
+    It "runs local CI-equivalent checks before staging" {
+        $generation = $content.IndexOf("Run these local CI-equivalent gates before Step 2")
+        $staging = $content.IndexOf("### Step 2")
+        $generation | Should -BeGreaterThan -1
+        $staging | Should -BeGreaterThan $generation
+        ($content -match 'cg_pr_preflight\.py') | Should -Be $true
+        ($content -match 'check-docs-site\.js') | Should -Be $true
+        ($content -match 'Run-Tests\.ps1 -File <validated-groups>') | Should -Be $true
+    }
+
+    It "runs committed generated-target drift checks before push" {
+        $postCommit = $content.IndexOf("### Step 4.5: Post-Commit Generated Drift Gate")
+        $push = $content.IndexOf("### Step 5: Push")
+        $postCommit | Should -BeGreaterThan -1
+        $push | Should -BeGreaterThan $postCommit
+        ($content.Substring($postCommit, $push - $postCommit) -match 'cg_pr_preflight\.py --phase committed') | Should -Be $true
+    }
+
+    It "uses preflight-selected registered Pester groups instead of a hard-coded list" {
+        ($content -match 'pester_files') | Should -Be $true
+        ($content -match 'registered.*testNames|testNames.*registered') | Should -Be $true
+        ($content -match 'Run-Tests\.ps1 -File <validated-groups>') | Should -Be $true
+    }
+
     It "gives actionable next-time setup instructions when no PR tool is available" {
         ($content -match 'next.time|to enable.*PR|install.*gh.*next|winget.*GitHub\.cli.*next|for.*future.*runs|next run') | Should -Be $true
+    }
+
+    It "accepts an explicit base and documents deterministic base precedence" {
+        ($content -match '--base') | Should -Be $true
+        ($content -match 'existing PR.*baseRefName.*explicit.*--base.*default branch') | Should -Be $true
+    }
+
+    It "resolves the base before generation, staging, or base-sensitive operations" {
+        $resolve = $content.IndexOf('Resolve `$baseBranch`')
+        $generation = $content.IndexOf('### Step 1.5:')
+        $staging = $content.IndexOf('### Step 2:')
+        $resolve | Should -BeGreaterThan -1
+        $generation | Should -BeGreaterThan $resolve
+        $staging | Should -BeGreaterThan $resolve
+        ($content -match 'baseRefName') | Should -Be $true
+    }
+
+    It "runs the prepare preflight with the resolved base before staging" {
+        $preflight = $content.IndexOf('cg_pr_preflight.py --phase prepare')
+        $staging = $content.IndexOf('### Step 2:')
+        $preflight | Should -BeGreaterThan -1
+        $preflight | Should -BeLessThan $staging
+        ($content.Substring($preflight, [Math]::Min(400, $content.Length - $preflight)) -match '--base.*\$baseBranch|\$baseBranch.*--base') | Should -Be $true
+        ($content -match '--run-native-target') | Should -Be $true
+    }
+
+    It "runs the committed preflight with the same base before push" {
+        $committed = $content.IndexOf('cg_pr_preflight.py --phase committed')
+        $push = $content.IndexOf('### Step 5: Push')
+        $committed | Should -BeGreaterThan -1
+        $committed | Should -BeLessThan $push
+        ($content.Substring($committed, [Math]::Min(400, $content.Length - $committed)) -match '--base.*\$baseBranch|\$baseBranch.*--base') | Should -Be $true
+    }
+
+    It "passes the resolved base to gh and the VS Code extension PR paths" {
+        ($content -match 'gh pr create.*--base.*\$baseBranch|--base.*\$baseBranch.*gh pr create') | Should -Be $true
+        ($content -match 'github-pull-request_create_pull_request') | Should -Be $true
+        ($content -match 'baseBranch.*extension|extension.*baseBranch') | Should -Be $true
+    }
+
+    It "does not infer the base from origin/HEAD and reports Kilo non-applicability" {
+        ($content -match 'origin/HEAD') | Should -Be $false
+        ($content -match 'Kilo.*not applicable|Kilo.*generic-not-applicable|generic-not-applicable.*Kilo') | Should -Be $true
+    }
+
+    It "does not retain the old hard-coded native gate list" {
+        ($content -match 'test_cg_characterization\.py') | Should -Be $false
+        ($content -match 'test_target_mapping\.py') | Should -Be $false
+        ($content -match 'test_target_drift\.py') | Should -Be $false
     }
 }
 
@@ -4926,8 +6581,10 @@ Describe "cg-verify-pr.prompt.md - structure" {
         ($content -match '@cg-code-quality') | Should -Be $true
     }
 
-    It "enforces 2-round cap via fix(ci): commit count (R8)" {
-        ($content -match 'fix\(ci\)') | Should -Be $true
+    It "enforces a PR-scoped 2-round cap without historical fix commit false positives (R8)" {
+        ($content -match 'CI-Fix-Round: <PR-number>/<round-number>') | Should -Be $true
+        ($content -match 'unique round numbers') | Should -Be $true
+        ($content -match 'historical `fix\(ci\):` subjects without this trailer') | Should -Be $true
     }
 
     It "mentions 2 fix rounds as the cap (R8)" {
@@ -4946,8 +6603,11 @@ Describe "cg-verify-pr.prompt.md - structure" {
         ($content -match 'NOT deployment-ready|not deployment') | Should -Be $true
     }
 
-    It "includes run-id extraction via gh run list before gh run view (R7/P2.1)" {
-        ($content -match 'gh run list') | Should -Be $true
+    It "resolves each failed Actions check from detailsUrl to an exact run and job (R7/P2.1)" {
+        ($content -match 'detailsUrl') | Should -Be $true
+        ($content -match 'run.*job.*ID|run ID.*job ID') | Should -Be $true
+        ($content -match 'gh run view <run-id> --job <job-id> --log-failed') | Should -Be $true
+        ($content -match 'gh run list --branch <branch> --workflow') | Should -Be $false
     }
 
     It "handles rebase for diverged branches (R10)" {
@@ -4983,8 +6643,10 @@ Describe "cg-verify-pr.prompt.md - structure" {
         ($content -match 'detached HEAD state') | Should -Be $true
     }
 
-    It "skips log fetching with 'No run found' message when gh run list returns empty (P1.6)" {
+    It "reports unavailable exact job logs without selecting another run" {
         ($content -match 'No run found for workflow') | Should -Be $true
+        ($content -match 'exact Actions run/job log is unavailable') | Should -Be $true
+        ($content -match 'There is no run list fallback') | Should -Be $true
     }
 
     It "treats SKIPPED conclusion as passing (P1.7)" {
@@ -5001,6 +6663,79 @@ Describe "cg-verify-pr.prompt.md - structure" {
 
     It "halts on STALE conclusion (P1.7)" {
         ($content -match 'STALE') | Should -Be $true
+    }
+
+    It "provides a manual route for non-Actions and unparseable check URLs" {
+        ($content -match 'non-Actions') | Should -Be $true
+        ($content -match 'unparseable') | Should -Be $true
+        ($content -match 'Manual diagnosis required') | Should -Be $true
+        ($content -match 'manual provider/UI diagnosis route') | Should -Be $true
+        ($content -match 'no latest-run heuristic') | Should -Be $true
+    }
+
+    It "validates check object shapes and closed status/conclusion values before classification" {
+        ($content -match '`CheckRun` is well-shaped') | Should -Be $true
+        ($content -match '(?s)recognized.*`status`') | Should -Be $true
+        ($content -match '(?s)recognized.*`conclusion`') | Should -Be $true
+        ($content -match 'unknown\s+status/conclusion') | Should -Be $true
+        ($content -match 'Do not classify or mutate') | Should -Be $true
+    }
+
+    It "validates and normalizes GitHub StatusContext entries" {
+        ($content -match '`StatusContext`') | Should -Be $true
+        ($content -match 'recognized `state`') | Should -Be $true
+        ($content -match '`targetUrl` to `detailsUrl`') | Should -Be $true
+        ($content -match '`ERROR` to `COMPLETED/FAILURE`|`FAILURE` or `ERROR` to `COMPLETED/FAILURE`') | Should -Be $true
+        ($content -match 'Classification\s+below uses only the normalized list') | Should -Be $true
+    }
+
+    It "resolves baseRefName before fetch, merge-base, rebase, or preflight" {
+        $base = $content.IndexOf('baseRefName')
+        $fetch = $content.IndexOf('git fetch')
+        $mergeBase = $content.IndexOf('git merge-base')
+        $preflight = $content.IndexOf('cg_pr_preflight.py')
+        $base | Should -BeGreaterThan -1
+        $fetch | Should -BeGreaterThan $base
+        $mergeBase | Should -BeGreaterThan $base
+        $preflight | Should -BeGreaterThan $base
+        ($content -match 'baseBranch') | Should -Be $true
+        ($content -match 'fetch.*validat|validate.*fetch') | Should -Be $true
+    }
+
+    It "halts auto-fix on any pre-existing staged, unstaged, or untracked work" {
+        $status = $content.IndexOf('git status --porcelain')
+        $autoFix = $content.IndexOf('Before any auto-fix')
+        $status | Should -BeGreaterThan -1
+        $status | Should -BeLessThan $autoFix
+        ($content -match 'staged.*unstaged.*untracked|dirty.*worktree|dirty.*working tree') | Should -Be $true
+        ($content -match 'halt|stop') | Should -Be $true
+        ($content -match 'preFixStatusExit|status.*exit code') | Should -Be $true
+    }
+
+    It "requires exact local reproduction unless the failure is certified-host dependent" {
+        ($content -match 'exact.*focused.*local reproduction|focused local reproduction') | Should -Be $true
+        ($content -match 'host-dependent.*certified|certified.*host-dependent') | Should -Be $true
+        ($content -match 'cg_pr_preflight.py') | Should -Be $true
+    }
+
+    It "stages only post-baseline fix paths and creates one trailer-bearing fix commit" {
+        ($content -match 'clean baseline|baseline.*clean') | Should -Be $true
+        ($content -match 'stage only.*files|only.*post-baseline|selected.*paths') | Should -Be $true
+        ($content -match 'exact trailer.*CI-Fix-Round|CI-Fix-Round: <PR-number>/<round-number>') | Should -Be $true
+        ($content -match 'one.*fix\(ci\).*commit|exactly one.*fix\(ci\).*commit') | Should -Be $true
+        ($content -match 'unique.*trailer|unique round numbers') | Should -Be $true
+    }
+
+    It "routes certified Kilo failures separately from generic linker failures" {
+        ($content -match 'Kilo.*capability|capability.*Kilo') | Should -Be $true
+        ($content -match 'certified-host|host integration') | Should -Be $true
+        ($content -match 'generic.*linker|linker.*generic') | Should -Be $true
+    }
+
+    It "requires successful git status commands at the clean baseline" {
+        ($content -match 'baselineStatusExit') | Should -Be $true
+        ($content -match 'baselineCommitExit') | Should -Be $true
+        ($content -match 'Require.*baselineStatusExit') | Should -Be $true
     }
 }
 
@@ -6049,12 +7784,14 @@ Describe "cg-fixbug.prompt.md - P1.2 escape hatch for 'test is not failing' resp
     }
 }
 
-Describe "cg-fixbug.prompt.md - P1.3 cross-reference pointer in Step 2.5 table" {
+Describe "cg-fixbug.prompt.md - language-neutral Step 2.5 testing guidance" {
     $promptFile = Join-Path $repoRoot ".github\prompts\cg-fixbug.prompt.md"
     $content = Get-Content $promptFile -Raw -Encoding UTF8
 
-    It "Step 2.5 table footer references test-integrity.md for Typical Signal column" {
-        ($content -match 'test-integrity\.md.*Test Gap Taxonomy') | Should -Be $true
+    It "loads only testing guidance selected by the active project" {
+        ($content -match 'active project includes language-specific testing guidance') | Should -Be $true
+        ($content -match 'taxonomy and definitions above consistently across supported languages') | Should -Be $true
+        ($content -match 'cg-skill-r-testing/references/test-integrity\.md') | Should -Be $false
     }
 }
 
@@ -6226,7 +7963,8 @@ Describe "docs/reference.md and team-brain schema - remaining docs coverage" {
     $schema = Get-Content (Join-Path $repoRoot "docs\team-brain-schema.md") -Raw -Encoding UTF8
 
     It "documents cg-brain-init in shell commands" {
-        ($reference -match '\| `cg-brain-init` \| Project root \|') | Should -Be $true
+        ($reference -match '\| cg-brain-init --repo .* --manager .*\| CG, CR \|') | Should -Be $true
+        ($reference -match '`cg-brain-init` uses the project root') | Should -Be $true
     }
 
     It "documents private and private-sections fields" {
@@ -6978,5 +8716,430 @@ Describe "cg-skill-wb-report-writing - guardrails and marker grammar" {
         ($terminologyContent -match '(?i)unresolved') | Should -Be $true
         ($terminologyContent -match '(?i)do not infer|do not guess') | Should -Be $true
         ($terminologyContent -match '(?i)not-required') | Should -Be $false
+    }
+}
+
+# ---------------------------------------------------------------------------
+# CR ML skill redesign - routing and methodology guardrails
+# ---------------------------------------------------------------------------
+
+Describe "CR ML skill redesign - routing and methodology guardrails" {
+    $skillContent = Get-Content (Join-Path $repoRoot ".github\skills\cr-skill-ml-economics\SKILL.md") -Raw -Encoding UTF8
+    $workContent = Get-Content (Join-Path $repoRoot ".github\prompts\cr-work.prompt.md") -Raw -Encoding UTF8
+    $agentContent = Get-Content (Join-Path $repoRoot ".github\agents\cr-ml-methodology.agent.md") -Raw -Encoding UTF8
+    $integrityContent = Get-Content (Join-Path $repoRoot ".github\skills\cr-skill-research-integrity\SKILL.md") -Raw -Encoding UTF8
+    $reviewContent = Get-Content (Join-Path $repoRoot ".github\prompts\cr-review.prompt.md") -Raw -Encoding UTF8
+
+    It "routes neural-network method selection through the foundations reference" {
+        ($skillContent -match 'Neural-network method selection') | Should -Be $true
+        ($skillContent -match 'foundations-and-esl\.md') | Should -Be $true
+    }
+
+    It "keeps selective loading explicit in the core router" {
+        ($skillContent -match 'do not load all eight') | Should -Be $true
+        ($skillContent -match 'one or two references') | Should -Be $true
+    }
+
+    It "distinguishes stochastic and deterministic seed requirements" {
+        ($workContent -match 'deterministic splitter') | Should -Be $true
+        ($workContent -match 'random_state') | Should -Be $true
+        ($agentContent -match 'shuffle=True') | Should -Be $true
+        ($integrityContent -match 'deterministic') | Should -Be $true
+        ($integrityContent -match 'splitter') | Should -Be $true
+    }
+
+    It "does not treat project metadata as a Python lockfile" {
+        ($workContent -match 'pyproject\.toml') | Should -Be $true
+        ($workContent -match 'project metadata') | Should -Be $true
+        ($workContent -match 'not a lockfile') | Should -Be $true
+    }
+
+    It "loads derivation guidance only when derivation context exists" {
+        ($workContent -match 'declared or detected.*derivation|derivation artifact') | Should -Be $true
+    }
+
+    It "caps ML references across the complete review" {
+        ($agentContent -match 'per-file/per-review') | Should -Be $true
+        ($agentContent -match 'reference budget') | Should -Be $true
+        ($agentContent -match 'cumulative') | Should -Be $true
+    }
+
+    It "makes review checks target-conditional" {
+        ($agentContent -match 'generalization target') | Should -Be $true
+        ($agentContent -match 'nested cross-validation') | Should -Be $true
+        ($agentContent -match 'positive-class') | Should -Be $true
+        ($agentContent -match 'weights are nonmissing') | Should -Be $true
+    }
+
+    It "dispatches ML review only when implementation signals are present" {
+        ($reviewContent -match 'Implementation.*cr-ml-methodology.*only when ML signals') | Should -Be $true
+        ($reviewContent -match 'ML signals') | Should -Be $true
+        ($reviewContent -match 'LASSO') | Should -Be $true
+        ($reviewContent -match 'Pipeline') | Should -Be $true
+        ($reviewContent -match 'DoubleML') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Minimal adaptive grilling contracts
+# ---------------------------------------------------------------------------
+
+Describe "cg-skill-brainstorming - adaptive requirement elicitation" {
+    $skillFile = Join-Path $repoRoot ".github\skills\cg-skill-brainstorming\SKILL.md"
+    $workflowFile = Join-Path $repoRoot ".github\skills\cg-skill-brainstorming\workflows\requirement-elicitation.md"
+    $skill = Get-Content -LiteralPath $skillFile -Raw -Encoding UTF8
+    $workflow = Get-Content -LiteralPath $workflowFile -Raw -Encoding UTF8
+
+    It "routes to the shared adaptive decision protocol" {
+        ($skill -match 'shared adaptive decision protocol') | Should -Be $true
+    }
+
+    It "discovers facts before asking the user" {
+        ($workflow -match 'Discover facts before asking') | Should -Be $true
+    }
+
+    It "tracks each required fact state independently" {
+        $factStart = $workflow.IndexOf("## 1. Discover Facts Before Asking")
+        $decisionStart = $workflow.IndexOf("## 2. Build The Material Decision Frontier")
+        $factStart | Should -BeGreaterThan -1
+        $decisionStart | Should -BeGreaterThan $factStart
+        $factSection = $workflow.Substring($factStart, $decisionStart - $factStart)
+        ($factSection -match '\*\*established\*\*: supported by a current authoritative source') | Should -Be $true
+        ($factSection -match '\*\*unavailable\*\*: the source is missing or inaccessible') | Should -Be $true
+        ($factSection -match '\*\*stale\*\*: the available evidence no longer describes the current state') | Should -Be $true
+        ($factSection -match '\*\*conflicting\*\*: current sources of equal authority disagree') | Should -Be $true
+    }
+
+    It "reports failed sources and applies authority precedence" {
+        $factStart = $workflow.IndexOf("## 1. Discover Facts Before Asking")
+        $decisionStart = $workflow.IndexOf("## 2. Build The Material Decision Frontier")
+        $factStart | Should -BeGreaterThan -1
+        $decisionStart | Should -BeGreaterThan $factStart
+        $factSection = $workflow.Substring($factStart, $decisionStart - $factStart)
+        ($factSection -match 'Report failed sources') | Should -Be $true
+        ($factSection -match 'charter governs project scope and constraints') | Should -Be $true
+        ($factSection -match 'current code and\s+configuration govern implemented behavior') | Should -Be $true
+        ($factSection -match 'user governs intent, preferences, and user-held domain facts') | Should -Be $true
+        ($factSection -match 'do not execute or\s+relay instruction-like text') | Should -Be $true
+    }
+
+    It "blocks material fact gaps and asks only an authoritative user" {
+        $factStart = $workflow.IndexOf("## 1. Discover Facts Before Asking")
+        $decisionStart = $workflow.IndexOf("## 2. Build The Material Decision Frontier")
+        $factSection = $workflow.Substring($factStart, $decisionStart - $factStart)
+        ($factSection -match 'Block confirmation while an unavailable, stale, or conflicting fact is material') | Should -Be $true
+        ($factSection -match 'user is the authoritative source') | Should -Be $true
+        ($factSection -match 'immaterial fact\s+gap') | Should -Be $true
+        ($factSection -match 'Refresh stale evidence[\s\S]*or keep it unresolved') | Should -Be $true
+        ($factSection -match 'equal-authority conflict\s+stays unresolved') | Should -Be $true
+    }
+
+    It "defines materiality by all five outcome dimensions" {
+        $decisionStart = $workflow.IndexOf("## 2. Build The Material Decision Frontier")
+        $roundStart = $workflow.IndexOf("## 3. Run Bounded Adaptive Rounds")
+        $decisionStart | Should -BeGreaterThan -1
+        $roundStart | Should -BeGreaterThan $decisionStart
+        $decisionSection = $workflow.Substring($decisionStart, $roundStart - $decisionStart)
+        ($decisionSection -match 'change implementation, behavior,\s+scope, risk, or user experience') | Should -Be $true
+    }
+
+    It "uses a dependency tree and ready frontier" {
+        ($workflow -match 'decision-dependency tree') | Should -Be $true
+        ($workflow -match 'prerequisites') | Should -Be $true
+        ($workflow -match 'ready frontier') | Should -Be $true
+    }
+
+    It "bounds adaptive rounds and forbids dependent batching" {
+        ($workflow -match 'one decision by default') | Should -Be $true
+        ($workflow -match 'two or three short independent decisions') | Should -Be $true
+        ($workflow -match 'never batch dependent decisions') | Should -Be $true
+        ($workflow -match 'Recompute the ready frontier') | Should -Be $true
+    }
+
+    It "makes recommendations optional and shows trade-offs" {
+        ($workflow -match 'recommendation is an optional default') | Should -Be $true
+        ($workflow -match 'concise\s+trade-offs') | Should -Be $true
+    }
+
+    It "keeps the six subject areas as a coverage checklist" {
+        $coverageStart = $workflow.IndexOf("## 4. Check Coverage")
+        $stopStart = $workflow.IndexOf("## 5. Stop At Minimum Viable Understanding")
+        $coverageStart | Should -BeGreaterThan -1
+        $stopStart | Should -BeGreaterThan $coverageStart
+        $coverageSection = $workflow.Substring($coverageStart, $stopStart - $coverageStart)
+        ($coverageSection -match 'coverage checklist') | Should -Be $true
+        ($coverageSection -match '(?m)^1\. Purpose and problem$') | Should -Be $true
+        ($coverageSection -match '(?m)^2\. Users and stakeholders$') | Should -Be $true
+        ($coverageSection -match '(?m)^3\. Inputs and data$') | Should -Be $true
+        ($coverageSection -match '(?m)^4\. Outputs and deliverables$') | Should -Be $true
+        ($coverageSection -match '(?m)^5\. Constraints$') | Should -Be $true
+        ($coverageSection -match '(?m)^6\. Edge cases, risks, and scope$') | Should -Be $true
+    }
+
+    It "stops only at an empty material frontier and minimum viable certainty" {
+        $stopStart = $workflow.IndexOf("## 5. Stop At Minimum Viable Understanding")
+        $stopStart | Should -BeGreaterThan -1
+        $stopSection = $workflow.Substring($stopStart)
+        ($stopSection -match 'material ready frontier is empty') | Should -Be $true
+        ($stopSection -match 'no\s+unresolved uncertainty can change the minimum viable solution') | Should -Be $true
+    }
+}
+
+Describe "cg-skill-brainstorming - decision template schema" {
+    $templateFile = Join-Path $repoRoot ".github\skills\cg-skill-brainstorming\references\decision-template.md"
+    $template = Get-Content -LiteralPath $templateFile -Raw -Encoding UTF8
+
+    It "contains the current required Brainstorm fields" {
+        ($template -match '(?m)^scope:') | Should -Be $true
+        ($template -match '(?m)^artifact-schema-version:\s*1$') | Should -Be $true
+    }
+
+    It "lists only current status values" {
+        ($template -match '(?m)^status:\s*(decided|in-progress|abandoned)$') | Should -Be $true
+        ($template -match '<!-- Valid status values: decided, in-progress, abandoned -->') | Should -Be $true
+        ($template -match '(?m)^status:\s*(draft|superseded)$') | Should -Be $false
+    }
+
+    It "allows a single-path capture without an invented alternative" {
+        ($template -match 'Add another Approach heading only for each additional materially different') | Should -Be $true
+        ($template -match 'Omit it when only one viable path existed') | Should -Be $true
+    }
+
+    It "gives mode-appropriate next-step guidance" {
+        ($template -match 'For Software/Data work') | Should -Be $true
+        ($template -match 'For\s+Thinking Partner work') | Should -Be $true
+    }
+}
+
+Describe "cg-brainstorm.prompt.md - minimal adaptive grilling" {
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-brainstorm.prompt.md"
+    $content = Get-Content -LiteralPath $promptFile -Raw -Encoding UTF8
+    $step05Pos = $content.IndexOf("### Step 0.5:")
+    $step07Pos = $content.IndexOf("### Step 0.7:")
+    $step1Pos = $content.IndexOf("### Step 1:")
+    $step11Pos = $content.IndexOf("### Step 1.1:")
+    $step15Pos = $content.IndexOf("### Step 1.5:")
+    $step17Pos = $content.IndexOf("### Step 1.7:")
+    $step2Pos = $content.IndexOf("### Step 2:")
+    $step3Pos = $content.IndexOf("### Step 3:")
+    $step35Pos = $content.IndexOf("### Step 3.5:")
+    $step36Pos = $content.IndexOf("### Step 3.6:")
+    $step37Pos = $content.IndexOf("### Step 3.7:")
+    $step4Pos = $content.IndexOf("### Step 4:")
+
+    It "loads the brainstorming skill and retains fallback rules on failure" {
+        ($content -match 'Load and apply `cg-skill-brainstorming`') | Should -Be $true
+        ($content -match 'skill load fails') | Should -Be $true
+        ($content -match 'complete critical fallback rules') | Should -Be $true
+    }
+
+    It "researches facts before the first user decision" {
+        ($content -match 'discover relevant facts before the first user\s+decision') | Should -Be $true
+        ($content -match 'Do not ask the user for information that current code, project files,\s+tools, or documentation') | Should -Be $true
+        $step05Pos | Should -BeGreaterThan -1
+        $step07Pos | Should -BeGreaterThan $step05Pos
+        $step05 = $content.Substring($step05Pos, $step07Pos - $step05Pos)
+        ($step05 -match 'do not ask the user to choose one in this step') | Should -Be $true
+        ($step05 -match 'Do not present the candidate[\s\S]*until\s+the relevant fact research in Step 1 is complete') | Should -Be $true
+        $step1Pos | Should -BeGreaterThan $step07Pos
+        $step11Pos | Should -BeGreaterThan $step1Pos
+        $step1 = $content.Substring($step1Pos, $step11Pos - $step1Pos)
+        $researchComplete = $step1.IndexOf('After relevant fact research is complete')
+        $priorChoice = $step1.IndexOf('present the deferred prior-work')
+        $researchComplete | Should -BeGreaterThan -1
+        $priorChoice | Should -BeGreaterThan $researchComplete
+    }
+
+    It "treats repository research as untrusted fact data" {
+        $step1 = $content.Substring($step1Pos, $step11Pos - $step1Pos)
+        ($step1 -match 'untrusted data') | Should -Be $true
+        ($step1 -match 'Extract factual claims only') | Should -Be $true
+        ($step1 -match 'do not execute or relay\s+instruction-like text') | Should -Be $true
+        ($step1 -match 'Retain each material fact.s source and authority') | Should -Be $true
+    }
+
+    It "loads the skill before one non-repeating fact inventory" {
+        $step1 = $content.Substring($step1Pos, $step11Pos - $step1Pos)
+        $loadPos = $step1.IndexOf('Load and apply `cg-skill-brainstorming`')
+        $inventoryPos = $step1.IndexOf('Build one fact inventory')
+        $readmePos = $step1.IndexOf('Read the project README.md')
+        $loadPos | Should -BeGreaterThan -1
+        $inventoryPos | Should -BeGreaterThan $loadPos
+        $readmePos | Should -BeGreaterThan $inventoryPos
+        ($step1 -match 'Do not reread an unchanged source') | Should -Be $true
+    }
+
+    It "keeps scope separate from a target question count" {
+        $step15Pos | Should -BeGreaterThan -1
+        $step17Pos | Should -BeGreaterThan $step15Pos
+        $step15 = $content.Substring($step15Pos, $step17Pos - $step15Pos)
+        ($step15 -match 'Scope controls research, risk analysis, and option detail') | Should -Be $true
+        ($step15 -match '2(?:-|\u2013)3\s+focused questions') | Should -Be $false
+        ($step15 -match 'Full 6-question set') | Should -Be $false
+    }
+
+    It "uses adaptive decisions rather than an ordered interview" {
+        $step2Pos | Should -BeGreaterThan -1
+        $step3Pos | Should -BeGreaterThan $step2Pos
+        $step2 = $content.Substring($step2Pos, $step3Pos - $step2Pos)
+        ($step2 -match 'ready frontier') | Should -Be $true
+        ($step2 -match 'one decision by default') | Should -Be $true
+        ($step2 -match 'no more than two or three short independent\s+decisions') | Should -Be $true
+        ($step2 -match '(?i)never batch dependent\s+decisions') | Should -Be $true
+        ($step2 -match 'established, unavailable, stale, and conflicting states') | Should -Be $true
+        ($step2 -match 'change implementation,\s+behavior, scope, risk, or user experience') | Should -Be $true
+        ($step2 -match 'recommendation is an optional default') | Should -Be $true
+        ($step2 -match 'Recompute the ready frontier') | Should -Be $true
+        ($step2 -match 'coverage checklist') | Should -Be $true
+        ($step2 -match 'material ready frontier is empty') | Should -Be $true
+        ($step2 -match 'unresolved\s+uncertainty can change the minimum viable solution') | Should -Be $true
+        ($step2 -match 'Cover these areas in order') | Should -Be $false
+    }
+
+    It "removes fixed-count entry conditions from approach analysis" {
+        $step3Pos | Should -BeGreaterThan -1
+        $step35Pos | Should -BeGreaterThan $step3Pos
+        $step3 = $content.Substring($step3Pos, $step35Pos - $step3Pos)
+        ($step3 -match 'usually\s+3(?:-|\u2013|\u2014)6\s+questions') | Should -Be $false
+        ($step3 -match 'at least two materially different paths') | Should -Be $true
+        ($step3 -match 'only one viable path') | Should -Be $true
+        ($step3 -match 'no viable path') | Should -Be $true
+    }
+
+    It "orders all post-analysis gates before capture" {
+        $step35Pos | Should -BeGreaterThan -1
+        $step36Pos | Should -BeGreaterThan $step35Pos
+        $step37Pos | Should -BeGreaterThan $step36Pos
+        $step4Pos | Should -BeGreaterThan $step37Pos
+    }
+
+    It "routes Devil's Advocate to explicit approach choice" {
+        $step35Pos | Should -BeGreaterThan -1
+        $step36Pos | Should -BeGreaterThan $step35Pos
+        $step35 = $content.Substring($step35Pos, $step36Pos - $step35Pos)
+        ($step35 -match 'proceed to Step 3\.6') | Should -Be $true
+        ($step35 -match 'proceed to Step 4') | Should -Be $false
+        ($content -match 'explicit selection\s+between materially different approaches') | Should -Be $true
+    }
+
+    It "makes no viable path the sole Devil's Advocate exception" {
+        $step3 = $content.Substring($step3Pos, $step35Pos - $step3Pos)
+        ($step3 -match 'no viable path remains[\s\S]*sole explicit exception to Step 3\.5') | Should -Be $true
+        $step35 = $content.Substring($step35Pos, $step36Pos - $step35Pos)
+        ($step35 -match 'always-on and unconditional.*at least one viable path') | Should -Be $true
+        ($step35 -match 'no-viable-path stop is the sole exception') | Should -Be $true
+    }
+
+    It "allows one captured approach when only one path is viable" {
+        $step4 = $content.Substring($step4Pos)
+        ($step4 -match 'Add another Approach heading only for each additional materially different') | Should -Be $true
+        ($step4 -match 'Omit it when only one viable path existed') | Should -Be $true
+    }
+
+    It "keeps confirmation anchors local and in order" {
+        $step37Pos | Should -BeGreaterThan -1
+        $step4Pos | Should -BeGreaterThan $step37Pos
+        $step37 = $content.Substring($step37Pos, $step4Pos - $step37Pos)
+        $summaryPos = $step37.IndexOf('Minimal design for confirmation:')
+        $confirmPos = $step37.IndexOf('Confirm this minimal design before I capture it.')
+        $complexityPos = $step37.IndexOf('Minimal design confirmed. Explore a more sophisticated version? (yes/no, default: no)')
+        $summaryPos | Should -BeGreaterThan -1
+        $confirmPos | Should -BeGreaterThan $summaryPos
+        $complexityPos | Should -BeGreaterThan $confirmPos
+    }
+
+    It "defines a terminating rejection transition" {
+        $step37 = $content.Substring($step37Pos, $step4Pos - $step37Pos)
+        ($step37 -match 'one concise objection') | Should -Be $true
+        ($step37 -match '\*\*Discoverable fact\*\*:[\s\S]*return to Step 1') | Should -Be $true
+        ($step37 -match '\*\*Material decision\*\*:[\s\S]*return to Step 2') | Should -Be $true
+        ($step37 -match '\*\*Scope change\*\*:[\s\S]*repeat Step 1\.1 and Step 1\.5') | Should -Be $true
+        ($step37 -match 'invalidate facts,\s+defaults, and decision branches affected by the old scope') | Should -Be $true
+        ($step37 -match 'After any actionable objection, repeat Step 3, Step 3\.5, Step 3\.6, and Step 3\.7') | Should -Be $true
+        ($step37 -match 'no actionable reason[\s\S]*stop with an explicit unresolved state') | Should -Be $true
+    }
+
+    It "routes complexity opt-in through the complete adaptive loop" {
+        $step37 = $content.Substring($step37Pos, $step4Pos - $step37Pos)
+        ($step37 -match 'complexity-offer-used = false') | Should -Be $true
+        ($step37 -match 'return to Step 2 and then repeat Step 3, Step 3\.5, Step 3\.6, and Step 3\.7\s+in order') | Should -Be $true
+        ($step37 -match 'do not offer\s+added complexity again') | Should -Be $true
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Phase 5 (Step 14): read-only autopilot reconciliation in /cg-resume
+# ---------------------------------------------------------------------------
+Describe "cg-resume.prompt.md - autopilot reconciliation precedence" {
+    $repoRoot = Split-Path $PSScriptRoot -Parent
+    $promptFile = Join-Path $repoRoot ".github\prompts\cg-resume.prompt.md"
+    $content = Get-Content $promptFile -Raw -Encoding UTF8
+
+    It "recommends the exact /cg-autopilot --resume command" {
+        ($content -match '/cg-autopilot --resume \.cg-docs/active-state/current\.json') | Should -Be $true
+    }
+
+    It "unfinished autopilot reconciliation takes precedence over phase-only suggestions" {
+        ($content -match 'takes precedence') | Should -Be $true
+        ($content -match 'phase-only') | Should -Be $true
+        ($content -match 'Do not offer `/cg-work phaseX`') | Should -Be $true
+    }
+
+    It "never runs the helper or writes the private control event" {
+        ($content -match 'never writes the private control event') | Should -Be $true
+        ($content -match 'separately approved parent helper transition') | Should -Be $true
+        ($content -match 'never runs the control helper') | Should -Be $true
+    }
+
+    It "rejects auto approval and model assignment on the recommendation" {
+        ($content -match '--auto') | Should -Be $true
+        ($content -match 'model assignment') | Should -Be $true
+    }
+
+    It "carries the autopilot section forward from the active-state record" {
+        ($content -match 'non-empty `autopilot` section') | Should -Be $true
+        ($content -match 'run-id') | Should -Be $true
+        ($content -match 'next-action') | Should -Be $true
+    }
+}
+
+Describe "resume-templates.md - autopilot reconciliation template" {
+    $repoRoot = Split-Path $PSScriptRoot -Parent
+    $templateFile = Join-Path $repoRoot ".github\prompts\resume-templates.md"
+    $content = Get-Content $templateFile -Raw -Encoding UTF8
+
+    It "carries the Unfinished Autopilot Run block first" {
+        ($content -match 'Unfinished Autopilot Run') | Should -Be $true
+        ($content -match '/cg-autopilot --resume \.cg-docs/active-state/current\.json') | Should -Be $true
+    }
+
+    It "documents the read-only control-event boundary" {
+        ($content -match 'never writes the private control event') | Should -Be $true
+        ($content -match 'separately approved parent helper transition') | Should -Be $true
+    }
+}
+
+Describe "context-loading.contract.md - autopilot parent context limits" {
+    $repoRoot = Split-Path $PSScriptRoot -Parent
+    $contractFile = Join-Path $repoRoot ".github\shared\context-loading.contract.md"
+    $content = Get-Content $contractFile -Raw -Encoding UTF8
+
+    It "records the documented numeric ceilings" {
+        ($content -match '4096 UTF-8 bytes') | Should -Be $true
+        ($content -match '8192 bytes') | Should -Be $true
+        ($content -match '65536 returned-frame bytes') | Should -Be $true
+    }
+
+    It "pauses instead of truncating or claiming a same-session reset" {
+        ($content -match 'pauses before the next dispatch') | Should -Be $true
+        ($content -match 'never truncates') | Should -Be $true
+        ($content -match 'never claims a') | Should -Be $true
+    }
+
+    It "scopes fresh-context resets to the allowance only" {
+        ($content -match 'fresh primary context resets only that context''s returned-frame allowance') | Should -Be $true
+        ($content -match 'Reservation, repair-round, CI-round, usage-counter and deadline') | Should -Be $true
+        ($content -match 'explicitly approved') | Should -Be $true
+        ($content -match 'extension transition') | Should -Be $true
     }
 }

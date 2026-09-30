@@ -1,0 +1,12 @@
+# Project-wiki ownership manifest (fixture copy).
+schemaVersion: "compound-gpid-wiki-v1"
+folder: "docs"
+pages:
+  - id: "reference"
+    file: "../escape.md"
+    title: "Reference"
+    ownership: "auto"
+    order: 1
+    sections:
+      - id: "commands"
+        managed: true

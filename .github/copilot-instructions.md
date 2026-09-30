@@ -78,10 +78,14 @@ You are working in a data science project maintained by the DECDG team at the Wo
 | Direct roadmap edit | `@cg-roadmap` |
 | View roadmap progress | `/cg-roadmap-view` |
 | Discover what to work on next | `/cg-ideate` |
+| Find command help | `/cg-help` |
 | Resume interrupted work | `/cg-resume` |
 | Diagnose VS Code crash | `/cg-diagnose` |
-| Implement a plan | `/cg-work` |
-| Implement a specific phase | `/cg-work phaseX` |
+| Execute a qualified small technical task | `/cg-light-work <task>` |
+| Execute an approved saved Plan | `/cg-work` |
+| Execute a specific approved Plan phase | `/cg-work phaseX` |
+| Fix a reproducible bug | `/cg-fixbug` |
+| Run research, statistical, or publication work | `/cr-*` |
 | Code review | `/cg-review` |
 | Apply review findings | `/cg-fix-triage` |
 | Fix VS Code problems | `/cg-fix-problems` |
@@ -93,6 +97,20 @@ You are working in a data science project maintained by the DECDG team at the Wo
 | Manage GitHub Issues for roadmap items | `/cg-issues` |
 | Ready to commit, push, and open PR | `/cg-commit-push-pr` |
 | CI checks failing on PR | `/cg-verify-pr` |
+
+`/cg-light-work` is only for a qualified small, low-risk technical task. It has
+two user gates: approve and save the Plan before source edits, then explicitly
+opt in to compounding after verification. It writes a Plan, Work Report, and
+Review Report. Its mandatory light Review always uses `@cg-code-quality` and
+`@cg-testing`; Review and fixes stop after the initial pass and, only when fixes
+changed files, one verification pass. Skipping compounding creates no permanent
+knowledge side effect.
+
+Use `/cg-fixbug` for a reproducible bug and `/cr-*` for research, statistical,
+or publication work. Use `/cg-brainstorm` -> `/cg-plan` -> `/cg-work` for larger,
+ambiguous, security-sensitive, schema, dependency, or destructive work.
+`/cg-work` executes approved saved Plans and redirects unmatched inline tasks;
+it does not dispatch another workflow for them.
 
 > **Prompt design convention**: Each prompt file is intentionally self-contained and repeats the "Step 0: Get Bearings" charter-reading pattern verbatim. This duplication is deliberate — prompts must work standalone without requiring the user to have loaded any prior context. Do not factor out this boilerplate.
 
@@ -188,5 +206,28 @@ After solving a non-trivial problem, use `/cg-compound` to capture the solution 
 ## Brain Consultation
 
 When a prompt contains a "Consult Brain" step, load `cg-skill-brain-query` — it teaches how to navigate BRAIN.md, extract relevant takeaways and gotchas, evaluate and prioritize findings, resolve contradictions, and detect stale entries. The calling prompt's step provides the search directive (what to look for); the skill provides the protocol (how to search and apply findings).
+
+## Modular Suites
+
+`.github/shared/module-registry.json` is the ownership and dependency source of
+truth. It defines the kernel, reusable capability packs, and the independent
+technical (`suite-cg`) and research (`suite-cr`) suites. Every canonical asset
+has one owner, and suites may share capabilities but may not depend directly on
+one another.
+
+Projects select workflows with `suites:` in `compound-gpid.local.md`:
+
+- `suites: [cg]` activates the technical `/cg-*` workflow and is the default.
+- `suites: [cr]` activates the research `/cr-*` workflow.
+- `suites: [cg, cr]` activates both through shared capability dependencies.
+
+Generated platform trees are filtered to the selected suites plus their
+transitive capability dependencies and the kernel. `/cg-review` remains the
+technical review entry point; `/cr-review` owns research-task classification,
+research integrity checks, and conditional CR agent dispatch.
+
+The research suite follows the lifecycle `Scope -> Evidence -> Theory -> Method
+-> Execute -> Verify -> Communicate -> Maintain`. Silent research correctness
+failures are P0 and block release until resolved.
 
 <!-- Pester Safety Rules appear at the top of this file -->

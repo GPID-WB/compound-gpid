@@ -1,0 +1,1 @@
+{"schemaVersion":1,"operation":"request-prepared","requestId":"123e4567-e89b-12d3-a456-426614174000","queryPath":".compound-gpid/runtime/help-requests/123e4567-e89b-12d3-a456-426614174000.query.txt","maxBytes":4096,"expiresInSeconds":300,"cleanupPolicy":"consume-once-and-expire"}

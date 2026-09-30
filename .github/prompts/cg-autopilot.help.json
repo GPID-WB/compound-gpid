@@ -1,0 +1,11 @@
+{
+  "id": "slash:cg-autopilot", "name": "/cg-autopilot", "kind": "slash", "ownerModule": "suite-cg", "supportedSuites": ["cg"],
+  "category": "delivery", "summary": "Coordinate Kilo autopilot bootstrap probes; production execution is not enabled.", "aliases": [],
+  "intents": ["inspect autopilot bootstrap readiness", "run an authorized read-only Kilo bootstrap probe"], "usage": "/cg-autopilot <authorized read-only bootstrap request>", "examples": ["/cg-autopilot"],
+  "prerequisites": ["Kilo with the installed dedicated cg-autopilot primary agent and an explicitly authorized read-only bootstrap request."], "outputs": ["Bounded bootstrap evidence or an explicit blocked result."],
+  "constraints": ["Probe-only: production fresh and resume pipeline execution is not enabled.", "Other adapters return unsupported-adapter without dispatch or effects.", "Do not create a marker, report, cursor, commit or other file from the bootstrap stub."], "relatedCommands": [{"id": "shell:cg-autopilot-control", "relation": "related"}],
+  "sourcePath": ".github/prompts/cg-autopilot.prompt.md", "definitionSources": [".github/prompts/cg-autopilot.prompt.md"], "definitionDigest": "776628ca9a8600b2235602c334d1a621ff280a3c1a16ed92a926a40806295c87",
+  "documentationTargets": [], "supportedPlatforms": ["kilo"], "supportedOS": ["any"],
+  "availability": {"status": "conditional", "evidence": [{"os": "any", "sourcePath": ".github/prompts/cg-autopilot.prompt.md"}]},
+  "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
+}

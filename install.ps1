@@ -9,8 +9,9 @@
 #   1b. Verifies Python is available (required for Python-backed cg-* commands).
 #   2. Tests that directory junctions can be created on this machine.
 #   3. Creates .cmd wrappers in bin\ and adds bin\ to the user PATH
-#      so cg-link, cg-unlink, cg-update, cg-index, cg-render-artifact, and
-#      cg-token-audit are available from any terminal.
+#      so cg-link, cg-unlink, cg-update, cg-skill, cg-index,
+#      cg-help, cg-render-artifact, cg-token-audit and cg-autopilot-control are
+#      available from any terminal.
 #   4. Initializes .cg-version with "latest" (if not already set).
 #
 # To uninstall (removes PATH registration and legacy profile functions while
@@ -231,6 +232,16 @@ if (-not (Test-Path $binDir)) {
     New-Item -ItemType Directory -Path $binDir -Force | Out-Null
 }
 
+# Remove retired skill command wrappers during an upgrade. These names are not
+# compatibility aliases; all skill lifecycle traffic now uses cg-skill.
+foreach ($retired in @("cg-find-skill", "cg-find-skill.cmd")) {
+    $retiredPath = Join-Path $binDir $retired
+    if (Test-Path -LiteralPath $retiredPath) {
+        Remove-Item -LiteralPath $retiredPath -Force
+        Write-Host "  Removed retired wrapper: $retired" -ForegroundColor DarkGray
+    }
+}
+
 # Write the three .cmd wrappers (overwrite on upgrade to pick up latest content).
 # %~dp0 resolves to the directory containing the .cmd file at call time,
 # so the wrappers work regardless of which path the user cloned to.
@@ -275,6 +286,22 @@ if (Test-Path $cgBrainInitCmdSrc) {
     }
 } else {
     Write-Warning "  bin\cg-brain-init.cmd not found in installation -- skipping cg-brain-init wrapper."
+}
+
+# Copy cg-help.cmd from the committed file (single source of truth).
+$cgHelpCmdSrc = Join-Path $CompoundGpidDir "bin\cg-help.cmd"
+$cgHelpCmdDst = Join-Path $binDir "cg-help.cmd"
+if (Test-Path $cgHelpCmdSrc) {
+    $cgHelpSrcFull = [System.IO.Path]::GetFullPath($cgHelpCmdSrc)
+    $cgHelpDstFull = [System.IO.Path]::GetFullPath($cgHelpCmdDst)
+    if ($cgHelpSrcFull -ieq $cgHelpDstFull) {
+        Write-Host "  Already present: cg-help in $binDir" -ForegroundColor DarkGray
+    } else {
+        Copy-Item -Path $cgHelpCmdSrc -Destination $cgHelpCmdDst -Force
+        Write-Host "  Copied:  cg-help in $binDir" -ForegroundColor DarkGray
+    }
+} else {
+    Write-Warning "  bin\cg-help.cmd not found in installation -- skipping cg-help wrapper."
 }
 
 # Copy cg-render-artifact.cmd from the committed file (single source of truth).
@@ -326,6 +353,76 @@ if (Test-Path $cgTokenAuditCmdSrc) {
     Write-Warning "  bin\cg-token-audit.cmd not found in installation -- skipping cg-token-audit wrapper."
 }
 
+# Copy cg-autopilot-control.cmd from the committed file (same Python resolver
+# pattern as cg-index.cmd). The control helper takes an explicit validated
+# consumer --root and its code never leaves the installed package: no
+# scripts/tests files are copied into consumer projects.
+$cgAutopilotControlCmdSrc = Join-Path $CompoundGpidDir "bin\cg-autopilot-control.cmd"
+$cgAutopilotControlCmdDst = Join-Path $binDir "cg-autopilot-control.cmd"
+if (Test-Path $cgAutopilotControlCmdSrc) {
+    $cgAutopilotControlSrcFull = [System.IO.Path]::GetFullPath($cgAutopilotControlCmdSrc)
+    $cgAutopilotControlDstFull = [System.IO.Path]::GetFullPath($cgAutopilotControlCmdDst)
+    if ($cgAutopilotControlSrcFull -ieq $cgAutopilotControlDstFull) {
+        Write-Host "  Already present: cg-autopilot-control in $binDir" -ForegroundColor DarkGray
+    } else {
+        Copy-Item -Path $cgAutopilotControlCmdSrc -Destination $cgAutopilotControlCmdDst -Force
+        Write-Host "  Copied:  cg-autopilot-control in $binDir" -ForegroundColor DarkGray
+    }
+} else {
+    Write-Warning "  bin\cg-autopilot-control.cmd not found in installation -- skipping cg-autopilot-control wrapper."
+}
+
+# Verify cg-skill.cmd exists in bin/ as the committed source of truth. Its
+# Python resolver is intentionally not duplicated in this installer.
+$cgSkillCmdSrc = Join-Path $CompoundGpidDir "bin\cg-skill.cmd"
+$cgSkillCmdDst = Join-Path $binDir "cg-skill.cmd"
+if (Test-Path $cgSkillCmdSrc) {
+    $cgSkillSrcFull = [System.IO.Path]::GetFullPath($cgSkillCmdSrc)
+    $cgSkillDstFull = [System.IO.Path]::GetFullPath($cgSkillCmdDst)
+    if ($cgSkillSrcFull -ieq $cgSkillDstFull) {
+        Write-Host "  Already present: cg-skill in $binDir" -ForegroundColor DarkGray
+    } else {
+        Copy-Item -Path $cgSkillCmdSrc -Destination $cgSkillCmdDst -Force
+        Write-Host "  Copied:  cg-skill in $binDir" -ForegroundColor DarkGray
+    }
+} else {
+    Write-Error "Skill-management launcher source is missing: $cgSkillCmdSrc. Run cg-update --fix and retry installation."
+    exit 1
+}
+
+# Copy cg-release.cmd from the committed file (single source of truth).
+$cgReleaseCmdSrc = Join-Path $CompoundGpidDir "bin\cg-release.cmd"
+$cgReleaseCmdDst = Join-Path $binDir "cg-release.cmd"
+if (Test-Path $cgReleaseCmdSrc) {
+    $cgReleaseSrcFull = [System.IO.Path]::GetFullPath($cgReleaseCmdSrc)
+    $cgReleaseDstFull = [System.IO.Path]::GetFullPath($cgReleaseCmdDst)
+    if ($cgReleaseSrcFull -ieq $cgReleaseDstFull) {
+        Write-Host "  Already present: cg-release in $binDir" -ForegroundColor DarkGray
+    } else {
+        Copy-Item -Path $cgReleaseCmdSrc -Destination $cgReleaseCmdDst -Force
+        Write-Host "  Copied:  cg-release in $binDir" -ForegroundColor DarkGray
+    }
+} else {
+    Write-Warning "  bin\cg-release.cmd not found in installation -- skipping cg-release wrapper."
+}
+
+# Copy the certified Kilo launcher from the committed source of truth.
+$cgKiloCmdSrc = Join-Path $CompoundGpidDir "bin\cg-kilo.cmd"
+$cgKiloCmdDst = Join-Path $binDir "cg-kilo.cmd"
+if (Test-Path $cgKiloCmdSrc) {
+    $cgKiloSrcFull = [System.IO.Path]::GetFullPath($cgKiloCmdSrc)
+    $cgKiloDstFull = [System.IO.Path]::GetFullPath($cgKiloCmdDst)
+    if ($cgKiloSrcFull -ieq $cgKiloDstFull) {
+        Write-Host "  Already present: cg-kilo in $binDir" -ForegroundColor DarkGray
+    } else {
+        Copy-Item -Path $cgKiloCmdSrc -Destination $cgKiloCmdDst -Force
+        Write-Host "  Copied:  cg-kilo in $binDir" -ForegroundColor DarkGray
+    }
+} else {
+    Write-Error "Certified Kilo launcher source is missing: $cgKiloCmdSrc. Run cg-update --fix and retry installation."
+    exit 1
+}
+
 # Add bin/ to user PATH (persistent across sessions - no dot-sourcing needed)
 # Uses reg.exe as primary method (CLM-safe): [Environment]::SetEnvironmentVariable
 # is blocked by Constrained Language Mode on enterprise machines.
@@ -364,7 +461,7 @@ try {
     Write-Warning "  You may manually remove the old Compound GPID functions from: $PROFILE"
 }
 
-Write-Host "  Registered: cg-link, cg-unlink, cg-update, cg-index, cg-render-artifact, cg-publish-markdown, cg-token-audit" -ForegroundColor DarkGray
+Write-Host "  Registered: cg-link, cg-unlink, cg-update, cg-kilo, cg-skill, cg-index, cg-help, cg-render-artifact, cg-publish-markdown, cg-token-audit, cg-autopilot-control" -ForegroundColor DarkGray
 
 # -----------------------------------------------------------------------
 # Step 4: Initialize .cg-version
@@ -399,13 +496,17 @@ Write-Host "Available commands (after restarting):"
 Write-Host "  cg-link    -- Link current project to Compound GPID  (run from project root)"
 Write-Host "  cg-unlink  -- Unlink current project                 (run from project root)"
 Write-Host "  cg-update  -- Pull latest updates                    (run from anywhere)"
+Write-Host "  cg-kilo    -- Certified contained Kilo launch         (run from project root)"
+Write-Host "  cg-skill   -- Manage the complete skill lifecycle     (run from project root)"
 Write-Host '  cg-update <version>  -- Pin to a specific release (e.g. cg-update v0.2.0)'
 Write-Host "  cg-update latest     -- Unpin and return to tracking main"
 Write-Host "  cg-update --list     -- Browse available releases"
 Write-Host "  cg-index        -- Build knowledge index from .cg-docs/   (run from project root)"
+Write-Host "  cg-help         -- Run a safe evidence-backed help request (run from project root)"
 Write-Host "  cg-render-artifact -- Render or validate one workflow artifact (run from project root)"
 Write-Host "  cg-publish-markdown -- Publish one generic Markdown document (run from project root)"
 Write-Host "  cg-token-audit  -- Analyze token/context usage          (run from project root)"
+Write-Host "  cg-autopilot-control -- Kilo autopilot control helper (read-only inspect; requires an explicit --root)"
 Write-Host ""
 Write-Host "Quick start:"
 Write-Host "  1. Restart VS Code / Positron and your terminal"

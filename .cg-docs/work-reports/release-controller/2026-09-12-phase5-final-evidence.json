@@ -1,0 +1,65 @@
+{
+  "phase": 5,
+  "verificationID": "V5",
+  "status": "passed",
+  "recordedAt": "2026-09-12T08:17:40Z",
+  "scope": "Phase 5 Steps 9-10 offline implementation and verification only",
+  "completionMetadata": "reconciled",
+  "completionMetadataReconciledAt": "2026-09-12T08:22:56Z",
+  "planCheckpoint": {"completedPhases": [1, 2, 3, 4, 5], "currentPhase": 6, "status": "active", "phase6Started": false, "writeOrder": "completed-phases appended and re-read before current-phase was advanced and re-read"},
+  "verificationSurface": {
+    "requiredRows": ["V5"],
+    "step9": "Bound approval, exact annotated/GPG-signed tag objects, verified Release inventory and explicit latest behavior passed executed package, temporary Git/GPG and fake-provider tests",
+    "step10": "Partial publication, owner/credential recovery, missing/expired artifacts, audited history restoration, immutable object conflicts and intent/result failure matrices passed executed tests",
+    "unmetPhase5Evidence": [],
+    "acceptedExceptions": []
+  },
+  "packageTests": {"passed": 703, "failed": 0, "seconds": 267.34, "python": "3.12", "platform": "Windows", "offline": true, "source": "independent-verifier-2"},
+  "boundedVerificationChecks": {"passed": 11, "failed": 0, "seconds": 64.37, "scope": "four recovery variants plus seven authority, approval and directive refusal probes", "source": "independent-verifier-2"},
+  "preflightTests": {"passed": 52, "failed": 0, "seconds": 0.47, "source": "cycle-2-implementation-gate", "qualification": "not independently repeated by verifier 2; no later source edits"},
+  "pester": {
+    "ranAt": "2026-09-12T07:56:31Z",
+    "gitSha": "b94f585",
+    "passed": true,
+    "totalCount": 2906,
+    "passedCount": 2904,
+    "failedCount": 0,
+    "skippedCount": 2,
+    "filteredFiles": null,
+    "source": "dedicated-safe-runner-sibling; artifact read directly",
+    "qualification": "Known TestDrive missing-path/nonempty-directory cleanup caveat retained; successful cleanup is not claimed. Both skips are in update; names/reasons are absent from the artifact. create-release passed 95/95 with no skips."
+  },
+  "review": {
+    "mode": "full",
+    "completedSpecs": 10,
+    "executionQualification": "ten local specs sequentially in one dedicated review session, not ten independent sessions",
+    "repairCycles": 2,
+    "verificationPasses": 2,
+    "specsPerVerification": 2,
+    "verificationQualification": "each independent verification session applied code-quality and testing sequentially; the second carried forward five prior confirmations and confirmed new P1.4",
+    "verifiedFixed": ["P1.1", "P1.2", "P1.3", "P1.4", "P2.1", "P2.2"],
+    "open": 0,
+    "new": 0
+  },
+  "ruff": "passed-in-independent-verifier-2",
+  "productionModuleBounds": "passed-in-full-package-suite",
+  "trackedWhitespace": "passed-in-independent-verifier-2; package is untracked and independently covered by pytest/Ruff",
+  "canonicalPlanValidation": "passed-before-completion-writes-and-after-crash-safe-checkpoint",
+  "artifactView": "automatic command validated the canonical plan; HTML disabled, no view written",
+  "functionalRecovery": {"step9Used": 2, "step9Limit": 2, "step9Resolved": true, "step10Used": 2, "step10Limit": 2, "step10Resolved": true},
+  "historicalEvidencePolicy": "Preserve prior phase evidence, intermediate runs, fixture corrections, verifier harness corrections and both review repair cycles. Final evidence supersedes pending handoffs without rewriting their histories.",
+  "laterEvidence": "The plan explicitly assigns actual GitHub approval/signing, hostile-source secret-boundary probes, cross-platform remote matrix proof and measured tracked handoff to Phase 7/V7 and final V8. Phase 6 compatibility bridge/profile work remains unstarted. No live capability, production enablement, speedup or remote-release claim is made here.",
+  "remoteMutations": 0,
+  "phase6Executed": false,
+  "commitPushPRPerformed": false,
+  "reviewArtifact": ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase5-review.md",
+  "verificationArtifacts": [
+    ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase5-verify-review.md",
+    ".cg-docs/reviews/2026-09-12-generic-asynchronous-release-controller-phase5-verify-review-2.md"
+  ],
+  "repairEvidence": [
+    ".cg-docs/work-reports/release-controller/2026-09-12-phase5-review-repair-1-evidence.json",
+    ".cg-docs/work-reports/release-controller/2026-09-12-phase5-review-repair-2-evidence.json"
+  ],
+  "executionReport": ".cg-docs/work-reports/2026-09-11-generic-asynchronous-release-controller.md"
+}

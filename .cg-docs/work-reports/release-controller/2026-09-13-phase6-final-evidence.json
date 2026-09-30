@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-09-13T05:36:22Z",
+  "status": "blocked-required-V6-bridge-and-qualified-source-evidence",
+  "outcome": "Local implementation, regression gates and independent review are complete. Phase6 cannot be marked complete because required V6 delivery/qualification evidence is absent and no exception is approved.",
+  "plan": ".cg-docs/plans/2026-09-11-generic-asynchronous-release-controller.md",
+  "executionReport": ".cg-docs/work-reports/2026-09-11-generic-asynchronous-release-controller.md",
+  "branch": "improve-cg-release",
+  "head": "b94f585c8a485dfb03965ca9711fb83257aaa7de",
+  "sourceFrozenAt": "2026-09-13T03:51:37Z",
+  "reportingOnlyAfterReview": true,
+  "phase6Complete": false,
+  "v6Passed": false,
+  "onlyRequiredV6EvidenceRemains": true,
+  "completedPhases": [1, 2, 3, 4, 5],
+  "currentPhase": 6,
+  "planStatus": "active",
+  "phase7Started": false,
+  "review": {
+    "report": ".cg-docs/reviews/2026-09-13-generic-asynchronous-release-controller-phase6-P1.15-continuations-verification.md",
+    "status": "passed-in-scope-all-findings-independently-fixed",
+    "auditRowsConfirmed": 15,
+    "priorConfirmedPreserved": 41,
+    "totalConfirmed": 42,
+    "open": 0,
+    "unverified": 0,
+    "openIds": [],
+    "newIds": [],
+    "freshChecks": {"continuationMatrixPassed": 62, "independentContinuationPassed": 78, "independentRevocationRejections": 59, "independentPositiveControls": 19, "adjacentSecurityPassed": 94},
+    "qualification": "Independent source/fixture evidence, not an actual bridge delivery, live deployment or atomic multi-API permission guarantee. Historical review reports and failed-gate evidence remain unchanged."
+  },
+  "localGates": {
+    "artifact": ".cg-docs/work-reports/release-controller/2026-09-13-phase6-P1.15-continuations-040753Z-validation.json",
+    "recordedAt": "2026-09-13T04:47:53Z",
+    "status": "passed-with-recorded-qualifications",
+    "prepare": {"selected": 9, "executed": 9, "passed": 9, "failed": 0},
+    "package": {"passed": 952, "failed": 0, "errors": 0, "skipped": 0, "completeSummary": true},
+    "native": {"passed": 2592, "failed": 0, "skipped": 50, "deselected": 2},
+    "profileLaunchers": {"passed": 28, "failed": 0},
+    "moduleChecks": {"dependencies": "passed", "crossSuite": "passed", "ownership": "passed"},
+    "lintAndBuild": "passed; wheel and sdist built",
+    "pester": {"ranAt": "2026-09-13T04:11:51Z", "total": 2937, "passed": 2935, "failed": 0, "skipped": 2, "filteredFiles": null},
+    "node": {"passed": 106, "failed": 0, "skipped": 0},
+    "planParity": {"passed": 56, "failed": 0, "skipped": 8},
+    "qualifications": ["Counts overlap; not unique coverage.", "Pester cleanup emitted errors. Zero failed assertions does not prove clean cleanup. Individual update skip identities/reasons are unavailable.", "Native excludes integration; platform skips and Windows bash placeholder are not native Unix qualification.", "Node uses the approved portable file-link boundary on win32/EPERM, not native file-symlink creation proof.", "Prepare is an uncommitted candidate gate, not committed release-candidate, live CI, bridge or deployment proof."]
+  },
+  "verificationSurface": {
+    "V1-V5": "Previously accepted and checkpointed; preserved, not rerun for this reporting operation.",
+    "V6": {
+      "required": true,
+      "status": "blocked",
+      "localReaderProfileTargetTests": "passed",
+      "requiredHookAndSourceBoundCIEnforcementTests": "passed",
+      "authorizedBridgeDelivery": "not-recorded",
+      "actualWindowsUnixCleanClientQualification": "not-recorded",
+      "registeredReleaseModeCIProducerAndRunTuple": "not-recorded",
+      "acceptedException": null
+    },
+    "V7-V8": "Not started/assessed as current-phase requirements. Phase7 sandbox, timing, live final-SHA scenarios, documentation rollout and final committed-candidate gate are not performed or used as additional Phase6 blockers."
+  },
+  "requiredUnmetEvidence": [
+    {
+      "component": "authorized compatibility-bridge delivery and clean clients",
+      "decisiveBlocker": true,
+      "clauses": ["Plan step11:673 requires shipping readers first through an accepted legacy-format channel with separate maintainer authorization, recording bridge tag/Release ID/trusted revision and verifying old-client to bridge to new-format pin behavior on clean Windows/Unix.", "Plan step11 acceptance:676: bridge delivery is verified, not just merged locally; if remote bridge authorization is absent, record V6 blocked and stop before writer cutover.", "V6:826 explicitly requires authorized compatibility-bridge delivery and clean-client evidence; blocked-stop:863 applies."],
+      "observed": "The local evidence directory contains no accepted delivery/qualification record. Reader and integration reports explicitly say delivery/native Unix/live proof is not claimed. Current source policy has profile.bridge=null and enabled=false. No live target was queried, so no claim is made about uninspected remote existence.",
+      "required": "Provide or separately authorize the exact target repository and reviewed legacy bridge operation. Record the actual published legacy-compatible tag, Release ID, revision/tree/tag object and trusted workflow/producer. Supply successful actual Windows and native Unix clean-client runs proving old updater -> delivered bridge -> selected new-format pin, with exact run/attempt/job/artifact IDs, archive digests and qualification receipts verified against delivered bytes. Do not substitute synthetic fixtures or enable the new publisher first.",
+      "implementationContract": ".github/shared/release-controller.contract.md:97-129 specifies the previous/bridge/successor distribution identities and native receipt bindings."
+    },
+    {
+      "component": "required source-bound release-mode CI qualification",
+      "clauses": ["Plan step12:684 requires registered release-controller-ci/native-profile producer identities and the trusted release-mode dispatch for the final bound SHA.", "Plan:131-140 defines the accepted workflow/revision/request/source/nonce/run/attempt/six-cell/Ruff/aggregate tuple; V6:826 includes required source-bound release-mode CI."],
+      "observed": "The enforcement and dispatch/registration tests pass. The source policy's required_checks app_id values are null, and no accepted real registered run tuple is recorded. Local Python3.12/Windows package tests do not constitute the six-cell release-mode aggregate.",
+      "required": "Under separately reviewed target/setup authority, register the actual producers and retain the exact accepted source-bound release-mode run/attempt, six cell jobs/conclusions, Ruff and aggregate result plus native/profile producer evidence. This is not authorization to run Phase7 trials or enable the new writer.",
+      "scopeQualification": "The bridge alone already blocks Phase6. Phase7 special sandbox/final-SHA/hostile-source trials and V8 final CI/committed-candidate evidence remain later work, not assumed satisfied or pulled forward here."
+    }
+  ],
+  "currentSourceConfiguration": {"path": ".release-controller.json", "enabled": false, "repository_id": null, "profile_bridge": null, "requiredCheckProducerIDs": [null, null], "bootstrap": [], "controllerPinAndAppsAndJournal": "unresolved", "qualification": "Disabled source example, not protected remote policy or authorization. Null setup fields are supporting evidence, not proof of the state of unqueried remotes."},
+  "reportingChecks": {"planValidateOnly": "passed before and after reporting writes", "disabledInstallationCheck": "passed", "historicalPayloadAndAttestationDiffExitCode": 0, "blockedSnapshotAndCurrentPointerReadBack": "verified", "planPhaseMarkersReadBack": "active; completed1-5; current6 unchanged", "whitespace": "passed with existing LF/CRLF advisories", "productionCodeChanged": false, "planBodyOrRequirementsChanged": false, "roadmapChanged": false, "newReviewIDs": false},
+  "counterState": {"step11ImplementationUsed": 1, "step12ImplementationUsed": 2, "implementationLimitPerStep": 2, "step11FunctionalRepairsResolved": true, "step12FunctionalRepairsResolved": true, "reviewRepairCyclesCompleted": 2, "postVerificationResidualRepairs": 3, "reset": false, "acceptedExceptions": [], "qualification": "Cycle2 is now closed by final independent verification; implementation counters are not reset. Missing delivery evidence is not a new functional-test failure."},
+  "checkpointDecision": {"append6ToCompletedPhases": false, "advanceCurrentPhase": false, "setPlanCompleted": false, "reason": "cg-work Step2.5 evidence gate and goal-execution strict gate forbid completion while required V6 evidence is missing without an approved exception.", "nextCommand": "/cg-work phase6 review:auto .cg-docs/plans/2026-09-11-generic-asynchronous-release-controller.md", "resumeGuard": "Consume explicit approved V6 bridge/qualification evidence first; do not repeat closed code repairs, infer authority from source config, invent IDs or start Phase7."},
+  "preservation": "All source, historical reviews, failed and passed gate artifacts, prior phase checkpoints and non-atomicity/host/cleanup qualifications remain. This operation writes reporting/checkpoint state only; no commit, push, PR, credentials, settings, activation, tag/history rewrite or remote operation."
+}

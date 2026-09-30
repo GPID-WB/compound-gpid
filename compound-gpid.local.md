@@ -3,6 +3,7 @@ language: "both"
 project-type: "tool"
 review-depth: "thorough"
 r-syntax: "data.table-collapse"
+suites: [cg, cr]
 created: "2026-03-04"
 cg-schema-version: "2026-04-07-r-syntax-dialect"
 ---

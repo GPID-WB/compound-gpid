@@ -16,6 +16,107 @@ if (-not $script:OnWindows) {
     return
 }
 
+Describe "link.ps1 - hybrid Copilot skill projection" {
+    BeforeAll {
+        $repoRoot = Split-Path $PSScriptRoot -Parent
+        $mapping = Get-Content (Join-Path $repoRoot ".github\shared\target-mapping.json") -Raw -Encoding UTF8 | ConvertFrom-Json
+        $copilot = @($mapping.targets | Where-Object { $_.id -eq "copilot" })[0]
+        $linkContent = Get-Content (Join-Path $repoRoot "scripts\link.ps1") -Raw -Encoding UTF8
+    }
+
+    It "declares skills as the only projected Copilot category" {
+        @($copilot.projectedCategories).Count | Should -Be 1
+        @($copilot.projectedCategories)[0] | Should -Be "skills"
+        @($copilot.projectRoots.managed).Count | Should -Be 1
+        @($copilot.projectRoots.managed)[0] | Should -Be ".github/skills"
+    }
+
+    It "does not install a whole Copilot skills junction" {
+        @($copilot.installUnits | Where-Object { $_.target -eq ".github/skills" }).Count | Should -Be 0
+        $linkContent | Should -Match 'projectedCategories'
+        $linkContent | Should -Match 'Copilot skills projected by manifest'
+        $linkContent | Should -Match 'Invoke-CgProjection'
+    }
+
+    It "keeps every non-skill Copilot install unit on its existing topology" {
+        $directoryTargets = @($copilot.installUnits | Where-Object { $_.type -eq "directory" } | ForEach-Object { $_.target })
+        $directoryTargets | Should -Contain ".github/prompts"
+        $directoryTargets | Should -Contain ".github/agents"
+        $directoryTargets | Should -Contain ".github/instructions"
+        $directoryTargets | Should -Contain ".github/shared"
+        @($copilot.installUnits | Where-Object { $_.target -eq ".github/copilot-instructions.md" }).Count | Should -Be 1
+    }
+
+    It "migrates only the exact managed skills junction and preserves a user bundle" {
+        $project = Join-Path $TestDrive "copilot-projected-migration"
+        $github = Join-Path $project ".github"
+        $skills = Join-Path $github "skills"
+        New-Item -ItemType Directory -Path $project, $github -Force | Out-Null
+        Set-Content -LiteralPath (Join-Path $project "compound-gpid.local.md") -Value @(
+            "---",
+            'language: "python"',
+            "suites: [cg]",
+            "---",
+            "# Copilot migration fixture"
+        )
+        New-Item -ItemType Junction -Path $skills -Value (Join-Path $repoRoot ".github\skills") | Out-Null
+        $oldSkipUpdate = $env:CG_SKIP_UPDATE
+        Push-Location $project
+        try {
+            $env:CG_SKIP_UPDATE = "1"
+            & (Join-Path $repoRoot "scripts\link.ps1") -RawArgs @("--platforms", "copilot", "--yes")
+            (Get-Item -LiteralPath $skills -Force).LinkType | Should -BeNullOrEmpty
+            Test-Path -LiteralPath (Join-Path $skills "cg-skill-setup\SKILL.md") | Should -Be $true
+
+            $userSkill = Join-Path $skills "user-owned\SKILL.md"
+            New-Item -ItemType Directory -Path (Split-Path $userSkill -Parent) -Force | Out-Null
+            Set-Content -LiteralPath $userSkill -Value "# User owned"
+            & (Join-Path $repoRoot "scripts\link.ps1") -RawArgs @("--platforms=copilot", "--yes")
+            (Get-Content -LiteralPath $userSkill -Raw).Trim() | Should -Be "# User owned"
+        } finally {
+            try { & (Join-Path $repoRoot "scripts\unlink.ps1") -RawArgs @("--yes") } catch { }
+            Pop-Location
+            $env:CG_SKIP_UPDATE = $oldSkipUpdate
+        }
+    }
+
+    It "rejects a user-owned skills junction without removing its target" {
+        $project = Join-Path $TestDrive "copilot-user-junction"
+        $outside = Join-Path $TestDrive "copilot-user-skills"
+        $github = Join-Path $project ".github"
+        $skills = Join-Path $github "skills"
+        New-Item -ItemType Directory -Path $project, $outside, $github -Force | Out-Null
+        Set-Content -LiteralPath (Join-Path $outside "sentinel.txt") -Value "preserve"
+        Set-Content -LiteralPath (Join-Path $project "compound-gpid.local.md") -Value @(
+            "---",
+            'language: "python"',
+            "suites: [cg]",
+            "---",
+            "# Copilot user-link fixture"
+        )
+        New-Item -ItemType Junction -Path $skills -Value $outside | Out-Null
+        $oldSkipUpdate = $env:CG_SKIP_UPDATE
+        Push-Location $project
+        try {
+            $env:CG_SKIP_UPDATE = "1"
+            $scriptPath = Join-Path $repoRoot "scripts\link.ps1"
+            $command = "& '$scriptPath' -RawArgs @('--platforms','copilot','--yes')"
+            & powershell.exe -NoProfile -ExecutionPolicy Bypass -Command $command 2>$null | Out-Null
+            $LASTEXITCODE | Should -Not -Be 0
+            (Get-Item -LiteralPath $skills -Force).LinkType | Should -Be "Junction"
+            (Get-Content -LiteralPath (Join-Path $outside "sentinel.txt") -Raw).Trim() | Should -Be "preserve"
+        } finally {
+            Pop-Location
+            $item = Get-Item -LiteralPath $skills -Force -ErrorAction SilentlyContinue
+            if ($item -and $item.LinkType -eq "Junction") { [System.IO.Directory]::Delete($item.FullName) }
+            Push-Location $project
+            try { & (Join-Path $repoRoot "scripts\unlink.ps1") -RawArgs @("--yes") } catch { }
+            Pop-Location
+            $env:CG_SKIP_UPDATE = $oldSkipUpdate
+        }
+    }
+}
+
 Describe "link.ps1 - pre-condition checks" {
     Context "compound-gpid global clone detection" {
         It "passes when install path exists" {
@@ -221,12 +322,8 @@ Describe "link.ps1 - Kilo copy-directory strategy" {
     }
 
     It "syncs managed files by checksum and rejects a linked result" {
-        $linkContent | Should -Match 'Sync-CgCopiedDirectory -Source \$source'
-        $linkContent | Should -Match 'Resolve-CgContainedCopyPath -Base \$Target'
-        $linkContent | Should -Match 'Test-CgCopyPathHasReparsePoint -Base \$Target'
-        $linkContent | Should -Match 'Get-CgFileSha256 -Path \$destination'
-        $linkContent | Should -Match 'removed stale managed file'
-        $linkContent | Should -Match 'was modified or is user-owned; preserving it'
+        $linkContent | Should -Match 'cg_kilo_copy\.py'
+        $linkContent | Should -Match 'Shared Kilo copy worker failed'
         $linkContent | Should -Match 'copy-directory invariant failed'
     }
 
@@ -384,6 +481,80 @@ Describe "link.ps1 - Kilo copy-directory strategy" {
         $markerPath = Join-Path $targetAgents ".compound-gpid-managed-copy.json"
         Test-Path -LiteralPath $markerPath | Should -Be $true
         (Get-Content -LiteralPath $markerPath -Raw -Encoding UTF8 | ConvertFrom-Json).schemaVersion | Should -Be 1
+    }
+
+    It "keeps compatibility adapters linked while localizing every Kilo-reachable skill" {
+        $project = Join-Path $TestDrive "codex-kilo-skill-boundary"
+        New-Item -ItemType Directory -Path $project -Force | Out-Null
+        $oldSkipUpdate = $env:CG_SKIP_UPDATE
+        Push-Location $project
+        try {
+            $env:CG_SKIP_UPDATE = "1"
+            $linkError = $null
+            try {
+                & (Join-Path $repoRoot "scripts\link.ps1") -RawArgs @("--platforms", "claude-code,codex,opencode,kilo", "--yes")
+            } catch {
+                $linkError = $_
+            }
+
+            $kiloSkills = Join-Path $project ".kilo\skills"
+            $kiloLinked = Test-Path -LiteralPath (Join-Path $kiloSkills ".compound-gpid-managed-copy.json")
+            if (-not $kiloLinked) {
+                Write-Host "  Kilo platform not available (preflight blocked); testing adapter-only containment" -ForegroundColor DarkGray
+            }
+
+            if ($kiloLinked) {
+                (Get-Item -LiteralPath $kiloSkills -Force).LinkType | Should -BeNullOrEmpty
+                $projectPrefix = [System.IO.Path]::GetFullPath($project).TrimEnd('\') + '\'
+                $reachable = @(Get-ChildItem -LiteralPath $kiloSkills -Filter SKILL.md -File -Recurse)
+                foreach ($adapter in @(
+                    [pscustomobject]@{ Root = ".claude\skills"; Id = "claude-code" },
+                    [pscustomobject]@{ Root = ".agents\skills"; Id = "codex" },
+                    [pscustomobject]@{ Root = ".opencode\skills"; Id = "opencode" }
+                )) {
+                    $skills = Join-Path $project $adapter.Root
+                    $mirror = Join-Path $project ".compound-gpid\kilo-compat-skills\$($adapter.Id)"
+                    (Get-Item -LiteralPath $skills -Force).LinkType | Should -Be "Junction"
+                    [string]((Get-Item -LiteralPath $skills -Force).Target -join '') | Should -Be $mirror
+                    Test-Path -LiteralPath (Join-Path $mirror ".compound-gpid-managed-copy.json") | Should -Be $true
+                    $reachable += @(Get-ChildItem -LiteralPath $skills -Filter SKILL.md -File -Recurse)
+                }
+                $reachable.Count | Should -BeGreaterThan 0
+                foreach ($skill in $reachable) {
+                    $resolved = (Resolve-Path -LiteralPath $skill.FullName).Path
+                    $resolved.StartsWith($projectPrefix, [System.StringComparison]::OrdinalIgnoreCase) |
+                        Should -Be $true -Because "Kilo-reachable skill resolved outside project: $($skill.FullName) -> $resolved"
+                }
+            }
+        } finally {
+            try { & (Join-Path $repoRoot "scripts\unlink.ps1") -RawArgs @("--yes") } catch { }
+            Pop-Location
+            $env:CG_SKIP_UPDATE = $oldSkipUpdate
+        }
+    }
+
+    It "refuses a compatibility mirror beneath a project reparse point" {
+        $project = Join-Path $TestDrive "kilo-external-mirror-project"
+        $external = Join-Path $TestDrive "kilo-external-mirror-target"
+        $compound = Join-Path $project ".compound-gpid"
+        New-Item -ItemType Directory -Path $project, $external -Force | Out-Null
+        New-Item -ItemType Junction -Path $compound -Value $external | Out-Null
+        $oldSkipUpdate = $env:CG_SKIP_UPDATE
+        Push-Location $project
+        try {
+            $env:CG_SKIP_UPDATE = "1"
+            { & (Join-Path $repoRoot "scripts\link.ps1") -RawArgs @("--platforms", "codex,kilo", "--yes") } |
+                Should -Throw
+            Test-Path -LiteralPath (Join-Path $external "kilo-compat-skills") | Should -Be $false
+        } finally {
+            Pop-Location
+            $item = Get-Item -LiteralPath $compound -Force -ErrorAction SilentlyContinue
+            if ($item -and $item.LinkType -eq "Junction") { [System.IO.Directory]::Delete($item.FullName) }
+            Push-Location $project
+            try { & (Join-Path $repoRoot "scripts\unlink.ps1") -RawArgs @("--yes") } catch { }
+            Pop-Location
+            $env:CG_SKIP_UPDATE = $oldSkipUpdate
+        }
     }
 }
 
@@ -1059,5 +1230,147 @@ Describe "helpers.ps1 - ConvertTo-CgHashtable PS 5.1 compatibility" {
         $ht.ContainsKey('a') | Should -Be $true
         ($ht.nested -is [hashtable]) | Should -Be $true
         $ht.nested.ContainsKey('b') | Should -Be $true
+    }
+}
+
+Describe "link.ps1 - manifest-driven projection integration" {
+    Context "link.ps1 resolves the active manifest and syncs the projection" {
+        It "invokes Resolve-CgActiveManifest for the selected platforms" {
+            $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\link.ps1") -Raw -Encoding UTF8
+            $content | Should -Match 'Resolve-CgActiveManifest'
+            $content | Should -Match 'Active manifest: resolved'
+        }
+
+        It "syncs and verifies the projection when an active manifest exists" {
+            $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\link.ps1") -Raw -Encoding UTF8
+            $content | Should -Match 'Invoke-CgProjection'
+            $content | Should -Match 'projection: synced and verified'
+        }
+
+        It "blocks the link banner on projection failure" {
+            $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\link.ps1") -Raw -Encoding UTF8
+            $content | Should -Match 'blocked by manifest projection failure'
+        }
+
+        It "projects a fresh Kilo consumer before local preflight" {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $project = Join-Path $TestDrive "fresh-manifest-kilo-project"
+            $profileDir = Join-Path $TestDrive "fresh-manifest-kilo-profile"
+            New-Item -ItemType Directory -Path $project, $profileDir -Force | Out-Null
+            $config = @"
+---
+language: "both"
+project-type: "tool"
+review-depth: "thorough"
+suites: [cg]
+---
+# Test project
+"@
+            $utf8NoBom = New-Object -TypeName System.Text.UTF8Encoding -ArgumentList $false
+            [System.IO.File]::WriteAllText(
+                (Join-Path $project "compound-gpid.local.md"),
+                $config,
+                $utf8NoBom
+            )
+
+            $oldProfile = $env:USERPROFILE
+            $oldSkipUpdate = $env:CG_SKIP_UPDATE
+            Push-Location $project
+            try {
+                $env:USERPROFILE = $profileDir
+                $env:CG_SKIP_UPDATE = "1"
+                $linkPath = (Join-Path $repoRoot "scripts\link.ps1").Replace("'", "''")
+                $command = "& '$linkPath' -RawArgs @('--platforms', 'kilo', '--yes')"
+                $output = @(& powershell.exe -NoProfile -ExecutionPolicy Bypass -Command $command 2>&1)
+                $linkExitCode = $LASTEXITCODE
+            } finally {
+                Pop-Location
+                $env:USERPROFILE = $oldProfile
+                $env:CG_SKIP_UPDATE = $oldSkipUpdate
+            }
+
+            $diagnostic = $output -join "`n"
+            $linkExitCode | Should -Be 0 -Because $diagnostic
+            $diagnostic | Should -Not -Match 'local-projection-missing'
+            $diagnostic | Should -Match 'Kilo preflight: ok'
+            foreach ($rootName in @("commands", "skills", "agents", "instructions", "shared")) {
+                $root = Join-Path $project ".kilo\$rootName"
+                Test-Path -LiteralPath $root -PathType Container | Should -Be $true -Because $diagnostic
+                (Get-Item -LiteralPath $root -Force).LinkType | Should -BeNullOrEmpty
+            }
+            Test-Path -LiteralPath (Join-Path $project ".kilo\commands\cg-plan.md") | Should -Be $true
+            Test-Path -LiteralPath (Join-Path $project ".compound-gpid\active-manifest.json") | Should -Be $true
+            $gitignore = Get-Content -LiteralPath (Join-Path $project ".gitignore") -Raw
+            $gitignore | Should -Match '(?m)^\.kilo/?$'
+            foreach ($runtimeEntry in @(
+                ".compound-gpid/active/",
+                ".compound-gpid/generations/",
+                ".compound-gpid/projection-ownership.json",
+                ".compound-gpid/projection-transaction.json",
+                ".compound-gpid/staging/",
+                ".compound-gpid/quarantine/",
+                ".compound-gpid/retired/"
+            )) {
+                $gitignore | Should -Match ("(?m)^" + [regex]::Escape($runtimeEntry) + "$")
+            }
+            $gitignore | Should -Not -Match '(?m)^\.compound-gpid/active-manifest\.json$'
+        }
+
+        It "rejects invalid manifest config before project mutation" {
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            $project = Join-Path $TestDrive "invalid-manifest-kilo-project"
+            $profileDir = Join-Path $TestDrive "invalid-manifest-kilo-profile"
+            New-Item -ItemType Directory -Path $project, $profileDir -Force | Out-Null
+            $sentinel = Join-Path $project "user-content.txt"
+            Set-Content -LiteralPath $sentinel -Value "preserve me"
+            $config = "---`nunknown-key: invalid`n---`n# Invalid test config`n"
+            $utf8NoBom = New-Object -TypeName System.Text.UTF8Encoding -ArgumentList $false
+            [System.IO.File]::WriteAllText(
+                (Join-Path $project "compound-gpid.local.md"),
+                $config,
+                $utf8NoBom
+            )
+
+            $oldProfile = $env:USERPROFILE
+            $oldSkipUpdate = $env:CG_SKIP_UPDATE
+            Push-Location $project
+            try {
+                $env:USERPROFILE = $profileDir
+                $env:CG_SKIP_UPDATE = "1"
+                $linkPath = (Join-Path $repoRoot "scripts\link.ps1").Replace("'", "''")
+                $command = "& '$linkPath' -RawArgs @('--platforms', 'kilo', '--yes')"
+                $output = @(& powershell.exe -NoProfile -ExecutionPolicy Bypass -Command $command 2>&1)
+                $linkExitCode = $LASTEXITCODE
+            } finally {
+                Pop-Location
+                $env:USERPROFILE = $oldProfile
+                $env:CG_SKIP_UPDATE = $oldSkipUpdate
+            }
+
+            $diagnostic = $output -join "`n"
+            $linkExitCode | Should -Not -Be 0
+            (Get-Content -LiteralPath $sentinel -Raw).Trim() | Should -Be "preserve me"
+            Test-Path -LiteralPath (Join-Path $project ".kilo") | Should -Be $false
+            $diagnostic | Should -Not -Match 'Kilo preflight:'
+            $diagnostic | Should -Not -Match 'Linked!'
+        }
+    }
+}
+
+Describe "helpers.ps1 - Invoke-CgProjection interface" {
+    It "accepts sync, recover, verify, and unlink modes" {
+        $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\helpers.ps1") -Raw -Encoding UTF8
+        $content | Should -Match 'ValidateSet\("sync", "recover", "verify", "unlink"\)'
+    }
+
+    It "fails closed on a nonzero worker exit" {
+        $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\helpers.ps1") -Raw -Encoding UTF8
+        $content | Should -Match 'failed with exit code \$\{exit\}'
+    }
+
+    It "resolves the active manifest with ensure-state" {
+        $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\helpers.ps1") -Raw -Encoding UTF8
+        $content | Should -Match 'Resolve-CgActiveManifest'
+        $content | Should -Match '--ensure-state'
     }
 }

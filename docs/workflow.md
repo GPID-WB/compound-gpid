@@ -8,6 +8,28 @@ this page when you need the full contract.
 
 ---
 
+## Modular Suites
+
+Compound GPID has two independent workflow suites over a shared kernel and
+capability layer:
+
+| Task | Suite | Entry points |
+|---|---|---|
+| Technical delivery, infrastructure, bugs, and code review | `cg` | `/cg-light-work`, `/cg-brainstorm`, `/cg-plan`, `/cg-work`, `/cg-fixbug`, `/cg-review`, `/cg-compound` |
+| Research scoping, methods, evidence, replication, and publication | `cr` | `/cr-brainstorm`, `/cr-plan`, `/cr-work`, `/cr-review`, `/cr-compound` |
+
+Select them with `suites: [cg]`, `suites: [cr]`, or `suites: [cg, cr]` in
+`compound-gpid.local.md`. Missing `suites:` defaults to `[cg]`. Research tasks
+reuse shared language, review, and output capabilities but do not route through
+the technical command suite. See the [Modular Guide](modular-guide.md) for the
+registry, dependency, context-budget, and extension contracts.
+
+The research loop follows `Scope -> Evidence -> Theory -> Method -> Execute ->
+Verify -> Communicate -> Maintain`; `/cr-review` is its task-aware review entry
+point.
+
+---
+
 ## The Loop
 
 ```
@@ -19,13 +41,89 @@ Resume (re-entry at any stage)
 Roadmap View (read-only snapshot at any stage)
 ```
 
-All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are not interactive commands** — invoke a prompt, answer its questions when asked, and let it run to completion.
+The diagram shows the technical `/cg-*` loop. Research projects use the parallel
+`/cr-*` loop above. **Prompts are not interactive commands** — invoke a prompt,
+answer its questions when asked, and let it run to completion.
 
-> **Codex / Claude Code note**: The plugin is designed for GitHub Copilot. When
-> this repository is maintained from Codex or Claude Code, root `AGENTS.md`
-> provides a compatibility adapter that maps `/cg-*` requests to the matching
-> `.github/prompts/cg-*.prompt.md` file. That adapter is not part of Copilot's
-> runtime behavior.
+> **Native target note**: `.github/` is canonical for GitHub Copilot. Generated
+> `.claude/`, `.agents/`, `.opencode/`, and `.kilo/` trees provide native command,
+> skill, agent, instruction, and shared-contract layouts for the other hosts.
+
+<!-- cg:help-workflows:start -->
+```json
+{
+  "schemaVersion": 1,
+  "workflows": [
+    {
+      "id": "installation-and-setup",
+      "title": "Install a project workflow",
+      "summary": "Link the selected platform assets, then configure the project.",
+      "supportedSuites": ["cg"],
+      "intents": ["configure a new Compound GPID project", "link and initialize a project"],
+      "prerequisites": ["Compound GPID is installed on the machine."],
+      "steps": [
+        {"order": 1, "commandId": "shell:cg-link", "purpose": "Link selected platform assets.", "evidence": [{"sourcePath": "docs/installation.md", "sourceSection": "step-3---link-your-project-once-per-project"}]},
+        {"order": 2, "commandId": "slash:cg-setup", "purpose": "Create or validate project configuration and context.", "evidence": [{"sourcePath": ".github/prompts/cg-setup.prompt.md", "sourceSection": "process"}]}
+      ],
+      "sourcePath": "docs/workflow.md",
+      "sourceSection": "the-loop"
+    },
+    {
+      "id": "research-delivery-loop",
+      "title": "Complete an evidence-backed research task",
+      "summary": "Scope, plan, implement, review, and capture a research result.",
+      "supportedSuites": ["cr"],
+      "intents": ["complete an economics research task", "run the research workflow"],
+      "prerequisites": ["The cr suite is active."],
+      "steps": [
+        {"order": 1, "commandId": "slash:cr-brainstorm", "purpose": "Clarify the research question and methodology.", "evidence": [{"sourcePath": ".github/prompts/cr-brainstorm.prompt.md", "sourceSection": "process"}]},
+        {"order": 2, "commandId": "slash:cr-plan", "purpose": "Create an evidence and integrity aware research plan.", "evidence": [{"sourcePath": ".github/prompts/cr-plan.prompt.md", "sourceSection": "process"}]},
+        {"order": 3, "commandId": "slash:cr-work", "purpose": "Implement the approved research plan.", "evidence": [{"sourcePath": ".github/prompts/cr-work.prompt.md", "sourceSection": "process"}]},
+        {"order": 4, "commandId": "slash:cr-review", "purpose": "Review code, methods, and research integrity.", "evidence": [{"sourcePath": ".github/prompts/cr-review.prompt.md", "sourceSection": "process"}]},
+        {"order": 5, "commandId": "slash:cr-compound", "purpose": "Capture a verified reusable research lesson.", "evidence": [{"sourcePath": ".github/prompts/cr-compound.prompt.md", "sourceSection": "process"}]}
+      ],
+      "sourcePath": "docs/workflow.md",
+      "sourceSection": "modular-suites"
+    },
+    {
+      "id": "review-and-fix",
+      "title": "Review and resolve findings",
+      "summary": "Review changes, apply selected findings, and verify convergence.",
+      "supportedSuites": ["cg"],
+      "intents": ["review and fix code changes", "resolve saved review findings"],
+      "prerequisites": ["Implementation changes are ready for review."],
+      "steps": [
+        {"order": 1, "commandId": "slash:cg-review", "purpose": "Create prioritized review findings.", "evidence": [{"sourcePath": ".github/prompts/cg-review.prompt.md", "sourceSection": "process"}]},
+        {"order": 2, "commandId": "slash:cg-fix-triage", "purpose": "Apply and track selected findings.", "evidence": [{"sourcePath": ".github/prompts/cg-fix-triage.prompt.md", "sourceSection": "process"}]},
+        {"order": 3, "commandId": "slash:cg-review", "purpose": "Verify that the fixes converge.", "evidence": [{"sourcePath": ".github/prompts/cg-review.prompt.md", "sourceSection": "process"}]}
+      ],
+      "sourcePath": "docs/workflow.md",
+      "sourceSection": "the-loop"
+    },
+    {
+      "id": "technical-delivery-loop",
+      "title": "Complete a technical delivery task",
+      "summary": "Clarify, plan, implement, review, integrate, and capture technical work.",
+      "supportedSuites": ["cg"],
+      "intents": ["complete a software delivery task", "run the technical workflow"],
+      "prerequisites": ["The cg suite is active."],
+      "steps": [
+        {"order": 1, "commandId": "slash:cg-brainstorm", "purpose": "Clarify fuzzy requirements when needed.", "evidence": [{"sourcePath": ".github/prompts/cg-brainstorm.prompt.md", "sourceSection": "process"}]},
+        {"order": 2, "commandId": "slash:cg-plan", "purpose": "Create a completion-bound implementation plan.", "evidence": [{"sourcePath": ".github/prompts/cg-plan.prompt.md", "sourceSection": "process"}]},
+        {"order": 3, "commandId": "slash:cg-plan-review", "purpose": "Challenge the plan before implementation.", "evidence": [{"sourcePath": ".github/prompts/cg-plan-review.prompt.md", "sourceSection": "process"}]},
+        {"order": 4, "commandId": "slash:cg-work", "purpose": "Implement and verify the approved plan.", "evidence": [{"sourcePath": ".github/prompts/cg-work.prompt.md", "sourceSection": "process"}]},
+        {"order": 5, "commandId": "slash:cg-review", "purpose": "Find behavioral regressions and missing tests.", "evidence": [{"sourcePath": ".github/prompts/cg-review.prompt.md", "sourceSection": "process"}]},
+        {"order": 6, "commandId": "slash:cg-commit-push-pr", "purpose": "Commit, push, and open the pull request.", "evidence": [{"sourcePath": ".github/prompts/cg-commit-push-pr.prompt.md", "sourceSection": "process"}]},
+        {"order": 7, "commandId": "slash:cg-verify-pr", "purpose": "Verify pull-request checks.", "evidence": [{"sourcePath": ".github/prompts/cg-verify-pr.prompt.md", "sourceSection": "process"}]},
+        {"order": 8, "commandId": "slash:cg-compound", "purpose": "Capture reusable verified knowledge.", "evidence": [{"sourcePath": ".github/prompts/cg-compound.prompt.md", "sourceSection": "process"}]}
+      ],
+      "sourcePath": "docs/workflow.md",
+      "sourceSection": "the-loop"
+    }
+  ]
+}
+```
+<!-- cg:help-workflows:end -->
 
 > **Project Charter** (`compound-gpid.md`): Before any workflow step, Copilot reads your
 > project's charter to understand objective, deliverables, constraints, and current focus.
@@ -43,10 +141,10 @@ All steps are invoked as `/cg-*` prompts in GitHub Copilot Chat. **Prompts are n
 
 **When to use**:
 - The first time you use Compound GPID in a new project
-- When you want to update language preferences, project type, or review depth
+- When you want to update language preferences, project type, review depth, or active suites
 - When re-entering an existing project that has no `compound-gpid.md` or `compound-gpid.local.md`
 
-**What happens**: Creates `compound-gpid.md` (the project charter), `compound-gpid.local.md` (your team-shared config), and `compound-gpid.context.md` (a growing knowledge base for project-specific facts). Walks you through setting the project objective, language, project type, and review depth. Scaffolds the `.cg-docs/` directory structure (`brainstorms/`, `plans/`, `reviews/`, `strategy/`, `solutions/`, `archive/`). The `cost/` subdirectory is created automatically on the first run of the context/model audit script. The `inbox/` subdirectory is created manually as a holding area for unprocessed strategy ideas.
+**What happens**: Creates `compound-gpid.md` (the project charter), `compound-gpid.local.md` (your team-shared config), and `compound-gpid.context.md` (a growing knowledge base for project-specific facts). Walks you through setting the project objective, language, project type, review depth, and `suites:` selection. Scaffolds the `.cg-docs/` directory structure (`brainstorms/`, `plans/`, `reviews/`, `strategy/`, `solutions/`, `archive/`) plus the root-level `c-research/` research-output directories when `cr` is active. The `cost/` subdirectory is created automatically on the first run of the context/model audit script. The `inbox/` subdirectory is created manually as a holding area for unprocessed strategy ideas.
 
 Mode A (first run or no config) opens with a **pre-flight health check** that silently verifies all four managed directories (`.github/prompts/`, `.github/skills/`, `.github/agents/`, `.github/instructions/`) are accessible. If any are missing the prompt stops immediately with a `cg-link` remediation message. Then `@cg-project-scanner` scans the file tree and infers language, project type, and charter-draft content from signals like `renv.lock`, `pyproject.toml`, `.do` files, and `README.md`. High-confidence detections are applied silently; medium-confidence ones are pre-filled and shown for confirmation; only genuinely unknown fields are asked. The scanner draft is displayed in a fenced code block with three options: approve as-is, walk through section by section, or start from scratch.
 
@@ -121,11 +219,11 @@ Mode B (returning project with config) runs the same Charter Quality Gate silent
 - *Pre-plan clarity*: Use brainstorm to decide between two architectural approaches before writing a formal plan.
 - *Small task (Lightweight)*: The prompt keeps questioning brief and handoff to `/cg-plan` is fast.
 
-**Handoff options**: `/cg-plan` (turn into a plan), update charter, `/cg-brainstorm` again (related topic), or `/cg-work` directly (Lightweight tasks only).
+**Handoff options**: `/cg-plan` (turn into a plan), update charter, `/cg-brainstorm` again (related topic), or `/cg-light-work` for a qualified small technical task.
 
 **When NOT to use**:
 - When requirements are already well-defined — go to `/cg-plan` directly
-- For trivially small one-file changes — use `/cg-work` directly (it handles inline planning)
+- For a qualified small technical change, use `/cg-light-work`
 - For debugging a known bug — use `/cg-fixbug`
 - To repeat a brainstorm you've already done — `/cg-brainstorm` will find the prior file and offer to continue from it
 - For a half-formed strategy idea not yet ready for structured clarification — place a brief note in `.cg-docs/inbox/` instead and promote it via `/cg-strategy` when it matures
@@ -171,7 +269,7 @@ Mode B (returning project with config) runs the same Charter Quality Gate silent
 **Handoff options**: `/cg-plan-review` (challenge the plan before starting — recommended for Standard/Deep), `/cg-work` (start implementing), `/cg-brainstorm` (revisit open questions).
 
 **When NOT to use**:
-- For trivial one-file changes that take under an hour — use `/cg-work` directly (it generates an inline Lightweight plan if none exists)
+- For a qualified small technical change, use `/cg-light-work`
 - For debugging a known bug — use `/cg-fixbug`, which has its own structured flow including reproduce/verify hard stops
 - When the brainstorm used **Thinking Partner mode** (strategy/process outputs) — a Thinking Partner brainstorm produces decisions, not software plans. Consider updating `compound-gpid.md` instead
 - For emergency production hotfixes — go to `/cg-fixbug` directly to avoid the overhead of a full plan
@@ -306,21 +404,50 @@ PDF product generation, and no completion dossier.
 - *Flood of findings*: If the critic returns more than 5 P1/P2 findings, you are offered a batch-decision option — accept/defer all at once rather than going through them individually.
 
 **When NOT to use**:
-- For Lightweight tasks where you're confident the plan is correct — use `/cg-work` directly
+- For a qualified small technical task, use `/cg-light-work`
 - As a substitute for `/cg-review` — Plan Review checks the plan document; `/cg-review` checks the implemented code
 
 **Output**: Interactive findings session; no files written.
 
 ---
 
+### 2c. Light Work (`/cg-light-work`)
+
+**When to use**:
+- One small, low-risk technical task has a clear outcome and focused verification.
+- The work can pass the command's bounded qualification checks without changing security, schemas, dependencies, or destructive behavior.
+
+**What happens**: The command inspects the workspace first, asks only bounded
+questions when needed, and stops or redirects work that does not qualify. A
+reproducible bug uses `/cg-fixbug`. Research, statistical, and publication work
+uses `/cr-*`. Larger, ambiguous, security-sensitive, schema, dependency, or
+destructive work uses `/cg-brainstorm` -> `/cg-plan` -> `/cg-work`.
+
+There are two user gates. First, you approve the Plan before it is saved and
+before source edits start. After implementation and verification converge, you
+explicitly choose whether to compound the result. The command creates a standard
+Plan, Work Report, and Review Report. Compounding can add a Solution only after
+explicit opt-in; skipping it causes no permanent knowledge change.
+
+The light Review is mandatory and fixed: deterministic checks run first, then
+`@cg-code-quality` and `@cg-testing` each review the changed files. There is one
+initial pass. If Review fixes change files, there is one verification pass. The
+two-pass cap cannot be extended; unresolved or non-convergent work is redirected
+to the standard review and fix-triage cycle.
+
+**Output**: Code, tests, or documentation changes plus a saved Plan, Work Report,
+and Review Report; an optional Solution requires compounding consent.
+
+---
+
 ### 3. Work (`/cg-work`)
 
 **When to use**:
-- After `/cg-plan` has created an implementation plan
-- To implement a known Lightweight task without a prior plan (the prompt generates a brief inline plan)
+- After `/cg-plan` has created and the user has approved an implementation Plan
+- To execute a selected phase of an approved saved Plan
 - To continue an implementation that was interrupted in a previous session
 
-**What happens**: The prompt loads the most recent plan (or generates a short inline plan for Lightweight tasks when no plan file exists) and implements it step by step — writing code, tests, and documentation. **Goal-driven execution loop**: `/cg-work` reads the plan's `## Completion Contract` as its execution authority and creates a durable execution report at `.cg-docs/work-reports/YYYY-MM-DD-<plan-slug>.md` before implementation starts. Completion is only recorded when required evidence passes a strict evidence gate (an actually executed check — not static inspection alone) or an explicit accepted exception with rationale is logged in the report. Deviations, accepted exceptions, and evidence results are all recorded in the execution report. Before implementation, it builds a test index mapping each module to its test file. When work begins, the linked roadmap feature is automatically marked `active`. After all steps complete, a **mechanical self-review** (Step 3.2) scans for debug code, missing tests, broken imports, incomplete TODO markers, and hardcoded secrets. The plan file is updated to `completed` status.
+**What happens**: The prompt selects an approved saved Plan and implements it step by step, writing code, tests, and documentation. **Goal-driven execution loop**: `/cg-work` reads the Plan's `## Completion Contract` as its execution authority and creates a durable execution report at `.cg-docs/work-reports/YYYY-MM-DD-<plan-slug>.md` before implementation starts. Completion is only recorded when required evidence passes a strict evidence gate (an actually executed check, not static inspection alone) or an explicit accepted exception with rationale is logged in the report. Deviations, accepted exceptions, and evidence results are all recorded in the execution report. Before implementation, it builds a test index mapping each module to its test file. When work begins, the linked roadmap feature is automatically marked `active`. After all steps complete, a **mechanical self-review** (Step 3.2) scans for debug code, missing tests, broken imports, incomplete TODO markers, and hardcoded secrets. The Plan file is updated to `completed` status.
 
 **Deviation policy**: The active policy for the run comes from the plan's `deviation-policy` frontmatter (set when planning) unless overridden at runtime with a `deviate:` argument. Same values as `/cg-plan` above: `ask` (default, pauses before deviating), `autonomous` (deviates with audit trail), `strict` (blocked-stop on any deviation).
 
@@ -334,11 +461,10 @@ full diffs, or full review text.
 
 **Legacy plans** (no `## Completion Contract`): `/cg-work` halts and offers to generate a minimal compatibility contract for approval before proceeding.
 
-**Inline plan handling** (when no plan file is found):
-- The prompt does a keyword search across `.cg-docs/plans/` first — an existing relevant plan may not have been the most recent.
-- For requests containing words like "refactor", "replace", "migrate", or "pipeline", or touching multiple files: declines inline planning and asks you to run `/cg-plan` first.
-- For **Standard** or **Deep** scope: warns strongly that `/cg-plan` is recommended, offers to generate the inline plan anyway (not recommended).
-- For **Lightweight** scope only: generates a 3–5 step inline plan, saves it to `.cg-docs/plans/`, and asks for confirmation before proceeding.
+**Unmatched task handling** (when no valid saved Plan is selected):
+- The prompt first searches `.cg-docs/plans/` by recency and keyword-title match.
+- If task text remains unmatched, it stops without mutation and returns the copy-ready route `/cg-light-work -- <verbatim user task>`.
+- If there is no task text, it routes to `/cg-plan`. The redirect never dispatches another command automatically.
 
 **Self-review** (automatic, runs after implementation):
 The prompt scans its own output for:
@@ -353,7 +479,7 @@ The prompt scans its own output for:
 **Scenarios**:
 - *Normal implementation*: Load the plan, implement step by step, commit at each checkpoint.
 - *Resuming interrupted work*: Run `/cg-work` in a new session — it re-loads the active plan from `.cg-docs/plans/` and skips any steps already marked complete. For phased plans, run `/cg-resume` first to see which phase to continue with, then use `/cg-work phaseN`. The existing execution report is resumed (a new run/resume section is appended).
-- *Lightweight task (no prior plan)*: Describe the change; the prompt generates and confirms a 3–5 step inline plan (including a minimal completion contract) before starting.
+- *Small task (no prior Plan)*: The prompt stops and returns a copy-ready `/cg-light-work -- <verbatim user task>` route without starting it.
 - *Large refactor (Deep scope)*: Should have a phased plan from `/cg-plan`. Work through one phase at a time — run `/cg-work phase1`, then `/cg-work phase2`, etc. Each phase has its own commit checkpoint and evidence gate check.
 - *Phased plan, specific phase*: Run `/cg-work phaseN` to execute a specific phase. Phase N cannot start until phase N-1 is complete (exception: phase 1 is always allowed). The evidence gate checks only the verification rows for phase N before writing to `completed-phases`.
 - *Roadmap-linked feature*: The roadmap feature transitions automatically: idea → planned (on `/cg-plan`) → active (on `/cg-work` start) → done (when you complete the plan, after evidence gate passes).
@@ -362,8 +488,10 @@ The prompt scans its own output for:
 **Handoff options**: `/cg-review` (remains available for adversarial/cross-model review — no longer required as the default post-work step when evidence gates pass), `/cg-compound` (capture learnings), `/cg-fixbug` (discovered a bug mid-implementation), `/cg-plan` (next feature).
 
 **When NOT to use**:
-- For tasks that clearly span multiple files or days without a plan — use `/cg-plan` first. `/cg-work` will warn you if the scope looks too large for an inline plan.
+- For a qualified small technical task without a saved Plan, use `/cg-light-work`.
+- For larger, ambiguous, security-sensitive, schema, dependency, or destructive work without a saved Plan, use `/cg-brainstorm` -> `/cg-plan` -> `/cg-work`.
 - For debugging a known bug — use `/cg-fixbug`, which enforces a reproduce-before-fix discipline
+- For research, statistical, or publication work, use `/cr-*`.
 - To apply review findings — use `/cg-fix-triage`, which tracks each finding's status
 - As a replacement for `/cg-review` — never skip review for analytical code that feeds published statistics
 
@@ -942,16 +1070,32 @@ check the Copilot UI if that identity matters.
 
 ### Release (`/cg-release`)
 
-**When to use**: After completing and compounding a milestone, when you are ready to publish a new version of compound-gpid to GitHub.
+**When to use**: Preview a release, submit an explicitly approved request, inspect
+its progress, or request reconciliation through the standalone controller.
+For GPID's working PowerShell Routine, use `/cg-release <new-version>` on a clean,
+current `dev` checkout: `vX.Y.Z.<build>` makes a prerelease and `vX.Y.Z` makes a
+full GitHub Release. Use `--resume <tag>` only for an interrupted exact identity.
+The full Release can be `published; documentation/attestation pending` while the
+older protected Pages controller awaits separate repair.
 
-**What happens**: Detects the latest git tag, analyzes commits since then to suggest the next semver version, reads `.cg-docs/` entries dated after the last release to draft curated release notes, checks `SCHEMA_VERSION` for structural migration warnings, presents a confirmation summary, and runs `create-release.ps1` to publish to GitHub.
+**What happens**: `/cg-release plan|start|status|resume` passes arguments unchanged
+to the installed CLI. `plan` is read-only and non-reserving; `start` confirms and
+rechecks exact inputs without requiring a prior plan. Retain the provisional
+request locator before the first write. A receipt means queued submission, not
+publication. Generic mode needs no GPID charter. The trusted policy selects the
+optional GPID profile and enforces required hooks.
 
 **When NOT to use**:
-- On a feature branch — merge to main first
+- To bypass disabled installation, trusted setup, current authority or protected approval
 - Without reviewing and running the full test suite first
 - Without checking for open P0/P1 review findings
 
-**Output**: A published GitHub Release at https://github.com/GPID-WB/compound-gpid/releases
+**Output**: A preview, durable request receipt, structured progress or explicit
+error. `published` remains distinct from `complete`. The supplied publisher stays
+disabled; bridge/live CI/sandbox/performance proof is deferred, not passed.
+Ordinary PR CI and the later authorized committed gate remain required. See the
+[release controller guide](release-controller.md) for tested syntax, setup,
+version lines, immutable publication, recovery and the restricted legacy paths.
 
 ---
 
@@ -959,19 +1103,21 @@ check the Copilot UI if that identity matters.
 
 **When to use**: After completing a feature or fix on a branch and you want to package the work into well-structured commits, push the branch, and open a pull request.
 
-**What happens**: Inventories staged, unstaged, and untracked changes with `git status`. Classifies files into groups (code, tests, docs, config, plans/knowledge) and proposes a logical commit split with suggested conventional commit messages. After your confirmation, executes the commits in order, pushes the branch, and opens a PR with a plan-driven description — reading `## Objective` and requirements from any `.cg-docs/plans/` files added on the branch. If `gh` CLI is not installed, degrades gracefully: completes all commits and push, then prints the manual `gh pr create` command.
+**What happens**: Accepts an optional `--base <branch>`, inventories staged, unstaged, and untracked changes with `git status`, and resolves one PR base before generation or staging. The precedence is the existing PR's `baseRefName`, then explicit `--base`, then the repository default branch; a conflict is reported and the actual existing PR base wins. The prompt classifies files into groups (code, tests, docs, config, plans/knowledge) and proposes a logical commit split with suggested conventional commit messages. After your confirmation, it executes the commits in order, pushes the branch, and opens a PR with a plan-driven description — reading `## Objective` and requirements from any `.cg-docs/plans/` files added on the branch. If `gh` CLI is not installed, the VS Code GitHub Pull Request extension remains an alternative; if that extension cannot resolve or honor the required base, the prompt halts with a `gh pr create --base <branch>` route instead of silently changing the base.
 
 **Key behaviors**:
 - `git add` exit code is checked before each commit — halts on failure rather than committing an empty or partial stage
 - Push rejections (non-fast-forward) are surfaced with clear options: rebase, `--force-with-lease`, or cancel
 - Plan content is written to a temp file and passed via `--body-file` (never inline) to prevent shell injection
+- The shared preflight runs with `--phase prepare --base <branch> --run-native-target` before staging and with `--phase committed --base <branch> --run-native-target` before push; nonzero or partial results block the operation, while a successful `generic-not-applicable` Kilo capability result remains neutral for generic behavior
+- Kilo `generic-not-applicable` is reported as a neutral capability outcome for generic behavior, not as certified-host integration evidence
 - Detached HEAD state is detected early with a clear recovery command
 - If on the default branch, warns and asks before proceeding
 - **GitHub Issues**: If features have linked GitHub issues (a `github.issueNumber` field in `roadmap.json`), adds `Refs #<number>` or `Closes #<number>` to the PR body. `Closes #` is only used when the work item is complete and you explicitly confirm. Issue closure happens through the PR merge — `/cg-commit-push-pr` never calls `gh issue close`.
 
 **Scenarios**:
 - *Normal feature work*: After `/cg-work` + `/cg-review` + `/cg-fix-triage`, run `/cg-commit-push-pr` to ship.
-- *No `gh` CLI*: Run on any machine — commit and push still happen; you get the manual PR command.
+- *No `gh` CLI*: Run on any machine — the extension path is used when it supports the required base; otherwise the workflow halts with the manual base-aware `gh` command. When no PR tool exists at all, commits and push still complete and the same command is shown at handoff.
 - *Multiple logical changes*: Files are split into up to 4 commits (feat/fix, test, docs, plans) so reviewers see a clean history.
 
 **When NOT to use**:
@@ -1029,26 +1175,32 @@ After a one-time backfill, normal use is delta-based: when new roadmap features 
 
 **When to use**: After opening a PR (via `/cg-commit-push-pr` or manually) to check CI status and auto-fix any failures.
 
-**What happens**: Reads the current branch's open PR and fetches `statusCheckRollup` from `gh`. Classifies each check conclusion into one of five buckets — passing, pending, cancelled (non-blocking), action-required/stale, or failing. For failing checks, fetches the `gh run` log, classifies the failure type (lint/type errors → `@cg-fix-problems`; test failures → `@cg-testing`; build errors → `@cg-code-quality`; platform-specific failures → manual diagnosis), and dispatches the appropriate agent. After fixes, commits as `fix(ci): <description>` and pushes. Tracks a **2-round cap** via `fix(ci):` commit count — stops after 2 rounds and asks for manual review.
+**What happens**: Reads the current branch's open PR, including its actual `baseRefName` and `statusCheckRollup`, and resolves that value as `$baseBranch` before any fetch, merge-base, rebase, changed-file comparison, preflight, or trailer history. For each failed check, reads that check's `detailsUrl`, accepts only a GitHub Actions URL containing both the exact run ID and job ID, and retrieves `gh run view <run-id> --job <job-id> --log-failed`. Missing, non-Actions, unparseable, or unavailable logs use a manual provider/UI diagnosis route and never a latest-run lookup. The prompt classifies failures (lint/type errors → `@cg-fix-problems`; test failures → `@cg-testing`; build errors → `@cg-code-quality`; platform-specific failures → manual diagnosis), then dispatches the appropriate agent only after focused local reproduction. Auto-fix stops on a dirty worktree, records a clean baseline, and creates at most one targeted `fix(ci)` commit bearing `CI-Fix-Round: <PR>/<N>` before pushing.
 
 **Key behaviors**:
 - `--propose` flag makes the prompt READ-only: diagnoses failures and proposes fixes without committing or pushing
 - All-CANCELLED check state is detected as a terminal condition (no action needed)
-- `--first-parent` is used in git log calls to count branch-local commits accurately
-- `git merge-base` output is guarded with `Select-Object -First 1` for repos with multiple merge bases
+- The actual PR `baseRefName` is mandatory; if it is unavailable, the prompt halts instead of selecting a local or remote default
+- A missing or non-Actions `detailsUrl` is reported as a manual diagnosis route; exact run/job IDs are required before reading logs
+- A pre-existing staged, unstaged, or untracked change halts auto-fix before any rebase or edit
+- `scripts/cg_pr_preflight.py` selects the focused reproduction from the resolved base and changed files; a certified-host Kilo failure is the only externally confirmed host-dependent exception
+- Kilo `generic-not-applicable` is a neutral capability outcome, not evidence of Kilo integration, and generic linker output never proves Kilo behavior
+- `CI-Fix-Round: <PR>/<N>` trailers are counted only in `$mergeBase..HEAD`; historical `fix(ci):` subjects do not count
+- Post-baseline paths are staged individually and all corrections collapse into exactly one trailer-bearing `fix(ci)` commit; `--force-with-lease` is used only after a rebase
 - Detached HEAD state halts immediately with a recovery command
-- `git add` exit code is checked before each `fix(ci):` commit
+- `git add` and `git commit` exit codes are checked before any push
+- A single non-blocking status poll runs after pushing; the triggering and refreshed exact run/job IDs remain visible
 
 **Scenarios**:
 - *CI passing*: Confirms ✅ status and offers next steps.
 - *CI failing (first round)*: Classifies failures, dispatches agents, commits fixes, pushes.
-- *CI failing (second round)*: Same as first round — 2-round cap applies.
+- *CI failing (second round)*: Same as first round — the next unused PR-scoped trailer is used.
 - *After 2 rounds*: Halts with summary — manual review required; a third automated round risks an infinite fix loop.
 - *Diagnosis only*: Run with `--propose` to see what's failing before committing to a fix.
 
 **When NOT to use**:
 - When no PR is open on the current branch — open one with `/cg-commit-push-pr` first
 - When CI is still running (pending) — wait for it to complete, then re-invoke
-- After 2 `fix(ci):` commits — automated fixing is capped; escalate manually
+- After two unique `CI-Fix-Round: <PR>/<N>` trailers in `$mergeBase..HEAD` — automated fixing is capped; escalate manually
 
-**Output**: Classification report of CI checks + (unless `--propose`) `fix(ci):` commit(s) pushed to the branch
+**Output**: Classification report of CI checks, exact run/job diagnosis, and (unless `--propose`) one targeted trailer-bearing `fix(ci)` commit pushed to the branch

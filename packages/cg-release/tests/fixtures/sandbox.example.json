@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "repository_id": 123,
+  "repository_url": "https://github.com/example/release-sandbox",
+  "profile": "generic",
+  "authorization_reference": "fixture-only-not-live-approval"
+}

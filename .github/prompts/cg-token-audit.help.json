@@ -1,0 +1,11 @@
+{
+  "id": "slash:cg-token-audit", "name": "/cg-token-audit", "kind": "slash", "ownerModule": "suite-cg", "supportedSuites": ["cg"],
+  "category": "assurance", "summary": "Analyze token and context usage and recommend efficient workflows.", "aliases": [],
+  "intents": ["audit context usage", "reduce token cost"], "usage": "/cg-token-audit", "examples": ["/cg-token-audit"],
+  "prerequisites": ["The deterministic token-audit backend is available."], "outputs": ["Bounded cost, token, and recommendation artifacts."],
+  "constraints": ["Stops instead of replacing unavailable tooling with broad model inspection."], "relatedCommands": [{"id": "shell:cg-token-audit", "relation": "related"}],
+  "sourcePath": ".github/prompts/cg-token-audit.prompt.md", "definitionSources": [".github/prompts/cg-token-audit.prompt.md"], "definitionDigest": "b82c018350067d49ef2f213c8d9f92fdd389566e7e68bcf22b5c9d77415ac3c0",
+  "documentationTargets": [], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["any"],
+  "availability": {"status": "conditional", "evidence": [{"os": "any", "sourcePath": ".github/prompts/cg-token-audit.prompt.md"}]},
+  "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
+}

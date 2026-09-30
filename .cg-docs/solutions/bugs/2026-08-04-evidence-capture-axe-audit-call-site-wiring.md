@@ -51,5 +51,7 @@ dependency exist can miss a dead or incorrectly wired path.
 
 - `.cg-docs/solutions/bugs/2026-05-20-fix-helper-written-but-not-wired-into-call-site.md`
   — the same last-mile wiring failure pattern in a different protected path.
+- `.cg-docs/solutions/testing-patterns/2026-08-10-evidence-manifest-tests-require-referenced-files.md`
+  — the follow-up hardening of the same evidence workflow's manifest tests.
 - `.cg-docs/reviews/2026-08-03-editorial-theme-publishing-workflow-evidence-v2-verify-review.md`
   — source verification finding P1.4.

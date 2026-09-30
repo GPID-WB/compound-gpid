@@ -1,0 +1,233 @@
+{
+  "schemaVersion": 1,
+  "routes": {
+    "shell:cg-autopilot-control": {
+      "page": "commands",
+      "section": "shell-entry-checklist"
+    },
+    "shell:cg-brain-init": {
+      "page": "commands",
+      "section": "shell-entry-checklist"
+    },
+    "shell:cg-diff-summary": {
+      "page": "commands",
+      "section": "shell-entry-checklist"
+    },
+    "shell:cg-help": {
+      "page": "commands",
+      "section": "shell-entry-checklist"
+    },
+    "shell:cg-index": {
+      "page": "commands",
+      "section": "shell-entry-checklist"
+    },
+    "shell:cg-kilo": {
+      "page": "commands",
+      "section": "shell-entry-checklist"
+    },
+    "shell:cg-link": {
+      "page": "commands",
+      "section": "shell-entry-checklist"
+    },
+    "shell:cg-log-summary": {
+      "page": "commands",
+      "section": "shell-entry-checklist"
+    },
+    "shell:cg-problems-summary": {
+      "page": "commands",
+      "section": "shell-entry-checklist"
+    },
+    "shell:cg-publish-markdown": {
+      "page": "commands",
+      "section": "shell-entry-checklist"
+    },
+    "shell:cg-release": {
+      "page": "commands",
+      "section": "shell-entry-checklist"
+    },
+    "shell:cg-render-artifact": {
+      "page": "commands",
+      "section": "shell-entry-checklist"
+    },
+    "shell:cg-skill": {
+      "page": "commands",
+      "section": "shell-entry-checklist"
+    },
+    "shell:cg-test-summary": {
+      "page": "commands",
+      "section": "shell-entry-checklist"
+    },
+    "shell:cg-token-audit": {
+      "page": "commands",
+      "section": "shell-entry-checklist"
+    },
+    "shell:cg-tree-summary": {
+      "page": "commands",
+      "section": "shell-entry-checklist"
+    },
+    "shell:cg-unlink": {
+      "page": "commands",
+      "section": "shell-entry-checklist"
+    },
+    "shell:cg-update": {
+      "page": "commands",
+      "section": "shell-entry-checklist"
+    },
+    "slash:cg-autopilot": {
+      "page": "commands",
+      "section": "maintainer-entries"
+    },
+    "slash:cg-brain-rebuild": {
+      "page": "commands",
+      "section": "technical-entry-checklist"
+    },
+    "slash:cg-brainstorm": {
+      "page": "commands",
+      "section": "technical-entry-checklist"
+    },
+    "slash:cg-commit-push-pr": {
+      "page": "commands",
+      "section": "technical-entry-checklist"
+    },
+    "slash:cg-compound": {
+      "page": "commands",
+      "section": "technical-entry-checklist"
+    },
+    "slash:cg-compound-gpid-rd": {
+      "page": "commands",
+      "section": "maintainer-entries"
+    },
+    "slash:cg-compound-refresh": {
+      "page": "commands",
+      "section": "technical-entry-checklist"
+    },
+    "slash:cg-devtag": {
+      "page": "commands",
+      "section": "maintainer-entries"
+    },
+    "slash:cg-diagnose": {
+      "page": "commands",
+      "section": "technical-entry-checklist"
+    },
+    "slash:cg-fix-problems": {
+      "page": "commands",
+      "section": "technical-entry-checklist"
+    },
+    "slash:cg-fix-triage": {
+      "page": "commands",
+      "section": "technical-entry-checklist"
+    },
+    "slash:cg-fixbug": {
+      "page": "commands",
+      "section": "technical-entry-checklist"
+    },
+    "slash:cg-help": {
+      "page": "commands",
+      "section": "shared-capability-entries"
+    },
+    "slash:cg-ideate": {
+      "page": "commands",
+      "section": "technical-entry-checklist"
+    },
+    "slash:cg-issues": {
+      "page": "commands",
+      "section": "technical-entry-checklist"
+    },
+    "slash:cg-light-work": {
+      "page": "commands",
+      "section": "technical-entry-checklist"
+    },
+    "slash:cg-plan": {
+      "page": "commands",
+      "section": "technical-entry-checklist"
+    },
+    "slash:cg-plan-review": {
+      "page": "commands",
+      "section": "technical-entry-checklist"
+    },
+    "slash:cg-release": {
+      "page": "commands",
+      "section": "maintainer-entries"
+    },
+    "slash:cg-render-doc": {
+      "page": "commands",
+      "section": "technical-entry-checklist"
+    },
+    "slash:cg-resume": {
+      "page": "commands",
+      "section": "technical-entry-checklist"
+    },
+    "slash:cg-review": {
+      "page": "commands",
+      "section": "technical-entry-checklist"
+    },
+    "slash:cg-roadmap-view": {
+      "page": "commands",
+      "section": "technical-entry-checklist"
+    },
+    "slash:cg-setup": {
+      "page": "commands",
+      "section": "technical-entry-checklist"
+    },
+    "slash:cg-skill": {
+      "page": "commands",
+      "section": "technical-entry-checklist"
+    },
+    "slash:cg-strategy": {
+      "page": "commands",
+      "section": "technical-entry-checklist"
+    },
+    "slash:cg-token-audit": {
+      "page": "commands",
+      "section": "technical-entry-checklist"
+    },
+    "slash:cg-verify-pr": {
+      "page": "commands",
+      "section": "technical-entry-checklist"
+    },
+    "slash:cg-wiki": {
+      "page": "commands",
+      "section": "technical-entry-checklist"
+    },
+    "slash:cg-work": {
+      "page": "commands",
+      "section": "technical-entry-checklist"
+    },
+    "slash:cr-brainstorm": {
+      "page": "commands",
+      "section": "research-entry-checklist"
+    },
+    "slash:cr-compound": {
+      "page": "commands",
+      "section": "research-entry-checklist"
+    },
+    "slash:cr-plan": {
+      "page": "commands",
+      "section": "research-entry-checklist"
+    },
+    "slash:cr-review": {
+      "page": "commands",
+      "section": "research-entry-checklist"
+    },
+    "slash:cr-work": {
+      "page": "commands",
+      "section": "research-entry-checklist"
+    },
+    "workflow:installation-and-setup": {
+      "page": "workflows",
+      "section": "task-recipes"
+    },
+    "workflow:research-delivery-loop": {
+      "page": "workflows",
+      "section": "task-recipes"
+    },
+    "workflow:review-and-fix": {
+      "page": "workflows",
+      "section": "task-recipes"
+    },
+    "workflow:technical-delivery-loop": {
+      "page": "workflows",
+      "section": "task-recipes"
+    }
+  }
+}

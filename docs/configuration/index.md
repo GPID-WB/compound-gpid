@@ -16,6 +16,7 @@ contains the supported setup fields:
 | `r-syntax` | `data.table-collapse` or `tidyverse` | Selects the R manipulation dialect; `collapse` remains available for weighted statistics |
 | `project-type` | `package`, `analysis`, `dashboard`, `api`, `tool`, or `other` | Provides project-structure context |
 | `review-depth` | `light`, `standard`, or `thorough` | Sets the legacy default; `thorough` maps to `full` review |
+| `suites` | `[cg]` (default/absent), `[cr]`, `[cg, cr]` | Active suites for the modular architecture; selects which workflow prompts/skills load into routine sessions |
 | `artifact-html` | `true` or `false` | Explicitly enables automatic Brainstorm/Plan and generic Markdown HTML writes; validation remains mandatory |
 | `cg-schema-version` | Date-prefixed schema identifier | Managed by updates; do not edit manually |
 
@@ -47,6 +48,34 @@ in `.cg-docs/` rather than duplicating them here.
 Do keep `compound-gpid.local.md` version-controlled (committed, not in `.gitignore`).
 Do not place credentials, private data,
 or raw secrets in any context file.
+
+## Modular architecture
+
+`.github/shared/module-registry.json` assigns every canonical prompt, agent,
+skill, instruction, and shared contract to exactly one module. Modules form
+three layers:
+
+The `cg` suite includes the public `skill-management` capability. Use
+`/cg-skill help` to inspect lifecycle operations. Project skills stay inactive
+until their explicit capability is selected and the manifest is regenerated.
+
+| Layer | Responsibility |
+|---|---|
+| Kernel | Lifecycle contracts, context loading, target mapping, and core infrastructure |
+| Capability packs | Reusable language, testing, rendering, review, knowledge, and research-output support |
+| Suites | Independent user-facing command surfaces: technical `suite-cg` and research `suite-cr` |
+
+Active suites plus their transitive capability dependencies and the kernel form
+the loadable set. Suites never depend directly on one another. Research work may
+reuse technical capability packs without importing the `/cg-*` command suite.
+
+Validate registry ownership and boundaries with:
+
+```bash
+python scripts/cg_validate_modules.py --check-ownership --check-dependencies --check-cross-suite
+```
+
+See the [Modular Guide](../modular-guide.md).
 
 ## Platform selection
 
@@ -80,6 +109,37 @@ snippet instead of replacing the file wholesale.
 The repository's `adapters/` directory is a superseded compatibility path.
 Generated native trees are the current default and should be used for new
 installations.
+
+## Kilo autopilot requirements
+
+`/cg-autopilot` is the only command that needs a specific runtime. It requires
+Kilo with the dedicated primary `cg-autopilot` agent installed and natively
+selected; document flags, envelopes, or copied tool lists never substitute for
+actual native selection. The parent coordinates and validates child results but
+never implements fixes or runs tests itself, so the primary session must have
+a foreground Task tool available for stage children and at most three
+conditional-nesting levels with full input validation at each level.
+
+Requirements are explicit and scoped:
+
+- One dedicated primary agent (`cg-autopilot`) with its own model-assignment
+  and permission settings; existing user-owned configuration is preserved and
+  never rewritten by setup.
+- Parent context budgets (8192 bytes per returned frame, 65536 cumulative
+  bytes per primary context) pause before another dispatch; they never
+  truncate and never reset within the same session.
+- The control helper `cg-autopilot-control` is installed with the other shell
+  commands; `inspect` is its only enabled operation today. See the [Autopilot
+  (Kilo) Operating Contract](../reference.md) for the full fresh/resume
+  syntax, scoped approvals, repair rounds, and recovery behavior.
+- Production execution is not enabled: the command is probe-only and returns
+  `blocked: bootstrap-only` for fresh/resume pipeline arguments until native
+  qualification completes. Unsupported adapters, missing qualification, and
+  safe-pause boundaries are reported as typed blockers, never worked around.
+
+No user or global Kilo configuration is modified by the autopilot contract;
+runtime containment, capability, and trust checks follow the ordinary Kilo
+installation policy.
 
 ## Detailed references
 

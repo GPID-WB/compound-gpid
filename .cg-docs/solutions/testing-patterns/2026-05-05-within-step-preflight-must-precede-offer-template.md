@@ -120,3 +120,4 @@ It "Uncommitted-changes check appears before the offer block" {
 - [2026-04-21-prompt-step-forward-dependency-deferred-marker.md](2026-04-21-prompt-step-forward-dependency-deferred-marker.md) — cross-step forward dependency (this solution covers within-step)
 - [2026-05-01-branch-offer-must-precede-user-investment-steps.md](2026-05-01-branch-offer-must-precede-user-investment-steps.md) — step placement across steps (this solution covers instruction order within a step)
 - [2026-04-13-prompt-step-ordering-indexof-tests.md](2026-04-13-prompt-step-ordering-indexof-tests.md) — IndexOf test patterns for step ordering
+- [2026-09-08-fact-first-prompts-need-branch-complete-tests.md](2026-09-08-fact-first-prompts-need-branch-complete-tests.md) - extends preflight ordering to fact discovery before interactive choices

@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "pipelineStep": 9,
+  "status": "validation-returned-parent-disposition-pending",
+  "parentSession": "ses_f6e961f23ffeeFWeYOfNYElLY9",
+  "result": "result.json",
+  "resultSha256": "72bf406ce119f8b004fd4cc0d52ad22cc6e1098ff58373ed97a8a4e90aca10b0",
+  "baseEvidenceManifest": "integrity.json",
+  "baseEvidenceManifestSha256": "91f5b6e626d961ddc682a9b671fe578d94ee16b988f8e86ddad5b28f311fe911",
+  "manifestScope": "The base manifest covers the completed gate evidence, raw logs, complete JUnit, helper snapshots and result. This later handoff is an additive accounting note, not a replacement of those immutable artifacts.",
+  "pester": {
+    "passed": true,
+    "totalCount": 2937,
+    "passedCount": 2935,
+    "failedCount": 0,
+    "skippedCount": 2,
+    "filteredFiles": null,
+    "failures": [],
+    "fileCount": 21,
+    "seconds": 177.938,
+    "snapshot": "pester-last-run.json",
+    "cleanupErrorOccurrences": 615,
+    "cleanupErrorBreakdown": {
+      "RemoveFileSystemItemIOError": 580,
+      "PathNotFound": 35
+    },
+    "accountingClarification": "result.json cleanupDiagnosticCount=580 and pester-diagnostics.json removeItemDiagnosticCount count only the 'Cannot remove item' records. The full cleanup diagnostic total is 615, including 35 'Cannot find path' records. All error IDs and raw bytes were retained in the original diagnostic artifact and stderr.",
+    "expectedNegativeFixtureErrors": 1,
+    "cleanupSucceeded": false,
+    "skipQualification": "Both skips are in update; individual runtime skip names and reasons are not retained by the canonical runner."
+  },
+  "fullPackage": {
+    "passed": 995,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 1318.453,
+    "timeoutSeconds": 3600,
+    "junit": "full-package.xml",
+    "junitSha256": "34cbc576eeded882189e0e57ccead4bce6082b92501cae1f82521fc81394c8d3",
+    "defaultDevIsolatedOffline": true,
+    "optionalGroupWarming": false,
+    "credentialInjection": false,
+    "temporaryRoot": "C:/Users/wb384996/AppData/Local/Temp/3/kilo/6_tdhwj9",
+    "predictedBrowserSocketBytes": 103
+  },
+  "focusedChecks": {
+    "nativeLauncherProducerPreflight": "90 passed, 0 failed/errors/skipped",
+    "authorityInstall": "32 passed, 0 failed/errors/skipped; overlaps full package",
+    "ruff": "passed",
+    "offlineLock": "passed; 23 packages resolved",
+    "scopedWhitespace": "exit 0; no untracked-byte coverage because all six scoped paths are untracked"
+  },
+  "identity": {
+    "head": "b94f585c8a485dfb03965ca9711fb83257aaa7de",
+    "branch": "improve-cg-release",
+    "productFileHashesUnchanged": 2743,
+    "handoffBlobsMatch": 6,
+    "priorEvidenceFilesUnchanged": 203,
+    "protectedDocsAndIndexUnchanged": true,
+    "errors": []
+  },
+  "restrictions": "No source fixes, triage/plan/state/counter edits, step10, commits, staging, remote operations or activation. Parent owns the step9 disposition. Independent review convergence, V8 committed gate and ordinary PR CI are not claimed. Existing live/platform and cleanup qualifications remain."
+}

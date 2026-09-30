@@ -21,6 +21,17 @@ self-review checklist.
 
 ## Run tests safely
 
+Before target tests, validate the modular registry:
+
+```bash
+python scripts/cg_validate_modules.py --check-ownership --check-dependencies --check-cross-suite
+python scripts/cg_generate_targets.py --all --dry-run
+python -m pytest scripts/tests -q
+```
+
+These gates cover one-owner inventory, acyclic layer dependencies, cross-suite
+isolation, CG/CR characterization, context budgets, and all five runtime targets.
+
 This repository requires Pester 4.10.1. Never run `Invoke-Pester tests/`
 directly and never pipe `-PassThru` output into `Select-Object
 -ExpandProperty TestResult`.
@@ -58,8 +69,216 @@ node scripts/check-docs-site.js
 GitHub Pages validates the site and uploads `docs/` directly. The Markdown link
 workflow also checks repository documentation.
 
+## Stable and development documentation
+
+This section describes the legacy deployment while the new publisher is disabled.
+After separately reviewed cutover, the [release controller](../release-controller.md)
+uses immutable exact-release snapshots and separately verified mutable `dev`
+composition. Development advancement then refreshes only composition, not release
+assets or approval. All deployments keep the shared Pages guard.
+
+The public Pages deployment contains two channels in one complete artifact:
+
+- The site root (`https://gpid-wb.github.io/compound-gpid/`) is the stable
+  documentation source from `main`.
+- The development preview (`https://gpid-wb.github.io/compound-gpid/dev/`) is
+  the current documentation source from `dev` and may change before release.
+
+The build validates both source trees, records their branch, ref, commit, and
+canonical-input fingerprints, and publishes the preview beneath `dev/`. A
+single protected Pages controller verifies the complete file list and digest
+metadata before uploading the artifact. The root and preview are not deployed
+as independent overlays: this prevents a dev-only upload from replacing stable
+materials and prevents a stable release from deleting the preview.
+
+Stale or incomplete artifacts are rejected. If a source branch advances while
+an artifact is being prepared, rebuild from the current branches rather than
+manually copying files into `docs/`. The `/dev/` channel is a preview, not a
+release or a per-pull-request environment.
+
 ## Maintainer references
 
 - [Competitive Reviews](../competitive-reviews.md)
 - [Documentation Migration](../about/documentation-audit.md)
 - [Complete Reference](../reference.md)
+- [Modular Guide](../modular-guide.md)
+
+## Documentation automation
+
+The public documentation site is kept current from reviewed canonical sources.
+Canonical prompt/skill/agent changes on `main` deterministically rebuild the
+managed `docs/` sections, commit only real changes, and deploy the exact rebuilt
+artifact through GitHub Pages. Manual text outside `cg:auto` markers remains
+user-owned.
+
+### Rebuild flow
+
+Canonical source merge → `scripts/rebuild-docs.js --all` constructs the complete
+tree → the `doc-rebuild` workflow commits only `docs/` when it changed, then
+uploads the validated complete `docs/` plus build metadata → the Pages
+`workflow_run` consumes that exact artifact after verifying the normalized
+canonical-input fingerprint is current.
+
+Local dry run (no write):
+
+```bash
+node scripts/rebuild-docs.js --check
+```
+
+### What's New page
+
+`docs/whats-new.md` is an auto-managed page whose `release-notes` section is
+generated from `releases/*.json` release payloads. Release payloads are the
+durable public-release source for the page; the GitHub Release remains the public
+release record. `RELEASE_NOTES.md` stays ephemeral and gitignored.
+
+### Release tag policy
+
+Readers accept stable, historical four-part and new SemVer prerelease identities.
+The new controller writes strict SemVer only after separately reviewed enablement.
+It remains disabled; bridge delivery, registered live CI, native clean clients,
+sandbox and timing proof are deferred, not passed. Ordinary PR CI remains required.
+
+| Tag form | Purpose | GitHub release type |
+|----------|---------|---------------------|
+| `v<major>.<minor>.<patch>` | Stable release | Release |
+| `v<major>.<minor>.<patch>-<channel>.<number>` | Strict SemVer prerelease, such as `v1.5.0-rc.10` | Prerelease |
+| `v<major>.<minor>.<patch>.<build>` | Routine prerelease and historical/bridge compatibility, conventionally `9000+`; never reinterpreted as a suffix | Prerelease |
+
+Preview an explicit version through the thin command:
+
+```text
+/cg-release plan --version 1.5.0-rc.1 --branch dev --line current --json
+```
+
+The declared line must include that source branch. `start` confirms and rechecks;
+`status` and `resume` use the portable request locator. A bare numeric GPID tag
+uses PowerShell Routine while the controller is disabled; explicit authorized
+legacy bridge/recovery remain separate. Published tags, assets and
+historical payloads must not be deleted, moved or reused. See the
+[operator guide](../release-controller.md) for the setup and recovery boundary.
+
+On the legacy path, after GitHub release publication, `create-release.ps1` runs
+`scripts/cg_release_attestation.py`. It records the annotated tag object, peeled
+commit, immutable payload SHA-256, and every tagged deprecation-record digest in
+`.github/shared/skill-management/release-attestations/<tag>.json`. This reviewed
+post-release artifact provides future plugin-removal grace evidence and must not
+be edited or backfilled by hand.
+
+Routine full releases and four-component prereleases normally start from a clean
+`dev` checkout at `origin/dev`; their exact tag remains eligible for explicit
+resume after `dev` advances. Exceptional stable Bridge/Recovery sources remain
+limited to configured production branches or the protected remote default.
+Reserve publishes the full GitHub Release before Pages. The protected `main`
+controller's older layout cannot yet deploy isolated `dev`-cut full docs, so
+stable Finalize stays pending until a separate reviewed Pages repair succeeds.
+
+Repository settings must include an active tag ruleset named `Protect release
+tags` for `refs/tags/v*`. It must block updates, non-fast-forward updates, and
+deletions without exclusions or bypass actors so a verified release tag cannot
+move during publication. A separate `Restrict release tag creation` ruleset
+allows only repository administrators to create `refs/tags/v*`; `Protect dev`
+blocks deletion and force-pushes on `refs/heads/dev` without bypass actors.
+Tag commits build documentation in the read-only `release-docs.yml` workflow;
+the protected-main `release-pages.yml` controller verifies and deploys that
+prebuilt artifact without executing tagged repository code with Pages access.
+
+### Release payload schema
+
+Immutable, tracked files named `releases/<tag>.json` accept stable, legacy four-part
+and strict SemVer prerelease tags;
+`releases/latest.json` is a byte-for-byte current-release convenience copy and is
+never rendered as a second release.
+
+| Field | Required | Value |
+|-------|----------|-------|
+| `schemaVersion` | yes | `1` |
+| `tag` | yes | stable, historical four-part or SemVer prerelease tag |
+| `publishedAt` | yes | UTC ISO-8601 preparation timestamp; not proof of GitHub publication |
+| `name` | yes | release title |
+| `url` | yes | GitHub release URL shape |
+| `sourceUrl` | yes | exact pushed GitHub tag URL (`.../tree/<tag>`) |
+| `sections` | yes | non-empty array |
+
+Each section has a controlled `kind` (`new`, `fixed`, or `internal`), a bounded
+plain-text title, and bounded plain-text entries. Malformed tags, duplicate
+tags, malformed dates, unknown fields that alter rendering semantics, control
+characters, invalid GitHub release or source-tag URLs, and excessive record sizes are
+rejected before write. The page renders at most the 20 newest immutable
+payloads (newest first by `publishedAt` then tag) and links to GitHub Releases
+for older history.
+
+Local payload validation (the machine-checkable guard before any payload
+commit):
+
+```bash
+node scripts/generate-whats-new.js --validate-payload releases/v1.2.3.9000.json
+```
+
+### Deployment behavior
+
+The Pages workflow deploys only the unmodified, complete, validated,
+digest-verified post-build artifact. Stale main-branch runs are skipped by the
+normalized canonical-input fingerprint check; immutable release tags and manual
+dispatches build complete trees directly. No workflow depends on a bot push
+triggering a second workflow.
+
+### Recovery behavior
+
+Keep generated artifacts separate from canonical source and verify the relevant
+producer contract before restoring a prior build.
+
+### Catalog documentation and build compatibility
+
+The canonical help catalog owns command facts in `docs/reference.md` and
+`docs/reference/commands.md`. Its Python writer updates only the three
+`help-*` managed sections; wiki generation preserves those sections. The
+ownership declaration in `docs/_wiki.yml` records both files and the writer.
+Maintainers edit prompt descriptions, reviewed help sidecars, shell metadata,
+and explicit workflow records, then regenerate. Stale definition pins stop the
+build and require review of the individual record.
+
+```bash
+python scripts/cg_generate_help_catalog.py --check
+python scripts/cg_generate_help_catalog.py --write-docs
+python scripts/cg_generate_help_catalog.py --check-docs
+node scripts/rebuild-docs.js --all
+node scripts/rebuild-docs.js --check --all
+node scripts/check-docs-site.js
+```
+
+The one-time `--bootstrap-docs-markers` operation accepts only the recognized
+legacy table boundaries; ordinary builds never perform that migration. Content
+outside those sections remains editorial. The website projection contains the
+complete catalog, including kind-qualified IDs and repeated workflow steps.
+`docs/reference/command-routes.json` supplies only registered presentation
+destinations. A renamed destination heading must be repaired before generation.
+
+Producer/fingerprint/runtime version 3 adds the catalog writer, command index,
+and eighth local shell asset. Fingerprints bind exact generator, wrapper,
+registry, sidecar and route bytes; managed Markdown interiors are normalized.
+The two generated indexes are excluded from their own inputs and independently
+regenerated before import. The protected controller executes its own generator
+against isolated copies of source data and verifies every output byte. A fresh
+catalog does not certify native host behavior.
+
+Version 1 legacy publication remains supported beside version 3 development.
+The unpublished version 2 checkpoint is retained byte-for-byte under
+`scripts/docs-legacy-v2` for historical recovery. Its old runtime cannot read
+version 3 metadata, so a mixed version 2/version 3 pair is rejected: rebuild both
+upgraded channels with version 3. A version 2/version 2 recovery pair remains
+verifiable. Never reinterpret a historical fingerprint version or deploy an
+artifact directly from a modified site directory. Controller rollout remains
+separate from these local build checks.
+
+### Recovery outcomes
+
+- No-op rebuild: `docs/` unchanged — no bot commit; the artifact is still
+  uploaded for Pages.
+- Validation failure: the rebuild fails loudly and never deploys.
+- Stale run: a rebuild that finished after a newer canonical `main` commit is
+  skipped by Pages rather than deployed.
+- Bot commit: only `docs/` is staged with a conventional message stating it is
+  a deterministic render from the approved canonical inputs.
+- Release API failure: the committed/tagged payload source state remains
+  recoverable; a maintainer can resume without overwriting a release record.

@@ -25,8 +25,12 @@ Thumbs.db
 .vscode/*
 !.vscode/tasks.json
 !.vscode/settings.json
+.posit/
 .idea/
 .tmp/
+
+# Local proposal preserved unchanged in .cg-docs/archive/.
+/.kilo/plans/1789505624639-documentation-ia-ux-redesign.md
 
 # Python
 __pycache__/
@@ -38,6 +42,13 @@ build/
 # Virtual environments
 .venv/
 venv/
+research_evidence/.cache/
+research_evidence/.evidence-index/
+research_evidence/.runtime/
+
+# Research evidence derived state; canonical YAML remains version-controlled
+c-research/evidence/derived/
+c-research/evidence/index/
 
 # Testing & profiling
 .pytest_cache/
@@ -76,9 +87,13 @@ tests/*.txt
 RELEASE_NOTES.md
 release-result.txt
 pr-result.txt
+.docs-build-metadata.json
 
 # Generated artifact indexes are runtime-only; generated command/skill/agent trees stay tracked.
 .agents/model-mapping.codex.json
+
+# Generator recovery files (secure-write backup, not committed)
+*.previous
 
 # Local skill prototyping area should not be committed.
 .agents/skills/skill-creator/
@@ -87,4 +102,23 @@ pr-result.txt
 # scripts/link.ps1 (and its transient .tmp-* / .bak-* siblings). These are
 # per-machine state, not generated-tree content, and must never be committed.
 **/.compound-gpid-managed-copy.json*
+
+# Project-local projection state (R5/R6): the committed active manifest is the
+# reviewable selection artifact; mutable ownership state, the publication
+# journal, and staging/quarantine/transient recovery files are per-project
+# runtime state and must never be committed.
+.compound-gpid/projection-ownership.json
+.compound-gpid/projection-transaction.json
+.compound-gpid/active/
+.compound-gpid/runtime/
+.compound-gpid/generations/
+.compound-gpid/staging/
+.compound-gpid/quarantine/
+.compound-gpid/retired/
+.compound-gpid/vendor-reviews/
+.compound-gpid/skill-plans/
+.compound-gpid/skill-transactions/
+.compound-gpid/skill-transaction.lock
+.compound-gpid/*.tmp
+.compound-gpid/*.bak
 

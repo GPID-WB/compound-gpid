@@ -95,7 +95,14 @@ Describe "Run-Tests.ps1 - artifact construction keywords" {
         ($runnerContent -match 'passed\s*=') | Should -Be $true
     }
 
-    It "script exits with code 1 when failures are present" {
+    It "script exits with code 1 when no registered -File filter matches" {
+        ($runnerContent -match 'No registered test names matched the -File filter') | Should -Be $true
+        ($runnerContent -match '(?s)No registered test names matched the -File filter.*exit 1') | Should -Be $true
+    }
+
+    It "script returns failure for both dot-sourced and standalone callers" {
+        ($runnerContent -match '\$global:LASTEXITCODE = 1') | Should -Be $true
+        ($runnerContent -match "InvocationName -ne '\.'") | Should -Be $true
         ($runnerContent -match 'exit 1') | Should -Be $true
     }
 }
@@ -188,6 +195,15 @@ Describe "Run-Tests.ps1 - last-run.json artifact schema" {
             ($null -ne $json.failedCount) | Should -Be $true
         }
 
+        It "last-run.json has 'skippedCount' field" {
+            ($null -ne $json.skippedCount) | Should -Be $true
+        }
+
+        It "last-run.json top-level totalCount matches per-file totals" {
+            $fileTotals = @($json.files | ForEach-Object { $_.total })
+            (($fileTotals | Measure-Object -Sum).Sum) | Should -Be $json.totalCount
+        }
+
         It "last-run.json has 'failFast' field" {
             ($null -ne $json.failFast) | Should -Be $true
         }
@@ -229,8 +245,14 @@ Describe "Run-Tests.ps1 - last-run.json artifact schema" {
             $json.totalCount | Should -BeGreaterThan 0
         }
 
-        It "last-run.json totalCount equals passedCount plus failedCount" {
-            ($json.passedCount + $json.failedCount) | Should -Be $json.totalCount
+        It "last-run.json totalCount equals passedCount plus failedCount plus skippedCount" {
+            ($json.totalCount -eq ($json.passedCount + $json.failedCount + $json.skippedCount)) | Should -Be $true
+        }
+
+        It "each file summary reconciles total to passed, failed, and skipped" {
+            foreach ($fileResult in @($json.files)) {
+                ($fileResult.total -eq ($fileResult.passed + $fileResult.failed + $fileResult.skipped)) | Should -Be $true
+            }
         }
 
         It "last-run.json files is an array type" {

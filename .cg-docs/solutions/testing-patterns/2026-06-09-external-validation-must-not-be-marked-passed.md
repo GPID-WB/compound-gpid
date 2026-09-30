@@ -85,3 +85,4 @@ When documenting release validation:
 - `.cg-docs/solutions/testing-patterns/2026-06-09-token-optimization-release-validation.md`
 - `.cg-docs/solutions/testing-patterns/2026-06-08-token-optimization-benchmark-guardrails.md`
 - `.cg-docs/solutions/testing-patterns/2026-04-15-pester-verbose-output-floods-context-long-session.md`
+- `.cg-docs/solutions/testing-patterns/2026-09-17-documented-quarantine-skip-marker-for-flakes.md`

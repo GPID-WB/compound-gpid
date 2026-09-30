@@ -1,0 +1,11 @@
+{
+  "id": "slash:cg-plan", "name": "/cg-plan", "kind": "slash", "ownerModule": "suite-cg", "supportedSuites": ["cg"],
+  "category": "design", "summary": "Create a structured implementation plan from clear requirements.", "aliases": [],
+  "intents": ["create an implementation plan", "turn requirements into implementation steps"], "usage": "/cg-plan", "examples": ["/cg-plan"],
+  "prerequisites": ["Clear requirements or an approved brainstorm."], "outputs": ["A validated plan with a completion contract."],
+  "constraints": ["Requires user approval for the completion contract."], "relatedCommands": [{"id": "slash:cg-plan-review", "relation": "next"}],
+  "sourcePath": ".github/prompts/cg-plan.prompt.md", "definitionSources": [".github/prompts/cg-plan.prompt.md"], "definitionDigest": "8b3c0249b0bccb35f18850c0669a0692af25ac70457943ca68c5f48dae3636f3",
+  "documentationTargets": [{"path": "docs/workflow.md", "section": "2-plan-cg-plan"}], "supportedPlatforms": ["claude-code", "codex", "copilot", "kilo", "opencode"], "supportedOS": ["any"],
+  "availability": {"status": "available", "evidence": [{"os": "any", "sourcePath": ".github/prompts/cg-plan.prompt.md"}]},
+  "activation": [{"suite": "cg", "sourcePath": "docs/configuration.md", "sourceSection": "strict-configuration-schema"}]
+}

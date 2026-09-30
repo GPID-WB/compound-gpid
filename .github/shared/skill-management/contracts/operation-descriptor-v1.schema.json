@@ -1,0 +1,88 @@
+{
+  "$schema": "compound-gpid-schema-subset-v1",
+  "$id": "cg-skill-operation-descriptor-v1",
+  "type": "object",
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "cg-skill-operation-descriptor-v1"
+    },
+    "operation": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "maxLength": 64
+    },
+    "version": {
+      "type": "integer",
+      "const": 1
+    },
+    "state": {
+      "type": "string",
+      "const": "active"
+    },
+    "roles": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "consumer",
+          "maintainer"
+        ]
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "phases": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "read",
+          "plan",
+          "apply"
+        ]
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "handler": {
+      "type": "string",
+      "pattern": "^skill_management\\.operations\\.[a-z][a-z0-9_]*:[a-z][a-z0-9_]*$"
+    },
+    "contract": {
+      "type": "string",
+      "pattern": "^\\.github/shared/skill-management/contracts/[a-z][a-z0-9-]*-v[0-9]+\\.schema\\.json$"
+    },
+    "workflow": {
+      "type": "string",
+      "pattern": "^\\.github/skills/cg-skill-management/workflows/[a-z][a-z0-9-]*\\.md$"
+    },
+    "documentation": {
+      "type": "string",
+      "pattern": "^docs/skills/management/commands/[a-z][a-z0-9-]*\\.md$"
+    },
+    "tests": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^scripts/tests/test_[a-z0-9_]+\\.py$"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "schema",
+    "operation",
+    "version",
+    "state",
+    "roles",
+    "phases",
+    "handler",
+    "contract",
+    "workflow",
+    "documentation",
+    "tests"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,846 @@
+{
+  "sourceHead": "b1d26a230de9204f6a93d6cc8bcb263b009e4e6e",
+  "testedWorkingTreeSha256": {
+    "docs/assets/docs-search.js": "0fc4139f51fe29ae16c4b6a9f91360e6d0691682d56ddfc863a96e601025cbe6",
+    "docs/assets/site.css": "4fb8bfabde86e0e9f8250747aa0268d9f1e57306340c069e3f0637c8af0e7833",
+    "scripts/tests/docs-browser.spec.js": "4f5c917bf93c80d3f5f135b65d35950737d6b48b58805f15eff8e2862f46779a",
+    "package-lock.json": "5641c6e80be9b96c88dfda09157be84bc96920c585e395c92e2b02ad9f4c22c1"
+  },
+  "runtime": {
+    "os": "macOS 26.6.2 (25G83)",
+    "node": "v22.23.1",
+    "npm": "10.9.8",
+    "playwright": "1.52.0",
+    "chromium": "136.0.7103.25",
+    "axe": "4.10.3"
+  },
+  "browser": {
+    "startTime": "2026-09-17T14:41:58.815Z",
+    "duration": 14924.571,
+    "expected": 31,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "axeScans": [
+    {
+      "theme": "light",
+      "width": 320,
+      "channel": "root",
+      "colors": [
+        {
+          "tag": "BODY",
+          "color": "rgb(16, 28, 41)",
+          "background": "rgb(245, 243, 235)"
+        },
+        {
+          "tag": "ARTICLE",
+          "color": "rgb(41, 64, 82)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "TD",
+          "color": "rgb(41, 64, 82)",
+          "background": "rgba(0, 0, 0, 0)"
+        }
+      ],
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "width": 320,
+      "channel": "root",
+      "colors": [
+        {
+          "tag": "BODY",
+          "color": "rgb(237, 241, 233)",
+          "background": "rgb(16, 28, 41)"
+        },
+        {
+          "tag": "ARTICLE",
+          "color": "rgb(201, 211, 203)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "TD",
+          "color": "rgb(201, 211, 203)",
+          "background": "rgba(0, 0, 0, 0)"
+        }
+      ],
+      "violations": []
+    },
+    {
+      "theme": "light",
+      "width": 320,
+      "channel": "dev/",
+      "colors": [
+        {
+          "tag": "BODY",
+          "color": "rgb(16, 28, 41)",
+          "background": "rgb(245, 243, 235)"
+        },
+        {
+          "tag": "ARTICLE",
+          "color": "rgb(41, 64, 82)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "TD",
+          "color": "rgb(41, 64, 82)",
+          "background": "rgba(0, 0, 0, 0)"
+        }
+      ],
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "width": 320,
+      "channel": "dev/",
+      "colors": [
+        {
+          "tag": "BODY",
+          "color": "rgb(237, 241, 233)",
+          "background": "rgb(16, 28, 41)"
+        },
+        {
+          "tag": "ARTICLE",
+          "color": "rgb(201, 211, 203)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "TD",
+          "color": "rgb(201, 211, 203)",
+          "background": "rgba(0, 0, 0, 0)"
+        }
+      ],
+      "violations": []
+    },
+    {
+      "theme": "light",
+      "width": 390,
+      "channel": "root",
+      "colors": [
+        {
+          "tag": "BODY",
+          "color": "rgb(16, 28, 41)",
+          "background": "rgb(245, 243, 235)"
+        },
+        {
+          "tag": "ARTICLE",
+          "color": "rgb(41, 64, 82)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "TD",
+          "color": "rgb(41, 64, 82)",
+          "background": "rgba(0, 0, 0, 0)"
+        }
+      ],
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "width": 390,
+      "channel": "root",
+      "colors": [
+        {
+          "tag": "BODY",
+          "color": "rgb(237, 241, 233)",
+          "background": "rgb(16, 28, 41)"
+        },
+        {
+          "tag": "ARTICLE",
+          "color": "rgb(201, 211, 203)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "TD",
+          "color": "rgb(201, 211, 203)",
+          "background": "rgba(0, 0, 0, 0)"
+        }
+      ],
+      "violations": []
+    },
+    {
+      "theme": "light",
+      "width": 390,
+      "channel": "dev/",
+      "colors": [
+        {
+          "tag": "BODY",
+          "color": "rgb(16, 28, 41)",
+          "background": "rgb(245, 243, 235)"
+        },
+        {
+          "tag": "ARTICLE",
+          "color": "rgb(41, 64, 82)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "TD",
+          "color": "rgb(41, 64, 82)",
+          "background": "rgba(0, 0, 0, 0)"
+        }
+      ],
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "width": 390,
+      "channel": "dev/",
+      "colors": [
+        {
+          "tag": "BODY",
+          "color": "rgb(237, 241, 233)",
+          "background": "rgb(16, 28, 41)"
+        },
+        {
+          "tag": "ARTICLE",
+          "color": "rgb(201, 211, 203)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "TD",
+          "color": "rgb(201, 211, 203)",
+          "background": "rgba(0, 0, 0, 0)"
+        }
+      ],
+      "violations": []
+    },
+    {
+      "theme": "light",
+      "width": 768,
+      "channel": "root",
+      "colors": [
+        {
+          "tag": "BODY",
+          "color": "rgb(16, 28, 41)",
+          "background": "rgb(245, 243, 235)"
+        },
+        {
+          "tag": "ARTICLE",
+          "color": "rgb(41, 64, 82)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "TD",
+          "color": "rgb(41, 64, 82)",
+          "background": "rgba(0, 0, 0, 0)"
+        }
+      ],
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "width": 768,
+      "channel": "root",
+      "colors": [
+        {
+          "tag": "BODY",
+          "color": "rgb(237, 241, 233)",
+          "background": "rgb(16, 28, 41)"
+        },
+        {
+          "tag": "ARTICLE",
+          "color": "rgb(201, 211, 203)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "TD",
+          "color": "rgb(201, 211, 203)",
+          "background": "rgba(0, 0, 0, 0)"
+        }
+      ],
+      "violations": []
+    },
+    {
+      "theme": "light",
+      "width": 768,
+      "channel": "dev/",
+      "colors": [
+        {
+          "tag": "BODY",
+          "color": "rgb(16, 28, 41)",
+          "background": "rgb(245, 243, 235)"
+        },
+        {
+          "tag": "ARTICLE",
+          "color": "rgb(41, 64, 82)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "TD",
+          "color": "rgb(41, 64, 82)",
+          "background": "rgba(0, 0, 0, 0)"
+        }
+      ],
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "width": 768,
+      "channel": "dev/",
+      "colors": [
+        {
+          "tag": "BODY",
+          "color": "rgb(237, 241, 233)",
+          "background": "rgb(16, 28, 41)"
+        },
+        {
+          "tag": "ARTICLE",
+          "color": "rgb(201, 211, 203)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "TD",
+          "color": "rgb(201, 211, 203)",
+          "background": "rgba(0, 0, 0, 0)"
+        }
+      ],
+      "violations": []
+    },
+    {
+      "theme": "light",
+      "width": 1024,
+      "channel": "root",
+      "colors": [
+        {
+          "tag": "BODY",
+          "color": "rgb(16, 28, 41)",
+          "background": "rgb(245, 243, 235)"
+        },
+        {
+          "tag": "ARTICLE",
+          "color": "rgb(41, 64, 82)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "TD",
+          "color": "rgb(41, 64, 82)",
+          "background": "rgba(0, 0, 0, 0)"
+        }
+      ],
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "width": 1024,
+      "channel": "root",
+      "colors": [
+        {
+          "tag": "BODY",
+          "color": "rgb(237, 241, 233)",
+          "background": "rgb(16, 28, 41)"
+        },
+        {
+          "tag": "ARTICLE",
+          "color": "rgb(201, 211, 203)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "TD",
+          "color": "rgb(201, 211, 203)",
+          "background": "rgba(0, 0, 0, 0)"
+        }
+      ],
+      "violations": []
+    },
+    {
+      "theme": "light",
+      "width": 1024,
+      "channel": "dev/",
+      "colors": [
+        {
+          "tag": "BODY",
+          "color": "rgb(16, 28, 41)",
+          "background": "rgb(245, 243, 235)"
+        },
+        {
+          "tag": "ARTICLE",
+          "color": "rgb(41, 64, 82)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "TD",
+          "color": "rgb(41, 64, 82)",
+          "background": "rgba(0, 0, 0, 0)"
+        }
+      ],
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "width": 1024,
+      "channel": "dev/",
+      "colors": [
+        {
+          "tag": "BODY",
+          "color": "rgb(237, 241, 233)",
+          "background": "rgb(16, 28, 41)"
+        },
+        {
+          "tag": "ARTICLE",
+          "color": "rgb(201, 211, 203)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "TD",
+          "color": "rgb(201, 211, 203)",
+          "background": "rgba(0, 0, 0, 0)"
+        }
+      ],
+      "violations": []
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "channel": "root",
+      "colors": [
+        {
+          "tag": "BODY",
+          "color": "rgb(16, 28, 41)",
+          "background": "rgb(245, 243, 235)"
+        },
+        {
+          "tag": "ARTICLE",
+          "color": "rgb(41, 64, 82)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "TD",
+          "color": "rgb(41, 64, 82)",
+          "background": "rgba(0, 0, 0, 0)"
+        }
+      ],
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "channel": "root",
+      "colors": [
+        {
+          "tag": "BODY",
+          "color": "rgb(237, 241, 233)",
+          "background": "rgb(16, 28, 41)"
+        },
+        {
+          "tag": "ARTICLE",
+          "color": "rgb(201, 211, 203)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "TD",
+          "color": "rgb(201, 211, 203)",
+          "background": "rgba(0, 0, 0, 0)"
+        }
+      ],
+      "violations": []
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "channel": "dev/",
+      "colors": [
+        {
+          "tag": "BODY",
+          "color": "rgb(16, 28, 41)",
+          "background": "rgb(245, 243, 235)"
+        },
+        {
+          "tag": "ARTICLE",
+          "color": "rgb(41, 64, 82)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "TD",
+          "color": "rgb(41, 64, 82)",
+          "background": "rgba(0, 0, 0, 0)"
+        }
+      ],
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "channel": "dev/",
+      "colors": [
+        {
+          "tag": "BODY",
+          "color": "rgb(237, 241, 233)",
+          "background": "rgb(16, 28, 41)"
+        },
+        {
+          "tag": "ARTICLE",
+          "color": "rgb(201, 211, 203)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "TD",
+          "color": "rgb(201, 211, 203)",
+          "background": "rgba(0, 0, 0, 0)"
+        }
+      ],
+      "violations": []
+    }
+  ],
+  "docsNode": {
+    "passed": 180,
+    "failed": 0,
+    "command": "TMPDIR=/private/tmp npm run test:docs-automation"
+  },
+  "pester": {
+    "gitSha": "b1d26a2",
+    "ranAt": "2026-09-17T14:45:40Z",
+    "passed": true,
+    "totalCount": 2928,
+    "passedCount": 2925,
+    "failedCount": 0,
+    "skippedCount": 3,
+    "failFast": false,
+    "filteredFiles": null,
+    "skipped": [],
+    "files": [
+      {
+        "name": "charter",
+        "total": 19,
+        "passed": 19,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "local-config",
+        "total": 3,
+        "passed": 3,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "helpers",
+        "total": 38,
+        "passed": 38,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "roadmap",
+        "total": 100,
+        "passed": 100,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "prompt-tools",
+        "total": 1738,
+        "passed": 1738,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "model-assignments",
+        "total": 206,
+        "passed": 206,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "pester-safety",
+        "total": 84,
+        "passed": 84,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "ps51-compat",
+        "total": 18,
+        "passed": 18,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "create-release",
+        "total": 118,
+        "passed": 118,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "bash-scripts",
+        "total": 136,
+        "passed": 136,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "install",
+        "total": 1,
+        "passed": 0,
+        "failed": 0,
+        "skipped": 1
+      },
+      {
+        "name": "cg-index",
+        "total": 70,
+        "passed": 70,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "run-tests-runner",
+        "total": 40,
+        "passed": 40,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "update",
+        "total": 145,
+        "passed": 143,
+        "failed": 0,
+        "skipped": 2
+      },
+      {
+        "name": "release-version-readers",
+        "total": 9,
+        "passed": 9,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "docs-automation",
+        "total": 24,
+        "passed": 24,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "docs-preview",
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "wiki",
+        "total": 126,
+        "passed": 126,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "parity",
+        "total": 41,
+        "passed": 41,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "link",
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "name": "unlink",
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0
+      }
+    ],
+    "failures": []
+  },
+  "realBrowserZoom": [
+    {
+      "channel": "root",
+      "theme": "light",
+      "actualZoom": 2,
+      "before": {
+        "width": 1440,
+        "dpr": 1
+      },
+      "width": 720,
+      "dpr": 2,
+      "scrollWidth": 712,
+      "cssZoom": "1",
+      "viewport": {
+        "outerWidth": 1440,
+        "outerHeight": 990,
+        "height": 425,
+        "visualWidth": 712.5,
+        "visualScale": 1,
+        "mobile": true
+      },
+      "controls": [
+        {
+          "label": "Search documentation",
+          "width": 27.1953125,
+          "x": 581.3046875,
+          "display": "flex"
+        },
+        {
+          "label": "Switch color theme",
+          "width": 34,
+          "x": 616.5,
+          "display": "flex"
+        },
+        {
+          "label": "Open navigation",
+          "width": 42,
+          "x": 658.5,
+          "display": "block"
+        }
+      ],
+      "loadedFontFamilies": [
+        "DM Mono",
+        "Fraunces",
+        "Manrope"
+      ]
+    },
+    {
+      "channel": "root",
+      "theme": "dark",
+      "actualZoom": 2,
+      "before": {
+        "width": 1440,
+        "dpr": 1
+      },
+      "width": 720,
+      "dpr": 2,
+      "scrollWidth": 712,
+      "cssZoom": "1",
+      "viewport": {
+        "outerWidth": 1440,
+        "outerHeight": 990,
+        "height": 425,
+        "visualWidth": 712.5,
+        "visualScale": 1,
+        "mobile": true
+      },
+      "controls": [
+        {
+          "label": "Search documentation",
+          "width": 27.1953125,
+          "x": 581.3046875,
+          "display": "flex"
+        },
+        {
+          "label": "Switch color theme",
+          "width": 34,
+          "x": 616.5,
+          "display": "flex"
+        },
+        {
+          "label": "Open navigation",
+          "width": 42,
+          "x": 658.5,
+          "display": "block"
+        }
+      ],
+      "loadedFontFamilies": [
+        "DM Mono",
+        "Fraunces",
+        "Manrope"
+      ]
+    },
+    {
+      "channel": "dev/",
+      "theme": "light",
+      "actualZoom": 2,
+      "before": {
+        "width": 1440,
+        "dpr": 1
+      },
+      "width": 720,
+      "dpr": 2,
+      "scrollWidth": 712,
+      "cssZoom": "1",
+      "viewport": {
+        "outerWidth": 1440,
+        "outerHeight": 990,
+        "height": 425,
+        "visualWidth": 712.5,
+        "visualScale": 1,
+        "mobile": true
+      },
+      "controls": [
+        {
+          "label": "Search documentation",
+          "width": 27.1953125,
+          "x": 581.3046875,
+          "display": "flex"
+        },
+        {
+          "label": "Switch color theme",
+          "width": 34,
+          "x": 616.5,
+          "display": "flex"
+        },
+        {
+          "label": "Open navigation",
+          "width": 42,
+          "x": 658.5,
+          "display": "block"
+        }
+      ],
+      "loadedFontFamilies": [
+        "DM Mono",
+        "Fraunces",
+        "Manrope"
+      ]
+    },
+    {
+      "channel": "dev/",
+      "theme": "dark",
+      "actualZoom": 2,
+      "before": {
+        "width": 1440,
+        "dpr": 1
+      },
+      "width": 720,
+      "dpr": 2,
+      "scrollWidth": 712,
+      "cssZoom": "1",
+      "viewport": {
+        "outerWidth": 1440,
+        "outerHeight": 990,
+        "height": 425,
+        "visualWidth": 712.5,
+        "visualScale": 1,
+        "mobile": true
+      },
+      "controls": [
+        {
+          "label": "Search documentation",
+          "width": 27.1953125,
+          "x": 581.3046875,
+          "display": "flex"
+        },
+        {
+          "label": "Switch color theme",
+          "width": 34,
+          "x": 616.5,
+          "display": "flex"
+        },
+        {
+          "label": "Open navigation",
+          "width": 42,
+          "x": 658.5,
+          "display": "block"
+        }
+      ],
+      "loadedFontFamilies": [
+        "DM Mono",
+        "Fraunces",
+        "Manrope"
+      ]
+    }
+  ],
+  "limitations": [
+    "Human screen-reader review not performed or waived.",
+    "Browser-zoom screenshots were clipped by capture tooling and are not visual proof; native zoom API, viewport, controls and focus were checked.",
+    "macOS Pester skips and platform placeholders do not prove Windows installation or junction behavior.",
+    "Step 5 and phase 3 completion remain pending."
+  ]
+}

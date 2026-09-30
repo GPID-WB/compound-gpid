@@ -1,0 +1,12 @@
+# Project-wiki ownership manifest (fixture copy).
+schemaVersion: "compound-gpid-wiki-v1"
+folder: "docs"
+pages:
+  - id: "whats-new"
+    file: "whats-new.md"
+    title: "What's New"
+    ownership: "auto"
+    order: 1
+    sections:
+      - id: "release-notes"
+        managed: true
