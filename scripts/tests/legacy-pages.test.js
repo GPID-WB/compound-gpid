@@ -293,6 +293,49 @@ test('upgraded stable seal and preview preserve transformed published bytes acro
   assert.throws(() => readOfficial(f.env, f.transport), /served published channel/);
 });
 
+test('schema-2 preview verifies the generated output of a legacy-v1 dev producer', t => {
+  const fs = require('node:fs'), path = require('node:path');
+  const {modernSource} = require('./docs-publishing-fixture.js');
+  const {writeCombinedSite} = require('../assemble-docs-site.js');
+  const f = officialFixture(t), main = modernSource(), currentDev = modernSource();
+  t.after(() => { fs.rmSync(main, {recursive: true, force: true}); fs.rmSync(currentDev, {recursive: true, force: true}); });
+  const stable = path.join(f.root, 'stable-v2');
+  writeCombinedSite({mainRoot: main, devRoot: currentDev, out: stable,
+    mainSha: 'c'.repeat(40), devSha: 'b'.repeat(40), mainBranch: 'deploy/2.x', mainRef: 'v2.0.0'});
+  sealOfficial({...f.env, GITHUB_RUN_ID: '50', GITHUB_JOB: 'deploy', LEGACY_MODE: 'release',
+    BUILD_RUN_ID: '11', RELEASE_BRANCH: 'deploy/2.x'}, main, stable, currentDev, 'b'.repeat(40), f.transport);
+  f.state.value = JSON.parse(fs.readFileSync(path.join(stable, 'site', FILE)));
+  f.state.manifest = JSON.parse(fs.readFileSync(path.join(stable, 'site/channels.json')));
+  const stateFile = path.join(f.root, 'stable-state.json');
+  restoreOfficial(f.env, path.join(f.root, 'restored'), stateFile, f.transport);
+
+  const legacy = path.join(__dirname, 'fixtures/docs-redesign/legacy');
+  const dev = path.join(f.root, 'legacy-dev'), generated = path.join(f.root, 'legacy-generated');
+  const artifact = path.join(f.root, 'legacy-artifact'), staging = path.join(f.root, 'legacy-staging');
+  fs.cpSync(path.join(__dirname, 'fixtures/docs-automation/src/basic'), dev, {recursive: true});
+  fs.cpSync(path.join(legacy, 'scripts'), path.join(dev, 'scripts'), {recursive: true});
+  fs.cpSync(path.join(legacy, 'docs'), path.join(dev, 'docs'), {recursive: true});
+  fs.writeFileSync(path.join(dev, 'docs/.nojekyll'), '');
+  const reference = path.join(dev, 'docs/reference.md');
+  fs.writeFileSync(reference, fs.readFileSync(reference, 'utf8').replace(
+    '<!-- cg:auto:commands -->', '<!-- cg:auto:commands -->\nstale committed listing'));
+  fs.cpSync(dev, generated, {recursive: true});
+  require('./fixtures/docs-redesign/legacy/scripts/rebuild-docs.js').runRebuild(generated, {all: true});
+  fs.mkdirSync(artifact);
+  fs.cpSync(path.join(generated, 'docs'), path.join(artifact, 'docs'), {recursive: true});
+  fs.copyFileSync(path.join(generated, '.docs-build-metadata.json'), path.join(artifact, '.docs-build-metadata.json'));
+  assert.notDeepEqual(fs.readFileSync(reference), fs.readFileSync(path.join(artifact, 'docs/reference.md')));
+  importDev(dev, artifact, staging);
+  const preview = path.join(f.root, 'legacy-preview'), devSha = 'e'.repeat(40);
+  buildPreview(f.env, stateFile, dev, staging, preview, devSha);
+  assert.deepEqual(fs.readFileSync(path.join(preview, 'site/dev/reference.md')),
+    fs.readFileSync(path.join(staging, 'docs/reference.md')));
+  assert.equal(JSON.parse(fs.readFileSync(path.join(preview, '.docs-build-metadata.json'))).sources.dev.sha, devSha);
+  fs.appendFileSync(path.join(staging, 'docs/reference.md'), '\nforged');
+  assert.throws(() => buildPreview(f.env, stateFile, dev, staging, path.join(f.root, 'forged-preview'), devSha),
+    /artifact digest mismatch|producer derivation|canonical expected output/);
+});
+
 test('protected remote default other than main selects cutover authority', () => {
   const f = fixture();
   assert.equal(check(f.env, f.transport).artifact_id, 20);

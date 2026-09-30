@@ -210,13 +210,13 @@ function restoreOfficial(env, source, stateFile, transport = execFileSync) {
 }
 
 /** Stamp a preview with the unchanged official envelope; recheck just before deployment separately. */
-function stampPreview(env, stateFile, artifact, devRoot, devSha) {
+function stampPreview(env, stateFile, artifact, devRoot, devSha, devBuild) {
   if (env.GITHUB_JOB !== 'deploy-dev') fail('only preview may carry an existing official snapshot');
   const value = validate(strictJson(fs.readFileSync(stateFile)), Number(env.GITHUB_REPOSITORY_ID));
   if (value.schemaVersion === 2) {
     if (!devRoot || !/^[0-9a-f]{40}$/.test(devSha)) fail('canonical dev root and identity required for upgraded preview');
     channels.verifyPreview(artifact, {record: value.publishedChannel.record,
-      files: new Map(Object.entries(value.official.files).map(([name, encoded]) => [name, Buffer.from(encoded, 'base64')]))}, devRoot, devSha);
+      files: new Map(Object.entries(value.official.files).map(([name, encoded]) => [name, Buffer.from(encoded, 'base64')]))}, devRoot, devSha, devBuild);
   }
   stamp(value, artifact, env);
 }
@@ -229,7 +229,7 @@ function buildPreview(env, stateFile, devRoot, devBuild, artifact, devSha) {
   const published = {record: value.publishedChannel.record,
     files: new Map(Object.entries(value.official.files).map(([name, encoded]) => [name, Buffer.from(encoded, 'base64')]))};
   channels.composePreview(published, devRoot, devSha, devBuild, artifact);
-  stampPreview(env, stateFile, artifact, devRoot, devSha);
+  stampPreview(env, stateFile, artifact, devRoot, devSha, devBuild);
 }
 
 /** Reject a concurrent/stale snapshot before preview publication. */

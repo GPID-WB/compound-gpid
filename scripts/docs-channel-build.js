@@ -156,10 +156,10 @@ function composePreview(published, devRoot, devSha, devBuild, out) {
   return 0;
 }
 
-function verifyPreview(artifact, published, devRoot, devSha) {
+function verifyPreview(artifact, published, devRoot, devSha, devBuild) {
   const tree = source.readTree(artifact);
   if ([...tree.keys()].some(name => name !== ".docs-build-metadata.json" && !name.startsWith("site/"))) fail("unexpected preview artifact inventory");
-  const { files, metadata } = previewPair(published, devRoot, devSha);
+  const { files, metadata } = previewPair(published, devRoot, devSha, devBuild);
   source.equalFiles(tree, new Map([...files].map(([name, bytes]) => [`site/${name}`, bytes])).set(".docs-build-metadata.json", json(metadata)), "preview output");
   return 0;
 }
