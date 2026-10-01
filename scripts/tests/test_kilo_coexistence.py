@@ -14,6 +14,7 @@ from datetime import datetime, timezone
 import pytest
 
 import cg_kilo_preflight as preflight
+import cg_generate_targets as gen
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -303,9 +304,11 @@ def test_certified_kilo_help_observed_flows(tmp_path: Path) -> None:
     for name, text in support.PROBE_CASES.items():
         root = tmp_path / name
         for relative in preflight.REQUIRED_LOCAL_ROOTS:
-            shutil.copytree(REPO_ROOT / relative, root / relative)
+            shutil.copytree(REPO_ROOT / relative, root / relative,
+                            ignore=shutil.ignore_patterns("kilo.json", "kilo.jsonc"))
         project(REPO_ROOT, root, "cg, cr", "kilo")
-        shutil.copyfile(REPO_ROOT / ".kilo/kilo.json", root / "kilo.json")
+        target = next(t for t in gen.load_target_mapping(REPO_ROOT)["targets"] if t["id"] == "kilo")
+        _write(root / "kilo.json", gen._emit_config(target))
         bin_dir, receipts = root / "probe-bin", tmp_path / (name + "-receipts")
         bin_dir.mkdir()
         receipts.mkdir()

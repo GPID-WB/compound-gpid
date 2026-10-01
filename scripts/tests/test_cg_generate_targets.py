@@ -240,6 +240,65 @@ def _make_fixture_repo(tmp_path: Path) -> Path:
     return root
 
 
+class TestKiloConfigOnly:
+    def test_creates_only_safe_config_without_scanning_assets(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+        root = _make_fixture_repo(tmp_path)
+        monkeypatch.setattr(gen, "scan_canonical_assets", lambda *args, **kwargs: pytest.fail("Config-only scanned assets"))
+        assert gen.main(["--root", str(root), "--target", "kilo", "--config-only"]) == 0
+        config = root / ".kilo/kilo.json"
+        target = next(t for t in gen.load_target_mapping(root)["targets"] if t["id"] == "kilo")
+        assert config.read_text(encoding="utf-8") == gen._emit_config(target)
+        assert sorted(p.relative_to(root / ".kilo").as_posix() for p in (root / ".kilo").rglob("*")) == ["kilo.json"]
+
+    @pytest.mark.parametrize("name", ["kilo.json", "kilo.jsonc"])
+    def test_preserves_existing_config_without_reading_it(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, name: str) -> None:
+        root = _make_fixture_repo(tmp_path)
+        config = _write(root / ".kilo" / name, "synthetic private config; not valid JSON\n")
+        original_read = Path.read_bytes
+
+        def guarded_read(path: Path) -> bytes:
+            if path.name in {"kilo.json", "kilo.jsonc"}:
+                pytest.fail("Config-only read an existing config")
+            return original_read(path)
+
+        monkeypatch.setattr(Path, "read_bytes", guarded_read)
+        assert gen.main(["--root", str(root), "--target", "kilo", "--config-only"]) == 0
+        assert config.read_text(encoding="utf-8") == "synthetic private config; not valid JSON\n"
+        assert sorted(p.name for p in config.parent.iterdir()) == [name]
+
+    def test_dry_run_does_not_create_config(self, tmp_path: Path) -> None:
+        root = _make_fixture_repo(tmp_path)
+        assert gen.main(["--root", str(root), "--target", "kilo", "--config-only", "--dry-run"]) == 0
+        assert not (root / ".kilo").exists()
+
+    @pytest.mark.parametrize("arguments", [["--all"], ["--target", "codex"], ["--target", "kilo", "--active-suites", "cg"]])
+    def test_rejects_non_config_operations(self, tmp_path: Path, arguments: list[str]) -> None:
+        with pytest.raises(SystemExit) as error:
+            gen.main(["--root", str(tmp_path), "--config-only", *arguments])
+        assert error.value.code == 2
+        assert not (tmp_path / ".kilo").exists()
+
+    def test_invalid_mapping_fails_without_config(self, tmp_path: Path) -> None:
+        root = _make_fixture_repo(tmp_path)
+        mapping = gen.load_target_mapping(root)
+        next(t for t in mapping["targets"] if t["id"] == "kilo")["outputPaths"]["config"] = "../kilo.json"
+        _write(root / gen.TARGET_MAPPING_PATH, json.dumps(mapping))
+        assert gen.main(["--root", str(root), "--target", "kilo", "--config-only"]) == 1
+        assert not (root / ".kilo").exists()
+
+    def test_concurrent_config_is_not_overwritten(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+        root = _make_fixture_repo(tmp_path)
+        original_write = gen.secure_fs.secure_create_bytes
+
+        def competing_write(write_root: Path, relative: Path, content: bytes, **kwargs: object) -> object:
+            _write(write_root / relative, "synthetic concurrent config\n")
+            return original_write(write_root, relative, content, **kwargs)
+
+        monkeypatch.setattr(gen.secure_fs, "secure_create_bytes", competing_write)
+        assert gen.main(["--root", str(root), "--target", "kilo", "--config-only"]) == 1
+        assert (root / ".kilo/kilo.json").read_text(encoding="utf-8") == "synthetic concurrent config\n"
+
+
 def _install_fixture_registry(root: Path) -> Path:
     """Add a minimal valid v2 registry that owns the fixture skill bundle."""
     return _write(
@@ -1213,8 +1272,11 @@ class TestGenerationPlan:
         )
         assert all(body == canonical_body for body in normalized_bodies.values())
 
+        from .test_target_drift import _git_ignored_paths
+
+        ignored = _git_ignored_paths(REPO_ROOT, (entry.destination for entry in plan.entries))
         output_mismatches = _worktree_output_mismatches(
-            REPO_ROOT, plan.entries, copilot_destinations
+            REPO_ROOT, tuple(entry for entry in plan.entries if entry.destination not in ignored), copilot_destinations
         )
 
         manifest_mismatches = []
