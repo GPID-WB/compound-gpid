@@ -2265,10 +2265,14 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser.add_argument("--target", default=None, help="Target platform ID to generate (e.g. claude-code, codex, opencode, kilo)")
     parser.add_argument("--all", action="store_true", help="Generate all non-copilot targets")
     parser.add_argument("--dry-run", action="store_true", help="Report what would be written without writing")
+    parser.add_argument("--config-only", action="store_true",
+                        help="Create only an absent Kilo config; never read or replace an existing config")
     parser.add_argument("--active-suites", default=None, metavar="SUITES",
                         help="Comma-separated active suite names (e.g. 'cg' or 'cg,cr') to enforce the context budget; "
                              "omitted means no context-budget filtering")
     args = parser.parse_args(argv)
+    if args.config_only and (args.target != "kilo" or args.all or args.active_suites):
+        parser.error("--config-only requires --target kilo and cannot use --all or --active-suites")
 
     root = Path(args.root).resolve()
     if not root.is_dir():
@@ -2294,6 +2298,25 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         for err in errors:
             print(f"  - {err}", file=sys.stderr)
         return 1
+
+    if args.config_only:
+        try:
+            target = next(target for target in target_mapping["targets"] if target["id"] == "kilo")
+            relative = target["outputPaths"]["config"]
+            validate_mapping_paths(root, target_mapping)
+            destination = root / relative
+            # lexists also preserves broken links and all other existing objects.
+            if os.path.lexists(destination) or os.path.lexists(destination.with_suffix(".jsonc")):
+                sys.stdout.write("[skip] kilo: existing config left unchanged\n")
+            elif args.dry_run:
+                sys.stdout.write(f"[dry-run] kilo: would create {relative}\n")
+            else:
+                secure_fs.secure_create_bytes(root, Path(relative), _emit_config(target).encode("utf-8"))
+                sys.stdout.write(f"[generated] kilo: created {relative}\n")
+        except (ValueError, OSError) as error:
+            sys.stderr.write(f"Error: {error}\n")
+            return 1
+        return 0
 
     if not args.target and not args.all:
         print("Error: must specify --target <platform> or --all", file=sys.stderr)

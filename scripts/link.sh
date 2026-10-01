@@ -846,6 +846,13 @@ for platform in "${selected_parts[@]}"; do add_units_for_platform "$platform" >>
 missing=""
 while IFS='|' read -r platform unit_type source_rel target_rel strategy snippet; do
     [ -z "$platform" ] && continue
+    if [ "$platform" = "kilo" ] && [ "$strategy" = "config-copy-or-snippet" ] &&
+       [ ! -e "$COMPOUND_GPID_DIR/$source_rel" ]; then
+        if ! "$PYTHON_CMD" "$COMPOUND_GPID_DIR/scripts/cg_generate_targets.py" --root "$COMPOUND_GPID_DIR" --target kilo --config-only; then
+            print_error "Could not create the absent Kilo config; linking is blocked."
+            exit 1
+        fi
+    fi
     if [ ! -e "$COMPOUND_GPID_DIR/$source_rel" ]; then missing="${missing}${platform}: ${source_rel}\n"; fi
 done < "$units_file"
 if [ -n "$missing" ]; then

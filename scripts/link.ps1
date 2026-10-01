@@ -889,6 +889,15 @@ $targets = @($mapping.targets | Where-Object { $_.id -in $selectedPlatforms })
 $missingSources = @()
 
 foreach ($target in $targets) {
+    if ($target.id -eq "kilo" -and -not (Test-Path -LiteralPath (Join-Path $CompoundGpidDir $target.outputPaths.config))) {
+        $python = Resolve-PythonCommand
+        if (-not $python) { throw "Python is required to create the absent Kilo config." }
+        & $python (Join-Path $PSScriptRoot "cg_generate_targets.py") --root $CompoundGpidDir --target kilo --config-only
+        if ($LASTEXITCODE -ne 0) { throw "Could not create the absent Kilo config; linking is blocked." }
+    }
+}
+
+foreach ($target in $targets) {
     foreach ($unit in @($target.installUnits)) {
         $sourceRel = [string]$unit.source
         $source = Join-Path $CompoundGpidDir $sourceRel

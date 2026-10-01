@@ -7,12 +7,39 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+import subprocess
 
 import pytest
 
 import cg_generate_targets as gen
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
+@pytest.fixture
+def generated_config(tmp_path: Path) -> Path:
+    """Emit canonical safe defaults without opening a checkout config."""
+    target = next(t for t in gen.load_target_mapping(REPO_ROOT)["targets"] if t["id"] == "kilo")
+    path = tmp_path / "kilo.json"
+    path.write_text(gen._emit_config(target), encoding="utf-8")
+    return path
+
+
+def test_config_and_runtime_ignores_keep_essential_assets() -> None:
+    """Ignore credentials at every depth, but retain native adapter assets."""
+    ignored = {"kilo.json", "kilo.jsonc", ".kilo/kilo.json", ".kilo/kilo.jsonc",
+               "nested/kilo.json", "nested/kilo.jsonc", ".kilo/agent-manager.json",
+               ".kilo/plans/local.md", ".kilo/plugins/local.js"}
+    essential = {".kilo/AGENTS.md", ".kilo/.compound-gpid-generated.json",
+                 ".kilo/agents/cg-work.md", ".kilo/commands/cg-work.md",
+                 ".kilo/skills/cg-skill-test/SKILL.md", ".kilo/instructions/test.md",
+                 ".kilo/shared/test.md", ".kilo/plugin-support/test.js",
+                 ".kilo/plugins/cg-native-evidence.js"}
+    result = subprocess.run(["git", "check-ignore", "--no-index", "--stdin", "-z"],
+                            input="".join(path + "\0" for path in sorted(ignored | essential)),
+                            cwd=REPO_ROOT, capture_output=True, text=True, check=False)
+    assert result.returncode == 0, result.stderr
+    assert {path for path in result.stdout.split("\0") if path} == ignored
 
 
 def _frontmatter(content: str) -> dict[str, str]:
@@ -43,8 +70,8 @@ class TestKiloTreeStructure:
     def test_root_adapter_exists(self) -> None:
         assert (REPO_ROOT / ".kilo/AGENTS.md").is_file()
 
-    def test_config_file_exists(self) -> None:
-        assert (REPO_ROOT / ".kilo/kilo.json").is_file()
+    def test_config_file_exists(self, generated_config: Path) -> None:
+        assert generated_config.is_file()
 
     def test_every_prompt_has_a_command(self) -> None:
         prompts = list((REPO_ROOT / ".github/prompts").glob("*.prompt.md"))
@@ -105,8 +132,8 @@ class TestKiloModelInheritance:
         for path in files:
             assert "model:" not in path.read_text(encoding="utf-8"), path
 
-    def test_config_file_uses_valid_kilo_schema_shape(self) -> None:
-        data = json.loads((REPO_ROOT / ".kilo/kilo.json").read_text(encoding="utf-8"))
+    def test_config_file_uses_valid_kilo_schema_shape(self, generated_config: Path) -> None:
+        data = json.loads(generated_config.read_text(encoding="utf-8"))
         assert data["$schema"] == "https://app.kilo.ai/config.json"
         assert data["instructions"] == [".kilo/AGENTS.md"]
         assert data["skills"] == {"paths": [".kilo/skills"]}

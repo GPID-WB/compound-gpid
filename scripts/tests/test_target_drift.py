@@ -14,6 +14,7 @@ import hashlib
 import json
 import shutil
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
 from typing import Iterable
@@ -234,7 +235,8 @@ class TestNoDrift:
             assert gen.CANONICAL_HELP_PROMPT_PATH in sources
 
     def test_ownership_manifests_are_well_formed_and_match_worktree(self) -> None:
-        for rel_path in sorted(OWNERSHIP_MANIFESTS):
+        ignored = _ignored_expected_paths(REPO_ROOT)
+        for rel_path in sorted(OWNERSHIP_MANIFESTS - ignored):
             committed = _read_git_blob_bytes(REPO_ROOT, rel_path)
             try:
                 manifest = json.loads(committed)
@@ -243,6 +245,8 @@ class TestNoDrift:
             assert isinstance(manifest.get("files"), list), rel_path
             for entry in manifest["files"]:
                 assert set(entry) >= {"path", "sha256"}, (rel_path, entry)
+                if entry["path"] in ignored:
+                    continue
                 blob = _read_git_blob_bytes(REPO_ROOT, entry["path"])
                 assert _sha256_bytes(blob) == entry["sha256"], entry["path"]
 
@@ -326,7 +330,7 @@ class TestNoDrift:
     def test_ownership_manifests_do_not_reference_python_cache_artifacts(self) -> None:
         """Committed ownership manifests must exclude interpreter cache paths."""
         cache_references = []
-        for rel_path in sorted(OWNERSHIP_MANIFESTS):
+        for rel_path in sorted(OWNERSHIP_MANIFESTS - _ignored_expected_paths(REPO_ROOT)):
             manifest = json.loads(_read_git_blob_bytes(REPO_ROOT, rel_path).decode("utf-8"))
             for entry in manifest.get("files", []):
                 for key in ("path", "source"):
@@ -353,7 +357,8 @@ class TestNoDrift:
                 src = REPO_ROOT / item
                 dst = fixture / item
                 if src.exists():
-                    shutil.copytree(src, dst, dirs_exist_ok=True)
+                    shutil.copytree(src, dst, dirs_exist_ok=True,
+                                    ignore=shutil.ignore_patterns("kilo.json", "kilo.jsonc"))
 
             assets = gen.scan_canonical_assets(
                 fixture, active_suites=("cg", "cr")
@@ -392,7 +397,8 @@ class TestNoDrift:
             src = REPO_ROOT / item
             dst = fixture / item
             if src.exists():
-                shutil.copytree(src, dst, dirs_exist_ok=True)
+                shutil.copytree(src, dst, dirs_exist_ok=True,
+                                ignore=shutil.ignore_patterns("kilo.json", "kilo.jsonc"))
 
         prompt_before = (fixture / ".github/prompts/cg-work.prompt.md").read_text(encoding="utf-8")
         assets = gen.scan_canonical_assets(fixture)
@@ -405,6 +411,45 @@ class TestNoDrift:
 
         prompt_after = (fixture / ".github/prompts/cg-work.prompt.md").read_text(encoding="utf-8")
         assert prompt_before == prompt_after, "Generator modified .github/ canonical assets"
+
+
+@pytest.mark.parametrize("essential_drift", [False, True])
+def test_manifest_hash_gate_omits_only_ignored_config(monkeypatch: pytest.MonkeyPatch, essential_drift: bool) -> None:
+    """Ignoring credentials must not hide drift in essential generated assets."""
+    manifest_path = ".kilo/.compound-gpid-generated.json"
+    config_path = ".kilo/kilo.json"
+    asset_path = ".kilo/agents/cg-test.md"
+    manifest = {"files": [
+        {"path": config_path, "sha256": "ignored"},
+        {"path": asset_path, "sha256": _sha256_bytes(b"expected")},
+    ]}
+    reads: list[str] = []
+
+    def read_blob(root: Path, relative: str) -> bytes:
+        reads.append(relative)
+        assert relative != config_path, "Credential config must not be read"
+        if relative == manifest_path:
+            return json.dumps(manifest).encode("utf-8")
+        assert relative == asset_path
+        return b"changed" if essential_drift else b"expected"
+
+    monkeypatch.setattr(sys.modules[__name__], "OWNERSHIP_MANIFESTS", {manifest_path})
+    monkeypatch.setattr(sys.modules[__name__], "_ignored_expected_paths", lambda root: {config_path})
+    monkeypatch.setattr(sys.modules[__name__], "_read_git_blob_bytes", read_blob)
+    if essential_drift:
+        with pytest.raises(AssertionError, match=asset_path):
+            TestNoDrift().test_ownership_manifests_are_well_formed_and_match_worktree()
+    else:
+        TestNoDrift().test_ownership_manifests_are_well_formed_and_match_worktree()
+    assert reads == [manifest_path, asset_path]
+
+
+def test_ignored_ownership_manifest_is_not_read(monkeypatch: pytest.MonkeyPatch) -> None:
+    module = sys.modules[__name__]
+    monkeypatch.setattr(module, "_ignored_expected_paths", lambda root: OWNERSHIP_MANIFESTS)
+    monkeypatch.setattr(module, "_read_git_blob_bytes", lambda *args: pytest.fail("Ignored manifest was read"))
+    TestNoDrift().test_ownership_manifests_are_well_formed_and_match_worktree()
+    TestNoDrift().test_ownership_manifests_do_not_reference_python_cache_artifacts()
 
 
 class TestCrCgParity:
@@ -428,7 +473,8 @@ class TestCrCgParity:
             src = REPO_ROOT / item
             dst = fixture / item
             if src.exists():
-                shutil.copytree(src, dst, dirs_exist_ok=True)
+                shutil.copytree(src, dst, dirs_exist_ok=True,
+                                ignore=shutil.ignore_patterns("kilo.json", "kilo.jsonc"))
         # Synthetic CR assets (never committed).
         (fixture / ".github/prompts/cr-work.prompt.md").parent.mkdir(parents=True, exist_ok=True)
         (fixture / ".github/prompts/cr-work.prompt.md").write_text(

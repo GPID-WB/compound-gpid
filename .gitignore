@@ -29,8 +29,23 @@ Thumbs.db
 .idea/
 .tmp/
 
-# Local proposal preserved unchanged in .cg-docs/archive/.
-/.kilo/plans/1789505624639-documentation-ia-ux-redesign.md
+# Kilo local state is private; retain only the distributed adapter assets.
+/.kilo/*
+!/.kilo/.compound-gpid-generated.json
+!/.kilo/AGENTS.md
+!/.kilo/agents/
+!/.kilo/commands/
+!/.kilo/instructions/
+!/.kilo/plugin-support/
+!/.kilo/plugins/
+!/.kilo/shared/
+!/.kilo/skills/
+/.kilo/plugins/*
+!/.kilo/plugins/cg-native-evidence.js
+
+# Kilo configuration can contain credentials; ignore these names at any depth.
+kilo.json
+kilo.jsonc
 
 # Python
 __pycache__/

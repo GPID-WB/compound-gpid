@@ -7,6 +7,7 @@ import shutil
 import subprocess
 
 import pytest
+import cg_generate_targets as gen
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -83,6 +84,48 @@ def test_both_update_wrappers_sync_the_exact_projection_plan() -> None:
     assert "--sync" in shell
     assert "synced and verified" in powershell
     assert "synced and verified" in shell
+
+
+@pytest.mark.parametrize("missing_essential", [False, True])
+def test_link_bootstraps_only_absent_source_config(tmp_path: Path, missing_essential: bool) -> None:
+    """A configless install works, but a missing essential source still blocks it."""
+    source = tmp_path / "install"
+    for relative in (".github", "scripts"):
+        shutil.copytree(REPO_ROOT / relative, source / relative,
+                        ignore=shutil.ignore_patterns("kilo.json", "kilo.jsonc", "__pycache__", "*.pyc"))
+    assert gen.main(["--root", str(source), "--target", "kilo"]) == 0
+    source_config = source / ".kilo/kilo.json"
+    source_config.unlink()
+    if missing_essential:
+        shutil.rmtree(source / ".kilo/commands")
+    project = tmp_path / "consumer"
+    profile = tmp_path / "profile"
+    project.mkdir()
+    profile.mkdir()
+    environment = os.environ.copy()
+    environment.update({"CG_SKIP_UPDATE": "1", "HOME": str(profile), "USERPROFILE": str(profile)})
+    if os.name == "nt":
+        executable = shutil.which("powershell")
+        command = [executable or "powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
+                   str(source / "scripts/link.ps1"), "--platforms", "kilo", "--yes"]
+    else:
+        executable = shutil.which("bash")
+        command = [executable or "bash", str(source / "scripts/link.sh"), "--platforms", "kilo", "--yes"]
+    if executable is None:
+        pytest.skip("Platform link shell is unavailable")
+    result = subprocess.run(command, cwd=project, env=environment, capture_output=True,
+                            text=True, timeout=180, check=False)
+    output = result.stdout + result.stderr
+    assert source_config.is_file(), output
+    if missing_essential:
+        assert result.returncode != 0, output
+        assert "source units are missing" in output, output
+        assert not (project / ".kilo").exists()
+        assert not (source / ".kilo/commands").exists()
+    else:
+        assert result.returncode == 0, output
+        assert (project / ".kilo/commands/cg-plan.md").is_file()
+        assert (project / ".kilo/kilo.json").read_bytes() == source_config.read_bytes()
 
 
 @pytest.mark.skipif(os.name == "nt", reason="macOS/Linux link.sh integration")
