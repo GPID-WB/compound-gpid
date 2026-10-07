@@ -31,6 +31,8 @@ POSIX_DIRTY = {f"bin/cg-{name}" for name in (
     "link", "unlink", "update", "index", "brain-init", "token-audit",
     "autopilot-control", "help", "diff-summary", "log-summary",
     "problems-summary", "test-summary", "tree-summary")}
+CMD_PROBE_CHANGES = {f"bin/cg-{name}.cmd" for name in (
+    "skill", "kilo", "index", "brain-init", "render-artifact", "token-audit")}
 WORKER = '''
 import os, subprocess, sys
 from pathlib import Path
@@ -224,10 +226,6 @@ def _build(rt: Runtime, *, legacy: bool = False, changed: bool = False,
                 (source / path).chmod(0o755 if mode == b"100755" else 0o644)
                 if mode == b"100755":
                     executable.append(os.fsdecode(relative))
-        if changed:
-            probe = source / "bin/cg-index.cmd"
-            _write(probe, probe.read_bytes().replace(b'findstr /i "^Python [0-9]"',
-                                                    b'findstr /i /R /C:"^Python [0-9]"'))
     else:
         _write(source / "package.txt", "after\n")
         _write(source / "target-only.txt", "target\n")
@@ -247,7 +245,8 @@ def _build(rt: Runtime, *, legacy: bool = False, changed: bool = False,
     rt.env["RM_TARGET"] = _git(rt, source, "rev-parse", "HEAD").decode().strip()
     if legacy:
         modified = _git(rt, source, "diff", "--diff-filter=M", "--name-only", OLD, TARGET, "--", "bin").decode().splitlines()
-        assert set(modified) == ({"bin/cg-brain-init", "bin/cg-index.cmd"} if changed else set())
+        expected = CMD_PROBE_CHANGES | ({"bin/cg-brain-init"} if changed else set())
+        assert set(modified) == expected
     else:
         _write(source / "package.txt", "independent HEAD\n")
         _git(rt, source, "add", "-A")
@@ -313,7 +312,7 @@ def _manual_restore(rt: Runtime, install: Path, output: dict[str, tuple[bytes, i
 
 @pytest.mark.parametrize("changed", (False, True))
 def test_old_committed_installer_and_updater_acquire_current_candidate(runtime: Runtime, changed: bool) -> None:
-    """Surviving blobs stay unchanged; deleted/mode-collision paths need proof."""
+    """Probe edits avoid installer overlap; deleted/mode-collision paths need proof."""
     rt = runtime
     install, _ = _build(rt, legacy=True, changed=changed)
     _write(install / ".cg-version", PIN)

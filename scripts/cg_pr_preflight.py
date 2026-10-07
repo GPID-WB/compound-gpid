@@ -57,6 +57,13 @@ NATIVE_PYTEST_FILES = (
     "scripts/tests/test_kilo_coexistence.py",
     "scripts/tests/test_kilo_copy.py",
     "scripts/tests/test_link_projection_order.py",
+    "scripts/tests/test_retired_assets.py",
+    "scripts/tests/test_native_retirement_entrypoints.py",
+    "scripts/tests/test_rebuild_residue.py",
+    "scripts/tests/test_installer_wrapper_restore.py",
+    "scripts/tests/test_update_generates_targets.py",
+    "scripts/tests/test_rebuild_update_sh.py",
+    "scripts/tests/test_rebuild_migration.py",
     "scripts/tests/test_copilot_skill_projection.py",
     "scripts/tests/test_project_skill_registry.py",
     "scripts/tests/test_skill_catalog.py",
@@ -837,7 +844,6 @@ def native_commands(root: Path, phase: str = "committed") -> Tuple[Command, ...]
         *pytest_files,
         "-m",
         "not integration",
-        "-q",
     )
     return (pytest_command, *MODULE_VALIDATOR_COMMANDS)
 
@@ -1130,9 +1136,9 @@ def render_result(result: PreflightResult, output_format: str = "text") -> str:
             )
     for command_result in result.command_results:
         lines.append(f"Command {command_result.returncode}: {' '.join(command_result.command)}")
+        if command_result.stdout:
+            lines.append("Native command stdout:\n" + command_result.stdout)
         if command_result.returncode != 0:
-            if command_result.stdout:
-                lines.append("Native command stdout:\n" + command_result.stdout)
             if command_result.stderr:
                 lines.append("Native command stderr:\n" + command_result.stderr)
     return "\n".join(lines)

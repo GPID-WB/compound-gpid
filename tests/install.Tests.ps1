@@ -743,10 +743,19 @@ Describe "Python-backed CMD launchers - runtime selection and status parity" {
         "cg-index.cmd",
         "cg-brain-init.cmd",
         "cg-token-audit.cmd",
+        "cg-skill.cmd",
         "cg-render-artifact.cmd",
         "cg-publish-markdown.cmd"
     )
-    $launcherCases = @($launchers | ForEach-Object { @{ Launcher = $_ } })
+    $allLaunchers = @($launchers) + @("cg-kilo.cmd")
+    $launcherCases = @($allLaunchers | ForEach-Object { @{ Launcher = $_ } })
+
+    foreach ($launcher in $allLaunchers) {
+        It "$launcher uses a single FINDSTR regex for each Python probe" {
+            $content = Get-Content (Join-Path $repoRoot "bin\$launcher") -Raw
+            ([regex]::Matches($content, 'findstr /i /R /C:"\^Python \[0-9\]"').Count) | Should -Be 3
+        }
+    }
 
     foreach ($launcher in $launchers) {
         It "$launcher selects Python 3.8+ before an external run label" {
@@ -791,6 +800,42 @@ if "%~1"=="--version" (echo Python 3.7.9& exit /b 0)
 if "%~1"=="-c" exit /b 1
 exit /b 39
 '@ | Set-Content -Path (Join-Path $fakeBin "python3.cmd") -Encoding ASCII
+        @'
+@echo off
+if "%~1"=="--version" (echo Python 3.8.0& exit /b 0)
+if "%~1"=="-c" exit /b 0
+exit /b 38
+'@ | Set-Content -Path (Join-Path $fakeBin "python.cmd") -Encoding ASCII
+        $originalPath = $env:PATH
+        try {
+            $env:PATH = "$fakeBin;$originalPath"
+            $wrapper = Join-Path $repoRoot "bin\$Launcher"
+            & cmd /d /c "`"$wrapper`" ignored.md" | Out-Null
+            $LASTEXITCODE | Should -Be 38
+        } finally {
+            $env:PATH = $originalPath
+        }
+    }
+
+    $stubCases = @(foreach ($launcher in $allLaunchers) {
+        foreach ($stub in @("Python was not found", "Python3 is unavailable", "")) {
+            @{ Launcher = $launcher; StubOutput = $stub }
+        }
+    })
+    It "<Launcher> rejects stub output '<StubOutput>' and preserves fallback status" -TestCases $stubCases {
+        param($Launcher, $StubOutput)
+        $fakeBin = Join-Path $TestDrive "fake-python-store"
+        New-Item -ItemType Directory -Path $fakeBin -Force | Out-Null
+        $versionLine = if ($StubOutput) { "echo $StubOutput" } else { "rem empty version output" }
+        @"
+@echo off
+if "%~1"=="--version" (
+    $versionLine
+    exit /b 0
+)
+if "%~1"=="-c" exit /b 0
+exit /b 39
+"@ | Set-Content -Path (Join-Path $fakeBin "python3.cmd") -Encoding ASCII
         @'
 @echo off
 if "%~1"=="--version" (echo Python 3.8.0& exit /b 0)

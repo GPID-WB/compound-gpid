@@ -29,7 +29,7 @@ Every Python candidate probe in a `bin/*.cmd` file must use this exact structure
 where python3 >nul 2>&1
 if not errorlevel 1 (
     for /f "tokens=*" %%V in ('python3 --version 2^>^&1') do (
-        echo %%V | findstr /i "^Python [0-9]" >nul 2>&1
+        echo %%V | findstr /i /R /C:"^Python [0-9]" >nul 2>&1
         if not errorlevel 1 (
             call python3 "%~dp0..\scripts\<entrypoint>.py" %*
             exit /b %ERRORLEVEL%
@@ -40,7 +40,7 @@ if not errorlevel 1 (
 where python >nul 2>&1
 if not errorlevel 1 (
     for /f "tokens=*" %%V in ('python --version 2^>^&1') do (
-        echo %%V | findstr /i "^Python [0-9]" >nul 2>&1
+        echo %%V | findstr /i /R /C:"^Python [0-9]" >nul 2>&1
         if not errorlevel 1 (
             call python "%~dp0..\scripts\<entrypoint>.py" %*
             exit /b %ERRORLEVEL%
@@ -51,7 +51,7 @@ if not errorlevel 1 (
 where py >nul 2>&1
 if not errorlevel 1 (
     for /f "tokens=*" %%V in ('py --version 2^>^&1') do (
-        echo %%V | findstr /i "^Python [0-9]" >nul 2>&1
+        echo %%V | findstr /i /R /C:"^Python [0-9]" >nul 2>&1
         if not errorlevel 1 (
             call py "%~dp0..\scripts\<entrypoint>.py" %*
             exit /b %ERRORLEVEL%
@@ -71,7 +71,7 @@ exit /b 1
 |-------|---------|
 | `where <cmd> >nul 2>&1` | Pre-check: exits non-zero immediately if command absent — `for /f` never entered |
 | `for /f ('cmd --version 2^>^&1')` | Captures version string from the real Python |
-| `findstr /i "^Python [0-9]"` | Rejects Windows Store stubs (output: empty or "Python was not found") |
+| `findstr /i /R /C:"^Python [0-9]"` | Matches one regex, including its space; rejects empty output and "Python was not found" |
 | `call python3 ... %*` | Delegates to executables or batch shims, returns control, and forwards all arguments |
 | `exit /b %ERRORLEVEL%` | Propagates Python's exit code exactly |
 
@@ -79,6 +79,9 @@ Use `call` for every version-gate invocation and final interpreter execution.
 Without it, a candidate implemented as a `.cmd` shim replaces the caller's batch
 context, so fallback probing and child status propagation do not resume in the
 launcher. `call` is harmless for real Python executables and required for shims.
+
+Keep `/R /C:` together. Without `/C:`, FINDSTR splits the space-separated
+pattern into alternatives and can accept "Python was not found".
 
 ---
 
@@ -124,7 +127,7 @@ before invoking. The `where` pre-check in `.cmd` files mirrors this pattern for 
 Both must apply the same "pre-check before invoke" contract.
 
 The PowerShell probe regex is `'^Python\s+\d'` — the same acceptance criterion as
-`findstr /i "^Python [0-9]"` in the CMD launchers.
+`findstr /i /R /C:"^Python [0-9]"` in the CMD launchers.
 
 ---
 

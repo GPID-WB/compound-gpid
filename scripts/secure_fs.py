@@ -993,7 +993,7 @@ def _windows_pin_parent_chain(
             current = current / part
             if create:
                 try:
-                    current.mkdir()
+                    os.mkdir(_windows_long_path(current))
                 except FileExistsError:
                     pass
             child_handle = _windows_open_directory(current)

@@ -469,7 +469,7 @@
       "path": ".claude/instructions/powershell.instructions.md",
       "source": ".github/instructions/powershell.instructions.md",
       "kind": "instruction",
-      "sha256": "2e6f63f7585e6af368d77876419d934b2abad2b95df079277616cf5911db0bfc",
+      "sha256": "3e19581e687d2f0f6fa180107e5069ac1c440ee60e123671951f3cf12b38a377",
       "executable": false
     },
     {
@@ -2366,7 +2366,7 @@
       "path": ".claude/skills/cg-skill-windows-cmd-python-detection/SKILL.md",
       "source": ".github/skills/cg-skill-windows-cmd-python-detection/SKILL.md",
       "kind": "skill",
-      "sha256": "6a5ce2400b35703569175e07f6da746e4a8625470ae4b347c418425cb51ce390",
+      "sha256": "e245a1497e5964628b7601b95a99f8684e619f2e29deb3a86d5223114060682b",
       "executable": false
     },
     {

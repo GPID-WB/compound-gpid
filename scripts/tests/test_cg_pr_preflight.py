@@ -11,6 +11,15 @@ import pytest
 import cg_pr_preflight as preflight
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+REBUILD_TEST_FILES = (
+    "scripts/tests/test_retired_assets.py",
+    "scripts/tests/test_native_retirement_entrypoints.py",
+    "scripts/tests/test_rebuild_residue.py",
+    "scripts/tests/test_installer_wrapper_restore.py",
+    "scripts/tests/test_update_generates_targets.py",
+    "scripts/tests/test_rebuild_update_sh.py",
+    "scripts/tests/test_rebuild_migration.py",
+)
 
 
 @pytest.mark.parametrize("outcome", [0, 1, "timeout"])
@@ -187,6 +196,7 @@ def test_native_command_contains_ordered_pytest_marker_and_all_module_checks() -
     assert pytest_command[:4] == (preflight.PYTHON, "-m", "pytest", "scripts/tests/test_target_mapping.py")
     assert "-m" in pytest_command
     assert "not integration" in pytest_command
+    assert "-q" not in pytest_command
     assert (preflight.PYTHON, "scripts/cg_validate_modules.py", "--check-dependencies") in commands
     assert (preflight.PYTHON, "scripts/cg_validate_modules.py", "--check-cross-suite") in commands
     assert (preflight.PYTHON, "scripts/cg_validate_modules.py", "--check-ownership") in commands
@@ -361,6 +371,23 @@ def test_text_result_exposes_bounded_failed_command_output() -> None:
     assert "pytest error" in rendered
 
 
+def test_text_result_exposes_successful_native_file_counts() -> None:
+    result = preflight.PreflightResult(
+        phase="committed",
+        selection=preflight.full_gate_selection(),
+        changed_files=(),
+        command_results=(
+            preflight.CommandResult(
+                command=("python", "-m", "pytest"),
+                returncode=0,
+                stdout="scripts/tests/test_rebuild_update_sh.py ..s [100%]",
+            ),
+        ),
+    )
+
+    assert "test_rebuild_update_sh.py ..s" in preflight.render_result(result, "text")
+
+
 def test_workflow_delegates_native_selection_and_preserves_context() -> None:
     workflow = (REPO_ROOT / ".github/workflows/tests.yml").read_text(encoding="utf-8")
     native_start = workflow.index("- name: Run authoritative native target preflight")
@@ -393,6 +420,37 @@ def test_native_target_owns_deterministic_kilo_and_preflight_tests() -> None:
     assert "scripts/tests/test_project_manifest.py" in preflight.NATIVE_PYTEST_FILES
     assert "scripts/tests/test_project_projection.py" in preflight.NATIVE_PYTEST_FILES
     assert "scripts/tests/test_release_policy.py" in preflight.NATIVE_PYTEST_FILES
+
+
+@pytest.mark.parametrize("phase", ("prepare", "committed"))
+def test_native_target_registers_all_rebuild_tests(phase: str) -> None:
+    """Both phases include each rebuild test once in the existing native gate."""
+    command = preflight.native_commands(REPO_ROOT, phase=phase)[0]
+
+    for path in REBUILD_TEST_FILES:
+        assert (REPO_ROOT / path).is_file(), path
+        assert preflight.NATIVE_PYTEST_FILES.count(path) == 1, path
+        assert command.count(path) == 1, path
+
+
+@pytest.mark.parametrize("phase", ("prepare", "committed"))
+@pytest.mark.parametrize("path", (
+    "scripts/update.sh",
+    "scripts/update.ps1",
+    "scripts/link.sh",
+    "scripts/link.ps1",
+    "scripts/cg_restore_installer_wrappers.py",
+    "scripts/cg_retire_native_evidence.py",
+    *REBUILD_TEST_FILES,
+))
+def test_rebuild_paths_select_all_rebuild_tests(path: str, phase: str) -> None:
+    """Entrypoints, new helpers, and tests use the existing scripts impact rule."""
+    selection = preflight.classify_changed_files([path])
+    commands = preflight.selected_native_commands(selection, REPO_ROOT, phase=phase)
+
+    assert selection.native_required is True
+    assert commands == preflight.native_commands(REPO_ROOT, phase=phase)
+    assert set(REBUILD_TEST_FILES).issubset(commands[0])
 
 
 def test_workflow_reports_neutral_generic_kilo_capability() -> None:

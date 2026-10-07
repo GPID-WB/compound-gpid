@@ -59,6 +59,57 @@ def test_secure_delete_reports_committed_deletion_when_directory_flush_fails(
 
 @pytest.mark.backend_windows
 @pytest.mark.skipif(os.name != "nt", reason="requires Windows handle semantics")
+def test_windows_staging_creates_and_removes_long_directory_path(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    request: pytest.FixtureRequest,
+) -> None:
+    """Create and remove real long staging directories through pinned handles."""
+    relative = (
+        Path(".cg-stage-" + "s" * 32)
+        / ("a" * 80)
+        / ("b" * 80)
+        / ("c" * 80)
+        / "payload.bin"
+    )
+    staging_parent = tmp_path / relative.parent
+    assert len(str(staging_parent)) > 260
+    created: list[str] = []
+    original_mkdir = os.mkdir
+
+    def create_directory(
+        path: str | os.PathLike[str],
+        mode: int = 0o777,
+        *,
+        dir_fd: int | None = None,
+    ) -> None:
+        assert isinstance(path, str) and path.startswith("\\\\?\\")
+        original_mkdir(path, mode, dir_fd=dir_fd)
+        created.append(path)
+
+    monkeypatch.setattr(os, "mkdir", create_directory)
+    try:
+        handles, parent, _parent_handle, _name = secure_fs._windows_pin_parent_chain(
+            tmp_path, relative.as_posix(), create=True
+        )
+        try:
+            assert parent == staging_parent
+            assert os.path.isdir(created[-1])
+            request.node.user_properties.append(
+                ("max_actual_staging_path_length", len(str(parent)))
+            )
+        finally:
+            secure_fs._windows_close_handles(handles)
+    finally:
+        for directory in reversed(created):
+            os.rmdir(directory)
+
+    assert not os.path.exists(secure_fs._windows_long_path(staging_parent))
+    assert not (tmp_path / relative.parts[0]).exists()
+
+
+@pytest.mark.backend_windows
+@pytest.mark.skipif(os.name != "nt", reason="requires Windows handle semantics")
 def test_windows_delete_preserves_winner_and_quarantine_on_rollback_collision(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
