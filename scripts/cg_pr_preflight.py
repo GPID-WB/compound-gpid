@@ -857,12 +857,20 @@ def selected_native_commands(
 
 
 def _bounded_text(value: Any, limit: int = MAX_CAPTURED_OUTPUT_BYTES) -> str:
-    """Convert command output to a bounded UTF-8-safe string."""
+    """Keep command output's start and diagnostic tail within a UTF-8 byte bound."""
     text = str(value or "")
     encoded = text.encode("utf-8", errors="replace")
     if len(encoded) <= limit:
         return text
-    return encoded[:limit].decode("utf-8", errors="ignore") + "\n[output truncated]"
+    marker = b"\n[output truncated]\n"
+    budget = max(0, limit - len(marker))
+    head = budget // 4
+    tail = budget - head
+    return (
+        encoded[:head].decode("utf-8", errors="ignore")
+        + marker[:limit].decode("ascii")
+        + (encoded[-tail:].decode("utf-8", errors="ignore") if tail else "")
+    )
 
 
 def run_native_target(

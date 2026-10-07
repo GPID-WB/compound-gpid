@@ -96,6 +96,10 @@ def runtime(request: pytest.FixtureRequest) -> Iterator[Runtime]:
     shell, git = shutil.which("powershell.exe" if windows else "bash"), shutil.which("git")
     if not shell or not git:
         pytest.skip("Required shell or real Git is unavailable")
+    if windows and Path(git).parent.parent.name == "mingw64":
+        # Git Bash exposes the internal binary; cmd/git.exe sets its DLL paths.
+        git = str(Path(git).parents[2] / "cmd/git.exe")
+        assert Path(git).is_file(), git
     with tempfile.TemporaryDirectory(prefix="rm-") as temporary:
         root = Path(temporary).resolve()
         env = {k: v for k, v in os.environ.items()

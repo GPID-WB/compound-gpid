@@ -72,6 +72,31 @@ def test_native_progress_preserves_json_stdout(
     assert "native command 4/4 exited 0" in captured.err
 
 
+@pytest.mark.parametrize("stream", ("stdout", "stderr"))
+def test_native_output_keeps_start_failure_tail_and_byte_bound(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, stream: str,
+) -> None:
+    """Truncation preserves diagnostics in both child streams, including UTF-8."""
+    start = "pytest session starts\n"
+    end = "\nFAILURES\nAssertionError: fixture failure\n1 failed, 2 passed\n"
+    output = start + chr(0xE9) * preflight.MAX_CAPTURED_OUTPUT_BYTES + end
+    monkeypatch.setattr(
+        preflight.subprocess, "run",
+        lambda command, **kwargs: subprocess.CompletedProcess(
+            command, 1, **{stream: output},
+        ),
+    )
+    result = preflight.run_native_target(tmp_path, commands=(("pytest",),))
+    captured = getattr(result.commands[0], stream)
+
+    assert captured.startswith(start)
+    assert captured.endswith(end)
+    assert captured.count("\n[output truncated]\n") == 1
+    assert "\ufffd" not in captured
+    assert len(captured.encode("utf-8")) <= preflight.MAX_CAPTURED_OUTPUT_BYTES
+    assert preflight._bounded_text(end) == end
+
+
 def test_release_prompt_requires_blocking_budget_and_no_blind_retry() -> None:
     """Release calls must outlive child budgets without weakening the gate."""
     prompt = (REPO_ROOT / ".github/prompts/cg-release.prompt.md").read_text(encoding="utf-8")
@@ -390,7 +415,9 @@ def test_text_result_exposes_successful_native_file_counts() -> None:
 
 def test_workflow_delegates_native_selection_and_preserves_context() -> None:
     workflow = (REPO_ROOT / ".github/workflows/tests.yml").read_text(encoding="utf-8")
+    checkout_start = workflow.index("  native-targets:")
     native_start = workflow.index("- name: Run authoritative native target preflight")
+    native_checkout = workflow[checkout_start:native_start]
     publisher_start = workflow.index("- name: Run generic publisher", native_start)
     native_block = workflow[native_start:publisher_start]
 
@@ -402,7 +429,8 @@ def test_workflow_delegates_native_selection_and_preserves_context() -> None:
     assert "git rev-parse --verify --quiet" in native_block
     assert "Push-before revision is unavailable" in native_block
     assert "0000000000000000000000000000000000000000" in native_block
-    assert "fetch-depth: 0" in workflow
+    assert "fetch-depth: 0" in native_checkout
+    assert "fetch-tags: true" in native_checkout
     assert "origin/HEAD" not in native_block
     assert "tests/Run-Tests.ps1" in workflow
     assert "E2E smoke test" in workflow

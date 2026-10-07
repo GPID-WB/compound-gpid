@@ -242,6 +242,8 @@ jobs:
         with:
           # The preflight must compare the event's actual base/before revision.
           fetch-depth: 0
+          # Migration fixtures read the committed v1.2.0.9021 source.
+          fetch-tags: true
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0
         with:
           python-version: "3.11"

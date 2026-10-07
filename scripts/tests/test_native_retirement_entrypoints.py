@@ -196,13 +196,15 @@ exit $LASTEXITCODE
                        "-ExecutionPolicy", "Bypass", "-File", str(launcher)]
         else:
             # Expose only required OS utilities, never the inherited Kilo PATH.
-            for name in ("dirname", "tr", "xargs", "mktemp", "rm", "grep", "head",
+            for name in ("dirname", "tr", "xargs", "echo", "mktemp", "rm", "grep", "head",
                           "mv", "cp", "sed", "mkdir", "readlink", "ln", "basename"):
                 utility = shutil.which(name)
                 if utility is None:
                     pytest.skip(f"Required fixture utility unavailable: {name}")
                 (fake_bin / name).symlink_to(utility)
-            _write(fake_bin / "git", "#!/bin/sh\ncase \"$1 $2\" in\n"
+            _write(fake_bin / "git", "#!/bin/sh\n"
+                   "if [ \"$1\" = '-C' ]; then shift 2; fi\n"
+                   "case \"$1 $2\" in\n"
                    "'rev-parse --abbrev-ref') echo main ;;\n"
                      "'rev-parse --short') echo abc123 ;;\n"
                      "'rev-parse --verify') echo abc123 ;;\n"
