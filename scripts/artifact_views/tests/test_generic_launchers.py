@@ -36,7 +36,7 @@ def test_cmd_launcher_uses_guarded_candidates_and_forwards_status() -> None:
     assert "exit /b %ERRORLEVEL%" in content
 
 
-def test_installers_copy_committed_launchers_and_list_command() -> None:
+def test_installers_register_committed_launchers_and_list_command() -> None:
     powershell = (ROOT / "install.ps1").read_text(encoding="utf-8")
     bash = (ROOT / "scripts/install.sh").read_text(encoding="utf-8")
 
@@ -44,9 +44,11 @@ def test_installers_copy_committed_launchers_and_list_command() -> None:
     assert 'bin\\cg-publish-markdown.cmd' in powershell
     assert "Copy-Item -Path $cgPublishMarkdownCmdSrc" in powershell
     assert "cg-publish-markdown" in powershell
-    assert 'CG_PUBLISH_MARKDOWN_SRC="$COMPOUND_GPID_DIR/bin/cg-publish-markdown"' in bash
-    assert 'cp "$COMPOUND_GPID_DIR/bin/cg-publish-markdown"' in bash
-    assert "chmod +x \"$BIN_DIR/cg-publish-markdown\"" in bash
+    assert 'BIN_DIR="$COMPOUND_GPID_DIR/bin"' in bash
+    assert "publish-markdown token-audit" in bash
+    assert 'WRAPPER="$BIN_DIR/cg-$cmd"' in bash
+    assert '[[ ! -f "$WRAPPER" || ! -x "$WRAPPER" ]]' in bash
+    assert 'print_gray "Registered: $WRAPPER"' in bash
     assert "cg-publish-markdown" in bash
 
 

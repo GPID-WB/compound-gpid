@@ -335,9 +335,10 @@ Describe "cg-brain-init registration parity" {
         $installPs1 | Should -Match 'cg-brain-init\.cmd'
     }
 
-    It "install.sh creates cg-brain-init wrapper in bin/" {
+    It "install.sh registers the committed cg-brain-init wrapper in bin/" {
         $installSh = Get-Content (Join-Path $repoRoot "scripts/install.sh") -Raw -Encoding UTF8
-        $installSh | Should -Match 'cg-brain-init'
+        $installSh | Should -Match 'skill index brain-init'
+        $installSh | Should -Match 'Registered:.*WRAPPER'
     }
 
     It "bin/cg-token-audit exists in the repo" {
@@ -355,10 +356,12 @@ Describe "cg-brain-init registration parity" {
         $installPs1 | Should -Match 'cg-token-audit\.cmd'
     }
 
-    It "install.sh creates cg-token-audit wrapper in bin/" {
+    It "install.sh registers the committed cg-token-audit wrapper in bin/" {
         $installSh = Get-Content (Join-Path $repoRoot "scripts/install.sh") -Raw -Encoding UTF8
         $installSh | Should -Match 'cg-token-audit'
-        $installSh | Should -Match 'cg_audit_context\.py'
+        $installSh | Should -Match 'publish-markdown token-audit'
+        $wrapper = Get-Content (Join-Path $repoRoot "bin/cg-token-audit") -Raw -Encoding UTF8
+        $wrapper | Should -Match 'cg_audit_context\.py'
     }
 }
 
@@ -373,13 +376,13 @@ Describe "cg-skill registration parity" {
 
     It "registers cg-skill in both installers" {
         ($installPs1 -match 'cg-skill\.cmd') | Should -Be $true
-        ($installSh -match 'CG_SKILL_SRC') | Should -Be $true
+        ($installSh -match 'for cmd in link unlink update kilo skill index') | Should -Be $true
         ($installSh -match 'cg-skill') | Should -Be $true
     }
 
-    It "removes the retired discovery wrapper in both installers" {
+    It "keeps Windows cleanup unchanged and preserves unowned POSIX wrappers" {
         ($installPs1 -match 'Removed retired wrapper') | Should -Be $true
-        ($installSh -match 'rm -f.*cg-find-skill') | Should -Be $true
+        $installSh | Should -Not -Match '(?m)^\s*rm -f.*cg-find-skill'
     }
 }
 

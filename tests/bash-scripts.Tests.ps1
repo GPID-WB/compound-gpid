@@ -123,7 +123,7 @@ Describe "install.sh - script structure" {
         $content | Should -Match 'ln -s'
     }
 
-    It "creates bin/ directory wrappers" {
+    It "registers committed bin/ wrappers" {
         $content | Should -Match 'BIN_DIR'
         $content | Should -Match 'cg-link'
         $content | Should -Match 'cg-unlink'
@@ -173,10 +173,7 @@ Describe "install.sh - PATH block is idempotent" {
         $tmpInstallScripts = Join-Path $tmpInstall "scripts"
         New-Item -ItemType Directory -Path $tmpInstallBin     -Force | Out-Null
         New-Item -ItemType SymbolicLink -Path $tmpInstallScripts -Target (Join-Path $repoRoot "scripts") -Force | Out-Null
-        Copy-Item -Path (Join-Path $repoRoot "bin/cg-render-artifact") -Destination (Join-Path $tmpInstallBin "cg-render-artifact") -Force
-        Copy-Item -Path (Join-Path $repoRoot "bin/cg-publish-markdown") -Destination (Join-Path $tmpInstallBin "cg-publish-markdown") -Force
-        Copy-Item -Path (Join-Path $repoRoot "bin/cg-kilo") -Destination (Join-Path $tmpInstallBin "cg-kilo") -Force
-        Copy-Item -Path (Join-Path $repoRoot "bin/cg-skill") -Destination (Join-Path $tmpInstallBin "cg-skill") -Force
+        Copy-Item -Path (Join-Path $repoRoot "bin/cg-*") -Destination $tmpInstallBin -Force
 
         try {
             # First run — use temp install dir
@@ -517,7 +514,7 @@ Describe "bash-scripts - bin/cg-index wrapper content" {
         $wrapperContent | Should -Match 'SCRIPT_DIR'
     }
 
-    It "install.sh generates a cg-index wrapper" {
+    It "install.sh registers the committed cg-index wrapper" {
         $installSh = Get-Content (Join-Path $repoRoot "scripts/install.sh") -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
         $installSh | Should -Match 'cg-index'
     }
@@ -540,8 +537,8 @@ Describe "bash-scripts - bin/cg-kilo wrapper content" {
 
     It "install.sh registers the committed cg-kilo wrapper" {
         $installSh = Get-Content (Join-Path $repoRoot "scripts/install.sh") -Raw -Encoding UTF8
-        $installSh | Should -Match 'CG_KILO_SRC'
-        $installSh | Should -Match 'cg-kilo'
+        $installSh | Should -Match 'for cmd in link unlink update kilo'
+        $installSh | Should -Match 'Registered:.*WRAPPER'
     }
 }
 
@@ -566,10 +563,10 @@ Describe "bash-scripts - bin/cg-token-audit wrapper content" {
         $wrapperContent | Should -Match 'SCRIPT_DIR'
     }
 
-    It "install.sh generates a cg-token-audit wrapper" {
+    It "install.sh registers the committed cg-token-audit wrapper" {
         $installSh = Get-Content (Join-Path $repoRoot "scripts/install.sh") -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
         $installSh | Should -Match 'cg-token-audit'
-        $installSh | Should -Match 'cg_audit_context\.py'
+        $installSh | Should -Match 'publish-markdown token-audit'
     }
 }
 
@@ -596,10 +593,10 @@ Describe "bash-scripts - bin/cg-render-artifact wrapper content" {
         $wrapperContent | Should -Match '\.\./scripts/render_artifact\.py'
     }
 
-    It "install.sh copies the committed cg-render-artifact wrapper" {
+    It "install.sh registers without rewriting committed wrappers" {
         $installSh = Get-Content (Join-Path $repoRoot "scripts/install.sh") -Raw -Encoding UTF8
-        $installSh | Should -Match 'cp.*cg-render-artifact'
-        $installSh | Should -Match 'chmod \+x.*cg-render-artifact'
+        $installSh | Should -Match 'brain-init render-artifact'
+        $installSh | Should -Not -Match '(?m)^\s*(cp|chmod|cat|rm).*\$(BIN_DIR|WRAPPER)'
     }
 
     It "install.sh command summary lists cg-render-artifact" {
@@ -631,10 +628,10 @@ Describe "bash-scripts - bin/cg-publish-markdown wrapper content" {
         $wrapperContent | Should -Match '"\$@"'
     }
 
-    It "install.sh copies and lists cg-publish-markdown" {
+    It "install.sh registers and lists cg-publish-markdown" {
         $installSh = Get-Content (Join-Path $repoRoot "scripts/install.sh") -Raw -Encoding UTF8
-        $installSh | Should -Match 'cp.*cg-publish-markdown'
-        $installSh | Should -Match 'chmod \+x.*cg-publish-markdown'
+        $installSh | Should -Match 'publish-markdown token-audit'
+        $installSh | Should -Match 'Registered:.*WRAPPER'
         $installSh | Should -Match 'cg-publish-markdown.*Publish one generic Markdown document'
     }
 }
@@ -661,7 +658,7 @@ Describe "bash-scripts - Python-backed wrappers enforce Python 3.8+" {
         }
     }
 
-    It "install.sh generated wrappers enforce Python 3.8+" {
+    It "install.sh requires Python 3.8+" {
         $content = Get-Content (Join-Path $repoRoot "scripts/install.sh") -Raw -Encoding UTF8
         $content | Should -Match 'sys\.version_info\s*>=\s*\(3,\s*8\)'
     }

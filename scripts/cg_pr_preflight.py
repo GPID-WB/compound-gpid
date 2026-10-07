@@ -41,6 +41,9 @@ PROJECT_IMPACT_PATHS = frozenset({
 # This order is the release-gate order.  Do not duplicate it in a workflow.
 NATIVE_PYTEST_FILES = (
     "scripts/tests/test_target_mapping.py",
+    # Keep rebuild smoke results visible in the existing bounded CI output.
+    "scripts/tests/test_native_retirement_entrypoints.py",
+    "scripts/tests/test_install_sh.py",
     "scripts/tests/test_cg_generate_targets.py",
     "scripts/tests/test_commit_push_pr_source_detection.py",
     "scripts/tests/test_cg_compound_gpid_rd_registry.py",
@@ -58,7 +61,6 @@ NATIVE_PYTEST_FILES = (
     "scripts/tests/test_kilo_copy.py",
     "scripts/tests/test_link_projection_order.py",
     "scripts/tests/test_retired_assets.py",
-    "scripts/tests/test_native_retirement_entrypoints.py",
     "scripts/tests/test_rebuild_residue.py",
     "scripts/tests/test_installer_wrapper_restore.py",
     "scripts/tests/test_update_generates_targets.py",
