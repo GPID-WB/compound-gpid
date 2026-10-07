@@ -338,6 +338,11 @@ try {
         }
         Write-Host ""
         Write-Host "Regenerating platform trees..." -ForegroundColor DarkGray
+        $retirementScript = Join-Path $CompoundGpidDir "scripts/cg_retire_native_evidence.py"
+        if (Test-Path -LiteralPath $retirementScript) {
+            & $pyCmd $retirementScript --root $CompoundGpidDir
+            if ($LASTEXITCODE -ne 0) { throw "Update is blocked by preserved native-evidence residue." }
+        }
         & $pyCmd $generatorScript --root $CompoundGpidDir --all 2>&1 | ForEach-Object { Write-Host "  $_" -ForegroundColor DarkGray }
         if ($LASTEXITCODE -ne 0) {
             throw "Platform tree generation failed with exit code $LASTEXITCODE"
@@ -400,6 +405,23 @@ try {
 } finally {
     # Always return to the original directory, even on error
     Pop-Location
+}
+
+# Check consumer residue before replacing any ownership evidence. Older target
+# packages have no helper; their inherited behavior is not changed here.
+$retirementScript = Join-Path $CompoundGpidDir "scripts/cg_retire_native_evidence.py"
+if ($versionMode -ne "latest" -and (Test-Path -LiteralPath $retirementScript)) {
+    $retirementPython = Resolve-PythonCommand
+    if (-not $retirementPython) { throw "Python is required for native-evidence residue checks." }
+    & $retirementPython $retirementScript --root $CompoundGpidDir
+    if ($LASTEXITCODE -ne 0) { throw "Update is blocked by preserved native-evidence residue." }
+}
+if (-not $env:CG_INTERNAL_CALL -and -not $earlyUpdateIsSourceInstall -and
+    (Test-Path -LiteralPath $retirementScript)) {
+    $retirementPython = Resolve-PythonCommand
+    if (-not $retirementPython) { throw "Python is required for native-evidence residue checks." }
+    & $retirementPython $retirementScript --root (Get-Location).Path
+    if ($LASTEXITCODE -ne 0) { throw "Update is blocked by preserved native-evidence residue; review the diagnostics above." }
 }
 
 # --- Refresh copilot-instructions.md in the current project (if linked) ---

@@ -29,6 +29,13 @@ Thumbs.db
 .idea/
 .tmp/
 
+# Private native configuration can contain credentials, at any depth.
+# Ignore only local names; already tracked distributed defaults stay tracked.
+kilo.json
+kilo.jsonc
+opencode.json
+opencode.jsonc
+
 # Python
 __pycache__/
 *.py[cod]

@@ -876,6 +876,12 @@ if [ "$MANIFEST_DRIVEN" = "true" ]; then
     print_gray "Active manifest: resolved for $PLATFORMS"
 fi
 
+# Retire proven plugin residue after selection validation, before ownership refresh.
+if ! "$PYTHON_CMD" "$COMPOUND_GPID_DIR/scripts/cg_retire_native_evidence.py" --root "$PROJECT_ROOT"; then
+    print_error "Linking is blocked by preserved native-evidence residue; review the diagnostics above."
+    exit 1
+fi
+
 cleanup_legacy_model_mapping_files
 
 while IFS='|' read -r platform unit_type source_rel target_rel strategy snippet; do

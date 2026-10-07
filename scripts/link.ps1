@@ -913,6 +913,12 @@ if ($manifestDriven) {
     }
 }
 
+# Retire proven plugin residue after selection validation, before ownership refresh.
+$retirementPython = Resolve-PythonCommand
+if (-not $retirementPython) { throw "Python is required for native-evidence residue checks." }
+& $retirementPython (Join-Path $PSScriptRoot "cg_retire_native_evidence.py") --root $ProjectRoot
+if ($LASTEXITCODE -ne 0) { throw "Linking is blocked by preserved native-evidence residue; review the diagnostics above." }
+
 $manifest = Read-CgManagedFilesManifest -ManifestPath $ManifestPath
 Remove-CgLegacyModelMappingFiles -Manifest $manifest
 $installedEntries = New-Object System.Collections.ArrayList

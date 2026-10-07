@@ -385,6 +385,12 @@ if [[ "$VERSION_MODE" == "latest" ]]; then
         fi
         printf '\n'
         print_gray "Regenerating platform trees..."
+        if [[ -f "$COMPOUND_GPID_DIR/scripts/cg_retire_native_evidence.py" ]]; then
+            if ! "$PYTHON_CMD" "$COMPOUND_GPID_DIR/scripts/cg_retire_native_evidence.py" --root "$COMPOUND_GPID_DIR"; then
+                print_error "Update is blocked by preserved native-evidence residue."
+                exit 1
+            fi
+        fi
         if ! "$PYTHON_CMD" "$GENERATOR_SCRIPT" --root "$COMPOUND_GPID_DIR" --all 2>&1 | sed 's/^/  /'; then
             print_error "Platform tree generation failed; update and downstream refresh are blocked."
             exit 1
@@ -443,6 +449,22 @@ else
             print_yellow "Note: $LATEST_TAG_LOCAL is available. Run: cg-update $LATEST_TAG_LOCAL"
         fi
     )
+fi
+
+# Check consumer residue before replacing any ownership evidence. Older target
+# packages have no helper; their inherited behavior is not changed here.
+if [[ "$VERSION_MODE" != "latest" ]] && [[ -f "$COMPOUND_GPID_DIR/scripts/cg_retire_native_evidence.py" ]]; then
+    if ! "$PYTHON_CMD" "$COMPOUND_GPID_DIR/scripts/cg_retire_native_evidence.py" --root "$COMPOUND_GPID_DIR"; then
+        print_error "Update is blocked by preserved native-evidence residue."
+        exit 1
+    fi
+fi
+if [[ "${CG_INTERNAL_CALL:-}" != "1" ]] && [[ "$(pwd)" != "$COMPOUND_GPID_DIR" ]] &&
+   [[ -f "$COMPOUND_GPID_DIR/scripts/cg_retire_native_evidence.py" ]]; then
+    if ! "$PYTHON_CMD" "$COMPOUND_GPID_DIR/scripts/cg_retire_native_evidence.py" --root "$(pwd)"; then
+        print_error "Update is blocked by preserved native-evidence residue; review the diagnostics above."
+        exit 1
+    fi
 fi
 
 # ---------------------------------------------------------------------------
