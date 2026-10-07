@@ -337,7 +337,9 @@ def test_manifest_failure_prevents_retirement_and_refresh(runtime: Runtime) -> N
     runtime.env["NR_FAIL_MANIFEST"] = "1"
     result = _run(runtime, "link")
     assert result.returncode != 0
-    assert "manifest resolution failure" in result.stdout + result.stderr
+    # PowerShell wraps error messages according to the fixture path length.
+    output = " ".join((result.stdout + result.stderr).split())
+    assert "manifest resolution failure" in output
     assert {path: path.read_bytes() for path in before} == before
     assert global_config.read_bytes() == config_before
     assert _events(runtime) == [["manifest", str(runtime.consumer)]]
