@@ -409,6 +409,7 @@ function global:python3 {
 }
 Set-Location $ProjectRoot
 & $UpdateScript
+exit $LASTEXITCODE
 '@ | Set-Content $childScript -Encoding UTF8
 
         $pwsh = (Get-Process -Id $PID).Path

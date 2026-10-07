@@ -35,6 +35,8 @@ args = sys.argv[1:]
 if args[0] in ("--version", "-c", "-"):
     raise SystemExit(subprocess.run([sys.executable, *args]).returncode)
 worker = Path(args[0]).name
+if worker == "cg_restore_installer_wrappers.py":
+    raise SystemExit(0)  # This ordering fixture uses fake Git, not a clone.
 if worker == "cg_kilo_preflight.py":
     sys.stdout.write('{"status":"ok","exit_code":0,"certified_launch_required":false}\n')
     raise SystemExit(0)
@@ -43,6 +45,11 @@ names = {"cg_retire_native_evidence.py": "retire",
          "cg_project_manifest.py": "manifest",
          "cg_project_projection.py": "projection"}
 name = names[worker]
+if name == "generate" and "--dry-run" in args:
+    root = Path(args[args.index("--root") + 1])
+    with open(os.environ["NR_LOG"], "a", encoding="utf-8") as handle:
+        handle.write(json.dumps(["validate", str(root)]) + "\n")
+    raise SystemExit(0)
 flag = "--project-root" if name == "projection" else "--root"
 root = Path(args[args.index(flag) + 1])
 with open(os.environ["NR_LOG"], "a", encoding="utf-8") as handle:
@@ -107,8 +114,14 @@ def runtime(request: pytest.FixtureRequest) -> Iterator[Runtime]:
             destination.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(REPO_ROOT / "scripts" / name, destination)
         for name in ("generate_targets", "project_manifest", "project_projection",
-                     "kilo_preflight"):
+                      "kilo_preflight"):
             _write(install / f"scripts/cg_{name}.py", "# mocked by dispatch\n")
+        for name in ("link.ps1", "link.sh", "update.ps1", "update.sh",
+                     "cg_kilo_copy.py", "cg_migrate_research_layout.py",
+                     "research_layout.py", "cg_restore_installer_wrappers.py"):
+            path = install / "scripts" / name
+            if not path.exists():
+                _write(path, "# fixture required target script\n")
         mapping_path = ".github/shared/target-mapping.json"
         mapping = json.loads((REPO_ROOT / mapping_path).read_text(encoding="utf-8"))
         kilo = next(target for target in mapping["targets"] if target["id"] == "kilo")
@@ -161,6 +174,7 @@ Set-Variable -Name HOME -Value $env:HOME -Force
 function global:git {{
     $global:LASTEXITCODE = 0
     if ($args[0] -eq "tag") {{ return "v1.2.0.9022" }}
+    if ($args[0] -eq "symbolic-ref") {{ return "refs/heads/main" }}
     if ($args[0] -eq "rev-parse") {{
         if ($args[1] -eq "--abbrev-ref") {{ return "main" }}
         return "abc123"
@@ -183,17 +197,19 @@ exit $LASTEXITCODE
         else:
             # Expose only required OS utilities, never the inherited Kilo PATH.
             for name in ("dirname", "tr", "xargs", "mktemp", "rm", "grep", "head",
-                         "mv", "sed", "mkdir", "readlink", "ln", "basename"):
+                          "mv", "cp", "sed", "mkdir", "readlink", "ln", "basename"):
                 utility = shutil.which(name)
                 if utility is None:
                     pytest.skip(f"Required fixture utility unavailable: {name}")
                 (fake_bin / name).symlink_to(utility)
             _write(fake_bin / "git", "#!/bin/sh\ncase \"$1 $2\" in\n"
                    "'rev-parse --abbrev-ref') echo main ;;\n"
-                    "'rev-parse --short') echo abc123 ;;\n"
+                     "'rev-parse --short') echo abc123 ;;\n"
+                     "'rev-parse --verify') echo abc123 ;;\n"
+                     "'symbolic-ref --quiet') echo refs/heads/main ;;\n"
                     "'tag --list') echo v1.2.0.9022 ;;\n"
                     "'fetch --tags') ;;\n"
-                   "'checkout .'|'checkout v1.2.0.9022'|'pull --ff-only'|'diff --quiet') ;;\n"
+                    "'checkout .'|'checkout v1.2.0.9022'|'checkout --detach'|'checkout main'|'pull --ff-only'|'diff --quiet'|'diff --cached') ;;\n"
                    "*) exit 99 ;;\nesac\n")
             _write(fake_bin / "python3",
                    f"#!/bin/sh\nexec {shlex.quote(sys.executable)} "
@@ -298,7 +314,7 @@ def test_retirement_precedes_refresh_and_preserved_residue_blocks(
         assert receipt.read_bytes() != before[receipt]
     expected = {"link": ["manifest", "retire", "projection"],
                  "update-source": ["retire", "generate"],
-                 "update-pinned-source": ["retire"],
+                 "update-pinned-source": ["validate", "retire"],
                 "update-consumer": ["retire", "generate", "retire", "projection"]}
     assert [event[0] for event in events] == expected[operation]
     if not source:

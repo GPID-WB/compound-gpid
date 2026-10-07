@@ -59,6 +59,119 @@ resolve_python() {
 COPILOT_INSTRUCTIONS_MARKER="<!-- compound-gpid:managed -->"
 VERSION_FILE="$COMPOUND_GPID_DIR/.cg-version"
 
+# Keep rollback state in this shell: downstream refresh failures use it too.
+ORIGINAL_HEAD=""
+ORIGINAL_BRANCH=""
+CHECKED_OUT_SHA=""
+PIN_BACKUP=""
+PIN_PRESENT=false
+PIN_WRITE_TEMP=""
+
+finish_update() {
+    local status=$? current_head current_branch branch_head branch_status
+    trap - EXIT
+    set +e
+    # Cleanup is part of success. A cleanup failure must still reach rollback.
+    if [[ "$status" -eq 0 && -n "$PIN_WRITE_TEMP" ]]; then
+        if rm -f "$PIN_WRITE_TEMP"; then
+            PIN_WRITE_TEMP=""
+        else
+            print_error "Could not remove pin temporary file: $PIN_WRITE_TEMP"
+            status=1
+        fi
+    fi
+    if [[ "$status" -eq 0 && -n "$PIN_BACKUP" ]]; then
+        if rm -f "$PIN_BACKUP"; then
+            PIN_BACKUP=""
+        else
+            print_error "Could not remove pin backup: $PIN_BACKUP"
+            status=1
+        fi
+    fi
+    if [[ "$status" -ne 0 && -n "$CHECKED_OUT_SHA" ]]; then
+        current_head="$(git -C "$COMPOUND_GPID_DIR" rev-parse --verify HEAD)"
+        if [[ "$current_head" != "$CHECKED_OUT_SHA" ]]; then
+            print_error "Rollback stopped: current HEAD is '$current_head', expected '$CHECKED_OUT_SHA'. The pin was not restored."
+        else
+            local restored=false
+            if [[ -n "$ORIGINAL_BRANCH" ]]; then
+                branch_head="$(git -C "$COMPOUND_GPID_DIR" rev-parse --verify "$ORIGINAL_BRANCH")"
+                if [[ "$branch_head" != "$ORIGINAL_HEAD" ]]; then
+                    print_error "Rollback stopped: $ORIGINAL_BRANCH is now '$branch_head', expected '$ORIGINAL_HEAD'."
+                else
+                    git -C "$COMPOUND_GPID_DIR" checkout "${ORIGINAL_BRANCH#refs/heads/}" || \
+                        print_warn "Rollback checkout returned an error; checking the actual restored state."
+                fi
+            else
+                git -C "$COMPOUND_GPID_DIR" checkout --detach "$ORIGINAL_HEAD" || \
+                    print_warn "Rollback checkout returned an error; checking the actual restored state."
+            fi
+            # A post-checkout hook can fail after Git has restored HEAD/branch.
+            current_head="$(git -C "$COMPOUND_GPID_DIR" rev-parse --verify HEAD)"
+            if [[ "$current_head" == "$ORIGINAL_HEAD" ]]; then
+                if current_branch="$(git -C "$COMPOUND_GPID_DIR" symbolic-ref --quiet HEAD)"; then
+                    [[ -n "$ORIGINAL_BRANCH" && "$current_branch" == "$ORIGINAL_BRANCH" ]] && restored=true
+                else
+                    branch_status=$?
+                    [[ "$branch_status" -eq 1 && -z "$ORIGINAL_BRANCH" ]] && restored=true
+                fi
+            fi
+            if [[ "$restored" == "true" ]]; then
+                if [[ -L "$VERSION_FILE" || ( -e "$VERSION_FILE" && ! -f "$VERSION_FILE" ) ]]; then
+                    print_error "Original HEAD restored, but pin restoration stopped at a non-regular path: $VERSION_FILE"
+                elif [[ "$PIN_PRESENT" == "true" ]]; then
+                    # Replace the pin rather than writing through a hardlink alias.
+                    if [[ -z "$PIN_WRITE_TEMP" ]]; then
+                        PIN_WRITE_TEMP="$(mktemp "${VERSION_FILE}.tmp.XXXXXX")"
+                    fi
+                    if [[ -n "$PIN_WRITE_TEMP" ]] && cp "$PIN_BACKUP" "$PIN_WRITE_TEMP" &&
+                       mv "$PIN_WRITE_TEMP" "$VERSION_FILE"; then
+                        PIN_WRITE_TEMP=""
+                    else
+                        print_error "Original HEAD restored, but the original pin could not be restored."
+                    fi
+                elif ! rm -f "$VERSION_FILE"; then
+                    print_error "Original HEAD restored, but the new pin could not be removed."
+                fi
+                print_warn "Pinned update failed; original HEAD restored. Consumer refresh changes are not rolled back."
+            else
+                print_error "Rollback could not restore original state '$ORIGINAL_HEAD' (${ORIGINAL_BRANCH:-detached}). Current HEAD is '$current_head'; pin preserved. Resolve local changes manually."
+            fi
+        fi
+    fi
+    if [[ -n "$PIN_WRITE_TEMP" ]] && ! rm -f "$PIN_WRITE_TEMP"; then
+        print_error "Could not remove pin temporary file: $PIN_WRITE_TEMP"
+        [[ "$status" -ne 0 ]] || status=1
+    fi
+    if [[ -n "$PIN_BACKUP" ]] && ! rm -f "$PIN_BACKUP"; then
+        print_error "Could not remove pin backup: $PIN_BACKUP"
+        [[ "$status" -ne 0 ]] || status=1
+    fi
+    exit "$status"
+}
+trap finish_update EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
+write_version_pin() {
+    PIN_WRITE_TEMP="$(mktemp "${VERSION_FILE}.tmp.XXXXXX")"
+    printf '%s' "$VERSION_MODE" > "$PIN_WRITE_TEMP"
+    mv "$PIN_WRITE_TEMP" "$VERSION_FILE"
+    PIN_WRITE_TEMP=""
+}
+
+refuse_tracked_changes() {
+    (
+        cd "$COMPOUND_GPID_DIR"
+        if ! git diff --quiet --ignore-submodules=none ||
+           ! git diff --cached --quiet --ignore-submodules=none; then
+            print_error "Tracked changes block update. Preserve or resolve them before retrying."
+            git status --short --untracked-files=no >&2
+            exit 1
+        fi
+    )
+}
+
 # Regex that matches 3-component release tags only (e.g. v0.2.0)
 # Dev tags (4-component, e.g. v0.2.0.9000) are excluded from user-visible output.
 RELEASE_TAG_PATTERN='^v[0-9]+\.[0-9]+\.[0-9]+$'
@@ -317,9 +430,12 @@ fi
 # ---------------------------------------------------------------------------
 if [[ "$VERSION_MODE" == "latest" ]]; then
 
+    # Do not change the pin or branch when either the worktree or index is dirty.
+    refuse_tracked_changes
+
     # Persist "latest" when the user explicitly unpins with 'cg-update latest'
     if [[ "$VERSION_ARG" == "latest" ]]; then
-        printf 'latest' > "${VERSION_FILE}.tmp" && mv "${VERSION_FILE}.tmp" "$VERSION_FILE"
+        write_version_pin
     fi
 
     (
@@ -339,13 +455,6 @@ if [[ "$VERSION_MODE" == "latest" ]]; then
         BEFORE="$(git rev-parse --short HEAD 2>/dev/null)"
 
         print_cyan "Checking for updates..."
-
-        # Reset any accidental local changes before pulling.
-        # Warn first if there are uncommitted changes so developers don't lose work silently.
-        if ! git diff --quiet 2>/dev/null; then
-            print_warn "Local changes in compound-gpid installation will be reset before pulling."
-        fi
-        git checkout . 2>/dev/null || true
 
         if ! git pull --ff-only; then
             print_error "git pull failed"
@@ -404,51 +513,87 @@ if [[ "$VERSION_MODE" == "latest" ]]; then
 else
     print_cyan "Checking out $VERSION_MODE..."
 
-    (
-        cd "$COMPOUND_GPID_DIR"
+    ORIGINAL_HEAD="$(git -C "$COMPOUND_GPID_DIR" rev-parse --verify HEAD)"
+    if ORIGINAL_BRANCH="$(git -C "$COMPOUND_GPID_DIR" symbolic-ref --quiet HEAD)"; then
+        :
+    else
+        BRANCH_STATUS=$?
+        [[ "$BRANCH_STATUS" -eq 1 ]] || exit "$BRANCH_STATUS"
+        ORIGINAL_BRANCH=""
+    fi
+    if [[ -L "$VERSION_FILE" || ( -e "$VERSION_FILE" && ! -f "$VERSION_FILE" ) ]]; then
+        print_error "Version pin must be a regular file or absent: $VERSION_FILE"
+        exit 1
+    fi
+    BACKUP_DIR="$(cd "${TMPDIR:-/tmp}" && pwd -P)"
+    INSTALL_REAL_DIR="$(cd "$COMPOUND_GPID_DIR" && pwd -P)"
+    case "$BACKUP_DIR/" in
+        "$INSTALL_REAL_DIR/"*) print_error "Pin backup directory must be outside the installation: $BACKUP_DIR"; exit 1 ;;
+    esac
+    PIN_BACKUP="$(mktemp "$BACKUP_DIR/cg-update-pin-XXXXXX")"
+    if [[ -f "$VERSION_FILE" ]]; then
+        PIN_PRESENT=true
+        cp "$VERSION_FILE" "$PIN_BACKUP"
+    fi
 
-        # Fetch tags first — fault-tolerant
-        git fetch --tags 2>/dev/null || \
-            print_warn "git fetch --tags failed -- continuing with cached tag data"
+    # Recognize old installer output by bytes, never by wrapper name alone.
+    "$PYTHON_CMD" "$COMPOUND_GPID_DIR/scripts/cg_restore_installer_wrappers.py" --root "$COMPOUND_GPID_DIR"
+    refuse_tracked_changes
 
-        ALL_TAGS="$(git tag --list 'v*' --sort=-version:refname 2>/dev/null || true)"
-        RELEASE_TAGS_FILTERED="$(printf '%s\n' "$ALL_TAGS" | grep -E "$RELEASE_TAG_PATTERN" || true)"
-        LATEST_TAG_LOCAL="$(printf '%s\n' "$RELEASE_TAGS_FILTERED" | head -1)"
-
-        # Validate the tag exists
-        if ! printf '%s\n' "$ALL_TAGS" | grep -qxF "$VERSION_MODE"; then
-            HINT=""
-            if [[ -n "$RELEASE_TAGS_FILTERED" ]]; then
-                HINT="$(printf '\nAvailable releases:\n'; printf '%s\n' "$RELEASE_TAGS_FILTERED" | head -5 | sed 's/^/  /')"
-            fi
-            print_error "Release '$VERSION_MODE' not found.$HINT"
-            printf '\nRun: cg-update --list   to see all available releases.\n' >&2
+    git -C "$COMPOUND_GPID_DIR" fetch --tags
+    ALL_TAGS="$(git -C "$COMPOUND_GPID_DIR" tag --list 'v*' --sort=-version:refname)"
+    RELEASE_TAGS_FILTERED="$(printf '%s\n' "$ALL_TAGS" | grep -E "$RELEASE_TAG_PATTERN" || true)"
+    LATEST_TAG_LOCAL="$(printf '%s\n' "$RELEASE_TAGS_FILTERED" | head -1)"
+    if ! printf '%s\n' "$ALL_TAGS" | grep -qxF "$VERSION_MODE"; then
+        HINT=""
+        if [[ -n "$RELEASE_TAGS_FILTERED" ]]; then
+            HINT="$(printf '\nAvailable releases:\n'; printf '%s\n' "$RELEASE_TAGS_FILTERED" | head -5 | sed 's/^/  /')"
+        fi
+        print_error "Release '$VERSION_MODE' not found.$HINT"
+        printf '\nRun: cg-update --list   to see all available releases.\n' >&2
+        exit 1
+    fi
+    TARGET_SHA="$(git -C "$COMPOUND_GPID_DIR" rev-parse --verify "refs/tags/$VERSION_MODE^{commit}")"
+    # A failing post-checkout hook can leave HEAD at the requested tag.
+    CHECKED_OUT_SHA="$TARGET_SHA"
+    if ! git -C "$COMPOUND_GPID_DIR" checkout --detach "refs/tags/$VERSION_MODE"; then
+        print_error "git checkout refs/tags/$VERSION_MODE failed"
+        exit 1
+    fi
+    for REQUIRED_SCRIPT in link.ps1 link.sh update.ps1 update.sh helpers.ps1 \
+        cg_generate_targets.py cg_project_manifest.py cg_project_projection.py \
+        cg_kilo_preflight.py cg_kilo_copy.py cg_migrate_research_layout.py \
+        research_layout.py secure_fs.py; do
+        if [[ ! -f "$COMPOUND_GPID_DIR/scripts/$REQUIRED_SCRIPT" ]]; then
+            print_error "Pinned target is missing required script: scripts/$REQUIRED_SCRIPT"
             exit 1
         fi
+    done
+    if ! "$PYTHON_CMD" "$COMPOUND_GPID_DIR/scripts/cg_generate_targets.py" \
+        --root "$COMPOUND_GPID_DIR" --all --dry-run; then
+        print_error "Pinned target validation failed; the pin was not changed."
+        exit 1
+    fi
+    VALIDATED_HEAD="$(git -C "$COMPOUND_GPID_DIR" rev-parse --verify HEAD)"
+    if [[ "$VALIDATED_HEAD" != "$CHECKED_OUT_SHA" ]]; then
+        print_error "HEAD changed during validation to '$VALIDATED_HEAD', expected '$CHECKED_OUT_SHA'. The pin was not changed."
+        exit 1
+    fi
+    write_version_pin
 
-        # Checkout the tag (detached HEAD is expected for pinned mode)
-        if ! git checkout "$VERSION_MODE" 2>/dev/null; then
-            print_error "git checkout $VERSION_MODE failed"
-            exit 1
-        fi
+    printf '\n'
+    print_green "Pinned to $VERSION_MODE."
+    printf '\n'
+    print_gray "Managed subdirectories (prompts/, skills/, agents/, instructions/) are"
+    print_gray "updated in all linked projects immediately via symlinks."
+    printf '\n'
+    print_gray "Run: cg-update latest   to return to tracking main."
 
-        # Persist the version preference only after successful checkout
-        printf '%s' "$VERSION_MODE" > "${VERSION_FILE}.tmp" && mv "${VERSION_FILE}.tmp" "$VERSION_FILE"
-
+    # Hint if there is a newer release
+    if [[ -n "$LATEST_TAG_LOCAL" && "$LATEST_TAG_LOCAL" != "$VERSION_MODE" ]]; then
         printf '\n'
-        print_green "Pinned to $VERSION_MODE."
-        printf '\n'
-        print_gray "Managed subdirectories (prompts/, skills/, agents/, instructions/) are"
-        print_gray "updated in all linked projects immediately via symlinks."
-        printf '\n'
-        print_gray "Run: cg-update latest   to return to tracking main."
-
-        # Hint if there is a newer release
-        if [[ -n "$LATEST_TAG_LOCAL" && "$LATEST_TAG_LOCAL" != "$VERSION_MODE" ]]; then
-            printf '\n'
-            print_yellow "Note: $LATEST_TAG_LOCAL is available. Run: cg-update $LATEST_TAG_LOCAL"
-        fi
-    )
+        print_yellow "Note: $LATEST_TAG_LOCAL is available. Run: cg-update $LATEST_TAG_LOCAL"
+    fi
 fi
 
 # Check consumer residue before replacing any ownership evidence. Older target

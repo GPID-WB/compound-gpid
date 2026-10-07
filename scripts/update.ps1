@@ -185,6 +185,27 @@ if (-not $Version -and $versionMode -cnotmatch $VersionAcceptPattern) {
 # Captured inside the pinned-mode branch; used at the end for the "newer release" hint.
 $latestTag = $null
 
+# Keep native checkout diagnostics visible without PS5.1 stderr promotion.
+function Invoke-CgUpdateGit {
+    param([string[]]$Arguments)
+    $savedPreference = $ErrorActionPreference
+    try {
+        $ErrorActionPreference = "Continue"
+        & git @Arguments 2>&1 | ForEach-Object { Write-Host "  $_" }
+        $gitExit = $LASTEXITCODE
+    } finally {
+        $ErrorActionPreference = $savedPreference
+    }
+    if ($gitExit -ne 0) { throw "git $($Arguments -join ' ') failed with exit code $gitExit" }
+}
+
+$pinnedOriginalCommit = $null
+$pinnedOriginalBranch = $null
+$pinnedOriginalPin = $null
+$pinnedHadPin = $false
+$pinnedCheckoutCommit = $null
+
+try {
 Push-Location $CompoundGpidDir
 
 try {
@@ -257,6 +278,11 @@ try {
         # git fetch --tags not needed here; git pull handles all remote sync.
         # Tags stay current after any pinned-mode or --list run that fetched them.
 
+        git diff --quiet
+        if ($LASTEXITCODE -ne 0) { throw "Tracked changes remain; latest update will not discard user changes." }
+        git diff --cached --quiet
+        if ($LASTEXITCODE -ne 0) { throw "Staged changes remain; latest update will not discard user changes." }
+
         # Persist the "latest" preference when the user explicitly unpins with
         # 'cg-update latest'. Safe to write before git ops: "latest" is always valid.
         if ($Version -eq "latest") {
@@ -281,19 +307,6 @@ try {
         $before = git rev-parse --short HEAD 2>$null
 
         Write-Host "Checking for updates..." -ForegroundColor Cyan
-
-        # Reset any accidental local changes before pulling.
-        # This handles the case where a user inadvertently edited a file through a
-        # junction - git checkout discards uncommitted changes in the global clone.
-        #
-        # PS5.1 with ErrorActionPreference=Stop can promote native stderr to a
-        # terminating error even with 2>$null in some host configurations. Wrapping
-        # in try/catch makes this bullet-proof: we never want a best-effort cleanup
-        # step to abort the update. LASTEXITCODE is still checked for real failures.
-        try { git checkout . 2>$null } catch { <# informational stderr -- ignore #> }
-        if ($LASTEXITCODE -ne 0) {
-            Write-Warning "git checkout . returned exit code $LASTEXITCODE - continuing anyway"
-        }
 
         # --ff-only ensures we never end up in a merge conflict state.
         # If the remote has diverged (shouldn't happen on main), it fails cleanly.
@@ -354,15 +367,23 @@ try {
 
         Write-Host "Checking out $versionMode..." -ForegroundColor Cyan
 
-        # Fetch tags first so tag metadata is current before validation.
-        # Fault-tolerant: network failure just means we work with cached tag data.
-        try { git fetch --tags 2>$null } catch { <# informational stderr -- ignore #> }
-        if ($LASTEXITCODE -ne 0) {
-            Write-Warning "git fetch --tags returned exit code $LASTEXITCODE - continuing with cached tag data"
-        }
+        $pinnedOriginalCommit = (git rev-parse --verify HEAD)
+        if ($LASTEXITCODE -ne 0) { throw "Cannot record the original commit." }
+        $pinnedOriginalBranch = (git symbolic-ref --quiet HEAD)
+        if ($LASTEXITCODE -notin @(0, 1)) { throw "Cannot record the original branch or detached state." }
+        $pinnedHadPin = Test-Path -LiteralPath $VersionFile
+        if ($pinnedHadPin) { $pinnedOriginalPin = [IO.File]::ReadAllBytes($VersionFile) }
+        $pinPython = Resolve-PythonCommand
+        if (-not $pinPython) { throw "Python is required for pinned target validation." }
+        & $pinPython (Join-Path $CompoundGpidDir "scripts/cg_restore_installer_wrappers.py") --root $CompoundGpidDir
+        if ($LASTEXITCODE -ne 0) { throw "Pinned update stopped; tracked user changes were preserved." }
+
+        # A failed acquisition stops; do not hide Git errors behind cached tags.
+        Invoke-CgUpdateGit -Arguments @("fetch", "--tags")
 
         # Capture all tags once; derive latestTag, tagExists, and similar from the same list.
-        $allTags     = @(git tag --list "v*" --sort=-version:refname 2>$null)
+        $allTags     = @(git tag --list "v*" --sort=-version:refname)
+        if ($LASTEXITCODE -ne 0) { throw "git tag --list failed with exit code $LASTEXITCODE" }
         # Filter to release-only once; reuse for latestTag and similar -- never show dev tags to users.
         $releaseTags = @($allTags | Where-Object { $_ -match $ReleaseTagPattern })
         $latestTag   = $releaseTags | Select-Object -First 1
@@ -378,16 +399,29 @@ try {
             throw "Release '$versionMode' not found.$hint`n`nRun: cg-update --list   to see all available releases."
         }
 
-        # Checkout the tag. Detached HEAD is expected and normal for pinned mode.
-        # Use the PS5.1-safe try/catch + 2>$null pattern to avoid stderr promotion.
-        try { git checkout $versionMode 2>$null } catch { <# informational stderr -- ignore #> }
-        if ($LASTEXITCODE -ne 0) {
-            throw "git checkout $versionMode failed with exit code $LASTEXITCODE"
+        $requestedCommit = (git rev-parse --verify "refs/tags/$versionMode^{commit}")
+        if ($LASTEXITCODE -ne 0) { throw "Cannot resolve the requested tag commit." }
+        $pinnedCheckoutCommit = $requestedCommit
+        Invoke-CgUpdateGit -Arguments @("checkout", "--detach", "refs/tags/$versionMode")
+
+        foreach ($requiredScript in @(
+            "link.ps1", "link.sh", "update.ps1", "update.sh", "helpers.ps1",
+            "cg_generate_targets.py", "cg_project_manifest.py", "cg_project_projection.py",
+            "cg_kilo_preflight.py", "cg_kilo_copy.py", "cg_migrate_research_layout.py",
+            "research_layout.py", "secure_fs.py"
+        )) {
+            if (-not (Test-Path -LiteralPath (Join-Path $CompoundGpidDir "scripts/$requiredScript") -PathType Leaf)) {
+                throw "Required target script is missing: scripts/$requiredScript"
+            }
+        }
+        & $pinPython (Join-Path $CompoundGpidDir "scripts/cg_generate_targets.py") --root $CompoundGpidDir --all --dry-run
+        if ($LASTEXITCODE -ne 0) { throw "Pinned target generator validation failed with exit code $LASTEXITCODE" }
+        $validatedCommit = (git rev-parse --verify HEAD)
+        if ($LASTEXITCODE -ne 0 -or $validatedCommit -ne $pinnedCheckoutCommit) {
+            throw "HEAD changed during target validation; pin was not written."
         }
 
-        # Persist the version preference only after successful checkout.
-        # Writing before validation could leave .cg-version permanently corrupted
-        # if the tag doesn't exist or checkout fails.
+        # Pin publication follows target validation; later failure still rolls back.
         Set-Content -Path $VersionFile -Value $versionMode -NoNewline
 
         Write-Host ""
@@ -400,8 +434,7 @@ try {
     }
 
 } catch {
-    Write-Error "Update failed: $_"
-    exit 1
+    throw
 } finally {
     # Always return to the original directory, even on error
     Pop-Location
@@ -482,8 +515,7 @@ if (-not $env:CG_INTERNAL_CALL -and -not $cwdIsSourceInstall -and
     } catch {
         $preflightExitCode = 1
         if ($_.Exception.Data.Contains("CgExitCode")) { $preflightExitCode = [int]$_.Exception.Data["CgExitCode"] }
-        Write-Error "Update is blocked by Kilo coexistence preflight: $_"
-        exit $preflightExitCode
+        throw "Update is blocked by Kilo coexistence preflight: $_"
     }
 }
 
@@ -703,8 +735,7 @@ if (-not $env:CG_INTERNAL_CALL -and -not $updateIsSourceInstall -and
         [void](Invoke-CgProjection -ProjectRoot $updateProjectRoot -SourceRoot $CompoundGpidDir -Mode sync)
         Write-Host "Project projection synced and verified in current project." -ForegroundColor DarkGray
     } catch {
-        Write-Error "Update is blocked by manifest projection failure: $_"
-        exit 1
+        throw "Update is blocked by manifest projection failure: $_"
     }
 }
 
@@ -714,18 +745,58 @@ Write-Host ""
 if ($versionMode -eq "latest") {
     Write-Host "Current version: main (latest)" -ForegroundColor DarkGray
 } else {
-    # Label dev tags (4-component, e.g. v0.1.0.9000) as 'dev-pinned' to signal
-    # pre-release code. Release pins show 'pinned'. Helps users know which context they're in.
     $isDevPin = $versionMode -match '^v\d+\.\d+\.\d+\.\d+$'
     if ($isDevPin) { $pinLabel = "dev-pinned" } else { $pinLabel = "pinned" }
     Write-Host "Current version: $versionMode ($pinLabel)" -ForegroundColor DarkGray
     Write-Host "Run: cg-update latest   to unpin and track main." -ForegroundColor DarkGray
-    # Hint when a newer release is available (only if we have fresh tag data)
     if ($latestTag -and $latestTag -ne $versionMode) {
         Write-Host ""
         Write-Host "Newer release available: $latestTag" -ForegroundColor Yellow
         Write-Host "Run: cg-update $latestTag" -ForegroundColor Yellow
     }
 }
-
 Write-Host ""
+} catch {
+    $updateFailure = $_
+    if ($pinnedCheckoutCommit) {
+        Push-Location $CompoundGpidDir
+        try {
+            $currentCommit = (git rev-parse --verify HEAD)
+            if ($LASTEXITCODE -ne 0 -or $currentCommit -ne $pinnedCheckoutCommit) {
+                throw "HEAD changed after checkout. No restore attempted. Expected $pinnedCheckoutCommit; current HEAD: $currentCommit; pin: $VersionFile"
+            }
+            if ($pinnedOriginalBranch) {
+                $branchCommit = (git rev-parse --verify $pinnedOriginalBranch)
+                if ($LASTEXITCODE -ne 0 -or $branchCommit -ne $pinnedOriginalCommit) {
+                    throw "Original branch changed; no restore attempted: $pinnedOriginalBranch"
+                }
+                $originalBranchName = $pinnedOriginalBranch.Substring("refs/heads/".Length)
+                try { Invoke-CgUpdateGit -Arguments @("checkout", $originalBranchName) }
+                catch { Write-Warning "Git reported a restore error: $_" }
+            } else {
+                try { Invoke-CgUpdateGit -Arguments @("checkout", "--detach", $pinnedOriginalCommit) }
+                catch { Write-Warning "Git reported a restore error: $_" }
+            }
+            $restoredCommit = (git rev-parse --verify HEAD)
+            if ($LASTEXITCODE -ne 0 -or $restoredCommit -ne $pinnedOriginalCommit) {
+                throw "Could not restore the original commit; pin remains unchanged."
+            }
+            $restoredBranch = (git symbolic-ref --quiet HEAD)
+            if ($LASTEXITCODE -notin @(0, 1) -or $restoredBranch -ne $pinnedOriginalBranch) {
+                throw "Could not restore the original branch/detached state; pin remains unchanged."
+            }
+            if ($pinnedHadPin) {
+                [IO.File]::WriteAllBytes($VersionFile, $pinnedOriginalPin)
+            } elseif (Test-Path -LiteralPath $VersionFile) {
+                Remove-Item -LiteralPath $VersionFile -Force
+            }
+            Write-Host "Restored original commit/branch and pin state." -ForegroundColor Yellow
+        } catch {
+            Write-Warning "Package restore stopped: $_"
+        } finally {
+            Pop-Location
+        }
+    }
+    Write-Error "Update failed: $updateFailure" -ErrorAction Continue
+    exit 1
+}
