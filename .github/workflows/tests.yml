@@ -871,9 +871,10 @@ jobs:
           done
 
       - name: Run installed wrappers in a new bash or zsh process
-        shell: ${{ matrix.shell }} -e {0}
+        shell: bash
         timeout-minutes: 20
         run: |
+          "${{ matrix.shell }}" -e <<'SMOKE'
           set -euo pipefail
           . "$HOME/.$(basename "$SHELL")rc"
           test "$(command -v cg-link)" = "$HOME/.compound-gpid/bin/cg-link"
@@ -901,6 +902,7 @@ jobs:
             clone_status="$(git -C "$HOME/.compound-gpid" status --porcelain)"
             test -z "$clone_status"
           done
+          SMOKE
 
       - name: Remove disposable macOS fixtures
         if: always()

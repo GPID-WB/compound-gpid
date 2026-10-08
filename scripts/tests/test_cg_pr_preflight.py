@@ -437,6 +437,16 @@ def test_workflow_delegates_native_selection_and_preserves_context() -> None:
     assert "E2E smoke test" in workflow
 
 
+def test_workflow_shell_declarations_do_not_use_expressions() -> None:
+    """GitHub must validate every step shell before creating matrix jobs."""
+    workflow = (REPO_ROOT / ".github/workflows/tests.yml").read_text(encoding="utf-8")
+
+    for line in workflow.splitlines():
+        key, separator, value = line.strip().partition(":")
+        if separator and key == "shell":
+            assert "${{" not in value, line
+
+
 @pytest.mark.parametrize(("job", "minutes"), (
     ("browser-evidence", 30),
     ("kilo-capability-report", 30),
@@ -535,7 +545,9 @@ def test_reduced_hosted_smoke_is_bounded_and_fixture_only(platform: str) -> None
         assert "Empty project was not cleaned" in block
     else:
         assert "shell: [ bash, zsh ]" in block
-        assert "shell: ${{ matrix.shell }} -e {0}" in block
+        assert "shell: bash\n" in block
+        assert '"${{ matrix.shell }}" -e <<\'SMOKE\'\n' in block
+        assert "          SMOKE\n" in block
         assert 'ZDOTDIR="$HOME" SHELL="/bin/$SMOKE_SHELL"' in block
         assert 'bash "$install/scripts/install.sh"' in block
         assert 'export PATH="$HOME/.compound-gpid/bin:$PATH"' in block
