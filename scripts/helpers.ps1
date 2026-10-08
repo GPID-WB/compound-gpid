@@ -357,16 +357,16 @@ function Resolve-PythonCommand {
 function Invoke-CgKiloPreflight {
     <#
     .SYNOPSIS
-        Runs the certified Kilo coexistence preflight for one project.
+        Runs local generated-file validation or optional Kilo host diagnostics.
     .DESCRIPTION
         The Python worker owns host discovery, local projection validation, and
         stable status codes. This helper only resolves Python, invokes the
-        worker, and turns a failed JSON result into a terminating error so
-        link/update cannot claim a supported combined configuration.
+        worker, and turns a failed JSON result into a terminating error.
+        Install/update/link use LocalOnly and never query a Kilo host.
     .PARAMETER ProjectRoot
         Consumer project root to validate.
     .PARAMETER RequireCoexistence
-        Require the contained launch path for a selected Kilo+Codex/Claude link.
+        Require containment for optional host diagnostics, not installation or linking.
     .PARAMETER LocalOnly
         Validate the local Kilo projection without querying a host.
     .OUTPUTS

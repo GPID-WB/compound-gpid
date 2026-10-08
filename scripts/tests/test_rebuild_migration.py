@@ -2,13 +2,14 @@
 
 Windows executes only the EXACT wrapper mutation block from
 v1.2.0.9021:install.ps1:248-252, NOT a full installer qualification.
-Linux executes the full committed POSIX installer; Git Bash is not POSIX proof.
+Linux/macOS execute the full committed POSIX installer; Git Bash is not proof.
 """
 from __future__ import annotations
 
 from collections.abc import Iterator
 from dataclasses import dataclass
 import io
+import json
 import os
 from pathlib import Path
 import shlex
@@ -22,6 +23,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
 OLD, TARGET = "v1.2.0.9021", "v1.2.0.9022"
+CANDIDATE = "v1.2.0.9023"
 PIN = b"\xef\xbb\xbf \tlatest\r\n\r\nfixture trailing bytes\x00"
 REQUIRED = ("link.ps1 link.sh update.ps1 update.sh helpers.ps1 cg_generate_targets.py "
             "cg_project_manifest.py cg_project_projection.py cg_kilo_preflight.py "
@@ -58,7 +60,7 @@ if name == 'cg_generate_targets.py':
         sys.stderr.write('fixture generator failed\\n')
         raise SystemExit(23)
 elif mode in ('downstream', 'rollback-after'):
-    assert pin.read_bytes().strip().decode() == 'v1.2.0.9022', 'failure must be AFTER pin'
+    assert pin.read_bytes().strip().decode() == os.environ['RM_TAG'], 'failure must be AFTER pin'
     sys.stderr.write('fixture post-pin retirement failed\\n')
     raise SystemExit(24)
 '''
@@ -95,8 +97,8 @@ def runtime(request: pytest.FixtureRequest) -> Iterator[Runtime]:
     windows = request.param == "ps1"
     if windows and os.name != "nt":
         pytest.skip("Windows PowerShell runtime requires Windows")
-    if not windows and not sys.platform.startswith("linux"):
-        pytest.skip("Bash runtime is Linux-only, not Git Bash or macOS proof")
+    if not windows and not (sys.platform.startswith("linux") or sys.platform == "darwin"):
+        pytest.skip("Bash runtime requires Linux or macOS, not Git Bash")
     shell, git = shutil.which("powershell.exe" if windows else "bash"), shutil.which("git")
     if not shell or not git:
         pytest.skip("Required shell or real Git is unavailable")
@@ -128,7 +130,7 @@ def runtime(request: pytest.FixtureRequest) -> Iterator[Runtime]:
                    GIT_TEMPLATE_DIR=str(root / "empty"), GIT_ALLOW_PROTOCOL="file",
                    GIT_TERMINAL_PROMPT="0", CG_INTERNAL_CALL="1", LC_ALL="C",
                    PYTHONDONTWRITEBYTECODE="1", PYTEST_DISABLE_PLUGIN_AUTOLOAD="1",
-                   RM_GIT=git, RM_LOG=str(root / "events"))
+                   RM_GIT=git, RM_LOG=str(root / "events"), RM_TAG=TARGET)
         configs = {"core.hooksPath": str(root / "empty"), "core.autocrlf": "false",
                    "core.longpaths": "true", "user.name": "Fixture",
                    "user.email": "fixture@example.invalid", "commit.gpgsign": "false",
@@ -141,7 +143,7 @@ def runtime(request: pytest.FixtureRequest) -> Iterator[Runtime]:
             env["PATH"] = str(Path(git).parent)
             python = sys.executable.replace("'", "''")
             _write(root / "invoke.ps1", f'''
-param([string]$Script, [string]$Version)
+param([string]$Script, [string]$Version, [string]$Operation = 'update')
 $global:PROFILE = $env:PROFILE
 Set-Variable -Name HOME -Scope Global -Value $env:HOME -Force
 Set-Alias -Name python3 -Scope Global -Value '{python}'
@@ -164,7 +166,11 @@ function global:git {{
     }}
     $global:LASTEXITCODE = $code
 }}
-& $Script $Version
+if ($Operation -eq 'link') {{
+    & $Script -RawArgs @('--platforms', 'codex,kilo', '--yes')
+}} else {{
+    & $Script $Version
+}}
 exit $LASTEXITCODE
 ''')
             command = [shell, "-NoProfile", "-NonInteractive", "-ExecutionPolicy",
@@ -186,9 +192,9 @@ exit $LASTEXITCODE
         yield Runtime(root, env, command, git, request.param)
 
 
-def _archive(rt: Runtime, root: Path, *paths: str) -> list[str]:
-    """Unpack committed 9021, e.g. its installer and original wrappers."""
-    data = _git(rt, ROOT, "archive", "--format=tar", OLD, *paths)
+def _archive(rt: Runtime, root: Path, *paths: str, tag: str = OLD) -> list[str]:
+    """Unpack a published tag, e.g. its installer and original wrappers."""
+    data = _git(rt, ROOT, "archive", "--format=tar", tag, *paths)
     executable = []
     with tarfile.open(fileobj=io.BytesIO(data)) as archive:
         for member in archive:
@@ -203,25 +209,83 @@ def _archive(rt: Runtime, root: Path, *paths: str) -> list[str]:
 
 
 def _build(rt: Runtime, *, legacy: bool = False, changed: bool = False,
-           missing: bool = False) -> tuple[Path, bytes]:
+           missing: bool = False, old_tag: str = OLD, target_tag: str = TARGET,
+           lifecycle: bool = False, host_mode: str | None = None) -> tuple[Path, bytes]:
     """Create REAL local source/clone; e.g. OLD caller plus current candidate."""
     source, install = rt.root / "source", rt.root / "install"
     source.mkdir()
-    old_executable = _archive(rt, source, *(() if legacy else ("install.ps1", "scripts/install.sh", "bin")))
+    if host_mode is not None:
+        rt.env.update(RM_HOST_MODE=host_mode,
+                      RM_HOST_LOG=str(rt.root / "host-commands"))
+        if host_mode != "absent":
+            host = rt.root / "bin/kilo.py"
+            _write(host, '''
+import os, sys
+from pathlib import Path
+with Path(os.environ['RM_HOST_LOG']).open('a', encoding='utf-8') as log:
+    log.write(repr(sys.argv[1:]) + '\\n')
+if sys.argv[1:] == ['--version']:
+    if os.environ['RM_HOST_MODE'] == 'unreadable':
+        raise SystemExit(16)
+    sys.stdout.write('0.1.0\\n' if os.environ['RM_HOST_MODE'] == 'old' else '7.4.21\\n')
+    raise SystemExit(0)
+if sys.argv[1:3] == ['debug', 'skill']:
+    sys.stderr.write('fixture debug skill failed\\n')
+    raise SystemExit(17)
+raise SystemExit(18)
+''')
+            if rt.suffix == "ps1":
+                _write(rt.root / "bin/kilo.cmd",
+                       f'@echo off\n"{sys.executable}" "{host}" %*\n')
+                rt.env["PATH"] = str(rt.root / "bin") + os.pathsep + rt.env["PATH"]
+            else:
+                _write(rt.root / "bin/kilo", "#!/bin/sh\nexec "
+                       f'{shlex.quote(sys.executable)} {shlex.quote(str(host))} "$@"\n')
+                (rt.root / "bin/kilo").chmod(0o755)
+    old_executable = _archive(
+        rt, source,
+        *(() if legacy else ("install.ps1", "scripts/install.sh", "bin")),
+        tag=old_tag,
+    )
+    rt.env["RM_TAG"] = target_tag
     if not legacy:
         for name in (*REQUIRED, "cg_restore_installer_wrappers.py"):
             _write(source / "scripts" / name, (ROOT / "scripts" / name).read_bytes())
+            if name.endswith(".sh"):
+                (source / "scripts" / name).chmod(0o755)
         for name in ("cg_generate_targets.py", "cg_retire_native_evidence.py"):
             _write(source / "scripts" / name, WORKER)
         _write(source / ".gitignore", ".cg-version\n.cg-version.tmp\n")
         _write(source / "package.txt", "before\n")
+        if lifecycle:
+            mapping_path = ".github/shared/target-mapping.json"
+            mapping = json.loads((ROOT / mapping_path).read_text(encoding="utf-8"))
+            _write(source / mapping_path, json.dumps(mapping))
+            for target in mapping["targets"]:
+                if target["id"] not in ("codex", "kilo"):
+                    continue
+                for unit in target["installUnits"]:
+                    path = source / unit["source"]
+                    if unit["type"] == "file":
+                        _write(path, "{}\n" if path.suffix == ".json" else "# Fixture\n")
+                    elif path.name == "skills":
+                        _write(path / "cg-fixture/SKILL.md", '---\nname: cg-fixture\n'
+                               'description: "Fixture"\n---\n# Fixture\n')
+                    elif path.name == "agents" or path.name == "subagents":
+                        _write(path / "cg-fixture.md", '---\ndescription: "Fixture"\n'
+                               'mode: subagent\n---\n# Fixture\n')
+                    elif path.name == "commands":
+                        _write(path / "cg-plan.md",
+                               '---\ndescription: "Fixture"\n---\n# Fixture\n')
+                    else:
+                        _write(path / "fixture.txt", "fixture\n")
     _git(rt, source, "init")
     _git(rt, source, "add", "-A")
     _git(rt, source, "update-index", "--chmod=+x", "--", *old_executable)
     _git(rt, source, "commit", "-m", "fixture old source")
     old = _git(rt, source, "rev-parse", "HEAD").strip()
     rt.env["RM_ORIGINAL"] = old.decode()
-    _git(rt, source, "tag", OLD)
+    _git(rt, source, "tag", old_tag)
     if legacy:
         executable = []
         for path in source.iterdir():
@@ -252,11 +316,12 @@ def _build(rt: Runtime, *, legacy: bool = False, changed: bool = False,
     if changed and legacy:
         _git(rt, source, "update-index", "--chmod=+x", "bin/cg-brain-init")
     _git(rt, source, "commit", "-m", "fixture candidate")
-    _git(rt, source, "tag", TARGET)
+    _git(rt, source, "tag", target_tag)
     rt.env["RM_TARGET"] = _git(rt, source, "rev-parse", "HEAD").decode().strip()
     if legacy:
-        modified = _git(rt, source, "diff", "--diff-filter=M", "--name-only", OLD, TARGET, "--", "bin").decode().splitlines()
-        expected = CMD_PROBE_CHANGES | POSIX_WRAPPER_CHANGES
+        modified = _git(rt, source, "diff", "--diff-filter=M", "--name-only", old_tag, target_tag, "--", "bin").decode().splitlines()
+        expected = (CMD_PROBE_CHANGES | POSIX_WRAPPER_CHANGES
+                    if old_tag == OLD else set())
         assert set(modified) == expected
     else:
         _write(source / "package.txt", "independent HEAD\n")
@@ -276,14 +341,15 @@ def _state(rt: Runtime, install: Path) -> tuple[bytes, bytes, bytes | None]:
             pin.read_bytes() if pin.exists() else None)
 
 
-def _run(rt: Runtime, install: Path, version: str = TARGET) -> subprocess.CompletedProcess[str]:
+def _run(rt: Runtime, install: Path, version: str = TARGET,
+         project: Path | None = None) -> subprocess.CompletedProcess[str]:
     """Invoke an actual updater; e.g. OLD code with an empty consumer."""
     profile = Path(rt.env["PROFILE"])
     before = profile.read_bytes()
     rt.env["RM_INSTALL"] = str(install)
     rt.env["RM_PIN"] = (install / ".cg-version").read_bytes().hex() if (install / ".cg-version").exists() else "absent"
     result = subprocess.run([*rt.command, str(install / f"scripts/update.{rt.suffix}"), version],
-                            cwd=rt.root / "consumer", env=rt.env,
+                            cwd=project or rt.root / "consumer", env=rt.env,
                             capture_output=True, text=True, timeout=60, check=False)
     assert profile.read_bytes() == before
     return result
@@ -413,3 +479,94 @@ def test_new_updater_preserves_unknown_dirt_and_restores_proven_residue(runtime:
         assert _state(rt, install) == before and path.read_text() == "user-owned changes\n"
         assert _git(rt, install, "diff", "--cached", "--binary") == index
         assert not Path(rt.env["RM_LOG"]).exists()
+
+
+def test_published_9022_updater_acquires_9023_from_empty_folder(
+    runtime: Runtime,
+) -> None:
+    """The published updater acquires candidate bytes without a consumer or host."""
+    rt = runtime
+    install, _ = _build(rt, legacy=True, old_tag=TARGET, target_tag=CANDIDATE)
+    updater = f"scripts/update.{rt.suffix}"
+    assert (install / updater).read_bytes() == _git(
+        rt, ROOT, "show", f"{TARGET}:{updater}",
+    )
+    consumer = rt.root / "consumer"
+    assert not any(consumer.iterdir())
+    # Exercise the public updater, not the internal-link consumer suppression.
+    rt.env.pop("CG_INTERNAL_CALL", None)
+    result = _run(rt, install, CANDIDATE)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert _state(rt, install) == (
+        rt.env["RM_TARGET"].encode() + b"\n", b"HEAD\n", CANDIDATE.encode(),
+    )
+    assert not _git(rt, install, "status", "--porcelain")
+    assert not any(consumer.iterdir())
+
+
+@pytest.mark.parametrize("host_mode", ("absent", "old", "unreadable", "debug-fail"))
+def test_update_and_link_ignore_host_and_print_one_note(
+    runtime: Runtime, host_mode: str,
+) -> None:
+    """Actual fixture update/link succeed without even querying a hostile host."""
+    rt = runtime
+    install, _ = _build(rt, lifecycle=True, host_mode=host_mode, target_tag=CANDIDATE)
+    result = _run(rt, install, CANDIDATE)
+    assert result.returncode == 0, result.stdout + result.stderr
+    rt.env.pop("CG_INTERNAL_CALL", None)
+    rt.env["RM_PIN"] = (install / ".cg-version").read_bytes().hex()
+    project = rt.root / "consumer"
+    command = [*rt.command, str(install / f"scripts/link.{rt.suffix}")]
+    command.extend([CANDIDATE, "link"] if rt.suffix == "ps1" else
+                   ["--platforms", "codex,kilo", "--yes"])
+    profile = Path(rt.env["PROFILE"])
+    before_profile = profile.read_bytes()
+    # A second link has coexisting roots before its internal update. That update
+    # must leave the single note to link, not print another copy itself.
+    for _ in range(2):
+        result = subprocess.run(command, cwd=project, env=rt.env, capture_output=True,
+                                text=True, timeout=60, check=False)
+        output = result.stdout + result.stderr
+        assert result.returncode == 0, output
+        assert "Kilo preflight" in output
+        assert output.count("Note: Kilo and compatibility skills coexist.") == 1
+        assert "Linked!" in output
+        assert (project / ".kilo/skills/.compound-gpid-managed-copy.json").is_file()
+        assert (project / ".agents/skills/cg-fixture/SKILL.md").is_file()
+        assert not Path(rt.env["RM_HOST_LOG"]).exists()
+    result = _run(rt, install, CANDIDATE)
+    output = result.stdout + result.stderr
+    assert result.returncode == 0, output
+    assert "Kilo preflight" in output
+    assert output.count("Note: Kilo and compatibility skills coexist.") == 1
+    assert profile.read_bytes() == before_profile
+    assert not Path(rt.env["RM_HOST_LOG"]).exists()
+    assert not _git(rt, install, "status", "--porcelain")
+
+
+@pytest.mark.parametrize("compatibility_root", (".claude", ".agents"))
+def test_home_update_preserves_user_skills_without_validation_or_host(
+    runtime: Runtime, compatibility_root: str,
+) -> None:
+    """User-level skills are not OUR generated projection, even with state nearby."""
+    rt = runtime
+    install, _ = _build(rt, host_mode="unreadable", target_tag=CANDIDATE)
+    home = Path(rt.env["HOME"])
+    user_skills = (
+        home / ".kilo/skills/user-skill/SKILL.md",
+        home / compatibility_root / "skills/user-skill/SKILL.md",
+        home / ".compound-gpid/user-sentinel.txt",
+    )
+    for path in user_skills:
+        # Deliberately invalid generated content; user-level content is not ours.
+        _write(path, b"\xffuser bytes\n")
+    before = {path: path.read_bytes() for path in user_skills}
+    rt.env.pop("CG_INTERNAL_CALL", None)
+    result = _run(rt, install, CANDIDATE, project=home)
+    output = result.stdout + result.stderr
+    assert result.returncode == 0, output
+    assert "Kilo preflight" not in output
+    assert output.count("Note: Kilo and compatibility skills coexist.") == 1
+    assert {path: path.read_bytes() for path in user_skills} == before
+    assert not Path(rt.env["RM_HOST_LOG"]).exists()
+    assert _state(rt, install)[2] == CANDIDATE.encode()

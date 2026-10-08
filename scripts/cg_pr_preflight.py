@@ -1025,11 +1025,13 @@ def adapt_kilo_result(payload: Any) -> KiloOutcome:
     if not isinstance(inventory, (dict, list)):
         raise KiloResultError("malformed Kilo result: inventory must be an object or array")
     if status == "ok":
-        required = ("kilo_version", "kilo_executable", "kilo_executable_sha256")
+        required = ("kilo_executable", "kilo_executable_sha256")
         missing = [
             key for key in required
             if not isinstance(payload.get(key), str) or not payload[key]
         ]
+        if "kilo_version" not in payload:
+            missing.append("kilo_version")
         if missing:
             raise KiloResultError(
                 "malformed Kilo result: certified success requires " + ", ".join(missing)

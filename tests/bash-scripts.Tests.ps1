@@ -529,7 +529,7 @@ Describe "bash-scripts - bin/cg-kilo wrapper content" {
         Test-Executable $wrapperPath | Should -Be $true
     }
 
-    It "bin/cg-kilo invokes the certified preflight worker" {
+    It "bin/cg-kilo invokes the optional preflight worker" {
         $wrapperContent | Should -Match 'cg_kilo_preflight\.py'
         $wrapperContent | Should -Match '--launch'
         $wrapperContent | Should -Match '"\$@"'
@@ -539,6 +539,27 @@ Describe "bash-scripts - bin/cg-kilo wrapper content" {
         $installSh = Get-Content (Join-Path $repoRoot "scripts/install.sh") -Raw -Encoding UTF8
         $installSh | Should -Match 'for cmd in link unlink update kilo'
         $installSh | Should -Match 'Registered:.*WRAPPER'
+    }
+}
+
+Describe "bash-scripts - host-independent lifecycle" {
+    It "update and link use only local generated-file validation" {
+        foreach ($name in @("update.sh", "link.sh")) {
+            $content = Get-Content (Join-Path $repoRoot "scripts/$name") -Raw -Encoding UTF8
+            $content | Should -Match 'cg_kilo_preflight\.py[^\r\n]+--local-only'
+            $content | Should -Not -Match '--host-only|--require-coexistence|Certified launch required'
+            ([regex]::Matches($content, 'Note: Kilo and compatibility skills coexist\.')).Count | Should -Be 1
+            $content | Should -Match '\.kilo/skills/\.compound-gpid-managed-copy\.json'
+        }
+    }
+
+    It "install and unlink do not call the preflight worker or a Kilo host" {
+        foreach ($name in @("install.sh", "unlink.sh")) {
+            $content = Get-Content (Join-Path $repoRoot "scripts/$name") -Raw -Encoding UTF8
+            $content | Should -Not -Match 'cg_kilo_preflight\.py|kilo (?:--version|debug skill)'
+        }
+        $installContent = Get-Content (Join-Path $repoRoot "scripts/install.sh") -Raw -Encoding UTF8
+        $installContent | Should -Match 'Optional contained Kilo launch'
     }
 }
 

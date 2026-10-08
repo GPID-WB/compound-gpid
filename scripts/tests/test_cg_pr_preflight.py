@@ -361,6 +361,31 @@ def test_kilo_adapter_rejects_malformed_result() -> None:
         preflight.adapt_kilo_result({"status": "ok", "exit_code": 0, "inventory": "invalid"})
 
 
+def test_kilo_adapter_accepts_advisory_unreadable_version() -> None:
+    payload = {
+        "status": "ok",
+        "exit_code": 0,
+        "inventory": {},
+        "kilo_version": None,
+        "kilo_executable": "/opt/kilo",
+        "kilo_executable_sha256": "a" * 64,
+        "message": "Kilo version could not be read; version checks are advisory.",
+    }
+
+    outcome = preflight.adapt_kilo_result(payload)
+
+    assert outcome.source_status == "ok"
+    assert outcome.exit_code == 0
+    assert outcome.kilo_version is None
+    assert outcome.kilo_executable_sha256 == "a" * 64
+    assert outcome.evidence == payload
+
+    for required in ("kilo_version", "kilo_executable", "kilo_executable_sha256"):
+        incomplete = {key: value for key, value in payload.items() if key != required}
+        with pytest.raises(preflight.KiloResultError, match=required):
+            preflight.adapt_kilo_result(incomplete)
+
+
 def test_json_and_text_results_are_bounded() -> None:
     result = preflight.PreflightResult(
         phase="prepare",

@@ -71,7 +71,7 @@ network, utility, or write operations in consumer projects.
 | `cg-link [--platforms <list>]` | Link managed platform units into a project |
 | `cg-unlink` | Remove managed units while preserving user-owned content |
 | `cg-update [<version>|latest|--list|--fix]` | Update, pin, list, or repair the global installation |
-| `cg-kilo [<kilo arguments>]` | Launch Kilo through the certified containment preflight; required for Kilo with Codex/Claude roots |
+| `cg-kilo [<kilo arguments>]` | Optional contained launcher; version diagnostics warn only, containment is required for Kilo with Codex/Claude roots, and lifecycle operations do not require the host |
 | `cg-brain-init` | Initialize optional Team Brain integration |
 | `cg-index` | Build or query the local Knowledge Brain index |
 | `cg-index --brain` | Rebuild generated Brain artifacts |

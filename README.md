@@ -16,6 +16,13 @@ A GitHub Copilot plugin for data science teams, built on the [Compound Engineeri
 > default; use `cg-link --platforms copilot` or another comma-separated list to
 > narrow the install.
 
+Install, update, and link do not require Kilo, a minimum Kilo version, or host
+certification. Kilo host checks belong to the optional `cg-kilo` launcher.
+Old or unreadable version output produces a warning, not a version-based block.
+For a Kilo launch with Codex/Claude skill roots, `cg-kilo` retains projection and
+containment checks and sets `KILO_DISABLE_EXTERNAL_SKILLS=1` only for the child
+process. See [Installation](docs/installation.md) for the launch boundary.
+
 Native targets package each canonical skill as an **atomic skill bundle**. A
 bundle contains `SKILL.md` plus all nested regular files and **includes them by default**;
 it is not a `SKILL.md`-only copy. Executable resources are copied as opaque

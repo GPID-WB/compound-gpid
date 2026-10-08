@@ -78,25 +78,25 @@ This links Compound GPID install units for all supported platforms by default: G
 
 > **Kilo + Codex/Claude coexistence**: when a project contains Kilo plus a
 > Codex or Claude skill root, direct Kilo editor/CLI launches are unsupported.
-> Run the certified launcher `cg-kilo` from the project root. It performs the
-> local projection and supported-host preflight, then sets
+> Run the contained launcher `cg-kilo` from the project root. It performs the
+> local projection and containment checks, then sets
 > `KILO_DISABLE_EXTERNAL_SKILLS=1` only for the child Kilo process. It does not
-> modify global Kilo configuration or the caller's environment. If the host
-> version, local projection, or containment check is unsupported, `cg-link` and
-> `cg-update` fail with remediation rather than claiming coexistence support.
+> modify global Kilo configuration or the caller's environment. These optional
+> launcher checks do not run as lifecycle host gates. Install, update, and link
+> still validate managed files without depending on Kilo host behavior.
 
-Kilo runtime compatibility requires version **7.4.20 or newer**, with no
-exact-version allowlist or upper bound. Every host must still pass the live
-capability and containment checks. Recorded CI versions and executable hashes
-identify tested binaries; they do not restrict consumer Kilo versions.
+There is **no minimum or certified Kilo version requirement** for install,
+update, link, or `cg-kilo`. Old or unreadable `--version` output produces a
+warning only; it does not prevent executable selection or a contained launch.
+The launcher still blocks invalid local projections, failed host commands or
+schemas, missing local skills, and ineffective containment. Recorded CI
+versions and executable hashes identify tested binaries, not consumer version
+requirements.
 
-An older installed updater can reject a new Kilo version before it downloads
-the fix. After a release with the fix is published, run `cg-update <fixed-tag>`
-from the global Compound GPID installation directory, not from a linked
-consumer project. This uses the existing source-install update path. Then run
-the same command from the consumer project to refresh and validate its local
-projection. Do not set `CG_INTERNAL_CALL`, disable containment checks, downgrade
-Kilo, or edit an existing release tag to recover from this version-list error.
+Older installed lifecycle scripts can still contain obsolete Kilo version
+gates. Follow the migration instructions for your installed release to obtain
+the new scripts. Do not set `CG_INTERNAL_CALL`, disable containment, downgrade
+Kilo, or edit an existing release tag to avoid an obsolete version gate.
 
 > ⚠️ **IMPORTANT — Restart VS Code / Positron after linking.**
 > Copilot must re-index the workspace to see the newly linked prompts, skills, and agents.
@@ -205,9 +205,10 @@ This links Compound GPID install units for all supported platforms by default: G
 > Default (`cg-link` with no flag) links all supported platforms.
 
 > With Kilo and Codex/Claude roots present, launch Kilo only through
-> `cg-kilo`. The certified launcher is the supported containment boundary;
+> `cg-kilo`. The contained launcher is the supported containment boundary;
 > direct editor/CLI launches are intentionally unsupported by the coexistence
-> policy.
+> policy. Install, update, and link do not require Kilo or host certification;
+> the optional launcher's version diagnostics produce warnings only.
 
 > ⚠️ **IMPORTANT — Restart VS Code / Positron after linking.**
 > Copilot must re-index the workspace to see the newly linked prompts, skills, and agents.

@@ -833,24 +833,6 @@ $argsParsed = Resolve-CgLinkArguments -Arguments $RawArgs
 $Force = [bool]$argsParsed.Force
 $selectedPlatforms = Resolve-CgPlatforms -PlatformsValue $argsParsed.Platforms
 
-# Check host containment before any update, copy, manifest, or global Kilo
-# permission mutation. The post-copy validation below remains necessary for
-# local projection/content ownership checks.
-$preflightKiloSelected = "kilo" -in $selectedPlatforms
-$preflightCompatibilitySelected = ("codex" -in $selectedPlatforms) -or ("claude-code" -in $selectedPlatforms)
-$preflightCompatibilityPresent = (Test-Path -LiteralPath (Join-Path $ProjectRoot ".agents\skills")) -or
-    (Test-Path -LiteralPath (Join-Path $ProjectRoot ".claude\skills"))
-if ($preflightKiloSelected -and ($preflightCompatibilitySelected -or $preflightCompatibilityPresent)) {
-    try {
-        [void](Invoke-CgKiloPreflight -ProjectRoot $ProjectRoot -RequireCoexistence -HostOnly)
-    } catch {
-        $preflightExitCode = 1
-        if ($_.Exception.Data.Contains("CgExitCode")) { $preflightExitCode = [int]$_.Exception.Data["CgExitCode"] }
-        Write-Error "Linking is blocked by Kilo host preflight: $_"
-        exit $preflightExitCode
-    }
-}
-
 Write-Host ""
 if ($env:CG_SKIP_UPDATE -eq "1") {
     Write-Host "Skipping Compound GPID update (CG_SKIP_UPDATE=1)." -ForegroundColor DarkGray
@@ -1014,31 +996,26 @@ if ($manifest.files.Count -gt 0) {
     [void]$installedEntries.Add(".compound-gpid/managed-files.json")
 }
 
-# Kilo can discover Codex/Claude skill roots from the same project. A combined
-# selection is supported only through the certified child-process launcher; a
-# Kilo-only project needs only local projection validation at link time.
+# Validate generated Kilo files without discovering or running a Kilo host.
+# Existing user-level skill roots are not evidence of a managed projection.
 $kiloSelected = "kilo" -in $selectedPlatforms
-$compatibilitySelected = ("codex" -in $selectedPlatforms) -or ("claude-code" -in $selectedPlatforms)
 $compatibilityPresent = (Test-Path -LiteralPath (Join-Path $ProjectRoot ".agents\skills")) -or
     (Test-Path -LiteralPath (Join-Path $ProjectRoot ".claude\skills"))
 $kiloRootPresent = Test-Path -LiteralPath (Join-Path $ProjectRoot ".kilo\skills")
-if ($kiloSelected -or ($compatibilityPresent -and $kiloRootPresent)) {
+$kiloManagedCopy = Test-Path -LiteralPath (Join-Path $ProjectRoot ".kilo/skills/.compound-gpid-managed-copy.json") -PathType Leaf
+if ($kiloSelected -or $kiloManagedCopy) {
     try {
-        if ($compatibilitySelected -or $compatibilityPresent) {
-            $kiloPreflight = Invoke-CgKiloPreflight -ProjectRoot $ProjectRoot -RequireCoexistence
-        } else {
-            $kiloPreflight = Invoke-CgKiloPreflight -ProjectRoot $ProjectRoot -LocalOnly
-        }
+        $kiloPreflight = Invoke-CgKiloPreflight -ProjectRoot $ProjectRoot -LocalOnly
         Write-Host "  Kilo preflight: $($kiloPreflight.status)" -ForegroundColor DarkGray
-        if ($kiloPreflight.certified_launch_required) {
-            Write-Host "  Certified launch required: cg-kilo (direct Kilo launches unsupported with compatibility roots)." -ForegroundColor Yellow
-        }
     } catch {
         $preflightExitCode = 1
         if ($_.Exception.Data.Contains("CgExitCode")) { $preflightExitCode = [int]$_.Exception.Data["CgExitCode"] }
-        Write-Error "Linking is blocked by Kilo coexistence preflight: $_"
+        Write-Error "Linking is blocked by local generated Kilo file validation: $_"
         exit $preflightExitCode
     }
+}
+if ($kiloRootPresent -and $compatibilityPresent) {
+    Write-Host "Note: Kilo and compatibility skills coexist. Use cg-kilo for an optional contained launch." -ForegroundColor Yellow
 }
 
 if ("kilo" -in $selectedPlatforms) {

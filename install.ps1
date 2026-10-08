@@ -354,7 +354,7 @@ if (Test-Path $cgSkillCmdSrc) {
     exit 1
 }
 
-# Copy the certified Kilo launcher from the committed source of truth.
+# Copy the optional contained Kilo launcher from the committed source of truth.
 $cgKiloCmdSrc = Join-Path $CompoundGpidDir "bin\cg-kilo.cmd"
 $cgKiloCmdDst = Join-Path $binDir "cg-kilo.cmd"
 if (Test-Path $cgKiloCmdSrc) {
@@ -367,7 +367,7 @@ if (Test-Path $cgKiloCmdSrc) {
         Write-Host "  Copied:  cg-kilo in $binDir" -ForegroundColor DarkGray
     }
 } else {
-    Write-Error "Certified Kilo launcher source is missing: $cgKiloCmdSrc. Run cg-update --fix and retry installation."
+    Write-Error "Contained Kilo launcher source is missing: $cgKiloCmdSrc. Run cg-update --fix and retry installation."
     exit 1
 }
 
@@ -444,7 +444,7 @@ Write-Host "Available commands (after restarting):"
 Write-Host "  cg-link    -- Link current project to Compound GPID  (run from project root)"
 Write-Host "  cg-unlink  -- Unlink current project                 (run from project root)"
 Write-Host "  cg-update  -- Pull latest updates                    (run from anywhere)"
-Write-Host "  cg-kilo    -- Certified contained Kilo launch         (run from project root)"
+Write-Host "  cg-kilo    -- Optional contained Kilo launch          (run from project root)"
 Write-Host "  cg-skill   -- Manage the complete skill lifecycle     (run from project root)"
 Write-Host '  cg-update <version>  -- Pin to a specific release (e.g. cg-update v0.2.0)'
 Write-Host "  cg-update latest     -- Unpin and return to tracking main"

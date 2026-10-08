@@ -59,7 +59,7 @@ def test_shell_projects_before_local_kilo_preflight() -> None:
     """The macOS/Linux wrapper must materialize roots before validating them."""
     content = (REPO_ROOT / "scripts/link.sh").read_text(encoding="utf-8")
     _assert_order(content, "cg_project_manifest.py", "\ncleanup_legacy_model_mapping_files\n")
-    _assert_order(content, "cg_project_projection.py", "run_kilo_preflight local")
+    _assert_order(content, "cg_project_projection.py", "\n    run_kilo_preflight\n")
     assert 'projection_root="$(platform_generated_tree "$platform")"' in content
 
 
@@ -83,6 +83,28 @@ def test_both_update_wrappers_sync_the_exact_projection_plan() -> None:
     assert "--sync" in shell
     assert "synced and verified" in powershell
     assert "synced and verified" in shell
+
+
+@pytest.mark.parametrize("name", ("link.ps1", "link.sh", "update.ps1", "update.sh"))
+def test_lifecycle_preflight_is_local_only_and_note_is_nonblocking(name: str) -> None:
+    """Lifecycle validation never selects host/coexistence mode or certification."""
+    content = (REPO_ROOT / "scripts" / name).read_text(encoding="utf-8")
+    assert "--host-only" not in content
+    assert "--require-coexistence" not in content
+    assert "-HostOnly" not in content
+    assert "-RequireCoexistence" not in content
+    assert "Certified launch required" not in content
+    assert content.count("Note: Kilo and compatibility skills coexist.") == 1
+    assert ".compound-gpid-managed-copy.json" in content
+    if name.startswith("update"):
+        assert "CG_INTERNAL_CALL" in content
+    if name.endswith("ps1"):
+        calls = [line for line in content.splitlines() if "Invoke-CgKiloPreflight" in line]
+        assert calls and all("-LocalOnly" in line for line in calls)
+    else:
+        calls = [line for line in content.splitlines()
+                 if "cg_kilo_preflight.py" in line and "--root" in line]
+        assert calls and all("--local-only" in line for line in calls)
 
 
 @pytest.mark.skipif(os.name == "nt", reason="macOS/Linux link.sh integration")

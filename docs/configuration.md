@@ -70,8 +70,10 @@ registry into one committed, reviewable artifact at
   (`copilot`, `claude-code`, `codex`, `opencode`, `kilo` by default).
 - `selection.sourceRevision` and `selection.desiredPlanDigest`: recorded source
   stamp and a deterministic digest of the desired projection plan.
-- `certifiedKiloLaunchRequired`: records the mandated `cg-kilo` certified launch
-  path for a combined Kilo+Codex configuration (set by link/update preflight).
+- `certifiedKiloLaunchRequired`: retained compatibility metadata, currently
+  `false`; manifest resolution does not certify a Kilo host. The optional
+  `cg-kilo` launcher checks containment at launch time, not during lifecycle
+  operations, and requires no minimum or certified host version.
 - `platformEligibility`: per-capability supported-platform eligibility.
 - `catalogRecords`: compact id/purpose/capability/availability rows.
 

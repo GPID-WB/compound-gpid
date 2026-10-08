@@ -400,6 +400,13 @@ Describe "unlink.ps1 - copy-directory managed removal" {
 # Windows platform guard (mirrors link.Tests.ps1 "link.ps1 - Windows platform guard")
 # ---------------------------------------------------------------------------
 Describe "unlink.ps1 - Windows platform guard" {
+    It "does not discover or execute a Kilo host during cleanup" {
+        foreach ($name in @("unlink.ps1", "unlink.sh")) {
+            $content = Get-Content (Join-Path $PSScriptRoot "../scripts/$name") -Raw -Encoding UTF8
+            $content | Should -Not -Match 'Invoke-CgKiloPreflight|cg_kilo_preflight\.py|kilo (?:--version|debug skill)'
+        }
+    }
+
     Context "script content" {
         $unlinkPs1 = Join-Path (Split-Path $PSScriptRoot -Parent) "scripts/unlink.ps1"
         $unlinkPs1Content = Get-Content $unlinkPs1 -Raw -Encoding UTF8 -ErrorAction SilentlyContinue

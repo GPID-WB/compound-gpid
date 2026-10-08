@@ -497,6 +497,12 @@ Describe "install.ps1 - cg-brain-init.cmd copy" {
 }
 
 Describe "install.ps1 - cg-kilo.cmd copy" {
+    It "registers the optional launcher without a Kilo host check" {
+        $content = Get-Content (Join-Path $PSScriptRoot "..\install.ps1") -Raw -Encoding UTF8
+        $content | Should -Match 'Optional contained Kilo launch'
+        $content | Should -Not -Match 'Invoke-CgKiloPreflight|cg_kilo_preflight\.py|Certified contained Kilo launch'
+    }
+
     Context "single source of truth" {
         It "cg-kilo.cmd exists in the committed bin/ directory" {
             $repoRoot = Split-Path $PSScriptRoot -Parent

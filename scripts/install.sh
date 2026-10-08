@@ -308,7 +308,7 @@ printf '  cg-update  -- Pull latest updates                    (run from anywher
 printf '  cg-update <version>  -- Pin to a specific release (e.g. cg-update v0.2.0)\n'
 printf '  cg-update latest     -- Unpin and return to tracking main\n'
 printf '  cg-update --list     -- Browse available releases\n'
-printf '  cg-kilo    -- Certified contained Kilo launch (run from project root)\n'
+printf '  cg-kilo    -- Optional contained Kilo launch (run from project root)\n'
 printf '  cg-skill   -- Manage the complete skill lifecycle (run from project root)\n'
 printf '  cg-render-artifact   -- Render or validate one workflow artifact\n'
 printf '  cg-publish-markdown  -- Publish one generic Markdown document\n'

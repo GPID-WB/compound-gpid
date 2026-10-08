@@ -46,23 +46,8 @@ $CompoundGpidDir = Split-Path $PSScriptRoot -Parent
 
 . (Join-Path $PSScriptRoot "helpers.ps1")
 
-$earlyUpdateProjectRoot = (Get-Location).Path
-$earlyUpdateIsSourceInstall = [System.IO.Path]::GetFullPath($earlyUpdateProjectRoot).TrimEnd('\', '/') -ieq
+$earlyUpdateIsSourceInstall = [System.IO.Path]::GetFullPath((Get-Location).Path).TrimEnd('\', '/') -ieq
     [System.IO.Path]::GetFullPath($CompoundGpidDir).TrimEnd('\', '/')
-$earlyUpdateHasCompatibilityRoot = (Test-Path -LiteralPath (Join-Path $earlyUpdateProjectRoot ".agents\skills")) -or
-    (Test-Path -LiteralPath (Join-Path $earlyUpdateProjectRoot ".claude\skills"))
-if (-not $env:CG_INTERNAL_CALL -and -not $earlyUpdateIsSourceInstall -and
-    (Test-Path -LiteralPath (Join-Path $earlyUpdateProjectRoot ".kilo\skills")) -and
-    $earlyUpdateHasCompatibilityRoot) {
-    try {
-        [void](Invoke-CgKiloPreflight -ProjectRoot $earlyUpdateProjectRoot -RequireCoexistence -HostOnly)
-    } catch {
-        $preflightExitCode = 1
-        if ($_.Exception.Data.Contains("CgExitCode")) { $preflightExitCode = [int]$_.Exception.Data["CgExitCode"] }
-        Write-Error "Update is blocked by Kilo host preflight: $_"
-        exit $preflightExitCode
-    }
-}
 
 # Clean up profile functions from early installs. Those functions invoke or
 # dot-source the scripts directly and can shadow the CLM-safe .cmd wrappers on PATH.
@@ -491,32 +476,25 @@ if (-not $env:CG_INTERNAL_CALL -and (Test-Path $cwdManifestPath)) {
         -CompoundGpidDir $CompoundGpidDir)
 }
 
-# Re-run the Kilo containment gate for an already linked consumer project. The
-# internal cg-link update is skipped here; link.ps1 runs the gate after copying
-# the fresh project-local Kilo projection.
+# Validate only legacy generated copies. Manifest projections have their own
+# ownership validation below; user-level skill roots are not generated copies.
+# Internal cg-link calls leave validation and the single note to link.ps1.
 $cwdKiloSkills = Join-Path (Get-Location) ".kilo\skills"
 $cwdHasCompatibilityRoot = (Test-Path -LiteralPath (Join-Path (Get-Location) ".agents\skills")) -or
     (Test-Path -LiteralPath (Join-Path (Get-Location) ".claude\skills"))
 $cwdIsSourceInstall = [System.IO.Path]::GetFullPath((Get-Location).Path).TrimEnd('\', '/') -ieq
     [System.IO.Path]::GetFullPath($CompoundGpidDir).TrimEnd('\', '/')
 if (-not $env:CG_INTERNAL_CALL -and -not $cwdIsSourceInstall -and
-    (Test-Path -LiteralPath $cwdKiloSkills) -and
-    ((Test-Path -LiteralPath (Join-Path (Get-Location) ".compound-gpid")) -or $cwdHasCompatibilityRoot)) {
+    (Test-Path -LiteralPath (Join-Path $cwdKiloSkills ".compound-gpid-managed-copy.json") -PathType Leaf)) {
     try {
-        if ($cwdHasCompatibilityRoot) {
-            $kiloPreflight = Invoke-CgKiloPreflight -ProjectRoot (Get-Location).Path -RequireCoexistence
-        } else {
-            $kiloPreflight = Invoke-CgKiloPreflight -ProjectRoot (Get-Location).Path -LocalOnly
-        }
+        $kiloPreflight = Invoke-CgKiloPreflight -ProjectRoot (Get-Location).Path -LocalOnly
         Write-Host "Kilo preflight: $($kiloPreflight.status)" -ForegroundColor DarkGray
-        if ($kiloPreflight.certified_launch_required) {
-            Write-Host "Certified launch required: cg-kilo (direct Kilo launches unsupported with compatibility roots)." -ForegroundColor Yellow
-        }
     } catch {
-        $preflightExitCode = 1
-        if ($_.Exception.Data.Contains("CgExitCode")) { $preflightExitCode = [int]$_.Exception.Data["CgExitCode"] }
-        throw "Update is blocked by Kilo coexistence preflight: $_"
+        throw "Update is blocked by local generated Kilo file validation: $_"
     }
+}
+if (-not $env:CG_INTERNAL_CALL -and (Test-Path -LiteralPath $cwdKiloSkills -PathType Container) -and $cwdHasCompatibilityRoot) {
+    Write-Host "Note: Kilo and compatibility skills coexist. Use cg-kilo for an optional contained launch." -ForegroundColor Yellow
 }
 
 Write-Host ""

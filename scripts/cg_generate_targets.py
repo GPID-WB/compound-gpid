@@ -1944,6 +1944,11 @@ def _emit_root_adapter(target: dict[str, Any]) -> str:
             "adapter's generated content. This workaround complements upstream Kilo "
             "#12391/PR #12846 and remains necessary for Kilo versions that reject "
             "auto-discovered compatibility skills resolving outside the project.\n"
+            "\nInstall, update, and link do not require Kilo, a minimum Kilo "
+            "version, or host certification. Host checks belong to the optional "
+            "`cg-kilo` launcher; old or unreadable version output produces "
+            "warnings only. Containment checks remain active, and the launcher "
+            "sets `KILO_DISABLE_EXTERNAL_SKILLS=1` only for its child process.\n"
         )
     return adapter
 

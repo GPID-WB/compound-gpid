@@ -367,13 +367,14 @@ Describe "update.ps1 - manifest-managed platform file refresh" {
     }
 }
 
-Describe "update.ps1 - Kilo coexistence preflight" {
-    It "runs the shared Kilo preflight helper for linked local skills" {
+Describe "update.ps1 - host-independent generated-file validation" {
+    It "uses only local validation for managed copies, not user-level skills" {
         $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\update.ps1") -Raw -Encoding UTF8
-        $content | Should -Match 'Invoke-CgKiloPreflight'
-        $content | Should -Match 'RequireCoexistence'
-        $content | Should -Match 'LocalOnly'
-        $content | Should -Match 'cg-kilo'
+        $content | Should -Match 'Invoke-CgKiloPreflight[^\r\n]+-LocalOnly'
+        $content | Should -Match 'Join-Path \$cwdKiloSkills "\.compound-gpid-managed-copy\.json"'
+        $content | Should -Not -Match 'RequireCoexistence|HostOnly'
+        ([regex]::Matches($content, 'Note: Kilo and compatibility skills coexist\.')).Count | Should -Be 1
+        $content | Should -Match 'if \(-not \$env:CG_INTERNAL_CALL -and \(Test-Path[^\r\n]+\$cwdHasCompatibilityRoot\)'
     }
 
     It "does not mutate the caller environment for containment" {

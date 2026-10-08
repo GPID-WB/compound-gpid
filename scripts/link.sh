@@ -714,38 +714,21 @@ PYEOF
 }
 
 run_kilo_preflight() {
-    local mode="$1"
     local output status
-    local -a preflight_args=("$COMPOUND_GPID_DIR/scripts/cg_kilo_preflight.py" --root "$PROJECT_ROOT" --json)
-    if [ "$mode" = "host" ]; then
-        preflight_args+=(--require-coexistence --host-only)
-    elif [ "$mode" = "coexistence" ]; then
-        preflight_args+=(--require-coexistence)
-    else
-        preflight_args+=(--local-only)
-    fi
+    local -a preflight_args=("$COMPOUND_GPID_DIR/scripts/cg_kilo_preflight.py" --root "$PROJECT_ROOT" --json --local-only)
     set +e
     output="$($PYTHON_CMD "${preflight_args[@]}")"
     status=$?
     set -e
     if [ "$status" -ne 0 ]; then
-        print_error "Linking is blocked by Kilo coexistence preflight."
+        print_error "Linking is blocked by local generated Kilo file validation."
         printf '%s\n' "$output" >&2
         exit "$status"
     fi
     local result_status
     result_status="$(printf '%s\n' "$output" | "$PYTHON_CMD" -c 'import json,sys; print(json.load(sys.stdin)["status"])')"
-    print_gray "Kilo preflight ($mode): $result_status"
-    if [ "$mode" = "coexistence" ]; then
-        print_yellow "Certified launch required: cg-kilo (direct Kilo launches unsupported with compatibility roots)."
-    fi
+    print_gray "Kilo preflight (local): $result_status"
 }
-
-if [[ ",$PLATFORMS," == *,kilo,* ]] &&
-   [[ ",$PLATFORMS," == *,codex,* || ",$PLATFORMS," == *,claude-code,* ||
-      -d "$PROJECT_ROOT/.agents/skills" || -d "$PROJECT_ROOT/.claude/skills" ]]; then
-    run_kilo_preflight host
-fi
 
 if [ ! -d "$COMPOUND_GPID_DIR" ]; then print_error "Compound GPID installation directory not found at: $COMPOUND_GPID_DIR"; exit 1; fi
 if [ ! -f "$TARGET_MAPPING_PATH" ]; then print_error "Target mapping not found at: $TARGET_MAPPING_PATH"; exit 1; fi
@@ -955,14 +938,13 @@ fi
 
 protect_kilo_compatibility_skill_links
 
-if [[ ",$PLATFORMS," == *,kilo,* ]] &&
-   [[ ",$PLATFORMS," == *,codex,* || ",$PLATFORMS," == *,claude-code,* ]]; then
-    run_kilo_preflight coexistence
-elif [[ -d "$PROJECT_ROOT/.kilo/skills" &&
-        ( -d "$PROJECT_ROOT/.agents/skills" || -d "$PROJECT_ROOT/.claude/skills" ) ]]; then
-    run_kilo_preflight coexistence
-elif [[ ",$PLATFORMS," == *,kilo,* ]]; then
-    run_kilo_preflight local
+if [[ ",$PLATFORMS," == *,kilo,* ||
+      -f "$PROJECT_ROOT/.kilo/skills/.compound-gpid-managed-copy.json" ]]; then
+    run_kilo_preflight
+fi
+if [[ -d "$PROJECT_ROOT/.kilo/skills" &&
+      ( -d "$PROJECT_ROOT/.agents/skills" || -d "$PROJECT_ROOT/.claude/skills" ) ]]; then
+    print_yellow "Note: Kilo and compatibility skills coexist. Use cg-kilo for an optional contained launch."
 fi
 
 collect_existing_managed_entries >> "$entries_file"

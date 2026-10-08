@@ -268,24 +268,6 @@ if [[ -z "$PYTHON_CMD" ]]; then
     exit 1
 fi
 
-EARLY_UPDATE_IS_SOURCE="false"
-if [[ "$(pwd -P)" == "$(cd "$COMPOUND_GPID_DIR" && pwd -P)" ]]; then
-    EARLY_UPDATE_IS_SOURCE="true"
-fi
-if [[ "${CG_INTERNAL_CALL:-}" != "1" && "$EARLY_UPDATE_IS_SOURCE" != "true" &&
-      -d "$(pwd)/.kilo/skills" &&
-      ( -d "$(pwd)/.agents/skills" || -d "$(pwd)/.claude/skills" ) ]]; then
-    set +e
-    EARLY_PREFLIGHT_OUTPUT="$($PYTHON_CMD "$COMPOUND_GPID_DIR/scripts/cg_kilo_preflight.py" --root "$(pwd)" --json --require-coexistence --host-only)"
-    EARLY_PREFLIGHT_STATUS=$?
-    set -e
-    if [[ "$EARLY_PREFLIGHT_STATUS" -ne 0 ]]; then
-        print_error "Update is blocked by Kilo host preflight."
-        printf '%s\n' "$EARLY_PREFLIGHT_OUTPUT" >&2
-        exit "$EARLY_PREFLIGHT_STATUS"
-    fi
-fi
-
 # ---------------------------------------------------------------------------
 # Parse arguments
 # ---------------------------------------------------------------------------
@@ -686,35 +668,28 @@ if changed:
 PYEOF
 fi
 
-# Re-run the Kilo containment gate for an already linked consumer project. The
-# internal cg-link update is skipped here; link.sh runs the gate after copying
-# the fresh project-local Kilo projection.
+# Validate only legacy generated copies. Manifest projections have their own
+# ownership validation below; user-level skill roots are not generated copies.
+# Internal cg-link calls leave validation and the single note to link.sh.
 if [[ "${CG_INTERNAL_CALL:-}" != "1" ]] &&
    [[ "$(pwd -P)" != "$(cd "$COMPOUND_GPID_DIR" && pwd -P)" ]] &&
-   [[ -d "$(pwd)/.kilo/skills" ]] &&
-   [[ -d "$(pwd)/.compound-gpid" || -d "$(pwd)/.agents/skills" || -d "$(pwd)/.claude/skills" ]]; then
-    PREFLIGHT_ARGS=("$COMPOUND_GPID_DIR/scripts/cg_kilo_preflight.py" --root "$(pwd)" --json)
-    if [[ -d "$(pwd)/.agents/skills" || -d "$(pwd)/.claude/skills" ]]; then
-        PREFLIGHT_ARGS+=(--require-coexistence)
-        PREFLIGHT_LABEL="coexistence"
-    else
-        PREFLIGHT_ARGS+=(--local-only)
-        PREFLIGHT_LABEL="local"
-    fi
+   [[ -f "$(pwd)/.kilo/skills/.compound-gpid-managed-copy.json" ]]; then
+    PREFLIGHT_ARGS=("$COMPOUND_GPID_DIR/scripts/cg_kilo_preflight.py" --root "$(pwd)" --json --local-only)
     set +e
     PREFLIGHT_OUTPUT="$($PYTHON_CMD "${PREFLIGHT_ARGS[@]}")"
     PREFLIGHT_STATUS=$?
     set -e
     if [[ "$PREFLIGHT_STATUS" -ne 0 ]]; then
-        print_error "Update is blocked by Kilo coexistence preflight."
+        print_error "Update is blocked by local generated Kilo file validation."
         printf '%s\n' "$PREFLIGHT_OUTPUT" >&2
         exit "$PREFLIGHT_STATUS"
     fi
     PREFLIGHT_RESULT="$(printf '%s\n' "$PREFLIGHT_OUTPUT" | "$PYTHON_CMD" -c 'import json,sys; print(json.load(sys.stdin)["status"])')"
-    print_gray "Kilo preflight ($PREFLIGHT_LABEL): $PREFLIGHT_RESULT"
-    if [[ "$PREFLIGHT_LABEL" == "coexistence" ]]; then
-        print_yellow "Certified launch required: cg-kilo (direct Kilo launches unsupported with compatibility roots)."
-    fi
+    print_gray "Kilo preflight (local): $PREFLIGHT_RESULT"
+fi
+if [[ "${CG_INTERNAL_CALL:-}" != "1" && -d "$(pwd)/.kilo/skills" &&
+      ( -d "$(pwd)/.agents/skills" || -d "$(pwd)/.claude/skills" ) ]]; then
+    print_yellow "Note: Kilo and compatibility skills coexist. Use cg-kilo for an optional contained launch."
 fi
 
 # ---------------------------------------------------------------------------

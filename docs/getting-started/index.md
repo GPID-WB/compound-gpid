@@ -19,8 +19,11 @@ institutional operating constraints.
 
 ## 2. Install once per machine
 
-Requirements are Git, Python 3.8 or later, and a supported agent host. Windows
-also requires PowerShell 5.1 or later.
+Installation requires Git and Python 3.8 or later. Windows also requires
+PowerShell 5.1 or later. An agent host is needed to use its workflows, not to
+install, update, or link the files. These lifecycle operations do not require
+Kilo, a minimum Kilo version, or host certification. Optional `cg-kilo` version
+diagnostics produce warnings only and keep containment checks active.
 
 ### Windows
 
