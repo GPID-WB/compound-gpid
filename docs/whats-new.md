@@ -4,6 +4,69 @@ Release history and notable changes across Compound GPID from structured
 release payloads.
 
 <!-- cg:auto:release-notes -->
+### v1.2.0.9022 — v1.2.0.9022 - Safe-baseline rebuild
+
+*2026-10-08T13:13:26Z*
+
+**Fixed — 9017 baseline with safety fixes**
+- Prepared candidate, not yet published: rebuild from v1.2.0.9017 with the safety fixes in Slices 1-4a. Keep ordinary commands, adapters, skills, and the research suite. Windows and Mac pilots and publication approval are pending.
+- Preserve modified or unowned old files and recovery evidence. Retire only unchanged files with valid ownership proof. Ignore private local configuration in Git; existing configuration access and global Kilo permission behavior are unchanged.
+- Make new pinned updates restore the original checkout and version pin after validation failure. Stop on user changes rather than discard them. Register committed POSIX wrappers without changing the installation clone.
+- Correct Windows Store-Python launcher detection and long-path secure staging. Bound CI jobs and qualify full native tests plus fresh install, link, and unlink smoke fixtures. These fixtures are not real Kilo host qualification.
+
+**New — Supported migration and rollback**
+- From 9020 or 9021 on Windows: back up projects and the installation clone; move the old clone aside; clone the repository at the SAME path; check out v1.2.0.9022 after publication; set .cg-version to v1.2.0.9022, not latest; run install.ps1; open a new terminal; run the NEW cg-link once per project.
+- From 9020 or 9021 on macOS: back up projects and the installation clone; move the old clone aside; clone the repository at the SAME path; check out v1.2.0.9022 after publication; set .cg-version to v1.2.0.9022, not latest; run bash scripts/install.sh; open a new terminal; run the NEW cg-link once per project.
+- If cg-link blocks or preserves old plugin files, stop and keep the files, ownership records, journals, and private configuration. Keep backup copies outside adapter discovery folders. Ask for a reviewed manual repair; do not delete an adapter folder or use cg-unlink as a cleanup shortcut.
+- Keep the old clone available. If 9022 does not work, stop, move the new clone aside, restore the old clone at its original path, run its installer, and open a new terminal. Restore changed project files from reviewed backups; clone rollback does not undo all project changes.
+
+**Internal — Scope, publication policy, and known limits**
+- 9020/9021 features NOT included in 9022: cg-help answers and support evidence, docs browser changes, Kilo autopilot and native plugin, async release controller, receipts, and Pages sealing. Baseline ownership records remain; new release-controller receipts are not restored.
+- Publication, after separate approval, is Reserve-only: a non-draft GitHub pre-release with make_latest false from the exact pushed source branch. No documentation deployment, Pages step, or Finalize attestation is required for 9022.
+- Known limits: Windows PowerShell 5.1 can still fail to copy or unlink long paths. Use a short installation and test-project path; do not shorten or delete user project files to force success. The unpublished recovery updater is not supported.
+- Re-clone is the supported migration. Old-updater acquisition is an advanced, unsupported procedure only: record the old commit and pin, preserve unknown edits, restore only proven installer changes under review, use explicit v1.2.0.9022 (never latest), stop on errors, and reconcile separately with NEW cg-link and CG_SKIP_UPDATE=1.
+
+[View source tag](https://github.com/GPID-WB/compound-gpid/tree/v1.2.0.9022)
+
+---
+
+### v1.2.0.9017 — v1.2.0.9017 - Kilo minimum-version compatibility
+
+*2026-09-11T21:35:55Z*
+
+**Fixed — Kilo minimum-version compatibility**
+- Accept valid Kilo runtime versions at or above 7.4.20, including 7.5.16, without an exact-version allowlist or upper bound. Continue to reject malformed and below-minimum versions and require capability, trust, projection, and containment checks.
+
+**Internal — Verification, recovery guidance, and release evidence**
+- Add minimum-version regression tests, document recovery through the global installation before refreshing consumer projects, and update generated PR verification guidance.
+- Record and merge the canonical and generated v1.2.0.9016 release attestation.
+
+[View source tag](https://github.com/GPID-WB/compound-gpid/tree/v1.2.0.9017)
+
+---
+
+### v1.2.0.9016 — v1.2.0.9016 - Qualified light-work command
+
+*2026-09-11T16:57:58Z*
+
+**New — Qualified light-work command**
+- Add /cg-light-work as a bounded workflow for small tasks with qualification, planning, review, and compounding gates.
+- Redirect unmatched inline tasks from /cg-work and register /cg-light-work in context and model audits.
+
+**Fixed — Release preflight**
+- Correct preflight timeout and migration scan scope.
+
+**Internal — Documentation, verification, and repository maintenance**
+- Document task routing, approval gates, execution evidence, and completed planning records.
+- Test qualification gates, plan-only redirects, audit identity, token limits, review burden, suite filtering, and generated target provenance.
+- Generate /cg-light-work assets for Kilo, OpenCode, Claude, and Codex with updated lifecycle contracts.
+- Document registry identity validation before derived maps and rebuild knowledge indexes.
+- Integrate development branches and record release attestation.
+
+[View source tag](https://github.com/GPID-WB/compound-gpid/tree/v1.2.0.9016)
+
+---
+
 ### v1.2.0.9015 — v1.2.0.9015 - Reliable prerelease publication
 
 *2026-09-10T18:31:25Z*
