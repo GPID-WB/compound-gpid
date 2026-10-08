@@ -322,6 +322,7 @@ Describe "create-release.ps1 - native packaging preflight" {
 
     It "enforces the stable-main and prerelease-dev branch matrix" {
         $scriptContent | Should -Match '\$isPrereleaseTag\s*=\s*\$Tag -cmatch'
+        $scriptContent | Should -Match '\$reserveOnlyRelease\s*=\s*\$isPrereleaseTag'
         $scriptContent | Should -Match '\$releaseBranch\s*=\s*"main"'
         $scriptContent | Should -Match 'if \(\$isPrereleaseTag\) \{ \$releaseBranch = "dev" \}'
         $scriptContent | Should -Match 'merge-base --is-ancestor \$ExpectedCommit \$branchCommit'
@@ -397,7 +398,7 @@ Describe "create-release.ps1 - native packaging preflight" {
 
 }
 
-Describe "create-release.ps1 - executable two-phase publication with offline mocks" {
+Describe "create-release.ps1 - executable release publication with offline mocks" {
     BeforeEach {
         $script:fixture = Join-Path $TestDrive ("release-" + [guid]::NewGuid().ToString('N'))
         New-Item -ItemType Directory -Path (Join-Path $script:fixture "releases") -Force | Out-Null
@@ -611,7 +612,7 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
         $calls | Should -Not -Match 'refs/heads/dev|rulesets/3|actions/|cg_release_attestation.py'
         $script:state.FetchCount | Should -Be 2
         $script:state.Release.prerelease | Should -Be $true
-        ($script:state.Messages -join "`n") | Should -Match 'Finalize and evidence commit are still required'
+        ($script:state.Messages -join "`n") | Should -Match 'COMPLETE \(CREATED\): v1.2.0.9015'
     }
     It 'rejects SourceBranch for stable tags before native or API calls' {
         $script:state.Tag = 'v1.2.0'
@@ -692,12 +693,13 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
         ($script:state.Calls -join "`n") | Should -Match 'rulesets/3'
         ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
     }
-    It 'keeps the dev source and incomplete lifecycle when SourceBranch is omitted' {
+    It 'keeps the dev source and completes Reserve when SourceBranch is omitted' {
         Invoke-FixtureRelease
         ($script:state.Calls -join "`n") | Should -Match 'refs/heads/dev'
         ($script:state.Calls -join "`n") | Should -Match 'rulesets/3'
         ($script:state.Calls -join "`n") | Should -Not -Match 'check-ref-format'
-        ($script:state.Messages -join "`n") | Should -Match 'Finalize and evidence commit are still required'
+        ($script:state.Messages -join "`n") | Should -Match 'COMPLETE \(CREATED\): v1.2.0.9015'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'actions/|cg_release_attestation.py'
     }
     It 'keeps the default dev protection failure when SourceBranch is omitted' {
         $script:state.DevBypass = 'always'
@@ -740,6 +742,7 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
         $calls | Should -Match 'rulesets/3'
         $calls | Should -Not -Match 'refs/heads/dev|branch --show-current|symbolic-ref'
         $script:state.Release.prerelease | Should -Be $false
+        ($script:state.Messages -join "`n") | Should -Match 'Finalize and evidence commit are still required'
     }
     It 'rejects a noncanonical origin before publication without displaying its URL' {
         $script:state.Origin = 'https://SECRET-MUST-NOT-LEAK@github.com/elsewhere/fork.git'
@@ -853,84 +856,105 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
         { Invoke-FixtureRelease } | Should -Throw 'immutable release metadata'
         $script:state.Release.name | Should -Be 'conflict'
     }
-    It 'leaves the Release intact when docs fail during Finalize' {
-        Invoke-FixtureRelease
-        $script:state.DocsStatus = 'failure'
-        { Invoke-FixtureRelease -Phase Finalize } | Should -Throw 'release-docs.yml'
-        $script:state.Release.id | Should -Be 123
-        Test-Path (Join-Path $script:fixture 'release-result.txt') | Should -Be $false
-    }
-    It 'rejects a successful docs run at the wrong SHA' {
-        $script:state.Remote = $true; $script:state.Release = $script:expected; $script:state.BadChain = $true
-        { Invoke-FixtureRelease -Phase Finalize -ExactRuns } | Should -Throw 'release-docs.yml'
-    }
-    It 'requires successful Pages and leaves the pair intact' {
-        $script:state.Remote = $true; $script:state.Release = $script:expected; $script:state.PagesStatus = 'failure'
-        { Invoke-FixtureRelease -Phase Finalize } | Should -Throw 'release-pages.yml'
-        $script:state.Release.id | Should -Be 123
-    }
-    It 'rejects a successful controller from another build or workflow' -TestCases @(
-        @{ Field = 'PagesName'; Value = 'Deploy docs from 99' },
-        @{ Field = 'PagesName'; Value = 'DEPLOY DOCS FROM 10' },
-        @{ Field = 'PagesPath'; Value = '.github/workflows/pages.yml' }
-    ) {
-        param($Field, $Value)
-        $script:state.Remote = $true; $script:state.Release = $script:expected; $script:state[$Field] = $Value
-        { Invoke-FixtureRelease -Phase Finalize -ExactRuns } | Should -Throw 'release-pages.yml'
-        ($script:state.Calls -join "`n") | Should -Not -Match 'cg_release_attestation.py|push origin|api Post'
+    Context 'stable full lifecycle' {
+        BeforeEach {
+            Remove-Item (Join-Path $script:fixture 'releases/v1.2.0.9015.json')
+            $script:state.Tag = 'v1.2.0'
+            $script:expected.tag_name = $script:state.Tag; $script:expected.name = 'v1.2.0 - Pairing'
+            $script:expected.html_url = 'https://github.com/GPID-WB/compound-gpid/releases/tag/v1.2.0'
+            $script:expected.prerelease = $false
+            @{ tag = $script:state.Tag; name = $script:expected.name; url = $script:expected.html_url; publishedAt = '2026-09-10T00:00:00Z' } |
+                ConvertTo-Json | Set-Content (Join-Path $script:fixture 'releases/v1.2.0.json')
+        }
+        It 'leaves the Release intact when docs fail during Finalize' {
+            Invoke-FixtureRelease
+            $script:state.DocsStatus = 'failure'
+            { Invoke-FixtureRelease -Phase Finalize } | Should -Throw 'release-docs.yml'
+            $script:state.Release.id | Should -Be 123
+            Test-Path (Join-Path $script:fixture 'release-result.txt') | Should -Be $false
+        }
+        It 'rejects a successful docs run at the wrong SHA' {
+            $script:state.Remote = $true; $script:state.Release = $script:expected; $script:state.BadChain = $true
+            { Invoke-FixtureRelease -Phase Finalize -ExactRuns } | Should -Throw 'release-docs.yml'
+        }
+        It 'requires successful Pages and leaves the pair intact' {
+            $script:state.Remote = $true; $script:state.Release = $script:expected; $script:state.PagesStatus = 'failure'
+            { Invoke-FixtureRelease -Phase Finalize } | Should -Throw 'release-pages.yml'
+            $script:state.Release.id | Should -Be 123
+        }
+        It 'rejects a successful controller from another build or workflow' -TestCases @(
+            @{ Field = 'PagesName'; Value = 'Deploy docs from 99' },
+            @{ Field = 'PagesName'; Value = 'DEPLOY DOCS FROM 10' },
+            @{ Field = 'PagesPath'; Value = '.github/workflows/pages.yml' }
+        ) {
+            param($Field, $Value)
+            $script:state.Remote = $true; $script:state.Release = $script:expected; $script:state[$Field] = $Value
+            { Invoke-FixtureRelease -Phase Finalize -ExactRuns } | Should -Throw 'release-pages.yml'
+            ($script:state.Calls -join "`n") | Should -Not -Match 'cg_release_attestation.py|push origin|api Post'
+        }
+        It 'reserves stable metadata then finalizes the exact chain and attests without remote mutations' {
+            Invoke-FixtureRelease
+            Get-Content (Join-Path $script:fixture 'release-result.txt') | Should -Match '^CREATED\|'
+            $script:state.Release.prerelease | Should -Be $false
+            ($script:state.Messages -join "`n") | Should -Match 'Finalize and evidence commit are still required'
+            ($script:state.Calls -join "`n") | Should -Not -Match 'actions/|cg_release_attestation.py'
+            $script:state.Calls.Clear()
+            Invoke-FixtureRelease -Phase Finalize -ExactRuns
+            Get-Content (Join-Path $script:fixture 'release-result.txt') | Should -Match '^FINALIZED\|'
+            $calls = $script:state.Calls -join "`n"
+            $calls | Should -Match 'refs/heads/main'
+            $calls | Should -Match 'rulesets/3'
+            $calls | Should -Not -Match 'push origin|api Post'
+            $calls.IndexOf('/actions/runs/10') | Should -BeGreaterThan -1
+            $calls.IndexOf('/actions/runs/20') | Should -BeGreaterThan $calls.IndexOf('/actions/runs/10')
+            $calls.LastIndexOf('cg_release_attestation.py') | Should -BeGreaterThan $calls.IndexOf('/actions/runs/20')
+            ($script:state.Messages -join "`n") | Should -Match 'FINALIZED: v1.2.0'
+        }
+        It 'does not create a Release from Finalize' {
+            $script:state.Remote = $true
+            { Invoke-FixtureRelease -Phase Finalize } | Should -Throw 'Run Reserve first'
+            ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post|actions/'
+        }
+        It 'leaves the Release intact on attestation failure' {
+            $script:state.Remote = $true; $script:state.Release = $script:expected; $script:state.AttestationExit = 9
+            { Invoke-FixtureRelease -Phase Finalize } | Should -Throw 'attestation failed'
+            $script:state.Release.id | Should -Be 123
+            Test-Path (Join-Path $script:fixture 'release-result.txt') | Should -Be $false
+        }
+        It 'allows an identical canonical untracked attestation retry only after read-only validation' {
+            $script:state.Remote = $true; $script:state.Release = $script:expected
+            $script:state.Dirty = @('?? .github/shared/skill-management/release-attestations/v1.2.0.json')
+            Invoke-FixtureRelease -Phase Finalize
+            ($script:state.Calls -join "`n") | Should -Match 'cg_release_attestation.py[^\n]+--check'
+        }
+        It 'rejects an altered canonical untracked attestation' {
+            $script:state.Remote = $true; $script:state.Release = $script:expected; $script:state.CheckExit = 1
+            $script:state.Dirty = @('?? .github/shared/skill-management/release-attestations/v1.2.0.json')
+            { Invoke-FixtureRelease -Phase Finalize } | Should -Throw 'identical canonical attestation'
+        }
     }
     It 'never creates lifecycle attestation for withdrawn 9014' {
         $script:state.Tag = 'v1.2.0.9014'
-        { Invoke-FixtureRelease -Phase Finalize } | Should -Throw 'not eligible for lifecycle attestation'
+        { Invoke-FixtureRelease -Phase Finalize } | Should -Throw 'Finalize is not supported'
         $script:state.Calls.Count | Should -Be 0
-    }
-    It 'finalizes the exact successful chain then attests without remote mutations' {
-        $script:state.Remote = $true; $script:state.Release = $script:expected
-        Invoke-FixtureRelease -Phase Finalize -ExactRuns
-        Get-Content (Join-Path $script:fixture 'release-result.txt') | Should -Match '^FINALIZED\|'
-        $calls = $script:state.Calls -join "`n"
-        $calls | Should -Not -Match 'push origin|api Post'
-        $calls.LastIndexOf('cg_release_attestation.py') | Should -BeGreaterThan $calls.IndexOf('/actions/runs/20')
-    }
-    It 'does not create a Release from Finalize' {
-        $script:state.Remote = $true
-        { Invoke-FixtureRelease -Phase Finalize } | Should -Throw 'Run Reserve first'
-        ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post|actions/'
-    }
-    It 'leaves the Release intact on attestation failure' {
-        $script:state.Remote = $true; $script:state.Release = $script:expected; $script:state.AttestationExit = 9
-        { Invoke-FixtureRelease -Phase Finalize } | Should -Throw 'attestation failed'
-        $script:state.Release.id | Should -Be 123
-        Test-Path (Join-Path $script:fixture 'release-result.txt') | Should -Be $false
-    }
-    It 'allows an identical canonical untracked attestation retry only after read-only validation' {
-        $script:state.Remote = $true; $script:state.Release = $script:expected
-        $script:state.Dirty = @('?? .github/shared/skill-management/release-attestations/v1.2.0.9015.json')
-        Invoke-FixtureRelease -Phase Finalize
-        ($script:state.Calls -join "`n") | Should -Match 'cg_release_attestation.py[^\n]+--check'
-    }
-    It 'rejects an altered canonical untracked attestation' {
-        $script:state.Remote = $true; $script:state.Release = $script:expected; $script:state.CheckExit = 1
-        $script:state.Dirty = @('?? .github/shared/skill-management/release-attestations/v1.2.0.9015.json')
-        { Invoke-FixtureRelease -Phase Finalize } | Should -Throw 'identical canonical attestation'
     }
     It 'rejects arbitrary dirty files even with a canonical attestation' {
         $script:state.Dirty = @('?? arbitrary.txt', '?? .github/shared/skill-management/release-attestations/v1.2.0.9015.json')
         { Invoke-FixtureRelease } | Should -Throw 'must be clean'
     }
-    Context '9022 Reserve-only completion' {
-        BeforeEach {
-            Remove-Item (Join-Path $script:fixture 'releases/v1.2.0.9015.json')
-            $script:state.Tag = 'v1.2.0.9022'
-            $script:expected.tag_name = $script:state.Tag; $script:expected.name = 'v1.2.0.9022 - Safe baseline'
-            $script:expected.html_url = 'https://github.com/GPID-WB/compound-gpid/releases/tag/v1.2.0.9022'
-            @{ tag = $script:state.Tag; name = $script:expected.name; url = $script:expected.html_url; publishedAt = '2026-09-10T00:00:00Z' } |
-                ConvertTo-Json | Set-Content (Join-Path $script:fixture 'releases/v1.2.0.9022.json')
-        }
-        It 'completes exact 9022 Reserve without Pages, Finalize, or attestation dependencies' -TestCases @(
-            @{ Existing = $false }, @{ Existing = $true }
+    Context 'four-component Reserve-only completion' {
+        It 'completes <Tag> Reserve without Pages, Finalize, or attestation dependencies' -TestCases @(
+            @{ Tag = 'v1.2.0.9022'; Existing = $false }, @{ Tag = 'v1.2.0.9022'; Existing = $true },
+            @{ Tag = 'v1.2.0.9023'; Existing = $false }, @{ Tag = 'v1.2.0.9023'; Existing = $true },
+            @{ Tag = 'v10.20.300.4'; Existing = $false }, @{ Tag = 'v10.20.300.4'; Existing = $true }
         ) {
-            param($Existing)
+            param($Tag, $Existing)
+            Remove-Item (Join-Path $script:fixture 'releases/v1.2.0.9015.json')
+            $script:state.Tag = $Tag
+            $script:expected.tag_name = $Tag; $script:expected.name = "$Tag - Reserve-only"
+            $script:expected.html_url = "https://github.com/GPID-WB/compound-gpid/releases/tag/$Tag"
+            @{ tag = $script:state.Tag; name = $script:expected.name; url = $script:expected.html_url; publishedAt = '2026-09-10T00:00:00Z' } |
+                ConvertTo-Json | Set-Content (Join-Path $script:fixture "releases/$Tag.json")
             $script:state.Remote = $Existing
             if ($Existing) { $script:state.Release = $script:expected }
             $script:state.DocsStatus = 'failure'; $script:state.PagesStatus = 'failure'; $script:state.AttestationExit = 9
@@ -941,20 +965,42 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
             $script:state.Release.draft | Should -Be $false
             $script:state.Release.prerelease | Should -Be $true
             ($script:state.Calls -join "`n") | Should -Not -Match 'actions/|cg_release_attestation.py|rulesets/3'
-            ($script:state.Messages -join "`n") | Should -Match "COMPLETE \($status\): v1.2.0.9022"
+            ($script:state.Messages -join "`n") | Should -Match ("COMPLETE \($status\): " + [regex]::Escape($Tag))
             ($script:state.Messages -join "`n") | Should -Not -Match 'Finalize and evidence commit are still required'
+            if ($Existing) {
+                ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
+            } else {
+                @($script:state.Calls | Where-Object { $_ -match '^api Post ' }).Count | Should -Be 1
+            }
         }
-        It 'rejects Finalize for 9022 before Git, HTTP, Pages, or attestation calls' {
+        It 'rejects Finalize for <Tag> before Git, HTTP, Pages, or attestation calls' -TestCases @(
+            @{ Tag = 'v1.2.0.9022' }, @{ Tag = 'v1.2.0.9023' }, @{ Tag = 'v10.20.300.4' }
+        ) {
+            param($Tag)
+            $script:state.Tag = $Tag
             { Invoke-FixtureRelease -Phase Finalize -ExactRuns -SourceBranch 'chore/rebuild-from-9017' } | Should -Throw 'Finalize is not supported'
             $script:state.Calls.Count | Should -Be 0
             Test-Path (Join-Path $script:fixture 'release-result.txt') | Should -Be $false
         }
-        It 'does not allow an attestation exception for 9022 even without SourceBranch' {
-            $script:state.Dirty = @('?? .github/shared/skill-management/release-attestations/v1.2.0.9022.json')
+        It 'does not allow an attestation exception for <Tag> even without SourceBranch' -TestCases @(
+            @{ Tag = 'v1.2.0.9022' }, @{ Tag = 'v1.2.0.9023' }, @{ Tag = 'v10.20.300.4' }
+        ) {
+            param($Tag)
+            $script:state.Tag = $Tag
+            $script:state.Dirty = @("?? .github/shared/skill-management/release-attestations/$Tag.json")
             { Invoke-FixtureRelease } | Should -Throw 'must be clean'
             ($script:state.Calls -join "`n") | Should -Not -Match 'cg_release_attestation.py|credential fill|push origin|api Post'
         }
-        It 'does not report 9022 complete after an uncertain unpaired POST' {
+        It 'does not report <Tag> complete after an uncertain unpaired POST' -TestCases @(
+            @{ Tag = 'v1.2.0.9022' }, @{ Tag = 'v1.2.0.9023' }, @{ Tag = 'v10.20.300.4' }
+        ) {
+            param($Tag)
+            Remove-Item (Join-Path $script:fixture 'releases/v1.2.0.9015.json')
+            $script:state.Tag = $Tag
+            $script:expected.tag_name = $Tag; $script:expected.name = "$Tag - Reserve-only"
+            $script:expected.html_url = "https://github.com/GPID-WB/compound-gpid/releases/tag/$Tag"
+            @{ tag = $script:state.Tag; name = $script:expected.name; url = $script:expected.html_url; publishedAt = '2026-09-10T00:00:00Z' } |
+                ConvertTo-Json | Set-Content (Join-Path $script:fixture "releases/$Tag.json")
             $script:state.PostMode = 'absent'
             { Invoke-FixtureRelease -SourceBranch 'chore/rebuild-from-9017' } | Should -Throw 'Reservation is incomplete'
             Test-Path (Join-Path $script:fixture 'release-result.txt') | Should -Be $false

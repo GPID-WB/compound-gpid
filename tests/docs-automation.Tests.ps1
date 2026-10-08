@@ -72,8 +72,8 @@ Describe "Pages exact-artifact deployment contracts" {
         $pagesWorkflow | Should -Not -Match 'actions/download-artifact|run-id:'
     }
 
-    It "supports unprivileged tag builds through the protected workflow-run controller" {
-        $releaseWorkflow | Should -Match 'tags:\s*\["v\*\.\*\.\*", "!v1\.2\.0\.9022"\]'
+    It "supports unprivileged stable tag builds through the protected workflow-run controller" {
+        $releaseWorkflow | Should -Match 'tags:\s*\["v\*\.\*\.\*", "!v\*\.\*\.\*\.\*"\]'
         $releaseWorkflow | Should -Match 'release-docs-site'
         $releaseWorkflow | Should -Not -Match 'pages:\s*write|id-token:\s*write'
         $pagesWorkflow | Should -Match '(?m)^\s*push:\s*$'
@@ -85,8 +85,19 @@ Describe "Pages exact-artifact deployment contracts" {
         $releaseWorkflow | Should -Match 'rebuild-docs\.js --all'
     }
 
-    It "accepts dev-series pre-release tags (v1.2.0.900x) in the unprivileged builder" {
-        $tagPatterns = @([regex]::Matches($releaseWorkflow, '\$RELEASE_TAG"\s*=\~\s*([^ ]+)') | ForEach-Object { $_.Groups[1].Value } | Where-Object { $_ -match '^\^v' })
+    It "triggers docs for stable tags but not four-component <Tag>" -TestCases @(
+        @{ Tag = 'v1.2.0'; Builds = $true }, @{ Tag = 'v10.20.300'; Builds = $true },
+        @{ Tag = 'v1.2.0.9022'; Builds = $false }, @{ Tag = 'v1.2.0.9023'; Builds = $false },
+        @{ Tag = 'v10.20.300.4'; Builds = $false }
+    ) {
+        param($Tag, $Builds)
+        $tagFilters = [regex]::Match($releaseWorkflow, 'tags:\s*\["([^"]+)", "!([^"]+)"\]')
+        $tagFilters.Success | Should -Be $true
+        ($Tag -clike $tagFilters.Groups[1].Value -and $Tag -cnotlike $tagFilters.Groups[2].Value) | Should -Be $Builds
+    }
+
+    It "retains exact stable and legacy tag parser shapes" {
+        $tagPatterns = @([regex]::Matches($releaseWorkflow, '\$RELEASE_TAG"\s*=~\s*([^ ]+)') | ForEach-Object { $_.Groups[1].Value } | Where-Object { $_ -match '^\^v' })
         $tagPatterns.Count | Should -Be 2
         ([regex]$tagPatterns[0]).IsMatch('v1.2.0.9004') | Should -Be $true
         ([regex]$tagPatterns[1]).IsMatch('v1.2.0') | Should -Be $true
@@ -215,6 +226,27 @@ Describe "Release payload sequencing contracts" {
         $releasePrompt | Should -Match 'Restrict release tag creation'
         $releasePrompt | Should -Match 'Protect dev'
         $releasePrompt | Should -Match 'Draft releases are not supported'
+    }
+
+    It "completes every four-component release and resume through Reserve only" {
+        $releasePrompt | Should -Not -Match 'v1\.2\.0\.9022|v1\.2\.0\.9023'
+        $releasePrompt | Should -Match 'For a four-component tag with reviewed `releases/<next-tag>\.md` notes already[\s\S]*prepared'
+        $releasePrompt | Should -Match 'If no reviewed versioned notes exist, use the drafting[\s\S]*instructions below'
+        $releasePrompt | Should -Match 'keep its name and[\s\S]*dates; halt if a new scanner payload differs'
+        $releasePrompt | Should -Match 'For every four-component tag, `CREATED\|<id>\|<url>` or `EXISTS\|<id>\|<url>`'
+        $releasePrompt | Should -Match 'no Pages wait, Finalize, attestation, generated evidence, or evidence commit'
+        $releasePrompt | Should -Match 'GitHub prereleases with `make_latest: "false"`'
+        $resumeBlock = [regex]::Match($releasePrompt, '(?s)### Resume An Interrupted Release.*?(?=### Step 6:)').Value
+        $resumeBlock | Should -Match 'For every four-component tag, require the successful exact Reserve'
+        $resumeBlock | Should -Match 'STOP without Step 5\.8[\s\S]*or Step 6'
+        $resumeBlock | Should -Match 'With any four-component tag, no untracked[\s\S]*attestation exception is allowed'
+        $finalizeBlock = [regex]::Match($releasePrompt, '(?s)### Step 6:.*?(?=## Rules)').Value
+        $finalizeBlock | Should -Match 'Skip this entire step for every four-component tag'
+        $finalizeBlock | Should -Match 'rejects Finalize for all four-component tags'
+        $finalizeBlock | Should -Match 'Stable three-component tags keep the following lifecycle unchanged'
+        $finalizeBlock | Should -Match '-Phase Finalize[\s\S]*successful `release-docs.yml`[\s\S]*successful `release-pages.yml`[\s\S]*canonical release-attestation'
+        $finalizeBlock | Should -Match 'After Finalize, require `FINALIZED\|<id>\|<url>`'
+        $finalizeBlock | Should -Match 'Only after those records are committed and[\s\S]*verified may you report lifecycle completion'
     }
 
     It "uses the durable latest payload rather than temporary tags as the scan baseline" {

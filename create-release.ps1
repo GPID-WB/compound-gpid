@@ -6,8 +6,8 @@ Creates a GitHub Release for GPID-WB/compound-gpid via the GitHub API.
 Reserve pushes the exact local annotated tag and immediately creates its matching
 published Release after all preflight checks. Finalize verifies the documentation
 run chain and writes the attestation. Neither phase deletes or edits a Release.
-For v1.2.0.9022 only, Reserve completes publication without documentation or
-attestation; Finalize is not supported.
+For every four-component prerelease tag, Reserve completes publication without
+documentation or attestation; Finalize is not supported.
 All reservations set make_latest to "false", including stable tags. Neither phase
 promotes a Release to GitHub's latest stable release.
 Retrieves credentials from Git Credential Manager.
@@ -34,9 +34,9 @@ three-component tags cannot be marked as prereleases.
 .\create-release.ps1 -Tag v0.0.6 -Name "v0.0.6 - My feature" -NotesFile RELEASE_NOTES.md
 
 .PARAMETER Phase
-Reserve (default) establishes the tag/Release pair, not lifecycle completion.
-Finalize requires that pair and successful documentation deployment.
-For v1.2.0.9022, Reserve completes publication and Finalize is rejected.
+Reserve (default) establishes the tag/Release pair. For stable three-component
+tags, Finalize requires that pair and successful documentation deployment.
+For every four-component tag, Reserve completes publication and Finalize is rejected.
 
 .PARAMETER SourceBranch
 Optional existing origin branch for a four-component prerelease. Requires a
@@ -88,9 +88,9 @@ if ($Tag -cnotmatch '^v\d+\.\d+\.\d+(\.\d+)?$') {
 $isPrereleaseTag = $Tag -cmatch '^v\d+\.\d+\.\d+\.\d+$'
 $releaseBranch = "main"
 if ($isPrereleaseTag) { $releaseBranch = "dev" }
-$reserveOnlyRelease = $Tag -ceq "v1.2.0.9022"
+$reserveOnlyRelease = $isPrereleaseTag
 if ($reserveOnlyRelease -and $Phase -eq "Finalize") {
-    throw "v1.2.0.9022 completes publication in Reserve; Finalize is not supported."
+    throw "Four-component prereleases complete publication in Reserve; Finalize is not supported."
 }
 $hasSourceBranch = $PSBoundParameters.ContainsKey("SourceBranch")
 if ($hasSourceBranch) {
