@@ -14,6 +14,7 @@ jobs:
   browser-evidence:
     name: Browser evidence manifest tests
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
     permissions:
       contents: read
     steps:
@@ -35,6 +36,7 @@ jobs:
   kilo-capability-report:
     name: Generic Kilo capability report
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
     permissions:
       contents: read
     outputs:
@@ -99,6 +101,7 @@ jobs:
         )
       }}
     runs-on: ${{ vars.CG_KILO_CERTIFIED_RUNNER }}
+    timeout-minutes: 30
     environment: cg-kilo-certified
     permissions:
       contents: read
@@ -225,6 +228,7 @@ jobs:
   native-targets:
     name: Native target Python gate on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 120
     permissions:
       contents: read
     strategy:
@@ -332,6 +336,7 @@ jobs:
   python38-compat:
     name: Python 3.8 skill-management compatibility
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
     permissions:
       contents: read
     steps:
@@ -355,6 +360,7 @@ jobs:
   test:
     name: Pester on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
     needs: kilo-capability-report
     permissions:
       contents: read
@@ -586,6 +592,325 @@ jobs:
           path: tests/last-run.json
           if-no-files-found: ignore
 
+  # Separate, non-required contexts. These hosted fixtures do not qualify Kilo
+  # or the supported re-clone migration, and do not replace the native gates.
+  hosted-smoke-windows:
+    name: Reduced hosted smoke on windows-latest (${{ matrix.shell }})
+    runs-on: windows-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        shell: [ powershell, cmd ]
+    env:
+      CG_SKIP_UPDATE: "1"
+      PYTHONDONTWRITEBYTECODE: "1"
+      GIT_CONFIG_NOSYSTEM: "1"
+      GIT_TERMINAL_PROMPT: "0"
+      GIT_ALLOW_PROTOCOL: file
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        timeout-minutes: 20
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0
+        timeout-minutes: 20
+        with:
+          python-version: "3.11"
+      - name: Prepare isolated Windows candidate and config fixtures
+        shell: powershell
+        timeout-minutes: 20
+        run: |
+          Set-StrictMode -Version Latest
+          $ErrorActionPreference = "Stop"
+          if ($PSVersionTable.PSVersion.Major -ne 5 -or $PSVersionTable.PSVersion.Minor -ne 1) {
+            throw "This smoke requires Windows PowerShell 5.1"
+          }
+          if (-not (Test-Path -LiteralPath $env:RUNNER_TEMP -PathType Container)) { throw "Runner temp is missing" }
+          $env:CG_SMOKE_ROOT = Join-Path $env:RUNNER_TEMP "cg-smoke-$([Guid]::NewGuid().ToString('N'))"
+          "CG_SMOKE_ROOT=$env:CG_SMOKE_ROOT" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          $env:HOME = Join-Path $env:CG_SMOKE_ROOT "home"
+          $env:USERPROFILE = $env:HOME
+          $env:APPDATA = Join-Path $env:HOME "AppData\Roaming"
+          $env:LOCALAPPDATA = Join-Path $env:HOME "AppData\Local"
+          $env:XDG_CONFIG_HOME = Join-Path $env:HOME ".config"
+          $env:TEMP = Join-Path $env:CG_SMOKE_ROOT "temp"
+          $env:TMP = $env:TEMP
+          $env:GIT_CONFIG_GLOBAL = Join-Path $env:CG_SMOKE_ROOT "gitconfig"
+          foreach ($directory in @($env:APPDATA, $env:LOCALAPPDATA, "$env:XDG_CONFIG_HOME\kilo", $env:TEMP,
+              "$env:CG_SMOKE_ROOT\hooks", "$env:CG_SMOKE_ROOT\empty-project",
+              "$env:CG_SMOKE_ROOT\private-project\.kilo", "$env:CG_SMOKE_ROOT\private-project\.opencode")) {
+            New-Item -ItemType Directory -Path $directory -Force | Out-Null
+          }
+          New-Item -ItemType File -Path $env:GIT_CONFIG_GLOBAL | Out-Null
+          Set-Variable -Name HOME -Scope Global -Value $env:HOME -Force
+          $global:PROFILE = Join-Path $env:HOME "profile.ps1"
+          Set-Content -LiteralPath $PROFILE -Value "# synthetic fixture profile" -Encoding ASCII
+          Set-Content -LiteralPath "$env:XDG_CONFIG_HOME\kilo\kilo.jsonc" -Encoding ASCII -Value '{ "fixture": "global-kilo", "permission": { "markdown_source": {} } }'
+          Set-Content -LiteralPath "$env:CG_SMOKE_ROOT\private-project\.kilo\kilo.json" -Encoding ASCII -Value '{ "fixture": "private-kilo" }'
+          Set-Content -LiteralPath "$env:CG_SMOKE_ROOT\private-project\.opencode\opencode.json" -Encoding ASCII -Value '{ "fixture": "private-opencode" }'
+          foreach ($relative in @("home\.config\kilo\kilo.jsonc", "private-project\.kilo\kilo.json", "private-project\.opencode\opencode.json")) {
+            $snapshot = Join-Path "$env:CG_SMOKE_ROOT\before" $relative
+            New-Item -ItemType Directory -Path (Split-Path $snapshot -Parent) -Force | Out-Null
+            Copy-Item -LiteralPath "$env:CG_SMOKE_ROOT\$relative" -Destination $snapshot
+          }
+          foreach ($name in @("HOME", "USERPROFILE", "APPDATA", "LOCALAPPDATA", "XDG_CONFIG_HOME", "TEMP", "TMP", "GIT_CONFIG_GLOBAL")) {
+            "$name=$([Environment]::GetEnvironmentVariable($name))" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          }
+          $candidate = git -C $env:GITHUB_WORKSPACE rev-parse HEAD
+          if ($LASTEXITCODE -ne 0) { throw "Cannot resolve checked-out candidate" }
+          $install = Join-Path $env:HOME ".compound-gpid"
+          # Match Windows wrapper CRLF and disable hooks without changing user Git config.
+          git clone --no-local --no-checkout -c core.autocrlf=true -c "core.hooksPath=$env:CG_SMOKE_ROOT\hooks" $env:GITHUB_WORKSPACE $install
+          if ($LASTEXITCODE -ne 0) { throw "Fixture clone failed" }
+          git -C $install checkout --detach $candidate
+          if ($LASTEXITCODE -ne 0) { throw "Candidate checkout failed" }
+          $head = git -C $install rev-parse HEAD
+          if ($LASTEXITCODE -ne 0 -or $head -ne $candidate) { throw "Fixture is not the exact candidate" }
+          $status = @(git -C $install status --porcelain)
+          if ($LASTEXITCODE -ne 0 -or $status.Count -ne 0) { throw "Candidate clone is dirty: $status" }
+
+      - name: Install candidate with Windows PowerShell 5.1 and verify HKCU PATH
+        shell: powershell
+        timeout-minutes: 20
+        run: |
+          Set-StrictMode -Version Latest
+          $ErrorActionPreference = "Stop"
+          # HOME alone does not redirect PowerShell automatic variables. The
+          # installer can clean a profile, so redirect both in its own process.
+          $installCommand = @'
+          Set-StrictMode -Version Latest
+          $ErrorActionPreference = 'Stop'
+          Set-Variable -Name HOME -Scope Global -Value $env:HOME -Force
+          $global:PROFILE = Join-Path $env:HOME 'profile.ps1'
+          & (Join-Path $env:USERPROFILE '.compound-gpid\install.ps1')
+          '@
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -Command $installCommand
+          if ($LASTEXITCODE -ne 0) { throw "Installer failed" }
+          $install = Join-Path $env:USERPROFILE ".compound-gpid"
+          $registeredPath = (Get-ItemProperty -LiteralPath "HKCU:\Environment" -Name Path).Path
+          if (($registeredPath -split ";") -notcontains "$install\bin") { throw "Installed bin is missing from HKCU PATH" }
+          foreach ($wrapper in @("cg-link.cmd", "cg-unlink.cmd")) {
+            if (-not (Test-Path -LiteralPath "$install\bin\$wrapper" -PathType Leaf)) { throw "Installed wrapper is missing: $wrapper" }
+          }
+          $status = @(git -C $install status --porcelain)
+          if ($LASTEXITCODE -ne 0 -or $status.Count -ne 0) { throw "Installer changed the clone: $status" }
+          foreach ($relative in @("home\.config\kilo\kilo.jsonc", "private-project\.kilo\kilo.json", "private-project\.opencode\opencode.json")) {
+            if ((Get-FileHash -LiteralPath "$env:CG_SMOKE_ROOT\$relative").Hash -ne (Get-FileHash -LiteralPath "$env:CG_SMOKE_ROOT\before\$relative").Hash) {
+              throw "Installer changed fixture config bytes: $relative"
+            }
+          }
+
+      - name: Link through installed wrappers in a new PowerShell process
+        if: matrix.shell == 'powershell'
+        shell: powershell
+        timeout-minutes: 20
+        run: |
+          Set-StrictMode -Version Latest
+          $ErrorActionPreference = "Stop"
+          if ($PSVersionTable.PSVersion.Major -ne 5 -or $PSVersionTable.PSVersion.Minor -ne 1) { throw "Expected PowerShell 5.1" }
+          Set-Variable -Name HOME -Scope Global -Value $env:HOME -Force
+          $global:PROFILE = Join-Path $env:HOME "profile.ps1"
+          foreach ($project in @("empty-project", "private-project")) {
+            Set-Location -LiteralPath "$env:CG_SMOKE_ROOT\$project"
+            & "$env:USERPROFILE\.compound-gpid\bin\cg-link.cmd" --platforms "copilot,claude-code,codex,opencode"
+            if ($LASTEXITCODE -ne 0) { throw "cg-link failed: $project" }
+          }
+
+      - name: Link through installed wrappers in a new CMD process
+        if: matrix.shell == 'cmd'
+        shell: cmd
+        timeout-minutes: 20
+        run: |
+          @echo off
+          for %%P in (empty-project private-project) do (
+            cd /d "%CG_SMOKE_ROOT%\%%P"
+            if errorlevel 1 exit /b 1
+            call "%USERPROFILE%\.compound-gpid\bin\cg-link.cmd" --platforms copilot,claude-code,codex,opencode
+            if errorlevel 1 exit /b 1
+          )
+
+      - name: Verify Windows linked fixture config bytes
+        shell: powershell
+        timeout-minutes: 20
+        run: |
+          Set-StrictMode -Version Latest
+          $ErrorActionPreference = "Stop"
+          foreach ($relative in @("home\.config\kilo\kilo.jsonc", "private-project\.kilo\kilo.json", "private-project\.opencode\opencode.json")) {
+            if ((Get-FileHash -LiteralPath "$env:CG_SMOKE_ROOT\$relative").Hash -ne (Get-FileHash -LiteralPath "$env:CG_SMOKE_ROOT\before\$relative").Hash) { throw "cg-link changed fixture config bytes: $relative" }
+          }
+
+      - name: Unlink through installed wrappers in a new PowerShell process
+        if: matrix.shell == 'powershell'
+        shell: powershell
+        timeout-minutes: 20
+        run: |
+          Set-StrictMode -Version Latest
+          $ErrorActionPreference = "Stop"
+          Set-Variable -Name HOME -Scope Global -Value $env:HOME -Force
+          $global:PROFILE = Join-Path $env:HOME "profile.ps1"
+          foreach ($project in @("empty-project", "private-project")) {
+            Set-Location -LiteralPath "$env:CG_SMOKE_ROOT\$project"
+            & "$env:USERPROFILE\.compound-gpid\bin\cg-unlink.cmd" --yes
+            if ($LASTEXITCODE -ne 0) { throw "cg-unlink failed: $project" }
+          }
+
+      - name: Unlink through installed wrappers in a new CMD process
+        if: matrix.shell == 'cmd'
+        shell: cmd
+        timeout-minutes: 20
+        run: |
+          @echo off
+          for %%P in (empty-project private-project) do (
+            cd /d "%CG_SMOKE_ROOT%\%%P"
+            if errorlevel 1 exit /b 1
+            call "%USERPROFILE%\.compound-gpid\bin\cg-unlink.cmd" --yes
+            if errorlevel 1 exit /b 1
+          )
+
+      - name: Verify Windows cleanup, clean clone and unchanged config bytes
+        shell: powershell
+        timeout-minutes: 20
+        run: |
+          Set-StrictMode -Version Latest
+          $ErrorActionPreference = "Stop"
+          if (@(Get-ChildItem -LiteralPath "$env:CG_SMOKE_ROOT\empty-project" -Force).Count -ne 0) { throw "Empty project was not cleaned" }
+          foreach ($relative in @(".github", ".claude", ".agents", ".compound-gpid", ".gitignore")) {
+            if (Test-Path -LiteralPath "$env:CG_SMOKE_ROOT\private-project\$relative") { throw "Managed path remains: $relative" }
+          }
+          foreach ($relative in @(".kilo", ".opencode")) {
+            if (@(Get-ChildItem -LiteralPath "$env:CG_SMOKE_ROOT\private-project\$relative" -Force).Count -ne 1) { throw "Unexpected private adapter files remain: $relative" }
+          }
+          foreach ($relative in @("home\.config\kilo\kilo.jsonc", "private-project\.kilo\kilo.json", "private-project\.opencode\opencode.json")) {
+            if ((Get-FileHash -LiteralPath "$env:CG_SMOKE_ROOT\$relative").Hash -ne (Get-FileHash -LiteralPath "$env:CG_SMOKE_ROOT\before\$relative").Hash) { throw "cg-unlink changed fixture config bytes: $relative" }
+          }
+          $status = @(git -C "$env:USERPROFILE\.compound-gpid" status --porcelain)
+          if ($LASTEXITCODE -ne 0 -or $status.Count -ne 0) { throw "Installed clone is dirty: $status" }
+
+      - name: Remove disposable Windows fixtures
+        if: always()
+        shell: powershell
+        timeout-minutes: 20
+        run: |
+          Set-StrictMode -Version Latest
+          $ErrorActionPreference = "Stop"
+          # rmdir removes junction entries without traversing their targets.
+          if ($env:CG_SMOKE_ROOT -and (Test-Path -LiteralPath $env:CG_SMOKE_ROOT)) {
+            Set-Location -LiteralPath $env:RUNNER_TEMP
+            cmd.exe /d /c "rmdir /s /q `"$env:CG_SMOKE_ROOT`""
+            if ($LASTEXITCODE -ne 0) { throw "Fixture cleanup failed" }
+          }
+
+  hosted-smoke-macos:
+    name: Reduced hosted smoke on macos-latest (${{ matrix.shell }})
+    runs-on: macos-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        shell: [ bash, zsh ]
+    env:
+      CG_SKIP_UPDATE: "1"
+      PYTHONDONTWRITEBYTECODE: "1"
+      GIT_CONFIG_NOSYSTEM: "1"
+      GIT_TERMINAL_PROMPT: "0"
+      GIT_ALLOW_PROTOCOL: file
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        timeout-minutes: 20
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0
+        timeout-minutes: 20
+        with:
+          python-version: "3.11"
+      - name: Prepare isolated macOS candidate, install and verify shell PATH
+        shell: bash
+        timeout-minutes: 20
+        env:
+          SMOKE_SHELL: ${{ matrix.shell }}
+        run: |
+          set -euo pipefail
+          CG_SMOKE_ROOT="$(mktemp -d "$RUNNER_TEMP/cg-smoke-XXXXXX")"
+          printf 'CG_SMOKE_ROOT=%s\n' "$CG_SMOKE_ROOT" >> "$GITHUB_ENV"
+          export CG_SMOKE_ROOT HOME="$CG_SMOKE_ROOT/home"
+          export USERPROFILE="$HOME" APPDATA="$HOME/AppData/Roaming" LOCALAPPDATA="$HOME/AppData/Local"
+          export XDG_CONFIG_HOME="$HOME/.config" ZDOTDIR="$HOME" SHELL="/bin/$SMOKE_SHELL"
+          export TMPDIR="$CG_SMOKE_ROOT/temp" TEMP="$CG_SMOKE_ROOT/temp" TMP="$CG_SMOKE_ROOT/temp"
+          export GIT_CONFIG_GLOBAL="$CG_SMOKE_ROOT/gitconfig"
+          mkdir -p "$APPDATA" "$LOCALAPPDATA" "$XDG_CONFIG_HOME/kilo" "$TMPDIR" "$CG_SMOKE_ROOT/hooks" \
+            "$CG_SMOKE_ROOT/empty-project" "$CG_SMOKE_ROOT/private-project/.kilo" "$CG_SMOKE_ROOT/private-project/.opencode"
+          : > "$GIT_CONFIG_GLOBAL"
+          printf '# synthetic fixture profile\n' > "$HOME/.${SMOKE_SHELL}rc"
+          printf '{ "fixture": "global-kilo", "permission": { "markdown_source": {} } }\n' > "$XDG_CONFIG_HOME/kilo/kilo.jsonc"
+          printf '{ "fixture": "private-kilo" }\n' > "$CG_SMOKE_ROOT/private-project/.kilo/kilo.json"
+          printf '{ "fixture": "private-opencode" }\n' > "$CG_SMOKE_ROOT/private-project/.opencode/opencode.json"
+          for relative in home/.config/kilo/kilo.jsonc private-project/.kilo/kilo.json private-project/.opencode/opencode.json; do
+            mkdir -p "$(dirname "$CG_SMOKE_ROOT/before/$relative")"
+            cp "$CG_SMOKE_ROOT/$relative" "$CG_SMOKE_ROOT/before/$relative"
+          done
+          for variable in HOME USERPROFILE APPDATA LOCALAPPDATA XDG_CONFIG_HOME ZDOTDIR SHELL TMPDIR TEMP TMP GIT_CONFIG_GLOBAL; do
+            printf '%s=%s\n' "$variable" "${!variable}" >> "$GITHUB_ENV"
+          done
+          candidate="$(git -C "$GITHUB_WORKSPACE" rev-parse HEAD)"
+          install="$HOME/.compound-gpid"
+          git clone --no-local --no-checkout -c core.autocrlf=false -c "core.hooksPath=$CG_SMOKE_ROOT/hooks" "$GITHUB_WORKSPACE" "$install"
+          git -C "$install" checkout --detach "$candidate"
+          test "$(git -C "$install" rev-parse HEAD)" = "$candidate"
+          clone_status="$(git -C "$install" status --porcelain)"
+          test -z "$clone_status"
+          bash "$install/scripts/install.sh"
+          # Check the registration written for the actual row shell, not just
+          # inherited runner PATH. Do not source Bash wrappers with zsh.
+          grep -F '# --- Compound GPID ---' "$HOME/.${SMOKE_SHELL}rc"
+          grep -F 'export PATH="$HOME/.compound-gpid/bin:$PATH"' "$HOME/.${SMOKE_SHELL}rc"
+          clone_status="$(git -C "$install" status --porcelain)"
+          test -z "$clone_status"
+          for relative in home/.config/kilo/kilo.jsonc private-project/.kilo/kilo.json private-project/.opencode/opencode.json; do
+            cmp "$CG_SMOKE_ROOT/$relative" "$CG_SMOKE_ROOT/before/$relative"
+          done
+
+      - name: Run installed wrappers in a new bash or zsh process
+        shell: ${{ matrix.shell }} -e {0}
+        timeout-minutes: 20
+        run: |
+          set -euo pipefail
+          . "$HOME/.$(basename "$SHELL")rc"
+          test "$(command -v cg-link)" = "$HOME/.compound-gpid/bin/cg-link"
+          test "$(command -v cg-unlink)" = "$HOME/.compound-gpid/bin/cg-unlink"
+          for project in empty-project private-project; do
+            cd "$CG_SMOKE_ROOT/$project"
+            "$HOME/.compound-gpid/bin/cg-link" --platforms copilot,claude-code,codex,opencode
+            for relative in home/.config/kilo/kilo.jsonc private-project/.kilo/kilo.json private-project/.opencode/opencode.json; do
+              cmp "$CG_SMOKE_ROOT/$relative" "$CG_SMOKE_ROOT/before/$relative"
+            done
+            "$HOME/.compound-gpid/bin/cg-unlink" --yes
+            for relative in .github .claude .agents .compound-gpid .gitignore; do
+              test ! -e "$relative"
+              test ! -L "$relative"
+            done
+            if test "$project" = empty-project; then
+              test -z "$(ls -A)"
+            else
+              test "$(ls -A .kilo)" = kilo.json
+              test "$(ls -A .opencode)" = opencode.json
+            fi
+            for relative in home/.config/kilo/kilo.jsonc private-project/.kilo/kilo.json private-project/.opencode/opencode.json; do
+              cmp "$CG_SMOKE_ROOT/$relative" "$CG_SMOKE_ROOT/before/$relative"
+            done
+            clone_status="$(git -C "$HOME/.compound-gpid" status --porcelain)"
+            test -z "$clone_status"
+          done
+
+      - name: Remove disposable macOS fixtures
+        if: always()
+        shell: bash
+        timeout-minutes: 20
+        run: |
+          if [[ -n "${CG_SMOKE_ROOT:-}" ]]; then
+            rm -rf "$CG_SMOKE_ROOT"
+          fi
+
   # -------------------------------------------------------------------------
   # Docs staleness check
   # Non-blocking: emits a ::warning annotation when scripts/ changes are not
@@ -599,6 +924,7 @@ jobs:
   docs-staleness:
     name: Docs staleness check
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     # Only meaningful on pull requests (no base branch to diff against on push)
     if: github.event_name == 'pull_request'
     permissions:

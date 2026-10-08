@@ -437,6 +437,115 @@ def test_workflow_delegates_native_selection_and_preserves_context() -> None:
     assert "E2E smoke test" in workflow
 
 
+@pytest.mark.parametrize(("job", "minutes"), (
+    ("browser-evidence", 30),
+    ("kilo-capability-report", 30),
+    ("kilo-certified-integration", 30),
+    ("native-targets", 120),
+    ("python38-compat", 30),
+    ("test", 30),
+    ("docs-staleness", 30),
+    ("hosted-smoke-windows", 20),
+    ("hosted-smoke-macos", 20),
+))
+def test_workflow_has_explicit_job_timeouts(job: str, minutes: int) -> None:
+    """Each existing job and reduced smoke has its approved wall-time bound."""
+    workflow = (REPO_ROOT / ".github/workflows/tests.yml").read_text(encoding="utf-8")
+    header = workflow.split(f"\n  {job}:\n", 1)[1].split("    steps:\n", 1)[0]
+
+    assert f"\n    timeout-minutes: {minutes}\n" in header
+
+
+def test_workflow_preserves_required_check_names_and_os_matrices() -> None:
+    """The reduced smoke adds contexts without renaming required native/Pester rows."""
+    workflow = (REPO_ROOT / ".github/workflows/tests.yml").read_text(encoding="utf-8")
+    native = workflow.split("\n  native-targets:\n", 1)[1].split("\n  python38-compat:", 1)[0]
+    pester = workflow.split("\n  test:\n", 1)[1].split("\n  hosted-smoke-windows:", 1)[0]
+
+    assert "name: Native target Python gate on ${{ matrix.os }}" in native
+    assert "- os: windows-2022\n            backend_marker: backend_windows" in native
+    assert "- os: macos-14\n            backend_marker: backend_posix" in native
+    assert "- os: ubuntu-24.04\n            backend_marker: backend_posix" in native
+    assert "name: Pester on ${{ matrix.os }}" in pester
+    assert "os: [ windows-2022, macos-14 ]" in pester
+    assert "needs: kilo-capability-report" in pester
+    assert "needs: hosted-smoke" not in workflow
+
+
+def test_browser_check_preserves_original_steps() -> None:
+    """Keep the proven npm install and browser sequence; defer lock repair."""
+    workflow = (REPO_ROOT / ".github/workflows/tests.yml").read_text(encoding="utf-8")
+    block = workflow.split("\n  browser-evidence:\n", 1)[1].split("\n  kilo-capability-report:", 1)[0]
+
+    assert "name: Browser evidence manifest tests" in block
+    assert 'node-version: "22"' in block
+    commands = (
+        "run: npm install\n",
+        "run: npm run test:docs-automation\n",
+        "run: npx playwright install --with-deps chromium\n",
+        "run: npm run capture\n",
+        "run: npm test\n",
+    )
+    assert [block.index(command) for command in commands] == sorted(
+        block.index(command) for command in commands
+    )
+    assert "npm ci" not in block
+
+
+@pytest.mark.parametrize("platform", ("windows", "macos"))
+def test_reduced_hosted_smoke_is_bounded_and_fixture_only(platform: str) -> None:
+    """Four non-required rows use the exact clone and only synthetic config bytes."""
+    workflow = (REPO_ROOT / ".github/workflows/tests.yml").read_text(encoding="utf-8")
+    end = "hosted-smoke-macos" if platform == "windows" else "docs-staleness"
+    block = workflow.split(f"\n  hosted-smoke-{platform}:\n", 1)[1].split(f"\n  {end}:", 1)[0]
+
+    assert f"runs-on: {platform}-latest" in block
+    assert 'CG_SKIP_UPDATE: "1"' in block
+    assert 'PYTHONDONTWRITEBYTECODE: "1"' in block
+    assert 'GIT_CONFIG_NOSYSTEM: "1"' in block
+    assert "GIT_ALLOW_PROTOCOL: file" in block
+    assert "git clone --no-local --no-checkout" in block
+    assert "checkout --detach" in block
+    assert "rev-parse HEAD" in block
+    assert "status --porcelain" in block
+    assert block.count("        timeout-minutes: 20\n") == block.count("\n      - ")
+    assert "    needs:" not in block
+    for name in ("HOME", "USERPROFILE", "APPDATA", "LOCALAPPDATA", "XDG_CONFIG_HOME",
+                 "GIT_CONFIG_GLOBAL", "empty-project", "private-project", "before",
+                 "kilo.jsonc", "kilo.json", "opencode.json"):
+        assert name in block
+    for command in ("cg-kilo", "cg-update", "Invoke-Pester", "pytest", "npm ", "npx "):
+        assert command not in block
+
+    if platform == "windows":
+        assert "shell: [ powershell, cmd ]" in block
+        assert "shell: powershell\n" in block
+        assert "shell: cmd\n" in block
+        assert "PSVersionTable.PSVersion.Major -ne 5" in block
+        assert "PSVersionTable.PSVersion.Minor -ne 1" in block
+        assert "Set-Variable -Name HOME -Scope Global -Value $env:HOME -Force" in block
+        assert "$global:PROFILE = Join-Path $env:HOME 'profile.ps1'" in block
+        assert "powershell.exe -NoProfile -ExecutionPolicy Bypass -Command $installCommand" in block
+        assert "& (Join-Path $env:USERPROFILE '.compound-gpid\\install.ps1')" in block
+        assert '"HKCU:\\Environment" -Name Path' in block
+        assert "core.autocrlf=true" in block
+        assert 'call "%USERPROFILE%\\.compound-gpid\\bin\\cg-link.cmd" --platforms copilot,claude-code,codex,opencode' in block
+        assert 'call "%USERPROFILE%\\.compound-gpid\\bin\\cg-unlink.cmd" --yes' in block
+        assert "Get-FileHash -LiteralPath" in block
+        assert "Empty project was not cleaned" in block
+    else:
+        assert "shell: [ bash, zsh ]" in block
+        assert "shell: ${{ matrix.shell }} -e {0}" in block
+        assert 'ZDOTDIR="$HOME" SHELL="/bin/$SMOKE_SHELL"' in block
+        assert 'bash "$install/scripts/install.sh"' in block
+        assert 'export PATH="$HOME/.compound-gpid/bin:$PATH"' in block
+        assert "core.autocrlf=false" in block
+        assert '"$HOME/.compound-gpid/bin/cg-link" --platforms copilot,claude-code,codex,opencode' in block
+        assert '"$HOME/.compound-gpid/bin/cg-unlink" --yes' in block
+        assert 'cmp "$CG_SMOKE_ROOT/$relative" "$CG_SMOKE_ROOT/before/$relative"' in block
+        assert 'test -z "$(ls -A)"' in block
+
+
 def test_native_target_owns_deterministic_kilo_and_preflight_tests() -> None:
     assert "scripts/tests/test_commit_push_pr_source_detection.py" in preflight.NATIVE_PYTEST_FILES
     assert "scripts/tests/test_cg_compound_gpid_rd_registry.py" in preflight.NATIVE_PYTEST_FILES
