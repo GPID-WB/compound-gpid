@@ -413,6 +413,9 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
             CredentialExit = 0; Calls = [System.Collections.Generic.List[string]]::new()
             Origin = 'https://github.com/GPID-WB/compound-gpid.git'
             PagesName = 'Deploy docs from 10'; PagesPath = '.github/workflows/release-pages.yml'
+            BranchExists = $true; BranchFormatExit = 0; FetchedTip = $null; FetchCount = 0
+            SecondTip = $null; SecondHead = $null; SecondDirty = $null; DevBypass = 'never'
+            Messages = [System.Collections.Generic.List[string]]::new()
         }
         $script:expected = [pscustomobject]@{
             id = 123; html_url = "https://github.com/GPID-WB/compound-gpid/releases/tag/v1.2.0.9015"
@@ -439,12 +442,19 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
             switch -Regex ($call) {
                 ' remote get-url ' { return $script:state.Origin }
                 ' rev-parse --verify HEAD' { return $script:state.Head }
-                ' rev-parse --verify origin/' { return $script:state.Tip }
+                ' rev-parse --verify origin/' {
+                    if ($null -ne $script:state.FetchedTip) { return $script:state.FetchedTip }
+                    return $script:state.Tip
+                }
                 ' rev-parse --verify .*\^\{commit\}' { return $script:state.Head }
                 ' rev-parse --verify refs/tags/' { return $script:state.Object }
                 ' tag --list ' { return $script:state.Tag }
                 ' cat-file -t ' { return $script:state.TagType }
-                ' ls-remote --heads ' { return "$($script:state.Tip)`t$($args[-1])" }
+                ' check-ref-format --branch ' { $global:LASTEXITCODE = $script:state.BranchFormatExit; return }
+                ' ls-remote --heads ' {
+                    if (-not $script:state.BranchExists) { return }
+                    return "$($script:state.Tip)`t$($args[-1])"
+                }
                 ' ls-remote --tags ' {
                     if ($script:state.Remote) {
                         return @("$($script:state.RemoteObject)`trefs/tags/$($script:state.Tag)", "$($script:state.RemoteCommit)`trefs/tags/$($script:state.Tag)^{}")
@@ -457,7 +467,16 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
                     if ($script:state.PushMode -ne 'success') { $global:LASTEXITCODE = 1; throw "uncertain push" }
                     return
                 }
-                ' fetch origin | merge-base --is-ancestor | clone --quiet | config core\.| checkout --detach ' { return }
+                ' fetch origin ' {
+                    $script:state.FetchCount++
+                    if ($script:state.FetchCount -eq 2) {
+                        if ($null -ne $script:state.SecondTip) { $script:state.Tip = $script:state.SecondTip }
+                        if ($null -ne $script:state.SecondHead) { $script:state.Head = $script:state.SecondHead }
+                        if ($null -ne $script:state.SecondDirty) { $script:state.Dirty = $script:state.SecondDirty }
+                    }
+                    return
+                }
+                ' merge-base --is-ancestor | clone --quiet | config core\.| checkout --detach ' { return }
                 default { throw "Unmocked git call blocked: $call" }
             }
         }
@@ -481,6 +500,7 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
             $global:LASTEXITCODE = $script:state.NodeExit
         }
         Mock Get-Command { [pscustomobject]@{ Source = 'Invoke-CgFixtureNode' } } -ParameterFilter { $Name -eq 'node' }
+        Mock Write-Host { param($Object) $global:CgReleaseTestState.Messages.Add([string]$Object) }
         Mock Invoke-RestMethod {
             param($Uri, $Method, $Headers, $Body)
             $script:state = $global:CgReleaseTestState
@@ -498,10 +518,12 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
                 $types = @('update', 'deletion', 'non_fast_forward'); $include = 'refs/tags/v*'; $bypass = @()
                 if ($id -eq '2') { $types = @('creation'); $bypass = @([pscustomobject]@{ actor_type = 'RepositoryRole'; actor_id = 5; bypass_mode = 'always' }) }
                 if ($id -eq '3') { $include = 'refs/heads/dev' }
+                $canBypass = 'never'
+                if ($id -eq '3') { $canBypass = $script:state.DevBypass }
                 return [pscustomobject]@{
                     rules = @($types | ForEach-Object { [pscustomobject]@{ type = $_ } })
                     conditions = [pscustomobject]@{ ref_name = [pscustomobject]@{ include = @($include); exclude = @() } }
-                    bypass_actors = $bypass; current_user_can_bypass = 'never'
+                    bypass_actors = $bypass; current_user_can_bypass = $canBypass
                 }
             }
             if ($Uri -match '/releases\?') {
@@ -526,6 +548,8 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
                 $posted.name | Should -BeExactly $script:expected.name
                 $posted.body | Should -BeExactly $script:expected.body
                 $posted.target_commitish | Should -BeExactly $script:state.Head
+                $posted.tag_name | Should -BeExactly $script:state.Tag
+                $posted.prerelease | Should -Be $script:expected.prerelease
                 $posted.draft | Should -Be $false
                 ($posted.make_latest -is [string]) | Should -Be $true
                 $posted.make_latest | Should -BeExactly 'false'
@@ -548,9 +572,10 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
             throw "Unmocked HTTP call blocked: $Method $Uri"
         }
         function Invoke-FixtureRelease {
-            param([string]$Phase = 'Reserve', [switch]$ExactRuns)
+            param([string]$Phase = 'Reserve', [switch]$ExactRuns, [string]$SourceBranch)
             $parameters = @{ Tag = $script:state.Tag; Name = $script:expected.name; NotesFile = (Join-Path $script:fixture 'notes.md'); Phase = $Phase }
             if ($ExactRuns) { $parameters.BuildRunId = 10; $parameters.PagesRunId = 20 }
+            if ($PSBoundParameters.ContainsKey('SourceBranch')) { $parameters.SourceBranch = $SourceBranch }
             & (Join-Path $script:fixture 'create-release.ps1') @parameters
         }
     }
@@ -577,6 +602,108 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
         Get-Content (Join-Path $script:fixture 'release-result.txt') | Should -Match '^EXISTS\|'
         ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post|actions/'
     }
+    It 'reserves a four-component prerelease from the exact pushed chore source' {
+        Invoke-FixtureRelease -SourceBranch 'chore/rebuild-from-9017'
+        Get-Content (Join-Path $script:fixture 'release-result.txt') | Should -Match '^CREATED\|123\|'
+        $calls = $script:state.Calls -join "`n"
+        $calls | Should -Match 'check-ref-format --branch chore/rebuild-from-9017'
+        $calls | Should -Match 'fetch origin \+refs/heads/chore/rebuild-from-9017:refs/remotes/origin/chore/rebuild-from-9017'
+        $calls | Should -Not -Match 'refs/heads/dev|rulesets/3|actions/|cg_release_attestation.py'
+        $script:state.FetchCount | Should -Be 2
+        $script:state.Release.prerelease | Should -Be $true
+        ($script:state.Messages -join "`n") | Should -Match 'Finalize and evidence commit are still required'
+    }
+    It 'rejects SourceBranch for stable tags before native or API calls' {
+        $script:state.Tag = 'v1.2.0'
+        { Invoke-FixtureRelease -SourceBranch 'chore/rebuild-from-9017' } | Should -Throw 'only for four-component'
+        $script:state.Calls.Count | Should -Be 0
+    }
+    It 'rejects unsafe source names before fetching or publishing' -TestCases @(
+        @{ Branch = '-dev'; FormatExit = 0 }, @{ Branch = '@{-1}'; FormatExit = 0 },
+        @{ Branch = 'dev:other'; FormatExit = 0 }, @{ Branch = 'dev*'; FormatExit = 0 },
+        @{ Branch = ''; FormatExit = 0 }, @{ Branch = "dev`nother"; FormatExit = 0 },
+        @{ Branch = '../dev'; FormatExit = 0 }, @{ Branch = 'dev..tip'; FormatExit = 1 },
+        @{ Branch = 'dev.lock'; FormatExit = 1 }, @{ Branch = 'dev//tip'; FormatExit = 1 },
+        @{ Branch = 'HEAD'; FormatExit = 1 }
+    ) {
+        param($Branch, $FormatExit)
+        $script:state.BranchFormatExit = $FormatExit
+        { Invoke-FixtureRelease -SourceBranch $Branch } | Should -Throw 'safe Git branch name'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'fetch origin|credential fill|^api |push origin'
+    }
+    It 'rejects an unknown source branch before preflight or publication' {
+        $script:state.BranchExists = $false
+        { Invoke-FixtureRelease -SourceBranch 'chore/unknown' } | Should -Throw 'Could not resolve remote release branch origin/chore/unknown'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'cg_pr_preflight.py|credential fill|push origin|api Post'
+    }
+    It 'requires source HEAD at the live tip even when an exact remote tag already exists' -TestCases @(
+        @{ Existing = $false }, @{ Existing = $true }
+    ) {
+        param($Existing)
+        $script:state.Remote = $Existing; $script:state.Tip = ('c' * 40)
+        if ($Existing) { $script:state.Release = $script:expected }
+        { Invoke-FixtureRelease -SourceBranch 'chore/rebuild-from-9017' } | Should -Throw 'exact current origin/chore/rebuild-from-9017'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'cg_pr_preflight.py|credential fill|push origin|api Post'
+    }
+    It 'rejects a fetched source tip that differs from the live origin tip' {
+        $script:state.FetchedTip = ('c' * 40)
+        { Invoke-FixtureRelease -SourceBranch 'chore/rebuild-from-9017' } | Should -Throw 'changed during publication'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'credential fill|push origin|api Post'
+    }
+    It 'rechecks the exact source tip immediately before mutation including existing-tag retries' -TestCases @(
+        @{ Existing = $false }, @{ Existing = $true }
+    ) {
+        param($Existing)
+        $script:state.Remote = $Existing; $script:state.SecondTip = ('c' * 40)
+        if ($Existing) { $script:state.Release = $script:expected }
+        { Invoke-FixtureRelease -SourceBranch 'chore/rebuild-from-9017' } | Should -Throw 'exact current origin/chore/rebuild-from-9017'
+        $script:state.FetchCount | Should -Be 2
+        ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
+    }
+    It 'rejects HEAD movement during source preflight before publishing' {
+        $script:state.SecondHead = ('c' * 40)
+        { Invoke-FixtureRelease -SourceBranch 'chore/rebuild-from-9017' } | Should -Throw 'unchanged HEAD'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
+    }
+    It 'requires a strictly clean source tree with no attestation exception' -TestCases @(
+        @{ Dirty = ' M create-release.ps1' }, @{ Dirty = '?? arbitrary.txt' },
+        @{ Dirty = '?? .github/shared/skill-management/release-attestations/v1.2.0.9015.json' }
+    ) {
+        param($Dirty)
+        $script:state.Dirty = @($Dirty)
+        { Invoke-FixtureRelease -SourceBranch 'chore/rebuild-from-9017' } | Should -Throw 'strictly clean'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'cg_release_attestation.py|credential fill|push origin|api Post'
+    }
+    It 'rejects source dirt introduced after preflight before publishing' {
+        $script:state.SecondDirty = @('?? arbitrary.txt')
+        { Invoke-FixtureRelease -SourceBranch 'chore/rebuild-from-9017' } | Should -Throw 'strictly clean'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
+    }
+    It 'accepts an exact clean source retry without push or POST' {
+        $script:state.Remote = $true; $script:state.Release = $script:expected
+        Invoke-FixtureRelease -SourceBranch 'chore/rebuild-from-9017'
+        Get-Content (Join-Path $script:fixture 'release-result.txt') | Should -Match '^EXISTS\|'
+        $script:state.FetchCount | Should -Be 2
+        ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post|actions/'
+    }
+    It 'keeps dev protection checks when dev is explicitly selected' {
+        $script:state.DevBypass = 'always'
+        { Invoke-FixtureRelease -SourceBranch 'dev' } | Should -Throw "'Protect dev' must block"
+        ($script:state.Calls -join "`n") | Should -Match 'rulesets/3'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
+    }
+    It 'keeps the dev source and incomplete lifecycle when SourceBranch is omitted' {
+        Invoke-FixtureRelease
+        ($script:state.Calls -join "`n") | Should -Match 'refs/heads/dev'
+        ($script:state.Calls -join "`n") | Should -Match 'rulesets/3'
+        ($script:state.Calls -join "`n") | Should -Not -Match 'check-ref-format'
+        ($script:state.Messages -join "`n") | Should -Match 'Finalize and evidence commit are still required'
+    }
+    It 'keeps the default dev protection failure when SourceBranch is omitted' {
+        $script:state.DevBypass = 'always'
+        { Invoke-FixtureRelease } | Should -Throw "'Protect dev' must block"
+        ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
+    }
     It 'accepts multiple records in a non-enumerated REST array' {
         $script:state.ListExtras = @(
             [pscustomobject]@{ tag_name = 'v1.0.0' },
@@ -590,7 +717,10 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
         { Invoke-FixtureRelease } | Should -Throw 'Incomplete GitHub release list'
         ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
     }
-    It 'reserves a stable release only from exact origin/main without requiring a branch name' {
+    It 'keeps stable main lineage and the legacy dev guard without SourceBranch' -TestCases @(
+        @{ DevBypass = 'never'; Succeeds = $true }, @{ DevBypass = 'always'; Succeeds = $false }
+    ) {
+        param($DevBypass, $Succeeds)
         Remove-Item (Join-Path $script:fixture 'releases/v1.2.0.9015.json')
         $script:state.Tag = 'v1.2.0'
         $script:expected.tag_name = 'v1.2.0'; $script:expected.name = 'v1.2.0 - Pairing'
@@ -598,9 +728,16 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
         $script:expected.prerelease = $false
         @{ tag = $script:state.Tag; name = $script:expected.name; url = $script:expected.html_url; publishedAt = '2026-09-10T00:00:00Z' } |
             ConvertTo-Json | Set-Content (Join-Path $script:fixture 'releases/v1.2.0.json')
+        $script:state.DevBypass = $DevBypass
+        if (-not $Succeeds) {
+            { Invoke-FixtureRelease } | Should -Throw "'Protect dev' must block"
+            ($script:state.Calls -join "`n") | Should -Not -Match 'push origin|api Post'
+            return
+        }
         Invoke-FixtureRelease
         $calls = $script:state.Calls -join "`n"
         $calls | Should -Match 'refs/heads/main'
+        $calls | Should -Match 'rulesets/3'
         $calls | Should -Not -Match 'refs/heads/dev|branch --show-current|symbolic-ref'
         $script:state.Release.prerelease | Should -Be $false
     }
@@ -780,5 +917,48 @@ Describe "create-release.ps1 - executable two-phase publication with offline moc
     It 'rejects arbitrary dirty files even with a canonical attestation' {
         $script:state.Dirty = @('?? arbitrary.txt', '?? .github/shared/skill-management/release-attestations/v1.2.0.9015.json')
         { Invoke-FixtureRelease } | Should -Throw 'must be clean'
+    }
+    Context '9022 Reserve-only completion' {
+        BeforeEach {
+            Remove-Item (Join-Path $script:fixture 'releases/v1.2.0.9015.json')
+            $script:state.Tag = 'v1.2.0.9022'
+            $script:expected.tag_name = $script:state.Tag; $script:expected.name = 'v1.2.0.9022 - Safe baseline'
+            $script:expected.html_url = 'https://github.com/GPID-WB/compound-gpid/releases/tag/v1.2.0.9022'
+            @{ tag = $script:state.Tag; name = $script:expected.name; url = $script:expected.html_url; publishedAt = '2026-09-10T00:00:00Z' } |
+                ConvertTo-Json | Set-Content (Join-Path $script:fixture 'releases/v1.2.0.9022.json')
+        }
+        It 'completes exact 9022 Reserve without Pages, Finalize, or attestation dependencies' -TestCases @(
+            @{ Existing = $false }, @{ Existing = $true }
+        ) {
+            param($Existing)
+            $script:state.Remote = $Existing
+            if ($Existing) { $script:state.Release = $script:expected }
+            $script:state.DocsStatus = 'failure'; $script:state.PagesStatus = 'failure'; $script:state.AttestationExit = 9
+            Invoke-FixtureRelease -SourceBranch 'chore/rebuild-from-9017'
+            $status = 'CREATED'
+            if ($Existing) { $status = 'EXISTS' }
+            Get-Content (Join-Path $script:fixture 'release-result.txt') | Should -BeExactly "$status|123|$($script:expected.html_url)"
+            $script:state.Release.draft | Should -Be $false
+            $script:state.Release.prerelease | Should -Be $true
+            ($script:state.Calls -join "`n") | Should -Not -Match 'actions/|cg_release_attestation.py|rulesets/3'
+            ($script:state.Messages -join "`n") | Should -Match "COMPLETE \($status\): v1.2.0.9022"
+            ($script:state.Messages -join "`n") | Should -Not -Match 'Finalize and evidence commit are still required'
+        }
+        It 'rejects Finalize for 9022 before Git, HTTP, Pages, or attestation calls' {
+            { Invoke-FixtureRelease -Phase Finalize -ExactRuns -SourceBranch 'chore/rebuild-from-9017' } | Should -Throw 'Finalize is not supported'
+            $script:state.Calls.Count | Should -Be 0
+            Test-Path (Join-Path $script:fixture 'release-result.txt') | Should -Be $false
+        }
+        It 'does not allow an attestation exception for 9022 even without SourceBranch' {
+            $script:state.Dirty = @('?? .github/shared/skill-management/release-attestations/v1.2.0.9022.json')
+            { Invoke-FixtureRelease } | Should -Throw 'must be clean'
+            ($script:state.Calls -join "`n") | Should -Not -Match 'cg_release_attestation.py|credential fill|push origin|api Post'
+        }
+        It 'does not report 9022 complete after an uncertain unpaired POST' {
+            $script:state.PostMode = 'absent'
+            { Invoke-FixtureRelease -SourceBranch 'chore/rebuild-from-9017' } | Should -Throw 'Reservation is incomplete'
+            Test-Path (Join-Path $script:fixture 'release-result.txt') | Should -Be $false
+            ($script:state.Messages -join "`n") | Should -Not -Match 'COMPLETE'
+        }
     }
 }

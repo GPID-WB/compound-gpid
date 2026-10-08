@@ -2,7 +2,7 @@ name: Build release documentation
 
 on:
   push:
-    tags: ["v*.*.*"]
+    tags: ["v*.*.*", "!v1.2.0.9022"]
 
 permissions:
   contents: read

@@ -73,7 +73,7 @@ Describe "Pages exact-artifact deployment contracts" {
     }
 
     It "supports unprivileged tag builds through the protected workflow-run controller" {
-        $releaseWorkflow | Should -Match 'tags:\s*\["v\*\.\*\.\*"\]'
+        $releaseWorkflow | Should -Match 'tags:\s*\["v\*\.\*\.\*", "!v1\.2\.0\.9022"\]'
         $releaseWorkflow | Should -Match 'release-docs-site'
         $releaseWorkflow | Should -Not -Match 'pages:\s*write|id-token:\s*write'
         $pagesWorkflow | Should -Match '(?m)^\s*push:\s*$'

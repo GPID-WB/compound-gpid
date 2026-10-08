@@ -322,7 +322,7 @@
       "path": ".claude/commands/cg-release.md",
       "source": ".github/prompts/cg-release.prompt.md",
       "kind": "command",
-      "sha256": "ead832f7806da5eaad566fd96cddd8c52ac881fc64ddd94bf6b05fda6f008d5e",
+      "sha256": "2ae9426d08e4154d2e1de4173b7096f7f7af0223a8ef78b86416c071b5ef553e",
       "executable": false
     },
     {

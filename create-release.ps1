@@ -6,6 +6,8 @@ Creates a GitHub Release for GPID-WB/compound-gpid via the GitHub API.
 Reserve pushes the exact local annotated tag and immediately creates its matching
 published Release after all preflight checks. Finalize verifies the documentation
 run chain and writes the attestation. Neither phase deletes or edits a Release.
+For v1.2.0.9022 only, Reserve completes publication without documentation or
+attestation; Finalize is not supported.
 All reservations set make_latest to "false", including stable tags. Neither phase
 promotes a Release to GitHub's latest stable release.
 Retrieves credentials from Git Credential Manager.
@@ -34,6 +36,12 @@ three-component tags cannot be marked as prereleases.
 .PARAMETER Phase
 Reserve (default) establishes the tag/Release pair, not lifecycle completion.
 Finalize requires that pair and successful documentation deployment.
+For v1.2.0.9022, Reserve completes publication and Finalize is rejected.
+
+.PARAMETER SourceBranch
+Optional existing origin branch for a four-component prerelease. Requires a
+strictly clean checkout at its exact live and fetched tip, including retries.
+Without this parameter, stable tags use main and prereleases use dev as before.
 
 .PARAMETER BuildRunId
 Optional exact release-docs run ID for Finalize, useful after workflow retries.
@@ -59,7 +67,8 @@ param(
     [switch]$Prerelease,
     [ValidateSet("Reserve", "Finalize")][string]$Phase = "Reserve",
     [ValidateRange(1, [long]::MaxValue)][long]$BuildRunId,
-    [ValidateRange(1, [long]::MaxValue)][long]$PagesRunId
+    [ValidateRange(1, [long]::MaxValue)][long]$PagesRunId,
+    [string]$SourceBranch
 )
 
 Set-StrictMode -Version Latest
@@ -79,6 +88,20 @@ if ($Tag -cnotmatch '^v\d+\.\d+\.\d+(\.\d+)?$') {
 $isPrereleaseTag = $Tag -cmatch '^v\d+\.\d+\.\d+\.\d+$'
 $releaseBranch = "main"
 if ($isPrereleaseTag) { $releaseBranch = "dev" }
+$reserveOnlyRelease = $Tag -ceq "v1.2.0.9022"
+if ($reserveOnlyRelease -and $Phase -eq "Finalize") {
+    throw "v1.2.0.9022 completes publication in Reserve; Finalize is not supported."
+}
+$hasSourceBranch = $PSBoundParameters.ContainsKey("SourceBranch")
+if ($hasSourceBranch) {
+    if (-not $isPrereleaseTag) { throw "SourceBranch is allowed only for four-component prerelease tags." }
+    if ($SourceBranch -cnotmatch '^[A-Za-z0-9][A-Za-z0-9._/-]*$') {
+        throw "SourceBranch must be a safe Git branch name."
+    }
+    git -C $PSScriptRoot check-ref-format --branch $SourceBranch 2>$null | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw "SourceBranch must be a safe Git branch name." }
+    $releaseBranch = $SourceBranch
+}
 if ($Draft.IsPresent) {
     throw "Draft releases are not supported by the durable release publication flow."
 }
@@ -148,6 +171,17 @@ function Assert-CgRemoteReleaseLineage {
     if ($RequireTip -and $ExpectedCommit -cne $branchCommit) {
         throw "A new remote tag requires HEAD at exact current origin/$Branch."
     }
+    if ($hasSourceBranch) {
+        $currentHead = git -C $PSScriptRoot rev-parse --verify "HEAD^{commit}" 2>$null
+        if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($currentHead) -or
+            $currentHead.Trim() -cne $ExpectedCommit) {
+            throw "SourceBranch requires unchanged HEAD at exact current origin/$Branch."
+        }
+        $sourceChanges = @(git -C $PSScriptRoot status --porcelain --untracked-files=all 2>$null)
+        if ($LASTEXITCODE -ne 0 -or $sourceChanges.Count -ne 0) {
+            throw "SourceBranch release checkout must be strictly clean, including attestations."
+        }
+    }
     git -C $PSScriptRoot merge-base --is-ancestor $ExpectedCommit $branchCommit 2>$null
     if ($LASTEXITCODE -ne 0) {
         throw "Release lineage mismatch: $ExpectedCommit is not on origin/$Branch ($branchCommit)."
@@ -216,14 +250,15 @@ if ($LASTEXITCODE -ne 0 -or $tagObject -cnotmatch '^[0-9a-f]{40}$') { throw "Cou
 $remoteTag = Get-CgRemoteTagIdentity -ReleaseTag $Tag
 if ($null -ne $remoteTag) { Assert-CgRemoteTagCommit -ReleaseTag $Tag -ExpectedCommit $headCommit }
 if ($Phase -eq "Finalize" -and $null -eq $remoteTag) { throw "Finalize requires the existing remote tag." }
-Assert-CgRemoteReleaseLineage -ExpectedCommit $headCommit -Branch $releaseBranch -RequireTip:($null -eq $remoteTag)
+Assert-CgRemoteReleaseLineage -ExpectedCommit $headCommit -Branch $releaseBranch -RequireTip:($hasSourceBranch -or $null -eq $remoteTag)
 $worktreeChanges = @(git -C $PSScriptRoot status --porcelain --untracked-files=all 2>$null)
 if ($LASTEXITCODE -ne 0) {
     throw "Could not verify that the release checkout is clean."
 }
 $attestationRelative = ".github/shared/skill-management/release-attestations/$Tag.json"
-$attestationRetry = $worktreeChanges -ccontains "?? $attestationRelative"
-if (@($worktreeChanges | Where-Object { $_ -cne "?? $attestationRelative" }).Count -gt 0) {
+$attestationRetry = -not ($hasSourceBranch -or $reserveOnlyRelease) -and $worktreeChanges -ccontains "?? $attestationRelative"
+if ((($hasSourceBranch -or $reserveOnlyRelease) -and $worktreeChanges.Count -gt 0) -or
+    @($worktreeChanges | Where-Object { $_ -cne "?? $attestationRelative" }).Count -gt 0) {
     throw "Release checkout must be clean before testing tag '$Tag'."
 }
 
@@ -402,18 +437,20 @@ if ($creationRuleTypes -cnotcontains "creation" -or
     throw "'Restrict release tag creation' must limit refs/tags/v* creation to repository administrators."
 }
 
-$devRuleset = Get-CgRepositoryRuleset -RulesetName "Protect dev" -RulesetTarget "branch"
-$devRuleTypes = @($devRuleset.rules | ForEach-Object { [string]$_.type })
-$devIncludes = @($devRuleset.conditions.ref_name.include | ForEach-Object { [string]$_ })
-$devExcludes = @($devRuleset.conditions.ref_name.exclude | ForEach-Object { [string]$_ })
-$devBypass = @($devRuleset.bypass_actors)
-if ($devRuleTypes -cnotcontains "deletion" -or
-    $devRuleTypes -cnotcontains "non_fast_forward" -or
-    $devIncludes -cnotcontains "refs/heads/dev" -or
-    $devExcludes.Count -ne 0 -or
-    $devBypass.Count -ne 0 -or
-    [string]$devRuleset.current_user_can_bypass -cne "never") {
-    throw "'Protect dev' must block deletion and non-fast-forward updates without exclusions or bypass actors."
+if (-not $hasSourceBranch -or $releaseBranch -ceq "dev") {
+    $devRuleset = Get-CgRepositoryRuleset -RulesetName "Protect dev" -RulesetTarget "branch"
+    $devRuleTypes = @($devRuleset.rules | ForEach-Object { [string]$_.type })
+    $devIncludes = @($devRuleset.conditions.ref_name.include | ForEach-Object { [string]$_ })
+    $devExcludes = @($devRuleset.conditions.ref_name.exclude | ForEach-Object { [string]$_ })
+    $devBypass = @($devRuleset.bypass_actors)
+    if ($devRuleTypes -cnotcontains "deletion" -or
+        $devRuleTypes -cnotcontains "non_fast_forward" -or
+        $devIncludes -cnotcontains "refs/heads/dev" -or
+        $devExcludes.Count -ne 0 -or
+        $devBypass.Count -ne 0 -or
+        [string]$devRuleset.current_user_can_bypass -cne "never") {
+        throw "'Protect dev' must block deletion and non-fast-forward updates without exclusions or bypass actors."
+    }
 }
 
 function Assert-CgReleaseMetadata {
@@ -503,7 +540,7 @@ if ($Phase -eq "Reserve") {
         body = $notes; draft = $false; prerelease = $releasePrerelease
         make_latest = "false"
     }
-    Assert-CgRemoteReleaseLineage -ExpectedCommit $headCommit -Branch $releaseBranch -RequireTip:($null -eq $remoteTag)
+    Assert-CgRemoteReleaseLineage -ExpectedCommit $headCommit -Branch $releaseBranch -RequireTip:($hasSourceBranch -or $null -eq $remoteTag)
     if ($null -eq $remoteTag) {
         # No distributed atomicity: after an uncertain push, read back exact identity.
         try { git -C $PSScriptRoot push origin --no-follow-tags "$tagObject`:refs/tags/$Tag" 2>$null | Out-Null }
@@ -534,7 +571,11 @@ if ($Phase -eq "Reserve") {
         $reservationStatus = "CREATED"
     }
     "$reservationStatus|$($existingRelease.id)|$($existingRelease.html_url)" | Set-Content $resultFile
-    Write-Host "RESERVED ($reservationStatus): $Tag. Finalize and evidence commit are still required; no latest promotion was requested."
+    if ($reserveOnlyRelease) {
+        Write-Host "COMPLETE ($reservationStatus): $Tag. Reserve confirmed the exact tag/Release pair; no Pages, Finalize, or attestation is required; no latest promotion was requested."
+    } else {
+        Write-Host "RESERVED ($reservationStatus): $Tag. Finalize and evidence commit are still required; no latest promotion was requested."
+    }
     return
 }
 

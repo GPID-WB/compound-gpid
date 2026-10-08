@@ -39,7 +39,18 @@ Parse optional arguments from the user's invocation message before running any s
   four-component tag always sets `<prerelease>` to `true`; it must be published
   with GitHub's prerelease flag rather than as a stable release. Stable tags are
   released from `main`; four-component prerelease tags are released directly
-  from `dev`.
+  from `dev` by default. The optional source branch below changes the source,
+  not the prerelease classification.
+- `--source-branch <name>`: Select an existing canonical `origin` branch only for
+  a four-component tag, including resume. Reject this option for stable tags.
+  Require `^[A-Za-z0-9][A-Za-z0-9._/-]*$` and successful
+  `git check-ref-format --branch <name>` before using the name in Git commands.
+  Record the exact case-sensitive name as `<source-branch>` and use it as
+  `<release-branch>`. Verify the existing live origin ref and fetched tracking
+  ref both equal `HEAD`. This is also required for retries with an existing tag;
+  ancestor-only retries are not allowed with this option. Require a strictly
+  clean tree, with no untracked attestation exception. Pass the exact selected
+  name to the publisher as `-SourceBranch <name>`.
 - `--since <value>`: Override the default 60-day scan window floor.
   - If value matches `^\d+$` (digits only, e.g., `--since 90`): treat as days.
   - If value matches `^\d{4}-\d{2}-\d{2}$` (e.g., `--since 2026-03-01`): treat as an ISO cutoff date. If the parsed date is after today, warn the user and fall back to the 60-day default.
@@ -54,6 +65,8 @@ Parse optional arguments from the user's invocation message before running any s
   the new-release scan, payload creation, commit, and tag creation steps. It
   validates the committed immutable payload and exact annotated tag, repairs or
   verifies the Release reservation first, then resumes deployment and Finalize.
+  For exact `v1.2.0.9022` only, successful Reserve completes publication; skip
+  Pages, Finalize, and attestation steps after the exact pair is confirmed.
   Explicit user confirmation is still required before Reserve or Finalize.
 
 ## Process
@@ -169,8 +182,9 @@ Set `<prerelease>` to `true` when `<next-tag>` has four numeric components and
 to `false` when it has three. This derivation is mandatory even when the user
 supplied the tag directly.
 Set `<release-branch>` to `dev` when `<prerelease>` is `true`; otherwise set it
-to `main`. Stable releases must never be cut from `dev`, and four-component
-prereleases must be publishable directly from `dev`.
+to `main`. If `--source-branch` was supplied, require a four-component tag and
+use that validated name instead. Stable releases keep the `main` source policy;
+four-component prereleases remain publishable directly from `dev` by default.
 
 ### Step 2: Check SCHEMA_VERSION
 
@@ -193,6 +207,14 @@ From the agent response, read the **SCHEMA_VERSION Signals** section. Apply the 
 Do NOT automatically modify `SCHEMA_VERSION`. Warn only — the user decides.
 
 ### Step 3: Draft release notes
+
+For exact `v1.2.0.9022`, read the reviewed `releases/v1.2.0.9022.md` notes and
+copy them unchanged to the ignored root `RELEASE_NOTES.md` for the preview and
+publisher call. Halt if the versioned notes are missing. Do not replace their
+re-clone, omitted-feature, preservation, or rollback guidance with a generic
+updater recipe. Keep the committed 9022 payload name and dates; halt if a new
+scanner payload differs from that immutable prepared record. Then continue to
+Step 4. The drafting instructions below apply to other tags only.
 
 Write a curated, human-friendly narrative to `RELEASE_NOTES.md` in the repo root. Do NOT write a raw commit log.
 
@@ -278,6 +300,8 @@ Ready to publish:
   Name:            <proposed-name>  (derive from the top feature in New Features, formatted as "<tag> - <short feature title>")
   Draft:           No
   Prerelease:      <Yes for a four-component tag; otherwise No>
+  Source branch:   <release-branch; say whether explicitly selected>
+  Completion:      <Reserve-only for exact v1.2.0.9022; otherwise Finalize and evidence commit>
   SCHEMA_VERSION:  <status from Step 2>
 
 Release notes preview:
@@ -296,8 +320,9 @@ If the user wants to edit the notes, pause — they will edit `RELEASE_NOTES.md`
 
 ### Step 5: Create and publish the durable release source
 
-On explicit confirmation, prepare and merge the durable payload before creating
-the local tag. Reserve then owns the tag push and immediate matching non-draft
+On explicit confirmation, prepare and publish the durable payload source before
+creating the local tag. Default sources use the reviewed PR below; an explicitly
+selected source stays on that branch. Reserve owns the tag push and matching non-draft
 Release creation, before any documentation query or wait.
 
 1. Require a clean, up-to-date `<release-branch>` checkout before writing payloads:
@@ -307,16 +332,20 @@ Release creation, before any documentation query or wait.
    git fetch origin <release-branch> --tags
    git rev-parse HEAD
    git rev-parse origin/<release-branch>
+   git ls-remote --heads origin refs/heads/<release-branch>
    ```
 
    Halt if status has tracked or untracked changes (other than ignored
    `RELEASE_NOTES.md`), or `HEAD` differs
-   from `origin/<release-branch>`. Halt safely on a non-fast-forward release
+   from `origin/<release-branch>`. With an explicit source, also require exactly
+   one live `refs/heads/<release-branch>` at that same SHA and the canonical
+   GPID-WB/compound-gpid origin fetch and push URLs. Halt safely on a non-fast-forward release
    branch rather than creating a release from a stale checkout. Do not require
    a four-component prerelease commit on `dev` to contain the current `main`
    tip; exact `origin/dev` lineage is the prerelease authorization boundary.
-   A clean detached checkout at the exact authorized commit is allowed. Prepare
-   payload changes on a feature branch for the reviewed PR below.
+   A clean detached checkout at the exact authorized commit is allowed. For
+   default sources, prepare payload changes on a feature branch for the reviewed
+   PR below. For an explicit source, prepare them on that selected branch.
 
 2. Extract exactly one fenced JSON object from the scanner's `## Release
    Payload` section. Parse it before writing any payload. It must contain only a
@@ -374,7 +403,16 @@ Release creation, before any documentation query or wait.
    If no staged diff exists because both payload files are already byte-identical,
    do not create an empty commit.
 
-6. Push the payload feature branch and open a reviewed PR to `<release-branch>`.
+6. With an explicit source, obtain the required push approval and push the payload
+   commit to that exact `<release-branch>` with `--no-follow-tags`. Do not push it
+   to `dev` or `main` instead, and do not open or merge a PR automatically. Require
+   green tests on the exact pushed candidate and any separately approved review
+   or pilot gates before publication. Fetch the selected branch and verify
+   `HEAD == origin/<release-branch> == live refs/heads/<release-branch>` and a
+   strictly clean tree again. Do not bypass any protection on the selected branch.
+
+   Without an explicit source, push the payload feature branch and open a
+   reviewed PR to `<release-branch>`.
    Require all tests green before merging. Do not tag the unmerged feature commit
    or a local payload commit. After merge, fetch `<release-branch>` and check out
    its exact current remote commit with the payload present. Verify clean status
@@ -386,12 +424,15 @@ Release creation, before any documentation query or wait.
    Verify the required active repository rulesets before creating the tag:
    `Protect release tags` must block all updates and deletions for
    `refs/tags/v*` without bypass actors; `Restrict release tag creation` must
-   restrict creation of `refs/tags/v*` to repository administrators; and
-   `Protect dev` must block deletion and force-pushes for `refs/heads/dev`
+   restrict creation of `refs/tags/v*` to repository administrators. Without an
+   explicit source, keep the existing `Protect dev` check for both default tag
+   types. With an explicit source, require that check when `<release-branch>`
+   is exactly `dev`. `Protect dev` must block deletion and
+   force-pushes for `refs/heads/dev`
    without bypass actors. Halt before tag creation if any rule is absent or
    weaker than this contract.
 
-7. Verify or create the exact annotated LOCAL tag on the clean merged payload
+7. Verify or create the exact annotated LOCAL tag on the clean approved pushed payload
    commit. Do not push the tag manually. Do not use an unconditional `git tag` command:
 
    ```powershell
@@ -416,9 +457,16 @@ Release creation, before any documentation query or wait.
    .\create-release.ps1 -Phase Reserve -Tag <tag> -Name "<name>" -NotesFile RELEASE_NOTES.md
    ```
 
+   Add `-Prerelease` whenever `<prerelease>` is `true`, including 9022. If an
+   explicit source was selected, append `-SourceBranch <release-branch>` with
+   that exact validated name; otherwise omit it. Never infer the source from
+   the current local branch or silently replace the selected source with `dev`.
+
    Reserve runs local, payload, exact-tree native, credential, ruleset, historical
    release, and existing-release conflict checks before the first tag push. It
-   requires exact current `origin/<release-branch>` for a new remote tag. It pushes
+   requires exact current `origin/<release-branch>` for a new remote tag. With
+   `-SourceBranch`, both lineage checks require exact live and fetched source tip,
+   unchanged `HEAD`, and a strictly clean tree even for existing-tag retries. It pushes
    only that annotated tag and immediately creates its matching non-draft Release.
    Every reservation sets `make_latest: "false"`, including stable tags, so an
    unvalidated reservation is not promoted to GitHub's latest stable release.
@@ -426,11 +474,21 @@ Release creation, before any documentation query or wait.
    uncertain push or POST, reconcile exact tag and Release state read-only. Never
    blindly repeat POST, force a tag push, or delete/PATCH a Release as rollback.
 
-   Read `release-result.txt`: `CREATED|` and `EXISTS|` confirm the reservation only,
-   NOT lifecycle completion. If absent or the script fails, halt and report the
-   known pair state. Resume Reserve to reconcile or repair before downstream gates.
+   Read the fresh `release-result.txt` only after successful Reserve. If absent
+   or the script fails, halt and report the known pair state; do not claim completion.
+   For exact `v1.2.0.9022` only, `CREATED|<id>|<url>` or `EXISTS|<id>|<url>` from
+   successful exact-pair verification confirms complete Reserve-only publication:
+   the Release is non-draft, is a prerelease, and requests `make_latest: "false"`.
+   Report the verified Release URL and STOP. Skip Step 5.8 and all of Step 6:
+   no Pages wait, Finalize, attestation, generated evidence, or evidence commit.
+   This policy does not mean 9022 is already published. Publication still needs
+   separate approval and successful exact Reserve.
 
-8. Wait for the unprivileged `release-docs.yml` push run for the exact tag and
+   For every other tag, `CREATED|` and `EXISTS|` confirm the reservation only,
+   NOT lifecycle completion. Resume Reserve to reconcile or repair before downstream gates.
+
+8. Skip this step for exact `v1.2.0.9022` after successful exact Reserve.
+   Wait for the unprivileged `release-docs.yml` push run for the exact tag and
    commit. Verify its successful conclusion and record its database ID. Then
    identify the successful `release-pages.yml` `workflow_run` controller whose run name
    is exactly `Deploy docs from <release-docs database ID>`. Halt on a missing,
@@ -444,9 +502,12 @@ Release creation, before any documentation query or wait.
 
 When invoked with `--resume <tag>`, derive `<prerelease>` and
 `<release-branch>` from the tag using the same three-component/`main` and
-four-component/`dev` policy as a new release. Require a clean checkout at the
+four-component/`dev` defaults and optional explicit source policy as a new release.
+Require a clean checkout at the
 exact tag commit; a detached checkout is allowed so resume remains possible
-after the release branch advances. Do not prepare a new scanner payload.
+after the release branch advances only when no explicit source was selected.
+With an explicit source, require the current exact live and fetched source tip
+even if the remote tag already exists. Do not prepare a new scanner payload.
 Confirm all of the following before retrying any publication step:
 
 ```powershell
@@ -454,6 +515,7 @@ git status --porcelain
 git fetch origin <release-branch> --tags
 git rev-parse HEAD
 git rev-parse origin/<release-branch>
+git ls-remote --heads origin refs/heads/<release-branch>
 git rev-parse "<tag>^{commit}"
 git merge-base --is-ancestor "<tag>^{commit}" origin/<release-branch>
 git ls-remote --tags origin refs/tags/<tag>
@@ -470,12 +532,20 @@ and valid. Restore the exact previously confirmed title and notes from the
 recorded release context; do not invent replacement metadata. Present the exact
 tag, payload, name, body, and remote pair state and obtain explicit confirmation.
 Run `-Phase Reserve` first to repair or verify the reservation, BEFORE any
-documentation wait. Then resume Step 5.8 and Step 6. Never overwrite an immutable
+documentation wait. Pass the same `-SourceBranch <release-branch>` when an explicit
+source was selected. For exact `v1.2.0.9022`, require the successful exact Reserve
+result described in Step 5.7, report its verified URL, and STOP without Step 5.8
+or Step 6. For other tags, resume Step 5.8 and Step 6. Never overwrite an immutable
 payload or create a new tag during resume. Never delete an existing Release on
-downstream failure. The only allowed untracked change is the exact canonical
-attestation for this tag, which the script verifies byte-for-byte for retry.
+downstream failure. With an explicit source or exact `v1.2.0.9022`, no untracked
+attestation exception is allowed. Otherwise the only allowed untracked change
+is the exact canonical attestation for this tag, which the script verifies byte-for-byte for retry.
 
 ### Step 6: Finalize And Commit Evidence
+
+Skip this entire step for exact `v1.2.0.9022` after successful exact Reserve.
+The publisher rejects Finalize for that tag; no Pages or attestation is required.
+Every other tag keeps the following lifecycle unchanged.
 
 Only after Reserve has confirmed the exact tag/Release pair and Step 5.8 has
 observed successful tag-site deployment, run with the recorded exact run IDs:
@@ -483,6 +553,9 @@ observed successful tag-site deployment, run with the recorded exact run IDs:
 ```powershell
 .\create-release.ps1 -Phase Finalize -Tag <tag> -Name "<name>" -NotesFile RELEASE_NOTES.md -BuildRunId <build-id> -PagesRunId <pages-id>
 ```
+
+Append the same `-SourceBranch <release-branch>` if an explicit source was selected;
+its exact-tip and strictly-clean requirements also apply to Finalize for other tags.
 
 Finalize must not push tags or create, edit, or delete Releases. It requires the
 existing exact Release, successful `release-docs.yml` push run at the tag SHA,
@@ -517,21 +590,24 @@ Do not add a promotion PATCH to either phase or treat reservation as promotion a
 ## Rules
 
 - Never run `create-release.ps1` without explicit user confirmation in Step 4,
-  or the equivalent resume confirmation. Reserve requires validated merged
+  or the equivalent resume confirmation. Reserve requires validated approved pushed
   payloads and the exact annotated local tag. Finalize additionally requires the
-  published pair and successful exact tag-site deployment.
+  published pair and successful exact tag-site deployment, except exact
+  `v1.2.0.9022`, which completes only through successful exact Reserve.
 - Never manually push a bare release tag in normal release instructions. Reserve
   owns the tag push plus immediate Release. Never delete/PATCH a Release or move
   a protected tag to recover from downstream failures.
 - Never modify `SCHEMA_VERSION` automatically. Warn only.
-- Require stable three-component tags on `main` and four-component prerelease
-  tags on `dev`; never weaken this branch/tag matrix.
+- Require stable three-component tags on `main`. Four-component prerelease tags
+  use `dev` by default or an explicitly selected validated same-origin branch.
+  The tag format, not the branch, determines prerelease classification.
 - Require an active repository tag ruleset named `Protect release tags` that
   blocks all updates and deletions for `refs/tags/v*` without exclusions or
   bypass actors before API publication.
 - Require `Restrict release tag creation` to limit new `refs/tags/v*` tags to
-  repository administrators, and `Protect dev` to block deletion and
-  non-fast-forward updates of `refs/heads/dev` without bypass actors.
+  repository administrators. Keep `Protect dev` for calls without an explicit
+  source, and for an explicit `dev` source, to block deletion and non-fast-forward updates of
+  `refs/heads/dev` without bypass actors.
 - Always publish four-component `vX.Y.Z.<build>` tags as GitHub prereleases.
 - `RELEASE_NOTES.md` is ephemeral and gitignored. Release payload JSON is the
   durable What's New source; the GitHub Release is the public release record.
