@@ -514,6 +514,12 @@ def test_reduced_hosted_smoke_is_bounded_and_fixture_only(platform: str) -> None
     assert 'PYTHONDONTWRITEBYTECODE: "1"' in block
     assert 'GIT_CONFIG_NOSYSTEM: "1"' in block
     assert "GIT_ALLOW_PROTOCOL: file" in block
+    before_fixture, fixture = block.split("      - name: Prepare isolated", 1)
+    assert "    env:\n" not in before_fixture
+    for name in ("CG_SKIP_UPDATE", "PYTHONDONTWRITEBYTECODE", "GIT_CONFIG_NOSYSTEM",
+                 "GIT_TERMINAL_PROMPT", "GIT_ALLOW_PROTOCOL"):
+        assert f"          {name}:" in fixture
+        assert fixture.count(name) == 2  # Step environment and later GITHUB_ENV.
     assert "git clone --no-local --no-checkout" in block
     assert "checkout --detach" in block
     assert "rev-parse HEAD" in block
