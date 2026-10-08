@@ -39,10 +39,10 @@ def test_native_progress_is_flushed_and_failures_stop_execution(
     def run(command: list[str], **kwargs: object) -> subprocess.CompletedProcess:
         calls.append(command)
         assert f"starting native command {len(calls)}/2" in progress.flushed
-        assert kwargs["timeout"] == 600
+        assert kwargs["timeout"] == 1500
         assert kwargs["capture_output"] is True
         if outcome == "timeout":
-            raise subprocess.TimeoutExpired(command, 600)
+            raise subprocess.TimeoutExpired(command, 1500)
         return subprocess.CompletedProcess(command, outcome, "child output", "")
 
     monkeypatch.setattr(preflight.subprocess, "run", run)
@@ -101,8 +101,8 @@ def test_native_output_keeps_start_failure_tail_and_byte_bound(
 def test_release_prompt_requires_blocking_budget_and_no_blind_retry() -> None:
     """Release calls must outlive child budgets without weakening the gate."""
     prompt = (REPO_ROOT / ".github/prompts/cg-release.prompt.md").read_text(encoding="utf-8")
-    assert "`2700000` milliseconds (45 minutes)" in prompt
-    assert 2700 > len(preflight.native_commands(REPO_ROOT)) * preflight.NATIVE_COMMAND_TIMEOUT_SECONDS
+    assert "`7200000` milliseconds (120 minutes)" in prompt
+    assert 7200 > len(preflight.native_commands(REPO_ROOT)) * preflight.NATIVE_COMMAND_TIMEOUT_SECONDS
     assert "blocking foreground call" in prompt
     assert "or an automatic retry after a timeout" in prompt
     assert "never substitute `--phase prepare`" in prompt
