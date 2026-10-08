@@ -33,6 +33,10 @@ POSIX_DIRTY = {f"bin/cg-{name}" for name in (
     "problems-summary", "test-summary", "tree-summary")}
 CMD_PROBE_CHANGES = {f"bin/cg-{name}.cmd" for name in (
     "skill", "kilo", "index", "brain-init", "render-artifact", "token-audit")}
+POSIX_WRAPPER_CHANGES = {f"bin/cg-{name}" for name in (
+    "brain-init", "diff-summary", "index", "kilo", "link", "log-summary",
+    "problems-summary", "publish-markdown", "render-artifact", "skill",
+    "test-summary", "token-audit", "tree-summary", "unlink", "update")}
 WORKER = '''
 import os, subprocess, sys
 from pathlib import Path
@@ -249,7 +253,7 @@ def _build(rt: Runtime, *, legacy: bool = False, changed: bool = False,
     rt.env["RM_TARGET"] = _git(rt, source, "rev-parse", "HEAD").decode().strip()
     if legacy:
         modified = _git(rt, source, "diff", "--diff-filter=M", "--name-only", OLD, TARGET, "--", "bin").decode().splitlines()
-        expected = CMD_PROBE_CHANGES | ({"bin/cg-brain-init"} if changed else set())
+        expected = CMD_PROBE_CHANGES | POSIX_WRAPPER_CHANGES
         assert set(modified) == expected
     else:
         _write(source / "package.txt", "independent HEAD\n")
