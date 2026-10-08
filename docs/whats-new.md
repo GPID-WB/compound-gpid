@@ -4,6 +4,27 @@ Release history and notable changes across Compound GPID from structured
 release payloads.
 
 <!-- cg:auto:release-notes -->
+### v1.2.0.9023 — v1.2.0.9023 - Kilo-independent installation and updates
+
+*2026-10-08T22:02:59Z*
+
+**Fixed — No Kilo version or host dependency**
+- Install, update, link, and unlink do not run Kilo and do not require any Kilo version or host behavior. Generated Compound GPID files still receive local validation; ownership and user-file preservation checks remain.
+- Projects with both Kilo and Claude or Codex skills receive a non-blocking note that recommends cg-kilo for contained launches. The optional cg-kilo launcher keeps KILO_DISABLE_EXTERNAL_SKILLS containment; an old or unreadable Kilo version produces a warning, not a version gate.
+
+**New — Upgrade instructions**
+- From 9022: open a NEW EMPTY FOLDER and run cg-update v1.2.0.9023 there. Do not run the installed 9022 updater from your home folder or a Kilo-linked project: it still has the old host check. After the update succeeds, run the NEW cg-link once per project.
+- Mac users on 9006-9016: use the same re-clone steps as 9022. Back up projects and the installation; move the old clone aside; clone at the SAME path; check out v1.2.0.9023; set .cg-version to v1.2.0.9023, not latest; run bash scripts/install.sh; open a new terminal; run the NEW cg-link once per project.
+- If cg-link reports blocked or preserved old files, stop and keep those files, ownership records, journals, and private configuration. Do not delete adapter folders or use unlink as a cleanup shortcut. Keep the old clone for rollback.
+
+**Internal — Four-part pre-release publication**
+- Every four-part tag vX.Y.Z.N is Reserve-only: a non-draft GitHub pre-release with make_latest=false. Finalize, documentation deployment, and attestation do not apply. Three-part stable tags retain the full publication path.
+- This payload uses the preparation timestamp in its required date fields. Publication is permitted only after the local gates and all applicable push and FULL CI rows pass. Hosted fixtures do not claim real local installation or real Kilo host qualification.
+
+[View source tag](https://github.com/GPID-WB/compound-gpid/tree/v1.2.0.9023)
+
+---
+
 ### v1.2.0.9022 — v1.2.0.9022 - Safe-baseline rebuild
 
 *2026-10-08T13:13:26Z*
