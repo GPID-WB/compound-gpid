@@ -7,7 +7,7 @@
       "path": ".kilo/AGENTS.md",
       "source": "adapter",
       "kind": "root-adapter",
-      "sha256": "a7f53e553873066bb92d7cc3d41302cb57a849fff2dc6fb5229c652bac282e40",
+      "sha256": "2ab7507fe90f7dc826ad7487d587ef1674c8623cd079b28616cd75c0f0df6a2f",
       "executable": false
     },
     {
@@ -322,7 +322,7 @@
       "path": ".kilo/commands/cg-release.md",
       "source": ".github/prompts/cg-release.prompt.md",
       "kind": "command",
-      "sha256": "0e27db21bf8d211ad722d7caf36d3716e3e3bd8910c13857d9dd54c2734dabe4",
+      "sha256": "92a9b54a281feb8e934711e3910600bb96d46ea5849379db62d29df8073d817b",
       "executable": false
     },
     {
@@ -385,7 +385,7 @@
       "path": ".kilo/commands/cg-verify-pr.md",
       "source": ".github/prompts/cg-verify-pr.prompt.md",
       "kind": "command",
-      "sha256": "ee9e128a80cf3c738424a6be5ac4ca26a1a64f047e5a4098a1f5110d5338bc58",
+      "sha256": "ff1b8152da3f05b9b95996298a6c7fea567bcf2613a168deb2f2f017e8731e1e",
       "executable": false
     },
     {

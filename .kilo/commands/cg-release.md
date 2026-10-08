@@ -64,9 +64,10 @@ Parse optional arguments from the user's invocation message before running any s
   the new-release `<tag>` argument. Resume skips
   the new-release scan, payload creation, commit, and tag creation steps. It
   validates the committed immutable payload and exact annotated tag, repairs or
-  verifies the Release reservation first, then resumes deployment and Finalize.
-  For exact `v1.2.0.9022` only, successful Reserve completes publication; skip
-  Pages, Finalize, and attestation steps after the exact pair is confirmed.
+  verifies the Release reservation first. For stable three-component tags, then
+  resume deployment and Finalize. For every four-component tag, successful Reserve
+  completes publication; skip Pages, Finalize, and attestation steps after the
+  exact pair is confirmed.
   Explicit user confirmation is still required before Reserve or Finalize.
 
 ## Process
@@ -208,13 +209,15 @@ Do NOT automatically modify `SCHEMA_VERSION`. Warn only — the user decides.
 
 ### Step 3: Draft release notes
 
-For exact `v1.2.0.9022`, read the reviewed `releases/v1.2.0.9022.md` notes and
+For a four-component tag with reviewed `releases/<next-tag>.md` notes already
+prepared, read those notes and
 copy them unchanged to the ignored root `RELEASE_NOTES.md` for the preview and
-publisher call. Halt if the versioned notes are missing. Do not replace their
-re-clone, omitted-feature, preservation, or rollback guidance with a generic
-updater recipe. Keep the committed 9022 payload name and dates; halt if a new
-scanner payload differs from that immutable prepared record. Then continue to
-Step 4. The drafting instructions below apply to other tags only.
+publisher call. Do not replace their
+migration, omitted-feature, preservation, or rollback guidance with a generic
+updater recipe. If an immutable payload is already prepared, keep its name and
+dates; halt if a new scanner payload differs from that prepared record. Then
+continue to Step 4. If no reviewed versioned notes exist, use the drafting
+instructions below. Stable tags keep the same drafting path.
 
 Write a curated, human-friendly narrative to `RELEASE_NOTES.md` in the repo root. Do NOT write a raw commit log.
 
@@ -301,7 +304,7 @@ Ready to publish:
   Draft:           No
   Prerelease:      <Yes for a four-component tag; otherwise No>
   Source branch:   <release-branch; say whether explicitly selected>
-  Completion:      <Reserve-only for exact v1.2.0.9022; otherwise Finalize and evidence commit>
+  Completion:      <Reserve-only for every four-component tag; stable tags require Finalize and evidence commit>
   SCHEMA_VERSION:  <status from Step 2>
 
 Release notes preview:
@@ -457,7 +460,7 @@ Release creation, before any documentation query or wait.
    .\create-release.ps1 -Phase Reserve -Tag <tag> -Name "<name>" -NotesFile RELEASE_NOTES.md
    ```
 
-   Add `-Prerelease` whenever `<prerelease>` is `true`, including 9022. If an
+   Add `-Prerelease` whenever `<prerelease>` is `true`. If an
    explicit source was selected, append `-SourceBranch <release-branch>` with
    that exact validated name; otherwise omit it. Never infer the source from
    the current local branch or silently replace the selected source with `dev`.
@@ -476,18 +479,18 @@ Release creation, before any documentation query or wait.
 
    Read the fresh `release-result.txt` only after successful Reserve. If absent
    or the script fails, halt and report the known pair state; do not claim completion.
-   For exact `v1.2.0.9022` only, `CREATED|<id>|<url>` or `EXISTS|<id>|<url>` from
+   For every four-component tag, `CREATED|<id>|<url>` or `EXISTS|<id>|<url>` from
    successful exact-pair verification confirms complete Reserve-only publication:
    the Release is non-draft, is a prerelease, and requests `make_latest: "false"`.
    Report the verified Release URL and STOP. Skip Step 5.8 and all of Step 6:
    no Pages wait, Finalize, attestation, generated evidence, or evidence commit.
-   This policy does not mean 9022 is already published. Publication still needs
+   This policy does not mean a tag is already published. Publication still needs
    separate approval and successful exact Reserve.
 
-   For every other tag, `CREATED|` and `EXISTS|` confirm the reservation only,
+   For stable three-component tags, `CREATED|` and `EXISTS|` confirm the reservation only,
    NOT lifecycle completion. Resume Reserve to reconcile or repair before downstream gates.
 
-8. Skip this step for exact `v1.2.0.9022` after successful exact Reserve.
+8. Skip this step for every four-component tag after successful exact Reserve.
    Wait for the unprivileged `release-docs.yml` push run for the exact tag and
    commit. Verify its successful conclusion and record its database ID. Then
    identify the successful `release-pages.yml` `workflow_run` controller whose run name
@@ -533,19 +536,19 @@ recorded release context; do not invent replacement metadata. Present the exact
 tag, payload, name, body, and remote pair state and obtain explicit confirmation.
 Run `-Phase Reserve` first to repair or verify the reservation, BEFORE any
 documentation wait. Pass the same `-SourceBranch <release-branch>` when an explicit
-source was selected. For exact `v1.2.0.9022`, require the successful exact Reserve
+source was selected. For every four-component tag, require the successful exact Reserve
 result described in Step 5.7, report its verified URL, and STOP without Step 5.8
-or Step 6. For other tags, resume Step 5.8 and Step 6. Never overwrite an immutable
+or Step 6. For stable tags, resume Step 5.8 and Step 6. Never overwrite an immutable
 payload or create a new tag during resume. Never delete an existing Release on
-downstream failure. With an explicit source or exact `v1.2.0.9022`, no untracked
+downstream failure. With any four-component tag, no untracked
 attestation exception is allowed. Otherwise the only allowed untracked change
 is the exact canonical attestation for this tag, which the script verifies byte-for-byte for retry.
 
 ### Step 6: Finalize And Commit Evidence
 
-Skip this entire step for exact `v1.2.0.9022` after successful exact Reserve.
-The publisher rejects Finalize for that tag; no Pages or attestation is required.
-Every other tag keeps the following lifecycle unchanged.
+Skip this entire step for every four-component tag after successful exact Reserve.
+The publisher rejects Finalize for all four-component tags; no Pages or attestation is required.
+Stable three-component tags keep the following lifecycle unchanged.
 
 Only after Reserve has confirmed the exact tag/Release pair and Step 5.8 has
 observed successful tag-site deployment, run with the recorded exact run IDs:
@@ -554,9 +557,6 @@ observed successful tag-site deployment, run with the recorded exact run IDs:
 .\create-release.ps1 -Phase Finalize -Tag <tag> -Name "<name>" -NotesFile RELEASE_NOTES.md -BuildRunId <build-id> -PagesRunId <pages-id>
 ```
 
-Append the same `-SourceBranch <release-branch>` if an explicit source was selected;
-its exact-tip and strictly-clean requirements also apply to Finalize for other tags.
-
 Finalize must not push tags or create, edit, or delete Releases. It requires the
 existing exact Release, successful `release-docs.yml` push run at the tag SHA,
 and successful `release-pages.yml` controller `Deploy docs from <build-id>`, then
@@ -564,12 +564,12 @@ creates or verifies the canonical release-attestation entry. The optional run ID
 avoid ambiguity after retries; without IDs the exact chain must be unique.
 An attestation failure leaves the pair intact but blocks lifecycle completion.
 Do not fabricate or edit an attestation manually. Do not create lifecycle
-attestation for withdrawn `v1.2.0.9014`.
+attestation for any four-component tag.
 
 Draft releases are not supported by this durable publication flow. Do not pass
 `-Draft`; halt if a draft is requested.
-Add `-Prerelease` whenever `<prerelease>` is `true`. Four-component tags always
-set it to `true`; do not publish `vX.Y.Z.<build>` as a stable GitHub Release.
+Stable three-component tags set `<prerelease>` to `false`; do not pass `-Prerelease`
+to Finalize. Four-component tags complete publication through Reserve as GitHub prereleases.
 
 After Finalize, require `FINALIZED|<id>|<url>` in `release-result.txt`. A missing
 result or error is a failed workflow; do not claim completion from stale output.
@@ -592,8 +592,9 @@ Do not add a promotion PATCH to either phase or treat reservation as promotion a
 - Never run `create-release.ps1` without explicit user confirmation in Step 4,
   or the equivalent resume confirmation. Reserve requires validated approved pushed
   payloads and the exact annotated local tag. Finalize additionally requires the
-  published pair and successful exact tag-site deployment, except exact
-  `v1.2.0.9022`, which completes only through successful exact Reserve.
+  published pair and successful exact tag-site deployment for stable tags only.
+  Every four-component tag completes only through successful exact Reserve;
+  Pages, Finalize, and attestation do not apply.
 - Never manually push a bare release tag in normal release instructions. Reserve
   owns the tag push plus immediate Release. Never delete/PATCH a Release or move
   a protected tag to recover from downstream failures.
@@ -608,7 +609,8 @@ Do not add a promotion PATCH to either phase or treat reservation as promotion a
   repository administrators. Keep `Protect dev` for calls without an explicit
   source, and for an explicit `dev` source, to block deletion and non-fast-forward updates of
   `refs/heads/dev` without bypass actors.
-- Always publish four-component `vX.Y.Z.<build>` tags as GitHub prereleases.
+- Four-component tags always complete publication through Reserve as non-draft
+  GitHub prereleases with `make_latest: "false"`.
 - `RELEASE_NOTES.md` is ephemeral and gitignored. Release payload JSON is the
   durable What's New source; the GitHub Release is the public release record.
 - If you are unsure whether a change is "structural" for SCHEMA_VERSION purposes, err on the side of warning the user.

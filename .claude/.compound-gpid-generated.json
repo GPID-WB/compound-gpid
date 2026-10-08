@@ -322,7 +322,7 @@
       "path": ".claude/commands/cg-release.md",
       "source": ".github/prompts/cg-release.prompt.md",
       "kind": "command",
-      "sha256": "2ae9426d08e4154d2e1de4173b7096f7f7af0223a8ef78b86416c071b5ef553e",
+      "sha256": "dbb2033b584cf042816c95540a4b9baa79d000e26a0ec948eb9e4c74f4777be3",
       "executable": false
     },
     {
@@ -385,7 +385,7 @@
       "path": ".claude/commands/cg-verify-pr.md",
       "source": ".github/prompts/cg-verify-pr.prompt.md",
       "kind": "command",
-      "sha256": "a8fbc32ad38b94f9906b3ac4b6c2acc9e0ea48efa4a1cab7e05deade7e993139",
+      "sha256": "f9697810da221d5f7f6fa6aa75862bc87974b431ab9df57c98da8a270d3402fb",
       "executable": false
     },
     {

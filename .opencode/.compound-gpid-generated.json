@@ -322,7 +322,7 @@
       "path": ".opencode/commands/cg-release.md",
       "source": ".github/prompts/cg-release.prompt.md",
       "kind": "command",
-      "sha256": "7e65837eeb8d0dbdaae985f0f0cff35326c650f189ad346752eca57e60f3bd26",
+      "sha256": "f0efa24ec688fae6c8cf7a04c3a9a1c5ea341fac966ecb7149ed4deaef95d870",
       "executable": false
     },
     {
@@ -385,7 +385,7 @@
       "path": ".opencode/commands/cg-verify-pr.md",
       "source": ".github/prompts/cg-verify-pr.prompt.md",
       "kind": "command",
-      "sha256": "5289fd5143749059e58d0698332bf3705d3a6c0ace5ac72cbfb4794612ac9121",
+      "sha256": "5a030b8ba6ce2908d6eb1c30fb8e9867c1c269b47be6f60de1b4619477361202",
       "executable": false
     },
     {
