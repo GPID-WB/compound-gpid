@@ -175,7 +175,7 @@ def test_tag_build_is_unprivileged_and_dev_preview_controller_is_branch_local() 
     controller = _read(".github/workflows/release-pages.yml")
     pages = _read(".github/workflows/pages.yml")
 
-    assert 'tags: ["v*.*.*", "!v1.2.0.9022"]' in builder
+    assert 'tags: ["v*.*.*", "!v*.*.*.*"]' in builder
     assert "pages: write" not in builder
     assert "id-token: write" not in builder
     assert 'workflows: ["Build release documentation"]' in controller
