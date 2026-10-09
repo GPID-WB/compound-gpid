@@ -177,7 +177,7 @@ exit $LASTEXITCODE
                        "Bypass", "-File", str(root / "invoke.ps1")]
         else:
             env["PATH"] = str(root / "bin")
-            for name in ("git", "dirname", "basename", "mktemp", "rm", "ln", "mkdir",
+            for name in ("bash", "echo", "git", "dirname", "basename", "mktemp", "rm", "ln", "mkdir",
                          "cat", "chmod", "cp", "grep", "head", "tr", "xargs", "mv",
                          "sed", "find", "ls", "rmdir", "readlink", "awk", "cmp", "stat"):
                 executable = shutil.which(name)
