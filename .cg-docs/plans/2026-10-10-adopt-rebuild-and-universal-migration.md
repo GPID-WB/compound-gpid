@@ -8,14 +8,14 @@ deviation-policy: strict
 ---
 
 ## Objective
-Make roadmap step 3 safe for users on any published version: 9024 migration tool, upgrade CI and guide; announcement; reviewed dev adoption; reviewed main adoption; official release decision. This Plan is not execution approval. This session may validate, commit and push only this Plan.
+Make roadmap step 3 safe for users on any published version: 9024 migration tool, small upgrade matrix, guide and required small ports; announcement; reviewed dev adoption; reviewed main adoption; official release decision. Current approval covers recording decisions and implementing ONLY Phase 1 Step 1, isolated tests, commits and normal push. Later steps need separate execution approval.
 
 ## Context
 Baseline: `chore/rebuild-from-9017`, 9023 = `e8cd488066524d9d4f92dae81d06d2ff3d364394`; published prerelease, Windows/macOS host-mode tests green. Roadmap: `2026-10-08-rebuild-roadmap.md:22-54`; saved `rebuild.roadmap`, `rebuild.status`, `migration.universal`. Real-project pilot completion remains an adoption entry criterion, not a result inferred from CI.
 Live read-only refs on 2026-10-10: dev `f4f4eceaa95c565b7c9c7224d9d276997584dd79`; main `89b2730495b783bf02c7716c4a1c653e015f2721`; archive `51bb64b48189de2715489963549f8c2c1a274a97`. Main contains dev plus nine commits. GitHub Latest is still `v1.2.0.9003`, marked non-prerelease; this is independent of updater `latest`.
 
 ## Installation Footprint (Part A)
-Families describe persistent install/update/link protocols, not each added command. Each row selects ONE CI tag. Ranges include existing intermediate tags; side tags are assigned explicitly. Later rows inherit the shared footprint unless stated otherwise. Evidence is immutable `rev:path:line`; no historical code was run.
+Families describe persistent install/update/link protocols, not each added command. This 26-family table is REFERENCE, not the initial CI matrix. Ranges include intermediate tags; side tags are assigned explicitly. Later rows inherit the shared footprint unless stated otherwise. Evidence is immutable `rev:path:line`; no historical code was run.
 Shared locations: scripts derive the clone root from their location, including custom paths (`v0.0.5:install.ps1:21-23`). Documented defaults include `C:\WBG\.compound-gpid`, `%USERPROFILE%\.compound-gpid`, and POSIX `~/.compound-gpid` (`v0.9.0.9000:docs/installation.md:18-19,103-106`). Windows registers clone `bin` in HKCU `Environment\PATH`, later sets `COMPOUND_GPID_INSTALLED`, and cleans recognized profile functions. POSIX modifies marked `.zshrc`/`.bashrc` blocks, not automatically `.zprofile` (`v1.2.0.9006:install.ps1:349-381`; `v1.2.0.9006:scripts/install.sh:59-82,370-425`).
 Shared update modes: `.cg-version` stores `latest` or a tag; explicit selection wins. Latest pulls the attached branch, normally main, switching detached installs to main; it is NOT GitHub Latest. Old latest discards tracked edits; pins fetch/checkout a tag. The original updater process then refreshes current-project instructions/copies and may migrate knowledge folders, not its newly checked-out updater (`v0.0.5:scripts/update.ps1:148-259,270-359`; `v1.0.3:scripts/update.ps1:384-518`). Normal updates do not rerun installer/link/npm; the repair side tag below is an exception. Latest target generation starts at 1.0.2; old pins do not generate; rebuild pins validate with `--all --dry-run` (`v1.2.0.9006:scripts/update.ps1:340-385`; `v1.2.0.9022:scripts/update.ps1:405-425`).
 
@@ -53,18 +53,18 @@ Project inventory: copied root/config receipt `.compound-gpid/managed-files.json
 
 ## Migration Design (Part B)
 Ship only `scripts/migrate-install.ps1` and `scripts/migrate-install.sh` in 9024. Run their absolute paths from a fresh official 9024 clone outside the selected old install. Require trusted Git and normal new-install prerequisites, never Kilo. Do not run/source/import/evaluate old wrappers, installer, updater, linker, hooks or modules.
-Discovery is read-only: enumerate all PATH definitions/wrappers plus historical defaults; statically resolve clone roots, deduplicate physical aliases, support custom paths/spaces. Multiple distinct installs require `-InstallPath`/`--install-path`; never choose the first silently. Reject source/target overlap, foreign wrapper shadowing and unsupported symlink/gitdir/worktree layouts before moving anything. Unreadable versions are reported as unknown, not authority to replace a directory.
-Record old HEAD, inert `git describe --tags --always --dirty`, literal `.cg-version`, local-change summary and backup path. Sanitize Git environment/config helpers, disable filesystem monitoring/optional index writes, and do not reset/stash/clean the old clone. Prepare an independently cloned, verified new tag in a sibling on the same filesystem; write the exact new pin BEFORE its installer (9023 installers otherwise default to latest: `e8cd4880:install.ps1:421-427`; `e8cd4880:scripts/install.sh:281-287`).
-Pause other lifecycle activity. Use one exclusive per-target lock and a small migration-only phase note outside the target: original/staging/backup identities, version/pin, registration backups, prepared/moved/activated/verified state. This is restart/rollback support for two renames, not a workflow receipt/controller. Move the entire old clone aside without deletion, then place the new checkout at the SAME path. All dirty/untracked content remains in the backup; do not copy old code/config/hooks into the new checkout. Define recovery at each rename/installer boundary and verified-repeat no-op.
-Run only the NEW installer by absolute path. Limit its external write set to selected-install registrations; preserve unrelated profile functions/blocks and user files. Replace substring PATH tests with exact normalized entries; put selected bin first in its managed user registration without deleting other installs. Snapshot HKCU value presence/type/content and selected rc/profile bytes; verify effective commands in the intended fresh shell, including Machine PATH/functions/cache. Stop and report unresolved shadowing; absolute new-script invocation remains the safe fallback (`e8cd4880:install.ps1:379-394`; `e8cd4880:scripts/install.sh:225-273`).
-Verify new HEAD/pin, clean shipped wrappers, executable modes, command resolution and a safe NEW wrapper command. Print old/new versions, backup, conflicts, guide and exact rollback paths. Distinguish installation activated from project reconciled: same-path links expose new content immediately, removed targets can dangle, and copies stay old. Do not run a project sweep or automatically restore latest.
+Discovery is read-only: resolve PATH cg-update/cg-link plus defaults, including custom paths/spaces. Multiple distinct installs require `-InstallPath`/`--install-path`; never choose the first silently. Refuse links/junctions, `.git` files/worktrees, non-clone roots and source/target overlap before moving anything. Unknown metadata is reported, not authority to replace a directory.
+Verify a clean standalone NEW clone at an exact release tag, without Kilo. Record old HEAD, inert `git describe --tags --always --dirty`, literal `.cg-version` and short status; never reset/stash/clean or execute old code. Move the entire folder to `<target>.backup-<old version>-<timestamp>` in the same parent. Preserve every local change.
+NO lock, phase-note or registration-snapshot framework. Pause lifecycle activity. Existing target backup on rerun means stop with recovery instructions. Create the NEW checkout AT the target; leave the running clone in place. Windows clones locally with `--no-local`, sets origin to the official URL and fetches tags: no second network checkout, no shared objects, no move of the running script folder. Verify the tag SHA against origin before installation.
+Write the new tag to `.cg-version` BEFORE the NEW installer (9023 defaults to latest: `e8cd4880:install.ps1:421-427`). Run only that absolute installer in a child process. Verify exact tag/HEAD/pin, clean status, wrappers and fresh-process cg-update resolution after reading HKCU PATH again. If checkout/install/verification fails, remove only this run's partial NEW target and restore the old folder. Report external installer writes as not automatically restored.
+Print old/new versions, backup, next steps and rollback commands. `-Rollback <backup>` moves the current target aside without deletion and restores the backup to its exact original path. Project conflicts do not block installation; affected projects require manual action, with no deletion. Same-path links change immediately; copies stay old. Run cg-link once per project separately. Keep the new pin; returning to latest is a separate user action.
 
 ## Project Reconciliation
 9023 already removes exact old whole-root links without following/deleting targets, skips foreign roots, deletes checksum-matching stale copies, rejects selected modified/unowned projection collisions, and retires only five proven local native-plugin files (`e8cd4880:scripts/link.ps1:480-503`; `e8cd4880:scripts/cg_kilo_copy.py:170-208`; `e8cd4880:scripts/cg_project_projection.py:1046-1084`; `e8cd4880:scripts/cg_retire_native_evidence.py:23-36,160-225`). This covers owned F07+ copies, F17+ projection, F18+ mirrors and proven F24 plugin bytes, not every old file.
 Gaps: F01-F06 marker-only copies have no checksum authority; F13+ POSIX unrecorded copies can overwrite; F11-F16/general native per-unit links lack a complete projection transition; F14+ copy receipts are not bridged to projection; stale modified ownership is dropped; incompatible journals can be overwritten; marker-based instructions and force-confirmed foreign links can replace user changes (`e8cd4880:scripts/link.sh:379-435`; `e8cd4880:scripts/link.ps1:543-553,619-634`; `e8cd4880:scripts/tests/test_rebuild_residue.py:203-288`).
-Smallest fix: one pre-write classification using existing records, verified exact link targets and content hashes; bridge proven unchanged copy ownership to projection; migrate exact managed per-unit links without following targets; retain preserved-conflict ownership with matching verify/exit semantics; refuse unknown journal states; remove gitignore/marker-only inference as permission to replace differing bytes. Unowned/modified copies, settings, receipts, directories, SDK/node_modules and other plugins remain untouched with path-specific manual guidance. Scan all conflicts before publication; do not broaden native-plugin retirement. Before NEW apply, back up the check-listed managed write set, ownership records and raw link targets; old clone backup remains their old content source.
+Approved simplified Step-3 scope ONLY: (a) read-only `cg-link --check` with strict rejection of unknown options, and (b) remove marker/gitignore-only permission to replace differing bytes. All other old footprints are reported and preserved with manual guidance. No receipt bridge, per-unit link migration, journal/global-config repair, project snapshot framework or broader plugin retirement.
 There is NO existing read-only cg-link option; unknown flags are ignored and may mutate (`e8cd4880:scripts/link.ps1:40-59,836-853`; `e8cd4880:scripts/link.sh:8-23,800-809`). Add explicit NEW `cg-link --check` with strict unknown-flag rejection before update/state creation. Reuse pure manifest resolver and plan/verify functions with an IN-MEMORY desired manifest for missing/stale projects, not the existing CLI that requires an active manifest. Disable bytecode; no update, recovery, retirement, copying, mirrors, global/ignore writes. List path, owner, current state, intended action and reason; nonzero for blocking conflicts.
-Global `.config/kilo/kilo.jsonc` permission/plugin arrays and user settings are report-only without key-specific ownership. The current writer can replace non-object permission values (`e8cd4880:scripts/helpers.ps1:798-855`); suppress unnecessary global grants for contained assets and never overwrite existing malformed/user values. Preserve user `.gitignore` lines outside owned blocks. Explicit manual relocation/edits, with backup, are required when ownership cannot be proved.
+Global `.config/kilo/kilo.jsonc` permission/plugin arrays and user settings are report-only without key-specific ownership. Existing writer risks remain reported, not new repair work in 9024. Preserve user `.gitignore` lines outside owned blocks. Manual relocation/edits, with backup, are required when ownership cannot be proved.
 
 ## Removed Content (Part C)
 The adoption equality target is the APPROVED rebuild candidate including 9024 and selected small ports, not the literal e8cd4880 tree. No wholesale cherry-pick of old release merges.
@@ -80,7 +80,7 @@ The adoption equality target is the APPROVED rebuild candidate including 9024 an
 | Main-only Pages sealing `1d06fc42`/`84cadb92`/`219a08b2`/`72fd2cb7` | Supersede explicitly, including Finalize/preview bindings/tests; regenerate indexes from selected tree. |
 
 Latest users: F01-F07 can reset/pull then refresh current-project marked files; F08 adds optional generation; F09-F26 require generation in latest mode. F17-F21 can fail before checkout/link on the exact Kilo allowlist; F22-F25 retain a minimum-host gate; old POSIX tracked-wrapper dirt can interfere. F25-F26 refuse dirty latest rather than discard it. Attached custom branches continue their branch, not necessarily main. Pins remain old unless explicitly changed, and old cg-link still invokes its updater. Same-path linked projects change when main is pulled; copied artifacts can stay mixed. NO family should use its installed updater for this migration.
-9024 MUST be published and announced before main moves. Recommend at least five business days of notice plus successful Windows/macOS user pilots. New main installer/link/update entry points should print concise fresh-clone migration guidance when reached by an old updater; this cannot protect an old process that resets files or fails BEFORE checkout. Publication/announcement, not that banner, is the safety gate.
+9024 MUST be published and announced before main moves. Require five working days of notice plus one Windows and one Mac user pilot. New main installer/link/update entry points should print fresh-clone migration guidance when reached by an old updater; this cannot protect an old process that resets files or fails BEFORE checkout. Publication/announcement, not that banner, is the safety gate.
 Close draft PR191 as superseded only after the replacement dev PR is accepted, with approval; do not delete its head `chore/ignore-local-kilo-config`. Preserve remote archive `51bb64b4`, local frozen recovery `ef9d08c5ca3257dc4572e5a32d75eb711d7ad24c`, and verified saved bundle; archive is NOT the full recovery tip. Review conflicting PR181 separately and prevent an old Routine-policy merge. Keep historical tags/releases immutable.
 
 ## Requirements
@@ -89,7 +89,7 @@ Close draft PR191 as superseded only after the replacement dev PR is accepted, w
 | R1 | Fresh-tag, version-independent same-path migration; preserve original clone/local changes | User Part B; kilo.independence |
 | R2 | Explicit custom/multiple-install selection, safe registrations, restart and rollback | User Part B; migration critique |
 | R3 | NEW read-only check and ownership-safe project reconciliation | User Part B; residue tests |
-| R4 | One representative per family, Windows/macOS bounded upgrade evidence | User Parts A/B |
+| R4 | About six representative tags per OS initially; expand after user survey only | Approved decision 2 |
 | R5 | One-page guide, announcement outline, main guidance and pilot evidence | User Parts B/C |
 | R6 | Separate approval for every PR creation, merge, release, announcement and closure | User scope; rebuild roadmap |
 | R7 | Exact reviewed tree on dev then main; preserve history/checks/archive and necessary ports | User Part C; main-only review |
@@ -97,15 +97,15 @@ Close draft PR191 as superseded only after the replacement dev PR is accepted, w
 
 ## Phase 1: Build And Publish 9024
 ### 1. Implement Windows Migration
-One bounded code session after Plan decisions/implementation approval; tests use disposable fixtures only. Implement discovery, inert metadata, swap recovery, registrations and preservation.
+Current approved code session: `scripts/migrate-install.ps1`, under about 250 lines, plus isolated fixtures. Implement discovery, metadata, same-path replacement/recovery, verification and rollback only; no real installation.
 - **Requirements**: R1, R2
-- **Tests**: Windows migration fault/no-op/PATH tests; existing installer fixtures; no real installation.
+- **Tests**: Single/custom/multiple installs, dirty backup, link/worktree refusal, install failure recovery, interrupted-rerun refusal and rollback; fake profiles/local bare remote, no real HKCU.
 ### 2. Implement POSIX Migration
 One bounded session, same contract; selected rc block ownership, spaces, dirty tracked wrappers and shell resolution. No generic migration service.
 - **Requirements**: R1, R2
 - **Tests**: macOS migration faults/rollback/custom-path tests; existing `test_install_sh.py` fixtures.
 ### 3. Fix NEW Link Reconciliation And Check
-One bounded session for existing workers/parser; if fixes exceed one coherent ownership change, stop and split with approval. No unowned deletion or broad legacy cleaner.
+Separate bounded session: ONLY read-only check/strict option parser and removal of marker/gitignore-only overwrite permission. Other footprints are reported/preserved with manual guidance.
 - **Requirements**: R3
 - **Tests**: Extend `test_rebuild_residue.py`, copy/projection/retirement tests; no-write snapshots for missing/stale manifests and all conflict states.
 ### 4. Add Upgrade Matrix, Guide And Required Small Ports
@@ -125,7 +125,7 @@ Obtain approval of exact text/channel/audience, then publish; run one Windows an
 
 ## Phase 3: Dev Adoption
 ### 7. Supersede Reviewed Legacy Histories
-Approve removal/port table, freeze reviewed rebuild/dev/main SHAs and prepare one branch with both ours-strategy ancestry merges. Approve PR creation into dev; require human review and all five fresh checks; approve merge commit separately. Close PR191 only under separate approval.
+Approve removal/port table, freeze reviewed rebuild/dev/main SHAs and prepare one branch with both `-s ours` ancestry merges. Approve dev PR creation, human review and all five checks; approve merge commit separately. Close PR191 as superseded after dev PR acceptance; keep branches.
 - **Requirements**: R6, R7
 - **Tests**: Tree equality, both ancestor tests, all required contexts on current PR head; no force/bypass/squash/rebase.
 
@@ -178,37 +178,44 @@ git diff --exit-code $rebuild origin/main
 ```
 
 ## Testing Strategy
-Matrix: the 26 fixture tags in Part A x Windows/macOS = 52 classified cells. F01-F03 have NO old native POSIX installer: report three macOS cells as `unsupported legacy installation`, not PASS; separately test synthetic old footprints against NEW macOS migration. F04 needs explicit `bash scripts/link.sh` because its tracked script mode is 100644. Do not silently replace an old installer with a later one.
-For the 49 supported source-installation cells, use disposable hosted account/VM, isolated HOME/profile/projects and Windows HKCU snapshots; pin old tag BEFORE old link, with process-only `CG_SKIP_UPDATE=1`. Run that tag's installer/link there, inject user files/modified-owned sentinels, then run fresh new-tag migration and NEW check/link. Cover both pinned/latest preferences within cells; both must finish pinned to 9024. Use existing fake-host patterns for old version/debug-skill requirements; NEVER production PATH. This qualifies migration footprints, not real Kilo/plugin/SDK discovery or old full CI gates.
-Assert new HEAD/pin, static/functional wrapper targets and modes, preserved old tracked/untracked bytes, managed project state/mirrors, safe retired-plugin handling, unchanged user/private/global files and foreign links, retained preserved-conflict records, repeated check/link idempotence and no-write check snapshots. Test legacy no-manifest/copy-only/native-projection projects. Add focused fault tests around both renames/installer/config writes, stale locks/restart/no-op, mixed/multiple PATH installs, custom/spaced paths, malformed journals/global JSONC, and edits made AFTER migration that rollback must not overwrite.
-Bound: four existing-workflow jobs (two shards per OS), one install fixture at a time, no old-host certification/SDK builds. Initial estimate 2-5 minutes per supported cell: 100-250 runner-minutes, about 40-85 minutes wall time plus queue/setup; unmeasured until first shard. Set 90-minute job cap, no retry loops; if exceeded, stop and review smaller shards. Preserve normal FULL CI before publication; do not build an evidence framework.
+Initial matrix: `v1.0.4`, `v1.1.11`, `v1.2.0.9003`, `v1.2.0.9016`, `v1.2.0.9021`, `v1.2.0.9023` x Windows/macOS = about 12 cells. Expand only after user survey. Keep Part A as reference; disclose unsupported footprints rather than claim false passes.
+Use disposable hosted accounts/VMs and isolated profiles/projects for later upgrade cells; pin old tag BEFORE old link with process-only `CG_SKIP_UPDATE=1`. Only that later isolated matrix may run historical installer/link code. Migration NEVER executes old code. Inject user sentinels, migrate from fresh NEW clone, then NEW check/link. Pinned/latest inputs both finish pinned to 9024; NEVER production PATH or real Kilo/plugin/SDK qualification.
+Assert exact new HEAD/pin, clean wrappers, fresh-shell resolution, preserved tracked/untracked bytes and unrelated files. Windows fixtures cover selection/refusal, install failure restoration, interruption with existing backup, and rollback preserving current clone aside. Later check tests prove no writes; unresolved footprints/conflicts remain with manual guidance.
+Bound: plain pytest, existing preflight and proven simple Pester runner only; one fixture at a time. No watchers, monitors, custom helpers, CI log parsers or evidence frameworks. Preserve FULL CI before publication. Step 1: preflight against current remote SHA, full Pester at `E:\t\q15`, tested/committed hash equality, normal push and every push-run job recorded. One bounded test-fixture fix iteration only; stop on product failures.
 Five required checks, unchanged: `Pester on macos-14`, `Pester on windows-2022`, `Native target Python gate on macos-14`, `Native target Python gate on windows-2022`, `PR title follows Conventional Commits`. Rulesets 21338685 (dev), 16657602 (main); both require up-to-date PRs. FULL CI 37957517000 was green on 9023 but is NOT fresh PR-title/merge evidence.
-Planning-only gate: `python -B scripts/render_artifact.py --root . --validate-only <Plan>`; `python -B scripts/cg_pr_preflight.py --phase prepare --format text --default-branch main --run-native-target --base e8cd4880`, then committed phase with the same usable push-before SHA. `.cg-docs/**` must select zero native commands; that is selection evidence, not a full test pass (`e8cd4880:.github/workflows/tests.yml:263-282`; `e8cd4880:scripts/tests/test_cg_pr_preflight.py:128-133`).
+Plan gate: `python -B scripts/render_artifact.py --root . --validate-only <Plan>`; existing CI-matched prepare/committed preflight with current remote push-before SHA (`872c4644d51dd70adce25cbcb67d5c3e4a2cf325` at session start). Docs-only selection must run zero native commands; this is not a full test pass.
 
 ## Documentation Checklist
 - One-page upgrade guide: all-version warning; prerequisites; fresh official clone/tag verification; absolute new-script examples per OS; default/custom/multiple installs; backup/new pin/PATH checks; NEW check then link one project; preserved conflicts/private/global settings; explicit later unpin; rollback. Do not start with old cg-update or cg-link.
 - Short announcement: who is affected (all tags, latest and pins); why old updater is unsafe; 9024/guide links and exact fresh-clone route; notice/main date; removed features; unchanged Kilo independence; preservation/rollback and pilot outcomes. Approval before sending, not a draft presented as sent.
-- Rollback: stop lifecycle activity; use the NEW script's explicit rollback option/phase note to move new clone aside and old clone back to its EXACT path, keeping both; restore registration only if current values still equal migration-written values; reset shell cache/new terminal. Same-path links return to old content. Restore only snapshotted managed project files if still migration-produced; preserve later edits and remove no unowned files. No old installer/update/link, blanket unlink or Git reset.
+- Rollback: stop lifecycle activity; use the NEW script's explicit rollback option to move current clone aside and backup back to its EXACT path, keeping both. No registration/project snapshots or automatic external restoration. Review installer/profile changes manually; open a new terminal. Same-path links return to old content. No old installer/update/link, blanket unlink or Git reset.
 
 ## Risks & Mitigations
 - Clone swap changes every direct link immediately; use maintenance window, backups and one-project reconciliation. Unknown install identities/worktrees stay report-only. A successful install is not host/project readiness.
-- Global/profile/ignore writers can destroy user values; scope writes, compare bytes/ownership, snapshot exact write set and block/report ambiguity. Checks must run in memory without import caches.
+- Existing global/profile writers can change user values; disclose their writes and manual review. No snapshot framework in migration. Read-only checks run in memory without import caches.
 - Ours merge records intentional exclusions, not feature integration; freeze SHAs, review every removal and required port, compare whole trees after BOTH merges and promotions. Tip drift stops adoption.
 - Windows-only historical Mac cells and fake hosts limit evidence; disclose unsupported/fixture status and require separate current Windows/macOS user pilots. Notice cannot guarantee every dormant latest user reads it.
 
+## Approved decisions
+1. 9024 = migration tool, small upgrade matrix, guide and required small ports. cg-help moves to a later release.
+2. About six tags per OS initially: v1.0.4, v1.1.11, v1.2.0.9003, v1.2.0.9016, v1.2.0.9021, v1.2.0.9023. Expand only after survey; retain the 26-family reference.
+3. Auto-detect PATH cg-update/cg-link and defaults; multiple installs require InstallPath. Refuse links/junctions, worktrees and source/target overlap.
+4. Simple steps only: NO lock, phase-note or registration-snapshot framework. Existing backup on rerun means stop with instructions.
+5. Installation proceeds despite project conflicts; unresolved projects get `manual action required`. Nothing is deleted.
+6. Pin to the new tag; returning to latest is a separate user action.
+7. Five working days of notice before main moves, plus one Windows and one Mac user pilot.
+8. Port both vendor licenses and doc-rebuild draft-PR safeguard from 14e87863 before freeze. Charter text needs separate review.
+9. Adoption uses `-s ours` merges and merge-commit PRs only; no force-push.
+10. Close PR191 as superseded after dev PR acceptance; keep branches.
+11. v2.0.0 and GitHub Latest later; verify stable publishing first.
+12. Correct outdated saved decisions only after the relevant steps are done.
+
 ## Decisions needed
-1. Approve 9024 for migration, matrix and guide before step-3 adoption; recommend YES. Simplified help moves to 9025 or the next free prerelease, not implicitly into 9024.
-2. Approve 26 protocol representatives/52 cells and honest unsupported Mac classification plus synthetic coverage; recommend YES, not a false native-pass claim for Windows-only tags.
-3. Approve new-script target selection and unknown versions; recommend unknown metadata allowed only for a structurally proved standalone install with explicit target, unsupported aliases/gitdirs/worktrees report-only. Preserve every other install.
-4. Approve tiny migration phase note/lock, maintenance window and limited registration changes; recommend YES, with effective-wrapper checks and reversible selected-install writes, never a controller/receipt framework.
-5. Decide unresolved project/global/plugin conflicts; recommend installation may be activated with explicit `manual action required`, but affected project apply/readiness blocks until safe manual reconciliation. No deletion inferred from old filenames/markers.
-6. Approve permanent 9024 pin and later unpin as separate user action; recommend YES. Old preference is recorded, not automatically restored.
-7. Approve 9024 publication and exact announcement separately, and notice period; recommend five business days BEFORE main plus successful Windows/macOS pilots. Every PR creation/merge/release/announcement needs its own approval.
-8. Approve required ports from 14e87863, including charter body/archive change and exact license notices; recommend YES before candidate freeze. All other removed machinery stays excluded unless separately selected.
-9. Approve both ours ancestry merges and merge-commit-only dev/main PRs; recommend YES. If tips move, re-review and make normal follow-up commits/PRs, no bypass or force push.
-10. Approve PR191 closure timing and PR181 disposition; recommend close 191 as superseded after replacement dev PR acceptance without branch deletion; review/close obsolete 181 separately. Preserve archive and frozen recovery/bundle.
-11. Decide official release/publisher readiness and GitHub Latest; recommend v2.0.0 only after adopted main/pilots/stable use and an explicit working stable-publication gate, then explicitly mark that stable release Latest. Keep 9024 prerelease and current 9003 metadata untouched until then.
-12. Review stale saved decisions below; recommend targeted corrections only after decisions are approved. This Plan does not edit memory or the earlier roadmap.
+1. Charter body/archive port: recommend separate review before text changes; license/workflow approval does not approve charter text.
+2. PR181 disposition: recommend separate review/closure if obsolete; preserve branch/history.
+3. Unknown old version: recommend allow only verified standalone clone with install.ps1/cg wrappers; print unknown metadata, never execute old code.
+4. External installer writes after failure/rollback: recommend manual review with warning; folder restoration does not undo HKCU/profile writes. No snapshot framework.
+5. Publication, announcement and adoption PR operations: recommend separate execution approval at their steps; none is authorized by this Step-1 session.
 
 ## Saved Decisions For Review
 - `release.controller_reuse`, `release.controller_cutover_strategy`, `release.controller_cutover`, `release.controller_status`, controller architecture/bridge/sandbox records: obsolete as adoption prerequisites; retain only historical context. No third publisher or controller restoration.
@@ -218,15 +225,15 @@ Planning-only gate: `python -B scripts/render_artifact.py --root . --validate-on
 - `rebuild.roadmap` step-4 9024 allocation and `rebuild.status`: update after approved milestones, not now. Keep `kilo.independence`, immutable tags, research/skill v2 scope and no-force constraints.
 
 ## Out of Scope
-No implementation, real installation, cg-link/cg-update, PR, merge, dev/main change, tag/release, ruleset edit, force push or memory edit in this session. Only this Plan is committed/pushed. Future execution has separate approvals. No autopilot/native Kilo plugin/async controller, workflow receipts, Pages sealing, custom supervisor, watcher, monitor, helper/evidence framework or wholesale old-history port.
+Only Plan recording and Phase 1 Step 1 Windows migration/tests/commits/normal push are approved now. No POSIX implementation, real installation, real cg-link/cg-update, real Kilo launch, PR, merge, dev/main change, tag/release, ruleset edit, force push or memory edit. Later execution needs separate approval. No autopilot/plugin/controller, receipts, sealing, supervisor, watcher, monitor, helper/evidence framework or wholesale history port.
 
 ## Completion Contract
 ### Outcome
-Approved implementation ends with verified universal migration/guide, classified Windows/macOS matrix and pilots, reviewed exact rebuild tree on dev then main, preserved histories/archive/user files, and an explicit official-release decision. Planning handoff supplies this validated Plan, decisions and docs-only commit SHA, not a claim those operations ran.
+Full implementation ends with verified universal migration/guide, small Windows/macOS matrix/pilots, reviewed rebuild tree on dev then main, preserved histories/user files and official-release decision. Current Step-1 handoff supplies decisions, Windows behavior, test/CI results and Step 2 as exact next action, not claims of later work.
 ### Verification Surface
 | ID | Evidence Required | Command/Artifact | Required |
 |---|---|---|---|
-| V1 | Valid Plan and docs-only zero-command prepare/committed selection | Artifact validator and CI-matched preflight against e8cd4880 | yes |
+| V1 | Valid Plan and current-SHA CI-matched preflight | Artifact validator and prepare/committed preflight | yes |
 | V2 | 9024 migration/preservation/fault coverage and honest legacy cells | Existing CI upgrade matrix, focused tests, Windows/macOS pilots | yes |
 | V3 | Reviewed exact tree, ancestry and five checks on each PR | `git diff --exit-code`, `git merge-base --is-ancestor`, PR checks | yes |
 | V4 | Separate human approvals and publication/announcement/Latest decisions | Approved session handoffs and tag/release/Latest read-back | yes |
@@ -236,7 +243,7 @@ Approved implementation ends with verified universal migration/guide, classified
 | C1 | Never run old installed code in migration; no Kilo dependency | Fresh absolute scripts, inert Git, isolated old-code CI only |
 | C2 | Never delete/replace unowned or modified content; retain old clone | Ownership/hash/identity assertions and rollback tests |
 | C3 | No force, bypass, history loss, implicit retired-feature restoration | Reviewed ancestry/tree/checks/removed table |
-| C4 | Planning only now; approval gates later; bounded sessions | Commit path audit, unchanged refs, explicit approvals/job caps |
+| C4 | Windows Step 1 only now; later approval gates; bounded sessions | Commit path/hash audit, unchanged dev/main, explicit approvals |
 ### Boundaries
 Only the two OS scripts, minimal existing ownership/parser fixes, bounded CI/guide and explicitly selected small ports belong to 9024. Global conflicts/manual repairs and official stable publisher readiness are not hidden automatic migrations.
 ### Iteration Policy
