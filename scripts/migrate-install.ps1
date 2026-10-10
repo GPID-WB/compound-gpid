@@ -236,7 +236,8 @@ try {
     Write-Host 'Rollback (stop other lifecycle activity first):'
     Write-Host "  & '$($PSCommandPath.Replace("'", "''"))' -InstallPath '$($target.Replace("'", "''"))' -Rollback '$($backup.Replace("'", "''"))'"
 } catch {
-    Write-Error $_ -ErrorAction Continue
+    # Write before finally restores encoding; PowerShell error formatting wraps paths.
+    [Console]::Error.WriteLine($_.Exception.Message)
     exit 1
 } finally {
     $env:PATH = $originalPath

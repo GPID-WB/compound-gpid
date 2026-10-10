@@ -865,6 +865,30 @@ def test_windows_migration_detects_interrupted_custom_hkcu_path(
         assert not target.exists()
 
 
+def test_windows_migration_error_keeps_long_unicode_paths(
+    windows_migration: tuple[Runtime, Path, Path],
+) -> None:
+    """Hosted-length paths must not wrap or corrupt the refusal and recovery text."""
+    rt, new, install = windows_migration
+    long_source = rt.root / ("hosted runner " + "x" * 64) / "ni\u00f1o NEW clone"
+    long_source.parent.mkdir()
+    new.rename(long_source)
+    target = rt.root / "ni\u00f1o old installation"
+    backup = target.with_name(target.name + ".backup-v1.2.0.9021-20261010-120000-000")
+    install.rename(backup)
+    before = _state(rt, backup)
+
+    result = _migrate((rt, long_source, target), "-InstallPath", str(target))
+
+    assert result.returncode == 1
+    assert f"Existing backup found: {backup}. Nothing was changed." in result.stderr.splitlines()
+    assert f"-InstallPath '{target}' -Rollback '{backup}'" in result.stdout
+    assert "To resume: roll back first" in result.stdout
+    assert _state(rt, backup) == before and not target.exists()
+    assert not Path(rt.env["WIN_LOG"]).exists()
+    assert not _git(rt, long_source, "status", "--porcelain")
+
+
 def test_windows_migration_rollback_requires_install_path(
     windows_migration: tuple[Runtime, Path, Path],
 ) -> None:
