@@ -401,6 +401,41 @@ def test_json_and_text_results_are_bounded() -> None:
     assert "prepare" in preflight.render_result(result, "text")
 
 
+@pytest.mark.parametrize("output_format", ("text", "json"))
+def test_cli_preserves_failed_output_on_cp1252_streams(
+    monkeypatch: pytest.MonkeyPatch, output_format: str,
+) -> None:
+    """Unencodable diagnostics stay visible without changing the console encoding."""
+    stdout_bytes, stderr_bytes = io.BytesIO(), io.BytesIO()
+    stdout = io.TextIOWrapper(stdout_bytes, encoding="cp1252", newline="\n")
+    stderr = io.TextIOWrapper(stderr_bytes, encoding="cp1252", newline="\n")
+    monkeypatch.setattr(preflight.sys, "stdout", stdout)
+    monkeypatch.setattr(preflight.sys, "stderr", stderr)
+    result = preflight.PreflightResult(
+        phase="committed",
+        selection=preflight.full_gate_selection(),
+        changed_files=(),
+        command_results=(preflight.CommandResult(
+            command=("python", "-m", "pytest"), returncode=1,
+            stdout="failure: \ufffd \u6f22 \U0001f600 caf\u00e9",
+            stderr="error: \ufffd \u6f22 \U0001f600",
+        ),),
+    )
+    monkeypatch.setattr(preflight, "build_preflight_result", lambda *a, **kw: result)
+
+    assert preflight.main(["--selection-only", "--format", output_format]) == 1
+    stdout.flush()
+    assert stdout.encoding == stderr.encoding == "cp1252"
+    assert stdout.errors == stderr.errors == "backslashreplace"
+    assert stdout_bytes.getvalue() == (
+        preflight.render_result(result, output_format) + "\n"
+    ).encode("cp1252", errors="backslashreplace")
+    assert b"\\ufffd \\u6f22 \\U0001f600" in stdout_bytes.getvalue()
+    stderr.write("\ufffd \u6f22 \U0001f600")
+    stderr.flush()
+    assert stderr_bytes.getvalue() == b"\\ufffd \\u6f22 \\U0001f600"
+
+
 def test_text_result_exposes_bounded_failed_command_output() -> None:
     result = preflight.PreflightResult(
         phase="committed",

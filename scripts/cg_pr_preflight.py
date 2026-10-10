@@ -1181,6 +1181,9 @@ def _build_parser() -> argparse.ArgumentParser:
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
     """Run selection and, optionally, the native target."""
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(errors="backslashreplace")
     args = _build_parser().parse_args(argv)
     root = args.root.expanduser().resolve()
     if args.run_native_target and not args.selection_only:
