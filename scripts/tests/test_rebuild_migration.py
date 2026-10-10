@@ -12,6 +12,7 @@ import io
 import json
 import os
 from pathlib import Path
+import re
 import shlex
 import shutil
 import subprocess
@@ -570,3 +571,339 @@ def test_home_update_preserves_user_skills_without_validation_or_host(
     assert {path: path.read_bytes() for path in user_skills} == before
     assert not Path(rt.env["RM_HOST_LOG"]).exists()
     assert _state(rt, install)[2] == CANDIDATE.encode()
+
+
+MIGRATION_TAG = "v1.2.0.9024"
+
+
+@pytest.fixture
+def windows_migration(runtime: Runtime) -> tuple[Runtime, Path, Path]:
+    """Use real disposable clones and a synthetic NEW installer, never real HKCU."""
+    rt = runtime
+    if rt.suffix != "ps1":
+        pytest.skip("Windows migration requires Windows PowerShell")
+    source, remote, new = (rt.root / name for name in ("seed", "official.git", "new"))
+    install = Path(rt.env["USERPROFILE"]) / ".compound-gpid"
+    source.mkdir()
+    _write(source / ".gitignore", ".cg-version\n")
+    _write(source / ".gitattributes", "*.ps1 text eol=lf\nbin/*.cmd text eol=crlf\n")
+    _write(source / "package.txt", "old package\n")
+    _write(source / "install.ps1", "throw 'OLD CODE MUST NEVER RUN'\n")
+    for name in ("link", "unlink", "update"):
+        _write(source / f"bin/cg-{name}.cmd", "@echo off\nexit /b 71\n")
+        _write(source / f"scripts/{name}.ps1", "throw 'OLD CODE MUST NEVER RUN'\n")
+    _git(rt, source, "init")
+    _git(rt, source, "add", "-A")
+    _git(rt, source, "commit", "-m", "fixture old installation")
+    _git(rt, source, "tag", OLD)
+    _write(source / "scripts/migrate-install.ps1", (ROOT / "scripts/migrate-install.ps1").read_bytes())
+    _write(source / "package.txt", "new package\n")
+    _write(source / "install.ps1", '''
+Set-StrictMode -Version Latest
+$ErrorActionPreference = 'Stop'
+if ((Get-Content -LiteralPath "$PSScriptRoot/.cg-version" -Raw) -ne 'v1.2.0.9024') {
+    throw 'NEW pin must exist BEFORE installer'
+}
+Set-Content -LiteralPath $env:WIN_LOG -Value $PSScriptRoot -Encoding UTF8
+if ($env:WIN_FAILURE -eq 'install') { exit 23 }
+Set-Content -LiteralPath $env:WIN_REGISTRY -Value "$PSScriptRoot/bin" -NoNewline -Encoding UTF8
+if ($env:WIN_FAILURE -eq 'dirty') { Set-Content -LiteralPath "$PSScriptRoot/package.txt" -Value 'changed' }
+exit 0
+''')
+    _git(rt, source, "add", "-A")
+    _git(rt, source, "commit", "-m", "fixture new release")
+    _git(rt, source, "tag", MIGRATION_TAG)
+    _git(rt, rt.root, "clone", "--bare", source.as_uri(), str(remote))
+    for target, tag in ((new, MIGRATION_TAG), (install, OLD)):
+        _git(rt, rt.root, "clone", "--no-local", "--branch", tag, remote.as_uri(), str(target))
+    assert (new / "scripts/migrate-install.ps1").read_bytes() == (ROOT / "scripts/migrate-install.ps1").read_bytes()
+    rt.env.update(WIN_REMOTE=remote.as_uri(), WIN_SOURCE=str(new), WIN_INSTALL=str(install),
+                  WIN_LOG=str(rt.root / "new-installer.log"),
+                  WIN_REGISTRY=str(rt.root / "fake-hkcu-path"), WIN_FAILURE="")
+    _write(Path(rt.env["WIN_REGISTRY"]), b"")
+    return rt, new, install
+
+
+def _migrate(fixture: tuple[Runtime, Path, Path], *args: str) -> subprocess.CompletedProcess[str]:
+    """Run exact candidate bytes with fixture-only Git transport/registry mocks."""
+    rt, new, _ = fixture
+    def quote(value: str | Path) -> str:
+        """Quote one fixture path for PowerShell, e.g. a spaced custom path."""
+        return "'" + str(value).replace("'", "''") + "'"
+    # These mocks only read/write fixture files. They never load installed code.
+    command = '''
+$global:PROFILE = $env:PROFILE
+Set-Variable -Name HOME -Scope Global -Value $env:HOME -Force
+function global:git {
+    & $env:RM_GIT -c "url.$($env:WIN_REMOTE).insteadOf=https://github.com/GPID-WB/compound-gpid.git" -c protocol.allow=never -c protocol.file.allow=always -c core.autocrlf=false @args
+    $global:LASTEXITCODE = $LASTEXITCODE
+}
+function global:Get-ItemProperty {
+    [CmdletBinding()]param([string]$LiteralPath)
+    if ($LiteralPath -eq 'HKCU:\\Environment') {
+        Add-Content -LiteralPath "$env:WIN_REGISTRY.reads" -Value 'HKCU'
+        $path = if ($env:WIN_FAILURE -eq 'path') { $env:WIN_SHADOW } else { Get-Content -LiteralPath $env:WIN_REGISTRY -Raw }
+        return [pscustomobject]@{Path=$path}
+    }
+    if ($LiteralPath -eq 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment') {
+        return [pscustomobject]@{Path=(Split-Path $env:RM_GIT -Parent)}
+    }
+    throw "Unexpected registry access: $LiteralPath"
+}
+function global:Test-Path {
+    [CmdletBinding()]param([string]$LiteralPath, [string]$Path, [string]$PathType)
+    if ($LiteralPath -eq 'C:\\WBG\\.compound-gpid') { return $false }
+    Microsoft.PowerShell.Management\\Test-Path @PSBoundParameters
+}
+function global:Get-ChildItem {
+    [CmdletBinding()]param([string]$Path, [string]$LiteralPath, [switch]$Force)
+    if ($LiteralPath -eq 'C:\\WBG') { return }
+    Microsoft.PowerShell.Management\\Get-ChildItem @PSBoundParameters
+}
+'''
+    invocation = " & " + quote(new / "scripts/migrate-install.ps1")
+    invocation += " " + " ".join(arg if arg in ("-InstallPath", "-Rollback") else quote(arg) for arg in args)
+    before = Path(rt.env["PROFILE"]).read_bytes()
+    result = subprocess.run([rt.env["SHELL"], "-NoProfile", "-NonInteractive", "-ExecutionPolicy",
+                             "Bypass", "-Command", command + invocation], cwd=rt.root, env=rt.env,
+                             capture_output=True, text=True, encoding="utf-8", timeout=90, check=False)
+    assert Path(rt.env["PROFILE"]).read_bytes() == before
+    return result
+
+
+@pytest.mark.parametrize("selection", ("default", "path", "custom", "dirty", "explicit-two", "accented"))
+def test_windows_migration_preserves_old_clone_and_pins_new(
+    windows_migration: tuple[Runtime, Path, Path], selection: str,
+) -> None:
+    """Discovery/custom selection keeps old bytes and executes only NEW install."""
+    rt, new, install = windows_migration
+    args = []
+    if selection in ("path", "custom", "accented"):
+        custom = rt.root / ("ni\u00f1o install" if selection == "accented" else "custom install")
+        install.rename(custom)
+        install = custom
+        if selection == "path":
+            rt.env["PATH"] = str(install / "bin") + os.pathsep + rt.env["PATH"]
+        else:
+            args = ["-InstallPath", str(install)]
+        if selection == "accented":
+            accented_source = rt.root / "ni\u00f1o new clone"
+            new.rename(accented_source)
+            new = accented_source
+            windows_migration = (rt, new, install)
+    if selection == "explicit-two":
+        other = rt.root / "other install"
+        _git(rt, rt.root, "clone", "--branch", OLD, rt.env["WIN_REMOTE"], str(other))
+        rt.env["PATH"] = str(other / "bin") + os.pathsep + rt.env["PATH"]
+        args = ["-InstallPath", str(install)]
+    _write(install / ".cg-version", PIN)
+    if selection == "dirty":
+        _write(install / "package.txt", "user tracked changes\n")
+        _git(rt, install, "add", "package.txt")
+        _write(install / "untracked.txt", b"private\x00bytes")
+    before = {p.relative_to(install): p.read_bytes() for p in install.rglob("*") if p.is_file() and ".git" not in p.relative_to(install).parts}
+    old_head = _git(rt, install, "rev-parse", "HEAD")
+    index = _git(rt, install, "diff", "--cached", "--binary")
+    result = _migrate(windows_migration, *args)
+    assert result.returncode == 0, result.stdout + result.stderr
+    backups = list(install.parent.glob(install.name + ".backup-*"))
+    assert len(backups) == 1
+    backup = backups[0]
+    assert all((backup / path).read_bytes() == data for path, data in before.items())
+    assert _git(rt, backup, "rev-parse", "HEAD") == old_head
+    assert _git(rt, backup, "diff", "--cached", "--binary") == index
+    assert _git(rt, install, "rev-parse", "HEAD") == _git(rt, new, "rev-parse", "HEAD")
+    assert (install / ".cg-version").read_bytes() == MIGRATION_TAG.encode()
+    assert not _git(rt, install, "status", "--porcelain")
+    assert (install / ".git/config").read_text().find("https://github.com/GPID-WB/compound-gpid.git") >= 0
+    assert not (install / ".git/objects/info/alternates").exists()
+    assert Path(rt.env["WIN_LOG"]).read_text(encoding="utf-8-sig").strip() == str(install)
+    assert Path(rt.env["WIN_REGISTRY"] + ".reads").read_text().splitlines() == ["HKCU"] * (1 if args else 2)
+    assert "Old HEAD:" in result.stdout and "Old .cg-version:" in result.stdout
+    assert "Old status:" not in result.stdout
+    assert "manual action required" in result.stdout and "-Rollback" in result.stdout
+    assert not _git(rt, new, "status", "--porcelain")
+    repeat = _migrate(windows_migration, "-InstallPath", str(install))
+    assert repeat.returncode != 0 and "Existing backup found" in repeat.stdout + repeat.stderr
+    assert all((backup / path).read_bytes() == data for path, data in before.items())
+
+
+@pytest.mark.parametrize("failure", ("install", "dirty", "path", "remote-tag"))
+def test_windows_migration_failure_restores_old_folder(
+    windows_migration: tuple[Runtime, Path, Path], failure: str,
+) -> None:
+    """Failed NEW install/verification leaves original HEAD, pin and local bytes."""
+    rt, _, install = windows_migration
+    _write(install / ".cg-version", PIN)
+    _write(install / "private.txt", b"unchanged private bytes")
+    before = _state(rt, install)
+    rt.env["WIN_FAILURE"] = failure
+    if failure == "path":
+        shadow = rt.root / "shadow"
+        _write(shadow / "cg-update.cmd", "@echo off\nexit /b 72\n")
+        rt.env["WIN_SHADOW"] = str(shadow)
+    if failure == "remote-tag":
+        _git(rt, rt.root, "--git-dir", str(rt.root / "official.git"), "update-ref", "refs/tags/" + MIGRATION_TAG,
+             _git(rt, install, "rev-parse", "HEAD").decode().strip())
+    result = _migrate(windows_migration)
+    assert result.returncode != 0
+    assert "Old folder restored" in " ".join((result.stdout + result.stderr).split())
+    assert _state(rt, install) == before
+    assert (install / "private.txt").read_bytes() == b"unchanged private bytes"
+    assert not list(install.parent.glob(install.name + ".backup-*"))
+
+
+@pytest.mark.parametrize("case", ("two", "junction", "worktree", "overlap", "dirty-source", "untagged", "interrupted", "zero"))
+def test_windows_migration_refuses_unsafe_or_ambiguous_state(
+    windows_migration: tuple[Runtime, Path, Path], case: str,
+) -> None:
+    """Refusals occur before installer execution or old clone replacement."""
+    rt, new, install = windows_migration
+    args, junction = [], None
+    old = _git(rt, install, "rev-parse", "HEAD")
+    if case == "two":
+        other = rt.root / "other"
+        _git(rt, rt.root, "clone", "--branch", OLD, rt.env["WIN_REMOTE"], str(other))
+        rt.env["PATH"] = str(other / "bin") + os.pathsep + rt.env["PATH"]
+    elif case == "junction":
+        junction = rt.root / "alias"
+        result = subprocess.run([rt.env["SHELL"], "-NoProfile", "-Command",
+                                 f"New-Item -ItemType Junction -Path '{junction}' -Value '{install}' | Out-Null"],
+                                capture_output=True, text=True, check=False)
+        assert result.returncode == 0, result.stderr
+        args = ["-InstallPath", str(junction)]
+    elif case == "worktree":
+        worktree = rt.root / "worktree"
+        _git(rt, install, "worktree", "add", "--detach", str(worktree), OLD)
+        args = ["-InstallPath", str(worktree)]
+    elif case == "overlap":
+        args = ["-InstallPath", str(new)]
+    elif case == "dirty-source":
+        _write(new / "untracked.txt", "dirty source\n")
+    elif case == "untagged":
+        _git(rt, new, "tag", "-d", MIGRATION_TAG)
+    elif case in ("interrupted", "zero"):
+        aside = install.parent / (install.name + ".backup-v1.2.0.9021-20261010-120000-000" if case == "interrupted" else "not-an-install")
+        install.rename(aside)
+        if case == "interrupted":
+            _write(install / "partial.txt", "interrupted new clone\n")
+    try:
+        result = _migrate(windows_migration, *args)
+        assert result.returncode != 0
+        assert not Path(rt.env["WIN_LOG"]).exists()
+        expected = {"two": "Multiple installations", "junction": "Link/junction",
+                    "worktree": ".git files/worktrees refused", "overlap": "overlap",
+                    "dirty-source": "clean fresh clone", "untagged": "Git failed"}
+        if case in expected:
+            assert expected[case] in result.stdout + result.stderr
+        if case not in ("interrupted", "zero"):
+            assert _git(rt, install, "rev-parse", "HEAD") == old
+        if case == "interrupted":
+            assert "Existing backup found" in result.stdout + result.stderr
+            assert "-Rollback" in result.stdout + result.stderr
+            assert (install / "partial.txt").read_text() == "interrupted new clone\n"
+        if case == "zero":
+            assert "normal NEW install.ps1" in result.stdout + result.stderr
+    finally:
+        if junction is not None:
+            # Unlink the junction itself before TemporaryDirectory cleanup.
+            os.rmdir(junction)
+
+
+@pytest.mark.parametrize("current", ("migrated", "missing", "partial"))
+def test_windows_migration_rollback_keeps_current_folder(
+    windows_migration: tuple[Runtime, Path, Path], current: str,
+) -> None:
+    """Restore exact path, retaining later edits or an interrupted partial clone."""
+    rt, _, install = windows_migration
+    _write(install / ".cg-version", PIN)
+    before = _state(rt, install)
+    if current == "migrated":
+        result = _migrate(windows_migration)
+        assert result.returncode == 0, result.stdout + result.stderr
+        backup = next(install.parent.glob(install.name + ".backup-*"))
+    else:
+        backup = install.parent / (install.name + ".backup-v1.2.0.9021-20261010-120000-000")
+        install.rename(backup)
+    if current != "missing":
+        _write(install / "later-user-edit.txt", b"preserve later edits")
+    result = _migrate(windows_migration, "-InstallPath", str(install), "-Rollback", str(backup))
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert _state(rt, install) == before
+    assert not backup.exists()
+    asides = list(install.parent.glob(install.name + ".rollback-*"))
+    assert len(asides) == (0 if current == "missing" else 1)
+    if asides:
+        assert (asides[0] / "later-user-edit.txt").read_bytes() == b"preserve later edits"
+
+
+@pytest.mark.parametrize("current", ("missing", "partial"))
+def test_windows_migration_detects_interrupted_custom_hkcu_path(
+    windows_migration: tuple[Runtime, Path, Path], current: str,
+) -> None:
+    """Raw HKCU bin entries find sibling backups even with no current wrappers."""
+    rt, new, install = windows_migration
+    target = rt.root / "custom interrupted install"
+    backup = target.with_name(target.name + ".backup-v1.2.0.9021-20261010-120000-000")
+    install.rename(backup)
+    _write(Path(rt.env["WIN_REGISTRY"]), str(target / "bin"))
+    if current == "partial":
+        _write(target / "partial.txt", b"preserve partial clone")
+    before = _state(rt, backup)
+    result = _migrate(windows_migration)
+    output = " ".join((result.stdout + result.stderr).split())
+    assert result.returncode != 0 and "Existing backup found" in output
+    assert f"& '{new / 'scripts/migrate-install.ps1'}' -InstallPath '{target}' -Rollback '{backup}'" in output
+    assert f"& '{new / 'scripts/migrate-install.ps1'}' -InstallPath '{target}'" in output
+    assert "To resume: roll back first" in output
+    assert _state(rt, backup) == before
+    assert not Path(rt.env["WIN_LOG"]).exists()
+    assert Path(rt.env["WIN_REGISTRY"]).read_text() == str(target / "bin")
+    if current == "partial":
+        assert (target / "partial.txt").read_bytes() == b"preserve partial clone"
+    else:
+        assert not target.exists()
+
+
+def test_windows_migration_rollback_requires_install_path(
+    windows_migration: tuple[Runtime, Path, Path],
+) -> None:
+    """An omitted or mismatched explicit target cannot move the preserved backup."""
+    rt, _, install = windows_migration
+    backup = install.with_name(install.name + ".backup-v1.2.0.9021-20261010-120000-000")
+    install.rename(backup)
+    before = _state(rt, backup)
+    for args, message in (
+        (["-Rollback", str(backup)], "-Rollback requires -InstallPath"),
+        (["-InstallPath", str(rt.root / "wrong target"), "-Rollback", str(backup)], "exact target and sibling"),
+    ):
+        result = _migrate(windows_migration, *args)
+        assert result.returncode != 0
+        assert message in " ".join((result.stdout + result.stderr).split())
+        assert _state(rt, backup) == before and not install.exists()
+        assert not Path(rt.env["WIN_LOG"]).exists()
+
+
+def test_windows_migration_sanitizes_unusual_describe_for_backup(
+    windows_migration: tuple[Runtime, Path, Path],
+) -> None:
+    """Unicode, plus signs and a reserved backup delimiter become a safe version."""
+    rt, _, install = windows_migration
+    unusual = "v1.2.0.9021.pi\u00f1ata+.BaCkUp-r\u00e9sum\u00e9"
+    _git(rt, install, "tag", "-d", OLD)
+    _git(rt, install, "tag", unusual)
+    _write(install / "package.txt", "preserve tracked changes\n")
+    before = _state(rt, install)
+    result = _migrate(windows_migration)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert f"Old describe: {unusual}-dirty" in result.stdout
+    backup = next(install.parent.glob(install.name + ".backup-*"))
+    suffix = backup.name.removeprefix(install.name + ".backup-")
+    match = re.fullmatch(r"([A-Za-z0-9._-]+)-(\d{8}-\d{6}-\d{3})", suffix)
+    assert match is not None
+    assert "backup" not in match[1].casefold()
+    assert _state(rt, backup) == before
+    assert (backup / "package.txt").read_text() == "preserve tracked changes\n"
+    result = _migrate(windows_migration, "-InstallPath", str(install), "-Rollback", str(backup))
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert _state(rt, install) == before and not backup.exists()
