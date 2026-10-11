@@ -45,6 +45,7 @@ NATIVE_PYTEST_FILES = (
     # Keep rebuild smoke results visible in the existing bounded CI output.
     "scripts/tests/test_native_retirement_entrypoints.py",
     "scripts/tests/test_install_sh.py",
+    "scripts/tests/test_migrate_install_sh.py",
     "scripts/tests/test_cg_generate_targets.py",
     "scripts/tests/test_commit_push_pr_source_detection.py",
     "scripts/tests/test_cg_compound_gpid_rd_registry.py",

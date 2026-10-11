@@ -13,6 +13,7 @@ import cg_pr_preflight as preflight
 REPO_ROOT = Path(__file__).resolve().parents[2]
 REBUILD_TEST_FILES = (
     "scripts/tests/test_install_sh.py",
+    "scripts/tests/test_migrate_install_sh.py",
     "scripts/tests/test_retired_assets.py",
     "scripts/tests/test_native_retirement_entrypoints.py",
     "scripts/tests/test_rebuild_residue.py",
@@ -652,6 +653,7 @@ def test_native_target_registers_all_rebuild_tests(phase: str) -> None:
 @pytest.mark.parametrize("phase", ("prepare", "committed"))
 @pytest.mark.parametrize("path", (
     "scripts/install.sh",
+    "scripts/migrate-install.sh",
     "bin/cg-brain-init",
     "bin/cg-index",
     "scripts/update.sh",
