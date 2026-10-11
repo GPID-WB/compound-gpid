@@ -8,7 +8,7 @@ deviation-policy: strict
 ---
 
 ## Objective
-Make roadmap step 3 safe for users on any published version: 9024 migration tool, small upgrade matrix, guide and required small ports; announcement; reviewed dev adoption; reviewed main adoption; official release decision. Current approval covers recording decisions and implementing ONLY Phase 1 Step 1, isolated tests, commits and normal push. Later steps need separate execution approval.
+Make roadmap step 3 safe for users on any published version: 9024 migration tool, small upgrade matrix, guide and required small ports; announcement; reviewed dev adoption; reviewed main adoption; official release decision. Current approval covers ONLY Phase 1 Step 2 POSIX migration, isolated tests, gates, commits, normal push and a short result note. Later steps need separate execution approval.
 
 ## Context
 Baseline: `chore/rebuild-from-9017`, 9023 = `e8cd488066524d9d4f92dae81d06d2ff3d364394`; published prerelease, Windows/macOS host-mode tests green. Roadmap: `2026-10-08-rebuild-roadmap.md:22-54`; saved `rebuild.roadmap`, `rebuild.status`, `migration.universal`. Real-project pilot completion remains an adoption entry criterion, not a result inferred from CI.
@@ -97,10 +97,10 @@ Close draft PR191 as superseded only after the replacement dev PR is accepted, w
 
 ## Phase 1: Build And Publish 9024
 ### 1. Implement Windows Migration
-Current approved code session: `scripts/migrate-install.ps1`, under about 260 lines, plus isolated fixtures. Implement discovery, metadata, same-path replacement/recovery, verification and rollback only; no real installation.
+Completed Windows session: `scripts/migrate-install.ps1`, under about 260 lines, plus isolated fixtures. Discovery, metadata, same-path replacement/recovery, verification and rollback only; no real installation.
 - **Requirements**: R1, R2
 - **Tests**: Single/custom/multiple installs, dirty backup, link/worktree refusal, install failure recovery, interrupted-rerun refusal and rollback; fake profiles/local bare remote, no real HKCU.
-- **Step-1 CI resolution (2026-10-10)**: COMPLETE. Run `38082538153` hid the failure behind cp1252 output encoding. Preflight `8a1be905` adds visible encoding escapes; run `38086316469` exposed accented-path error wrapping. Migration `15f57241` writes unwrapped UTF-8 errors before restoring caller encoding. Run `38089557944`: all 12 applicable jobs passed, two conditional skips. Evidence: `backups/9024-step1-ci/handoff.txt` outside the worktree. Next: Step 2, POSIX migration script; not started.
+- **Step-1 CI resolution (2026-10-10)**: COMPLETE. Run `38082538153` hid the failure behind cp1252 output encoding. Preflight `8a1be905` adds visible encoding escapes; run `38086316469` exposed accented-path error wrapping. Migration `15f57241` writes unwrapped UTF-8 errors before restoring caller encoding. Run `38089557944`: all 12 applicable jobs passed, two conditional skips. Evidence: `backups/9024-step1-ci/handoff.txt` outside the worktree. Step 2 results follow.
 - **Clarified constraint**: "Never run old installed code" means: never run, source, or import the old Compound GPID clone's scripts, wrappers, installer, updater, or linker. It does NOT require defending against the user's own Git configuration, such as filters or hooks configured by the user. Use normal Git commands.
 - **Changes a-e**: No old-clone status; normal Git without config defenses; UTF-8 native output with caller encoding restored; raw HKCU/process PATH and default sibling-backup discovery with exact resume/rollback commands; explicit rollback InstallPath and ASCII-safe version names without `backup` text.
 - **Tests**: Every existing assertion retained; added cp1252 text/JSON and long Unicode error-path tests. Hosted-like Windows pytest: 26 passed/26 skipped/72 deselected. Committed preflight on `15f57241` vs `8a1be905`: 2856 passed/154 skipped/2 deselected; three module checks passed. Full simple Pester at `E:\t\q17`: 3054 passed/0 failed/2 skipped, all 20 files ran unfiltered. Tested and committed script/test blobs match.
@@ -108,6 +108,8 @@ Current approved code session: `scripts/migrate-install.ps1`, under about 260 li
 One bounded session, same contract; selected rc block ownership, spaces, dirty tracked wrappers and shell resolution. No generic migration service.
 - **Requirements**: R1, R2
 - **Tests**: macOS migration faults/rollback/custom-path tests; existing `test_install_sh.py` fixtures.
+- **Step-2 result (2026-10-11)**: COMPLETE. `440a5d04` adds the 215-line executable POSIX script and registered fixtures. Run `38174852345`: all 12 applicable jobs passed, two conditional skips; migration tests RAN: macOS 36 passed, Ubuntu 35 passed/1 optional-zsh skip. Native totals: macOS 2910 passed/140 skipped, Ubuntu 2928 passed/122 skipped; both 2 deselected. No hosted fix iteration was needed.
+- **Local gates**: `bash -n` passed; focused Windows 102 passed/36 POSIX skips. Committed preflight vs `7a243f4c`: 2860 passed/190 skipped/2 deselected; all three module checks passed. Full simple Pester at `E:\t\q19`: 3035 passed/0 failed/2 skipped, all 20 files unfiltered. Tested/committed blobs match. Evidence: `backups/9024-step2/handoff.txt`. Next: Step 3, `cg-link --check` and the marker-only overwrite fix, in a separately approved session.
 ### 3. Fix NEW Link Reconciliation And Check
 Separate bounded session: ONLY read-only check/strict option parser and removal of marker/gitignore-only overwrite permission. Other footprints are reported/preserved with manual guidance.
 - **Requirements**: R3
@@ -219,7 +221,8 @@ Plan gate: `python -B scripts/render_artifact.py --root . --validate-only <Plan>
 2. PR181 disposition: recommend separate review/closure if obsolete; preserve branch/history.
 3. Unknown old version: recommend allow only verified standalone clone with install.ps1/cg wrappers; print unknown metadata, never execute old code.
 4. External installer writes after failure/rollback: recommend manual review with warning; folder restoration does not undo HKCU/profile writes. No snapshot framework.
-5. Publication, announcement and adoption PR operations: recommend separate execution approval at their steps; none is authorized by this Step-1 session.
+5. Publication, announcement and adoption PR operations: recommend separate execution approval at their steps; none is authorized by this Step-2 session.
+6. POSIX login profiles: recommend Bash/zsh only, with fresh interactive login-shell verification; stop and restore if PATH is wrong. Bash users must load `.bashrc` from their login profile. Do not add profile repair or silently source rc files during verification.
 
 ## Saved Decisions For Review
 - `release.controller_reuse`, `release.controller_cutover_strategy`, `release.controller_cutover`, `release.controller_status`, controller architecture/bridge/sandbox records: obsolete as adoption prerequisites; retain only historical context. No third publisher or controller restoration.
@@ -229,11 +232,11 @@ Plan gate: `python -B scripts/render_artifact.py --root . --validate-only <Plan>
 - `rebuild.roadmap` step-4 9024 allocation and `rebuild.status`: update after approved milestones, not now. Keep `kilo.independence`, immutable tags, research/skill v2 scope and no-force constraints.
 
 ## Out of Scope
-Only Plan recording and Phase 1 Step 1 Windows migration, preflight output safety, tests, commits and normal push are approved now. No POSIX implementation, real installation, real cg-link/cg-update, real Kilo launch, PR, merge, dev/main change, tag/release, ruleset edit, force push or memory edit. Later execution needs separate approval. No autopilot/plugin/controller, receipts, sealing, supervisor, watcher, monitor, helper/evidence framework or wholesale history port.
+Only Phase 1 Step 2 POSIX migration, isolated tests, gates, commits, normal push and a short Plan result note are approved now. No Windows implementation change, real installation, real cg-link/cg-update, real Kilo launch, PR, merge, dev/main change, tag/release, ruleset edit, force push or memory edit. Later execution needs separate approval. No autopilot/plugin/controller, receipts, sealing, supervisor, watcher, monitor, helper/evidence framework or wholesale history port.
 
 ## Completion Contract
 ### Outcome
-Full implementation ends with verified universal migration/guide, small Windows/macOS matrix/pilots, reviewed rebuild tree on dev then main, preserved histories/user files and official-release decision. Current Step-1 handoff supplies decisions, Windows behavior, test/CI results and Step 2 as exact next action, not claims of later work.
+Full implementation ends with verified universal migration/guide, small Windows/macOS matrix/pilots, reviewed rebuild tree on dev then main, preserved histories/user files and official-release decision. Current Step-2 handoff supplies POSIX behavior, test/CI results and Step 3 as exact next action, not claims of later work.
 ### Verification Surface
 | ID | Evidence Required | Command/Artifact | Required |
 |---|---|---|---|
@@ -247,7 +250,7 @@ Full implementation ends with verified universal migration/guide, small Windows/
 | C1 | Never run old installed code in migration; no Kilo dependency | Fresh absolute scripts, inert Git, isolated old-code CI only |
 | C2 | Never delete/replace unowned or modified content; retain old clone | Ownership/hash/identity assertions and rollback tests |
 | C3 | No force, bypass, history loss, implicit retired-feature restoration | Reviewed ancestry/tree/checks/removed table |
-| C4 | Windows Step 1 only now; later approval gates; bounded sessions | Commit path/hash audit, unchanged dev/main, explicit approvals |
+| C4 | POSIX Step 2 only now; later approval gates; bounded sessions | Commit path/hash audit, unchanged dev/main, explicit approvals |
 ### Boundaries
 Only the two OS scripts, minimal existing ownership/parser fixes, bounded CI/guide and explicitly selected small ports belong to 9024. Global conflicts/manual repairs and official stable publisher readiness are not hidden automatic migrations.
 ### Iteration Policy
