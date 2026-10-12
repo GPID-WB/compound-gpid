@@ -8,7 +8,7 @@ deviation-policy: strict
 ---
 
 ## Objective
-Make roadmap step 3 safe for users on any published version: 9024 migration tool, small upgrade matrix, guide and required small ports; announcement; reviewed dev adoption; reviewed main adoption; official release decision. Current approval covers ONLY Phase 1 Step 2 POSIX migration, isolated tests, gates, commits, normal push and a short result note. Later steps need separate execution approval.
+Make roadmap step 3 safe for users on any published version: 9024 migration tool, small upgrade matrix, guide and required small ports; announcement; reviewed dev adoption; reviewed main adoption; official release decision. Current approval covers ONLY Phase 1 Step 3a PATH-warning adjustment, read-only link check/strict options, isolated tests, gates, commits, normal push and a short result note. Marker-only overwrite work remains Step 3b; later work needs separate approval.
 
 ## Context
 Baseline: `chore/rebuild-from-9017`, 9023 = `e8cd488066524d9d4f92dae81d06d2ff3d364394`; published prerelease, Windows/macOS host-mode tests green. Roadmap: `2026-10-08-rebuild-roadmap.md:22-54`; saved `rebuild.roadmap`, `rebuild.status`, `migration.universal`. Real-project pilot completion remains an adoption entry criterion, not a result inferred from CI.
@@ -50,7 +50,6 @@ Shared update modes: `.cg-version` stores `latest` or a tag; explicit selection 
 
 Short notes: F05 includes v0.10.2.9000 and v0.12.0.9000/.9001/.9002; index, brain-init, token-audit and summary wrapper additions do not change its ownership protocol (`v0.12.0.9002:scripts/install.sh:213-223`; `v0.16.0:scripts/install.sh:228-238`). Unprefixed pre-v0.0.5 tags exist but are outside the stated supported tag range; discovery still reports unknown installs without executing them.
 Project inventory: copied root/config receipt `.compound-gpid/managed-files.json`; directory-copy receipt `.compound-gpid-managed-copy.json`; projection `active-manifest.json`, `projection-ownership.json`, `projection-transaction.json`, `staging/`, `generations/`, `active/`, `retired/`; mirrors; managed ignores; marked Copilot instructions (`v1.2.0.9006:scripts/link.ps1:26-29`; `v1.2.0.9006:scripts/cg_project_projection.py:68-75`). No evidence that installers deploy consumer `.vscode/settings.json` or `.claude/settings.json`: old `.vscode/settings.json` is checkout configuration (`v1.2.0.9020:.vscode/settings.json:13-19`). Inspect user settings but never claim ownership from their filename.
-
 ## Migration Design (Part B)
 Ship only `scripts/migrate-install.ps1` and `scripts/migrate-install.sh` in 9024. Run their absolute paths from a fresh official 9024 clone outside the selected old install. Require trusted Git and normal new-install prerequisites, never Kilo. Never run/source/import old Compound GPID scripts, wrappers, installer, updater or linker; use normal Git commands.
 Discovery is read-only: resolve PATH cg-update/cg-link plus defaults, including custom paths/spaces. Multiple distinct installs require `-InstallPath`/`--install-path`; never choose the first silently. Refuse links/junctions, `.git` files/worktrees, non-clone roots and source/target overlap before moving anything. Unknown metadata is reported, not authority to replace a directory.
@@ -58,14 +57,12 @@ Verify a clean standalone NEW clone at an exact release tag, without Kilo. Recor
 NO lock, phase-note or registration-snapshot framework. Pause lifecycle activity. Existing target backup on rerun means stop with recovery instructions. Create the NEW checkout AT the target; leave the running clone in place. Windows clones locally with `--no-local`, sets origin to the official URL and fetches tags: no second network checkout, no shared objects, no move of the running script folder. Verify the tag SHA against origin before installation.
 Write the new tag to `.cg-version` BEFORE the NEW installer (9023 defaults to latest: `e8cd4880:install.ps1:421-427`). Run only that absolute installer in a child process. Verify exact tag/HEAD/pin, clean status and executable wrappers. Roll back only real clone/tag/pin/installer/wrapper failures. Fresh-process PATH resolution or shadowing is warning-only: keep the NEW install, exit 0 and print exact profile/PATH guidance. External installer writes are not automatically restored.
 Print old/new versions, backup, next steps and rollback commands. `-InstallPath <target> -Rollback <backup>` moves the current target aside without deletion and restores the sibling backup to that explicit original path. Project conflicts do not block installation; affected projects require manual action, with no deletion. Same-path links change immediately; copies stay old. Run cg-link once per project separately. Keep the new pin; returning to latest is a separate user action.
-
 ## Project Reconciliation
 9023 already removes exact old whole-root links without following/deleting targets, skips foreign roots, deletes checksum-matching stale copies, rejects selected modified/unowned projection collisions, and retires only five proven local native-plugin files (`e8cd4880:scripts/link.ps1:480-503`; `e8cd4880:scripts/cg_kilo_copy.py:170-208`; `e8cd4880:scripts/cg_project_projection.py:1046-1084`; `e8cd4880:scripts/cg_retire_native_evidence.py:23-36,160-225`). This covers owned F07+ copies, F17+ projection, F18+ mirrors and proven F24 plugin bytes, not every old file.
 Gaps: F01-F06 marker-only copies have no checksum authority; F13+ POSIX unrecorded copies can overwrite; F11-F16/general native per-unit links lack a complete projection transition; F14+ copy receipts are not bridged to projection; stale modified ownership is dropped; incompatible journals can be overwritten; marker-based instructions and force-confirmed foreign links can replace user changes (`e8cd4880:scripts/link.sh:379-435`; `e8cd4880:scripts/link.ps1:543-553,619-634`; `e8cd4880:scripts/tests/test_rebuild_residue.py:203-288`).
 Approved simplified Step-3 scope ONLY: (a) read-only `cg-link --check` with strict rejection of unknown options, and (b) remove marker/gitignore-only permission to replace differing bytes. All other old footprints are reported and preserved with manual guidance. No receipt bridge, per-unit link migration, journal/global-config repair, project snapshot framework or broader plugin retirement.
 There is NO existing read-only cg-link option; unknown flags are ignored and may mutate (`e8cd4880:scripts/link.ps1:40-59,836-853`; `e8cd4880:scripts/link.sh:8-23,800-809`). Add explicit NEW `cg-link --check` with strict unknown-flag rejection before update/state creation. Reuse pure manifest resolver and plan/verify functions with an IN-MEMORY desired manifest for missing/stale projects, not the existing CLI that requires an active manifest. Disable bytecode; no update, recovery, retirement, copying, mirrors, global/ignore writes. List path, owner, current state, intended action and reason; nonzero for blocking conflicts.
 Global `.config/kilo/kilo.jsonc` permission/plugin arrays and user settings are report-only without key-specific ownership. Existing writer risks remain reported, not new repair work in 9024. Preserve user `.gitignore` lines outside owned blocks. Manual relocation/edits, with backup, are required when ownership cannot be proved.
-
 ## Removed Content (Part C)
 The adoption equality target is the APPROVED rebuild candidate including 9024 and selected small ports, not the literal e8cd4880 tree. No wholesale cherry-pick of old release merges.
 | Old Content / Commit References | Disposition / Required Port |
@@ -111,9 +108,12 @@ One bounded session, same contract; selected rc block ownership, spaces, dirty t
 - **Step-2 result (2026-10-11)**: COMPLETE. `440a5d04` adds the 215-line executable POSIX script and registered fixtures. Run `38174852345`: all 12 applicable jobs passed, two conditional skips; migration tests RAN: macOS 36 passed, Ubuntu 35 passed/1 optional-zsh skip. Native totals: macOS 2910 passed/140 skipped, Ubuntu 2928 passed/122 skipped; both 2 deselected. No hosted fix iteration was needed.
 - **Local gates**: `bash -n` passed; focused Windows 102 passed/36 POSIX skips. Committed preflight vs `7a243f4c`: 2860 passed/190 skipped/2 deselected; all three module checks passed. Full simple Pester at `E:\t\q19`: 3035 passed/0 failed/2 skipped, all 20 files unfiltered. Tested/committed blobs match. Evidence: `backups/9024-step2/handoff.txt`. Next: Step 3, `cg-link --check` and the marker-only overwrite fix, in a separately approved session.
 ### 3. Fix NEW Link Reconciliation And Check
-Separate bounded session: ONLY read-only check/strict option parser and removal of marker/gitignore-only overwrite permission. Other footprints are reported/preserved with manual guidance.
+Split into Step 3a (PATH warnings, read-only check/strict options) and separately approved Step 3b (marker/gitignore-only overwrite fix). Other footprints remain preserved with manual guidance.
 - **Requirements**: R3
 - **Tests**: Extend `test_rebuild_residue.py`, copy/projection/retirement tests; no-write snapshots for missing/stale manifests and all conflict states.
+- **Step-3a result (2026-10-12)**: PARTIAL. `9595b566` completes PATH-warning behavior on both scripts; `402e2783` adds strict usage and a safe partial project check. Run `38296712206`: 8/12 applicable jobs passed, 4 macOS jobs failed, 2 conditional skips. New normal-link probe fails at `link.sh:57` (`probe_args[@]: unbound variable`); no further code correction after the bounded local work. Not an accepted candidate.
+- **Gates/counts**: Local focused migration 64 passed/103 skips; check+preflight tests 134 passed/28 skips. Committed preflight vs remote `b275f5c9`: 2894 passed/223 skips/2 deselected; 3 module checks passed. Full simple Pester in `E:\t\q20`: 3035 passed/0 failed/2 skipped, all 20 files; tested/committed code hashes match. CI native Windows 2925 passed/192 skips; Ubuntu 2963 passed/154 skips; macOS 2939 passed/6 failed/172 skips (all 2 deselected). Migration RAN: macOS 39 passed, Ubuntu 38 passed/1 optional-zsh skip.
+- **Remaining**: Fix the macOS empty-array probe regression and complete global Kilo config/compatibility-mirror path/action assessment before Step 3b. Check tests were in both native commands, but the bounded preflight log omits their per-file progress/counts; do not claim separately logged check counts. Evidence: `backups/9024-step3a/handoff.txt` and direct job logs; no real-state install/link/update/Kilo, PR, tag or release.
 ### 4. Add Upgrade Matrix, Guide And Required Small Ports
 Separate bounded sessions for matrix/guide, then doc-PR safeguard/license ports. Review source tag assignments, preservation assertions, guide and candidate tree before freeze.
 - **Requirements**: R4, R5, R7
@@ -221,8 +221,8 @@ Plan gate: `python -B scripts/render_artifact.py --root . --validate-only <Plan>
 2. PR181 disposition: recommend separate review/closure if obsolete; preserve branch/history.
 3. Unknown old version: recommend allow only verified standalone clone with install.ps1/cg wrappers; print unknown metadata, never execute old code.
 4. External installer writes after failure/rollback: recommend manual review with warning; folder restoration does not undo HKCU/profile writes. No snapshot framework.
-5. Publication, announcement and adoption PR operations: recommend separate execution approval at their steps; none is authorized by this Step-2 session.
-6. POSIX profiles: resolved by approved decision 6. Refuse non-Bash/zsh shells before changes; check both login and non-login interactive shells. If neither resolves to the target, warn with exact profile guidance; do not repair profiles automatically.
+5. Publication, announcement and adoption PR operations: recommend separate execution approval at their steps; none is authorized by this Step-3a session.
+6. Step-3a completion: recommend a separate bounded session to fix the macOS normal-link probe (avoid empty arrays under Bash `set -u`), add read-only global Kilo config and compatibility-mirror assessment with existing receipt checks, and expose native per-file check counts. Preserve ownership policy; then run Step 3b's marker-only overwrite fix. No automatic global repair or expanded cleanup.
 
 ## Saved Decisions For Review
 - `release.controller_reuse`, `release.controller_cutover_strategy`, `release.controller_cutover`, `release.controller_status`, controller architecture/bridge/sandbox records: obsolete as adoption prerequisites; retain only historical context. No third publisher or controller restoration.
@@ -232,11 +232,11 @@ Plan gate: `python -B scripts/render_artifact.py --root . --validate-only <Plan>
 - `rebuild.roadmap` step-4 9024 allocation and `rebuild.status`: update after approved milestones, not now. Keep `kilo.independence`, immutable tags, research/skill v2 scope and no-force constraints.
 
 ## Out of Scope
-Only Phase 1 Step 2 POSIX migration, isolated tests, gates, commits, normal push and a short Plan result note are approved now. No Windows implementation change, real installation, real cg-link/cg-update, real Kilo launch, PR, merge, dev/main change, tag/release, ruleset edit, force push or memory edit. Later execution needs separate approval. No autopilot/plugin/controller, receipts, sealing, supervisor, watcher, monitor, helper/evidence framework or wholesale history port.
+Only Phase 1 Step 3a PATH-warning adjustment and read-only link check/strict options, isolated tests, gates, commits, normal push and a short result note are approved now. No marker-only overwrite fix, real installation, real cg-link/cg-update, real Kilo launch, PR, merge, dev/main change, tag/release, ruleset edit, force push or memory edit. Later execution needs separate approval. No autopilot/plugin/controller, receipts, sealing, supervisor, watcher, monitor, helper/evidence framework or wholesale history port.
 
 ## Completion Contract
 ### Outcome
-Full implementation ends with verified universal migration/guide, small Windows/macOS matrix/pilots, reviewed rebuild tree on dev then main, preserved histories/user files and official-release decision. Current Step-2 handoff supplies POSIX behavior, test/CI results and Step 3 as exact next action, not claims of later work.
+Full implementation ends with verified universal migration/guide, small Windows/macOS matrix/pilots, reviewed rebuild tree on dev then main, preserved histories/user files and official-release decision. Current Step-3a handoff supplies both behaviors, local results, failed CI and report gaps. Repair/complete Step 3a before Step 3b; no claim of later work or green CI.
 ### Verification Surface
 | ID | Evidence Required | Command/Artifact | Required |
 |---|---|---|---|
@@ -250,7 +250,7 @@ Full implementation ends with verified universal migration/guide, small Windows/
 | C1 | Never run old installed code in migration; no Kilo dependency | Fresh absolute scripts, inert Git, isolated old-code CI only |
 | C2 | Never delete/replace unowned or modified content; retain old clone | Ownership/hash/identity assertions and rollback tests |
 | C3 | No force, bypass, history loss, implicit retired-feature restoration | Reviewed ancestry/tree/checks/removed table |
-| C4 | POSIX Step 2 only now; later approval gates; bounded sessions | Commit path/hash audit, unchanged dev/main, explicit approvals |
+| C4 | Phase 1 Step 3a only now; later approval gates; bounded sessions | Commit path/hash audit, unchanged dev/main, explicit approvals |
 ### Boundaries
 Only the two OS scripts, minimal existing ownership/parser fixes, bounded CI/guide and explicitly selected small ports belong to 9024. Global conflicts/manual repairs and official stable publisher readiness are not hidden automatic migrations.
 ### Iteration Policy
