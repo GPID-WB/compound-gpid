@@ -334,17 +334,22 @@ function Resolve-PythonCommand {
         resolution is consistent across the plugin.
     .OUTPUTS
         System.String or $null -- the first working Python command name.
+    .PARAMETER NoBytecode
+        Use -B for read-only callers so probes do not create bytecode caches.
     .EXAMPLE
         $py = Resolve-PythonCommand
         if ($py) { & $py scripts/cg_generate_targets.py --all }
     #>
+    param([switch]$NoBytecode)
+    $probeArgs = @()
+    if ($NoBytecode) { $probeArgs = @("-B") }
     foreach ($candidate in @("python3", "python", "py")) {
         if (-not (Get-Command $candidate -ErrorAction SilentlyContinue)) { continue }
         try {
-            $ver = & $candidate --version 2>&1
+            $ver = & $candidate @probeArgs --version 2>&1
             $verStr = "$ver".Trim()
             if ($verStr -match '^Python\s+\d') {
-                & $candidate -c "import sys; raise SystemExit(0 if sys.version_info >= (3, 8) else 1)" 2>$null
+                & $candidate @probeArgs -c "import sys; raise SystemExit(0 if sys.version_info >= (3, 8) else 1)" 2>$null
                 if ($LASTEXITCODE -eq 0) { return $candidate }
             }
         } catch {

@@ -10,17 +10,6 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-$onWindows = (((Test-Path variable:IsWindows) -and $IsWindows) -or ($env:OS -eq "Windows_NT"))
-if (-not $onWindows) {
-    Write-Error @"
-link.ps1 is Windows-only (it uses directory junctions).
-On macOS/Linux, use link.sh instead:
-  cg-link
-(which calls scripts/link.sh automatically via the bash wrapper in bin/)
-"@
-    exit 1
-}
-
 $CompoundGpidDir = Split-Path $PSScriptRoot -Parent
 $ProjectRoot = (Get-Location).Path
 $TargetMappingPath = Join-Path $CompoundGpidDir ".github/shared/target-mapping.json"
@@ -29,7 +18,10 @@ $CopilotInstructionsMarker = "<!-- compound-gpid:managed -->"
 $CopiedDirectoryMarkerName = ".compound-gpid-managed-copy.json"
 $KiloCompatMirrorRootRel = ".compound-gpid/kilo-compat-skills"
 
-. (Join-Path $PSScriptRoot "helpers.ps1")
+function Show-CgLinkUsage {
+    Write-Host "Usage: cg-link [--check] [--platforms <copilot,claude-code,codex,opencode,kilo|all>] [--yes] [--help]"
+    Write-Host "--check reports the current project without update or writes. Exit: 0 nonblocking, 1 manual action or block, 2 usage."
+}
 
 function Resolve-CgLinkArguments {
     param([object[]]$Arguments)
@@ -37,25 +29,33 @@ function Resolve-CgLinkArguments {
     # $null here via ValueFromRemainingArguments; .Count on $null throws under
     # Set-StrictMode -Version Latest.
     if ($null -eq $Arguments) { $Arguments = @() }
-    $result = @{ Force = $false; Platforms = $null }
+    $result = @{ Force = $false; Platforms = $null; Check = $false; Help = $false }
     for ($i = 0; $i -lt $Arguments.Count; $i++) {
         $arg = [string]$Arguments[$i]
         if ($arg -in @("--yes", "-y", "-Force", "--force")) {
             $result.Force = $true
+        } elseif ($arg -eq "--check") {
+            $result.Check = $true
+        } elseif ($arg -in @("--help", "-h")) {
+            $result.Help = $true
         } elseif ($arg -like "--platform=*") {
             $result.Platforms = $arg.Substring("--platform=".Length)
+            if ([string]::IsNullOrWhiteSpace($result.Platforms)) { throw "Missing platform value" }
         } elseif ($arg -like "--platforms=*") {
             $result.Platforms = $arg.Substring("--platforms=".Length)
+            if ([string]::IsNullOrWhiteSpace($result.Platforms)) { throw "Missing platform value" }
         } elseif ($arg -like "-Platforms=*") {
             $result.Platforms = $arg.Substring("-Platforms=".Length)
+            if ([string]::IsNullOrWhiteSpace($result.Platforms)) { throw "Missing platform value" }
         } elseif ($arg -in @("--platform", "--platforms", "-Platforms")) {
             if ($i + 1 -ge $Arguments.Count) { throw "Missing value after $arg" }
             $i++
             $result.Platforms = [string]$Arguments[$i]
-        } elseif ($arg -eq "") {
-            continue
+            if ([string]::IsNullOrWhiteSpace($result.Platforms) -or $result.Platforms.StartsWith("-")) {
+                throw "Missing value after $arg"
+            }
         } else {
-            Write-Warning "Unrecognized argument '$arg' - ignoring."
+            throw "Unrecognized argument '$arg'"
         }
     }
     return $result
@@ -84,11 +84,37 @@ function Resolve-CgPlatforms {
         }
     }
 
-    foreach ($item in $unknown) { Write-Warning "Unknown platform '$item' - skipping." }
+    if ($unknown.Count -gt 0) { throw "Unknown platform(s): $($unknown -join ', ')" }
     if ($selected.Count -eq 0) {
         throw "No valid platforms selected. Supported platforms: $($supported -join ', ')"
     }
     return @($selected)
+}
+
+try {
+    $argsParsed = Resolve-CgLinkArguments -Arguments $RawArgs
+    $Force = [bool]$argsParsed.Force
+    $selectedPlatforms = Resolve-CgPlatforms -PlatformsValue $argsParsed.Platforms
+} catch {
+    Write-Host "ERROR: $_"
+    Show-CgLinkUsage
+    exit 2
+}
+if ($argsParsed.Help) { Show-CgLinkUsage; exit 0 }
+
+$onWindows = (((Test-Path variable:IsWindows) -and $IsWindows) -or ($env:OS -eq "Windows_NT"))
+if (-not $onWindows) {
+    Write-Host "link.ps1 is Windows-only. On macOS/Linux, use scripts/link.sh."
+    exit 1
+}
+. (Join-Path $PSScriptRoot "helpers.ps1")
+if ($argsParsed.Check) {
+    $checkPython = Resolve-PythonCommand -NoBytecode
+    if (-not $checkPython) { Write-Host "ERROR: Python 3.8+ is required for --check."; exit 1 }
+    $checkArgs = @("--root", $ProjectRoot, "--source-root", $CompoundGpidDir, "--platforms", ($selectedPlatforms -join ","))
+    if ($Force) { $checkArgs += "--force" }
+    & $checkPython -B (Join-Path $PSScriptRoot "cg_link_check.py") @checkArgs
+    exit $LASTEXITCODE
 }
 
 function Get-CgTargetRoot {
@@ -828,10 +854,6 @@ if (-not (Test-Path $TargetMappingPath)) {
     Write-Error "Target mapping not found at: $TargetMappingPath"
     exit 1
 }
-
-$argsParsed = Resolve-CgLinkArguments -Arguments $RawArgs
-$Force = [bool]$argsParsed.Force
-$selectedPlatforms = Resolve-CgPlatforms -PlatformsValue $argsParsed.Platforms
 
 Write-Host ""
 if ($env:CG_SKIP_UPDATE -eq "1") {

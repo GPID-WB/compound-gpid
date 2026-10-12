@@ -62,6 +62,7 @@ NATIVE_PYTEST_FILES = (
     "scripts/tests/test_kilo_coexistence.py",
     "scripts/tests/test_kilo_copy.py",
     "scripts/tests/test_link_projection_order.py",
+    "scripts/tests/test_cg_link_check.py",
     "scripts/tests/test_retired_assets.py",
     "scripts/tests/test_rebuild_residue.py",
     "scripts/tests/test_installer_wrapper_restore.py",

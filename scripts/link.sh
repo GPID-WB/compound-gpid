@@ -7,18 +7,29 @@ set -euo pipefail
 
 FORCE=0
 PLATFORMS=""
+CHECK=0
+HELP=0
+usage() {
+    printf '%s\n' 'Usage: cg-link [--check] [--platforms <copilot,claude-code,codex,opencode,kilo|all>] [--yes] [--help]'
+    printf '%s\n' '--check reports the current project without update or writes. Exit: 0 nonblocking, 1 manual action or block, 2 usage.'
+}
+usage_error() { printf 'ERROR: %s\n' "$1" >&2; usage >&2; exit 2; }
 while [ "$#" -gt 0 ]; do
     case "$1" in
         --yes|-y|--force|-Force) FORCE=1; shift ;;
-        --platform=*|--platforms=*) PLATFORMS="${1#*=}"; shift ;;
-        -Platforms=*) PLATFORMS="${1#-Platforms=}"; shift ;;
+        --check) CHECK=1; shift ;;
+        --help|-h) HELP=1; shift ;;
+        --platform=*|--platforms=*|-Platforms=*)
+            PLATFORMS="${1#*=}"
+            [ -n "$PLATFORMS" ] || usage_error 'Missing platform value'
+            shift ;;
         --platform|--platforms|-Platforms)
             shift
-            if [ "$#" -eq 0 ]; then printf 'ERROR: Missing value after --platforms\n' >&2; exit 1; fi
+            if [ "$#" -eq 0 ] || [[ "$1" == -* ]] || [ -z "$1" ]; then usage_error 'Missing value after --platforms'; fi
             PLATFORMS="$1"
             shift
             ;;
-        *) printf 'WARNING: Unrecognized argument %s -- ignoring\n' "$1" >&2; shift ;;
+        *) usage_error "Unrecognized argument '$1'" ;;
     esac
 done
 
@@ -39,25 +50,20 @@ print_error()  { printf '\033[0;31mERROR: %s\033[0m\n' "$1" >&2; }
 
 resolve_python() {
     local candidate version
+    local -a probe_args=()
+    [ "$CHECK" -eq 0 ] || probe_args=(-B)
     for candidate in python3 python py; do
         command -v "$candidate" >/dev/null 2>&1 || continue
-        version="$($candidate --version 2>&1 || true)"
+        version="$($candidate "${probe_args[@]}" --version 2>&1 || true)"
         case "$version" in
             Python\ [0-9]*) ;;
             *) continue ;;
         esac
-        "$candidate" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 8) else 1)' >/dev/null 2>&1 || continue
+        "$candidate" "${probe_args[@]}" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 8) else 1)' >/dev/null 2>&1 || continue
         printf '%s\n' "$candidate"; return 0
     done
     return 1
 }
-
-PYTHON_CMD="$(resolve_python || true)"
-if [ -z "$PYTHON_CMD" ]; then
-    print_error "Python is required but not found (checked: python3, python, py)."
-    printf 'Install Xcode Command Line Tools or Python from https://www.python.org/downloads/\n' >&2
-    exit 1
-fi
 
 same_realpath() {
     "$PYTHON_CMD" - "$1" "$2" <<'PYEOF'
@@ -120,12 +126,11 @@ normalize_platforms() {
             copilot|claude-code|codex|opencode|kilo)
                 case ",$selected," in *",$platform,"*) ;; *) selected="${selected:+$selected,}$platform" ;; esac
                 ;;
-            *) print_warn "Unknown platform '$platform' -- skipping" ;;
+            *) usage_error "Unknown platform '$platform'" ;;
         esac
     done
     if [ -z "$selected" ]; then
-        print_error "No valid platforms selected. Supported platforms: copilot, claude-code, codex, opencode, kilo"
-        exit 1
+        usage_error 'No valid platforms selected. Supported: copilot, claude-code, codex, opencode, kilo'
     fi
     printf '%s\n' "$selected"
 }
@@ -143,6 +148,17 @@ platform_generated_tree() {
 }
 
 PLATFORMS="$(normalize_platforms "$PLATFORMS")"
+[ "$HELP" -eq 0 ] || { usage; exit 0; }
+PYTHON_CMD="$(resolve_python || true)"
+if [ -z "$PYTHON_CMD" ]; then
+    print_error 'Python 3.8+ is required (checked: python3, python, py).'
+    exit 1
+fi
+if [ "$CHECK" -eq 1 ]; then
+    check_args=(--root "$PROJECT_ROOT" --source-root "$COMPOUND_GPID_DIR" --platforms "$PLATFORMS")
+    [ "$FORCE" -eq 0 ] || check_args+=(--force)
+    exec "$PYTHON_CMD" -B "$SCRIPT_DIR/cg_link_check.py" "${check_args[@]}"
+fi
 
 generate_copilot_instructions() {
     local template_path="$1" project_root="$2" marker="$3"

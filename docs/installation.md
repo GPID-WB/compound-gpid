@@ -76,6 +76,23 @@ This links Compound GPID install units for all supported platforms by default: G
 > Default (`cg-link` with no flag) links all supported platforms. See [Context
 > Files](context-files.md) for details on generated native platform trees.
 
+To inspect the current project before linking, run `cg-link --check`. Use
+`cg-link --check --platforms kilo` to limit the report. The report uses the
+current local installation, resolves desired selection and output in memory,
+and lists each relevant path's owner, current state, action that `cg-link`
+would take, and reason. Items that need manual action are listed separately.
+It never runs `cg-update`, Kilo, or a publication/recovery step, and does not
+write project files, state, `.gitignore`, HOME configuration, or caches.
+Python runs with `-B`. This initial report does not yet assess global Kilo
+permission/plugin settings or `.compound-gpid/kilo-compat-skills` mirrors.
+Existing mirror-backed links can be reported as unowned and need manual review.
+Missing or old output alone is not a blocker. Exit codes
+are `0` for a nonblocking report, `1` for a block or preserved conflict, and `2`
+for invalid usage. Unknown options are rejected with usage before any update
+or write, including when `--check` or `--help` is also present.
+The report reflects the current overwrite policy; marker-only Copilot
+instruction regeneration is not made checksum-safe by this check.
+
 > **Kilo + Codex/Claude coexistence**: when a project contains Kilo plus a
 > Codex or Claude skill root, direct Kilo editor/CLI launches are unsupported.
 > Run the contained launcher `cg-kilo` from the project root. It performs the
