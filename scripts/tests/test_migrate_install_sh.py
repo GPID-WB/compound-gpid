@@ -69,6 +69,7 @@ rc="$HOME/.${SHELL##*/}rc"
 printf '\\n# --- Compound GPID ---\\nexport PATH="%s/bin:$PATH"\\n# --- End Compound GPID ---\\n' "$root" >> "$rc"
 case "$POSIX_FAILURE" in
     dirty) printf 'changed' > "$root/package.txt" ;;
+    missing-path) printf 'export PATH="/usr/bin:/bin"\\n' >> "$rc" ;;
     wrapper) chmod -x "$root/bin/cg-update" ;;
     path) printf 'export PATH="%s:$PATH"\\n' "$POSIX_SHADOW" >> "$rc" ;;
 esac
@@ -159,24 +160,17 @@ def test_posix_migration_preserves_old_clone_and_pins_new(posix_migration, selec
     assert repeat.returncode != 0 and "Existing backup found" in repeat.stderr
 
 
-@pytest.mark.parametrize("failure", ("install", "dirty", "wrapper", "path", "remote-tag", "login-profile"))
+@pytest.mark.parametrize("failure", ("install", "dirty", "wrapper", "remote-tag"))
 def test_posix_migration_failure_restores_old_folder(posix_migration, failure: str) -> None:
-    """Installer/tag/wrapper/login failures restore old HEAD, pin and private bytes."""
+    """Installer/tag/wrapper failures restore old HEAD, pin and private bytes."""
     rt, _, install = posix_migration
     _write(install / ".cg-version", PIN)
     _write(install / "private.txt", b"preserved private bytes")
     before = _state(rt, install)
     rt.env["POSIX_FAILURE"] = failure
-    if failure == "path":
-        shadow = rt.root / "shadow"
-        _write(shadow / "cg-update", "#!/bin/bash\nexit 72\n")
-        (shadow / "cg-update").chmod(0o755)
-        rt.env["POSIX_SHADOW"] = str(shadow)
     if failure == "remote-tag":
         _git(rt, rt.root, "--git-dir", str(rt.root / "official.git"), "update-ref",
              "refs/tags/" + MIGRATION_TAG, before[0].decode().strip())
-    if failure == "login-profile":
-        _write(Path(rt.env["HOME"]) / ".bash_profile", 'export PATH="/usr/bin:/bin"\n')
     result = migrate(posix_migration)
     assert result.returncode != 0 and "Old folder restored" in result.stderr
     assert _state(rt, install) == before
@@ -184,7 +178,45 @@ def test_posix_migration_failure_restores_old_folder(posix_migration, failure: s
     assert not list(install.parent.glob(install.name + ".backup-*"))
 
 
-@pytest.mark.parametrize("case", ("two", "symlink", "worktree", "non-clone", "overlap", "nested", "dirty-source", "untagged", "nonnumeric", "zero", "unknown-option"))
+@pytest.mark.parametrize("case", ("path", "missing-path", "login-profile", "login-only"))
+def test_posix_migration_path_warning_keeps_verified_install(posix_migration, case: str) -> None:
+    """Either shell can resolve; otherwise warn without losing the NEW clone or backup."""
+    rt, new, install = posix_migration
+    _write(install / ".cg-version", PIN)
+    _write(install / "private.txt", b"preserved private bytes")
+    before = _state(rt, install)
+    if case == "path":
+        shadow = rt.root / "shadow"
+        _write(shadow / "cg-update", "#!/bin/bash\nexit 72\n")
+        (shadow / "cg-update").chmod(0o755)
+        rt.env.update(POSIX_FAILURE="path", POSIX_SHADOW=str(shadow))
+    elif case in ("missing-path", "login-only"):
+        rt.env["POSIX_FAILURE"] = "missing-path"
+    if case in ("missing-path", "login-profile"):
+        _write(Path(rt.env["HOME"]) / ".bash_profile", 'export PATH="/usr/bin:/bin"\n')
+    elif case == "login-only":
+        _write(Path(rt.env["HOME"]) / ".bash_profile", f'export PATH="{install}/bin:/usr/bin:/bin"\n')
+    result = migrate(posix_migration)
+    assert result.returncode == 0, result.stdout + result.stderr
+    backup = next(install.parent.glob(install.name + ".backup-*"))
+    assert _state(rt, backup) == before
+    assert (backup / "private.txt").read_bytes() == b"preserved private bytes"
+    assert _git(rt, install, "rev-parse", "HEAD") == _git(rt, new, "rev-parse", "HEAD")
+    assert (install / ".cg-version").read_bytes() == MIGRATION_TAG.encode()
+    assert not _git(rt, install, "status", "--porcelain")
+    assert "Old folder restored" not in result.stderr
+    if case in ("path", "missing-path"):
+        assert "WARNING: NEW installation kept" in result.stderr
+        assert '[ -f "$HOME/.bashrc" ] && . "$HOME/.bashrc"' in result.stderr
+        assert "~/.bash_profile" in result.stderr and "export PATH=" in result.stderr
+    else:
+        assert "WARNING: NEW installation kept" not in result.stderr
+    if case == "path":
+        assert str(shadow / "cg-update") in result.stderr
+        assert "Remove its bin directory from PATH" in result.stderr
+
+
+@pytest.mark.parametrize("case", ("two", "symlink", "worktree", "non-clone", "overlap", "nested", "dirty-source", "untagged", "nonnumeric", "zero", "unknown-option", "unsupported-shell"))
 def test_posix_migration_refuses_unsafe_or_ambiguous_state(posix_migration, case: str) -> None:
     """Unsafe targets and sources stop before installer execution or any old move."""
     rt, new, install = posix_migration
@@ -215,6 +247,8 @@ def test_posix_migration_refuses_unsafe_or_ambiguous_state(posix_migration, case
         install.rename(rt.root / "not-an-install")
     elif case == "unknown-option":
         args = ["--unknown"]
+    elif case == "unsupported-shell":
+        rt.env["SHELL"] = "/bin/sh"
     rc_before = {rc: (Path(rt.env["HOME"]) / rc).read_bytes() for rc in (".bashrc", ".zshrc")}
     result = migrate(posix_migration, *args)
     assert result.returncode != 0 and result.stderr

@@ -207,13 +207,6 @@ try {
                 throw "Missing NEW wrapper: $name"
             }
         }
-        $user = Get-ItemProperty -LiteralPath 'HKCU:\Environment' -ErrorAction Stop
-        $machine = Get-ItemProperty -LiteralPath 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Environment' -ErrorAction Stop
-        $env:PATH = [Environment]::ExpandEnvironmentVariables("$($machine.Path);$($user.Path)")
-        $resolved = & $shell -NoProfile -NonInteractive -Command '[Console]::OutputEncoding = [Text.UTF8Encoding]::new($false); (Get-Command cg-update -CommandType Application -ErrorAction Stop).Path'
-        if ($LASTEXITCODE -ne 0 -or (Get-NormalPath $resolved) -ine (Join-Path $target 'bin\cg-update.cmd')) {
-            throw 'Fresh-process cg-update does not resolve to the target. Review PATH shadowing.'
-        }
     } catch {
         $failure = $_
         try {
@@ -228,6 +221,24 @@ try {
             throw "Migration failed: $failure. Automatic restore failed: $_. Keep backup '$backup'; roll back after manual inspection."
         }
         throw "Migration failed: $failure. Old folder restored to '$target'. Review any installer PATH/profile writes manually."
+    }
+    # PATH/registration problems do not undo a verified installation.
+    try {
+        $user = Get-ItemProperty -LiteralPath 'HKCU:\Environment' -ErrorAction Stop
+        $machine = Get-ItemProperty -LiteralPath 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Environment' -ErrorAction Stop
+        $userPath = if ($user -and $user.PSObject.Properties['Path']) { $user.Path } else { '' }
+        $machinePath = if ($machine -and $machine.PSObject.Properties['Path']) { $machine.Path } else { '' }
+        $env:PATH = [Environment]::ExpandEnvironmentVariables("$machinePath;$userPath")
+        $resolved = & $shell -NoProfile -NonInteractive -Command '[Console]::OutputEncoding = [Text.UTF8Encoding]::new($false); $c = @(Get-Command cg-update -CommandType Application -ErrorAction SilentlyContinue); if ($c.Count) { $c[0].Path }'
+        if ($LASTEXITCODE -ne 0 -or -not $resolved -or (Get-NormalPath $resolved) -ine (Join-Path $target 'bin\cg-update.cmd')) {
+            Write-Warning 'NEW installation kept. Fresh-process cg-update does not resolve to the target.'
+            if ($resolved) { Write-Warning "Shadowing cg-update: $resolved. Remove its bin directory from User or Machine PATH, then open a new terminal." }
+            Write-Host 'If User PATH omits the NEW bin directory, run this exact line:'
+            Write-Host "  [Environment]::SetEnvironmentVariable('Path', '$($target.Replace("'", "''"))\bin;' + [Environment]::GetEnvironmentVariable('Path', 'User'), 'User')"
+        }
+    } catch {
+        Write-Warning "NEW installation kept. Could not check fresh-process PATH: $_. Review User and Machine PATH; add '$target\bin' and open a new terminal."
+        Write-Host "  [Environment]::SetEnvironmentVariable('Path', '$($target.Replace("'", "''"))\bin;' + [Environment]::GetEnvironmentVariable('Path', 'User'), 'User')"
     }
     Write-Host "Migrated: $oldVersion -> $newTag (pinned)"
     Write-Host "Backup preserved: $backup"

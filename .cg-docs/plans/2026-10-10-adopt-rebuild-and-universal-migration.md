@@ -56,7 +56,7 @@ Ship only `scripts/migrate-install.ps1` and `scripts/migrate-install.sh` in 9024
 Discovery is read-only: resolve PATH cg-update/cg-link plus defaults, including custom paths/spaces. Multiple distinct installs require `-InstallPath`/`--install-path`; never choose the first silently. Refuse links/junctions, `.git` files/worktrees, non-clone roots and source/target overlap before moving anything. Unknown metadata is reported, not authority to replace a directory.
 Verify a clean standalone NEW clone at an exact release tag, without Kilo. Record only old HEAD, `git describe --tags --always --dirty` and literal `.cg-version`; never run old-clone status, reset/stash/clean or execute old code. Move the entire folder to `<target>.backup-<safe old version>-<timestamp>` in the same parent. Preserve every local change.
 NO lock, phase-note or registration-snapshot framework. Pause lifecycle activity. Existing target backup on rerun means stop with recovery instructions. Create the NEW checkout AT the target; leave the running clone in place. Windows clones locally with `--no-local`, sets origin to the official URL and fetches tags: no second network checkout, no shared objects, no move of the running script folder. Verify the tag SHA against origin before installation.
-Write the new tag to `.cg-version` BEFORE the NEW installer (9023 defaults to latest: `e8cd4880:install.ps1:421-427`). Run only that absolute installer in a child process. Verify exact tag/HEAD/pin, clean status, wrappers and fresh-process cg-update resolution after reading HKCU PATH again. If checkout/install/verification fails, remove only this run's partial NEW target and restore the old folder. Report external installer writes as not automatically restored.
+Write the new tag to `.cg-version` BEFORE the NEW installer (9023 defaults to latest: `e8cd4880:install.ps1:421-427`). Run only that absolute installer in a child process. Verify exact tag/HEAD/pin, clean status and executable wrappers. Roll back only real clone/tag/pin/installer/wrapper failures. Fresh-process PATH resolution or shadowing is warning-only: keep the NEW install, exit 0 and print exact profile/PATH guidance. External installer writes are not automatically restored.
 Print old/new versions, backup, next steps and rollback commands. `-InstallPath <target> -Rollback <backup>` moves the current target aside without deletion and restores the sibling backup to that explicit original path. Project conflicts do not block installation; affected projects require manual action, with no deletion. Same-path links change immediately; copies stay old. Run cg-link once per project separately. Keep the new pin; returning to latest is a separate user action.
 
 ## Project Reconciliation
@@ -208,7 +208,7 @@ Plan gate: `python -B scripts/render_artifact.py --root . --validate-only <Plan>
 3. Auto-detect PATH cg-update/cg-link and defaults; multiple installs require InstallPath. Refuse links/junctions, worktrees and source/target overlap.
 4. Simple steps only: NO lock, phase-note or registration-snapshot framework. Existing backup on rerun means stop with instructions.
 5. Installation proceeds despite project conflicts; unresolved projects get `manual action required`. Nothing is deleted.
-6. Pin to the new tag; returning to latest is a separate user action.
+6. After successful installation, PATH resolution or shadowing is a WARNING, not failure: keep the NEW install and exit 0 with exact profile/PATH guidance and any shadowing path. Roll back only clone, tag verification, pin, installer or missing/non-executable wrapper failures. Keep the new pin; returning to latest is separate.
 7. Five working days of notice before main moves, plus one Windows and one Mac user pilot.
 8. Port both vendor licenses and doc-rebuild draft-PR safeguard from 14e87863 before freeze. Charter text needs separate review.
 9. Adoption uses `-s ours` merges and merge-commit PRs only; no force-push.
@@ -222,7 +222,7 @@ Plan gate: `python -B scripts/render_artifact.py --root . --validate-only <Plan>
 3. Unknown old version: recommend allow only verified standalone clone with install.ps1/cg wrappers; print unknown metadata, never execute old code.
 4. External installer writes after failure/rollback: recommend manual review with warning; folder restoration does not undo HKCU/profile writes. No snapshot framework.
 5. Publication, announcement and adoption PR operations: recommend separate execution approval at their steps; none is authorized by this Step-2 session.
-6. POSIX login profiles: recommend Bash/zsh only, with fresh interactive login-shell verification; stop and restore if PATH is wrong. Bash users must load `.bashrc` from their login profile. Do not add profile repair or silently source rc files during verification.
+6. POSIX profiles: resolved by approved decision 6. Refuse non-Bash/zsh shells before changes; check both login and non-login interactive shells. If neither resolves to the target, warn with exact profile guidance; do not repair profiles automatically.
 
 ## Saved Decisions For Review
 - `release.controller_reuse`, `release.controller_cutover_strategy`, `release.controller_cutover`, `release.controller_status`, controller architecture/bridge/sandbox records: obsolete as adoption prerequisites; retain only historical context. No third publisher or controller restoration.
@@ -256,4 +256,4 @@ Only the two OS scripts, minimal existing ownership/parser fixes, bounded CI/gui
 ### Iteration Policy
 One bounded session per deliverable; one focused verification/fix pass, then stop and report if still failing or scope expands. No polling/retry services. Use CI-matched preflight before each push and FULL CI before publication.
 ### Blocked-Stop Conditions
-Stop for ambiguous identity/PATH, source-target overlap, unsafe write/unknown ownership, foreign journal, failed preservation/rollback/no-write assertion, failed tests/checks, unreviewed remote drift, missing required notices/ports/pilots, or absent consequential approval. Preserve state and record the next decision; never bypass a gate.
+Stop for ambiguous installation identity, source-target overlap, unsafe write/unknown ownership, foreign journal, failed preservation/rollback/no-write assertion, failed tests/checks, unreviewed remote drift, missing required notices/ports/pilots, or absent consequential approval. PATH checks after successful installation are warning-only. Preserve state and record the next decision; never bypass a gate.

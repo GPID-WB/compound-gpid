@@ -642,11 +642,13 @@ function global:Get-ItemProperty {
     [CmdletBinding()]param([string]$LiteralPath)
     if ($LiteralPath -eq 'HKCU:\\Environment') {
         Add-Content -LiteralPath "$env:WIN_REGISTRY.reads" -Value 'HKCU'
-        $path = if ($env:WIN_FAILURE -eq 'path') { $env:WIN_SHADOW } else { Get-Content -LiteralPath $env:WIN_REGISTRY -Raw }
+        $path = if ($env:WIN_FAILURE -eq 'path') { $env:WIN_SHADOW } elseif ($env:WIN_FAILURE -eq 'missing-path') { '' } else { Get-Content -LiteralPath $env:WIN_REGISTRY -Raw }
         return [pscustomobject]@{Path=$path}
     }
     if ($LiteralPath -eq 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment') {
-        return [pscustomobject]@{Path=(Split-Path $env:RM_GIT -Parent)}
+        $path = Split-Path $env:RM_GIT -Parent
+        if ($env:WIN_FAILURE -eq 'machine-path') { $path = "$env:WIN_SHADOW;$path" }
+        return [pscustomobject]@{Path=$path}
     }
     throw "Unexpected registry access: $LiteralPath"
 }
@@ -728,7 +730,7 @@ def test_windows_migration_preserves_old_clone_and_pins_new(
     assert all((backup / path).read_bytes() == data for path, data in before.items())
 
 
-@pytest.mark.parametrize("failure", ("install", "dirty", "path", "remote-tag"))
+@pytest.mark.parametrize("failure", ("install", "dirty", "remote-tag"))
 def test_windows_migration_failure_restores_old_folder(
     windows_migration: tuple[Runtime, Path, Path], failure: str,
 ) -> None:
@@ -738,10 +740,6 @@ def test_windows_migration_failure_restores_old_folder(
     _write(install / "private.txt", b"unchanged private bytes")
     before = _state(rt, install)
     rt.env["WIN_FAILURE"] = failure
-    if failure == "path":
-        shadow = rt.root / "shadow"
-        _write(shadow / "cg-update.cmd", "@echo off\nexit /b 72\n")
-        rt.env["WIN_SHADOW"] = str(shadow)
     if failure == "remote-tag":
         _git(rt, rt.root, "--git-dir", str(rt.root / "official.git"), "update-ref", "refs/tags/" + MIGRATION_TAG,
              _git(rt, install, "rev-parse", "HEAD").decode().strip())
@@ -751,6 +749,34 @@ def test_windows_migration_failure_restores_old_folder(
     assert _state(rt, install) == before
     assert (install / "private.txt").read_bytes() == b"unchanged private bytes"
     assert not list(install.parent.glob(install.name + ".backup-*"))
+
+
+@pytest.mark.parametrize("case", ("path", "machine-path", "missing-path"))
+def test_windows_migration_path_warning_keeps_verified_install(windows_migration, case: str) -> None:
+    """Fresh-process missing/shadowed PATH keeps the verified NEW clone and old bytes."""
+    rt, new, install = windows_migration
+    _write(install / ".cg-version", PIN)
+    _write(install / "private.txt", b"unchanged private bytes")
+    before = _state(rt, install)
+    rt.env["WIN_FAILURE"] = case
+    if case != "missing-path":
+        shadow = rt.root / "shadow"
+        _write(shadow / "cg-update.cmd", "@echo off\nexit /b 72\n")
+        rt.env["WIN_SHADOW"] = str(shadow)
+    result = _migrate(windows_migration)
+    assert result.returncode == 0, result.stdout + result.stderr
+    backup = next(install.parent.glob(install.name + ".backup-*"))
+    assert _state(rt, backup) == before
+    assert (backup / "private.txt").read_bytes() == b"unchanged private bytes"
+    assert _git(rt, install, "rev-parse", "HEAD") == _git(rt, new, "rev-parse", "HEAD")
+    assert (install / ".cg-version").read_bytes() == MIGRATION_TAG.encode()
+    assert not _git(rt, install, "status", "--porcelain")
+    output = " ".join((result.stdout + result.stderr).split())
+    assert "NEW installation kept" in output and "Old folder restored" not in output
+    assert "[Environment]::SetEnvironmentVariable('Path'," in result.stdout, result.stdout + result.stderr
+    if case != "missing-path":
+        assert str(shadow / "cg-update.cmd") in output
+        assert "Remove its bin directory from User or Machine PATH" in output
 
 
 @pytest.mark.parametrize("case", ("two", "junction", "worktree", "overlap", "dirty-source", "untagged", "interrupted", "zero"))

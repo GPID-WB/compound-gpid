@@ -206,9 +206,22 @@ new_status=$(git -C "$target" status --porcelain --untracked-files=all)
 for name in cg-link cg-unlink cg-update; do
     [[ -f "$target/bin/$name" && -x "$target/bin/$name" ]] || fail "Missing or non-executable NEW wrapper: $name"
 done
-resolved=$("$shell" -lic 'command -v cg-update') || fail 'Fresh login shell cannot resolve cg-update. Review login profiles and PATH.'
-[[ "$resolved" == "$target/bin/cg-update" ]] || fail "Fresh login shell cg-update does not resolve to the target: $resolved. Review login profiles and PATH shadowing."
 moved=0
+# PATH/profile problems do not undo a verified installation.
+login_resolved=$("$shell" -lic 'command -v cg-update' || true)
+interactive_resolved=$("$shell" -ic 'command -v cg-update' || true)
+if [[ "$login_resolved" != "$target/bin/cg-update" && "$interactive_resolved" != "$target/bin/cg-update" ]]; then
+    printf 'WARNING: NEW installation kept. Fresh shells do not resolve cg-update to the target.\n' >&2
+    for resolved in "$login_resolved" "$interactive_resolved"; do
+        [[ -z "$resolved" ]] || printf 'Shadowing cg-update: %s. Remove its bin directory from PATH in your shell profile.\n' "$resolved" >&2
+    done
+    if [[ "${shell##*/}" == bash ]]; then
+        printf 'Add this exact line to ~/.bash_profile to load ~/.bashrc:\n  [ -f "$HOME/.bashrc" ] && . "$HOME/.bashrc"\n' >&2
+    else
+        printf 'Add this exact line to ~/.zprofile to load ~/.zshrc:\n  [ -f "$HOME/.zshrc" ] && . "$HOME/.zshrc"\n' >&2
+    fi
+    printf 'If PATH still omits the NEW bin directory, add this exact line to your shell rc file:\n  export PATH=%q:"$PATH"\n' "$target/bin" >&2
+fi
 printf 'Migrated: %s -> %s (pinned)\nBackup preserved: %s\n' "$old_version" "$new_tag" "$backup"
 printf 'Open a new terminal. Run cg-link once per project. Unresolved project conflicts: manual action required; preserve files.\n'
 printf 'Returning to latest is a separate user action. No project reconciliation was run.\nRollback (stop other lifecycle activity first):\n'
