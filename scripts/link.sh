@@ -54,12 +54,12 @@ resolve_python() {
     [ "$CHECK" -eq 0 ] || probe_args=(-B)
     for candidate in python3 python py; do
         command -v "$candidate" >/dev/null 2>&1 || continue
-        version="$($candidate "${probe_args[@]}" --version 2>&1 || true)"
+        version="$($candidate ${probe_args[@]+"${probe_args[@]}"} --version 2>&1 || true)"
         case "$version" in
             Python\ [0-9]*) ;;
             *) continue ;;
         esac
-        "$candidate" "${probe_args[@]}" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 8) else 1)' >/dev/null 2>&1 || continue
+        "$candidate" ${probe_args[@]+"${probe_args[@]}"} -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 8) else 1)' >/dev/null 2>&1 || continue
         printf '%s\n' "$candidate"; return 0
     done
     return 1

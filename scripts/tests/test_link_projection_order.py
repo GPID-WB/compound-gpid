@@ -181,6 +181,29 @@ def test_shell_links_fresh_manifest_driven_kilo_project(
 
 
 @pytest.mark.skipif(os.name == "nt", reason="macOS/Linux link.sh integration")
+def test_shell_normal_link_startup_without_arguments(tmp_path: Path) -> None:
+    """Empty probe arguments must be safe under macOS Bash 3.2 nounset."""
+    bash = shutil.which("bash")
+    if bash is None:
+        pytest.skip("bash is unavailable")
+    project, profile = tmp_path / "consumer", tmp_path / "profile"
+    project.mkdir()
+    profile.mkdir()
+    (project / "compound-gpid.local.md").write_text(LOCAL_CONFIG, encoding="utf-8")
+    environment = os.environ.copy()
+    environment.update({"CG_SKIP_UPDATE": "1", "HOME": str(profile)})
+    result = subprocess.run(
+        [bash, str(REPO_ROOT / "scripts/link.sh")],
+        cwd=project, env=environment, capture_output=True, text=True,
+        timeout=180, check=False,
+    )
+    output = result.stdout + result.stderr
+    assert result.returncode == 0, output
+    assert "unbound variable" not in output
+    assert "Linked!" in output
+
+
+@pytest.mark.skipif(os.name == "nt", reason="macOS/Linux link.sh integration")
 def test_shell_rejects_invalid_manifest_before_project_mutation(tmp_path: Path) -> None:
     """Strict config failure must stop before install, preflight, or success."""
     bash = shutil.which("bash")
