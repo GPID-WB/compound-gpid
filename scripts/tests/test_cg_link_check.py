@@ -62,7 +62,8 @@ def source(tmp_path_factory: pytest.TempPathFactory) -> Path:
     shutil.copy2(REPO_ROOT / mapping, root / mapping)
     _write(root / ".github/copilot-instructions.template.md", "# {{project-name}}\n")
     desired = manifest_module.resolve_active_manifest(
-        root, config_text=CONFIG, platforms=["kilo"], source_root=root,
+        root, config_text=CONFIG,
+        platforms=["kilo", "codex", "claude-code", "opencode"], source_root=root,
     )
     plan = projection.build_projection_plan(
         root, desired, project_root=root, config_text=CONFIG,
@@ -288,3 +289,107 @@ def test_report_retains_marker_only_overwrite_policy(tmp_path: Path) -> None:
     assert rows[0]["action"] == "regenerate"
     assert "Step3b" in rows[0]["reason"]
     assert _snapshot(project) == before
+
+
+@pytest.mark.parametrize("scenario", ("managed", "changed", "foreign"))
+@pytest.mark.parametrize("configured", (False, True), ids=("legacy", "manifest"))
+def test_check_reports_compatibility_mirrors_without_writes(
+    runtime: tuple, scenario: str, configured: bool,
+) -> None:
+    """Recognize receipts/links, preserve edits and refuse foreign mirror links."""
+    project, home, env, command, source = runtime
+    if configured:
+        _write(project / "compound-gpid.local.md", CONFIG)
+    mirror_relative = ".compound-gpid/kilo-compat-skills/codex"
+    mirror = project / mirror_relative
+    original = source / ".agents/skills"
+    files = {p.relative_to(original).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
+             for p in original.rglob("*") if p.is_file()}
+    shutil.copytree(original, mirror)
+    _write(mirror / ".compound-gpid-managed-copy.json", json.dumps(dict(
+        schemaVersion=1, source=".agents/skills", files=files,
+    )))
+    leaf = next(iter(files))
+    if scenario == "changed":
+        _write(mirror / leaf, "user mirror edit\n")
+    if scenario == "foreign":
+        mirror.rename(project / "foreign-skills")
+        destination, target = mirror, project / "foreign-skills"
+    else:
+        destination, target = project / ".agents/skills", mirror
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    if os.name == "nt":
+        linked = subprocess.run(
+            ["cmd.exe", "/c", "mklink", "/J", str(destination), str(target)],
+            capture_output=True, text=True, check=False,
+        )
+        assert linked.returncode == 0, linked.stdout + linked.stderr
+    else:
+        destination.symlink_to(target, target_is_directory=True)
+    before = (_snapshot(project), _snapshot(home), _snapshot(source))
+    result = subprocess.run([*command, "--check", "--platforms=codex"],
+                            cwd=project, env=env, capture_output=True, text=True,
+                            timeout=45, check=False)
+    output = result.stdout + result.stderr
+    assert (_snapshot(project), _snapshot(home), _snapshot(source)) == before
+    assert "UPDATE WAS CALLED" not in output
+    assert result.returncode == int(scenario != "managed"), output
+    if scenario != "foreign":
+        assert ".agents/skills | managed | link/reparse | keep | recognized managed" in output
+        assert f"{mirror_relative} | managed | directory | sync" in output
+    if scenario == "managed":
+        assert "Manual action required:\n  none" in output
+        assert f"{mirror_relative}/{leaf} | managed | file sha256=" in output
+    elif scenario == "changed":
+        assert f"{mirror_relative}/{leaf} | modified-owned | file sha256=" in output
+        assert "preserve/block" in output
+    else:
+        assert f"{mirror_relative} | unowned | link/reparse | preserve/block" in output
+
+
+@pytest.mark.parametrize("scenario", (
+    "related", "jsonc", "custom-path", "missing", "invalid", "wrong-shape",
+))
+def test_global_kilo_settings_are_information_only_and_never_written(
+    runtime: tuple, scenario: str,
+) -> None:
+    """Global grants/plugins, even malformed settings, cannot block project check."""
+    project, home, env, command, source = runtime
+    config = home / ".config/kilo/kilo.jsonc"
+    key = (source.as_posix() if scenario == "custom-path" else "/old/compound-gpid") + "/.kilo/commands/*"
+    content = json.dumps(dict(
+        permission={"markdown_source": {key: "deny", "/unrelated/*": "allow"}},
+        plugin=["file:///old/compound-gpid/.kilo/plugins/cg-native-evidence.js", "unrelated-plugin"],
+    ))
+    if scenario == "jsonc":
+        content = "// retained comment\n" + content[:-1] + ", /* retained */ }\n"
+    elif scenario == "invalid":
+        content = "not valid JSONC\n"
+    elif scenario == "wrong-shape":
+        content = '{"permission":[],"plugin":{}}\n'
+    _write(config, content)
+    if scenario == "missing":
+        config.unlink()
+    before = (_snapshot(project), _snapshot(home), _snapshot(source))
+    result = subprocess.run([*command, "--check", "--platforms=kilo"],
+                            cwd=project, env=env, capture_output=True, text=True,
+                            timeout=45, check=False)
+    output = result.stdout + result.stderr
+    assert result.returncode == 0, output
+    assert "Global Kilo settings (INFORMATION ONLY; never block or write)" in output
+    assert "Manual action required:\n  none" in output
+    assert "UPDATE WAS CALLED" not in output
+    if scenario in ("related", "jsonc", "custom-path"):
+        assert key in output
+        assert ' = "deny"' in output
+        assert "cg-native-evidence.js" in output
+        assert "unrelated-plugin" not in output
+        assert "/unrelated/*" not in output
+    elif scenario == "missing":
+        assert "kilo.jsonc: absent" in output
+    elif scenario == "invalid":
+        assert "not assessed" in output
+    else:
+        assert "permission: not an object; preserved" in output
+        assert "plugin: not an array; preserved" in output
+    assert (_snapshot(project), _snapshot(home), _snapshot(source)) == before

@@ -15,8 +15,9 @@ from typing import Any
 import cg_project_manifest as manifest_module
 import cg_project_projection as projection
 import cg_retire_native_evidence as retirement
+from cg_link_check_global import global_kilo_information
 from cg_link_check_paths import (
-    COPY_MARKER, file_row, inspect_path, inventory, legacy_rows,
+    COPY_MARKER, file_row, inspect_path, inventory, legacy_rows, mirror_rows,
 )
 import secure_fs
 
@@ -78,9 +79,16 @@ def check_project(root: Path, source: Path, platforms: list[str],
                 manual.append(f"Missing source unit: {unit['source']}")
     for row in legacy_rows(root, source, targets, scalar, manifest_driven, force):
         rows[row["path"]] = row
+    for row in mirror_rows(root, source, mapping["targets"]):
+        rows[row["path"]] = row
+    mirror_links = [row["path"] for row in rows.values()
+                    if row["reason"] == "recognized managed compatibility mirror link"]
     if manifest_driven:
         legacy_copilot = projection._managed_copilot_link(root, source)
         for entry in plan.entries:
+            if any(projection._is_within_relative(entry.destination, link)
+                   for link in mirror_links):
+                continue  # Physical mirror files are checked above without following the link.
             record = previous.get(entry.destination, {})
             checksum = record.get("sha256", "") or scalar.get(
                 entry.destination, {}
@@ -93,7 +101,9 @@ def check_project(root: Path, source: Path, platforms: list[str],
                 )
             rows[entry.destination] = row
         for relative, record in sorted(previous.items()):
-            if relative not in rows and any(
+            if relative not in rows and not any(
+                projection._is_within_relative(relative, link) for link in mirror_links
+            ) and any(
                 projection._is_within_relative(relative, name)
                 for name in selected_roots
             ):
@@ -259,6 +269,9 @@ def main(argv: list[str] | None = None) -> int:
         f"Current projection verification: {len(report['verification'])} finding(s). "
         "Missing/old desired output is not itself a blocker.\n"
     )
+    sys.stdout.write("Global Kilo settings (INFORMATION ONLY; never block or write):\n")
+    for item in global_kilo_information(args.source_root.resolve()):
+        sys.stdout.write("  " + item + "\n")
     sys.stdout.write("Manual action required:\n")
     for item in report["manual"] or ["none"]:
         sys.stdout.write("  " + item + "\n")

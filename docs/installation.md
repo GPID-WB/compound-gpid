@@ -83,9 +83,13 @@ and lists each relevant path's owner, current state, action that `cg-link`
 would take, and reason. Items that need manual action are listed separately.
 It never runs `cg-update`, Kilo, or a publication/recovery step, and does not
 write project files, state, `.gitignore`, HOME configuration, or caches.
-Python runs with `-B`. This initial report does not yet assess global Kilo
-permission/plugin settings or `.compound-gpid/kilo-compat-skills` mirrors.
-Existing mirror-backed links can be reported as unowned and need manual review.
+Python runs with `-B`. Compatibility mirrors under
+`.compound-gpid/kilo-compat-skills` and their links are assessed with existing
+copy receipts and checksums. Recognized managed links need no manual action;
+modified mirror files and foreign links are preserved for review.
+Related permission/plugin entries in `~/.config/kilo/kilo.jsonc` are
+**INFORMATION ONLY**. They never block and are never written by `--check`.
+Unreadable or invalid global settings are reported, not repaired.
 Missing or old output alone is not a blocker. Exit codes
 are `0` for a nonblocking report, `1` for a block or preserved conflict, and `2`
 for invalid usage. Unknown options are rejected with usage before any update

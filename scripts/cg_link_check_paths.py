@@ -7,11 +7,24 @@ import os
 from pathlib import Path
 from typing import Any
 
+import cg_kilo_copy as kilo_copy
 import cg_project_projection as projection
 import cg_retire_native_evidence as retirement
 import secure_fs
 
 COPY_MARKER = ".compound-gpid-managed-copy.json"
+MIRROR_ROOT = ".compound-gpid/kilo-compat-skills"
+
+
+def mirror_receipt(root: Path, relative: str, source: str) -> dict | None:
+    """Reuse copy receipt validation after a no-follow read; e.g. Codex skills."""
+    state, _, error = inspect_path(root, f"{relative}/{COPY_MARKER}")
+    if state != "file" or error:
+        return None
+    try:
+        return kilo_copy._read_marker(root / relative, source)
+    except kilo_copy.CopyError:
+        return None
 
 
 def inspect_path(root: Path, relative: str) -> tuple[str, str, str]:
@@ -105,6 +118,17 @@ def legacy_rows(root: Path, source: Path, targets: list[dict], scalar: dict,
                 rows.append(row)
                 continue
             if unit["type"] == "directory":
+                mirror = f"{MIRROR_ROOT}/{target.get('id', '')}"
+                if (relative in (".claude/skills", ".agents/skills", ".opencode/skills")
+                        and projection._is_link_or_reparse_path(path)
+                        and path.resolve() == (root / mirror).resolve()
+                        and mirror_receipt(root, mirror, unit["source"]) is not None):
+                    rows.append(dict(
+                        path=relative, owner="managed", state="link/reparse",
+                        action="keep", reason="recognized managed compatibility mirror link",
+                        manual=False,
+                    ))
+                    continue
                 if manifest_driven and target.get("generatedTreePath"):
                     continue
                 linked = projection._is_link_or_reparse_path(path)
@@ -208,3 +232,55 @@ def legacy_rows(root: Path, source: Path, targets: list[dict], scalar: dict,
                 row["reason"] += "; " + unit["manualSnippet"]
             rows.append(row)
     return rows
+
+
+def mirror_rows(root: Path, source: Path, targets: list[dict]) -> list[dict]:
+    """Report existing mirrors with copy checksums; never sync or clean them."""
+    rows = {}
+    for target in targets:
+        if target["id"] not in ("claude-code", "codex", "opencode"):
+            continue
+        relative = f"{MIRROR_ROOT}/{target['id']}"
+        path = root / relative
+        if not path.exists() and not projection._is_link_or_reparse_path(path):
+            continue
+        unit = next(u for u in target["installUnits"]
+                    if u["target"] == target["outputPaths"]["skills"])
+        previous = mirror_receipt(root, relative, unit["source"])
+        owned = previous is not None
+        rows[relative] = dict(
+            path=relative, owner="managed" if owned else "unowned",
+            state="directory" if owned else inspect_path(root, relative)[0],
+            action="sync" if owned else "preserve/block", manual=not owned,
+            reason="validated compatibility mirror copy receipt" if owned
+            else "no valid compatibility mirror receipt; preserve existing path",
+        )
+        if not owned:
+            continue
+        desired = {
+            leaf: hashlib.sha256(file.read_bytes()).hexdigest()
+            for leaf, file in kilo_copy._walk_files(source / unit["source"])
+        }
+        leaves = set(desired) | set(previous) | {
+            leaf[len(relative) + 1:] for leaf in inventory(root, relative)
+        }
+        for leaf in sorted(leaves - {COPY_MARKER}):
+            destination = f"{relative}/{leaf}"
+            rows[destination] = file_row(
+                root, destination, desired.get(leaf, ""), previous.get(leaf, ""),
+                stale=leaf not in desired,
+            )
+        receipt = f"{relative}/{COPY_MARKER}"
+        rows[receipt] = dict(
+            path=receipt, owner="managed", state="file", action="retain",
+            reason="validated mirror ownership receipt; check does not refresh it",
+            manual=False,
+        )
+    for relative in inventory(root, MIRROR_ROOT):
+        if relative not in rows:
+            row = file_row(root, relative, "", "", stale=True)
+            row["reason"] = "unrecognized mirror path; no ownership proof"
+            rows[relative] = row
+    if projection._is_link_or_reparse_path(root / MIRROR_ROOT):
+        rows[MIRROR_ROOT] = file_row(root, MIRROR_ROOT, "", "", stale=True)
+    return list(rows.values())
