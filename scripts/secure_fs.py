@@ -1021,6 +1021,10 @@ def _windows_api():
     )
     kernel32.GetFileInformationByHandle.restype = wintypes.BOOL
     kernel32.GetFileInformationByHandle.argtypes = (wintypes.HANDLE, wintypes.LPVOID)
+    kernel32.GetFileInformationByHandleEx.restype = wintypes.BOOL
+    kernel32.GetFileInformationByHandleEx.argtypes = (
+        wintypes.HANDLE, ctypes.c_int, wintypes.LPVOID, wintypes.DWORD,
+    )
     kernel32.WriteFile.restype = wintypes.BOOL
     kernel32.WriteFile.argtypes = (
         wintypes.HANDLE,
@@ -1256,7 +1260,19 @@ def _windows_require_safe_handle(handle, path: Path, *, directory: bool) -> None
         _windows_raise_last_error(ctypes, f"Could not inspect pinned path: {path}")
     attributes = information.dwFileAttributes
     is_directory = bool(attributes & 0x00000010)
-    if attributes & 0x00000400 or is_directory != directory:
+    linked = False
+    if attributes & _REPARSE_POINT_FLAG:
+        class AttributeTagInformation(ctypes.Structure):
+            _fields_ = [("FileAttributes", wintypes.DWORD), ("ReparseTag", wintypes.DWORD)]
+
+        tag_information = AttributeTagInformation()
+        if not kernel32.GetFileInformationByHandleEx(
+            handle, 9, ctypes.byref(tag_information), ctypes.sizeof(tag_information),
+        ):
+            _windows_close_handle(handle)
+            _windows_raise_last_error(ctypes, f"Could not inspect pinned reparse tag: {path}")
+        linked = tag_information.ReparseTag in (0xA000000C, 0xA0000003)
+    if linked or is_directory != directory:
         _windows_close_handle(handle)
         kind = "directory" if directory else "regular file"
         raise SecureMutationError(f"Pinned path is not a safe {kind}: {path}.")
@@ -1665,8 +1681,8 @@ def _stat_identity(metadata) -> Optional[Tuple[int, int, int]]:
 
 
 def _is_link_or_reparse(metadata) -> bool:
-    return stat.S_ISLNK(metadata.st_mode) or bool(
-        getattr(metadata, "st_file_attributes", 0) & _REPARSE_POINT_FLAG
+    return stat.S_ISLNK(metadata.st_mode) or getattr(metadata, "st_reparse_tag", 0) in (
+        0xA000000C, 0xA0000003,
     )
 
 

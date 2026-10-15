@@ -32,6 +32,8 @@ DISPATCH = r'''
 import json, os, subprocess, sys
 from pathlib import Path
 args = sys.argv[1:]
+if args[0] == "-B":
+    args = args[1:]
 if args[0] in ("--version", "-c", "-"):
     raise SystemExit(subprocess.run([sys.executable, *args]).returncode)
 worker = Path(args[0]).name
@@ -40,10 +42,16 @@ if worker == "cg_restore_installer_wrappers.py":
 if worker == "cg_kilo_preflight.py":
     sys.stdout.write('{"status":"ok","exit_code":0,"certified_launch_required":false}\n')
     raise SystemExit(0)
+if worker == "cg_kilo_copy.py":
+    copy_args = [arg for arg in args if arg != "--sync-projection"]
+    result = subprocess.run([sys.executable, "-B", *copy_args])
+    if result.returncode or "--sync-projection" not in args:
+        raise SystemExit(result.returncode)
 names = {"cg_retire_native_evidence.py": "retire",
          "cg_generate_targets.py": "generate",
          "cg_project_manifest.py": "manifest",
-         "cg_project_projection.py": "projection"}
+         "cg_project_projection.py": "projection",
+         "cg_kilo_copy.py": "projection"}
 name = names[worker]
 if name == "generate" and "--dry-run" in args:
     root = Path(args[args.index("--root") + 1])
@@ -109,7 +117,8 @@ def runtime(request: pytest.FixtureRequest) -> Iterator[Runtime]:
         install, consumer, home = root / "install", root / "consumer", root / "home"
         suffix = "ps1" if windows else "sh"
         for name in (f"link.{suffix}", f"update.{suffix}", "helpers.ps1",
-                     "cg_retire_native_evidence.py", "secure_fs.py"):
+                     "cg_retire_native_evidence.py", "secure_fs.py",
+                     "cg_kilo_copy.py", "cg_link_ownership.py"):
             destination = install / "scripts" / name
             destination.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(REPO_ROOT / "scripts" / name, destination)

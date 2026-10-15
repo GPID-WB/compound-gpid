@@ -5,8 +5,7 @@
 # linked project's prompts/, skills/, agents/, and instructions/ immediately.
 #
 # For copilot-instructions.md (a copied file, not a junction), this script also
-# refreshes the copy in the current working directory if the management marker
-# is present. Remove the marker to opt out of auto-refresh.
+# refreshes the copy through the shared ownership and legacy-backup policy.
 #
 # Structural migrations (folder moves, config field additions) are applied to
 # the current working directory when it is a linked project. This enables a
@@ -63,9 +62,6 @@ try {
     Write-Warning "  Could not clean up old profile commands: $_"
     Write-Warning "  You may manually remove the old Compound GPID functions from: $PROFILE"
 }
-
-# The management marker that identifies a CG-managed copilot-instructions.md
-$CopilotInstructionsMarker = "<!-- compound-gpid:managed -->"
 
 # File that stores the user's version preference inside the global install directory.
 # Contains "latest" to track main, or a tag name (e.g. v0.2.0) to pin.
@@ -445,25 +441,26 @@ if (-not $env:CG_INTERNAL_CALL -and -not $earlyUpdateIsSourceInstall -and
 # --- Refresh copilot-instructions.md in the current project (if linked) ---
 # Junction-linked subdirectories update automatically. The generated
 # copilot-instructions.md must be refreshed explicitly.
-# We only update it if (a) the current directory looks like a linked project
-# and (b) the file carries the management marker.
+# The shared worker preserves edited receipts and backs up unreceipted legacy files.
 $cwdGithub      = Join-Path (Get-Location) ".github"
 $cwdCopilotDest = Join-Path $cwdGithub "copilot-instructions.md"
 
 # Skip refresh when called internally by cg-link (it handles its own Step 4 refresh)
-if (-not $env:CG_INTERNAL_CALL -and
+if (-not $env:CG_INTERNAL_CALL -and -not $earlyUpdateIsSourceInstall -and
     (Test-Path $cwdGithub) -and (Test-Path $cwdCopilotDest)) {
     # Pass (Get-Location) as ProjectRoot -- after Pop-Location, this is
     # the consumer project root, not the compound-gpid install directory.
-    $outcome = Update-ManagedInstructionsFile -Dest $cwdCopilotDest `
-        -Marker $CopilotInstructionsMarker `
-        -TemplateDir $CompoundGpidDir `
-        -ProjectRoot (Get-Location).Path
-    switch ($outcome) {
-        "refreshed"  { Write-Host "Refreshed copilot-instructions.md in current project." -ForegroundColor DarkGray }
-        "up-to-date" { Write-Host "copilot-instructions.md up to date." -ForegroundColor DarkGray }
-        "skipped"    { } # user-managed, no message needed
-    }
+    $copilotPython = Resolve-PythonCommand
+    if (-not $copilotPython) { throw "Python is required for Copilot instruction refresh." }
+    $copilotErrorAction = $ErrorActionPreference
+    try {
+        # PS 5.1 must not turn a kept-file warning on stderr into an update failure.
+        $ErrorActionPreference = "Continue"
+        & $copilotPython -B (Join-Path $CompoundGpidDir "scripts/cg_kilo_copy.py") `
+            --copilot-action update --source-root $CompoundGpidDir --project-root (Get-Location).Path 2>&1 |
+            ForEach-Object { $_.ToString() } | Out-Host
+    } finally { $ErrorActionPreference = $copilotErrorAction }
+    if ($LASTEXITCODE -ne 0) { throw "Copilot instruction refresh failed with exit code $LASTEXITCODE" }
 }
 
 # --- Refresh manifest-managed copied platform files in the current project ---
@@ -473,7 +470,8 @@ $cwdManifestPath = Join-Path (Get-Location) ".compound-gpid/managed-files.json"
 if (-not $env:CG_INTERNAL_CALL -and (Test-Path $cwdManifestPath)) {
     [void](Update-CgManagedPlatformFiles -ManifestPath $cwdManifestPath `
         -ProjectRoot (Get-Location).Path `
-        -CompoundGpidDir $CompoundGpidDir)
+        -CompoundGpidDir $CompoundGpidDir `
+        -ExcludeTargets @(".github/copilot-instructions.md"))
 }
 
 # Validate only legacy generated copies. Manifest projections have their own

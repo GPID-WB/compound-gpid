@@ -63,6 +63,7 @@ import cg_generate_targets as generator  # noqa: E402
 import cg_project_manifest as manifest_module  # noqa: E402
 import cg_context_budget as budget  # noqa: E402
 import secure_fs  # noqa: E402
+from cg_link_ownership import ReleasedContent, file_decision  # noqa: E402
 from skill_management.services import registry as registry_service  # noqa: E402
 
 ACTIVE_MANIFEST_PATH = ".compound-gpid/active-manifest.json"
@@ -734,7 +735,7 @@ def _read_managed_json(project_root: Path, relative: str) -> dict[str, Any]:
             f"managed state path is unsafe: {relative}: {error}"
         ) from error
     try:
-        data = json.loads(content.decode("utf-8"))
+        data = json.loads(content.decode("utf-8-sig"))
     except (OSError, UnicodeError, json.JSONDecodeError, ValueError) as error:
         raise ProjectionError(f"managed state is malformed: {relative}: {error}") from error
     if not isinstance(data, dict):
@@ -800,6 +801,7 @@ def _materialize_platform(
     entries: Sequence[ProjectionEntry],
     previous_entries: dict[str, dict[str, Any]],
     warnings: list[str],
+    released: Optional[ReleasedContent] = None,
 ) -> dict[str, dict[str, Any]]:
     """Sync one platform's live project root from its validated generation.
 
@@ -828,34 +830,30 @@ def _materialize_platform(
         planned_bytes = entry.content
         previous_record = previous_entries.get(relative)
         previous_sha = str(previous_record.get("sha256", "")) if isinstance(previous_record, dict) else ""
-        can_write = not destination.exists()
-        if not can_write:
-            current = _regular_file_hash(destination)
-            if current == entry.sha256:
-                can_write = True
-            elif previous_sha and current == previous_sha:
-                can_write = True
-            else:
-                warnings.append(
-                    f"{platform}: {relative} was modified or is user-owned; preserving it"
-                )
-                continue
-        if can_write:
+        current_bytes = secure_fs.secure_read_bytes(project_root, relative) if destination.exists() else None
+        current = _sha256_bytes(current_bytes) if current_bytes is not None else None
+        action, reason = file_decision(current, entry.sha256, previous_sha)
+        if action == "preserve/block" and released is not None and released.matches(relative, current_bytes):
+            action, reason = file_decision(current, entry.sha256, previous_sha, True)
+        if action == "preserve/block":
+            warnings.append(f"{platform}: {relative}: {reason}; preserving it")
+            continue
+        if action != "keep/adopt":
             secure_fs.secure_write_bytes(
                 project_root,
                 Path(relative),
                 planned_bytes,
                 executable=entry.executable,
             )
-            new_entries[relative] = {
-                "sha256": entry.sha256,
-                "platform": platform,
-                "source": entry.source,
-                "kind": entry.kind,
-                "preserved": False,
-                "origin": entry.origin,
-                "provenanceIdentity": entry.provenance_identity,
-            }
+        new_entries[relative] = {
+            "sha256": entry.sha256,
+            "platform": platform,
+            "source": entry.source,
+            "kind": entry.kind,
+            "preserved": False,
+            "origin": entry.origin,
+            "provenanceIdentity": entry.provenance_identity,
+        }
 
     for relative, record in sorted(previous_entries.items()):
         if relative in written_destinations:
@@ -888,13 +886,13 @@ def _materialize_platform(
 
 
 def _is_link_or_reparse_path(path: Path) -> bool:
-    """Return whether an existing path is a symlink, junction, or reparse point."""
+    """Return whether an existing path is a real symlink or junction."""
     try:
         metadata = os.lstat(str(path))
     except FileNotFoundError:
         return False
-    return stat.S_ISLNK(metadata.st_mode) or bool(
-        getattr(metadata, "st_file_attributes", 0) & 0x400
+    return stat.S_ISLNK(metadata.st_mode) or getattr(metadata, "st_reparse_tag", 0) in (
+        0xA000000C, 0xA0000003,
     )
 
 
@@ -1047,6 +1045,7 @@ def _preflight_projection_destinations(
     project_root: Path,
     source_root: Path,
     plan: ProjectionPlan,
+    released: Optional[ReleasedContent] = None,
 ) -> None:
     """Reject every selected collision before migration or publication writes."""
     previous = _previous_ownership(project_root)
@@ -1060,12 +1059,16 @@ def _preflight_projection_destinations(
         destination = _project_root_for_destination(project_root, entry.destination)
         if not destination.exists():
             continue
-        current = _regular_file_hash(destination)
+        content = secure_fs.secure_read_bytes(project_root, entry.destination)
+        current = _sha256_bytes(content)
         prior = previous.get(entry.destination)
         prior_sha = str(prior.get("sha256", "")) if isinstance(prior, dict) else ""
-        if current not in {entry.sha256, prior_sha}:
+        action, reason = file_decision(current, entry.sha256, prior_sha)
+        if action == "preserve/block" and released is not None and released.matches(entry.destination, content):
+            action, reason = file_decision(current, entry.sha256, prior_sha, True)
+        if action == "preserve/block":
             raise ProjectionError(
-                f"selected destination is modified or user-owned; collision: {entry.destination}"
+                f"selected destination is modified or user-owned; collision: {entry.destination}; {reason}"
             )
     if legacy_copilot_link:
         return
@@ -1089,6 +1092,7 @@ def publish_projection(
     plan: ProjectionPlan,
     mapping: Optional[dict[str, Any]] = None,
     source_root: Optional[Path] = None,
+    released: Optional[ReleasedContent] = None,
 ) -> dict[str, Any]:
     """Publish a projection through a durable per-root activation journal.
 
@@ -1123,7 +1127,8 @@ def publish_projection(
 
     recover_projection(project_root)
     _recover_copilot_migration(project_root, source_root)
-    _preflight_projection_destinations(project_root, source_root, plan)
+    released = released if released is not None else ReleasedContent(source_root)
+    _preflight_projection_destinations(project_root, source_root, plan, released)
     published_platforms = tuple(
         platform for platform in plan.platforms
         if platform not in plan.source_resident_platforms
@@ -1185,6 +1190,7 @@ def publish_projection(
                 plan.by_platform[platform],
                 previous_entries,
                 warnings,
+                released,
             )
         except BaseException:
             # A rejected destination (link/hard-link/collision) must not leave a
@@ -1593,6 +1599,7 @@ def sync_consumer_projection(
     project_root: Path,
     source_root: Path,
     mappings: Optional[dict[str, Any]] = None,
+    released: Optional[ReleasedContent] = None,
 ) -> tuple[dict[str, Any], ProjectionPlan]:
     """Run the full link/update projection pipeline for a consumer project.
 
@@ -1614,7 +1621,7 @@ def sync_consumer_projection(
         source_root, manifest, mapping=mapping, project_root=project_root
     )
     ownership = publish_projection(
-        project_root, plan, mapping=mapping, source_root=source_root
+        project_root, plan, mapping=mapping, source_root=source_root, released=released
     )
     problems = verify_projection(project_root, plan)
     if problems:

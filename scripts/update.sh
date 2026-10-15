@@ -6,8 +6,7 @@
 # linked project's prompts/, skills/, agents/, and instructions/ immediately.
 #
 # For copilot-instructions.md (a copied file, not a symlink), this script also
-# refreshes the copy in the current working directory if the management marker
-# is present. Remove the marker to opt out of auto-refresh.
+# refreshes the copy through the shared ownership and legacy-backup policy.
 #
 # Run from anywhere:
 #   cg-update               -- use current version preference (default: latest)
@@ -56,7 +55,6 @@ resolve_python() {
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
-COPILOT_INSTRUCTIONS_MARKER="<!-- compound-gpid:managed -->"
 VERSION_FILE="$COMPOUND_GPID_DIR/.cg-version"
 
 # Keep rollback state in this shell: downstream refresh failures use it too.
@@ -179,70 +177,6 @@ RELEASE_TAG_PATTERN='^v[0-9]+\.[0-9]+\.[0-9]+$'
 # Accepts all valid version inputs: release tags, dev tags, and 'latest'.
 # git tag names are case-sensitive: V0.2.0 is not the same as v0.2.0.
 VERSION_ACCEPT_PATTERN='^(latest|v[0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?)$'
-
-# ---------------------------------------------------------------------------
-# generate_copilot_instructions <template_path> <project_root> <marker>
-# Defined before the main body to allow the end-of-script refresh to call it.
-# ---------------------------------------------------------------------------
-generate_copilot_instructions() {
-    local template_path="$1"
-    local project_root="$2"
-    local marker="$3"
-
-    "$PYTHON_CMD" - "$template_path" "$project_root" "$marker" <<'PYEOF'
-import sys, re, os
-
-template_path, project_root, marker = sys.argv[1], sys.argv[2], sys.argv[3]
-
-charter_path = os.path.join(project_root, 'compound-gpid.md')
-local_path   = os.path.join(project_root, 'compound-gpid.local.md')
-
-def extract_fm_value(path, key):
-    try:
-        with open(path, 'r', encoding='utf-8') as f:
-            content = f.read()
-        m = re.match(r'^---[ \t]*\n(.*?)\n---', content, re.DOTALL)
-        if not m:
-            return ''
-        fm = m.group(1)
-        pattern = r'(?m)^\s*' + re.escape(key) + r':\s*["\']?([^"\'\\r\\n]+)["\']?\s*$'
-        vm = re.search(pattern, fm)
-        return vm.group(1).strip() if vm else ''
-    except Exception:
-        return ''
-
-project_name = extract_fm_value(charter_path, 'project-name') or '<project-name>'
-language     = extract_fm_value(local_path, 'language')     or '<not configured>'
-project_type = extract_fm_value(local_path, 'project-type') or '<not configured>'
-review_depth = extract_fm_value(local_path, 'review-depth') or '<not configured>'
-r_syntax     = extract_fm_value(local_path, 'r-syntax')
-
-languages = language
-if r_syntax and re.search(r'\bR\b', language, re.IGNORECASE):
-    languages = f'{language} (R dialect: {r_syntax})'
-
-for val in (project_name, project_type, languages, review_depth):
-    if '{{' in val:
-        print('ERROR: A config value contains a placeholder token which would corrupt the output.', file=sys.stderr)
-        sys.exit(1)
-
-with open(template_path, 'r', encoding='utf-8') as f:
-    template = f.read()
-
-if not template.strip():
-    print(f'ERROR: Template file is empty: {template_path}. Run cg-update --fix.', file=sys.stderr)
-    sys.exit(1)
-
-output = template
-output = output.replace('{{project-name}}', project_name)
-output = output.replace('{{project-type}}', project_type)
-output = output.replace('{{languages}}',    languages)
-output = output.replace('{{review-depth}}', review_depth)
-
-sep = '\r\n' if '\r\n' in output else '\n'
-sys.stdout.write(marker + sep + output)
-PYEOF
-}
 
 # ---------------------------------------------------------------------------
 # Validate install exists
@@ -625,11 +559,21 @@ def contained_path(root, relative, label):
         raise ValueError(f"{label} path escapes its root: {relative}")
     return full
 
-with open(manifest_path, "r", encoding="utf-8") as handle:
-    manifest = json.load(handle)
-files = manifest.setdefault("files", {})
+try:
+    with open(manifest_path, "r", encoding="utf-8-sig") as handle:
+        manifest = json.load(handle)
+    if (not isinstance(manifest, dict) or
+            manifest.get("schemaVersion") != "compound-gpid-managed-files-v1" or
+            not isinstance(manifest.get("files"), dict)):
+        raise ValueError("invalid receipt schema")
+except (OSError, ValueError) as error:
+    sys.stderr.write(f"WARNING: managed-files.json ignored (no receipt): {error}\n")
+    sys.exit(0)
+files = manifest["files"]
 changed = False
 for target_rel in list(files.keys()):
+    if target_rel == ".github/copilot-instructions.md":
+        continue  # Generated instructions use the shared Copilot policy below.
     record = files[target_rel]
     try:
         target_path = contained_path(project_root, target_rel, "Managed target")
@@ -722,22 +666,11 @@ CWD_COPILOT_DEST="$CWD_GITHUB/copilot-instructions.md"
 
 # Refresh copilot-instructions.md — skipped when called internally by cg-link
 # (cg-link handles the refresh itself to avoid doing it twice).
-if [[ "${CG_INTERNAL_CALL:-}" != "1" ]] && \
+if [[ "${CG_INTERNAL_CALL:-}" != "1" && "$UPDATE_IS_SOURCE" != "true" ]] && \
    [[ -d "$CWD_GITHUB" ]] && [[ -f "$CWD_COPILOT_DEST" ]]; then
 
-    if grep -qF "$COPILOT_INSTRUCTIONS_MARKER" "$CWD_COPILOT_DEST" 2>/dev/null; then
-        TEMPLATE_PATH="$COMPOUND_GPID_DIR/.github/copilot-instructions.template.md"
-        if [[ -f "$TEMPLATE_PATH" ]]; then
-            EXISTING_CONTENT="$(< "$CWD_COPILOT_DEST")"
-            GENERATED="$(generate_copilot_instructions "$TEMPLATE_PATH" "$(pwd)" "$COPILOT_INSTRUCTIONS_MARKER")"
-            if [[ "$GENERATED" != "$EXISTING_CONTENT" ]]; then
-                printf '%s' "$GENERATED" > "${CWD_COPILOT_DEST}.tmp" && mv "${CWD_COPILOT_DEST}.tmp" "$CWD_COPILOT_DEST"
-                print_gray "Refreshed copilot-instructions.md in current project."
-            else
-                print_gray "copilot-instructions.md up to date."
-            fi
-        fi
-    fi
+    "$PYTHON_CMD" -B "$COMPOUND_GPID_DIR/scripts/cg_kilo_copy.py" \
+        --copilot-action update --source-root "$COMPOUND_GPID_DIR" --project-root "$(pwd)"
 fi
 
 # Apply the research migration for native-target-only projects that do not have

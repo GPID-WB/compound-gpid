@@ -168,34 +168,43 @@ Describe "update.ps1 - copilot-instructions.md refresh" {
     $marker = "<!-- compound-gpid:managed -->"
 
     Context "when the file in CWD has the management marker" {
-        It "calls Update-ManagedInstructionsFile which regenerates the file (real code path)" {
-            # Create a minimal template directory so New-CopilotInstructions can run
+        It "routes legacy refresh through the shared CLI and saves an exact backup" {
             $templateDir = Join-Path $TestDrive "refresh-template"
             $githubDir   = Join-Path $templateDir ".github"
             New-Item -ItemType Directory -Path $githubDir -Force | Out-Null
             Set-Content -Path (Join-Path $githubDir "copilot-instructions.template.md") `
                         -Value "# Generated" -Encoding UTF8
             $projectRoot = Join-Path $TestDrive "refresh-project"
-            New-Item -ItemType Directory -Path $projectRoot -Force | Out-Null
+            New-Item -ItemType Directory -Path (Join-Path $projectRoot ".github") -Force | Out-Null
 
-            $dest = Join-Path $TestDrive "copilot-managed.md"
+            $dest = Join-Path $projectRoot ".github/copilot-instructions.md"
             Set-Content -Path $dest -Value ($marker + "`n# Old generated content") -Encoding UTF8
+            $originalHash = (Get-FileHash -LiteralPath $dest -Algorithm SHA256).Hash
 
-            $outcome = Update-ManagedInstructionsFile -Dest $dest -Marker $marker `
-                -TemplateDir $templateDir -ProjectRoot $projectRoot
-            $outcome | Should -Be "refreshed"
+            $python = Resolve-PythonCommand
+            & $python -B (Join-Path $repoRoot "scripts/cg_kilo_copy.py") `
+                --copilot-action update --source-root $templateDir --project-root $projectRoot
+            $LASTEXITCODE | Should -Be 0
             (Get-Content $dest -Raw) -match [regex]::Escape($marker) | Should -Be $true
+            (Get-FileHash -LiteralPath "$dest.pre-9024.bak" -Algorithm SHA256).Hash | Should -Be $originalHash
+            (Get-Content $dest -Raw) | Should -Match '# Generated'
+            $content = Get-Content (Join-Path $repoRoot "scripts/update.ps1") -Raw
+            $content | Should -Match '--copilot-action update'
+            $content | Should -Not -Match 'Update-ManagedInstructionsFile'
         }
     }
 
     Context "when the file in CWD does NOT have the management marker" {
-        It "returns 'skipped' and leaves the user-managed file untouched" {
-            $dest = Join-Path $TestDrive "copilot-user.md"
+        It "returns success and leaves the user-managed file untouched" {
+            $projectRoot = Join-Path $TestDrive "refresh-user-project"
+            New-Item -ItemType Directory -Path (Join-Path $projectRoot ".github") -Force | Out-Null
+            $dest = Join-Path $projectRoot ".github/copilot-instructions.md"
             Set-Content -Path $dest -Value "# My custom instructions (no marker)" -Encoding UTF8
 
-            $outcome = Update-ManagedInstructionsFile -Dest $dest -Marker $marker `
-                -TemplateDir $TestDrive -ProjectRoot $TestDrive
-            $outcome | Should -Be "skipped"
+            $python = Resolve-PythonCommand
+            & $python -B (Join-Path $repoRoot "scripts/cg_kilo_copy.py") `
+                --copilot-action update --source-root $repoRoot --project-root $projectRoot
+            $LASTEXITCODE | Should -Be 0
             (Get-Content $dest -Raw) -match "My custom instructions" | Should -Be $true
         }
     }

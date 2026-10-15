@@ -8,6 +8,8 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
+import shutil
+import subprocess
 
 import pytest
 
@@ -15,6 +17,7 @@ import cg_generate_targets as generation
 import cg_kilo_copy as copy_worker
 import cg_project_manifest as manifest_module
 import cg_project_projection as projection
+from scripts.tests.test_cg_link_check import runtime, source
 from scripts.tests.test_project_projection import _repo_root, _write_json
 from scripts.tests.test_target_ownership import _write
 
@@ -52,6 +55,57 @@ COPY_UNITS = (
     (".kilo/shared", ".kilo/shared", "runtime.contract.md"),
     (MIRROR_ROOT, ".agents/skills", "cg-skill-live/SKILL.md"),
 )
+
+
+@pytest.mark.parametrize("scenario", (
+    "user-extra", "kept-config", "kept-command", "missing-count",
+))
+def test_link_defers_local_validation_only_for_kept_kilo_roots(
+    runtime: tuple, tmp_path: Path, scenario: str,
+) -> None:
+    """Both native wrappers validate unless the shared worker identifies a root conflict."""
+    project, _, environment, command, source_root = runtime
+    protected = None
+    if scenario == "user-extra":
+        protected = project / ".kilo/commands/user-command.md"
+    elif scenario == "kept-config":
+        protected = project / ".kilo/kilo.json"
+    elif scenario == "kept-command":
+        command_source = next((source_root / ".kilo/commands").glob("*.md"))
+        protected = project / command_source.relative_to(source_root)
+    if protected is not None:
+        _write(protected, b"user bytes without a receipt\n")
+    if scenario == "missing-count":
+        isolated_source = tmp_path / "missing-count-source"
+        shutil.copytree(source_root, isolated_source)
+        command = [item.replace(str(source_root), str(isolated_source)) for item in command]
+        source_root = isolated_source
+        # A successful older worker without the new count must not bypass validation.
+        _write(source_root / "scripts/cg_kilo_copy.py",
+               "import sys\nsys.stdout.write('Manual action required: 1\\n')\n")
+        shutil.copytree(source_root / ".kilo", project / ".kilo")
+    result = subprocess.run(
+        [*command, "--platforms=kilo", "--yes"], cwd=project,
+        env=dict(environment, CG_SKIP_UPDATE="1"), capture_output=True,
+        text=True, timeout=90, check=False,
+    )
+    output = result.stdout + result.stderr
+    assert result.returncode == 0, output
+    validated = "Kilo preflight: ok" in output or "Kilo preflight (local): ok" in output
+    assert validated == (scenario != "kept-command"), output
+    if protected is not None:
+        assert protected.read_bytes() == b"user bytes without a receipt\n"
+    assert "NativeCommandError" not in output, output
+    if scenario == "user-extra":
+        assert "user file kept" in output
+        assert "Manual action required: 0" in output
+    elif scenario == "kept-config":
+        assert "Manual action required: 1" in output
+        assert "Kilo validation deferred: 0" in output
+    elif scenario == "kept-command":
+        assert "Kilo validation deferred: 1" in output
+    else:
+        assert "Kilo validation deferred:" not in output
 
 
 def _snapshot(root: Path) -> dict[str, bytes]:
@@ -286,3 +340,122 @@ def test_projection_overwrites_incompatible_non_prepared_journal_evidence(
     assert (root / JOURNAL).read_bytes() != before
     assert "legacyEvidence" not in json.loads((root / JOURNAL).read_bytes())
     assert all((root / p).read_bytes() == data for p, data in protected.items())
+
+
+@pytest.mark.parametrize("name,action,resolver", (
+    ("update.ps1", "update", "Resolve-PythonCommand"),
+    ("update.sh", "update", "resolve_python"),
+    ("unlink.ps1", "unlink", "Resolve-PythonCommand"),
+    ("unlink.sh", "unlink", "resolve_python"),
+))
+def test_copilot_entrypoints_route_to_shared_cli(
+    name: str, action: str, resolver: str,
+) -> None:
+    """Static dispatch proof does not execute update, unlink, or installation."""
+    content = (Path(__file__).parents[1] / name).read_text(encoding="utf-8-sig")
+    assert resolver in content
+    assert ' -B ' in content
+    assert "scripts/cg_kilo_copy.py" in content
+    assert f"--copilot-action {action} --source-root" in content
+    assert "--project-root" in content
+    assert "CopilotInstructionsMarker" not in content
+    assert "COPILOT_INSTRUCTIONS_MARKER" not in content
+    assert "generate_copilot_instructions" not in content
+    assert "Update-ManagedInstructionsFile" not in content
+    if name == "update.ps1":
+        assert '-ExcludeTargets @(".github/copilot-instructions.md")' in content
+    if name == "update.sh":
+        assert 'if target_rel == ".github/copilot-instructions.md":\n        continue' in content
+
+
+@pytest.mark.parametrize("action", ("update", "unlink"))
+@pytest.mark.parametrize("receipt", ("absent", "matching", "edited"))
+def test_copilot_cli_receipt_and_marker_policy(
+    tmp_path: Path, action: str, receipt: str, capsys: pytest.CaptureFixture,
+) -> None:
+    """Fixture-only CLI policy covers backup, exact receipt, and user edits."""
+    source = tmp_path / "source"
+    project = tmp_path / "consumer"
+    relative = ".github/copilot-instructions.md"
+    template_relative = ".github/copilot-instructions.template.md"
+    _write(source / template_relative, b"# New generated instructions\n")
+    original = b"<!-- compound-gpid:managed -->\r\n# Legacy instructions\r\n"
+    target = _write(project / relative, original)
+    if receipt != "absent":
+        _write_json(project / ".compound-gpid/managed-files.json", {
+            "schemaVersion": "compound-gpid-managed-files-v1",
+            "files": {relative: {
+                "source": template_relative,
+                "checksum": hashlib.sha256(original).hexdigest(),
+            }},
+        })
+    if receipt == "edited":
+        original += b"User edit\n"
+        target.write_bytes(original)
+    result = copy_worker.main([
+        "--copilot-action", action, "--source-root", str(source),
+        "--project-root", str(project),
+    ])
+    assert result == 0
+    backup = target.with_name(target.name + ".pre-9024.bak")
+    if action == "update" and receipt != "edited":
+        assert target.read_bytes() == copy_worker.generated_instructions(source, project)
+        records = json.loads((project / ".compound-gpid/managed-files.json").read_bytes())["files"]
+        assert records[relative]["checksum"] == hashlib.sha256(target.read_bytes()).hexdigest()
+        assert backup.exists() is (receipt == "absent")
+        if backup.exists():
+            assert backup.read_bytes() == original
+            before = _snapshot(project)
+            assert copy_worker.main([
+                "--copilot-action", action, "--source-root", str(source),
+                "--project-root", str(project),
+            ]) == 0
+            assert _snapshot(project) == before
+    elif action == "unlink" and receipt == "matching":
+        assert not target.exists()
+        assert not backup.exists()
+        assert relative not in json.loads(
+            (project / ".compound-gpid/managed-files.json").read_bytes()
+        )["files"]
+    else:
+        assert target.read_bytes() == original
+        assert not backup.exists()
+        captured = capsys.readouterr()
+        assert "manual" in (captured.out + captured.err).lower()
+
+
+def test_copilot_update_existing_legacy_backup_blocks_without_mutation(
+    tmp_path: Path, capsys: pytest.CaptureFixture,
+) -> None:
+    """An existing pre-9024 backup is never overwritten or used as fresh proof."""
+    source = tmp_path / "source"
+    project = tmp_path / "consumer"
+    _write(source / ".github/copilot-instructions.template.md", b"# New\n")
+    target = _write(project / ".github/copilot-instructions.md",
+                    b"<!-- compound-gpid:managed -->\n# Legacy\n")
+    _write(target.with_name(target.name + ".pre-9024.bak"), b"older backup\n")
+    before = _snapshot(project)
+    assert copy_worker.main([
+        "--copilot-action", "update", "--source-root", str(source),
+        "--project-root", str(project),
+    ]) == 0
+    assert _snapshot(project) == before
+    captured = capsys.readouterr()
+    assert "manual" in (captured.out + captured.err).lower()
+
+
+def test_copilot_cli_real_error_returns_nonzero_without_project_mutation(
+    tmp_path: Path,
+) -> None:
+    """Missing source templates are real errors, not kept-file manual decisions."""
+    source = tmp_path / "source"
+    source.mkdir()
+    project = tmp_path / "consumer"
+    _write(project / ".github/copilot-instructions.md",
+           b"<!-- compound-gpid:managed -->\n# Legacy\n")
+    before = _snapshot(project)
+    assert copy_worker.main([
+        "--copilot-action", "update", "--source-root", str(source),
+        "--project-root", str(project),
+    ]) != 0
+    assert _snapshot(project) == before

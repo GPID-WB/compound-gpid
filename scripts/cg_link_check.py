@@ -12,13 +12,16 @@ from pathlib import Path
 import sys
 from typing import Any
 
+import cg_kilo_copy as kilo_copy
 import cg_project_manifest as manifest_module
 import cg_project_projection as projection
 import cg_retire_native_evidence as retirement
 from cg_link_check_global import global_kilo_information
 from cg_link_check_paths import (
-    COPY_MARKER, file_row, inspect_path, inventory, legacy_rows, mirror_rows,
+    COPY_MARKER, file_row, inspect_path, inventory, legacy_rows, link_component,
+    link_matches, mirror_rows,
 )
+from cg_link_ownership import ReleasedContent
 import secure_fs
 
 DEFAULT_CONFIG = "---\nsuites: [cg]\n---\n"
@@ -36,13 +39,15 @@ def check_project(root: Path, source: Path, platforms: list[str],
         root: Consumer project to inspect.
         source: Current local Compound GPID source, never updated here.
         platforms: Selected canonical platform ids.
-        force: Whether ordinary cg-link would replace foreign directory links.
+        force: Accepted link option; never authorizes replacement of foreign links.
     Returns:
         Path records, current verification findings and separate manual actions.
     Example:
         ``check_project(Path("project"), Path("source"), ["kilo"])``.
     """
+    root = root.resolve()
     mapping = projection.load_target_mapping(source)
+    released = ReleasedContent(source)
     targets = [t for t in mapping["targets"] if t["id"] in platforms]
     selected_roots = [
         name for target in targets
@@ -58,6 +63,11 @@ def check_project(root: Path, source: Path, platforms: list[str],
     manifest_driven = config_state != "missing"
     config_text = DEFAULT_CONFIG
     if manifest_driven:
+        migrating_roots = {
+            name for name in selected_roots
+            if link_component(root, name) == name
+            and link_matches(root / name, source / name)
+        }
         config_text = secure_fs.secure_read_bytes(
             root, manifest_module.LOCAL_CONFIG_PATH
         ).decode("utf-8")
@@ -68,36 +78,50 @@ def check_project(root: Path, source: Path, platforms: list[str],
         source, desired, mapping=mapping, project_root=root, config_text=config_text
     )
     previous = projection._previous_ownership(root)
-    scalar = projection._read_managed_json(
-        root, ".compound-gpid/managed-files.json"
-    ).get("files", {})
-    if not isinstance(scalar, dict):
-        raise ValueError("managed-files.json files must be an object")
+    scalar = kilo_copy.scalar_receipt(root)
     for target in targets:
         for unit in target["installUnits"]:
             if not (source / unit["source"]).exists():
                 manual.append(f"Missing source unit: {unit['source']}")
-    for row in legacy_rows(root, source, targets, scalar, manifest_driven, force):
+    for row in legacy_rows(root, source, targets, scalar, manifest_driven, force, released):
         rows[row["path"]] = row
-    for row in mirror_rows(root, source, mapping["targets"]):
+    for row in mirror_rows(root, source, mapping["targets"], released):
         rows[row["path"]] = row
     mirror_links = [row["path"] for row in rows.values()
                     if row["reason"] == "recognized managed compatibility mirror link"]
     if manifest_driven:
-        legacy_copilot = projection._managed_copilot_link(root, source)
+        legacy_copilot = (
+            link_component(root, projection.COPILOT_SKILL_ROOT) == projection.COPILOT_SKILL_ROOT
+            and link_matches(root / projection.COPILOT_SKILL_ROOT,
+                             source / projection.COPILOT_SKILL_ROOT)
+        )
+        for managed_root in selected_roots:
+            linked = link_component(root, managed_root)
+            if linked and linked not in rows:
+                if linked in migrating_roots:
+                    continue
+                if linked == projection.COPILOT_SKILL_ROOT and legacy_copilot:
+                    continue
+                rows[linked] = file_row(root, linked, "", "")
         for entry in plan.entries:
             if any(projection._is_within_relative(entry.destination, link)
                    for link in mirror_links):
                 continue  # Physical mirror files are checked above without following the link.
             record = previous.get(entry.destination, {})
-            checksum = record.get("sha256", "") or scalar.get(
-                entry.destination, {}
-            ).get("checksum", "")
-            row = file_row(root, entry.destination, entry.sha256, checksum)
+            row = file_row(
+                root, entry.destination, entry.sha256, record.get("sha256", ""),
+                released=released, source_relative=entry.destination,
+            )
             if entry.platform == "copilot" and legacy_copilot:
                 row.update(
                     owner="managed", action="migrate/project", manual=False,
                     reason="exact legacy Copilot skill link is migrated before publication",
+                )
+            elif any(projection._is_within_relative(entry.destination, name)
+                     for name in migrating_roots):
+                row.update(
+                    owner="managed", action="create", manual=False,
+                    reason="exact legacy whole-root link is migrated before copying",
                 )
             rows[entry.destination] = row
         for relative, record in sorted(previous.items()):
@@ -112,7 +136,7 @@ def check_project(root: Path, source: Path, platforms: list[str],
                 )
         for bundle, expected in projection._planned_bundle_files(plan).items():
             path = root / bundle
-            if (path.is_dir() and not projection._is_link_or_reparse_path(path)
+            if (not link_component(root, bundle) and path.is_dir()
                     and not legacy_copilot):
                 for relative in sorted(set(inventory(root, bundle)) - expected):
                     row = rows.get(relative) or file_row(root, relative, "", "")
@@ -195,7 +219,9 @@ def check_project(root: Path, source: Path, platforms: list[str],
         state, _, error = inspect_path(root, relative)
         rows[relative] = dict(
             path=relative, owner="managed" if relative != ".gitignore" else "unowned",
-            state=state, action="refresh" if state != "missing" else "create",
+            state=state, action="preserve/block" if error else (
+                "refresh" if state != "missing" else "create"
+            ),
             reason=error or "normal link maintains managed state/block; check does not write it",
             manual=bool(error),
         )
@@ -210,7 +236,14 @@ def check_project(root: Path, source: Path, platforms: list[str],
             action="recover/block", manual=True,
             reason="publication journal requires recovery or reconciliation; check never recovers",
         )
-    verification = projection.verify_projection(root, plan)
+    linked_destinations = sorted({
+        linked for relative in set(previous) | {entry.destination for entry in plan.entries}
+        if (linked := link_component(root, relative))
+    })
+    verification = [
+        f"{linked}: projection verification not traversed through link/reparse path"
+        for linked in linked_destinations
+    ] if linked_destinations else projection.verify_projection(root, plan)
     for row in rows.values():
         if row["manual"]:
             manual.append(f"{row['path']}: {row['reason']}")
@@ -242,7 +275,8 @@ def main(argv: list[str] | None = None) -> int:
             args.root.absolute(), args.source_root.resolve(),
             args.platforms.split(","), args.force,
         )
-    except (OSError, ValueError, UnicodeError, TypeError, AttributeError) as error:
+    except (OSError, ValueError, UnicodeError, TypeError, AttributeError,
+            kilo_copy.CopyError) as error:
         sys.stdout.write(
             f"Compound GPID - Link Check (read-only)\nManual action required:\n  {error}\n"
         )

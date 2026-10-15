@@ -8,11 +8,54 @@ import hashlib
 import os
 from pathlib import Path
 import stat
+from types import SimpleNamespace
 
 import pytest
 
 import secure_fs
 from secure_fs import SecureMutationError, secure_read_bytes
+
+
+@pytest.mark.parametrize("tag,linked", (
+    (0xA000000C, True), (0xA0000003, True), (0x9000001A, False), (0, False),
+))
+def test_windows_reparse_attributes_only_block_real_links(tag: int, linked: bool) -> None:
+    """Cloud-folder reparse attributes alone are not link ownership conflicts."""
+    metadata = SimpleNamespace(st_mode=stat.S_IFDIR, st_file_attributes=0x400,
+                               st_reparse_tag=tag)
+    assert secure_fs._is_link_or_reparse(metadata) is linked
+
+
+@pytest.mark.parametrize("tag,linked", (
+    (0xA000000C, True), (0xA0000003, True), (0x9000001A, False),
+))
+def test_pinned_windows_handle_inspects_reparse_tag(
+    monkeypatch: pytest.MonkeyPatch, tag: int, linked: bool,
+) -> None:
+    """Pinned cloud directories pass; pinned junction/symlink handles fail."""
+    import ctypes
+    from ctypes import wintypes
+
+    class Kernel:
+        def GetFileInformationByHandle(self, handle, pointer):
+            pointer._obj.dwFileAttributes = 0x410
+            return True
+
+        def GetFileInformationByHandleEx(self, handle, kind, pointer, size):
+            assert kind == 9
+            pointer._obj.ReparseTag = tag
+            return True
+
+    closed = []
+    monkeypatch.setattr(secure_fs, "_windows_api", lambda: (ctypes, wintypes, Kernel()))
+    monkeypatch.setattr(secure_fs, "_windows_close_handle", closed.append)
+    if linked:
+        with pytest.raises(SecureMutationError, match="not a safe directory"):
+            secure_fs._windows_require_safe_handle(123, Path("cloud"), directory=True)
+        assert closed == [123]
+    else:
+        secure_fs._windows_require_safe_handle(123, Path("cloud"), directory=True)
+        assert closed == []
 
 
 def test_bounded_secure_read_accepts_exact_limit(tmp_path: Path) -> None:

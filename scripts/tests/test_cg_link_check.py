@@ -226,6 +226,142 @@ def test_check_is_read_only_and_classifies_actions(runtime: tuple, scenario: str
         assert " | keep/adopt | bytes already match the desired plan" in output
 
 
+@pytest.mark.skipif(os.name == "nt", reason="POSIX ancestor symlinks")
+@pytest.mark.parametrize("ancestor", ("tmp", "var", "user-folder"))
+def test_path_check_allows_linked_ancestors_but_not_inside_project(
+    tmp_path: Path, ancestor: str,
+) -> None:
+    """Resolve the project boundary before no-follow checks below that boundary."""
+    from cg_link_check_paths import inspect_path, inventory, link_component, mirror_receipt
+
+    physical = tmp_path / "physical"
+    project = physical / "project"
+    _write(project / ".kilo/commands/command.md", "managed content\n")
+    alias = tmp_path / ancestor
+    alias.symlink_to(physical, target_is_directory=True)
+    lexical = alias / "project"
+    checksum = hashlib.sha256(b"managed content\n").hexdigest()
+    assert link_component(lexical, ".kilo/commands/command.md") == ""
+    assert inspect_path(lexical, ".kilo/commands/command.md") == ("file", checksum, "")
+    assert inventory(lexical, ".kilo/commands") == [".kilo/commands/command.md"]
+    _write(project / ".kilo/commands/.compound-gpid-managed-copy.json", json.dumps(dict(
+        schemaVersion=1, source=".kilo/commands", files={"command.md": checksum},
+    )))
+    assert mirror_receipt(lexical, ".kilo/commands", ".kilo/commands") == {
+        "command.md": checksum,
+    }
+    (project / ".kilo/foreign").symlink_to(physical, target_is_directory=True)
+    assert link_component(lexical, ".kilo/foreign/project") == ".kilo/foreign"
+    state, current, error = inspect_path(lexical, ".kilo/foreign/project")
+    assert state == "link/reparse"
+    assert current == ""
+    assert ".kilo/foreign" in error
+
+
+@pytest.mark.parametrize("tag,expected", (
+    (0, ""), (0x9000001A, ""), (0x80000017, ""),
+    (0xA000000C, ".kilo"), (0xA0000003, ".kilo"),
+))
+def test_path_check_uses_link_reparse_tags_not_reparse_attribute(
+    tmp_path: Path, tag: int, expected: str,
+) -> None:
+    """Cloud/non-link reparse directories are not classified as junctions."""
+    from types import SimpleNamespace
+    from unittest.mock import patch
+    from cg_link_check_paths import inventory, link_component
+
+    _write(tmp_path / ".kilo/commands/command.md", "managed content\n")
+    original = Path.lstat
+    metadata = SimpleNamespace(st_mode=stat.S_IFDIR | 0o755,
+                               st_file_attributes=0x400, st_reparse_tag=tag)
+    with patch.object(Path, "lstat", autospec=True, side_effect=lambda path, *args, **kwargs:
+                      metadata if path == tmp_path / ".kilo"
+                      else original(path, *args, **kwargs)):
+        assert link_component(tmp_path, ".kilo/commands/command.md") == expected
+        assert inventory(tmp_path, ".kilo") == ([] if expected else [
+            ".kilo/commands/command.md",
+        ])
+
+
+@pytest.mark.parametrize("error", (OSError("denied"), ValueError("unsafe"),
+                                    RuntimeError("link loop")))
+def test_copy_receipt_read_errors_return_no_proof(
+    tmp_path: Path, error: Exception,
+) -> None:
+    """Receipt probes fail closed without leaking a traceback to shell callers."""
+    from unittest.mock import patch
+    from cg_link_check_paths import mirror_receipt
+
+    _write(tmp_path / ".kilo/commands/.compound-gpid-managed-copy.json", "{}")
+    with patch("cg_link_check_paths.kilo_copy._read_marker", side_effect=error):
+        assert mirror_receipt(tmp_path, ".kilo/commands", ".kilo/commands") is None
+
+
+def test_release_proof_does_not_use_parent_repository_tags(tmp_path: Path) -> None:
+    """An unpacked installation inside a tagged repository has no release proof."""
+    from cg_link_ownership import ReleasedContent
+    from scripts.tests.test_install_sh import _git
+
+    parent = tmp_path / "parent-repository"
+    relative = ".kilo/commands/command.md"
+    content = b"user bytes from the parent repository\n"
+    _write(parent / relative, content)
+    _git(parent, "init")
+    _git(parent, "add", ".")
+    _git(parent, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid",
+         "-c", "commit.gpgsign=false", "-c", "core.hooksPath=" + os.devnull,
+         "commit", "-m", "test: parent release tag")
+    _git(parent, "tag", "v1.0.0")
+    installation = parent / "unpacked-installation"
+    installation.mkdir()
+    before = _snapshot(parent)
+    assert ReleasedContent(parent).matches(relative, content)
+    released = ReleasedContent(installation)
+    assert not released.matches(relative, content)
+    assert not released.matches(relative, content)
+    assert _snapshot(parent) == before
+
+
+def test_release_proof_rejects_mismatched_git_top_level(tmp_path: Path) -> None:
+    """Exact repository identity is required even if discovery returns a parent."""
+    from unittest.mock import patch
+    from cg_link_ownership import ReleasedContent
+
+    installation = tmp_path / "installation"
+    installation.mkdir()
+    released = ReleasedContent(installation)
+    with patch.object(released, "_git", return_value=str(tmp_path).encode("utf-8")) as git:
+        assert not released.matches(".kilo/commands/command.md", b"user bytes")
+        git.assert_called_once_with("rev-parse", "--show-toplevel")
+
+
+def test_release_git_uses_installation_cwd_and_preserves_normal_config(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Repository routing is isolated without disabling normal Git configuration."""
+    from unittest.mock import patch
+    from cg_link_ownership import ReleasedContent
+
+    monkeypatch.setenv("GIT_DIR", "foreign/.git")
+    monkeypatch.setenv("GIT_WORK_TREE", "foreign")
+    monkeypatch.setenv("GIT_CEILING_DIRECTORIES", "foreign")
+    monkeypatch.setenv("GIT_CONFIG_GLOBAL", "normal-config")
+    monkeypatch.setenv("GIT_CONFIG_COUNT", "1")
+    monkeypatch.setenv("GIT_CONFIG_KEY_0", "filter.fixture.clean")
+    monkeypatch.setenv("GIT_CONFIG_VALUE_0", "normal-filter")
+    with patch("cg_link_ownership.subprocess.run") as run:
+        run.return_value.stdout = b"git output"
+        assert ReleasedContent(tmp_path)._git("tag", "--list") == b"git output"
+        arguments = run.call_args.kwargs
+        assert arguments["cwd"] == tmp_path.resolve()
+        assert arguments["env"]["GIT_CEILING_DIRECTORIES"] == str(tmp_path.resolve().parent)
+        assert "GIT_DIR" not in arguments["env"]
+        assert "GIT_WORK_TREE" not in arguments["env"]
+        assert arguments["env"]["GIT_CONFIG_GLOBAL"] == "normal-config"
+        assert arguments["env"]["GIT_CONFIG_KEY_0"] == "filter.fixture.clean"
+        assert arguments["env"]["GIT_CONFIG_VALUE_0"] == "normal-filter"
+
+
 @pytest.mark.parametrize("arguments", (
     ["--unknown"], ["--check", "--unknown"], ["--help", "--unknown"],
     ["--platforms=kilo", "--yes", "--unknown=value"], ["typo"],
@@ -275,20 +411,66 @@ def test_read_only_python_invocations_disable_bytecode() -> None:
     assert '$probeArgs = @("-B")' in helpers
 
 
-def test_report_retains_marker_only_overwrite_policy(tmp_path: Path) -> None:
-    """Reporting a marker-owned edit must not implement the Step3b fix."""
+def test_report_preserves_marked_edit_without_content_proof(tmp_path: Path) -> None:
+    """A management marker cannot authorize replacement of modified bytes."""
     project, source = tmp_path / "project", tmp_path / "source"
     relative = ".github/copilot-instructions.md"
     _write(project / relative, "<!-- compound-gpid:managed -->\nuser edit\n")
-    _write(source / "template.md", "desired template\n")
+    _write(source / ".github/copilot-instructions.template.md", "# {{project-name}}\n")
     units = [dict(installUnits=[dict(type="file", target=relative,
-                                   source="template.md", strategy="generated-copy")])]
+                                    source=".github/copilot-instructions.template.md",
+                                    strategy="generated-copy")])]
     before = _snapshot(project)
-    rows = legacy_rows(project, source, units, {relative: {"checksum": "a" * 64}}, False, False)
+    rows = legacy_rows(project, source, units, {relative: {
+        "source": ".github/copilot-instructions.template.md", "checksum": "a" * 64,
+    }}, False, False)
     assert rows[0]["owner"] == "modified-owned"
-    assert rows[0]["action"] == "regenerate"
-    assert "Step3b" in rows[0]["reason"]
+    assert rows[0]["action"] == "preserve/block"
+    assert rows[0]["manual"] is True
     assert _snapshot(project) == before
+
+
+@pytest.mark.parametrize("mirror", (False, True), ids=("copy-directory", "mirror"))
+def test_check_user_added_regular_file_is_nonmanual_keep(tmp_path: Path, mirror: bool) -> None:
+    """Copied directory extras have the worker's informational keep classification."""
+    from cg_link_check_paths import mirror_rows
+
+    project, source = tmp_path / "project", tmp_path / "source"
+    source_relative = ".agents/skills" if mirror else ".kilo/commands"
+    relative = ".compound-gpid/kilo-compat-skills/codex" if mirror else source_relative
+    _write(source / source_relative / "managed.md", "desired\n")
+    _write(project / relative / "user.md", "user content\n")
+    unit = dict(type="directory", source=source_relative, target=source_relative,
+                strategy="copy-directory")
+    target = dict(id="codex", installUnits=[unit], outputPaths={"skills": source_relative})
+    before = _snapshot(project)
+    rows = (mirror_rows(project, source, [target]) if mirror else
+            legacy_rows(project, source, [target], {}, False, False))
+    row = next(row for row in rows if row["path"] == relative + "/user.md")
+    assert row["action"] == "keep/adopt"
+    assert row["manual"] is False
+    assert row["owner"] == "unowned"
+    assert "user file kept" in row["reason"]
+    assert _snapshot(project) == before
+
+
+def test_generated_check_never_queries_release_proof(tmp_path: Path) -> None:
+    """No generic file-row or generated decision may request release ownership."""
+    from unittest.mock import Mock
+
+    project, source = tmp_path / "project", tmp_path / "source"
+    relative = ".github/copilot-instructions.md"
+    _write(project / relative, "# unmarked installation instructions\n")
+    _write(source / ".github/copilot-instructions.template.md", "# {{project-name}}\n")
+    released = Mock()
+    released.matches.side_effect = AssertionError("generated copies cannot use release proof")
+    units = [dict(installUnits=[dict(type="file", target=relative,
+                                    source=".github/copilot-instructions.template.md",
+                                    strategy="generated-copy")])]
+    rows = legacy_rows(project, source, units, {}, False, False, released)
+    assert rows[0]["action"] == "preserve/block"
+    assert rows[0]["manual"] is True
+    released.matches.assert_not_called()
 
 
 @pytest.mark.parametrize("scenario", ("managed", "changed", "foreign"))

@@ -28,7 +28,7 @@ CANDIDATE = "v1.2.0.9023"
 PIN = b"\xef\xbb\xbf \tlatest\r\n\r\nfixture trailing bytes\x00"
 REQUIRED = ("link.ps1 link.sh update.ps1 update.sh helpers.ps1 cg_generate_targets.py "
             "cg_project_manifest.py cg_project_projection.py cg_kilo_preflight.py "
-            "cg_kilo_copy.py cg_migrate_research_layout.py research_layout.py "
+            "cg_kilo_copy.py cg_link_ownership.py cg_migrate_research_layout.py research_layout.py "
             "secure_fs.py").split()
 POSIX_DIRTY = {f"bin/cg-{name}" for name in (
     "link", "unlink", "update", "index", "brain-init", "token-audit",

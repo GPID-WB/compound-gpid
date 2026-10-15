@@ -134,16 +134,27 @@ Describe "unlink.ps1 - per-subdirectory junction removal" {
 
 Describe "unlink.ps1 - copilot-instructions.md removal" {
     Context "when copilot-instructions.md has the management marker" {
-        It "removes the file" {
-            $managed = Join-Path $TestDrive "copilot-instructions-managed.md"
+        It "keeps marker-only bytes and requires manual action" {
+            $projectRoot = Join-Path $TestDrive "unlink-copilot-marker"
+            New-Item -ItemType Directory -Path (Join-Path $projectRoot ".github") -Force | Out-Null
+            $managed = Join-Path $projectRoot ".github/copilot-instructions.md"
             $marker  = "<!-- compound-gpid:managed -->"
             Set-Content -Path $managed -Value ($marker + "`n# Instructions")
 
             $content = Get-Content $managed -Raw
             $content -match [regex]::Escape($marker) | Should -Be $true
 
-            Remove-Item -Path $managed -Force
-            Test-Path $managed | Should -Be $false
+            $repoRoot = Split-Path $PSScriptRoot -Parent
+            . (Join-Path $repoRoot "scripts/helpers.ps1")
+            $python = Resolve-PythonCommand
+            & $python -B (Join-Path $repoRoot "scripts/cg_kilo_copy.py") `
+                --copilot-action unlink --source-root $repoRoot --project-root $projectRoot
+            $LASTEXITCODE | Should -Be 0
+            Test-Path $managed | Should -Be $true
+            (Get-Content $managed -Raw) | Should -Be $content
+            $unlinkContent = Get-Content (Join-Path $repoRoot "scripts/unlink.ps1") -Raw
+            $unlinkContent | Should -Match '--copilot-action unlink'
+            $unlinkContent | Should -Not -Match 'CopilotInstructionsMarker'
         }
     }
 

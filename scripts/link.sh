@@ -160,49 +160,6 @@ if [ "$CHECK" -eq 1 ]; then
     exec "$PYTHON_CMD" -B "$SCRIPT_DIR/cg_link_check.py" "${check_args[@]}"
 fi
 
-generate_copilot_instructions() {
-    local template_path="$1" project_root="$2" marker="$3"
-    "$PYTHON_CMD" - "$template_path" "$project_root" "$marker" <<'PYEOF'
-import os
-import re
-import sys
-
-template_path, project_root, marker = sys.argv[1], sys.argv[2], sys.argv[3]
-
-def extract_fm_value(path, key):
-    try:
-        with open(path, "r", encoding="utf-8") as handle:
-            content = handle.read()
-        match = re.match(r"^---[ \t]*\n(.*?)\n---", content, re.DOTALL)
-        if not match:
-            return ""
-        value_match = re.search(r"(?m)^\s*" + re.escape(key) + r":\s*[\"']?([^\"'\r\n]+)[\"']?\s*$", match.group(1))
-        return value_match.group(1).strip() if value_match else ""
-    except OSError:
-        return ""
-
-project_name = extract_fm_value(os.path.join(project_root, "compound-gpid.md"), "project-name") or "<project-name>"
-local_path = os.path.join(project_root, "compound-gpid.local.md")
-language = extract_fm_value(local_path, "language") or "<not configured>"
-project_type = extract_fm_value(local_path, "project-type") or "<not configured>"
-review_depth = extract_fm_value(local_path, "review-depth") or "<not configured>"
-r_syntax = extract_fm_value(local_path, "r-syntax")
-languages = f"{language} (R dialect: {r_syntax})" if r_syntax and re.search(r"\bR\b", language, re.I) else language
-for value in (project_name, project_type, languages, review_depth):
-    if "{{" in value:
-        print("ERROR: Config value contains a placeholder token.", file=sys.stderr)
-        sys.exit(1)
-with open(template_path, "r", encoding="utf-8") as handle:
-    template = handle.read()
-if not template.strip():
-    print(f"ERROR: Template file is empty: {template_path}", file=sys.stderr)
-    sys.exit(1)
-output = template.replace("{{project-name}}", project_name).replace("{{project-type}}", project_type).replace("{{languages}}", languages).replace("{{review-depth}}", review_depth)
-sep = "\r\n" if "\r\n" in output else "\n"
-sys.stdout.write(marker + sep + output)
-PYEOF
-}
-
 add_units_for_platform() {
     case "$1" in
         copilot)
@@ -272,7 +229,7 @@ ensure_root_directory() {
             mkdir -p "$root_path"
             return 0
         fi
-        print_warn "$root_name/ is a non-Compound symlink; skipping units under it."
+        print_warn "$root_name/ is a non-Compound symlink; manual action required; skipping units under it."
         return 1
     fi
     if [ -e "$root_path" ] && [ ! -d "$root_path" ]; then
@@ -307,13 +264,8 @@ install_directory_unit() {
                 return 0
             fi
         else
-            print_warn "$target_rel is a symlink pointing to: $existing_target"
-            if [ "$FORCE" -eq 0 ]; then
-                printf '  Relink %s to Compound GPID instead? [y/N] ' "$target_rel"
-                read -r answer </dev/tty
-                case "$answer" in [Yy]*) ;; *) print_yellow "  $target_rel - skipped"; return 1 ;; esac
-            fi
-            rm -f "$target_path"
+            print_warn "$target_rel is a symlink pointing to: $existing_target; manual action required; preserving it."
+            return 1
         fi
     elif [ -d "$target_path" ]; then
         if [ "$strategy" = "copy-directory" ]; then
@@ -328,167 +280,8 @@ install_directory_unit() {
     fi
     parent="$(dirname "$target_path")"
     if [ "$strategy" = "copy-directory" ]; then
-        # Keep POSIX behavior in parity with the Windows checksum-managed copy:
-        # preserve user edits, remove only unchanged stale managed files, and
-        # reject any target path that crosses a symlink outside the project.
-        if ! "$PYTHON_CMD" - "$PROJECT_ROOT" "$source_rel" "$source_path" "$target_rel" "$target_path" <<'PYEOF'
-import hashlib
-import json
-import os
-import re
-import shutil
-import sys
-import tempfile
-
-project, source_rel, source, target_rel, target = sys.argv[1:]
-marker_name = ".compound-gpid-managed-copy.json"
-
-project = os.path.abspath(project)
-target = os.path.abspath(target)
-if os.path.commonpath((project, target)) != project or target == project:
-    raise SystemExit("Managed-copy target escapes the project root: " + target)
-
-relative_target = os.path.relpath(target, project)
-cursor = project
-for part in relative_target.split(os.sep):
-    cursor = os.path.join(cursor, part)
-    if os.path.lexists(cursor) and os.path.islink(cursor):
-        raise SystemExit("Managed-copy target crosses a symlink: " + cursor)
-os.makedirs(target, exist_ok=True)
-
-def sha256(path):
-    digest = hashlib.sha256()
-    with open(path, "rb") as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
-
-def destination(relative):
-    if not relative or relative.startswith(("/", "..")) or "\\" in relative or ":" in relative:
-        raise ValueError("unsafe managed-copy relative path: " + relative)
-    result = os.path.abspath(os.path.join(target, *relative.split("/")))
-    if os.path.commonpath((target, result)) != target or result == target:
-        raise ValueError("managed-copy path escapes target: " + relative)
-    cursor = target
-    for part in relative.split("/"):
-        cursor = os.path.join(cursor, part)
-        if os.path.lexists(cursor) and os.path.islink(cursor):
-            raise ValueError("managed-copy path crosses symlink: " + relative)
-    return result
-
-marker = os.path.join(target, marker_name)
-marker_existed = os.path.lexists(marker)
-previous = {}
-if os.path.isfile(marker) and not os.path.islink(marker):
-    try:
-        with open(marker, "r", encoding="utf-8") as handle:
-            data = json.load(handle)
-        if data.get("schemaVersion") == 1 and data.get("source") == source_rel and isinstance(data.get("files"), dict):
-            for relative, checksum in data["files"].items():
-                destination(relative)
-                if isinstance(checksum, str) and len(checksum) == 64:
-                    int(checksum, 16)
-                    previous[relative] = checksum.lower()
-    except (OSError, ValueError, TypeError, json.JSONDecodeError):
-        previous = {}
-
-legacy_managed = False
-gitignore = os.path.join(project, ".gitignore")
-if not marker_existed and os.path.isfile(gitignore):
-    with open(gitignore, "r", encoding="utf-8", errors="replace") as handle:
-        gitignore_text = handle.read()
-    legacy_managed = (
-        "# Compound GPID managed items" in gitignore_text
-        and re.search(r"(?m)^" + re.escape(target_rel) + r"/?$", gitignore_text) is not None
-    )
-
-def preserve_legacy_file(path):
-    backup = path + ".compound-gpid-legacy-backup"
-    suffix = 0
-    while os.path.lexists(backup):
-        suffix += 1
-        backup = path + ".compound-gpid-legacy-backup." + str(suffix)
-    shutil.copy2(path, backup)
-    return backup
-
-source_files = {}
-for root, dirs, names in os.walk(source):
-    dirs[:] = sorted(d for d in dirs if not os.path.islink(os.path.join(root, d)))
-    for name in sorted(names):
-        path = os.path.join(root, name)
-        if os.path.islink(path) or name == marker_name:
-            continue
-        relative = os.path.relpath(path, source).replace(os.sep, "/")
-        source_files[relative] = path
-
-next_files = {}
-for relative, source_file in sorted(source_files.items()):
-    try:
-        target_file = destination(relative)
-    except ValueError as error:
-        print("WARNING: %s/%s preserved: %s" % (target_rel, relative, error), file=sys.stderr)
-        continue
-    source_checksum = sha256(source_file)
-    old_checksum = previous.get(relative)
-    if os.path.exists(target_file):
-        if not os.path.isfile(target_file) or os.path.islink(target_file):
-            print("WARNING: %s/%s conflicts with a directory or link; preserving it" % (target_rel, relative), file=sys.stderr)
-            continue
-        current_checksum = sha256(target_file)
-        if current_checksum == source_checksum:
-            next_files[relative] = source_checksum
-            continue
-        if not old_checksum or current_checksum != old_checksum:
-            if legacy_managed and not old_checksum:
-                backup = preserve_legacy_file(target_file)
-                print(
-                    "WARNING: migrated legacy managed file %s/%s; previous bytes backed up to %s"
-                    % (target_rel, relative, backup),
-                    file=sys.stderr,
-                )
-                shutil.copy2(source_file, target_file)
-                next_files[relative] = source_checksum
-                continue
-            print("WARNING: %s/%s was modified or is user-owned; preserving it" % (target_rel, relative), file=sys.stderr)
-            if old_checksum:
-                next_files[relative] = old_checksum
-            continue
-    os.makedirs(os.path.dirname(target_file), exist_ok=True)
-    shutil.copy2(source_file, target_file)
-    next_files[relative] = source_checksum
-
-for relative, old_checksum in sorted(previous.items()):
-    if relative in source_files:
-        continue
-    try:
-        target_file = destination(relative)
-    except ValueError as error:
-        print("WARNING: stale %s/%s preserved: %s" % (target_rel, relative, error), file=sys.stderr)
-        continue
-    if os.path.isfile(target_file) and not os.path.islink(target_file):
-        if sha256(target_file) == old_checksum:
-            os.unlink(target_file)
-        else:
-            print("WARNING: stale %s/%s is user-modified; preserving it" % (target_rel, relative), file=sys.stderr)
-
-if not next_files:
-    raise SystemExit("Managed-copy source produced no safe files: " + source)
-data = {"schemaVersion": 1, "source": source_rel, "files": next_files}
-fd, temporary = tempfile.mkstemp(dir=target, prefix=marker_name + ".", suffix=".tmp")
-try:
-    with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as handle:
-        json.dump(data, handle, indent=2, sort_keys=True)
-        handle.write("\n")
-    os.replace(temporary, os.path.join(target, marker_name))
-finally:
-    if os.path.exists(temporary):
-        os.unlink(temporary)
-PYEOF
-        then
-            print_error "$target_rel managed-copy synchronization failed"
-            return 1
-        fi
-        print_gray "$target_rel - copied"
+        copy_args+=(--directory "$source_rel" "$target_rel")
+        print_gray "$target_rel - copy queued"
     else
         mkdir -p "$parent"
         ln -s "$source_path" "$target_path"
@@ -497,8 +290,30 @@ PYEOF
     return 0
 }
 
+valid_copy_receipt() {
+    "$PYTHON_CMD" -B - "$SCRIPT_DIR" "$PROJECT_ROOT" "$1" "$2" "${3:-$2}" <<'PYEOF'
+from pathlib import Path
+import sys
+
+sys.path.insert(0, sys.argv[1])
+from cg_link_check_paths import link_component, mirror_receipt
+
+root = Path(sys.argv[2])
+try:
+    safe_parent = not link_component(root, Path(sys.argv[5]).parent.as_posix())
+    valid = safe_parent and mirror_receipt(root, sys.argv[4], sys.argv[3]) is not None
+except (OSError, ValueError) as error:
+    sys.stderr.write(f"WARNING: {sys.argv[4]} receipt unreadable: {error}\n")
+    sys.exit(1)
+if not valid:
+    reason = "linked parent" if not safe_parent else "missing, invalid or unreadable receipt"
+    sys.stderr.write(f"WARNING: {sys.argv[4]}: {reason}\n")
+sys.exit(0 if valid else 1)
+PYEOF
+}
+
 protect_kilo_compatibility_skill_links() {
-    [ -f "$PROJECT_ROOT/.kilo/skills/.compound-gpid-managed-copy.json" ] || return 0
+    valid_copy_receipt '.kilo/skills' '.kilo/skills' || return 0
     local record platform source_rel target_rel source_path target_path mirror_rel mirror_path link_target
     for record in \
         'claude-code|.claude/skills|.claude/skills' \
@@ -515,9 +330,9 @@ protect_kilo_compatibility_skill_links() {
             continue
         fi
 
-        if ! install_directory_unit "$source_rel" "$mirror_rel" "copy-directory"; then
-            print_error "$target_rel compatibility mirror synchronization failed"
-            return 1
+        if ! valid_copy_receipt "$source_rel" "$mirror_rel" "$target_rel"; then
+            print_warn "$target_rel compatibility mirror has no valid receipt or crosses a symlink; manual action required; preserving the link."
+            continue
         fi
         if same_realpath "$target_path" "$source_path"; then
             if ! replace_symlink_safely "$target_path" "$mirror_path"; then
@@ -533,64 +348,10 @@ protect_kilo_compatibility_skill_links() {
 }
 
 install_file_unit() {
-    local source_rel="$1" target_rel="$2" strategy="$3" snippet="$4" source_path target_path parent generated existing
-    source_path="$COMPOUND_GPID_DIR/$source_rel"
-    target_path="$PROJECT_ROOT/$target_rel"
-    if [ "$strategy" = "generated-copy" ]; then
-        existing=""
-        [ -f "$target_path" ] && existing="$(< "$target_path")"
-        if [ -n "$existing" ] && ! grep -qF "$COPILOT_INSTRUCTIONS_MARKER" "$target_path" 2>/dev/null; then
-            print_yellow "  $target_rel - user-managed (marker absent), skipping"
-            return 1
-        fi
-        generated="$(generate_copilot_instructions "$source_path" "$PROJECT_ROOT" "$COPILOT_INSTRUCTIONS_MARKER")"
-        parent="$(dirname "$target_path")"
-        mkdir -p "$parent"
-        if [ "$generated" != "$existing" ]; then printf '%s' "$generated" > "$target_path.tmp" && mv "$target_path.tmp" "$target_path"; fi
-        print_gray "$target_rel - generated"
-        return 0
+    copy_args+=(--file "$1" "$2" "$3")
+    if [ -n "${4:-}" ]; then
+        copy_args+=(--manual-snippet "$2" "$4")
     fi
-
-    "$PYTHON_CMD" - "$MANIFEST_PATH" "$source_rel" "$target_rel" "$source_path" "$target_path" "$snippet" <<'PYEOF'
-import hashlib
-import json
-import os
-import shutil
-import sys
-
-manifest_path, source_rel, target_rel, source_path, target_path, snippet = sys.argv[1:]
-
-def sha256(path):
-    h = hashlib.sha256()
-    with open(path, "rb") as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-            h.update(chunk)
-    return h.hexdigest()
-
-manifest = {"schemaVersion": "compound-gpid-managed-files-v1", "files": {}}
-if os.path.exists(manifest_path):
-    with open(manifest_path, "r", encoding="utf-8") as handle:
-        try:
-            manifest.update(json.load(handle))
-        except json.JSONDecodeError:
-            pass
-manifest.setdefault("files", {})
-record = manifest["files"].get(target_rel)
-can_write = not os.path.exists(target_path)
-if not can_write and record and sha256(target_path) == record.get("checksum"):
-    can_write = True
-if not can_write:
-    print(f"SKIP\t{snippet}")
-    sys.exit(0)
-os.makedirs(os.path.dirname(target_path), exist_ok=True)
-shutil.copy2(source_path, target_path)
-manifest["files"][target_rel] = {"source": source_rel, "checksum": sha256(target_path)}
-os.makedirs(os.path.dirname(manifest_path), exist_ok=True)
-with open(manifest_path, "w", encoding="utf-8") as handle:
-    json.dump(manifest, handle, indent=2)
-    handle.write("\n")
-print("COPIED")
-PYEOF
 }
 
 update_gitignore_block() {
@@ -665,9 +426,15 @@ import os
 import sys
 
 manifest_path, project_root = sys.argv[1:]
-with open(manifest_path, "r", encoding="utf-8") as handle:
-    manifest = json.load(handle)
-files = manifest.get("files", {})
+try:
+    with open(manifest_path, "r", encoding="utf-8-sig") as handle:
+        manifest = json.load(handle)
+    files = manifest.get("files", {}) if isinstance(manifest, dict) else {}
+    if not isinstance(files, dict):
+        files = {}
+except (OSError, ValueError) as error:
+    sys.stderr.write(f"WARNING: managed-files.json ignored (no receipt): {error}\n")
+    files = {}
 for target_rel in sorted(files):
     if os.path.exists(os.path.join(project_root, target_rel)):
         print(target_rel)
@@ -693,9 +460,17 @@ legacy_targets = (
     ".kilo/model-mapping.kilo.json",
 )
 
-with open(manifest_path, "r", encoding="utf-8") as handle:
-    manifest = json.load(handle)
-files = manifest.setdefault("files", {})
+try:
+    with open(manifest_path, "r", encoding="utf-8-sig") as handle:
+        manifest = json.load(handle)
+    if (not isinstance(manifest, dict) or
+            manifest.get("schemaVersion") != "compound-gpid-managed-files-v1" or
+            not isinstance(manifest.get("files"), dict)):
+        raise ValueError("invalid receipt schema")
+except (OSError, ValueError) as error:
+    sys.stderr.write(f"WARNING: managed-files.json ignored (no receipt): {error}\n")
+    sys.exit(0)
+files = manifest["files"]
 changed = False
 
 def sha256(path):
@@ -883,10 +658,14 @@ fi
 
 cleanup_legacy_model_mapping_files
 
+copy_args=()
 while IFS='|' read -r platform unit_type source_rel target_rel strategy snippet; do
     [ -z "$platform" ] && continue
     root_name="${target_rel%%/*}"
-    ensure_root_directory "$root_name" || continue
+    if ! ensure_root_directory "$root_name"; then
+        copy_args+=(--manual-path "$root_name")
+        continue
+    fi
     # Manifest-driven consumers materialize native generated-tree roots as real
     # project-local directories through the projection synchronizer. Their
     # legacy link-directory/copy-directory install units are skipped so the
@@ -905,33 +684,26 @@ while IFS='|' read -r platform unit_type source_rel target_rel strategy snippet;
     if [ "$unit_type" = "directory" ]; then
         if install_directory_unit "$source_rel" "$target_rel" "$strategy"; then
             printf '%s\n' "$target_rel" >> "$entries_file"
-        elif [ "$strategy" = "copy-directory" ]; then
-            print_error "$target_rel copy-directory installation failed"
-            exit 1
+        else
+            copy_args+=(--manual-path "$target_rel")
         fi
     else
-        output="$(install_file_unit "$source_rel" "$target_rel" "$strategy" "$snippet")"
-        case "$output" in
-            COPIED*) print_gray "$target_rel - copied"; printf '%s\n' "$target_rel" >> "$entries_file"; [ -f "$MANIFEST_PATH" ] && printf '%s\n' ".compound-gpid/managed-files.json" >> "$entries_file" ;;
-            SKIP*) print_warn "$target_rel exists and is not manifest-managed; skipping."; [ -n "${output#SKIP$'\t'}" ] && print_yellow "  Manual config snippet: ${output#SKIP$'\t'}" ;;
-            *) [ -n "$output" ] && printf '%s\n' "$output" ;;
-        esac
+        install_file_unit "$source_rel" "$target_rel" "$strategy" "$snippet"
     fi
 done < "$units_file"
 
-# Publish manifest-driven roots before Kilo validates the local projection.
-# The legacy installer intentionally skips these directories, so preflight
-# cannot run until the synchronizer has materialized them.
+# Run even with no queued units: existing compatibility links can need mirrors.
+if COPY_OUTPUT="$("$PYTHON_CMD" -B "$SCRIPT_DIR/cg_kilo_copy.py" --source-root "$COMPOUND_GPID_DIR" --project-root "$PROJECT_ROOT" --sync-projection ${copy_args[@]+"${copy_args[@]}"} 2>&1)"; then
+    printf '%s\n' "$COPY_OUTPUT"
+else
+    printf '%s\n' "$COPY_OUTPUT" >&2
+    print_error 'Shared copy or manifest projection synchronization failed; review the diagnostics above.'
+    exit 1
+fi
+
+# The batch publishes manifest-driven roots before local Kilo preflight.
+# Keep their runtime output in the managed ignore block without syncing again.
 if [ -d "$PROJECT_ROOT/.compound-gpid" ] && [ -f "$PROJECT_ROOT/.compound-gpid/active-manifest.json" ]; then
-    set +e
-    PROJECTION_OUTPUT="$("$PYTHON_CMD" "$COMPOUND_GPID_DIR/scripts/cg_project_projection.py" --project-root "$PROJECT_ROOT" --source-root "$COMPOUND_GPID_DIR" --sync 2>&1)"
-    PROJECTION_STATUS=$?
-    set -e
-    if [ "$PROJECTION_STATUS" -ne 0 ]; then
-        print_error "Linking is blocked by manifest projection failure."
-        printf '%s\n' "$PROJECTION_OUTPUT" >&2
-        exit 1
-    fi
     print_gray "Project projection: synced and verified"
 
     # Generated projection roots are reproducible runtime output. Keep them in
@@ -956,7 +728,11 @@ protect_kilo_compatibility_skill_links
 
 if [[ ",$PLATFORMS," == *,kilo,* ||
       -f "$PROJECT_ROOT/.kilo/skills/.compound-gpid-managed-copy.json" ]]; then
-    run_kilo_preflight
+    if printf '%s\n' "$COPY_OUTPUT" | grep -Eq '^Kilo validation deferred: [1-9][0-9]*$'; then
+        print_warn 'Kilo validation deferred: kept Kilo files need manual action; use cg-link --check after resolving them.'
+    else
+        run_kilo_preflight
+    fi
 fi
 if [[ -d "$PROJECT_ROOT/.kilo/skills" &&
       ( -d "$PROJECT_ROOT/.agents/skills" || -d "$PROJECT_ROOT/.claude/skills" ) ]]; then

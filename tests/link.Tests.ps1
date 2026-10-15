@@ -35,7 +35,7 @@ Describe "link.ps1 - hybrid Copilot skill projection" {
         @($copilot.installUnits | Where-Object { $_.target -eq ".github/skills" }).Count | Should -Be 0
         $linkContent | Should -Match 'projectedCategories'
         $linkContent | Should -Match 'Copilot skills projected by manifest'
-        $linkContent | Should -Match 'Invoke-CgProjection'
+        $linkContent | Should -Match '--sync-projection'
     }
 
     It "keeps every non-skill Copilot install unit on its existing topology" {
@@ -323,8 +323,9 @@ Describe "link.ps1 - Kilo copy-directory strategy" {
 
     It "syncs managed files by checksum and rejects a linked result" {
         $linkContent | Should -Match 'cg_kilo_copy\.py'
-        $linkContent | Should -Match 'Shared Kilo copy worker failed'
-        $linkContent | Should -Match 'copy-directory invariant failed'
+        $linkContent | Should -Match 'Shared copy or manifest projection synchronization failed'
+        $workerContent = Get-Content (Join-Path $repoRoot "scripts\cg_kilo_copy.py") -Raw -Encoding UTF8
+        $workerContent | Should -Match 'destination is a link or reparse point'
     }
 
     It "validates generated files locally and prints one optional launcher note" {
@@ -337,10 +338,10 @@ Describe "link.ps1 - Kilo copy-directory strategy" {
 
     It "manages copied directories via checksum manifests and baseline sync" {
         $linkContent | Should -Match '\.compound-gpid-managed-copy\.json'
-        $linkContent | Should -Match 'performing a baseline sync \(user files preserved\)'
+        $linkContent | Should -Match 'already a real directory \(copy queued\)'
         $linkContent | Should -Not -Match 'Adopt-CgCopiedDirectoryIfExact'
-        $linkContent | Should -Match 'Refusing to write a managed-copy marker through a reparse point'
-        $linkContent | Should -Match 'System\.IO\.File\]::Replace\(\$temporaryPath, \$markerPath, \$backupPath\)'
+        (Get-Content (Join-Path $repoRoot "scripts\cg_kilo_copy.py") -Raw -Encoding UTF8) | Should -Match '(?s)if _is_link\(marker\):\s+raise CopyError.*prior_marker = _read_target\(target, MARKER_NAME\)'
+        (Get-Content (Join-Path $repoRoot "scripts\cg_kilo_copy.py") -Raw -Encoding UTF8) | Should -Match '(?s)def _write_target\(.*ExpectedFileState\.from_bytes\(prior\).*secure_fs\.secure_write_bytes\(.*expected_state=expected.*_write_target\(target, MARKER_NAME, marker_bytes, prior_marker\)'
     }
 
     It "migrates Kilo agents behaviorally and preserves managed user edits" {
@@ -574,7 +575,7 @@ Describe "link.ps1 - copilot-instructions.md management" {
     }
 
     Context "when the file exists and has the management marker" {
-        It "regenerates the file with the latest content" {
+        It "requires a one-time backup for marked instructions without a receipt" {
             $dest   = Join-Path $TestDrive "copilot-overwrite.md"
             $marker = "<!-- compound-gpid:managed -->"
             Set-Content -Path $dest -Value ($marker + "`n" + "# Old content")
@@ -582,9 +583,13 @@ Describe "link.ps1 - copilot-instructions.md management" {
             $content = Get-Content $dest -Raw
             $content -match [regex]::Escape($marker) | Should -Be $true
 
-            # Simulate overwrite with new content
-            Set-Content -Path $dest -Value ($marker + "`n" + "# New content")
-            (Get-Content $dest -Raw) -match "New content" | Should -Be $true
+            . (Join-Path $PSScriptRoot "..\scripts\helpers.ps1")
+            $python = Resolve-PythonCommand
+            $scripts = Join-Path (Split-Path $PSScriptRoot -Parent) "scripts"
+            $decision = & $python -B -c "import pathlib,sys; sys.path.insert(0,sys.argv[1]); from cg_link_ownership import copilot_decision; action,reason,backup=copilot_decision(pathlib.Path(sys.argv[2]).read_bytes(),b'new content'); sys.stdout.write(action+'|'+str(backup))" $scripts $dest
+            $LASTEXITCODE | Should -Be 0
+            $decision | Should -Be "update|True"
+            (Get-Content $dest -Raw) | Should -Be $content
         }
     }
 
@@ -948,16 +953,14 @@ Describe "link.ps1 - -Force flag for non-interactive use" {
         $content | Should -Match 'if \(\$null -eq \$Arguments\) \{ \$Arguments = @\(\) \}'
     }
 
-    It "Relink prompt is guarded by -not `$Force [regression guard]" {
-        # The junction-conflict branch Read-Host must be inside if (-not $Force).
+    It "does not use Force to authorize replacement of a foreign junction [regression guard]" {
         ($content -split '\r?\n' | Where-Object { $_ -match 'if \(-not \$Force\)' } | Measure-Object).Count |
-            Should -Be 1
+            Should -Be 0
     }
 
-    It "does not call Read-Host unconditionally [regression guard]" {
-        # Exactly 1 Read-Host call exists for non-Compound junction relink.
+    It "does not prompt to replace an unowned junction [regression guard]" {
         ($content -split '\r?\n' | Where-Object { $_ -match 'Read-Host' } | Measure-Object).Count |
-            Should -Be 1
+            Should -Be 0
     }
 
     It "accepts GNU-style platform flags through raw argument parsing" {
@@ -1244,13 +1247,13 @@ Describe "link.ps1 - manifest-driven projection integration" {
 
         It "syncs and verifies the projection when an active manifest exists" {
             $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\link.ps1") -Raw -Encoding UTF8
-            $content | Should -Match 'Invoke-CgProjection'
+            $content | Should -Match '--sync-projection'
             $content | Should -Match 'projection: synced and verified'
         }
 
         It "blocks the link banner on projection failure" {
             $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\link.ps1") -Raw -Encoding UTF8
-            $content | Should -Match 'blocked by manifest projection failure'
+            $content | Should -Match 'Shared copy or manifest projection synchronization failed'
         }
 
         It "projects a fresh Kilo consumer before local preflight" {

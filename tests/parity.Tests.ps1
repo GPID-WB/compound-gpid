@@ -5,7 +5,7 @@
 # These tests catch the class of bug where a developer updates one script
 # (e.g. adds a new install unit to target-mapping.json) but forgets to update
 # the bash fallback lists. They run on both Windows and macOS CI because
-# the test itself is pure text-matching with no platform-specific code.
+# worker fixtures use temporary paths and do not run lifecycle wrappers.
 #
 # Run with: Invoke-Pester tests/parity.Tests.ps1
 
@@ -145,10 +145,51 @@ Describe "link.ps1 <-> link.sh parity" {
     }
 
     It "both scripts enforce exact ownership and project-contained copy targets" {
-        $linkPs1 | Should -Match 'Assert-CgManagedCopyTargetSafe'
-        $linkSh | Should -Match 'os\.path\.commonpath'
+        foreach ($content in @($linkPs1, $linkSh)) {
+            $content | Should -Match 'cg_kilo_copy\.py'
+            $content | Should -Match '\-\-source-root'
+            $content | Should -Match '\-\-project-root'
+        }
+        $linkPs1 | Should -Match 'Test-CgOwnedJunction -Item \$existing -ExpectedTarget \$source'
         $linkSh | Should -Match 'same_realpath'
         $linkSh | Should -Not -Match '\[\[\s+"\$existing_target"\s+==\s+\*compound-gpid\*\s+\]\]'
+        . (Join-Path $PSScriptRoot "../scripts/helpers.ps1")
+        $python = Resolve-PythonCommand
+        $code = @'
+import contextlib, hashlib, io, json, pathlib, sys
+sys.path.insert(0, sys.argv[1])
+import cg_kilo_copy as worker
+root = pathlib.Path(sys.argv[2])
+source, project = root / 'source', root / 'project'
+source.mkdir(parents=True)
+project.mkdir()
+(source / 'unit').mkdir()
+(source / 'unit/file.txt').write_bytes(b'new')
+outside = root / 'outside.txt'
+outside.write_bytes(b'keep')
+for source_path, target_path in [('unit', '../outside'), ('../source/unit', 'unit'),
+                                 (str(source / 'unit'), 'unit'), ('unit', str(root / 'outside'))]:
+    try:
+        worker.sync_units(source, project, [(source_path, target_path)], [])
+    except (ValueError, worker.CopyError, worker.secure_fs.SecureMutationError):
+        pass
+    else:
+        raise AssertionError((source_path, target_path))
+assert list(project.iterdir()) == []
+assert outside.read_bytes() == b'keep'
+target = project / 'unit'
+target.mkdir()
+(target / 'stale.txt').write_bytes(b'keep')
+(target / worker.MARKER_NAME).write_text(json.dumps({
+    'schemaVersion': 1, 'source': 'other-unit',
+    'files': {'stale.txt': hashlib.sha256(b'keep').hexdigest()}}))
+assert worker._read_marker(target, 'unit') is None
+with contextlib.redirect_stderr(io.StringIO()):
+    worker.sync_units(source, project, [('unit', 'unit')], [])
+assert (target / 'stale.txt').read_bytes() == b'keep'
+'@
+        & $python -B -c $code (Join-Path $repoRoot "scripts") (Join-Path $TestDrive "copy-ownership")
+        $LASTEXITCODE | Should -Be 0
     }
 
     It "both scripts stage compatibility links before replacing working links" {
@@ -158,10 +199,34 @@ Describe "link.ps1 <-> link.sh parity" {
         $linkSh | Should -Match 'os\.replace\(sys\.argv\[1\], sys\.argv\[2\]\)'
     }
 
-    It "POSIX managed-copy failures are explicitly propagated" {
-        $linkSh | Should -Match 'managed-copy synchronization failed'
-        $linkSh | Should -Match 'copy-directory installation failed'
-        $linkSh | Should -Match 'migrated legacy managed file'
+    It "both scripts explicitly propagate shared managed-copy failures" {
+        $linkPs1 | Should -Match '(?s)\$copyOutput = @\(& \$copyPython -B .*cg_kilo_copy\.py.*if \(\$LASTEXITCODE -ne 0\)\s*\{\s*throw '
+        $linkSh | Should -Match '(?s)if COPY_OUTPUT=.*cg_kilo_copy\.py.*; then\s+printf.*else\s+printf.*print_error.*\s+exit 1\s+fi'
+        . (Join-Path $PSScriptRoot "../scripts/helpers.ps1")
+        $python = Resolve-PythonCommand
+        $code = @'
+import contextlib, io, pathlib, sys
+from unittest.mock import patch
+sys.path.insert(0, sys.argv[1])
+import cg_kilo_copy as worker
+root = pathlib.Path(sys.argv[2])
+source, project = root / 'source', root / 'project'
+source.mkdir(parents=True)
+project.mkdir()
+(source / 'unit').mkdir()
+(source / 'unit/file.txt').write_bytes(b'new')
+errors = io.StringIO()
+with patch.object(worker, '_write_target', side_effect=OSError('injected write failure')):
+    with contextlib.redirect_stderr(errors):
+        status = worker.main(['--source-root', str(source), '--project-root', str(project),
+                              '--directory', 'unit', 'unit'])
+assert status == 1
+assert 'ERROR: injected write failure' in errors.getvalue()
+assert not (project / 'unit/file.txt').exists()
+assert not (project / 'unit' / worker.MARKER_NAME).exists()
+'@
+        & $python -B -c $code (Join-Path $repoRoot "scripts") (Join-Path $TestDrive "copy-failure")
+        $LASTEXITCODE | Should -Be 0
     }
 }
 
@@ -298,10 +363,47 @@ Describe "link copy-directory semantics parity note" {
     $linkSh  = Get-Content (Join-Path $repoRoot "scripts/link.sh")  -Raw -Encoding UTF8
 
     It "both scripts preserve user edits through checksum-managed copies" {
-        $linkPs1 | Should -Match 'both Windows and POSIX preserve user edits'
-        $linkSh  | Should -Match 'preserve user edits, remove only unchanged stale managed files'
-        $linkPs1 | Should -Match '\.compound-gpid-managed-copy\.json'
-        $linkSh  | Should -Match '\.compound-gpid-managed-copy\.json'
+        foreach ($content in @($linkPs1, $linkSh)) {
+            $content | Should -Match 'cg_kilo_copy\.py'
+            $content | Should -Match '\-\-source-root'
+            $content | Should -Match '\-\-project-root'
+        }
+        . (Join-Path $PSScriptRoot "../scripts/helpers.ps1")
+        $python = Resolve-PythonCommand
+        $code = @'
+import contextlib, hashlib, io, json, pathlib, sys
+sys.path.insert(0, sys.argv[1])
+import cg_kilo_copy as worker
+root = pathlib.Path(sys.argv[2])
+source, project = root / 'source', root / 'project'
+source.mkdir(parents=True)
+project.mkdir()
+unit, target = source / 'unit', project / 'unit'
+unit.mkdir()
+for name in ('edited.txt', 'stale-edited.txt', 'stale-clean.txt', 'updated.txt'):
+    (unit / name).write_bytes(b'baseline')
+worker.sync_units(source, project, [('unit', 'unit')], [])
+for name in ('edited.txt', 'stale-edited.txt'):
+    (target / name).write_bytes(b'user edit')
+(target / 'unrecorded.txt').write_bytes(b'user file')
+for name in ('edited.txt', 'updated.txt'):
+    (unit / name).write_bytes(b'new release')
+for name in ('stale-edited.txt', 'stale-clean.txt'):
+    (unit / name).unlink()
+with contextlib.redirect_stderr(io.StringIO()):
+    worker.sync_units(source, project, [('unit', 'unit')], [])
+assert (target / 'edited.txt').read_bytes() == b'user edit'
+assert (target / 'stale-edited.txt').read_bytes() == b'user edit'
+assert (target / 'unrecorded.txt').read_bytes() == b'user file'
+assert (target / 'updated.txt').read_bytes() == b'new release'
+assert not (target / 'stale-clean.txt').exists()
+files = json.loads((target / worker.MARKER_NAME).read_text())['files']
+assert files['edited.txt'] == hashlib.sha256(b'baseline').hexdigest()
+assert files['updated.txt'] == hashlib.sha256(b'new release').hexdigest()
+assert 'stale-clean.txt' not in files
+'@
+        & $python -B -c $code (Join-Path $repoRoot "scripts") (Join-Path $TestDrive "copy-preservation")
+        $LASTEXITCODE | Should -Be 0
     }
 }
 

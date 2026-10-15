@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 
@@ -50,7 +51,7 @@ def test_powershell_projects_before_local_kilo_preflight() -> None:
     )
     _assert_order(
         content,
-        "Invoke-CgProjection -ProjectRoot",
+        "--sync-projection",
         "Invoke-CgKiloPreflight -ProjectRoot $ProjectRoot -LocalOnly",
     )
 
@@ -59,7 +60,11 @@ def test_shell_projects_before_local_kilo_preflight() -> None:
     """The macOS/Linux wrapper must materialize roots before validating them."""
     content = (REPO_ROOT / "scripts/link.sh").read_text(encoding="utf-8")
     _assert_order(content, "cg_project_manifest.py", "\ncleanup_legacy_model_mapping_files\n")
-    _assert_order(content, "cg_project_projection.py", "\n    run_kilo_preflight\n")
+    calls = list(re.finditer(
+        r"(?m)(?:^|[;)])[ \t]*run_kilo_preflight[ \t]*(?=;|$)", content,
+    ))
+    assert calls, "Missing runtime run_kilo_preflight invocation"
+    assert all(content.index("--sync-projection") < call.start() for call in calls)
     assert 'projection_root="$(platform_generated_tree "$platform")"' in content
 
 
