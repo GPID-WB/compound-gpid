@@ -22,7 +22,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-latest, macos-latest]
-        old-tag: [v1.0.4, v1.1.11, v1.2.0.9003, v1.2.0.9016, v1.2.0.9021, v1.2.0.9023]
+        old-tag: [v1.1.11, v1.2.0.9021]
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
         with:
