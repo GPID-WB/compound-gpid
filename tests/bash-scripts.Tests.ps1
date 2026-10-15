@@ -28,8 +28,27 @@ Describe "bash wrappers - hybrid Copilot skill projection" {
         $linkContent | Should -Match 'COPILOT_PROJECTED_CATEGORIES="skills"'
         $linkContent | Should -Match 'Copilot skills projected by manifest'
         $linkContent | Should -Not -Match "'copilot\|directory\|\.github/skills\|\.github/skills\|link-directory\|'"
-        $linkContent | Should -Match 'cg_project_projection\.py'
-        $linkContent | Should -Match '\-\-sync'
+        $linkContent | Should -Match 'cg_kilo_copy\.py[^\r\n]+--sync-projection'
+        . (Join-Path $hybridRepoRoot "scripts/helpers.ps1")
+        $python = Resolve-PythonCommand
+        $code = @'
+import pathlib, sys
+from unittest.mock import patch
+sys.path.insert(0, sys.argv[1])
+import cg_kilo_copy as worker
+root = pathlib.Path(sys.argv[2])
+root.mkdir()
+with patch('cg_project_projection.sync_consumer_projection') as sync:
+    worker.sync_units(root, root, [], [], sync_projection=True)
+    sync.assert_not_called()
+    (root / '.compound-gpid').mkdir()
+    (root / '.compound-gpid/active-manifest.json').write_text('{}')
+    worker.sync_units(root, root, [], [], sync_projection=True)
+    sync.assert_called_once()
+    assert sync.call_args.args == (root, root)
+'@
+        & $python -B -c $code (Join-Path $hybridRepoRoot "scripts") (Join-Path $TestDrive "projection-route")
+        $LASTEXITCODE | Should -Be 0
     }
 
     It "unlink leaves the real parent and removes checksum-owned files" {
@@ -229,17 +248,22 @@ Describe "link.sh - script structure" {
         $content | Should -Match '\.gitignore'
     }
 
-    It "uses generate_copilot_instructions function with resolved Python command" {
-        $content | Should -Match 'generate_copilot_instructions'
+    It "uses the shared generated-file worker with the resolved Python command" {
+        $content | Should -Match '"\$PYTHON_CMD" -B "\$SCRIPT_DIR/cg_kilo_copy\.py"'
+        $content | Should -Match 'copilot-instructions\.template\.md\|\.github/copilot-instructions\.md\|generated-copy'
         $content | Should -Match 'PYTHON_CMD'
         $content | Should -Match 'resolve_python'
     }
 
-    It "defines generate_copilot_instructions before the main body calls it" {
-        # Function definition must appear before first call in bash
-        $funcDefLine  = [regex]::Match($content, '(?m)^generate_copilot_instructions\(\)').Index
-        $funcCallLine = [regex]::Match($content, '(?m)generate_copilot_instructions "\$source_path"').Index
-        $funcDefLine | Should -BeLessThan $funcCallLine
+    It "defines and queues file work before the shared worker consumes it" {
+        $definition = [regex]::Match($content, '(?m)^install_file_unit\(\)')
+        $queue = [regex]::Match($content, '(?m)^\s+install_file_unit "\$source_rel"')
+        $worker = [regex]::Match($content, '(?m)^if COPY_OUTPUT=.*cg_kilo_copy\.py')
+        $definition.Success | Should -Be $true
+        $queue.Success | Should -Be $true
+        $worker.Success | Should -Be $true
+        $definition.Index | Should -BeLessThan $queue.Index
+        $queue.Index | Should -BeLessThan $worker.Index
     }
 
     It "includes shared as a Copilot install unit" {
@@ -260,10 +284,32 @@ Describe "link.sh - script structure" {
         $content | Should -Match 'FORCE'
     }
 
-    It "Relink prompt is guarded by FORCE check (2 guards required) [regression guard]" {
-        # The Relink symlink-conflict branch must be guarded by FORCE.
-        ([regex]::Matches($content, 'if\s+\[ "\$FORCE" -eq 0 \]') | Measure-Object).Count |
-            Should -Be 1
+    It "preserves a foreign symlink without prompting even with --yes [regression guard]" {
+        $content | Should -Not -Match 'read -r answer'
+        . (Join-Path $repoRoot "scripts/helpers.ps1")
+        $python = Resolve-PythonCommand
+        $code = @'
+import os, pathlib, subprocess, sys
+root = pathlib.Path(sys.argv[1])
+project, foreign, home = root / 'project', root / 'foreign', root / 'home'
+for path in (project / '.github', foreign, home):
+    path.mkdir(parents=True)
+sentinel = foreign / 'sentinel.txt'
+sentinel.write_bytes(b'foreign content\n')
+target = project / '.github/prompts'
+target.symlink_to(foreign, target_is_directory=True)
+env = dict(os.environ, HOME=str(home), CG_SKIP_UPDATE='1', PYTHONDONTWRITEBYTECODE='1')
+result = subprocess.run(['bash', sys.argv[2], '--platforms=copilot', '--yes'],
+                        cwd=project, env=env, capture_output=True, text=True,
+                        timeout=60, check=False)
+assert result.returncode == 0, result.stdout + result.stderr
+assert target.is_symlink() and target.resolve() == foreign.resolve()
+assert sentinel.read_bytes() == b'foreign content\n'
+assert list(foreign.iterdir()) == [sentinel]
+assert 'manual action required' in (result.stdout + result.stderr).lower()
+'@
+        & $python -B -c $code (Join-Path $TestDrive "foreign-link") $linkSh
+        $LASTEXITCODE | Should -Be 0
     }
 
     It "uses while-loop argument parsing for order-independent --platforms and --yes" {
@@ -367,9 +413,39 @@ Describe "unlink.sh - script structure" {
         $content | Should -Match 'compound-gpid'
     }
 
-    It "removes copilot-instructions.md only when marker is present" {
+    It "removes copilot-instructions.md only with unchanged receipt proof" {
         $content | Should -Match 'copilot-instructions'
-        $content | Should -Match 'compound-gpid:managed'
+        $content | Should -Match 'cg_kilo_copy\.py'
+        $content | Should -Match '--copilot-action unlink'
+        . (Join-Path $repoRoot "scripts/helpers.ps1")
+        $python = Resolve-PythonCommand
+        $code = @'
+import hashlib, json, pathlib, sys
+sys.path.insert(0, sys.argv[1])
+import cg_kilo_copy as worker
+root = pathlib.Path(sys.argv[2])
+target = root / '.github/copilot-instructions.md'
+target.parent.mkdir(parents=True)
+current = b'<!-- compound-gpid:managed -->\nuser content\n'
+target.write_bytes(current)
+worker.copilot_action(root, root, 'unlink')
+assert target.read_bytes() == current
+receipt = root / '.compound-gpid/managed-files.json'
+receipt.parent.mkdir()
+receipt.write_text(json.dumps({'schemaVersion': 'compound-gpid-managed-files-v1',
+    'files': {'.github/copilot-instructions.md': {
+        'source': '.github/copilot-instructions.template.md',
+        'checksum': hashlib.sha256(current).hexdigest()}}}))
+target.write_bytes(current + b'edit\n')
+worker.copilot_action(root, root, 'unlink')
+assert target.read_bytes() == current + b'edit\n'
+target.write_bytes(current)
+worker.copilot_action(root, root, 'unlink')
+assert not target.exists()
+assert '.github/copilot-instructions.md' not in worker.scalar_receipt(root)
+'@
+        & $python -B -c $code (Join-Path $repoRoot "scripts") (Join-Path $TestDrive "unlink-proof")
+        $LASTEXITCODE | Should -Be 0
     }
 
     It "removes .gitignore CG entries" {
@@ -440,8 +516,33 @@ Describe "update.sh - script structure" {
         $content | Should -Match 'VERSION_ACCEPT_PATTERN'
     }
 
-    It "defines generate_copilot_instructions for post-update refresh" {
-        $content | Should -Match 'generate_copilot_instructions'
+    It "refreshes project instructions through the shared generated-file worker" {
+        $content | Should -Match '"\$PYTHON_CMD" -B "\$COMPOUND_GPID_DIR/scripts/cg_kilo_copy\.py"'
+        $content | Should -Match '--copilot-action update'
+        . (Join-Path $repoRoot "scripts/helpers.ps1")
+        $python = Resolve-PythonCommand
+        $code = @'
+import hashlib, pathlib, sys
+sys.path.insert(0, sys.argv[1])
+import cg_kilo_copy as worker
+root = pathlib.Path(sys.argv[2])
+source, project = root / 'source', root / 'project'
+(source / '.github').mkdir(parents=True)
+project.mkdir()
+(source / '.github/copilot-instructions.template.md').write_text('# {{project-name}}\n')
+charter = project / 'compound-gpid.md'
+charter.write_text('---\nproject-name: First\n---\n')
+worker.copilot_action(source, project, 'update')
+target = project / '.github/copilot-instructions.md'
+assert target.read_bytes() == b'<!-- compound-gpid:managed -->\n# First\n'
+charter.write_text('---\nproject-name: Second\n---\n')
+worker.copilot_action(source, project, 'update')
+assert target.read_bytes() == b'<!-- compound-gpid:managed -->\n# Second\n'
+assert worker.scalar_receipt(project)['.github/copilot-instructions.md']['checksum'] == hashlib.sha256(target.read_bytes()).hexdigest()
+assert not target.with_name(target.name + '.pre-9024.bak').exists()
+'@
+        & $python -B -c $code (Join-Path $repoRoot "scripts") (Join-Path $TestDrive "update-render")
+        $LASTEXITCODE | Should -Be 0
     }
 
     It "uses resolved Python command instead of direct python3 calls" {

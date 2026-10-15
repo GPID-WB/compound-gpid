@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import errno
 import hashlib
 import json
 import os
@@ -118,7 +119,9 @@ def _read_target(target_root: Path, relative: str) -> Optional[bytes]:
         )
     except FileNotFoundError:
         return None
-    except secure_fs.SecureMutationError as exc:
+    except (secure_fs.SecureMutationError, OSError) as exc:
+        if not isinstance(exc, secure_fs.SecureMutationError) and exc.errno != errno.ELOOP:
+            raise
         raise CopyError(f"safe Kilo destination read failed for {target_root / relative}: {exc}") from exc
 
 

@@ -228,6 +228,7 @@ def test_native_command_contains_ordered_pytest_marker_and_all_module_checks() -
     assert pytest_command[:4] == (preflight.PYTHON, "-m", "pytest", "scripts/tests/test_target_mapping.py")
     assert "-m" in pytest_command
     assert "not integration" in pytest_command
+    assert "--force-short-summary" in pytest_command
     assert "-q" not in pytest_command
     assert (preflight.PYTHON, "scripts/cg_validate_modules.py", "--check-dependencies") in commands
     assert (preflight.PYTHON, "scripts/cg_validate_modules.py", "--check-cross-suite") in commands

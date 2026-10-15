@@ -43,7 +43,8 @@ def source(base_source: Path, tmp_path: Path) -> Path:
         _write(root / COPY_ROOT / name,
                f'---\ndescription: "Ownership fixture"\n---\ncurrent {name}\n')
     for relative in REAL_RELEASE_FILES:
-        _write(root / relative, (REPO_ROOT / relative).read_bytes())
+        _write(root / relative, (REPO_ROOT / relative).read_bytes()
+               + b"\ncurrent ownership fixture\n")
     _write(root / ".github/copilot-instructions.template.md",
            "# {{project-name}}\n{{project-type}} {{languages}} {{review-depth}}\n")
     _write(root / COPILOT, MARKER + "# current source, not generated output\n")
@@ -67,7 +68,9 @@ def source(base_source: Path, tmp_path: Path) -> Path:
             else:
                 _write(root / relative, desired[relative] + b"\nsecond release\n")
         _git(root, "-c", "core.autocrlf=false", "add", ".", env=environment)
+        # Git 2.55 can detach packing after commit; keep exact snapshots stable.
         _git(root, "-c", "commit.gpgsign=false", "-c", "core.hooksPath=" + os.devnull,
+             "-c", "gc.auto=0", "-c", "maintenance.auto=false",
              "commit", "-m", f"test: release fixture {index}", env=environment)
         _git(root, "tag", tag, env=environment)
     for relative, content in desired.items():
@@ -175,6 +178,7 @@ def test_release_lookup_ignores_caller_repository_environment(
     _git(consumer, "add", ".")
     _git(consumer, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid",
          "-c", "commit.gpgsign=false", "-c", "core.hooksPath=" + os.devnull,
+         "-c", "gc.auto=0", "-c", "maintenance.auto=false",
          "commit", "-m", "test: unrelated consumer tag")
     _git(consumer, "tag", "v1.0.0")
     released_bytes = _git(source, "show", f"{TAGS[0]}:{relative}").encode("utf-8")
@@ -553,6 +557,7 @@ def test_unmarked_instructions_matching_install_release_are_kept(
     _git(source, "add", COPILOT, env=env)
     _git(source, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid",
          "-c", "commit.gpgsign=false", "-c", "core.hooksPath=" + os.devnull,
+         "-c", "gc.auto=0", "-c", "maintenance.auto=false",
          "commit", "-m", "test: unmarked installation instructions", env=env)
     _git(source, "tag", "v1.2.0.9000", env=env)
     assert ReleasedContent(source).matches(COPILOT, current)

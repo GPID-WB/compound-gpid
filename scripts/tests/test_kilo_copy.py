@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import builtins
+import errno
 import importlib.util
 import json
 import os
@@ -222,9 +223,13 @@ def test_destination_io_error_returns_nonzero(
 
 
 @pytest.mark.parametrize("kind", ("directory", "scalar"))
+@pytest.mark.parametrize("error", (
+    kilo_copy.secure_fs.SecureMutationError("link destination rejected"),
+    OSError(errno.ELOOP, "link destination rejected"),
+))
 def test_secure_destination_rejection_is_a_successful_manual_keep(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, kind: str,
-    capsys: pytest.CaptureFixture[str],
+    capsys: pytest.CaptureFixture[str], error: Exception,
 ) -> None:
     """Secure no-follow rejections are distinct from operational I/O failures."""
     source, project = tmp_path / "source", tmp_path / "project"
@@ -236,7 +241,7 @@ def test_secure_destination_rejection_is_a_successful_manual_keep(
     def read(root: Path, path: str, **kwargs) -> bytes:
         """Simulate the secure backend rejecting an unsafe destination identity."""
         if root / path == project / relative:
-            raise kilo_copy.secure_fs.SecureMutationError("link destination rejected")
+            raise error
         return original(root, path, **kwargs)
 
     monkeypatch.setattr(kilo_copy.secure_fs, "secure_read_bytes", read)

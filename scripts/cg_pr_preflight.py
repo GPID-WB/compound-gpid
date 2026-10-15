@@ -850,6 +850,7 @@ def native_commands(root: Path, phase: str = "committed") -> Tuple[Command, ...]
         *pytest_files,
         "-m",
         "not integration",
+        "--force-short-summary",
     )
     return (pytest_command, *MODULE_VALIDATOR_COMMANDS)
 
