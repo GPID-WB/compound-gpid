@@ -25,7 +25,7 @@ from typing import Any, Iterable, Mapping, Optional, Sequence, Tuple
 
 PYTHON = sys.executable
 ZERO_REVISION = "0" * 40
-MAX_CAPTURED_OUTPUT_BYTES = 8 * 1024
+MAX_CAPTURED_OUTPUT_BYTES = 44 * 1024
 # Windows native took 494s hosted and exceeded 600s locally; allow measured headroom.
 NATIVE_COMMAND_TIMEOUT_SECONDS = 1500
 MAX_KILO_RESULT_BYTES = 2 * 1024 * 1024

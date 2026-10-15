@@ -81,7 +81,11 @@ def test_native_output_keeps_start_failure_tail_and_byte_bound(
 ) -> None:
     """Truncation preserves diagnostics in both child streams, including UTF-8."""
     start = "pytest session starts\n"
-    end = "\nFAILURES\nAssertionError: fixture failure\n1 failed, 2 passed\n"
+    end = "\n================ short test summary info ================\n" + "".join(
+        f"FAILED scripts/tests/test_cg_link_ownership.py::test_preserves_edited_file[case-{index:03d}]\n"
+        for index in range(250)
+    ) + "250 failed, 2 passed\n"
+    assert 8 * 1024 < len(end.encode("utf-8")) <= 32 * 1024
     output = start + chr(0xE9) * preflight.MAX_CAPTURED_OUTPUT_BYTES + end
     monkeypatch.setattr(
         preflight.subprocess, "run",
