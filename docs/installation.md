@@ -4,6 +4,8 @@ This detailed page covers platform-specific installation, linking, repair, and
 uninstall procedures. New users should follow the shorter
 [Getting Started](getting-started/index.md) path first.
 
+Existing users on any older version: follow the [v1.2.0.9024 Upgrade Guide](upgrade.md) before running installed update or link commands.
+
 > **New here?** See the [Home](../README.md) page for an overview of what Compound GPID is and why it exists.
 
 **Platform**: Jump to your operating system:

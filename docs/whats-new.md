@@ -4,6 +4,30 @@ Release history and notable changes across Compound GPID from structured
 release payloads.
 
 <!-- cg:auto:release-notes -->
+### v1.2.0.9024 — v1.2.0.9024 - Safer Upgrades
+
+*2026-10-16T22:12:27Z*
+
+**New — Upgrade from any older version**
+- Pinned or latest: start from a separate fresh clone at v1.2.0.9024 and run its migration script by full path. Do not run the old updater or linker first. Migration preserves the old installation in a sibling backup, installs at the original path, and pins v1.2.0.9024. Explicit rollback restores the installation, not project changes.
+- Windows and macOS commands, custom installation paths, multiple-install selection, PATH warnings, project checks, and rollback: https://github.com/GPID-WB/compound-gpid/blob/v1.2.0.9024/docs/upgrade.md
+- Stay pinned: do not run cg-update latest until announced. Today latest tracks main, which still contains the old line; it does not select the newest four-part tag.
+
+**Fixed — Preservation, checks, and license notices**
+- Run the NEW cg-link --check, then cg-link in each project. The check is read-only and does not update, launch Kilo, or write project/global files. Edited or unproven files are kept and reported as manual action required; user-added files are kept.
+- The one-time legacy managed Copilot instructions transition saves exact prior bytes in .github/copilot-instructions.md.pre-9024.bak before replacement. Review and merge custom instructions from the backup. Later replacement needs unchanged ownership proof; conflicting existing backups are preserved.
+- PATH warnings keep a verified new installation and print repair guidance for missing or shadowing commands. Open a new terminal and verify cg-link resolves to the new installation before use.
+- Restore the original reveal.js and Marked vendor license notices in presentation/vendor/reveal.js/LICENSE and LICENSE.marked.txt.
+
+**Internal — Tested coverage, limits, and publication**
+- CI upgrade matrix run 38805538140 passed all four cells: v1.1.11 and v1.2.0.9021 on Windows and macOS. These isolated fixtures cover preservation, Copilot backup, read-only checking, and repeat linking. Real user pilots follow publication; this is not proof for every historical version or a real Kilo host.
+- Known limits: standalone clones only; worktrees and linked installation paths are refused. Existing backups and ambiguous installations need explicit selection or recovery. Installer PATH/profile writes are not snapshotted; installation rollback does not undo project changes. Windows PowerShell 5.1 long-path copy/unlink limits remain; use short installation paths. Local installation edits remain in the backup, not merged into the new clone.
+- Every four-part vX.Y.Z.N tag is Reserve-only: a non-draft GitHub pre-release with make_latest=false. No Finalize, documentation deployment, or attestation applies. The required payload date is the preparation timestamp, not publication proof. Publication requires green local, push, and FULL CI gates.
+
+[View source tag](https://github.com/GPID-WB/compound-gpid/tree/v1.2.0.9024)
+
+---
+
 ### v1.2.0.9023 — v1.2.0.9023 - Kilo-independent installation and updates
 
 *2026-10-08T22:02:59Z*
