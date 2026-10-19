@@ -133,6 +133,8 @@ try {
     $head = Invoke-Git -Arguments @('-C', $source, 'rev-parse', 'HEAD')
     # The local fixture tag must not collide with an inherited published tag.
     Invoke-Git -Arguments @('clone', '--no-local', '--no-tags', '-c', 'core.autocrlf=true', $source, $candidate) | Out-Null
+    # Preserve historical release proofs, excluding only the local fixture tag.
+    Invoke-Git -Arguments @('-C', $candidate, 'fetch', 'origin', 'refs/tags/*:refs/tags/*', '^refs/tags/v1.2.0.9024') | Out-Null
     Invoke-Git -Arguments @('-C', $candidate, 'checkout', '--detach', $head) | Out-Null
     Invoke-Git -Arguments @('-C', $candidate, 'tag', '-a', 'v1.2.0.9024', '-m', 'LOCAL ONLY upgrade fixture', $head) | Out-Null
     # The unpublished tag is verified through this local fixture remote, never GitHub.

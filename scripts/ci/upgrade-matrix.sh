@@ -85,6 +85,8 @@ stage='candidate clone and local-only tag'
 head=$(git -C "$source" rev-parse HEAD)
 # The local fixture tag must not collide with an inherited published tag.
 git clone --no-local --no-tags -c core.autocrlf=false "$source" "$candidate"
+# Preserve historical release proofs, excluding only the local fixture tag.
+git -C "$candidate" fetch origin 'refs/tags/*:refs/tags/*' '^refs/tags/v1.2.0.9024'
 git -C "$candidate" checkout --detach "$head"
 git -C "$candidate" tag -a v1.2.0.9024 -m 'LOCAL ONLY upgrade fixture' "$head"
 # Redirect official-tag verification to the unpublished local fixture remote.
