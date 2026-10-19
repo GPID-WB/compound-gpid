@@ -27,10 +27,18 @@ Describe "Documentation rebuild workflow contracts" {
 
     It "uses least privilege, detects no-op output, and stages only docs" {
         $rebuildWorkflow | Should -Match 'contents:\s*write'
-        $rebuildWorkflow | Should -Match 'git diff --quiet -- docs/'
+        $rebuildWorkflow | Should -Match 'pull-requests:\s*write'
+        $rebuildWorkflow | Should -Match 'git status --porcelain -- docs/'
         $rebuildWorkflow | Should -Match 'git add -- docs/'
         $rebuildWorkflow | Should -Match 'git diff --cached --name-only'
-        $rebuildWorkflow | Should -Match 'git push origin HEAD:refs/heads/main'
+    }
+
+    It "proposes rebuilt docs as a draft PR instead of pushing to main" {
+        $rebuildWorkflow | Should -Match 'GH_TOKEN:\s*\$\{\{ github\.token \}\}'
+        $rebuildWorkflow | Should -Match 'branch="chore/docs-rebuild-\$\{GITHUB_RUN_ID\}-\$\{GITHUB_RUN_ATTEMPT\}"'
+        $rebuildWorkflow | Should -Match 'git push origin "HEAD:refs/heads/\$branch"'
+        $rebuildWorkflow | Should -Match 'gh pr create --draft --base main --head "\$branch"'
+        $rebuildWorkflow | Should -Not -Match 'git push origin HEAD:refs/heads/main'
     }
 
     It "builds and validates complete docs before uploading provenance" {
