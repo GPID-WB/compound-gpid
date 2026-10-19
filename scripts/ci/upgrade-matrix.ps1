@@ -131,7 +131,8 @@ try {
     $oldBefore = @(Snapshot $install)
     $stage = 'candidate clone and local-only tag'
     $head = Invoke-Git -Arguments @('-C', $source, 'rev-parse', 'HEAD')
-    Invoke-Git -Arguments @('clone', '--no-local', '-c', 'core.autocrlf=true', $source, $candidate) | Out-Null
+    # The local fixture tag must not collide with an inherited published tag.
+    Invoke-Git -Arguments @('clone', '--no-local', '--no-tags', '-c', 'core.autocrlf=true', $source, $candidate) | Out-Null
     Invoke-Git -Arguments @('-C', $candidate, 'checkout', '--detach', $head) | Out-Null
     Invoke-Git -Arguments @('-C', $candidate, 'tag', '-a', 'v1.2.0.9024', '-m', 'LOCAL ONLY upgrade fixture', $head) | Out-Null
     # The unpublished tag is verified through this local fixture remote, never GitHub.
