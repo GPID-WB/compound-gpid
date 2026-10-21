@@ -9,11 +9,12 @@
   "sections": [
     {
       "kind": "fixed",
-      "title": "Use defaults without top frontmatter",
+      "title": "Default settings",
       "entries": [
-        "A compound-gpid.local.md file without a top YAML frontmatter block now uses the default cg suite and config schema version 2 in memory only. Empty files, whitespace, and Markdown notes do not need a settings block; the file is not rewritten to insert defaults.",
-        "An initial UTF-8 BOM is ignored when reading configuration. Existing top frontmatter still uses strict validation: malformed or unterminated blocks, duplicate or unknown keys, invalid values, and unsupported schema versions remain errors with filename and line diagnostics.",
-        "cg-link --check remains read-only: it does not write configuration, project files, or global files. Default-settings handling does not turn checking into migration or repair."
+        "Older projects could stop at cg-link when compound-gpid.local.md contained notes but no settings block.",
+        "cg-link now continues with default settings and can also read files that start with a UTF-8 BOM.",
+        "Your file is not changed.",
+        "Run /cg-setup later to add settings when you need them."
       ]
     },
     {
