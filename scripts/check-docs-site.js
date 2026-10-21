@@ -328,7 +328,7 @@ async function loadCandidatePages() {
   }
   const releaseContract = [
     "name: Build release documentation",
-    "tags: [\"v*.*.*\"]",
+    "tags: [\"v*.*.*\", \"!v*.*.*.*\"]",
     "contents: read",
     "rebuild-docs.js --all",
     "--validate-release-set",
