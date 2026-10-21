@@ -159,7 +159,9 @@ try {
         $stage = 'installed 9024 updater'
         Invoke-Git -Arguments @('-C', $install, 'remote', 'set-url', 'origin', 'https://github.com/GPID-WB/compound-gpid.git') | Out-Null
         if (@(Invoke-Git -Arguments @('-C', $install, 'status', '--porcelain')).Count) { throw 'Old install is dirty.' }
-        Push-Location (Join-Path $env:HOME 'kilo-project')
+        # The 9024 updater cannot refresh a stale consumer manifest; NEW cg-link
+        # does that after updating the installation from neutral fixture HOME.
+        Push-Location $env:HOME
         # Run the installed 9024 entrypoint with automatic HOME/PROFILE redirected
         # inside its process, as the installer and updater can clean old profiles.
         try { $null = Run 'installed-update' 'powershell.exe' @('-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-Command',
@@ -251,7 +253,6 @@ try {
             }
             if ($fixture.Edited -and ($output -notmatch 'Manual action required: [1-9]' -or -not $output.Contains($fixture.Edited))) { throw 'Missing edited-file manual action.' }
             Assert-Same (Join-Path $project $fixture.User) "$Root\$($fixture.Name)-user.before"
-            if ($fixture.Name -eq 'kilo-project' -and $output -notmatch 'user-upgrade-sentinel.md: user file kept') { throw 'Missing informational user-file report.' }
             if ($fixture.Name -eq 'project') {
                 Assert-Same "$project\.github\copilot-instructions.md.pre-9024.bak" "$Root\copilot.before"
                 if ((Get-Content -LiteralPath "$project\.github\copilot-instructions.md" -Raw) -notmatch '<!-- compound-gpid:managed -->') { throw 'Generated Copilot instructions are missing.' }

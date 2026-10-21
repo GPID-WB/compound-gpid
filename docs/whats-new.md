@@ -14,12 +14,12 @@ release payloads.
 - cg-link --check remains read-only: it does not write configuration, project files, or global files. Default-settings handling does not turn checking into migration or repair.
 
 **New — Upgrade to 9025**
-- From v1.2.0.9024 on Windows or macOS: run cg-update v1.2.0.9025, then run the NEW cg-link once per project, keeping its adapter selection. Use the explicit version, not latest.
+- From v1.2.0.9024 on Windows or macOS: outside linked project directories (for example, from your home directory), run cg-update v1.2.0.9025, then run the NEW cg-link once per project, keeping its adapter selection. Use the explicit version, not latest.
 - From older versions: follow docs/upgrade.md to migrate and install v1.2.0.9024 first, then run cg-update v1.2.0.9025 and the NEW cg-link once per project. Guide: https://github.com/GPID-WB/compound-gpid/blob/v1.2.0.9024/docs/upgrade.md
 - Keep installation and project backups. If linking reports blocked or preserved files, keep them and review the reported manual action; do not delete adapter folders or use unlink to bypass conflicts.
 
 **Internal — Tests added and publication gates**
-- Tests added cover default-settings configuration reads, initial UTF-8 BOM handling, strict validation errors, read-only checking, and upgrade/update fixtures on Windows and macOS. These are coverage additions, not a claim that local or hosted gates have passed or that every historical installation or real Kilo host is qualified.
+- Tests cover defaults, BOM, strict errors, read-only checking, and Windows/macOS upgrade/update fixtures. The installed 9024 updater runs from a neutral directory before NEW linking in valid-config and legacy-config projects; its in-project stale-manifest guard is unchanged. Coverage additions do not qualify every historical installation or a real Kilo host.
 - Every four-part vX.Y.Z.N tag is Reserve-only: a non-draft GitHub pre-release with make_latest=false. No Finalize, documentation deployment, or attestation applies. Required payload dates are preparation timestamps, not publication proof. Publication requires green local, push, and FULL CI gates.
 
 [View source tag](https://github.com/GPID-WB/compound-gpid/tree/v1.2.0.9025)

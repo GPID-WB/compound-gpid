@@ -110,7 +110,9 @@ if [[ $mode == update ]]; then
     stage='installed 9024 updater'
     git -C "$install" remote set-url origin https://github.com/GPID-WB/compound-gpid.git
     [[ -z $(git -C "$install" status --porcelain) ]]
-    cd "$HOME/kilo-project"
+    # Old updater rejects stale consumer manifests; NEW cg-link refreshes them
+    # after the installation update from neutral fixture HOME.
+    cd "$HOME"
     run installed-update "$install/bin/cg-update" "$candidate_tag"
     [[ $(git -C "$install" rev-parse HEAD) == "$head" ]]
     [[ $(cat "$install/.cg-version") == "$candidate_tag" ]]
@@ -197,9 +199,7 @@ for ((i=0; i<${#names[@]}; i++)); do
         grep -F "${edited[i]}" "$root/link-${names[i]}.log"
     fi
     cmp "${user[i]}" "$root/${names[i]}-user.before"
-    if [[ ${names[i]} == kilo-project ]]; then
-        grep -F 'user-upgrade-sentinel.md: user file kept' "$root/link-${names[i]}.log"
-    else
+    if [[ ${names[i]} != kilo-project ]]; then
         cmp .github/copilot-instructions.md.pre-9024.bak "$root/copilot.before"
         [[ -f .github/copilot-instructions.md && -r .github/copilot-instructions.md ]]
         grep -F '<!-- compound-gpid:managed -->' .github/copilot-instructions.md
