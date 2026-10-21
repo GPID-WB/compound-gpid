@@ -50,7 +50,7 @@ git clone https://github.com/GPID-WB/compound-gpid.git "$env:USERPROFILE\.compou
 & "$env:USERPROFILE\.compound-gpid\install.ps1"
 ```
 
-This creates batch wrappers for `cg-link`, `cg-unlink`, `cg-update`, `cg-skill`, `cg-index`, `cg-brain-init`, `cg-render-artifact`, `cg-publish-markdown`, and `cg-token-audit` in the `bin\` subdirectory of your install location and adds that directory to your PATH. Python 3.8+ powers the skill lifecycle, Brainstorm/Plan validation, and HTML rendering through `cg-render-artifact`, plus secure generic Markdown publication through `cg-publish-markdown` with the `reference` theme. It also writes `.cg-version` (set to `latest`) in the install directory so version preference is immediately available. The `cg-index query` mode provides budgeted local Brain retrieval; `cg-token-audit` writes both legacy `.cg-docs/cost/` reports and additive `.cg-docs/token/` dashboard/regression artifacts.
+This creates batch wrappers for `cg-link`, `cg-unlink`, `cg-update`, `cg-skill`, `cg-index`, `cg-brain-init`, `cg-render-artifact`, `cg-publish-markdown`, and `cg-token-audit` in the `bin\` subdirectory of your install location and adds that directory to your PATH. Python 3.8+ powers the skill lifecycle, Brainstorm/Plan validation, and HTML rendering through `cg-render-artifact`, plus secure generic Markdown publication through `cg-publish-markdown` with the `reference` theme. It creates `.cg-version` with `latest` only when the file is absent; an existing version preference is preserved. The `cg-index query` mode provides budgeted local Brain retrieval; `cg-token-audit` writes both legacy `.cg-docs/cost/` reports and additive `.cg-docs/token/` dashboard/regression artifacts.
 
 > ⚠️ **IMPORTANT — After install, restart both your terminal and VS Code / Positron:**
 > - **Terminal restart**: the PATH change only takes effect in new processes — `cg-link` will not be found until the terminal is restarted.
@@ -67,7 +67,7 @@ From your project root:
 cg-link
 ```
 
-This links Compound GPID install units for all supported platforms by default: GitHub Copilot (`.github/`), Claude Code (`.claude/`), Codex (`.agents/`), OpenCode (`.opencode/`), and Kilo (`.kilo/`). Kilo runtime directories are project-local managed copies; other directory units are junctions on Windows. Strict config/root-adapter files are copied only when managed by Compound GPID, so existing user-owned files are preserved.
+This links Compound GPID install units for all supported platforms by default: GitHub Copilot (`.github/`), Claude Code (`.claude/`), Codex (`.agents/`), OpenCode (`.opencode/`), and Kilo (`.kilo/`). For projects with `compound-gpid.local.md`, native runtime directories and Copilot skills are managed project-local projections; other Copilot directory units are junctions on Windows. Projects without that config use legacy directory links, with managed copies for Kilo. Strict config/root-adapter files use ownership checks, so existing user-owned files are preserved.
 
 > **Platform selection**: To install only specific platforms, pass `--platforms`:
 > ```powershell
@@ -96,8 +96,8 @@ Missing or old output alone is not a blocker. Exit codes
 are `0` for a nonblocking report, `1` for a block or preserved conflict, and `2`
 for invalid usage. Unknown options are rejected with usage before any update
 or write, including when `--check` or `--help` is also present.
-The report reflects the current overwrite policy; marker-only Copilot
-instruction regeneration is not made checksum-safe by this check.
+The report uses the same checksum-based Copilot instruction ownership policy as
+linking, including its one-time backed-up legacy transition.
 
 > **Kilo + Codex/Claude coexistence**: when a project contains Kilo plus a
 > Codex or Claude skill root, direct Kilo editor/CLI launches are unsupported.
@@ -125,10 +125,10 @@ Kilo, or edit an existing release tag to avoid an obsolete version gate.
 > Copilot must re-index the workspace to see the newly linked prompts, skills, and agents.
 > Without a restart, `/cg-setup` and other prompts will not be available.
 
-> **Developer Mode**: if `cg-link` fails, enable Developer Mode in Windows Settings:
-> Settings → System → For developers → Developer Mode → On
+> **Junction errors**: Windows directory junctions do not require Developer Mode.
+> Check the reported path, permissions, filesystem support, and conflicting files.
 
-> **Managed vs. user-owned files**: files inside linked directories (`prompts/`, `skills/`, `commands/`, `agents/`, etc.) are managed by Compound GPID - do not edit them directly. `copilot-instructions.md` is regenerated from a template on every `cg-link` and `cg-update` run while the `<!-- compound-gpid:managed -->` marker is present. Strict JSON config files such as `.opencode/opencode.json` use `.compound-gpid/managed-files.json` checksums instead of inline markers; `cg-update` refreshes them only if they are unmodified. If a user-owned config exists, `cg-link` skips it and prints a manual snippet.
+> **Managed vs. user-owned files**: files inside linked directories (`prompts/`, `skills/`, `commands/`, `agents/`, etc.) are managed by Compound GPID - do not edit them directly. `copilot-instructions.md` uses checksum receipts: unchanged managed files may be refreshed, while modified files are preserved. An unreceipted legacy file with the `<!-- compound-gpid:managed -->` marker can undergo a one-time replacement only after its original bytes are saved to `.github/copilot-instructions.md.pre-9024.bak`; an existing backup blocks that transition. Review and merge custom instructions from the backup. Strict JSON config files such as `.opencode/opencode.json` also use `.compound-gpid/managed-files.json` checksums; `cg-update` refreshes them only if they are unmodified. If a user-owned config exists, `cg-link` skips it and prints a manual snippet.
 >
 > The consumer `.compound-gpid/managed-files.json` is separate from the
 > `.compound-gpid-generated.json` manifests committed inside the upstream
@@ -174,9 +174,9 @@ and creates three config files:
 
 > **Suite selection**: `/cg-setup` records active suites in
 > `compound-gpid.local.md`. An absent `suites:` field defaults to `[cg]` for
-> backward compatibility. Linked projects share the global all-suite native
-> target baseline; `suites:` controls workflow eligibility and instruction-level
-> loading for that project. Maintainers can request an isolated filtered build
+> backward compatibility. For configured consumers, suites and capabilities
+> determine the active manifest and project-local runtime projection. The global
+> generated trees remain the shared source baseline. Maintainers can request an isolated filtered build
 > with `--active-suites`. See the [Modular Guide](modular-guide.md).
 
 ---
@@ -201,9 +201,9 @@ bash ~/.compound-gpid/scripts/install.sh
 ```
 
 This:
-- Creates or refreshes bash wrappers (`cg-link`, `cg-unlink`, `cg-update`, `cg-skill`, `cg-index`, `cg-brain-init`, `cg-render-artifact`, `cg-publish-markdown`, `cg-token-audit`) in `~/.compound-gpid/bin/`; Python 3.8+ provides skill lifecycle management, Brainstorm/Plan validation, HTML rendering, and generic Markdown publication with the `reference` theme, and the same `bin/` directory also contains repo-local summary wrappers such as `cg-test-summary`, `cg-diff-summary`, `cg-log-summary`, `cg-tree-summary`, and `cg-problems-summary`
+- Registers the committed executable wrappers (`cg-link`, `cg-unlink`, `cg-update`, `cg-skill`, `cg-index`, `cg-brain-init`, `cg-render-artifact`, `cg-publish-markdown`, `cg-token-audit`) in `~/.compound-gpid/bin/`; Python 3.8+ provides skill lifecycle management, Brainstorm/Plan validation, HTML rendering, and generic Markdown publication with the `reference` theme, and the same `bin/` directory also contains repo-local summary wrappers such as `cg-test-summary`, `cg-diff-summary`, `cg-log-summary`, `cg-tree-summary`, and `cg-problems-summary`. The installer does not rewrite or chmod wrappers; missing or non-executable wrappers stop installation with re-clone guidance.
 - Adds that directory to your PATH via `~/.zshrc` (or `~/.bashrc` for bash users)
-- Writes `.cg-version` (set to `latest`) in the install directory
+- Creates `.cg-version` with `latest` only when absent; preserves an existing version preference
 
 > ⚠️ **IMPORTANT — After install, restart your terminal and VS Code / Positron:**
 > - **Terminal restart**: the PATH change only takes effect in new processes.
@@ -217,7 +217,7 @@ From your project root:
 cg-link
 ```
 
-This links Compound GPID install units for all supported platforms by default: GitHub Copilot (`.github/`), Claude Code (`.claude/`), Codex (`.agents/`), OpenCode (`.opencode/`), and Kilo (`.kilo/`). Kilo runtime directories are project-local managed copies; other directory units are symlinks on macOS. Strict config/root-adapter files are copied only when managed by Compound GPID, so existing user-owned files are preserved.
+This links Compound GPID install units for all supported platforms by default: GitHub Copilot (`.github/`), Claude Code (`.claude/`), Codex (`.agents/`), OpenCode (`.opencode/`), and Kilo (`.kilo/`). For projects with `compound-gpid.local.md`, native runtime directories and Copilot skills are managed project-local projections; other Copilot directory units are symlinks on macOS. Projects without that config use legacy directory links, with managed copies for Kilo. Strict config/root-adapter files use ownership checks, so existing user-owned files are preserved.
 
 > **Platform selection**: To install only specific platforms:
 > ```bash
@@ -254,13 +254,13 @@ Open your project in VS Code and run in Copilot Chat:
 cg-update
 ```
 
-This resets any accidental local changes and then pulls the latest version. Linked directory units update instantly through symlinks/junctions. Copied managed files in the current project are refreshed through `.compound-gpid/managed-files.json` only when their checksum still matches the managed copy.
+This uses the installation's saved `.cg-version` preference: a pin stays on its selected tag, while `latest` pulls the branch. Normal updates refuse tracked or staged user edits rather than discarding them. Linked directory units reflect installation changes immediately; copies and projections need the [consumer refresh](#refreshing-existing-consumer-projects) steps below.
 
 **Version pinning**: the same pinning commands work on macOS:
 
 ```bash
-cg-update --list       # browse available releases
-cg-update v0.2.0      # pin to a specific release
+cg-update --list       # browse three-component release tags
+cg-update v1.2.0.9024  # pin to a specific release
 cg-update latest      # return to tracking main
 ```
 
@@ -306,7 +306,7 @@ cg-update
 cg-update
 ```
 
-This resets any accidental local changes and then pulls the latest version. Linked directory units update instantly through symlinks/junctions. Copied managed files in the current project are refreshed through `.compound-gpid/managed-files.json` only when their checksum still matches the managed copy.
+This uses the installation's saved `.cg-version` preference: a pin stays on its selected tag, while `latest` pulls the branch. Normal updates refuse tracked or staged user edits rather than discarding them. Linked directory units reflect installation changes immediately; copies and projections need the consumer refresh steps below.
 
 ### Refreshing existing consumer projects
 
@@ -316,12 +316,16 @@ source checkout. It is not projected or installed in consumer projects.
 - **Legacy links**: run `cg-update`. Existing directory links receive the fixed
   command immediately. Run `cg-link --platforms <platforms>` only to recreate or
   repair old links.
-- **Kilo managed copies**: run `cg-update` from the consumer project so managed
-  `.kilo/` files refresh. If the project predates managed-file tracking, run
-  `cg-link --platforms kilo` once after the update.
-- **Manifest projections**: run `cg-update` to refresh checksum-owned projected
-  files. Rerun `cg-link --platforms <platforms>` after a platform-selection or
-  install-unit change.
+- **Kilo managed copies**: rerun `cg-link --platforms <platforms>` from the
+  consumer project to refresh runtime directory copies. Use the intended full
+  platform list (`kilo` only for a Kilo-only project); `cg-update` alone does not
+  queue those legacy directories for copying.
+- **Manifest projections**: `cg-update` verifies and syncs the existing active
+  manifest, but does not change its immutable selection. A changed installation
+  revision, platform selection, or other stale manifest input requires
+  `cg-link --platforms <platforms>` to resolve a fresh manifest before syncing.
+  Preserve the intended full platform list and review `cg-link --check` and any
+  manual-action diagnostics rather than bypassing ownership checks.
 
 Restart VS Code or Positron after a refresh so the host reloads command files.
 
@@ -331,7 +335,7 @@ Restart VS Code or Positron after a refresh so the host reloads command files.
 
 By default `cg-update` tracks `main` and always pulls the latest commit. If you need stability (or want to try a beta), you can pin to a specific [GitHub Release](https://github.com/GPID-WB/compound-gpid/releases).
 
-> **`latest` is a keyword**, not a version number. It means "track `main` and always pull the newest commit" — it does **not** refer to the newest numbered release. To see numbered releases, run `cg-update --list`.
+> **`latest` is a keyword**, not a version number. It means "track `main` and always pull the newest commit" — it does **not** refer to the newest numbered release. `cg-update --list` shows three-component release tags only; four-component tags such as `v1.2.0.9024` require an explicit version argument.
 
 ### Browse available releases
 
@@ -339,15 +343,15 @@ By default `cg-update` tracks `main` and always pulls the latest commit. If you 
 cg-update --list
 ```
 
-Fetches the latest tag list and displays it with your current version marked.
+Fetches tag metadata and displays three-component release tags, with your current version marked if it is listed. A four-component pin is shown in the current-mode label but omitted from the table.
 
 ### Pin to a specific release
 
 ```bash
-cg-update v0.2.0
+cg-update v1.2.0.9024
 ```
 
-Checks out that release tag and writes `v0.2.0` to `.cg-version` in your install directory. Subsequent bare `cg-update` calls stay on this version.
+Checks out that release tag, validates its required scripts and generated targets, then writes `v1.2.0.9024` to `.cg-version` in your install directory. Subsequent bare `cg-update` calls stay on this version.
 
 ### Return to tracking main
 
@@ -369,27 +373,16 @@ Unpins and resumes pulling `main` on every `cg-update` call.
 
 ## Repairing a broken installation
 
-If `cg-update` fails (e.g. untracked files blocking `git pull`, or local changes in the global clone), use the built-in repair command:
-
-```bash
-# macOS
-cg-update --fix
-```
-```powershell
-# Windows
-cg-update --fix
-```
-
-This cleans untracked files, discards local changes, and pulls the latest code.
-
-**If `cg-update --fix` itself fails** (e.g. the installed copy is too old), run the equivalent commands manually:
+Before repairing, back up the entire installation, including untracked files,
+local commits, and `.cg-version`. Inspect the clone and record the intended
+version without changing it:
 
 **macOS:**
 ```bash
 cg="$HOME/.compound-gpid"   # adjust if you chose a different install path
-git -C "$cg" clean -fd
-git -C "$cg" checkout .
-git -C "$cg" pull --ff-only
+git -C "$cg" status --short
+git -C "$cg" log -1 --oneline
+cat "$cg/.cg-version"
 ```
 
 **Windows:**
@@ -397,12 +390,26 @@ git -C "$cg" pull --ff-only
 # Uncomment your install path:
 $cg = "C:\WBG\.compound-gpid"              # local machine (OneDrive)
 # $cg = "$env:USERPROFILE\.compound-gpid"    # remote server
-git -C $cg clean -fd
-git -C $cg checkout .
-git -C $cg pull --ff-only
+git -C $cg status --short
+git -C $cg log -1 --oneline
+Get-Content -LiteralPath (Join-Path $cg ".cg-version")
 ```
 
-Then run `cg-update` from each linked project to apply any structural migrations.
+Move conflicting untracked files to a reviewed backup and preserve tracked
+edits outside the managed clone before retrying `cg-update` with the same
+version preference. If the pin is missing or corrupted, follow
+[pin recovery](troubleshooting.md#cg-version-missing-or-corrupted). If the clone
+has diverged or needs replacement, keep it intact and use the fresh-clone
+procedure in the [Upgrade Guide](upgrade.md); do not reset it to `origin/main`.
+
+`cg-update --fix` is a destructive opt-in, not a safe default repair: it removes
+untracked files, discards tracked edits, then runs `git pull --ff-only`. It does
+not switch a detached tag checkout to a branch, so it is unsuitable for pinned
+installations. Use it only on a branch with an upstream after deliberately
+choosing to discard those files and keeping a complete backup. It is not a
+migration path for an older installation.
+
+After recovery, follow the consumer refresh steps above for each linked project.
 
 > **Existing projects — `.cg-docs/strategy/`**: If you linked your project before this release, create the strategy folder manually:
 > ```powershell

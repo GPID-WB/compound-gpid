@@ -295,14 +295,19 @@ async function loadCandidatePages() {
   const rebuildContract = [
     "branches: [main]",
     "contents: write",
+    "pull-requests: write",
     "rebuild-docs.js --all",
-    "git diff --quiet -- docs/",
+    "git status --porcelain -- docs/",
     "git add -- docs/",
+    "gh pr create --draft --base main",
     "docs-site",
     ".docs-build-metadata.json",
   ];
   for (const token of rebuildContract) {
     if (!rebuildWorkflow.includes(token)) throw new Error(`doc-rebuild.yml must reference ${token}.`);
+  }
+  if (rebuildWorkflow.includes("git push origin HEAD:refs/heads/main")) {
+    throw new Error("doc-rebuild.yml must not push directly to protected main.");
   }
   if (!rebuildWorkflow.includes("include-hidden-files: true")) {
     throw new Error("doc-rebuild.yml must include hidden artifact files.");
@@ -323,7 +328,7 @@ async function loadCandidatePages() {
   }
   const releaseContract = [
     "name: Build release documentation",
-    "tags: [\"v*.*.*\"]",
+    "tags: [\"v*.*.*\", \"!v*.*.*.*\"]",
     "contents: read",
     "rebuild-docs.js --all",
     "--validate-release-set",

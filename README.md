@@ -45,11 +45,11 @@ Compound GPID enforces a repeatable **Brainstorm → Plan → Work → Review �
 - **Roadmap tracking** — `@cg-roadmap` manages a `roadmap.json` milestone and feature tracker. Brainstorm, Plan, and Work prompts hook into it automatically: brainstorms register feature ideas, plans link to features, and work marks them active — so your roadmap stays current without manual updates.
 - **Modular suites** — a validated registry separates the kernel, reusable capability packs, the technical `/cg-*` suite, and the research `/cr-*` suite. Projects select `suites: [cg]`, `[cr]`, or `[cg, cr]` without creating cross-suite dependencies.
 - **Cross-platform** — native support for GitHub Copilot, Claude Code, Codex, OpenCode, and Kilo from a single `.github/` source. Generated platform trees are committed, release-validated, and distributed through merge-safe per-platform install units. `cg-link` links all platforms by default.
-- **Zero friction** — one global clone, per-subdirectory symlinks (junctions on Windows, symlinks on macOS), and shell commands (`cg-link`, `cg-unlink`, `cg-update`, `cg-index`, `cg-brain-init`, `cg-publish-markdown`, `cg-token-audit`) wire everything into VS Code / Positron automatically.
+- **Zero friction** — one global clone, per-project links and managed projections, and shell commands (`cg-link`, `cg-unlink`, `cg-update`, `cg-index`, `cg-brain-init`, `cg-publish-markdown`, `cg-token-audit`) wire everything into VS Code / Positron automatically.
 - **Secure document views** — `cg-publish-markdown` turns one project-contained generic Markdown file into a deterministic, self-contained `reference` HTML view while preserving strict Brainstorm/Plan validation and excluding generated bodies from model context.
 - **Token guidance** — `/cg-token-audit` runs deterministic context/model analysis and returns compact advice on context size, review depth, and model selection without changing project files.
-- **Team-wide** — update once, every linked project gets the new version instantly.
-- **Version management** — pin to a specific release for stability, or track `main` for the latest features. Switch at any time with `cg-update v0.2.0` / `cg-update latest`.
+- **Team-wide** — one global update serves linked projects; rerun `cg-link` from each project root with its intended platform selection to refresh managed copies and projections.
+- **Version management** — pin to a specific release for stability, or track `main` for the latest features. Switch with `cg-update v1.2.0.9024` / `cg-update latest`. For older installations, follow the [Upgrade Guide](docs/upgrade.md) first.
 
 ## Documentation
 
