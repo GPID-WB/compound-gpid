@@ -45,6 +45,9 @@ $candidate = Join-Path $env:HOME 'candidate'
 $stage = 'fixture setup'
 $result = 'fail'
 $reason = ''
+$snapshotDiffs = [Collections.Generic.List[string]]::new()
+$secondChanged = $false
+$thirdChanged = $false
 
 function Invoke-Git([string[]]$Arguments) {
     $output = & git @Arguments
@@ -64,17 +67,44 @@ function Run([string]$Name, [string]$Executable, [string[]]$Arguments, [int[]]$A
     }
     return $code
 }
-function Snapshot([string]$Path) {
+function Snapshot([string]$Path, [string]$Prefix = '') {
     # Do not traverse junctions or .git; include directory/link identity and bytes.
     foreach ($item in Get-ChildItem -LiteralPath $Path -Force | Sort-Object Name) {
         if ($item.Name -eq '.git') { continue }
+        $relative = "$Prefix$($item.Name)"
         if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) {
-            "$($item.FullName)|link|$($item.Target)"
+            "$relative|link|$($item.Target)"
         } elseif ($item.PSIsContainer) {
-            "$($item.FullName)|directory"
-            Snapshot $item.FullName
-        } else { "$($item.FullName)|$((Get-FileHash -LiteralPath $item.FullName).Hash)" }
+            "$relative|directory"
+            Snapshot $item.FullName "$relative/"
+        } else { "$relative|file|$((Get-FileHash -LiteralPath $item.FullName).Hash)" }
     }
+}
+function Assert-Snapshot([string[]]$Before, [string[]]$After, [string]$Message, [switch]$ReportOnly) {
+    # Compare by relative path so a content/kind change is not an add/remove pair.
+    $left = [Collections.Generic.Dictionary[string,string]]::new([StringComparer]::Ordinal)
+    $right = [Collections.Generic.Dictionary[string,string]]::new([StringComparer]::Ordinal)
+    foreach ($record in $Before) { $left.Add(($record -split '\|', 2)[0], $record) }
+    foreach ($record in $After) { $right.Add(($record -split '\|', 2)[0], $record) }
+    $lines = @(
+        foreach ($path in @(@($left.Keys) + @($right.Keys) | Sort-Object -Unique -CaseSensitive)) {
+            if (-not $left.ContainsKey($path)) { "added: $path" }
+            elseif (-not $right.ContainsKey($path)) { "removed: $path" }
+            elseif ($left[$path] -cne $right[$path]) { "changed: $path" }
+        }
+    )
+    if ($lines.Count -or $ReportOnly) {
+        $heading = "Snapshot comparison at ${stage}: $Message"
+        $details = $lines
+        if (-not $lines.Count) { $details = @('unchanged') }
+        foreach ($line in @($heading) + $details) {
+            Write-Host $line
+            Add-Content -LiteralPath "$Root\snapshot-diff.log" -Value $line -Encoding UTF8
+            $snapshotDiffs.Add($line)
+        }
+        if ($lines.Count -and -not $ReportOnly) { throw $Message }
+    }
+    if ($ReportOnly) { return ($lines.Count -eq 0) }
 }
 function Assert-Same([string]$Left, [string]$Right) {
     if ((Get-FileHash -LiteralPath $Left).Hash -ne (Get-FileHash -LiteralPath $Right).Hash) {
@@ -170,7 +200,7 @@ try {
         if ((Invoke-Git -Arguments @('-C', $install, 'rev-parse', 'HEAD')) -ne $head) { throw 'Candidate HEAD mismatch.' }
         if ((Get-Content -LiteralPath "$install\.cg-version" -Raw).Trim() -ne $candidateTag) { throw 'Pin mismatch.' }
         if (@(Invoke-Git -Arguments @('-C', $install, 'status', '--porcelain')).Count) { throw 'Updated install is dirty.' }
-        $protectedBefore = @(Snapshot $candidate) + @(Snapshot $install)
+        $protectedBefore = @(Snapshot $candidate 'candidate/') + @(Snapshot $install 'install/')
         foreach ($name in @('kilo-project', 'legacy-project')) {
             $project = Join-Path $env:HOME $name
             if ($name -eq 'legacy-project') {
@@ -190,10 +220,10 @@ try {
                 } else { Assert-Same "$project\compound-gpid.local.md" "$Root\valid-config.before" }
             } finally { Pop-Location }
         }
-        if (Compare-Object $protectedBefore (@(Snapshot $candidate) + @(Snapshot $install))) { throw 'Link changed an installation.' }
+        Assert-Snapshot $protectedBefore (@(Snapshot $candidate 'candidate/') + @(Snapshot $install 'install/')) 'Link changed an installation.'
         if (@(Invoke-Git -Arguments @('-C', $install, 'status', '--porcelain')).Count) { throw 'Linked install is dirty.' }
-        if (Compare-Object $outsideBefore @(Snapshot "$Root\outside")) { throw 'Outside sentinel changed.' }
-        if (Compare-Object $sourceBefore @(Snapshot $source)) { throw 'Source checkout changed.' }
+        Assert-Snapshot $outsideBefore @(Snapshot "$Root\outside") 'Outside sentinel changed.'
+        Assert-Snapshot $sourceBefore @(Snapshot $source) 'Source checkout changed.'
         $result = 'pass'
         return
     }
@@ -215,12 +245,12 @@ try {
     if ((Get-Content -LiteralPath "$install\.cg-version" -Raw) -ne $candidateTag) { throw 'Pin mismatch.' }
     $backups = @(Get-ChildItem -LiteralPath $env:HOME -Directory -Force | Where-Object Name -like '.compound-gpid.backup-*')
     if ($backups.Count -ne 1 -or (Invoke-Git -Arguments @('-C', $backups[0].FullName, 'rev-parse', 'HEAD')) -ne $oldHead) { throw 'Old backup missing/wrong.' }
-    $backupBytes = @(Snapshot $backups[0].FullName) | ForEach-Object { $_.Replace($backups[0].FullName, $install) }
-    if (Compare-Object $oldBefore $backupBytes) { throw 'Old installation bytes were not preserved in backup.' }
+    $backupBytes = @(Snapshot $backups[0].FullName)
+    Assert-Snapshot $oldBefore $backupBytes 'Old installation bytes were not preserved in backup.'
     foreach ($wrapper in @('cg-link.cmd', 'cg-update.cmd', 'cg-unlink.cmd')) {
         Assert-Same "$install\bin\$wrapper" "$candidate\bin\$wrapper"
     }
-    $protectedBefore = @(Snapshot $candidate) + @(Snapshot $backups[0].FullName) + @(Snapshot $install)
+    $protectedBefore = @(Snapshot $candidate 'candidate/') + @(Snapshot $backups[0].FullName 'backup/') + @(Snapshot $install 'install/')
     foreach ($fixture in $fixtures) {
         $project = Join-Path $env:HOME $fixture.Name
         if ($fixture.Name -eq 'kilo-project') {
@@ -240,7 +270,7 @@ try {
                 throw 'Read-only check did not report the edited file.'
             }
             if ($fixture.Name -eq 'kilo-project' -and [regex]::Matches($checkOutput, [regex]::Escape($legacyNote)).Count -ne 1) { throw 'Expected legacy note once in check.' }
-            if (Compare-Object $before @(Snapshot $project)) { throw 'Read-only check changed project.' }
+            Assert-Snapshot $before @(Snapshot $project) 'Read-only check changed project.'
             $stage = "candidate link ($($fixture.Name))"
             $null = Run "link-$($fixture.Name)" 'powershell.exe' @('-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass',
                 '-File', "$install\scripts\link.ps1", '--platforms', $fixture.Platforms, '--yes')
@@ -262,18 +292,28 @@ try {
             $before = @(Snapshot $project)
             $null = Run "repeat-$($fixture.Name)" 'powershell.exe' @('-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass',
                 '-File', "$install\scripts\link.ps1", '--platforms', $fixture.Platforms, '--yes')
-            if (Compare-Object $before @(Snapshot $project)) { throw 'Second link changed project.' }
+            $afterSecond = @(Snapshot $project)
+            if (-not (Assert-Snapshot $before $afterSecond 'Link 1->2' -ReportOnly)) { $secondChanged = $true }
+            $stage = "candidate third link ($($fixture.Name))"
+            $null = Run "third-$($fixture.Name)" 'powershell.exe' @('-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass',
+                '-File', "$install\scripts\link.ps1", '--platforms', $fixture.Platforms, '--yes')
+            if (-not (Assert-Snapshot $afterSecond @(Snapshot $project) 'Link 2->3' -ReportOnly)) { $thirdChanged = $true }
             if ($fixture.Name -eq 'kilo-project') {
-                $repeat = Get-Content -LiteralPath "$Root\repeat-$($fixture.Name).log" -Raw
-                if ([regex]::Matches($repeat, [regex]::Escape($legacyNote)).Count -ne 1) { throw 'Expected exact legacy note once on repeat.' }
+                foreach ($name in @('repeat', 'third')) {
+                    $repeat = Get-Content -LiteralPath "$Root\$name-$($fixture.Name).log" -Raw
+                    if ([regex]::Matches($repeat, [regex]::Escape($legacyNote)).Count -ne 1) { throw "Expected exact legacy note once on $name." }
+                }
                 Assert-Same "$project\compound-gpid.local.md" "$Root\legacy-config.before"
             }
         } finally { Pop-Location }
     }
     $stage = 'outside-write checks'
-    if (Compare-Object $protectedBefore (@(Snapshot $candidate) + @(Snapshot $backups[0].FullName) + @(Snapshot $install))) { throw 'Link changed an installation/backup.' }
-    if (Compare-Object $outsideBefore @(Snapshot "$Root\outside")) { throw 'Outside sentinel changed.' }
-    if (Compare-Object $sourceBefore @(Snapshot $source)) { throw 'Source checkout changed.' }
+    Assert-Snapshot $protectedBefore (@(Snapshot $candidate 'candidate/') + @(Snapshot $backups[0].FullName 'backup/') + @(Snapshot $install 'install/')) 'Link changed an installation/backup.'
+    Assert-Snapshot $outsideBefore @(Snapshot "$Root\outside") 'Outside sentinel changed.'
+    Assert-Snapshot $sourceBefore @(Snapshot $source) 'Source checkout changed.'
+    $stage = 'repeat snapshot assertions'
+    if ($secondChanged) { throw 'Second link changed project.' }
+    if ($thirdChanged) { throw 'Third link changed project.' }
     $result = 'pass'
     if ($LocalCheck) { $reason = 'LOCAL PARTIAL: link only; installers and migration skipped to avoid real HKCU/PATH writes.' }
 } catch {
@@ -283,6 +323,9 @@ try {
 } finally {
     $note = "| windows-latest | $OldTag | $result | $stage | $reason |"
     Set-Content -LiteralPath "$Root\result.md" -Value $note -Encoding UTF8
+    if ($snapshotDiffs.Count) {
+        Add-Content -LiteralPath "$Root\result.md" -Value (@('', '### Snapshot differences', '```text') + @($snapshotDiffs) + @('```')) -Encoding UTF8
+    }
     if ($env:GITHUB_STEP_SUMMARY) { Add-Content -LiteralPath $env:GITHUB_STEP_SUMMARY -Value $note }
     Write-Host $note
 }

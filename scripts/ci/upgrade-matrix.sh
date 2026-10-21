@@ -20,11 +20,16 @@ export GIT_CONFIG_GLOBAL="$HOME/gitconfig" GIT_CONFIG_NOSYSTEM=1 GIT_TERMINAL_PR
 export CG_SKIP_UPDATE=1 PYTHONDONTWRITEBYTECODE=1
 install="$HOME/.compound-gpid" candidate="$HOME/candidate"
 stage='fixture setup' result=fail reason=''
+snapshot_diffs=''
+second_changed=false third_changed=false
 finish() {
     code=$?
     trap - EXIT
-    if [[ $code -ne 0 ]]; then reason="Exit $code at $stage; see the matching command log."; fi
+    if [[ $code -ne 0 && -z $reason ]]; then reason="Exit $code at $stage; see the matching command log."; fi
     printf '| macos-latest | %s | %s | %s | %s |\n' "$old_tag" "$result" "$stage" "$reason" | tee "$root/result.md"
+    if [[ -n $snapshot_diffs ]]; then
+        printf '\n### Snapshot differences\n```text\n%s\n```\n' "$snapshot_diffs" >> "$root/result.md"
+    fi
     [[ -z ${GITHUB_STEP_SUMMARY:-} ]] || cat "$root/result.md" >> "$GITHUB_STEP_SUMMARY"
     exit "$code"
 }
@@ -41,8 +46,36 @@ run() {
 }
 snapshot() {
     # BSD find defaults to no symlink traversal; exclude Git's mutable index/cache.
-    (cd "$1" && find . -name .git -prune -o -type f -exec shasum -a 256 {} \; -o \
-        -type l -exec ls -ld {} \; -o -type d -print) | LC_ALL=C sort
+    (cd "$1" && find . -name .git -prune -o -type f -exec bash -c '
+        for path; do
+            hash=$(shasum -a 256 < "$path") || exit
+            printf "%s|file|%s\n" "${path#./}" "${hash%% *}"
+        done' _ {} + -o -type l -exec bash -c '
+        for path; do
+            target=$(readlink "$path") || exit
+            printf "%s|link|%s\n" "${path#./}" "$target"
+        done' _ {} + -o -type d -exec bash -c '
+        for path; do printf "%s|directory\n" "${path#./}"; done' _ {} +) | LC_ALL=C sort
+}
+assert_snapshot() {
+    local changes
+    # Compare normalized records by path, including when either snapshot is empty.
+    changes=$(LC_ALL=C awk -F '|' '
+        FILENAME == ARGV[1] { before[$1] = $0; next }
+        { after[$1] = $0 }
+        END {
+            for (path in before) {
+                if (!(path in after)) print "removed: " path
+                else if (before[path] != after[path]) print "changed: " path
+            }
+            for (path in after) if (!(path in before)) print "added: " path
+        }' "$1" "$2" | LC_ALL=C sort) || return 2
+    if [[ -n $changes || ${4:-} == report ]]; then
+        local details=${changes:-unchanged}
+        snapshot_diffs+="Snapshot comparison at $stage: $3"$'\n'"$details"$'\n'
+        printf 'Snapshot comparison at %s: %s\n%s\n' "$stage" "$3" "$details" | tee -a "$root/snapshot-diff.log" || return 2
+    fi
+    [[ -z $changes ]] || { reason="Snapshot mismatch: $3"; return 1; }
 }
 mkdir -p "$APPDATA" "$LOCALAPPDATA" "$XDG_CONFIG_HOME" "$TMPDIR" "$root/outside"
 printf 'outside fixture\n' > "$root/outside/sentinel.txt"
@@ -141,7 +174,7 @@ if [[ $mode == update ]]; then
     for name in candidate install outside source; do
         case $name in outside) path=$root/outside ;; *) path=${!name} ;; esac
         snapshot "$path" > "$root/$name.after"
-        cmp "$root/$name.before" "$root/$name.after"
+        assert_snapshot "$root/$name.before" "$root/$name.after" "$name changed"
     done
     [[ -z $(git -C "$install" status --porcelain) ]]
     result=pass
@@ -155,7 +188,7 @@ backups=("$install".backup-*)
 [[ ${#backups[@]} == 1 && -d ${backups[0]} ]]
 [[ $(git -C "${backups[0]}" rev-parse HEAD) == "$old_head" ]]
 snapshot "${backups[0]}" > "$root/old.after"
-cmp "$root/old.before" "$root/old.after"
+assert_snapshot "$root/old.before" "$root/old.after" 'Old installation bytes were not preserved in backup.'
 for wrapper in cg-link cg-update cg-unlink; do
     [[ -x "$install/bin/$wrapper" ]]
     cmp "$install/bin/$wrapper" "$candidate/bin/$wrapper"
@@ -185,7 +218,7 @@ for ((i=0; i<${#names[@]}; i++)); do
         [[ $(grep -F -o "$legacy_note" "$root/check-${names[i]}.log" | wc -l | tr -d ' ') == 1 ]]
     fi
     snapshot "$project" > "$root/project.after"
-    cmp "$root/project.before" "$root/project.after"
+    assert_snapshot "$root/project.before" "$root/project.after" 'Read-only check changed project.'
     stage="candidate link (${names[i]})"
     run "link-${names[i]}" bash "$install/scripts/link.sh" --platforms "${platforms[i]}" --yes
     if [[ ${names[i]} == kilo-project ]]; then
@@ -208,10 +241,21 @@ for ((i=0; i<${#names[@]}; i++)); do
     stage="candidate repeat (${names[i]})"
     snapshot "$project" > "$root/project.before"
     run "repeat-${names[i]}" bash "$install/scripts/link.sh" --platforms "${platforms[i]}" --yes
-    snapshot "$project" > "$root/project.after"
-    cmp "$root/project.before" "$root/project.after"
+    snapshot "$project" > "$root/project.second"
+    diff_code=0
+    assert_snapshot "$root/project.before" "$root/project.second" 'Link 1->2' report || diff_code=$?
+    [[ $diff_code -le 1 ]] || exit "$diff_code"
+    [[ $diff_code == 0 ]] || second_changed=true
+    stage="candidate third link (${names[i]})"
+    run "third-${names[i]}" bash "$install/scripts/link.sh" --platforms "${platforms[i]}" --yes
+    snapshot "$project" > "$root/project.third"
+    diff_code=0
+    assert_snapshot "$root/project.second" "$root/project.third" 'Link 2->3' report || diff_code=$?
+    [[ $diff_code -le 1 ]] || exit "$diff_code"
+    [[ $diff_code == 0 ]] || third_changed=true
     if [[ ${names[i]} == kilo-project ]]; then
         [[ $(grep -F -o "$legacy_note" "$root/repeat-${names[i]}.log" | wc -l | tr -d ' ') == 1 ]]
+        [[ $(grep -F -o "$legacy_note" "$root/third-${names[i]}.log" | wc -l | tr -d ' ') == 1 ]]
         cmp compound-gpid.local.md "$root/legacy-config.before"
     fi
 done
@@ -219,6 +263,9 @@ stage='outside-write checks'
 for name in candidate backup install outside source; do
     case $name in backup) path=${backups[0]} ;; outside) path=$root/outside ;; *) path=${!name} ;; esac
     snapshot "$path" > "$root/$name.after"
-    cmp "$root/$name.before" "$root/$name.after"
+    assert_snapshot "$root/$name.before" "$root/$name.after" "$name changed"
 done
+stage='repeat snapshot assertions'
+if [[ $second_changed == true ]]; then reason='Second link changed project.'; exit 1; fi
+if [[ $third_changed == true ]]; then reason='Third link changed project.'; exit 1; fi
 result=pass
