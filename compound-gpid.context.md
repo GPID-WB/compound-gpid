@@ -170,22 +170,6 @@ rules that help Copilot produce accurate outputs across all prompts and sessions
 
 - **Filesystem race tests must inject at the final mutation boundary**: Pathname validation (`stat`, hash, symlink checks) is not a guarantee for a later pathname mutation. Use root-anchored no-follow directory handles and handle-relative replacement. For stale deletion, atomically quarantine the name, verify the quarantined object, then unlink it. Tests must swap paths immediately before replace/quarantine and assert real managed outputs or credential/API boundaries, not unrelated sentinels. See `.cg-docs/solutions/testing-patterns/2026-07-28-handle-relative-filesystem-mutations-and-real-boundary-tests.md`.
 
-### Release Gate Evidence (2026-09-13)
-
-- Run the exact default package gate in a fresh isolated locked environment;
-  optional dependency groups and a warmed venv cannot prove its dependency
-  contract. Keep package test dependencies out of runtime-only distributions.
-  Prove mock executable startup and exact argv before diagnosing a launcher.
-  See [clean default gates](.cg-docs/solutions/testing-patterns/2026-09-13-clean-default-release-gates-and-executable-fixtures.md).
-- On the tested Windows MSYS GPG host, use a fresh short private child `TEMP`/`TMP`
-  directly under the approved parent; no nested `package` suffix. Pytest
-  `--basetemp` alone does not control the controller's GPG home. Preserve signing
-  assertions and global environment settings. See
-  [GPG socket path evidence](.cg-docs/solutions/environment-issues/2026-09-13-windows-gpg-agent-socket-path-budget.md).
-- Record failed assertions, cleanup, skips, host scope and source identity
-  separately. Zero failed assertions is not successful cleanup; absent skip
-  details remain unknown. Do not sum overlapping gates or rewrite failed runs.
-
 ## Bash Scripting Conventions
 
 - **Command substitution functions must be stdout-clean**: Any bash function whose return value is captured via `VAR="$(fn)"` must write only the return value to stdout. All warnings and progress messages must go to `>&2`. Color helpers (`print_yellow`, `print_gray`, etc.) are **not** stderr-safe by default — always add `>&2` when calling them inside a function used via command substitution. Without `>&2`, the warning text is captured into the variable alongside the intended return value, corrupting every downstream file operation silently (exit code 0, no error). See `.cg-docs/solutions/bugs/2026-05-05-print-yellow-stdout-corrupts-command-substitution-variable.md`.
@@ -245,73 +229,6 @@ rules that help Copilot produce accurate outputs across all prompts and sessions
 - **Manage `.gitignore` blocks with remove-then-rewrite strategy**: Use remove-then-rewrite for vendor-managed `.gitignore` blocks: unconditionally strip the old block via regex, then append the canonical block. This handles renamed/removed entries without leaving orphans. See `.cg-docs/solutions/git-workflows/2026-03-23-idempotent-gitignore-block-management.md`.
 
 - **Windows junction cleanup in CI requires `cmd /c rmdir` — not `Remove-Item -Recurse`**: `Remove-Item -Recurse` follows junction links into the source tree on Windows, corrupting the linked directory. Use `cmd /c rmdir /s /q` in GitHub Actions for junction teardown — it treats junctions as atomic entries. See `.cg-docs/solutions/git-workflows/2026-05-13-e2e-smoke-test-github-actions-windows-junction-teardown.md`.
-
-### Release Controller Continuations (2026-09-13)
-
-- Renew applicable human authority before each separately started continuation
-  effect after intervening reads or completed operations. Preserve authorized
-  prefixes and unresolved intents. This finite contract is not atomic GitHub
-  permission/effect enforcement. Reviewed recovery retains exact source/tag
-  identity and independent protected approval.
-- Decision `D-2026-09-13-defer-live-rollout` keeps the publisher disabled and live
-  bridge, native clean-client, release-mode CI, sandbox and performance evidence
-  deferred, not passed. It does not defer local checks or ordinary PR CI. V8
-  still requires the exact committed preflight after the separately authorized
-  pipeline step 11 commit. See
-  [authority and evidence boundaries](.cg-docs/solutions/git-workflows/2026-09-13-release-controller-authority-and-evidence-boundaries.md).
-
-### Release prerelease automation (2026-09-17)
-
-- **Source-branch policy**: official `x.y.z` releases deploy only from the
-  protected remote policy's `production_branches` or the remote default;
-  prerelease `x.y.z.<build>` may originate from any verified same-repository
-  branch, including dev. Trust the exact protected remote default commit, never
-  the source branch's editable policy; detached checkouts need an explicit
-  `-SourceBranch`. See
-  [source-branch policy](.cg-docs/solutions/git-workflows/2026-09-17-release-source-branch-policy-clarified.md).
-- **Preflight receipts**: `cg_pr_preflight.py --emit-receipt <external-path>`
-  emits canonical JSON (commit/tree SHA, LF provenance, command list, exit
-  codes, SHA-256 digest) only after a complete successful committed gate;
-  `create-release.ps1 -PreflightReceipt` reuses it only on exact
-  commit/tree/digest/LF match and always fails safe to a full re-run. Receipts
-  stay outside the working tree; the producer owns a fresh command-local LF
-  clone (`git -c core.autocrlf=false -c core.eol=lf`), and destination
-  ownership is exclusive while the receipt lives. See
-  [receipt design](.cg-docs/solutions/git-workflows/2026-09-17-preflight-receipt-commit-tree-lf-provenance.md).
-- **Repo settings (V10, verified read-only 2026-09-17 after maintainer
-  action ~21:41Z/22:07Z)**: `allow_auto_merge: true`; ruleset "Protect dev"
-  (id 21338685, refs/heads/dev, strict required-checks policy) requires Pester
-  macos-14/windows-2022, Native target Python gate macos-14/windows-2022, and
-  PR title Conventional Commits, with 0 approvals and merge/squash/rebase
-  allowed. Verify read-only before relying on automation; missing settings are
-  a blocked-stop. See
-  [settings verification](.cg-docs/solutions/git-workflows/2026-09-17-repo-settings-auto-merge-protect-dev-required-checks.md).
-- **Docs previews** restore durable official bytes from the protected Pages
-  origin (`cg-official-snapshot.json` sealed by the protected official
-  deployment), never from expired build artifacts, history scans, or main.
-  See [durable snapshot](.cg-docs/solutions/git-workflows/2026-09-17-docs-preview-durable-official-snapshot.md).
-- **Test execution in long sessions**: `tests/Run-Tests.ps1` filters by
-  registry names (`-File create-release`, not filenames); preserve
-  `tests/last-run.json` between back-to-back Pester jobs and never overlap
-  jobs. The dedicated task-runner substitution (approved 2026-09-17) uses
-  exact RUNNER_REQUEST command lists with returned executed evidence and never
-  waives evidence. See
-  [runner registry](.cg-docs/solutions/testing-patterns/2026-09-17-pester-runner-registry-filter-names-and-artifact-preservation.md)
-  and
-  [task-runner substitution](.cg-docs/solutions/testing-patterns/2026-09-17-dedicated-task-runner-substitution-for-execution-subagent.md).
-
-### Legacy-First Routine Prereleases (2026-09-24)
-
-- A bare `/cg-release vX.Y.Z.<build>` or ordinary four-part `--resume` uses
-  the existing PowerShell Reserve/Finalize publisher with `Routine` while the
-  protected remote controller policy remains disabled. Generic controller
-  commands and exceptional Bridge/Recovery are separate. The post-tag-push
-  policy recheck can stop the Release POST but cannot make cutover atomic:
-  review P1.1 was skipped by explicit user decision, not fixed. Reconcile
-  exact remote tag/Release state read-only before separately authorized
-  recovery; never move the tag or treat offline green tests as proof of live
-  reliability or exclusive publication. See
-  [Routine prerelease reuse and cutover boundary](.cg-docs/solutions/git-workflows/2026-09-24-routine-prerelease-reuse-and-cutover-boundary.md).
 
 ## Install/Link Script Conventions
 
@@ -450,18 +367,6 @@ Wiki-aware prompts (`/cg-wiki`, `/cg-compound`) read these HTML comment directiv
   trusted default-branch checkout, and reviewed executable version/SHA-256
   evidence. See `.cg-docs/solutions/git-workflows/2026-08-21-pr-ci-preflight-native-target-kilo-capability-gates.md`.
 
-### Verified documentation and help evidence (2026-09-17)
-
-- The help writer emits one validated catalog/documents snapshot; projections
-  must consume that envelope without reopening catalog facts after validation.
-- Native help evidence binds its entire declared source inventory, including
-  documentation helpers. Refresh proof after any bound input changes; preserve
-  exact query, fixed-operation and unchanged-display assertions. Static adapter
-  parity does not establish runtime support for an untested host or model.
-- Help-owned wiki marker interiors are written only by the canonical help
-  documentation writer. See
-  `.cg-docs/solutions/testing-patterns/2026-09-17-docs-snapshots-and-native-help-evidence.md`.
-
 ## Python Registry Mutation Conventions
 
 - Parse rewritable JSON numbers exactly; binary floats do not preserve unknown
@@ -470,12 +375,6 @@ Wiki-aware prompts (`/cg-wiki`, `/cg-compound`) read these HTML comment directiv
   expected-state publication.
 - Test the real final secure-write boundary and assert exact source restoration,
   not only mocked writer failure.
-- Treat registry ownership as a consumer-closure contract: every ownership,
-  routing, activation, removal, and generation decision must use the central
-  exclusion-aware resolver. Preserve missing optional fields at legacy
-  boundaries, and use exact phase-scoped deferral sets when generated output is
-  intentionally scheduled for a later phase. See
-  `.cg-docs/solutions/testing-patterns/2026-09-09-registry-ownership-metadata-needs-consumer-closure-tests.md`.
 - Validate every registry identity field before building keyed maps or sets.
   Require non-empty string values, test each duplicate field independently, and
   call validation next to the canonical registry before derived constants. See

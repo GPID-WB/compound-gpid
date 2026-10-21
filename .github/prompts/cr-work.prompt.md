@@ -1,6 +1,7 @@
 ---
 description: "Research work — implement a research plan step by step. Supports
   /cr-work [phaseX]. Enforces P0 seed, provenance, and specification logging requirements."
+module: research
 ---
 
 # Research Work

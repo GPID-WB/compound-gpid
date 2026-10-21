@@ -25,8 +25,7 @@ const MAX_RELEASES = 20;
 const MAX_TITLE_LEN = 120;
 const MAX_ENTRY_LEN = 500;
 const MAX_ENTRIES = 50;
-const REPOSITORY = process.env.CG_RELEASE_REPOSITORY || "GPID-WB/compound-gpid";
-if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(REPOSITORY)) throw new Error("Invalid declared release repository");
+const REPOSITORY = "GPID-WB/compound-gpid";
 
 const OPEN = "<!-- cg:auto:release-notes -->";
 const CLOSE = "<!-- cg:auto:end -->";
@@ -86,14 +85,14 @@ function isIsoDate(value) {
 function isGitHubReleaseUrl(value, tag) {
   return (
     typeof value === "string" &&
-    new RegExp(`^https://github\\.com/${escapeRegExp(REPOSITORY)}/releases/tag/${escapeRegExp(tag)}$`).test(value)
+    new RegExp(`^https://github\\.com/${REPOSITORY}/releases/tag/${escapeRegExp(tag)}$`).test(value)
   );
 }
 
 function isGitHubTagUrl(value, tag) {
   return (
     typeof value === "string" &&
-    new RegExp(`^https://github\\.com/${escapeRegExp(REPOSITORY)}/tree/${escapeRegExp(tag)}$`).test(value)
+    new RegExp(`^https://github\\.com/${REPOSITORY}/tree/${escapeRegExp(tag)}$`).test(value)
   );
 }
 
@@ -109,9 +108,7 @@ function validatePayload(payload, sourceName) {
   const label = `payload ${sourceName}`;
   if (!payload || typeof payload !== "object" || Array.isArray(payload)) fail(`${label} is not an object`);
   if (payload.schemaVersion !== 1) fail(`${label} has invalid schemaVersion`);
-  try {
-    require("./release-version.js").parseReleaseTag(payload.tag);
-  } catch (_) {
+  if (typeof payload.tag !== "string" || !/^v\d+\.\d+\.\d+(\.\d+)?$/.test(payload.tag)) {
     fail(`${label} has invalid tag '${payload.tag}'`);
   }
   if (!isIsoUtc(payload.publishedAt)) fail(`${label} has malformed publishedAt '${payload.publishedAt}'`);
@@ -154,8 +151,68 @@ function validatePayload(payload, sourceName) {
   if (unknownTop.length) fail(`${label} has unrecognized field '${unknownTop[0]}'`);
 }
 
+// ---------------------------------------------------------------------------
+// Loading release files
+// ---------------------------------------------------------------------------
+
 function loadReleasePayloads(root) {
-  return require("./release-payloads.js").loadReleasePayloads(root, validatePayload, fail);
+  const releasesDir = path.join(root, "releases");
+  if (!fs.existsSync(releasesDir)) return [];
+  if (fs.lstatSync(releasesDir).isSymbolicLink()) fail("releases directory must not be a symbolic link");
+  const files = fs.readdirSync(releasesDir)
+    .filter((f) => f.endsWith(".json") && f !== ".gitkeep")
+    .sort();
+  const versioned = [];
+  let latest = null;
+  for (const file of files) {
+    const full = path.join(releasesDir, file);
+    if (fs.lstatSync(full).isSymbolicLink()) fail(`release file '${file}' must not be a symbolic link`);
+    const raw = fs.readFileSync(full, "utf8");
+    let payload;
+    try {
+      payload = JSON.parse(raw);
+    } catch {
+      fail(`release file '${file}' is not valid JSON`);
+    }
+    validatePayload(payload, file);
+    if (file === "latest.json") {
+      latest = { payload, raw };
+      continue;
+    }
+    if (!/^v\d+\.\d+\.\d+(\.\d+)?\.json$/.test(file)) {
+      fail(`release file '${file}' must use an immutable versioned filename`);
+    }
+    if (file !== `${payload.tag}.json`) fail(`release file '${file}' does not match payload tag '${payload.tag}'`);
+    versioned.push({ payload, file, raw });
+  }
+  const result = versioned.map((v) => ({ payload: v.payload, file: v.file, raw: v.raw }));
+  if (result.length && !latest) fail("latest.json is required when immutable release payloads exist");
+  // latest.json must be a byte-for-byte current-release convenience copy of an
+  // immutable versioned payload; never render it as a second release.
+  if (latest) {
+    const match = result.find(
+      (r) => r.payload.tag === latest.payload.tag && r.file === `${latest.payload.tag}.json`
+    );
+    const versionedTag = result.find((r) => r.payload.tag === latest.payload.tag);
+    if (!match || !versionedTag) fail(`latest.json tag '${latest.payload.tag}' has no immutable versioned payload`);
+    if (versionedTag.raw !== latest.raw) fail(`latest.json does not byte-match its versioned payload '${latest.payload.tag}'`);
+  }
+  // Reject duplicate tags across immutable payloads.
+  const tags = new Set();
+  for (const r of result) {
+    if (tags.has(r.payload.tag)) fail(`duplicate immutable release tag '${r.payload.tag}'`);
+    tags.add(r.payload.tag);
+  }
+  // Stable newest-first ordering by publishedAt then tag.
+  result.sort((a, b) => {
+    const da = a.payload.publishedAt.localeCompare(b.payload.publishedAt);
+    if (da !== 0) return -da;
+    return -a.payload.tag.localeCompare(b.payload.tag);
+  });
+  if (latest && result.length && latest.payload.tag !== result[0].payload.tag) {
+    fail(`latest.json must match newest immutable payload '${result[0].payload.tag}'`);
+  }
+  return result;
 }
 
 // ---------------------------------------------------------------------------
@@ -201,7 +258,7 @@ function renderReleases(payloads) {
 }
 
 function githubReleasesUrl(sourceUrl) {
-  const m = new RegExp(`^(https://github\\.com/${escapeRegExp(REPOSITORY)})/tree/`).exec(sourceUrl);
+  const m = /^(https:\/\/github\.com\/GPID-WB\/compound-gpid)\/tree\//.exec(sourceUrl);
   if (!m) fail(`cannot derive GitHub Releases URL from sourceUrl '${sourceUrl}'`);
   return `${m[1]}/releases`;
 }

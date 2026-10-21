@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 
@@ -50,7 +51,7 @@ def test_powershell_projects_before_local_kilo_preflight() -> None:
     )
     _assert_order(
         content,
-        "Invoke-CgProjection -ProjectRoot",
+        "--sync-projection",
         "Invoke-CgKiloPreflight -ProjectRoot $ProjectRoot -LocalOnly",
     )
 
@@ -59,7 +60,11 @@ def test_shell_projects_before_local_kilo_preflight() -> None:
     """The macOS/Linux wrapper must materialize roots before validating them."""
     content = (REPO_ROOT / "scripts/link.sh").read_text(encoding="utf-8")
     _assert_order(content, "cg_project_manifest.py", "\ncleanup_legacy_model_mapping_files\n")
-    _assert_order(content, "cg_project_projection.py", "run_kilo_preflight local")
+    calls = list(re.finditer(
+        r"(?m)(?:^|[;)])[ \t]*run_kilo_preflight[ \t]*(?=;|$)", content,
+    ))
+    assert calls, "Missing runtime run_kilo_preflight invocation"
+    assert all(content.index("--sync-projection") < call.start() for call in calls)
     assert 'projection_root="$(platform_generated_tree "$platform")"' in content
 
 
@@ -83,6 +88,28 @@ def test_both_update_wrappers_sync_the_exact_projection_plan() -> None:
     assert "--sync" in shell
     assert "synced and verified" in powershell
     assert "synced and verified" in shell
+
+
+@pytest.mark.parametrize("name", ("link.ps1", "link.sh", "update.ps1", "update.sh"))
+def test_lifecycle_preflight_is_local_only_and_note_is_nonblocking(name: str) -> None:
+    """Lifecycle validation never selects host/coexistence mode or certification."""
+    content = (REPO_ROOT / "scripts" / name).read_text(encoding="utf-8")
+    assert "--host-only" not in content
+    assert "--require-coexistence" not in content
+    assert "-HostOnly" not in content
+    assert "-RequireCoexistence" not in content
+    assert "Certified launch required" not in content
+    assert content.count("Note: Kilo and compatibility skills coexist.") == 1
+    assert ".compound-gpid-managed-copy.json" in content
+    if name.startswith("update"):
+        assert "CG_INTERNAL_CALL" in content
+    if name.endswith("ps1"):
+        calls = [line for line in content.splitlines() if "Invoke-CgKiloPreflight" in line]
+        assert calls and all("-LocalOnly" in line for line in calls)
+    else:
+        calls = [line for line in content.splitlines()
+                 if "cg_kilo_preflight.py" in line and "--root" in line]
+        assert calls and all("--local-only" in line for line in calls)
 
 
 @pytest.mark.skipif(os.name == "nt", reason="macOS/Linux link.sh integration")
@@ -156,6 +183,29 @@ def test_shell_links_fresh_manifest_driven_kilo_project(
         assert (project / ".kilo/instructions" / required_instruction).is_file()
     if excluded_instruction is not None:
         assert not (project / ".kilo/instructions" / excluded_instruction).exists()
+
+
+@pytest.mark.skipif(os.name == "nt", reason="macOS/Linux link.sh integration")
+def test_shell_normal_link_startup_without_arguments(tmp_path: Path) -> None:
+    """Empty probe arguments must be safe under macOS Bash 3.2 nounset."""
+    bash = shutil.which("bash")
+    if bash is None:
+        pytest.skip("bash is unavailable")
+    project, profile = tmp_path / "consumer", tmp_path / "profile"
+    project.mkdir()
+    profile.mkdir()
+    (project / "compound-gpid.local.md").write_text(LOCAL_CONFIG, encoding="utf-8")
+    environment = os.environ.copy()
+    environment.update({"CG_SKIP_UPDATE": "1", "HOME": str(profile)})
+    result = subprocess.run(
+        [bash, str(REPO_ROOT / "scripts/link.sh")],
+        cwd=project, env=environment, capture_output=True, text=True,
+        timeout=180, check=False,
+    )
+    output = result.stdout + result.stderr
+    assert result.returncode == 0, output
+    assert "unbound variable" not in output
+    assert "Linked!" in output
 
 
 @pytest.mark.skipif(os.name == "nt", reason="macOS/Linux link.sh integration")

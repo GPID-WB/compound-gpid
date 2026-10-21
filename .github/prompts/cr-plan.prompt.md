@@ -1,6 +1,7 @@
 ---
 description: "Research plan — structured implementation plan for research tasks.
   Use after /cr-brainstorm to create concrete steps."
+module: research
 ---
 
 # Research Plan

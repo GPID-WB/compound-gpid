@@ -13,7 +13,6 @@ import warnings
 
 BeforeReplace = Optional[Callable[[Path], None]]
 BeforeOpen = Optional[Callable[[Path], None]]
-FileIdentity = Tuple[int, int, int]
 _REPARSE_POINT_FLAG = 0x400
 _SUPPORTS_SECURE_DIR_FD = (
     os.name != "nt"
@@ -26,10 +25,6 @@ _RENAME_NOREPLACE = 1
 
 class SecureMutationError(OSError):
     """A path identity or type changed at a secure mutation boundary."""
-
-
-class SecureReadLimitError(SecureMutationError):
-    """A pinned source exceeds the requested bounded-read limit."""
 
 
 @dataclass(frozen=True)
@@ -383,47 +378,6 @@ def secure_write_bytes(
     return destination
 
 
-def secure_create_bytes(
-    root: Path,
-    relative_path: Union[str, PurePath],
-    content: bytes,
-) -> FileIdentity:
-    """Publish a new private regular file and return its pinned identity.
-
-    Args:
-        root: Existing directory. relative_path: Confined destination.
-        content: Initial bytes; an existing destination is never replaced.
-    Returns:
-        Device, file ID, and birth time (zero if unavailable), from the handle.
-    Raises:
-        OSError: On collision, unsafe paths, or failed publication.
-    Example:
-        ``identity = secure_create_bytes(root, 'request.txt', b'')``.
-    """
-    root = Path(root)
-    normalized = normalize_relative_path(relative_path)
-    if not root.is_dir() or root.is_symlink():
-        raise SecureMutationError(f"Unsafe creation root: {root}.")
-    kwargs = dict(executable=None, before_replace=None,
-                  expected_state=ExpectedFileState.absent())
-    if supports_secure_dir_fd():
-        return _secure_write_posix(root, normalized, content, private=True, **kwargs)
-    if is_windows_host():
-        return _secure_write_windows(root, normalized, content, **kwargs)
-    raise SecureMutationError("This platform has no secure creation backend.")
-
-
-def _require_identity(actual: FileIdentity, expected: Optional[FileIdentity]) -> None:
-    """Compare a prepared identity with the current pinned file, if supplied."""
-    if expected is not None and actual != expected:
-        raise SecureMutationError("Prepared file identity changed.")
-
-
-def _posix_file_identity(metadata) -> FileIdentity:
-    """Return stable identity fields that permit edits to the same inode."""
-    return (metadata.st_dev, metadata.st_ino, getattr(metadata, "st_birthtime_ns", 0))
-
-
 def secure_read_bytes(
     root: Path,
     relative_path: Union[str, PurePath],
@@ -431,7 +385,6 @@ def secure_read_bytes(
     before_open: BeforeOpen = None,
     reject_hardlinks: bool = False,
     max_bytes: Optional[int] = None,
-    expected_identity: Optional[FileIdentity] = None,
 ) -> bytes:
     """Read one root-relative regular file through pinned no-follow handles.
 
@@ -443,7 +396,6 @@ def secure_read_bytes(
         reject_hardlinks: Reject files with more than one filesystem link.
         max_bytes: Optional maximum returned byte count. The pinned handle is
             inspected before allocation and read at most this value plus one.
-        expected_identity: Optional identity captured by secure_create_bytes.
 
     Returns:
         Exact file bytes from the pinned source identity.
@@ -470,7 +422,6 @@ def secure_read_bytes(
             before_open=before_open,
             reject_hardlinks=reject_hardlinks,
             max_bytes=max_bytes,
-            expected_identity=expected_identity,
         )
     if is_windows_host():
         return _secure_read_windows(
@@ -479,7 +430,6 @@ def secure_read_bytes(
             before_open=before_open,
             reject_hardlinks=reject_hardlinks,
             max_bytes=max_bytes,
-            expected_identity=expected_identity,
         )
     raise SecureMutationError(
         "This platform has no secure handle-relative read backend."
@@ -489,10 +439,9 @@ def secure_read_bytes(
 def secure_delete_verified(
     root: Path,
     relative_path: Union[str, PurePath],
-    expected_sha256: Optional[str],
+    expected_sha256: str,
     *,
     before_unlink: BeforeOpen = None,
-    expected_identity: Optional[FileIdentity] = None,
 ) -> None:
     """Quarantine, verify, and delete one root-relative regular file.
 
@@ -502,11 +451,8 @@ def secure_delete_verified(
     Args:
         root: Existing generated-tree root.
         relative_path: Owned file below ``root``.
-        expected_sha256: Lowercase digest authorized for deletion, or explicit
-            None to delete an owned payload without reading any payload bytes.
+        expected_sha256: Lowercase digest authorized for deletion.
         before_unlink: Optional test hook at the final mutation boundary.
-        expected_identity: Require this prepared identity as well as any digest.
-            Mandatory valid FileIdentity when expected_sha256 is None.
 
     Returns:
         ``None`` after verified deletion, or when the file is already absent.
@@ -517,14 +463,7 @@ def secure_delete_verified(
 
     Example:
         ``secure_delete_verified(root, Path("old.md"), expected_digest)``.
-        ``secure_delete_verified(root, 'oversized.txt', None,
-        expected_identity=identity)`` never reads the owned payload.
     """
-    if expected_sha256 is None and (
-        not isinstance(expected_identity, tuple) or len(expected_identity) != 3
-        or any(type(item) is not int or item < 0 for item in expected_identity)
-    ):
-        raise ValueError("Identity-only deletion requires a valid expected_identity.")
     root = Path(root)
     normalized = normalize_relative_path(relative_path)
     if supports_secure_dir_fd():
@@ -533,7 +472,6 @@ def secure_delete_verified(
             normalized,
             expected_sha256,
             before_unlink=before_unlink,
-            expected_identity=expected_identity,
         )
         return
     if is_windows_host():
@@ -542,7 +480,6 @@ def secure_delete_verified(
             normalized,
             expected_sha256,
             before_unlink=before_unlink,
-            expected_identity=expected_identity,
         )
         return
     raise SecureMutationError(
@@ -595,8 +532,7 @@ def _secure_write_posix(
     executable: Optional[bool],
     before_replace: BeforeReplace,
     expected_state: Optional[ExpectedFileState],
-    private: bool = False,
-) -> FileIdentity:
+) -> None:
     parent_fd, name = open_relative_parent(root, relative_path, create=True)
     temporary = f".{name}.{uuid.uuid4().hex}.tmp"
     previous = f".{name}.{uuid.uuid4().hex}.previous"
@@ -615,7 +551,7 @@ def _secure_write_posix(
             original_target is not None,
             relative_path,
         )
-        creation_mode = 0o600 if private else (0o777 if executable is True else 0o666)
+        creation_mode = 0o777 if executable is True else 0o666
         file_fd = os.open(
             temporary,
             os.O_WRONLY | os.O_CREAT | os.O_EXCL,
@@ -675,7 +611,6 @@ def _secure_write_posix(
                         RuntimeWarning,
                         stacklevel=2,
                     )
-        return _posix_file_identity(os.fstat(file_fd))
     except BaseException as publication_error:
         if not committed:
             try:
@@ -722,7 +657,6 @@ def _secure_read_posix(
     before_open: BeforeOpen,
     reject_hardlinks: bool,
     max_bytes: Optional[int],
-    expected_identity: Optional[FileIdentity] = None,
 ) -> bytes:
     parent_fd, name = open_relative_parent(root, relative_path, create=False)
     file_fd: Optional[int] = None
@@ -733,7 +667,6 @@ def _secure_read_posix(
         file_fd = os.open(name, flags, dir_fd=parent_fd)
         assert file_fd is not None
         metadata = os.fstat(file_fd)
-        _require_identity(_posix_file_identity(metadata), expected_identity)
         if not stat.S_ISREG(metadata.st_mode):
             raise SecureMutationError(
                 f"Source is not a regular file: {root / relative_path}."
@@ -760,10 +693,9 @@ def _secure_read_posix(
 def _secure_delete_posix(
     root: Path,
     relative_path: str,
-    expected_sha256: Optional[str],
+    expected_sha256: str,
     *,
     before_unlink: BeforeOpen,
-    expected_identity: Optional[FileIdentity] = None,
 ) -> None:
     parent_fd, name = open_relative_parent(root, relative_path, create=False)
     quarantine = f".{name}.{uuid.uuid4().hex}.stale"
@@ -772,16 +704,13 @@ def _secure_delete_posix(
     try:
         if before_unlink is not None:
             before_unlink(root / relative_path)
-        if expected_identity is not None:
-            metadata = _stat_target(parent_fd, name)
-            if metadata is None:
-                raise SecureMutationError("Prepared file identity is missing.")
-            _require_identity(_posix_file_identity(metadata), expected_identity)
-            if not stat.S_ISREG(metadata.st_mode) or metadata.st_nlink != 1:
-                raise SecureMutationError("Prepared file type or link count changed.")
-            _verify_parent_identity(root, relative_path, parent_fd)
         try:
-            _posix_rename_noreplace(parent_fd, name, quarantine)
+            os.replace(
+                name,
+                quarantine,
+                src_dir_fd=parent_fd,
+                dst_dir_fd=parent_fd,
+            )
         except FileNotFoundError:
             return
         quarantined = True
@@ -789,29 +718,17 @@ def _secure_delete_posix(
             root / PurePosixPath(relative_path),
             root / PurePosixPath(relative_path).parent / quarantine,
         )
-        flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0)
+        flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
         quarantine_fd = os.open(quarantine, flags, dir_fd=parent_fd)
         assert quarantine_fd is not None
-        try:
-            metadata = os.fstat(quarantine_fd)
-            if expected_identity is not None and (
-                _posix_file_identity(metadata) != expected_identity
-                or not stat.S_ISREG(metadata.st_mode) or metadata.st_nlink != 1
-            ):
-                _restore_posix_quarantine(parent_fd, quarantine, name, relative_path)
-                quarantined = False
-                raise SecureMutationError("Prepared file identity changed before deletion.")
-            if expected_sha256 is not None:
-                with os.fdopen(quarantine_fd, "rb", closefd=False) as handle:
-                    actual_sha256 = hashlib.sha256(handle.read()).hexdigest()
-                if actual_sha256 != expected_sha256:
-                    _restore_posix_quarantine(parent_fd, quarantine, name, relative_path)
-                    quarantined = False
-                    raise SecureMutationError(
-                        f"Stale owned file changed before deletion: {relative_path}."
-                    )
-        finally:
-            os.close(quarantine_fd)
+        with os.fdopen(quarantine_fd, "rb") as handle:
+            actual_sha256 = hashlib.sha256(handle.read()).hexdigest()
+        if actual_sha256 != expected_sha256:
+            _restore_posix_quarantine(parent_fd, quarantine, name, relative_path)
+            quarantined = False
+            raise SecureMutationError(
+                f"Stale owned file changed before deletion: {relative_path}."
+            )
         os.unlink(quarantine, dir_fd=parent_fd)
         quarantined = False
         committed = True
@@ -876,7 +793,7 @@ def _secure_write_windows(
     executable: Optional[bool],
     before_replace: BeforeReplace,
     expected_state: Optional[ExpectedFileState],
-) -> FileIdentity:
+) -> None:
     del executable
     handles, parent, _parent_handle, name = _windows_pin_parent_chain(
         root,
@@ -940,7 +857,6 @@ def _secure_write_windows(
                 )
             else:
                 previous_quarantined = False
-        return _windows_file_identity(temporary_handle)
     except BaseException as publication_error:
         if not published and existing_handle is not None and previous_quarantined:
             try:
@@ -977,7 +893,6 @@ def _secure_read_windows(
     before_open: BeforeOpen,
     reject_hardlinks: bool,
     max_bytes: Optional[int],
-    expected_identity: Optional[FileIdentity] = None,
 ) -> bytes:
     handles, parent, _parent_handle, name = _windows_pin_parent_chain(
         root,
@@ -989,7 +904,6 @@ def _secure_read_windows(
         if before_open is not None:
             before_open(root / PurePosixPath(relative_path))
         file_handle = _windows_open_regular(parent / name, read=True, delete=False)
-        _require_identity(_windows_file_identity(file_handle), expected_identity)
         if reject_hardlinks and _windows_handle_link_count(file_handle) != 1:
             raise SecureMutationError(
                 f"Source has multiple hard links and is unsafe for model context: "
@@ -999,7 +913,7 @@ def _secure_read_windows(
         _reject_oversize(_windows_handle_size(file_handle), max_bytes, source_path)
         content = _windows_read_all(file_handle, max_bytes=max_bytes)
         if max_bytes is not None and len(content) > max_bytes:
-            raise SecureReadLimitError(
+            raise SecureMutationError(
                 f"Source grew beyond secure read limit {max_bytes}: {source_path}."
             )
         return content
@@ -1012,10 +926,9 @@ def _secure_read_windows(
 def _secure_delete_windows(
     root: Path,
     relative_path: str,
-    expected_sha256: Optional[str],
+    expected_sha256: str,
     *,
     before_unlink: BeforeOpen,
-    expected_identity: Optional[FileIdentity] = None,
 ) -> None:
     handles, parent, _parent_handle, name = _windows_pin_parent_chain(
         root,
@@ -1031,27 +944,16 @@ def _secure_delete_windows(
         if before_unlink is not None:
             before_unlink(root / PurePosixPath(relative_path))
         try:
-            file_handle = _windows_open_regular(
-                parent / name, read=expected_sha256 is not None, delete=True)
+            file_handle = _windows_open_regular(parent / name, read=True, delete=True)
         except FileNotFoundError:
-            if expected_identity is not None:
-                raise SecureMutationError("Prepared file identity is missing.")
             return
-        except OSError as error:
-            if expected_sha256 is None:
-                raise SecureMutationError("Prepared file cannot be pinned for deletion.") from error
-            raise
-        _require_identity(_windows_file_identity(file_handle), expected_identity)
-        if expected_identity is not None and _windows_handle_link_count(file_handle) != 1:
-            raise SecureMutationError("Prepared file link count changed.")
         _windows_rename_handle(file_handle, parent / quarantine, replace=False)
         quarantined = True
-        if expected_sha256 is not None:
-            actual_sha256 = hashlib.sha256(_windows_read_all(file_handle)).hexdigest()
-            if actual_sha256 != expected_sha256:
-                raise SecureMutationError(
-                    f"Stale owned file changed before deletion: {relative_path}."
-                )
+        actual_sha256 = hashlib.sha256(_windows_read_all(file_handle)).hexdigest()
+        if actual_sha256 != expected_sha256:
+            raise SecureMutationError(
+                f"Stale owned file changed before deletion: {relative_path}."
+            )
         _windows_dispose_handle(file_handle)
         quarantined = False
         committed = True
@@ -1091,7 +993,7 @@ def _windows_pin_parent_chain(
             current = current / part
             if create:
                 try:
-                    current.mkdir()
+                    os.mkdir(_windows_long_path(current))
                 except FileExistsError:
                     pass
             child_handle = _windows_open_directory(current)
@@ -1119,6 +1021,10 @@ def _windows_api():
     )
     kernel32.GetFileInformationByHandle.restype = wintypes.BOOL
     kernel32.GetFileInformationByHandle.argtypes = (wintypes.HANDLE, wintypes.LPVOID)
+    kernel32.GetFileInformationByHandleEx.restype = wintypes.BOOL
+    kernel32.GetFileInformationByHandleEx.argtypes = (
+        wintypes.HANDLE, ctypes.c_int, wintypes.LPVOID, wintypes.DWORD,
+    )
     kernel32.WriteFile.restype = wintypes.BOOL
     kernel32.WriteFile.argtypes = (
         wintypes.HANDLE,
@@ -1206,33 +1112,6 @@ def _windows_copy_readonly_attribute(source_handle, target_handle) -> None:
         target_handle,
         bool(source_attributes & 0x00000001),
     )
-
-
-def _windows_file_identity(handle) -> FileIdentity:
-    """Read stable volume/file/birth identity directly from the open handle."""
-    ctypes, wintypes, kernel32 = _windows_api()
-
-    class FileInformation(ctypes.Structure):
-        _fields_ = [
-            ("dwFileAttributes", wintypes.DWORD),
-            ("ftCreationTime", wintypes.FILETIME),
-            ("ftLastAccessTime", wintypes.FILETIME),
-            ("ftLastWriteTime", wintypes.FILETIME),
-            ("dwVolumeSerialNumber", wintypes.DWORD),
-            ("nFileSizeHigh", wintypes.DWORD),
-            ("nFileSizeLow", wintypes.DWORD),
-            ("nNumberOfLinks", wintypes.DWORD),
-            ("nFileIndexHigh", wintypes.DWORD),
-            ("nFileIndexLow", wintypes.DWORD),
-        ]
-
-    information = FileInformation()
-    if not kernel32.GetFileInformationByHandle(handle, ctypes.byref(information)):
-        _windows_raise_last_error(ctypes, "Could not inspect file identity")
-    return (information.dwVolumeSerialNumber,
-            (information.nFileIndexHigh << 32) | information.nFileIndexLow,
-            (information.ftCreationTime.dwHighDateTime << 32)
-            | information.ftCreationTime.dwLowDateTime)
 
 
 def _windows_handle_attributes(handle) -> int:
@@ -1381,7 +1260,19 @@ def _windows_require_safe_handle(handle, path: Path, *, directory: bool) -> None
         _windows_raise_last_error(ctypes, f"Could not inspect pinned path: {path}")
     attributes = information.dwFileAttributes
     is_directory = bool(attributes & 0x00000010)
-    if attributes & 0x00000400 or is_directory != directory:
+    linked = False
+    if attributes & _REPARSE_POINT_FLAG:
+        class AttributeTagInformation(ctypes.Structure):
+            _fields_ = [("FileAttributes", wintypes.DWORD), ("ReparseTag", wintypes.DWORD)]
+
+        tag_information = AttributeTagInformation()
+        if not kernel32.GetFileInformationByHandleEx(
+            handle, 9, ctypes.byref(tag_information), ctypes.sizeof(tag_information),
+        ):
+            _windows_close_handle(handle)
+            _windows_raise_last_error(ctypes, f"Could not inspect pinned reparse tag: {path}")
+        linked = tag_information.ReparseTag in (0xA000000C, 0xA0000003)
+    if linked or is_directory != directory:
         _windows_close_handle(handle)
         kind = "directory" if directory else "regular file"
         raise SecureMutationError(f"Pinned path is not a safe {kind}: {path}.")
@@ -1710,7 +1601,7 @@ def _reject_oversize(
     source_path: Path,
 ) -> None:
     if max_bytes is not None and size > max_bytes:
-        raise SecureReadLimitError(
+        raise SecureMutationError(
             f"Source size {size} exceeds secure read limit {max_bytes}: "
             f"{source_path}."
         )
@@ -1724,7 +1615,7 @@ def _read_stream_bounded(
 ) -> bytes:
     content = stream.read() if max_bytes is None else stream.read(max_bytes + 1)
     if max_bytes is not None and len(content) > max_bytes:
-        raise SecureReadLimitError(
+        raise SecureMutationError(
             f"Source grew beyond secure read limit {max_bytes}: {source_path}."
         )
     return content
@@ -1790,8 +1681,8 @@ def _stat_identity(metadata) -> Optional[Tuple[int, int, int]]:
 
 
 def _is_link_or_reparse(metadata) -> bool:
-    return stat.S_ISLNK(metadata.st_mode) or bool(
-        getattr(metadata, "st_file_attributes", 0) & _REPARSE_POINT_FLAG
+    return stat.S_ISLNK(metadata.st_mode) or getattr(metadata, "st_reparse_tag", 0) in (
+        0xA000000C, 0xA0000003,
     )
 
 

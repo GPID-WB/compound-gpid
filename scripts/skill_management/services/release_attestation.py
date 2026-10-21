@@ -9,17 +9,20 @@ import stat
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
-from typing import Any, Mapping, Sequence
+from typing import Any, Dict, Mapping, Sequence, Tuple
 
 import secure_fs
-from release_version import LEGACY_TAG, version_key
 
 from skill_management import contracts
 from skill_management.services import provenance
 
+
 ATTESTATION_ROOT = ".github/shared/skill-management/release-attestations"
 _REPARSE_POINT_FLAG = 0x400
 _FULL_SHA = re.compile(r"^[0-9a-f]{40}$")
+_TAG_VERSION = re.compile(
+    r"^v([0-9]+)\.([0-9]+)\.([0-9]+)(?:\.([0-9]+)|-([A-Za-z0-9.-]+))?(?:\+([A-Za-z0-9.-]+))?$"
+)
 
 
 class ReleaseAttestationError(ValueError):
@@ -124,14 +127,14 @@ def _git_bytes(root: Path, object_path: str) -> bytes:
     return result.stdout
 
 
-def _attestation_schema() -> dict[str, Any]:
+def _attestation_schema() -> Dict[str, Any]:
     return contracts.load_contract(
         Path(__file__).resolve().parents[3],
         contracts.CONTRACTS_ROOT / "release-attestation-v1.schema.json",
     )
 
 
-def load_release_attestations(source_root: Path) -> tuple[Mapping[str, Any], ...]:
+def load_release_attestations(source_root: Path) -> Tuple[Mapping[str, Any], ...]:
     """Load every bounded regular release attestation in version order."""
     root = Path(source_root).resolve(strict=True)
     directory = root / ATTESTATION_ROOT
@@ -201,11 +204,20 @@ def load_release_attestations(source_root: Path) -> tuple[Mapping[str, Any], ...
     return tuple(sorted(loaded, key=lambda item: _version_key(str(item["releaseTag"]))))
 
 
-def _version_key(tag: str) -> tuple:
-    try:
-        return version_key(tag)
-    except ValueError as error:
-        raise ReleaseAttestationError(str(error)) from error
+def _version_key(tag: str) -> Tuple[int, int, int, int, int, str]:
+    match = _TAG_VERSION.fullmatch(tag)
+    if match is None:
+        raise ReleaseAttestationError(f"Release tag is not supported: {tag}")
+    development = match.group(4)
+    prerelease = match.group(5)
+    return (
+        int(match.group(1)),
+        int(match.group(2)),
+        int(match.group(3)),
+        0 if development or prerelease else 1,
+        int(development) if development else 0,
+        prerelease or "",
+    )
 
 
 def build_release_attestation(
@@ -213,7 +225,8 @@ def build_release_attestation(
 ) -> Mapping[str, Any]:
     """Build and validate immutable evidence for one published annotated tag."""
     root = Path(source_root).resolve(strict=True)
-    _version_key(tag)
+    if _TAG_VERSION.fullmatch(tag) is None:
+        raise ReleaseAttestationError(f"Release tag is not supported: {tag}")
     try:
         provenance.validate_audit_metadata("release-attestation", review_reference)
     except provenance.ProvenanceValidationError as error:
@@ -257,7 +270,7 @@ def build_release_attestation(
         root,
         ("ls-tree", "-r", "--name-only", commit_sha, "--", provenance_root),
     )
-    digests: dict[str, str] = {}
+    digests: Dict[str, str] = {}
     for relative in sorted(line for line in output.splitlines() if line.endswith(".json")):
         try:
             record = json.loads(_git_bytes(root, f"{commit_sha}:{relative}").decode("utf-8"))
@@ -330,7 +343,7 @@ def write_release_attestation(
     )
 
 
-def _remote_tag_identity(root: Path, tag: str) -> tuple[str, str]:
+def _remote_tag_identity(root: Path, tag: str) -> Tuple[str, str]:
     output = _git(
         root,
         (
@@ -454,13 +467,6 @@ def verify_plugin_grace(
         verified.append((str(item["releaseTag"]), commit))
     anchor_tag, anchor_commit = verified[0]
     for later_tag, later_commit in verified[1:]:
-        if _version_key(later_tag) <= _version_key(anchor_tag):
-            continue
-        # A four-part dev identity is not a SemVer pre-release baseline.
-        if (bool(LEGACY_TAG.fullmatch(anchor_tag)) != bool(LEGACY_TAG.fullmatch(later_tag))) and (
-            _version_key(anchor_tag)[3] == 1 or _version_key(later_tag)[3] == 1
-        ):
-            continue
         if later_commit == anchor_commit:
             continue
         try:

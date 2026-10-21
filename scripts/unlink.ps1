@@ -26,7 +26,6 @@ $ProjectRoot = (Get-Location).Path
 $TargetMappingPath = Join-Path $CompoundGpidDir ".github/shared/target-mapping.json"
 $ManifestPath = Join-Path $ProjectRoot ".compound-gpid/managed-files.json"
 $gitignorePath = Join-Path $ProjectRoot ".gitignore"
-$CopilotInstructionsMarker = "<!-- compound-gpid:managed -->"
 $CopiedDirectoryMarkerName = ".compound-gpid-managed-copy.json"
 $KiloCompatMirrorRootRel = ".compound-gpid/kilo-compat-skills"
 
@@ -258,13 +257,21 @@ function Remove-CgManagedFile {
     $target = Join-Path $ProjectRoot $TargetRel
 
     if ($TargetRel -eq ".github/copilot-instructions.md") {
-        if (Test-Path $target) {
-            $content = Get-Content $target -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
-            if ($content -and $content -match [regex]::Escape($CopilotInstructionsMarker)) {
-                Remove-Item -Path $target -Force
-                Write-Host "  $TargetRel - removed" -ForegroundColor DarkGray
-                return $true
-            }
+        $existed = Test-Path -LiteralPath $target
+        $copilotPython = Resolve-PythonCommand
+        if (-not $copilotPython) { throw "Python is required for Copilot instruction unlink." }
+        $copilotErrorAction = $ErrorActionPreference
+        try {
+            # Kept-file warnings are not errors; the worker exit code is authoritative.
+            $ErrorActionPreference = "Continue"
+            & $copilotPython -B (Join-Path $CompoundGpidDir "scripts/cg_kilo_copy.py") `
+                --copilot-action unlink --source-root $CompoundGpidDir --project-root $ProjectRoot 2>&1 |
+                ForEach-Object { $_.ToString() } | Out-Host
+        } finally { $ErrorActionPreference = $copilotErrorAction }
+        if ($LASTEXITCODE -ne 0) { throw "Copilot instruction unlink failed with exit code $LASTEXITCODE" }
+        if ($existed -and -not (Test-Path -LiteralPath $target)) {
+            [void]$Manifest.files.Remove($TargetRel)
+            return $true
         }
         return $false
     }

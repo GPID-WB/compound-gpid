@@ -374,22 +374,7 @@
         },
         {
           "id": "autonomous-pipeline-autopilot",
-          "title": "Autonomous pipeline command /cg-autopilot",
-          "description": "Explore Kilo-first execution from canonical .github sources with honest generated adapter capability gates. Use a dedicated lightweight parent and a fresh foreground cg-workflow-stage Task child per operation in one worktree/branch; preserve /cg-work phaseN review:none. Use deterministic validation, state and CI helpers; exact plan/report identity and read-back evidence; opt-in stage execution that preserves standalone command semantics and direct writes; verified Task permissions and conditional depth3; scoped human approvals; a crash-safe reference-only cursor; clean publication checkpoints; bounded review/CI loops that preserve the existing PR-scoped two-round CI cap; an explicit base and exact-head CI green gate; and compact results. Keep basic dirty-tree checks, cooperative locks, evidence reconciliation and uncertain-owner safe stops in core v1. Pause safely rather than claim hard stage termination or exclusive writer ownership. This is brainstorm scope, not implementation or plan completion.",
-          "status": "active",
-          "plan": ".cg-docs/plans/2026-09-11-kilo-first-autopilot.md"
-        },
-        {
-          "id": "autopilot-hard-stage-deadlines",
-          "title": "Autopilot hard stage deadlines",
-          "description": "Beyond version1, evaluate runtime-enforced elapsed-time deadlines, supervised agent processes and descendant-process termination checks. Cover hung tools, cancellation and interruption without allowing retry while an earlier writer might survive. Preserve scoped approvals and existing safety gates. Hard stage deadlines are separate from v1 bounded CI polling and safe-pause recovery; do not claim process termination implies rollback.",
-          "status": "idea",
-          "plan": null
-        },
-        {
-          "id": "autopilot-enforced-writer-isolation",
-          "title": "Autopilot enforced writer isolation",
-          "description": "Beyond version1, research enforceable writer ownership/isolation and runtime-backed interrupted-child reconciliation for the same-worktree pipeline. Define which writers/platforms the mechanism can control and verify fencing and stale-owner recovery before claiming exclusivity. Keep basic dirty-tree checks, cooperative locks, evidence reconciliation and uncertain-owner safe stops in core v1; do not add separate worktrees per stage or duplicate workflow-status-resume.",
+          "title": "Autonomous pipeline command /cg-autopilot (blocked on workflow research + hooks evaluation)",
           "status": "idea",
           "plan": null
         },
@@ -640,8 +625,8 @@
           "id": "cg-help-interactive",
           "title": "/cg-help — comprehensive interactive help system",
           "description": "Teach users how to use the plugin with context-aware guidance. Extremely powerful and comprehensive — covers all commands, workflows, decision trees. Auto-updates as features are added (generates from prompt/skill/agent metadata). Supports: 'what can I do?', 'how do I X?', 'what's the difference between X and Y?', workflow walkthroughs, and progressive disclosure for beginners vs. power users.",
-          "status": "active",
-          "plan": ".cg-docs/plans/2026-09-08-evidence-backed-cg-help-command.md"
+          "status": "idea",
+          "plan": null
         },
         {
           "id": "project-scanner-evidence-reality-gaps",
@@ -793,19 +778,6 @@
           "description": "Add `/cg-light-work` as the unified workflow for small technical tasks. It provides bounded workspace-first discovery, strict hard safety routing, overridable size gates with approval, a standard Plan/Work Report/Review Report lifecycle, targeted light review and revalidation, and explicit compounding opt-in. Make `/cg-work` plan-only and provide a copy-ready redirect for inline tasks. Brainstorm context: `.cg-docs/brainstorms/2026-09-04-cg-light-work-unified-small-task-workflow.md`.",
           "status": "done",
           "plan": ".cg-docs/plans/2026-09-04-cg-light-work-unified-small-task-workflow.md"
-        },
-        {
-          "id": "documentation-ia-ux-redesign",
-          "title": "Documentation Information Architecture and UX Redesign",
-          "description": "Redesign the existing static docs navigation and separate in-page TOC, consolidate Skill Management, explain CG/CR, improve task-based command guides and local discovery, and verify Published/root plus /dev/ identity. Core Gate A ships independently; catalog integration and help runtime claims need Gates B/C.",
-          "status": "done",
-          "plan": ".cg-docs/plans/2026-09-16-documentation-ia-ux-redesign.md"
-        },
-        {
-          "id": "cg-release-prerelease-automation-zero-pause-flow-under-45-minutes",
-          "title": "cg-release prerelease automation: zero-pause flow under 45 minutes",
-          "status": "active",
-          "plan": ".cg-docs/plans/2026-09-16-cg-release-prerelease-automation.md"
         }
       ]
     },
@@ -1044,12 +1016,6 @@
           "title": "Token Efficiency vs modular priority resolution",
           "description": "Resolve the tension between the charter's Current Focus (Token Efficiency) and the modular architecture plan. Either add a Phase 0 step to update the charter, or explicitly document the prioritization change.",
           "status": "planned",
-          "plan": null
-        },
-        {
-          "id": "merged-worktrees-with-uncommitted-wip-must-never-be-auto-deleted",
-          "title": "Merged worktrees with uncommitted WIP must never be auto-deleted",
-          "status": "idea",
           "plan": null
         }
       ]

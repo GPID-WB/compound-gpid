@@ -2,8 +2,6 @@
 const { access, readFile, readdir } = require("node:fs/promises");
 const { constants } = require("node:fs");
 const path = require("node:path");
-const docsContract = require("../docs/assets/docs-contract.js");
-const SOURCE_AUTHORITY = /:\s*["']?(?:write|write-all)\b|\benvironment\s*:|\bsecrets[.\[]|actions\/(?:configure-pages|upload-pages-artifact|deploy-pages|create-github-app-token)@/;
 
 function parseArguments(argv) {
   const options = {
@@ -26,6 +24,11 @@ const root = options.sourceRoot;
 const docsRoot = options.docsRoot || path.join(root, "docs");
 const legacySource = options.legacy;
 
+function slugify(value) {
+  return value.toLowerCase().replace(/<[^>]*>/g, "").replace(/[`*_]/g, "")
+    .replace(/[^a-z0-9\s-]/g, "").replace(/[\s-]+/g, "-").replace(/(^-|-$)/g, "");
+}
+
 async function walkMarkdown(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
   const output = [];
@@ -37,7 +40,11 @@ async function walkMarkdown(directory) {
   return output;
 }
 
-async function validateMarkdownLinks(files, pages, legacyHeadings) {
+function markdownHeadings(content) {
+  return new Set([...content.matchAll(/^#{1,6}\s+(.+)$/gm)].map((match) => slugify(match[1])));
+}
+
+async function validateMarkdownLinks(files) {
   const errors = [];
   const contentCache = new Map();
   for (const file of files) contentCache.set(file, await readFile(file, "utf8"));
@@ -58,12 +65,7 @@ async function validateMarkdownLinks(files, pages, legacyHeadings) {
       }
       if (!fragment || !target.endsWith(".md")) continue;
       const targetContent = contentCache.get(target) || await readFile(target, "utf8");
-      const headings = docsContract.extractHeadings(targetContent);
-      const config = pages.find(page => path.join(docsRoot, page.file) === target);
-      const resolved = legacyHeadings
-        ? { status: headings.some(h => h.legacy[0] === decodeURIComponent(fragment)) ? "resolved" : "missing" }
-        : docsContract.resolveSection(headings, decodeURIComponent(fragment), config?.sectionAliases);
-      if (resolved.status !== "resolved") {
+      if (!markdownHeadings(targetContent).has(decodeURIComponent(fragment))) {
         errors.push(`${path.relative(root, file)}:${line} targets missing fragment #${fragment} in ${path.relative(root, target)}`);
       }
     }
@@ -152,87 +154,6 @@ async function loadCandidatePages() {
   return manifest.pages;
 }
 
-function validatePagesWorkflows(builder, controller) {
-  // Check each job separately: another job must not satisfy a missing guard.
-  const content = (text) => text.replace(/^\s*#.*$/gm, "");
-  builder = content(builder);
-  controller = content(controller);
-  const requireTokens = (text, name, tokens) => {
-    for (const token of tokens) {
-      if (!text.includes(token)) throw new Error(`${name} must reference ${token}.`);
-    }
-  };
-  if (SOURCE_AUTHORITY.test(builder)) {
-    throw new Error("pages.yml must remain unprivileged, without an environment or publication credentials.");
-  }
-  requireTokens(builder, "pages.yml", [
-    "branches: [dev]", "contents: read", "ref: ${{ github.sha }}",
-    "persist-credentials: false", "github.ref == 'refs/heads/dev'",
-    "node scripts/rebuild-docs.js --all", "node scripts/check-docs-site.js",
-    "actions/upload-artifact@", "name: legacy-dev-docs", ".docs-build-metadata.json",
-    "include-hidden-files: true", "if-no-files-found: error",
-  ]);
-  if (/workflow_run:|actions\/download-artifact@/.test(builder)) {
-    throw new Error("pages.yml must build its own exact dev source, not consume a prior artifact.");
-  }
-  requireTokens(controller, "release-pages.yml", [
-    'workflows: ["Build release documentation", "Deploy documentation site"]',
-    "types: [completed]", "group: pages", "cancel-in-progress: false",
-  ]);
-  const jobs = new Map([...controller.matchAll(/^  (deploy(?:-dev)?):\r?\n([\s\S]*?)(?=^  [\w-]+:\r?\n|$(?![\s\S]))/gm)]
-    .map((match) => [match[1], match[2]]));
-  for (const [name, artifact] of [["deploy", "release"], ["deploy-dev", "combined"]]) {
-    const job = jobs.get(name);
-    if (!job) throw new Error(`release-pages.yml must contain ${name}.`);
-    if (name === "deploy") {
-      const archive = job.match(/- name: Verify immutable archive bytes before extraction\r?\n([\s\S]*?)(?=\n      -)/)?.[1] || "";
-      if (!archive.includes('node scripts/legacy-pages.js archive "$ARTIFACT_ID" "$ARTIFACT_DIGEST"')) {
-        throw new Error("deploy must reference the exact release archive verification.");
-      }
-    }
-    // Static-data arguments to trusted scripts are allowed; script paths are not.
-    if (/rebuild-docs\.js|generate-whats-new\.js|(?:node|bash|sh|python)\s+["']?(?:\$GITHUB_WORKSPACE\/)?(?:sources\/|current-dev\/|release-source\/|dev-artifact\/|release-artifact\/)|working-directory:\s*(?:sources\/|current-dev|release-source|dev-artifact|release-artifact)/.test(job)) {
-      throw new Error(`${name} must not execute mutable source or rebuild downloaded content.`);
-    }
-    requireTokens(job, name, [
-      "ref: ${{ github.sha }}", "persist-credentials: false", "actions: read",
-      "contents: read", "pages: write", "id-token: write", "name: github-pages",
-      "github.event.workflow_run.conclusion == 'success'", "actions/download-artifact@",
-      "artifact-ids: ${{ steps.authority.outputs.artifact_id }}",
-      'node scripts/legacy-pages.js archive "$ARTIFACT_ID" "$ARTIFACT_DIGEST"',
-      "actions/configure-pages@", "actions/upload-pages-artifact@", "actions/deploy-pages@",
-      `path: ${artifact}-artifact/site`, "node scripts/assemble-docs-site.js",
-      `--verify ${artifact}-artifact`,
-      name === "deploy" ? "run-id: ${{ inputs.build_run_id || github.event.workflow_run.id }}" : "run-id: ${{ github.event.workflow_run.id }}",
-    ]);
-    const upload = job.indexOf("actions/upload-pages-artifact@");
-    const deploy = job.indexOf("actions/deploy-pages@");
-    const check = "node scripts/legacy-pages.js check";
-    if (job.indexOf(check) < 0 || job.indexOf(check) > job.indexOf("actions/download-artifact@")
-        || job.lastIndexOf(check) < upload || job.lastIndexOf(check) > deploy) {
-      throw new Error(`${name} must recheck authority after upload and before deployment.`);
-    }
-  }
-  if (/ref: main\b|sources\/main|branches\/main/.test(jobs.get("deploy-dev"))) {
-    throw new Error("deploy-dev must compose the preview from the verified official snapshot, never a moving main checkout.");
-  }
-  requireTokens(jobs.get("deploy-dev"), "deploy-dev", [
-    "ref: ${{ steps.authority.outputs.release_sha }}", "path: sources/dev",
-    "node scripts/legacy-pages.js restore-official official-source official-state.json",
-    "node scripts/legacy-pages.js import-dev sources/dev dev-artifact",
-    "--main-root official-source --dev-root sources/dev",
-    "node scripts/legacy-pages.js stamp-preview official-state.json combined-artifact",
-    "node scripts/legacy-pages.js recheck-official official-state.json",
-    'branches/dev" --jq .commit.sha)',
-  ]);
-  requireTokens(jobs.get("deploy"), "deploy", [
-    "Artifact digest mismatch", "Artifact file list mismatch", "merge-base --is-ancestor",
-    "Refusing to deploy an older release artifact", "Recheck release is still newest",
-    "node scripts/legacy-pages.js seal-official release-source release-artifact",
-    'cmp -s "release-validation/releases/$RELEASE_TAG.json" release-validation/releases/latest.json',
-  ]);
-}
-
 (async () => {
   const requiredFiles = [
     path.join(docsRoot, "index.html"), path.join(docsRoot, "navigation.json"),
@@ -248,7 +169,7 @@ function validatePagesWorkflows(builder, controller) {
   if (!Array.isArray(manifest.groups) || manifest.groups.length < 5) {
     throw new Error("Documentation navigation must contain audience-oriented groups.");
   }
-   const pages = docsContract.validateManifest(manifest);
+  const pages = manifest.groups.flatMap((group) => group.pages || []);
   const candidatePages = legacySource ? [] : await loadCandidatePages();
   const ids = pages.map((page) => page.id);
   const pageFiles = pages.map((page) => page.file);
@@ -292,17 +213,14 @@ function validatePagesWorkflows(builder, controller) {
     throw new Error(`Navigation coverage failed. Orphaned: ${orphaned.map((file) => path.relative(root, file)).join(", ") || "none"}. Missing: ${missing.map((file) => path.relative(root, file)).join(", ") || "none"}.`);
   }
 
-  const pageHeadings = {};
   for (const page of pages) {
     if (!page.title || !page.description) throw new Error(`Navigation metadata is incomplete for ${page.id}.`);
     const content = await readFile(path.join(docsRoot, page.file), "utf8");
-    pageHeadings[page.id] = docsContract.extractHeadings(content);
-    if (!pageHeadings[page.id].some(heading => heading.level === 1)) throw new Error(`${page.file} must have a level-one heading.`);
+    if (!/^\uFEFF?#\s+\S/m.test(content)) throw new Error(`${page.file} must have a level-one heading.`);
   }
-  docsContract.validateManifest(manifest, pageHeadings);
   for (const page of candidatePages) {
     const content = await readFile(path.join(root, page.file), "utf8");
-    if (!docsContract.extractHeadings(content).some(heading => heading.level === 1)) throw new Error(`${page.file} must have a level-one heading.`);
+    if (!/^\uFEFF?#\s+\S/m.test(content)) throw new Error(`${page.file} must have a level-one heading.`);
   }
 
   const html = await readFile(path.join(docsRoot, "index.html"), "utf8");
@@ -313,20 +231,12 @@ function validatePagesWorkflows(builder, controller) {
   const unknownShellRoutes = shellRoutes.filter((id) => !ids.includes(id));
   if (unknownShellRoutes.length) throw new Error(`Site shell references unknown routes: ${unknownShellRoutes.join(", ")}.`);
   const siteScript = await readFile(path.join(docsRoot, "assets", "site.js"), "utf8");
-  const legacyHeadings = !siteScript.includes("DocsContract.parseDocument");
-  if (!legacyHeadings && !html.includes('src="assets/docs-contract.js"')) throw new Error("Site shell must load the shared docs contract.");
-  let readingScript = "";
-  if (siteScript.includes("DocsReading.")) {
-    const readingPosition = html.indexOf('src="assets/docs-reading.js"');
-    if (readingPosition < 0 || readingPosition > html.indexOf('src="assets/site.js"')) throw new Error("Site shell must load reading controls before the runtime.");
-    readingScript = await readFile(path.join(docsRoot, "assets", "docs-reading.js"), "utf8");
-  }
-  for (const contract of ["navigation.json", "navigationRequest", "aria-current", "setNavigationOpen"]) {
-    if (!`${siteScript}\n${readingScript}`.includes(contract)) throw new Error(`Site runtime is missing contract: ${contract}`);
+  for (const contract of ["navigation.json", "navigationRequest", "aria-current", "setNavigationOpen", "#{1,6}"]) {
+    if (!siteScript.includes(contract)) throw new Error(`Site runtime is missing contract: ${contract}`);
   }
 
   if (legacySource) {
-    await validateMarkdownLinks(markdownFiles, pages, legacyHeadings);
+    await validateMarkdownLinks(markdownFiles);
     console.log(`Legacy documentation site check passed (${pages.length} navigable Markdown pages, ${manifest.groups.length} groups).`);
     return;
   }
@@ -334,7 +244,14 @@ function validatePagesWorkflows(builder, controller) {
   const workflow = await readFile(path.join(root, ".github/workflows/pages.yml"), "utf8");
   const combinedWorkflow = await readFile(path.join(root, ".github/workflows/docs-site-build.yml"), "utf8");
   const releasePagesWorkflow = await readFile(path.join(root, ".github/workflows/release-pages.yml"), "utf8");
-  validatePagesWorkflows(workflow, releasePagesWorkflow);
+  for (const action of ["actions/configure-pages", "actions/upload-pages-artifact", "actions/deploy-pages"]) {
+    if (!workflow.includes(action) || !releasePagesWorkflow.includes(action)) {
+      throw new Error(`Pages controllers must use ${action}.`);
+    }
+  }
+  if (!workflow.includes("path: combined-artifact/site") || !releasePagesWorkflow.includes("path: release-artifact/site")) {
+    throw new Error("Pages workflow must upload verified combined and release documentation artifacts.");
+  }
 
   // -------------------------------------------------------------------------
   // What's New route, page, heading, and release marker pair.
@@ -356,17 +273,18 @@ function validatePagesWorkflows(builder, controller) {
   // Split Technical/Research prompt markers in reference.md (marker migration).
   // -------------------------------------------------------------------------
   const referenceContent = await readFile(path.join(docsRoot, "reference.md"), "utf8");
-  const helpOwned = referenceContent.includes("<!-- cg:auto:help-commands -->");
-  const expectedSections = helpOwned ? ["help-shell-commands", "help-commands", "help-research-commands"] : ["commands", "research-commands"];
-  const markers = require("./docs-markers.js").findManagedMarkers(referenceContent);
-  if (JSON.stringify(markers.map(marker => marker.section)) !== JSON.stringify(expectedSections)) {
-    throw new Error("reference.md markers must be single, ordered and non-overlapping command pairs for its generator version.");
+  const cmdOpen = (referenceContent.match(/<!-- cg:auto:commands -->/g) || []).length;
+  const cmdClose = (referenceContent.match(/<!-- cg:auto:end -->/g) || []).length;
+  const researchOpen = (referenceContent.match(/<!-- cg:auto:research-commands -->/g) || []).length;
+  if (cmdOpen !== 1 || cmdClose !== 2 || researchOpen !== 1) {
+    throw new Error("reference.md markers must be a single commands pair plus a research-commands pair.");
   }
-  if (helpOwned) {
-    const hub = await readFile(path.join(docsRoot, "reference/commands.md"), "utf8");
-    if (JSON.stringify(require("./docs-markers.js").findManagedMarkers(hub).map(marker => marker.section)) !== JSON.stringify(["help-commands", "help-research-commands", "help-shell-commands"])) {
-      throw new Error("command hub markers must match the help ownership contract.");
-    }
+  const commandsPos = referenceContent.indexOf("<!-- cg:auto:commands -->");
+  const researchPos = referenceContent.indexOf("<!-- cg:auto:research-commands -->");
+  const commandsClose = referenceContent.indexOf("<!-- cg:auto:end -->");
+  const researchClose = referenceContent.indexOf("<!-- cg:auto:end -->", commandsClose + 1);
+  if (!(commandsPos < commandsClose && commandsClose < researchPos && researchPos < researchClose)) {
+    throw new Error("commands and research-commands markers must be ordered and non-overlapping.");
   }
 
   // -------------------------------------------------------------------------
@@ -377,14 +295,19 @@ function validatePagesWorkflows(builder, controller) {
   const rebuildContract = [
     "branches: [main]",
     "contents: write",
+    "pull-requests: write",
     "rebuild-docs.js --all",
-    "git diff --quiet -- docs/",
+    "git status --porcelain -- docs/",
     "git add -- docs/",
+    "gh pr create --draft --base main",
     "docs-site",
     ".docs-build-metadata.json",
   ];
   for (const token of rebuildContract) {
     if (!rebuildWorkflow.includes(token)) throw new Error(`doc-rebuild.yml must reference ${token}.`);
+  }
+  if (rebuildWorkflow.includes("git push origin HEAD:refs/heads/main")) {
+    throw new Error("doc-rebuild.yml must not push directly to protected main.");
   }
   if (!rebuildWorkflow.includes("include-hidden-files: true")) {
     throw new Error("doc-rebuild.yml must include hidden artifact files.");
@@ -400,12 +323,12 @@ function validatePagesWorkflows(builder, controller) {
   for (const token of combinedContract) {
     if (!combinedWorkflow.includes(token)) throw new Error(`docs-site-build.yml must reference ${token}.`);
   }
-  if (SOURCE_AUTHORITY.test(combinedWorkflow.replace(/^\s*#.*$/gm, ""))) {
+  if (/pages:\s*write|id-token:\s*write/.test(combinedWorkflow)) {
     throw new Error("docs-site-build.yml must remain unprivileged.");
   }
   const releaseContract = [
     "name: Build release documentation",
-    "tags: [\"v*.*.*\"]",
+    "tags: [\"v*.*.*\", \"!v*.*.*.*\"]",
     "contents: read",
     "rebuild-docs.js --all",
     "--validate-release-set",
@@ -415,10 +338,48 @@ function validatePagesWorkflows(builder, controller) {
   for (const token of releaseContract) {
     if (!releaseWorkflow.includes(token)) throw new Error(`release-docs.yml must reference ${token}.`);
   }
-  if (SOURCE_AUTHORITY.test(releaseWorkflow.replace(/^\s*#.*$/gm, ""))) {
+  if (/pages:\s*write|id-token:\s*write/.test(releaseWorkflow)) {
     throw new Error("release-docs.yml must remain unprivileged.");
   }
-  await validateMarkdownLinks(markdownFiles, pages, legacyHeadings);
+  const branchLocalPages = /push:\s*\n\s*branches:\s*\[dev\]/.test(workflow)
+    && !/workflow_run\s*:/.test(workflow);
+  const pagesContract = branchLocalPages
+    ? [
+      "push:",
+      "branches: [dev]",
+      "sources/main",
+      "scripts/assemble-docs-site.js",
+      "--main-root",
+      "--dev-root",
+      "actions/upload-pages-artifact",
+      "actions/deploy-pages",
+      "combined-artifact/site",
+    ]
+    : [
+      "Build combined documentation",
+      "actions/download-artifact",
+      "run-id:",
+      "assemble-docs-site.js",
+      "--verify",
+      "combined-artifact/site",
+    ];
+  for (const token of pagesContract) {
+    if (!workflow.includes(token)) throw new Error(`pages.yml must reference ${token}.`);
+  }
+  const releasePagesContract = [
+    "Build release documentation",
+    "release-docs-site",
+    "release-artifact/site",
+    "Artifact digest mismatch",
+    "Deploy docs from",
+    "Refusing to deploy an older release artifact",
+    "Recheck release is still newest",
+  ];
+  for (const token of releasePagesContract) {
+    if (!releasePagesWorkflow.includes(token)) throw new Error(`release-pages.yml must reference ${token}.`);
+  }
+
+  await validateMarkdownLinks(markdownFiles);
   await validateSkillsCatalog();
   console.log(`Documentation site check passed (${pages.length} navigable Markdown pages, ${manifest.groups.length} groups, complete skills catalog).`);
 })().catch((error) => {
