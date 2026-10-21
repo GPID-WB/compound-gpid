@@ -67,9 +67,10 @@ To narrow the install, provide a comma-separated platform list:
 cg-link --platforms copilot,opencode,kilo
 ```
 
-Existing user-owned platform files are preserved. Compound GPID skips a
-conflicting unit and reports what needs manual attention rather than replacing
-the file silently. Restart the IDE after linking.
+Existing user-owned platform files are preserved. Some conflicting units are
+skipped with manual-action diagnostics; manifest or projection failures can
+block linking instead. Review `cg-link --check` before retrying. Restart the IDE
+after linking.
 
 ## 4. Configure the project
 
