@@ -52,7 +52,7 @@ git config --global user.name 'Upgrade fixture'
 git config --global user.email upgrade@example.invalid
 git config --global commit.gpgsign false
 git config --global maintenance.auto false
-git clone --no-local --branch "$old_tag" -c core.autocrlf=false "$source" "$install"
+git clone --no-local --no-tags --branch "$old_tag" -c core.autocrlf=false "$source" "$install"
 old_head=$(git -C "$install" rev-parse HEAD)
 printf '%s' "$old_tag" > "$install/.cg-version"
 stage='old installer'

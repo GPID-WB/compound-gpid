@@ -92,7 +92,7 @@ try {
     Invoke-Git -Arguments @('config', '--global', 'user.email', 'upgrade@example.invalid') | Out-Null
     Invoke-Git -Arguments @('config', '--global', 'commit.gpgsign', 'false') | Out-Null
     Invoke-Git -Arguments @('config', '--global', 'maintenance.auto', 'false') | Out-Null
-    Invoke-Git -Arguments @('clone', '--no-local', '--branch', $OldTag, '-c', 'core.autocrlf=true', $source, $install) | Out-Null
+    Invoke-Git -Arguments @('clone', '--no-local', '--no-tags', '--branch', $OldTag, '-c', 'core.autocrlf=true', $source, $install) | Out-Null
     $oldHead = Invoke-Git -Arguments @('-C', $install, 'rev-parse', 'HEAD')
     Set-Content -LiteralPath "$install\.cg-version" -Value $OldTag -NoNewline -Encoding ASCII
     $stage = 'old installer'

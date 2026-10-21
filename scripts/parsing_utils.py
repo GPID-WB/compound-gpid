@@ -17,6 +17,7 @@ _ASCII_IDENTIFIER_RE = re.compile(r"^[a-z][a-z0-9-]*$")
 _SIMPLE_SCALAR_RE = re.compile(r"^[A-Za-z0-9._/+-]+$")
 _ASCII_PRINTABLE_RE = re.compile(r"^[\x20-\x7e]*$")
 _CLOSING_FENCE_RE = re.compile(r"^---[ \t]*$")
+_OPENING_FENCE_RE = re.compile(r"\A[ \t\r\n]*(?P<fence>---[ \t]*\r?(?:\n|$))")
 
 # Known top-level project-config fields. Unrecognized keys fail with remediation.
 KNOWN_CONFIG_FIELDS = frozenset({
@@ -67,6 +68,7 @@ class StrictConfig:
     errors: list[str] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
     field_lines: dict[str, int] = field(default_factory=dict)
+    frontmatter_bounds: Optional[tuple[int, int]] = field(default=None, compare=False)
 
     @property
     def valid(self) -> bool:
@@ -162,13 +164,15 @@ def parse_strict_config(text: str) -> StrictConfig:
     fail.
     """
     result = StrictConfig()
-    text = text[1:] if text.startswith("\ufeff") else text
-    open_idx = text.find("---")
-    if open_idx == -1 or text[:open_idx].strip(" \t\r\n") != "":
+    bom_offset = int(text.startswith("\ufeff"))
+    text = text[bom_offset:]
+    opening = _OPENING_FENCE_RE.match(text)
+    if opening is None:
         result.suites = ["cg"]
         result.settings = {"config-schema-version": "2"}
         result.notes = [LEGACY_CONFIG_NOTE]
         return result
+    open_idx = opening.start("fence")
     opening_line = text.count("\n", 0, open_idx) + 1
     all_lines = text.split("\n")
     closing = None
@@ -182,6 +186,10 @@ def parse_strict_config(text: str) -> StrictConfig:
             "frontmatter block is missing a closing '---' delimiter"
         )
         return result
+    result.frontmatter_bounds = (
+        bom_offset + open_idx,
+        bom_offset + sum(len(line) + 1 for line in all_lines[:closing]) - 1,
+    )
     lines = [all_lines[index].rstrip("\r") for index in range(opening_line, closing)]
     seen_keys: set[str] = set()
     active_nonselection_block: Optional[str] = None

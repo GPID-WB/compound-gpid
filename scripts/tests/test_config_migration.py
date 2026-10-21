@@ -62,6 +62,16 @@ def _read_suites(content: str) -> str | None:
 
 
 class TestMigration:
+    @pytest.mark.parametrize("prefix", [" \n", "\ufeff \r\n", "\n\n"])
+    def test_shared_bounds_preserve_leading_content(self, prefix: str) -> None:
+        text = prefix + "---\nsuites: [cg]\n---\n# Body\n"
+        updated, changed, error = migration.migrate_file_text(text)
+        assert error is None
+        assert changed is True
+        assert updated.startswith(prefix + "---\nsuites: [cg]\n")
+        assert 'config-schema-version: "2"' in updated
+        assert updated.endswith("---\n# Body\n")
+
     def test_legacy_config_gains_cg_default_and_version_marker(self, tmp_path: Path) -> None:
         path = _write(tmp_path)
         result = migration.migrate_local_config(path)
@@ -188,6 +198,7 @@ class TestMigrationCli:
     @pytest.mark.parametrize("content", [
         b"# Compound GPID - Local Configuration\r\n\r\nKeep my settings.\r\n",
         b"\xef\xbb\xbf# Old configuration\r\n",
+        b"----\r\nLegacy project notes\r\n",
         ("\ufeff" + CURRENT_CONFIG).encode("utf-8"),
         CURRENT_CONFIG.encode("utf-8"),
     ])

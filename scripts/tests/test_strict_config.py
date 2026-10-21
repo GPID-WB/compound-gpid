@@ -98,6 +98,8 @@ class TestInvalidGrammar:
     @pytest.mark.parametrize("text", [
         "", "# no frontmatter\n", "\ufeff# old settings\n",
         "# Old configuration\n\n---\nsuites: [cr]\n---\n",
+        "----\nLegacy project notes\n", "--- notes\nOld configuration\n",
+        "\ufeff----\r\nLegacy notes\r\n",
     ])
     def test_missing_top_settings_uses_only_defaults(self, text: str) -> None:
         parsed = parse_strict_config(text)

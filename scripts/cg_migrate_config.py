@@ -38,28 +38,14 @@ class MigrationResult:
     error: str | None = None
 
 
-def _frontmatter_bounds(text: str) -> tuple[int, int] | None:
-    """Return (start, end) offsets of the YAML frontmatter block, or None."""
-    stripped = text.lstrip("\ufeff\r\n")
-    if not stripped.startswith("---"):
-        return None
-    start = text.index("---")
-    end_marker = text.find("\n---", start + 3)
-    if end_marker == -1:
-        return None
-    return start, end_marker
-
-
 def migrate_file_text(text: str) -> tuple[str, bool, str | None]:
     """Return (new_text, changed, error). Non-destructive; preserves all fields."""
     parsed = parse_strict_config(text)
     if parsed.errors:
         return text, False, "strict config validation failed: " + parsed.errors[0]
-    if parsed.notes:
+    if parsed.frontmatter_bounds is None:
         return text, False, None
-    bounds = _frontmatter_bounds(text)
-    assert bounds is not None  # A valid settings block was checked by the shared parser.
-    start, end = bounds
+    _, end = parsed.frontmatter_bounds
 
     version = parsed.scalar(CONFIG_SCHEMA_VERSION_FIELD)
     insert: list[str] = []
