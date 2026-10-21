@@ -242,9 +242,17 @@ def test_check_is_read_only_and_classifies_actions(runtime: tuple, scenario: str
     ("\ufeff" + CONFIG).encode("utf-8"),
     CONFIG.encode("utf-8"),
 ])
-def test_link_prints_one_legacy_note_and_preserves_config(runtime: tuple, content: bytes) -> None:
+@pytest.mark.parametrize("empty_instructions", [False, True])
+def test_link_prints_one_legacy_note_and_preserves_config(
+    runtime: tuple, content: bytes, empty_instructions: bool, tmp_path: Path,
+) -> None:
     """Both native wrappers accept old/BOM files without repairing source bytes."""
     project, home, env, command, source = runtime
+    if empty_instructions:
+        isolated_source = tmp_path / "empty-instructions-source"
+        shutil.copytree(source, isolated_source)
+        (isolated_source / ".github/instructions/r.instructions.md").unlink()
+        command = [*command[:-1], str(isolated_source / "scripts" / Path(command[-1]).name)]
     config = project / "compound-gpid.local.md"
     config.write_bytes(content)
     env["CG_SKIP_UPDATE"] = "1"
@@ -255,6 +263,9 @@ def test_link_prints_one_legacy_note_and_preserves_config(runtime: tuple, conten
     assert result.returncode == 0, output
     assert output.count(LEGACY_CONFIG_NOTE) == int(b"---" not in content)
     assert config.read_bytes() == content
+    assert (project / ".kilo/instructions").is_dir()
+    if empty_instructions:
+        assert not list((project / ".kilo/instructions").iterdir())
     assert "UPDATE WAS CALLED" not in output
 
 

@@ -733,6 +733,12 @@ foreach ($target in $targets) {
 
         if ($manifestDriven -and $nativeProjected -and
             ([string]$unit.type -eq "directory")) {
+            # Default settings select no language instructions, but local Kilo
+            # validation still requires this empty real directory.
+            if ($target.id -eq "kilo" -and $targetRel -eq ".kilo/instructions" -and
+                -not (Test-Path -LiteralPath (Join-Path $ProjectRoot $targetRel))) {
+                [void](Ensure-CgRootDirectory -RootName $targetRel)
+            }
             Write-Host "  $targetRel - projected by manifest (legacy install skipped)" -ForegroundColor DarkGray
             continue
         }

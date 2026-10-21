@@ -678,6 +678,12 @@ while IFS='|' read -r platform unit_type source_rel target_rel strategy snippet;
     GENERATED_PROJECTED="false"
     if [ -n "$(platform_generated_tree "$platform")" ]; then GENERATED_PROJECTED="true"; fi
     if [ "$MANIFEST_DRIVEN" = "true" ] && [ "$GENERATED_PROJECTED" = "true" ] && [ "$unit_type" = "directory" ]; then
+        # Defaults select no language instructions; local Kilo validation still
+        # requires the empty real directory. Never replace a linked path here.
+        if [ "$platform" = kilo ] && [ "$target_rel" = .kilo/instructions ] &&
+           [ ! -e "$PROJECT_ROOT/$target_rel" ] && [ ! -L "$PROJECT_ROOT/$target_rel" ]; then
+            ensure_root_directory "$target_rel"
+        fi
         print_gray "$target_rel - projected by manifest (legacy install skipped)"
         continue
     fi

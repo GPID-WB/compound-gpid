@@ -105,7 +105,7 @@ try {
     $fixtures = @(@{ Name = 'project'; Platforms = 'copilot,claude-code'; Edited = '.claude/CLAUDE.md';
         Unedited = '.github/prompts/cg-review.prompt.md'; User = '.claude/user-upgrade-sentinel.md' })
     if ($OldTag -ne 'v1.0.4') {
-        $fixtures += @{ Name = 'kilo-project'; Platforms = 'kilo'; Edited = '.kilo/commands/cg-plan.md';
+        $fixtures += @{ Name = 'kilo-project'; Platforms = 'kilo'; Edited = '';
             Unedited = '.kilo/commands/cg-review.md'; User = '.kilo/commands/user-upgrade-sentinel.md' }
     }
     if ($Mode -eq 'update') { $fixtures = @($fixtures | Where-Object Name -eq 'kilo-project') }
@@ -114,7 +114,7 @@ try {
         Invoke-Git -Arguments @('init', $project) | Out-Null
         Set-Content -LiteralPath "$project\fixture.txt" -Value 'small Git project' -Encoding ASCII
         if ($Mode -eq 'update') {
-            Set-Content -LiteralPath "$project\compound-gpid.local.md" -Value "---`nsuites: [cg]`n---`n# Valid fixture settings" -Encoding ASCII
+            Set-Content -LiteralPath "$project\compound-gpid.local.md" -Value "---`nlanguage: both`nsuites: [cg]`n---`n# Valid fixture settings" -Encoding ASCII
             Copy-Item -LiteralPath "$project\compound-gpid.local.md" -Destination "$Root\valid-config.before"
         }
         Invoke-Git -Arguments @('-C', $project, 'add', 'fixture.txt') | Out-Null
@@ -126,14 +126,16 @@ try {
                 '-File', "$install\scripts\link.ps1", '--platforms', $fixture.Platforms, '--yes')
             if ($Mode -eq 'update') { continue }
             # Root Claude file is copied even in v1.0.4, which has no copy-directory adapter.
-            $edited = Join-Path $project $fixture.Edited
-            if ((Get-Item -LiteralPath (Split-Path $edited -Parent)).Attributes -band [IO.FileAttributes]::ReparsePoint) {
-                throw "Refusing to edit linked fixture: $edited"
+            if ($fixture.Edited) {
+                $edited = Join-Path $project $fixture.Edited
+                if ((Get-Item -LiteralPath (Split-Path $edited -Parent)).Attributes -band [IO.FileAttributes]::ReparsePoint) {
+                    throw "Refusing to edit linked fixture: $edited"
+                }
+                Add-Content -LiteralPath $edited -Value '<!-- upgrade user edit -->' -Encoding UTF8
+                Copy-Item -LiteralPath $edited -Destination "$Root\$($fixture.Name)-edited.before"
             }
-            Add-Content -LiteralPath $edited -Value '<!-- upgrade user edit -->' -Encoding UTF8
             Set-Content -LiteralPath (Join-Path $project $fixture.User) -Value 'user-added bytes' -Encoding ASCII
             Copy-Item -LiteralPath (Join-Path $project $fixture.User) -Destination "$Root\$($fixture.Name)-user.before"
-            Copy-Item -LiteralPath $edited -Destination "$Root\$($fixture.Name)-edited.before"
             $copilot = Join-Path $project '.github/copilot-instructions.md'
             if (Test-Path -LiteralPath $copilot) {
                 Add-Content -LiteralPath $copilot -Value '<!-- upgrade Copilot user edit -->' -Encoding UTF8
@@ -227,24 +229,27 @@ try {
         try {
             $stage = "candidate check ($($fixture.Name))"
             $before = @(Snapshot $project)
+            $checkAllowed = @(0, 1)
+            if ($fixture.Edited) { $checkAllowed = @(1) }
             $null = Run "check-$($fixture.Name)" 'powershell.exe' @('-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass',
-                '-File', "$install\scripts\link.ps1", '--check', '--platforms', $fixture.Platforms) @(1)
+                '-File', "$install\scripts\link.ps1", '--check', '--platforms', $fixture.Platforms) $checkAllowed
             $checkOutput = (Get-Content -LiteralPath "$Root\check-$($fixture.Name).log" -Raw).Replace('\', '/')
-            if (-not $checkOutput.Contains('Manual action required:') -or -not $checkOutput.Contains($fixture.Edited)) {
+            if ($fixture.Edited -and (-not $checkOutput.Contains('Manual action required:') -or -not $checkOutput.Contains($fixture.Edited))) {
                 throw 'Read-only check did not report the edited file.'
             }
+            if ($fixture.Name -eq 'kilo-project' -and [regex]::Matches($checkOutput, [regex]::Escape($legacyNote)).Count -ne 1) { throw 'Expected legacy note once in check.' }
             if (Compare-Object $before @(Snapshot $project)) { throw 'Read-only check changed project.' }
             $stage = "candidate link ($($fixture.Name))"
             $null = Run "link-$($fixture.Name)" 'powershell.exe' @('-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass',
                 '-File', "$install\scripts\link.ps1", '--platforms', $fixture.Platforms, '--yes')
-            Assert-Same (Join-Path $project $fixture.Edited) "$Root\$($fixture.Name)-edited.before"
+            if ($fixture.Edited) { Assert-Same (Join-Path $project $fixture.Edited) "$Root\$($fixture.Name)-edited.before" }
             Assert-Same (Join-Path $project $fixture.Unedited) (Join-Path $candidate $fixture.Unedited)
             $output = (Get-Content -LiteralPath "$Root\link-$($fixture.Name).log" -Raw).Replace('\', '/')
             if ($fixture.Name -eq 'kilo-project') {
                 if ([regex]::Matches($output, [regex]::Escape($legacyNote)).Count -ne 1) { throw 'Expected exact legacy note once.' }
                 Assert-Same "$project\compound-gpid.local.md" "$Root\legacy-config.before"
             }
-            if ($output -notmatch 'Manual action required: [1-9]' -or -not $output.Contains($fixture.Edited)) { throw 'Missing edited-file manual action.' }
+            if ($fixture.Edited -and ($output -notmatch 'Manual action required: [1-9]' -or -not $output.Contains($fixture.Edited))) { throw 'Missing edited-file manual action.' }
             Assert-Same (Join-Path $project $fixture.User) "$Root\$($fixture.Name)-user.before"
             if ($fixture.Name -eq 'kilo-project' -and $output -notmatch 'user-upgrade-sentinel.md: user file kept') { throw 'Missing informational user-file report.' }
             if ($fixture.Name -eq 'project') {

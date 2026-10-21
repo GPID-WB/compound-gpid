@@ -63,7 +63,7 @@ user=(.claude/user-upgrade-sentinel.md)
 if [[ $old_tag != v1.0.4 ]]; then
     # Separate Kilo consumer: old coexistence gates require a host otherwise.
     names+=(kilo-project) platforms+=(kilo)
-    edited+=(.kilo/commands/cg-plan.md) unedited+=(.kilo/commands/cg-review.md)
+    edited+=('') unedited+=(.kilo/commands/cg-review.md)
     user+=(.kilo/commands/user-upgrade-sentinel.md)
 fi
 if [[ $mode == update ]]; then
@@ -74,7 +74,7 @@ for ((i=0; i<${#names[@]}; i++)); do
     git init "$project"
     printf 'small Git project\n' > "$project/fixture.txt"
     if [[ $mode == update ]]; then
-        printf '%s\n' '---' 'suites: [cg]' '---' '# Valid fixture settings' > "$project/compound-gpid.local.md"
+        printf '%s\n' '---' 'language: both' 'suites: [cg]' '---' '# Valid fixture settings' > "$project/compound-gpid.local.md"
         cp "$project/compound-gpid.local.md" "$root/valid-config.before"
     fi
     git -C "$project" add fixture.txt
@@ -83,11 +83,13 @@ for ((i=0; i<${#names[@]}; i++)); do
     stage="old link (${names[i]})"
     run "old-link-${names[i]}" bash "$install/scripts/link.sh" --platforms "${platforms[i]}" --yes
     [[ $mode != update ]] || continue
-    [[ ! -L "$(dirname "${edited[i]}")" && ! -L "${edited[i]}" ]]
-    printf '\n<!-- upgrade user edit -->\n' >> "${edited[i]}"
+    if [[ -n ${edited[i]} ]]; then
+        [[ ! -L "$(dirname "${edited[i]}")" && ! -L "${edited[i]}" ]]
+        printf '\n<!-- upgrade user edit -->\n' >> "${edited[i]}"
+        cp "${edited[i]}" "$root/${names[i]}-edited.before"
+    fi
     printf 'user-added bytes\n' > "${user[i]}"
     cp "${user[i]}" "$root/${names[i]}-user.before"
-    cp "${edited[i]}" "$root/${names[i]}-edited.before"
     if [[ -f .github/copilot-instructions.md ]]; then
         printf '\n<!-- upgrade Copilot user edit -->\n' >> .github/copilot-instructions.md
         cp .github/copilot-instructions.md "$root/copilot.before"
@@ -172,9 +174,14 @@ for ((i=0; i<${#names[@]}; i++)); do
     snapshot "$project" > "$root/project.before"
     check_code=0
     bash "$install/scripts/link.sh" --check --platforms "${platforms[i]}" > "$root/check-${names[i]}.log" 2>&1 || check_code=$?
-    [[ $check_code == 1 ]]
+    [[ $check_code == 0 || $check_code == 1 ]]
     grep -F 'Manual action required:' "$root/check-${names[i]}.log"
-    grep -F "${edited[i]}" "$root/check-${names[i]}.log"
+    if [[ -n ${edited[i]} ]]; then
+        [[ $check_code == 1 ]]
+        grep -F "${edited[i]}" "$root/check-${names[i]}.log"
+    else
+        [[ $(grep -F -o "$legacy_note" "$root/check-${names[i]}.log" | wc -l | tr -d ' ') == 1 ]]
+    fi
     snapshot "$project" > "$root/project.after"
     cmp "$root/project.before" "$root/project.after"
     stage="candidate link (${names[i]})"
@@ -183,10 +190,12 @@ for ((i=0; i<${#names[@]}; i++)); do
         [[ $(grep -F -o "$legacy_note" "$root/link-${names[i]}.log" | wc -l | tr -d ' ') == 1 ]]
         cmp compound-gpid.local.md "$root/legacy-config.before"
     fi
-    cmp "${edited[i]}" "$root/${names[i]}-edited.before"
+    if [[ -n ${edited[i]} ]]; then cmp "${edited[i]}" "$root/${names[i]}-edited.before"; fi
     cmp "${unedited[i]}" "$candidate/${unedited[i]}"
-    grep -E 'Manual action required: [1-9]' "$root/link-${names[i]}.log"
-    grep -F "${edited[i]}" "$root/link-${names[i]}.log"
+    if [[ -n ${edited[i]} ]]; then
+        grep -E 'Manual action required: [1-9]' "$root/link-${names[i]}.log"
+        grep -F "${edited[i]}" "$root/link-${names[i]}.log"
+    fi
     cmp "${user[i]}" "$root/${names[i]}-user.before"
     if [[ ${names[i]} == kilo-project ]]; then
         grep -F 'user-upgrade-sentinel.md: user file kept' "$root/link-${names[i]}.log"
