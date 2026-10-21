@@ -71,8 +71,9 @@ def check_project(root: Path, source: Path, platforms: list[str],
         config_text = secure_fs.secure_read_bytes(
             root, manifest_module.LOCAL_CONFIG_PATH
         ).decode("utf-8")
+    notes: list[str] = []
     desired = manifest_module.resolve_active_manifest(
-        root, config_text=config_text, platforms=platforms, source_root=source
+        root, config_text=config_text, platforms=platforms, source_root=source, notes=notes
     )
     plan = projection.build_projection_plan(
         source, desired, mapping=mapping, project_root=root, config_text=config_text
@@ -251,6 +252,7 @@ def check_project(root: Path, source: Path, platforms: list[str],
         paths=sorted(rows.values(), key=lambda row: row["path"]),
         manual=sorted(set(manual)), verification=verification,
         manifestDriven=manifest_driven,
+        notes=notes,
     )
 
 
@@ -286,6 +288,8 @@ def main(argv: list[str] | None = None) -> int:
         "Local source only; no update, project/state/gitignore/HOME/cache writes.\n"
         "PATH | OWNER | CURRENT STATE | cg-link WOULD | REASON\n"
     )
+    for note in report["notes"]:
+        sys.stdout.write(note + "\n")
     if not report["manifestDriven"]:
         sys.stdout.write(
             "Mode: legacy install units (no local config); desired comparison "

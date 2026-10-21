@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import pytest
 
-from parsing_utils import parse_strict_config
+from parsing_utils import LEGACY_CONFIG_NOTE, parse_strict_config
 
 VALID_CONFIG = """---
 language: "both"
@@ -95,19 +95,26 @@ class TestInvalidGrammar:
         assert not parsed.valid
         assert any("unterminated" in error for error in parsed.errors)
 
-    def test_missing_frontmatter_fails(self) -> None:
-        parsed = parse_strict_config("# no frontmatter\n")
-        assert not parsed.valid
-        assert any("frontmatter" in error for error in parsed.errors)
+    @pytest.mark.parametrize("text", [
+        "", "# no frontmatter\n", "\ufeff# old settings\n",
+        "# Old configuration\n\n---\nsuites: [cr]\n---\n",
+    ])
+    def test_missing_top_settings_uses_only_defaults(self, text: str) -> None:
+        parsed = parse_strict_config(text)
+        assert parsed.valid, parsed.errors
+        assert parsed.suites == ["cg"]
+        assert parsed.settings == {"config-schema-version": "2"}
+        assert parsed.capabilities == []
+        assert parsed.notes == [LEGACY_CONFIG_NOTE]
 
     def test_unclosed_frontmatter_fails(self) -> None:
         parsed = parse_strict_config("---\nlanguage: 'both'\n")
         assert not parsed.valid
 
-    def test_utf8_bom_fails(self) -> None:
+    def test_utf8_bom_is_ignored_in_memory(self) -> None:
         parsed = parse_strict_config("\ufeff" + VALID_CONFIG)
-        assert not parsed.valid
-        assert any("BOM" in error for error in parsed.errors)
+        assert parsed == parse_strict_config(VALID_CONFIG)
+        assert parsed.notes == []
 
     def test_tabs_fail_with_line(self) -> None:
         text = "---\nlanguage:\t'both'\n---\n"
@@ -227,4 +234,16 @@ class TestErrorsCarryLineNumbers:
         text = "---\nlanguage: 'both'\ncreated: '2026-01-01'\nbad key: 'x'\n---\n"
         parsed = parse_strict_config(text)
         assert not parsed.valid
-        assert any(error.startswith("line 4") for error in parsed.errors)
+        assert any(error.startswith("compound-gpid.local.md line 4") for error in parsed.errors)
+
+    @pytest.mark.parametrize("text,line", [
+        ("---\nsuites: [cg]\n", 1),
+        ("---\nsuites: cg\n---\n", 2),
+        ("\ufeff---\nunknown: value\n---\n", 2),
+        ('---\nconfig-schema-version: "9"\n---\n', 2),
+        ('\n---\nlanguage: "unterminated\n---\n', 3),
+    ])
+    def test_all_strict_errors_name_file_and_line(self, text: str, line: int) -> None:
+        parsed = parse_strict_config(text)
+        assert parsed.errors
+        assert all(f"compound-gpid.local.md line {line}:" in error for error in parsed.errors)

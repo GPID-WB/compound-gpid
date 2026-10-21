@@ -7,6 +7,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 import cg_migrate_config as migration
 
 LEGACY_CONFIG = """---
@@ -183,12 +185,26 @@ class TestMigrationCli:
         assert migration.main(["--root", str(tmp_path), "--check"]) == 2
         assert "not found" in capsys.readouterr().err
 
-    def test_no_frontmatter_config_fails_closed(self, tmp_path: Path) -> None:
-        path = _write(tmp_path, "# Just a body with no frontmatter\n")
+    @pytest.mark.parametrize("content", [
+        b"# Compound GPID - Local Configuration\r\n\r\nKeep my settings.\r\n",
+        b"\xef\xbb\xbf# Old configuration\r\n",
+        ("\ufeff" + CURRENT_CONFIG).encode("utf-8"),
+        CURRENT_CONFIG.encode("utf-8"),
+    ])
+    def test_compatible_config_preserves_bytes(self, tmp_path: Path, content: bytes) -> None:
+        path = tmp_path / "compound-gpid.local.md"
+        path.write_bytes(content)
         result = migration.migrate_local_config(path)
         assert result.changed is False
-        assert result.error is not None
-        assert "frontmatter" in (result.error or "")
+        assert result.error is None
+        assert path.read_bytes() == content
+
+    def test_legacy_check_reports_note_without_writes(self, tmp_path: Path, capsys) -> None:
+        path = _write(tmp_path, "# Old configuration\n")
+        before = path.read_bytes()
+        assert migration.main(["--root", str(tmp_path), "--check"]) == 0
+        assert "has no settings block; using default settings." in capsys.readouterr().err
+        assert path.read_bytes() == before
 
     def test_invalid_utf8_fails_closed(self, tmp_path: Path) -> None:
         path = tmp_path / "compound-gpid.local.md"

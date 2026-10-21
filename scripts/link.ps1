@@ -683,7 +683,10 @@ $manifestDriven = Test-Path -LiteralPath (Join-Path $ProjectRoot "compound-gpid.
 $compProjectionStateDir = Join-Path $ProjectRoot ".compound-gpid"
 if ($manifestDriven) {
     try {
-        [void](Resolve-CgActiveManifest -ProjectRoot $ProjectRoot -SourceRoot $CompoundGpidDir -PlatformIds ($selectedPlatforms -join ","))
+        $resolvedManifest = Resolve-CgActiveManifest -ProjectRoot $ProjectRoot -SourceRoot $CompoundGpidDir -PlatformIds ($selectedPlatforms -join ",")
+        foreach ($line in ($resolvedManifest.Output -split "`r?`n")) {
+            if ($line.StartsWith("compound-gpid.local.md has no settings block;")) { Write-Host $line }
+        }
         Write-Host "  Active manifest: resolved for $($selectedPlatforms -join ', ')" -ForegroundColor DarkGray
     } catch {
         Write-Error "Linking is blocked by active manifest resolution failure: $_"

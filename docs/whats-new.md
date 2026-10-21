@@ -4,6 +4,28 @@ Release history and notable changes across Compound GPID from structured
 release payloads.
 
 <!-- cg:auto:release-notes -->
+### v1.2.0.9025 — v1.2.0.9025 - Default Settings
+
+*2026-10-21T13:50:02Z*
+
+**Fixed — Use defaults without top frontmatter**
+- A compound-gpid.local.md file without a top YAML frontmatter block now uses the default cg suite and config schema version 2 in memory only. Empty files, whitespace, and Markdown notes do not need a settings block; the file is not rewritten to insert defaults.
+- An initial UTF-8 BOM is ignored when reading configuration. Existing top frontmatter still uses strict validation: malformed or unterminated blocks, duplicate or unknown keys, invalid values, and unsupported schema versions remain errors with filename and line diagnostics.
+- cg-link --check remains read-only: it does not write configuration, project files, or global files. Default-settings handling does not turn checking into migration or repair.
+
+**New — Upgrade to 9025**
+- From v1.2.0.9024 on Windows or macOS: run cg-update v1.2.0.9025, then run the NEW cg-link once per project, keeping its adapter selection. Use the explicit version, not latest.
+- From older versions: follow docs/upgrade.md to migrate and install v1.2.0.9024 first, then run cg-update v1.2.0.9025 and the NEW cg-link once per project. Guide: https://github.com/GPID-WB/compound-gpid/blob/v1.2.0.9025/docs/upgrade.md
+- Keep installation and project backups. If linking reports blocked or preserved files, keep them and review the reported manual action; do not delete adapter folders or use unlink to bypass conflicts.
+
+**Internal — Tests added and publication gates**
+- Tests added cover default-settings configuration reads, initial UTF-8 BOM handling, strict validation errors, read-only checking, and upgrade/update fixtures on Windows and macOS. These are coverage additions, not a claim that local or hosted gates have passed or that every historical installation or real Kilo host is qualified.
+- Every four-part vX.Y.Z.N tag is Reserve-only: a non-draft GitHub pre-release with make_latest=false. No Finalize, documentation deployment, or attestation applies. Required payload dates are preparation timestamps, not publication proof. Publication requires green local, push, and FULL CI gates.
+
+[View source tag](https://github.com/GPID-WB/compound-gpid/tree/v1.2.0.9025)
+
+---
+
 ### v1.2.0.9024 — v1.2.0.9024 - Safer Upgrades
 
 *2026-10-16T22:12:27Z*

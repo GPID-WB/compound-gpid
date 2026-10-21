@@ -1,38 +1,36 @@
 {
   "schemaVersion": 1,
-  "tag": "v1.2.0.9024",
-  "publishedAt": "2026-10-16T22:12:27Z",
-  "releaseDate": "2026-10-16",
-  "name": "v1.2.0.9024 - Safer Upgrades",
-  "url": "https://github.com/GPID-WB/compound-gpid/releases/tag/v1.2.0.9024",
-  "sourceUrl": "https://github.com/GPID-WB/compound-gpid/tree/v1.2.0.9024",
+  "tag": "v1.2.0.9025",
+  "publishedAt": "2026-10-21T13:50:02Z",
+  "releaseDate": "2026-10-21",
+  "name": "v1.2.0.9025 - Default Settings",
+  "url": "https://github.com/GPID-WB/compound-gpid/releases/tag/v1.2.0.9025",
+  "sourceUrl": "https://github.com/GPID-WB/compound-gpid/tree/v1.2.0.9025",
   "sections": [
     {
-      "kind": "new",
-      "title": "Upgrade from any older version",
+      "kind": "fixed",
+      "title": "Use defaults without top frontmatter",
       "entries": [
-        "Pinned or latest: start from a separate fresh clone at v1.2.0.9024 and run its migration script by full path. Do not run the old updater or linker first. Migration preserves the old installation in a sibling backup, installs at the original path, and pins v1.2.0.9024. Explicit rollback restores the installation, not project changes.",
-        "Windows and macOS commands, custom installation paths, multiple-install selection, PATH warnings, project checks, and rollback: https://github.com/GPID-WB/compound-gpid/blob/v1.2.0.9024/docs/upgrade.md",
-        "Stay pinned: do not run cg-update latest until announced. Today latest tracks main, which still contains the old line; it does not select the newest four-part tag."
+        "A compound-gpid.local.md file without a top YAML frontmatter block now uses the default cg suite and config schema version 2 in memory only. Empty files, whitespace, and Markdown notes do not need a settings block; the file is not rewritten to insert defaults.",
+        "An initial UTF-8 BOM is ignored when reading configuration. Existing top frontmatter still uses strict validation: malformed or unterminated blocks, duplicate or unknown keys, invalid values, and unsupported schema versions remain errors with filename and line diagnostics.",
+        "cg-link --check remains read-only: it does not write configuration, project files, or global files. Default-settings handling does not turn checking into migration or repair."
       ]
     },
     {
-      "kind": "fixed",
-      "title": "Preservation, checks, and license notices",
+      "kind": "new",
+      "title": "Upgrade to 9025",
       "entries": [
-        "Run the NEW cg-link --check, then cg-link in each project. The check is read-only and does not update, launch Kilo, or write project/global files. Edited or unproven files are kept and reported as manual action required; user-added files are kept.",
-        "The one-time legacy managed Copilot instructions transition saves exact prior bytes in .github/copilot-instructions.md.pre-9024.bak before replacement. Review and merge custom instructions from the backup. Later replacement needs unchanged ownership proof; conflicting existing backups are preserved.",
-        "PATH warnings keep a verified new installation and print repair guidance for missing or shadowing commands. Open a new terminal and verify cg-link resolves to the new installation before use.",
-        "Restore the original reveal.js and Marked vendor license notices in presentation/vendor/reveal.js/LICENSE and LICENSE.marked.txt."
+        "From v1.2.0.9024 on Windows or macOS: run cg-update v1.2.0.9025, then run the NEW cg-link once per project, keeping its adapter selection. Use the explicit version, not latest.",
+        "From older versions: follow docs/upgrade.md to migrate and install v1.2.0.9024 first, then run cg-update v1.2.0.9025 and the NEW cg-link once per project. Guide: https://github.com/GPID-WB/compound-gpid/blob/v1.2.0.9025/docs/upgrade.md",
+        "Keep installation and project backups. If linking reports blocked or preserved files, keep them and review the reported manual action; do not delete adapter folders or use unlink to bypass conflicts."
       ]
     },
     {
       "kind": "internal",
-      "title": "Tested coverage, limits, and publication",
+      "title": "Tests added and publication gates",
       "entries": [
-        "CI upgrade matrix run 38805538140 passed all four cells: v1.1.11 and v1.2.0.9021 on Windows and macOS. These isolated fixtures cover preservation, Copilot backup, read-only checking, and repeat linking. Real user pilots follow publication; this is not proof for every historical version or a real Kilo host.",
-        "Known limits: standalone clones only; worktrees and linked installation paths are refused. Existing backups and ambiguous installations need explicit selection or recovery. Installer PATH/profile writes are not snapshotted; installation rollback does not undo project changes. Windows PowerShell 5.1 long-path copy/unlink limits remain; use short installation paths. Local installation edits remain in the backup, not merged into the new clone.",
-        "Every four-part vX.Y.Z.N tag is Reserve-only: a non-draft GitHub pre-release with make_latest=false. No Finalize, documentation deployment, or attestation applies. The required payload date is the preparation timestamp, not publication proof. Publication requires green local, push, and FULL CI gates."
+        "Tests added cover default-settings configuration reads, initial UTF-8 BOM handling, strict validation errors, read-only checking, and upgrade/update fixtures on Windows and macOS. These are coverage additions, not a claim that local or hosted gates have passed or that every historical installation or real Kilo host is qualified.",
+        "Every four-part vX.Y.Z.N tag is Reserve-only: a non-draft GitHub pre-release with make_latest=false. No Finalize, documentation deployment, or attestation applies. Required payload dates are preparation timestamps, not publication proof. Publication requires green local, push, and FULL CI gates."
       ]
     }
   ]

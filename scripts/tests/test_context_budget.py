@@ -80,6 +80,23 @@ def _local_config(suites: list[str] | None) -> str:
 
 
 class TestActiveSuites:
+    @pytest.mark.parametrize("text", [
+        "# Compound GPID - Local Configuration\r\nKeep this file.\r\n",
+        "\ufeff# Old configuration\r\n",
+        '\ufeff---\nsuites: [cg]\nconfig-schema-version: "2"\n---\n',
+        '---\nsuites: [cg]\nconfig-schema-version: "2"\n---\n',
+    ])
+    def test_cli_uses_shared_compatibility_without_config_writes(self, tmp_path: Path, capsys, text: str) -> None:
+        """Legacy notes stay on stderr, leaving the budget JSON usable."""
+        path = tmp_path / "compound-gpid.local.md"
+        content = text.encode("utf-8")
+        path.write_bytes(content)
+        assert budget.main(["--root", str(tmp_path), "--source-root", str(REPO_ROOT)]) == 0
+        captured = capsys.readouterr()
+        assert json.loads(captured.out)["activeSuites"] == ["cg"]
+        assert ("has no settings block;" in captured.err) == ("---" not in text)
+        assert path.read_bytes() == content
+
     def test_read_active_suites_defaults_to_cg(self) -> None:
         assert budget.read_active_suites(_local_config(None)) == ["cg"]
 

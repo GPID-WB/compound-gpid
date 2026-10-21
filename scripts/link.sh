@@ -647,6 +647,11 @@ if [ "$MANIFEST_DRIVEN" = "true" ]; then
         printf '%s\n' "$MANIFEST_OUTPUT" >&2
         exit 1
     fi
+    while IFS= read -r line; do
+        case "$line" in
+            'compound-gpid.local.md has no settings block;'*) printf '%s\n' "$line" ;;
+        esac
+    done <<< "$MANIFEST_OUTPUT"
     print_gray "Active manifest: resolved for $PLATFORMS"
 fi
 

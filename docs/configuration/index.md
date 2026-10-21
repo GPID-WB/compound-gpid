@@ -10,6 +10,8 @@ can commit only the appropriate information.
 worktree, clone, and team member receives it without manual copying). Its YAML frontmatter
 contains the supported setup fields:
 
+Without a top YAML frontmatter block, configuration reads use default `cg`/schema `2` settings in memory only and leave the file unchanged (see [Project Configuration](../configuration.md)).
+
 | Field | Values | Purpose |
 |---|---|---|
 | `language` | R, Python, Stata, a combination, or `other` | Routes language guidance |

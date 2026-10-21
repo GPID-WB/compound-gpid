@@ -267,6 +267,7 @@ def resolve_active_manifest(
     platforms: Optional[list[str]] = None,
     source_root: Optional[Path] = None,
     combined_snapshot: Optional[registry_service.CombinedRegistrySnapshot] = None,
+    notes: Optional[list[str]] = None,
 ) -> dict[str, Any]:
     """Resolve the canonical active manifest. Side-effect-free.
 
@@ -289,13 +290,10 @@ def resolve_active_manifest(
     parsed = parse_strict_config(config_text)
     if parsed.errors:
         raise ManifestResolutionError("; ".join(parsed.errors[:5]))
+    if notes is not None:
+        notes.extend(parsed.notes)
 
     config_schema_version = parsed.scalar("config-schema-version")
-    if config_schema_version is not None and config_schema_version != SUPPORTED_CONFIG_SCHEMA_VERSION:
-        raise ManifestResolutionError(
-            f"config schema version {config_schema_version!r} is not the supported version "
-            f"({SUPPORTED_CONFIG_SCHEMA_VERSION}); migrate explicitly before strict resolution"
-        )
 
     if combined_snapshot is None:
         try:
@@ -335,7 +333,8 @@ def resolve_active_manifest(
     unknown_capabilities = [c for c in explicit if c not in known_capability_ids]
     if unknown_capabilities:
         raise ManifestResolutionError(
-            f"unknown explicit capability id(s): {', '.join(sorted(unknown_capabilities))}"
+            f"{parsed.location('capabilities')}: unknown explicit capability id(s): "
+            f"{', '.join(sorted(unknown_capabilities))}"
         )
 
     canonical_explicit = [
@@ -354,7 +353,8 @@ def resolve_active_manifest(
             registry, suites, config=settings, capabilities=canonical_explicit
         )
     except ValueError as exc:
-        raise ManifestResolutionError(str(exc)) from exc
+        field = "suites" if "suite" in str(exc) else "capabilities"
+        raise ManifestResolutionError(f"{parsed.location(field)}: {exc}") from exc
     closure_ids = sorted(loadable_ids)
     closure_globs = sorted(budget.loadable_asset_globs(registry, loadable_ids))
     derived_ids = budget.capability_ids_by_selector(registry, settings, suites)
@@ -635,11 +635,16 @@ def main(argv: Optional[list[str]] = None) -> int:
         platforms = None
         if args.platforms:
             platforms = [item.strip() for item in args.platforms.split(",") if item.strip()]
-        manifest = resolve_active_manifest(root, platforms=platforms, source_root=source_root)
+        notes: list[str] = []
+        manifest = resolve_active_manifest(
+            root, platforms=platforms, source_root=source_root, notes=notes
+        )
     except ManifestResolutionError as exc:
         print(f"Error: manifest resolution failed: {exc}", file=sys.stderr)
         return 1
 
+    for note in notes:
+        sys.stdout.write(note + "\n")
     validation_errors = validate_manifest(manifest)
     if validation_errors:
         print("Active manifest validation failed:", file=sys.stderr)

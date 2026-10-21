@@ -36,6 +36,10 @@ KNOWN_CONFIG_FIELDS = frozenset({
 # validator treats malformed advisory preferences as warnings, while this
 # parser continues to enforce the restricted grammar for selection fields.
 NON_SELECTION_BLOCK_FIELDS = frozenset({"model-advisory"})
+LEGACY_CONFIG_NOTE = (
+    "compound-gpid.local.md has no settings block; using default settings. "
+    "Your file was not changed. Run /cg-setup to add settings."
+)
 
 
 def parse_frontmatter_with_body(content: str) -> tuple[dict[str, Any], str]:
@@ -61,6 +65,8 @@ class StrictConfig:
     capabilities: list[str] = field(default_factory=list)
     settings: dict[str, str] = field(default_factory=dict)
     errors: list[str] = field(default_factory=list)
+    notes: list[str] = field(default_factory=list)
+    field_lines: dict[str, int] = field(default_factory=dict)
 
     @property
     def valid(self) -> bool:
@@ -68,6 +74,10 @@ class StrictConfig:
 
     def scalar(self, key: str) -> Optional[str]:
         return self.settings.get(key)
+
+    def location(self, key: str) -> str:
+        """Locate a selection field for downstream semantic errors."""
+        return f"compound-gpid.local.md line {self.field_lines.get(key, 1)}"
 
 
 def _strip_yaml_comment(value: str) -> str:
@@ -139,7 +149,9 @@ def _parse_flow_list(
 def parse_strict_config(text: str) -> StrictConfig:
     """Parse ``compound-gpid.local.md`` against the strict restricted grammar.
 
-    Accepts only UTF-8 without BOM, a top-level delimited frontmatter block,
+    Ignores a leading UTF-8 BOM in memory. Without a top settings block, returns
+    CG/schema-2 defaults and a note without changing the source text. Otherwise accepts
+    a top-level delimited frontmatter block,
     ASCII identifier keys, quoted or simple scalar values, and inline lists of
     quoted or ASCII identifier values. Rejects duplicate keys, anchors, aliases,
     tags, block scalars, nested mappings/sequences, tabs, non-ASCII control
@@ -150,12 +162,12 @@ def parse_strict_config(text: str) -> StrictConfig:
     fail.
     """
     result = StrictConfig()
-    if text.startswith("\ufeff"):
-        result.errors.append("file must be UTF-8 without BOM")
-        return result
+    text = text[1:] if text.startswith("\ufeff") else text
     open_idx = text.find("---")
     if open_idx == -1 or text[:open_idx].strip(" \t\r\n") != "":
-        result.errors.append("missing top-level frontmatter delimiter '---'")
+        result.suites = ["cg"]
+        result.settings = {"config-schema-version": "2"}
+        result.notes = [LEGACY_CONFIG_NOTE]
         return result
     opening_line = text.count("\n", 0, open_idx) + 1
     all_lines = text.split("\n")
@@ -165,7 +177,10 @@ def parse_strict_config(text: str) -> StrictConfig:
             closing = index
             break
     if closing is None:
-        result.errors.append("frontmatter block is missing a closing '---' delimiter")
+        result.errors.append(
+            f"compound-gpid.local.md line {opening_line}: "
+            "frontmatter block is missing a closing '---' delimiter"
+        )
         return result
     lines = [all_lines[index].rstrip("\r") for index in range(opening_line, closing)]
     seen_keys: set[str] = set()
@@ -202,6 +217,7 @@ def parse_strict_config(text: str) -> StrictConfig:
             result.errors.append(f"line {line_number}: duplicate key {key!r}")
             continue
         seen_keys.add(key)
+        result.field_lines[key] = line_number
         if key not in KNOWN_CONFIG_FIELDS:
             result.errors.append(
                 f"line {line_number}: unrecognized config key {key!r}; remove it or migrate it "
@@ -243,4 +259,10 @@ def parse_strict_config(text: str) -> StrictConfig:
         _parse_scalar_value(value, line_number, result.errors, key)
         if len(result.errors) == errors_before:
             result.settings[key] = value.strip("\"' ")
+            if key == "config-schema-version" and result.settings[key] != "2":
+                result.errors.append(
+                    f"line {line_number}: config schema version {result.settings[key]!r} "
+                    "is not the supported version (2); migrate explicitly before strict resolution"
+                )
+    result.errors = ["compound-gpid.local.md " + error for error in result.errors]
     return result

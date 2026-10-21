@@ -1245,6 +1245,15 @@ Describe "link.ps1 - manifest-driven projection integration" {
             $content | Should -Match 'Active manifest: resolved'
         }
 
+        It "shows the shared legacy settings note in both wrappers" {
+            $psContent = Get-Content (Join-Path $PSScriptRoot "..\scripts\link.ps1") -Raw -Encoding UTF8
+            $shContent = Get-Content (Join-Path $PSScriptRoot "..\scripts\link.sh") -Raw -Encoding UTF8
+            $psContent | Should -Match 'compound-gpid\.local\.md has no settings block;'
+            $psContent | Should -Match 'Write-Host \$line'
+            $shContent | Should -Match 'compound-gpid\.local\.md has no settings block;'
+            $shContent | Should -Match 'done <<< "\$MANIFEST_OUTPUT"'
+        }
+
         It "syncs and verifies the projection when an active manifest exists" {
             $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\link.ps1") -Raw -Encoding UTF8
             $content | Should -Match '--sync-projection'

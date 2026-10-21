@@ -1,8 +1,13 @@
 #!/bin/bash
 # One old-tag upgrade, in a disposable hosted profile. No real Kilo launch.
-# Usage: bash scripts/ci/upgrade-matrix.sh OLD_TAG FRESH_ROOT
+# Usage: bash scripts/ci/upgrade-matrix.sh OLD_TAG FRESH_ROOT [migration|update]
 set -euo pipefail
 old_tag=$1 root=$2
+mode=${3:-migration}
+candidate_tag=v1.2.0.9025
+legacy_note='compound-gpid.local.md has no settings block; using default settings. Your file was not changed. Run /cg-setup to add settings.'
+[[ $mode == migration || $mode == update ]] || { echo 'Unknown mode.' >&2; exit 1; }
+[[ $mode != update || $old_tag == v1.2.0.9024 ]] || { echo 'Update mode requires genuine 9024.' >&2; exit 1; }
 source=$(cd "$(dirname "$0")/../.." && pwd -P)
 [[ ${GITHUB_ACTIONS:-} == true ]] || { echo 'Requires a disposable hosted account.' >&2; exit 1; }
 [[ ! -e "$root" && -d "$(dirname "$root")" ]] || { echo 'Root must be fresh with an existing parent.' >&2; exit 1; }
@@ -61,15 +66,23 @@ if [[ $old_tag != v1.0.4 ]]; then
     edited+=(.kilo/commands/cg-plan.md) unedited+=(.kilo/commands/cg-review.md)
     user+=(.kilo/commands/user-upgrade-sentinel.md)
 fi
+if [[ $mode == update ]]; then
+    names=(kilo-project) platforms=(kilo)
+fi
 for ((i=0; i<${#names[@]}; i++)); do
     project="$HOME/${names[i]}"
     git init "$project"
     printf 'small Git project\n' > "$project/fixture.txt"
+    if [[ $mode == update ]]; then
+        printf '%s\n' '---' 'suites: [cg]' '---' '# Valid fixture settings' > "$project/compound-gpid.local.md"
+        cp "$project/compound-gpid.local.md" "$root/valid-config.before"
+    fi
     git -C "$project" add fixture.txt
     git -C "$project" commit -m fixture
     cd "$project"
     stage="old link (${names[i]})"
     run "old-link-${names[i]}" bash "$install/scripts/link.sh" --platforms "${platforms[i]}" --yes
+    [[ $mode != update ]] || continue
     [[ ! -L "$(dirname "${edited[i]}")" && ! -L "${edited[i]}" ]]
     printf '\n<!-- upgrade user edit -->\n' >> "${edited[i]}"
     printf 'user-added bytes\n' > "${user[i]}"
@@ -86,15 +99,54 @@ head=$(git -C "$source" rev-parse HEAD)
 # The local fixture tag must not collide with an inherited published tag.
 git clone --no-local --no-tags -c core.autocrlf=false "$source" "$candidate"
 # Preserve historical release proofs, excluding only the local fixture tag.
-git -C "$candidate" fetch origin 'refs/tags/*:refs/tags/*' '^refs/tags/v1.2.0.9024'
+git -C "$candidate" fetch origin 'refs/tags/*:refs/tags/*' "^refs/tags/$candidate_tag"
 git -C "$candidate" checkout --detach "$head"
-git -C "$candidate" tag -a v1.2.0.9024 -m 'LOCAL ONLY upgrade fixture' "$head"
+git -C "$candidate" tag -a "$candidate_tag" -m 'LOCAL ONLY upgrade fixture' "$head"
 # Redirect official-tag verification to the unpublished local fixture remote.
 git config --global "url.file://$candidate.insteadOf" https://github.com/GPID-WB/compound-gpid.git
+if [[ $mode == update ]]; then
+    stage='installed 9024 updater'
+    git -C "$install" remote set-url origin https://github.com/GPID-WB/compound-gpid.git
+    [[ -z $(git -C "$install" status --porcelain) ]]
+    cd "$HOME/kilo-project"
+    run installed-update "$install/bin/cg-update" "$candidate_tag"
+    [[ $(git -C "$install" rev-parse HEAD) == "$head" ]]
+    [[ $(cat "$install/.cg-version") == "$candidate_tag" ]]
+    [[ -z $(git -C "$install" status --porcelain) ]]
+    snapshot "$candidate" > "$root/candidate.before"
+    snapshot "$install" > "$root/install.before"
+    for name in kilo-project legacy-project; do
+        project="$HOME/$name"
+        if [[ $name == legacy-project ]]; then
+            git init "$project"
+            printf '# Old project notes\r\nUse R and keep these free-form notes.' > "$project/compound-gpid.local.md"
+            cp "$project/compound-gpid.local.md" "$root/legacy-config.before"
+        fi
+        cd "$project"
+        stage="updated link ($name)"
+        run "updated-link-$name" "$install/bin/cg-link" --platforms kilo --yes
+        [[ -f .kilo/commands/cg-review.md ]]
+        if [[ $name == legacy-project ]]; then
+            [[ $(grep -F -o "$legacy_note" "$root/updated-link-$name.log" | wc -l | tr -d ' ') == 1 ]]
+            cmp compound-gpid.local.md "$root/legacy-config.before"
+        else
+            cmp compound-gpid.local.md "$root/valid-config.before"
+        fi
+    done
+    stage='outside-write checks'
+    for name in candidate install outside source; do
+        case $name in outside) path=$root/outside ;; *) path=${!name} ;; esac
+        snapshot "$path" > "$root/$name.after"
+        cmp "$root/$name.before" "$root/$name.after"
+    done
+    [[ -z $(git -C "$install" status --porcelain) ]]
+    result=pass
+    exit 0
+fi
 stage='candidate migration'
 run migration bash "$candidate/scripts/migrate-install.sh" --install-path "$install"
 [[ $(git -C "$install" rev-parse HEAD) == "$head" ]]
-[[ $(cat "$install/.cg-version") == v1.2.0.9024 ]]
+[[ $(cat "$install/.cg-version") == "$candidate_tag" ]]
 backups=("$install".backup-*)
 [[ ${#backups[@]} == 1 && -d ${backups[0]} ]]
 [[ $(git -C "${backups[0]}" rev-parse HEAD) == "$old_head" ]]
@@ -111,6 +163,10 @@ snapshot "${backups[0]}" > "$root/backup.before"
 snapshot "$install" > "$root/install.before"
 for ((i=0; i<${#names[@]}; i++)); do
     project="$HOME/${names[i]}"
+    if [[ ${names[i]} == kilo-project ]]; then
+        printf '# Old project notes\r\nUse R and keep these free-form notes.' > "$project/compound-gpid.local.md"
+        cp "$project/compound-gpid.local.md" "$root/legacy-config.before"
+    fi
     cd "$project"
     stage="candidate check (${names[i]})"
     snapshot "$project" > "$root/project.before"
@@ -123,6 +179,10 @@ for ((i=0; i<${#names[@]}; i++)); do
     cmp "$root/project.before" "$root/project.after"
     stage="candidate link (${names[i]})"
     run "link-${names[i]}" bash "$install/scripts/link.sh" --platforms "${platforms[i]}" --yes
+    if [[ ${names[i]} == kilo-project ]]; then
+        [[ $(grep -F -o "$legacy_note" "$root/link-${names[i]}.log" | wc -l | tr -d ' ') == 1 ]]
+        cmp compound-gpid.local.md "$root/legacy-config.before"
+    fi
     cmp "${edited[i]}" "$root/${names[i]}-edited.before"
     cmp "${unedited[i]}" "$candidate/${unedited[i]}"
     grep -E 'Manual action required: [1-9]' "$root/link-${names[i]}.log"
@@ -141,6 +201,10 @@ for ((i=0; i<${#names[@]}; i++)); do
     run "repeat-${names[i]}" bash "$install/scripts/link.sh" --platforms "${platforms[i]}" --yes
     snapshot "$project" > "$root/project.after"
     cmp "$root/project.before" "$root/project.after"
+    if [[ ${names[i]} == kilo-project ]]; then
+        [[ $(grep -F -o "$legacy_note" "$root/repeat-${names[i]}.log" | wc -l | tr -d ' ') == 1 ]]
+        cmp compound-gpid.local.md "$root/legacy-config.before"
+    fi
 done
 stage='outside-write checks'
 for name in candidate backup install outside source; do
