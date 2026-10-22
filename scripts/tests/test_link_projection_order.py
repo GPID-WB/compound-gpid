@@ -120,6 +120,12 @@ def test_shell_gitignore_block_preserves_user_lines_and_converges(
             assert path.read_bytes() == (prefix + block).encode("utf-8")
 
 
+def test_snapshot_awk_escapes_delimiters_in_character_classes() -> None:
+    """BSD awk ends a regex at an unescaped slash even inside a character class."""
+    shell = (REPO_ROOT / "scripts/ci/upgrade-matrix.sh").read_text(encoding="utf-8")
+    assert "[^/" not in shell
+
+
 @pytest.mark.skipif(os.name == "nt", reason="native bash parity")
 @pytest.mark.parametrize("case", (
     "metadata", "copy-only", "copy-change", "user-change", "generation-content",

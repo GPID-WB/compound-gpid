@@ -86,17 +86,17 @@ assert_repeat_snapshot() {
     for file in before after; do
         local input=$1
         [[ $file != after ]] || input=$2
-        generations=$(awk -F '|' '$1 ~ /^\.compound-gpid\/generations\/[^/]+$/ && $2 == "directory" { n++ } END { print n+0 }' "$input") || return 2
+        generations=$(awk -F '|' '$1 ~ /^\.compound-gpid\/generations\/[^\/]+$/ && $2 == "directory" { n++ } END { print n+0 }' "$input") || return 2
         LC_ALL=C awk -F '|' -v generations="$generations" '
-            $1 ~ /^\.compound-gpid\/(active\/[^/]+\.json|projection-ownership\.json|projection-transaction\.json)$/ && $2 == "file" { next }
-            { if (generations == 1) sub(/^\.compound-gpid\/generations\/[^/|]+/, ".compound-gpid/generations/<current>"); print }
+            $1 ~ /^\.compound-gpid\/(active\/[^\/]+\.json|projection-ownership\.json|projection-transaction\.json)$/ && $2 == "file" { next }
+            { if (generations == 1) sub(/^\.compound-gpid\/generations\/[^\/|]+/, ".compound-gpid/generations/<current>"); print }
         ' "$input" > "$root/repeat.$file" || return 2
     done
     code=0
     assert_snapshot "$root/repeat.before" "$root/repeat.after" "$3 (stable logical contents)" report || code=$?
     [[ $code -le 1 ]] || return "$code"
     [[ $code == 0 ]] || valid=false
-    generations=$(awk -F '|' '$1 ~ /^\.compound-gpid\/generations\/[^/]+$/ && $2 == "directory" { n++ } END { print n+0 }' "$2") || return 2
+    generations=$(awk -F '|' '$1 ~ /^\.compound-gpid\/generations\/[^\/]+$/ && $2 == "directory" { n++ } END { print n+0 }' "$2") || return 2
     staging=$(awk -F '|' '$1 ~ /^\.compound-gpid\/staging\/.+/ && $2 == "directory" { n++ } END { print n+0 }' "$2") || return 2
     line="$3 state: generation directories=$generations (required 1); staging directories=$staging (required 0)"
     snapshot_diffs+="$line"$'\n'
