@@ -1107,8 +1107,8 @@ def publish_projection(
          root through checksum-gated writes (preserving modified files) and
          switch that platform's small active-root pointer.
       5. Commit ownership state only after every pointer is switched.
-      6. Set the journal state to ``committed`` and remove verified old
-         generations.
+      6. Set the journal state to ``committed`` and remove generations not
+         referenced by any active pointer, plus the staging transaction root.
     Returns the committed ownership state.
     """
     project_root = Path(project_root).resolve()
@@ -1235,7 +1235,7 @@ def publish_projection(
         if backup.exists() or _is_link_or_reparse_path(backup):
             _remove_link_no_follow(backup)
 
-    # Remove verified old generations / retired pointers and staging temp root.
+    # Retired pointers can be removed only after the new publication commits.
     retired_dir = project_root / RETIRED_DIRNAME / tx_id
     if retired_dir.is_dir():
         for path in sorted(retired_dir.glob("*.json")):
@@ -1245,18 +1245,57 @@ def publish_projection(
             retired_dir.rmdir()
         except OSError:
             pass
-    staging_transaction = project_root / STAGING_DIRNAME / tx_id
-    if staging_transaction.is_dir():
-        _remove_tree_no_follow(staging_transaction)
+    _cleanup_projection_storage(project_root, tx_id)
 
     return ownership
 
 
+def _cleanup_projection_storage(project_root: Path, tx_id: str) -> None:
+    """After commit, retain all active generations and remove obsolete copies."""
+    for relative in (".compound-gpid", ACTIVE_POINTER_DIRNAME, GENERATIONS_DIRNAME, STAGING_DIRNAME):
+        path = project_root / relative
+        if _is_link_or_reparse_path(path) or not path.is_dir():
+            raise ProjectionError(f"projection cleanup root is not a real directory: {relative}")
+
+    referenced: set[str] = set()
+    for pointer in sorted((project_root / ACTIVE_POINTER_DIRNAME).glob("*.json")):
+        payload = _read_managed_json(project_root, pointer.relative_to(project_root).as_posix())
+        if payload.get("active") is False:
+            continue
+        generation = payload.get("generation")
+        if not isinstance(generation, str) or not _UUID_HEX_PATTERN.fullmatch(generation):
+            raise ProjectionError(f"active pointer has an invalid generation: {pointer.name}")
+        referenced.add(generation)
+
+    for generation in sorted((project_root / GENERATIONS_DIRNAME).iterdir()):
+        if generation.name in referenced:
+            continue
+        if _is_link_or_reparse_path(generation):
+            _remove_link_no_follow(generation)
+        elif generation.is_dir():
+            _remove_tree_no_follow(generation)
+            generation.rmdir()
+
+    staging_transaction = project_root / STAGING_DIRNAME / tx_id
+    if staging_transaction.is_dir():
+        _remove_tree_no_follow(staging_transaction)
+        staging_transaction.rmdir()
+    # Successful older publications left empty transaction directories behind.
+    for leftover in (project_root / STAGING_DIRNAME).iterdir():
+        if not _is_link_or_reparse_path(leftover) and leftover.is_dir():
+            try:
+                leftover.rmdir()
+            except OSError:
+                pass  # Nonempty interrupted transactions are not this publication's staging tree.
+
+
 def _remove_tree_no_follow(root: Path) -> None:
     """Delete a tree without following any link/reparse entry (children only)."""
+    if _is_link_or_reparse_path(root):
+        raise ProjectionError(f"refusing to traverse a linked cleanup root: {root}")
     for child in sorted(_windows_scannable_path(root).glob("*"), reverse=True):
-        if child.is_symlink():
-            child.unlink()
+        if _is_link_or_reparse_path(child):
+            _remove_link_no_follow(child)
         elif child.is_dir():
             _remove_tree_no_follow(child)
             try:

@@ -473,6 +473,9 @@ def main(argv: Optional[list[str]] = None) -> int:
         for error in parsed.errors:
             print(f"  - {error}", file=sys.stderr)
         return 1
+    if parsed is not None:
+        for note in parsed.notes:
+            sys.stderr.write(note + "\n")
     settings = parsed.settings if parsed is not None else {}
     explicit = parsed.capabilities if parsed is not None else []
     if parsed is not None:
@@ -488,7 +491,9 @@ def main(argv: Optional[list[str]] = None) -> int:
             project_snapshot=combined,
         )
     except ValueError as exc:
-        print(f"Error: {exc}", file=sys.stderr)
+        field = "suites" if "suite" in str(exc) else "capabilities"
+        location = parsed.location(field) if parsed is not None else args.config
+        print(f"Error: {location}: {exc}", file=sys.stderr)
         return 1
 
     if args.output:

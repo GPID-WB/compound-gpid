@@ -16,6 +16,7 @@ import cg_link_check as checker
 from cg_link_check_paths import legacy_rows
 import cg_project_manifest as manifest_module
 import cg_project_projection as projection
+from parsing_utils import LEGACY_CONFIG_NOTE
 from scripts.tests.test_project_projection import _canonical_assets, _real_registry
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -119,6 +120,7 @@ def runtime(request: pytest.FixtureRequest, tmp_path: Path, source: Path) -> tup
     "old-modified-leftover", "old-no-manifest-leftover",
     "9020-owned", "9021-owned", "9021-modified", "9021-unowned",
     "unchanged-old-owned", "unowned-identical", "pending-journal", "invalid-config",
+    "legacy-config", "bom-config", "bom-legacy-config",
 ))
 def test_check_is_read_only_and_classifies_actions(runtime: tuple, scenario: str) -> None:
     """Check all project/HOME files and directory sets before and after CLI use."""
@@ -184,6 +186,11 @@ def test_check_is_read_only_and_classifies_actions(runtime: tuple, scenario: str
                json.dumps(dict(schemaVersion=1, transactionId="old", state="prepared")))
     elif scenario == "invalid-config":
         _write(project / "compound-gpid.local.md", "---\nunknown-setting: invalid\n---\n")
+    elif scenario in ("legacy-config", "bom-legacy-config", "bom-config"):
+        text = CONFIG if scenario == "bom-config" else "# Compound GPID - Local Configuration\r\nKeep this file.\r\n"
+        if scenario.startswith("bom-"):
+            text = "\ufeff" + text
+        _write(project / "compound-gpid.local.md", text)
     if entries:
         _write(project / manifest_module.OWNERSHIP_STATE_PATH,
                json.dumps(dict(schemaVersion=1, entries=entries,
@@ -204,6 +211,9 @@ def test_check_is_read_only_and_classifies_actions(runtime: tuple, scenario: str
     if scenario != "invalid-config":
         assert "PATH | OWNER | CURRENT STATE | cg-link WOULD | REASON" in output
     assert "Manual action required:" in output
+    assert output.count(LEGACY_CONFIG_NOTE) == int(scenario in ("legacy-config", "bom-legacy-config"))
+    if scenario == "invalid-config":
+        assert "compound-gpid.local.md line 2:" in output
     if scenario == "modified-owned":
         assert f"{planned.destination} | modified-owned | file sha256=" in output
         assert "preserve/block" in output
@@ -224,6 +234,39 @@ def test_check_is_read_only_and_classifies_actions(runtime: tuple, scenario: str
         assert " | update | matches the recorded ownership checksum" in output
     if scenario == "unowned-identical":
         assert " | keep/adopt | bytes already match the desired plan" in output
+
+
+@pytest.mark.parametrize("content", [
+    b"# Compound GPID - Local Configuration\r\nKeep this file.\r\n",
+    b"\xef\xbb\xbf# Old configuration\r\n",
+    ("\ufeff" + CONFIG).encode("utf-8"),
+    CONFIG.encode("utf-8"),
+])
+@pytest.mark.parametrize("empty_instructions", [False, True])
+def test_link_prints_one_legacy_note_and_preserves_config(
+    runtime: tuple, content: bytes, empty_instructions: bool, tmp_path: Path,
+) -> None:
+    """Both native wrappers accept old/BOM files without repairing source bytes."""
+    project, home, env, command, source = runtime
+    if empty_instructions:
+        isolated_source = tmp_path / "empty-instructions-source"
+        shutil.copytree(source, isolated_source)
+        (isolated_source / ".github/instructions/r.instructions.md").unlink()
+        command = [*command[:-1], str(isolated_source / "scripts" / Path(command[-1]).name)]
+    config = project / "compound-gpid.local.md"
+    config.write_bytes(content)
+    env["CG_SKIP_UPDATE"] = "1"
+    result = subprocess.run([*command, "--yes", "--platforms=kilo"],
+                            cwd=project, env=env, capture_output=True, text=True,
+                            timeout=90, check=False)
+    output = result.stdout + result.stderr
+    assert result.returncode == 0, output
+    assert output.count(LEGACY_CONFIG_NOTE) == int(b"---" not in content)
+    assert config.read_bytes() == content
+    assert (project / ".kilo/instructions").is_dir()
+    if empty_instructions:
+        assert not list((project / ".kilo/instructions").iterdir())
+    assert "UPDATE WAS CALLED" not in output
 
 
 @pytest.mark.skipif(os.name == "nt", reason="POSIX ancestor symlinks")

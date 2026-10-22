@@ -11,6 +11,7 @@ from pathlib import Path
 import pytest
 
 import cg_project_manifest as manifest
+from parsing_utils import LEGACY_CONFIG_NOTE
 from scripts.tests.test_project_skill_registry import (
     add_project_skill,
     write_project_overlay,
@@ -87,6 +88,24 @@ def _repo_root(tmp_path: Path) -> Path:
 
 
 class TestResolution:
+    @pytest.mark.parametrize("content", [
+        b"# Compound GPID - Local Configuration\r\n\r\nKeep this file.\r\n",
+        b"\xef\xbb\xbf# Old configuration\r\n",
+        b'\xef\xbb\xbf---\r\nsuites: [cg, cr]\r\nconfig-schema-version: "2"\r\n---\r\n',
+        b'---\r\nsuites: [cg, cr]\r\nconfig-schema-version: "2"\r\n---\r\n',
+    ])
+    def test_legacy_bom_and_valid_config_preserve_bytes(self, tmp_path: Path, content: bytes) -> None:
+        root = _repo_root(tmp_path)
+        path = root / "compound-gpid.local.md"
+        path.write_bytes(content)
+        notes: list[str] = []
+        resolved = manifest.resolve_active_manifest(root, notes=notes)
+        legacy = b"---" not in content
+        assert resolved["selection"]["suites"] == (["cg"] if legacy else ["cg", "cr"])
+        assert resolved["selection"]["configSchemaVersion"] == "2"
+        assert notes == ([LEGACY_CONFIG_NOTE] if legacy else [])
+        assert path.read_bytes() == content
+
     def test_resolve_produces_complete_manifest(self, tmp_path: Path) -> None:
         root = _repo_root(tmp_path)
         resolved = manifest.resolve_active_manifest(root)
@@ -205,7 +224,13 @@ class TestResolution:
             "---\nlanguage: \"r\"\nsuites: [cg]\ncapabilities: [sas]\n---\n# config\n",
             encoding="utf-8",
         )
-        with pytest.raises(manifest.ManifestResolutionError, match="unknown explicit capability"):
+        with pytest.raises(manifest.ManifestResolutionError, match="compound-gpid.local.md line 4: unknown explicit capability"):
+            manifest.resolve_active_manifest(root)
+
+    def test_unknown_suite_names_file_and_line(self, tmp_path: Path) -> None:
+        root = _repo_root(tmp_path)
+        (root / "compound-gpid.local.md").write_text("---\nsuites: [missing]\n---\n", encoding="utf-8")
+        with pytest.raises(manifest.ManifestResolutionError, match="compound-gpid.local.md line 2:.*suite"):
             manifest.resolve_active_manifest(root)
 
     def test_unknown_platform_fails_closed(self, tmp_path: Path) -> None:

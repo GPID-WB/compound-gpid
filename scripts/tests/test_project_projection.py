@@ -9,6 +9,7 @@ import copy
 import json
 import os
 import shutil
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -387,6 +388,82 @@ class TestDeclaredRootsValidation:
 
 
 class TestStagingAndVerify:
+    @pytest.mark.parametrize("legacy", [False, True])
+    def test_two_publications_remove_old_generations_and_staging(self, tmp_path: Path, legacy: bool) -> None:
+        root, _ = _repo_root(tmp_path, platforms="kilo")
+        config = root / "compound-gpid.local.md"
+        if legacy:
+            config.write_bytes(b"# Compound GPID - Local Configuration\r\nKeep my notes.\r\n")
+        original = config.read_bytes()
+        resolved = manifest_module.resolve_active_manifest(root, platforms=["kilo"])
+        plan = projection.build_projection_plan(root, resolved)
+        first = projection.publish_projection(root, plan)
+        generations = root / projection.GENERATIONS_DIRNAME
+        _write(generations / "earlier-copy/.kilo/commands/old.md", "old copy\n")
+        staging = root / projection.STAGING_DIRNAME
+        (staging / ("a" * 32)).mkdir()
+
+        second = projection.publish_projection(root, plan)
+
+        pointer = projection._read_managed_json(root, f"{projection.ACTIVE_POINTER_DIRNAME}/kilo.json")
+        assert first["transactionId"] != second["transactionId"]
+        assert pointer["generation"] == second["transactionId"]
+        assert {path.name for path in generations.iterdir()} == {pointer["generation"]}
+        assert (generations / pointer["generation"] / ".kilo/AGENTS.md").is_file()
+        assert list(staging.iterdir()) == []
+        assert config.read_bytes() == original
+
+    def test_cleanup_keeps_every_generation_referenced_by_an_active_pointer(self, tmp_path: Path) -> None:
+        root, resolved = _repo_root(tmp_path, platforms="kilo,claude-code")
+        first = projection.publish_projection(root, projection.build_projection_plan(root, resolved))
+        kilo = manifest_module.resolve_active_manifest(root, platforms=["kilo"])
+
+        second = projection.publish_projection(root, projection.build_projection_plan(root, kilo))
+
+        generations = root / projection.GENERATIONS_DIRNAME
+        assert {path.name for path in generations.iterdir()} == {first["transactionId"], second["transactionId"]}
+        claude = projection._read_managed_json(root, f"{projection.ACTIVE_POINTER_DIRNAME}/claude-code.json")
+        assert claude["generation"] == first["transactionId"]
+        assert (generations / claude["generation"] / ".claude/CLAUDE.md").is_file()
+
+    def test_generation_cleanup_does_not_follow_directory_links(self, tmp_path: Path) -> None:
+        root, resolved = _repo_root(tmp_path, platforms="kilo")
+        plan = projection.build_projection_plan(root, resolved)
+        projection.publish_projection(root, plan)
+        outside = tmp_path / "outside"
+        _write(outside / "keep.txt", "user sentinel\n")
+        original = (outside / "keep.txt").read_bytes()
+        generations = root / projection.GENERATIONS_DIRNAME
+        nested = generations / "old-copy/nested"
+        nested.parent.mkdir()
+        for link in (generations / "linked-copy", nested):
+            if os.name == "nt":
+                result = subprocess.run(["cmd.exe", "/d", "/c", "mklink", "/J", str(link), str(outside)],
+                                        capture_output=True, text=True, check=False)
+                assert result.returncode == 0, result.stdout + result.stderr
+            else:
+                link.symlink_to(outside, target_is_directory=True)
+
+        second = projection.publish_projection(root, plan)
+
+        assert {path.name for path in generations.iterdir()} == {second["transactionId"]}
+        assert (outside / "keep.txt").read_bytes() == original
+
+    def test_cleanup_rejects_invalid_active_pointer_before_deleting_generations(self, tmp_path: Path) -> None:
+        root, resolved = _repo_root(tmp_path, platforms="kilo")
+        first = projection.publish_projection(root, projection.build_projection_plan(root, resolved))
+        projection._write_managed_json(root, f"{projection.ACTIVE_POINTER_DIRNAME}/other.json", {
+            "active": True, "generation": "../outside",
+        })
+        generations = root / projection.GENERATIONS_DIRNAME
+        _write(generations / "old-copy/keep.txt", "not yet cleaned\n")
+
+        with pytest.raises(projection.ProjectionError, match="invalid generation"):
+            projection._cleanup_projection_storage(root, first["transactionId"])
+
+        assert (generations / first["transactionId"]).is_dir()
+        assert (generations / "old-copy/keep.txt").is_file()
+
     def test_publish_and_verify_round_trip(self, tmp_path: Path) -> None:
         root, _ = _repo_root(tmp_path, platforms="kilo")
         manifest = projection.load_active_manifest(root)
