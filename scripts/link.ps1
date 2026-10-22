@@ -514,7 +514,7 @@ function Update-CgGitignoreBlock {
     param([string[]]$Entries)
     $gitignorePath = Join-Path $ProjectRoot ".gitignore"
     $marker = "# Compound GPID managed items (junctions + copied file - do not commit)"
-    $pattern = "(?m)^# Compound GPID managed items[^\r\n]*\r?\n(?:(?:\.github/|\.claude/|\.agents/|\.opencode/|\.kilo/|\.compound-gpid/)[^\r\n]*\r?\n)*"
+    $pattern = "(?m)^# Compound GPID managed items[^\r\n]*\r?\n(?:(?:\.github|\.claude|\.agents|\.opencode|\.kilo|\.compound-gpid)(?:/[^\r\n]*)?\r?\n)*"
 
     $uniqueEntries = @($Entries | Where-Object { $_ } | Sort-Object -Unique)
     if ($uniqueEntries.Count -eq 0) { return }
@@ -522,16 +522,18 @@ function Update-CgGitignoreBlock {
 
     $content = ""
     if (Test-Path $gitignorePath) {
-        $content = Get-Content $gitignorePath -Raw -ErrorAction SilentlyContinue
+        $content = Get-Content $gitignorePath -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
     }
     if ($content -and $content -notmatch '\r?\n$') { $content += "`n" }
-    $cleaned = $content -replace $pattern, ""
-    $cleaned = $cleaned -replace '(?m)^# Compound GPID knowledge base[^\r\n]*\r?\n\.cg-docs/\r?\n?', ''
-    $cleaned = ($cleaned -replace '(?m)^\.cg-docs/\r?\n?', '').TrimEnd()
-    $separator = ""
-    if ($cleaned.Length -gt 0) { $separator = "`n`n" }
+    $cleaned = $content -creplace $pattern, ""
+    $cleaned = $cleaned -creplace '(?m)^# Compound GPID knowledge base[^\r\n]*\r?\n\.cg-docs/\r?\n', ''
+    $cleaned = $cleaned -creplace '(?m)^\.cg-docs/\r?\n', ''
+    # Move exact duplicates into the final block without trimming user whitespace.
+    foreach ($entry in $uniqueEntries) {
+        $cleaned = $cleaned -creplace ("(?m)^" + [regex]::Escape($entry) + "\r?\n"), ""
+    }
     $utf8NoBom = New-Object -TypeName System.Text.UTF8Encoding -ArgumentList $false
-    [System.IO.File]::WriteAllText($gitignorePath, ($cleaned + $separator + $block), $utf8NoBom)
+    [System.IO.File]::WriteAllText($gitignorePath, ($cleaned + $block), $utf8NoBom)
     Write-Host "Updated CG entries in .gitignore" -ForegroundColor DarkGray
 }
 

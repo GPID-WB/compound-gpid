@@ -607,6 +607,53 @@ Describe "link.ps1 - copilot-instructions.md management" {
 }
 
 Describe "link.ps1 - .gitignore management (per-item entries)" {
+    Context "production block writer preserves user lines and converges" {
+        BeforeAll {
+            $source = Get-Content (Join-Path $PSScriptRoot "..\scripts\link.ps1") -Raw -Encoding UTF8
+            $definition = [regex]::Match($source, '(?ms)^function Update-CgGitignoreBlock \{.*?^\}').Value
+            if (-not $definition) { throw "Missing Update-CgGitignoreBlock definition" }
+            . ([scriptblock]::Create($definition))
+            $marker = "# Compound GPID managed items (junctions + copied file - do not commit)"
+            $utf8 = New-Object System.Text.UTF8Encoding -ArgumentList $false
+        }
+
+        It "cleans duplicate old fragments and exact new entries, preserving all other lines in order" {
+            $ProjectRoot = Join-Path $TestDrive "production-fragments"
+            New-Item -ItemType Directory -Path $ProjectRoot | Out-Null
+            $path = Join-Path $ProjectRoot ".gitignore"
+            $entries = @(".kilo", ".compound-gpid/active/", "custom-managed/item")
+            foreach ($newline in @("`n", "`r`n")) {
+                $before = "# user before  ${newline}*.log${newline}${newline}"
+                $after = ".kilo-other${newline}.KILO${newline} .kilo${newline}.kilo ${newline}!.kilo/keep${newline}.cg-docs/user${newline}# user after`t ${newline}${newline}  `t${newline}"
+                $old = $marker + $newline + (@(".github", ".claude", ".agents", ".opencode", ".kilo", ".compound-gpid", ".kilo/old/") -join $newline) + $newline
+                $initial = $before + ".kilo${newline}custom-managed/item${newline}" + $old + $old + $after + ".compound-gpid/active/${newline}"
+                [System.IO.File]::WriteAllText($path, $initial, $utf8)
+
+                Update-CgGitignoreBlock -Entries $entries
+                $expected = $before + $after + $marker + "`n.compound-gpid/active/`n.kilo`ncustom-managed/item`n"
+                [System.IO.File]::ReadAllText($path) | Should -BeExactly $expected
+                $first = [Convert]::ToBase64String([System.IO.File]::ReadAllBytes($path))
+                Update-CgGitignoreBlock -Entries $entries
+                [Convert]::ToBase64String([System.IO.File]::ReadAllBytes($path)) | Should -BeExactly $first
+            }
+        }
+
+        It "is byte-stable from fresh user content, empty content, and an old block without a final newline" {
+            $ProjectRoot = Join-Path $TestDrive "production-eof"
+            New-Item -ItemType Directory -Path $ProjectRoot | Out-Null
+            $path = Join-Path $ProjectRoot ".gitignore"
+            foreach ($initial in @("", "*.log  `n`n`t `n", ($marker + "`n.kilo`n.kilo/old/"))) {
+                [System.IO.File]::WriteAllText($path, $initial, $utf8)
+                Update-CgGitignoreBlock -Entries @(".kilo")
+                $prefix = if ($initial.StartsWith($marker)) { "" } else { $initial }
+                [System.IO.File]::ReadAllText($path) | Should -BeExactly ($prefix + $marker + "`n.kilo`n")
+                $first = [Convert]::ToBase64String([System.IO.File]::ReadAllBytes($path))
+                Update-CgGitignoreBlock -Entries @(".kilo")
+                [Convert]::ToBase64String([System.IO.File]::ReadAllBytes($path)) | Should -BeExactly $first
+            }
+        }
+    }
+
     Context "when .gitignore does not exist" {
         It "creates .gitignore with CG-specific entries" {
             $gi = Join-Path $TestDrive "new-gi.gitignore"
@@ -1367,6 +1414,76 @@ suites: [cg]
             $diagnostic | Should -Not -Match 'Kilo preflight:'
             $diagnostic | Should -Not -Match 'Linked!'
         }
+    }
+}
+
+Describe "upgrade-matrix.ps1 - isolated repeat snapshot assertions" {
+    BeforeAll {
+        $source = Get-Content (Join-Path $PSScriptRoot "..\scripts\ci\upgrade-matrix.ps1") -Raw -Encoding UTF8
+        foreach ($name in @("Assert-Snapshot", "Assert-RepeatSnapshot")) {
+            $definition = [regex]::Match($source, ('(?ms)^function ' + [regex]::Escape($name) + '\(.*?^\}')).Value
+            if (-not $definition) { throw "Missing $name definition" }
+            . ([scriptblock]::Create($definition))
+        }
+    }
+
+    BeforeEach {
+        # The production helpers resolve these variables dynamically from their caller.
+        $Root = $TestDrive
+        $stage = "isolated snapshot assertions"
+        $snapshotDiffs = New-Object 'System.Collections.Generic.List[string]'
+        $repeatBefore = @(
+            ".gitignore|file|IGNORE",
+            "user.txt|file|USER",
+            ".compound-gpid/managed-files.json|file|RECEIPT",
+            ".compound-gpid/active/kilo.json|file|META-A",
+            ".compound-gpid/projection-ownership.json|file|META-A",
+            ".compound-gpid/projection-transaction.json|file|META-A",
+            ".compound-gpid/active/foo/bar.json|file|NESTED",
+            ".compound-gpid/generations/AAA|directory",
+            ".compound-gpid/generations/AAA/tree|directory",
+            ".compound-gpid/generations/AAA/tree/data.md|file|CONTENT",
+            ".compound-gpid/staging|directory"
+        )
+        $repeatAfter = @($repeatBefore | ForEach-Object { $_.Replace('/AAA', '/BBB').Replace('|META-A', '|META-B') })
+    }
+
+    It "compares copy-only snapshots strictly without requiring generations: <afterRecord>" -TestCases @(
+        @{ afterRecord = "user.txt|file|USER"; expected = $true },
+        @{ afterRecord = "user.txt|file|CHANGED"; expected = $false },
+        @{ afterRecord = "user.txt|link|target"; expected = $false }
+    ) {
+        param($afterRecord, $expected)
+        Assert-RepeatSnapshot @("user.txt|file|USER") @($afterRecord) "copy-only" | Should -Be $expected
+    }
+
+    It "accepts a generation ID change with identical contents and the three allowed metadata changes" {
+        Assert-RepeatSnapshot $repeatBefore $repeatAfter "projected" -Projected | Should -Be $true
+        ($snapshotDiffs -join "`n") | Should -Match 'changed: \.compound-gpid/active/kilo\.json'
+    }
+
+    It "rejects projected changes outside the metadata allowance: <record>" -TestCases @(
+        @{ record = ".gitignore|file|IGNORE"; replacement = ".gitignore|file|CHANGED" },
+        @{ record = "user.txt|file|USER"; replacement = "user.txt|file|CHANGED" },
+        @{ record = ".compound-gpid/managed-files.json|file|RECEIPT"; replacement = ".compound-gpid/managed-files.json|file|CHANGED" },
+        @{ record = ".compound-gpid/generations/BBB/tree/data.md|file|CONTENT"; replacement = ".compound-gpid/generations/BBB/tree/data.md|file|CHANGED" },
+        @{ record = ".compound-gpid/active/foo/bar.json|file|NESTED"; replacement = ".compound-gpid/active/foo/bar.json|file|CHANGED" },
+        @{ record = ".compound-gpid/active/foo/bar.json|file|NESTED"; replacement = ".compound-gpid/active/foo/bar.json|link|target" },
+        @{ record = ".compound-gpid/active/kilo.json|file|META-B"; replacement = ".compound-gpid/active/kilo.json|link|target" }
+    ) {
+        param($record, $replacement)
+        $changed = @($repeatAfter | ForEach-Object { if ($_ -ceq $record) { $replacement } else { $_ } })
+        Assert-RepeatSnapshot $repeatBefore $changed "forbidden change" -Projected | Should -Be $false
+    }
+
+    It "rejects invalid state cardinality even when snapshots are identical: <extra>" -TestCases @(
+        @{ extra = ".compound-gpid/generations/EXTRA|directory" },
+        @{ extra = ".compound-gpid/staging/leftover|directory" },
+        @{ extra = ".compound-gpid/staging/foo/bar|directory" }
+    ) {
+        param($extra)
+        $invalid = @($repeatAfter) + $extra
+        Assert-RepeatSnapshot $invalid $invalid "invalid cardinality" -Projected | Should -Be $false
     }
 }
 

@@ -13,6 +13,8 @@ release payloads.
 - cg-link now continues with default settings and can also read files that start with a UTF-8 BOM.
 - Your file is not changed.
 - Run /cg-setup later to add settings when you need them.
+- cg-link no longer adds duplicate .gitignore lines and removes prior duplicates.
+- cg-link no longer keeps old internal copies under .compound-gpid.
 
 **New — Upgrade to 9025**
 - From v1.2.0.9024 on Windows or macOS: outside linked project directories (for example, from your home directory), run cg-update v1.2.0.9025, then run the NEW cg-link once per project, keeping its adapter selection. Use the explicit version, not latest.

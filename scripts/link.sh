@@ -370,20 +370,23 @@ if not entries:
     sys.exit(0)
 content = ""
 if os.path.exists(path):
-    with open(path, "r", encoding="utf-8", errors="replace") as handle:
+    with open(path, "r", encoding="utf-8", errors="replace", newline="") as handle:
         content = handle.read()
 if content and not content.endswith("\n"):
     content += "\n"
-pattern = r"(?m)^# Compound GPID managed items[^\r\n]*\r?\n(?:(?:\.github/|\.claude/|\.agents/|\.opencode/|\.kilo/|\.compound-gpid/)[^\r\n]*\r?\n)*"
-cleaned = re.sub(pattern, "", content).rstrip("\n")
-cleaned = re.sub(r"(?m)^# Compound GPID knowledge base[^\r\n]*\r?\n\.cg-docs/\r?\n?", "", cleaned)
-cleaned = re.sub(r"(?m)^\.cg-docs/\r?\n?", "", cleaned).rstrip("\n")
+pattern = r"(?m)^# Compound GPID managed items[^\r\n]*\r?\n(?:(?:\.github|\.claude|\.agents|\.opencode|\.kilo|\.compound-gpid)(?:/[^\r\n]*)?\r?\n)*"
+cleaned = re.sub(pattern, "", content)
+cleaned = re.sub(r"(?m)^# Compound GPID knowledge base[^\r\n]*\r?\n\.cg-docs/\r?\n", "", cleaned)
+cleaned = re.sub(r"(?m)^\.cg-docs/\r?\n", "", cleaned)
+# Move exact duplicates into the final block without trimming user whitespace.
+for entry in entries:
+    cleaned = re.sub(r"(?m)^" + re.escape(entry) + r"\r?\n", "", cleaned)
 block = marker + "\n" + "\n".join(entries) + "\n"
-out = cleaned + ("\n\n" if cleaned else "") + block
+out = cleaned + block
 directory = os.path.dirname(path) or "."
 fd, tmp = tempfile.mkstemp(dir=directory)
 try:
-    with os.fdopen(fd, "w", encoding="utf-8") as handle:
+    with os.fdopen(fd, "w", encoding="utf-8", newline="") as handle:
         handle.write(out)
     os.replace(tmp, path)
 finally:

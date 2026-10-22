@@ -6,6 +6,7 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
+import sys
 
 import pytest
 
@@ -76,6 +77,96 @@ def test_both_link_wrappers_leave_copilot_skills_to_projection() -> None:
     assert "projectedCategories" in shell
     assert "Copilot skills" in powershell
     assert "Copilot skills" in shell
+
+
+@pytest.mark.parametrize("newline", ("\n", "\r\n"), ids=("lf", "crlf"))
+def test_shell_gitignore_block_preserves_user_lines_and_converges(
+    tmp_path: Path, newline: str,
+) -> None:
+    """Exercise only the production heredoc, never the link lifecycle."""
+    content = (REPO_ROOT / "scripts/link.sh").read_text(encoding="utf-8")
+    function = content.split("\nupdate_gitignore_block() {\n", 1)[1].split("\n}\n", 1)[0]
+    writer = function.split("<<'PYEOF'\n", 1)[1].split("\nPYEOF", 1)[0]
+    marker = "# Compound GPID managed items (junctions + copied file - do not commit)"
+    path = tmp_path / ".gitignore"
+    entries_file = tmp_path / "entries"
+    entries = (".kilo", ".compound-gpid/active/", "custom-managed/item")
+    entries_file.write_text("\n".join(entries) + "\n", encoding="utf-8")
+    before = f"# user before  {newline}*.log{newline}{newline}"
+    after = newline.join((
+        ".kilo-other", ".KILO", " .kilo", ".kilo ", "!.kilo/keep",
+        ".cg-docs/user", "# user after\t ", "", "  \t", "",
+    ))
+    old = newline.join((
+        marker, ".github", ".claude", ".agents", ".opencode", ".kilo",
+        ".compound-gpid", ".kilo/old/", "",
+    ))
+    cases = (
+        (before + f".kilo{newline}custom-managed/item{newline}" + old + old
+         + after + f".compound-gpid/active/{newline}", before + after),
+        ("", ""),
+        ("*.log  \n\n\t \n", "*.log  \n\n\t \n"),
+        (marker + "\n.kilo\n.kilo/old/", ""),
+    )
+    block = marker + "\n" + "\n".join(sorted(entries)) + "\n"
+    for initial, prefix in cases:
+        path.write_bytes(initial.encode("utf-8"))
+        for _ in range(2):
+            result = subprocess.run(
+                [sys.executable, "-", str(path), str(entries_file), marker],
+                input=writer, capture_output=True, text=True, timeout=30, check=False,
+            )
+            assert result.returncode == 0, result.stdout + result.stderr
+            assert path.read_bytes() == (prefix + block).encode("utf-8")
+
+
+@pytest.mark.skipif(os.name == "nt", reason="native bash parity")
+@pytest.mark.parametrize("case", (
+    "metadata", "copy-only", "copy-change", "user-change", "generation-content",
+    "other-state", "extra-generation", "staging", "nested-pointer", "pointer-link",
+))
+def test_shell_repeat_snapshot_enforces_logical_contents(tmp_path: Path, case: str) -> None:
+    """Run only the existing comparison helpers against synthetic records."""
+    shell = (REPO_ROOT / "scripts/ci/upgrade-matrix.sh").read_text(encoding="utf-8")
+    helpers = "\n".join(re.search(rf"(?ms)^{name}\(\) \{{\n.*?^\}}", shell).group(0)
+                        for name in ("assert_snapshot", "assert_repeat_snapshot"))
+    first, second = "a" * 32, "b" * 32
+    before = [
+        ".gitignore|file|same",
+        ".compound-gpid/active/kilo.json|file|old",
+        ".compound-gpid/projection-ownership.json|file|old",
+        ".compound-gpid/projection-transaction.json|file|old",
+        ".compound-gpid/managed-files.json|file|same",
+        f".compound-gpid/generations/{first}|directory",
+        f".compound-gpid/generations/{first}/.kilo/file.md|file|same",
+        ".compound-gpid/staging|directory",
+    ]
+    after = [line.replace(first, second).replace("|old", "|new") for line in before]
+    mode = "kilo-project"
+    if case.startswith("copy-"):
+        before, after, mode = ["user.txt|file|same"], ["user.txt|file|same"], "project"
+        if case == "copy-change":
+            after[0] = "user.txt|file|modified"
+    elif case in ("user-change", "generation-content", "other-state"):
+        target = {"user-change": ".gitignore", "generation-content": f".compound-gpid/generations/{second}/.kilo/file.md",
+                  "other-state": ".compound-gpid/managed-files.json"}[case]
+        after = [f"{target}|file|modified" if line.startswith(target + "|") else line for line in after]
+    elif case == "extra-generation":
+        after.append(f".compound-gpid/generations/{first}|directory")
+    elif case == "staging":
+        after.append(f".compound-gpid/staging/{second}|directory")
+    elif case == "nested-pointer":
+        after.append(".compound-gpid/active/nested/other.json|file|new")
+    elif case == "pointer-link":
+        after = [line.replace("kilo.json|file|new", "kilo.json|link|outside") for line in after]
+    left, right = tmp_path / "before", tmp_path / "after"
+    left.write_text("\n".join(before) + "\n", encoding="utf-8")
+    right.write_text("\n".join(after) + "\n", encoding="utf-8")
+    script = ('set -euo pipefail\nroot=$1\nstage=unit\nsnapshot_diffs=""\n' + helpers
+              + '\nassert_repeat_snapshot "$2" "$3" unit "$4"\n')
+    result = subprocess.run(["bash", "-c", script, "--", str(tmp_path), str(left), str(right), mode],
+                            capture_output=True, text=True, timeout=30, check=False)
+    assert result.returncode == (0 if case in ("metadata", "copy-only") else 1), result.stdout + result.stderr
 
 
 def test_both_update_wrappers_sync_the_exact_projection_plan() -> None:

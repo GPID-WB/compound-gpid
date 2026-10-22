@@ -111,6 +111,29 @@ function Assert-Same([string]$Left, [string]$Right) {
         throw "File bytes differ: $Left != $Right"
     }
 }
+function Assert-RepeatSnapshot([string[]]$Before, [string[]]$After, [string]$Message, [switch]$Projected) {
+    # Keep physical paths in diagnostics; compare generation contents independent of UUID.
+    $physical = Assert-Snapshot $Before $After "$Message (all physical changes)" -ReportOnly
+    if (-not $Projected) { return $physical } # Copy-only fixtures have no generation.
+    $logical = @(
+        foreach ($records in @(@{ Records = $Before }, @{ Records = $After })) {
+            $normalize = @($records.Records | Where-Object { $_ -cmatch '^\.compound-gpid/generations/[^/|]+\|directory$' }).Count -eq 1
+            ,@($records.Records | ForEach-Object {
+                if ($_ -cmatch '^\.compound-gpid/(active/[^/|]+\.json|projection-ownership\.json|projection-transaction\.json)\|file\|') { return }
+                if ($normalize) { $_ -creplace '^(\.compound-gpid/generations/)[^/|]+', '${1}<current>' }
+                else { $_ }
+            })
+        }
+    )
+    $valid = Assert-Snapshot $logical[0] $logical[1] "$Message (stable logical contents)" -ReportOnly
+    $generations = @($After | Where-Object { $_ -cmatch '^\.compound-gpid/generations/[^/|]+\|directory$' }).Count
+    $staging = @($After | Where-Object { $_ -cmatch '^\.compound-gpid/staging/.+\|directory$' }).Count
+    $line = "$Message state: generation directories=$generations (required 1); staging directories=$staging (required 0)"
+    Write-Host $line
+    Add-Content -LiteralPath "$Root\snapshot-diff.log" -Value $line -Encoding UTF8
+    $snapshotDiffs.Add($line)
+    return ($valid -and $generations -eq 1 -and $staging -eq 0)
+}
 try {
     foreach ($dir in @($env:APPDATA, $env:LOCALAPPDATA, $env:XDG_CONFIG_HOME, $env:TEMP, "$Root\outside")) {
         New-Item -ItemType Directory -Path $dir -Force | Out-Null
@@ -293,11 +316,11 @@ try {
             $null = Run "repeat-$($fixture.Name)" 'powershell.exe' @('-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass',
                 '-File', "$install\scripts\link.ps1", '--platforms', $fixture.Platforms, '--yes')
             $afterSecond = @(Snapshot $project)
-            if (-not (Assert-Snapshot $before $afterSecond 'Link 1->2' -ReportOnly)) { $secondChanged = $true }
+            if (-not (Assert-RepeatSnapshot $before $afterSecond 'Link 1->2' -Projected:($fixture.Name -eq 'kilo-project'))) { $secondChanged = $true }
             $stage = "candidate third link ($($fixture.Name))"
             $null = Run "third-$($fixture.Name)" 'powershell.exe' @('-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass',
                 '-File', "$install\scripts\link.ps1", '--platforms', $fixture.Platforms, '--yes')
-            if (-not (Assert-Snapshot $afterSecond @(Snapshot $project) 'Link 2->3' -ReportOnly)) { $thirdChanged = $true }
+            if (-not (Assert-RepeatSnapshot $afterSecond @(Snapshot $project) 'Link 2->3' -Projected:($fixture.Name -eq 'kilo-project'))) { $thirdChanged = $true }
             if ($fixture.Name -eq 'kilo-project') {
                 foreach ($name in @('repeat', 'third')) {
                     $repeat = Get-Content -LiteralPath "$Root\$name-$($fixture.Name).log" -Raw
@@ -312,8 +335,8 @@ try {
     Assert-Snapshot $outsideBefore @(Snapshot "$Root\outside") 'Outside sentinel changed.'
     Assert-Snapshot $sourceBefore @(Snapshot $source) 'Source checkout changed.'
     $stage = 'repeat snapshot assertions'
-    if ($secondChanged) { throw 'Second link changed project.' }
-    if ($thirdChanged) { throw 'Third link changed project.' }
+    if ($secondChanged) { throw 'Second link violated repeat content/state constraints.' }
+    if ($thirdChanged) { throw 'Third link violated repeat content/state constraints.' }
     $result = 'pass'
     if ($LocalCheck) { $reason = 'LOCAL PARTIAL: link only; installers and migration skipped to avoid real HKCU/PATH writes.' }
 } catch {

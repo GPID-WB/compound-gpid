@@ -75,7 +75,33 @@ assert_snapshot() {
         snapshot_diffs+="Snapshot comparison at $stage: $3"$'\n'"$details"$'\n'
         printf 'Snapshot comparison at %s: %s\n%s\n' "$stage" "$3" "$details" | tee -a "$root/snapshot-diff.log" || return 2
     fi
-    [[ -z $changes ]] || { reason="Snapshot mismatch: $3"; return 1; }
+    [[ -z $changes ]] || { [[ ${4:-} == report ]] || reason="Snapshot mismatch: $3"; return 1; }
+}
+assert_repeat_snapshot() {
+    local code=0 valid=true file generations staging line
+    # Report physical UUID churn too, but require identical logical generation bytes.
+    assert_snapshot "$1" "$2" "$3 (all physical changes)" report || code=$?
+    [[ $code -le 1 ]] || return "$code"
+    [[ ${4:-} == kilo-project ]] || return "$code" # Copy-only fixtures have no generation.
+    for file in before after; do
+        local input=$1
+        [[ $file != after ]] || input=$2
+        generations=$(awk -F '|' '$1 ~ /^\.compound-gpid\/generations\/[^/]+$/ && $2 == "directory" { n++ } END { print n+0 }' "$input") || return 2
+        LC_ALL=C awk -F '|' -v generations="$generations" '
+            $1 ~ /^\.compound-gpid\/(active\/[^/]+\.json|projection-ownership\.json|projection-transaction\.json)$/ && $2 == "file" { next }
+            { if (generations == 1) sub(/^\.compound-gpid\/generations\/[^/|]+/, ".compound-gpid/generations/<current>"); print }
+        ' "$input" > "$root/repeat.$file" || return 2
+    done
+    code=0
+    assert_snapshot "$root/repeat.before" "$root/repeat.after" "$3 (stable logical contents)" report || code=$?
+    [[ $code -le 1 ]] || return "$code"
+    [[ $code == 0 ]] || valid=false
+    generations=$(awk -F '|' '$1 ~ /^\.compound-gpid\/generations\/[^/]+$/ && $2 == "directory" { n++ } END { print n+0 }' "$2") || return 2
+    staging=$(awk -F '|' '$1 ~ /^\.compound-gpid\/staging\/.+/ && $2 == "directory" { n++ } END { print n+0 }' "$2") || return 2
+    line="$3 state: generation directories=$generations (required 1); staging directories=$staging (required 0)"
+    snapshot_diffs+="$line"$'\n'
+    printf '%s\n' "$line" | tee -a "$root/snapshot-diff.log" || return 2
+    [[ $valid == true && $generations == 1 && $staging == 0 ]]
 }
 mkdir -p "$APPDATA" "$LOCALAPPDATA" "$XDG_CONFIG_HOME" "$TMPDIR" "$root/outside"
 printf 'outside fixture\n' > "$root/outside/sentinel.txt"
@@ -243,14 +269,14 @@ for ((i=0; i<${#names[@]}; i++)); do
     run "repeat-${names[i]}" bash "$install/scripts/link.sh" --platforms "${platforms[i]}" --yes
     snapshot "$project" > "$root/project.second"
     diff_code=0
-    assert_snapshot "$root/project.before" "$root/project.second" 'Link 1->2' report || diff_code=$?
+    assert_repeat_snapshot "$root/project.before" "$root/project.second" 'Link 1->2' "${names[i]}" || diff_code=$?
     [[ $diff_code -le 1 ]] || exit "$diff_code"
     [[ $diff_code == 0 ]] || second_changed=true
     stage="candidate third link (${names[i]})"
     run "third-${names[i]}" bash "$install/scripts/link.sh" --platforms "${platforms[i]}" --yes
     snapshot "$project" > "$root/project.third"
     diff_code=0
-    assert_snapshot "$root/project.second" "$root/project.third" 'Link 2->3' report || diff_code=$?
+    assert_repeat_snapshot "$root/project.second" "$root/project.third" 'Link 2->3' "${names[i]}" || diff_code=$?
     [[ $diff_code -le 1 ]] || exit "$diff_code"
     [[ $diff_code == 0 ]] || third_changed=true
     if [[ ${names[i]} == kilo-project ]]; then
@@ -266,6 +292,6 @@ for name in candidate backup install outside source; do
     assert_snapshot "$root/$name.before" "$root/$name.after" "$name changed"
 done
 stage='repeat snapshot assertions'
-if [[ $second_changed == true ]]; then reason='Second link changed project.'; exit 1; fi
-if [[ $third_changed == true ]]; then reason='Third link changed project.'; exit 1; fi
+if [[ $second_changed == true ]]; then reason='Second link violated repeat content/state constraints.'; exit 1; fi
+if [[ $third_changed == true ]]; then reason='Third link violated repeat content/state constraints.'; exit 1; fi
 result=pass

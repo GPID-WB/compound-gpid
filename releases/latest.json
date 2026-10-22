@@ -14,7 +14,9 @@
         "Older projects could stop at cg-link when compound-gpid.local.md contained notes but no settings block.",
         "cg-link now continues with default settings and can also read files that start with a UTF-8 BOM.",
         "Your file is not changed.",
-        "Run /cg-setup later to add settings when you need them."
+        "Run /cg-setup later to add settings when you need them.",
+        "cg-link no longer adds duplicate .gitignore lines and removes prior duplicates.",
+        "cg-link no longer keeps old internal copies under .compound-gpid."
       ]
     },
     {
