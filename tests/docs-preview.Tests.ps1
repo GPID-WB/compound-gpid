@@ -17,67 +17,45 @@ $releaseWorkflow = Read-OptionalFile (Join-Path $repoRoot ".github\workflows\rel
 $releasePagesWorkflow = Read-OptionalFile (Join-Path $repoRoot ".github\workflows\release-pages.yml")
 $assembler = Read-OptionalFile (Join-Path $repoRoot "scripts\assemble-docs-site.js")
 
-Describe "Combined documentation build contracts" {
-    It "builds from dev changes and successful main documentation rebuilds" {
-        $buildWorkflow | Should -Match 'workflow_run:'
-        $buildWorkflow | Should -Match 'Rebuild documentation'
-        $buildWorkflow | Should -Match 'branches:\s*\[dev\]'
-        $buildWorkflow | Should -Match 'paths:'
-        $buildWorkflow | Should -Match 'docs-site-build|Build combined documentation'
+Describe "Documentation pull-request validation contracts" {
+    It "validates proposed changes to both maintained branches" {
+        $buildWorkflow | Should -Match 'pull_request:'
+        $buildWorkflow | Should -Match 'branches:\s*\[main, dev\]'
+        $buildWorkflow | Should -Match 'npm run docs:build'
+        $buildWorkflow | Should -Match 'npm run docs:test'
+        $buildWorkflow | Should -Match 'docs-review-'
     }
 
-    It "checks out stable and preview sources independently" {
-        $buildWorkflow | Should -Match 'ref:\s*main'
-        $buildWorkflow | Should -Match 'path:\s*sources/main'
-        $buildWorkflow | Should -Match 'ref:\s*dev'
-        $buildWorkflow | Should -Match 'path:\s*sources/dev'
-        $buildWorkflow | Should -Match 'git -C sources/main rev-parse HEAD'
-        $buildWorkflow | Should -Match 'git -C sources/dev rev-parse HEAD'
-    }
-
-    It "executes builds without Pages credentials and uploads one combined artifact" {
-        $buildWorkflow | Should -Match 'rebuild-docs\.js --root .*sources/dev.*--all'
-        $buildWorkflow | Should -Not -Match 'rebuild-docs\.js --root .*sources/main.*--all'
-        $buildWorkflow | Should -Match 'sources/dev/scripts/check-docs-site\.js.*--legacy'
-        $buildWorkflow | Should -Match 'working-directory:\s*sources/main'
-        $buildWorkflow | Should -Match 'working-directory:\s*sources/dev'
-        $buildWorkflow | Should -Match 'run:\s*node scripts/check-docs-site\.js'
-        $buildWorkflow | Should -Match 'assemble-docs-site\.js'
-        $buildWorkflow | Should -Match 'combined-docs-site'
-        $buildWorkflow | Should -Match '\.docs-build-metadata\.json'
-        $buildWorkflow | Should -Match 'include-hidden-files:\s*true'
-        $buildWorkflow | Should -Not -Match 'pages:\s*write|id-token:\s*write'
+    It "keeps proposed source unprivileged" {
+        $buildWorkflow | Should -Match 'persist-credentials:\s*false'
+        $buildWorkflow | Should -Not -Match 'pages:\s*write|id-token:\s*write|contents:\s*write'
+        $buildWorkflow | Should -Not -Match 'pull_request_target:'
     }
 }
 
-Describe "Protected combined Pages controller contracts" {
-    It "runs from pushes to dev" {
+Describe "Development Pages producer contracts" {
+    It "rebuilds every dev push without a path filter" {
         $pagesWorkflow | Should -Match 'push:'
         $pagesWorkflow | Should -Match 'branches:\s*\[dev\]'
-        $pagesWorkflow | Should -Not -Match 'workflow_run:'
+        $pagesWorkflow | Should -Match 'workflow_dispatch:'
+        $pagesWorkflow | Should -Not -Match 'paths:|paths-ignore:'
     }
 
-    It "checks out main as content and uses dev as controller" {
-        $pagesWorkflow | Should -Match 'ref:\s*main'
-        $pagesWorkflow | Should -Match 'path:\s*sources/main'
-        $pagesWorkflow | Should -Match 'ref:\s*dev'
-        $pagesWorkflow | Should -Match 'scripts/assemble-docs-site\.js'
-        $pagesWorkflow | Should -Match '--main-root'
-        $pagesWorkflow | Should -Match '--dev-root'
-        $pagesWorkflow | Should -Match 'actions/upload-pages-artifact'
-        $pagesWorkflow | Should -Match 'combined-artifact/site'
-    }
-
-    It "keeps Pages permissions in one controller and never rebuilds downloaded content" {
-        $pagesWorkflow | Should -Match 'pages:\s*write'
-        $pagesWorkflow | Should -Match 'id-token:\s*write'
-        $pagesWorkflow | Should -Not -Match 'actions:\s*read'
+    It "builds the exact commit and uploads the protected publisher handoff" {
+        $pagesWorkflow | Should -Match 'name: Deploy documentation site'
+        $pagesWorkflow | Should -Match 'ref:\s*\$\{\{ github.sha \}\}'
+        $pagesWorkflow | Should -Match 'persist-credentials:\s*false'
         $pagesWorkflow | Should -Match 'rebuild-docs\.js --all'
-        $pagesWorkflow | Should -Match 'assemble-docs-site\.js'
-        $pagesWorkflow | Should -Match '--main-root'
-        $pagesWorkflow | Should -Match 'concurrency:\s*\r?\n\s*group:\s*pages'
-        $pagesWorkflow | Should -Match 'actions/upload-pages-artifact'
-        $pagesWorkflow | Should -Match 'actions/deploy-pages'
+        $pagesWorkflow | Should -Match 'node scripts/check-docs-site\.js'
+        $pagesWorkflow | Should -Match 'name: legacy-dev-docs'
+        $pagesWorkflow | Should -Match '\.docs-build-metadata\.json'
+        $pagesWorkflow | Should -Match 'include-hidden-files:\s*true'
+    }
+
+    It "leaves deployment authority in the protected main controller" {
+        $pagesWorkflow | Should -Not -Match 'pages:\s*write|id-token:\s*write|contents:\s*write'
+        $pagesWorkflow | Should -Not -Match 'actions/deploy-pages|actions/upload-pages-artifact'
+        $pagesWorkflow | Should -Not -Match 'ref:\s*main|sources/main'
     }
 }
 

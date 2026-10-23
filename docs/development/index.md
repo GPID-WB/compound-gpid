@@ -5,7 +5,7 @@ generated target parity, documentation accuracy, and safe test execution.
 
 ## Development path
 
-1. Create a conventional feature or fix branch from `main`.
+1. Create a conventional feature or fix branch from the current `dev` branch.
 2. Change canonical sources, not generated mirrors.
 3. Add or update focused tests with the behavior change.
 4. Regenerate native target trees when canonical `.github/` assets change.
@@ -56,68 +56,25 @@ node scripts/check-docs-site.js
 
 ## Documentation maintenance
 
-- `docs/navigation.json` is the public route, navigation, and search manifest.
-- Every published Markdown page must be represented in the manifest.
-- `.github/skills/` is canonical for the skills catalog; generated mirrors do
-  not add catalog entries.
-- Preserve useful content by migrating, condensing, linking, or explicitly
-  labeling it obsolete.
-- Update internal links and fragments when moving headings.
-- Preview the static site over HTTP because browser `fetch()` does not work
-  correctly from a local `file://` URL.
-
-GitHub Pages validates the site and uploads `docs/` directly. The Markdown link
-workflow also checks repository documentation.
-
-## Stable and development documentation
-
-The public Pages deployment contains two channels in one complete artifact:
-
-- The site root (`https://gpid-wb.github.io/compound-gpid/`) is the stable
-  documentation source from `main`.
-- The development preview (`https://gpid-wb.github.io/compound-gpid/dev/`) is
-  the current documentation source from `dev` and may change before release.
-
-The build validates both source trees, records their branch, ref, commit, and
-canonical-input fingerprints, and publishes the preview beneath `dev/`. A
-single protected Pages controller verifies the complete file list and digest
-metadata before uploading the artifact. The root and preview are not deployed
-as independent overlays: this prevents a dev-only upload from replacing stable
-materials and prevents a stable release from deleting the preview.
-
-Stale or incomplete artifacts are rejected. If a source branch advances while
-an artifact is being prepared, rebuild from the current branches rather than
-manually copying files into `docs/`. The `/dev/` channel is a preview, not a
-release or a per-pull-request environment.
-
-## Maintainer references
-
-- [Competitive Reviews](../competitive-reviews.md)
-- [Documentation Migration](../about/documentation-audit.md)
-- [Complete Reference](../reference.md)
-- [Modular Guide](../modular-guide.md)
-
-## Documentation automation
-
-The public documentation site is kept current from reviewed canonical sources.
-Canonical prompt/skill/agent changes on `main` deterministically rebuild the
-managed `docs/` sections, commit only real changes, and deploy the exact rebuilt
-artifact through GitHub Pages. Manual text outside `cg:auto` markers remains
-user-owned.
-
-### Rebuild flow
-
-Canonical source merge → `scripts/rebuild-docs.js --all` constructs the complete
-tree → the `doc-rebuild` workflow commits only `docs/` when it changed, then
-uploads the validated complete `docs/` plus build metadata → the Pages
-`workflow_run` consumes that exact artifact after verifying the normalized
-canonical-input fingerprint is current.
-
-Local dry run (no write):
+The [documentation publishing guide](../about/publishing.md) explains source
+ownership, page organization, local checks, automatic development publication,
+and recovery. Start there when editing the website.
 
 ```bash
-node scripts/rebuild-docs.js --check
+npm run docs:build
+npm run docs:test
 ```
+
+Every push to `dev` rebuilds the exact commit and hands its verified artifact to
+the protected publisher on `main`. The development handbook updates at
+[the /dev/ address](https://gpid-wb.github.io/compound-gpid/dev/); the stable
+[site root](https://gpid-wb.github.io/compound-gpid/) remains the reviewed release
+snapshot. Use the channel switch in the sidebar to move between them.
+
+`docs/navigation.json` owns page routes, grouping, descriptions, and discovery.
+Every public Markdown page appears once. The website reads the canonical
+Markdown directly; `cg:auto` marker interiors are regenerated and manual text
+outside them is preserved. No manual upload is needed.
 
 ### What's New page
 

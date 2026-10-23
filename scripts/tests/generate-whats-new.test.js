@@ -203,3 +203,11 @@ test("latest.json must match the newest immutable release", async () => {
   assert.notEqual(result.status, 0);
   assert.match(result.stdout + result.stderr, /latest\.json.*newest/i);
 });
+
+test("protected publisher release parser preserves legacy tags and accepts valid SemVer", () => {
+  const { parseReleaseTag, compareReleaseTags } = require("../release-version.js");
+  assert.equal(parseReleaseTag("v1.2.0.9025").legacy, true);
+  assert.equal(parseReleaseTag("v1.2.0-rc.1").legacy, false);
+  assert.ok(compareReleaseTags("v1.2.0", "v1.2.0-rc.1") > 0);
+  for (const tag of [null, "v1.2", "v1.2.0 bad", "v1.2.0-01"]) assert.throws(() => parseReleaseTag(tag));
+});

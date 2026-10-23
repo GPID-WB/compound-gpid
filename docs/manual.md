@@ -38,3 +38,7 @@ or look up a specific entry in [Commands](reference/commands.md).
 - [Contribute and Develop](development/index.md)
 - [Competitive Reviews](competitive-reviews.md)
 - [Documentation Migration](about/documentation-audit.md)
+
+## Maintaining these docs
+
+See [Keep the Documentation Current](about/publishing.md) for source ownership, checks, and automatic development publication.
