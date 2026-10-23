@@ -7,9 +7,6 @@ on:
       - '**/*.md'
       - 'docs/**/*.html'
       - 'docs/**/*.js'
-      - 'docs/**/*.css'
-      - 'scripts/docs-*.js'
-      - 'scripts/tests/docs-*'
       - 'docs/**/*.json'
       - 'scripts/check-docs-site.js'
       - '.github/skills/**'
@@ -19,9 +16,6 @@ on:
       - '**/*.md'
       - 'docs/**/*.html'
       - 'docs/**/*.js'
-      - 'docs/**/*.css'
-      - 'scripts/docs-*.js'
-      - 'scripts/tests/docs-*'
       - 'docs/**/*.json'
       - 'scripts/check-docs-site.js'
       - '.github/skills/**'
@@ -46,12 +40,14 @@ jobs:
       - name: Check links
         uses: lycheeverse/lychee-action@8646ba30535128ac92d33dfc9133794bfdd9b411  # v2.8.0
         with:
+          # The committed 9025 payload precedes its tag; do not require publication to merge it.
           args: >
             --verbose
             --no-progress
             --exclude 'http://www.stata-journal.com'
             --exclude 'https://repec.org'
             --exclude 'localhost'
+            --exclude '^https://github\.com/GPID-WB/compound-gpid/tree/v1\.2\.0\.9025$'
             **/*.md
             docs/**/*.html
           fail: true

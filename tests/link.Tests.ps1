@@ -35,7 +35,7 @@ Describe "link.ps1 - hybrid Copilot skill projection" {
         @($copilot.installUnits | Where-Object { $_.target -eq ".github/skills" }).Count | Should -Be 0
         $linkContent | Should -Match 'projectedCategories'
         $linkContent | Should -Match 'Copilot skills projected by manifest'
-        $linkContent | Should -Match 'Invoke-CgProjection'
+        $linkContent | Should -Match '--sync-projection'
     }
 
     It "keeps every non-skill Copilot install unit on its existing topology" {
@@ -323,16 +323,25 @@ Describe "link.ps1 - Kilo copy-directory strategy" {
 
     It "syncs managed files by checksum and rejects a linked result" {
         $linkContent | Should -Match 'cg_kilo_copy\.py'
-        $linkContent | Should -Match 'Shared Kilo copy worker failed'
-        $linkContent | Should -Match 'copy-directory invariant failed'
+        $linkContent | Should -Match 'Shared copy or manifest projection synchronization failed'
+        $workerContent = Get-Content (Join-Path $repoRoot "scripts\cg_kilo_copy.py") -Raw -Encoding UTF8
+        $workerContent | Should -Match 'destination is a link or reparse point'
+    }
+
+    It "validates generated files locally and prints one optional launcher note" {
+        $linkContent | Should -Match 'Invoke-CgKiloPreflight[^\r\n]+-LocalOnly'
+        $linkContent | Should -Not -Match 'RequireCoexistence|HostOnly'
+        $linkContent | Should -Match 'if \(\$kiloSelected -or \$kiloManagedCopy\)'
+        ([regex]::Matches($linkContent, 'Note: Kilo and compatibility skills coexist\.')).Count | Should -Be 1
+        $linkContent | Should -Not -Match 'Certified launch required'
     }
 
     It "manages copied directories via checksum manifests and baseline sync" {
         $linkContent | Should -Match '\.compound-gpid-managed-copy\.json'
-        $linkContent | Should -Match 'performing a baseline sync \(user files preserved\)'
+        $linkContent | Should -Match 'already a real directory \(copy queued\)'
         $linkContent | Should -Not -Match 'Adopt-CgCopiedDirectoryIfExact'
-        $linkContent | Should -Match 'Refusing to write a managed-copy marker through a reparse point'
-        $linkContent | Should -Match 'System\.IO\.File\]::Replace\(\$temporaryPath, \$markerPath, \$backupPath\)'
+        (Get-Content (Join-Path $repoRoot "scripts\cg_kilo_copy.py") -Raw -Encoding UTF8) | Should -Match '(?s)if _is_link\(marker\):\s+raise CopyError.*prior_marker = _read_target\(target, MARKER_NAME\)'
+        (Get-Content (Join-Path $repoRoot "scripts\cg_kilo_copy.py") -Raw -Encoding UTF8) | Should -Match '(?s)def _write_target\(.*ExpectedFileState\.from_bytes\(prior\).*secure_fs\.secure_write_bytes\(.*expected_state=expected.*_write_target\(target, MARKER_NAME, marker_bytes, prior_marker\)'
     }
 
     It "migrates Kilo agents behaviorally and preserves managed user edits" {
@@ -485,51 +494,44 @@ Describe "link.ps1 - Kilo copy-directory strategy" {
 
     It "keeps compatibility adapters linked while localizing every Kilo-reachable skill" {
         $project = Join-Path $TestDrive "codex-kilo-skill-boundary"
-        New-Item -ItemType Directory -Path $project -Force | Out-Null
+        $profileDir = Join-Path $TestDrive "codex-kilo-skill-profile"
+        New-Item -ItemType Directory -Path $project, $profileDir -Force | Out-Null
         $oldSkipUpdate = $env:CG_SKIP_UPDATE
+        $oldProfile = $env:USERPROFILE
         Push-Location $project
         try {
             $env:CG_SKIP_UPDATE = "1"
-            $linkError = $null
-            try {
-                & (Join-Path $repoRoot "scripts\link.ps1") -RawArgs @("--platforms", "claude-code,codex,opencode,kilo", "--yes")
-            } catch {
-                $linkError = $_
-            }
+            $env:USERPROFILE = $profileDir
+            & (Join-Path $repoRoot "scripts\link.ps1") -RawArgs @("--platforms", "claude-code,codex,opencode,kilo", "--yes")
 
             $kiloSkills = Join-Path $project ".kilo\skills"
-            $kiloLinked = Test-Path -LiteralPath (Join-Path $kiloSkills ".compound-gpid-managed-copy.json")
-            if (-not $kiloLinked) {
-                Write-Host "  Kilo platform not available (preflight blocked); testing adapter-only containment" -ForegroundColor DarkGray
+            Test-Path -LiteralPath (Join-Path $kiloSkills ".compound-gpid-managed-copy.json") | Should -Be $true
+            (Get-Item -LiteralPath $kiloSkills -Force).LinkType | Should -BeNullOrEmpty
+            $projectPrefix = [System.IO.Path]::GetFullPath($project).TrimEnd('\') + '\'
+            $reachable = @(Get-ChildItem -LiteralPath $kiloSkills -Filter SKILL.md -File -Recurse)
+            foreach ($adapter in @(
+                [pscustomobject]@{ Root = ".claude\skills"; Id = "claude-code" },
+                [pscustomobject]@{ Root = ".agents\skills"; Id = "codex" },
+                [pscustomobject]@{ Root = ".opencode\skills"; Id = "opencode" }
+            )) {
+                $skills = Join-Path $project $adapter.Root
+                $mirror = Join-Path $project ".compound-gpid\kilo-compat-skills\$($adapter.Id)"
+                (Get-Item -LiteralPath $skills -Force).LinkType | Should -Be "Junction"
+                [string]((Get-Item -LiteralPath $skills -Force).Target -join '') | Should -Be $mirror
+                Test-Path -LiteralPath (Join-Path $mirror ".compound-gpid-managed-copy.json") | Should -Be $true
+                $reachable += @(Get-ChildItem -LiteralPath $skills -Filter SKILL.md -File -Recurse)
             }
-
-            if ($kiloLinked) {
-                (Get-Item -LiteralPath $kiloSkills -Force).LinkType | Should -BeNullOrEmpty
-                $projectPrefix = [System.IO.Path]::GetFullPath($project).TrimEnd('\') + '\'
-                $reachable = @(Get-ChildItem -LiteralPath $kiloSkills -Filter SKILL.md -File -Recurse)
-                foreach ($adapter in @(
-                    [pscustomobject]@{ Root = ".claude\skills"; Id = "claude-code" },
-                    [pscustomobject]@{ Root = ".agents\skills"; Id = "codex" },
-                    [pscustomobject]@{ Root = ".opencode\skills"; Id = "opencode" }
-                )) {
-                    $skills = Join-Path $project $adapter.Root
-                    $mirror = Join-Path $project ".compound-gpid\kilo-compat-skills\$($adapter.Id)"
-                    (Get-Item -LiteralPath $skills -Force).LinkType | Should -Be "Junction"
-                    [string]((Get-Item -LiteralPath $skills -Force).Target -join '') | Should -Be $mirror
-                    Test-Path -LiteralPath (Join-Path $mirror ".compound-gpid-managed-copy.json") | Should -Be $true
-                    $reachable += @(Get-ChildItem -LiteralPath $skills -Filter SKILL.md -File -Recurse)
-                }
-                $reachable.Count | Should -BeGreaterThan 0
-                foreach ($skill in $reachable) {
-                    $resolved = (Resolve-Path -LiteralPath $skill.FullName).Path
-                    $resolved.StartsWith($projectPrefix, [System.StringComparison]::OrdinalIgnoreCase) |
-                        Should -Be $true -Because "Kilo-reachable skill resolved outside project: $($skill.FullName) -> $resolved"
-                }
+            $reachable.Count | Should -BeGreaterThan 0
+            foreach ($skill in $reachable) {
+                $resolved = (Resolve-Path -LiteralPath $skill.FullName).Path
+                $resolved.StartsWith($projectPrefix, [System.StringComparison]::OrdinalIgnoreCase) |
+                    Should -Be $true -Because "Kilo-reachable skill resolved outside project: $($skill.FullName) -> $resolved"
             }
         } finally {
             try { & (Join-Path $repoRoot "scripts\unlink.ps1") -RawArgs @("--yes") } catch { }
             Pop-Location
             $env:CG_SKIP_UPDATE = $oldSkipUpdate
+            $env:USERPROFILE = $oldProfile
         }
     }
 
@@ -573,7 +575,7 @@ Describe "link.ps1 - copilot-instructions.md management" {
     }
 
     Context "when the file exists and has the management marker" {
-        It "regenerates the file with the latest content" {
+        It "requires a one-time backup for marked instructions without a receipt" {
             $dest   = Join-Path $TestDrive "copilot-overwrite.md"
             $marker = "<!-- compound-gpid:managed -->"
             Set-Content -Path $dest -Value ($marker + "`n" + "# Old content")
@@ -581,9 +583,13 @@ Describe "link.ps1 - copilot-instructions.md management" {
             $content = Get-Content $dest -Raw
             $content -match [regex]::Escape($marker) | Should -Be $true
 
-            # Simulate overwrite with new content
-            Set-Content -Path $dest -Value ($marker + "`n" + "# New content")
-            (Get-Content $dest -Raw) -match "New content" | Should -Be $true
+            . (Join-Path $PSScriptRoot "..\scripts\helpers.ps1")
+            $python = Resolve-PythonCommand
+            $scripts = Join-Path (Split-Path $PSScriptRoot -Parent) "scripts"
+            $decision = & $python -B -c "import pathlib,sys; sys.path.insert(0,sys.argv[1]); from cg_link_ownership import copilot_decision; action,reason,backup=copilot_decision(pathlib.Path(sys.argv[2]).read_bytes(),b'new content'); sys.stdout.write(action+'|'+str(backup))" $scripts $dest
+            $LASTEXITCODE | Should -Be 0
+            $decision | Should -Be "update|True"
+            (Get-Content $dest -Raw) | Should -Be $content
         }
     }
 
@@ -601,6 +607,53 @@ Describe "link.ps1 - copilot-instructions.md management" {
 }
 
 Describe "link.ps1 - .gitignore management (per-item entries)" {
+    Context "production block writer preserves user lines and converges" {
+        BeforeAll {
+            $source = Get-Content (Join-Path $PSScriptRoot "..\scripts\link.ps1") -Raw -Encoding UTF8
+            $definition = [regex]::Match($source, '(?ms)^function Update-CgGitignoreBlock \{.*?^\}').Value
+            if (-not $definition) { throw "Missing Update-CgGitignoreBlock definition" }
+            . ([scriptblock]::Create($definition))
+            $marker = "# Compound GPID managed items (junctions + copied file - do not commit)"
+            $utf8 = New-Object System.Text.UTF8Encoding -ArgumentList $false
+        }
+
+        It "cleans duplicate old fragments and exact new entries, preserving all other lines in order" {
+            $ProjectRoot = Join-Path $TestDrive "production-fragments"
+            New-Item -ItemType Directory -Path $ProjectRoot | Out-Null
+            $path = Join-Path $ProjectRoot ".gitignore"
+            $entries = @(".kilo", ".compound-gpid/active/", "custom-managed/item")
+            foreach ($newline in @("`n", "`r`n")) {
+                $before = "# user before  ${newline}*.log${newline}${newline}"
+                $after = ".kilo-other${newline}.KILO${newline} .kilo${newline}.kilo ${newline}!.kilo/keep${newline}.cg-docs/user${newline}# user after`t ${newline}${newline}  `t${newline}"
+                $old = $marker + $newline + (@(".github", ".claude", ".agents", ".opencode", ".kilo", ".compound-gpid", ".kilo/old/") -join $newline) + $newline
+                $initial = $before + ".kilo${newline}custom-managed/item${newline}" + $old + $old + $after + ".compound-gpid/active/${newline}"
+                [System.IO.File]::WriteAllText($path, $initial, $utf8)
+
+                Update-CgGitignoreBlock -Entries $entries
+                $expected = $before + $after + $marker + "`n.compound-gpid/active/`n.kilo`ncustom-managed/item`n"
+                [System.IO.File]::ReadAllText($path) | Should -BeExactly $expected
+                $first = [Convert]::ToBase64String([System.IO.File]::ReadAllBytes($path))
+                Update-CgGitignoreBlock -Entries $entries
+                [Convert]::ToBase64String([System.IO.File]::ReadAllBytes($path)) | Should -BeExactly $first
+            }
+        }
+
+        It "is byte-stable from fresh user content, empty content, and an old block without a final newline" {
+            $ProjectRoot = Join-Path $TestDrive "production-eof"
+            New-Item -ItemType Directory -Path $ProjectRoot | Out-Null
+            $path = Join-Path $ProjectRoot ".gitignore"
+            foreach ($initial in @("", "*.log  `n`n`t `n", ($marker + "`n.kilo`n.kilo/old/"))) {
+                [System.IO.File]::WriteAllText($path, $initial, $utf8)
+                Update-CgGitignoreBlock -Entries @(".kilo")
+                $prefix = if ($initial.StartsWith($marker)) { "" } else { $initial }
+                [System.IO.File]::ReadAllText($path) | Should -BeExactly ($prefix + $marker + "`n.kilo`n")
+                $first = [Convert]::ToBase64String([System.IO.File]::ReadAllBytes($path))
+                Update-CgGitignoreBlock -Entries @(".kilo")
+                [Convert]::ToBase64String([System.IO.File]::ReadAllBytes($path)) | Should -BeExactly $first
+            }
+        }
+    }
+
     Context "when .gitignore does not exist" {
         It "creates .gitignore with CG-specific entries" {
             $gi = Join-Path $TestDrive "new-gi.gitignore"
@@ -947,16 +1000,14 @@ Describe "link.ps1 - -Force flag for non-interactive use" {
         $content | Should -Match 'if \(\$null -eq \$Arguments\) \{ \$Arguments = @\(\) \}'
     }
 
-    It "Relink prompt is guarded by -not `$Force [regression guard]" {
-        # The junction-conflict branch Read-Host must be inside if (-not $Force).
+    It "does not use Force to authorize replacement of a foreign junction [regression guard]" {
         ($content -split '\r?\n' | Where-Object { $_ -match 'if \(-not \$Force\)' } | Measure-Object).Count |
-            Should -Be 1
+            Should -Be 0
     }
 
-    It "does not call Read-Host unconditionally [regression guard]" {
-        # Exactly 1 Read-Host call exists for non-Compound junction relink.
+    It "does not prompt to replace an unowned junction [regression guard]" {
         ($content -split '\r?\n' | Where-Object { $_ -match 'Read-Host' } | Measure-Object).Count |
-            Should -Be 1
+            Should -Be 0
     }
 
     It "accepts GNU-style platform flags through raw argument parsing" {
@@ -1241,15 +1292,24 @@ Describe "link.ps1 - manifest-driven projection integration" {
             $content | Should -Match 'Active manifest: resolved'
         }
 
+        It "shows the shared legacy settings note in both wrappers" {
+            $psContent = Get-Content (Join-Path $PSScriptRoot "..\scripts\link.ps1") -Raw -Encoding UTF8
+            $shContent = Get-Content (Join-Path $PSScriptRoot "..\scripts\link.sh") -Raw -Encoding UTF8
+            $psContent | Should -Match 'compound-gpid\.local\.md has no settings block;'
+            $psContent | Should -Match 'Write-Host \$line'
+            $shContent | Should -Match 'compound-gpid\.local\.md has no settings block;'
+            $shContent | Should -Match 'done <<< "\$MANIFEST_OUTPUT"'
+        }
+
         It "syncs and verifies the projection when an active manifest exists" {
             $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\link.ps1") -Raw -Encoding UTF8
-            $content | Should -Match 'Invoke-CgProjection'
+            $content | Should -Match '--sync-projection'
             $content | Should -Match 'projection: synced and verified'
         }
 
         It "blocks the link banner on projection failure" {
             $content = Get-Content (Join-Path $PSScriptRoot "..\scripts\link.ps1") -Raw -Encoding UTF8
-            $content | Should -Match 'blocked by manifest projection failure'
+            $content | Should -Match 'Shared copy or manifest projection synchronization failed'
         }
 
         It "projects a fresh Kilo consumer before local preflight" {
@@ -1354,6 +1414,76 @@ suites: [cg]
             $diagnostic | Should -Not -Match 'Kilo preflight:'
             $diagnostic | Should -Not -Match 'Linked!'
         }
+    }
+}
+
+Describe "upgrade-matrix.ps1 - isolated repeat snapshot assertions" {
+    BeforeAll {
+        $source = Get-Content (Join-Path $PSScriptRoot "..\scripts\ci\upgrade-matrix.ps1") -Raw -Encoding UTF8
+        foreach ($name in @("Assert-Snapshot", "Assert-RepeatSnapshot")) {
+            $definition = [regex]::Match($source, ('(?ms)^function ' + [regex]::Escape($name) + '\(.*?^\}')).Value
+            if (-not $definition) { throw "Missing $name definition" }
+            . ([scriptblock]::Create($definition))
+        }
+    }
+
+    BeforeEach {
+        # The production helpers resolve these variables dynamically from their caller.
+        $Root = $TestDrive
+        $stage = "isolated snapshot assertions"
+        $snapshotDiffs = New-Object 'System.Collections.Generic.List[string]'
+        $repeatBefore = @(
+            ".gitignore|file|IGNORE",
+            "user.txt|file|USER",
+            ".compound-gpid/managed-files.json|file|RECEIPT",
+            ".compound-gpid/active/kilo.json|file|META-A",
+            ".compound-gpid/projection-ownership.json|file|META-A",
+            ".compound-gpid/projection-transaction.json|file|META-A",
+            ".compound-gpid/active/foo/bar.json|file|NESTED",
+            ".compound-gpid/generations/AAA|directory",
+            ".compound-gpid/generations/AAA/tree|directory",
+            ".compound-gpid/generations/AAA/tree/data.md|file|CONTENT",
+            ".compound-gpid/staging|directory"
+        )
+        $repeatAfter = @($repeatBefore | ForEach-Object { $_.Replace('/AAA', '/BBB').Replace('|META-A', '|META-B') })
+    }
+
+    It "compares copy-only snapshots strictly without requiring generations: <afterRecord>" -TestCases @(
+        @{ afterRecord = "user.txt|file|USER"; expected = $true },
+        @{ afterRecord = "user.txt|file|CHANGED"; expected = $false },
+        @{ afterRecord = "user.txt|link|target"; expected = $false }
+    ) {
+        param($afterRecord, $expected)
+        Assert-RepeatSnapshot @("user.txt|file|USER") @($afterRecord) "copy-only" | Should -Be $expected
+    }
+
+    It "accepts a generation ID change with identical contents and the three allowed metadata changes" {
+        Assert-RepeatSnapshot $repeatBefore $repeatAfter "projected" -Projected | Should -Be $true
+        ($snapshotDiffs -join "`n") | Should -Match 'changed: \.compound-gpid/active/kilo\.json'
+    }
+
+    It "rejects projected changes outside the metadata allowance: <record>" -TestCases @(
+        @{ record = ".gitignore|file|IGNORE"; replacement = ".gitignore|file|CHANGED" },
+        @{ record = "user.txt|file|USER"; replacement = "user.txt|file|CHANGED" },
+        @{ record = ".compound-gpid/managed-files.json|file|RECEIPT"; replacement = ".compound-gpid/managed-files.json|file|CHANGED" },
+        @{ record = ".compound-gpid/generations/BBB/tree/data.md|file|CONTENT"; replacement = ".compound-gpid/generations/BBB/tree/data.md|file|CHANGED" },
+        @{ record = ".compound-gpid/active/foo/bar.json|file|NESTED"; replacement = ".compound-gpid/active/foo/bar.json|file|CHANGED" },
+        @{ record = ".compound-gpid/active/foo/bar.json|file|NESTED"; replacement = ".compound-gpid/active/foo/bar.json|link|target" },
+        @{ record = ".compound-gpid/active/kilo.json|file|META-B"; replacement = ".compound-gpid/active/kilo.json|link|target" }
+    ) {
+        param($record, $replacement)
+        $changed = @($repeatAfter | ForEach-Object { if ($_ -ceq $record) { $replacement } else { $_ } })
+        Assert-RepeatSnapshot $repeatBefore $changed "forbidden change" -Projected | Should -Be $false
+    }
+
+    It "rejects invalid state cardinality even when snapshots are identical: <extra>" -TestCases @(
+        @{ extra = ".compound-gpid/generations/EXTRA|directory" },
+        @{ extra = ".compound-gpid/staging/leftover|directory" },
+        @{ extra = ".compound-gpid/staging/foo/bar|directory" }
+    ) {
+        param($extra)
+        $invalid = @($repeatAfter) + $extra
+        Assert-RepeatSnapshot $invalid $invalid "invalid cardinality" -Projected | Should -Be $false
     }
 }
 

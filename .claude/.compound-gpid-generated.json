@@ -25,20 +25,6 @@
       "executable": false
     },
     {
-      "path": ".claude/agents/cg-autopilot.md",
-      "source": ".github/agents/cg-autopilot.agent.md",
-      "kind": "agent",
-      "sha256": "d31d0d0631cdf2aa9bf93fd512ea8039c2cccaca89fd4f353978be452aec09ad",
-      "executable": false
-    },
-    {
-      "path": ".claude/agents/cg-bootstrap-leaf.md",
-      "source": ".github/agents/cg-bootstrap-leaf.agent.md",
-      "kind": "agent",
-      "sha256": "cdd31c0b9c224d7fd955069926ec6bf315efa6c57a770a0c2047199c6faf77d6",
-      "executable": false
-    },
-    {
       "path": ".claude/agents/cg-code-quality.md",
       "source": ".github/agents/cg-code-quality.agent.md",
       "kind": "agent",
@@ -63,7 +49,7 @@
       "path": ".claude/agents/cg-fix-problems.md",
       "source": ".github/agents/cg-fix-problems.agent.md",
       "kind": "agent",
-      "sha256": "618df6d3f5b1b5054087b48b5d6ca2235bd8fd5f85cd7d1be78c76939a393254",
+      "sha256": "d80083816a638befee99c622726dd621c901af5b87018a432a740de5cab608a9",
       "executable": false
     },
     {
@@ -98,7 +84,7 @@
       "path": ".claude/agents/cg-release-scanner.md",
       "source": ".github/agents/cg-release-scanner.agent.md",
       "kind": "agent",
-      "sha256": "6ad204d8c2cf0055cc495571b3ba8b2b86f5a82e50abfeb6726213dba67f1a4a",
+      "sha256": "a34405f76c1e40fcfa5b2a59ab08e1688239228e1ded0c680b3a3c26abbb4ae1",
       "executable": false
     },
     {
@@ -140,14 +126,7 @@
       "path": ".claude/agents/cg-wiki.md",
       "source": ".github/agents/cg-wiki.agent.md",
       "kind": "agent",
-      "sha256": "14f3babd85bd43f5eda09b21f63eb36f65446639eb9a83c277222398b8089901",
-      "executable": false
-    },
-    {
-      "path": ".claude/agents/cg-workflow-stage.md",
-      "source": ".github/agents/cg-workflow-stage.agent.md",
-      "kind": "agent",
-      "sha256": "64ac6eb4944ee35aa6231f74c54922b81be6ff02b2473dfc74ae32568608bc41",
+      "sha256": "363ca215a8c84cc7fa8616f54bae18f5e67c7bab064ae4cf2664a1fbffe360d4",
       "executable": false
     },
     {
@@ -228,13 +207,6 @@
       "executable": false
     },
     {
-      "path": ".claude/commands/cg-autopilot.md",
-      "source": ".github/prompts/cg-autopilot.prompt.md",
-      "kind": "command",
-      "sha256": "897c90c9bb59d39f67d3389d6535517f66c4c8a5c54b5be52bf376d7227aa988",
-      "executable": false
-    },
-    {
       "path": ".claude/commands/cg-brain-rebuild.md",
       "source": ".github/prompts/cg-brain-rebuild.prompt.md",
       "kind": "command",
@@ -252,7 +224,7 @@
       "path": ".claude/commands/cg-commit-push-pr.md",
       "source": ".github/prompts/cg-commit-push-pr.prompt.md",
       "kind": "command",
-      "sha256": "71700ad4e50994d3b4d34bfb16d55ce5cfee8c8c2904e7bd40e9e66e1df05b29",
+      "sha256": "1abeaf9166f58a697666ce6956c05481de36c9618d1d8cd497a5ddf09f086b8b",
       "executable": false
     },
     {
@@ -273,14 +245,14 @@
       "path": ".claude/commands/cg-compound.md",
       "source": ".github/prompts/cg-compound.prompt.md",
       "kind": "command",
-      "sha256": "3e8d0c757708b9865a50c419de60a367a1bd954e2033cb799a7095de8d2754d2",
+      "sha256": "b92f2c9863dd1f6bfd17166f559e7e37915e1bdd6a022b814a3a6fcf0477a30f",
       "executable": false
     },
     {
       "path": ".claude/commands/cg-devtag.md",
       "source": ".github/prompts/cg-devtag.prompt.md",
       "kind": "command",
-      "sha256": "91be68670a33ff130908010c26249f854436accb5c25d653939ebb33f8b4f394",
+      "sha256": "ad7870b1587f8ee29a49997dd00a4652055c5a49241e02cd0e4cfeca65a8c1b1",
       "executable": false
     },
     {
@@ -301,7 +273,7 @@
       "path": ".claude/commands/cg-fix-triage.md",
       "source": ".github/prompts/cg-fix-triage.prompt.md",
       "kind": "command",
-      "sha256": "3c33212b6ab52a94f1057cdd5d4155e8ced040ae35313c25b1d4ed21d0aad8ee",
+      "sha256": "904dc4f16eabec77d984f6b2e0afe053287a54f684cd9681b9396ceb0738a073",
       "executable": false
     },
     {
@@ -309,13 +281,6 @@
       "source": ".github/prompts/cg-fixbug.prompt.md",
       "kind": "command",
       "sha256": "495efde4edd2a25df7fd31622f89b0d7c6d92fc6ebccdcf5e5605bc0280422ce",
-      "executable": false
-    },
-    {
-      "path": ".claude/commands/cg-help.md",
-      "source": ".github/prompts/cg-help.prompt.md",
-      "kind": "command",
-      "sha256": "82d621d0339649b62acd1c359ccd96caab8bd76fcf9bf5434600d867a4d68141",
       "executable": false
     },
     {
@@ -357,7 +322,7 @@
       "path": ".claude/commands/cg-release.md",
       "source": ".github/prompts/cg-release.prompt.md",
       "kind": "command",
-      "sha256": "8cef9c9c9f0550d75112bf841400a0d20a51a36144e57ccd48696aef4b4dea50",
+      "sha256": "dbb2033b584cf042816c95540a4b9baa79d000e26a0ec948eb9e4c74f4777be3",
       "executable": false
     },
     {
@@ -371,14 +336,14 @@
       "path": ".claude/commands/cg-resume.md",
       "source": ".github/prompts/cg-resume.prompt.md",
       "kind": "command",
-      "sha256": "ba489d0bb5b2a734c3fc14d6b4ae3f3074fe1e7b11a00f908830a9174ca979c7",
+      "sha256": "94321287caf36280ea8495613ed962e8ddd2d9f4c4a6b875787c1ce449b02842",
       "executable": false
     },
     {
       "path": ".claude/commands/cg-review.md",
       "source": ".github/prompts/cg-review.prompt.md",
       "kind": "command",
-      "sha256": "c148a8d2ff4c3a152c4adb53ce2925ff08a23543f82bf891dd035f35a8507593",
+      "sha256": "25e15e80a638c76a262607e5580e3f6ece73f3e7156c1d85a82bfd77782ad8a3",
       "executable": false
     },
     {
@@ -420,7 +385,7 @@
       "path": ".claude/commands/cg-verify-pr.md",
       "source": ".github/prompts/cg-verify-pr.prompt.md",
       "kind": "command",
-      "sha256": "b1a58fc11990ff8ee946d696a1f85ab9706fef9a0094e4f32461d56d8c625665",
+      "sha256": "f9697810da221d5f7f6fa6aa75862bc87974b431ab9df57c98da8a270d3402fb",
       "executable": false
     },
     {
@@ -434,7 +399,7 @@
       "path": ".claude/commands/cg-work.md",
       "source": ".github/prompts/cg-work.prompt.md",
       "kind": "command",
-      "sha256": "3d4c783da8d0185671d4e3635ca88d12508655ed35fb3bbdd939a4f6387cdd0f",
+      "sha256": "867e29ca838344a8beae5ff4408114001e18427fff133077e51eda26cca058fa",
       "executable": false
     },
     {
@@ -476,7 +441,7 @@
       "path": ".claude/commands/resume-templates.md",
       "source": ".github/prompts/resume-templates.md",
       "kind": "prompt-support",
-      "sha256": "25da60de3c13fd64245114cae773cbb67123e1deaf1d36f27fda629587f052a0",
+      "sha256": "d1e723b3f3ef06f19920476280d5f4b84670c8b2cff9198568afaee71906b114",
       "executable": false
     },
     {
@@ -504,7 +469,7 @@
       "path": ".claude/instructions/powershell.instructions.md",
       "source": ".github/instructions/powershell.instructions.md",
       "kind": "instruction",
-      "sha256": "2e6f63f7585e6af368d77876419d934b2abad2b95df079277616cf5911db0bfc",
+      "sha256": "3e19581e687d2f0f6fa180107e5069ac1c440ee60e123671951f3cf12b38a377",
       "executable": false
     },
     {
@@ -532,7 +497,7 @@
       "path": ".claude/shared/active-state.contract.md",
       "source": ".github/shared/active-state.contract.md",
       "kind": "shared",
-      "sha256": "071f6d2031ade8ec1364c1cdf12340a70c41bba39690599526661a452568ca9a",
+      "sha256": "edd87c90746d753bd4bcf3e869b5e19eddfa78dc8eaacb6a8c264191dd6d9604",
       "executable": false
     },
     {
@@ -543,31 +508,17 @@
       "executable": false
     },
     {
-      "path": ".claude/shared/autopilot-stage.contract.md",
-      "source": ".github/shared/autopilot-stage.contract.md",
-      "kind": "shared",
-      "sha256": "e2d40ea79b4b9de2068092cb7cc0657939459eda99a81cbea2d2f1491548b17e",
-      "executable": false
-    },
-    {
       "path": ".claude/shared/context-loading.contract.md",
       "source": ".github/shared/context-loading.contract.md",
       "kind": "shared",
-      "sha256": "f7e75f45d8f050af5b147728ef0d6b541fb2de783f191e34574846f0718cf459",
+      "sha256": "1a02f20f9adef1d94a42787e504e811f8b008567f29dde20a55b8f8bfa2f7c2c",
       "executable": false
     },
     {
       "path": ".claude/shared/goal-execution.contract.md",
       "source": ".github/shared/goal-execution.contract.md",
       "kind": "shared",
-      "sha256": "62e663082a2f4cd5d4e8082b881e3039a5d1e11e443468d32be968baefeb36d8",
-      "executable": false
-    },
-    {
-      "path": ".claude/shared/help-catalog.json",
-      "source": ".github/shared/help-catalog.json",
-      "kind": "shared",
-      "sha256": "f0b91653e87c5d1de3614a583c182802482d8ffcd76e2b20d13c35dfbf3f2d82",
+      "sha256": "bb9a71b884add1978d7f35e5afd1c21656a4cf09bdcb8b97144cad5ab52caba5",
       "executable": false
     },
     {
@@ -585,13 +536,6 @@
       "executable": false
     },
     {
-      "path": ".claude/shared/release-controller.contract.md",
-      "source": ".github/shared/release-controller.contract.md",
-      "kind": "shared",
-      "sha256": "b1db8f8e512a54b4207e2195df8d619324d38b11b06e5b5eabcfb1cbb41bee42",
-      "executable": false
-    },
-    {
       "path": ".claude/shared/retrieval-backends.json",
       "source": ".github/shared/retrieval-backends.json",
       "kind": "shared",
@@ -603,13 +547,6 @@
       "source": ".github/shared/review-routing.contract.md",
       "kind": "shared",
       "sha256": "946815d708ee716235fd7af3958cd6b4b40dd3176ec66d4a9e0d61453a67ed28",
-      "executable": false
-    },
-    {
-      "path": ".claude/shared/shell-commands.json",
-      "source": ".github/shared/shell-commands.json",
-      "kind": "shared",
-      "sha256": "8026813490d3390cb2aeded89bc6963dc6390e7b0a9245c18cb38f9dddad4ac2",
       "executable": false
     },
     {
@@ -714,7 +651,7 @@
       "path": ".claude/shared/skill-management/contracts/release-attestation-v1.schema.json",
       "source": ".github/shared/skill-management/contracts/release-attestation-v1.schema.json",
       "kind": "shared",
-      "sha256": "7aacbbb0f3edfa626c6da8388430aec73beebdb233deb94eb8812a91c7aed784",
+      "sha256": "736a9719a4d058c3ab18f1fe5812c226bcac6b0102f7d3457be889bab8b935ad",
       "executable": false
     },
     {
@@ -865,34 +802,6 @@
       "executable": false
     },
     {
-      "path": ".claude/shared/skill-management/release-attestations/v1.2.0.9017.json",
-      "source": ".github/shared/skill-management/release-attestations/v1.2.0.9017.json",
-      "kind": "shared",
-      "sha256": "f26e747d07ad52b98257026301022f0065f00329430259f08b73d0e928a3c311",
-      "executable": false
-    },
-    {
-      "path": ".claude/shared/skill-management/release-attestations/v1.2.0.9019.json",
-      "source": ".github/shared/skill-management/release-attestations/v1.2.0.9019.json",
-      "kind": "shared",
-      "sha256": "52574cde208cdf8a254f6a0a74b67370ca19f24639ca5130cfcf33418dc52cc8",
-      "executable": false
-    },
-    {
-      "path": ".claude/shared/skill-management/release-attestations/v1.2.0.9020.json",
-      "source": ".github/shared/skill-management/release-attestations/v1.2.0.9020.json",
-      "kind": "shared",
-      "sha256": "94080a2091f0e42227474f671fc0604d0bdd66c59f79a6672cd4188b9ff927cf",
-      "executable": false
-    },
-    {
-      "path": ".claude/shared/skill-management/release-attestations/v1.2.0.9021.json",
-      "source": ".github/shared/skill-management/release-attestations/v1.2.0.9021.json",
-      "kind": "shared",
-      "sha256": "e46ee202ef2e50ab5ec1307d898224e3226c1ef47bdd80cfc51a07688f24cda4",
-      "executable": false
-    },
-    {
       "path": ".claude/shared/snapshot-research-modes.json",
       "source": ".github/shared/snapshot-research-modes.json",
       "kind": "shared",
@@ -903,7 +812,7 @@
       "path": ".claude/shared/target-mapping.json",
       "source": ".github/shared/target-mapping.json",
       "kind": "shared",
-      "sha256": "8fa4def636b102454f3232946e49a6b12883d7025f9d1f6b004da90c0bf33ae8",
+      "sha256": "38269c5d9c5103d9189865a37f7911c76f1a8a53f5a8dc07899b25c5b9c39968",
       "executable": false
     },
     {
@@ -2450,14 +2359,14 @@
       "path": ".claude/skills/cg-skill-wiki/SKILL.md",
       "source": ".github/skills/cg-skill-wiki/SKILL.md",
       "kind": "skill",
-      "sha256": "9fadc6c248d4b2bc91c1322afc466d484a1f639828d969a2a42e25973a30045c",
+      "sha256": "71359eb83cae9c249c7d5dffcf2f3de10504ac29618bb2cb7cc001d1b674ce69",
       "executable": false
     },
     {
       "path": ".claude/skills/cg-skill-windows-cmd-python-detection/SKILL.md",
       "source": ".github/skills/cg-skill-windows-cmd-python-detection/SKILL.md",
       "kind": "skill",
-      "sha256": "6a5ce2400b35703569175e07f6da746e4a8625470ae4b347c418425cb51ce390",
+      "sha256": "e245a1497e5964628b7601b95a99f8684e619f2e29deb3a86d5223114060682b",
       "executable": false
     },
     {

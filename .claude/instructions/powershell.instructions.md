@@ -28,7 +28,7 @@ Every Python-probing `.cmd` file **must** use this exact pattern for each candid
 where <cmd> >nul 2>&1
 if not errorlevel 1 (
     for /f "tokens=*" %%V in ('<cmd> --version 2^>^&1') do (
-        echo %%V | findstr /i "^Python [0-9]" >nul 2>&1
+        echo %%V | findstr /i /R /C:"^Python [0-9]" >nul 2>&1
         if not errorlevel 1 (
             call <cmd> "%~dp0..\scripts\<entrypoint>.py" %*
             exit /b %ERRORLEVEL%

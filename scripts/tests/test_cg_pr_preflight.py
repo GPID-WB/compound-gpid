@@ -1,493 +1,33 @@
 """Contract tests for the CI-impact preflight and native target runner."""
 from __future__ import annotations
 
-import io
-import hashlib
 import json
+import io
 import subprocess
 from pathlib import Path
 
-import cg_pr_preflight as preflight
 import pytest
 
+import cg_pr_preflight as preflight
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
+REBUILD_TEST_FILES = (
+    "scripts/tests/test_install_sh.py",
+    "scripts/tests/test_migrate_install_sh.py",
+    "scripts/tests/test_retired_assets.py",
+    "scripts/tests/test_native_retirement_entrypoints.py",
+    "scripts/tests/test_rebuild_residue.py",
+    "scripts/tests/test_installer_wrapper_restore.py",
+    "scripts/tests/test_update_generates_targets.py",
+    "scripts/tests/test_rebuild_update_sh.py",
+    "scripts/tests/test_rebuild_migration.py",
+    "scripts/tests/test_cg_link_check.py",
+)
 
 
-@pytest.fixture
-def receipt_run(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> tuple[Path, Path]:
-    """Use deterministic Git identities and commands, with external receipt storage."""
-    root = tmp_path / "checkout"
-    root.mkdir()
-    receipt = tmp_path / "receipt.json"
-    monkeypatch.setattr(preflight, "inspect_cache_artifacts", lambda _: preflight.CacheReport())
-
-    def git(_root: Path, arguments: tuple[str, ...]) -> preflight.GitResult:
-        if arguments[:4] == preflight.RECEIPT_GIT_OPTIONS:
-            arguments = arguments[4:]
-        text = " ".join(arguments)
-        if "HEAD^{commit}" in text:
-            value = "a" * 40
-        elif "HEAD^{tree}" in text:
-            value = "b" * 40
-        elif "core.autocrlf" in text:
-            value = "false"
-        elif "core.eol" in text:
-            value = "lf"
-        elif "status" in arguments:
-            value = ""
-        elif "clone" in arguments or "checkout" in arguments or arguments[:1] == ("config",):
-            value = ""
-        else:
-            raise AssertionError(f"Unexpected Git query: {arguments}")
-        return preflight.GitResult(0, value, "")
-
-    monkeypatch.setattr(preflight, "_run_git", git)
-    monkeypatch.setattr(
-        preflight, "run_native_target",
-        lambda root, selection, **kwargs: preflight.NativeRunResult(tuple(
-            preflight.CommandResult(command, 0)
-            for command in preflight.selected_native_commands(selection, root, **kwargs)
-        )),
-    )
-    return root, receipt
-
-
-def test_receipt_verification_allows_a_different_python_location(
-    receipt_run: tuple[Path, Path], monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    root, receipt = receipt_run
-    assert preflight.main(["--root", str(root), "--phase", "committed", "--full-gate",
-                           "--run-native-target", "--emit-receipt", str(receipt)]) == 0
-    payload = json.loads(receipt.read_text(encoding="utf-8"))
-    payload.pop("digest")
-    for command in payload["commands"]:
-        if command[0] == preflight.PYTHON:
-            command[0] = str(root / "other-venv" / "python.exe")
-    payload["digest"] = hashlib.sha256(json.dumps(
-        payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()).hexdigest()
-    receipt.write_text(json.dumps(payload), encoding="utf-8")
-    def must_not_execute(*args: object, **kwargs: object) -> None:
-        raise AssertionError("Verifier must not execute a receipt-supplied interpreter")
-    monkeypatch.setattr(preflight.subprocess, "run", must_not_execute)
-    assert preflight.verify_preflight_receipt(receipt, "a" * 40, "b" * 40)
-
-
-def test_receipt_destination_has_exclusive_ownership(
-    receipt_run: tuple[Path, Path], monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    root, receipt = receipt_run
-    argv = ["--root", str(root), "--phase", "committed", "--full-gate",
-            "--run-native-target", "--emit-receipt", str(receipt)]
-    original_run = preflight.run_native_target
-    calls = []
-    def first_run(*args: object, **kwargs: object) -> preflight.NativeRunResult:
-        calls.append("owner")
-        # A second invocation collides deterministically while the first owns the gate.
-        monkeypatch.setattr(preflight, "run_native_target", lambda *a, **kw:
-                            pytest.fail("A colliding invocation must not start a gate"))
-        assert preflight.main(argv) == 2
-        return original_run(*args, **kwargs)
-    monkeypatch.setattr(preflight, "run_native_target", first_run)
-    assert preflight.main(argv) == 0
-    assert calls == ["owner"]
-    assert preflight.verify_preflight_receipt(receipt, "a" * 40, "b" * 40)
-    # A later owner must invalidate the completed receipt before its own failure.
-    monkeypatch.setattr(preflight, "run_native_target", lambda *a, **kw:
-                        preflight.NativeRunResult((preflight.CommandResult(("uv", "--version"), 1),)))
-    assert preflight.main(argv) == 1
-    assert not receipt.exists()
-    assert not receipt.with_name(receipt.name + ".lock").exists()
-
-
-@pytest.mark.parametrize("change", ["relative-interpreter", "mixed-interpreters", "argument", "uv"])
-def test_logical_command_contract_rejects_substitutions(change: str) -> None:
-    commands = [list(command) for command in preflight.selected_native_commands(
-        preflight.full_gate_selection(), Path("."))]
-    python_commands = [command for command in commands if command[0] == preflight.PYTHON]
-    if change == "relative-interpreter":
-        for command in python_commands:
-            command[0] = "python"
-    elif change == "mixed-interpreters":
-        python_commands[0][0] = str(Path(preflight.PYTHON).parent / "other" / "python")
-    elif change == "argument":
-        python_commands[0][-1] = "--collect-only"
-    else:
-        commands[0][0] = "different-tool"
-    assert not preflight._receipt_commands_match(commands)
-
-
-@pytest.mark.parametrize("hidden_change", ["normalized-crlf", "assume-unchanged", "skip-worktree"])
-def test_receipt_gate_owns_fresh_checkout_with_actual_lf_bytes(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, hidden_change: str,
-) -> None:
-    source = tmp_path / "source"
-    source.mkdir()
-    def git(*arguments: str) -> str:
-        return subprocess.run(["git", "-C", str(source), *preflight.RECEIPT_GIT_OPTIONS, *arguments], check=True,
-                              capture_output=True, text=True).stdout.strip()
-    git("init")
-    (source / ".gitattributes").write_bytes(b"*.py text eol=lf\n*.cmd text eol=crlf\n")
-    (source / "code.py").write_bytes(b"answer = 42\n")
-    (source / "launcher.cmd").write_bytes(b"@echo off\r\n")
-    git("add", ".")
-    git("-c", "user.name=Receipt Test", "-c", "user.email=receipt@example.invalid",
-        "-c", "commit.gpgsign=false", "commit", "-m", "test: receipt fixture")
-    if hidden_change == "normalized-crlf":
-        (source / "code.py").write_bytes(b"answer = 42\r\n")
-        # Refresh Git's stat cache through its clean filter. The index still
-        # contains the original LF blob while the working file retains CRLF.
-        git("add", "code.py")
-        assert git("rev-parse", ":code.py") == git("rev-parse", "HEAD:code.py")
-        assert (source / "code.py").read_bytes() == b"answer = 42\r\n"
-    else:
-        git("update-index", "--" + hidden_change, "code.py")
-        (source / "code.py").write_bytes(b"answer = 0\r\n")
-    assert git("status", "--porcelain") == ""
-    observed = []
-    def run(root: Path, selection: preflight.ChangeSelection, **kwargs: object) -> preflight.NativeRunResult:
-        assert root != source
-        local_config = subprocess.run(["git", "-C", str(root), "config", "--local", "--get-regexp",
-                                       r"^core\.(autocrlf|eol)$"], capture_output=True, text=True)
-        assert local_config.returncode == 1
-        assert local_config.stdout == ""
-        assert (root / "code.py").read_bytes() == b"answer = 42\n"
-        assert (root / "launcher.cmd").read_bytes() == b"@echo off\r\n"
-        observed.append(root)
-        return preflight.NativeRunResult(tuple(preflight.CommandResult(command, 0)
-            for command in preflight.selected_native_commands(selection, root, **kwargs)))
-    monkeypatch.setattr(preflight, "run_native_target", run)
-    receipt = tmp_path / "receipt.json"
-    assert preflight.main(["--root", str(source), "--phase", "committed", "--full-gate",
-                           "--run-native-target", "--emit-receipt", str(receipt)]) == 0
-    assert preflight.verify_preflight_receipt(receipt, git("rev-parse", "HEAD"), git("rev-parse", "HEAD^{tree}"))
-    assert len(observed) == 1
-    assert not observed[0].exists()
-
-
-@pytest.mark.parametrize("operation", ["clone", "autocrlf", "eol", "checkout"])
-def test_owned_receipt_checkout_failure_never_starts_gate_or_leaves_evidence(
-    receipt_run: tuple[Path, Path], monkeypatch: pytest.MonkeyPatch, operation: str,
-) -> None:
-    root, receipt = receipt_run
-    receipt.write_text("stale evidence", encoding="utf-8")
-    original_git = preflight._run_git
-    clone_paths = []
-    def git(directory: Path, arguments: tuple[str, ...]) -> preflight.GitResult:
-        assert arguments[:4] == preflight.RECEIPT_GIT_OPTIONS
-        logical = arguments[4:]
-        if "clone" in arguments:
-            clone = Path(arguments[-1])
-            clone.mkdir()
-            clone_paths.append(clone)
-        selected = (
-            (operation == "clone" and "clone" in arguments)
-            or (operation == "autocrlf" and directory != root and logical == ("config", "--get", "core.autocrlf"))
-            or (operation == "eol" and directory != root and logical == ("config", "--get", "core.eol"))
-            or (operation == "checkout" and logical[:1] == ("checkout",))
-        )
-        return preflight.GitResult(1, "", "injected failure") if selected else original_git(directory, arguments)
-    monkeypatch.setattr(preflight, "_run_git", git)
-    monkeypatch.setattr(preflight, "run_native_target", lambda *a, **kw:
-                        pytest.fail("Failed checkout preparation must not start a gate"))
-    assert preflight.main(["--root", str(root), "--phase", "committed", "--full-gate",
-                           "--run-native-target", "--emit-receipt", str(receipt)]) == 2
-    assert not receipt.exists()
-    assert not receipt.with_name(receipt.name + ".lock").exists()
-    assert len(clone_paths) == 1
-    assert not clone_paths[0].parent.exists()
-
-
-def test_emit_receipt_binds_successful_full_gate(receipt_run: tuple[Path, Path]) -> None:
-    root, receipt = receipt_run
-    assert preflight.main([
-        "--root", str(root), "--phase", "committed", "--full-gate",
-        "--run-native-target", "--emit-receipt", str(receipt),
-    ]) == 0
-    payload = json.loads(receipt.read_text(encoding="utf-8"))
-    digest = payload.pop("digest")
-    canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
-    assert digest == hashlib.sha256(canonical.encode("utf-8")).hexdigest()
-    assert payload["schema_version"] == 1
-    assert payload["commit_sha"] == "a" * 40
-    assert payload["tree_sha"] == "b" * 40
-    assert payload["line_ending_provenance"] == {"core.autocrlf": "false", "core.eol": "lf"}
-    assert payload["timestamp"].endswith(("Z", "+00:00"))
-    expected = preflight.selected_native_commands(preflight.full_gate_selection(), root)
-    assert payload["commands"] == [list(command) for command in expected]
-    assert payload["exit_codes"] == [0] * len(expected)
-    assert list(receipt.parent.glob("*.tmp")) == []
-    assert preflight.verify_preflight_receipt(receipt, "a" * 40, "b" * 40)
-    assert preflight.main(["--verify-receipt", str(receipt), "--expected-commit", "a" * 40,
-                           "--expected-tree", "b" * 40]) == 0
-
-
-@pytest.mark.parametrize("field,value", [
-    ("commit_sha", "c" * 40), ("tree_sha", "c" * 40),
-    ("schema_version", True), ("schema_version", 1.0), ("schema_version", "1"),
-    ("schema_version", 2), ("line_ending_provenance", {"core.autocrlf": "true", "core.eol": "crlf"}),
-    ("commands", []), ("commands", [["echo", "success"]]), ("exit_codes", []),
-    ("timestamp", None), ("timestamp", "invalid"), ("timestamp", "2026-09-17T00:00:00"),
-    ("digest", "f" * 64),
-])
-def test_verify_receipt_rejects_invalid_evidence_even_with_new_digest(
-    receipt_run: tuple[Path, Path], field: str, value: object,
-) -> None:
-    root, receipt = receipt_run
-    assert preflight.main(["--root", str(root), "--phase", "committed", "--full-gate",
-                           "--run-native-target", "--emit-receipt", str(receipt)]) == 0
-    payload = json.loads(receipt.read_text(encoding="utf-8"))
-    payload.pop("digest")
-    if field != "digest":
-        payload[field] = value
-    canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
-    payload["digest"] = value if field == "digest" else hashlib.sha256(canonical.encode()).hexdigest()
-    receipt.write_text(json.dumps(payload), encoding="utf-8")
-    assert not preflight.verify_preflight_receipt(receipt, "a" * 40, "b" * 40)
-
-
-@pytest.mark.parametrize("code", [1, False, "0", 0.0])
-def test_verify_receipt_requires_integer_zero_exit_codes(
-    receipt_run: tuple[Path, Path], code: object,
-) -> None:
-    root, receipt = receipt_run
-    assert preflight.main(["--root", str(root), "--phase", "committed", "--full-gate",
-                           "--run-native-target", "--emit-receipt", str(receipt)]) == 0
-    payload = json.loads(receipt.read_text(encoding="utf-8"))
-    payload.pop("digest")
-    payload["exit_codes"][0] = code
-    payload["digest"] = hashlib.sha256(json.dumps(
-        payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()).hexdigest()
-    receipt.write_text(json.dumps(payload), encoding="utf-8")
-    assert not preflight.verify_preflight_receipt(receipt, "a" * 40, "b" * 40)
-
-
-@pytest.mark.parametrize("raw", [b"{", b"[]", b"null", b"true", b"\xff", b'{"digest":1,"digest":2}'])
-def test_verify_receipt_rejects_malformed_documents(tmp_path: Path, raw: bytes) -> None:
-    receipt = tmp_path / "receipt.json"
-    receipt.write_bytes(raw)
-    assert not preflight.verify_preflight_receipt(receipt, "a" * 40, "b" * 40)
-
-
-def test_verify_receipt_missing_or_oversized_file_fails_closed(tmp_path: Path) -> None:
-    receipt = tmp_path / "receipt.json"
-    assert not preflight.verify_preflight_receipt(receipt, "a" * 40, "b" * 40)
-    receipt.write_bytes(b" " * (preflight.MAX_RECEIPT_BYTES + 1))
-    assert not preflight.verify_preflight_receipt(receipt, "a" * 40, "b" * 40)
-
-
-@pytest.mark.parametrize("change", ["commit", "tree", "dirty", "config", "incomplete", "replace-error"])
-def test_emit_receipt_checks_end_state_and_atomic_write(
-    receipt_run: tuple[Path, Path], monkeypatch: pytest.MonkeyPatch, change: str,
-) -> None:
-    root, receipt = receipt_run
-    original_run = preflight.run_native_target
-    original_git = preflight._run_git
-
-    def run(*args: object, **kwargs: object) -> preflight.NativeRunResult:
-        result = original_run(*args, **kwargs)
-        def git(root: Path, arguments: tuple[str, ...]) -> preflight.GitResult:
-            text = " ".join(arguments)
-            if ((change == "commit" and "HEAD^{commit}" in text)
-                    or (change == "tree" and "HEAD^{tree}" in text)):
-                return preflight.GitResult(0, "c" * 40, "")
-            if change == "dirty" and "status" in arguments:
-                return preflight.GitResult(0, " M changed.py", "")
-            if change == "config" and "core.eol" in arguments:
-                return preflight.GitResult(0, "crlf", "")
-            return original_git(root, arguments)
-        monkeypatch.setattr(preflight, "_run_git", git)
-        return preflight.NativeRunResult(result.commands[:-1]) if change == "incomplete" else result
-
-    monkeypatch.setattr(preflight, "run_native_target", run)
-    if change == "replace-error":
-        def fail_replace(*args: object) -> None:
-            raise OSError("injected replace failure")
-        monkeypatch.setattr(preflight.os, "replace", fail_replace)
-    assert preflight.main(["--root", str(root), "--phase", "committed", "--full-gate",
-                           "--run-native-target", "--emit-receipt", str(receipt)]) != 0
-    assert not receipt.exists()
-    assert list(receipt.parent.glob("*.tmp")) == []
-
-
-@pytest.mark.parametrize("flags", [
-    [], ["--selection-only"], ["--run-native-target", "--selection-only"],
-])
-def test_emit_receipt_never_certifies_selection_only(
-    receipt_run: tuple[Path, Path], flags: list[str],
-) -> None:
-    root, receipt = receipt_run
-    assert preflight.main([
-        "--root", str(root), "--phase", "committed", "--full-gate",
-        "--emit-receipt", str(receipt), *flags,
-    ]) == 0
-    assert not receipt.exists()
-
-
-@pytest.mark.parametrize("failure", ["command", "selection", "interrupted"])
-def test_emit_receipt_never_leaves_success_after_failed_gate(
-    receipt_run: tuple[Path, Path], monkeypatch: pytest.MonkeyPatch, failure: str,
-) -> None:
-    root, receipt = receipt_run
-    receipt.write_text('{"old": "receipt"}', encoding="utf-8")
-    if failure == "selection":
-        monkeypatch.setattr(preflight, "inspect_cache_artifacts",
-                            lambda _: preflight.CacheReport(fatal=True))
-    elif failure == "command":
-        monkeypatch.setattr(preflight, "run_native_target", lambda *a, **kw:
-                            preflight.NativeRunResult((preflight.CommandResult(("uv", "--version"), 1),)))
-    else:
-        def interrupted(*args: object, **kwargs: object) -> None:
-            raise KeyboardInterrupt
-        monkeypatch.setattr(preflight, "run_native_target", interrupted)
-    argv = ["--root", str(root), "--phase", "committed", "--full-gate",
-            "--run-native-target", "--emit-receipt", str(receipt)]
-    if failure == "interrupted":
-        with pytest.raises(KeyboardInterrupt):
-            preflight.main(argv)
-    else:
-        assert preflight.main(argv) != 0
-    assert not receipt.exists()
-    assert not receipt.with_name(receipt.name + ".lock").exists()
-
-
-@pytest.mark.parametrize("condition", ["prepare", "partial", "profile", "dirty", "in-tree"])
-def test_emit_receipt_rejects_insufficient_release_evidence(
-    receipt_run: tuple[Path, Path], monkeypatch: pytest.MonkeyPatch, condition: str,
-) -> None:
-    root, receipt = receipt_run
-    phase = "prepare" if condition == "prepare" else "committed"
-    flags = ["--changed-file", "README.md"] if condition == "partial" else ["--full-gate"]
-    if condition == "profile":
-        flags += ["--gate-owner", "gpid-native-profile"]
-    if condition == "dirty":
-        original_git = preflight._run_git
-        monkeypatch.setattr(preflight, "_run_git", lambda root, args:
-                            preflight.GitResult(0, " M scripts/cg_pr_preflight.py", "")
-                            if "status" in args else original_git(root, args))
-    if condition == "in-tree":
-        receipt = root / "receipt.json"
-    assert preflight.main([
-        "--root", str(root), "--phase", phase, *flags,
-        "--run-native-target", "--emit-receipt", str(receipt),
-    ]) != 0
-    assert not receipt.exists()
-
-
-def test_native_producer_installs_pinned_controller_tool_before_preflight() -> None:
-    import yaml
-
-    workflow = yaml.safe_load((REPO_ROOT / ".github/workflows/tests.yml").read_text())
-    steps = workflow["jobs"]["native-targets"]["steps"]
-    gate_index = next(i for i, step in enumerate(steps)
-                      if "scripts/cg_pr_preflight.py" in step.get("run", ""))
-    install = f"python -m pip install uv=={preflight.CONTROLLER_UV_VERSION}"
-    assert any(install in step.get("run", "") for step in steps[:gate_index])
-    assert "uv==" in preflight.__doc__
-
-
-@pytest.mark.parametrize("version", ["uv 0.1.0", "not-uv", ""])
-def test_controller_rejects_unpinned_tool_before_running_gate(
-    version: str, monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
-) -> None:
-    import subprocess
-
-    calls = []
-
-    def wrong_version(argv: list, **_kwargs: object) -> subprocess.CompletedProcess:
-        calls.append(argv)
-        return subprocess.CompletedProcess(argv, 0, version, "")
-
-    monkeypatch.setattr(preflight.subprocess, "run", wrong_version)
-    selection = preflight.classify_changed_files(["packages/cg-release/uv.lock"])
-    result = preflight.run_native_target(tmp_path, selection)
-    assert result.exit_code != 0
-    assert calls == [["uv", "--version"]]
-    assert "uv==0.11.3" in result.commands[0].stderr
-
-
-def test_missing_uv_reports_actionable_prerequisite(
-    monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
-) -> None:
-    def missing(*_args: object, **_kwargs: object) -> None:
-        raise FileNotFoundError("uv")
-
-    monkeypatch.setattr(preflight.subprocess, "run", missing)
-    selection = preflight.classify_changed_files(["packages/cg-release/uv.lock"])
-    result = preflight.run_native_target(tmp_path, selection)
-    assert result.exit_code != 0
-    assert "python -m pip install uv==0.11.3" in result.commands[0].stderr
-
-
-@pytest.mark.parametrize("path", [
-    "packages/cg-release/src/cg_release/cli.py",
-    "packages/cg-release/uv.lock",
-    ".github/workflows/release-controller-ci.yml",
-    ".github/workflows/tests.yml",
-    "scripts/benchmark_release.py",
-    "create-release.ps1",
-    "scripts/cg_pr_preflight.py",
-])
-def test_controller_impact_selects_separate_locked_gate(path: str) -> None:
-    selection = preflight.classify_changed_files([path])
-    assert selection.controller_required is True
-    assert selection.no_impact is False
-    assert selection.as_dict()["controller_required"] is True
-    commands = preflight.selected_native_commands(selection, Path("repo"))
-    assert any("packages/cg-release" in command and "--locked" in command
-               for command in commands)
-
-
-def test_package_only_changes_do_not_change_native_test_list() -> None:
-    selection = preflight.classify_changed_files(["packages/cg-release/pyproject.toml"])
-    assert selection.native_required is False
-    assert all(not path.startswith("packages/") for path in preflight.NATIVE_PYTEST_FILES)
-    assert not preflight.classify_changed_files(["packages/cg-release-other/x"]).controller_required
-
-
-def test_full_gate_requires_controller_package() -> None:
-    assert preflight.full_gate_selection().controller_required is True
-
-
-@pytest.mark.parametrize("path", ["scripts/release_profile_gpid.py", "scripts/release_profile_build.py",
-                                   "scripts/release_profile_install.py", ".release-controller.json",
-                                   ".github/workflows/release-controller-docs.yml", "bin/cg-release.cmd"])
-def test_profile_impact_selects_package_and_profile_gate(path: str) -> None:
-    assert preflight.classify_changed_files([path]).controller_required
-
-
-def test_controller_missing_runtime_does_not_pass_or_download(
-    monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
-) -> None:
-    import subprocess
-
-    calls = []
-
-    def missing_runtime(argv: list, **kwargs: object) -> subprocess.CompletedProcess:
-        calls.append(argv)
-        if argv == ["uv", "--version"]:
-            return subprocess.CompletedProcess(argv, 0, "uv 0.11.3", "")
-        return subprocess.CompletedProcess(argv, 2, "", "No interpreter found for Python >=3.11,<3.13")
-
-    monkeypatch.setattr(preflight.subprocess, "run", missing_runtime)
-    selection = preflight.classify_changed_files(["packages/cg-release/uv.lock"])
-    result = preflight.run_native_target(tmp_path, selection)
-    assert result.exit_code == 2
-    assert len(calls) == 2
-    assert calls[0] == ["uv", "--version"]
-    assert "--no-python-downloads" in calls[1]
-    assert "No interpreter found" in result.commands[1].stderr
-
-
-@pytest.mark.parametrize("command, timeout, phase", [
-    (("first",), 600, "committed"),
-    (preflight.native_commands(REPO_ROOT)[0], 1800, "committed"),
-    (preflight.native_commands(REPO_ROOT, phase="prepare")[0], 1800, "prepare"),
-    (preflight.FULL_PACKAGE_TEST_COMMAND, 1800, "committed"),
-])
 @pytest.mark.parametrize("outcome", [0, 1, "timeout"])
 def test_native_progress_is_flushed_and_failures_stop_execution(
-    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, outcome: object,
-    command: tuple[str, ...], timeout: int, phase: str,
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, outcome: object
 ) -> None:
     """Progress precedes the blocking child and preserves the failure contract."""
     class ProgressStream(io.StringIO):
@@ -498,25 +38,22 @@ def test_native_progress_is_flushed_and_failures_stop_execution(
     monkeypatch.setattr(preflight.sys, "stderr", progress)
     calls = []
 
-    def run(argv: list[str], **kwargs: object) -> subprocess.CompletedProcess:
-        calls.append(argv)
+    def run(command: list[str], **kwargs: object) -> subprocess.CompletedProcess:
+        calls.append(command)
         assert f"starting native command {len(calls)}/2" in progress.flushed
-        expected_timeout = timeout if len(calls) == 1 else 600
-        assert kwargs["timeout"] == expected_timeout
-        assert f"timeout={expected_timeout}s" in progress.flushed
+        assert kwargs["timeout"] == 1500
         assert kwargs["capture_output"] is True
         if outcome == "timeout":
-            raise subprocess.TimeoutExpired(argv, expected_timeout)
-        return subprocess.CompletedProcess(argv, outcome, "child output", "")
+            raise subprocess.TimeoutExpired(command, 1500)
+        return subprocess.CompletedProcess(command, outcome, "child output", "")
 
     monkeypatch.setattr(preflight.subprocess, "run", run)
-    result = preflight.run_native_target(tmp_path, commands=(command, ("second",)), phase=phase)
+    result = preflight.run_native_target(tmp_path, commands=(("first",), ("second",)))
     assert result.exit_code == (127 if outcome == "timeout" else outcome)
     assert len(calls) == (2 if outcome == 0 else 1)
     assert f"exited {result.exit_code} after" in progress.flushed
     if outcome == "timeout":
-        assert (preflight.CONTROLLER_UV_PREREQUISITE if command[0] == "uv"
-                else "TimeoutExpired") in result.commands[0].stderr
+        assert "TimeoutExpired" in result.commands[0].stderr
 
 
 def test_native_progress_preserves_json_stdout(
@@ -526,9 +63,7 @@ def test_native_progress_preserves_json_stdout(
     monkeypatch.setattr(preflight, "inspect_cache_artifacts", lambda _: preflight.CacheReport())
     monkeypatch.setattr(
         preflight.subprocess, "run",
-        lambda command, **kwargs: subprocess.CompletedProcess(
-            command, 0, f"uv {preflight.CONTROLLER_UV_VERSION}" if command == ["uv", "--version"] else "", ""
-        ),
+        lambda command, **kwargs: subprocess.CompletedProcess(command, 0, "", ""),
     )
     assert preflight.main([
         "--root", str(tmp_path), "--phase", "committed", "--full-gate",
@@ -537,21 +72,43 @@ def test_native_progress_preserves_json_stdout(
     captured = capsys.readouterr()
     assert json.loads(captured.out)["exit_code"] == 0
     assert "inspecting selection and cache (phase=committed)" in captured.err
-    command_count = len(preflight.selected_native_commands(preflight.full_gate_selection(), tmp_path))
-    assert f"native command {command_count}/{command_count} exited 0" in captured.err
+    assert "native command 4/4 exited 0" in captured.err
+
+
+@pytest.mark.parametrize("stream", ("stdout", "stderr"))
+def test_native_output_keeps_start_failure_tail_and_byte_bound(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, stream: str,
+) -> None:
+    """Truncation preserves diagnostics in both child streams, including UTF-8."""
+    start = "pytest session starts\n"
+    end = "\n================ short test summary info ================\n" + "".join(
+        f"FAILED scripts/tests/test_cg_link_ownership.py::test_preserves_edited_file[case-{index:03d}]\n"
+        for index in range(250)
+    ) + "250 failed, 2 passed\n"
+    assert 8 * 1024 < len(end.encode("utf-8")) <= 32 * 1024
+    output = start + chr(0xE9) * preflight.MAX_CAPTURED_OUTPUT_BYTES + end
+    monkeypatch.setattr(
+        preflight.subprocess, "run",
+        lambda command, **kwargs: subprocess.CompletedProcess(
+            command, 1, **{stream: output},
+        ),
+    )
+    result = preflight.run_native_target(tmp_path, commands=(("pytest",),))
+    captured = getattr(result.commands[0], stream)
+
+    assert captured.startswith(start)
+    assert captured.endswith(end)
+    assert captured.count("\n[output truncated]\n") == 1
+    assert "\ufffd" not in captured
+    assert len(captured.encode("utf-8")) <= preflight.MAX_CAPTURED_OUTPUT_BYTES
+    assert preflight._bounded_text(end) == end
 
 
 def test_release_prompt_requires_blocking_budget_and_no_blind_retry() -> None:
     """Release calls must outlive child budgets without weakening the gate."""
     prompt = (REPO_ROOT / ".github/prompts/cg-release.prompt.md").read_text(encoding="utf-8")
-    assert "`9000000` milliseconds (150 minutes)" in prompt
-    commands = preflight.selected_native_commands(preflight.full_gate_selection(), REPO_ROOT)
-    native_pytest = preflight.native_commands(REPO_ROOT)[0]
-    assert 9000 > sum(preflight.FULL_PACKAGE_TEST_TIMEOUT_SECONDS
-                      if command == preflight.FULL_PACKAGE_TEST_COMMAND
-                      else preflight.NATIVE_PYTEST_TIMEOUT_SECONDS
-                      if command == native_pytest
-                      else preflight.NATIVE_COMMAND_TIMEOUT_SECONDS for command in commands)
+    assert "`7200000` milliseconds (120 minutes)" in prompt
+    assert 7200 > len(preflight.native_commands(REPO_ROOT)) * preflight.NATIVE_COMMAND_TIMEOUT_SECONDS
     assert "blocking foreground call" in prompt
     assert "or an automatic retry after a timeout" in prompt
     assert "never substitute `--phase prepare`" in prompt
@@ -671,6 +228,8 @@ def test_native_command_contains_ordered_pytest_marker_and_all_module_checks() -
     assert pytest_command[:4] == (preflight.PYTHON, "-m", "pytest", "scripts/tests/test_target_mapping.py")
     assert "-m" in pytest_command
     assert "not integration" in pytest_command
+    assert "--force-short-summary" in pytest_command
+    assert "-q" not in pytest_command
     assert (preflight.PYTHON, "scripts/cg_validate_modules.py", "--check-dependencies") in commands
     assert (preflight.PYTHON, "scripts/cg_validate_modules.py", "--check-cross-suite") in commands
     assert (preflight.PYTHON, "scripts/cg_validate_modules.py", "--check-ownership") in commands
@@ -809,6 +368,31 @@ def test_kilo_adapter_rejects_malformed_result() -> None:
         preflight.adapt_kilo_result({"status": "ok", "exit_code": 0, "inventory": "invalid"})
 
 
+def test_kilo_adapter_accepts_advisory_unreadable_version() -> None:
+    payload = {
+        "status": "ok",
+        "exit_code": 0,
+        "inventory": {},
+        "kilo_version": None,
+        "kilo_executable": "/opt/kilo",
+        "kilo_executable_sha256": "a" * 64,
+        "message": "Kilo version could not be read; version checks are advisory.",
+    }
+
+    outcome = preflight.adapt_kilo_result(payload)
+
+    assert outcome.source_status == "ok"
+    assert outcome.exit_code == 0
+    assert outcome.kilo_version is None
+    assert outcome.kilo_executable_sha256 == "a" * 64
+    assert outcome.evidence == payload
+
+    for required in ("kilo_version", "kilo_executable", "kilo_executable_sha256"):
+        incomplete = {key: value for key, value in payload.items() if key != required}
+        with pytest.raises(preflight.KiloResultError, match=required):
+            preflight.adapt_kilo_result(incomplete)
+
+
 def test_json_and_text_results_are_bounded() -> None:
     result = preflight.PreflightResult(
         phase="prepare",
@@ -822,6 +406,41 @@ def test_json_and_text_results_are_bounded() -> None:
     assert "native_commands" in decoded
     assert "full_output" not in decoded
     assert "prepare" in preflight.render_result(result, "text")
+
+
+@pytest.mark.parametrize("output_format", ("text", "json"))
+def test_cli_preserves_failed_output_on_cp1252_streams(
+    monkeypatch: pytest.MonkeyPatch, output_format: str,
+) -> None:
+    """Unencodable diagnostics stay visible without changing the console encoding."""
+    stdout_bytes, stderr_bytes = io.BytesIO(), io.BytesIO()
+    stdout = io.TextIOWrapper(stdout_bytes, encoding="cp1252", newline="\n")
+    stderr = io.TextIOWrapper(stderr_bytes, encoding="cp1252", newline="\n")
+    monkeypatch.setattr(preflight.sys, "stdout", stdout)
+    monkeypatch.setattr(preflight.sys, "stderr", stderr)
+    result = preflight.PreflightResult(
+        phase="committed",
+        selection=preflight.full_gate_selection(),
+        changed_files=(),
+        command_results=(preflight.CommandResult(
+            command=("python", "-m", "pytest"), returncode=1,
+            stdout="failure: \ufffd \u6f22 \U0001f600 caf\u00e9",
+            stderr="error: \ufffd \u6f22 \U0001f600",
+        ),),
+    )
+    monkeypatch.setattr(preflight, "build_preflight_result", lambda *a, **kw: result)
+
+    assert preflight.main(["--selection-only", "--format", output_format]) == 1
+    stdout.flush()
+    assert stdout.encoding == stderr.encoding == "cp1252"
+    assert stdout.errors == stderr.errors == "backslashreplace"
+    assert stdout_bytes.getvalue() == (
+        preflight.render_result(result, output_format) + "\n"
+    ).encode("cp1252", errors="backslashreplace")
+    assert b"\\ufffd \\u6f22 \\U0001f600" in stdout_bytes.getvalue()
+    stderr.write("\ufffd \u6f22 \U0001f600")
+    stderr.flush()
+    assert stderr_bytes.getvalue() == b"\\ufffd \\u6f22 \\U0001f600"
 
 
 def test_text_result_exposes_bounded_failed_command_output() -> None:
@@ -845,9 +464,28 @@ def test_text_result_exposes_bounded_failed_command_output() -> None:
     assert "pytest error" in rendered
 
 
+def test_text_result_exposes_successful_native_file_counts() -> None:
+    result = preflight.PreflightResult(
+        phase="committed",
+        selection=preflight.full_gate_selection(),
+        changed_files=(),
+        command_results=(
+            preflight.CommandResult(
+                command=("python", "-m", "pytest"),
+                returncode=0,
+                stdout="scripts/tests/test_rebuild_update_sh.py ..s [100%]",
+            ),
+        ),
+    )
+
+    assert "test_rebuild_update_sh.py ..s" in preflight.render_result(result, "text")
+
+
 def test_workflow_delegates_native_selection_and_preserves_context() -> None:
     workflow = (REPO_ROOT / ".github/workflows/tests.yml").read_text(encoding="utf-8")
+    checkout_start = workflow.index("  native-targets:")
     native_start = workflow.index("- name: Run authoritative native target preflight")
+    native_checkout = workflow[checkout_start:native_start]
     publisher_start = workflow.index("- name: Run generic publisher", native_start)
     native_block = workflow[native_start:publisher_start]
 
@@ -859,10 +497,138 @@ def test_workflow_delegates_native_selection_and_preserves_context() -> None:
     assert "git rev-parse --verify --quiet" in native_block
     assert "Push-before revision is unavailable" in native_block
     assert "0000000000000000000000000000000000000000" in native_block
-    assert "fetch-depth: 0" in workflow
+    assert "fetch-depth: 0" in native_checkout
+    assert "fetch-tags: true" in native_checkout
     assert "origin/HEAD" not in native_block
     assert "tests/Run-Tests.ps1" in workflow
     assert "E2E smoke test" in workflow
+
+
+def test_workflow_shell_declarations_do_not_use_expressions() -> None:
+    """GitHub must validate every step shell before creating matrix jobs."""
+    workflow = (REPO_ROOT / ".github/workflows/tests.yml").read_text(encoding="utf-8")
+
+    for line in workflow.splitlines():
+        key, separator, value = line.strip().partition(":")
+        if separator and key == "shell":
+            assert "${{" not in value, line
+
+
+@pytest.mark.parametrize(("job", "minutes"), (
+    ("browser-evidence", 30),
+    ("kilo-capability-report", 30),
+    ("kilo-certified-integration", 30),
+    ("native-targets", 120),
+    ("python38-compat", 30),
+    ("test", 30),
+    ("docs-staleness", 30),
+    ("hosted-smoke-windows", 20),
+    ("hosted-smoke-macos", 20),
+))
+def test_workflow_has_explicit_job_timeouts(job: str, minutes: int) -> None:
+    """Each existing job and reduced smoke has its approved wall-time bound."""
+    workflow = (REPO_ROOT / ".github/workflows/tests.yml").read_text(encoding="utf-8")
+    header = workflow.split(f"\n  {job}:\n", 1)[1].split("    steps:\n", 1)[0]
+
+    assert f"\n    timeout-minutes: {minutes}\n" in header
+
+
+def test_workflow_preserves_required_check_names_and_os_matrices() -> None:
+    """The reduced smoke adds contexts without renaming required native/Pester rows."""
+    workflow = (REPO_ROOT / ".github/workflows/tests.yml").read_text(encoding="utf-8")
+    native = workflow.split("\n  native-targets:\n", 1)[1].split("\n  python38-compat:", 1)[0]
+    pester = workflow.split("\n  test:\n", 1)[1].split("\n  hosted-smoke-windows:", 1)[0]
+
+    assert "name: Native target Python gate on ${{ matrix.os }}" in native
+    assert "- os: windows-2022\n            backend_marker: backend_windows" in native
+    assert "- os: macos-14\n            backend_marker: backend_posix" in native
+    assert "- os: ubuntu-24.04\n            backend_marker: backend_posix" in native
+    assert "name: Pester on ${{ matrix.os }}" in pester
+    assert "os: [ windows-2022, macos-14 ]" in pester
+    assert "needs: kilo-capability-report" in pester
+    assert "needs: hosted-smoke" not in workflow
+
+
+def test_browser_check_preserves_original_steps() -> None:
+    """Keep the proven npm install and browser sequence; defer lock repair."""
+    workflow = (REPO_ROOT / ".github/workflows/tests.yml").read_text(encoding="utf-8")
+    block = workflow.split("\n  browser-evidence:\n", 1)[1].split("\n  kilo-capability-report:", 1)[0]
+
+    assert "name: Browser evidence manifest tests" in block
+    assert 'node-version: "22"' in block
+    commands = (
+        "run: npm install\n",
+        "run: npm run test:docs-automation\n",
+        "run: npx playwright install --with-deps chromium\n",
+        "run: npm run capture\n",
+        "run: npm test\n",
+    )
+    assert [block.index(command) for command in commands] == sorted(
+        block.index(command) for command in commands
+    )
+    assert "npm ci" not in block
+
+
+@pytest.mark.parametrize("platform", ("windows", "macos"))
+def test_reduced_hosted_smoke_is_bounded_and_fixture_only(platform: str) -> None:
+    """Four non-required rows use the exact clone and only synthetic config bytes."""
+    workflow = (REPO_ROOT / ".github/workflows/tests.yml").read_text(encoding="utf-8")
+    end = "hosted-smoke-macos" if platform == "windows" else "docs-staleness"
+    block = workflow.split(f"\n  hosted-smoke-{platform}:\n", 1)[1].split(f"\n  {end}:", 1)[0]
+
+    assert f"runs-on: {platform}-latest" in block
+    assert 'CG_SKIP_UPDATE: "1"' in block
+    assert 'PYTHONDONTWRITEBYTECODE: "1"' in block
+    assert 'GIT_CONFIG_NOSYSTEM: "1"' in block
+    assert "GIT_ALLOW_PROTOCOL: file" in block
+    before_fixture, fixture = block.split("      - name: Prepare isolated", 1)
+    assert "    env:\n" not in before_fixture
+    for name in ("CG_SKIP_UPDATE", "PYTHONDONTWRITEBYTECODE", "GIT_CONFIG_NOSYSTEM",
+                 "GIT_TERMINAL_PROMPT", "GIT_ALLOW_PROTOCOL"):
+        assert f"          {name}:" in fixture
+        assert fixture.count(name) == 2  # Step environment and later GITHUB_ENV.
+    assert "git clone --no-local --no-checkout" in block
+    assert "checkout --detach" in block
+    assert "rev-parse HEAD" in block
+    assert "status --porcelain" in block
+    assert block.count("        timeout-minutes: 20\n") == block.count("\n      - ")
+    assert "    needs:" not in block
+    for name in ("HOME", "USERPROFILE", "APPDATA", "LOCALAPPDATA", "XDG_CONFIG_HOME",
+                 "GIT_CONFIG_GLOBAL", "empty-project", "private-project", "before",
+                 "kilo.jsonc", "kilo.json", "opencode.json"):
+        assert name in block
+    for command in ("cg-kilo", "cg-update", "Invoke-Pester", "pytest", "npm ", "npx "):
+        assert command not in block
+
+    if platform == "windows":
+        assert "shell: [ powershell, cmd ]" in block
+        assert "shell: powershell\n" in block
+        assert "shell: cmd\n" in block
+        assert "PSVersionTable.PSVersion.Major -ne 5" in block
+        assert "PSVersionTable.PSVersion.Minor -ne 1" in block
+        assert "Set-Variable -Name HOME -Scope Global -Value $env:HOME -Force" in block
+        assert "$global:PROFILE = Join-Path $env:HOME 'profile.ps1'" in block
+        assert "powershell.exe -NoProfile -ExecutionPolicy Bypass -Command $installCommand" in block
+        assert "& (Join-Path $env:USERPROFILE '.compound-gpid\\install.ps1')" in block
+        assert '"HKCU:\\Environment" -Name Path' in block
+        assert "core.autocrlf=true" in block
+        assert 'call "%USERPROFILE%\\.compound-gpid\\bin\\cg-link.cmd" --platforms copilot,claude-code,codex,opencode' in block
+        assert 'call "%USERPROFILE%\\.compound-gpid\\bin\\cg-unlink.cmd" --yes' in block
+        assert "Get-FileHash -LiteralPath" in block
+        assert "Empty project was not cleaned" in block
+    else:
+        assert "shell: [ bash, zsh ]" in block
+        assert "shell: bash\n" in block
+        assert '"${{ matrix.shell }}" -e <<\'SMOKE\'\n' in block
+        assert "          SMOKE\n" in block
+        assert 'ZDOTDIR="$HOME" SHELL="/bin/$SMOKE_SHELL"' in block
+        assert 'bash "$install/scripts/install.sh"' in block
+        assert 'export PATH="$HOME/.compound-gpid/bin:$PATH"' in block
+        assert "core.autocrlf=false" in block
+        assert '"$HOME/.compound-gpid/bin/cg-link" --platforms copilot,claude-code,codex,opencode' in block
+        assert '"$HOME/.compound-gpid/bin/cg-unlink" --yes' in block
+        assert 'cmp "$CG_SMOKE_ROOT/$relative" "$CG_SMOKE_ROOT/before/$relative"' in block
+        assert 'test -z "$(ls -A)"' in block
 
 
 def test_native_target_owns_deterministic_kilo_and_preflight_tests() -> None:
@@ -871,12 +637,48 @@ def test_native_target_owns_deterministic_kilo_and_preflight_tests() -> None:
     assert "scripts/tests/test_kilo_coexistence.py" in preflight.NATIVE_PYTEST_FILES
     assert "scripts/tests/test_kilo_copy.py" in preflight.NATIVE_PYTEST_FILES
     assert "scripts/tests/test_link_projection_order.py" in preflight.NATIVE_PYTEST_FILES
+    assert "scripts/tests/test_cg_link_check.py" in preflight.NATIVE_PYTEST_FILES
     assert "scripts/tests/test_skill_management_contracts.py" in preflight.NATIVE_PYTEST_FILES
     assert "scripts/tests/test_skill_management_dispatch.py" in preflight.NATIVE_PYTEST_FILES
     assert "scripts/tests/test_cg_pr_preflight.py" in preflight.NATIVE_PYTEST_FILES
     assert "scripts/tests/test_project_manifest.py" in preflight.NATIVE_PYTEST_FILES
     assert "scripts/tests/test_project_projection.py" in preflight.NATIVE_PYTEST_FILES
     assert "scripts/tests/test_release_policy.py" in preflight.NATIVE_PYTEST_FILES
+
+
+@pytest.mark.parametrize("phase", ("prepare", "committed"))
+def test_native_target_registers_all_rebuild_tests(phase: str) -> None:
+    """Both phases include each rebuild test once in the existing native gate."""
+    command = preflight.native_commands(REPO_ROOT, phase=phase)[0]
+
+    for path in REBUILD_TEST_FILES:
+        assert (REPO_ROOT / path).is_file(), path
+        assert preflight.NATIVE_PYTEST_FILES.count(path) == 1, path
+        assert command.count(path) == 1, path
+
+
+@pytest.mark.parametrize("phase", ("prepare", "committed"))
+@pytest.mark.parametrize("path", (
+    "scripts/install.sh",
+    "scripts/migrate-install.sh",
+    "bin/cg-brain-init",
+    "bin/cg-index",
+    "scripts/update.sh",
+    "scripts/update.ps1",
+    "scripts/link.sh",
+    "scripts/link.ps1",
+    "scripts/cg_restore_installer_wrappers.py",
+    "scripts/cg_retire_native_evidence.py",
+    *REBUILD_TEST_FILES,
+))
+def test_rebuild_paths_select_all_rebuild_tests(path: str, phase: str) -> None:
+    """Entrypoints, new helpers, and tests use the existing scripts impact rule."""
+    selection = preflight.classify_changed_files([path])
+    commands = preflight.selected_native_commands(selection, REPO_ROOT, phase=phase)
+
+    assert selection.native_required is True
+    assert commands == preflight.native_commands(REPO_ROOT, phase=phase)
+    assert set(REBUILD_TEST_FILES).issubset(commands[0])
 
 
 def test_workflow_reports_neutral_generic_kilo_capability() -> None:
@@ -896,27 +698,17 @@ def test_workflow_reports_neutral_generic_kilo_capability() -> None:
 def test_certified_kilo_job_is_protected_and_hash_pinned() -> None:
     workflow = (REPO_ROOT / ".github/workflows/tests.yml").read_text(encoding="utf-8")
     start = workflow.index("kilo-certified-integration:")
-    block = workflow[start:workflow.index("  native-targets:", start)]
+    block = workflow[start:]
 
     assert "github.event_name == 'push'" in block
     assert "github.event_name == 'workflow_dispatch'" in block
-    assert "github.ref == 'refs/heads/dev'" in block
-    assert "github.ref_protected" in block
+    assert "github.ref == format('refs/heads/{0}', github.event.repository.default_branch)" in block
     assert "github.event_name != 'pull_request'" in block
     assert "vars.CG_KILO_CERTIFIED_RUNNER" in block
     assert "vars.CG_KILO_CERTIFIED_VERSION" in block
     assert "vars.CG_KILO_CERTIFIED_SHA256" in block
     assert "environment: cg-kilo-certified" in block
-    assert "ref: ${{ needs.kilo-certified-subject.outputs.subject }}" in block
-    assert "ref: ${{ github.event.repository.default_branch }}" not in block
-    assert "git checkout --detach" in block
-    assert "git rev-parse HEAD" in block
-    subject = workflow[workflow.index("  kilo-certified-subject:"):start]
-    assert "subject_commit" in workflow
-    assert "github.sha" in subject
-    assert "[0-9a-f]{40}" in subject
-    assert "github.rest.repos.getCommit" in subject
-    assert "commit.data.sha !== subject" in subject
+    assert "ref: ${{ github.event.repository.default_branch }}" in block
     assert "kilo_executable_sha256" in block
     assert "CG_KILO_CERTIFIED_SHA256" in block
     assert "CG_KILO_CERTIFIED_VERSION" in block
@@ -924,58 +716,6 @@ def test_certified_kilo_job_is_protected_and_hash_pinned() -> None:
     assert "cg-kilo" in block
     assert "CG_KILO_CERTIFIED_EXECUTABLE" in block
     assert "-m pytest scripts/tests/test_kilo_coexistence.py -m integration" in block
-
-
-@pytest.mark.parametrize("case", ["valid", "mutable", "missing", "newline", "foreign", "fork", "mismatch", "absent-commit"])
-def test_certified_subject_script_rejects_untrusted_inputs(case):
-    """Execute the exact workflow script with a local GitHub client fixture.
-
-    The fixture is genuinely untrusted input: the subject script bytes are
-    extracted verbatim from the workflow's ``script: |`` block (anchored at
-    its literal 10-space indentation, so a re-indentation fails loudly at
-    extraction instead of silently testing stale bytes) and executed under
-    ``node`` with injected adversarial inputs covering a non-string/mutable
-    subject, missing or newline-contaminated subjects, foreign or forked
-    repositories, SHA mismatches, and absent commits. A host without a
-    ``node`` executable skips instead of erroring out the whole module.
-    """
-    import shutil
-    if shutil.which("node") is None:
-        pytest.skip("node is required to execute the certified-subject script")
-    import subprocess
-    import textwrap
-    workflow = (REPO_ROOT / ".github/workflows/tests.yml").read_text(encoding="utf-8")
-    block = workflow.split("  kilo-certified-subject:", 1)[1].split("  kilo-certified-integration:", 1)[0]
-    script = textwrap.dedent(block.split("          script: |\n", 1)[1])
-    sha = "a" * 40
-    data = {"subject": sha, "repository": "owner/repo", "fork": False, "returned": sha, "missing": False}
-    if case in ("mutable", "missing", "newline"):
-        data["subject"] = {"mutable": "dev", "missing": "", "newline": sha + "\n"}[case]
-    elif case == "foreign":
-        data["repository"] = "fork/repo"
-    elif case == "fork":
-        data["fork"] = True
-    elif case == "mismatch":
-        data["returned"] = "b" * 40
-    elif case == "absent-commit":
-        data["missing"] = True
-    harness = """
-const data = JSON.parse(process.argv[1]);
-process.env.SUBJECT_COMMIT = data.subject;
-const context = {repo:{owner:'owner',repo:'repo'},payload:{repository:{full_name:data.repository,fork:data.fork}}};
-const github = {rest:{repos:{getCommit:async request => {
-  if(data.missing || request.ref !== data.subject || request.owner !== 'owner' || request.repo !== 'repo') throw Error('missing');
-  return {data:{sha:data.returned}};
-}}}};
-const core = {setOutput:(name,value) => process.stdout.write(JSON.stringify({name,value}))};
-"""
-    result = subprocess.run(["node", "-e", harness + "\n(async()=>{\n" + script + "\n})().catch(()=>process.exit(42));", json.dumps(data)],
-                            capture_output=True, text=True, timeout=15)
-    assert result.returncode == (0 if case == "valid" else 42), result.stderr
-    if case == "valid":
-        assert json.loads(result.stdout) == {"name": "subject", "value": sha}
-    else:
-        assert result.stdout == ""
 
 
 def test_generic_e2e_consumes_declared_capability_without_host_probe() -> None:
@@ -988,25 +728,3 @@ def test_generic_e2e_consumes_declared_capability_without_host_probe() -> None:
     assert "CG_KILO_CAPABILITY" in block
     assert "generic-not-applicable" in block
     assert "kilo debug skill" not in block
-
-
-def test_base_resolution_preserves_existing_pr_precedence_for_standalone() -> None:
-    # The standalone resolver keeps its documented precedence: an existing PR
-    # base wins over the explicit and default values. Autopilot publication
-    # must never reuse this silently-adopting precedence (see the focused
-    # ordering guard below), but standalone behavior stays unchanged.
-    assert preflight.resolve_base_branch("feature-base", "main", "main") == "feature-base"
-    assert preflight.resolve_base_branch(None, "explicit", "main") == "explicit"
-    assert preflight.resolve_base_branch(None, "", "main") == "main"
-
-
-def test_autopilot_publication_requires_selected_base_before_existing_pr() -> None:
-    # Step 10 (publication reconciliation): the selected base precedes any
-    # existing-PR base resolution, so a conflicting PR base is detected instead
-    # of being adopted through the standalone resolver above.
-    from autopilot import queries as pub
-
-    assert pub.require_selected_base("origin/dev") == "origin/dev"
-    for missing in (None, "", "   "):
-        with pytest.raises(pub.QueryError, match="base-required"):
-            pub.require_selected_base(missing)

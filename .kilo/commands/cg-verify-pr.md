@@ -10,47 +10,12 @@ You are a senior developer checking whether the current pull request's CI checks
 
 - **READ**: Any file in the workspace.
 - **MODIFY**: Source and test files related to CI fix (auto-fix mode only).
-- **NEVER**: Modify plan files, `roadmap.json`, or arbitrary `.cg-docs/` files.
-- **NARROW EVIDENCE REPAIR**: In auto-fix mode only, the exact stale current-help
-  manifest failure may run `python scripts/cg_generate_help_support.py` and modify
-  only `.cg-docs/work-reports/docs-help-support-current.json`. This manifest is
-  host-neutral source/static evidence; never add a runtime, host, model, provider,
-  operating-system, or certification claim during this repair.
+- **NEVER**: Modify `.cg-docs/` files, plan files, or `roadmap.json` directly.
 - **`--propose` mode**:
   - READ-only.
   - No file creation or modification.
   - No git commits or pushes.
   - No CI-triggering or externally visible actions.
-
-## Stage Mode: Validated Autopilot Entry
-
-When invoked as a validated autopilot stage (stage `verify-pr`), the envelope
-supplies the exact repository, branch, head and base and a reserved CI-fix round.
-Inside stage mode:
-
-1. Bind every observation strictly to the exact repository, branch, head and
-   base from the envelope. Never select a PR, run, job or base by recency,
-   branch name, or a default-branch heuristic.
-2. Retain the run-bound source/consumer classification from the envelope. As
-   source, keep the focused preflight selector and the preparation evidence;
-   never install, import or run an installed source test inventory. As a
-   consumer, select only the validated plan/consumer test command and run the
-   exact failed check through the verified general execution leaf; never run
-   installed source tests or untrusted log commands.
-3. Reproduce the exact failed job/check identity before any repair, and gather
-   fresh passing evidence after it. A missing or ambiguous consumer test
-   selection is a `needs-input` halt before any effect; never infer green.
-4. Any repair takes its own `begin-effect` before the first staged edit and its
-   `record-result` after, with a clean repair entry, targeted staging, one
-   `CI-Fix-Round` trailer per round, and no duplicate commit or push. Distinguish
-   Git exit `0` (success) and `1` (ordinary failure) before an operation error
-   before stepping forward, and run one post-push observation only.
-5. The fetched base ancestry must match the envelope base before any
-   compare, rebase or trailer count. The parent writes the cursor; this child
-   emits a bounded `cursor-update-request` at its lifecycle boundary.
-
-Standalone invocations keep the original auto-fix/observe-only behavior without
-a stage envelope or these stage-only bindings.
 
 ## Process
 
@@ -190,19 +155,7 @@ For every failing check, use only that check's `detailsUrl` from `statusCheckRol
    > - 🏗️ Build errors (N): `<file>`
    > - 🖥️ Platform-specific (N): `<platform>` only — `<check-name>`
    >
-    > [Auto-fix mode: applying fixes now. | Propose mode: see suggested fixes below.]"
-
-7. A failed Browser evidence-manifest test is eligible for the narrow evidence
-   repair only when its exact job log reports stale or changed help-sensitive
-   source bindings and the worktree is clean. After the clean-tree check in Step
-   4, run the canonical generator without alternative output flags, then run:
-   `python scripts/cg_verify_help_support.py --evidence
-   .cg-docs/work-reports/docs-help-support-current.json`. Require the generator
-   to change only that exact manifest. Run the exact failed Browser test and
-   generated-target/catalog checks before staging. If any other `.cg-docs` path
-   changes, any runtime field appears, or the failure is not exact source drift,
-   halt for a separately authorized workflow. Never run a live host or model to
-   repair this manifest.
+   > [Auto-fix mode: applying fixes now. | Propose mode: see suggested fixes below.]"
 
 ### Step 4: Fix Round
 
@@ -281,7 +234,7 @@ If `$preFixStatus` is empty, continue only with a clean worktree. Do not begin a
 9. Consume the existing Kilo capability adapter and preserve its source status, exit code, version, executable hash, launcher requirement, and inventory evidence. Do not rename source statuses such as `ok`, `ok-no-coexistence`, `missing-kilo`, `unsupported-kilo-version`, `local-projection-missing`, `local-projection-invalid`, `local-content-invalid`, `local-inventory-missing`, `containment-unhonored`, `host-command-error`, and `host-schema-error`. `generic-not-applicable` is a neutral capability result for an absent or unsupported host and is not certified-host integration evidence. `certified-ready` is reported only when the certified evidence is present. Blocking configuration, content, containment, malformed, or unknown Kilo outcomes halt with their existing status and remediation; do not invent a new Kilo vocabulary.
    - The only local-reproduction exception is an **externally confirmed certified-host failure** whose exact Actions job log proves that the failure is host-dependent. Route that case to the certified-host remediation path and do not apply a generic linker fix.
     - Missing Kilo host evidence is not proof of Kilo integration. Generic linker failure evidence never proves Kilo integration. Deterministic Kilo behavior remains part of the selected generic preflight.
-    - Kilo runtime compatibility uses minimum version `7.4.20`, not an exact-version allowlist or upper bound. Newer versions must pass the same live capability, containment, local projection, and no-follow checks. CI version and executable-hash assertions identify the host used as evidence; they are not consumer version pins. Do not convert recorded host versions into a runtime allowlist.
+    - Install, update, and link do not depend on Kilo host behavior or certification. The optional `cg-kilo` launcher has no minimum or certified version requirement. Old or unreadable version output produces a warning only and must not reject executable selection or a contained launch. Keep projection, command, schema, containment, and no-follow checks separate from version diagnostics. CI version and executable-hash assertions identify the host used as evidence; they are not consumer version pins. A successful contained launcher result can have a null `kilo_version` when version output is unreadable. Do not convert recorded host versions into a runtime allowlist.
 
 **Apply fixes by category**:
 

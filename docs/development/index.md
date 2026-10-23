@@ -71,12 +71,6 @@ workflow also checks repository documentation.
 
 ## Stable and development documentation
 
-This section describes the legacy deployment while the new publisher is disabled.
-After separately reviewed cutover, the [release controller](../release-controller.md)
-uses immutable exact-release snapshots and separately verified mutable `dev`
-composition. Development advancement then refreshes only composition, not release
-assets or approval. All deployments keep the shared Pages guard.
-
 The public Pages deployment contains two channels in one complete artifact:
 
 - The site root (`https://gpid-wb.github.io/compound-gpid/`) is the stable
@@ -134,44 +128,36 @@ release record. `RELEASE_NOTES.md` stays ephemeral and gitignored.
 
 ### Release tag policy
 
-Readers accept stable, historical four-part and new SemVer prerelease identities.
-The new controller writes strict SemVer only after separately reviewed enablement.
-It remains disabled; bridge delivery, registered live CI, native clean clients,
-sandbox and timing proof are deferred, not passed. Ordinary PR CI remains required.
+Compound GPID supports two release tag forms:
 
 | Tag form | Purpose | GitHub release type |
 |----------|---------|---------------------|
 | `v<major>.<minor>.<patch>` | Stable release | Release |
-| `v<major>.<minor>.<patch>-<channel>.<number>` | Strict SemVer prerelease, such as `v1.5.0-rc.10` | Prerelease |
-| `v<major>.<minor>.<patch>.<build>` | Routine prerelease and historical/bridge compatibility, conventionally `9000+`; never reinterpreted as a suffix | Prerelease |
+| `v<major>.<minor>.<patch>.<build>` | Installable test release, conventionally using build numbers `9000+` | Prerelease |
 
-Preview an explicit version through the thin command:
+Pass an exact tag to `/cg-release` when preparing a test release:
 
 ```text
-/cg-release plan --version 1.5.0-rc.1 --branch dev --line current --json
+/cg-release v1.2.0.9008
 ```
 
-The declared line must include that source branch. `start` confirms and rechecks;
-`status` and `resume` use the portable request locator. A bare numeric GPID tag
-uses PowerShell Routine while the controller is disabled; explicit authorized
-legacy bridge/recovery remain separate. Published tags, assets and
-historical payloads must not be deleted, moved or reused. See the
-[operator guide](../release-controller.md) for the setup and recovery boundary.
+The four-component form is a first-class release identifier, not malformed
+semver input. `/cg-release` accepts it for new and resumed releases and always
+passes `-Prerelease` to `create-release.ps1`. Three-component tags remain the
+stable channel. Published release tags and immutable payloads must not be
+deleted or reused.
 
-On the legacy path, after GitHub release publication, `create-release.ps1` runs
+After GitHub release publication, `create-release.ps1` runs
 `scripts/cg_release_attestation.py`. It records the annotated tag object, peeled
 commit, immutable payload SHA-256, and every tagged deprecation-record digest in
 `.github/shared/skill-management/release-attestations/<tag>.json`. This reviewed
 post-release artifact provides future plugin-removal grace evidence and must not
 be edited or backfilled by hand.
 
-Routine full releases and four-component prereleases normally start from a clean
-`dev` checkout at `origin/dev`; their exact tag remains eligible for explicit
-resume after `dev` advances. Exceptional stable Bridge/Recovery sources remain
-limited to configured production branches or the protected remote default.
-Reserve publishes the full GitHub Release before Pages. The protected `main`
-controller's older layout cannot yet deploy isolated `dev`-cut full docs, so
-stable Finalize stays pending until a separate reviewed Pages repair succeeds.
+Stable releases must be prepared from a clean `main` checkout matching
+`origin/main`. Four-component prereleases must be prepared directly from a
+clean `dev` checkout matching `origin/dev`; their exact tag remains eligible for
+resume after `dev` advances.
 
 Repository settings must include an active tag ruleset named `Protect release
 tags` for `refs/tags/v*`. It must block updates, non-fast-forward updates, and
@@ -185,16 +171,15 @@ prebuilt artifact without executing tagged repository code with Pages access.
 
 ### Release payload schema
 
-Immutable, tracked files named `releases/<tag>.json` accept stable, legacy four-part
-and strict SemVer prerelease tags;
+Immutable, tracked files named `releases/v<major>.<minor>.<patch>[.<dev>].json`;
 `releases/latest.json` is a byte-for-byte current-release convenience copy and is
 never rendered as a second release.
 
 | Field | Required | Value |
 |-------|----------|-------|
 | `schemaVersion` | yes | `1` |
-| `tag` | yes | stable, historical four-part or SemVer prerelease tag |
-| `publishedAt` | yes | UTC ISO-8601 preparation timestamp; not proof of GitHub publication |
+| `tag` | yes | stable or prerelease tag (e.g. `v1.2.3` or `v1.2.3.9000`) |
+| `publishedAt` | yes | UTC ISO-8601 |
 | `name` | yes | release title |
 | `url` | yes | GitHub release URL shape |
 | `sourceUrl` | yes | exact pushed GitHub tag URL (`.../tree/<tag>`) |
@@ -224,54 +209,6 @@ dispatches build complete trees directly. No workflow depends on a bot push
 triggering a second workflow.
 
 ### Recovery behavior
-
-Keep generated artifacts separate from canonical source and verify the relevant
-producer contract before restoring a prior build.
-
-### Catalog documentation and build compatibility
-
-The canonical help catalog owns command facts in `docs/reference.md` and
-`docs/reference/commands.md`. Its Python writer updates only the three
-`help-*` managed sections; wiki generation preserves those sections. The
-ownership declaration in `docs/_wiki.yml` records both files and the writer.
-Maintainers edit prompt descriptions, reviewed help sidecars, shell metadata,
-and explicit workflow records, then regenerate. Stale definition pins stop the
-build and require review of the individual record.
-
-```bash
-python scripts/cg_generate_help_catalog.py --check
-python scripts/cg_generate_help_catalog.py --write-docs
-python scripts/cg_generate_help_catalog.py --check-docs
-node scripts/rebuild-docs.js --all
-node scripts/rebuild-docs.js --check --all
-node scripts/check-docs-site.js
-```
-
-The one-time `--bootstrap-docs-markers` operation accepts only the recognized
-legacy table boundaries; ordinary builds never perform that migration. Content
-outside those sections remains editorial. The website projection contains the
-complete catalog, including kind-qualified IDs and repeated workflow steps.
-`docs/reference/command-routes.json` supplies only registered presentation
-destinations. A renamed destination heading must be repaired before generation.
-
-Producer/fingerprint/runtime version 3 adds the catalog writer, command index,
-and eighth local shell asset. Fingerprints bind exact generator, wrapper,
-registry, sidecar and route bytes; managed Markdown interiors are normalized.
-The two generated indexes are excluded from their own inputs and independently
-regenerated before import. The protected controller executes its own generator
-against isolated copies of source data and verifies every output byte. A fresh
-catalog does not certify native host behavior.
-
-Version 1 legacy publication remains supported beside version 3 development.
-The unpublished version 2 checkpoint is retained byte-for-byte under
-`scripts/docs-legacy-v2` for historical recovery. Its old runtime cannot read
-version 3 metadata, so a mixed version 2/version 3 pair is rejected: rebuild both
-upgraded channels with version 3. A version 2/version 2 recovery pair remains
-verifiable. Never reinterpret a historical fingerprint version or deploy an
-artifact directly from a modified site directory. Controller rollout remains
-separate from these local build checks.
-
-### Recovery outcomes
 
 - No-op rebuild: `docs/` unchanged — no bot commit; the artifact is still
   uploaded for Pages.

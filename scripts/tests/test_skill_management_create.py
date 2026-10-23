@@ -21,12 +21,6 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 ALL_PLATFORMS = "copilot,claude-code,codex,opencode,kilo"
 
 
-def _write_text(path: Path, content: str) -> None:
-    """Write fixture text with exact LF endings (no Windows newline translation)."""
-    with path.open("w", encoding="utf-8", newline="\n") as handle:
-        handle.write(content)
-
-
 def _canonical_root(tmp_path: Path) -> Path:
     root = tmp_path / "source"
     _real_registry(root)
@@ -78,10 +72,10 @@ def _canonical_root(tmp_path: Path) -> Path:
             "ambiguous": [],
         }
     )
-    _write_text(registry_path, json.dumps(registry, indent=2) + "\n")
-    _write_text(
-        root / "compound-gpid.local.md",
+    registry_path.write_text(json.dumps(registry, indent=2) + "\n", encoding="utf-8")
+    (root / "compound-gpid.local.md").write_text(
         '---\nlanguage: "r"\nsuites: [cg]\n---\n# fixture\n',
+        encoding="utf-8",
     )
     policy_source = REPO_ROOT / ".github/shared/vendor-policy.json"
     policy_target = root / ".github/shared/vendor-policy.json"
@@ -99,9 +93,8 @@ def _canonical_root(tmp_path: Path) -> Path:
             shutil.copy2(template, template_target / template.name)
     manifest = manifest_module.resolve_active_manifest(root)
     (root / ".compound-gpid").mkdir(parents=True, exist_ok=True)
-    _write_text(
-        root / ".compound-gpid/active-manifest.json",
-        manifest_module.canonical_manifest_bytes(manifest),
+    (root / ".compound-gpid/active-manifest.json").write_text(
+        manifest_module.canonical_manifest_bytes(manifest), encoding="utf-8"
     )
     return root
 
@@ -289,39 +282,6 @@ def test_create_registers_explicit_new_owner_module_without_manual_repair(
     assert owner["ownedAssets"] == [".github/skills/permanent-demo/"]
 
 
-def test_create_preserves_existing_ownership_exclusion_metadata(tmp_path: Path) -> None:
-    root = _canonical_root(tmp_path)
-    registry_path = root / ".github/shared/module-registry.json"
-    registry = json.loads(registry_path.read_text(encoding="utf-8"))
-    suite = next(item for item in registry["modules"] if item["id"] == "suite-cg")
-    suite["ownershipExclusions"] = [".github/prompts/cg-help.prompt.md"]
-    _write_text(registry_path, json.dumps(registry, indent=2) + "\n")
-    manifest = manifest_module.resolve_active_manifest(root)
-    _write_text(
-        root / ".compound-gpid/active-manifest.json",
-        manifest_module.canonical_manifest_bytes(manifest),
-    )
-
-    planned = _plan(root, _arguments())
-    applied = create.handle(
-        context=_context(root),
-        request={
-            "phase": "apply",
-            "arguments": _arguments(),
-            "planDigest": planned.plan_digest,
-        },
-    )
-    updated = json.loads(registry_path.read_text(encoding="utf-8"))
-    suite = next(item for item in updated["modules"] if item["id"] == "suite-cg")
-
-    assert not planned.findings
-    assert not applied.findings
-    assert suite["ownershipExclusions"] == [
-        ".github/prompts/cg-help.prompt.md"
-    ]
-
-
-
 def test_existing_capability_must_be_explicit_only_and_unselected(
     tmp_path: Path,
 ) -> None:
@@ -347,25 +307,23 @@ def test_existing_capability_must_be_explicit_only_and_unselected(
             "configSelectors": [],
         }
     )
-    _write_text(registry_path, json.dumps(registry, indent=2) + "\n")
+    registry_path.write_text(json.dumps(registry, indent=2) + "\n", encoding="utf-8")
     manifest = manifest_module.resolve_active_manifest(root)
-    _write_text(
-        root / ".compound-gpid/active-manifest.json",
-        manifest_module.canonical_manifest_bytes(manifest),
+    (root / ".compound-gpid/active-manifest.json").write_text(
+        manifest_module.canonical_manifest_bytes(manifest), encoding="utf-8"
     )
 
     inactive = _plan(root, _arguments(capability="existing-opt-in"))
     assert not inactive.findings
 
     config = root / "compound-gpid.local.md"
-    _write_text(
-        config,
+    config.write_text(
         '---\nlanguage: "r"\nsuites: [cg]\ncapabilities: [existing-opt-in]\n---\n',
+        encoding="utf-8",
     )
     active_manifest = manifest_module.resolve_active_manifest(root)
-    _write_text(
-        root / ".compound-gpid/active-manifest.json",
-        manifest_module.canonical_manifest_bytes(active_manifest),
+    (root / ".compound-gpid/active-manifest.json").write_text(
+        manifest_module.canonical_manifest_bytes(active_manifest), encoding="utf-8"
     )
     active = _plan(root, _arguments(capability="existing-opt-in"))
     assert active.findings

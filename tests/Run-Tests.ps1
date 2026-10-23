@@ -62,7 +62,6 @@ $testNames = @(
     'cg-index',       # Python indexer tests (Python-availability-guarded, safe on Windows)
     'run-tests-runner',
     'update',
-    'release-version-readers',
     'docs-automation',
     'docs-preview',
     'wiki',

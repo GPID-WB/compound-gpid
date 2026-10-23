@@ -4,108 +4,99 @@ Release history and notable changes across Compound GPID from structured
 release payloads.
 
 <!-- cg:auto:release-notes -->
-### v1.2.0.9021 — v1.2.0.9021 - Routine full releases from dev
+### v1.2.0.9025 — v1.2.0.9025 - Default Settings
 
-*2026-09-29T18:12:32Z*
+*2026-10-21T13:50:02Z*
 
-**New — Release support**
-- Support routine full releases from dev.
+**Fixed — Default settings**
+- Older projects could stop at cg-link when compound-gpid.local.md contained notes but no settings block.
+- cg-link now continues with default settings and can also read files that start with a UTF-8 BOM.
+- Your file is not changed.
+- Run /cg-setup later to add settings when you need them.
+- cg-link no longer adds duplicate .gitignore lines and removes prior duplicates.
+- cg-link no longer keeps old internal copies under .compound-gpid.
 
-**Fixed — Release help fixes**
-- Rebind release help evidence after dev integration.
-- Align the release catalog source digest.
+**New — Upgrade to 9025**
+- From v1.2.0.9024 on Windows or macOS: outside linked project directories (for example, from your home directory), run cg-update v1.2.0.9025, then run the NEW cg-link once per project, keeping its adapter selection. Use the explicit version, not latest.
+- From older versions: follow docs/upgrade.md to migrate and install v1.2.0.9024 first, then run cg-update v1.2.0.9025 and the NEW cg-link once per project. Guide: https://github.com/GPID-WB/compound-gpid/blob/v1.2.0.9024/docs/upgrade.md
+- Keep installation and project backups. If linking reports blocked or preserved files, keep them and review the reported manual action; do not delete adapter folders or use unlink to bypass conflicts.
 
-**Internal — Release evidence**
-- Bind routine release support evidence in help documentation.
-- Record the release attestation.
+**Internal — Tests added and publication gates**
+- Tests cover defaults, BOM, strict errors, read-only checking, and Windows/macOS upgrade/update fixtures. The installed 9024 updater runs from a neutral directory before NEW linking in valid-config and legacy-config projects; its in-project stale-manifest guard is unchanged. Coverage additions do not qualify every historical installation or a real Kilo host.
+- Every four-part vX.Y.Z.N tag is Reserve-only: a non-draft GitHub pre-release with make_latest=false. No Finalize, documentation deployment, or attestation applies. Required payload dates are preparation timestamps, not publication proof. Publication requires green local, push, and FULL CI gates.
 
-[View source tag](https://github.com/GPID-WB/compound-gpid/tree/v1.2.0.9021)
-
----
-
-### v1.2.0.9020 — v1.2.0.9020 - Routine development prereleases
-
-*2026-09-26T14:01:39Z*
-
-**New — Release, documentation, help, and autopilot**
-- Route four-part routine prerelease requests through the PowerShell Reserve and Finalize publisher, separate from exceptional Bridge and Recovery operations.
-- Add commit-bound preflight receipts, verified release-source handling, and a durable official-site snapshot for documentation previews.
-- Add a workflow-oriented documentation browser with search, navigation, and a canonical command catalog.
-- Add evidence-backed cg-help answers and provenance-bound catalog generation.
-- Add Kilo-first autopilot control modules, stage-mode workflows, bounded evidence, and native identity checks.
-
-**Fixed — Reliability fixes**
-- Preserve verified documentation snapshots, mobile navigation targets, and complete source-bound help arguments.
-- Harden help evidence and manifest writes, installer and ownership checks, and the native pytest preflight time budget.
-
-**Internal — Tests and generated assets**
-- Extend release, help, autopilot, installer, and documentation tests; regenerate native adapter assets and record review and cutover evidence.
-
-[View source tag](https://github.com/GPID-WB/compound-gpid/tree/v1.2.0.9020)
+[View source tag](https://github.com/GPID-WB/compound-gpid/tree/v1.2.0.9025)
 
 ---
 
-### v1.2.0.9019 — v1.2.0.9019 - Asynchronous Release Controller
+### v1.2.0.9024 — v1.2.0.9024 - Safer Upgrades
 
-*2026-09-15T22:29:55Z*
+*2026-10-16T22:12:27Z*
 
-**New — Release Controller Features**
-- Add asynchronous controller core with standalone locked Python package
-- Integrate disabled GPID controller with SemVer ordering
-- Wire guarded controller workflows and source-bound build/publish contracts
-- Bind release snapshots to verified producer bytes
-- Add disabled asynchronous release controller via merge PR
+**New — Upgrade from any older version**
+- Pinned or latest: start from a separate fresh clone at v1.2.0.9024 and run its migration script by full path. Do not run the old updater or linker first. Migration preserves the old installation in a sibling backup, installs at the original path, and pins v1.2.0.9024. Explicit rollback restores the installation, not project changes.
+- Windows and macOS commands, custom installation paths, multiple-install selection, PATH warnings, project checks, and rollback: https://github.com/GPID-WB/compound-gpid/blob/v1.2.0.9024/docs/upgrade.md
+- Stay pinned: do not run cg-update latest until announced. Today latest tracks main, which still contains the old line; it does not select the newest four-part tag.
 
-**Fixed — CI and Merge Fixes**
-- Raise package matrix timeout to thirty minutes
-- Keep bridge_client within module line limit
-- Stop forwarding PowerShell module path into bridge child
-- Repair release portability and safe diagnostics
-- Integrate dev into release controller branch
+**Fixed — Preservation, checks, and license notices**
+- Run the NEW cg-link --check, then cg-link in each project. The check is read-only and does not update, launch Kilo, or write project/global files. Edited or unproven files are kept and reported as manual action required; user-added files are kept.
+- The one-time legacy managed Copilot instructions transition saves exact prior bytes in .github/copilot-instructions.md.pre-9024.bak before replacement. Review and merge custom instructions from the backup. Later replacement needs unchanged ownership proof; conflicting existing backups are preserved.
+- PATH warnings keep a verified new installation and print repair guidance for missing or shadowing commands. Open a new terminal and verify cg-link resolves to the new installation before use.
+- Restore the original reveal.js and Marked vendor license notices in presentation/vendor/reveal.js/LICENSE and LICENSE.marked.txt.
 
-**Internal — Documentation and Maintenance**
-- Capture release validation and authority lessons in knowledge docs
-- Preserve controller history and dev PR handoff in workflow docs
-- Record asynchronous controller delivery and live deferral in plan docs
-- Document controller operation and deferred rollout
-- Regenerate release interfaces for Kilo, OpenCode, Codex, and Claude
-- Verify reader migration and GPID producer contracts
-- Record v1.2.0.9017 attestation
-- Accept new release-docs artifact layout in the Pages verifier
-- Read ruleset-based default-branch protection in the legacy release authority
+**Internal — Tested coverage, limits, and publication**
+- CI upgrade matrix run 38805538140 passed all four cells: v1.1.11 and v1.2.0.9021 on Windows and macOS. These isolated fixtures cover preservation, Copilot backup, read-only checking, and repeat linking. Real user pilots follow publication; this is not proof for every historical version or a real Kilo host.
+- Known limits: standalone clones only; worktrees and linked installation paths are refused. Existing backups and ambiguous installations need explicit selection or recovery. Installer PATH/profile writes are not snapshotted; installation rollback does not undo project changes. Windows PowerShell 5.1 long-path copy/unlink limits remain; use short installation paths. Local installation edits remain in the backup, not merged into the new clone.
+- Every four-part vX.Y.Z.N tag is Reserve-only: a non-draft GitHub pre-release with make_latest=false. No Finalize, documentation deployment, or attestation applies. The required payload date is the preparation timestamp, not publication proof. Publication requires green local, push, and FULL CI gates.
 
-[View source tag](https://github.com/GPID-WB/compound-gpid/tree/v1.2.0.9019)
+[View source tag](https://github.com/GPID-WB/compound-gpid/tree/v1.2.0.9024)
 
 ---
 
-### v1.2.0.9018 — v1.2.0.9018 - Asynchronous Release Controller
+### v1.2.0.9023 — v1.2.0.9023 - Kilo-independent installation and updates
 
-*2026-09-15T10:24:57Z*
+*2026-10-08T22:02:59Z*
 
-**New — Release Controller Features**
-- Add asynchronous controller core with standalone locked Python package
-- Integrate disabled GPID controller with SemVer ordering
-- Wire guarded controller workflows and source-bound build/publish contracts
-- Bind release snapshots to verified producer bytes
-- Add disabled asynchronous release controller via merge PR
+**Fixed — No Kilo version or host dependency**
+- Install, update, link, and unlink do not run Kilo and do not require any Kilo version or host behavior. Generated Compound GPID files still receive local validation; ownership and user-file preservation checks remain.
+- Projects with both Kilo and Claude or Codex skills receive a non-blocking note that recommends cg-kilo for contained launches. The optional cg-kilo launcher keeps KILO_DISABLE_EXTERNAL_SKILLS containment; an old or unreadable Kilo version produces a warning, not a version gate.
 
-**Fixed — CI and Merge Fixes**
-- Raise package matrix timeout to thirty minutes
-- Keep bridge_client within module line limit
-- Stop forwarding PowerShell module path into bridge child
-- Repair release portability and safe diagnostics
-- Integrate dev into release controller branch
+**New — Upgrade instructions**
+- From 9022: open a NEW EMPTY FOLDER and run cg-update v1.2.0.9023 there. Do not run the installed 9022 updater from your home folder or a Kilo-linked project: it still has the old host check. After the update succeeds, run the NEW cg-link once per project.
+- Mac users on 9006-9016: use the same re-clone steps as 9022. Back up projects and the installation; move the old clone aside; clone at the SAME path; check out v1.2.0.9023; set .cg-version to v1.2.0.9023, not latest; run bash scripts/install.sh; open a new terminal; run the NEW cg-link once per project.
+- If cg-link reports blocked or preserved old files, stop and keep those files, ownership records, journals, and private configuration. Do not delete adapter folders or use unlink as a cleanup shortcut. Keep the old clone for rollback.
 
-**Internal — Documentation and Maintenance**
-- Capture release validation and authority lessons in knowledge docs
-- Preserve controller history and dev PR handoff in workflow docs
-- Record asynchronous controller delivery and live deferral in plan docs
-- Document controller operation and deferred rollout
-- Regenerate release interfaces for Kilo, OpenCode, Codex, and Claude
-- Verify reader migration and GPID producer contracts
-- Record v1.2.0.9017 attestation
+**Internal — Four-part pre-release publication**
+- Every four-part tag vX.Y.Z.N is Reserve-only: a non-draft GitHub pre-release with make_latest=false. Finalize, documentation deployment, and attestation do not apply. Three-part stable tags retain the full publication path.
+- This payload uses the preparation timestamp in its required date fields. Publication is permitted only after the local gates and all applicable push and FULL CI rows pass. Hosted fixtures do not claim real local installation or real Kilo host qualification.
 
-[View source tag](https://github.com/GPID-WB/compound-gpid/tree/v1.2.0.9018)
+[View source tag](https://github.com/GPID-WB/compound-gpid/tree/v1.2.0.9023)
+
+---
+
+### v1.2.0.9022 — v1.2.0.9022 - Safe-baseline rebuild
+
+*2026-10-08T13:13:26Z*
+
+**Fixed — 9017 baseline with safety fixes**
+- Prepared candidate, not yet published: rebuild from v1.2.0.9017 with the safety fixes in Slices 1-4a. Keep ordinary commands, adapters, skills, and the research suite. Windows and Mac pilots and publication approval are pending.
+- Preserve modified or unowned old files and recovery evidence. Retire only unchanged files with valid ownership proof. Ignore private local configuration in Git; existing configuration access and global Kilo permission behavior are unchanged.
+- Make new pinned updates restore the original checkout and version pin after validation failure. Stop on user changes rather than discard them. Register committed POSIX wrappers without changing the installation clone.
+- Correct Windows Store-Python launcher detection and long-path secure staging. Bound CI jobs and qualify full native tests plus fresh install, link, and unlink smoke fixtures. These fixtures are not real Kilo host qualification.
+
+**New — Supported migration and rollback**
+- From 9020 or 9021 on Windows: back up projects and the installation clone; move the old clone aside; clone the repository at the SAME path; check out v1.2.0.9022 after publication; set .cg-version to v1.2.0.9022, not latest; run install.ps1; open a new terminal; run the NEW cg-link once per project.
+- From 9020 or 9021 on macOS: back up projects and the installation clone; move the old clone aside; clone the repository at the SAME path; check out v1.2.0.9022 after publication; set .cg-version to v1.2.0.9022, not latest; run bash scripts/install.sh; open a new terminal; run the NEW cg-link once per project.
+- If cg-link blocks or preserves old plugin files, stop and keep the files, ownership records, journals, and private configuration. Keep backup copies outside adapter discovery folders. Ask for a reviewed manual repair; do not delete an adapter folder or use cg-unlink as a cleanup shortcut.
+- Keep the old clone available. If 9022 does not work, stop, move the new clone aside, restore the old clone at its original path, run its installer, and open a new terminal. Restore changed project files from reviewed backups; clone rollback does not undo all project changes.
+
+**Internal — Scope, publication policy, and known limits**
+- 9020/9021 features NOT included in 9022: cg-help answers and support evidence, docs browser changes, Kilo autopilot and native plugin, async release controller, receipts, and Pages sealing. Baseline ownership records remain; new release-controller receipts are not restored.
+- Publication, after separate approval, is Reserve-only: a non-draft GitHub pre-release with make_latest false from the exact pushed source branch. No documentation deployment, Pages step, or Finalize attestation is required for 9022.
+- Known limits: Windows PowerShell 5.1 can still fail to copy or unlink long paths. Use a short installation and test-project path; do not shorten or delete user project files to force success. The unpublished recovery updater is not supported.
+- Re-clone is the supported migration. Old-updater acquisition is an advanced, unsupported procedure only: record the old commit and pin, preserve unknown edits, restore only proven installer changes under review, use explicit v1.2.0.9022 (never latest), stop on errors, and reconcile separately with NEW cg-link and CG_SKIP_UPDATE=1.
+
+[View source tag](https://github.com/GPID-WB/compound-gpid/tree/v1.2.0.9022)
 
 ---
 

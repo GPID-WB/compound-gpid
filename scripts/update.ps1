@@ -5,8 +5,7 @@
 # linked project's prompts/, skills/, agents/, and instructions/ immediately.
 #
 # For copilot-instructions.md (a copied file, not a junction), this script also
-# refreshes the copy in the current working directory if the management marker
-# is present. Remove the marker to opt out of auto-refresh.
+# refreshes the copy through the shared ownership and legacy-backup policy.
 #
 # Structural migrations (folder moves, config field additions) are applied to
 # the current working directory when it is a linked project. This enables a
@@ -32,9 +31,6 @@ param(
     [string]$Version,
     # Display available releases and exit without updating.
     [switch]$List,
-    # Include pre-releases and legacy development tags in --list.
-    [Alias('show-dev')]
-    [switch]$ShowDev,
     # Repair the installation: clean untracked files, discard local changes,
     # and pull the latest code. Use when cg-update fails due to dirty state.
     [switch]$Fix
@@ -49,23 +45,8 @@ $CompoundGpidDir = Split-Path $PSScriptRoot -Parent
 
 . (Join-Path $PSScriptRoot "helpers.ps1")
 
-$earlyUpdateProjectRoot = (Get-Location).Path
-$earlyUpdateIsSourceInstall = [System.IO.Path]::GetFullPath($earlyUpdateProjectRoot).TrimEnd('\', '/') -ieq
+$earlyUpdateIsSourceInstall = [System.IO.Path]::GetFullPath((Get-Location).Path).TrimEnd('\', '/') -ieq
     [System.IO.Path]::GetFullPath($CompoundGpidDir).TrimEnd('\', '/')
-$earlyUpdateHasCompatibilityRoot = (Test-Path -LiteralPath (Join-Path $earlyUpdateProjectRoot ".agents\skills")) -or
-    (Test-Path -LiteralPath (Join-Path $earlyUpdateProjectRoot ".claude\skills"))
-if (-not $env:CG_INTERNAL_CALL -and -not $earlyUpdateIsSourceInstall -and
-    (Test-Path -LiteralPath (Join-Path $earlyUpdateProjectRoot ".kilo\skills")) -and
-    $earlyUpdateHasCompatibilityRoot) {
-    try {
-        [void](Invoke-CgKiloPreflight -ProjectRoot $earlyUpdateProjectRoot -RequireCoexistence -HostOnly)
-    } catch {
-        $preflightExitCode = 1
-        if ($_.Exception.Data.Contains("CgExitCode")) { $preflightExitCode = [int]$_.Exception.Data["CgExitCode"] }
-        Write-Error "Update is blocked by Kilo host preflight: $_"
-        exit $preflightExitCode
-    }
-}
 
 # Clean up profile functions from early installs. Those functions invoke or
 # dot-source the scripts directly and can shadow the CLM-safe .cmd wrappers on PATH.
@@ -82,68 +63,19 @@ try {
     Write-Warning "  You may manually remove the old Compound GPID functions from: $PROFILE"
 }
 
-# The management marker that identifies a CG-managed copilot-instructions.md
-$CopilotInstructionsMarker = "<!-- compound-gpid:managed -->"
-
 # File that stores the user's version preference inside the global install directory.
 # Contains "latest" to track main, or a tag name (e.g. v0.2.0) to pin.
 $VersionFile = Join-Path $CompoundGpidDir ".cg-version"
 
-# BEGIN RELEASE READERS
-$VersionNumber = '(?:0|[1-9][0-9]*)'
-$VersionIdentifier = '(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)'
-$VersionCore = "$VersionNumber\.$VersionNumber\.$VersionNumber"
-$VersionSuffix = "(?:-$VersionIdentifier(?:\.$VersionIdentifier)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?"
-$ReleaseTagPattern = "\Av$VersionCore(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?\z"
-$VersionAcceptPattern = "\A(?:latest|v$VersionCore$VersionSuffix|v[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)\z"
+# Regex that matches 3-component release tags only (e.g. v0.2.0).
+# Dev tags (4-component, e.g. v0.2.0.9000) are intentionally excluded -- they are
+# invisible to users and must never appear in --list, the newer-release hint, or error suggestions.
+$ReleaseTagPattern = '^v\d+\.\d+\.\d+$'
 
-function Compare-CgReleaseTags {
-    <# Compare validated tags by SemVer; four-part legacy tags use a separate lane.
-       Example: Compare-CgReleaseTags v1.0.0-rc.2 v1.0.0-rc.10 returns -1. #>
-    param([string]$Left, [string]$Right)
-    foreach ($tag in @($Left, $Right)) {
-        if ($tag -ceq 'latest' -or $tag -cnotmatch $VersionAcceptPattern) { throw "Invalid release tag: $tag" }
-    }
-    $a = ($Left.Substring(1) -split '\+', 2)[0] -split '-', 2
-    $b = ($Right.Substring(1) -split '\+', 2)[0] -split '-', 2
-    $ac = $a[0] -split '\.'; $bc = $b[0] -split '\.'
-    $al = 2; $bl = 2
-    if ($ac.Count -eq 4) { $al = 0 } elseif ($a.Count -eq 2) { $al = 1 }
-    if ($bc.Count -eq 4) { $bl = 0 } elseif ($b.Count -eq 2) { $bl = 1 }
-    $ap = @(); $bp = @()
-    if ($al -eq 0) { $ap = @($ac[3]) } elseif ($al -eq 1) { $ap = @($a[1] -split '\.') }
-    if ($bl -eq 0) { $bp = @($bc[3]) } elseif ($bl -eq 1) { $bp = @($b[1] -split '\.') }
-    for ($i = 0; $i -lt (4 + [Math]::Max($ap.Count, $bp.Count)); $i++) {
-        if ($i -lt 3) { $x = $ac[$i]; $y = $bc[$i] }
-        elseif ($i -eq 3) {
-            if ($al -ne $bl) { return [Math]::Sign($al - $bl) }
-            continue
-        } else {
-            $j = $i - 4
-            if ($j -ge $ap.Count -or $j -ge $bp.Count) { return [Math]::Sign($ap.Count - $bp.Count) }
-            $x = $ap[$j]; $y = $bp[$j]
-        }
-        $xn = $x -cmatch '\A[0-9]+\z'; $yn = $y -cmatch '\A[0-9]+\z'
-        if ($xn -and $yn) {
-            $x = $x.TrimStart('0'); $y = $y.TrimStart('0')
-            if ($x.Length -ne $y.Length) { return [Math]::Sign($x.Length - $y.Length) }
-        } elseif ($xn -ne $yn) { if ($xn) { return -1 } else { return 1 } }
-        $result = [Math]::Sign([string]::CompareOrdinal($x, $y))
-        if ($result -ne 0) { return $result }
-    }
-    return 0
-}
-
-function Sort-CgReleaseTags {
-    <# Sort validated tags newest first without culture or integer-width effects.
-       Example: Sort-CgReleaseTags @('v1.0.0', 'v2.0.0'). #>
-    param([string[]]$Tags)
-    $sorted = [System.Collections.Generic.List[string]]::new()
-    foreach ($tag in $Tags) { $sorted.Add($tag) }
-    $sorted.Sort([System.Comparison[string]]{ param($a, $b) -(Compare-CgReleaseTags $a $b) })
-    return $sorted.ToArray()
-}
-# END RELEASE READERS
+# Regex that accepts all valid version inputs: release tags, dev tags, and 'latest'.
+# Used in the CLI argument guard and the .cg-version format validator.
+# Case-sensitive (-cmatch/-cnotmatch): git tag names are case-sensitive; 'V0.2.0' != 'v0.2.0'.
+$VersionAcceptPattern = '^(latest|v\d+\.\d+\.\d+(\.\d+)?)$'
 
 # --- Validate install exists ---
 if (-not (Test-Path $CompoundGpidDir)) {
@@ -234,6 +166,27 @@ if (-not $Version -and $versionMode -cnotmatch $VersionAcceptPattern) {
 # Captured inside the pinned-mode branch; used at the end for the "newer release" hint.
 $latestTag = $null
 
+# Keep native checkout diagnostics visible without PS5.1 stderr promotion.
+function Invoke-CgUpdateGit {
+    param([string[]]$Arguments)
+    $savedPreference = $ErrorActionPreference
+    try {
+        $ErrorActionPreference = "Continue"
+        & git @Arguments 2>&1 | ForEach-Object { Write-Host "  $_" }
+        $gitExit = $LASTEXITCODE
+    } finally {
+        $ErrorActionPreference = $savedPreference
+    }
+    if ($gitExit -ne 0) { throw "git $($Arguments -join ' ') failed with exit code $gitExit" }
+}
+
+$pinnedOriginalCommit = $null
+$pinnedOriginalBranch = $null
+$pinnedOriginalPin = $null
+$pinnedHadPin = $false
+$pinnedCheckoutCommit = $null
+
+try {
 Push-Location $CompoundGpidDir
 
 try {
@@ -246,10 +199,10 @@ try {
             Write-Warning "git fetch --tags failed (exit $LASTEXITCODE) -- showing cached tag data. Check your network connection."
         }
 
-        $tags = @(git tag --list "v*" 2>$null)
-        $listPattern = $ReleaseTagPattern
-        if ($ShowDev) { $listPattern = $VersionAcceptPattern }
-        $releaseTags = @(Sort-CgReleaseTags @($tags | Where-Object { $_ -cmatch $listPattern }))
+        $tags = @(git tag --list "v*" --sort=-version:refname 2>$null)
+        # Only show 3-component release tags to users; dev tags (4-component) are
+        # a maintainer-only escape hatch and must never appear in normal output.
+        $releaseTags = @($tags | Where-Object { $_ -match $ReleaseTagPattern })
 
         # Use the already-resolved $versionMode (avoids redundant file read + normalisation)
         $currentPin = $versionMode
@@ -259,9 +212,6 @@ try {
             $modeLabel = "main (latest)"
         } elseif ($isDevPin) {
             $modeLabel = "$currentPin (dev -- not listed above)"
-            if ($ShowDev) { $modeLabel = "$currentPin (legacy dev)" }
-        } elseif ($currentPin.Split('+')[0].Contains('-')) {
-            $modeLabel = "$currentPin (pre-release)"
         } else {
             $modeLabel = "$currentPin (pinned)"
         }
@@ -272,7 +222,7 @@ try {
         # release tags only (3-component) to exclude dev tags from the marker logic.
         $installedTag = $null
         if ($currentPin -eq "latest") {
-            $headTags = @(Sort-CgReleaseTags @(git tag --points-at HEAD 2>$null | Where-Object { $_ -cmatch $listPattern }))
+            $headTags = @(git tag --points-at HEAD 2>$null | Where-Object { $_ -match $ReleaseTagPattern })
             if ($headTags) { $installedTag = $headTags[0] }
         }
 
@@ -281,10 +231,7 @@ try {
         if ($releaseTags) {
             foreach ($tag in $releaseTags) {
                 if ($tag -eq $currentPin -or $tag -eq $installedTag) { $marker = '  <-- current' } else { $marker = '' }
-                $label = ''
-                if ($tag -cmatch '^v[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$') { $label = ' (legacy dev)' }
-                elseif ($tag.Split('+')[0].Contains('-')) { $label = ' (pre-release)' }
-                Write-Host "  $tag$label$marker"
+                Write-Host "  $tag$marker"
             }
         } else {
             Write-Host "  No releases found." -ForegroundColor DarkGray
@@ -296,7 +243,6 @@ try {
         Write-Host ""
         Write-Host '  cg-update <version>  -- pin to a specific release' -ForegroundColor DarkGray
         Write-Host "  cg-update latest     -- unpin and track main" -ForegroundColor DarkGray
-        Write-Host "  cg-update --list --show-dev -- include pre-releases and legacy dev tags" -ForegroundColor DarkGray
         Write-Host ""
         exit 0
     }
@@ -312,6 +258,11 @@ try {
         # ---- Latest mode: track main HEAD ----
         # git fetch --tags not needed here; git pull handles all remote sync.
         # Tags stay current after any pinned-mode or --list run that fetched them.
+
+        git diff --quiet
+        if ($LASTEXITCODE -ne 0) { throw "Tracked changes remain; latest update will not discard user changes." }
+        git diff --cached --quiet
+        if ($LASTEXITCODE -ne 0) { throw "Staged changes remain; latest update will not discard user changes." }
 
         # Persist the "latest" preference when the user explicitly unpins with
         # 'cg-update latest'. Safe to write before git ops: "latest" is always valid.
@@ -337,19 +288,6 @@ try {
         $before = git rev-parse --short HEAD 2>$null
 
         Write-Host "Checking for updates..." -ForegroundColor Cyan
-
-        # Reset any accidental local changes before pulling.
-        # This handles the case where a user inadvertently edited a file through a
-        # junction - git checkout discards uncommitted changes in the global clone.
-        #
-        # PS5.1 with ErrorActionPreference=Stop can promote native stderr to a
-        # terminating error even with 2>$null in some host configurations. Wrapping
-        # in try/catch makes this bullet-proof: we never want a best-effort cleanup
-        # step to abort the update. LASTEXITCODE is still checked for real failures.
-        try { git checkout . 2>$null } catch { <# informational stderr -- ignore #> }
-        if ($LASTEXITCODE -ne 0) {
-            Write-Warning "git checkout . returned exit code $LASTEXITCODE - continuing anyway"
-        }
 
         # --ff-only ensures we never end up in a merge conflict state.
         # If the remote has diverged (shouldn't happen on main), it fails cleanly.
@@ -394,6 +332,11 @@ try {
         }
         Write-Host ""
         Write-Host "Regenerating platform trees..." -ForegroundColor DarkGray
+        $retirementScript = Join-Path $CompoundGpidDir "scripts/cg_retire_native_evidence.py"
+        if (Test-Path -LiteralPath $retirementScript) {
+            & $pyCmd $retirementScript --root $CompoundGpidDir
+            if ($LASTEXITCODE -ne 0) { throw "Update is blocked by preserved native-evidence residue." }
+        }
         & $pyCmd $generatorScript --root $CompoundGpidDir --all 2>&1 | ForEach-Object { Write-Host "  $_" -ForegroundColor DarkGray }
         if ($LASTEXITCODE -ne 0) {
             throw "Platform tree generation failed with exit code $LASTEXITCODE"
@@ -405,17 +348,25 @@ try {
 
         Write-Host "Checking out $versionMode..." -ForegroundColor Cyan
 
-        # Fetch tags first so tag metadata is current before validation.
-        # Fault-tolerant: network failure just means we work with cached tag data.
-        try { git fetch --tags 2>$null } catch { <# informational stderr -- ignore #> }
-        if ($LASTEXITCODE -ne 0) {
-            Write-Warning "git fetch --tags returned exit code $LASTEXITCODE - continuing with cached tag data"
-        }
+        $pinnedOriginalCommit = (git rev-parse --verify HEAD)
+        if ($LASTEXITCODE -ne 0) { throw "Cannot record the original commit." }
+        $pinnedOriginalBranch = (git symbolic-ref --quiet HEAD)
+        if ($LASTEXITCODE -notin @(0, 1)) { throw "Cannot record the original branch or detached state." }
+        $pinnedHadPin = Test-Path -LiteralPath $VersionFile
+        if ($pinnedHadPin) { $pinnedOriginalPin = [IO.File]::ReadAllBytes($VersionFile) }
+        $pinPython = Resolve-PythonCommand
+        if (-not $pinPython) { throw "Python is required for pinned target validation." }
+        & $pinPython (Join-Path $CompoundGpidDir "scripts/cg_restore_installer_wrappers.py") --root $CompoundGpidDir
+        if ($LASTEXITCODE -ne 0) { throw "Pinned update stopped; tracked user changes were preserved." }
+
+        # A failed acquisition stops; do not hide Git errors behind cached tags.
+        Invoke-CgUpdateGit -Arguments @("fetch", "--tags")
 
         # Capture all tags once; derive latestTag, tagExists, and similar from the same list.
-        $allTags     = @(git tag --list "v*" 2>$null)
+        $allTags     = @(git tag --list "v*" --sort=-version:refname)
+        if ($LASTEXITCODE -ne 0) { throw "git tag --list failed with exit code $LASTEXITCODE" }
         # Filter to release-only once; reuse for latestTag and similar -- never show dev tags to users.
-        $releaseTags = @(Sort-CgReleaseTags @($allTags | Where-Object { $_ -cmatch $ReleaseTagPattern }))
+        $releaseTags = @($allTags | Where-Object { $_ -match $ReleaseTagPattern })
         $latestTag   = $releaseTags | Select-Object -First 1
 
         # Validate the tag exists before attempting checkout or persisting preference.
@@ -429,16 +380,29 @@ try {
             throw "Release '$versionMode' not found.$hint`n`nRun: cg-update --list   to see all available releases."
         }
 
-        # Checkout the tag. Detached HEAD is expected and normal for pinned mode.
-        # Use the PS5.1-safe try/catch + 2>$null pattern to avoid stderr promotion.
-        try { git checkout $versionMode 2>$null } catch { <# informational stderr -- ignore #> }
-        if ($LASTEXITCODE -ne 0) {
-            throw "git checkout $versionMode failed with exit code $LASTEXITCODE"
+        $requestedCommit = (git rev-parse --verify "refs/tags/$versionMode^{commit}")
+        if ($LASTEXITCODE -ne 0) { throw "Cannot resolve the requested tag commit." }
+        $pinnedCheckoutCommit = $requestedCommit
+        Invoke-CgUpdateGit -Arguments @("checkout", "--detach", "refs/tags/$versionMode")
+
+        foreach ($requiredScript in @(
+            "link.ps1", "link.sh", "update.ps1", "update.sh", "helpers.ps1",
+            "cg_generate_targets.py", "cg_project_manifest.py", "cg_project_projection.py",
+            "cg_kilo_preflight.py", "cg_kilo_copy.py", "cg_migrate_research_layout.py",
+            "research_layout.py", "secure_fs.py"
+        )) {
+            if (-not (Test-Path -LiteralPath (Join-Path $CompoundGpidDir "scripts/$requiredScript") -PathType Leaf)) {
+                throw "Required target script is missing: scripts/$requiredScript"
+            }
+        }
+        & $pinPython (Join-Path $CompoundGpidDir "scripts/cg_generate_targets.py") --root $CompoundGpidDir --all --dry-run
+        if ($LASTEXITCODE -ne 0) { throw "Pinned target generator validation failed with exit code $LASTEXITCODE" }
+        $validatedCommit = (git rev-parse --verify HEAD)
+        if ($LASTEXITCODE -ne 0 -or $validatedCommit -ne $pinnedCheckoutCommit) {
+            throw "HEAD changed during target validation; pin was not written."
         }
 
-        # Persist the version preference only after successful checkout.
-        # Writing before validation could leave .cg-version permanently corrupted
-        # if the tag doesn't exist or checkout fails.
+        # Pin publication follows target validation; later failure still rolls back.
         Set-Content -Path $VersionFile -Value $versionMode -NoNewline
 
         Write-Host ""
@@ -451,35 +415,52 @@ try {
     }
 
 } catch {
-    Write-Error "Update failed: $_"
-    exit 1
+    throw
 } finally {
     # Always return to the original directory, even on error
     Pop-Location
 }
 
+# Check consumer residue before replacing any ownership evidence. Older target
+# packages have no helper; their inherited behavior is not changed here.
+$retirementScript = Join-Path $CompoundGpidDir "scripts/cg_retire_native_evidence.py"
+if ($versionMode -ne "latest" -and (Test-Path -LiteralPath $retirementScript)) {
+    $retirementPython = Resolve-PythonCommand
+    if (-not $retirementPython) { throw "Python is required for native-evidence residue checks." }
+    & $retirementPython $retirementScript --root $CompoundGpidDir
+    if ($LASTEXITCODE -ne 0) { throw "Update is blocked by preserved native-evidence residue." }
+}
+if (-not $env:CG_INTERNAL_CALL -and -not $earlyUpdateIsSourceInstall -and
+    (Test-Path -LiteralPath $retirementScript)) {
+    $retirementPython = Resolve-PythonCommand
+    if (-not $retirementPython) { throw "Python is required for native-evidence residue checks." }
+    & $retirementPython $retirementScript --root (Get-Location).Path
+    if ($LASTEXITCODE -ne 0) { throw "Update is blocked by preserved native-evidence residue; review the diagnostics above." }
+}
+
 # --- Refresh copilot-instructions.md in the current project (if linked) ---
 # Junction-linked subdirectories update automatically. The generated
 # copilot-instructions.md must be refreshed explicitly.
-# We only update it if (a) the current directory looks like a linked project
-# and (b) the file carries the management marker.
+# The shared worker preserves edited receipts and backs up unreceipted legacy files.
 $cwdGithub      = Join-Path (Get-Location) ".github"
 $cwdCopilotDest = Join-Path $cwdGithub "copilot-instructions.md"
 
 # Skip refresh when called internally by cg-link (it handles its own Step 4 refresh)
-if (-not $env:CG_INTERNAL_CALL -and
+if (-not $env:CG_INTERNAL_CALL -and -not $earlyUpdateIsSourceInstall -and
     (Test-Path $cwdGithub) -and (Test-Path $cwdCopilotDest)) {
     # Pass (Get-Location) as ProjectRoot -- after Pop-Location, this is
     # the consumer project root, not the compound-gpid install directory.
-    $outcome = Update-ManagedInstructionsFile -Dest $cwdCopilotDest `
-        -Marker $CopilotInstructionsMarker `
-        -TemplateDir $CompoundGpidDir `
-        -ProjectRoot (Get-Location).Path
-    switch ($outcome) {
-        "refreshed"  { Write-Host "Refreshed copilot-instructions.md in current project." -ForegroundColor DarkGray }
-        "up-to-date" { Write-Host "copilot-instructions.md up to date." -ForegroundColor DarkGray }
-        "skipped"    { } # user-managed, no message needed
-    }
+    $copilotPython = Resolve-PythonCommand
+    if (-not $copilotPython) { throw "Python is required for Copilot instruction refresh." }
+    $copilotErrorAction = $ErrorActionPreference
+    try {
+        # PS 5.1 must not turn a kept-file warning on stderr into an update failure.
+        $ErrorActionPreference = "Continue"
+        & $copilotPython -B (Join-Path $CompoundGpidDir "scripts/cg_kilo_copy.py") `
+            --copilot-action update --source-root $CompoundGpidDir --project-root (Get-Location).Path 2>&1 |
+            ForEach-Object { $_.ToString() } | Out-Host
+    } finally { $ErrorActionPreference = $copilotErrorAction }
+    if ($LASTEXITCODE -ne 0) { throw "Copilot instruction refresh failed with exit code $LASTEXITCODE" }
 }
 
 # --- Refresh manifest-managed copied platform files in the current project ---
@@ -489,36 +470,29 @@ $cwdManifestPath = Join-Path (Get-Location) ".compound-gpid/managed-files.json"
 if (-not $env:CG_INTERNAL_CALL -and (Test-Path $cwdManifestPath)) {
     [void](Update-CgManagedPlatformFiles -ManifestPath $cwdManifestPath `
         -ProjectRoot (Get-Location).Path `
-        -CompoundGpidDir $CompoundGpidDir)
+        -CompoundGpidDir $CompoundGpidDir `
+        -ExcludeTargets @(".github/copilot-instructions.md"))
 }
 
-# Re-run the Kilo containment gate for an already linked consumer project. The
-# internal cg-link update is skipped here; link.ps1 runs the gate after copying
-# the fresh project-local Kilo projection.
+# Validate only legacy generated copies. Manifest projections have their own
+# ownership validation below; user-level skill roots are not generated copies.
+# Internal cg-link calls leave validation and the single note to link.ps1.
 $cwdKiloSkills = Join-Path (Get-Location) ".kilo\skills"
 $cwdHasCompatibilityRoot = (Test-Path -LiteralPath (Join-Path (Get-Location) ".agents\skills")) -or
     (Test-Path -LiteralPath (Join-Path (Get-Location) ".claude\skills"))
 $cwdIsSourceInstall = [System.IO.Path]::GetFullPath((Get-Location).Path).TrimEnd('\', '/') -ieq
     [System.IO.Path]::GetFullPath($CompoundGpidDir).TrimEnd('\', '/')
 if (-not $env:CG_INTERNAL_CALL -and -not $cwdIsSourceInstall -and
-    (Test-Path -LiteralPath $cwdKiloSkills) -and
-    ((Test-Path -LiteralPath (Join-Path (Get-Location) ".compound-gpid")) -or $cwdHasCompatibilityRoot)) {
+    (Test-Path -LiteralPath (Join-Path $cwdKiloSkills ".compound-gpid-managed-copy.json") -PathType Leaf)) {
     try {
-        if ($cwdHasCompatibilityRoot) {
-            $kiloPreflight = Invoke-CgKiloPreflight -ProjectRoot (Get-Location).Path -RequireCoexistence
-        } else {
-            $kiloPreflight = Invoke-CgKiloPreflight -ProjectRoot (Get-Location).Path -LocalOnly
-        }
+        $kiloPreflight = Invoke-CgKiloPreflight -ProjectRoot (Get-Location).Path -LocalOnly
         Write-Host "Kilo preflight: $($kiloPreflight.status)" -ForegroundColor DarkGray
-        if ($kiloPreflight.certified_launch_required) {
-            Write-Host "Certified launch required: cg-kilo (direct Kilo launches unsupported with compatibility roots)." -ForegroundColor Yellow
-        }
     } catch {
-        $preflightExitCode = 1
-        if ($_.Exception.Data.Contains("CgExitCode")) { $preflightExitCode = [int]$_.Exception.Data["CgExitCode"] }
-        Write-Error "Update is blocked by Kilo coexistence preflight: $_"
-        exit $preflightExitCode
+        throw "Update is blocked by local generated Kilo file validation: $_"
     }
+}
+if (-not $env:CG_INTERNAL_CALL -and (Test-Path -LiteralPath $cwdKiloSkills -PathType Container) -and $cwdHasCompatibilityRoot) {
+    Write-Host "Note: Kilo and compatibility skills coexist. Use cg-kilo for an optional contained launch." -ForegroundColor Yellow
 }
 
 Write-Host ""
@@ -737,8 +711,7 @@ if (-not $env:CG_INTERNAL_CALL -and -not $updateIsSourceInstall -and
         [void](Invoke-CgProjection -ProjectRoot $updateProjectRoot -SourceRoot $CompoundGpidDir -Mode sync)
         Write-Host "Project projection synced and verified in current project." -ForegroundColor DarkGray
     } catch {
-        Write-Error "Update is blocked by manifest projection failure: $_"
-        exit 1
+        throw "Update is blocked by manifest projection failure: $_"
     }
 }
 
@@ -748,18 +721,58 @@ Write-Host ""
 if ($versionMode -eq "latest") {
     Write-Host "Current version: main (latest)" -ForegroundColor DarkGray
 } else {
-    # Label dev tags (4-component, e.g. v0.1.0.9000) as 'dev-pinned' to signal
-    # pre-release code. Release pins show 'pinned'. Helps users know which context they're in.
     $isDevPin = $versionMode -match '^v\d+\.\d+\.\d+\.\d+$'
     if ($isDevPin) { $pinLabel = "dev-pinned" } else { $pinLabel = "pinned" }
     Write-Host "Current version: $versionMode ($pinLabel)" -ForegroundColor DarkGray
     Write-Host "Run: cg-update latest   to unpin and track main." -ForegroundColor DarkGray
-    # Hint when a newer release is available (only if we have fresh tag data)
-    if ($latestTag -and (Compare-CgReleaseTags $latestTag $versionMode) -gt 0) {
+    if ($latestTag -and $latestTag -ne $versionMode) {
         Write-Host ""
         Write-Host "Newer release available: $latestTag" -ForegroundColor Yellow
         Write-Host "Run: cg-update $latestTag" -ForegroundColor Yellow
     }
 }
-
 Write-Host ""
+} catch {
+    $updateFailure = $_
+    if ($pinnedCheckoutCommit) {
+        Push-Location $CompoundGpidDir
+        try {
+            $currentCommit = (git rev-parse --verify HEAD)
+            if ($LASTEXITCODE -ne 0 -or $currentCommit -ne $pinnedCheckoutCommit) {
+                throw "HEAD changed after checkout. No restore attempted. Expected $pinnedCheckoutCommit; current HEAD: $currentCommit; pin: $VersionFile"
+            }
+            if ($pinnedOriginalBranch) {
+                $branchCommit = (git rev-parse --verify $pinnedOriginalBranch)
+                if ($LASTEXITCODE -ne 0 -or $branchCommit -ne $pinnedOriginalCommit) {
+                    throw "Original branch changed; no restore attempted: $pinnedOriginalBranch"
+                }
+                $originalBranchName = $pinnedOriginalBranch.Substring("refs/heads/".Length)
+                try { Invoke-CgUpdateGit -Arguments @("checkout", $originalBranchName) }
+                catch { Write-Warning "Git reported a restore error: $_" }
+            } else {
+                try { Invoke-CgUpdateGit -Arguments @("checkout", "--detach", $pinnedOriginalCommit) }
+                catch { Write-Warning "Git reported a restore error: $_" }
+            }
+            $restoredCommit = (git rev-parse --verify HEAD)
+            if ($LASTEXITCODE -ne 0 -or $restoredCommit -ne $pinnedOriginalCommit) {
+                throw "Could not restore the original commit; pin remains unchanged."
+            }
+            $restoredBranch = (git symbolic-ref --quiet HEAD)
+            if ($LASTEXITCODE -notin @(0, 1) -or $restoredBranch -ne $pinnedOriginalBranch) {
+                throw "Could not restore the original branch/detached state; pin remains unchanged."
+            }
+            if ($pinnedHadPin) {
+                [IO.File]::WriteAllBytes($VersionFile, $pinnedOriginalPin)
+            } elseif (Test-Path -LiteralPath $VersionFile) {
+                Remove-Item -LiteralPath $VersionFile -Force
+            }
+            Write-Host "Restored original commit/branch and pin state." -ForegroundColor Yellow
+        } catch {
+            Write-Warning "Package restore stopped: $_"
+        } finally {
+            Pop-Location
+        }
+    }
+    Write-Error "Update failed: $updateFailure" -ErrorAction Continue
+    exit 1
+}

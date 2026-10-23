@@ -5,13 +5,13 @@ Run from repo root:
 """
 from __future__ import annotations
 
-import hashlib
 import json
 from pathlib import Path
 
 import pytest
 
 import cg_project_manifest as manifest
+from parsing_utils import LEGACY_CONFIG_NOTE
 from scripts.tests.test_project_skill_registry import (
     add_project_skill,
     write_project_overlay,
@@ -88,56 +88,23 @@ def _repo_root(tmp_path: Path) -> Path:
 
 
 class TestResolution:
-    def test_ownership_exclusion_is_bound_into_manifest_inventory(
-        self, tmp_path: Path
-    ) -> None:
+    @pytest.mark.parametrize("content", [
+        b"# Compound GPID - Local Configuration\r\n\r\nKeep this file.\r\n",
+        b"\xef\xbb\xbf# Old configuration\r\n",
+        b'\xef\xbb\xbf---\r\nsuites: [cg, cr]\r\nconfig-schema-version: "2"\r\n---\r\n',
+        b'---\r\nsuites: [cg, cr]\r\nconfig-schema-version: "2"\r\n---\r\n',
+    ])
+    def test_legacy_bom_and_valid_config_preserve_bytes(self, tmp_path: Path, content: bytes) -> None:
         root = _repo_root(tmp_path)
-        registry_path = root / ".github/shared/module-registry.json"
-        registry = json.loads(registry_path.read_text(encoding="utf-8"))
-        suite = next(item for item in registry["modules"] if item["id"] == "suite-cg")
-        suite["ownershipExclusions"] = [".github/prompts/cg-help.prompt.md"]
-        _write_json(registry_path, registry)
-
-        resolved = manifest.resolve_active_manifest(root)
-
-        assert resolved["selection"]["ownershipExclusions"] == {
-            "suite-cg": [".github/prompts/cg-help.prompt.md"]
-        }
-        assert manifest.validate_manifest(resolved) == []
-
-    def test_legacy_manifest_defaults_missing_ownership_exclusions(
-        self, tmp_path: Path
-    ) -> None:
-        root = _repo_root(tmp_path)
-        current = manifest.resolve_active_manifest(root)
-        legacy = json.loads(json.dumps(current))
-        del legacy["selection"]["ownershipExclusions"]
-
-        assert manifest.validate_manifest(legacy) == []
-        assert manifest.immutable_selection_fields(legacy) == (
-            manifest.immutable_selection_fields(current)
-        )
-
-    def test_empty_exclusions_preserve_legacy_plan_digest(self) -> None:
-        inputs = {
-            "closure": ["kernel", "suite-cg"],
-            "globs": [".github/prompts/cg-*.prompt.md"],
-            "platforms": ["kilo"],
-            "selectedProjectSkills": {},
-            "projectBundles": [],
-        }
-        legacy_digest = hashlib.sha256(
-            json.dumps(
-                inputs, sort_keys=True, separators=(",", ":")
-            ).encode("utf-8")
-        ).hexdigest()
-
-        assert manifest.desired_plan_digest(
-            inputs["closure"],
-            inputs["globs"],
-            inputs["platforms"],
-            ownership_exclusions={},
-        ) == legacy_digest
+        path = root / "compound-gpid.local.md"
+        path.write_bytes(content)
+        notes: list[str] = []
+        resolved = manifest.resolve_active_manifest(root, notes=notes)
+        legacy = b"---" not in content
+        assert resolved["selection"]["suites"] == (["cg"] if legacy else ["cg", "cr"])
+        assert resolved["selection"]["configSchemaVersion"] == "2"
+        assert notes == ([LEGACY_CONFIG_NOTE] if legacy else [])
+        assert path.read_bytes() == content
 
     def test_resolve_produces_complete_manifest(self, tmp_path: Path) -> None:
         root = _repo_root(tmp_path)
@@ -257,7 +224,13 @@ class TestResolution:
             "---\nlanguage: \"r\"\nsuites: [cg]\ncapabilities: [sas]\n---\n# config\n",
             encoding="utf-8",
         )
-        with pytest.raises(manifest.ManifestResolutionError, match="unknown explicit capability"):
+        with pytest.raises(manifest.ManifestResolutionError, match="compound-gpid.local.md line 4: unknown explicit capability"):
+            manifest.resolve_active_manifest(root)
+
+    def test_unknown_suite_names_file_and_line(self, tmp_path: Path) -> None:
+        root = _repo_root(tmp_path)
+        (root / "compound-gpid.local.md").write_text("---\nsuites: [missing]\n---\n", encoding="utf-8")
+        with pytest.raises(manifest.ManifestResolutionError, match="compound-gpid.local.md line 2:.*suite"):
             manifest.resolve_active_manifest(root)
 
     def test_unknown_platform_fails_closed(self, tmp_path: Path) -> None:
@@ -448,22 +421,6 @@ class TestValidation:
         assert ownership.read_text(encoding="utf-8").strip() == '{"user": "content"}'
 
 
-def _real_repo_is_dirty() -> bool:
-    """True when the repository worktree has uncommitted changes."""
-    import subprocess
-
-    status = subprocess.run(
-        ["git", "-C", str(REPO_ROOT), "status", "--porcelain"],
-        capture_output=True,
-        encoding="utf-8",
-        check=False,
-    )
-    return status.returncode != 0 or bool(status.stdout.strip())
-
-
-@pytest.mark.skipif(
-    _real_repo_is_dirty(), reason="real-repo tests require a clean worktree"
-)
 class TestRealRepo:
     def test_real_repo_resolves_and_validates(self) -> None:
         resolved = manifest.resolve_active_manifest(REPO_ROOT)

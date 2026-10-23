@@ -19,8 +19,11 @@ institutional operating constraints.
 
 ## 2. Install once per machine
 
-Requirements are Git, Python 3.8 or later, and a supported agent host. Windows
-also requires PowerShell 5.1 or later.
+Installation requires Git and Python 3.8 or later. Windows also requires
+PowerShell 5.1 or later. An agent host is needed to use its workflows, not to
+install, update, or link the files. These lifecycle operations do not require
+Kilo, a minimum Kilo version, or host certification. Optional `cg-kilo` version
+diagnostics produce warnings only and keep containment checks active.
 
 ### Windows
 
@@ -64,15 +67,14 @@ To narrow the install, provide a comma-separated platform list:
 cg-link --platforms copilot,opencode,kilo
 ```
 
-Existing user-owned platform files are preserved. Compound GPID skips a
-conflicting unit and reports what needs manual attention rather than replacing
-the file silently. Restart the IDE after linking.
+Existing user-owned platform files are preserved. Some conflicting units are
+skipped with manual-action diagnostics; manifest or projection failures can
+block linking instead. Review `cg-link --check` before retrying. Restart the IDE
+after linking.
 
 ## 4. Configure the project
 
-Choose the suite using [CG or CR](../modular-guide.md) before starting work.
-In a new project, the default suite is `cg`. Where the Technical setup prompt is
-eligible, run this in agent chat:
+In the agent chat, run:
 
 ```text
 /cg-setup
@@ -87,11 +89,9 @@ creates the required `.cg-docs/` structure and may create:
 - `compound-gpid.md`: optional committed project charter.
 - `compound-gpid.context.md`: optional committed project knowledge.
 
-An already configured CR-only project must not invoke an inactive CG prompt.
-Follow the [research activation path](../research/index.md#activate-the-research-suite)
-and check its configuration and knowledge structure instead. Workflow prompts
-need that structure. See [Configuration](../configuration/index.md) before
-changing managed or shared files manually.
+Do not skip setup. Workflow prompts depend on the `.cg-docs/` structure it
+creates. See [Configuration](../configuration/index.md) before changing managed
+or shared files manually.
 
 ## 5. Complete a first workflow
 
@@ -116,13 +116,10 @@ technical work, use the standard loop:
 /cg-brainstorm
 /cg-plan
 /cg-work
-/cg-review
+/cg-review light
 /cg-fix-triage
 /cg-compound
 ```
-
-Use `/cg-review` without an explicit depth for automatic risk routing. An
-explicit depth overrides that routing and must match the change's risk.
 
 Research work uses the parallel `/cr-*` loop, with research integrity,
 provenance, method, and publication checks owned by that suite:

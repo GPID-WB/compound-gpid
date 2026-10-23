@@ -334,17 +334,22 @@ function Resolve-PythonCommand {
         resolution is consistent across the plugin.
     .OUTPUTS
         System.String or $null -- the first working Python command name.
+    .PARAMETER NoBytecode
+        Use -B for read-only callers so probes do not create bytecode caches.
     .EXAMPLE
         $py = Resolve-PythonCommand
         if ($py) { & $py scripts/cg_generate_targets.py --all }
     #>
+    param([switch]$NoBytecode)
+    $probeArgs = @()
+    if ($NoBytecode) { $probeArgs = @("-B") }
     foreach ($candidate in @("python3", "python", "py")) {
         if (-not (Get-Command $candidate -ErrorAction SilentlyContinue)) { continue }
         try {
-            $ver = & $candidate --version 2>&1
+            $ver = & $candidate @probeArgs --version 2>&1
             $verStr = "$ver".Trim()
             if ($verStr -match '^Python\s+\d') {
-                & $candidate -c "import sys; raise SystemExit(0 if sys.version_info >= (3, 8) else 1)" 2>$null
+                & $candidate @probeArgs -c "import sys; raise SystemExit(0 if sys.version_info >= (3, 8) else 1)" 2>$null
                 if ($LASTEXITCODE -eq 0) { return $candidate }
             }
         } catch {
@@ -357,16 +362,16 @@ function Resolve-PythonCommand {
 function Invoke-CgKiloPreflight {
     <#
     .SYNOPSIS
-        Runs the certified Kilo coexistence preflight for one project.
+        Runs local generated-file validation or optional Kilo host diagnostics.
     .DESCRIPTION
         The Python worker owns host discovery, local projection validation, and
         stable status codes. This helper only resolves Python, invokes the
-        worker, and turns a failed JSON result into a terminating error so
-        link/update cannot claim a supported combined configuration.
+        worker, and turns a failed JSON result into a terminating error.
+        Install/update/link use LocalOnly and never query a Kilo host.
     .PARAMETER ProjectRoot
         Consumer project root to validate.
     .PARAMETER RequireCoexistence
-        Require the contained launch path for a selected Kilo+Codex/Claude link.
+        Require containment for optional host diagnostics, not installation or linking.
     .PARAMETER LocalOnly
         Validate the local Kilo projection without querying a host.
     .OUTPUTS
@@ -511,7 +516,8 @@ function Update-CgManagedPlatformFiles {
     param(
         [Parameter(Mandatory)][string]$ManifestPath,
         [Parameter(Mandatory)][string]$ProjectRoot,
-        [Parameter(Mandatory)][string]$CompoundGpidDir
+        [Parameter(Mandatory)][string]$CompoundGpidDir,
+        [string[]]$ExcludeTargets = @()
     )
 
     $result = [pscustomobject]@{
@@ -527,6 +533,7 @@ function Update-CgManagedPlatformFiles {
     $manifest = Read-CgManagedFilesManifest -ManifestPath $ManifestPath
     $manifestChanged = $false
     foreach ($targetRel in @($manifest.files.Keys)) {
+        if ($targetRel -in $ExcludeTargets) { continue }
         $record = $manifest.files[$targetRel]
         try {
             $targetPath = Resolve-CgContainedPath -Root $ProjectRoot -RelativePath $targetRel -Label "Managed target"
@@ -701,46 +708,6 @@ function New-CopilotInstructions {
     $sep = "`n"
     if ($output -match '\r\n') { $sep = "`r`n" }
     return $marker + $sep + $output
-}
-
-function Update-ManagedInstructionsFile {
-    <#
-    .SYNOPSIS
-        Refreshes a CG-managed copilot-instructions.md if content has changed.
-    .DESCRIPTION
-        Reads the file at Dest. If it contains the management marker, regenerates
-        content via New-CopilotInstructions and writes back only if content changed.
-        This is the testable core of update.ps1's refresh logic.
-    .PARAMETER Dest
-        Path to the copilot-instructions.md to refresh.
-    .PARAMETER Marker
-        The management marker string that identifies a CG-managed file.
-    .PARAMETER TemplateDir
-        Path to the Compound GPID installation directory (parent of .github\).
-    .PARAMETER ProjectRoot
-        Path to the consumer project root directory.
-    .OUTPUTS
-        System.String
-        "refreshed"  -- file was regenerated and written.
-        "up-to-date" -- content unchanged, no write performed.
-        "skipped"    -- file has no management marker; treated as user-managed.
-    #>
-    param(
-        [Parameter(Mandatory)][string]$Dest,
-        [Parameter(Mandatory)][string]$Marker,
-        [Parameter(Mandatory)][string]$TemplateDir,
-        [Parameter(Mandatory)][string]$ProjectRoot
-    )
-    $existing = Get-Content $Dest -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
-    if (-not ($existing -and $existing -match [regex]::Escape($Marker))) {
-        return "skipped"
-    }
-    $generated = New-CopilotInstructions -TemplateDir $TemplateDir -ProjectRoot $ProjectRoot
-    if ($generated -ne $existing) {
-        Set-Content -Path $Dest -Value $generated -Encoding UTF8
-        return "refreshed"
-    }
-    return "up-to-date"
 }
 
 function ConvertTo-CgHashtable {

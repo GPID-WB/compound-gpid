@@ -29,8 +29,12 @@ Thumbs.db
 .idea/
 .tmp/
 
-# Local proposal preserved unchanged in .cg-docs/archive/.
-/.kilo/plans/1789505624639-documentation-ia-ux-redesign.md
+# Private native configuration can contain credentials, at any depth.
+# Ignore only local names; already tracked distributed defaults stay tracked.
+kilo.json
+kilo.jsonc
+opencode.json
+opencode.jsonc
 
 # Python
 __pycache__/
@@ -110,7 +114,6 @@ pr-result.txt
 .compound-gpid/projection-ownership.json
 .compound-gpid/projection-transaction.json
 .compound-gpid/active/
-.compound-gpid/runtime/
 .compound-gpid/generations/
 .compound-gpid/staging/
 .compound-gpid/quarantine/

@@ -110,9 +110,9 @@ bash: cg-update: command not found
 
 This happens right after running the installer, even in a "new" terminal tab.
 
-**Cause**: `install.ps1` writes `C:\WBG\.compound-gpid\bin` (or `$env:USERPROFILE\.compound-gpid\bin`) to your user `PATH` in the Windows registry. However, VS Code's integrated terminal inherits its environment from the VS Code process, which in turn inherits from **Explorer.exe**. Explorer only re-reads the registry when it receives a `WM_SETTINGCHANGE` message. Until Explorer gets that broadcast, every new terminal tab — including ones opened after `install.ps1` ran — will be missing the new entry.
+**Cause**: `install.ps1` writes `C:\WBG\.compound-gpid\bin` (or `$env:USERPROFILE\.compound-gpid\bin`) to your user `PATH` in the Windows registry and broadcasts the change. An already-running IDE can still retain its old process environment, which new integrated-terminal tabs inherit.
 
-**Fix (fastest)**: Add the path to the current terminal session manually, then re-run `install.ps1` so the broadcast fires:
+**Fix (fastest)**: Add the path to the current terminal session manually:
 
 ```powershell
 # Uncomment your install path:
@@ -120,10 +120,11 @@ $cg = "C:\WBG\.compound-gpid"              # local machine (OneDrive)
 # $cg = "$env:USERPROFILE\.compound-gpid"    # remote server
 
 $env:PATH = "$cg\bin;" + $env:PATH
-& "$cg\install.ps1"
 ```
 
-After this, open a **brand new terminal tab** and `cg-update` will work.
+Commands are now available in that session. Restart VS Code / Positron and open
+a new terminal to pick up the registered PATH; a new tab in the old IDE process
+is not sufficient in every environment.
 
 **Fix (alternative)**: Sign out of Windows and sign back in. This forces Explorer to re-read the registry, so all new processes (including VS Code) inherit the updated PATH automatically.
 
@@ -187,24 +188,26 @@ ls ~/.compound-gpid/bin
 
 **Cause**: The `.cg-version` file in your install directory was manually edited, truncated, or written incorrectly.
 
-**Fix**: Delete the file and run `cg-update`. It defaults to `latest` (tracking `main`) when the file is absent.
+**Fix**: Back up the installation, including the existing version file, and
+recover the intended preference from your records or backup. Pass that version
+explicitly so the updater does not interpret a missing file as `latest`.
+The examples below use `v1.2.0.9024`; substitute your previously selected tag.
 
 **Windows:**
 ```powershell
-# Uncomment your install path:
-$cg = "C:\WBG\.compound-gpid"              # local machine (OneDrive)
-# $cg = "$env:USERPROFILE\.compound-gpid"    # remote server
-Remove-Item (Join-Path $cg ".cg-version") -ErrorAction SilentlyContinue
-cg-update
+cg-update v1.2.0.9024
 ```
 
 **macOS:**
 ```bash
-rm -f ~/.compound-gpid/.cg-version   # adjust path if you chose a different install location
-cg-update
+cg-update v1.2.0.9024
 ```
 
-After this, `cg-update` runs in `latest` mode. To re-pin, run `cg-update v0.2.0` (or your desired tag).
+An explicit tag takes precedence over a malformed version file and is saved
+only after checkout and target validation succeed. Do not delete the pin or
+guess a different version. If your intended preference was `latest`, restore
+it explicitly with `cg-update latest` instead. For an older installation, use
+the [Upgrade Guide](upgrade.md) before running the installed updater.
 
 ---
 
@@ -219,26 +222,12 @@ update.ps1 : Update failed: Updated 0 paths from the index
 
 **Cause**: The global clone has an old version of `update.ps1` that crashes on PowerShell 5.1 before it can pull the fix.
 
-**Fix — run these two commands once in any terminal** (substitute your install path: `C:\WBG\.compound-gpid` or `$env:USERPROFILE\.compound-gpid`):
-```powershell
-# Uncomment your install path:
-$cg = "C:\WBG\.compound-gpid"              # local machine (OneDrive)
-# $cg = "$env:USERPROFILE\.compound-gpid"    # remote server
-git -C $cg checkout . 2>$null              # suppress stderr (PS5.1 stderr-to-error promotion)
-git -C $cg pull --ff-only
-```
-
-This manually updates the global clone. After that, `cg-update` works normally from all projects.
-
-> **If `pull --ff-only` fails** with `fatal: Not possible to fast-forward`, the global clone has an unexpected local commit. Fix it with:
-> ```powershell
-> git -C $cg reset --hard origin/main
-> ```
-
-**Then run `cg-update` from each linked project** to apply any structural migrations:
-```powershell
-cg-update  # run from your project root
-```
+**Fix**: Preserve the old clone, its local changes, local commits, and
+`.cg-version`, then follow the fresh-clone procedure in the
+[Upgrade Guide](upgrade.md). Do not run `git checkout .` or reset to
+`origin/main`: those commands can discard work and replace a selected release.
+The guide runs migration from the new clone rather than relying on the old
+updater to repair itself. Review and relink each project as described there.
 
 If the issue persists, open a [GitHub Issue](https://github.com/GPID-WB/compound-gpid/issues).
 
@@ -248,12 +237,16 @@ If the issue persists, open a [GitHub Issue](https://github.com/GPID-WB/compound
 
 **Symptom**: `cg-update` fails with messages about untracked files, merge conflicts, or local changes in the global clone.
 
-**Fix**: Use the built-in repair command (works on both Windows and macOS):
-```bash
-cg-update --fix
-```
+**Fix**: Back up the entire installation first, including untracked files and
+`.cg-version`. Inspect `git status --short` and preserve intentional changes
+outside the managed clone before retrying with the same version preference.
+See [Repairing a broken installation](installation.md#repairing-a-broken-installation)
+for read-only diagnostic commands and pin-preserving recovery.
 
-This cleans untracked files, discards local changes, and pulls the latest code. If `--fix` itself fails (e.g. the installed copy is too old), see the [Repairing a broken installation](installation.md#repairing-a-broken-installation) section.
+Do not use `cg-update --fix` as a safe default: it deletes untracked files and
+discards tracked edits before pulling. It does not select a branch, so the pull
+also fails on a normal detached tag installation. Preserve a divergent clone
+rather than resetting it to `origin/main`.
 
 ---
 
@@ -267,7 +260,9 @@ Microsoft.PowerShell_profile.ps1 : Cannot dot-source this command because it was
 
 **Cause**: Your organization enforces Constrained Language Mode (CLM) via AppLocker or Windows Defender Application Control. OneDrive has redirected your Documents folder to a path CLM treats as untrusted, blocking profile dot-sourcing.
 
-**Fix**: Re-install using the current approach (batch wrappers on PATH; no new profile registration):
+**Fix**: For an older installation, follow the [Upgrade Guide](upgrade.md)
+instead of running its old installer or updater. A fresh installation uses
+batch wrappers on PATH, with no new profile registration:
 ```powershell
 # Clone to your chosen path (see Installation > Choose your install path)
 git clone https://github.com/GPID-WB/compound-gpid.git "C:\WBG\.compound-gpid"
@@ -305,73 +300,41 @@ profile manually if needed.
 
 ### Updating from an already-running old updater
 
-The updater must start with the old script that is already loaded in the
-current PowerShell process. Therefore, a `cg-update` process that was started
-from a pre-remediation installation cannot execute cleanup code that was added
-by the update it pulls during that same process. If the first run reports that
-the installation was updated but the old function still resolves in the
-current shell, start a new terminal or run `cg-update` once more. The second
-run starts the newly pulled updater and performs the profile cleanup. This
-limitation does not apply to a fresh shell that starts the current updater.
+An updater process cannot execute cleanup code introduced by the update it
+pulls during that same process. For an older installation, use the
+[Upgrade Guide](upgrade.md), not repeated runs of the old updater. After
+migration, open a fresh terminal and verify command resolution before using
+the new commands.
 
 ---
 
 ## Upgrading from `$env:USERPROFILE\.compound-gpid` (old default path, local OneDrive machines only)
 
-> **Remote server users**: `$env:USERPROFILE\.compound-gpid` is the correct path on a remote server -- no migration needed. Just re-run `install.ps1`.
+`$env:USERPROFILE\.compound-gpid` remains a supported install path; the current
+PATH wrappers do not depend on a redirected Documents profile. A local path
+such as `C:\WBG\.compound-gpid` is recommended when filesystem or organizational
+restrictions affect the existing location, not as a reason to delete a working
+installation.
 
-If you are on a **local OneDrive machine** and previously installed to `$env:USERPROFILE\.compound-gpid`, you must migrate to `C:\WBG\.compound-gpid`. Follow the steps below **before** running a fresh install.
-
-### Step A - Remove the old `$PROFILE` block
-
-Run the current installer from the new location -- it removes old managed
-blocks and exact legacy wrappers without changing the profile's encoding. If
-an old `cg-update` function shadows the PATH wrapper, invoke the wrapper
-directly so the profile is not loaded:
-
-```powershell
-$cg = "C:\WBG\.compound-gpid"              # local machine (OneDrive)
-# $cg = "$env:USERPROFILE\.compound-gpid"   # remote server
-Copy-Item -LiteralPath $PROFILE -Destination "$PROFILE.compound-gpid-backup" -Force
-& "$cg\bin\cg-update.cmd" latest
-```
-
-If the `bin\cg-update.cmd` wrapper does not exist, run `install.ps1` from the
-current clone instead. When the first direct run starts an older updater, run
-the same wrapper once more after the pull so the newly installed updater can
-perform the profile cleanup.
-
-### Step B - Remove the old `bin\` directory from PATH
-
-> **Note**: `[Environment]::GetEnvironmentVariable` is blocked in Constrained Language Mode. Use `reg.exe` instead -- it works in all language modes.
-
-```powershell
-$oldBin = "$env:USERPROFILE\.compound-gpid\bin"
-$currentPath = (reg query "HKCU\Environment" /v PATH 2>$null |
-    Where-Object { $_ -match 'PATH' }) -replace '.*REG_[A-Z_]+\s+', ''
-$newPath = ($currentPath.Trim() -split ';' |
-    Where-Object { $_ -and $_ -ne $oldBin }) -join ';'
-reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d $newPath /f
-```
-
-### Step C - Delete the old clone
-
-```powershell
-Remove-Item -Path "$env:USERPROFILE\.compound-gpid" -Recurse -Force
-```
-
-### Step D - Restart your terminal and IDE
-
-Restart your terminal **and VS Code / Positron** to pick up the PATH change, then proceed with the [Installation](installation.md) steps.
+For an older installation, follow the [Upgrade Guide](upgrade.md). It preserves
+the old clone as a backup and replaces the installation at its discovered or
+explicitly selected path. It does not relocate the install to another path.
+If relocation is also needed, preserve the entire old clone, `.cg-version`, and
+profile before changing paths; do not delete the clone or force `latest` as a
+cleanup step. Review PATH entries for shadowing commands, then restart the IDE
+and terminal and verify that commands resolve to the intended installation.
 
 ---
 
 ## `cg-link` fails with a junction/symlink error
 
-**Windows cause**: Windows requires Developer Mode to create directory junctions without admin rights on some configurations.
+**Windows cause**: A conflicting destination, insufficient directory permissions,
+or a filesystem/location restriction can prevent junction creation. Directory
+junctions are not symbolic links and do not require Developer Mode.
 
-**Windows fix**: Enable Developer Mode:
-Settings → System → For developers → Developer Mode → On
+**Windows fix**: Check the exact failing path and error. Preserve conflicting
+user files, verify write access, and use a local filesystem that supports
+junctions rather than enabling Developer Mode as a general fix.
 
 **macOS cause**: macOS symlink creation (`ln -s`) requires that the filesystem supports symlinks. On most APFS/HFS+ volumes this works without admin rights. Failures are most common when the install or project directory is on a network share, external FAT drive, or inside a cloud-synced folder that doesn't support symlinks (some configurations of OneDrive for Mac).
 
@@ -394,11 +357,11 @@ Then retry `cg-link` from your project root.
 .github/prompts is a real directory; skipping this unit.
 ```
 
-**Cause**: Compound GPID installs merge-safe platform units instead of replacing whole roots. If a selected unit already exists as a real directory or user-owned file, `cg-link` skips that unit and continues with the rest of the selected platforms.
+**Cause**: Compound GPID installs merge-safe platform units instead of replacing whole roots. Some conflicting real directories or user-owned files are preserved and skipped. Active-manifest resolution or projection failures can block linking instead; preservation does not guarantee that the other selected platforms completed.
 
 **Fix**:
 1. If the existing file/directory is intentional, leave it in place. For OpenCode config, apply the manual snippet printed by `cg-link` if needed.
-2. If you want Compound GPID to manage that unit, move or remove the existing path, then re-run `cg-link`.
+2. If you want Compound GPID to manage that unit, move the existing path to a reviewed backup, then run `cg-link --check` and resolve any remaining blockers before rerunning `cg-link`.
 3. To install only one platform, run `cg-link --platforms opencode`, `cg-link --platforms kilo`, or `cg-link --platforms copilot`.
 
 ---
@@ -675,7 +638,13 @@ open "$HOME/Library/Application Support/Code/logs"
 
 ## `cg-update` silently skips refreshing `copilot-instructions.md`
 
-**Symptom**: Running `cg-update` from a linked project completes without errors, but `copilot-instructions.md` is not refreshed even though the management marker is present.
+**Symptom**: Running `cg-update` from a linked project does not refresh `copilot-instructions.md`.
+
+First review ownership diagnostics: a modified receipted file is preserved even
+if the managed marker is present. The marker alone permits only the one-time
+legacy transition with a `.pre-9024.bak` backup, not repeated overwrites. If
+ownership is unchanged and the refresh is still skipped, check the environment
+variable below.
 
 **Cause**: `cg-link` sets `CG_INTERNAL_CALL=1` in the environment of the subprocess that calls `update` to suppress the refresh step (to avoid doing it twice). The variable is cleared when the subprocess exits. The symptom appears when `CG_INTERNAL_CALL` is set in your current shell session — for example, if you sourced `link.sh` (`. scripts/link.sh`) and it exited abnormally, or if the variable was set manually. Subsequent `cg-update` calls in that shell inherit the variable and silently skip the refresh.
 
