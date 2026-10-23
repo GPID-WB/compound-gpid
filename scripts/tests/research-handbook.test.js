@@ -41,15 +41,15 @@ test("Research Handbook local links remain inside the current docs tree", async 
 
 test("Research Handbook routes are complete and ordered", async () => {
   const navigation = await readNavigation();
-  const group = navigation.groups.find((entry) => entry.title === "Research Handbook");
+  const group = navigation.groups.find(entry => entry.pages.some(page => page.id === "research"));
   assert.ok(group, "Research Handbook navigation group is required");
   assert.deepEqual(group.pages.map((page) => page.file), [
     "research/index.md",
-    "research/philosophy.md",
     "research/first-workflow.md",
     "research/short-example.md",
     "research/lifecycle.md",
     "research/evidence-boundaries.md",
+    "research/philosophy.md",
   ]);
   for (const file of Object.values(handbookFiles)) {
     const content = await readHandbookFile(file);

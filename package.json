@@ -11,6 +11,9 @@
   "scripts": {
     "capture": "node scripts/evidence/capture.js",
     "test": "node --test scripts/evidence/tests/*.test.js",
-    "test:docs-automation": "node --test scripts/tests/rebuild-docs.test.js scripts/tests/generate-whats-new.test.js"
+    "test:docs-automation": "node --test scripts/tests/rebuild-docs.test.js scripts/tests/generate-whats-new.test.js",
+    "docs:build": "node scripts/rebuild-docs.js --all && node scripts/check-docs-site.js",
+    "docs:check": "node scripts/rebuild-docs.js --check && node scripts/check-docs-site.js",
+    "docs:test": "node --test scripts/tests/rebuild-docs.test.js scripts/tests/generate-whats-new.test.js scripts/tests/assemble-docs-site.test.js scripts/tests/check-docs-site.test.js scripts/tests/docs-preview-runtime.test.js scripts/tests/docs-discovery.test.js scripts/tests/docs-publication.test.js scripts/tests/research-handbook.test.js"
   }
 }

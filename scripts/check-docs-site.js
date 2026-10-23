@@ -230,7 +230,8 @@ async function loadCandidatePages() {
   const shellRoutes = [...html.matchAll(/#page=([a-z-]+)/g)].map((match) => match[1]);
   const unknownShellRoutes = shellRoutes.filter((id) => !ids.includes(id));
   if (unknownShellRoutes.length) throw new Error(`Site shell references unknown routes: ${unknownShellRoutes.join(", ")}.`);
-  const siteScript = await readFile(path.join(docsRoot, "assets", "site.js"), "utf8");
+  const scriptPaths = [...html.matchAll(/<script src="(assets\/[a-z-]+\.js)"><\/script>/g)].map(match => match[1]);
+  const siteScript = (await Promise.all(scriptPaths.map(file => readFile(path.join(docsRoot, file), "utf8")))).join("\n");
   for (const contract of ["navigation.json", "navigationRequest", "aria-current", "setNavigationOpen", "#{1,6}"]) {
     if (!siteScript.includes(contract)) throw new Error(`Site runtime is missing contract: ${contract}`);
   }
@@ -245,11 +246,11 @@ async function loadCandidatePages() {
   const combinedWorkflow = await readFile(path.join(root, ".github/workflows/docs-site-build.yml"), "utf8");
   const releasePagesWorkflow = await readFile(path.join(root, ".github/workflows/release-pages.yml"), "utf8");
   for (const action of ["actions/configure-pages", "actions/upload-pages-artifact", "actions/deploy-pages"]) {
-    if (!workflow.includes(action) || !releasePagesWorkflow.includes(action)) {
+    if (!releasePagesWorkflow.includes(action)) {
       throw new Error(`Pages controllers must use ${action}.`);
     }
   }
-  if (!workflow.includes("path: combined-artifact/site") || !releasePagesWorkflow.includes("path: release-artifact/site")) {
+  if (!releasePagesWorkflow.includes("path: release-artifact/site")) {
     throw new Error("Pages workflow must upload verified combined and release documentation artifacts.");
   }
 
@@ -313,12 +314,8 @@ async function loadCandidatePages() {
     throw new Error("doc-rebuild.yml must include hidden artifact files.");
   }
   const combinedContract = [
-    "name: Build combined documentation",
-    "branches: [dev]",
-    "Rebuild documentation",
-    "assemble-docs-site.js",
-    "combined-docs-site",
-    ".docs-build-metadata.json",
+    "name: Build combined documentation", "pull_request:", "branches: [main, dev]",
+    "npm run docs:build", "npm run docs:test", "docs-review-", "persist-credentials: false",
   ];
   for (const token of combinedContract) {
     if (!combinedWorkflow.includes(token)) throw new Error(`docs-site-build.yml must reference ${token}.`);
@@ -341,30 +338,16 @@ async function loadCandidatePages() {
   if (/pages:\s*write|id-token:\s*write/.test(releaseWorkflow)) {
     throw new Error("release-docs.yml must remain unprivileged.");
   }
-  const branchLocalPages = /push:\s*\n\s*branches:\s*\[dev\]/.test(workflow)
-    && !/workflow_run\s*:/.test(workflow);
-  const pagesContract = branchLocalPages
-    ? [
-      "push:",
-      "branches: [dev]",
-      "sources/main",
-      "scripts/assemble-docs-site.js",
-      "--main-root",
-      "--dev-root",
-      "actions/upload-pages-artifact",
-      "actions/deploy-pages",
-      "combined-artifact/site",
-    ]
-    : [
-      "Build combined documentation",
-      "actions/download-artifact",
-      "run-id:",
-      "assemble-docs-site.js",
-      "--verify",
-      "combined-artifact/site",
-    ];
+  const pagesContract = [
+    "name: Deploy documentation site", "push:", "branches: [dev]", "workflow_dispatch:",
+    "ref: ${{ github.sha }}", "persist-credentials: false", "rebuild-docs.js --all",
+    "legacy-dev-docs", ".docs-build-metadata.json", "include-hidden-files: true",
+  ];
   for (const token of pagesContract) {
     if (!workflow.includes(token)) throw new Error(`pages.yml must reference ${token}.`);
+  }
+  if (/pages:\s*write|id-token:\s*write|contents:\s*write|paths:/.test(workflow)) {
+    throw new Error("Development docs producer must remain read-only and run on every dev push.");
   }
   const releasePagesContract = [
     "Build release documentation",

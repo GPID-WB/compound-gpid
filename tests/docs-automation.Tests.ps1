@@ -70,14 +70,13 @@ Describe "Pages exact-artifact deployment contracts" {
         $pagesWorkflow | Should -Not -Match 'workflow_run:'
     }
 
-    It "builds and verifies the combined artifact with dev tooling" {
+    It "builds exact dev source without Pages credentials and uploads the publisher artifact" {
         $pagesWorkflow | Should -Match 'scripts/rebuild-docs\.js --all'
-        $pagesWorkflow | Should -Match 'scripts/assemble-docs-site\.js'
-        $pagesWorkflow | Should -Match 'path: combined-artifact/site'
-        $pagesWorkflow | Should -Match 'path:\s*sources/main'
-        $pagesWorkflow | Should -Match '--main-root'
-        $pagesWorkflow | Should -Match '--dev-root'
-        $pagesWorkflow | Should -Not -Match 'actions/download-artifact|run-id:'
+        $pagesWorkflow | Should -Match 'ref:\s*\$\{\{ github.sha \}\}'
+        $pagesWorkflow | Should -Match 'name: legacy-dev-docs'
+        $pagesWorkflow | Should -Match '\.docs-build-metadata\.json'
+        $pagesWorkflow | Should -Not -Match 'pages:\s*write|id-token:\s*write'
+        $pagesWorkflow | Should -Not -Match 'actions/deploy-pages|paths:'
     }
 
     It "supports unprivileged stable tag builds through the protected workflow-run controller" {
@@ -136,13 +135,11 @@ Describe "Pages exact-artifact deployment contracts" {
         $uploadIndex | Should -BeGreaterThan $byteMatchIndex
     }
 
-    It "does not download or rebuild a separate combined artifact" {
+    It "does not compose stable content in the development producer" {
         $pagesWorkflow | Should -Match 'rebuild-docs\.js --all'
-        $pagesWorkflow | Should -Match 'scripts/assemble-docs-site\.js'
-        $pagesWorkflow | Should -Match 'combined-artifact/site'
-        $pagesWorkflow | Should -Not -Match 'actions/download-artifact'
-        $pagesWorkflow | Should -Not -Match 'run-id:'
-        $pagesWorkflow | Should -Not -Match 'generate-whats-new\.js'
+        $pagesWorkflow | Should -Match 'legacy-dev-docs'
+        $pagesWorkflow | Should -Not -Match 'assemble-docs-site\.js|sources/main'
+        $pagesWorkflow | Should -Not -Match 'actions/download-artifact|run-id:'
     }
 
     It "builds tagged code without Pages credentials and deploys only the verified prebuilt artifact" {
