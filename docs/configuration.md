@@ -6,8 +6,13 @@ use the versioned module registry and manifest-driven skill loading.
 
 ## Strict Configuration Schema
 
-`compound-gpid.local.md` must contain a UTF-8 (no BOM) frontmatter block at the
-top of the file, using the restricted grammar below.
+When `compound-gpid.local.md` has no top YAML frontmatter block (including an
+empty, whitespace-only, or Markdown-notes file), reads use the default `cg` suite
+and config schema version `2` in memory only without rewriting the file.
+
+An initial UTF-8 BOM is ignored when reading configuration. If a top frontmatter
+block is present, it must use the restricted grammar below; malformed or
+unterminated blocks remain errors with filename and line diagnostics.
 
 ### Allowed forms
 
@@ -34,7 +39,7 @@ top of the file, using the restricted grammar below.
 
 ### Rejected forms (fail closed with line/field remediation)
 
-- UTF-8 BOM, tab characters, non-ASCII keys or control characters.
+- Tab characters, non-ASCII keys or control characters inside frontmatter.
 - Duplicate keys, duplicate `suites`/`capabilities` values.
 - Anchors (`&`), aliases (`*`), tags (`!`), block scalars (`|`, `>`).
 - Nested mappings/sequences, indented block sequences, inline nested values.
@@ -51,6 +56,7 @@ parser used for resolver and migration inputs.
 `suites: [cg]` to a config whose `suites:` field is genuinely absent (the only
 documented absent-field legacy default) and writes a `config-schema-version`
 marker. Malformed or unknown inputs fail closed; re-running is a no-op.
+`--check` never writes configuration or inserts default settings.
 
 ## Active Project Manifest
 
@@ -70,8 +76,10 @@ registry into one committed, reviewable artifact at
   (`copilot`, `claude-code`, `codex`, `opencode`, `kilo` by default).
 - `selection.sourceRevision` and `selection.desiredPlanDigest`: recorded source
   stamp and a deterministic digest of the desired projection plan.
-- `certifiedKiloLaunchRequired`: records the mandated `cg-kilo` certified launch
-  path for a combined Kilo+Codex configuration (set by link/update preflight).
+- `certifiedKiloLaunchRequired`: retained compatibility metadata, currently
+  `false`; manifest resolution does not certify a Kilo host. The optional
+  `cg-kilo` launcher checks containment at launch time, not during lifecycle
+  operations, and requires no minimum or certified host version.
 - `platformEligibility`: per-capability supported-platform eligibility.
 - `catalogRecords`: compact id/purpose/capability/availability rows.
 

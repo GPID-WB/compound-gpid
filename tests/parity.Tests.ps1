@@ -5,7 +5,7 @@
 # These tests catch the class of bug where a developer updates one script
 # (e.g. adds a new install unit to target-mapping.json) but forgets to update
 # the bash fallback lists. They run on both Windows and macOS CI because
-# the test itself is pure text-matching with no platform-specific code.
+# worker fixtures use temporary paths and do not run lifecycle wrappers.
 #
 # Run with: Invoke-Pester tests/parity.Tests.ps1
 
@@ -145,10 +145,51 @@ Describe "link.ps1 <-> link.sh parity" {
     }
 
     It "both scripts enforce exact ownership and project-contained copy targets" {
-        $linkPs1 | Should -Match 'Assert-CgManagedCopyTargetSafe'
-        $linkSh | Should -Match 'os\.path\.commonpath'
+        foreach ($content in @($linkPs1, $linkSh)) {
+            $content | Should -Match 'cg_kilo_copy\.py'
+            $content | Should -Match '\-\-source-root'
+            $content | Should -Match '\-\-project-root'
+        }
+        $linkPs1 | Should -Match 'Test-CgOwnedJunction -Item \$existing -ExpectedTarget \$source'
         $linkSh | Should -Match 'same_realpath'
         $linkSh | Should -Not -Match '\[\[\s+"\$existing_target"\s+==\s+\*compound-gpid\*\s+\]\]'
+        . (Join-Path $PSScriptRoot "../scripts/helpers.ps1")
+        $python = Resolve-PythonCommand
+        $code = @'
+import contextlib, hashlib, io, json, pathlib, sys
+sys.path.insert(0, sys.argv[1])
+import cg_kilo_copy as worker
+root = pathlib.Path(sys.argv[2])
+source, project = root / 'source', root / 'project'
+source.mkdir(parents=True)
+project.mkdir()
+(source / 'unit').mkdir()
+(source / 'unit/file.txt').write_bytes(b'new')
+outside = root / 'outside.txt'
+outside.write_bytes(b'keep')
+for source_path, target_path in [('unit', '../outside'), ('../source/unit', 'unit'),
+                                 (str(source / 'unit'), 'unit'), ('unit', str(root / 'outside'))]:
+    try:
+        worker.sync_units(source, project, [(source_path, target_path)], [])
+    except (ValueError, worker.CopyError, worker.secure_fs.SecureMutationError):
+        pass
+    else:
+        raise AssertionError((source_path, target_path))
+assert list(project.iterdir()) == []
+assert outside.read_bytes() == b'keep'
+target = project / 'unit'
+target.mkdir()
+(target / 'stale.txt').write_bytes(b'keep')
+(target / worker.MARKER_NAME).write_text(json.dumps({
+    'schemaVersion': 1, 'source': 'other-unit',
+    'files': {'stale.txt': hashlib.sha256(b'keep').hexdigest()}}))
+assert worker._read_marker(target, 'unit') is None
+with contextlib.redirect_stderr(io.StringIO()):
+    worker.sync_units(source, project, [('unit', 'unit')], [])
+assert (target / 'stale.txt').read_bytes() == b'keep'
+'@
+        & $python -B -c $code (Join-Path $repoRoot "scripts") (Join-Path $TestDrive "copy-ownership")
+        $LASTEXITCODE | Should -Be 0
     }
 
     It "both scripts stage compatibility links before replacing working links" {
@@ -158,36 +199,34 @@ Describe "link.ps1 <-> link.sh parity" {
         $linkSh | Should -Match 'os\.replace\(sys\.argv\[1\], sys\.argv\[2\]\)'
     }
 
-    It "POSIX managed-copy failures are explicitly propagated" {
-        $linkSh | Should -Match 'managed-copy synchronization failed'
-        $linkSh | Should -Match 'copy-directory installation failed'
-        $linkSh | Should -Match 'migrated legacy managed file'
-    }
-}
-
-Describe "cg-help - managed runtime ignore and install parity" {
-    It "both managed-ignore emission blocks contain the same runtime entries" {
-        $ps1 = Get-Content (Join-Path $repoRoot "scripts/link.ps1") -Raw
-        $sh = Get-Content (Join-Path $repoRoot "scripts/link.sh") -Raw
-        $psBlock = [regex]::Match($ps1, '(?s)foreach \(\$runtimeEntry in @\((.*?)\)\)').Groups[1].Value
-        $shBlock = [regex]::Match($sh, '(?s)printf ''%s\\n'' \\\r?\n(\s*''\.compound-gpid/.*?)(?:>> "\$entries_file")').Groups[1].Value
-        $pattern = '["''](\.compound-gpid/[^"'']+)["'']'
-        $psEntries = @([regex]::Matches($psBlock, $pattern) | ForEach-Object { $_.Groups[1].Value } | Sort-Object -Unique)
-        $shEntries = @([regex]::Matches($shBlock, $pattern) | ForEach-Object { $_.Groups[1].Value } | Sort-Object -Unique)
-        $psEntries | Should -Contain '.compound-gpid/runtime/'
-        $shEntries | Should -Contain '.compound-gpid/runtime/'
-        ($psEntries -join "`n") | Should -Be ($shEntries -join "`n")
-        $psEntries | Should -Not -Contain '.compound-gpid/active-manifest.json'
-        (Get-Content (Join-Path $repoRoot '.gitignore')) | Should -Contain '.compound-gpid/runtime/'
-    }
-
-    It "both installers register the same committed help entrypoint" {
-        foreach ($relative in @('bin/cg-help', 'bin/cg-help.cmd')) {
-            Test-Path (Join-Path $repoRoot $relative) | Should -Be $true
-            (Get-Content (Join-Path $repoRoot $relative) -Raw) | Should -Match 'cg_help\.py'
-        }
-        (Get-Content (Join-Path $repoRoot 'install.ps1') -Raw) | Should -Match 'bin\\cg-help\.cmd'
-        (Get-Content (Join-Path $repoRoot 'scripts/install.sh') -Raw) | Should -Match 'bin/cg-help'
+    It "both scripts explicitly propagate shared managed-copy failures" {
+        $linkPs1 | Should -Match '(?s)\$copyOutput = @\(& \$copyPython -B .*cg_kilo_copy\.py.*if \(\$LASTEXITCODE -ne 0\)\s*\{\s*throw '
+        $linkSh | Should -Match '(?s)if COPY_OUTPUT=.*cg_kilo_copy\.py.*; then\s+printf.*else\s+printf.*print_error.*\s+exit 1\s+fi'
+        . (Join-Path $PSScriptRoot "../scripts/helpers.ps1")
+        $python = Resolve-PythonCommand
+        $code = @'
+import contextlib, io, pathlib, sys
+from unittest.mock import patch
+sys.path.insert(0, sys.argv[1])
+import cg_kilo_copy as worker
+root = pathlib.Path(sys.argv[2])
+source, project = root / 'source', root / 'project'
+source.mkdir(parents=True)
+project.mkdir()
+(source / 'unit').mkdir()
+(source / 'unit/file.txt').write_bytes(b'new')
+errors = io.StringIO()
+with patch.object(worker, '_write_target', side_effect=OSError('injected write failure')):
+    with contextlib.redirect_stderr(errors):
+        status = worker.main(['--source-root', str(source), '--project-root', str(project),
+                              '--directory', 'unit', 'unit'])
+assert status == 1
+assert 'ERROR: injected write failure' in errors.getvalue()
+assert not (project / 'unit/file.txt').exists()
+assert not (project / 'unit' / worker.MARKER_NAME).exists()
+'@
+        & $python -B -c $code (Join-Path $repoRoot "scripts") (Join-Path $TestDrive "copy-failure")
+        $LASTEXITCODE | Should -Be 0
     }
 }
 
@@ -324,10 +363,47 @@ Describe "link copy-directory semantics parity note" {
     $linkSh  = Get-Content (Join-Path $repoRoot "scripts/link.sh")  -Raw -Encoding UTF8
 
     It "both scripts preserve user edits through checksum-managed copies" {
-        $linkPs1 | Should -Match 'both Windows and POSIX preserve user edits'
-        $linkSh  | Should -Match 'preserve user edits, remove only unchanged stale managed files'
-        $linkPs1 | Should -Match '\.compound-gpid-managed-copy\.json'
-        $linkSh  | Should -Match '\.compound-gpid-managed-copy\.json'
+        foreach ($content in @($linkPs1, $linkSh)) {
+            $content | Should -Match 'cg_kilo_copy\.py'
+            $content | Should -Match '\-\-source-root'
+            $content | Should -Match '\-\-project-root'
+        }
+        . (Join-Path $PSScriptRoot "../scripts/helpers.ps1")
+        $python = Resolve-PythonCommand
+        $code = @'
+import contextlib, hashlib, io, json, pathlib, sys
+sys.path.insert(0, sys.argv[1])
+import cg_kilo_copy as worker
+root = pathlib.Path(sys.argv[2])
+source, project = root / 'source', root / 'project'
+source.mkdir(parents=True)
+project.mkdir()
+unit, target = source / 'unit', project / 'unit'
+unit.mkdir()
+for name in ('edited.txt', 'stale-edited.txt', 'stale-clean.txt', 'updated.txt'):
+    (unit / name).write_bytes(b'baseline')
+worker.sync_units(source, project, [('unit', 'unit')], [])
+for name in ('edited.txt', 'stale-edited.txt'):
+    (target / name).write_bytes(b'user edit')
+(target / 'unrecorded.txt').write_bytes(b'user file')
+for name in ('edited.txt', 'updated.txt'):
+    (unit / name).write_bytes(b'new release')
+for name in ('stale-edited.txt', 'stale-clean.txt'):
+    (unit / name).unlink()
+with contextlib.redirect_stderr(io.StringIO()):
+    worker.sync_units(source, project, [('unit', 'unit')], [])
+assert (target / 'edited.txt').read_bytes() == b'user edit'
+assert (target / 'stale-edited.txt').read_bytes() == b'user edit'
+assert (target / 'unrecorded.txt').read_bytes() == b'user file'
+assert (target / 'updated.txt').read_bytes() == b'new release'
+assert not (target / 'stale-clean.txt').exists()
+files = json.loads((target / worker.MARKER_NAME).read_text())['files']
+assert files['edited.txt'] == hashlib.sha256(b'baseline').hexdigest()
+assert files['updated.txt'] == hashlib.sha256(b'new release').hexdigest()
+assert 'stale-clean.txt' not in files
+'@
+        & $python -B -c $code (Join-Path $repoRoot "scripts") (Join-Path $TestDrive "copy-preservation")
+        $LASTEXITCODE | Should -Be 0
     }
 }
 
@@ -361,9 +437,10 @@ Describe "cg-brain-init registration parity" {
         $installPs1 | Should -Match 'cg-brain-init\.cmd'
     }
 
-    It "install.sh creates cg-brain-init wrapper in bin/" {
+    It "install.sh registers the committed cg-brain-init wrapper in bin/" {
         $installSh = Get-Content (Join-Path $repoRoot "scripts/install.sh") -Raw -Encoding UTF8
-        $installSh | Should -Match 'cg-brain-init'
+        $installSh | Should -Match 'skill index brain-init'
+        $installSh | Should -Match 'Registered:.*WRAPPER'
     }
 
     It "bin/cg-token-audit exists in the repo" {
@@ -381,10 +458,12 @@ Describe "cg-brain-init registration parity" {
         $installPs1 | Should -Match 'cg-token-audit\.cmd'
     }
 
-    It "install.sh creates cg-token-audit wrapper in bin/" {
+    It "install.sh registers the committed cg-token-audit wrapper in bin/" {
         $installSh = Get-Content (Join-Path $repoRoot "scripts/install.sh") -Raw -Encoding UTF8
         $installSh | Should -Match 'cg-token-audit'
-        $installSh | Should -Match 'cg_audit_context\.py'
+        $installSh | Should -Match 'publish-markdown token-audit'
+        $wrapper = Get-Content (Join-Path $repoRoot "bin/cg-token-audit") -Raw -Encoding UTF8
+        $wrapper | Should -Match 'cg_audit_context\.py'
     }
 }
 
@@ -399,13 +478,13 @@ Describe "cg-skill registration parity" {
 
     It "registers cg-skill in both installers" {
         ($installPs1 -match 'cg-skill\.cmd') | Should -Be $true
-        ($installSh -match 'CG_SKILL_SRC') | Should -Be $true
+        ($installSh -match 'for cmd in link unlink update kilo skill index') | Should -Be $true
         ($installSh -match 'cg-skill') | Should -Be $true
     }
 
-    It "removes the retired discovery wrapper in both installers" {
+    It "keeps Windows cleanup unchanged and preserves unowned POSIX wrappers" {
         ($installPs1 -match 'Removed retired wrapper') | Should -Be $true
-        ($installSh -match 'rm -f.*cg-find-skill') | Should -Be $true
+        $installSh | Should -Not -Match '(?m)^\s*rm -f.*cg-find-skill'
     }
 }
 

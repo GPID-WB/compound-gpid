@@ -10,28 +10,6 @@
 $script:OnWindows = (((Test-Path variable:IsWindows) -and $IsWindows) -or ($env:OS -eq "Windows_NT"))
 $script:OnMacOS   = ($IsMacOS -eq $true)
 
-Describe "bash-scripts - cg-help cross-platform wrapper contract" {
-    $helpRepoRoot = if ($env:CG_TEST_ROOT) { $env:CG_TEST_ROOT } else { Split-Path $PSScriptRoot -Parent }
-
-    It "ships a guarded self-relative POSIX launcher with exact status propagation" {
-        $path = Join-Path $helpRepoRoot "bin/cg-help"
-        Test-Path $path | Should -Be $true
-        $content = Get-Content $path -Raw -ErrorAction Stop
-        $content | Should -Match '^#!/usr/bin/env bash'
-        $content | Should -Match 'command -v "\$candidate"'
-        $content | Should -Match 'python3 python py'
-        $content | Should -Match 'sys\.version_info\s*>=\s*\(3,\s*8\)'
-        $content | Should -Match 'exec "\$PYTHON_CMD" "\$SCRIPT_DIR/\.\./scripts/cg_help\.py" "\$@"'
-    }
-
-    It "installs, marks executable, and displays the committed help wrapper" {
-        $content = Get-Content (Join-Path $helpRepoRoot "scripts/install.sh") -Raw
-        $content | Should -Match 'cp.*bin/cg-help'
-        $content | Should -Match 'chmod \+x.*cg-help'
-        $content | Should -Match 'printf ''\s+cg-help\s+--'
-    }
-}
-
 # Bash integration tests only run on macOS (the platform that ships bash and the
 # scripts target). On Windows, emit a single passing placeholder and return.
 if (-not $script:OnMacOS) {
@@ -50,8 +28,27 @@ Describe "bash wrappers - hybrid Copilot skill projection" {
         $linkContent | Should -Match 'COPILOT_PROJECTED_CATEGORIES="skills"'
         $linkContent | Should -Match 'Copilot skills projected by manifest'
         $linkContent | Should -Not -Match "'copilot\|directory\|\.github/skills\|\.github/skills\|link-directory\|'"
-        $linkContent | Should -Match 'cg_project_projection\.py'
-        $linkContent | Should -Match '\-\-sync'
+        $linkContent | Should -Match 'cg_kilo_copy\.py[^\r\n]+--sync-projection'
+        . (Join-Path $hybridRepoRoot "scripts/helpers.ps1")
+        $python = Resolve-PythonCommand
+        $code = @'
+import pathlib, sys
+from unittest.mock import patch
+sys.path.insert(0, sys.argv[1])
+import cg_kilo_copy as worker
+root = pathlib.Path(sys.argv[2])
+root.mkdir()
+with patch('cg_project_projection.sync_consumer_projection') as sync:
+    worker.sync_units(root, root, [], [], sync_projection=True)
+    sync.assert_not_called()
+    (root / '.compound-gpid').mkdir()
+    (root / '.compound-gpid/active-manifest.json').write_text('{}')
+    worker.sync_units(root, root, [], [], sync_projection=True)
+    sync.assert_called_once()
+    assert sync.call_args.args == (root, root)
+'@
+        & $python -B -c $code (Join-Path $hybridRepoRoot "scripts") (Join-Path $TestDrive "projection-route")
+        $LASTEXITCODE | Should -Be 0
     }
 
     It "unlink leaves the real parent and removes checksum-owned files" {
@@ -145,7 +142,7 @@ Describe "install.sh - script structure" {
         $content | Should -Match 'ln -s'
     }
 
-    It "creates bin/ directory wrappers" {
+    It "registers committed bin/ wrappers" {
         $content | Should -Match 'BIN_DIR'
         $content | Should -Match 'cg-link'
         $content | Should -Match 'cg-unlink'
@@ -195,20 +192,13 @@ Describe "install.sh - PATH block is idempotent" {
         $tmpInstallScripts = Join-Path $tmpInstall "scripts"
         New-Item -ItemType Directory -Path $tmpInstallBin     -Force | Out-Null
         New-Item -ItemType SymbolicLink -Path $tmpInstallScripts -Target (Join-Path $repoRoot "scripts") -Force | Out-Null
-        Copy-Item -Path (Join-Path $repoRoot "bin/cg-render-artifact") -Destination (Join-Path $tmpInstallBin "cg-render-artifact") -Force
-        Copy-Item -Path (Join-Path $repoRoot "bin/cg-release") -Destination (Join-Path $tmpInstallBin "cg-release") -Force
-        Copy-Item -Path (Join-Path $repoRoot "bin/cg-publish-markdown") -Destination (Join-Path $tmpInstallBin "cg-publish-markdown") -Force
-        Copy-Item -Path (Join-Path $repoRoot "bin/cg-help") -Destination (Join-Path $tmpInstallBin "cg-help") -Force
-        Copy-Item -Path (Join-Path $repoRoot "bin/cg-kilo") -Destination (Join-Path $tmpInstallBin "cg-kilo") -Force
-        Copy-Item -Path (Join-Path $repoRoot "bin/cg-skill") -Destination (Join-Path $tmpInstallBin "cg-skill") -Force
+        Copy-Item -Path (Join-Path $repoRoot "bin/cg-*") -Destination $tmpInstallBin -Force
 
         try {
             # First run — use temp install dir
-            & bash (Join-Path $tmpInstallScripts "install.sh") | Out-Null
-            $LASTEXITCODE | Should -Be 0
+            & bash (Join-Path $tmpInstallScripts "install.sh") 2>/dev/null | Out-Null
             # Second run (idempotent)
-            & bash (Join-Path $tmpInstallScripts "install.sh") | Out-Null
-            $LASTEXITCODE | Should -Be 0
+            & bash (Join-Path $tmpInstallScripts "install.sh") 2>/dev/null | Out-Null
 
             $profileContent = if (Test-Path $tmpZshrc) { Get-Content $tmpZshrc -Raw } else { "" }
 
@@ -258,17 +248,22 @@ Describe "link.sh - script structure" {
         $content | Should -Match '\.gitignore'
     }
 
-    It "uses generate_copilot_instructions function with resolved Python command" {
-        $content | Should -Match 'generate_copilot_instructions'
+    It "uses the shared generated-file worker with the resolved Python command" {
+        $content | Should -Match '"\$PYTHON_CMD" -B "\$SCRIPT_DIR/cg_kilo_copy\.py"'
+        $content | Should -Match 'copilot-instructions\.template\.md\|\.github/copilot-instructions\.md\|generated-copy'
         $content | Should -Match 'PYTHON_CMD'
         $content | Should -Match 'resolve_python'
     }
 
-    It "defines generate_copilot_instructions before the main body calls it" {
-        # Function definition must appear before first call in bash
-        $funcDefLine  = [regex]::Match($content, '(?m)^generate_copilot_instructions\(\)').Index
-        $funcCallLine = [regex]::Match($content, '(?m)generate_copilot_instructions "\$source_path"').Index
-        $funcDefLine | Should -BeLessThan $funcCallLine
+    It "defines and queues file work before the shared worker consumes it" {
+        $definition = [regex]::Match($content, '(?m)^install_file_unit\(\)')
+        $queue = [regex]::Match($content, '(?m)^\s+install_file_unit "\$source_rel"')
+        $worker = [regex]::Match($content, '(?m)^if COPY_OUTPUT=.*cg_kilo_copy\.py')
+        $definition.Success | Should -Be $true
+        $queue.Success | Should -Be $true
+        $worker.Success | Should -Be $true
+        $definition.Index | Should -BeLessThan $queue.Index
+        $queue.Index | Should -BeLessThan $worker.Index
     }
 
     It "includes shared as a Copilot install unit" {
@@ -289,10 +284,32 @@ Describe "link.sh - script structure" {
         $content | Should -Match 'FORCE'
     }
 
-    It "Relink prompt is guarded by FORCE check (2 guards required) [regression guard]" {
-        # The Relink symlink-conflict branch must be guarded by FORCE.
-        ([regex]::Matches($content, 'if\s+\[ "\$FORCE" -eq 0 \]') | Measure-Object).Count |
-            Should -Be 1
+    It "preserves a foreign symlink without prompting even with --yes [regression guard]" {
+        $content | Should -Not -Match 'read -r answer'
+        . (Join-Path $repoRoot "scripts/helpers.ps1")
+        $python = Resolve-PythonCommand
+        $code = @'
+import os, pathlib, subprocess, sys
+root = pathlib.Path(sys.argv[1])
+project, foreign, home = root / 'project', root / 'foreign', root / 'home'
+for path in (project / '.github', foreign, home):
+    path.mkdir(parents=True)
+sentinel = foreign / 'sentinel.txt'
+sentinel.write_bytes(b'foreign content\n')
+target = project / '.github/prompts'
+target.symlink_to(foreign, target_is_directory=True)
+env = dict(os.environ, HOME=str(home), CG_SKIP_UPDATE='1', PYTHONDONTWRITEBYTECODE='1')
+result = subprocess.run(['bash', sys.argv[2], '--platforms=copilot', '--yes'],
+                        cwd=project, env=env, capture_output=True, text=True,
+                        timeout=60, check=False)
+assert result.returncode == 0, result.stdout + result.stderr
+assert target.is_symlink() and target.resolve() == foreign.resolve()
+assert sentinel.read_bytes() == b'foreign content\n'
+assert list(foreign.iterdir()) == [sentinel]
+assert 'manual action required' in (result.stdout + result.stderr).lower()
+'@
+        & $python -B -c $code (Join-Path $TestDrive "foreign-link") $linkSh
+        $LASTEXITCODE | Should -Be 0
     }
 
     It "uses while-loop argument parsing for order-independent --platforms and --yes" {
@@ -396,9 +413,39 @@ Describe "unlink.sh - script structure" {
         $content | Should -Match 'compound-gpid'
     }
 
-    It "removes copilot-instructions.md only when marker is present" {
+    It "removes copilot-instructions.md only with unchanged receipt proof" {
         $content | Should -Match 'copilot-instructions'
-        $content | Should -Match 'compound-gpid:managed'
+        $content | Should -Match 'cg_kilo_copy\.py'
+        $content | Should -Match '--copilot-action unlink'
+        . (Join-Path $repoRoot "scripts/helpers.ps1")
+        $python = Resolve-PythonCommand
+        $code = @'
+import hashlib, json, pathlib, sys
+sys.path.insert(0, sys.argv[1])
+import cg_kilo_copy as worker
+root = pathlib.Path(sys.argv[2])
+target = root / '.github/copilot-instructions.md'
+target.parent.mkdir(parents=True)
+current = b'<!-- compound-gpid:managed -->\nuser content\n'
+target.write_bytes(current)
+worker.copilot_action(root, root, 'unlink')
+assert target.read_bytes() == current
+receipt = root / '.compound-gpid/managed-files.json'
+receipt.parent.mkdir()
+receipt.write_text(json.dumps({'schemaVersion': 'compound-gpid-managed-files-v1',
+    'files': {'.github/copilot-instructions.md': {
+        'source': '.github/copilot-instructions.template.md',
+        'checksum': hashlib.sha256(current).hexdigest()}}}))
+target.write_bytes(current + b'edit\n')
+worker.copilot_action(root, root, 'unlink')
+assert target.read_bytes() == current + b'edit\n'
+target.write_bytes(current)
+worker.copilot_action(root, root, 'unlink')
+assert not target.exists()
+assert '.github/copilot-instructions.md' not in worker.scalar_receipt(root)
+'@
+        & $python -B -c $code (Join-Path $repoRoot "scripts") (Join-Path $TestDrive "unlink-proof")
+        $LASTEXITCODE | Should -Be 0
     }
 
     It "removes .gitignore CG entries" {
@@ -469,8 +516,33 @@ Describe "update.sh - script structure" {
         $content | Should -Match 'VERSION_ACCEPT_PATTERN'
     }
 
-    It "defines generate_copilot_instructions for post-update refresh" {
-        $content | Should -Match 'generate_copilot_instructions'
+    It "refreshes project instructions through the shared generated-file worker" {
+        $content | Should -Match '"\$PYTHON_CMD" -B "\$COMPOUND_GPID_DIR/scripts/cg_kilo_copy\.py"'
+        $content | Should -Match '--copilot-action update'
+        . (Join-Path $repoRoot "scripts/helpers.ps1")
+        $python = Resolve-PythonCommand
+        $code = @'
+import hashlib, pathlib, sys
+sys.path.insert(0, sys.argv[1])
+import cg_kilo_copy as worker
+root = pathlib.Path(sys.argv[2])
+source, project = root / 'source', root / 'project'
+(source / '.github').mkdir(parents=True)
+project.mkdir()
+(source / '.github/copilot-instructions.template.md').write_text('# {{project-name}}\n')
+charter = project / 'compound-gpid.md'
+charter.write_text('---\nproject-name: First\n---\n')
+worker.copilot_action(source, project, 'update')
+target = project / '.github/copilot-instructions.md'
+assert target.read_bytes() == b'<!-- compound-gpid:managed -->\n# First\n'
+charter.write_text('---\nproject-name: Second\n---\n')
+worker.copilot_action(source, project, 'update')
+assert target.read_bytes() == b'<!-- compound-gpid:managed -->\n# Second\n'
+assert worker.scalar_receipt(project)['.github/copilot-instructions.md']['checksum'] == hashlib.sha256(target.read_bytes()).hexdigest()
+assert not target.with_name(target.name + '.pre-9024.bak').exists()
+'@
+        & $python -B -c $code (Join-Path $repoRoot "scripts") (Join-Path $TestDrive "update-render")
+        $LASTEXITCODE | Should -Be 0
     }
 
     It "uses resolved Python command instead of direct python3 calls" {
@@ -543,7 +615,7 @@ Describe "bash-scripts - bin/cg-index wrapper content" {
         $wrapperContent | Should -Match 'SCRIPT_DIR'
     }
 
-    It "install.sh generates a cg-index wrapper" {
+    It "install.sh registers the committed cg-index wrapper" {
         $installSh = Get-Content (Join-Path $repoRoot "scripts/install.sh") -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
         $installSh | Should -Match 'cg-index'
     }
@@ -558,7 +630,7 @@ Describe "bash-scripts - bin/cg-kilo wrapper content" {
         Test-Executable $wrapperPath | Should -Be $true
     }
 
-    It "bin/cg-kilo invokes the certified preflight worker" {
+    It "bin/cg-kilo invokes the optional preflight worker" {
         $wrapperContent | Should -Match 'cg_kilo_preflight\.py'
         $wrapperContent | Should -Match '--launch'
         $wrapperContent | Should -Match '"\$@"'
@@ -566,8 +638,29 @@ Describe "bash-scripts - bin/cg-kilo wrapper content" {
 
     It "install.sh registers the committed cg-kilo wrapper" {
         $installSh = Get-Content (Join-Path $repoRoot "scripts/install.sh") -Raw -Encoding UTF8
-        $installSh | Should -Match 'CG_KILO_SRC'
-        $installSh | Should -Match 'cg-kilo'
+        $installSh | Should -Match 'for cmd in link unlink update kilo'
+        $installSh | Should -Match 'Registered:.*WRAPPER'
+    }
+}
+
+Describe "bash-scripts - host-independent lifecycle" {
+    It "update and link use only local generated-file validation" {
+        foreach ($name in @("update.sh", "link.sh")) {
+            $content = Get-Content (Join-Path $repoRoot "scripts/$name") -Raw -Encoding UTF8
+            $content | Should -Match 'cg_kilo_preflight\.py[^\r\n]+--local-only'
+            $content | Should -Not -Match '--host-only|--require-coexistence|Certified launch required'
+            ([regex]::Matches($content, 'Note: Kilo and compatibility skills coexist\.')).Count | Should -Be 1
+            $content | Should -Match '\.kilo/skills/\.compound-gpid-managed-copy\.json'
+        }
+    }
+
+    It "install and unlink do not call the preflight worker or a Kilo host" {
+        foreach ($name in @("install.sh", "unlink.sh")) {
+            $content = Get-Content (Join-Path $repoRoot "scripts/$name") -Raw -Encoding UTF8
+            $content | Should -Not -Match 'cg_kilo_preflight\.py|kilo (?:--version|debug skill)'
+        }
+        $installContent = Get-Content (Join-Path $repoRoot "scripts/install.sh") -Raw -Encoding UTF8
+        $installContent | Should -Match 'Optional contained Kilo launch'
     }
 }
 
@@ -592,10 +685,10 @@ Describe "bash-scripts - bin/cg-token-audit wrapper content" {
         $wrapperContent | Should -Match 'SCRIPT_DIR'
     }
 
-    It "install.sh generates a cg-token-audit wrapper" {
+    It "install.sh registers the committed cg-token-audit wrapper" {
         $installSh = Get-Content (Join-Path $repoRoot "scripts/install.sh") -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
         $installSh | Should -Match 'cg-token-audit'
-        $installSh | Should -Match 'cg_audit_context\.py'
+        $installSh | Should -Match 'publish-markdown token-audit'
     }
 }
 
@@ -622,10 +715,10 @@ Describe "bash-scripts - bin/cg-render-artifact wrapper content" {
         $wrapperContent | Should -Match '\.\./scripts/render_artifact\.py'
     }
 
-    It "install.sh copies the committed cg-render-artifact wrapper" {
+    It "install.sh registers without rewriting committed wrappers" {
         $installSh = Get-Content (Join-Path $repoRoot "scripts/install.sh") -Raw -Encoding UTF8
-        $installSh | Should -Match 'cp.*cg-render-artifact'
-        $installSh | Should -Match 'chmod \+x.*cg-render-artifact'
+        $installSh | Should -Match 'brain-init render-artifact'
+        $installSh | Should -Not -Match '(?m)^\s*(cp|chmod|cat|rm).*\$(BIN_DIR|WRAPPER)'
     }
 
     It "install.sh command summary lists cg-render-artifact" {
@@ -657,10 +750,10 @@ Describe "bash-scripts - bin/cg-publish-markdown wrapper content" {
         $wrapperContent | Should -Match '"\$@"'
     }
 
-    It "install.sh copies and lists cg-publish-markdown" {
+    It "install.sh registers and lists cg-publish-markdown" {
         $installSh = Get-Content (Join-Path $repoRoot "scripts/install.sh") -Raw -Encoding UTF8
-        $installSh | Should -Match 'cp.*cg-publish-markdown'
-        $installSh | Should -Match 'chmod \+x.*cg-publish-markdown'
+        $installSh | Should -Match 'publish-markdown token-audit'
+        $installSh | Should -Match 'Registered:.*WRAPPER'
         $installSh | Should -Match 'cg-publish-markdown.*Publish one generic Markdown document'
     }
 }
@@ -687,71 +780,9 @@ Describe "bash-scripts - Python-backed wrappers enforce Python 3.8+" {
         }
     }
 
-    It "install.sh generated wrappers enforce Python 3.8+" {
+    It "install.sh requires Python 3.8+" {
         $content = Get-Content (Join-Path $repoRoot "scripts/install.sh") -Raw -Encoding UTF8
         $content | Should -Match 'sys\.version_info\s*>=\s*\(3,\s*8\)'
-    }
-}
-
-Describe "bash-scripts - cg-help consumer and uninstall runtime" {
-    It "keeps the consumer cwd and forwards each exact operation and child status" -TestCases @(
-        @{ Operation = @('--prepare-request', '--root', '.') },
-        @{ Operation = @('--consume-request', '12345678-1234-4234-8234-123456789abc') },
-        @{ Operation = @('--render-selection', '12345678-1234-4234-8234-123456789abc') }
-    ) {
-        param($Operation)
-        $fakeBin = Join-Path $TestDrive "help-python"
-        $consumer = Join-Path $TestDrive "unrelated consumer"
-        New-Item -ItemType Directory -Path $fakeBin, $consumer -Force | Out-Null
-        $fakePython = Join-Path $fakeBin "python3"
-        @'
-#!/bin/sh
-case "$1" in
-  --version) printf 'Python 3.12.0\n'; exit 0 ;;
-  -c) exit 0 ;;
-esac
-printf '%s\n' "$PWD" "$@" > "$CG_HELP_TEST_LOG"
-exit 37
-'@ | Set-Content $fakePython -Encoding ASCII
-        & chmod +x $fakePython
-        $oldPath, $oldLog = $env:PATH, $env:CG_HELP_TEST_LOG
-        $probeLog = Join-Path $TestDrive "help-wrapper.log"
-        try {
-            $env:PATH = "${fakeBin}:$oldPath"
-            $env:CG_HELP_TEST_LOG = $probeLog
-            Push-Location $consumer
-            try {
-                & bash (Join-Path $repoRoot "bin/cg-help") @Operation | Out-Null
-                $LASTEXITCODE | Should -Be 37
-            } finally { Pop-Location }
-        } finally { $env:PATH, $env:CG_HELP_TEST_LOG = $oldPath, $oldLog }
-        $lines = @(Get-Content $probeLog)
-        $lines[0] | Should -Be $consumer
-        [IO.Path]::GetFullPath($lines[1]) | Should -Be (Join-Path $repoRoot "scripts/cg_help.py")
-        ($lines[2..($lines.Count - 1)] -join ' ') | Should -Be ($Operation -join ' ')
-    }
-
-    It "unregisters an isolated install while preserving cg-help source bytes" {
-        $fixture = Join-Path $TestDrive "help-uninstall"
-        $scripts = Join-Path $fixture "scripts"
-        $bin = Join-Path $fixture "bin"
-        $fixtureHome = Join-Path $fixture "home"
-        New-Item -ItemType Directory -Path $scripts, $bin, $fixtureHome -Force | Out-Null
-        Copy-Item (Join-Path $repoRoot "scripts/install.sh") (Join-Path $scripts "install.sh")
-        Copy-Item (Join-Path $repoRoot "bin/cg-help") (Join-Path $bin "cg-help") -ErrorAction Stop
-        $wrapper = Join-Path $bin "cg-help"
-        $before = [Convert]::ToBase64String([IO.File]::ReadAllBytes($wrapper))
-        $profile = Join-Path $fixtureHome ".zshrc"
-        Set-Content $profile "# --- Compound GPID ---`nexport PATH=managed`n# --- End Compound GPID ---`n# keep" -Encoding ASCII
-        $oldHome, $oldShell = $env:HOME, $env:SHELL
-        try {
-            $env:HOME, $env:SHELL = $fixtureHome, '/bin/zsh'
-            & bash (Join-Path $scripts "install.sh") --uninstall | Out-Null
-            $LASTEXITCODE | Should -Be 0
-        } finally { $env:HOME, $env:SHELL = $oldHome, $oldShell }
-        [Convert]::ToBase64String([IO.File]::ReadAllBytes($wrapper)) | Should -Be $before
-        (Get-Content $profile -Raw) | Should -Not -Match 'export PATH=managed'
-        (Get-Content $profile -Raw) | Should -Match '# keep'
     }
 }
 

@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "tag": "v1.2.0.9025",
+  "publishedAt": "2026-10-21T13:50:02Z",
+  "releaseDate": "2026-10-21",
+  "name": "v1.2.0.9025 - Default Settings",
+  "url": "https://github.com/GPID-WB/compound-gpid/releases/tag/v1.2.0.9025",
+  "sourceUrl": "https://github.com/GPID-WB/compound-gpid/tree/v1.2.0.9025",
+  "sections": [
+    {
+      "kind": "fixed",
+      "title": "Default settings",
+      "entries": [
+        "Older projects could stop at cg-link when compound-gpid.local.md contained notes but no settings block.",
+        "cg-link now continues with default settings and can also read files that start with a UTF-8 BOM.",
+        "Your file is not changed.",
+        "Run /cg-setup later to add settings when you need them.",
+        "cg-link no longer adds duplicate .gitignore lines and removes prior duplicates.",
+        "cg-link no longer keeps old internal copies under .compound-gpid."
+      ]
+    },
+    {
+      "kind": "new",
+      "title": "Upgrade to 9025",
+      "entries": [
+        "From v1.2.0.9024 on Windows or macOS: outside linked project directories (for example, from your home directory), run cg-update v1.2.0.9025, then run the NEW cg-link once per project, keeping its adapter selection. Use the explicit version, not latest.",
+        "From older versions: follow docs/upgrade.md to migrate and install v1.2.0.9024 first, then run cg-update v1.2.0.9025 and the NEW cg-link once per project. Guide: https://github.com/GPID-WB/compound-gpid/blob/v1.2.0.9024/docs/upgrade.md",
+        "Keep installation and project backups. If linking reports blocked or preserved files, keep them and review the reported manual action; do not delete adapter folders or use unlink to bypass conflicts."
+      ]
+    },
+    {
+      "kind": "internal",
+      "title": "Tests added and publication gates",
+      "entries": [
+        "Tests cover defaults, BOM, strict errors, read-only checking, and Windows/macOS upgrade/update fixtures. The installed 9024 updater runs from a neutral directory before NEW linking in valid-config and legacy-config projects; its in-project stale-manifest guard is unchanged. Coverage additions do not qualify every historical installation or a real Kilo host.",
+        "Every four-part vX.Y.Z.N tag is Reserve-only: a non-draft GitHub pre-release with make_latest=false. No Finalize, documentation deployment, or attestation applies. Required payload dates are preparation timestamps, not publication proof. Publication requires green local, push, and FULL CI gates."
+      ]
+    }
+  ]
+}

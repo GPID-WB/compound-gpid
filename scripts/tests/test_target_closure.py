@@ -215,20 +215,9 @@ Load `.github/shared/completion.contract.md`.
     assert f"{target['outputPaths']['shared']}/completion.contract.md" in command
 
 
-@pytest.mark.parametrize("source_file", [
-    ".github/prompts/cg-demo.prompt.md",
-    ".github/shared/README.MD",
-    ".github/shared/README.Markdown",
-])
-def test_unresolved_required_canonical_runtime_dependency_is_rejected(
-    tmp_path: Path, source_file: str,
-) -> None:
+def test_unresolved_required_canonical_runtime_dependency_is_rejected(tmp_path: Path) -> None:
     source = tmp_path / "source"
-    _canonical_fixture(source)
-    body = "Load `.github/shared/missing.contract.md`."
-    if source_file.endswith(".prompt.md"):
-        body = "---\ndescription: Demo command\n---\n\n" + body
-    _write(source, source_file, body)
+    _canonical_fixture(source, "Load `.github/shared/missing.contract.md`.")
 
     with pytest.raises(ValueError, match=r"missing\.contract\.md|unresolved|dependency"):
         _plan(source, _mapping_target("claude-code"))

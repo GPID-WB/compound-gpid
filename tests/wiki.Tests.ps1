@@ -702,11 +702,9 @@ Describe "docs/_wiki.yml - reference.md is auto-ownership for command-reference 
     }
 
     It "reference.md entry registers isolated technical and research command sections" {
-        foreach ($section in @('help-commands', 'help-research-commands', 'help-shell-commands')) {
-            ($ymlContent -match ('(?ms)^\s{6}- id: "' + $section + '"\r?\n\s{8}managed: true\r?\n\s{8}generator: "help-catalog"')) | Should -Be $true
-        }
-        ($ymlContent -match 'files: \["reference.md", "reference/commands.md"\]') | Should -Be $true
-        ($ymlContent -match 'cg_generate_help_catalog.py --check-docs') | Should -Be $true
+        ($ymlContent -match '(?ms)^\s*-\s+id:\s*[''"]{0,1}reference[''"]{0,1}(?:(?!^\s{2}-\s+id:).)*?^\s{6}-\s+id:\s*[''"]{0,1}commands[''"]{0,1}(?:(?!^\s{2}-\s+id:).)*?managed:\s*true') | Should -Be $true
+        ($ymlContent -match '(?ms)^\s*-\s+id:\s*[''"]{0,1}reference[''"]{0,1}(?:(?!^\s{2}-\s+id:).)*?^\s{6}-\s+id:\s*[''"]{0,1}research-commands[''"]{0,1}(?:(?!^\s{2}-\s+id:).)*?managed:\s*true') | Should -Be $true
+        ($ymlContent -match 'shell-commands') | Should -Be $false
     }
 }
 
@@ -725,10 +723,9 @@ Describe "docs/reference.md - contains cg:auto section markers for plugin-manage
     }
 
     It "docs/reference.md has non-overlapping technical and research command markers" {
-        ($content -match '<!--\s*cg:auto:help-commands\s*-->') | Should -Be $true
-        ($content -match '<!--\s*cg:auto:help-research-commands\s*-->') | Should -Be $true
-        ($content -match '<!--\s*cg:auto:help-shell-commands\s*-->') | Should -Be $true
-        ([regex]::Matches($content, '<!--\s*cg:auto:end\s*-->').Count) | Should -Be 3
+        ($content -match '<!--\s*cg:auto:commands\s*-->') | Should -Be $true
+        ($content -match '<!--\s*cg:auto:research-commands\s*-->') | Should -Be $true
+        ($content -match 'cg:auto:shell-commands') | Should -Be $false
     }
 }
 

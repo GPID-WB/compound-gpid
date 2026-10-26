@@ -10,17 +10,6 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-$onWindows = (((Test-Path variable:IsWindows) -and $IsWindows) -or ($env:OS -eq "Windows_NT"))
-if (-not $onWindows) {
-    Write-Error @"
-link.ps1 is Windows-only (it uses directory junctions).
-On macOS/Linux, use link.sh instead:
-  cg-link
-(which calls scripts/link.sh automatically via the bash wrapper in bin/)
-"@
-    exit 1
-}
-
 $CompoundGpidDir = Split-Path $PSScriptRoot -Parent
 $ProjectRoot = (Get-Location).Path
 $TargetMappingPath = Join-Path $CompoundGpidDir ".github/shared/target-mapping.json"
@@ -29,7 +18,10 @@ $CopilotInstructionsMarker = "<!-- compound-gpid:managed -->"
 $CopiedDirectoryMarkerName = ".compound-gpid-managed-copy.json"
 $KiloCompatMirrorRootRel = ".compound-gpid/kilo-compat-skills"
 
-. (Join-Path $PSScriptRoot "helpers.ps1")
+function Show-CgLinkUsage {
+    Write-Host "Usage: cg-link [--check] [--platforms <copilot,claude-code,codex,opencode,kilo|all>] [--yes] [--help]"
+    Write-Host "--check reports the current project without update or writes. Exit: 0 nonblocking, 1 manual action or block, 2 usage."
+}
 
 function Resolve-CgLinkArguments {
     param([object[]]$Arguments)
@@ -37,25 +29,33 @@ function Resolve-CgLinkArguments {
     # $null here via ValueFromRemainingArguments; .Count on $null throws under
     # Set-StrictMode -Version Latest.
     if ($null -eq $Arguments) { $Arguments = @() }
-    $result = @{ Force = $false; Platforms = $null }
+    $result = @{ Force = $false; Platforms = $null; Check = $false; Help = $false }
     for ($i = 0; $i -lt $Arguments.Count; $i++) {
         $arg = [string]$Arguments[$i]
         if ($arg -in @("--yes", "-y", "-Force", "--force")) {
             $result.Force = $true
+        } elseif ($arg -eq "--check") {
+            $result.Check = $true
+        } elseif ($arg -in @("--help", "-h")) {
+            $result.Help = $true
         } elseif ($arg -like "--platform=*") {
             $result.Platforms = $arg.Substring("--platform=".Length)
+            if ([string]::IsNullOrWhiteSpace($result.Platforms)) { throw "Missing platform value" }
         } elseif ($arg -like "--platforms=*") {
             $result.Platforms = $arg.Substring("--platforms=".Length)
+            if ([string]::IsNullOrWhiteSpace($result.Platforms)) { throw "Missing platform value" }
         } elseif ($arg -like "-Platforms=*") {
             $result.Platforms = $arg.Substring("-Platforms=".Length)
+            if ([string]::IsNullOrWhiteSpace($result.Platforms)) { throw "Missing platform value" }
         } elseif ($arg -in @("--platform", "--platforms", "-Platforms")) {
             if ($i + 1 -ge $Arguments.Count) { throw "Missing value after $arg" }
             $i++
             $result.Platforms = [string]$Arguments[$i]
-        } elseif ($arg -eq "") {
-            continue
+            if ([string]::IsNullOrWhiteSpace($result.Platforms) -or $result.Platforms.StartsWith("-")) {
+                throw "Missing value after $arg"
+            }
         } else {
-            Write-Warning "Unrecognized argument '$arg' - ignoring."
+            throw "Unrecognized argument '$arg'"
         }
     }
     return $result
@@ -84,12 +84,40 @@ function Resolve-CgPlatforms {
         }
     }
 
-    foreach ($item in $unknown) { Write-Warning "Unknown platform '$item' - skipping." }
+    if ($unknown.Count -gt 0) { throw "Unknown platform(s): $($unknown -join ', ')" }
     if ($selected.Count -eq 0) {
         throw "No valid platforms selected. Supported platforms: $($supported -join ', ')"
     }
     return @($selected)
 }
+
+try {
+    $argsParsed = Resolve-CgLinkArguments -Arguments $RawArgs
+    $Force = [bool]$argsParsed.Force
+    $selectedPlatforms = Resolve-CgPlatforms -PlatformsValue $argsParsed.Platforms
+} catch {
+    Write-Host "ERROR: $_"
+    Show-CgLinkUsage
+    exit 2
+}
+if ($argsParsed.Help) { Show-CgLinkUsage; exit 0 }
+
+$onWindows = (((Test-Path variable:IsWindows) -and $IsWindows) -or ($env:OS -eq "Windows_NT"))
+if (-not $onWindows) {
+    Write-Host "link.ps1 is Windows-only. On macOS/Linux, use scripts/link.sh."
+    exit 1
+}
+. (Join-Path $PSScriptRoot "helpers.ps1")
+if ($argsParsed.Check) {
+    $checkPython = Resolve-PythonCommand -NoBytecode
+    if (-not $checkPython) { Write-Host "ERROR: Python 3.8+ is required for --check."; exit 1 }
+    $checkArgs = @("--root", $ProjectRoot, "--source-root", $CompoundGpidDir, "--platforms", ($selectedPlatforms -join ","))
+    if ($Force) { $checkArgs += "--force" }
+    & $checkPython -B (Join-Path $PSScriptRoot "cg_link_check.py") @checkArgs
+    exit $LASTEXITCODE
+}
+
+$script:CopyArgs = New-Object System.Collections.ArrayList
 
 function Get-CgTargetRoot {
     param([string]$RelativePath)
@@ -208,31 +236,6 @@ function Resolve-CgContainedCopyPath {
     return $resolved
 }
 
-function Test-CgCopyPathHasReparsePoint {
-    param(
-        [string]$Base,
-        [string]$ResolvedPath
-    )
-
-    # A reparse point in ANY ancestor (not just the leaf) could redirect a
-    # managed write or stale-file removal outside $Base (e.g. a `..`-backed
-    # marker key could turn a delete into an escape). Missing intermediate
-    # components are skipped so pre-materialization checks stay correct.
-    $baseFull = Get-CgNormalizedFullPath $Base
-    $relative = $ResolvedPath.Substring($baseFull.Length).TrimStart([char[]]@('\', '/'))
-    $current = $baseFull
-    foreach ($part in @($relative -split '[\\/]')) {
-        if (-not $part) { continue }
-        $current = Join-Path $current $part
-        if (-not (Test-Path -LiteralPath $current)) { continue }
-        $item = Get-Item -LiteralPath $current -Force
-        if (($item.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) {
-            return $true
-        }
-    }
-    return $false
-}
-
 function Assert-CgManagedCopyTargetSafe {
     param([string]$Target)
 
@@ -249,7 +252,7 @@ function Assert-CgManagedCopyTargetSafe {
         $current = Join-Path $current $part
         if (-not (Test-Path -LiteralPath $current)) { continue }
         $item = Get-Item -LiteralPath $current -Force
-        if (($item.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) {
+        if ($item.LinkType -in @("SymbolicLink", "Junction")) {
             throw "Managed-copy target crosses a reparse point: $current"
         }
     }
@@ -267,7 +270,7 @@ function Read-CgCopiedDirectoryManifest {
     $markerPath = Resolve-CgContainedCopyPath -Base $Target -RelativePath $CopiedDirectoryMarkerName
     if (-not (Test-Path -LiteralPath $markerPath -PathType Leaf)) { return $null }
     $markerItem = Get-Item -LiteralPath $markerPath -Force
-    if (($markerItem.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) {
+    if ($markerItem.LinkType -in @("SymbolicLink", "Junction")) {
         Write-Warning "  Managed-copy marker is a reparse point; preserving the directory."
         return $null
     }
@@ -329,167 +332,19 @@ function Read-CgCopiedDirectoryManifest {
     return @{ source = (ConvertTo-CgSlashPath $SourceRel); files = $files }
 }
 
-function Write-CgCopiedDirectoryManifest {
-    param(
-        [string]$Target,
-        [string]$SourceRel,
-        [hashtable]$Files
-    )
-
-    $markerPath = Resolve-CgContainedCopyPath -Base $Target -RelativePath $CopiedDirectoryMarkerName
-    if (Test-Path -LiteralPath $markerPath) {
-        $markerItem = Get-Item -LiteralPath $markerPath -Force
-        if (($markerItem.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) {
-            throw "Refusing to write a managed-copy marker through a reparse point: $markerPath"
-        }
-    }
-    $data = [ordered]@{
-        schemaVersion = 1
-        source = (ConvertTo-CgSlashPath $SourceRel)
-        files = $Files
-    }
-    $json = ($data | ConvertTo-Json -Depth 4) + "`n"
-    $utf8NoBom = New-Object -TypeName System.Text.UTF8Encoding -ArgumentList $false
-    $writeId = [System.Guid]::NewGuid().ToString('N')
-    $temporaryPath = "$markerPath.tmp-$writeId"
-    $backupPath = "$markerPath.bak-$writeId"
-    try {
-        # Write to a sibling temp file on the same volume, then atomically
-        # replace so a crash mid-write can never leave a half-written marker.
-        [System.IO.File]::WriteAllText($temporaryPath, $json, $utf8NoBom)
-        if (Test-Path -LiteralPath $markerPath) {
-            [System.IO.File]::Replace($temporaryPath, $markerPath, $backupPath)
-        } else {
-            [System.IO.File]::Move($temporaryPath, $markerPath)
-        }
-    } finally {
-        if (Test-Path -LiteralPath $temporaryPath) {
-            Remove-Item -LiteralPath $temporaryPath -Force
-        }
-        if (Test-Path -LiteralPath $backupPath) {
-            Remove-Item -LiteralPath $backupPath -Force
-        }
-    }
-}
-
-function Sync-CgCopiedDirectory {
-    param(
-        [string]$Source,
-        [string]$SourceRel,
-        [string]$Target,
-        [string]$TargetRel,
-        [hashtable]$PreviousManifest
-    )
-
-    # Write policy: a destination is overwritten only when it is absent,
-    # byte-identical to the source, or byte-identical to the previous managed
-    # checksum (a revert to the last managed state). Anything else is treated
-    # as user-owned and preserved with a warning. Files recorded in the
-    # previous manifest but absent from the source are removed STALE only when
-    # their current bytes still match the previously recorded checksum.
-    #
-    # copy-directory semantics: both Windows and POSIX preserve user edits and
-    # remove only checksum-matching stale managed files. Implementations differ
-    # by shell, but the manifest contract is shared and pinned by parity tests.
-    Assert-CgManagedCopyTargetSafe -Target $Target
-    if (-not (Test-Path -LiteralPath $Target)) {
-        New-Item -ItemType Directory -Path $Target -Force | Out-Null
-    }
-    $sourceRoot = Get-CgNormalizedFullPath $Source
-    $sourcePaths = @{}
-    $nextFiles = @{}
-    foreach ($sourceFile in @(Get-ChildItem -LiteralPath $Source -File -Recurse -Force)) {
-        $relative = ConvertTo-CgSlashPath ($sourceFile.FullName.Substring($sourceRoot.Length).TrimStart([char[]]@('\', '/')))
-        if ($relative -eq $CopiedDirectoryMarkerName) { continue }
-        $sourcePaths[$relative] = $true
-        $destination = Resolve-CgContainedCopyPath -Base $Target -RelativePath $relative
-
-        # Cheap guards first: a reparse point anywhere along the destination
-        # path or a directory/link collision must reject the file before any
-        # hashing or copy happens.
-        if (Test-CgCopyPathHasReparsePoint -Base $Target -ResolvedPath $destination) {
-            Write-Warning "  $TargetRel/$relative crosses a reparse point; preserving it."
-            continue
-        }
-        $canWrite = -not (Test-Path -LiteralPath $destination)
-        if (-not $canWrite) {
-            $destinationItem = Get-Item -LiteralPath $destination -Force
-            if ($destinationItem.PSIsContainer -or $destinationItem.LinkType) {
-                Write-Warning "  $TargetRel/$relative conflicts with a directory or link; preserving it."
-                continue
-            }
-        }
-
-        $sourceChecksum = Get-CgFileSha256 -Path $sourceFile.FullName
-        $previousChecksum = $null
-        if ($PreviousManifest -and $PreviousManifest.files.ContainsKey($relative)) {
-            $previousChecksum = [string]$PreviousManifest.files[$relative]
-        }
-
-        if (-not $canWrite) {
-            $currentChecksum = Get-CgFileSha256 -Path $destination
-            if ($currentChecksum -eq $sourceChecksum) {
-                $nextFiles[$relative] = $sourceChecksum
-                continue
-            }
-            if ($previousChecksum -and $currentChecksum -eq $previousChecksum) {
-                $canWrite = $true
-            } else {
-                Write-Warning "  $TargetRel/$relative was modified or is user-owned; preserving it."
-                # Keep recording the last-known managed checksum so the file
-                # stays tracked for later reconciliation/cleanup; dropping it
-                # would make the user's edit silently deletable later when the
-                # source path disappears.
-                if ($previousChecksum) { $nextFiles[$relative] = $previousChecksum }
-                continue
-            }
-        }
-
-        if ($canWrite) {
-            $destinationParent = Split-Path $destination -Parent
-            if (-not (Test-Path -LiteralPath $destinationParent)) {
-                New-Item -ItemType Directory -Path $destinationParent -Force | Out-Null
-            }
-            Copy-Item -LiteralPath $sourceFile.FullName -Destination $destination -Force
-            $nextFiles[$relative] = $sourceChecksum
-        }
-    }
-
-    if ($PreviousManifest) {
-        foreach ($relative in @($PreviousManifest.files.Keys)) {
-            if ($sourcePaths.ContainsKey($relative)) { continue }
-            $destination = Resolve-CgContainedCopyPath -Base $Target -RelativePath $relative
-            if (Test-CgCopyPathHasReparsePoint -Base $Target -ResolvedPath $destination) {
-                Write-Warning "  $TargetRel/$relative crosses a reparse point; preserving it."
-                continue
-            }
-            if (-not (Test-Path -LiteralPath $destination -PathType Leaf)) { continue }
-            $currentChecksum = Get-CgFileSha256 -Path $destination
-            if ($currentChecksum -eq [string]$PreviousManifest.files[$relative]) {
-                Remove-Item -LiteralPath $destination -Force
-                Write-Host "  $TargetRel/$relative - removed stale managed file" -ForegroundColor DarkGray
-            } else {
-                Write-Warning "  $TargetRel/$relative is stale but user-modified; preserving it."
-            }
-        }
-    }
-
-    Write-CgCopiedDirectoryManifest -Target $Target -SourceRel $SourceRel -Files $nextFiles
-}
-
 function Ensure-CgRootDirectory {
     param([string]$RootName)
     $rootPath = Join-Path $ProjectRoot $RootName
     $expectedRoot = Join-Path $CompoundGpidDir $RootName
-    $existing = Get-Item -Path $rootPath -ErrorAction SilentlyContinue
+    $existing = Get-Item -LiteralPath $rootPath -Force -ErrorAction SilentlyContinue
     if ($existing -and (Test-CgOwnedJunction -Item $existing -ExpectedTarget $expectedRoot)) {
         Write-Host "  $RootName/ - migrating legacy whole-root junction" -ForegroundColor Yellow
         Remove-CgJunction -Path $rootPath
         New-Item -ItemType Directory -Path $rootPath -Force | Out-Null
         return $true
     }
-    if ($existing -and $existing.LinkType) {
-        Write-Warning "  $RootName/ is a non-Compound link; skipping units under it."
+    if ($existing -and $existing.LinkType -in @("SymbolicLink", "Junction")) {
+        Write-Warning "  $RootName/ is a non-Compound link; manual action required; skipping units under it."
         return $false
     }
     if ($existing -and -not $existing.PSIsContainer) {
@@ -512,8 +367,7 @@ function Install-CgDirectoryUnit {
     )
     $source = Join-Path $CompoundGpidDir $SourceRel
     $target = Join-Path $ProjectRoot $TargetRel
-    $existing = Get-Item -Path $target -ErrorAction SilentlyContinue
-    $copyManifest = $null
+    $existing = Get-Item -LiteralPath $target -Force -ErrorAction SilentlyContinue
 
     if ($existing) {
         if ($existing.LinkType -eq "Junction") {
@@ -541,38 +395,15 @@ function Install-CgDirectoryUnit {
                     return $true
                 }
             } else {
-                Write-Warning "  $TargetRel is a junction pointing to: $($existing.Target)"
-                if (-not $Force) {
-                    $answer = Read-Host "  Relink $TargetRel to Compound GPID instead? [y/N]"
-                    if ($answer -notmatch "^[Yy]$") {
-                        Write-Host "  $TargetRel - skipped" -ForegroundColor Yellow
-                        return $false
-                    }
-                }
-                Remove-CgJunction -Path $target
-                $existing = $null
+                Write-Warning "  $TargetRel is a junction pointing to: $($existing.Target); manual action required; preserving it."
+                return $false
             }
-        } elseif ($existing.LinkType) {
-            Write-Warning "  $TargetRel is a non-junction link; skipping this unit."
+        } elseif ($existing.LinkType -in @("SymbolicLink", "Junction")) {
+            Write-Warning "  $TargetRel is a non-junction link; manual action required; preserving it."
             return $false
         } elseif ($existing.PSIsContainer) {
             if ($Strategy -eq "copy-directory") {
-                # A real directory at a copy-directory target is almost always
-                # a prior CG copy, an empty/partial tree from an aborted run, or
-                # a directory whose marker was lost/corrupted. Rather than
-                # skipping and silently losing the install (P2.6/P2.10), sync
-                # from baseline: absent files are copied, user-modified, dir-,
-                # and link-conflicted files are preserved with a warning, and a
-                # fresh marker is written. With no previous manifest the
-                # stale-file removal is disabled, so a baseline sync can never
-                # delete unrecorded user files.
-                $copyManifest = Read-CgCopiedDirectoryManifest -Target $target -SourceRel $SourceRel
-                if ($copyManifest) {
-                    Write-Host "  $TargetRel - already a managed real directory (will update)" -ForegroundColor DarkGray
-                } else {
-                    Write-Warning "  $TargetRel is a real directory without a valid managed-copy marker; performing a baseline sync (user files preserved)."
-                    $copyManifest = $null
-                }
+                Write-Host "  $TargetRel - already a real directory (copy queued)" -ForegroundColor DarkGray
             } else {
                 Write-Warning "  $TargetRel is a real directory; skipping this unit."
                 return $false
@@ -583,24 +414,14 @@ function Install-CgDirectoryUnit {
         }
     }
 
-    $parent = Split-Path $target -Parent
-    if (-not (Test-Path $parent)) { New-Item -ItemType Directory -Path $parent -Force | Out-Null }
     if ($Strategy -eq "copy-directory") {
-        $python = Resolve-PythonCommand
-        if (-not $python) {
-            throw "Python 3.8+ is required for the shared Kilo copy worker."
+        foreach ($argument in @("--directory", (ConvertTo-CgSlashPath $SourceRel), (ConvertTo-CgSlashPath $TargetRel))) {
+            [void]$script:CopyArgs.Add($argument)
         }
-        $worker = Join-Path $PSScriptRoot "cg_kilo_copy.py"
-        & $python $worker --source $source --target $target --source-relative (ConvertTo-CgSlashPath $SourceRel)
-        if ($LASTEXITCODE -ne 0) {
-            throw "Shared Kilo copy worker failed for $TargetRel with exit code $LASTEXITCODE"
-        }
-        $copied = Get-Item -LiteralPath $target -Force
-        if ($copied.LinkType) {
-            throw "copy-directory invariant failed for $TargetRel`: target is still a $($copied.LinkType)."
-        }
-        Write-Host "  $TargetRel - copied" -ForegroundColor DarkGray
+        Write-Host "  $TargetRel - copy queued" -ForegroundColor DarkGray
     } else {
+        $parent = Split-Path $target -Parent
+        if (-not (Test-Path -LiteralPath $parent)) { New-Item -ItemType Directory -Path $parent -Force | Out-Null }
         New-Item -ItemType Junction -Path $target -Value $source | Out-Null
         Write-Host "  $TargetRel - linked" -ForegroundColor DarkGray
     }
@@ -614,50 +435,14 @@ function Install-CgFileUnit {
     )
     $targetRel = ConvertTo-CgSlashPath ([string]$Unit.target)
     $sourceRel = ConvertTo-CgSlashPath ([string]$Unit.source)
-    $target = Join-Path $ProjectRoot $targetRel
-
-    if ([string]$Unit.strategy -eq "generated-copy") {
-        $generated = New-CopilotInstructions -TemplateDir $CompoundGpidDir -ProjectRoot $ProjectRoot
-        $existing = $null
-        if (Test-Path $target) {
-            $existing = Get-Content $target -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
+    foreach ($argument in @("--file", $sourceRel, $targetRel, [string]$Unit.strategy)) {
+        [void]$script:CopyArgs.Add($argument)
+    }
+    if ($Unit.PSObject.Properties.Name -contains "manualSnippet") {
+        foreach ($argument in @("--manual-snippet", $targetRel, [string]$Unit.manualSnippet)) {
+            [void]$script:CopyArgs.Add($argument)
         }
-        $userManaged = $existing -and ($existing -notmatch [regex]::Escape($CopilotInstructionsMarker))
-        if ($userManaged) {
-            Write-Host "  $targetRel - user-managed (marker absent), skipping" -ForegroundColor Yellow
-            return $false
-        }
-        $parent = Split-Path $target -Parent
-        if (-not (Test-Path $parent)) { New-Item -ItemType Directory -Path $parent -Force | Out-Null }
-        if ($generated -ne $existing) { Set-Content -Path $target -Value $generated -Encoding UTF8 }
-        Write-Host "  $targetRel - generated" -ForegroundColor DarkGray
-        return $true
     }
-
-    $source = Join-Path $CompoundGpidDir $sourceRel
-    $currentChecksum = Get-CgFileSha256 -Path $target
-    $record = $Manifest.files[$targetRel]
-    $canWrite = -not (Test-Path $target)
-    if (-not $canWrite -and $record -and $currentChecksum -eq $record.checksum) {
-        $canWrite = $true
-    }
-
-    if (-not $canWrite) {
-        Write-Warning "  $targetRel exists and is not manifest-managed; skipping."
-        if ($Unit.PSObject.Properties.Name -contains "manualSnippet") {
-            Write-Host "  Manual config snippet: $($Unit.manualSnippet)" -ForegroundColor Yellow
-        }
-        return $false
-    }
-
-    $parent = Split-Path $target -Parent
-    if (-not (Test-Path $parent)) { New-Item -ItemType Directory -Path $parent -Force | Out-Null }
-    Copy-Item -Path $source -Destination $target -Force
-    $Manifest.files[$targetRel] = @{
-        source = $sourceRel
-        checksum = (Get-CgFileSha256 -Path $target)
-    }
-    Write-Host "  $targetRel - copied" -ForegroundColor DarkGray
     return $true
 }
 
@@ -670,6 +455,12 @@ function Protect-CgKiloCompatibilitySkillLinks {
     param($Mapping)
 
     $kiloSkills = Join-Path $ProjectRoot ".kilo/skills"
+    try {
+        Assert-CgManagedCopyTargetSafe -Target $kiloSkills
+    } catch {
+        Write-Warning "  .kilo/skills crosses a link or reparse point; manual action required; compatibility links preserved."
+        return @()
+    }
     if (-not (Read-CgCopiedDirectoryManifest -Target $kiloSkills -SourceRel ".kilo/skills")) {
         return @()
     }
@@ -695,8 +486,17 @@ function Protect-CgKiloCompatibilitySkillLinks {
         $pointsToMirror = Test-CgOwnedJunction -Item $item -ExpectedTarget $mirrorPath
         if (-not $pointsToSource -and -not $pointsToMirror) { continue }
 
-        $previous = Read-CgCopiedDirectoryManifest -Target $mirrorPath -SourceRel $sourceRel
-        Sync-CgCopiedDirectory -Source $sourcePath -SourceRel $sourceRel -Target $mirrorPath -TargetRel $mirrorRel -PreviousManifest $previous
+        try {
+            Assert-CgManagedCopyTargetSafe -Target (Split-Path $targetPath -Parent)
+            Assert-CgManagedCopyTargetSafe -Target $mirrorPath
+        } catch {
+            Write-Warning "  $targetRel compatibility path crosses a link or reparse point; manual action required; preserving the link."
+            continue
+        }
+        if (-not (Read-CgCopiedDirectoryManifest -Target $mirrorPath -SourceRel $sourceRel)) {
+            Write-Warning "  $targetRel compatibility mirror has no valid receipt; manual action required; preserving the link."
+            continue
+        }
 
         if ($pointsToSource) {
             Set-CgJunctionTargetSafely -Path $targetPath -Target $mirrorPath
@@ -714,7 +514,7 @@ function Update-CgGitignoreBlock {
     param([string[]]$Entries)
     $gitignorePath = Join-Path $ProjectRoot ".gitignore"
     $marker = "# Compound GPID managed items (junctions + copied file - do not commit)"
-    $pattern = "(?m)^# Compound GPID managed items[^\r\n]*\r?\n(?:(?:\.github/|\.claude/|\.agents/|\.opencode/|\.kilo/|\.compound-gpid/)[^\r\n]*\r?\n)*"
+    $pattern = "(?m)^# Compound GPID managed items[^\r\n]*\r?\n(?:(?:\.github|\.claude|\.agents|\.opencode|\.kilo|\.compound-gpid)(?:/[^\r\n]*)?\r?\n)*"
 
     $uniqueEntries = @($Entries | Where-Object { $_ } | Sort-Object -Unique)
     if ($uniqueEntries.Count -eq 0) { return }
@@ -722,16 +522,18 @@ function Update-CgGitignoreBlock {
 
     $content = ""
     if (Test-Path $gitignorePath) {
-        $content = Get-Content $gitignorePath -Raw -ErrorAction SilentlyContinue
+        $content = Get-Content $gitignorePath -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
     }
     if ($content -and $content -notmatch '\r?\n$') { $content += "`n" }
-    $cleaned = $content -replace $pattern, ""
-    $cleaned = $cleaned -replace '(?m)^# Compound GPID knowledge base[^\r\n]*\r?\n\.cg-docs/\r?\n?', ''
-    $cleaned = ($cleaned -replace '(?m)^\.cg-docs/\r?\n?', '').TrimEnd()
-    $separator = ""
-    if ($cleaned.Length -gt 0) { $separator = "`n`n" }
+    $cleaned = $content -creplace $pattern, ""
+    $cleaned = $cleaned -creplace '(?m)^# Compound GPID knowledge base[^\r\n]*\r?\n\.cg-docs/\r?\n', ''
+    $cleaned = $cleaned -creplace '(?m)^\.cg-docs/\r?\n', ''
+    # Move exact duplicates into the final block without trimming user whitespace.
+    foreach ($entry in $uniqueEntries) {
+        $cleaned = $cleaned -creplace ("(?m)^" + [regex]::Escape($entry) + "\r?\n"), ""
+    }
     $utf8NoBom = New-Object -TypeName System.Text.UTF8Encoding -ArgumentList $false
-    [System.IO.File]::WriteAllText($gitignorePath, ($cleaned + $separator + $block), $utf8NoBom)
+    [System.IO.File]::WriteAllText($gitignorePath, ($cleaned + $block), $utf8NoBom)
     Write-Host "Updated CG entries in .gitignore" -ForegroundColor DarkGray
 }
 
@@ -829,28 +631,6 @@ if (-not (Test-Path $TargetMappingPath)) {
     exit 1
 }
 
-$argsParsed = Resolve-CgLinkArguments -Arguments $RawArgs
-$Force = [bool]$argsParsed.Force
-$selectedPlatforms = Resolve-CgPlatforms -PlatformsValue $argsParsed.Platforms
-
-# Check host containment before any update, copy, manifest, or global Kilo
-# permission mutation. The post-copy validation below remains necessary for
-# local projection/content ownership checks.
-$preflightKiloSelected = "kilo" -in $selectedPlatforms
-$preflightCompatibilitySelected = ("codex" -in $selectedPlatforms) -or ("claude-code" -in $selectedPlatforms)
-$preflightCompatibilityPresent = (Test-Path -LiteralPath (Join-Path $ProjectRoot ".agents\skills")) -or
-    (Test-Path -LiteralPath (Join-Path $ProjectRoot ".claude\skills"))
-if ($preflightKiloSelected -and ($preflightCompatibilitySelected -or $preflightCompatibilityPresent)) {
-    try {
-        [void](Invoke-CgKiloPreflight -ProjectRoot $ProjectRoot -RequireCoexistence -HostOnly)
-    } catch {
-        $preflightExitCode = 1
-        if ($_.Exception.Data.Contains("CgExitCode")) { $preflightExitCode = [int]$_.Exception.Data["CgExitCode"] }
-        Write-Error "Linking is blocked by Kilo host preflight: $_"
-        exit $preflightExitCode
-    }
-}
-
 Write-Host ""
 if ($env:CG_SKIP_UPDATE -eq "1") {
     Write-Host "Skipping Compound GPID update (CG_SKIP_UPDATE=1)." -ForegroundColor DarkGray
@@ -905,7 +685,10 @@ $manifestDriven = Test-Path -LiteralPath (Join-Path $ProjectRoot "compound-gpid.
 $compProjectionStateDir = Join-Path $ProjectRoot ".compound-gpid"
 if ($manifestDriven) {
     try {
-        [void](Resolve-CgActiveManifest -ProjectRoot $ProjectRoot -SourceRoot $CompoundGpidDir -PlatformIds ($selectedPlatforms -join ","))
+        $resolvedManifest = Resolve-CgActiveManifest -ProjectRoot $ProjectRoot -SourceRoot $CompoundGpidDir -PlatformIds ($selectedPlatforms -join ",")
+        foreach ($line in ($resolvedManifest.Output -split "`r?`n")) {
+            if ($line.StartsWith("compound-gpid.local.md has no settings block;")) { Write-Host $line }
+        }
         Write-Host "  Active manifest: resolved for $($selectedPlatforms -join ', ')" -ForegroundColor DarkGray
     } catch {
         Write-Error "Linking is blocked by active manifest resolution failure: $_"
@@ -913,7 +696,14 @@ if ($manifestDriven) {
     }
 }
 
+# Retire proven plugin residue after selection validation, before ownership refresh.
+$retirementPython = Resolve-PythonCommand
+if (-not $retirementPython) { throw "Python is required for native-evidence residue checks." }
+& $retirementPython (Join-Path $PSScriptRoot "cg_retire_native_evidence.py") --root $ProjectRoot
+if ($LASTEXITCODE -ne 0) { throw "Linking is blocked by preserved native-evidence residue; review the diagnostics above." }
+
 $manifest = Read-CgManagedFilesManifest -ManifestPath $ManifestPath
+$managedFileCountBeforeCleanup = $manifest.files.Count
 Remove-CgLegacyModelMappingFiles -Manifest $manifest
 $installedEntries = New-Object System.Collections.ArrayList
 
@@ -937,10 +727,20 @@ foreach ($target in $targets) {
     foreach ($unit in @($target.installUnits)) {
         $targetRel = ConvertTo-CgSlashPath ([string]$unit.target)
         $rootName = Get-CgTargetRoot -RelativePath $targetRel
-        if (-not (Ensure-CgRootDirectory -RootName $rootName)) { continue }
+        if (-not (Ensure-CgRootDirectory -RootName $rootName)) {
+            [void]$script:CopyArgs.Add("--manual-path")
+            [void]$script:CopyArgs.Add($rootName)
+            continue
+        }
 
         if ($manifestDriven -and $nativeProjected -and
             ([string]$unit.type -eq "directory")) {
+            # Default settings select no language instructions, but local Kilo
+            # validation still requires this empty real directory.
+            if ($target.id -eq "kilo" -and $targetRel -eq ".kilo/instructions" -and
+                -not (Test-Path -LiteralPath (Join-Path $ProjectRoot $targetRel))) {
+                [void](Ensure-CgRootDirectory -RootName $targetRel)
+            }
             Write-Host "  $targetRel - projected by manifest (legacy install skipped)" -ForegroundColor DarkGray
             continue
         }
@@ -953,26 +753,44 @@ foreach ($target in $targets) {
         $installed = $false
         if ([string]$unit.type -eq "directory") {
             $installed = Install-CgDirectoryUnit -SourceRel ([string]$unit.source) -TargetRel $targetRel -Strategy ([string]$unit.strategy) -Force $Force
+            if (-not $installed) {
+                [void]$script:CopyArgs.Add("--manual-path")
+                [void]$script:CopyArgs.Add($targetRel)
+            }
         } else {
-            $installed = Install-CgFileUnit -Unit $unit -Manifest $manifest
+            # Only refreshed worker receipts identify successfully managed files.
+            [void](Install-CgFileUnit -Unit $unit -Manifest $manifest)
         }
 
         if ($installed) { [void]$installedEntries.Add($targetRel) }
     }
 }
 
-# Publish manifest-driven roots before Kilo validates the local projection.
-# The legacy installer intentionally skips these directories, so preflight
-# cannot run until the synchronizer has materialized them.
+# Persist the existing cleanup result before the worker refreshes scalar records.
+if ($manifest.files.Count -gt 0 -and $manifest.files.Count -ne $managedFileCountBeforeCleanup) {
+    Write-CgManagedFilesManifest -ManifestPath $ManifestPath -Manifest $manifest
+}
+$copyPython = Resolve-PythonCommand -NoBytecode
+if (-not $copyPython) { throw "Python 3.8+ is required for the shared copy worker." }
+$copyArguments = @("--source-root", $CompoundGpidDir, "--project-root", $ProjectRoot, "--sync-projection") + @($script:CopyArgs)
+$copyErrorAction = $ErrorActionPreference
+try {
+    $ErrorActionPreference = "Continue"
+    $copyOutput = @(& $copyPython -B (Join-Path $PSScriptRoot "cg_kilo_copy.py") @copyArguments 2>&1)
+} finally { $ErrorActionPreference = $copyErrorAction }
+$copyOutput = @($copyOutput | ForEach-Object { $_.ToString() })
+$copyOutput | Out-Host
+if ($LASTEXITCODE -ne 0) {
+    throw "Shared copy or manifest projection synchronization failed with exit code $LASTEXITCODE; review the diagnostics above."
+}
+# Do not let the final writer restore the pre-batch scalar ownership records.
+$manifest = Read-CgManagedFilesManifest -ManifestPath $ManifestPath
+
+# The batch publishes manifest-driven roots before local Kilo preflight.
+# Keep their runtime output in the managed ignore block without syncing again.
 if ((Test-Path -LiteralPath $compProjectionStateDir) -and
     (Test-Path -LiteralPath (Join-Path $compProjectionStateDir "active-manifest.json"))) {
-    try {
-        [void](Invoke-CgProjection -ProjectRoot $ProjectRoot -SourceRoot $CompoundGpidDir -Mode sync)
-        Write-Host "  Project projection: synced and verified" -ForegroundColor DarkGray
-    } catch {
-        Write-Error "Linking is blocked by manifest projection failure: $_"
-        exit 1
-    }
+    Write-Host "  Project projection: synced and verified" -ForegroundColor DarkGray
 
     # Generated projection roots are reproducible runtime output. Keep them in
     # the managed gitignore block while leaving active-manifest.json reviewable.
@@ -985,7 +803,6 @@ if ((Test-Path -LiteralPath $compProjectionStateDir) -and
         }
     }
     foreach ($runtimeEntry in @(
-        ".compound-gpid/runtime/",
         ".compound-gpid/active/",
         ".compound-gpid/generations/",
         ".compound-gpid/projection-ownership.json",
@@ -1004,39 +821,36 @@ foreach ($entry in @(Protect-CgKiloCompatibilitySkillLinks -Mapping $mapping)) {
     [void]$installedEntries.Add($entry)
 }
 
-# Help transport is also available to recognized legacy, non-projected installs.
-[void]$installedEntries.Add(".compound-gpid/runtime/")
-
 if ($manifest.files.Count -gt 0) {
     Write-CgManagedFilesManifest -ManifestPath $ManifestPath -Manifest $manifest
     [void]$installedEntries.Add(".compound-gpid/managed-files.json")
 }
 
-# Kilo can discover Codex/Claude skill roots from the same project. A combined
-# selection is supported only through the certified child-process launcher; a
-# Kilo-only project needs only local projection validation at link time.
+# Validate generated Kilo files without discovering or running a Kilo host.
+# Existing user-level skill roots are not evidence of a managed projection.
 $kiloSelected = "kilo" -in $selectedPlatforms
-$compatibilitySelected = ("codex" -in $selectedPlatforms) -or ("claude-code" -in $selectedPlatforms)
 $compatibilityPresent = (Test-Path -LiteralPath (Join-Path $ProjectRoot ".agents\skills")) -or
     (Test-Path -LiteralPath (Join-Path $ProjectRoot ".claude\skills"))
 $kiloRootPresent = Test-Path -LiteralPath (Join-Path $ProjectRoot ".kilo\skills")
-if ($kiloSelected -or ($compatibilityPresent -and $kiloRootPresent)) {
-    try {
-        if ($compatibilitySelected -or $compatibilityPresent) {
-            $kiloPreflight = Invoke-CgKiloPreflight -ProjectRoot $ProjectRoot -RequireCoexistence
-        } else {
+$kiloManagedCopy = Test-Path -LiteralPath (Join-Path $ProjectRoot ".kilo/skills/.compound-gpid-managed-copy.json") -PathType Leaf
+if ($kiloSelected -or $kiloManagedCopy) {
+    $copyHasKiloManual = @($copyOutput | Where-Object { $_ -match '^Kilo validation deferred: [1-9][0-9]*$' }).Count -gt 0
+    if ($copyHasKiloManual) {
+        Write-Warning "Kilo validation deferred: kept Kilo files need manual action; use cg-link --check after resolving them."
+    } else {
+        try {
             $kiloPreflight = Invoke-CgKiloPreflight -ProjectRoot $ProjectRoot -LocalOnly
+            Write-Host "  Kilo preflight: $($kiloPreflight.status)" -ForegroundColor DarkGray
+        } catch {
+            $preflightExitCode = 1
+            if ($_.Exception.Data.Contains("CgExitCode")) { $preflightExitCode = [int]$_.Exception.Data["CgExitCode"] }
+            Write-Error "Linking is blocked by local generated Kilo file validation: $_"
+            exit $preflightExitCode
         }
-        Write-Host "  Kilo preflight: $($kiloPreflight.status)" -ForegroundColor DarkGray
-        if ($kiloPreflight.certified_launch_required) {
-            Write-Host "  Certified launch required: cg-kilo (direct Kilo launches unsupported with compatibility roots)." -ForegroundColor Yellow
-        }
-    } catch {
-        $preflightExitCode = 1
-        if ($_.Exception.Data.Contains("CgExitCode")) { $preflightExitCode = [int]$_.Exception.Data["CgExitCode"] }
-        Write-Error "Linking is blocked by Kilo coexistence preflight: $_"
-        exit $preflightExitCode
     }
+}
+if ($kiloRootPresent -and $compatibilityPresent) {
+    Write-Host "Note: Kilo and compatibility skills coexist. Use cg-kilo for an optional contained launch." -ForegroundColor Yellow
 }
 
 if ("kilo" -in $selectedPlatforms) {
@@ -1061,20 +875,6 @@ foreach ($platform in $selectedPlatforms) {
     } else {
         Write-Warning "  $platform - not fully available; review skipped units above."
     }
-}
-
-# Control helper availability is a read-only report. The autopilot control
-# helper lives in the installed package only and is never projected or copied
-# into consumer projects; consumers invoke it globally and pass their own
-# validated root explicitly, keeping their own reproduction/test selection.
-$autopilotHelperPaths = @(
-    (Join-Path $CompoundGpidDir "bin\cg-autopilot-control.cmd"),
-    (Join-Path $CompoundGpidDir "bin\cg-autopilot-control")
-)
-if (@($autopilotHelperPaths | Where-Object { Test-Path -LiteralPath $_ }).Count -gt 0) {
-    Write-Host "  Control helper: cg-autopilot-control available (installed package; pass an explicit --root from the consumer)." -ForegroundColor DarkGray
-} else {
-    Write-Warning "  Control helper not found in the Compound GPID installation; run install.ps1 (Windows) or scripts/install.sh (macOS/Linux) to register cg-autopilot-control."
 }
 
 Write-Host ""

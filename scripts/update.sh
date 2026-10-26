@@ -6,8 +6,7 @@
 # linked project's prompts/, skills/, agents/, and instructions/ immediately.
 #
 # For copilot-instructions.md (a copied file, not a symlink), this script also
-# refreshes the copy in the current working directory if the management marker
-# is present. Remove the marker to opt out of auto-refresh.
+# refreshes the copy through the shared ownership and legacy-backup policy.
 #
 # Run from anywhere:
 #   cg-update               -- use current version preference (default: latest)
@@ -56,116 +55,128 @@ resolve_python() {
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
-COPILOT_INSTRUCTIONS_MARKER="<!-- compound-gpid:managed -->"
 VERSION_FILE="$COMPOUND_GPID_DIR/.cg-version"
 
-# BEGIN RELEASE READERS
-# Four-part legacy pins are not SemVer pre-release baselines.
-VERSION_NUMBER='(0|[1-9][0-9]*)'
-VERSION_IDENTIFIER='(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)'
-VERSION_CORE="${VERSION_NUMBER}\\.${VERSION_NUMBER}\\.${VERSION_NUMBER}"
-VERSION_SUFFIX="(-${VERSION_IDENTIFIER}(\\.${VERSION_IDENTIFIER})*)?(\\+[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?"
-RELEASE_TAG_PATTERN="^v${VERSION_CORE}(\\+[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?$"
-VERSION_ACCEPT_PATTERN="^(latest|v${VERSION_CORE}${VERSION_SUFFIX}|v[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+)$"
+# Keep rollback state in this shell: downstream refresh failures use it too.
+ORIGINAL_HEAD=""
+ORIGINAL_BRANCH=""
+CHECKED_OUT_SHA=""
+PIN_BACKUP=""
+PIN_PRESENT=false
+PIN_WRITE_TEMP=""
 
-# Read validated tags on stdin; sort by numeric/ASCII precedence, never git -v.
-# POSIX awk is already a shell-platform utility; no Python/Node dependency.
-cg_sort_release_tags() {
-    LC_ALL=C awk '
-    function scalar(a,b) { return ("x" a) == ("x" b) ? 0 : (("x" a) < ("x" b) ? -1 : 1) }
-    function number(a,b) {
-        sub(/^0+/, "", a); sub(/^0+/, "", b)
-        return length(a) != length(b) ? (length(a) < length(b) ? -1 : 1) : scalar(a,b)
-    }
-    function compare(a,b, ac,bc,ap,bp,an,bn,al,bl,i,r,x,y,p) {
-        sub(/^v/, "", a); sub(/^v/, "", b); sub(/\+.*/, "", a); sub(/\+.*/, "", b)
-        p=index(a,"-"); x=p ? substr(a,p+1) : ""; if(p) a=substr(a,1,p-1)
-        p=index(b,"-"); y=p ? substr(b,p+1) : ""; if(p) b=substr(b,1,p-1)
-        an=split(a,ac,"."); bn=split(b,bc,".")
-        for(i=1;i<=3;i++) { r=number(ac[i],bc[i]); if(r) return r }
-        al=an==4 ? 0 : (x!="" ? 1 : 2); bl=bn==4 ? 0 : (y!="" ? 1 : 2)
-        if(al!=bl) return al<bl ? -1 : 1
-        if(al==0) return number(ac[4],bc[4])
-        if(al==2) return 0
-        an=split(x,ap,"."); bn=split(y,bp,".")
-        for(i=1;i<=an && i<=bn;i++) {
-            x=ap[i]~/^[0-9]+$/; y=bp[i]~/^[0-9]+$/
-            r=x && y ? number(ap[i],bp[i]) : (x!=y ? (x ? -1 : 1) : scalar(ap[i],bp[i]))
-            if(r) return r
-        }
-        return an==bn ? 0 : (an<bn ? -1 : 1)
-    }
-    NF { tags[++n]=$0 }
-    END {
-        for(i=2;i<=n;i++) { v=tags[i]; j=i-1; while(j>=1 && compare(tags[j],v)<0) { tags[j+1]=tags[j]; j-- } tags[j+1]=v }
-        for(i=1;i<=n;i++) print tags[i]
-    }'
+finish_update() {
+    local status=$? current_head current_branch branch_head branch_status
+    trap - EXIT
+    set +e
+    # Cleanup is part of success. A cleanup failure must still reach rollback.
+    if [[ "$status" -eq 0 && -n "$PIN_WRITE_TEMP" ]]; then
+        if rm -f "$PIN_WRITE_TEMP"; then
+            PIN_WRITE_TEMP=""
+        else
+            print_error "Could not remove pin temporary file: $PIN_WRITE_TEMP"
+            status=1
+        fi
+    fi
+    if [[ "$status" -eq 0 && -n "$PIN_BACKUP" ]]; then
+        if rm -f "$PIN_BACKUP"; then
+            PIN_BACKUP=""
+        else
+            print_error "Could not remove pin backup: $PIN_BACKUP"
+            status=1
+        fi
+    fi
+    if [[ "$status" -ne 0 && -n "$CHECKED_OUT_SHA" ]]; then
+        current_head="$(git -C "$COMPOUND_GPID_DIR" rev-parse --verify HEAD)"
+        if [[ "$current_head" != "$CHECKED_OUT_SHA" ]]; then
+            print_error "Rollback stopped: current HEAD is '$current_head', expected '$CHECKED_OUT_SHA'. The pin was not restored."
+        else
+            local restored=false
+            if [[ -n "$ORIGINAL_BRANCH" ]]; then
+                branch_head="$(git -C "$COMPOUND_GPID_DIR" rev-parse --verify "$ORIGINAL_BRANCH")"
+                if [[ "$branch_head" != "$ORIGINAL_HEAD" ]]; then
+                    print_error "Rollback stopped: $ORIGINAL_BRANCH is now '$branch_head', expected '$ORIGINAL_HEAD'."
+                else
+                    git -C "$COMPOUND_GPID_DIR" checkout "${ORIGINAL_BRANCH#refs/heads/}" || \
+                        print_warn "Rollback checkout returned an error; checking the actual restored state."
+                fi
+            else
+                git -C "$COMPOUND_GPID_DIR" checkout --detach "$ORIGINAL_HEAD" || \
+                    print_warn "Rollback checkout returned an error; checking the actual restored state."
+            fi
+            # A post-checkout hook can fail after Git has restored HEAD/branch.
+            current_head="$(git -C "$COMPOUND_GPID_DIR" rev-parse --verify HEAD)"
+            if [[ "$current_head" == "$ORIGINAL_HEAD" ]]; then
+                if current_branch="$(git -C "$COMPOUND_GPID_DIR" symbolic-ref --quiet HEAD)"; then
+                    [[ -n "$ORIGINAL_BRANCH" && "$current_branch" == "$ORIGINAL_BRANCH" ]] && restored=true
+                else
+                    branch_status=$?
+                    [[ "$branch_status" -eq 1 && -z "$ORIGINAL_BRANCH" ]] && restored=true
+                fi
+            fi
+            if [[ "$restored" == "true" ]]; then
+                if [[ -L "$VERSION_FILE" || ( -e "$VERSION_FILE" && ! -f "$VERSION_FILE" ) ]]; then
+                    print_error "Original HEAD restored, but pin restoration stopped at a non-regular path: $VERSION_FILE"
+                elif [[ "$PIN_PRESENT" == "true" ]]; then
+                    # Replace the pin rather than writing through a hardlink alias.
+                    if [[ -z "$PIN_WRITE_TEMP" ]]; then
+                        PIN_WRITE_TEMP="$(mktemp "${VERSION_FILE}.tmp.XXXXXX")"
+                    fi
+                    if [[ -n "$PIN_WRITE_TEMP" ]] && cp "$PIN_BACKUP" "$PIN_WRITE_TEMP" &&
+                       mv "$PIN_WRITE_TEMP" "$VERSION_FILE"; then
+                        PIN_WRITE_TEMP=""
+                    else
+                        print_error "Original HEAD restored, but the original pin could not be restored."
+                    fi
+                elif ! rm -f "$VERSION_FILE"; then
+                    print_error "Original HEAD restored, but the new pin could not be removed."
+                fi
+                print_warn "Pinned update failed; original HEAD restored. Consumer refresh changes are not rolled back."
+            else
+                print_error "Rollback could not restore original state '$ORIGINAL_HEAD' (${ORIGINAL_BRANCH:-detached}). Current HEAD is '$current_head'; pin preserved. Resolve local changes manually."
+            fi
+        fi
+    fi
+    if [[ -n "$PIN_WRITE_TEMP" ]] && ! rm -f "$PIN_WRITE_TEMP"; then
+        print_error "Could not remove pin temporary file: $PIN_WRITE_TEMP"
+        [[ "$status" -ne 0 ]] || status=1
+    fi
+    if [[ -n "$PIN_BACKUP" ]] && ! rm -f "$PIN_BACKUP"; then
+        print_error "Could not remove pin backup: $PIN_BACKUP"
+        [[ "$status" -ne 0 ]] || status=1
+    fi
+    exit "$status"
 }
-# END RELEASE READERS
+trap finish_update EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
 
-# ---------------------------------------------------------------------------
-# generate_copilot_instructions <template_path> <project_root> <marker>
-# Defined before the main body to allow the end-of-script refresh to call it.
-# ---------------------------------------------------------------------------
-generate_copilot_instructions() {
-    local template_path="$1"
-    local project_root="$2"
-    local marker="$3"
-
-    "$PYTHON_CMD" - "$template_path" "$project_root" "$marker" <<'PYEOF'
-import sys, re, os
-
-template_path, project_root, marker = sys.argv[1], sys.argv[2], sys.argv[3]
-
-charter_path = os.path.join(project_root, 'compound-gpid.md')
-local_path   = os.path.join(project_root, 'compound-gpid.local.md')
-
-def extract_fm_value(path, key):
-    try:
-        with open(path, 'r', encoding='utf-8') as f:
-            content = f.read()
-        m = re.match(r'^---[ \t]*\n(.*?)\n---', content, re.DOTALL)
-        if not m:
-            return ''
-        fm = m.group(1)
-        pattern = r'(?m)^\s*' + re.escape(key) + r':\s*["\']?([^"\'\\r\\n]+)["\']?\s*$'
-        vm = re.search(pattern, fm)
-        return vm.group(1).strip() if vm else ''
-    except Exception:
-        return ''
-
-project_name = extract_fm_value(charter_path, 'project-name') or '<project-name>'
-language     = extract_fm_value(local_path, 'language')     or '<not configured>'
-project_type = extract_fm_value(local_path, 'project-type') or '<not configured>'
-review_depth = extract_fm_value(local_path, 'review-depth') or '<not configured>'
-r_syntax     = extract_fm_value(local_path, 'r-syntax')
-
-languages = language
-if r_syntax and re.search(r'\bR\b', language, re.IGNORECASE):
-    languages = f'{language} (R dialect: {r_syntax})'
-
-for val in (project_name, project_type, languages, review_depth):
-    if '{{' in val:
-        print('ERROR: A config value contains a placeholder token which would corrupt the output.', file=sys.stderr)
-        sys.exit(1)
-
-with open(template_path, 'r', encoding='utf-8') as f:
-    template = f.read()
-
-if not template.strip():
-    print(f'ERROR: Template file is empty: {template_path}. Run cg-update --fix.', file=sys.stderr)
-    sys.exit(1)
-
-output = template
-output = output.replace('{{project-name}}', project_name)
-output = output.replace('{{project-type}}', project_type)
-output = output.replace('{{languages}}',    languages)
-output = output.replace('{{review-depth}}', review_depth)
-
-sep = '\r\n' if '\r\n' in output else '\n'
-sys.stdout.write(marker + sep + output)
-PYEOF
+write_version_pin() {
+    PIN_WRITE_TEMP="$(mktemp "${VERSION_FILE}.tmp.XXXXXX")"
+    printf '%s' "$VERSION_MODE" > "$PIN_WRITE_TEMP"
+    mv "$PIN_WRITE_TEMP" "$VERSION_FILE"
+    PIN_WRITE_TEMP=""
 }
+
+refuse_tracked_changes() {
+    (
+        cd "$COMPOUND_GPID_DIR"
+        if ! git diff --quiet --ignore-submodules=none ||
+           ! git diff --cached --quiet --ignore-submodules=none; then
+            print_error "Tracked changes block update. Preserve or resolve them before retrying."
+            git status --short --untracked-files=no >&2
+            exit 1
+        fi
+    )
+}
+
+# Regex that matches 3-component release tags only (e.g. v0.2.0)
+# Dev tags (4-component, e.g. v0.2.0.9000) are excluded from user-visible output.
+RELEASE_TAG_PATTERN='^v[0-9]+\.[0-9]+\.[0-9]+$'
+
+# Accepts all valid version inputs: release tags, dev tags, and 'latest'.
+# git tag names are case-sensitive: V0.2.0 is not the same as v0.2.0.
+VERSION_ACCEPT_PATTERN='^(latest|v[0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?)$'
 
 # ---------------------------------------------------------------------------
 # Validate install exists
@@ -191,37 +202,17 @@ if [[ -z "$PYTHON_CMD" ]]; then
     exit 1
 fi
 
-EARLY_UPDATE_IS_SOURCE="false"
-if [[ "$(pwd -P)" == "$(cd "$COMPOUND_GPID_DIR" && pwd -P)" ]]; then
-    EARLY_UPDATE_IS_SOURCE="true"
-fi
-if [[ "${CG_INTERNAL_CALL:-}" != "1" && "$EARLY_UPDATE_IS_SOURCE" != "true" &&
-      -d "$(pwd)/.kilo/skills" &&
-      ( -d "$(pwd)/.agents/skills" || -d "$(pwd)/.claude/skills" ) ]]; then
-    set +e
-    EARLY_PREFLIGHT_OUTPUT="$($PYTHON_CMD "$COMPOUND_GPID_DIR/scripts/cg_kilo_preflight.py" --root "$(pwd)" --json --require-coexistence --host-only)"
-    EARLY_PREFLIGHT_STATUS=$?
-    set -e
-    if [[ "$EARLY_PREFLIGHT_STATUS" -ne 0 ]]; then
-        print_error "Update is blocked by Kilo host preflight."
-        printf '%s\n' "$EARLY_PREFLIGHT_OUTPUT" >&2
-        exit "$EARLY_PREFLIGHT_STATUS"
-    fi
-fi
-
 # ---------------------------------------------------------------------------
 # Parse arguments
 # ---------------------------------------------------------------------------
 VERSION_ARG=""
 DO_LIST=false
 DO_FIX=false
-SHOW_DEV=false
 
 for arg in "$@"; do
     case "$arg" in
         --list)   DO_LIST=true ;;
         --fix)    DO_FIX=true  ;;
-        --show-dev) SHOW_DEV=true ;;
         --*)      print_error "Unknown option: $arg"; printf 'Usage: cg-update [version|latest|--list|--fix]\n' >&2; exit 1 ;;
         *)        VERSION_ARG="$arg" ;;
     esac
@@ -296,10 +287,8 @@ if [[ "$DO_LIST" == "true" ]]; then
     (cd "$COMPOUND_GPID_DIR" && git fetch --tags 2>/dev/null) || \
         print_warn "git fetch --tags failed -- showing cached tag data. Check your network connection."
 
-    ALL_TAGS="$(cd "$COMPOUND_GPID_DIR" && git tag --list 'v*' 2>/dev/null || true)"
-    LIST_PATTERN="$RELEASE_TAG_PATTERN"
-    [[ "$SHOW_DEV" == "true" ]] && LIST_PATTERN="$VERSION_ACCEPT_PATTERN"
-    RELEASE_TAGS="$(printf '%s\n' "$ALL_TAGS" | grep -E "$LIST_PATTERN" | cg_sort_release_tags || true)"
+    ALL_TAGS="$(cd "$COMPOUND_GPID_DIR" && git tag --list 'v*' --sort=-version:refname 2>/dev/null || true)"
+    RELEASE_TAGS="$(printf '%s\n' "$ALL_TAGS" | grep -E "$RELEASE_TAG_PATTERN" || true)"
 
     # Determine current label
     CURRENT_PIN="$VERSION_MODE"
@@ -307,9 +296,6 @@ if [[ "$DO_LIST" == "true" ]]; then
         MODE_LABEL="main (latest)"
     elif [[ "$CURRENT_PIN" =~ ^v[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
         MODE_LABEL="$CURRENT_PIN (dev -- not listed above)"
-        [[ "$SHOW_DEV" == "true" ]] && MODE_LABEL="$CURRENT_PIN (legacy dev)"
-    elif [[ "${CURRENT_PIN%%+*}" == *-* ]]; then
-        MODE_LABEL="$CURRENT_PIN (pre-release)"
     else
         MODE_LABEL="$CURRENT_PIN (pinned)"
     fi
@@ -318,7 +304,7 @@ if [[ "$DO_LIST" == "true" ]]; then
     INSTALLED_TAG=""
     if [[ "$CURRENT_PIN" == "latest" ]]; then
         INSTALLED_TAG="$(cd "$COMPOUND_GPID_DIR" && \
-            git tag --points-at HEAD 2>/dev/null | grep -E "$LIST_PATTERN" | cg_sort_release_tags | head -1 || true)"
+            git tag --points-at HEAD 2>/dev/null | grep -E "$RELEASE_TAG_PATTERN" | head -1 || true)"
     fi
 
     printf '\n'
@@ -330,10 +316,7 @@ if [[ "$DO_LIST" == "true" ]]; then
             if [[ "$tag" == "$CURRENT_PIN" || "$tag" == "$INSTALLED_TAG" ]]; then
                 MARKER="  <-- current"
             fi
-            LABEL=""
-            if [[ "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then LABEL=" (legacy dev)"
-            elif [[ "${tag%%+*}" == *-* ]]; then LABEL=" (pre-release)"; fi
-            printf '  %s%s%s\n' "$tag" "$LABEL" "$MARKER"
+            printf '  %s%s\n' "$tag" "$MARKER"
         done <<< "$RELEASE_TAGS"
     else
         print_gray "No releases found."
@@ -345,7 +328,6 @@ if [[ "$DO_LIST" == "true" ]]; then
     printf '\n'
     printf '  cg-update <version>  -- pin to a specific release\n'
     printf '  cg-update latest     -- unpin and track main\n'
-    printf '  cg-update --list --show-dev -- include pre-releases and legacy dev tags\n'
     printf '\n'
     exit 0
 fi
@@ -364,9 +346,12 @@ fi
 # ---------------------------------------------------------------------------
 if [[ "$VERSION_MODE" == "latest" ]]; then
 
+    # Do not change the pin or branch when either the worktree or index is dirty.
+    refuse_tracked_changes
+
     # Persist "latest" when the user explicitly unpins with 'cg-update latest'
     if [[ "$VERSION_ARG" == "latest" ]]; then
-        printf 'latest' > "${VERSION_FILE}.tmp" && mv "${VERSION_FILE}.tmp" "$VERSION_FILE"
+        write_version_pin
     fi
 
     (
@@ -386,13 +371,6 @@ if [[ "$VERSION_MODE" == "latest" ]]; then
         BEFORE="$(git rev-parse --short HEAD 2>/dev/null)"
 
         print_cyan "Checking for updates..."
-
-        # Reset any accidental local changes before pulling.
-        # Warn first if there are uncommitted changes so developers don't lose work silently.
-        if ! git diff --quiet 2>/dev/null; then
-            print_warn "Local changes in compound-gpid installation will be reset before pulling."
-        fi
-        git checkout . 2>/dev/null || true
 
         if ! git pull --ff-only; then
             print_error "git pull failed"
@@ -432,6 +410,12 @@ if [[ "$VERSION_MODE" == "latest" ]]; then
         fi
         printf '\n'
         print_gray "Regenerating platform trees..."
+        if [[ -f "$COMPOUND_GPID_DIR/scripts/cg_retire_native_evidence.py" ]]; then
+            if ! "$PYTHON_CMD" "$COMPOUND_GPID_DIR/scripts/cg_retire_native_evidence.py" --root "$COMPOUND_GPID_DIR"; then
+                print_error "Update is blocked by preserved native-evidence residue."
+                exit 1
+            fi
+        fi
         if ! "$PYTHON_CMD" "$GENERATOR_SCRIPT" --root "$COMPOUND_GPID_DIR" --all 2>&1 | sed 's/^/  /'; then
             print_error "Platform tree generation failed; update and downstream refresh are blocked."
             exit 1
@@ -445,52 +429,103 @@ if [[ "$VERSION_MODE" == "latest" ]]; then
 else
     print_cyan "Checking out $VERSION_MODE..."
 
-    (
-        cd "$COMPOUND_GPID_DIR"
+    ORIGINAL_HEAD="$(git -C "$COMPOUND_GPID_DIR" rev-parse --verify HEAD)"
+    if ORIGINAL_BRANCH="$(git -C "$COMPOUND_GPID_DIR" symbolic-ref --quiet HEAD)"; then
+        :
+    else
+        BRANCH_STATUS=$?
+        [[ "$BRANCH_STATUS" -eq 1 ]] || exit "$BRANCH_STATUS"
+        ORIGINAL_BRANCH=""
+    fi
+    if [[ -L "$VERSION_FILE" || ( -e "$VERSION_FILE" && ! -f "$VERSION_FILE" ) ]]; then
+        print_error "Version pin must be a regular file or absent: $VERSION_FILE"
+        exit 1
+    fi
+    BACKUP_DIR="$(cd "${TMPDIR:-/tmp}" && pwd -P)"
+    INSTALL_REAL_DIR="$(cd "$COMPOUND_GPID_DIR" && pwd -P)"
+    case "$BACKUP_DIR/" in
+        "$INSTALL_REAL_DIR/"*) print_error "Pin backup directory must be outside the installation: $BACKUP_DIR"; exit 1 ;;
+    esac
+    PIN_BACKUP="$(mktemp "$BACKUP_DIR/cg-update-pin-XXXXXX")"
+    if [[ -f "$VERSION_FILE" ]]; then
+        PIN_PRESENT=true
+        cp "$VERSION_FILE" "$PIN_BACKUP"
+    fi
 
-        # Fetch tags first — fault-tolerant
-        git fetch --tags 2>/dev/null || \
-            print_warn "git fetch --tags failed -- continuing with cached tag data"
+    # Recognize old installer output by bytes, never by wrapper name alone.
+    "$PYTHON_CMD" "$COMPOUND_GPID_DIR/scripts/cg_restore_installer_wrappers.py" --root "$COMPOUND_GPID_DIR"
+    refuse_tracked_changes
 
-        ALL_TAGS="$(git tag --list 'v*' 2>/dev/null || true)"
-        RELEASE_TAGS_FILTERED="$(printf '%s\n' "$ALL_TAGS" | grep -E "$RELEASE_TAG_PATTERN" | cg_sort_release_tags || true)"
-        LATEST_TAG_LOCAL="$(printf '%s\n' "$RELEASE_TAGS_FILTERED" | head -1)"
-
-        # Validate the tag exists
-        if ! printf '%s\n' "$ALL_TAGS" | grep -qxF "$VERSION_MODE"; then
-            HINT=""
-            if [[ -n "$RELEASE_TAGS_FILTERED" ]]; then
-                HINT="$(printf '\nAvailable releases:\n'; printf '%s\n' "$RELEASE_TAGS_FILTERED" | head -5 | sed 's/^/  /')"
-            fi
-            print_error "Release '$VERSION_MODE' not found.$HINT"
-            printf '\nRun: cg-update --list   to see all available releases.\n' >&2
+    git -C "$COMPOUND_GPID_DIR" fetch --tags
+    ALL_TAGS="$(git -C "$COMPOUND_GPID_DIR" tag --list 'v*' --sort=-version:refname)"
+    RELEASE_TAGS_FILTERED="$(printf '%s\n' "$ALL_TAGS" | grep -E "$RELEASE_TAG_PATTERN" || true)"
+    LATEST_TAG_LOCAL="$(printf '%s\n' "$RELEASE_TAGS_FILTERED" | head -1)"
+    if ! printf '%s\n' "$ALL_TAGS" | grep -qxF "$VERSION_MODE"; then
+        HINT=""
+        if [[ -n "$RELEASE_TAGS_FILTERED" ]]; then
+            HINT="$(printf '\nAvailable releases:\n'; printf '%s\n' "$RELEASE_TAGS_FILTERED" | head -5 | sed 's/^/  /')"
+        fi
+        print_error "Release '$VERSION_MODE' not found.$HINT"
+        printf '\nRun: cg-update --list   to see all available releases.\n' >&2
+        exit 1
+    fi
+    TARGET_SHA="$(git -C "$COMPOUND_GPID_DIR" rev-parse --verify "refs/tags/$VERSION_MODE^{commit}")"
+    # A failing post-checkout hook can leave HEAD at the requested tag.
+    CHECKED_OUT_SHA="$TARGET_SHA"
+    if ! git -C "$COMPOUND_GPID_DIR" checkout --detach "refs/tags/$VERSION_MODE"; then
+        print_error "git checkout refs/tags/$VERSION_MODE failed"
+        exit 1
+    fi
+    for REQUIRED_SCRIPT in link.ps1 link.sh update.ps1 update.sh helpers.ps1 \
+        cg_generate_targets.py cg_project_manifest.py cg_project_projection.py \
+        cg_kilo_preflight.py cg_kilo_copy.py cg_migrate_research_layout.py \
+        research_layout.py secure_fs.py; do
+        if [[ ! -f "$COMPOUND_GPID_DIR/scripts/$REQUIRED_SCRIPT" ]]; then
+            print_error "Pinned target is missing required script: scripts/$REQUIRED_SCRIPT"
             exit 1
         fi
+    done
+    if ! "$PYTHON_CMD" "$COMPOUND_GPID_DIR/scripts/cg_generate_targets.py" \
+        --root "$COMPOUND_GPID_DIR" --all --dry-run; then
+        print_error "Pinned target validation failed; the pin was not changed."
+        exit 1
+    fi
+    VALIDATED_HEAD="$(git -C "$COMPOUND_GPID_DIR" rev-parse --verify HEAD)"
+    if [[ "$VALIDATED_HEAD" != "$CHECKED_OUT_SHA" ]]; then
+        print_error "HEAD changed during validation to '$VALIDATED_HEAD', expected '$CHECKED_OUT_SHA'. The pin was not changed."
+        exit 1
+    fi
+    write_version_pin
 
-        # Checkout the tag (detached HEAD is expected for pinned mode)
-        if ! git checkout "$VERSION_MODE" 2>/dev/null; then
-            print_error "git checkout $VERSION_MODE failed"
-            exit 1
-        fi
+    printf '\n'
+    print_green "Pinned to $VERSION_MODE."
+    printf '\n'
+    print_gray "Managed subdirectories (prompts/, skills/, agents/, instructions/) are"
+    print_gray "updated in all linked projects immediately via symlinks."
+    printf '\n'
+    print_gray "Run: cg-update latest   to return to tracking main."
 
-        # Persist the version preference only after successful checkout
-        printf '%s' "$VERSION_MODE" > "${VERSION_FILE}.tmp" && mv "${VERSION_FILE}.tmp" "$VERSION_FILE"
-
+    # Hint if there is a newer release
+    if [[ -n "$LATEST_TAG_LOCAL" && "$LATEST_TAG_LOCAL" != "$VERSION_MODE" ]]; then
         printf '\n'
-        print_green "Pinned to $VERSION_MODE."
-        printf '\n'
-        print_gray "Managed subdirectories (prompts/, skills/, agents/, instructions/) are"
-        print_gray "updated in all linked projects immediately via symlinks."
-        printf '\n'
-        print_gray "Run: cg-update latest   to return to tracking main."
+        print_yellow "Note: $LATEST_TAG_LOCAL is available. Run: cg-update $LATEST_TAG_LOCAL"
+    fi
+fi
 
-        # Hint if there is a newer release
-        NEWEST_PAIR="$(printf '%s\n' "$VERSION_MODE" "$LATEST_TAG_LOCAL" | cg_sort_release_tags | head -1)"
-        if [[ -n "$LATEST_TAG_LOCAL" && "$LATEST_TAG_LOCAL" != "$VERSION_MODE" && "$NEWEST_PAIR" == "$LATEST_TAG_LOCAL" ]]; then
-            printf '\n'
-            print_yellow "Note: $LATEST_TAG_LOCAL is available. Run: cg-update $LATEST_TAG_LOCAL"
-        fi
-    )
+# Check consumer residue before replacing any ownership evidence. Older target
+# packages have no helper; their inherited behavior is not changed here.
+if [[ "$VERSION_MODE" != "latest" ]] && [[ -f "$COMPOUND_GPID_DIR/scripts/cg_retire_native_evidence.py" ]]; then
+    if ! "$PYTHON_CMD" "$COMPOUND_GPID_DIR/scripts/cg_retire_native_evidence.py" --root "$COMPOUND_GPID_DIR"; then
+        print_error "Update is blocked by preserved native-evidence residue."
+        exit 1
+    fi
+fi
+if [[ "${CG_INTERNAL_CALL:-}" != "1" ]] && [[ "$(pwd)" != "$COMPOUND_GPID_DIR" ]] &&
+   [[ -f "$COMPOUND_GPID_DIR/scripts/cg_retire_native_evidence.py" ]]; then
+    if ! "$PYTHON_CMD" "$COMPOUND_GPID_DIR/scripts/cg_retire_native_evidence.py" --root "$(pwd)"; then
+        print_error "Update is blocked by preserved native-evidence residue; review the diagnostics above."
+        exit 1
+    fi
 fi
 
 # ---------------------------------------------------------------------------
@@ -524,11 +559,21 @@ def contained_path(root, relative, label):
         raise ValueError(f"{label} path escapes its root: {relative}")
     return full
 
-with open(manifest_path, "r", encoding="utf-8") as handle:
-    manifest = json.load(handle)
-files = manifest.setdefault("files", {})
+try:
+    with open(manifest_path, "r", encoding="utf-8-sig") as handle:
+        manifest = json.load(handle)
+    if (not isinstance(manifest, dict) or
+            manifest.get("schemaVersion") != "compound-gpid-managed-files-v1" or
+            not isinstance(manifest.get("files"), dict)):
+        raise ValueError("invalid receipt schema")
+except (OSError, ValueError) as error:
+    sys.stderr.write(f"WARNING: managed-files.json ignored (no receipt): {error}\n")
+    sys.exit(0)
+files = manifest["files"]
 changed = False
 for target_rel in list(files.keys()):
+    if target_rel == ".github/copilot-instructions.md":
+        continue  # Generated instructions use the shared Copilot policy below.
     record = files[target_rel]
     try:
         target_path = contained_path(project_root, target_rel, "Managed target")
@@ -567,35 +612,28 @@ if changed:
 PYEOF
 fi
 
-# Re-run the Kilo containment gate for an already linked consumer project. The
-# internal cg-link update is skipped here; link.sh runs the gate after copying
-# the fresh project-local Kilo projection.
+# Validate only legacy generated copies. Manifest projections have their own
+# ownership validation below; user-level skill roots are not generated copies.
+# Internal cg-link calls leave validation and the single note to link.sh.
 if [[ "${CG_INTERNAL_CALL:-}" != "1" ]] &&
    [[ "$(pwd -P)" != "$(cd "$COMPOUND_GPID_DIR" && pwd -P)" ]] &&
-   [[ -d "$(pwd)/.kilo/skills" ]] &&
-   [[ -d "$(pwd)/.compound-gpid" || -d "$(pwd)/.agents/skills" || -d "$(pwd)/.claude/skills" ]]; then
-    PREFLIGHT_ARGS=("$COMPOUND_GPID_DIR/scripts/cg_kilo_preflight.py" --root "$(pwd)" --json)
-    if [[ -d "$(pwd)/.agents/skills" || -d "$(pwd)/.claude/skills" ]]; then
-        PREFLIGHT_ARGS+=(--require-coexistence)
-        PREFLIGHT_LABEL="coexistence"
-    else
-        PREFLIGHT_ARGS+=(--local-only)
-        PREFLIGHT_LABEL="local"
-    fi
+   [[ -f "$(pwd)/.kilo/skills/.compound-gpid-managed-copy.json" ]]; then
+    PREFLIGHT_ARGS=("$COMPOUND_GPID_DIR/scripts/cg_kilo_preflight.py" --root "$(pwd)" --json --local-only)
     set +e
     PREFLIGHT_OUTPUT="$($PYTHON_CMD "${PREFLIGHT_ARGS[@]}")"
     PREFLIGHT_STATUS=$?
     set -e
     if [[ "$PREFLIGHT_STATUS" -ne 0 ]]; then
-        print_error "Update is blocked by Kilo coexistence preflight."
+        print_error "Update is blocked by local generated Kilo file validation."
         printf '%s\n' "$PREFLIGHT_OUTPUT" >&2
         exit "$PREFLIGHT_STATUS"
     fi
     PREFLIGHT_RESULT="$(printf '%s\n' "$PREFLIGHT_OUTPUT" | "$PYTHON_CMD" -c 'import json,sys; print(json.load(sys.stdin)["status"])')"
-    print_gray "Kilo preflight ($PREFLIGHT_LABEL): $PREFLIGHT_RESULT"
-    if [[ "$PREFLIGHT_LABEL" == "coexistence" ]]; then
-        print_yellow "Certified launch required: cg-kilo (direct Kilo launches unsupported with compatibility roots)."
-    fi
+    print_gray "Kilo preflight (local): $PREFLIGHT_RESULT"
+fi
+if [[ "${CG_INTERNAL_CALL:-}" != "1" && -d "$(pwd)/.kilo/skills" &&
+      ( -d "$(pwd)/.agents/skills" || -d "$(pwd)/.claude/skills" ) ]]; then
+    print_yellow "Note: Kilo and compatibility skills coexist. Use cg-kilo for an optional contained launch."
 fi
 
 # ---------------------------------------------------------------------------
@@ -628,22 +666,11 @@ CWD_COPILOT_DEST="$CWD_GITHUB/copilot-instructions.md"
 
 # Refresh copilot-instructions.md — skipped when called internally by cg-link
 # (cg-link handles the refresh itself to avoid doing it twice).
-if [[ "${CG_INTERNAL_CALL:-}" != "1" ]] && \
+if [[ "${CG_INTERNAL_CALL:-}" != "1" && "$UPDATE_IS_SOURCE" != "true" ]] && \
    [[ -d "$CWD_GITHUB" ]] && [[ -f "$CWD_COPILOT_DEST" ]]; then
 
-    if grep -qF "$COPILOT_INSTRUCTIONS_MARKER" "$CWD_COPILOT_DEST" 2>/dev/null; then
-        TEMPLATE_PATH="$COMPOUND_GPID_DIR/.github/copilot-instructions.template.md"
-        if [[ -f "$TEMPLATE_PATH" ]]; then
-            EXISTING_CONTENT="$(< "$CWD_COPILOT_DEST")"
-            GENERATED="$(generate_copilot_instructions "$TEMPLATE_PATH" "$(pwd)" "$COPILOT_INSTRUCTIONS_MARKER")"
-            if [[ "$GENERATED" != "$EXISTING_CONTENT" ]]; then
-                printf '%s' "$GENERATED" > "${CWD_COPILOT_DEST}.tmp" && mv "${CWD_COPILOT_DEST}.tmp" "$CWD_COPILOT_DEST"
-                print_gray "Refreshed copilot-instructions.md in current project."
-            else
-                print_gray "copilot-instructions.md up to date."
-            fi
-        fi
-    fi
+    "$PYTHON_CMD" -B "$COMPOUND_GPID_DIR/scripts/cg_kilo_copy.py" \
+        --copilot-action update --source-root "$COMPOUND_GPID_DIR" --project-root "$(pwd)"
 fi
 
 # Apply the research migration for native-target-only projects that do not have

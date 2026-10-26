@@ -17,7 +17,6 @@ COMPOUND_GPID_DIR="$(dirname "$SCRIPT_DIR")"
 PROJECT_ROOT="$(pwd)"
 MANIFEST_PATH="$PROJECT_ROOT/.compound-gpid/managed-files.json"
 GITIGNORE_PATH="$PROJECT_ROOT/.gitignore"
-COPILOT_INSTRUCTIONS_MARKER="<!-- compound-gpid:managed -->"
 KILO_COMPAT_MIRROR_ROOT_REL=".compound-gpid/kilo-compat-skills"
 
 print_cyan()   { printf '\033[0;36m%s\033[0m\n' "$1"; }
@@ -192,14 +191,6 @@ remove_directory_unit() {
 remove_file_unit() {
     local target_rel="$1" target_path
     target_path="$PROJECT_ROOT/$target_rel"
-    if [ "$target_rel" = ".github/copilot-instructions.md" ]; then
-        if [ -f "$target_path" ] && grep -qF "$COPILOT_INSTRUCTIONS_MARKER" "$target_path" 2>/dev/null; then
-            rm -f "$target_path"
-            print_gray "$target_rel - removed"
-            return 0
-        fi
-        return 1
-    fi
     "$PYTHON_CMD" - "$MANIFEST_PATH" "$target_rel" "$target_path" <<'PYEOF'
 import hashlib
 import json
@@ -217,9 +208,17 @@ def sha256(path):
 
 if not os.path.exists(manifest_path):
     sys.exit(1)
-with open(manifest_path, "r", encoding="utf-8") as handle:
-    manifest = json.load(handle)
-files = manifest.setdefault("files", {})
+try:
+    with open(manifest_path, "r", encoding="utf-8-sig") as handle:
+        manifest = json.load(handle)
+    if (not isinstance(manifest, dict) or
+            manifest.get("schemaVersion") != "compound-gpid-managed-files-v1" or
+            not isinstance(manifest.get("files"), dict)):
+        raise ValueError("invalid receipt schema")
+except (OSError, ValueError) as error:
+    sys.stderr.write(f"WARNING: managed-files.json ignored (no receipt): {error}\n")
+    sys.exit(1)
+files = manifest["files"]
 record = files.get(target_rel)
 if not record:
     sys.exit(1)
@@ -316,6 +315,13 @@ done
 while IFS='|' read -r target_rel unit_type source_rel platform; do
     if [ "$unit_type" = "directory" ]; then
         if remove_directory_unit "$target_rel" "$source_rel" "$platform"; then REMOVED_ANY=true; fi
+    elif [ "$target_rel" = ".github/copilot-instructions.md" ]; then
+        # Do not hide worker errors behind the generic file-unit skip path.
+        copilot_existed=false
+        if [ -e "$PROJECT_ROOT/$target_rel" ] || [ -L "$PROJECT_ROOT/$target_rel" ]; then copilot_existed=true; fi
+        "$PYTHON_CMD" -B "$COMPOUND_GPID_DIR/scripts/cg_kilo_copy.py" \
+            --copilot-action unlink --source-root "$COMPOUND_GPID_DIR" --project-root "$PROJECT_ROOT"
+        if [ "$copilot_existed" = true ] && [ ! -e "$PROJECT_ROOT/$target_rel" ] && [ ! -L "$PROJECT_ROOT/$target_rel" ]; then REMOVED_ANY=true; fi
     else
         status="$(remove_file_unit "$target_rel" || true)"
         case "$status" in

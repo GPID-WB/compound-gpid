@@ -129,16 +129,17 @@ test("rejects symbolic links inside the site", (t) => {
 
 test("retains the protected controller, exact build identity, lineage, and newest-release gates", () => {
   for (const guard of [
-    'workflows: ["Build release documentation", "Deploy documentation site"]',
-    "github.event.workflow_run.conclusion == 'success'",
+    'workflows: ["Build release documentation"]',
+    "if: github.event.workflow_run.conclusion == 'success'",
     "name: github-pages",
-    "ref: ${{ github.sha }}",
-    "artifact-ids: ${{ steps.authority.outputs.artifact_id }}",
-    "run-id: ${{ inputs.build_run_id || github.event.workflow_run.id }}",
-    "RELEASE_TAG: ${{ steps.authority.outputs.release_tag }}",
-    "RELEASE_SHA: ${{ steps.authority.outputs.release_sha }}",
-    'node scripts/legacy-pages.js check',
-    'required_branch="$(node scripts/release-version.js --resolve-source)"',
+    "ref: main",
+    "name: release-docs-site",
+    "run-id: ${{ github.event.workflow_run.id }}",
+    "RELEASE_TAG: ${{ github.event.workflow_run.head_branch }}",
+    "RELEASE_SHA: ${{ github.event.workflow_run.head_sha }}",
+    'required_branch="main"',
+    'if [[ "$RELEASE_TAG" =~ ^v[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+$ ]]; then\n            required_branch="dev"',
+    'elif [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\\.[0-9]+\\.[0-9]+$ ]]; then',
     'test "$(git rev-list -n 1 "$RELEASE_TAG")" = "$RELEASE_SHA"',
     'git merge-base --is-ancestor "$RELEASE_SHA" "origin/$required_branch"',
     'git fetch origin "$required_branch" "refs/tags/$RELEASE_TAG:refs/tags/$RELEASE_TAG"',
@@ -147,34 +148,8 @@ test("retains the protected controller, exact build identity, lineage, and newes
     'git fetch origin "$RELEASE_BRANCH"',
     "cmp -s release-validation/releases/latest.json release-validation/recheck-latest.json",
   ]) assert.ok(workflow.includes(guard), `Missing guard: ${guard}`);
-  const {assertReleaseSource} = require('../../release-version.js');
-  assert.equal(assertReleaseSource('v1.2.3', 'deploy/2.x', 'production', {production_branches: ['deploy/2.x']}), 'deploy/2.x');
-  assert.equal(assertReleaseSource('v1.2.3.9000', 'feature/test', 'production', null), 'feature/test');
-  assert.throws(() => assertReleaseSource('v1.2.3', 'feature/test', 'production', null));
-  assert.throws(() => assertReleaseSource('v1.2.3-rc.1', 'production', 'production', null));
-  assert.throws(() => assertReleaseSource('v1.2', 'production', 'production', null));
   assert.ok(!workflow.includes('git merge-base --is-ancestor origin/main "$RELEASE_SHA"'),
     "Dev releases use selected-branch lineage, not the moving main tip");
   assert.ok(workflow.indexOf("name: Recheck release is still newest")
     < workflow.indexOf("name: Deploy to GitHub Pages"));
-});
-
-test("skips four-part tags before artifact access or privileged Pages deployment", () => {
-  const classify = workflow.match(/^  classify:\n([\s\S]*?)(?=^  deploy:\n)/m)?.[1];
-  assert.ok(classify, "An unprivileged classifier must precede deploy");
-  assert.match(classify, /permissions:\n      contents: read\n      actions: read\n/);
-  assert.doesNotMatch(classify, /pages: write|id-token: write|download-artifact|deploy-pages/);
-  assert.match(classify, /ref: \$\{\{ github\.sha \}\}/);
-  assert.match(classify, /RELEASE_TAG: \$\{\{ github\.event\.workflow_run\.head_branch \}\}/);
-  assert.match(classify, /node scripts\/release-version\.js --full-site-tag "\$RELEASE_TAG"/);
-  const classifier = path.join(root, "scripts/release-version.js");
-  for (const [tag, expected] of [["v1.2.0", "true"], ["v1.2.0.9020", "false"]]) {
-    const result = spawnSync(process.execPath, [classifier, "--full-site-tag", tag], {
-      encoding: "utf8", timeout: 10000,
-    });
-    assert.equal(result.status, 0, result.stderr);
-    assert.equal(result.stdout.trim(), expected);
-  }
-  assert.match(workflow, /  deploy:\n    needs: classify\n    if: needs\.classify\.outputs\.full_site == 'true'/);
-  assert.ok(workflow.indexOf("  classify:") < workflow.indexOf("  deploy:"));
 });

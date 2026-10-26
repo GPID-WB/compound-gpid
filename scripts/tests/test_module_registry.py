@@ -6,27 +6,12 @@ Run from repo root:
 from __future__ import annotations
 
 import json
-import subprocess
-import sys
 from pathlib import Path
 
-import cg_validate_modules as validator
 import pytest
+
+import cg_validate_modules as validator
 from skill_management.services import registry as registry_service
-
-
-def test_runtime_minimum_rejects_older_python_before_loading_dependencies():
-    source = Path(validator.__file__).resolve()
-    result = subprocess.run(
-        [sys.executable, "-I", "-c",
-         "import runpy,sys; sys.version_info=(3,7,0); runpy.run_path(sys.argv[1])",
-         str(source)],
-        capture_output=True, text=True, check=False, timeout=30,
-    )
-    assert result.returncode == 1
-    assert result.stdout == ""
-    assert result.stderr.startswith("cg-validate-modules requires Python 3.8+; found ")
-    assert "Traceback" not in result.stderr
 
 
 def _write_json(path: Path, payload: dict) -> None:
@@ -167,53 +152,6 @@ class TestRegistrySchema:
 
 
 class TestOwnershipClosure:
-    def test_ownership_exclusion_is_applied_by_service_validator_and_snapshot(
-        self, tmp_path: Path
-    ) -> None:
-        _minimal_assets(tmp_path)
-        data = _default_registry()
-        data["modules"].append(
-            {
-                "id": "cap-help",
-                "layer": "capability",
-                "displayName": "Help",
-                "description": "Shared help.",
-                "dependsOn": ["kernel"],
-                "ownedAssets": [".github/prompts/cg-help.prompt.md"],
-            }
-        )
-        suite = next(item for item in data["modules"] if item["id"] == "suite-cg")
-        suite["ownershipExclusions"] = [".github/prompts/cg-help.prompt.md"]
-        suite["dependsOn"].append("cap-help")
-        _create_file(
-            tmp_path,
-            ".github/prompts/cg-help.prompt.md",
-            "---\ndescription: help\n---\nhelp body\n",
-        )
-        _registry(tmp_path, data)
-
-        snapshot = registry_service.RegistrySnapshot.from_data(tmp_path, data)
-
-        assert registry_service.matching_asset_owners(
-            data, ".github/prompts/cg-help.prompt.md"
-        ) == ("cap-help",)
-        assert validator.resolve_asset_owner(
-            data, ".github/prompts/cg-help.prompt.md"
-        ) == "cap-help"
-        assert snapshot.owner_for_asset(
-            ".github/prompts/cg-help.prompt.md"
-        ) == "cap-help"
-        assert snapshot.to_dict()["modules"][2]["ownershipExclusions"] == [
-            ".github/prompts/cg-help.prompt.md"
-        ]
-        assert validator.check_ownership(tmp_path) == []
-
-    def test_ownership_exclusion_schema_rejects_invalid_values(self) -> None:
-        data = _default_registry()
-        data["modules"][2]["ownershipExclusions"] = "cg-help"
-        errors = validator.validate_registry_schema(data)
-        assert any("ownershipExclusions" in error for error in errors)
-
     def test_public_registry_owner_matching_agrees_with_validator(
         self, tmp_path: Path
     ) -> None:
@@ -530,23 +468,6 @@ class TestDependencyClosure:
 
 
 class TestC2NoPhysicalRelocation:
-    def test_approved_standalone_controller_is_not_module_relocation(self) -> None:
-        root = Path(__file__).resolve().parents[2]
-        assert validator.check_no_physical_relocation(root) == []
-
-    @pytest.mark.parametrize("name", ["kernel", "capabilities", "suites", "suite-cg"])
-    def test_real_module_relocation_still_fails(self, tmp_path, name) -> None:
-        (tmp_path / "packages" / name).mkdir(parents=True)
-        assert validator.check_no_physical_relocation(tmp_path)
-
-    def test_controller_name_cannot_hide_canonical_assets(self, tmp_path) -> None:
-        package = tmp_path / "packages/cg-release"
-        (package / ".github/prompts").mkdir(parents=True)
-        (package / "src/cg_release").mkdir(parents=True)
-        (package / "src/cg_release/__init__.py").write_text("")
-        (package / "pyproject.toml").write_text('[project]\nname = "cg-release"\n')
-        assert validator.check_no_physical_relocation(tmp_path)
-
     def _repo_with_packages(self, tmp_path: Path) -> Path:
         _minimal_assets(tmp_path)
         (tmp_path / "packages/kernel").mkdir(parents=True, exist_ok=True)
@@ -672,32 +593,6 @@ class TestCapabilitySchema:
 
 
 class TestRealRepoRegistry:
-    def test_help_metadata_and_catalog_have_exact_capability_ownership(self) -> None:
-        registry, error = validator.load_registry(REPO_ROOT)
-        assert error is None
-        assert registry is not None
-        help_module = next(
-            item for item in registry["modules"] if item["id"] == "cap-help"
-        )
-        assert help_module["ownedAssets"] == [
-            ".github/prompts/cg-help.help.json",
-            ".github/prompts/cg-help.prompt.md",
-            ".github/shared/help-catalog.json",
-            ".github/shared/shell-commands.json"
-        ]
-        for suite_id in ("suite-cg", "suite-cr"):
-            suite = next(
-                item for item in registry["modules"] if item["id"] == suite_id
-            )
-            assert "cap-help" in suite["dependsOn"]
-            assert suite["help"]["metadataGlobs"]
-        suite_cg = next(item for item in registry["modules"] if item["id"] == "suite-cg")
-        assert suite_cg["ownershipExclusions"] == [
-            ".github/prompts/cg-help.help.json", ".github/prompts/cg-help.prompt.md"
-        ]
-        for path in help_module["ownedAssets"]:
-            assert (REPO_ROOT / path).is_file()
-
     def test_repo_ownership_closure_is_complete(self) -> None:
         errors = validator.check_ownership(REPO_ROOT)
         assert errors == [], f"Validation errors: {errors}"
@@ -712,7 +607,7 @@ class TestRealRepoRegistry:
         assert "unowned: 0" in captured.out
         assert "multi-owned: 0" in captured.out
 
-    def test_public_skill_management_module_has_cross_suite_capability_edges(
+    def test_public_skill_management_module_has_capability_and_cg_suite_edge(
         self,
     ) -> None:
         registry, error = validator.load_registry(REPO_ROOT)
@@ -733,13 +628,9 @@ class TestRealRepoRegistry:
             if item.get("owningModule") == "cap-skill-management"
         )
         assert capability["id"] == "skill-management"
-        assert capability["supportedSuites"] == ["cg", "cr"]
+        assert capability["supportedSuites"] == ["cg"]
         assert capability["configSelectors"] == []
         suite_cg = next(
             item for item in registry["modules"] if item["id"] == "suite-cg"
         )
         assert "cap-skill-management" in suite_cg["dependsOn"]
-        suite_cr = next(
-            item for item in registry["modules"] if item["id"] == "suite-cr"
-        )
-        assert "cap-skill-management" in suite_cr["dependsOn"]

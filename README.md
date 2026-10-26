@@ -1,4 +1,4 @@
-﻿> [!NOTE]
+> [!NOTE]
 > **⚠️ WORK IN PROGRESS**
 >
 > Core workflows (brainstorm, plan, work, review, fix-triage, compound) are stable.
@@ -15,6 +15,13 @@ A GitHub Copilot plugin for data science teams, built on the [Compound Engineeri
 > through per-platform install units. `cg-link` links all supported platforms by
 > default; use `cg-link --platforms copilot` or another comma-separated list to
 > narrow the install.
+
+Install, update, and link do not require Kilo, a minimum Kilo version, or host
+certification. Kilo host checks belong to the optional `cg-kilo` launcher.
+Old or unreadable version output produces a warning, not a version-based block.
+For a Kilo launch with Codex/Claude skill roots, `cg-kilo` retains projection and
+containment checks and sets `KILO_DISABLE_EXTERNAL_SKILLS=1` only for the child
+process. See [Installation](docs/installation.md) for the launch boundary.
 
 Native targets package each canonical skill as an **atomic skill bundle**. A
 bundle contains `SKILL.md` plus all nested regular files and **includes them by default**;
@@ -37,13 +44,12 @@ Compound GPID enforces a repeatable **Brainstorm → Plan → Work → Review �
 - **Knowledge brain** — `cg-index --brain` and `/cg-brain-rebuild` build a structured knowledge brain (`BRAIN.md`, `BRAIN-NN.md`, `BRAIN-log.md`, `brain-index.json`) by clustering `.cg-docs/` artifacts into topics and mapping typed relationships between artifacts — so every session can surface relevant past work automatically.
 - **Roadmap tracking** — `@cg-roadmap` manages a `roadmap.json` milestone and feature tracker. Brainstorm, Plan, and Work prompts hook into it automatically: brainstorms register feature ideas, plans link to features, and work marks them active — so your roadmap stays current without manual updates.
 - **Modular suites** — a validated registry separates the kernel, reusable capability packs, the technical `/cg-*` suite, and the research `/cr-*` suite. Projects select `suites: [cg]`, `[cr]`, or `[cg, cr]` without creating cross-suite dependencies.
-- **Supervised batch execution (Kilo)** — `/cg-autopilot` runs a strict phased plan as supervised stage batches with parent-only checkpoints, scoped approvals, bounded repair rounds, and drift-proof publication. Probe-only bootstrap until native qualification completes; the specified contract is documented in [docs/reference.md](docs/reference.md).
 - **Cross-platform** — native support for GitHub Copilot, Claude Code, Codex, OpenCode, and Kilo from a single `.github/` source. Generated platform trees are committed, release-validated, and distributed through merge-safe per-platform install units. `cg-link` links all platforms by default.
-- **Zero friction** — one global clone, per-subdirectory symlinks (junctions on Windows, symlinks on macOS), and shell commands (`cg-link`, `cg-unlink`, `cg-update`, `cg-index`, `cg-brain-init`, `cg-publish-markdown`, `cg-token-audit`) wire everything into VS Code / Positron automatically.
+- **Zero friction** — one global clone, per-project links and managed projections, and shell commands (`cg-link`, `cg-unlink`, `cg-update`, `cg-index`, `cg-brain-init`, `cg-publish-markdown`, `cg-token-audit`) wire everything into VS Code / Positron automatically.
 - **Secure document views** — `cg-publish-markdown` turns one project-contained generic Markdown file into a deterministic, self-contained `reference` HTML view while preserving strict Brainstorm/Plan validation and excluding generated bodies from model context.
 - **Token guidance** — `/cg-token-audit` runs deterministic context/model analysis and returns compact advice on context size, review depth, and model selection without changing project files.
-- **Team-wide** — update once, every linked project gets the new version instantly.
-- **Version management** — pin to a specific release for stability, or track `main` for the latest features. Switch at any time with `cg-update v0.2.0` / `cg-update latest`.
+- **Team-wide** — one global update serves linked projects; rerun `cg-link` from each project root with its intended platform selection to refresh managed copies and projections.
+- **Version management** — pin to a specific release for stability, or track `main` for the latest features. Switch with `cg-update v1.2.0.9024` / `cg-update latest`. For older installations, follow the [Upgrade Guide](docs/upgrade.md) first.
 
 ## Documentation
 
@@ -61,7 +67,6 @@ Compound GPID enforces a repeatable **Brainstorm → Plan → Work → Review �
 | [Modular Guide](docs/modular-guide.md) | Suite selection, capability composition, registry ownership, and extension rules |
 | [Governance](docs/governance/index.md) | Data safeguards, review gates, operating constraints, and limitations |
 | [Reference](docs/reference.md) | Complete commands, agents, schemas, configuration, and file structure |
-| [Release Controller](docs/release-controller.md) | Standalone CLI installation, disabled setup, recovery and deferred live rollout checks |
 | [Help](docs/help/index.md) | Recovery routes and complete troubleshooting links |
 
 ## Contributing

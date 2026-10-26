@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate and launch the certified, contained Kilo project host.
+"""Validate and launch the contained Kilo project host.
 
 The Kilo editor extension can discover compatible skills outside a project. This
 module keeps the containment decision in one stdlib-only implementation so the
@@ -22,17 +22,8 @@ from typing import Any, Iterable, Optional, Sequence
 
 
 CONTAINMENT_ENVIRONMENT = "KILO_DISABLE_EXTERNAL_SKILLS"
-MINIMUM_KILO_VERSION = (7, 4, 20)
-# SemVer pre-release/build suffix shared by the version reader and the
-# minimum-version gate; pre-releases are accepted per the recorded
-# release_controller.semver_migration decision.
-_VERSION_SUFFIX_PATTERN = r"(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-.]+)?"
-VERSION_PATTERN = re.compile(
-    r"(?<!\d)(\d+\.\d+\.\d+)" + _VERSION_SUFFIX_PATTERN + r"(?!\d)"
-)
-_VERSION_FULLMATCH_PATTERN = re.compile(
-    r"(\d+)\.(\d+)\.(\d+)" + _VERSION_SUFFIX_PATTERN
-)
+# Historical diagnostic reference only, never a version acceptance gate.
+CHARACTERIZED_KILO_VERSION = "7.4.20"
 REQUIRED_LOCAL_ROOTS = (
     ".kilo/commands",
     ".kilo/skills",
@@ -43,6 +34,7 @@ REQUIRED_LOCAL_ROOTS = (
 REPARSE_POINT_FLAG = 0x400
 MANAGED_COPY_MARKER = ".compound-gpid-managed-copy.json"
 MAX_HOST_OUTPUT_BYTES = 2 * 1024 * 1024
+VERSION_PATTERN = re.compile(r"(?:kilo(?: code)?\s+)?v?((?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*))", re.IGNORECASE)
 COMPATIBILITY_ROOTS = frozenset({".agents", "agents", ".claude", "claude"})
 
 EXIT_OK = 0
@@ -58,7 +50,6 @@ class PreflightStatus:
     OK = "ok"
     NO_COEXISTENCE = "ok-no-coexistence"
     MISSING_KILO = "missing-kilo"
-    UNSUPPORTED_VERSION = "unsupported-kilo-version"
     LOCAL_PROJECTION_MISSING = "local-projection-missing"
     LOCAL_PROJECTION_INVALID = "local-projection-invalid"
     LOCAL_CONTENT_INVALID = "local-content-invalid"
@@ -99,6 +90,7 @@ class PreflightResult:
     inventory: InventorySummary = field(default_factory=InventorySummary)
     containment_environment: Optional[str] = None
     host_evidence: str = "unavailable"
+    warnings: tuple[str, ...] = ()
 
     def as_json(self) -> dict[str, Any]:
         """Return a JSON-safe dictionary with deterministic nested values."""
@@ -127,6 +119,7 @@ class PreflightResult:
             },
             "containment_environment": self.containment_environment,
             "host_evidence": self.host_evidence,
+            "warnings": list(self.warnings),
         }
 
 
@@ -411,24 +404,9 @@ def _candidate_kilo_executables(explicit: Optional[str] = None) -> list[Path]:
 
 
 def resolve_kilo_executable(explicit: Optional[str] = None) -> Optional[Path]:
-    """Resolve the first available Kilo executable without changing PATH."""
+    """Resolve an available Kilo executable without a version acceptance gate."""
     candidates = _candidate_kilo_executables(explicit)
-    for candidate in candidates:
-        version, _error = _read_version(candidate, Path.cwd())
-        if supported_kilo_version(version):
-            return candidate
     return candidates[0] if candidates else None
-
-
-def supported_kilo_version(version: Optional[str]) -> bool:
-    """Check the minimum runtime version; exact certification is a separate gate.
-
-    SemVer pre-release and build suffixes are accepted, but the supported
-    minimum still applies to the core major.minor.patch triplet.
-    """
-    match = _VERSION_FULLMATCH_PATTERN.fullmatch(version) if isinstance(version, str) else None
-    return (match is not None
-            and tuple(int(match.group(index)) for index in (1, 2, 3)) >= MINIMUM_KILO_VERSION)
 
 
 def _run_host_command(
@@ -507,15 +485,11 @@ def _run_host_command(
 
 
 def _read_version(executable: Path, project_root: Path) -> tuple[Optional[str], Optional[str]]:
-    """Read and normalize the Kilo executable version from one full line."""
+    """Read and normalize the Kilo executable version."""
     stdout, stderr, return_code = _run_host_command(executable, project_root, ("--version",))
     if return_code != 0 or stdout is None:
         return None, "Kilo version command failed"
-    first_line = next(
-        (line.strip() for line in stdout.splitlines() if line.strip()),
-        "",
-    )
-    match = VERSION_PATTERN.fullmatch(first_line)
+    match = VERSION_PATTERN.fullmatch(stdout.strip())
     if not match:
         return None, "Kilo version output was not recognized"
     return match.group(1), None
@@ -678,13 +652,9 @@ def run_preflight(
         return _result(
             PreflightStatus.MISSING_KILO,
             EXIT_HOST_UNAVAILABLE,
-            "No supported Kilo executable was found on PATH or in the installed editor extensions.",
+            "No Kilo executable was found on PATH or in the installed editor extensions.",
             "Install or enable the Kilo editor extension, then rerun cg-kilo. "
-            + (
-                "Combined Kilo+Codex use is blocked until this certified host is available."
-                if certified_required
-                else "Host inventory is only required for a combined project."
-            ),
+            "This optional launcher needs a Kilo executable; install, update, and link do not.",
             root,
             codex_root_present=codex_present,
             claude_root_present=claude_present,
@@ -695,27 +665,19 @@ def run_preflight(
 
     version, version_error = _read_version(executable, root)
     executable_sha256 = _file_sha256(executable)
-    if version_error or not supported_kilo_version(version):
-        detail = version_error or f"Kilo version {version} is below the supported minimum 7.4.20."
-        return _result(
-            PreflightStatus.UNSUPPORTED_VERSION,
-            EXIT_HOST_UNAVAILABLE,
-            detail,
-            "Use Kilo 7.4.20 or later and rerun cg-kilo. "
-            + (
-                "Direct launches remain unsupported for a combined project."
-                if certified_required
-                else "Direct launches are supported once a supported version is available."
-            ),
-            root,
-            kilo_executable=str(executable),
-            kilo_version=version,
-            kilo_executable_sha256=executable_sha256,
-            codex_root_present=codex_present,
-            claude_root_present=claude_present,
-            certified_launch_required=certified_required,
-            direct_launch_supported=direct_supported,
-            local_skill_names=local_skill_names,
+    warnings: tuple[str, ...] = ()
+    if version_error:
+        warnings = (
+            f"{version_error}. Version diagnostics are advisory; "
+            "continuing with projection and containment checks.",
+        )
+    elif version and tuple((len(part), part) for part in version.split(".")) < tuple(
+        (len(part), part) for part in CHARACTERIZED_KILO_VERSION.split(".")
+    ):
+        warnings = (
+            f"Kilo version {version} predates the historical containment "
+            f"characterization ({CHARACTERIZED_KILO_VERSION}). No minimum or "
+            "certified host version is required; continuing with containment checks.",
         )
 
     plain_inventory, plain_reason, plain_error = _inventory(executable, root, contained=False)
@@ -742,6 +704,7 @@ def run_preflight(
             certified_launch_required=certified_required,
             direct_launch_supported=direct_supported,
             local_skill_names=local_skill_names,
+            warnings=warnings,
         )
     containment_required = certified_required or bool(
         plain_inventory and plain_inventory.external_compatibility_locations
@@ -760,7 +723,7 @@ def run_preflight(
                 status,
                 EXIT_HOST_SCHEMA if status == PreflightStatus.HOST_SCHEMA_ERROR else EXIT_HOST_UNAVAILABLE,
                 contained_error,
-                "The certified containment check could not complete. "
+                "The containment check could not complete. "
                 "Do not use a direct Kilo launch with Codex or Claude roots present.",
                 root,
                 kilo_executable=str(executable),
@@ -772,6 +735,7 @@ def run_preflight(
                 direct_launch_supported=direct_supported,
                 local_skill_names=local_skill_names,
                 inventory=plain_inventory or InventorySummary(),
+                warnings=warnings,
             )
         assert contained_inventory is not None
         if contained_inventory.external_compatibility_locations:
@@ -780,8 +744,8 @@ def run_preflight(
                 EXIT_CONTAINMENT,
                 "Kilo still discovered external Codex/Claude skill roots with the "
                 f"{CONTAINMENT_ENVIRONMENT}=1 child-process control.",
-                "Use the certified cg-kilo launcher with a supported Kilo version, "
-                "or upgrade/report the incompatible host. Direct editor/CLI launches "
+                "Inspect or report the host's containment behavior. "
+                "Direct editor/CLI launches "
                 "are unsupported while compatibility roots are present.",
                 root,
                 kilo_executable=str(executable),
@@ -794,6 +758,7 @@ def run_preflight(
                 local_skill_names=local_skill_names,
                 inventory=contained_inventory,
                 containment_environment=CONTAINMENT_ENVIRONMENT,
+                warnings=warnings,
             )
         inventory = contained_inventory
         host_evidence = "verified-contained"
@@ -814,6 +779,7 @@ def run_preflight(
                 certified_launch_required=certified_required,
                 direct_launch_supported=direct_supported,
                 local_skill_names=local_skill_names,
+                warnings=warnings,
             )
         inventory = plain_inventory
         host_evidence = "verified-local"
@@ -839,7 +805,7 @@ def run_preflight(
             EXIT_HOST_SCHEMA,
             "Kilo did not advertise valid local skills: " + ", ".join(missing_local),
             "Treat this as a local content or upstream Kilo schema problem, not as "
-            "external discovery. Validate frontmatter and check the certified host version.",
+            "external discovery. Validate frontmatter and inspect the host's schema diagnostics.",
             root,
             kilo_executable=str(executable),
             kilo_version=version,
@@ -852,11 +818,12 @@ def run_preflight(
             inventory=inventory,
             containment_environment=CONTAINMENT_ENVIRONMENT if certified_required else None,
             host_evidence=host_evidence,
+            warnings=warnings,
         )
 
     status = PreflightStatus.OK if certified_required else PreflightStatus.NO_COEXISTENCE
     message = (
-        "Certified Kilo containment verified: local .kilo/skills is available and "
+        "Kilo containment verified: local .kilo/skills is available and "
         "external compatibility roots are excluded."
         if certified_required
         else "Kilo host and project-local projection verified; no Codex/Claude coexistence root is present."
@@ -878,6 +845,7 @@ def run_preflight(
         inventory=inventory,
         containment_environment=CONTAINMENT_ENVIRONMENT if certified_required else None,
         host_evidence=host_evidence,
+        warnings=warnings,
     )
 
 
@@ -899,9 +867,11 @@ def _emit_result(result: PreflightResult, json_output: bool) -> None:
         return
     prefix = "PASS" if result.exit_code == EXIT_OK else "BLOCKED"
     sys.stdout.write(f"{prefix}: {result.status} - {result.message}\n")
+    for warning in result.warnings:
+        sys.stdout.write(f"WARNING: {warning}\n")
     if result.certified_launch_required:
         sys.stdout.write(
-            "Certified command: cg-kilo (direct Kilo editor/CLI launches are unsupported "
+            "Contained command: cg-kilo (direct Kilo editor/CLI launches are unsupported "
             "for this combined project)\n"
         )
     if result.remediation:
@@ -928,7 +898,7 @@ def _parse_arguments(argv: Sequence[str]) -> tuple[argparse.Namespace, list[str]
     parser.add_argument(
         "--require-coexistence",
         action="store_true",
-        help="require the certified containment path before compatibility roots exist",
+        help="require containment before compatibility roots exist",
     )
     parser.add_argument(
         "--host-only",
@@ -975,7 +945,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             check=False,
         )
     except OSError as exc:
-        sys.stderr.write(f"ERROR: certified Kilo launch failed: {exc}\n")
+        sys.stderr.write(f"ERROR: contained Kilo launch failed: {exc}\n")
         return EXIT_HOST_UNAVAILABLE
     return completed.returncode
 

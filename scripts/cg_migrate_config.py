@@ -38,37 +38,16 @@ class MigrationResult:
     error: str | None = None
 
 
-def _frontmatter_bounds(text: str) -> tuple[int, int] | None:
-    """Return (start, end) offsets of the YAML frontmatter block, or None."""
-    stripped = text.lstrip("\ufeff\r\n")
-    if not stripped.startswith("---"):
-        return None
-    start = text.index("---")
-    end_marker = text.find("\n---", start + 3)
-    if end_marker == -1:
-        return None
-    return start, end_marker
-
-
 def migrate_file_text(text: str) -> tuple[str, bool, str | None]:
     """Return (new_text, changed, error). Non-destructive; preserves all fields."""
-    bounds = _frontmatter_bounds(text)
-    if bounds is None:
-        return text, False, "missing top-level frontmatter delimiter '---'"
-    start, end = bounds
     parsed = parse_strict_config(text)
     if parsed.errors:
         return text, False, "strict config validation failed: " + parsed.errors[0]
+    if parsed.frontmatter_bounds is None:
+        return text, False, None
+    _, end = parsed.frontmatter_bounds
 
     version = parsed.scalar(CONFIG_SCHEMA_VERSION_FIELD)
-    if version is not None and version != SUPPORTED_CONFIG_SCHEMA_VERSION:
-        return (
-            text,
-            False,
-            f"config schema version {version!r} is not the supported version "
-            f"({SUPPORTED_CONFIG_SCHEMA_VERSION}); migrate explicitly before strict resolution",
-        )
-
     insert: list[str] = []
     if not parsed.suites:
         insert.append(f"suites: {SUITES_DEFAULT}")
@@ -118,6 +97,8 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Error: could not read config: {exc}", file=sys.stderr)
         return 1
     new_text, changed, error = migrate_file_text(text)
+    for note in parse_strict_config(text).notes:
+        sys.stderr.write(note + "\n")
     if error:
         print("invalid", file=sys.stderr)
         print(f"Error: {error}", file=sys.stderr)

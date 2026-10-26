@@ -114,16 +114,27 @@ def load_registry(root: Path, registry: Optional[dict] = None) -> dict:
     """Return the module registry dict (injected for tests or loaded from disk)."""
     if registry is not None:
         return registry
-    from skill_management.services import registry as registry_service
-
-    return registry_service.load_registry_snapshot(root).to_dict()
+    path = root / MODULE_REGISTRY_PATH
+    data = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(data, dict):
+        raise ValueError("module registry must be a JSON object")
+    return data
 
 
 def transitive_dependencies(registry: dict, module_id: str) -> set[str]:
     """Full closure of ``dependsOn`` for a module (including itself)."""
-    from skill_management.services.registry import transitive_closure
-
-    return transitive_closure(registry, [module_id])
+    closure: set[str] = set()
+    frontier = [module_id]
+    by_id = {m.get("id"): m for m in registry.get("modules", []) if isinstance(m, dict)}
+    while frontier:
+        current = frontier.pop()
+        if current in closure:
+            continue
+        closure.add(current)
+        module = by_id.get(current)
+        if module:
+            frontier.extend(module.get("dependsOn", []))
+    return closure
 
 
 def loadable_modules(
@@ -318,9 +329,8 @@ def inventory_digest(
 
     ids = loadable_module_ids(registry, active_suites, config=config, capabilities=capabilities)
     globs = loadable_asset_globs(registry, ids)
-    exclusions = ownership_exclusions(registry, ids)
     canonical = json.dumps(
-        {"ids": sorted(ids), "globs": sorted(globs), "exclusions": exclusions},
+        {"ids": sorted(ids), "globs": sorted(globs)},
         sort_keys=True,
         separators=(",", ":"),
     )
@@ -363,53 +373,6 @@ def loadable_asset_globs(registry: dict, loadable_ids: set[str]) -> list[str]:
             if isinstance(pattern, str):
                 globs.append(pattern)
     return sorted(set(globs))
-
-
-def ownership_exclusions(
-    registry: dict, loadable_ids: set[str]
-) -> dict[str, list[str]]:
-    """Return sorted ownership exclusions for modules in one closure.
-
-    Args:
-        registry: Parsed canonical module registry.
-        loadable_ids: Resolved loadable module ids for the active configuration.
-
-    Returns:
-        Mapping of module id to sorted unique exclusion patterns.
-
-    Example:
-        ``ownership_exclusions(registry, {"suite-cg"})`` returns exclusions
-        for every loadable module that declares any.
-    """
-    result: dict[str, list[str]] = {}
-    for module in registry.get("modules", []):
-        if not isinstance(module, dict) or module.get("id") not in loadable_ids:
-            continue
-        exclusions = module.get("ownershipExclusions", [])
-        if isinstance(exclusions, list) and exclusions:
-            result[str(module["id"])] = sorted(set(exclusions))
-    return result
-
-
-def asset_is_loadable(registry: dict, loadable_ids: set[str], asset: str) -> bool:
-    """Return whether the asset's resolved owner is in the selected closure.
-
-    Args:
-        registry: Parsed canonical module registry.
-        loadable_ids: Resolved loadable module ids for the active configuration.
-        asset: Portable repository-relative canonical asset path.
-
-    Returns:
-        ``True`` when at least one matching asset owner is loadable.
-
-    Example:
-        ``asset_is_loadable(registry, {"cap-help"}, ".github/shared/help-catalog.json")``.
-    """
-    from skill_management.services.registry import matching_asset_owners
-
-    return any(
-        owner in loadable_ids for owner in matching_asset_owners(registry, asset)
-    )
 
 
 def filtered_manifest(
@@ -458,7 +421,6 @@ def filtered_manifest(
         "selectedProjectSkills": selected_projects,
         "loadableModules": sorted(ids),
         "loadableAssetGlobs": loadable_asset_globs(registry, ids),
-        "ownershipExclusions": ownership_exclusions(registry, ids),
     }
 
 
@@ -511,6 +473,9 @@ def main(argv: Optional[list[str]] = None) -> int:
         for error in parsed.errors:
             print(f"  - {error}", file=sys.stderr)
         return 1
+    if parsed is not None:
+        for note in parsed.notes:
+            sys.stderr.write(note + "\n")
     settings = parsed.settings if parsed is not None else {}
     explicit = parsed.capabilities if parsed is not None else []
     if parsed is not None:
@@ -526,15 +491,17 @@ def main(argv: Optional[list[str]] = None) -> int:
             project_snapshot=combined,
         )
     except ValueError as exc:
-        print(f"Error: {exc}", file=sys.stderr)
+        field = "suites" if "suite" in str(exc) else "capabilities"
+        location = parsed.location(field) if parsed is not None else args.config
+        print(f"Error: {location}: {exc}", file=sys.stderr)
         return 1
 
     if args.output:
         out = root / args.output
         out.parent.mkdir(parents=True, exist_ok=True)
-        out.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        out.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     else:
-        print(json.dumps(manifest, indent=2, sort_keys=True))
+        print(json.dumps(manifest, indent=2))
     return 0
 
 

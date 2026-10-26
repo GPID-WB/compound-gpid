@@ -4,51 +4,24 @@ This page explains how to choose which version of Compound GPID runs on your mac
 
 > **Prerequisites**: Compound GPID installed and at least one project linked. See [Installation](installation.md) if you haven't done that yet.
 
+For an older installation, follow the [Upgrade Guide](upgrade.md) before using
+the installed updater.
+
 ---
 
 ## Overview
-
-### Documentation channels
-
-The website has two moving channels: **Published** at the site root and
-**Development** under `dev/`. They are not archives for every installed release.
-The footer of an upgraded page identifies its verified source tag or branch and
-commit. Four-component release tags are marked as prereleases. Use the source
-link or [release notes](whats-new.md) to inspect older versions.
-
-The channel selector keeps the current page and section when the destination
-supports them. A missing destination opens its homepage or the page top with an
-explanation and return link. Before leaving for an older site, a confirmation
-shows the destination and a copyable return URL: that older site may have no
-verified footer or switch back. Browser Back also returns to the original page.
-
-If a deployment changes while a page is open, the site keeps any previously
-verified article, stops loading new content, and offers **Reload**. An unavailable
-build identity is not a stable-version claim. Unstamped local previews display
-`Local preview: version unavailable` and disable channel switching.
-
-For maintainers, `channels.json`, shell stamps, and asset hashes are generated
-only in the paired artifact. Protected code verifies producer output against
-unchanged source checkouts before importing into separate staging. The v1
-compatibility path retains the captured legacy generator; v2 independently
-generates the section index and checks the upgraded shell. HTML references
-content-addressed local assets with integrity attributes. Both channels and the
-public metadata are verified before upload. Local validation does not establish
-that the protected publishing controller supports these contracts; controller
-rollout requires its existing separate review. The release controller remains
-disabled.
 
 By default `cg-update` tracks the `main` branch and always pulls the newest commit. You can instead **pin** to a specific tagged release for stability, or switch back to tracking main at any time — all with a single command.
 
 | Situation | Command |
 |-----------|---------|
 | See what's available | `cg-update --list` |
-| Pin to a specific release | `cg-update v0.2.0` |
+| Pin to a specific release | `cg-update v1.2.0.9024` |
 | Return to tracking main | `cg-update latest` |
 | Check (and update) current preference | `cg-update` |
-| Repair a broken installation | `cg-update --fix` |
+| Inspect and recover a broken installation | [Safe recovery](installation.md#repairing-a-broken-installation) |
 
-Because all linked projects share the same global clone via symlinks (junctions on Windows, symlinks on macOS), **pinning affects every linked project on the machine simultaneously** — there is no per-project version setting.
+All linked projects share the global installation preference. Linked directories reflect a checkout immediately; managed copies and projections need the [consumer refresh](installation.md#refreshing-existing-consumer-projects) steps. A projection records its source revision and must be relinked when that revision changes.
 
 ---
 
@@ -85,7 +58,7 @@ This file contains either the string `latest` or a tag name such as `v0.2.0`. It
 cg-update --list
 ```
 
-Fetches the latest tag metadata from GitHub and prints a table of all available releases, newest first. Your installed version is marked with `<-- current`.
+Fetches tag metadata from GitHub and prints three-component release tags, newest first. Your installed version is marked with `<-- current` if it is listed. Four-component tags are omitted from the table; a four-component pin appears in the current-mode label instead.
 
 **Example output (pinned to v0.2.0):**
 ```
@@ -108,22 +81,23 @@ When tracking `main`, the label reads `Current: main (latest)`. If your local HE
 
 ---
 
-### `cg-update v0.2.0` — pin to a release
+### `cg-update v1.2.0.9024` — pin to a release
 
 ```powershell
-cg-update v0.2.0
+cg-update v1.2.0.9024
 ```
 
 1. Fetches tag metadata from GitHub.
 2. Validates the tag exists.
 3. Checks out the tag (detached HEAD — expected for releases).
-4. **Then** writes `v0.2.0` to `.cg-version` (only after a successful checkout — never on failure).
+4. Validates the required target scripts and generated platform trees.
+5. **Then** writes `v1.2.0.9024` to `.cg-version`; failures restore the previous checkout and pin rather than publishing an unvalidated target.
 
 **Example output:**
 ```
-Mode: pinned (v0.2.0)
-Checking out v0.2.0...
-Pinned to v0.2.0.
+Mode: pinned (v1.2.0.9024)
+Checking out v1.2.0.9024...
+Pinned to v1.2.0.9024.
 
 Managed subdirectories (prompts/, skills/, agents/, instructions/) are
 updated in all linked projects immediately via symlinks.
@@ -131,9 +105,9 @@ updated in all linked projects immediately via symlinks.
 Run: cg-update latest   to return to tracking main.
 ```
 
-Subsequent bare `cg-update` calls stay on `v0.2.0` — they do not pull any newer commits.
+Subsequent bare `cg-update` calls stay on `v1.2.0.9024` — they do not pull any newer commits. Tracked or staged user edits block normal updates rather than being discarded.
 
-> **Tag format**: tags must match `v<major>.<minor>.<patch>`, e.g. `v0.2.0`. Two-segment tags (`v0.2`) and non-`v` prefixes (`0.2.0`) are rejected with a clear error.
+> **Tag format**: tags must match `v<major>.<minor>.<patch>` or `v<major>.<minor>.<patch>.<build>`, e.g. `v1.2.0.9024`. Two-segment tags (`v0.2`) and non-`v` prefixes (`0.2.0`) are rejected with a clear error. An accepted tag must also pass target validation; the format alone does not make an older release compatible with the current updater.
 
 ---
 
@@ -187,11 +161,18 @@ cg-update --fix   # Windows
 cg-update --fix   # macOS
 ```
 
-Repairs a corrupted or inconsistent global clone without losing your version preference. Performs three steps in order:
+This is a destructive opt-in for a branch checkout with an upstream, not a safe
+default repair or a migration procedure. Back up the entire clone, including
+untracked files and `.cg-version`, before deliberately choosing to discard
+changes. It performs three steps in order:
 
 1. **Clean** — removes untracked files and stale artifacts left from old project links (`git clean -fd`)
 2. **Reset** — discards any local modifications to tracked files (`git checkout .`)
-3. **Pull** — fetches and applies the latest code for your current mode (`git pull --ff-only`)
+3. **Pull** — runs `git pull --ff-only` on the current checkout, without selecting a branch or validating the saved pin
+
+A normal tag-pinned installation is detached, so the pull fails after the
+destructive steps. Use [safe recovery](installation.md#repairing-a-broken-installation)
+for pinned, divergent, or edited installations.
 
 **Example output:**
 ```
@@ -205,22 +186,20 @@ Repair complete.
 ```
 
 **When to use**:
-- `cg-update` fails with "untracked files would be overwritten" or merge conflicts
-- The global clone has unexpected local changes that you want to discard
-- Scripts error with "corrupted installation" messages and suggest `cg-update --fix`
-- After a failed partial update left the clone in an inconsistent state
+- Only on a branch with an upstream, after inspecting and backing up the clone and explicitly choosing to discard its untracked files and tracked edits
 
 **When NOT to use**:
 - If you intentionally modified files in the global clone — `--fix` discards those changes
+- On a detached release tag, a divergent clone, or an older installation needing migration
 - As a first response to a PATH or authentication issue — those need different fixes (see [Troubleshooting](troubleshooting.md))
 
-> **If `--fix` itself fails** (e.g. the installed copy predates this feature): see [Repairing a broken installation](installation.md#repairing-a-broken-installation) for the equivalent manual commands.
+> **If `--fix` itself fails**: preserve the remaining clone and backup; see [Repairing a broken installation](installation.md#repairing-a-broken-installation). Do not repeat destructive commands as a fallback.
 
 ---
 
 ## Newer-release hint
 
-When you are pinned to a tag and a newer release is available, `cg-update` displays a yellow hint at the end of its output:
+When you are pinned to a tag, `cg-update` may display a yellow hint for the highest available three-component release tag when it differs from your pin:
 
 ```
 Newer release available: v0.3.0
@@ -228,6 +207,9 @@ Run: cg-update v0.3.0   to upgrade.
 ```
 
 This is **informational only** — no action is required unless you want to upgrade. Your pin stays in place.
+
+The comparison checks whether the tags differ, not whether the suggested tag
+is newer than a four-component pin. Review the target before changing versions.
 
 ---
 
@@ -273,68 +255,48 @@ Get-Content "$env:USERPROFILE\.compound-gpid\.cg-version"
 cat ~/.compound-gpid/.cg-version
 ```
 
-If missing or corrupted, delete it and run `cg-update` — it defaults to `latest`. See the [Troubleshooting](troubleshooting.md#cg-version-missing-or-corrupted) page for the full fix.
+If missing or corrupted, preserve the file and recover your intended preference from records or a backup, then pass that tag explicitly to `cg-update`. Do not delete the pin and silently switch to `latest`. See the [Troubleshooting](troubleshooting.md#cg-version-missing-or-corrupted) page for the full fix.
 
-**Pinned but still seeing new files** — prompts, skills, and agents live inside symlink directories that always point to the checked-out commit. If you pinned to an old tag, those files will reflect that tag's content. This is expected behaviour.
+**Pinned but still seeing new files** — linked directories reflect the global checkout immediately, but managed copies and project-local projections need a refresh from that project's root. Rerun `cg-link` with the intended platform selection when the projection's source revision changes, and review ownership diagnostics; modified or unowned files are preserved rather than silently replaced.
 
 ---
 
 ## Four-component prerelease tags (maintainer-only)
 
-Historical prerelease tags follow `v<MAJOR>.<MINOR>.<PATCH>.<BUILD>` where
+Prerelease tags follow the convention `v<MAJOR>.<MINOR>.<PATCH>.<BUILD>` where
 BUILD starts at 9000 (for example, `v1.2.0.9000` and `v1.2.0.9001`). They let
 maintainers publish an installable GitHub prerelease and test the complete
 release path through `cg-update` before promoting a stable three-component
 release.
 
-Updated readers also accept strict SemVer tags such as `v1.5.0-rc.2` and
-`v1.5.0-rc.10`, with numeric identifier ordering. Stable sorts after prereleases
-of the same core. Four-part versions use their separate legacy ordering; old
-pins and historical bytes are not renamed or converted. A delivered compatibility
-bridge and actual native clean-client qualification are required before writer
-enablement. Both are deferred, not passed; the publisher remains disabled.
-See [Release Controller](release-controller.md) for lines, projections and latest
-selection. The updater's `latest` preference still means tracking `main`, not the
-controller's highest-stable GitHub Release classification.
-
 **Prerelease tags stay out of the stable update channel:**
 
-- `cg-update --list` hides prereleases; `--show-dev` includes them.
+- `cg-update --list` shows only 3-component release tags.
 - The "Newer release available" hint is never triggered by a prerelease tag.
-- `cg-update` (bare) and `cg-update latest` pull `main` and are unaware of any tags.
+- `cg-update` (bare) honors the saved preference, including a four-component pin. `cg-update latest` explicitly unpins and pulls `main`; it does not select the newest tag.
 - Testers can install a known prerelease explicitly with `cg-update v1.2.0.9008`.
 
 ### Publishing an installable prerelease
 
-The new four-command interface previews strict SemVer without publication:
+From a clean `dev` checkout whose `HEAD` matches `origin/dev`, run:
 
 ```text
-/cg-release plan --version 1.5.0-rc.1 --branch dev --line current --json
+/cg-release v1.2.0.9008
 ```
 
-This needs a trusted policy whose line includes `dev`. The publisher is disabled
-until separate setup, bridge and rollout review. `start` confirms/rechecks and
-returns a durable locator, not an immediate published Release. Use `status` and
-`resume` with that locator; `--yes` does not replace protected approval.
-
-For a new GPID Routine prerelease, use `/cg-release v1.2.0.9021` from a clean
-current `dev` checkout; use `/cg-release v1.2.0` for a full Release. The already
-published `v1.2.0.9020` must not be reused. The slash workflow prepares a
-reviewed payload and invokes
-the existing PowerShell publisher for Reserve and Finalize while the controller
-stays disabled. This is not the generic SemVer controller `start` path. The native
-`cg-release` executable cannot prepare a bare tag; it requires the slash workflow.
-Bridge and historical Recovery remain separately authorized via
-`--legacy-bridge` and `--legacy-recovery`. A full GitHub Release is published at
-Reserve even when its Pages deployment and attestation remain pending.
+The release workflow creates the durable payload, exact tag, immutable Pages
+deployment, and GitHub Release record. A four-component tag is automatically
+marked as a GitHub prerelease. It is accepted by both new-release and
+`--resume` flows. Stable three-component releases remain restricted to a clean,
+up-to-date `main` checkout.
 
 Published prerelease tags are immutable release records. Do not delete or reuse
 them; increment the build component for the next candidate.
 
-On the retained legacy path, only repository administrators can create release-shaped `v*` tags. The `dev`
+Only repository administrators can create release-shaped `v*` tags. The `dev`
 branch rejects deletion and force-pushes, and published tags reject every update
-or deletion. The new controller instead stages and verifies a draft before final
-publication; this does not permit modification of any published identity.
+or deletion. The release flow does not publish drafts because its durable
+payload and Pages deployment are public before the GitHub Release API record.
 
 ### Creating a temporary dev tag
 
@@ -361,7 +323,7 @@ From any linked project:
 cg-update v0.1.0.9000
 ```
 
-This checks out the tagged commit in the global clone. All linked projects immediately see the new code via junctions.
+This checks out and validates the tagged commit in the global clone. Linked directories reflect it immediately; follow the consumer refresh steps from each project root to update checksum-owned copies and projections.
 
 ### Cleaning up temporary tags
 
