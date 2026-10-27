@@ -1,5 +1,19 @@
 # Upgrade from an older version
 
+## Quick steps
+For step 2, use this clone command with your OS's destination from the table:
+`git clone --branch v1.2.0.9025 https://github.com/GPID-WB/compound-gpid.git "<NEW-CLONE>"`
+
+| Step | Windows (PowerShell) | macOS (bash) |
+|---|---|---|
+| 1. Close tools | Close editors and other terminals; keep one terminal outside the installation. | Close editors and other terminals; keep one terminal outside the installation. |
+| 2. Clone the newest release | Use `"$HOME\compound-gpid-new"` as the destination in the command above. | Use `"$HOME/compound-gpid-new"` as the destination in the command above. |
+| 3. Run migration by full path | `& "$HOME\compound-gpid-new\scripts\migrate-install.ps1"` | `bash "$HOME/compound-gpid-new/scripts/migrate-install.sh"` |
+| 4. Open a new terminal | Open a new terminal to load the NEW commands. | Open a new terminal to load the NEW commands. |
+| 5. Link each project | From each project root, run `cg-link`, with `--platforms` if you use one. | From each project root, run `cg-link`, with `--platforms` if you use one. |
+
+The rest of this page explains each step and what to do if something stops.
+
 ## Who Should Use This Guide
 Use this guide for any older installed version, whether pinned to a tag or
 tracking `latest`. Start with a fresh clone of the newest published release,
@@ -26,27 +40,26 @@ folder inside the old installation or put the old installation inside it.
 Keep this NEW clone clean and available for rollback. The destination must not
 already exist, and its parent directory must exist and be writable.
 
-Run this common clone command on either OS, replacing `<NEW-CLONE>` with a full
-path. The examples below use `E:\tools\compound-gpid-new` on Windows and
-`$HOME/compound-gpid-new` on macOS; substitute your actual path throughout.
-
-```text
-git clone --branch v1.2.0.9025 https://github.com/GPID-WB/compound-gpid.git "<NEW-CLONE>"
-```
+Use the clone command in Quick steps, replacing `<NEW-CLONE>` with your full
+destination path. The examples below use `"$HOME\compound-gpid-new"` on Windows
+and `"$HOME/compound-gpid-new"` on macOS; substitute your actual path throughout.
 
 ## Run Migration From The New Clone
 Run the script by its full path, not an installed command. Choose ONE row:
 
 | Installation | Windows (PowerShell) | macOS |
 |---|---|---|
-| Default/discovered | `& "E:\tools\compound-gpid-new\scripts\migrate-install.ps1"` | `bash "$HOME/compound-gpid-new/scripts/migrate-install.sh"` |
-| Explicit path (replace example) | `& "E:\tools\compound-gpid-new\scripts\migrate-install.ps1" -InstallPath 'E:\tools\.compound-gpid'` | `bash "$HOME/compound-gpid-new/scripts/migrate-install.sh" --install-path "$HOME/tools/.compound-gpid"` |
+| Default/discovered | `& "$HOME\compound-gpid-new\scripts\migrate-install.ps1"` | `bash "$HOME/compound-gpid-new/scripts/migrate-install.sh"` |
+| Explicit path (replace example) | `& "$HOME\compound-gpid-new\scripts\migrate-install.ps1" -InstallPath 'C:\WBG\.compound-gpid'` | `bash "$HOME/compound-gpid-new/scripts/migrate-install.sh" --install-path "$HOME/.compound-gpid"` |
+
+On Windows, use `-InstallPath "$HOME\.compound-gpid"` instead if that is your
+installation location, rather than `C:\WBG\.compound-gpid` on the local machine.
 
 If Windows execution policy blocks the NEW script, use this fallback, appending
 `-InstallPath '<actual-install-path>'` when selecting an explicit installation:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File "E:\tools\compound-gpid-new\scripts\migrate-install.ps1"
+powershell -ExecutionPolicy Bypass -File "$HOME\compound-gpid-new\scripts\migrate-install.ps1"
 ```
 
 If the script reports `Multiple installations found`, nothing is changed. Select
@@ -59,7 +72,7 @@ Only standalone Git clones are supported, not worktrees or linked install paths.
 ## Check The Result
 
 Expect `Migrated: ... -> <new-release-tag> (pinned)` and `Backup preserved: ...`,
-where the new tag matches the common clone command above.
+where the new tag matches the clone command in Quick steps.
 The old folder, including local edits, stays beside the installation as
 `<install>.backup-<old-version>-<timestamp>` (Windows includes milliseconds).
 Those installation edits are not merged into the new clone. Keep the backup.
@@ -119,7 +132,7 @@ command printed by migration, with the original install path and backup path:
 
 | Windows (PowerShell) | macOS |
 |---|---|
-| `& "E:\tools\compound-gpid-new\scripts\migrate-install.ps1" -InstallPath '<original-install-path>' -Rollback '<printed-backup-path>'` | `bash "$HOME/compound-gpid-new/scripts/migrate-install.sh" --install-path '<original-install-path>' --rollback '<printed-backup-path>'` |
+| `& "$HOME\compound-gpid-new\scripts\migrate-install.ps1" -InstallPath '<original-install-path>' -Rollback '<printed-backup-path>'` | `bash "$HOME/compound-gpid-new/scripts/migrate-install.sh" --install-path '<original-install-path>' --rollback '<printed-backup-path>'` |
 
 Replace the placeholders with the exact paths printed by migration. Rollback is
 an explicit mode: `-Rollback` requires `-InstallPath`, and `--rollback` requires
