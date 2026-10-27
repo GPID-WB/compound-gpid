@@ -19,6 +19,10 @@ institutional operating constraints.
 
 ## 2. Install once per machine
 
+Already installed, whether pinned or tracking `latest`? Follow
+[Upgrade from an older version](../upgrade.md) instead of the fresh-install
+steps below, and keep the resulting release pin.
+
 Installation requires Git and Python 3.8 or later. Windows also requires
 PowerShell 5.1 or later. An agent host is needed to use its workflows, not to
 install, update, or link the files. These lifecycle operations do not require

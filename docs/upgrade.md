@@ -1,14 +1,16 @@
-# Upgrade To v1.2.0.9024
+# Upgrade from an older version
 
 ## Who Should Use This Guide
-Everyone on an older version, whether pinned or tracking `latest`. Start with a
-fresh clone of the NEW release, not the old `cg-update` or `cg-link`.
-These commands apply after the `v1.2.0.9024` tag is published.
+Use this guide for any older installed version, whether pinned to a tag or
+tracking `latest`. Start with a fresh clone of the newest published release,
+not the OLD installation's `cg-update` or `cg-link`.
 
 ## Before You Start
 Close editors, terminals, and other tools that use the installation. Keep one
 terminal outside the installation for migration. Back up your projects first.
-You need Git and Python 3.8+; use PowerShell on Windows and bash/zsh on macOS.
+Stop all install/update/link activity while migrating or rolling back.
+You need Git and Python 3.8+; use PowerShell 5.1+ on Windows and bash on macOS
+(with bash or zsh as your login shell).
 Check your installed version (replace the path if your installation is elsewhere):
 
 | Windows (PowerShell) | macOS |
@@ -18,33 +20,47 @@ Check your installed version (replace the path if your installation is elsewhere
 ## Get The New Release
 Clone the official repository into a separate, fresh folder. Do not put this
 folder inside the old installation or put the old installation inside it.
-Keep this NEW clone clean and available for rollback.
+Keep this NEW clone clean and available for rollback. The destination must not
+already exist, and its parent directory must exist and be writable.
 
-| Windows (PowerShell) | macOS |
-|---|---|
-| `git clone --branch v1.2.0.9024 https://github.com/GPID-WB/compound-gpid.git "$HOME\compound-gpid-9024-new"` | `git clone --branch v1.2.0.9024 https://github.com/GPID-WB/compound-gpid.git "$HOME/compound-gpid-9024-new"` |
+Run this common clone command on either OS, replacing `<NEW-CLONE>` with a full
+path. The examples below use `E:\tools\compound-gpid-new` on Windows and
+`$HOME/compound-gpid-new` on macOS; substitute your actual path throughout.
+
+```text
+git clone --branch v1.2.0.9025 https://github.com/GPID-WB/compound-gpid.git "<NEW-CLONE>"
+```
 
 ## Run Migration From The New Clone
 Run the script by its full path, not an installed command. Choose ONE row:
 
 | Installation | Windows (PowerShell) | macOS |
 |---|---|---|
-| Default/discovered | `& "$HOME\compound-gpid-9024-new\scripts\migrate-install.ps1"` | `bash "$HOME/compound-gpid-9024-new/scripts/migrate-install.sh"` |
-| Custom path (replace example) | `& "$HOME\compound-gpid-9024-new\scripts\migrate-install.ps1" -InstallPath 'C:\WBG\.compound-gpid'` | `bash "$HOME/compound-gpid-9024-new/scripts/migrate-install.sh" --install-path "$HOME/tools/.compound-gpid"` |
+| Default/discovered | `& "E:\tools\compound-gpid-new\scripts\migrate-install.ps1"` | `bash "$HOME/compound-gpid-new/scripts/migrate-install.sh"` |
+| Explicit path (replace example) | `& "E:\tools\compound-gpid-new\scripts\migrate-install.ps1" -InstallPath 'E:\tools\.compound-gpid'` | `bash "$HOME/compound-gpid-new/scripts/migrate-install.sh" --install-path "$HOME/tools/.compound-gpid"` |
 
-If more than one installation is found, nothing is changed. Select the intended
-path from the report and rerun with `-InstallPath` / `--install-path`.
+If Windows execution policy blocks the NEW script, use this fallback, appending
+`-InstallPath '<actual-install-path>'` when selecting an explicit installation:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File "E:\tools\compound-gpid-new\scripts\migrate-install.ps1"
+```
+
+If the script reports `Multiple installations found`, nothing is changed. Select
+the intended path from the report and rerun the NEW script with `-InstallPath`
+(Windows) or `--install-path` (macOS), as in the explicit-path row.
 Existing backups also stop migration: inspect them and use the printed rollback
 command before retrying. Do not delete backups to bypass the stop.
 Only standalone Git clones are supported, not worktrees or linked install paths.
 
 ## Check The Result
 
-Expect `Migrated: ... -> v1.2.0.9024 (pinned)` and `Backup preserved: ...`.
+Expect `Migrated: ... -> <new-release-tag> (pinned)` and `Backup preserved: ...`,
+where the new tag matches the common clone command above.
 The old folder, including local edits, stays beside the installation as
 `<install>.backup-<old-version>-<timestamp>` (Windows includes milliseconds).
 Those installation edits are not merged into the new clone. Keep the backup.
-The new `.cg-version` pin must be `v1.2.0.9024`:
+The new `.cg-version` pin must match that tag:
 
 | Windows (PowerShell) | macOS |
 |---|---|
@@ -61,14 +77,20 @@ Do not run a shadowing old command.
 
 ## In Each Project
 
-From each project root, use the NEW commands, in this order (same on both OSes):
+Migration replaces the installation but does not reconcile project files.
+From each project root, after verifying command resolution, use the NEW
+`cg-link` once per project, with a read-only check first (same on both OSes):
 
 | Windows (PowerShell) | macOS |
 |---|---|
 | `cg-link --check` | `cg-link --check` |
 | `cg-link` | `cg-link` |
 
-Keep the project's adapter selection with `--platforms` if it used one.
+Keep the project's intended adapter selection with `--platforms` on both
+commands if it used one. For example, a Copilot-only project uses
+`cg-link --check --platforms copilot`, then `cg-link --platforms copilot`.
+Supported values are `copilot`, `claude-code`, `codex`, `opencode`, and `kilo`,
+in a comma-separated list, or `all`. Without this option, all are selected.
 `--check` is read-only: it does not update, launch Kilo, or write project/global
 files. Exit `1` means a block or preserved conflict; review it before linking.
 "Manual action required" means edited or unproven files are kept, not silently
@@ -82,8 +104,10 @@ a conflicting transition needs manual action. Restart your editor after linking.
 
 ## Stay Pinned
 
-Do not run `cg-update latest` until we announce it. Today `latest` tracks `main`,
-which still contains the old line. It is not the newest four-part release tag.
+Migration pins the replacement installation to the release tag above, even if
+the old installation tracked `latest`. Keep that pin. The keyword `latest`
+means tracking `main`, not selecting the newest published release tag; switching
+to that mode is not part of this upgrade procedure.
 
 ## Rollback
 
@@ -92,9 +116,18 @@ command printed by migration, with the original install path and backup path:
 
 | Windows (PowerShell) | macOS |
 |---|---|
-| `& "$HOME\compound-gpid-9024-new\scripts\migrate-install.ps1" -InstallPath '<original-install-path>' -Rollback '<printed-backup-path>'` | `bash "$HOME/compound-gpid-9024-new/scripts/migrate-install.sh" --install-path '<original-install-path>' --rollback '<printed-backup-path>'` |
+| `& "E:\tools\compound-gpid-new\scripts\migrate-install.ps1" -InstallPath '<original-install-path>' -Rollback '<printed-backup-path>'` | `bash "$HOME/compound-gpid-new/scripts/migrate-install.sh" --install-path '<original-install-path>' --rollback '<printed-backup-path>'` |
 
-Replace the placeholders. Rollback restores the old folder and keeps the current
+Replace the placeholders with the exact paths printed by migration. Rollback is
+an explicit mode: `-Rollback` requires `-InstallPath`, and `--rollback` requires
+`--install-path`. On Windows, the execution-policy fallback above also accepts
+these two parameters after the script path. Use the NEW script, not an old updater.
+Rollback restores the old folder and keeps the current
 one at `<install>.rollback-<timestamp>`. Review PATH/profile changes manually and
 open a new terminal. Rollback does NOT undo project changes; restore those only
 from reviewed project backups. Installer PATH/profile writes are not snapshotted.
+Keep the preserved folders until you have verified the installation and projects;
+do not rename, edit, or delete backups to bypass a safety stop. If migration
+fails, read its restore result: it attempts to restore the old folder, but if
+automatic restore fails, preserve both folders and follow the printed rollback
+command only after inspection.
