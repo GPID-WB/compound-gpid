@@ -5,6 +5,9 @@ Use this guide for any older installed version, whether pinned to a tag or
 tracking `latest`. Start with a fresh clone of the newest published release,
 not the OLD installation's `cg-update` or `cg-link`.
 
+If your old `cg-update` already ran and something looks wrong, follow the same
+steps; your old folder is kept as a backup.
+
 ## Before You Start
 Close editors, terminals, and other tools that use the installation. Keep one
 terminal outside the installation for migration. Back up your projects first.
