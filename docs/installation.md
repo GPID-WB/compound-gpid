@@ -4,7 +4,7 @@ This detailed page covers platform-specific installation, linking, repair, and
 uninstall procedures. New users should follow the shorter
 [Getting Started](getting-started/index.md) path first.
 
-Existing users on any older version: follow the [v1.2.0.9024 Upgrade Guide](upgrade.md) before running installed update or link commands.
+Existing users on any older version, pinned or tracking `latest`: follow [Upgrade from an older version](upgrade.md) before running installed update or link commands, and keep the resulting release pin.
 
 > **New here?** See the [Home](../README.md) page for an overview of what Compound GPID is and why it exists.
 
@@ -400,7 +400,7 @@ edits outside the managed clone before retrying `cg-update` with the same
 version preference. If the pin is missing or corrupted, follow
 [pin recovery](troubleshooting.md#cg-version-missing-or-corrupted). If the clone
 has diverged or needs replacement, keep it intact and use the fresh-clone
-procedure in the [Upgrade Guide](upgrade.md); do not reset it to `origin/main`.
+procedure in the upgrade guide linked at the top of this page; do not reset it to `origin/main`.
 
 `cg-update --fix` is a destructive opt-in, not a safe default repair: it removes
 untracked files, discards tracked edits, then runs `git pull --ff-only`. It does

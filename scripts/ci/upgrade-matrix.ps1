@@ -7,16 +7,17 @@ powershell -NoProfile -File scripts/ci/upgrade-matrix.ps1 -OldTag v1.2.0.9023 -R
 Skip BOTH installers and migration (they write real HKCU); test link reconciliation only.
 .PARAMETER Mode
 Use update to qualify the installed 9024 updater on a hosted runner; default is migration.
+Use old-updater to observe an old latest update, then require NEW migration recovery.
 #>
 param([Parameter(Mandatory)][string]$OldTag, [Parameter(Mandatory)][string]$Root,
-    [switch]$LocalCheck, [ValidateSet('migration', 'update')][string]$Mode = 'migration')
+    [switch]$LocalCheck, [ValidateSet('migration', 'update', 'old-updater')][string]$Mode = 'migration')
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $source = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
-$candidateTag = 'v1.2.0.9025'
 $legacyNote = 'compound-gpid.local.md has no settings block; using default settings. Your file was not changed. Run /cg-setup to add settings.'
 if ($Mode -eq 'update' -and $OldTag -ne 'v1.2.0.9024') { throw 'Update mode requires genuine v1.2.0.9024.' }
-if ($Mode -eq 'update' -and $LocalCheck) { throw 'LocalCheck skips installers and cannot qualify the installed updater.' }
+if ($Mode -ne 'migration' -and $LocalCheck) { throw 'LocalCheck skips installers and cannot qualify an installed updater.' }
+if ($Mode -eq 'old-updater' -and $OldTag -notin @('v1.1.11', 'v1.2.0.9021')) { throw 'Unsupported old-updater tag.' }
 if (-not $LocalCheck -and $env:GITHUB_ACTIONS -ne 'true') { throw 'Installers require a disposable hosted account; use -LocalCheck.' }
 if (Test-Path -LiteralPath $Root) { throw "Fixture already exists: $Root" }
 if (-not (Test-Path -LiteralPath (Split-Path $Root -Parent))) { throw 'Fixture parent is missing.' }
@@ -48,6 +49,7 @@ $reason = ''
 $snapshotDiffs = [Collections.Generic.List[string]]::new()
 $secondChanged = $false
 $thirdChanged = $false
+$oldOutcome = 'not run'
 
 function Invoke-Git([string[]]$Arguments) {
     $output = & git @Arguments
@@ -135,6 +137,12 @@ function Assert-RepeatSnapshot([string[]]$Before, [string[]]$After, [string]$Mes
     return ($valid -and $generations -eq 1 -and $staging -eq 0)
 }
 try {
+    # checkout fetches all published tags; choose an unused numeric successor.
+    $builds = @(Invoke-Git -Arguments @('-C', $source, 'tag', '--list', 'v1.2.0.*') | Where-Object {
+        $_ -cmatch '^v1\.2\.0\.[0-9]+$'
+    } | ForEach-Object { [long]($_ -split '\.')[3] } | Sort-Object)
+    if (-not $builds.Count) { throw 'No published v1.2.0 four-part tags found.' }
+    $candidateTag = "v1.2.0.$($builds[-1] + 1)"
     foreach ($dir in @($env:APPDATA, $env:LOCALAPPDATA, $env:XDG_CONFIG_HOME, $env:TEMP, "$Root\outside")) {
         New-Item -ItemType Directory -Path $dir -Force | Out-Null
     }
@@ -161,7 +169,7 @@ try {
         $fixtures += @{ Name = 'kilo-project'; Platforms = 'kilo'; Edited = '';
             Unedited = '.kilo/commands/cg-review.md'; User = '.kilo/commands/user-upgrade-sentinel.md' }
     }
-    if ($Mode -eq 'update') { $fixtures = @($fixtures | Where-Object Name -eq 'kilo-project') }
+    if ($Mode -ne 'migration') { $fixtures = @($fixtures | Where-Object Name -eq 'kilo-project') }
     foreach ($fixture in $fixtures) {
         $project = Join-Path $env:HOME $fixture.Name
         Invoke-Git -Arguments @('init', $project) | Out-Null
@@ -177,7 +185,7 @@ try {
             $stage = "old link ($($fixture.Name))"
             $null = Run "old-link-$($fixture.Name)" 'powershell.exe' @('-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass',
                 '-File', "$install\scripts\link.ps1", '--platforms', $fixture.Platforms, '--yes')
-            if ($Mode -eq 'update') { continue }
+            if ($Mode -ne 'migration') { continue }
             # Root Claude file is copied even in v1.0.4, which has no copy-directory adapter.
             if ($fixture.Edited) {
                 $edited = Join-Path $project $fixture.Edited
@@ -201,13 +209,50 @@ try {
     $head = Invoke-Git -Arguments @('-C', $source, 'rev-parse', 'HEAD')
     # The local fixture tag must not collide with an inherited published tag.
     Invoke-Git -Arguments @('clone', '--no-local', '--no-tags', '-c', 'core.autocrlf=true', $source, $candidate) | Out-Null
-    # Preserve historical release proofs, excluding only the local fixture tag.
-    Invoke-Git -Arguments @('-C', $candidate, 'fetch', 'origin', 'refs/tags/*:refs/tags/*', "^refs/tags/$candidateTag") | Out-Null
+    # Preserve every historical tag; the successor cannot collide with one.
+    Invoke-Git -Arguments @('-C', $candidate, 'fetch', 'origin', 'refs/tags/*:refs/tags/*') | Out-Null
     Invoke-Git -Arguments @('-C', $candidate, 'checkout', '--detach', $head) | Out-Null
     Invoke-Git -Arguments @('-C', $candidate, 'tag', '-a', $candidateTag, '-m', 'LOCAL ONLY upgrade fixture', $head) | Out-Null
+    Invoke-Git -Arguments @('-C', $candidate, 'branch', '--force', 'main', $head) | Out-Null
     # The unpublished tag is verified through this local fixture remote, never GitHub.
     $candidateUrl = ([Uri]($candidate + '\')).AbsoluteUri.TrimEnd('/')
     Invoke-Git -Arguments @('config', '--global', "url.$candidateUrl.insteadOf", 'https://github.com/GPID-WB/compound-gpid.git') | Out-Null
+    if ($Mode -eq 'old-updater') {
+        $stage = 'OLD cg-update latest against candidate main'
+        Invoke-Git -Arguments @('-C', $install, 'remote', 'set-url', 'origin', 'https://github.com/GPID-WB/compound-gpid.git') | Out-Null
+        Invoke-Git -Arguments @('-C', $install, 'branch', '--force', 'main', $oldHead) | Out-Null
+        Invoke-Git -Arguments @('-C', $install, 'config', 'branch.main.remote', 'origin') | Out-Null
+        Invoke-Git -Arguments @('-C', $install, 'config', 'branch.main.merge', 'refs/heads/main') | Out-Null
+        $project = Join-Path $env:HOME 'kilo-project'
+        Copy-Item -LiteralPath "$project\fixture.txt" -Destination "$Root\fixture.before"
+        $projectBefore = @(Snapshot $project)
+        Push-Location $project
+        try {
+            # Execute the OLD wrapper's script with automatic HOME/PROFILE isolated,
+            # just like the existing installed-updater fixture above.
+            $oldCode = Run 'old-updater' 'powershell.exe' @('-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-Command',
+                'Set-Variable HOME $env:HOME -Scope Global -Force; $global:PROFILE = Join-Path $env:HOME profile.ps1; & (Join-Path $env:HOME .compound-gpid\scripts\update.ps1) latest; exit $LASTEXITCODE') @(0..255)
+        } finally { Pop-Location }
+        $observedHead = Invoke-Git -Arguments @('-C', $install, 'rev-parse', 'HEAD')
+        $observedPin = (Get-Content -LiteralPath "$install\.cg-version" -Raw).Trim()
+        $installUnchanged = Assert-Snapshot $oldBefore @(Snapshot $install) 'OLD updater installation changes' -ReportOnly
+        $projectUnchanged = Assert-Snapshot $projectBefore @(Snapshot $project) 'OLD updater project changes' -ReportOnly
+        $oldOutcome = 'broken state'
+        $wrappersPresent = @('cg-link.cmd', 'cg-update.cmd', 'cg-unlink.cmd' | Where-Object {
+            -not (Test-Path -LiteralPath "$install\bin\$_")
+        }).Count -eq 0
+        if ($oldCode -eq 0 -and $observedHead -eq $head -and $observedPin -eq 'latest' -and
+            $wrappersPresent -and -not @(Invoke-Git -Arguments @('-C', $install, 'status', '--porcelain')).Count) {
+            $oldOutcome = 'success'
+        } elseif ($oldCode -ne 0 -and $installUnchanged -and $projectUnchanged -and
+            (Get-Item -LiteralPath "$Root\old-updater.log").Length) {
+            $oldOutcome = 'safe stop with a message'
+        }
+        $oldOutcome += "; exit=$oldCode; HEAD=$observedHead; pin=$observedPin; see old-updater.log"
+        # Migration must preserve the actual post-updater state, not the initial tag.
+        $oldHead = $observedHead
+        $oldBefore = @(Snapshot $install)
+    }
     if ($Mode -eq 'update') {
         $stage = 'installed 9024 updater'
         Invoke-Git -Arguments @('-C', $install, 'remote', 'set-url', 'origin', 'https://github.com/GPID-WB/compound-gpid.git') | Out-Null
@@ -274,6 +319,20 @@ try {
         Assert-Same "$install\bin\$wrapper" "$candidate\bin\$wrapper"
     }
     $protectedBefore = @(Snapshot $candidate 'candidate/') + @(Snapshot $backups[0].FullName 'backup/') + @(Snapshot $install 'install/')
+    if ($Mode -eq 'old-updater') {
+        $stage = 'NEW cg-link after OLD updater and migration'
+        Push-Location (Join-Path $env:HOME 'kilo-project')
+        try {
+            $null = Run 'recovered-link' "$install\bin\cg-link.cmd" @('--platforms', 'kilo', '--yes')
+            Assert-Same '.kilo\commands\cg-review.md' "$candidate\.kilo\commands\cg-review.md"
+            Assert-Same 'fixture.txt' "$Root\fixture.before"
+        } finally { Pop-Location }
+        Assert-Snapshot $protectedBefore (@(Snapshot $candidate 'candidate/') + @(Snapshot $backups[0].FullName 'backup/') + @(Snapshot $install 'install/')) 'NEW link changed an installation/backup.'
+        Assert-Snapshot $outsideBefore @(Snapshot "$Root\outside") 'Outside sentinel changed.'
+        Assert-Snapshot $sourceBefore @(Snapshot $source) 'Source checkout changed.'
+        $result = 'pass'
+        return
+    }
     foreach ($fixture in $fixtures) {
         $project = Join-Path $env:HOME $fixture.Name
         if ($fixture.Name -eq 'kilo-project') {
@@ -346,6 +405,9 @@ try {
 } finally {
     $note = "| windows-latest | $OldTag | $result | $stage | $reason |"
     Set-Content -LiteralPath "$Root\result.md" -Value $note -Encoding UTF8
+    if ($Mode -eq 'old-updater') {
+        Add-Content -LiteralPath "$Root\result.md" -Value "`nOLD updater outcome: $oldOutcome`n`nNEW migration and cg-link: $result ($stage)." -Encoding UTF8
+    }
     if ($snapshotDiffs.Count) {
         Add-Content -LiteralPath "$Root\result.md" -Value (@('', '### Snapshot differences', '```text') + @($snapshotDiffs) + @('```')) -Encoding UTF8
     }

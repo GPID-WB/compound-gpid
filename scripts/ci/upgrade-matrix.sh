@@ -1,13 +1,13 @@
 #!/bin/bash
 # One old-tag upgrade, in a disposable hosted profile. No real Kilo launch.
-# Usage: bash scripts/ci/upgrade-matrix.sh OLD_TAG FRESH_ROOT [migration|update]
+# Usage: bash scripts/ci/upgrade-matrix.sh OLD_TAG FRESH_ROOT [migration|update|old-updater]
 set -euo pipefail
 old_tag=$1 root=$2
 mode=${3:-migration}
-candidate_tag=v1.2.0.9025
 legacy_note='compound-gpid.local.md has no settings block; using default settings. Your file was not changed. Run /cg-setup to add settings.'
-[[ $mode == migration || $mode == update ]] || { echo 'Unknown mode.' >&2; exit 1; }
+[[ $mode == migration || $mode == update || $mode == old-updater ]] || { echo 'Unknown mode.' >&2; exit 1; }
 [[ $mode != update || $old_tag == v1.2.0.9024 ]] || { echo 'Update mode requires genuine 9024.' >&2; exit 1; }
+[[ $mode != old-updater || $old_tag == v1.1.11 || $old_tag == v1.2.0.9021 ]] || { echo 'Unsupported old-updater tag.' >&2; exit 1; }
 source=$(cd "$(dirname "$0")/../.." && pwd -P)
 [[ ${GITHUB_ACTIONS:-} == true ]] || { echo 'Requires a disposable hosted account.' >&2; exit 1; }
 [[ ! -e "$root" && -d "$(dirname "$root")" ]] || { echo 'Root must be fresh with an existing parent.' >&2; exit 1; }
@@ -22,11 +22,15 @@ install="$HOME/.compound-gpid" candidate="$HOME/candidate"
 stage='fixture setup' result=fail reason=''
 snapshot_diffs=''
 second_changed=false third_changed=false
+old_outcome='not run'
 finish() {
     code=$?
     trap - EXIT
     if [[ $code -ne 0 && -z $reason ]]; then reason="Exit $code at $stage; see the matching command log."; fi
     printf '| macos-latest | %s | %s | %s | %s |\n' "$old_tag" "$result" "$stage" "$reason" | tee "$root/result.md"
+    if [[ $mode == old-updater ]]; then
+        printf '\nOLD updater outcome: %s\n\nNEW migration and cg-link: %s (%s).\n' "$old_outcome" "$result" "$stage" >> "$root/result.md"
+    fi
     if [[ -n $snapshot_diffs ]]; then
         printf '\n### Snapshot differences\n```text\n%s\n```\n' "$snapshot_diffs" >> "$root/result.md"
     fi
@@ -34,6 +38,10 @@ finish() {
     exit "$code"
 }
 trap finish EXIT
+# checkout fetches all published tags; choose an unused numeric successor.
+tags=$(git -C "$source" tag --list 'v1.2.0.*')
+build=$(printf '%s\n' "$tags" | LC_ALL=C awk -F . '/^v1\.2\.0\.[0-9]+$/ { if ($4+0 > max) max=$4+0; found=1 } END { if (!found) exit 1; printf "%.0f", max+1 }')
+candidate_tag="v1.2.0.$build"
 run() {
     local name=$1 code=0
     shift
@@ -125,7 +133,7 @@ if [[ $old_tag != v1.0.4 ]]; then
     edited+=('') unedited+=(.kilo/commands/cg-review.md)
     user+=(.kilo/commands/user-upgrade-sentinel.md)
 fi
-if [[ $mode == update ]]; then
+if [[ $mode != migration ]]; then
     names=(kilo-project) platforms=(kilo)
 fi
 for ((i=0; i<${#names[@]}; i++)); do
@@ -141,7 +149,7 @@ for ((i=0; i<${#names[@]}; i++)); do
     cd "$project"
     stage="old link (${names[i]})"
     run "old-link-${names[i]}" bash "$install/scripts/link.sh" --platforms "${platforms[i]}" --yes
-    [[ $mode != update ]] || continue
+    [[ $mode == migration ]] || continue
     if [[ -n ${edited[i]} ]]; then
         [[ ! -L "$(dirname "${edited[i]}")" && ! -L "${edited[i]}" ]]
         printf '\n<!-- upgrade user edit -->\n' >> "${edited[i]}"
@@ -159,12 +167,46 @@ stage='candidate clone and local-only tag'
 head=$(git -C "$source" rev-parse HEAD)
 # The local fixture tag must not collide with an inherited published tag.
 git clone --no-local --no-tags -c core.autocrlf=false "$source" "$candidate"
-# Preserve historical release proofs, excluding only the local fixture tag.
-git -C "$candidate" fetch origin 'refs/tags/*:refs/tags/*' "^refs/tags/$candidate_tag"
+# Preserve every historical tag; the successor cannot collide with one.
+git -C "$candidate" fetch origin 'refs/tags/*:refs/tags/*'
 git -C "$candidate" checkout --detach "$head"
 git -C "$candidate" tag -a "$candidate_tag" -m 'LOCAL ONLY upgrade fixture' "$head"
+git -C "$candidate" branch --force main "$head"
 # Redirect official-tag verification to the unpublished local fixture remote.
 git config --global "url.file://$candidate.insteadOf" https://github.com/GPID-WB/compound-gpid.git
+if [[ $mode == old-updater ]]; then
+    stage='OLD cg-update latest against candidate main'
+    git -C "$install" remote set-url origin https://github.com/GPID-WB/compound-gpid.git
+    git -C "$install" branch --force main "$old_head"
+    git -C "$install" config branch.main.remote origin
+    git -C "$install" config branch.main.merge refs/heads/main
+    cd "$HOME/kilo-project"
+    snapshot "$PWD" > "$root/project.before"
+    old_code=0
+    "$install/bin/cg-update" latest > "$root/old-updater.log" 2>&1 || old_code=$?
+    observed_head=$(git -C "$install" rev-parse HEAD)
+    observed_pin=$(cat "$install/.cg-version")
+    snapshot "$install" > "$root/old.observed"
+    snapshot "$PWD" > "$root/project.after"
+    install_unchanged=true project_unchanged=true
+    assert_snapshot "$root/old.before" "$root/old.observed" 'OLD updater installation changes' report || install_unchanged=false
+    assert_snapshot "$root/project.before" "$root/project.after" 'OLD updater project changes' report || project_unchanged=false
+    old_outcome='broken state'
+    wrappers_present=true
+    for wrapper in cg-link cg-update cg-unlink; do
+        [[ -x "$install/bin/$wrapper" ]] || wrappers_present=false
+    done
+    if [[ $old_code == 0 && $observed_head == "$head" && $observed_pin == latest &&
+          $wrappers_present == true && -z $(git -C "$install" status --porcelain) ]]; then
+        old_outcome=success
+    elif [[ $old_code != 0 && $install_unchanged == true && $project_unchanged == true && -s "$root/old-updater.log" ]]; then
+        old_outcome='safe stop with a message'
+    fi
+    old_outcome+="; exit=$old_code; HEAD=$observed_head; pin=$observed_pin; see old-updater.log"
+    # Preserve the actual post-updater state, not the initial tag.
+    old_head=$observed_head
+    cp "$root/old.observed" "$root/old.before"
+fi
 if [[ $mode == update ]]; then
     stage='installed 9024 updater'
     git -C "$install" remote set-url origin https://github.com/GPID-WB/compound-gpid.git
@@ -224,6 +266,20 @@ resolved=$(/bin/bash -ic 'command -v cg-update' 2>/dev/null || true)
 snapshot "$candidate" > "$root/candidate.before"
 snapshot "${backups[0]}" > "$root/backup.before"
 snapshot "$install" > "$root/install.before"
+if [[ $mode == old-updater ]]; then
+    stage='NEW cg-link after OLD updater and migration'
+    cd "$HOME/kilo-project"
+    run recovered-link "$install/bin/cg-link" --platforms kilo --yes
+    cmp .kilo/commands/cg-review.md "$candidate/.kilo/commands/cg-review.md"
+    grep -qxF 'small Git project' fixture.txt
+    for name in candidate backup install outside source; do
+        case $name in backup) path=${backups[0]} ;; outside) path=$root/outside ;; *) path=${!name} ;; esac
+        snapshot "$path" > "$root/$name.after"
+        assert_snapshot "$root/$name.before" "$root/$name.after" "$name changed"
+    done
+    result=pass
+    exit 0
+fi
 for ((i=0; i<${#names[@]}; i++)); do
     project="$HOME/${names[i]}"
     if [[ ${names[i]} == kilo-project ]]; then
