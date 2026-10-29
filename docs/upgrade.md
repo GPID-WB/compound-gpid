@@ -156,13 +156,13 @@ terminal and editor. To install again, run steps 1 and 5.
 |---|---|
 | `running scripts is disabled` (Windows) | Run the same script as `powershell -ExecutionPolicy Bypass -File "<script>.ps1" <same options>` |
 | `Multiple installations found` | Run step 3A's last line again with your path: `-InstallPath "C:\WBG\.compound-gpid"` (macOS: `--install-path "$HOME/.compound-gpid"`) |
-| `Existing backup found` | You upgraded before: use **3B** |
+| `Existing backup found` | You upgraded before. If step 2 shows v1.2.0.9024 or newer, use 3B. Otherwise copy the full output and open an issue (nothing was changed). |
 | `No installation found` | Use **5** |
 | `already exists and is not an empty directory` | You cloned before: delete that folder, or use another folder name |
 | A PATH warning | Open a new terminal and follow the line the script printed |
 | Anything else | Copy the full output and open an issue: https://github.com/GPID-WB/compound-gpid/issues |
 
-Full details: https://gpid-wb.github.io/compound-gpid/#page=upgrade
+The Details section below explains each step.
 
 ## Details
 
