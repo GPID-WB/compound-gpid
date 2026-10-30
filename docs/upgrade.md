@@ -19,7 +19,7 @@ $tag = ((git ls-remote --tags --refs --sort=-v:refname $repo 'v*' | Select-Objec
 $base = ($tag -split '\.')[0..2] -join '.'
 if (git ls-remote --tags $repo "refs/tags/$base") { $tag = $base }
 # Or a specific version instead (remove the # and edit):
-# $tag = 'v1.2.0.9025'
+# $tag = 'v1.3.0'
 $tag
 ```
 
@@ -30,7 +30,7 @@ tag=$(git ls-remote --tags --refs --sort=-v:refname "$repo" 'v*' | head -n 1 | s
 base=$(printf '%s' "$tag" | cut -d. -f1-3)
 git ls-remote --exit-code --tags "$repo" "refs/tags/$base" >/dev/null && tag="$base"
 # Or a specific version instead (remove the # and edit):
-# tag=v1.2.0.9025
+# tag=v1.3.0
 echo "$tag"
 ```
 
