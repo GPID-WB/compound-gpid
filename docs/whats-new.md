@@ -4,6 +4,31 @@ Release history and notable changes across Compound GPID from structured
 release payloads.
 
 <!-- cg:auto:release-notes -->
+### v1.3.0 — v1.3.0 - Stable rebuilt line
+
+*2026-10-29T22:17:46Z*
+
+**New — First stable release of the rebuilt line**
+- v1.3.0 is the first stable release of the rebuilt line. It brings together the safer upgrades from 9024, the default-settings fixes from 9025, and the new quick upgrade guide. Technical and research commands, adapters, and skills remain available without requiring Kilo to install, update, or link.
+- Upgrade guide for Windows and macOS, including older installations, fresh installs, project refresh, and removal: https://gpid-wb.github.io/compound-gpid/#page=upgrade
+- On v1.2.0.9024 or newer: from your home folder, run cg-update v1.3.0. Open a new terminal, then run the NEW cg-link --check and cg-link once per project, keeping its adapter selection. Use the explicit version, not latest; cg-update latest follows main, not the GitHub Latest release.
+- On older versions, follow the guide's one-time migration using a fresh v1.3.0 clone. Keep the old installation backup and the printed rollback command. Do not run the old updater or linker first.
+
+**Fixed — Safer upgrades and project refresh**
+- Migration keeps the old installation in a sibling backup, installs at the original path, and pins the chosen version. Read-only cg-link --check reports conflicts before project changes; edited, unowned, and user-added files are preserved for review.
+- The one-time legacy Copilot instructions transition saves the original bytes in .github/copilot-instructions.md.pre-9024.bak. Review and merge your custom instructions from that backup. PATH warnings explain how to use the new installation rather than a shadowing old command.
+- Older compound-gpid.local.md files containing notes but no settings block now use defaults, and an initial UTF-8 BOM is accepted. Your settings file is not rewritten; run /cg-setup later if needed. Repeated linking removes duplicate managed .gitignore entries and obsolete internal copies.
+
+**Internal — Tested coverage and known limits**
+- Windows and macOS CI fixtures cover migration from v1.1.11 and v1.2.0.9021, updates through the installed 9024 updater, older-updater recovery, and the published quick-guide commands. They check backups, preserved user files, default settings, pins, read-only checks, and repeat linking. Required gates also run native Python and Pester tests on both platforms.
+- Coverage is based on isolated fixtures, not every historical installation or a real Kilo host. Worktrees and linked installation paths are not supported for migration. Existing backups or multiple installations can require explicit selection or recovery; local edits stay in the backup rather than being merged.
+- Rollback restores the installation, not project changes or every PATH/profile write. Keep reviewed project backups. Windows PowerShell 5.1 long-path copy/unlink limits remain; use short installation paths. Preserve blocked files and resolve the reported manual action; do not delete adapter folders or use unlink to bypass conflicts.
+- This is a prepared stable-release payload. Its dates record preparation, not publication. Stable publication still requires promotion to main, full CI, Reserve, verified documentation deployment, Finalize, and a reviewed attestation-evidence PR. GitHub Latest is a separate owner action.
+
+[View source tag](https://github.com/GPID-WB/compound-gpid/tree/v1.3.0)
+
+---
+
 ### v1.2.0.9025 — v1.2.0.9025 - Default Settings
 
 *2026-10-21T13:50:02Z*

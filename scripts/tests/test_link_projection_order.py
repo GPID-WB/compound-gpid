@@ -126,6 +126,53 @@ def test_snapshot_awk_escapes_delimiters_in_character_classes() -> None:
     assert "[^/" not in shell
 
 
+@pytest.mark.parametrize("extension", ("ps1", "sh"))
+@pytest.mark.parametrize("published,expected", (
+    (("v1.2.0.9025",), "v1.2.0.9026"),
+    (("v1.2.0.9025", "v1.3.0"), "v1.3.0.9001"),
+    (("v1.2.0.9025", "v1.3.0", "v1.3.0.9001"), "v1.3.0.9002"),
+))
+def test_upgrade_candidate_follows_newest_published_line(
+    tmp_path: Path, extension: str, published: tuple[str, ...], expected: str,
+) -> None:
+    """Run only the fixture selector; never reuse an inherited published tag."""
+    executable = (shutil.which("powershell") or shutil.which("pwsh")) if extension == "ps1" else shutil.which("bash")
+    if not executable or (extension == "sh" and os.name == "nt"):
+        pytest.skip("native fixture selector shell unavailable")
+    subprocess.run(["git", "init", str(tmp_path)], check=True, capture_output=True)
+    subprocess.run(
+        ["git", "-C", str(tmp_path), "-c", "user.name=Fixture", "-c",
+         "user.email=fixture@example.invalid", "-c", "commit.gpgsign=false",
+         "commit", "--allow-empty", "-m", "fixture"], check=True, capture_output=True,
+    )
+    for tag in published:
+        subprocess.run(["git", "-C", str(tmp_path), "tag", tag], check=True, capture_output=True)
+    content = (REPO_ROOT / f"scripts/ci/upgrade-matrix.{extension}").read_text(encoding="utf-8")
+    selector = content.split("# checkout fetches all published tags; choose an unused numeric successor.\n", 1)[1]
+    if extension == "ps1":
+        selector = selector.split("    foreach ($dir", 1)[0]
+        helper = re.search(r"(?ms)^function Invoke-Git\(.*?^\}", content).group(0)
+        code = ("$ErrorActionPreference = 'Stop'\n" + helper
+                + "\n$source = $env:CG_SELECTOR_ROOT\n" + selector + "\n$candidateTag\n")
+        command = [executable, "-NoProfile", "-NonInteractive", "-Command", code]
+    else:
+        selector = selector.split("\nrun()", 1)[0]
+        command = [executable, "-c", 'set -euo pipefail\nsource="$CG_SELECTOR_ROOT"\n'
+                   + selector + '\nprintf "%s\\n" "$candidate_tag"\n']
+    result = subprocess.run(
+        command, env={**os.environ, "CG_SELECTOR_ROOT": str(tmp_path)},
+        capture_output=True, text=True, timeout=30, check=False,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert result.stdout.strip() == expected
+    inherited = subprocess.run(
+        ["git", "-C", str(tmp_path), "tag", "--list"],
+        check=True, capture_output=True, text=True,
+    ).stdout.splitlines()
+    assert set(inherited) == set(published)
+    assert expected not in inherited
+
+
 @pytest.mark.skipif(os.name == "nt", reason="native bash parity")
 @pytest.mark.parametrize("case", (
     "metadata", "copy-only", "copy-change", "user-change", "generation-content",

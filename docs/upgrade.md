@@ -1,20 +1,172 @@
-# Upgrade from an older version
+# Upgrade, install or remove Compound GPID
 
-## Quick steps
-For step 2, use this clone command with your OS's destination from the table:
-`git clone --branch v1.2.0.9025 https://github.com/GPID-WB/compound-gpid.git "<NEW-CLONE>"`
+Works from any older version, today or after future releases. About 10 minutes.
 
-| Step | Windows (PowerShell) | macOS (bash) |
-|---|---|---|
-| 1. Close tools | Close editors and other terminals; keep one terminal outside the installation. | Close editors and other terminals; keep one terminal outside the installation. |
-| 2. Clone the newest release | Use `"$HOME\compound-gpid-new"` as the destination in the command above. | Use `"$HOME/compound-gpid-new"` as the destination in the command above. |
-| 3. Run migration by full path | `& "$HOME\compound-gpid-new\scripts\migrate-install.ps1"` | `bash "$HOME/compound-gpid-new/scripts/migrate-install.sh"` |
-| 4. Open a new terminal | Open a new terminal to load the NEW commands. | Open a new terminal to load the NEW commands. |
-| 5. Link each project | From each project root, run `cg-link`, with `--platforms` if you use one. | From each project root, run `cg-link`, with `--platforms` if you use one. |
+- Close VS Code / Positron and other terminals first.
+- Windows: use **Windows PowerShell**. macOS: use **Terminal**.
+- Run all commands in the **same** window, in order.
+- You need Git 2.18 or newer and Python 3.8 or newer.
 
-The rest of this page explains each step and what to do if something stops.
+## 1. Choose the version
 
-## Who Should Use This Guide
+The first lines pick the newest stable version, or the newest pre-release when
+no stable version of that line exists yet.
+
+**Windows**
+```powershell
+$repo = "https://github.com/GPID-WB/compound-gpid.git"
+$tag = ((git ls-remote --tags --refs --sort=-v:refname $repo 'v*' | Select-Object -First 1) -split '/')[-1]
+$base = ($tag -split '\.')[0..2] -join '.'
+if (git ls-remote --tags $repo "refs/tags/$base") { $tag = $base }
+# Or a specific version instead (remove the # and edit):
+# $tag = 'v1.3.0'
+$tag
+```
+
+**macOS**
+```bash
+repo="https://github.com/GPID-WB/compound-gpid.git"
+tag=$(git ls-remote --tags --refs --sort=-v:refname "$repo" 'v*' | head -n 1 | sed 's#.*/##')
+base=$(printf '%s' "$tag" | cut -d. -f1-3)
+git ls-remote --exit-code --tags "$repo" "refs/tags/$base" >/dev/null && tag="$base"
+# Or a specific version instead (remove the # and edit):
+# tag=v1.3.0
+echo "$tag"
+```
+
+## 2. Check what you have now
+
+**Windows**
+```powershell
+foreach ($p in "C:\WBG\.compound-gpid", "$HOME\.compound-gpid") { if (Test-Path "$p\.git") { "$p -> $(git -C $p describe --tags --always)" } }
+```
+
+**macOS**
+```bash
+git -C "$HOME/.compound-gpid" describe --tags --always
+```
+
+| You see | Go to |
+|---|---|
+| `v1.2.0.9024` or newer (for example `v1.2.0.9025`, `v2.0.0`) | **3B** |
+| An older version (for example `v1.1.11`, `v1.2.0.9021`) | **3A** |
+| Nothing, or an error | **5** (fresh install) |
+
+## 3A. One-time upgrade (older versions)
+
+**Windows**
+```powershell
+$new = "$HOME\compound-gpid-$tag"
+git clone --branch $tag $repo $new
+& "$new\scripts\migrate-install.ps1"
+```
+
+**macOS**
+```bash
+new="$HOME/compound-gpid-$tag"
+git clone --branch "$tag" "$repo" "$new"
+bash "$new/scripts/migrate-install.sh"
+```
+
+Success ends with `Migrated: ... -> <version> (pinned)`. Your old folder is kept as
+a backup, and the script prints a rollback command: keep it. Keep the
+`compound-gpid-<version>` folder too. Continue with **4**.
+
+## 3B. Quick update (v1.2.0.9024 or newer)
+
+**Windows**
+```powershell
+Set-Location $HOME
+cg-update $tag
+```
+
+**macOS**
+```bash
+cd "$HOME" && cg-update "$tag"
+```
+
+Run it from your home folder, not inside a project. Continue with **4**.
+
+## 4. Refresh each project
+
+Open a **new** terminal. In each project folder:
+```text
+cg-link --check
+cg-link
+```
+
+- Add `--platforms` if you use only some tools, for example `cg-link --platforms kilo`.
+  Values: `copilot`, `claude-code`, `codex`, `opencode`, `kilo`, or `all` (the default).
+- "Manual action required" means files you edited were kept. Review them.
+- Restart your editor.
+
+## 5. Fresh install (new computer, or after removal)
+
+Run step 1 first, then:
+
+**Windows**
+```powershell
+$cg = "C:\WBG\.compound-gpid"     # on a remote server use: "$HOME\.compound-gpid"
+git clone --branch $tag $repo $cg
+Set-Content -LiteralPath "$cg\.cg-version" -Value $tag
+& "$cg\install.ps1"
+```
+
+**macOS**
+```bash
+cg="$HOME/.compound-gpid"
+git clone --branch "$tag" "$repo" "$cg"
+printf '%s\n' "$tag" > "$cg/.cg-version"
+bash "$cg/scripts/install.sh"
+```
+
+Restart your terminal and editor, then do step 4.
+
+## 6. Remove completely
+
+First, in each project you want to clean (optional), run `cg-unlink`.
+
+**Windows**
+```powershell
+$cg = Split-Path (Split-Path (Get-Command cg-link.cmd -ErrorAction Stop).Source)   # if this fails: $cg = "C:\WBG\.compound-gpid"
+& "$cg\install.ps1" -Uninstall
+Remove-Item -LiteralPath $cg -Recurse -Force
+Get-ChildItem -LiteralPath (Split-Path $cg) -Directory -Filter "$(Split-Path $cg -Leaf).backup-*" | Remove-Item -Recurse -Force
+```
+
+**macOS**
+```bash
+cg="$(cd "$(dirname "$(command -v cg-link)")/.." && pwd)"   # if this fails: cg="$HOME/.compound-gpid"
+bash "$cg/scripts/install.sh" --uninstall
+rm -rf "$cg"
+find "$(dirname "$cg")" -maxdepth 1 -name "$(basename "$cg").backup-*" -exec rm -rf {} +
+```
+
+Deleting the folder also deletes any edits you made inside it. Restart your
+terminal and editor. To install again, run steps 1 and 5.
+
+## Other choices
+
+- **Follow `main` (unreleased changes) instead of a version** (only on v1.2.0.9024
+  or newer): `cg-update latest`. To go back to a version: `cg-update $tag`.
+
+## If something stops
+
+| Message | What to do |
+|---|---|
+| `running scripts is disabled` (Windows) | Run the same script as `powershell -ExecutionPolicy Bypass -File "<script>.ps1" <same options>` |
+| `Multiple installations found` | Run step 3A's last line again with your path: `-InstallPath "C:\WBG\.compound-gpid"` (macOS: `--install-path "$HOME/.compound-gpid"`) |
+| `Existing backup found` | You upgraded before. If step 2 shows v1.2.0.9024 or newer, use 3B. Otherwise copy the full output and open an issue (nothing was changed). |
+| `No installation found` | Use **5** |
+| `already exists and is not an empty directory` | You cloned before: delete that folder, or use another folder name |
+| A PATH warning | Open a new terminal and follow the line the script printed |
+| Anything else | Copy the full output and open an issue: https://github.com/GPID-WB/compound-gpid/issues |
+
+The Details section below explains each step.
+
+## Details
+
+### Who Should Use This Guide
 Use this guide for any older installed version, whether pinned to a tag or
 tracking `latest`. Start with a fresh clone of the newest published release,
 not the OLD installation's `cg-update` or `cg-link`.
@@ -22,7 +174,7 @@ not the OLD installation's `cg-update` or `cg-link`.
 If your old `cg-update` already ran and something looks wrong, follow the same
 steps; your old folder is kept as a backup.
 
-## Before You Start
+### Before You Start
 Close editors, terminals, and other tools that use the installation. Keep one
 terminal outside the installation for migration. Back up your projects first.
 Stop all install/update/link activity while migrating or rolling back.
@@ -34,17 +186,17 @@ Check your installed version (replace the path if your installation is elsewhere
 |---|---|
 | `git -C "$HOME\.compound-gpid" describe --tags --always` | `git -C ~/.compound-gpid describe --tags --always` |
 
-## Get The New Release
+### Get The New Release
 Clone the official repository into a separate, fresh folder. Do not put this
 folder inside the old installation or put the old installation inside it.
 Keep this NEW clone clean and available for rollback. The destination must not
 already exist, and its parent directory must exist and be writable.
 
-Use the clone command in Quick steps, replacing `<NEW-CLONE>` with your full
-destination path. The examples below use `"$HOME\compound-gpid-new"` on Windows
+Choose the release with step 1, then use the clone command in step 3A with your
+full destination path. The examples below use `"$HOME\compound-gpid-new"` on Windows
 and `"$HOME/compound-gpid-new"` on macOS; substitute your actual path throughout.
 
-## Run Migration From The New Clone
+### Run Migration From The New Clone
 Run the script by its full path, not an installed command. Choose ONE row:
 
 | Installation | Windows (PowerShell) | macOS |
@@ -69,10 +221,10 @@ Existing backups also stop migration: inspect them and use the printed rollback
 command before retrying. Do not delete backups to bypass the stop.
 Only standalone Git clones are supported, not worktrees or linked install paths.
 
-## Check The Result
+### Check The Result
 
 Expect `Migrated: ... -> <new-release-tag> (pinned)` and `Backup preserved: ...`,
-where the new tag matches the clone command in Quick steps.
+where the new tag matches the version chosen in step 1.
 The old folder, including local edits, stays beside the installation as
 `<install>.backup-<old-version>-<timestamp>` (Windows includes milliseconds).
 Those installation edits are not merged into the new clone. Keep the backup.
@@ -91,7 +243,7 @@ script; remove the reported old/shadowing bin entry from User/Machine PATH on
 Windows or your shell profile on macOS. Open a new terminal and check again.
 Do not run a shadowing old command.
 
-## In Each Project
+### In Each Project
 
 Migration replaces the installation but does not reconcile project files.
 From each project root, after verifying command resolution, use the NEW
@@ -118,14 +270,14 @@ One exception is the first transition of legacy managed Copilot instructions:
 merge your custom instructions from that backup. An existing backup is kept;
 a conflicting transition needs manual action. Restart your editor after linking.
 
-## Stay Pinned
+### Stay Pinned
 
 Migration pins the replacement installation to the release tag above, even if
 the old installation tracked `latest`. Keep that pin. The keyword `latest`
 means tracking `main`, not selecting the newest published release tag; switching
 to that mode is not part of this upgrade procedure.
 
-## Rollback
+### Rollback
 
 Close affected tools and stop install/update/link activity. Use the exact rollback
 command printed by migration, with the original install path and backup path:
