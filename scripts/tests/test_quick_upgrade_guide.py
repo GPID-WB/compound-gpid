@@ -92,6 +92,37 @@ $env:PATH = [Environment]::GetEnvironmentVariable('Path', 'Machine') + ';' +
     return _run(["bash", "-c", preamble + code], env, cwd)
 
 
+@pytest.mark.parametrize("uninstall_exit", (None, 1, 0))
+def test_removal_requires_successful_validated_uninstall(
+    tmp_path: Path, uninstall_exit: int | None,
+) -> None:
+    """Execute step 6 with fake installers, e.g. preserve a non-install folder."""
+    install = tmp_path / ".compound-gpid"
+    backup = tmp_path / ".compound-gpid.backup-fixture"
+    unrelated = tmp_path / "other.backup-fixture"
+    for folder in (install, backup, unrelated):
+        folder.mkdir()
+        (folder / "sentinel").write_text("keep me\n", encoding="ascii")
+    windows = sys.platform == "win32"
+    if uninstall_exit is not None:
+        installer = install / ("install.ps1" if windows else "scripts/install.sh")
+        installer.parent.mkdir(exist_ok=True)
+        installer.write_text(f"exit {uninstall_exit}\n", encoding="ascii")
+    env = dict(os.environ, HOME=str(tmp_path), USERPROFILE=str(tmp_path))
+    block = _blocks("powershell" if windows else "bash")["6"]
+    # The Windows failure branch retains the installer's exit code; inspect its
+    # message and filesystem result rather than requiring a successful uninstall.
+    output = _shell(block + ("\n$LASTEXITCODE = 0" if windows else ""), env, tmp_path)
+    if uninstall_exit == 0:
+        assert not install.exists()
+        assert not backup.exists()
+    else:
+        assert "Nothing deleted." in " ".join(output.split())
+        assert (install / "sentinel").read_text(encoding="ascii") == "keep me\n"
+        assert (backup / "sentinel").read_text(encoding="ascii") == "keep me\n"
+    assert (unrelated / "sentinel").read_text(encoding="ascii") == "keep me\n"
+
+
 @pytest.fixture(scope="module")
 def published_tag() -> str:
     """Choose independently from actual GitHub releases, e.g. v1.2.0.9025 today."""

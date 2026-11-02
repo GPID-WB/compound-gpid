@@ -128,18 +128,31 @@ First, in each project you want to clean (optional), run `cg-unlink`.
 
 **Windows**
 ```powershell
-$cg = Split-Path (Split-Path (Get-Command cg-link.cmd -ErrorAction Stop).Source)   # if this fails: $cg = "C:\WBG\.compound-gpid"
-& "$cg\install.ps1" -Uninstall
-Remove-Item -LiteralPath $cg -Recurse -Force
-Get-ChildItem -LiteralPath (Split-Path $cg) -Directory -Filter "$(Split-Path $cg -Leaf).backup-*" | Remove-Item -Recurse -Force
+$cg = "C:\WBG\.compound-gpid"   # Edit to your install path; or "$HOME\.compound-gpid"
+if (Test-Path -LiteralPath "$cg\install.ps1" -PathType Leaf) {
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$cg\install.ps1" -Uninstall
+    if ($? -and $LASTEXITCODE -eq 0) {
+        Remove-Item -LiteralPath $cg -Recurse -Force
+        Get-ChildItem -LiteralPath (Split-Path $cg) -Directory -Filter "$(Split-Path $cg -Leaf).backup-*" | Remove-Item -Recurse -Force
+    } else {
+        Write-Warning "Uninstall failed for $cg. Nothing deleted."
+    }
+} else {
+    Write-Warning "Not an installation: $cg (missing install.ps1). Nothing deleted."
+}
 ```
 
 **macOS**
 ```bash
-cg="$(cd "$(dirname "$(command -v cg-link)")/.." && pwd)"   # if this fails: cg="$HOME/.compound-gpid"
-bash "$cg/scripts/install.sh" --uninstall
-rm -rf "$cg"
-find "$(dirname "$cg")" -maxdepth 1 -name "$(basename "$cg").backup-*" -exec rm -rf {} +
+cg="$HOME/.compound-gpid"   # Edit to your install path.
+if [ ! -f "$cg/scripts/install.sh" ]; then
+    printf 'Not an installation: %s (missing scripts/install.sh). Nothing deleted.\n' "$cg"
+elif bash "$cg/scripts/install.sh" --uninstall; then
+    rm -rf -- "$cg"
+    find "$(dirname "$cg")" -maxdepth 1 -type d -name "$(basename "$cg").backup-*" -exec rm -rf -- {} +
+else
+    printf 'Uninstall failed for %s. Nothing deleted.\n' "$cg"
+fi
 ```
 
 Deleting the folder also deletes any edits you made inside it. Restart your
