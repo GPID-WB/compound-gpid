@@ -92,17 +92,27 @@ $env:PATH = [Environment]::GetEnvironmentVariable('Path', 'Machine') + ';' +
     return _run(["bash", "-c", preamble + code], env, cwd)
 
 
-@pytest.mark.parametrize("basename", (".compound-gpid", "cg[1]"))
 @pytest.mark.parametrize(
-    "uninstall_exit,diagnostic", ((None, None), (1, None), (0, None),
-                                (0, "warning"), (0, "error")),
+    "basename,uninstall_exit,diagnostic,entry_shell,with_backup",
+    [
+        (basename, uninstall_exit, diagnostic, "native", True)
+        for basename in (".compound-gpid", "cg[1]")
+        for uninstall_exit, diagnostic in (
+            (None, None), (1, None), (0, None), (0, "warning"), (0, "error"),
+        )
+    ] + [
+        (".compound-gpid", 0, None, "zsh", False),
+        ("cg[1]", 0, None, "zsh", True),
+    ],
 )
 def test_removal_requires_successful_validated_uninstall(
     tmp_path: Path, basename: str, uninstall_exit: int | None,
-    diagnostic: str | None,
+    diagnostic: str | None, entry_shell: str, with_backup: bool,
 ) -> None:
     """Run step 6 on fixtures, e.g. warnings veto exit zero; cg[1] stays literal."""
     windows = sys.platform == "win32"
+    if entry_shell == "zsh" and sys.platform != "darwin":
+        pytest.skip("zsh entry-shell checks require macOS")
     if diagnostic and not windows:
         pytest.skip("PowerShell warning/error streams apply only to Windows")
     install = tmp_path / basename
@@ -110,7 +120,10 @@ def test_removal_requires_successful_validated_uninstall(
     unrelated = [tmp_path / name for name in (
         "other.backup-fixture", "cg1.backup-fixture", f"{basename}.backup",
     )]
-    for folder in (install, backup, *unrelated):
+    folders = [install, *unrelated]
+    if with_backup:
+        folders.append(backup)
+    for folder in folders:
         folder.mkdir()
         (folder / "sentinel").write_text("keep me\n", encoding="ascii")
     if uninstall_exit is not None:
@@ -132,14 +145,20 @@ def test_removal_requires_successful_validated_uninstall(
     )
     # The Windows failure branch retains the installer's exit code; inspect its
     # message and filesystem result rather than requiring a successful uninstall.
-    output = _shell(block + ("\n$LASTEXITCODE = 0" if windows else ""), env, tmp_path)
+    if entry_shell == "zsh":
+        output = _run(["zsh", "-f", "-c", block], env, tmp_path)
+    else:
+        output = _shell(
+            block + ("\n$LASTEXITCODE = 0" if windows else ""), env, tmp_path,
+        )
     if uninstall_exit == 0 and diagnostic is None:
         assert not install.exists()
         assert not backup.exists()
     else:
         assert "Nothing deleted." in " ".join(output.split())
         assert (install / "sentinel").read_text(encoding="ascii") == "keep me\n"
-        assert (backup / "sentinel").read_text(encoding="ascii") == "keep me\n"
+        if with_backup:
+            assert (backup / "sentinel").read_text(encoding="ascii") == "keep me\n"
     for folder in unrelated:
         assert (folder / "sentinel").read_text(encoding="ascii") == "keep me\n"
 
