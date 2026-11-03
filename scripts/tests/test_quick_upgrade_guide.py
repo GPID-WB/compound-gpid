@@ -92,35 +92,56 @@ $env:PATH = [Environment]::GetEnvironmentVariable('Path', 'Machine') + ';' +
     return _run(["bash", "-c", preamble + code], env, cwd)
 
 
-@pytest.mark.parametrize("uninstall_exit", (None, 1, 0))
+@pytest.mark.parametrize("basename", (".compound-gpid", "cg[1]"))
+@pytest.mark.parametrize(
+    "uninstall_exit,diagnostic", ((None, None), (1, None), (0, None),
+                                (0, "warning"), (0, "error")),
+)
 def test_removal_requires_successful_validated_uninstall(
-    tmp_path: Path, uninstall_exit: int | None,
+    tmp_path: Path, basename: str, uninstall_exit: int | None,
+    diagnostic: str | None,
 ) -> None:
-    """Execute step 6 with fake installers, e.g. preserve a non-install folder."""
-    install = tmp_path / ".compound-gpid"
-    backup = tmp_path / ".compound-gpid.backup-fixture"
-    unrelated = tmp_path / "other.backup-fixture"
-    for folder in (install, backup, unrelated):
+    """Run step 6 on fixtures, e.g. warnings veto exit zero; cg[1] stays literal."""
+    windows = sys.platform == "win32"
+    if diagnostic and not windows:
+        pytest.skip("PowerShell warning/error streams apply only to Windows")
+    install = tmp_path / basename
+    backup = tmp_path / f"{basename}.backup-fixture"
+    unrelated = [tmp_path / name for name in (
+        "other.backup-fixture", "cg1.backup-fixture", f"{basename}.backup",
+    )]
+    for folder in (install, backup, *unrelated):
         folder.mkdir()
         (folder / "sentinel").write_text("keep me\n", encoding="ascii")
-    windows = sys.platform == "win32"
     if uninstall_exit is not None:
         installer = install / ("install.ps1" if windows else "scripts/install.sh")
         installer.parent.mkdir(exist_ok=True)
-        installer.write_text(f"exit {uninstall_exit}\n", encoding="ascii")
+        message = ""
+        if diagnostic == "warning":
+            message = "try { throw 'fixture cleanup' } catch { Write-Warning $_ }\n"
+        elif diagnostic == "error":
+            message = "Write-Error 'fixture cleanup' -ErrorAction Continue\n"
+        installer.write_text(message + f"exit {uninstall_exit}\n", encoding="ascii")
     env = dict(os.environ, HOME=str(tmp_path), USERPROFILE=str(tmp_path))
     block = _blocks("powershell" if windows else "bash")["6"]
+    # Edit only the installation path, as the page instructs for custom installs.
+    block = block.replace(
+        r'$cg = "C:\WBG\.compound-gpid"' if windows else 'cg="$HOME/.compound-gpid"',
+        f'$cg = "{install}"' if windows else f'cg="$HOME/{basename}"',
+        1,
+    )
     # The Windows failure branch retains the installer's exit code; inspect its
     # message and filesystem result rather than requiring a successful uninstall.
     output = _shell(block + ("\n$LASTEXITCODE = 0" if windows else ""), env, tmp_path)
-    if uninstall_exit == 0:
+    if uninstall_exit == 0 and diagnostic is None:
         assert not install.exists()
         assert not backup.exists()
     else:
         assert "Nothing deleted." in " ".join(output.split())
         assert (install / "sentinel").read_text(encoding="ascii") == "keep me\n"
         assert (backup / "sentinel").read_text(encoding="ascii") == "keep me\n"
-    assert (unrelated / "sentinel").read_text(encoding="ascii") == "keep me\n"
+    for folder in unrelated:
+        assert (folder / "sentinel").read_text(encoding="ascii") == "keep me\n"
 
 
 @pytest.fixture(scope="module")
