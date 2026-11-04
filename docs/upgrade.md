@@ -130,10 +130,19 @@ First, in each project you want to clean (optional), run `cg-unlink`.
 ```powershell
 $cg = "C:\WBG\.compound-gpid"   # Edit to your install path; or "$HOME\.compound-gpid"
 if (Test-Path -LiteralPath "$cg\install.ps1" -PathType Leaf) {
-    powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$cg\install.ps1" -Uninstall
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -Command {
+        param($installer)
+        & $installer -Uninstall 2>&1 3>&1 | ForEach-Object {
+            if ($_ -is [System.Management.Automation.ErrorRecord] -or $_ -is [System.Management.Automation.WarningRecord]) {
+                Write-Host $_
+                exit 1
+            }
+            $_
+        }
+    } -Args "$cg\install.ps1"
     if ($? -and $LASTEXITCODE -eq 0) {
         Remove-Item -LiteralPath $cg -Recurse -Force
-        Get-ChildItem -LiteralPath (Split-Path $cg) -Directory -Filter "$(Split-Path $cg -Leaf).backup-*" | Remove-Item -Recurse -Force
+        Get-ChildItem -LiteralPath (Split-Path $cg) -Directory | Where-Object { $_.Name.StartsWith("$(Split-Path $cg -Leaf).backup-") } | Remove-Item -Recurse -Force
     } else {
         Write-Warning "Uninstall failed for $cg. Nothing deleted."
     }
@@ -144,15 +153,19 @@ if (Test-Path -LiteralPath "$cg\install.ps1" -PathType Leaf) {
 
 **macOS**
 ```bash
+bash <<'BASH'
 cg="$HOME/.compound-gpid"   # Edit to your install path.
 if [ ! -f "$cg/scripts/install.sh" ]; then
     printf 'Not an installation: %s (missing scripts/install.sh). Nothing deleted.\n' "$cg"
 elif bash "$cg/scripts/install.sh" --uninstall; then
     rm -rf -- "$cg"
-    find "$(dirname "$cg")" -maxdepth 1 -type d -name "$(basename "$cg").backup-*" -exec rm -rf -- {} +
+    for backup in "$cg".backup-*; do
+        if [ -d "$backup" ]; then rm -rf -- "$backup"; fi
+    done
 else
     printf 'Uninstall failed for %s. Nothing deleted.\n' "$cg"
 fi
+BASH
 ```
 
 Deleting the folder also deletes any edits you made inside it. Restart your
