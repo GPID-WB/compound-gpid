@@ -117,12 +117,15 @@ def test_removal_requires_successful_validated_uninstall(
         pytest.skip("PowerShell warning/error streams apply only to Windows")
     install = tmp_path / basename
     backup = tmp_path / f"{basename}.backup-fixture"
+    backups = [backup]
+    if windows:
+        backups.append(tmp_path / f"{basename}.backup-hidden")
     unrelated = [tmp_path / name for name in (
         "other.backup-fixture", "cg1.backup-fixture", f"{basename}.backup",
     )]
     folders = [install, *unrelated]
     if with_backup:
-        folders.append(backup)
+        folders.extend(backups)
     for folder in folders:
         folder.mkdir()
         (folder / "sentinel").write_text("keep me\n", encoding="ascii")
@@ -136,6 +139,11 @@ def test_removal_requires_successful_validated_uninstall(
             message = "Write-Error 'fixture cleanup' -ErrorAction Continue\n"
         installer.write_text(message + f"exit {uninstall_exit}\n", encoding="ascii")
     env = dict(os.environ, HOME=str(tmp_path), USERPROFILE=str(tmp_path))
+    if windows and with_backup:
+        _shell(
+            f'(Get-Item -LiteralPath "{backups[-1]}").Attributes += "Hidden"',
+            env, tmp_path,
+        )
     block = _blocks("powershell" if windows else "bash")["6"]
     # Edit only the installation path, as the page instructs for custom installs.
     block = block.replace(
@@ -149,18 +157,74 @@ def test_removal_requires_successful_validated_uninstall(
         output = _run(["zsh", "-f", "-c", block], env, tmp_path)
     else:
         output = _shell(
-            block + ("\n$LASTEXITCODE = 0" if windows else ""), env, tmp_path,
+            ("$ErrorActionPreference = 'Continue'\n" if windows else "")
+            + block + ("\n$LASTEXITCODE = 0" if windows else ""), env, tmp_path,
         )
     if uninstall_exit == 0 and diagnostic is None:
         assert not install.exists()
-        assert not backup.exists()
+        assert all(not folder.exists() for folder in backups)
     else:
         assert "Nothing deleted." in " ".join(output.split())
         assert (install / "sentinel").read_text(encoding="ascii") == "keep me\n"
         if with_backup:
-            assert (backup / "sentinel").read_text(encoding="ascii") == "keep me\n"
+            for folder in backups:
+                assert (folder / "sentinel").read_text(encoding="ascii") == "keep me\n"
     for folder in unrelated:
         assert (folder / "sentinel").read_text(encoding="ascii") == "keep me\n"
+
+
+@pytest.mark.parametrize("basename", (".compound-gpid", "cg[1]"))
+def test_installation_removal_failure_preserves_backups(
+    tmp_path: Path, basename: str,
+) -> None:
+    """Run actual step 6 without Stop/errexit masking, e.g. a locked Windows file."""
+    windows = sys.platform == "win32"
+    install = tmp_path / basename
+    backup = tmp_path / f"{basename}.backup-fixture"
+    unrelated = tmp_path / "other.backup-fixture"
+    for folder in (install, backup, unrelated):
+        folder.mkdir()
+        (folder / "sentinel").write_text("keep me\n", encoding="ascii")
+    installer = install / ("install.ps1" if windows else "scripts/install.sh")
+    installer.parent.mkdir(exist_ok=True)
+    installer.write_text("exit 0\n", encoding="ascii")
+    env = dict(os.environ, HOME=str(tmp_path), USERPROFILE=str(tmp_path))
+    block = _blocks("powershell" if windows else "bash")["6"].replace(
+        r'$cg = "C:\WBG\.compound-gpid"' if windows else 'cg="$HOME/.compound-gpid"',
+        f'$cg = "{install}"' if windows else f'cg="$HOME/{basename}"',
+        1,
+    )
+    if windows:
+        args = [
+            "powershell.exe", "-NoProfile", "-NonInteractive", "-ExecutionPolicy",
+            "Bypass", "-Command", "$ErrorActionPreference = 'Continue'\n" + block,
+        ]
+    else:
+        env["CG_FIXTURE_INSTALL"] = str(install)
+        # Export into the page's explicit Bash child; only installation rm fails.
+        shim = """
+rm() {
+    if [ "$3" = "$CG_FIXTURE_INSTALL" ]; then
+        printf 'fixture installation removal failed\n' >&2
+        return 1
+    fi
+    command rm "$@"
+}
+export -f rm
+"""
+        args = ["bash", "-c", shim + block]
+    # On Windows this open file prevents deletion, but touches no real install.
+    with (install / "sentinel").open("rb"):
+        result = subprocess.run(
+            args, env=env, cwd=tmp_path, text=True, encoding="utf-8",
+            errors="replace", capture_output=True, timeout=60, check=False,
+        )
+    for folder in (install, backup, unrelated):
+        assert (folder / "sentinel").read_text(encoding="ascii") == "keep me\n"
+    assert result.returncode != 0, result.stdout + result.stderr
+    assert ("sentinel" if windows else "fixture installation removal failed") in (
+        result.stderr
+    )
 
 
 @pytest.fixture(scope="module")

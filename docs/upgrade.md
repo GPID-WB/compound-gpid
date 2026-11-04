@@ -141,8 +141,8 @@ if (Test-Path -LiteralPath "$cg\install.ps1" -PathType Leaf) {
         }
     } -Args "$cg\install.ps1"
     if ($? -and $LASTEXITCODE -eq 0) {
-        Remove-Item -LiteralPath $cg -Recurse -Force
-        Get-ChildItem -LiteralPath (Split-Path $cg) -Directory | Where-Object { $_.Name.StartsWith("$(Split-Path $cg -Leaf).backup-") } | Remove-Item -Recurse -Force
+        Remove-Item -LiteralPath $cg -Recurse -Force -ErrorAction Stop
+        Get-ChildItem -LiteralPath (Split-Path $cg) -Directory -Force | Where-Object { $_.Name.StartsWith("$(Split-Path $cg -Leaf).backup-") } | Remove-Item -Recurse -Force
     } else {
         Write-Warning "Uninstall failed for $cg. Nothing deleted."
     }
@@ -158,7 +158,7 @@ cg="$HOME/.compound-gpid"   # Edit to your install path.
 if [ ! -f "$cg/scripts/install.sh" ]; then
     printf 'Not an installation: %s (missing scripts/install.sh). Nothing deleted.\n' "$cg"
 elif bash "$cg/scripts/install.sh" --uninstall; then
-    rm -rf -- "$cg"
+    rm -rf -- "$cg" || exit 1
     for backup in "$cg".backup-*; do
         if [ -d "$backup" ]; then rm -rf -- "$backup"; fi
     done
