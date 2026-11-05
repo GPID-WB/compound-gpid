@@ -85,7 +85,7 @@
         { "id": "governance", "title": "Governance and Security", "file": "governance/index.md", "description": "Operating constraints, data safeguards, review gates, and limitations." },
         { "id": "help", "title": "Help and Troubleshooting", "file": "help/index.md", "description": "Start with the shortest recovery path and escalate safely." },
         { "id": "installation", "title": "Installation Details", "file": "installation.md", "description": "Complete platform-specific installation, repair, and uninstall procedures." },
-        { "id": "upgrade", "title": "Upgrade from an older version", "file": "upgrade.md", "description": "Migrate an older installation from a fresh release clone, preserve local changes, and review linked projects." },
+        { "id": "upgrade", "title": "Upgrade, install or remove Compound GPID", "file": "upgrade.md", "description": "Upgrade, install or remove Compound GPID, preserve local changes, and review linked projects." },
         { "id": "versioning", "title": "Updates and Versions", "file": "versioning.md", "description": "Update, pin, unpin, and repair an installation." },
         { "id": "troubleshooting", "title": "Troubleshooting Reference", "file": "troubleshooting.md", "description": "Complete recovery procedures and known issues." }
       ]

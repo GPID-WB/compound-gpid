@@ -138,11 +138,13 @@ function Assert-RepeatSnapshot([string[]]$Before, [string[]]$After, [string]$Mes
 }
 try {
     # checkout fetches all published tags; choose an unused numeric successor.
-    $builds = @(Invoke-Git -Arguments @('-C', $source, 'tag', '--list', 'v1.2.0.*') | Where-Object {
-        $_ -cmatch '^v1\.2\.0\.[0-9]+$'
-    } | ForEach-Object { [long]($_ -split '\.')[3] } | Sort-Object)
-    if (-not $builds.Count) { throw 'No published v1.2.0 four-part tags found.' }
-    $candidateTag = "v1.2.0.$($builds[-1] + 1)"
+    $tags = @(Invoke-Git -Arguments @('-C', $source, 'tag', '--list', 'v*') | Where-Object {
+        $_ -cmatch '^v[0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?$'
+    } | Sort-Object { [version]($_.Substring(1)) })
+    if (-not $tags.Count) { throw 'No published numeric tags found.' }
+    $parts = $tags[-1].Substring(1) -split '\.'
+    $build = if ($parts.Count -eq 4) { [long]$parts[3] + 1 } else { 9001 }
+    $candidateTag = "v$($parts[0..2] -join '.').$build"
     foreach ($dir in @($env:APPDATA, $env:LOCALAPPDATA, $env:XDG_CONFIG_HOME, $env:TEMP, "$Root\outside")) {
         New-Item -ItemType Directory -Path $dir -Force | Out-Null
     }

@@ -39,9 +39,14 @@ finish() {
 }
 trap finish EXIT
 # checkout fetches all published tags; choose an unused numeric successor.
-tags=$(git -C "$source" tag --list 'v1.2.0.*')
-build=$(printf '%s\n' "$tags" | LC_ALL=C awk -F . '/^v1\.2\.0\.[0-9]+$/ { if ($4+0 > max) max=$4+0; found=1 } END { if (!found) exit 1; printf "%.0f", max+1 }')
-candidate_tag="v1.2.0.$build"
+tags=$(git -C "$source" tag --list 'v*' --sort=-v:refname)
+candidate_tag=$(printf '%s\n' "$tags" | LC_ALL=C awk -F . '
+    /^v[0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?$/ && !found {
+        printf "%s.%s.%s.%.0f\n", $1, $2, $3, (NF == 4 ? $4+1 : 9001)
+        found=1
+    }
+    END { if (!found) exit 1 }
+')
 run() {
     local name=$1 code=0
     shift
