@@ -15,6 +15,7 @@ $releasePrompt = Get-Content (Join-Path $repoRoot ".github\prompts\cg-release.pr
 $scanner = Get-Content (Join-Path $repoRoot ".github\agents\cg-release-scanner.agent.md") -Raw -Encoding UTF8
 $rebuildScript = Get-Content (Join-Path $repoRoot "scripts\rebuild-docs.js") -Raw -Encoding UTF8
 $whatsNewScript = Get-Content (Join-Path $repoRoot "scripts\generate-whats-new.js") -Raw -Encoding UTF8
+$releasePayloadScript = Get-Content (Join-Path $repoRoot "scripts\release-payloads.js") -Raw -Encoding UTF8
 
 Describe "Documentation rebuild workflow contracts" {
     It "filters only approved canonical documentation inputs on main" {
@@ -169,10 +170,11 @@ Describe "Deterministic generator contracts" {
     It "validates source tags, deduplicates latest, caps history, and escapes payload text" {
         $whatsNewScript | Should -Match 'sourceUrl'
         $whatsNewScript | Should -Match 'MAX_RELEASES = 20'
-        $whatsNewScript | Should -Match 'byte-match'
-        $whatsNewScript | Should -Match 'must match newest immutable payload'
+        $whatsNewScript | Should -Match 'require\("\./release-payloads\.js"\)\.loadReleasePayloads\(root, validatePayload, fail\)'
+        $releasePayloadScript | Should -Match 'byte-match'
+        $releasePayloadScript | Should -Match 'must match newest immutable payload'
         $whatsNewScript | Should -Match 'GPID-WB/compound-gpid'
-        $whatsNewScript | Should -Match 'must not be a symbolic link'
+        $releasePayloadScript | Should -Match 'must not be a symbolic link'
         $whatsNewScript | Should -Match 'View older releases'
         $whatsNewScript | Should -Match 'escapeText'
     }
