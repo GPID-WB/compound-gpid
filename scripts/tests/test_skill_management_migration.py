@@ -158,9 +158,13 @@ def test_old_names_remain_only_in_explicit_migration_text() -> None:
 
 def test_public_navigation_and_benchmark_use_cg_skill() -> None:
     navigation = json.loads((REPO_ROOT / "docs/navigation.json").read_text(encoding="utf-8"))
-    groups = [group for group in navigation["groups"] if group["title"] == "Skill Management"]
-    assert len(groups) == 1
-    assert len(groups[0]["pages"]) == 29
+    management_pages = [
+        page for group in navigation["groups"] for page in group["pages"]
+        if page["file"].startswith("skills/management/")
+    ]
+    assert len(management_pages) == 29
+    assert len({page["file"] for page in management_pages}) == 29
+    assert sum(page["id"] == "skill-management" for page in management_pages) == 1
     benchmark = (REPO_ROOT / "scripts/cg_projection_benchmark.py").read_text(
         encoding="utf-8"
     )

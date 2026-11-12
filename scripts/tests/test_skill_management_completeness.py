@@ -129,10 +129,14 @@ def _one_operation_root(tmp_path: Path, operation: str = "find") -> Path:
 
 
 def _management_pages(root: Path = REPO_ROOT) -> tuple[dict, ...]:
+    """Collect the complete management handbook across its task-based groups."""
     navigation = json.loads((root / "docs/navigation.json").read_text(encoding="utf-8"))
-    groups = [group for group in navigation["groups"] if group["title"] == "Skill Management"]
-    assert len(groups) == 1
-    return tuple({**page, "file": "docs/" + page["file"]} for page in groups[0]["pages"])
+    return tuple(
+        {**page, "file": "docs/" + page["file"]}
+        for group in navigation["groups"]
+        for page in group["pages"]
+        if page["file"].startswith("skills/management/")
+    )
 
 
 def _slugify(value: str) -> str:
