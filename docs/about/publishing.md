@@ -21,6 +21,20 @@ The channel label, source links, and build commit identify what you are reading.
 An older stable release can retain its previous site layout until the redesign
 is promoted to `main`.
 
+## Merge order: development first, then stable
+
+1. Merge the documentation PR into **`dev`**. GitHub Actions renders and
+   deploys the updated [development website](https://gpid-wb.github.io/compound-gpid/dev/).
+   A merge into `main` is not required for this deployment.
+2. Review the development website after both the build and deploy jobs succeed.
+3. When ready for stable publication, open and merge a **`dev` → `main`** PR.
+   Actions renders and deploys the [stable website](https://gpid-wb.github.io/compound-gpid/).
+   This promotes all changes included in that PR, including plugin changes.
+
+After the pipeline is present on both branches, each push automatically
+refreshes the corresponding channel. The Sites preview remains a separate
+design-review snapshot.
+
 ## One source for every kind of content
 
 | What changed? | Edit this source | What happens in the build |

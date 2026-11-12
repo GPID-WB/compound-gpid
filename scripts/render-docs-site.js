@@ -45,7 +45,7 @@ function renderSite({ docsRoot, out, channel = "dev", sha = "", preserveOtherFil
     if (fs.lstatSync(source).isSymbolicLink()) throw new Error(`Symbolic link in docs: ${source}`);
     return true;
   } });
-  const noScript = '<noscript><style>[data-open-search],[data-nav-filter],label[for="nav-filter"],.menu-button,[data-theme-toggle],.copy-code{display:none!important}.no-script-only{display:block}@media(max-width:820px){.sidebar{position:static;transform:none;width:100%;height:auto;box-shadow:none}.home-mode>.sidebar{display:none}}</style></noscript>';
+  const noScript = '<noscript><style>[data-open-search],[data-nav-filter],label[for="nav-filter"],.menu-button,[data-theme-toggle],.copy-code{display:none!important}.no-script-only{display:block}@media(max-width:820px){.sidebar{position:static;transform:none;width:100%;height:auto;box-shadow:none}}</style></noscript>';
   const stamp = sha ? `<p class="build-stamp">${channel === "dev" ? "Development" : "Stable"} documentation · Source <a href="https://github.com/GPID-WB/compound-gpid/commit/${sha}">${sha.slice(0, 7)}</a> · Rendered by the documentation build</p>` : "";
   function frame(content, page) {
     let html = content.replace('<body>', `<body data-rendered="true" data-channel="${channel}"${page ? ` data-page="${page.id}"` : ""}>`);

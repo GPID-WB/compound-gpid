@@ -41,6 +41,10 @@ code, kbd { font-family: "DM Mono", monospace; }
 .skip-link:focus { top: 1rem; }
 
 .site-frame { min-height: 100vh; display: grid; grid-template-columns: 256px minmax(0, 1fr); grid-template-rows: 72px minmax(0, 1fr); }
+.site-frame > main { grid-column: 2; grid-row: 2; }
+.site-frame.navigation-collapsed { grid-template-columns: 0 minmax(0, 1fr); }
+.navigation-collapsed > .sidebar { display: none; }
+.topbar-leading { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
 .topbar { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0 32px; border-bottom: 1px solid var(--line); background: color-mix(in srgb, var(--paper) 94%, transparent); position: sticky; top: 0; z-index: 20; backdrop-filter: blur(12px); }
 .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font: 700 18px/1 Fraunces, serif; letter-spacing: -.04em; }
 .brand b { color: var(--coral); font-style: normal; }
@@ -51,8 +55,10 @@ code, kbd { font-family: "DM Mono", monospace; }
 .icon-button, .repo-link { min-height: 36px; border: 1px solid var(--line); border-radius: 5px; background: transparent; display: inline-flex; align-items: center; gap: 8px; padding: 0 10px; text-decoration: none; font-size: 12px; font-weight: 700; }
 .icon-button:hover, .repo-link:hover { border-color: var(--ink); background: var(--card); }
 .icon-button kbd { border-left: 1px solid var(--line); padding-left: 8px; font-size: 10px; color: var(--muted); }
-.menu-button { display: none; border: 0; background: transparent; width: 42px; height: 38px; padding: 9px; }
-.menu-button span:not(.sr-only) { display: block; height: 2px; margin: 4px 0; background: var(--ink); }
+.menu-button { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid var(--line); border-radius: 5px; background: transparent; width: 36px; height: 36px; padding: 6px; }
+.menu-button:hover { border-color: var(--ink); background: var(--card); }
+.menu-chevron { transform-origin: 14.5px 12px; }
+.menu-button[aria-expanded="false"] .menu-chevron { transform: rotate(180deg); }
 
 .sidebar { grid-row: 2; border-right: 1px solid var(--line); padding: 26px 15px 20px; display: flex; flex-direction: column; height: calc(100vh - 72px); min-height: 0; position: sticky; top: 72px; overflow-y: auto; }
 .sidebar-heading, .eyebrow { color: var(--coral); text-transform: uppercase; letter-spacing: .13em; font: 500 10px/1.2 "DM Mono", monospace; }

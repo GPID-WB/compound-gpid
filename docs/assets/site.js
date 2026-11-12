@@ -15,6 +15,8 @@ let searchIndex;
 let groups = [];
 let activePage = document.body.dataset.page || "";
 let navigationRequest = 0;
+let desktopNavigationCollapsed = false;
+try { desktopNavigationCollapsed = localStorage.getItem("compound-navigation-collapsed") === "true"; } catch { /* Storage is optional. */ }
 
 /** Upgrade legacy hash links when reading a pre-rendered site. */
 function hydrateStaticLinks(container = document) {
@@ -131,24 +133,29 @@ function openSearch() {
 
 function closeSearchOnRoute() { if (searchDialog.open) searchDialog.close(); }
 
+/** Apply the saved desktop preference or open/close the mobile drawer. */
 function setNavigationOpen(opened) {
   const mobile = window.matchMedia("(max-width: 820px)").matches;
-  const isOpen = opened && mobile;
-  if (isOpen) {
+  const isOpen = mobile ? opened : !desktopNavigationCollapsed;
+  const drawerOpen = mobile && isOpen;
+  if (drawerOpen) {
     const top = document.querySelector(".topbar").getBoundingClientRect().bottom;
     document.documentElement.style.setProperty("--navigation-top", `${top}px`);
   }
   const focusWasInSidebar = sidebar.contains(document.activeElement);
-  sidebar.classList.toggle("open", isOpen);
-  sidebar.inert = mobile && !isOpen;
-  sidebar.setAttribute("aria-hidden", String(mobile && !isOpen));
+  sidebar.classList.toggle("open", drawerOpen);
+  document.querySelector(".site-frame").classList.toggle("navigation-collapsed", !mobile && !isOpen);
+  sidebar.inert = !isOpen;
+  sidebar.setAttribute("aria-hidden", String(!isOpen));
   menuButton.setAttribute("aria-expanded", String(isOpen));
-  menuButton.setAttribute("aria-label", isOpen ? "Close navigation" : "Open navigation");
-  menuClose.hidden = !isOpen;
-  document.querySelector("main").inert = isOpen;
-  document.body.classList.toggle("navigation-open", isOpen);
-  if (isOpen) sidebar.querySelector("a")?.focus();
-  if (mobile && !isOpen && focusWasInSidebar) menuButton.focus();
+  const label = mobile ? (isOpen ? "Close navigation" : "Open navigation") : (isOpen ? "Collapse navigation" : "Expand navigation");
+  menuButton.setAttribute("aria-label", label);
+  menuButton.title = label;
+  menuClose.hidden = !drawerOpen;
+  document.querySelector("main").inert = drawerOpen;
+  document.body.classList.toggle("navigation-open", drawerOpen);
+  if (drawerOpen) sidebar.querySelector("a")?.focus();
+  if (!isOpen && focusWasInSidebar) menuButton.focus();
 }
 
 documentView.addEventListener("click", async event => {
@@ -184,7 +191,13 @@ document.addEventListener("keydown", (event) => {
   results[activeResult].focus();
 });
 
-menuButton.addEventListener("click", () => setNavigationOpen(!sidebar.classList.contains("open")));
+menuButton.addEventListener("click", () => {
+  if (!window.matchMedia("(max-width: 820px)").matches) {
+    desktopNavigationCollapsed = !desktopNavigationCollapsed;
+    try { localStorage.setItem("compound-navigation-collapsed", String(desktopNavigationCollapsed)); } catch { /* Storage is optional. */ }
+  }
+  setNavigationOpen(!sidebar.classList.contains("open"));
+});
 menuClose.addEventListener("click", () => setNavigationOpen(false));
 document.querySelector("[data-theme-toggle]").addEventListener("click", () => {
   const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
@@ -198,6 +211,7 @@ document.addEventListener("keydown", (event) => {
 let savedTheme;
 try { savedTheme = localStorage.getItem("compound-theme"); } catch { /* Storage is optional. */ }
 if (savedTheme) document.documentElement.dataset.theme = savedTheme;
+setNavigationOpen(false);
 
 (async () => {
   try {
