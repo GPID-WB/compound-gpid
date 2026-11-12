@@ -83,6 +83,10 @@
 .docs-directory .section-heading h2 { font-size: 29px; }
 .home-footer { margin-top: 40px; line-height: 1.8; font-size: 9px; }
 .build-stamp { margin: 22px clamp(22px, 4vw, 64px); font: 10px 'DM Mono', monospace; color: var(--muted); }
+.plugin-authors { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px 24px; margin: 22px clamp(22px, 4vw, 64px); padding-top: 20px; border-top: 1px solid var(--line); font-size: 12px; }
+.plugin-authors > span { color: var(--muted); font: 10px 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .08em; }
+.plugin-authors a { font-weight: 700; }
+.plugin-authors a:hover { color: var(--coral); }
 .no-script-only { display: none; }
 @media (max-width: 1100px) {
   .home-page { padding: 45px 36px 25px; }.hero { gap: 36px; }
