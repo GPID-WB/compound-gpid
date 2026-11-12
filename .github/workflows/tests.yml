@@ -343,7 +343,8 @@ jobs:
 
   native-targets:
     name: Native target Python gate on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+    # macos-14 is a legacy protected-check identifier; the runner is macos-latest.
+    runs-on: ${{ matrix.os == 'macos-14' && 'macos-latest' || matrix.os }}
     timeout-minutes: 120
     permissions:
       contents: read
@@ -475,7 +476,8 @@ jobs:
 
   test:
     name: Pester on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+    # macos-14 is a legacy protected-check identifier; the runner is macos-latest.
+    runs-on: ${{ matrix.os == 'macos-14' && 'macos-latest' || matrix.os }}
     timeout-minutes: 30
     needs: kilo-capability-report
     permissions:

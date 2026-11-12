@@ -809,6 +809,13 @@
       "executable": false
     },
     {
+      "path": ".kilo/shared/skill-management/release-attestations/v1.3.0.json",
+      "source": ".github/shared/skill-management/release-attestations/v1.3.0.json",
+      "kind": "shared",
+      "sha256": "e6cace357aa972b3c848164d880d7646d3ca13e30f4d285ae322caf9bd1c1a36",
+      "executable": false
+    },
+    {
       "path": ".kilo/shared/snapshot-research-modes.json",
       "source": ".github/shared/snapshot-research-modes.json",
       "kind": "shared",
