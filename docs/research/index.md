@@ -11,6 +11,15 @@ inequality, welfare, or related research and are somewhat new to Compound GPID.
 It is an onboarding path, not a replacement for the detailed command, skill,
 and methodology references.
 
+## Find your route
+
+- [Your first CR workflow](first-workflow.md): the command-by-command path.
+- [Research examples and use cases](examples.md): poverty replication, policy
+  evaluation, welfare prediction, and writing a policy brief.
+- [Kenya precipitation example](short-example.md): a concrete question with
+  source, coverage, threshold, and dissemination decisions.
+- [Research skills](../skills/research.md): deeper methodological guidance.
+
 ## What you will do
 
 A first CR workflow follows this sequence:

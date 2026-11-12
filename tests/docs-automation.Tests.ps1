@@ -15,6 +15,7 @@ $releasePrompt = Get-Content (Join-Path $repoRoot ".github\prompts\cg-release.pr
 $scanner = Get-Content (Join-Path $repoRoot ".github\agents\cg-release-scanner.agent.md") -Raw -Encoding UTF8
 $rebuildScript = Get-Content (Join-Path $repoRoot "scripts\rebuild-docs.js") -Raw -Encoding UTF8
 $whatsNewScript = Get-Content (Join-Path $repoRoot "scripts\generate-whats-new.js") -Raw -Encoding UTF8
+$releasePayloadScript = Get-Content (Join-Path $repoRoot "scripts\release-payloads.js") -Raw -Encoding UTF8
 
 Describe "Documentation rebuild workflow contracts" {
     It "filters only approved canonical documentation inputs on main" {
@@ -66,18 +67,17 @@ Describe "Documentation rebuild workflow contracts" {
 Describe "Pages exact-artifact deployment contracts" {
     It "runs from pushes to dev" {
         $pagesWorkflow | Should -Match 'push:'
-        $pagesWorkflow | Should -Match 'branches:\s*\[dev\]'
+        $pagesWorkflow | Should -Match 'branches:\s*\[main, dev\]'
         $pagesWorkflow | Should -Not -Match 'workflow_run:'
     }
 
-    It "builds and verifies the combined artifact with dev tooling" {
-        $pagesWorkflow | Should -Match 'scripts/rebuild-docs\.js --all'
-        $pagesWorkflow | Should -Match 'scripts/assemble-docs-site\.js'
+    It "builds exact source without Pages credentials and uploads rendered HTML" {
+        $pagesWorkflow | Should -Match 'scripts/rebuild-docs\.js --root sources/dev --all'
+        $pagesWorkflow | Should -Match 'ref:\s*\$\{\{ github.sha \}\}'
         $pagesWorkflow | Should -Match 'path: combined-artifact/site'
-        $pagesWorkflow | Should -Match 'path:\s*sources/main'
-        $pagesWorkflow | Should -Match '--main-root'
-        $pagesWorkflow | Should -Match '--dev-root'
-        $pagesWorkflow | Should -Not -Match 'actions/download-artifact|run-id:'
+        $pagesWorkflow | Should -Match 'assemble-docs-site\.js'
+        ($pagesWorkflow -split '  deploy:')[0] | Should -Not -Match 'pages:\s*write|id-token:\s*write'
+        $pagesWorkflow | Should -Not -Match 'paths:'
     }
 
     It "supports unprivileged stable tag builds through the protected workflow-run controller" {
@@ -85,7 +85,7 @@ Describe "Pages exact-artifact deployment contracts" {
         $releaseWorkflow | Should -Match 'release-docs-site'
         $releaseWorkflow | Should -Not -Match 'pages:\s*write|id-token:\s*write'
         $pagesWorkflow | Should -Match '(?m)^\s*push:\s*$'
-        $pagesWorkflow | Should -Match 'branches:\s*\[dev\]'
+        $pagesWorkflow | Should -Match 'branches:\s*\[main, dev\]'
         $releasePagesWorkflow | Should -Match 'Build release documentation'
         $releasePagesWorkflow | Should -Match 'name: Deploy release documentation'
         $releasePagesWorkflow | Should -Match 'merge-base --is-ancestor'
@@ -136,13 +136,11 @@ Describe "Pages exact-artifact deployment contracts" {
         $uploadIndex | Should -BeGreaterThan $byteMatchIndex
     }
 
-    It "does not download or rebuild a separate combined artifact" {
-        $pagesWorkflow | Should -Match 'rebuild-docs\.js --all'
-        $pagesWorkflow | Should -Match 'scripts/assemble-docs-site\.js'
-        $pagesWorkflow | Should -Match 'combined-artifact/site'
-        $pagesWorkflow | Should -Not -Match 'actions/download-artifact'
-        $pagesWorkflow | Should -Not -Match 'run-id:'
-        $pagesWorkflow | Should -Not -Match 'generate-whats-new\.js'
+    It "composes both channels from current sources" {
+        $pagesWorkflow | Should -Match 'rebuild-docs\.js --root sources/dev --all'
+        $pagesWorkflow | Should -Match 'check-rendered-docs\.js'
+        $pagesWorkflow | Should -Match 'assemble-docs-site\.js|sources/main'
+        $pagesWorkflow | Should -Not -Match 'actions/download-artifact|run-id:'
     }
 
     It "builds tagged code without Pages credentials and deploys only the verified prebuilt artifact" {
@@ -172,10 +170,11 @@ Describe "Deterministic generator contracts" {
     It "validates source tags, deduplicates latest, caps history, and escapes payload text" {
         $whatsNewScript | Should -Match 'sourceUrl'
         $whatsNewScript | Should -Match 'MAX_RELEASES = 20'
-        $whatsNewScript | Should -Match 'byte-match'
-        $whatsNewScript | Should -Match 'must match newest immutable payload'
+        $whatsNewScript | Should -Match 'require\("\./release-payloads\.js"\)\.loadReleasePayloads\(root, validatePayload, fail\)'
+        $releasePayloadScript | Should -Match 'byte-match'
+        $releasePayloadScript | Should -Match 'must match newest immutable payload'
         $whatsNewScript | Should -Match 'GPID-WB/compound-gpid'
-        $whatsNewScript | Should -Match 'must not be a symbolic link'
+        $releasePayloadScript | Should -Match 'must not be a symbolic link'
         $whatsNewScript | Should -Match 'View older releases'
         $whatsNewScript | Should -Match 'escapeText'
     }

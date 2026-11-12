@@ -125,3 +125,6 @@ pr-result.txt
 .compound-gpid/*.tmp
 .compound-gpid/*.bak
 
+
+# Disposable, pre-rendered documentation site
+.site/
