@@ -49,7 +49,7 @@ Compound GPID enforces a repeatable **Brainstorm → Plan → Work → Review �
 - **Secure document views** — `cg-publish-markdown` turns one project-contained generic Markdown file into a deterministic, self-contained `reference` HTML view while preserving strict Brainstorm/Plan validation and excluding generated bodies from model context.
 - **Token guidance** — `/cg-token-audit` runs deterministic context/model analysis and returns compact advice on context size, review depth, and model selection without changing project files.
 - **Team-wide** — one global update serves linked projects; rerun `cg-link` from each project root with its intended platform selection to refresh managed copies and projections.
-- **Version management** — pin to a specific release for stability, or track `main` for the latest features. Switch with `cg-update v1.2.0.9024` / `cg-update latest`. For older installations, follow the [Upgrade Guide](docs/upgrade.md) first.
+- **Version management** — pin to a specific release for stability, or explicitly choose to track `main`. For any older installation, pinned or tracking `latest`, follow [Upgrade from an older version](docs/upgrade.md) first and keep the resulting release pin.
 
 ## Documentation
 

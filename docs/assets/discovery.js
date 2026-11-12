@@ -1,12 +1,12 @@
 /* Navigation and discovery share the canonical navigation.json manifest. */
 function buildNavigation(groups) {
-  document.querySelector("[data-page-count]").textContent = `${pages.length} guides and references`;
-  document.querySelector("[data-doc-map]").innerHTML = groups.map(group => `<a href="#page=${group.pages[0].id}"><h3>${escapeHtml(group.title)} <span aria-hidden="true">↗</span></h3><p>${escapeHtml(group.description || "Browse this section.")}</p><small>${group.pages.length} pages</small></a>`).join("");
+  if (document.querySelector("[data-page-count]")) document.querySelector("[data-page-count]").textContent = `${pages.length} guides and references`;
+  if (document.querySelector("[data-doc-map]")) document.querySelector("[data-doc-map]").innerHTML = groups.map(group => `<a href="#page=${group.pages[0].id}"><h3>${escapeHtml(group.title)} <span aria-hidden="true">→</span></h3><p>${escapeHtml(group.description || "Browse this section.")}</p><small>${group.pages.length} pages</small></a>`).join("");
   navigation.innerHTML = '<a href="#home" data-route="home">Documentation home</a>';
   groups.forEach((group, index) => {
     const section = document.createElement("details");
     section.className = "nav-group";
-    section.open = index === 0;
+    section.open = group.pages.some(page => page.id === getRoute().page) || (!getRoute().page && index === 0);
     section.innerHTML = `<summary>${escapeHtml(group.title)}<span>${group.pages.length}</span></summary>`;
     let previousSection;
     group.pages.forEach(page => {
@@ -26,6 +26,7 @@ function buildNavigation(groups) {
     });
     navigation.append(section);
   });
+  hydrateStaticLinks(navigation);
 }
 function revealNavigation(page) {
   document.querySelector("[data-nav-filter]").value = "";
@@ -61,6 +62,15 @@ function filterNavigation() {
 async function buildSearchIndex() {
   if (searchIndex) return searchIndex;
   searchIndex = (async () => {
+    if (document.body.dataset.rendered) {
+      try {
+        const response = await fetch("search-index.json");
+        if (!response.ok) throw Error("Search index unavailable");
+        const entries = await response.json();
+        if (!Array.isArray(entries)) throw Error("Invalid search index");
+        return { entries, failed: 0 };
+      } catch { /* Canonical Markdown remains a recoverable search source. */ }
+    }
     const entries = [];
     let cursor = 0;
     let failed = 0;
@@ -104,13 +114,14 @@ async function search(query) {
     const section = entry.section ? `&section=${encodeURIComponent(entry.section)}` : "";
     return `<a class="search-result" href="#page=${entry.id}${section}"><small>${escapeHtml(entry.group)}</small><strong>${escapeHtml(entry.title.replace(/`/g, ""))}</strong>${entry.heading ? `<span>${escapeHtml(entry.heading)}</span>` : ""}<p>${escapeHtml(excerpt)}…</p></a>`;
   }).join("") : '<p class="search-hint">No matches. Try fewer words, a command name, or a topic such as <code>installation</code>.</p>';
+  hydrateStaticLinks(searchResults);
 }
 function configureChannel() {
-  const development = !!document.querySelector(".dev-preview-banner");
+  const development = document.body.dataset.channel === "dev" || !!document.querySelector(".dev-preview-banner");
   const current = development ? "Development" : "Stable";
   document.querySelector("[data-channel-label]").textContent = current;
   const other = document.querySelector("[data-other-channel]");
-  other.textContent = development ? "View stable docs ↗" : "View latest development docs ↗";
+  other.textContent = development ? "View stable docs →" : "View latest development docs →";
   other.href = development ? "https://gpid-wb.github.io/compound-gpid/" : "https://gpid-wb.github.io/compound-gpid/dev/";
   document.body.dataset.channel = development ? "dev" : "main";
 }

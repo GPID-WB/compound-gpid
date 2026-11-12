@@ -29,24 +29,30 @@ jobs:
         run: npm run docs:build
       - name: Test navigation, search, and publication contracts
         run: npm run docs:test
-      - name: Check out protected publisher verification code
+      - name: Render reviewable HTML and search
+        run: |
+          npm run docs:render
+          node scripts/check-rendered-docs.js .site
+      - name: Check out current stable source for composition
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
         with:
           ref: main
-          path: .docs-controller
+          path: .docs-stable
           persist-credentials: false
-      - name: Verify compatibility with the live protected publisher
+      - name: Verify composition with the current stable channel
         run: |
-          mkdir -p "$RUNNER_TEMP/docs-check-artifact"
-          cp -R docs "$RUNNER_TEMP/docs-check-artifact/docs"
-          cp .docs-build-metadata.json "$RUNNER_TEMP/docs-check-artifact/.docs-build-metadata.json"
-          node .docs-controller/scripts/legacy-pages.js import-dev \
-            "$GITHUB_WORKSPACE" "$RUNNER_TEMP/docs-check-artifact" "$RUNNER_TEMP/docs-check-verified"
+          node scripts/rebuild-docs.js --root .docs-stable --all
+          node scripts/check-docs-site.js --source-root .docs-stable --docs-root .docs-stable/docs --legacy
+          node scripts/assemble-docs-site.js \
+            --main-root .docs-stable --dev-root . --out .docs-combined \
+            --main-sha "$(git -C .docs-stable rev-parse HEAD)" --dev-sha "$(git rev-parse HEAD)"
+          node scripts/assemble-docs-site.js --verify .docs-combined --main-root .docs-stable --dev-root .
+          node scripts/check-rendered-docs.js .docs-combined/site/dev
       - name: Upload reviewable documentation
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
           name: docs-review-${{ github.event.pull_request.number || github.run_id }}
-          path: docs/
+          path: .site/
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 7

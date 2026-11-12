@@ -1,106 +1,110 @@
 # Keep the Documentation Current
 
-Edit the documentation in the repository. GitHub Pages is the maintained public
-website; a Sites preview is a review snapshot of the same files.
+Edit the documentation in the repository. GitHub Actions rebuilds the
+reference content, renders the website and search index, validates them, and
+publishes to GitHub Pages. A Sites preview is a design-review snapshot of the
+same build, not the maintained publication pipeline.
 
 ## Which website should I use?
 
-| Channel | Address | When it changes |
+| Channel | Address | Source |
 |---|---|---|
-| Latest development docs | [Development handbook](https://gpid-wb.github.io/compound-gpid/dev/) | Automatically after a successful build of each push to `dev` and verification by the protected publisher |
-| Stable docs | [Stable handbook](https://gpid-wb.github.io/compound-gpid/) | When the protected release publisher accepts a reviewed release snapshot |
+| Development | [Development handbook](https://gpid-wb.github.io/compound-gpid/dev/) | Latest successfully built `dev` commit |
+| Stable | [Stable handbook](https://gpid-wb.github.io/compound-gpid/) | `main`, with release publication also producing a tagged snapshot |
 
-Use the development handbook when following `dev`. The stable handbook describes
-the published release and can deliberately differ from development. The channel
-label and switch in the sidebar make that distinction visible. Development
-publication preserves the official stable snapshot.
+The new pipeline runs on **every push to `dev` and `main`**, without path
+filters. Each run builds both channels together. Development work updates
+`/dev/`; it does not copy unreleased guides into the stable channel. A
+main-branch trigger becomes active when this workflow reaches `main`.
 
-## Where should I make a change?
+The channel label, source links, and build commit identify what you are reading.
+An older stable release can retain its previous site layout until the redesign
+is promoted to `main`.
 
-| What changed? | Edit this source | Then check |
+## One source for every kind of content
+
+| What changed? | Edit this source | What happens in the build |
 |---|---|---|
-| A procedure or explanation | The appropriate `docs/**/*.md` page | Links, examples, and the reader's next step |
-| A page's position or label | `docs/navigation.json` | Each public Markdown page appears exactly once |
-| A new public page | Its Markdown file and `docs/navigation.json` | A useful title, description, and task-oriented group |
-| Command descriptions | Canonical `.github/prompts/` frontmatter | Rebuild the managed command tables |
-| A release summary | The reviewed release payload in `releases/` | Rebuild What's New through the release process |
-| Layout or interaction | `docs/index.html` and `docs/assets/` | Desktop, mobile, keyboard navigation, and search |
+| A guide, tutorial, or example | The appropriate `docs/**/*.md` page | A readable HTML page and searchable sections are rendered |
+| Navigation or page description | `docs/navigation.json` | The sidebar, directory, breadcrumbs, and search metadata are updated |
+| A new public page | Its Markdown file and navigation entry | Navigation coverage and generated links are checked |
+| Command descriptions | Canonical `.github/prompts/` frontmatter | Managed command tables are regenerated |
+| A release summary | Reviewed payloads in `releases/` | What's New is regenerated |
+| Layout or interaction | `docs/index.html` and `docs/assets/` | The shared shell is applied to all rendered pages |
+| Static rendering | `scripts/render-docs-site.js` and `scripts/docs-html.js` | HTML and search are regenerated from the same Markdown |
 
-`cg:auto` marker interiors are generated. Keep hand-written guidance outside
-those markers; the rebuild preserves it. Generated target trees are not a
+Keep authored prose outside `cg:auto` markers. Do not edit generated HTML or
+`search-index.json`; they are build outputs. Platform projections are not a
 second documentation source.
 
-## Before opening a pull request
+Automation keeps generated facts and publication synchronized. It cannot
+invent a correct explanation of new behavior: the same feature PR must update
+relevant procedures, examples, prerequisites, and limitations. CI catches
+stale generated content, missing pages, and broken links; reviewers check the
+meaning and usefulness of the guidance.
 
-Work from the current `dev` branch for development documentation. Read the page
-as someone completing a task: explain the first action, link to prerequisites,
-and place exhaustive contracts in reference pages.
+## Preview and check a change
 
-Run these commands from the repository root with Node 22 or later. They use
-Node's standard library and do not require `npm install`:
+With Node 22 or later, run from the repository root:
 
 ```bash
 npm run docs:build
+npm run docs:render
+node scripts/check-rendered-docs.js .site
 npm run docs:test
 ```
 
-The build regenerates the command tables and What's New page, checks public
-navigation coverage and internal Markdown links, and produces file digests.
-Review any generated Markdown changes before committing. For a no-write check:
+No `npm install` is required for these commands. `docs:build` regenerates
+managed Markdown and validates the canonical documentation. `docs:render`
+writes a disposable `.site/` directory with the homepage, one HTML page per
+navigation entry, Markdown sources, assets, and a section-aware search index.
+Serve `.site/` with a local static server to inspect it. The HTML itself is
+readable without JavaScript; search and mobile controls enhance it.
 
-```bash
-npm run docs:check
-```
+Review generated Markdown changes before committing. For a no-write source
+freshness check, use `npm run docs:check`. Never commit `.site/`.
 
-The website reads the same Markdown files used on GitHub. Search builds a local
-in-memory index of those pages when first used; no external search service or
-separate editable index is involved. Results prioritize titles and headings,
-and link to the matching section. A partial loading failure is shown explicitly.
+## Automatic publication through GitHub Actions
 
-## Automatic development publication
+1. **Pull request:** `Build combined documentation` runs on PRs targeting
+   `main` or `dev`. It rebuilds, validates, tests, renders, checks HTML links
+   and search destinations, and uploads a review artifact. It does not publish.
+2. **Push:** `Deploy documentation site` checks out the exact triggering commit
+   and the corresponding `main` and `dev` source revisions. Its read-only
+   build job rebuilds both documentation trees from the plugin sources.
+3. **Render:** the assembler renders supported shells into HTML, generates
+   search, labels the development channel, and records both source SHAs and
+   file digests. Older stable shells retain their own layout during migration.
+4. **Verify:** the build checks source fingerprints, output digests, navigation,
+   internal destinations, section anchors, and search coverage.
+5. **Deploy:** a separate job rechecks the current branch heads and publishes
+   the rendered artifact to GitHub Pages. Only this job receives Pages write
+   and OIDC permissions; it checks out and executes no repository code.
 
-1. A pull request to `dev` or `main` runs **Build combined documentation** as a
-   read-only validation job. It rebuilds, validates, runs documentation tests,
-   checks compatibility with the current protected publisher, and uploads the
-   proposed docs for review. Pull requests do not publish.
-2. Every push to `dev` runs **Deploy documentation site**. There is no path
-   filter, so a newly introduced documentation input cannot be missed. The
-   workflow checks out the exact triggering commit, rebuilds and validates its
-   complete docs, and uploads `legacy-dev-docs` with build metadata.
-3. The existing **Deploy release documentation** workflow on protected `main`
-   receives that successful run. It checks actor authority, producer identity,
-   artifact digests, canonical source derivation, and current `dev` freshness
-   before publishing the preview alongside the preserved stable snapshot.
+Publication is serialized with the existing release publisher. A superseded
+build refuses to replace a newer source state. The next push or a manual run
+builds the current pair of branches. There is no manual copy to Sites and no
+extra generated-docs PR needed for the website to refresh.
 
-The producer receives read-only repository access. Only the protected
-publisher receives Pages write access. Keep the producer workflow name and
-`legacy-dev-docs` artifact name intact: the publisher uses them to identify the
-handoff. Do not edit the canonical documentation generator casually; the
-protected publisher recognizes its code identity.
+## Check an update or recover
 
-No manual copy to another website and no generated-docs pull request are needed
-to update `/dev/`. Publishing can still be blocked by a failed check, changed
-permissions, or a newer commit superseding the build.
+1. Open the commit's [Actions runs](https://github.com/GPID-WB/compound-gpid/actions).
+2. Confirm both the **build** and **deploy** jobs in **Deploy documentation
+   site** succeeded. A successful build alone does not prove publication.
+3. Open the appropriate handbook channel and verify the page and source commit.
+4. Fix validation failures in source and push again. For a temporary service
+   failure, rerun the workflow. Use **Run workflow** on `dev` or `main` for a
+   clean rebuild; do not upload hand-edited artifacts.
+5. If a branch moved, let its newer run publish, or dispatch a fresh run.
+   If the `github-pages` environment requires approval, approve that deployment
+   through GitHub's normal controls.
 
-## Check an update and recover a failed publication
-
-1. On the commit's [Actions page](https://github.com/GPID-WB/compound-gpid/actions),
-   confirm **Deploy documentation site** succeeded.
-2. Confirm its matching **Deploy release documentation** run succeeded. A
-   successful build alone is not evidence of deployment.
-3. Open the development handbook, reload, and verify the changed page. Check the
-   channel label if the stable page still shows the released behavior.
-4. For a build or validation failure, fix the source and push again. For a
-   temporary publisher failure, inspect its logs and rerun the protected
-   publisher after resolving the cause. To create a new producer run, use
-   **Run workflow** on `dev`; do not upload hand-edited artifacts.
-
-The older **Rebuild documentation** and release workflows remain separate
-stable/release maintenance paths. A bot's draft documentation PR is a proposal
-for tracked Markdown updates, not proof that the public site was refreshed.
+The existing release-tag workflow remains separate. Main's documentation bot
+may propose generated Markdown changes for review; that PR is not the trigger
+required for a development website update.
 
 ## Related guides
 
 - [Contribute and Develop](../development/index.md)
-- [Getting Started](../getting-started/index.md)
-- [What's New](../whats-new.md)
+- [Standard module](../workflows/standard.md)
+- [Research handbook](../research/index.md)

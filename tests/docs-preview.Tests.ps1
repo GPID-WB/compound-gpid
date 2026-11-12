@@ -36,26 +36,26 @@ Describe "Documentation pull-request validation contracts" {
 Describe "Development Pages producer contracts" {
     It "rebuilds every dev push without a path filter" {
         $pagesWorkflow | Should -Match 'push:'
-        $pagesWorkflow | Should -Match 'branches:\s*\[dev\]'
+        $pagesWorkflow | Should -Match 'branches:\s*\[main, dev\]'
         $pagesWorkflow | Should -Match 'workflow_dispatch:'
         $pagesWorkflow | Should -Not -Match 'paths:|paths-ignore:'
     }
 
-    It "builds the exact commit and uploads the protected publisher handoff" {
+    It "builds the exact commit and uploads rendered pages" {
         $pagesWorkflow | Should -Match 'name: Deploy documentation site'
         $pagesWorkflow | Should -Match 'ref:\s*\$\{\{ github.sha \}\}'
         $pagesWorkflow | Should -Match 'persist-credentials:\s*false'
-        $pagesWorkflow | Should -Match 'rebuild-docs\.js --all'
+        $pagesWorkflow | Should -Match 'rebuild-docs\.js --root sources/dev --all'
         $pagesWorkflow | Should -Match 'node scripts/check-docs-site\.js'
-        $pagesWorkflow | Should -Match 'name: legacy-dev-docs'
-        $pagesWorkflow | Should -Match '\.docs-build-metadata\.json'
-        $pagesWorkflow | Should -Match 'include-hidden-files:\s*true'
+        $pagesWorkflow | Should -Match 'path: combined-artifact/site'
+        $pagesWorkflow | Should -Match 'assemble-docs-site\.js'
+        $pagesWorkflow | Should -Match 'needs: build'
     }
 
-    It "leaves deployment authority in the protected main controller" {
-        $pagesWorkflow | Should -Not -Match 'pages:\s*write|id-token:\s*write|contents:\s*write'
-        $pagesWorkflow | Should -Not -Match 'actions/deploy-pages|actions/upload-pages-artifact'
-        $pagesWorkflow | Should -Not -Match 'ref:\s*main|sources/main'
+    It "separates the build from deployment authority" {
+        ($pagesWorkflow -split '  deploy:')[0] | Should -Not -Match 'pages:\s*write|id-token:\s*write|contents:\s*write'
+        $pagesWorkflow | Should -Match 'actions/deploy-pages|actions/upload-pages-artifact'
+        $pagesWorkflow | Should -Match 'Refuse an obsolete build'
     }
 }
 

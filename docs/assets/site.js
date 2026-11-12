@@ -13,12 +13,24 @@ let fileMap = new Map();
 let activeResult = -1;
 let searchIndex;
 let groups = [];
-let activePage = "";
+let activePage = document.body.dataset.page || "";
 let navigationRequest = 0;
+
+/** Upgrade legacy hash links when reading a pre-rendered site. */
+function hydrateStaticLinks(container = document) {
+  if (!document.body.dataset.rendered) return;
+  container.querySelectorAll('a[href^="#page="], a[href="#home"]').forEach(link => {
+    const hash = link.getAttribute("href");
+    const params = new URLSearchParams(hash.slice(1));
+    const id = params.get("page");
+    link.href = id ? `p-${id}.html${params.get("section") ? `#${encodeURIComponent(params.get("section"))}` : ""}` : "index.html";
+  });
+}
 
 function getRoute() {
   const params = new URLSearchParams(location.hash.replace(/^#/, ""));
-  return { page: params.get("page"), section: params.get("section") };
+  if (params.has("page")) return { page: params.get("page"), section: params.get("section") };
+  return { page: document.body.dataset.page || null, section: decodeURIComponent(location.hash.slice(1)) };
 }
 
 async function loadManifest() {
@@ -58,6 +70,7 @@ function updateNavigation(page) {
 async function renderRoute() {
   const { page, section } = getRoute();
   const request = ++navigationRequest;
+  document.querySelector(".site-frame").classList.toggle("home-mode", !page);
   updateNavigation(page);
   if (!page) {
     activePage = "";
@@ -65,13 +78,17 @@ async function renderRoute() {
     documentView.hidden = true;
     document.querySelector("[data-reader]").hidden = true;
     document.title = "Compound GPID | Documentation";
-    home.scrollIntoView({ behavior: "instant", block: "start" });
+    if (location.hash) home.scrollIntoView({ behavior: "instant", block: "start" });
     document.querySelector("#content").focus({ preventScroll: true });
     return;
   }
   if (activePage === page && documentView.querySelector("h1")) {
     const target = section && document.getElementById(section);
-    (target || documentView).scrollIntoView({ behavior: "instant", block: "start" });
+    if (section) (target || documentView).scrollIntoView({ behavior: "instant", block: "start" });
+    if (window.matchMedia("(max-width: 1100px)").matches) {
+      const outline = document.querySelector("[data-page-outline] details");
+      if (outline) outline.open = false;
+    }
     return;
   }
   home.hidden = true;
@@ -97,13 +114,7 @@ async function renderRoute() {
     if (request !== navigationRequest) return;
     documentView.innerHTML = markdownToHtml(markdown);
     buildReaderContext(config);
-    documentView.querySelectorAll(".copy-code").forEach((button) => button.addEventListener("click", async () => {
-      try {
-        await navigator.clipboard.writeText(button.nextElementSibling.textContent);
-        button.textContent = "Copied";
-      } catch { button.textContent = "Select and copy"; }
-      setTimeout(() => { button.textContent = "Copy"; }, 1300);
-    }));
+    hydrateStaticLinks();
     const target = section && document.getElementById(section);
     (target || documentView).scrollIntoView({ behavior: "instant", block: "start" });
     document.querySelector("#content").focus({ preventScroll: true });
@@ -139,6 +150,16 @@ function setNavigationOpen(opened) {
   if (isOpen) sidebar.querySelector("a")?.focus();
   if (mobile && !isOpen && focusWasInSidebar) menuButton.focus();
 }
+
+documentView.addEventListener("click", async event => {
+  const button = event.target.closest(".copy-code");
+  if (!button) return;
+  try {
+    await navigator.clipboard.writeText(button.nextElementSibling.textContent);
+    button.textContent = "Copied";
+  } catch { button.textContent = "Select and copy"; }
+  setTimeout(() => { button.textContent = "Copy"; }, 1300);
+});
 
 document.querySelector(".skip-link").addEventListener("click", event => {
   event.preventDefault();
@@ -182,6 +203,7 @@ if (savedTheme) document.documentElement.dataset.theme = savedTheme;
   try {
     await loadManifest();
     configureChannel();
+    hydrateStaticLinks();
     document.querySelector("[data-nav-filter]").addEventListener("input", filterNavigation);
     setNavigationOpen(false);
     window.addEventListener("hashchange", renderRoute);
@@ -190,6 +212,7 @@ if (savedTheme) document.documentElement.dataset.theme = savedTheme;
     navigation.innerHTML = '<p class="nav-loading">Navigation could not be loaded.</p>';
     home.hidden = true;
     documentView.hidden = false;
+    document.querySelector("[data-reader]").hidden = false;
     documentView.innerHTML = `<h1>Documentation unavailable</h1><p>${escapeHtml(error.message)}</p>`;
     documentView.focus();
   }

@@ -14,9 +14,12 @@
       ]
     },
     {
-      "title": "Build and review",
-      "description": "Plan technical work, implement it, check it, and retain what you learn.",
+      "title": "Standard module · CG",
+      "description": "The foundation: plan, build, review, resolve, and retain verified lessons.",
       "pages": [
+        {"id": "standard-module", "title": "Standard Module: Start Here", "file": "workflows/standard.md", "description": "Understand the default technical suite, its workflow, artifacts, and relationship to research."},
+        {"id": "standard-first-workflow", "title": "Your First Standard Workflow", "file": "workflows/first-workflow.md", "description": "A worked CSV validator example with a task brief, acceptance tests, review, and verified lessons."},
+        {"id": "standard-examples", "title": "Standard Examples and Use Cases", "file": "workflows/examples.md", "description": "Build an import pipeline, fix an export failure, improve help text, or resume a teammate’s work."},
         {"id": "workflows", "title": "Workflow Overview", "file": "workflows/index.md", "description": "Choose the shortest workflow that fits the task."},
         {"id": "design-work", "title": "Design the Work", "file": "workflows/design.md", "description": "Set direction, explore options, and create a reviewed plan."},
         {"id": "deliver-work", "title": "Deliver and Resume", "file": "workflows/deliver.md", "description": "Implement plans, fix bugs, and resume interrupted work."},
@@ -26,11 +29,12 @@
       ]
     },
     {
-      "title": "Do research",
-      "description": "Move from a research question to traceable evidence and reviewed output.",
+      "title": "Research module · CR",
+      "description": "From research question to evidence, methods, verified results, and publication.",
       "pages": [
         {"id": "research", "title": "Research Handbook: Start Here", "file": "research/index.md", "description": "Activate the research suite and complete a first Compound Research workflow."},
         {"id": "research-first-workflow", "title": "Your First CR Workflow", "file": "research/first-workflow.md", "description": "Follow the five research commands from question to reusable lesson."},
+        {"id": "research-examples", "title": "Research Examples and Use Cases", "file": "research/examples.md", "description": "Poverty replication, policy evaluation, welfare prediction, and evidence-based policy briefs."},
         {"id": "research-short-example", "title": "Short Workflow Example", "file": "research/short-example.md", "description": "See a compact Kenya extreme-precipitation workflow from activation to review."},
         {"id": "research-lifecycle", "title": "Research Lifecycle and Task Types", "file": "research/lifecycle.md", "description": "Learn how CR stages and task types route research work."},
         {"id": "research-evidence-boundaries", "title": "Evidence, Review, and Boundaries", "file": "research/evidence-boundaries.md", "description": "Keep claims traceable and understand what CR cannot establish."},
@@ -92,7 +96,7 @@
         {"id": "strict-config", "title": "Strict Config Schema", "file": "configuration.md", "description": "Strict compound-gpid.local.md grammar, projectRoots, manifest resolver, and validation."},
         {"id": "context-files", "title": "Context Files", "file": "context-files.md", "description": "Detailed context-file lifecycle and platform architecture."},
         {"id": "versioning", "title": "Updates and Versions", "file": "versioning.md", "description": "Update, pin, unpin, and repair an installation."},
-        {"id": "upgrade", "title": "Upgrade To v1.2.0.9024", "file": "upgrade.md", "description": "Migrate an older installation from a fresh release clone, preserve local changes, and review linked projects."},
+        {"id": "upgrade", "title": "Upgrade, install or remove Compound GPID", "file": "upgrade.md", "description": "Upgrade, install or remove Compound GPID, preserve local changes, and review linked projects."},
         {"id": "help", "title": "Help and Troubleshooting", "file": "help/index.md", "description": "Start with the shortest recovery path and escalate safely."},
         {"id": "troubleshooting", "title": "Troubleshooting Reference", "file": "troubleshooting.md", "description": "Complete recovery procedures and known issues."},
         {"id": "governance", "title": "Governance and Security", "file": "governance/index.md", "description": "Operating constraints, data safeguards, review gates, and limitations."}

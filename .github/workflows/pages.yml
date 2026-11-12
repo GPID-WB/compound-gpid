@@ -1,10 +1,8 @@
 name: Deploy documentation site
-# This name and legacy-dev-docs are the protected main publisher handoff.
-# Created 2026-09-10.
 
 on:
   push:
-    branches: [dev]
+    branches: [main, dev]
   workflow_dispatch:
 
 permissions:
@@ -15,45 +13,111 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy-dev-preview:
-    if: github.ref == 'refs/heads/dev'
+  build:
+    if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-    permissions:
-      contents: read
+    timeout-minutes: 15
+    outputs:
+      main_sha: ${{ steps.sources.outputs.main_sha }}
+      dev_sha: ${{ steps.sources.outputs.dev_sha }}
     steps:
-      - name: Check out exact unprivileged dev source
+      - name: Check out exact build controller
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
         with:
           ref: ${{ github.sha }}
-          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Check out stable source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          ref: ${{ github.ref_name == 'main' && github.sha || 'main' }}
+          path: sources/main
+          persist-credentials: false
+
+      - name: Check out development source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          ref: ${{ github.ref_name == 'dev' && github.sha || 'dev' }}
+          path: sources/dev
           persist-credentials: false
 
       - name: Set up Node
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4.4.0
         with:
-          node-version: "22"
+          node-version: '22'
 
-      - name: Build and validate development documentation source
-        if: github.ref == 'refs/heads/dev'
+      - name: Rebuild canonical documentation from plugin sources
         run: |
-          node scripts/rebuild-docs.js --all
-          node scripts/check-docs-site.js
+          node scripts/rebuild-docs.js --root sources/main --all
+          node scripts/check-docs-site.js --source-root sources/main --docs-root sources/main/docs --legacy
+          node scripts/rebuild-docs.js --root sources/dev --all
+          node scripts/check-docs-site.js --source-root sources/dev --docs-root sources/dev/docs
+          npm run docs:test
 
-      # The protected workflow_run controller composes this artifact as static data.
-      - name: Upload exact-run development documentation
-        if: github.ref == 'refs/heads/dev'
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      - name: Capture exact source identities
+        id: sources
+        run: |
+          echo "main_sha=$(git -C sources/main rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "dev_sha=$(git -C sources/dev rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Render HTML pages and search, then verify the combined site
+        env:
+          MAIN_SHA: ${{ steps.sources.outputs.main_sha }}
+          DEV_SHA: ${{ steps.sources.outputs.dev_sha }}
+        run: |
+          node scripts/assemble-docs-site.js \
+            --main-root sources/main --dev-root sources/dev --out combined-artifact \
+            --main-sha "$MAIN_SHA" --dev-sha "$DEV_SHA" \
+            --main-branch main --dev-branch dev --main-ref main --dev-ref dev
+          node scripts/assemble-docs-site.js --verify combined-artifact \
+            --main-root sources/main --dev-root sources/dev \
+            --main-sha "$MAIN_SHA" --dev-sha "$DEV_SHA"
+          node scripts/check-rendered-docs.js combined-artifact/site/dev
+          if test -f combined-artifact/site/site-build.json; then
+            node scripts/check-rendered-docs.js combined-artifact/site
+          fi
+
+      - name: Upload rendered Pages artifact
+        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa  # v3.0.1
         with:
-          name: legacy-dev-docs
-          path: |
-            docs/
-            .docs-build-metadata.json
-          include-hidden-files: true
-          if-no-files-found: error
+          path: combined-artifact/site
 
-      - name: Summarize the publication handoff
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    steps:
+      - name: Refuse an obsolete build
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          MAIN_SHA: ${{ needs.build.outputs.main_sha }}
+          DEV_SHA: ${{ needs.build.outputs.dev_sha }}
         run: |
-          echo '### Documentation ready for publication' >> "$GITHUB_STEP_SUMMARY"
-          echo 'The protected Deploy release documentation workflow on main verifies this exact-run artifact and updates /dev/.' >> "$GITHUB_STEP_SUMMARY"
-          echo 'The stable site remains the reviewed release snapshot.' >> "$GITHUB_STEP_SUMMARY"
+          test "$(gh api "repos/$REPOSITORY/commits/main" --jq .sha)" = "$MAIN_SHA" \
+            || { echo 'Stable source changed. A newer build must publish.'; exit 1; }
+          test "$(gh api "repos/$REPOSITORY/commits/dev" --jq .sha)" = "$DEV_SHA" \
+            || { echo 'Development source changed. A newer build must publish.'; exit 1; }
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b  # v5.0.0
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e  # v4.0.5
+
+      - name: Summarize publication
+        env:
+          MAIN_SHA: ${{ needs.build.outputs.main_sha }}
+          DEV_SHA: ${{ needs.build.outputs.dev_sha }}
+        run: |
+          echo '### Documentation published' >> "$GITHUB_STEP_SUMMARY"
+          echo "Stable source: $MAIN_SHA. Development source: $DEV_SHA." >> "$GITHUB_STEP_SUMMARY"
+          echo 'Pages and search are generated from repository sources; no manual website copy is needed.' >> "$GITHUB_STEP_SUMMARY"

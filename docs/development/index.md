@@ -62,19 +62,27 @@ and recovery. Start there when editing the website.
 
 ```bash
 npm run docs:build
+npm run docs:render
+node scripts/check-rendered-docs.js .site
 npm run docs:test
 ```
 
-Every push to `dev` rebuilds the exact commit and hands its verified artifact to
-the protected publisher on `main`. The development handbook updates at
-[the /dev/ address](https://gpid-wb.github.io/compound-gpid/dev/); the stable
-[site root](https://gpid-wb.github.io/compound-gpid/) remains the reviewed release
-snapshot. Use the channel switch in the sidebar to move between them.
+Every push to `dev` or `main` runs the GitHub Actions build and deploy pipeline.
+The build job regenerates canonical tables, renders HTML and search, and
+validates the combined stable/development site. A separate deployment job
+publishes the artifact after checking that neither branch has moved. The
+`main` trigger becomes active when the workflow is promoted to that branch.
+
+The development handbook lives at [the /dev/ address](https://gpid-wb.github.io/compound-gpid/dev/);
+[the site root](https://gpid-wb.github.io/compound-gpid/) uses stable `main`
+content. Use the channel switch to move between them.
 
 `docs/navigation.json` owns page routes, grouping, descriptions, and discovery.
-Every public Markdown page appears once. The website reads the canonical
-Markdown directly; `cg:auto` marker interiors are regenerated and manual text
-outside them is preserved. No manual upload is needed.
+Every public Markdown page appears once. HTML and search are generated from
+that same Markdown; `cg:auto` marker interiors are rebuilt and authored text
+outside them is preserved. No manual upload is needed. Include procedure and
+example updates in the same PR as a behavior change; automation cannot infer
+the correct explanation of new behavior.
 
 ### What's New page
 

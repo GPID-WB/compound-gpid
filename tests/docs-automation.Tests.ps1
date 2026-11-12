@@ -66,17 +66,17 @@ Describe "Documentation rebuild workflow contracts" {
 Describe "Pages exact-artifact deployment contracts" {
     It "runs from pushes to dev" {
         $pagesWorkflow | Should -Match 'push:'
-        $pagesWorkflow | Should -Match 'branches:\s*\[dev\]'
+        $pagesWorkflow | Should -Match 'branches:\s*\[main, dev\]'
         $pagesWorkflow | Should -Not -Match 'workflow_run:'
     }
 
-    It "builds exact dev source without Pages credentials and uploads the publisher artifact" {
-        $pagesWorkflow | Should -Match 'scripts/rebuild-docs\.js --all'
+    It "builds exact source without Pages credentials and uploads rendered HTML" {
+        $pagesWorkflow | Should -Match 'scripts/rebuild-docs\.js --root sources/dev --all'
         $pagesWorkflow | Should -Match 'ref:\s*\$\{\{ github.sha \}\}'
-        $pagesWorkflow | Should -Match 'name: legacy-dev-docs'
-        $pagesWorkflow | Should -Match '\.docs-build-metadata\.json'
-        $pagesWorkflow | Should -Not -Match 'pages:\s*write|id-token:\s*write'
-        $pagesWorkflow | Should -Not -Match 'actions/deploy-pages|paths:'
+        $pagesWorkflow | Should -Match 'path: combined-artifact/site'
+        $pagesWorkflow | Should -Match 'assemble-docs-site\.js'
+        ($pagesWorkflow -split '  deploy:')[0] | Should -Not -Match 'pages:\s*write|id-token:\s*write'
+        $pagesWorkflow | Should -Not -Match 'paths:'
     }
 
     It "supports unprivileged stable tag builds through the protected workflow-run controller" {
@@ -84,7 +84,7 @@ Describe "Pages exact-artifact deployment contracts" {
         $releaseWorkflow | Should -Match 'release-docs-site'
         $releaseWorkflow | Should -Not -Match 'pages:\s*write|id-token:\s*write'
         $pagesWorkflow | Should -Match '(?m)^\s*push:\s*$'
-        $pagesWorkflow | Should -Match 'branches:\s*\[dev\]'
+        $pagesWorkflow | Should -Match 'branches:\s*\[main, dev\]'
         $releasePagesWorkflow | Should -Match 'Build release documentation'
         $releasePagesWorkflow | Should -Match 'name: Deploy release documentation'
         $releasePagesWorkflow | Should -Match 'merge-base --is-ancestor'
@@ -135,10 +135,10 @@ Describe "Pages exact-artifact deployment contracts" {
         $uploadIndex | Should -BeGreaterThan $byteMatchIndex
     }
 
-    It "does not compose stable content in the development producer" {
-        $pagesWorkflow | Should -Match 'rebuild-docs\.js --all'
-        $pagesWorkflow | Should -Match 'legacy-dev-docs'
-        $pagesWorkflow | Should -Not -Match 'assemble-docs-site\.js|sources/main'
+    It "composes both channels from current sources" {
+        $pagesWorkflow | Should -Match 'rebuild-docs\.js --root sources/dev --all'
+        $pagesWorkflow | Should -Match 'check-rendered-docs\.js'
+        $pagesWorkflow | Should -Match 'assemble-docs-site\.js|sources/main'
         $pagesWorkflow | Should -Not -Match 'actions/download-artifact|run-id:'
     }
 

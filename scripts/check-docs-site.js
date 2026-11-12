@@ -339,15 +339,17 @@ async function loadCandidatePages() {
     throw new Error("release-docs.yml must remain unprivileged.");
   }
   const pagesContract = [
-    "name: Deploy documentation site", "push:", "branches: [dev]", "workflow_dispatch:",
-    "ref: ${{ github.sha }}", "persist-credentials: false", "rebuild-docs.js --all",
-    "legacy-dev-docs", ".docs-build-metadata.json", "include-hidden-files: true",
+    "name: Deploy documentation site", "push:", "branches: [main, dev]", "workflow_dispatch:",
+    "ref: ${{ github.sha }}", "persist-credentials: false", "rebuild-docs.js --root sources/dev --all",
+    "assemble-docs-site.js", "check-rendered-docs.js", "path: combined-artifact/site",
+    "needs: build", "Refuse an obsolete build", "actions/deploy-pages@",
   ];
   for (const token of pagesContract) {
     if (!workflow.includes(token)) throw new Error(`pages.yml must reference ${token}.`);
   }
-  if (/pages:\s*write|id-token:\s*write|contents:\s*write|paths:/.test(workflow)) {
-    throw new Error("Development docs producer must remain read-only and run on every dev push.");
+  const buildJob = workflow.split("  deploy:")[0];
+  if (/pages:\s*write|id-token:\s*write|contents:\s*write|paths(?:-ignore)?:/.test(buildJob)) {
+    throw new Error("Docs build must remain read-only and run on every main/dev push.");
   }
   const releasePagesContract = [
     "Build release documentation",

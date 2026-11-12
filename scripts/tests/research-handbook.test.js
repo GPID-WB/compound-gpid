@@ -46,6 +46,7 @@ test("Research Handbook routes are complete and ordered", async () => {
   assert.deepEqual(group.pages.map((page) => page.file), [
     "research/index.md",
     "research/first-workflow.md",
+    "research/examples.md",
     "research/short-example.md",
     "research/lifecycle.md",
     "research/evidence-boundaries.md",
