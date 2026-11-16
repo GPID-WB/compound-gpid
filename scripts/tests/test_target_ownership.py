@@ -450,6 +450,38 @@ def test_cleanup_untracked_file_is_preserved(tmp_path: Path) -> None:
     }
 
 
+def test_kilo_developer_sources_survive_stale_owned_cleanup(tmp_path: Path) -> None:
+    """Kilo generation removes stale owned commands, not developer sources."""
+    root = _fixture_repo(tmp_path)
+    repo = Path(__file__).resolve().parents[2]
+    mapping = gen.load_target_mapping(repo)
+    kilo = next(target for target in mapping["targets"] if target["id"] == "kilo")
+    _write(root / gen.TARGET_MAPPING_PATH, json.dumps({
+        "schemaVersion": 1, "description": "kilo fixture", "targets": [kilo],
+    }))
+    sources = {
+        relative: (repo / relative).read_bytes()
+        for relative in (
+            ".kilo/developer/cg-agent-coordinator.md",
+            ".kilo/developer/coordinator.config.json",
+        )
+    }
+    for relative, content in sources.items():
+        _write(root / relative, content)
+    assert gen.main(["--root", str(root), "--target", "kilo"]) == 0
+    stale = root / ".kilo/commands/cg-alpha.md"
+    assert stale.is_file()
+    (root / ".github/prompts/cg-alpha.prompt.md").unlink()
+
+    assert gen.main(["--root", str(root), "--target", "kilo"]) == 0
+    assert not stale.exists()
+    manifest = json.loads((root / ".kilo" / MANIFEST_NAME).read_bytes())
+    owned = {item["path"] for item in manifest["files"]}
+    assert not owned.intersection(sources)
+    for relative, content in sources.items():
+        assert (root / relative).read_bytes() == content
+
+
 def test_cleanup_adopts_equal_unowned_expected_destination(tmp_path: Path) -> None:
     root = _fixture_repo(tmp_path)
     plan = gen.build_generation_plan(

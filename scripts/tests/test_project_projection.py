@@ -388,6 +388,35 @@ class TestDeclaredRootsValidation:
 
 
 class TestStagingAndVerify:
+    def test_developer_sources_absent_from_consumer_staging_and_publication(
+        self, tmp_path: Path
+    ) -> None:
+        """Developer source/config never enters manifest consumer generations."""
+        source, _ = _repo_root(tmp_path, platforms="kilo")
+        for relative in (
+            ".kilo/developer/cg-agent-coordinator.md",
+            ".kilo/developer/coordinator.config.json",
+        ):
+            path = source / relative
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes((REPO_ROOT / relative).read_bytes())
+        project = tmp_path / "consumer"
+        project.mkdir()
+        _write(project / "compound-gpid.local.md", '---\nlanguage: "r"\nsuites: [cg]\n---\n')
+        resolved = manifest_module.resolve_active_manifest(
+            project, platforms=["kilo"], source_root=source
+        )
+        plan = projection.build_projection_plan(source, resolved, project_root=project)
+        staging = projection._stage_tree(project, plan, "f" * 32)
+        assert (staging / ".kilo/commands/cg-work.md").is_file()
+        assert not (staging / ".kilo/developer").exists()
+        projection.publish_projection(project, plan, source_root=source)
+        assert projection.verify_projection(project, plan) == []
+        assert not (project / ".kilo/developer").exists()
+        for path in project.rglob("*"):
+            if path.is_file():
+                assert b"cg-agent-coordinator" not in path.read_bytes(), path
+
     @pytest.mark.parametrize("legacy", [False, True])
     def test_two_publications_remove_old_generations_and_staging(self, tmp_path: Path, legacy: bool) -> None:
         root, _ = _repo_root(tmp_path, platforms="kilo")

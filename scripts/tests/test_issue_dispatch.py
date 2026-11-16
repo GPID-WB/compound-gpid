@@ -1311,6 +1311,63 @@ class TestActiveStateIntegrity:
     def test_handoff_targets_dev_branch(self) -> None:
         text = ACTIVE_STATE.read_text(encoding="utf-8-sig")
         next_cmd = json.loads(text).get("nextCommand", "")
+        if next_cmd is None:
+            next_cmd = ""
         assert "main" not in next_cmd.lower() or "dev" in next_cmd.lower(), (
             "nextCommand must reference dev, not main"
         )
+
+    @pytest.mark.parametrize(
+        ("payload", "rejects_main"),
+        [
+            pytest.param({}, False, id="missing-command"),
+            pytest.param({"nextCommand": None}, False, id="null-command"),
+            pytest.param({"nextCommand": ""}, False, id="empty-command"),
+            pytest.param(
+                {"nextCommand": "/cg-work phase2"}, False, id="no-branch-reference"
+            ),
+            pytest.param(
+                {"nextCommand": "/cg-commit-push-pr --base dev"},
+                False,
+                id="dev-handoff",
+            ),
+            pytest.param(
+                {"nextCommand": "/cg-commit-push-pr --base DEV"},
+                False,
+                id="dev-case-insensitive",
+            ),
+            pytest.param(
+                {"nextCommand": "/cg-commit-push-pr --base main"},
+                True,
+                id="reject-main-only",
+            ),
+            pytest.param(
+                {"nextCommand": "/cg-commit-push-pr --base MAIN"},
+                True,
+                id="reject-main-case-insensitive",
+            ),
+            pytest.param(
+                {"nextCommand": "/cg-commit-push-pr --base dev # not main"},
+                False,
+                id="dev-with-main-mention",
+            ),
+        ],
+    )
+    def test_handoff_command_cases(
+        self,
+        payload: dict[str, str | None],
+        rejects_main: bool,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        state_path = tmp_path / "current.json"
+        state_path.write_text(json.dumps(payload), encoding="utf-8")
+        monkeypatch.setattr(f"{__name__}.ACTIVE_STATE", state_path)
+
+        if rejects_main:
+            with pytest.raises(
+                AssertionError, match="nextCommand must reference dev, not main"
+            ):
+                self.test_handoff_targets_dev_branch()
+        else:
+            self.test_handoff_targets_dev_branch()

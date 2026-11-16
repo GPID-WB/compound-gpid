@@ -116,3 +116,30 @@ class TestKiloModelInheritance:
     def test_root_adapter_references_kilo_paths(self) -> None:
         content = (REPO_ROOT / ".kilo/AGENTS.md").read_text(encoding="utf-8")
         assert ".kilo/commands" in content
+
+
+class TestDeveloperCoordinator:
+    def test_opt_in_fragment_contains_only_primary_prompt_registration(self) -> None:
+        """The reusable fragment must not assign defaults, models or permissions."""
+        fragment = json.loads(
+            (REPO_ROOT / ".kilo/developer/coordinator.config.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        assert set(fragment) == {"agent"}
+        assert set(fragment["agent"]) == {"cg-agent-coordinator"}
+        entry = fragment["agent"]["cg-agent-coordinator"]
+        assert set(entry) == {"description", "mode", "prompt"}
+        assert entry["description"]
+        assert entry["mode"] == "primary"
+        assert entry["prompt"] == "{file:./.kilo/developer/cg-agent-coordinator.md}"
+        prompt = REPO_ROOT / entry["prompt"][len("{file:./"):-1]
+        assert prompt.is_file()
+        assert not prompt.read_text(encoding="utf-8").startswith("---")
+
+    def test_shared_config_does_not_register_coordinator(self) -> None:
+        """Consumer config and discovered agents remain developer-independent."""
+        config = (REPO_ROOT / ".kilo/kilo.json").read_text(encoding="utf-8")
+        assert "cg-agent-coordinator" not in config
+        assert not (REPO_ROOT / ".kilo/agents/cg-agent-coordinator.md").exists()
+        assert not (REPO_ROOT / ".kilo/agent/cg-agent-coordinator.md").exists()
