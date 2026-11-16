@@ -6,6 +6,7 @@ Run from repo root:
 from __future__ import annotations
 
 import json
+import shutil
 from pathlib import Path
 
 import pytest
@@ -125,6 +126,25 @@ class TestTargetMappingSchema:
         directory_units = [u for u in kilo["installUnits"] if u["type"] == "directory"]
         assert directory_units
         assert all(u["strategy"] == "copy-directory" for u in directory_units)
+
+    def test_recursive_install_units_exclude_developer_sources(self, tmp_path: Path) -> None:
+        """Exercise legacy recursive copying without linking a real consumer."""
+        kilo = next(t for t in _load_repo_mapping()["targets"] if t["id"] == "kilo")
+        consumer = tmp_path / "consumer"
+        for unit in kilo["installUnits"]:
+            source = REPO_ROOT / unit["source"]
+            destination = consumer / unit["target"]
+            if unit["type"] == "directory":
+                assert unit["strategy"] == "copy-directory"
+                shutil.copytree(source, destination)
+            else:
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(source, destination)
+        assert (consumer / ".kilo/commands/cg-work.md").is_file()
+        assert not (consumer / ".kilo/developer").exists()
+        for path in consumer.rglob("*"):
+            if path.is_file():
+                assert b"cg-agent-coordinator" not in path.read_bytes(), path
 
     def test_codex_directories_remain_link_directory(self) -> None:
         data = gen.load_target_mapping(REPO_ROOT)
