@@ -12,6 +12,16 @@ Existing users on any older version, pinned or tracking `latest`: follow [Upgrad
 - [Windows installation](#windows-installation)
 - [macOS installation](#macos-installation)
 
+Both installers register the committed `cg-help` wrapper alongside the existing
+commands (`cg-help.cmd` on Windows). After restarting the terminal, run
+`cg-help query "How do I configure this project?" --root "<project path>" --format json`.
+Use a real Windows path such as `E:\my project`, or a macOS path such as
+`/Users/me/my project`. Python 3.8+ is required; Windows Store stubs are rejected.
+The [help guide](help/index.md) explains active/inactive selection, labelled
+pre-setup guidance, source citations, unsupported requests, and catalog refresh.
+The consumer does not need its own `docs/` or `scripts/`; evidence comes from the
+plugin installation. Help never installs, configures, or repairs anything.
+
 ---
 
 ## Windows installation

@@ -743,9 +743,38 @@ Describe "install.ps1 - cg-publish-markdown.cmd copy" {
     }
 }
 
+Describe "install.ps1 - cg-help.cmd copy" {
+    $repoRoot = Split-Path $PSScriptRoot -Parent
+    It "cg-help.cmd exists in the committed bin/ directory" {
+        Test-Path (Join-Path $repoRoot "bin\cg-help.cmd") | Should -Be $true
+    }
+    It "cg-help.cmd contains the for /f Python resolution pattern" {
+        $content = Get-Content (Join-Path $repoRoot "bin\cg-help.cmd") -Raw
+        ($content -match 'for /f') | Should -Be $true
+    }
+    It "cg-help.cmd guards each Python probe with a where pre-check" {
+        $content = Get-Content (Join-Path $repoRoot "bin\cg-help.cmd") -Raw
+        foreach ($candidate in @('python3', 'python', 'py')) {
+            ($content -match "where $candidate\s+>nul") | Should -Be $true
+        }
+    }
+    It "cg-help.cmd references cg_help.py and forwards arguments and status" {
+        $content = Get-Content (Join-Path $repoRoot "bin\cg-help.cmd") -Raw
+        ($content -match 'cg_help\.py" %%\*') | Should -Be $true
+        ($content -match '(?m)^exit /b %ERRORLEVEL%') | Should -Be $true
+    }
+    It "install.ps1 registers the committed cg-help wrapper with a same-path guard" {
+        $content = Get-Content (Join-Path $repoRoot "install.ps1") -Raw
+        ($content -match 'cgHelpCmdSrc.*bin\\cg-help\.cmd') | Should -Be $true
+        ($content -match '\$cgHelpSrcFull -ieq \$cgHelpDstFull') | Should -Be $true
+        ($content -match 'Copy-Item -Path \$cgHelpCmdSrc -Destination \$cgHelpCmdDst') | Should -Be $true
+    }
+}
+
 Describe "Python-backed CMD launchers - runtime selection and status parity" {
     $repoRoot = Split-Path $PSScriptRoot -Parent
     $launchers = @(
+        "cg-help.cmd",
         "cg-index.cmd",
         "cg-brain-init.cmd",
         "cg-token-audit.cmd",

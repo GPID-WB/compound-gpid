@@ -284,6 +284,13 @@
       "executable": false
     },
     {
+      "path": ".opencode/commands/cg-help.md",
+      "source": ".github/prompts/cg-help.prompt.md",
+      "kind": "command",
+      "sha256": "6d4c7c913d1b536a306cb629ea63515e06d463f976b81b15609c59333b4fabf5",
+      "executable": false
+    },
+    {
       "path": ".opencode/commands/cg-ideate.md",
       "source": ".github/prompts/cg-ideate.prompt.md",
       "kind": "command",

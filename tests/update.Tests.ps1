@@ -409,6 +409,7 @@ Describe "update.ps1 - executable generation failure boundary" {
         $childScript = Join-Path $TestDrive "invoke-isolated-update.ps1"
         @'
 param($UpdateScript, $ProjectRoot)
+$global:PROFILE = Join-Path $ProjectRoot "isolated-profile.ps1"
 function global:git {
     $global:LASTEXITCODE = 0
     if ($args[0] -eq "rev-parse" -and $args[1] -eq "--abbrev-ref") { return "main" }

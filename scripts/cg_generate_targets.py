@@ -2077,6 +2077,14 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     all_written: list[str] = []
     committed_by_target: dict[str, tuple[OutputEntry, ...]] = {}
+    # Help remains installation tooling, never a projected runtime asset.
+    if (root / "scripts/help_catalog.py").is_file():
+        try:
+            from help_catalog import refresh_catalog
+            refresh_catalog(root, dry_run=args.dry_run)
+        except (ValueError, OSError) as e:
+            print(f"Error: help catalog: {e}", file=sys.stderr)
+            return 1
     if not args.dry_run:
         try:
             committed = commit_generation_plan(

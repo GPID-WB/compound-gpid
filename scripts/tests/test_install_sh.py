@@ -1,6 +1,7 @@
 """Committed POSIX modes and fixture-only clean-clone installation checks."""
 from __future__ import annotations
 
+import json
 import os
 from pathlib import Path
 import shutil
@@ -63,10 +64,20 @@ def test_install_keeps_clone_clean_and_wrappers_work_elsewhere(
     )
     clone = tmp_path / "installation"
     _git(tmp_path, "clone", "--no-local", str(REPO_ROOT), str(clone), env=env)
+    # Exercise the approved working tree, including new wrappers, not old HEAD.
+    current = _git(REPO_ROOT, "ls-files", "--cached", "--others", "--exclude-standard",
+                   "-z", "--", "bin/", "scripts/", ".github/", "docs/")
+    for name in current.split("\0"):
+        source = REPO_ROOT / name
+        if not name or not source.is_file() or "__pycache__" in source.parts:
+            continue
+        target = clone / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, target)
     alias = tmp_path / "installation alias"
     alias.symlink_to(clone, target_is_directory=True)
-    wrappers = [name for name in _git(clone, "ls-files", "bin/", env=env).splitlines()
-                if not Path(name).suffix]
+    wrappers = [name for name in current.split("\0")
+                if name.startswith("bin/") and not Path(name).suffix]
     before = {name: (clone / name).read_bytes() for name in wrappers}
     # Old or local wrapper names alone do not grant the installer ownership.
     unowned = ("cg-find-skill", "cg-find-skill.cmd", "cg-local-custom")
@@ -77,7 +88,7 @@ def test_install_keeps_clone_clean_and_wrappers_work_elsewhere(
         wrapper = clone / "bin" / name
         wrapper.write_bytes(b"fixture user wrapper\n")
         wrapper.chmod(0o640)
-    assert _git(clone, "status", "--porcelain", env=env) == ""
+    baseline = _git(clone, "status", "--porcelain", env=env)
 
     for _ in range(2):
         result = subprocess.run(
@@ -85,7 +96,7 @@ def test_install_keeps_clone_clean_and_wrappers_work_elsewhere(
             capture_output=True, text=True, timeout=60, check=False,
         )
         assert result.returncode == 0, result.stdout + result.stderr
-        assert _git(clone, "status", "--porcelain", env=env) == ""
+        assert _git(clone, "status", "--porcelain", env=env) == baseline
         assert {name: (clone / name).read_bytes() for name in wrappers} == before
         assert all(os.access(clone / name, os.X_OK) for name in wrappers)
         for name in unowned:
@@ -112,4 +123,12 @@ def test_install_keeps_clone_clean_and_wrappers_work_elsewhere(
         )
         assert result.returncode == 0, result.stdout + result.stderr
         assert "usage:" in result.stdout.lower()
-    assert _git(clone, "status", "--porcelain", env=env) == ""
+    result = subprocess.run(
+        [str(alias / "bin/cg-help"), "query", "install on macos", "--root", str(other),
+         "--format", "json"], cwd=other, env=env, capture_output=True, text=True,
+        timeout=30, check=False,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert json.loads(result.stdout)["state"] == "unknown"
+    assert not (other / "docs").exists() and not (other / "scripts").exists()
+    assert _git(clone, "status", "--porcelain", env=env) == baseline

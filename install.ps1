@@ -252,6 +252,22 @@ foreach ($script in $scripts) {
 }
 Write-Host "  Created: cg-link, cg-unlink, cg-update in $binDir" -ForegroundColor DarkGray
 
+# Copy the committed help wrapper, preserving the in-place installation.
+$cgHelpCmdSrc = Join-Path $CompoundGpidDir "bin\cg-help.cmd"
+$cgHelpCmdDst = Join-Path $binDir "cg-help.cmd"
+if (Test-Path $cgHelpCmdSrc) {
+    $cgHelpSrcFull = [System.IO.Path]::GetFullPath($cgHelpCmdSrc)
+    $cgHelpDstFull = [System.IO.Path]::GetFullPath($cgHelpCmdDst)
+    if ($cgHelpSrcFull -ieq $cgHelpDstFull) {
+        Write-Host "  Already present: cg-help in $binDir" -ForegroundColor DarkGray
+    } else {
+        Copy-Item -Path $cgHelpCmdSrc -Destination $cgHelpCmdDst -Force
+        Write-Host "  Copied: cg-help in $binDir" -ForegroundColor DarkGray
+    }
+} else {
+    Write-Warning "  bin\cg-help.cmd not found in installation -- skipping cg-help wrapper."
+}
+
 # Copy cg-index.cmd from the committed file (single source of truth). Unlike
 # the simple PS1-calling wrappers above, cg-index.cmd contains non-trivial
 # Python resolver logic and is kept as the committed authoritative wrapper in
@@ -409,7 +425,7 @@ try {
     Write-Warning "  You may manually remove the old Compound GPID functions from: $PROFILE"
 }
 
-Write-Host "  Registered: cg-link, cg-unlink, cg-update, cg-kilo, cg-skill, cg-index, cg-render-artifact, cg-publish-markdown, cg-token-audit" -ForegroundColor DarkGray
+Write-Host "  Registered: cg-link, cg-unlink, cg-update, cg-kilo, cg-skill, cg-help, cg-index, cg-render-artifact, cg-publish-markdown, cg-token-audit" -ForegroundColor DarkGray
 
 # -----------------------------------------------------------------------
 # Step 4: Initialize .cg-version
@@ -450,6 +466,7 @@ Write-Host '  cg-update <version>  -- Pin to a specific release (e.g. cg-update 
 Write-Host "  cg-update latest     -- Unpin and return to tracking main"
 Write-Host "  cg-update --list     -- Browse available releases"
 Write-Host "  cg-index        -- Build knowledge index from .cg-docs/   (run from project root)"
+Write-Host '  cg-help query "question" -- Read-only source-cited guidance (--root <project> --format json)'
 Write-Host "  cg-render-artifact -- Render or validate one workflow artifact (run from project root)"
 Write-Host "  cg-publish-markdown -- Publish one generic Markdown document (run from project root)"
 Write-Host "  cg-token-audit  -- Analyze token/context usage          (run from project root)"

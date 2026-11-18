@@ -6,6 +6,25 @@ plugin clone.
 
 ## Choose the problem
 
+For source-cited guidance, ask `/cg-help` in chat, for example
+`/cg-help compare planning and work`. Help is advisory: it does not activate
+suites, repair installations, or execute the recommended commands. It asks for
+clarification when needed and reports unsupported requests instead of inventing
+an answer. Ask in your preferred language; command identifiers remain unchanged.
+
+From a terminal on Windows or macOS, use the installed wrapper:
+
+```text
+cg-help query "How do I configure this project?" --root "/path/to/project" --format json
+```
+
+On Windows use a Windows path, such as `--root "E:\my project"`. The catalog
+and cited sources belong to the plugin installation, so consumers need no local
+`docs/` or `scripts/`. Help distinguishes active commands from inactive suites;
+before setup or with invalid configuration, it labels general setup guidance
+without claiming verified command availability. Inactive commands receive
+metadata and a remedy, not their workflow instructions.
+
 | Symptom | First check | Detailed path |
 |---|---|---|
 | `cg-link` or another command is not found | Restart the terminal and confirm the install `bin` directory is on PATH | [Installation Details](../installation.md) |
@@ -27,6 +46,13 @@ plugin clone.
 5. Escalate to repair only after understanding what state it may discard.
 
 ## Complete recovery reference
+
+If help reports a missing or malformed installation catalog, preserve local
+changes and follow the normal [update path](../versioning.md). Maintainers
+refresh the catalog through `python scripts/cg_generate_targets.py --all`;
+queries never rebuild it or mutate the consumer. Citations name installation
+source paths, headings, and line ranges. If the catalog has no eligible evidence,
+help states that limitation rather than falling back to an unsourced answer.
 
 The [Troubleshooting Reference](../troubleshooting.md) preserves detailed
 procedures for Python and PATH failures, old install paths, Constrained
