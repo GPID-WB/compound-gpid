@@ -187,12 +187,13 @@ function writeCombinedSite({ mainRoot, devRoot, out, mainSha, devSha, mainBranch
     const occupied = new Set();
     copySource(main, site, "", occupied);
     copySource(dev, site, "dev", occupied);
-    // New shells render in Actions; older stable releases keep their own shell.
+    // Each static shell uses its own checkout's renderer; legacy shells are copied as-is.
     for (const [source, destination, channel, sha] of [
       [main, site, "main", mainSha], [dev, path.join(site, "dev"), "dev", devSha],
     ]) {
       if (fs.readFileSync(path.join(source.docs, "index.html"), "utf8").includes("<!-- home:start -->")) {
-        require("./render-docs-site.js").renderSite({ docsRoot: source.docs, out: destination, channel, sha, preserveOtherFiles: true });
+        const { renderSite } = require(path.resolve(source.root, "scripts/render-docs-site.js"));
+        renderSite({ docsRoot: source.docs, out: destination, channel, sha, preserveOtherFiles: true });
       }
     }
     addDevelopmentMarker(path.join(site, "dev", "index.html"));

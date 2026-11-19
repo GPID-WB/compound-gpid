@@ -4,8 +4,6 @@ function escapeHtml(value) {
   })[character]);
 }
 
-function slugify(value) { return DocsSearch.slugify(value); }
-
 function normalizePath(path) {
   const output = [];
   path.split("/").forEach((part) => {
@@ -43,16 +41,21 @@ function resolveDocLink(href) {
 
 function inlineMarkdown(value) {
   let html = escapeHtml(value);
-  html = html.replace(/`([^`]+)`/g, "<code>$1</code>");
+  const spans = [];
+  // Keep code inert during inline formatting without splitting links or emphasis around it.
+  let marker = "\uE000";
+  while (html.includes(marker)) marker += "\uE000";
+  html = html.replace(/`([^`]+)`/g, (_, code) => `${marker}${spans.push(code) - 1}\uE001`);
   html = html.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
     .replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, "<em>$1</em>");
-  html = html.replace(/\[([^\]]+)\]\(([^)\s]+)(?:\s+&quot;[^&]+&quot;)?\)/g, (_, label, href) => {
+  html = html.replace(/\[([^\]]+)\]\(([^)\s]+)(?:\s+&quot;[^&]+&quot;)?\)/g, (match, label, href) => {
+    if (href.includes(marker)) return match;
     const resolved = resolveDocLink(href.replace(/&amp;/g, "&"));
     if (!resolved) return `<span class="unresolved-link" title="See the source file for this reference">${label}</span>`;
     const external = resolved.external ? ' target="_blank" rel="noreferrer"' : "";
     return `<a href="${escapeHtml(resolved.href)}"${external}>${label}</a>`;
   });
-  return html;
+  return html.replace(new RegExp(`${marker}(\\d+)\uE001`, "g"), (_, index) => `<code>${spans[index]}</code>`);
 }
 
 function renderTable(lines) {
@@ -112,8 +115,8 @@ function renderList(lines, start, indent) {
   return { html: `<${tag}>${items.join("")}</${tag}>`, index };
 }
 
-function markdownToHtml(markdown, headings = new Map()) {
-  const lines = markdown.replace(/^\uFEFF/, "").replace(/^---[\s\S]*?---\s*/, "").split("\n");
+function markdownToHtml(markdown, headings = new Set()) {
+  const lines = DocsSearch.markdownLines(markdown);
   const output = [];
   let index = 0;
   while (index < lines.length) {
@@ -124,13 +127,13 @@ function markdownToHtml(markdown, headings = new Map()) {
       index += 1;
       continue;
     }
-    if (line.startsWith("```")) {
-      const language = line.slice(3).trim();
+    const fence = DocsSearch.codeFence(line);
+    if (fence) {
       const code = [];
       index += 1;
-      while (index < lines.length && !lines[index].startsWith("```")) code.push(lines[index++]);
+      while (index < lines.length && !DocsSearch.codeFence(lines[index], fence.marker)) code.push(lines[index++]);
       index += 1;
-      output.push(`<pre><button class="copy-code" type="button" aria-label="Copy code">Copy</button><code class="language-${escapeHtml(language)}">${escapeHtml(code.join("\n"))}</code></pre>`);
+      output.push(`<pre><button class="copy-code" type="button" aria-label="Copy code">Copy</button><code class="language-${escapeHtml(fence.info)}">${escapeHtml(code.join("\n"))}</code></pre>`);
       continue;
     }
     if (/^\|/.test(line) && /^\|?\s*:?-{3,}/.test(lines[index + 1] || "")) {
@@ -144,10 +147,7 @@ function markdownToHtml(markdown, headings = new Map()) {
     if (heading) {
       const level = heading[1].length;
       const text = heading[2];
-      const base = slugify(text);
-      const count = headings.get(base) || 0;
-      headings.set(base, count + 1);
-      const id = count ? `${base}-${count}` : base;
+      const id = DocsSearch.headingId(text, headings);
       output.push(`<h${level} id="${id}">${inlineMarkdown(text)}</h${level}>`);
       index += 1;
       continue;
@@ -169,7 +169,8 @@ function markdownToHtml(markdown, headings = new Map()) {
     const paragraph = [line];
     index += 1;
     while (index < lines.length && lines[index].trim()
-      && !/^(#{1,6}\s|```|\||>|[-*_]{3,}\s*$)/.test(lines[index])
+      && !/^(#{1,6}\s|\||>|[-*_]{3,}\s*$)/.test(lines[index])
+      && !DocsSearch.codeFence(lines[index])
       && !listLine(lines[index])) paragraph.push(lines[index++]);
     output.push(`<p>${inlineMarkdown(paragraph.join(" "))}</p>`);
   }

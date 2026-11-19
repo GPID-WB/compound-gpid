@@ -48,7 +48,7 @@ function renderSite({ docsRoot, out, channel = "dev", sha = "", preserveOtherFil
   const noScript = '<noscript><style>[data-open-search],[data-nav-filter],label[for="nav-filter"],.menu-button,[data-theme-toggle],.copy-code{display:none!important}.no-script-only{display:block}@media(max-width:820px){.sidebar{position:static;transform:none;width:100%;height:auto;box-shadow:none}}</style></noscript>';
   const stamp = sha ? `<p class="build-stamp">${channel === "dev" ? "Development" : "Stable"} documentation · Source <a href="https://github.com/GPID-WB/compound-gpid/commit/${sha}">${sha.slice(0, 7)}</a> · Rendered by the documentation build</p>` : "";
   function frame(content, page) {
-    let html = content.replace('<body>', `<body data-rendered="true" data-channel="${channel}"${page ? ` data-page="${page.id}"` : ""}>`);
+    let html = content.replace('<body>', `<body data-rendered="true" data-channel="${channel}"${sha ? ` data-source-sha="${sha}"` : ""}${page ? ` data-page="${page.id}"` : ""}>`);
     html = html.replace(/(<nav class="nav-list"[^>]*>)[^]*?<\/nav>/, (_, open) => `${open}${navigation(manifest.groups, page?.id)}</nav>`);
     html = html.replace('<span data-page-count></span>', `<span data-page-count>${pages.length} guides and references</span>`);
     html = html.replace('<div class="directory-grid" data-doc-map></div>', `<div class="directory-grid" data-doc-map>${manifest.groups.map(group => `<a href="${href(group.pages[0].id)}"><h3>${escape(group.title)} <span aria-hidden="true">→</span></h3><p>${escape(group.description)}</p><small>${group.pages.length} pages</small></a>`).join("")}</div>`);
@@ -71,7 +71,7 @@ function renderSite({ docsRoot, out, channel = "dev", sha = "", preserveOtherFil
     const article = context.markdownToHtml(markdown);
     const group = manifest.groups.find(group => group.title === page.group);
     let html = shell.replace(/<!-- home:start -->[^]*?<!-- home:end -->/, '<section class="home-page" data-home hidden></section>');
-    html = html.replace(/<!-- reader:start -->[^]*?<!-- reader:end -->/, reader(page, group, article, channel));
+    html = html.replace(/<!-- reader:start -->[^]*?<!-- reader:end -->/, () => reader(page, group, article, channel, sha));
     fs.writeFileSync(path.join(out, href(page.id)), frame(html, page));
     index.push(...context.DocsSearch.records(page, markdown));
   }

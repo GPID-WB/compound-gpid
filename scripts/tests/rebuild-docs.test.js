@@ -137,14 +137,30 @@ test("metadata fingerprint changes for canonical navigation input", async () => 
   assert.match(verify.stdout + verify.stderr, /stale/i);
 });
 
-test("complete --check reports stale release notes without writing", async () => {
+test("docs:check reports a release-only change without rewriting the notes", async (t) => {
   const dir = await tempRepo("basic");
-  await cp(path.join(fixtures, "releases-multi", "releases"), path.join(dir, "releases"), { recursive: true });
-  const before = await readFile(path.join(dir, "docs", "whats-new.md"), "utf8");
-  const result = runRepo(dir, ["--all", "--check"]);
+  t.after(() => rm(dir, { recursive: true, force: true }));
+  const releases = path.join(dir, "releases");
+  await cp(path.join(fixtures, "releases-multi", "releases"), releases, { recursive: true });
+  const built = runRepo(dir, ["--all"]);
+  assert.equal(built.status, 0, built.stderr);
+  const notes = path.join(dir, "docs", "whats-new.md");
+  const before = await readFile(notes, "utf8");
+  const latest = path.join(releases, "latest.json");
+  const payload = JSON.parse(await readFile(latest, "utf8"));
+  payload.sections[0].entries[0] += " Updated release note.";
+  for (const file of [latest, path.join(releases, `${payload.tag}.json`)]) {
+    await writeFile(file, JSON.stringify(payload));
+  }
+
+  // Run the freshness stage wired into npm; the minimal fixture is not a full site.
+  const check = require("../../package.json").scripts["docs:check"];
+  const [, entry, ...flags] = check.split(" && ")[0].split(" ");
+  assert.equal(path.resolve(root, entry), script);
+  const result = runRepo(dir, flags);
   assert.notEqual(result.status, 0);
   assert.match(result.stdout + result.stderr, /whats-new\.md/);
-  assert.equal(await readFile(path.join(dir, "docs", "whats-new.md"), "utf8"), before);
+  assert.equal(await readFile(notes, "utf8"), before);
 });
 
 test("marker-like examples in fenced code do not affect managed regions", async () => {

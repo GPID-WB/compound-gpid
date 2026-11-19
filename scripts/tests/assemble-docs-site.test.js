@@ -99,6 +99,48 @@ test("builds a deterministic combined root and dev site with provenance", async 
   }
 });
 
+test("changing the dev checkout renderer leaves stable bytes and provenance unchanged", async (t) => {
+  const mainRoot = await createSource("main");
+  const devRoot = await createSource("dev");
+  const output = await mkdtemp(path.join(os.tmpdir(), "cg-site-renderers-"));
+  t.after(() => removeTemporary(mainRoot, devRoot, output));
+
+  async function installRenderer(sourceRoot, marker) {
+    const scripts = path.join(sourceRoot, "scripts");
+    await mkdir(scripts, { recursive: true });
+    await writeFile(path.join(sourceRoot, "docs/index.html"), '<body><!-- home:start --></body>');
+    await writeFile(path.join(scripts, "render-docs-site.js"), `exports.renderSite = ({out}) => {
+      require('node:fs').writeFileSync(require('node:path').join(out, 'index.html'),
+        '<body>' + require('./docs-html.js') + '</body>');
+    };`);
+    await writeFile(path.join(scripts, "docs-html.js"), `module.exports = ${JSON.stringify(marker)};`);
+  }
+
+  const workflowAssembler = path.join(devRoot, "scripts/assemble-docs-site.js");
+  async function build(devVersion) {
+    await installRenderer(devRoot, devVersion);
+    const result = spawnSync(node, [workflowAssembler, "--main-root", mainRoot,
+      "--dev-root", devRoot, "--out", output, "--main-sha", "1".repeat(40),
+      "--dev-sha", "2".repeat(40)], { encoding: "utf8" });
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(await readFile(path.join(output, "site/dev/index.html"), "utf8"), new RegExp(devVersion));
+    return JSON.parse(await readFile(path.join(output, ".docs-build-metadata.json"), "utf8"));
+  }
+
+  await installRenderer(mainRoot, "stable-renderer");
+  await cp(script, workflowAssembler);
+  for (const file of ["rebuild-docs.js", "docs-markers.js"]) {
+    await cp(path.join(root, "scripts", file), path.join(devRoot, "scripts", file));
+  }
+  const first = await build("dev-first");
+  const second = await build("dev-second");
+  assert.equal(first.sources.main.fingerprint, second.sources.main.fingerprint);
+  assert.equal(first.site.files["index.html"], second.site.files["index.html"]);
+  assert.notEqual(first.sources.dev.fingerprint, second.sources.dev.fingerprint);
+  assert.notEqual(first.site.files["dev/index.html"], second.site.files["dev/index.html"]);
+  assert.match(await readFile(path.join(output, "site/index.html"), "utf8"), /stable-renderer/);
+});
+
 test("verifies complete artifact digests and rejects stale source inputs", async () => {
   const mainRoot = await createSource("main");
   const devRoot = await createSource("dev");
@@ -148,10 +190,10 @@ test("rejects output collisions and symlinked source files", async () => {
     assert.match(collision.stderr + collision.stdout, /collision|overlap|dev/i);
 
     await rm(path.join(mainRoot, "docs", "dev"), { recursive: true, force: true });
-    const outside = path.join(os.tmpdir(), "cg-site-outside.txt");
-    await writeFile(outside, "outside\n");
+    const outside = await mkdtemp(path.join(os.tmpdir(), "cg-site-outside-"));
     try {
-      await symlink(outside, path.join(devRoot, "docs", "outside.txt"));
+      // A Windows directory junction exercises lstat's link check without elevated privileges.
+      await symlink(outside, path.join(devRoot, "docs", "outside"), process.platform === "win32" ? "junction" : "dir");
       const symlinkResult = run([
         "--main-root", mainRoot,
         "--dev-root", devRoot,
@@ -162,7 +204,7 @@ test("rejects output collisions and symlinked source files", async () => {
       assert.notEqual(symlinkResult.status, 0);
       assert.match(symlinkResult.stderr + symlinkResult.stdout, /symlink|symbolic/i);
     } finally {
-      await rm(outside, { force: true });
+      await rm(outside, { recursive: true, force: true });
     }
   } finally {
     await removeTemporary(mainRoot, devRoot, collisionOutput, symlinkOutput);
