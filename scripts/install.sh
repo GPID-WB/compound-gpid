@@ -207,7 +207,7 @@ BIN_DIR="$COMPOUND_GPID_DIR/bin"
 # Do not rewrite, chmod, or remove wrappers, including files not owned here.
 for cmd in link unlink update kilo skill index brain-init render-artifact \
     publish-markdown token-audit diff-summary log-summary problems-summary \
-    test-summary tree-summary; do
+    test-summary tree-summary help; do
     WRAPPER="$BIN_DIR/cg-$cmd"
     if [[ ! -f "$WRAPPER" || ! -x "$WRAPPER" ]]; then
         print_error "Committed wrapper is missing or not executable: $WRAPPER"
@@ -310,6 +310,7 @@ printf '  cg-update latest     -- Unpin and return to tracking main\n'
 printf '  cg-update --list     -- Browse available releases\n'
 printf '  cg-kilo    -- Optional contained Kilo launch (run from project root)\n'
 printf '  cg-skill   -- Manage the complete skill lifecycle (run from project root)\n'
+printf '  cg-help query "question" -- Read-only source-cited guidance (--root <project> --format json)\n'
 printf '  cg-render-artifact   -- Render or validate one workflow artifact\n'
 printf '  cg-publish-markdown  -- Publish one generic Markdown document\n'
 printf '  cg-token-audit       -- Analyze token/context usage  (run from project root)\n'

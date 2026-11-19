@@ -114,6 +114,7 @@ evaluation-only: `local-workflow` remains the only active mode.
 | `cg-kilo [<kilo arguments>]` | Project root | Optional contained Kilo launch. Version diagnostics warn only. For projects with Codex/Claude roots, validates containment and disables external skill discovery only in the child Kilo process; direct launches are unsupported. |
 | `cg-brain-init` | Project root | Initialize or configure Team Brain integration and scaffold the central GitHub repository configuration. Usage: `cg-brain-init --repo <owner/name> --manager <github-username>`. |
 | `cg-index` | Project root | Build or query the local `.cg-docs/` Knowledge Brain index. |
+| `cg-help query "question" --root <project> --format json` | Anywhere | Read-only, source-cited installation guidance; no local documentation checkout required. Chat `/cg-help` explains the evidence conversationally. |
 | `cg-index --brain` | Project root | Rebuild generated Brain artifacts such as `BRAIN.md`, topic files, and `brain-index.json`. |
 | `cg-render-artifact <source>` | Project root | Validate and explicitly render one Brainstorm or Plan, even when automatic HTML is disabled. |
 | `cg-render-artifact --automatic <source>` | Project root | Always validate; write HTML only when `artifact-html: true` is configured. |
@@ -162,6 +163,15 @@ Compound GPID supports pinning to specific [GitHub Releases](https://github.com/
 ---
 
 ## Copilot Chat Prompts
+
+### Shared Help
+
+`/cg-help <question>` is a shared kernel entry point, available with CG-only,
+CR-only, mixed, or pre-setup selection. It explains source-cited command,
+workflow, setup, and recovery guidance without executing recommendations.
+Use it before choosing a suite-specific workflow. Before valid setup it labels
+general guidance rather than claiming verified command availability; see the
+[help guide](help/index.md) for examples and limitations.
 
 <!-- cg:auto:commands -->
 | Prompt | Model | Purpose |

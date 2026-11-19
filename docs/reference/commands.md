@@ -6,11 +6,14 @@ not slash commands.
 
 ## Workflow prompts
 
-The technical suite owns `/cg-*`. The research suite owns `/cr-*`; those
-commands are available when `suites:` includes `cr`.
+Most `/cg-*` workflow commands belong to the technical suite. Shared kernel
+entry points such as `/cg-help` remain available with CG-only, CR-only, mixed,
+or pre-setup selection. The research suite owns `/cr-*`; those commands are
+available when `suites:` includes `cr`.
 
 | Goal | Command |
 |---|---|
+| Find source-cited commands, workflows, setup, or recovery guidance (shared, advisory) | `/cg-help <question>` |
 | Configure a project | `/cg-setup` |
 | Set or rethink project direction | `/cg-strategy` |
 | Discover possible next work | `/cg-ideate` |
@@ -74,6 +77,7 @@ network, utility, or write operations in consumer projects.
 | `cg-kilo [<kilo arguments>]` | Optional contained launcher; version diagnostics warn only, containment is required for Kilo with Codex/Claude roots, and lifecycle operations do not require the host |
 | `cg-brain-init` | Initialize optional Team Brain integration |
 | `cg-index` | Build or query the local Knowledge Brain index |
+| `cg-help query "question" --root <project> --format json` | Retrieve source-cited installation guidance without local consumer docs or scripts; never executes recommendations |
 | `cg-index --brain` | Rebuild generated Brain artifacts |
 | `cg-render-artifact <source>` | Explicitly validate and render one Brainstorm or Plan |
 | `cg-render-artifact --automatic <source>` | Validate and render only when automatic HTML is enabled |

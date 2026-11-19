@@ -593,6 +593,22 @@ class TestCapabilitySchema:
 
 
 class TestRealRepoRegistry:
+    def test_shared_help_has_exact_kernel_owner_and_both_suite_closures(self) -> None:
+        import cg_context_budget as budget
+        import cg_generate_targets as gen
+
+        registry, error = validator.load_registry(REPO_ROOT)
+        assert error is None
+        path = ".github/prompts/cg-help.prompt.md"
+        assert (REPO_ROOT / path).is_file()
+        assert registry_service.matching_asset_owners(registry, path) == ("kernel",)
+        for suites in (["cg"], ["cr"], ["cg", "cr"]):
+            assets = gen.scan_canonical_assets(REPO_ROOT, active_suites=suites)
+            assert path in {row["relative_path"] for row in assets["prompts"]}
+            assert "kernel" in budget.loadable_module_ids(registry, suites)
+        assert validator.check_cross_suite_references(REPO_ROOT) == []
+        assert validator.check_unresolved_dependencies(REPO_ROOT) == []
+
     def test_repo_ownership_closure_is_complete(self) -> None:
         errors = validator.check_ownership(REPO_ROOT)
         assert errors == [], f"Validation errors: {errors}"

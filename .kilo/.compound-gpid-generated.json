@@ -284,6 +284,13 @@
       "executable": false
     },
     {
+      "path": ".kilo/commands/cg-help.md",
+      "source": ".github/prompts/cg-help.prompt.md",
+      "kind": "command",
+      "sha256": "5521927e155e39d21b686af5bd3c7d7554f82a183f8f6f17da796dc2628f5066",
+      "executable": false
+    },
+    {
       "path": ".kilo/commands/cg-ideate.md",
       "source": ".github/prompts/cg-ideate.prompt.md",
       "kind": "command",

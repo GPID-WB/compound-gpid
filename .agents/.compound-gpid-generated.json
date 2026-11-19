@@ -88,6 +88,13 @@
       "executable": false
     },
     {
+      "path": ".agents/commands/cg-help.md",
+      "source": ".github/prompts/cg-help.prompt.md",
+      "kind": "command",
+      "sha256": "d39cdae10a93443210cb68192dcef9c9a0a3c2b509a357d1c875ae67009b2817",
+      "executable": false
+    },
+    {
       "path": ".agents/commands/cg-ideate.md",
       "source": ".github/prompts/cg-ideate.prompt.md",
       "kind": "command",

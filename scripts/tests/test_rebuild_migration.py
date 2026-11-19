@@ -40,6 +40,8 @@ POSIX_WRAPPER_CHANGES = {f"bin/cg-{name}" for name in (
     "brain-init", "diff-summary", "index", "kilo", "link", "log-summary",
     "problems-summary", "publish-markdown", "render-artifact", "skill",
     "test-summary", "token-audit", "tree-summary", "unlink", "update")}
+# v1.2.0.9021 shipped both paths, so the current launchers are modifications.
+HELP_WRAPPER_CHANGES = {"bin/cg-help", "bin/cg-help.cmd"}
 WORKER = '''
 import os, subprocess, sys
 from pathlib import Path
@@ -321,7 +323,7 @@ raise SystemExit(18)
     rt.env["RM_TARGET"] = _git(rt, source, "rev-parse", "HEAD").decode().strip()
     if legacy:
         modified = _git(rt, source, "diff", "--diff-filter=M", "--name-only", old_tag, target_tag, "--", "bin").decode().splitlines()
-        expected = (CMD_PROBE_CHANGES | POSIX_WRAPPER_CHANGES
+        expected = (CMD_PROBE_CHANGES | POSIX_WRAPPER_CHANGES | HELP_WRAPPER_CHANGES
                     if old_tag == OLD else set())
         assert set(modified) == expected
     else:
@@ -399,7 +401,7 @@ def test_old_committed_installer_and_updater_acquire_current_candidate(runtime: 
     before = _state(rt, install)
     result = _run(rt, install)
     if rt.suffix == "sh":
-        assert result.returncode != 0  # Baseline deletes dirty autopilot/help wrappers.
+        assert result.returncode != 0  # Legacy installer residue conflicts with candidate wrappers.
         assert _state(rt, install) == before
         assert set(_git(rt, install, "diff", "--name-only").decode().splitlines()) == POSIX_DIRTY
         path = install / "bin/cg-brain-init"
