@@ -116,7 +116,7 @@ function renderList(lines, start, indent) {
 }
 
 function markdownToHtml(markdown, headings = new Set()) {
-  const lines = markdown.replace(/^\uFEFF/, "").replace(/^---[\s\S]*?---\s*/, "").split(/\r?\n/);
+  const lines = DocsSearch.markdownLines(markdown);
   const output = [];
   let index = 0;
   while (index < lines.length) {
