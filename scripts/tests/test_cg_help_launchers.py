@@ -161,6 +161,22 @@ def test_packaged_windows_missing_python(packaged: tuple[Path, Path]) -> None:
     assert "not recognized" not in result.stderr
 
 
+@pytest.mark.skipif(os.name != "posix", reason="POSIX launcher missing-Python path")
+def test_packaged_posix_missing_python(packaged: tuple[Path, Path]) -> None:
+    """Leave dirname available but hide Python from the packaged launcher."""
+    install, consumer = packaged
+    dirname = shutil.which("dirname")
+    assert dirname is not None
+    tools = consumer.parent / "tools"
+    tools.mkdir()
+    (tools / "dirname").symlink_to(dirname)
+    result = invoke(install, consumer, "query", "install help", "--root", str(consumer),
+                    "--format", "json", env={"PATH": str(tools)})
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert not result.stdout
+    assert "Python is not available" in result.stderr
+
+
 @pytest.mark.skipif(os.name != "nt", reason="Windows CALL argument expansion")
 def test_windows_call_preserves_literal_percent_arguments(packaged: tuple[Path, Path]) -> None:
     """After the caller supplies literal arguments, CALL must not expand them again."""
