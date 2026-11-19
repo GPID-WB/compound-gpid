@@ -122,6 +122,7 @@ async function renderRoute() {
     document.querySelector("#content").focus({ preventScroll: true });
   } catch (error) {
     if (request !== navigationRequest) return;
+    activePage = "";
     documentView.innerHTML = `<h1>Page unavailable</h1><p class="error-message">This page could not be loaded. <a href="${escapeHtml(config.file)}">Open the canonical Markdown file</a>.</p>`;
   }
 }

@@ -1,8 +1,9 @@
 /* Orient the reader without copying documentation into a second source. */
 function buildReaderContext(config) {
   const context = document.querySelector("[data-page-context]");
-  const branch = document.body.dataset.channel || "dev";
-  context.innerHTML = `<nav aria-label="Breadcrumb"><a href="#home">Docs</a><span aria-hidden="true">/</span><span>${escapeHtml(config.group)}</span></nav><a class="source-link" href="https://github.com/GPID-WB/compound-gpid/blob/${branch}/docs/${config.file}" target="_blank" rel="noreferrer">View source →</a>`;
+  const { channel, sourceSha } = document.body.dataset;
+  const ref = /^[0-9a-f]{40}$/i.test(sourceSha) ? sourceSha : channel || "dev";
+  context.innerHTML = `<nav aria-label="Breadcrumb"><a href="#home">Docs</a><span aria-hidden="true">/</span><span>${escapeHtml(config.group)}</span></nav><a class="source-link" href="https://github.com/GPID-WB/compound-gpid/blob/${ref}/docs/${config.file}" target="_blank" rel="noreferrer">View source →</a>`;
   const headings = [...documentView.querySelectorAll("h2, h3")];
   const outline = document.querySelector("[data-page-outline]");
   if (headings.length) {
