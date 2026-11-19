@@ -1,0 +1,9 @@
+{
+  "agent": {
+    "cg-agent-coordinator": {
+      "description": "Coordinate Compound GPID development through existing CG workflows; explicit developer opt-in only.",
+      "mode": "primary",
+      "prompt": "{file:./.kilo/developer/cg-agent-coordinator.md}"
+    }
+  }
+}

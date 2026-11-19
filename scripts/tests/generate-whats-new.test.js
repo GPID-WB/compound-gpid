@@ -96,6 +96,29 @@ test("--validate-release-set accepts matching immutable and latest payloads", as
   assert.match(result.stdout, /release set valid/i);
 });
 
+test("durable payloads and release sets accept numeric publication tags only", async (t) => {
+  const dir = await tempRepo("releases-multi");
+  t.after(() => rm(dir, { recursive: true, force: true }));
+  const releases = path.join(dir, "releases");
+  const template = JSON.parse(await readFile(path.join(releases, "latest.json"), "utf8"));
+  await rm(path.join(releases, "v0.1.0.json"));
+  await rm(path.join(releases, "v0.2.0.json"));
+  for (const [tag, publishable] of [["v1.2.0", true], ["v1.2.0.9025", true],
+    ["v1.2.0-rc.1", false], ["v1.2.0+build", false], ["v01.2.0", true]]) {
+    const bytes = JSON.stringify({ ...template, tag,
+      url: template.url.replace(template.tag, tag), sourceUrl: template.sourceUrl.replace(template.tag, tag) });
+    const file = `${tag}.json`;
+    await writeFile(path.join(releases, file), bytes);
+    await writeFile(path.join(releases, "latest.json"), bytes);
+    for (const args of [["--validate-payload", `releases/${file}`], ["--validate-release-set"]]) {
+      const result = runRepo(dir, args);
+      assert.equal(result.status, publishable ? 0 : 1, `${tag}: ${result.stdout}${result.stderr}`);
+      if (!publishable) assert.match(result.stderr, /invalid tag/);
+    }
+    await rm(path.join(releases, file));
+  }
+});
+
 test("--validate-release-set rejects latest.json that is not the newest immutable payload", async () => {
   const dir = await tempRepo("releases-multi");
   await writeFile(
@@ -202,4 +225,19 @@ test("latest.json must match the newest immutable release", async () => {
   const result = runRepo(dir);
   assert.notEqual(result.status, 0);
   assert.match(result.stdout + result.stderr, /latest\.json.*newest/i);
+});
+
+test("general version parsing and controller-owned routing remain separate from payload admission", () => {
+  const { parseReleaseTag, compareReleaseTags, legacyDocsBranch } = require("../release-version.js");
+  assert.equal(parseReleaseTag("v1.2.0.9025").legacy, true);
+  assert.equal(parseReleaseTag("v1.2.0-rc.1").legacy, false);
+  assert.ok(compareReleaseTags("v1.2.0", "v1.2.0-rc.1") > 0);
+  assert.equal(legacyDocsBranch("v1.2.0"), "main");
+  assert.equal(legacyDocsBranch("v1.2.0.9025"), "dev");
+  for (const tag of ["v1.2.0-rc.1", "v1.2.0+build"]) {
+    assert.doesNotThrow(() => parseReleaseTag(tag));
+    assert.throws(() => legacyDocsBranch(tag), /Controller-owned release/);
+  }
+  assert.throws(() => legacyDocsBranch("v1.2.0", { tag: "v1.2.0" }), /Controller-owned release/);
+  for (const tag of [null, "v1.2", "v1.2.0 bad", "v1.2.0-01"]) assert.throws(() => parseReleaseTag(tag));
 });

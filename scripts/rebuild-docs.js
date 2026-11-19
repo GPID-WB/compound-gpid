@@ -273,6 +273,8 @@ function canonicalInputFingerprint(root) {
     "scripts/docs-markers.js",
     "scripts/check-docs-site.js",
     "scripts/assemble-docs-site.js",
+    "scripts/render-docs-site.js",
+    "scripts/docs-html.js",
     ".github/workflows/docs-site-build.yml",
     ".github/workflows/doc-rebuild.yml",
     ".github/workflows/pages.yml",

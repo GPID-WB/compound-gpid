@@ -151,6 +151,8 @@ verification.
 
 ## Next pages
 
+- [Standard Module](../workflows/standard.md) explains the foundation.
+- [First standard workflow](../workflows/first-workflow.md) walks through a complete example.
 - [Workflow Overview](../workflows/index.md) selects a route by task.
 - [Research Handbook](../research/index.md) guides a first research workflow.
 - [Modular Guide](../modular-guide.md) explains suite selection and composition.

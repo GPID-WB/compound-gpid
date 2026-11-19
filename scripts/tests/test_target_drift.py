@@ -14,6 +14,7 @@ import hashlib
 import json
 import shutil
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
 from typing import Iterable
@@ -29,6 +30,10 @@ OWNERSHIP_MANIFESTS = {
     ".agents/.compound-gpid-generated.json",
     ".opencode/.compound-gpid-generated.json",
     ".kilo/.compound-gpid-generated.json",
+}
+DEVELOPER_SOURCES = {
+    ".kilo/developer/cg-agent-coordinator.md",
+    ".kilo/developer/coordinator.config.json",
 }
 
 
@@ -202,6 +207,77 @@ def test_git_ignore_checks_are_batched(monkeypatch: pytest.MonkeyPatch) -> None:
     assert len(calls) == 1
 
 
+@pytest.mark.parametrize(
+    "extra", [None, ".kilo/developer/third.md", ".kilo/developer/__pycache__/extra.pyc"]
+)
+def test_developer_exception_is_exact_and_raw_inventory_is_preserved(
+    monkeypatch: pytest.MonkeyPatch, extra: str | None
+) -> None:
+    """Only the two approved sources are excluded from generated comparisons."""
+    generated = ".kilo/commands/cg-work.md"
+    inventory = {
+        generated,
+        ".kilo/developer/cg-agent-coordinator.md",
+        ".kilo/developer/coordinator.config.json",
+    }
+    if extra:
+        inventory.add(extra)
+    monkeypatch.setattr(sys.modules[__name__], "_expected_paths",
+                        lambda root: frozenset({generated}))
+    monkeypatch.setattr(sys.modules[__name__], "_ignored_expected_paths",
+                        lambda root: frozenset())
+    monkeypatch.setattr(sys.modules[__name__], "_committed_generated_files",
+                        lambda root, paths: inventory.copy())
+    checks = TestNoDrift()
+    if extra:
+        with pytest.raises(AssertionError):
+            checks.test_generated_worktree_is_exact_before_commit()
+        with pytest.raises(pytest.fail.Exception, match="Orphaned"):
+            checks.test_no_orphaned_generated_files()
+    else:
+        checks.test_generated_worktree_is_exact_before_commit()
+        checks.test_no_orphaned_generated_files()
+    if extra and extra.endswith(".pyc"):
+        with pytest.raises(AssertionError, match="cache artifacts"):
+            checks.test_generated_trees_contain_no_python_cache_artifacts()
+    assert inventory >= {
+        ".kilo/developer/cg-agent-coordinator.md",
+        ".kilo/developer/coordinator.config.json",
+    }
+
+
+def test_developer_exception_does_not_hide_missing_generated_output(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Approved sources cannot substitute for a missing generated command."""
+    monkeypatch.setattr(sys.modules[__name__], "_expected_paths",
+                        lambda root: frozenset({".kilo/commands/cg-work.md"}))
+    monkeypatch.setattr(sys.modules[__name__], "_ignored_expected_paths",
+                        lambda root: frozenset())
+    monkeypatch.setattr(sys.modules[__name__], "_committed_generated_files",
+                        lambda root, paths: DEVELOPER_SOURCES.copy())
+    with pytest.raises(AssertionError):
+        TestNoDrift().test_generated_worktree_is_exact_before_commit()
+    with pytest.raises(pytest.fail.Exception, match="missing"):
+        TestNoDrift().test_generated_trees_are_not_stale()
+
+
+def test_developer_exception_does_not_hide_changed_generated_bytes(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Keep the executed generated-byte comparison outside the source exception."""
+    read_blob = _read_git_blob_bytes
+    monkeypatch.setattr(
+        sys.modules[__name__], "_read_git_blob_bytes",
+        lambda root, path: (
+            b"changed generated command\n"
+            if path == ".kilo/commands/cg-work.md" else read_blob(root, path)
+        ),
+    )
+    with pytest.raises(pytest.fail.Exception, match="content drift"):
+        TestNoDrift().test_committed_generated_content_matches_dry_run_manifest()
+
+
 class TestNoDrift:
     def test_ownership_manifests_are_well_formed_and_match_worktree(self) -> None:
         for rel_path in sorted(OWNERSHIP_MANIFESTS):
@@ -227,7 +303,7 @@ class TestNoDrift:
         actual = _committed_generated_files(
             REPO_ROOT, [".claude", ".agents", ".opencode", ".kilo"]
         )
-        assert expected == actual
+        assert expected == actual - DEVELOPER_SOURCES
 
     def test_generated_skill_bundles_recursively_match_canonical_files(self) -> None:
         """Every generated skill bundle must have the complete canonical file set."""
@@ -274,7 +350,7 @@ class TestNoDrift:
         expected = _expected_paths(REPO_ROOT)
         committed = _committed_generated_files(REPO_ROOT, [".claude", ".agents", ".opencode", ".kilo"])
 
-        orphaned = committed - expected
+        orphaned = committed - expected - DEVELOPER_SOURCES
         if orphaned:
             pytest.fail(
                 f"Orphaned generated files found — {len(orphaned)} file(s) not in generator output.\n"

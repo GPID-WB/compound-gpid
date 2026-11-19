@@ -8,12 +8,13 @@ locally, understand the CI pipeline, and submit a well-formed PR.
 ## Table of Contents
 
 1. [Local test setup](#local-test-setup)
-2. [CI pipeline](#ci-pipeline)
-3. [Cross-platform requirements](#cross-platform-requirements)
-4. [Commit conventions](#commit-conventions)
-5. [PR workflow](#pr-workflow)
-6. [When to update docs](#when-to-update-docs)
-7. [Self-review checklist](#self-review-checklist)
+2. [Developer-only coordinator](#developer-only-coordinator)
+3. [CI pipeline](#ci-pipeline)
+4. [Cross-platform requirements](#cross-platform-requirements)
+5. [Commit conventions](#commit-conventions)
+6. [PR workflow](#pr-workflow)
+7. [When to update docs](#when-to-update-docs)
+8. [Self-review checklist](#self-review-checklist)
 
 ---
 
@@ -65,6 +66,83 @@ warning at the start of the run to flag the omission.
 . tests\Run-Tests.ps1 -File link       # runs tests/link.Tests.ps1
 . tests\Run-Tests.ps1 -File parity     # runs tests/parity.Tests.ps1
 ```
+
+---
+
+## Developer-only coordinator
+
+`cg-agent-coordinator` is an optional Kilo **primary agent** for developers of
+Compound GPID. It routes work through existing `/cg-*` workflows; selecting it
+does not authorize implementation, configuration changes, or additional sessions.
+It is not the generic Code agent and does not replace workflow approval gates.
+
+### Local activation on Windows and macOS
+
+Use an existing Compound GPID source checkout containing both
+[the coordinator prompt](.kilo/developer/cg-agent-coordinator.md) and
+[its registration fragment](.kilo/developer/coordinator.config.json), plus an
+installed Kilo host that supports primary agents and `{file:...}` prompts.
+Ordinary install/update/link use does not require Kilo or this opt-in agent.
+
+1. Open that exact checkout or worktree as the **actual VS Code folder**, not
+   merely as a session worktree inside a window rooted at another checkout.
+   Agent Manager's agent picker queries the window/project root, so restarting
+   the other window does not load this worktree's root-only registration.
+2. Manually merge only `agent.cg-agent-coordinator` from the fragment into the
+   existing **root** `kilo.json` or `kilo.jsonc`. If neither exists, create root
+   `kilo.jsonc`; both root filenames are ignored in this repository. Windows:
+   `<checkout>\kilo.jsonc`; macOS: `<checkout>/kilo.jsonc`. The JSON below is the
+   same on both platforms. Merge nested keys; do not replace the entire config
+   or its existing `agent` object. Preserve comments, credentials, other agents,
+   permissions, default agent, model, and reasoning settings. Stop on a
+   conflicting coordinator entry or missing prompt instead of overwriting it.
+3. Start a fresh Kilo session in that folder and explicitly select
+   **`cg-agent-coordinator`** in the agent picker. Do not set it as the default.
+   If it is absent, check the actual window folder and prompt path; do not
+   register it globally as a workaround.
+
+```json
+{
+  "agent": {
+    "cg-agent-coordinator": {
+      "description": "Coordinate Compound GPID development through existing CG workflows; explicit developer opt-in only.",
+      "mode": "primary",
+      "prompt": "{file:./.kilo/developer/cg-agent-coordinator.md}"
+    }
+  }
+}
+```
+
+The prompt reference is relative to the **root config**. Do not load the fragment
+directly from `.kilo/developer/`, edit generated `.kilo/kilo.json`, copy the prompt
+into discovered `.kilo/agents/`, or share/export a full personal configuration.
+No global registration, dependency, default/model change, or new environment is
+needed.
+
+### Live checks, consumer isolation, and removal
+
+First use `/cg-resume` read-only: verify the checkout/branch, selected agent, and
+existing Plan/Work Report/state, then stop before implementation authorization.
+Record actual host selection and inherited settings separately from static
+configuration checks. A valid fragment or passing text test does not prove live
+loading or approval-boundary compliance. After explicit authorization, a bounded
+task should reuse the same workflow-owned artifacts; record the edit and
+before/after Git/configuration observations without disclosing credentials.
+Unavailable required host evidence remains visible and blocks completion.
+
+The two `.kilo/developer/` sources are not generated consumer assets. Neither
+legacy recursive install-unit copying nor manifest-based consumer publication
+includes them or registers this agent; the root activation remains local.
+Do not activate it in consumer projects to test isolation. Existing Python
+consumer/preservation fixtures provide those checks. Use the canonical isolated
+Pester runner when required, qualifying storage and child-process outputs first.
+On this Windows development host, ordinary agent/test outputs must stay on E:.
+
+To disable the opt-in, remove only `agent.cg-agent-coordinator` from the local
+root config, preserving the file and every unrelated setting. Start a fresh
+session and verify that the agent is no longer offered. Leave the two source
+files, generated configuration, and consumer projects unchanged. Knowledge
+compounding remains a separate consent-controlled action.
 
 ---
 

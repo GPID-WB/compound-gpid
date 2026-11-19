@@ -4,6 +4,9 @@ Choose the shortest workflow that matches the uncertainty and risk of the task.
 Commands are workflow entry points; skills and most agents are loaded by those
 commands rather than invoked directly.
 
+New to the standard module? Start with the [module introduction](standard.md),
+then follow [your first workflow](first-workflow.md) or adapt a [use case](examples.md).
+
 ## Choose by situation
 
 First choose the suite that owns the task. Use `/cg-*` for technical delivery,

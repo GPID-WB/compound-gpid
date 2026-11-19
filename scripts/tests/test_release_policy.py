@@ -5,6 +5,8 @@ import re
 import subprocess
 from pathlib import Path
 
+import yaml
+
 
 ROOT = Path(__file__).resolve().parents[2]
 RELEASE_PROMPTS = (
@@ -18,6 +20,16 @@ RELEASE_PROMPTS = (
 
 def _read(relative: str) -> str:
     return (ROOT / relative).read_text(encoding="utf-8")
+
+
+def _workflow(relative: str) -> dict:
+    """Parse workflow structure without interpreting GitHub's `on` as a bool."""
+    return yaml.load(_read(relative), Loader=yaml.BaseLoader)
+
+
+def _commands(job: dict) -> str:
+    """Read executable commands from actual job steps, excluding comments."""
+    return "\n".join(step.get("run", "") for step in job["steps"])
 
 
 def test_release_branch_matrix_is_explicit() -> None:
@@ -170,10 +182,9 @@ def test_release_identity_text_comparisons_are_case_sensitive() -> None:
     assert "$_.name -ceq $controllerRunName -and $_.display_title -ceq $controllerRunName" in script
 
 
-def test_tag_build_is_unprivileged_and_dev_preview_controller_is_branch_local() -> None:
+def test_tag_build_is_unprivileged_and_release_controller_remains_protected() -> None:
     builder = _read(".github/workflows/release-docs.yml")
     controller = _read(".github/workflows/release-pages.yml")
-    pages = _read(".github/workflows/pages.yml")
 
     assert 'tags: ["v*.*.*", "!v*.*.*.*"]' in builder
     assert "pages: write" not in builder
@@ -183,59 +194,73 @@ def test_tag_build_is_unprivileged_and_dev_preview_controller_is_branch_local() 
     assert "Refusing to deploy an older release artifact" in controller
     assert "Recheck release is still newest" in controller
     assert "pages: write" in controller
-    assert "push:\n    branches: [dev]" in pages
-    assert "workflow_run:" not in pages
 
 
-def test_combined_docs_build_validates_legacy_main_separately_from_dev() -> None:
-    workflow = _read(".github/workflows/docs-site-build.yml")
-
-    assert (
-        'working-directory: sources/main\n'
-        '        run: node "$GITHUB_WORKSPACE/sources/dev/scripts/check-docs-site.js" --legacy'
-    ) in workflow
-    assert (
-        'working-directory: sources/dev\n'
-        '        run: node scripts/check-docs-site.js'
-    ) in workflow
-
-
-def test_combined_docs_build_does_not_rebuild_legacy_main_source() -> None:
-    workflow = _read(".github/workflows/docs-site-build.yml")
-
-    assert "sources/main/scripts/rebuild-docs.js" not in workflow
-    assert "sources/dev/scripts/rebuild-docs.js --root \"$GITHUB_WORKSPACE/sources/dev\" --all" in workflow
+def test_combined_docs_build_validates_stable_separately_from_proposed_source() -> None:
+    workflow = _workflow(".github/workflows/docs-site-build.yml")
+    build = workflow["jobs"]["build"]
+    commands = _commands(build)
+    stable = [step for step in build["steps"] if step.get("with", {}).get("path") == ".docs-stable"]
+    assert len(stable) == 1
+    assert stable[0]["with"]["ref"] == "main"
+    assert "npm run docs:build" in commands
+    assert "check-docs-site.js --source-root .docs-stable --docs-root .docs-stable/docs --legacy" in commands
+    assert "check-rendered-docs.js .site" in commands
+    assert "check-rendered-docs.js .docs-combined/site/dev" in commands
 
 
-def test_dev_pages_controller_is_branch_local_and_uses_main_as_content_only() -> None:
-    pages = _read(".github/workflows/pages.yml")
-
-    assert "push:\n    branches: [dev]" in pages
-    assert "workflow_run:" not in pages
-    assert "ref: dev" in pages
-    assert "ref: main" in pages
-    assert "path: sources/main" in pages
-    assert "--dev-root \"$GITHUB_WORKSPACE\"" in pages
-    assert "scripts/assemble-docs-site.js" in pages
-    assert "actions/upload-pages-artifact" in pages
-    assert "actions/deploy-pages" in pages
-    assert "run-id:" not in pages
-    assert "current-dev" not in pages
+def test_combined_docs_build_rebuilds_sources_without_publication_credentials() -> None:
+    workflow = _workflow(".github/workflows/docs-site-build.yml")
+    build = workflow["jobs"]["build"]
+    commands = _commands(build)
+    assert set(workflow["on"]) == {"pull_request", "workflow_dispatch"}
+    assert set(workflow["on"]["pull_request"]["branches"]) == {"main", "dev"}
+    assert workflow["permissions"] == {"contents": "read"}
+    assert build.get("permissions", workflow["permissions"]) == {"contents": "read"}
+    assert "npm run docs:build" in commands
+    assert "node scripts/rebuild-docs.js --root .docs-stable --all" in commands
+    assert "node scripts/rebuild-docs.js --all" in _read("package.json")
+    assert all("actions/deploy-pages@" not in step.get("uses", "") for step in build["steps"])
 
 
-def test_combined_docs_build_checks_metadata_as_a_workflow_step() -> None:
-    workflow = _read(".github/workflows/docs-site-build.yml")
+def test_pages_builds_both_branches_and_deploys_only_verified_current_artifacts() -> None:
+    pages = _workflow(".github/workflows/pages.yml")
+    build, deploy = pages["jobs"]["build"], pages["jobs"]["deploy"]
+    assert set(pages["on"]) == {"push", "workflow_dispatch"}
+    assert pages["on"]["push"] == {"branches": ["main", "dev"]}
+    assert pages["permissions"] == {"contents": "read"}
+    assert build.get("permissions", pages["permissions"]) == {"contents": "read"}
+    checkouts = [step["with"] for step in build["steps"] if step.get("uses", "").startswith("actions/checkout@")]
+    assert checkouts[0]["ref"] == "${{ github.sha }}"
+    assert all(checkout["persist-credentials"] == "false" for checkout in checkouts)
+    for branch in ("main", "dev"):
+        source = [checkout for checkout in checkouts if checkout.get("path") == f"sources/{branch}"]
+        assert len(source) == 1
+        assert source[0]["ref"] == "${{ github.ref_name == '" + branch + "' && github.sha || '" + branch + "' }}"
+        assert f"rebuild-docs.js --root sources/{branch} --all" in _commands(build)
+        assert f"commits/{branch}" in _commands(deploy)
+        assert f'= "${branch.upper()}_SHA"' in _commands(deploy)
+    assert "assemble-docs-site.js --verify combined-artifact" in _commands(build)
+    uploads = [step for step in build["steps"] if step.get("uses", "").startswith("actions/upload-pages-artifact@")]
+    assert len(uploads) == 1
+    assert uploads[0]["with"]["path"] == "combined-artifact/site"
+    assert deploy["needs"] == "build"
+    assert deploy["permissions"] == {"contents": "read", "pages": "write", "id-token": "write"}
+    assert deploy["environment"]["name"] == "github-pages"
+    assert all("actions/checkout@" not in step.get("uses", "") for step in deploy["steps"])
+    assert "node scripts/" not in _commands(deploy)
+    assert any(step.get("uses", "").startswith("actions/deploy-pages@") for step in deploy["steps"])
+    assert pages["concurrency"] == {"group": "pages", "cancel-in-progress": "false"}
 
-    assert (
-        "\n      - name: Require combined build metadata\n"
-        "        run: test -f combined-artifact/.docs-build-metadata.json\n"
-        in workflow
-    )
-    assert (
-        "\n          - name: Require combined build metadata\n"
-        "            run: test -f combined-artifact/.docs-build-metadata.json\n"
-        not in workflow
-    )
+
+def test_combined_docs_build_verifies_metadata_before_upload() -> None:
+    build = _workflow(".github/workflows/docs-site-build.yml")["jobs"]["build"]
+    verification = [index for index, step in enumerate(build["steps"])
+                    if "assemble-docs-site.js --verify .docs-combined --main-root .docs-stable --dev-root ." in step.get("run", "")]
+    uploads = [index for index, step in enumerate(build["steps"])
+               if step.get("uses", "").startswith("actions/upload-artifact@")]
+    assert len(verification) == len(uploads) == 1
+    assert verification[0] < uploads[0]
 
 
 def test_release_docs_build_checks_metadata_as_a_workflow_step() -> None:
