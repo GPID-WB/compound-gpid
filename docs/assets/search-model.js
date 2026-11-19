@@ -4,26 +4,42 @@
     return value.toLowerCase().replace(/<[^>]*>/g, "").replace(/[`*_]/g, "")
       .replace(/[^a-z0-9\s-]/g, "").replace(/[\s-]+/g, "-").replace(/(^-|-$)/g, "");
   }
+  /** Allocate and reserve the next unused anchor for a heading. */
+  function headingId(value, used) {
+    const base = slugify(value);
+    let id = base;
+    for (let suffix = 1; used.has(id); suffix += 1) id = `${base}-${suffix}`;
+    used.add(id);
+    return id;
+  }
+  /** Match an opening fence, or a compatible closing fence when opener is supplied. */
+  function codeFence(line, opener = "") {
+    const match = line.match(/^ {0,3}(`{3,}|~{3,})(.*)$/);
+    if (!match) return null;
+    const [, marker, info] = match;
+    if (opener ? marker[0] !== opener[0] || marker.length < opener.length || !/^[ \t]*$/.test(info)
+      : marker[0] === "`" && info.includes("`")) return null;
+    return { marker, info: info.trim() };
+  }
   function plainText(value) {
     return value.replace(/<!--[^]*?-->/g, "").replace(/[#*`>|\[\]()]/g, " ").replace(/\s+/g, " ").trim();
   }
   /** Split Markdown into searchable sections with the same anchors as the reader. */
   function records(page, markdown) {
     const output = [];
-    const counts = new Map();
+    const used = new Set();
     let current = { ...page, heading: "", section: "", text: "" };
-    let fenced = false;
+    let opener = "";
     const source = markdown.replace(/^\uFEFF/, "").replace(/^---[^]*?---\s*/, "").replace(/<!--[^]*?-->/g, "");
-    for (const line of source.split("\n")) {
-      if (line.startsWith("```")) { fenced = !fenced; continue; }
-      const heading = !fenced && line.match(/^(#{1,6})\s+(.+)$/);
+    for (const line of source.split(/\r?\n/)) {
+      const fence = codeFence(line, opener);
+      if (fence) { opener = opener ? "" : fence.marker; continue; }
+      const heading = !opener && line.match(/^(#{1,6})\s+(.+)$/);
       if (heading) {
-        const base = slugify(heading[2]);
-        const count = counts.get(base) || 0;
-        counts.set(base, count + 1);
+        const id = headingId(heading[2], used);
         if (heading[1].length > 1) {
           output.push(current);
-          current = { ...page, heading: plainText(heading[2]), section: count ? `${base}-${count}` : base, text: "" };
+          current = { ...page, heading: plainText(heading[2]), section: id, text: "" };
         }
       }
       current.text += ` ${plainText(line)}`;
@@ -50,7 +66,7 @@
     }
     return [...best.values()].sort((a, b) => b.score - a.score || a.title.localeCompare(b.title));
   }
-  const api = { slugify, records, rank };
+  const api = { slugify, headingId, codeFence, records, rank };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.DocsSearch = api;
 })(typeof globalThis === "undefined" ? this : globalThis);

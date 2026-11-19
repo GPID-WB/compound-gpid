@@ -109,9 +109,8 @@ function validatePayload(payload, sourceName) {
   const label = `payload ${sourceName}`;
   if (!payload || typeof payload !== "object" || Array.isArray(payload)) fail(`${label} is not an object`);
   if (payload.schemaVersion !== 1) fail(`${label} has invalid schemaVersion`);
-  try {
-    require("./release-version.js").parseReleaseTag(payload.tag);
-  } catch (_) {
+  // Durable GPID payloads follow the numeric tag policy of the publisher and Pages workflows.
+  if (typeof payload.tag !== "string" || payload.tag.length > 255 || !/^v[0-9]+\.[0-9]+\.[0-9]+(?:\.[0-9]+)?$/.test(payload.tag)) {
     fail(`${label} has invalid tag '${payload.tag}'`);
   }
   if (!isIsoUtc(payload.publishedAt)) fail(`${label} has malformed publishedAt '${payload.publishedAt}'`);

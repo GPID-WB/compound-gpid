@@ -4,6 +4,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
+const vm = require("node:vm");
 const { renderSite } = require("../render-docs-site.js");
 const { checkRendered } = require("../check-rendered-docs.js");
 const search = require("../../docs/assets/search-model.js");
@@ -21,7 +22,8 @@ test("every guide is readable HTML with real links and search at both URL depths
       assert.match(html, /<td>Two valid records<\/td>/);
       assert.match(html, /href="p-getting-started.html"/);
       assert.match(html, /href="#1-give-the-task-a-concrete-shape"/);
-      assert.match(html, new RegExp(`blob/${channel}/docs/workflows/first-workflow.md`));
+      assert.ok(html.includes(`blob/${"1".repeat(40)}/docs/workflows/first-workflow.md`));
+      assert.ok(html.includes(`data-source-sha="${"1".repeat(40)}"`));
       assert.doesNotMatch(html, /href="#page=/);
       const index = JSON.parse(fs.readFileSync(path.join(out, "search-index.json"), "utf8"));
       const found = search.rank(index, "published poverty estimate")[0];
@@ -29,6 +31,45 @@ test("every guide is readable HTML with real links and search at both URL depths
       assert.equal(found.section, "reproduce-a-published-poverty-estimate");
     }
   } finally { fs.rmSync(temp, { recursive: true, force: true }); }
+});
+
+function renderMarkdown(markdown) {
+  const context = vm.createContext({ DocsSearch: search });
+  vm.runInContext(fs.readFileSync(path.join(root, "docs/assets/markdown.js"), "utf8"), context);
+  return context.markdownToHtml(markdown);
+}
+
+test("inline code keeps literal operators, wildcards, and link syntax", () => {
+  const markdown = "`2 * 3 * 4` and `/cg-*` and `/cr-*` and `[example](https://example.com)`; *try `x*y`*; [`name`](https://example.com)";
+  const html = renderMarkdown(markdown);
+  assert.match(html, /<code>2 \* 3 \* 4<\/code> and <code>\/cg-\*<\/code> and <code>\/cr-\*<\/code>/);
+  assert.match(html, /<code>\[example\]\(https:\/\/example.com\)<\/code>/);
+  assert.match(html, /<em>try <code>x\*y<\/code><\/em>/);
+  assert.match(html, /<a [^>]*><code>name<\/code><\/a>/);
+});
+
+test("nested example fences stay literal in HTML and never become search sections", () => {
+  const markdown = ["Intro", "  ````md", "```", "## Inside short fence", "~~~~", "## Inside mixed fence",
+    "````not-a-close", "## Inside suffixed fence", "  ````` \t", "~~", "  ~~~md", "## Inside tilde fence",
+    "~~~", "## Real heading"].join("\r\n");
+  const html = renderMarkdown(markdown);
+  assert.match(html, /class="language-md">```\n## Inside short fence/);
+  assert.match(html, /````not-a-close\n## Inside suffixed fence<\/code>/);
+  assert.match(html, /class="language-md">## Inside tilde fence<\/code>/);
+  assert.deepEqual([...html.matchAll(/<h2 id="([^"]+)"/g)].map(match => match[1]), ["real-heading"]);
+  assert.deepEqual(search.records({}, markdown).map(record => record.section), ["", "real-heading"]);
+});
+
+test("heading IDs are unique and match search anchors when suffixes collide", () => {
+  for (const [headings, expected] of [
+    [["Setup", "Setup", "Setup-1"], ["setup", "setup-1", "setup-1-1"]],
+    [["Setup", "Setup-1", "Setup"], ["setup", "setup-1", "setup-2"]],
+  ]) {
+    const markdown = headings.map(heading => `## ${heading}`).join("\n");
+    const html = renderMarkdown(markdown);
+    assert.deepEqual([...html.matchAll(/<h2 id="([^"]+)"/g)].map(match => match[1]), expected);
+    assert.deepEqual(search.records({}, markdown).slice(1).map(record => record.section), expected);
+  }
 });
 
 test("publication checks reject a broken section even when the page exists", () => {
@@ -49,7 +90,9 @@ test("a Markdown edit updates both HTML and search without an editable second co
     fs.appendFileSync(path.join(docsRoot, "workflows/standard.md"), "\n## Fresh example\n\nA new deterministic freshness probe.\n");
     const out = path.join(temp, "out");
     renderSite({ docsRoot, out });
-    assert.match(fs.readFileSync(path.join(out, "p-standard-module.html"), "utf8"), /id="fresh-example"/);
+    const html = fs.readFileSync(path.join(out, "p-standard-module.html"), "utf8");
+    assert.match(html, /id="fresh-example"/);
+    assert.match(html, /blob\/dev\/docs\/workflows\/standard.md/);
     const index = JSON.parse(fs.readFileSync(path.join(out, "search-index.json"), "utf8"));
     assert.equal(search.rank(index, "deterministic freshness probe")[0].section, "fresh-example");
     assert.doesNotThrow(() => checkRendered(out));

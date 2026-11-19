@@ -2,7 +2,6 @@
 // Complete immutable release-set loading. The caller supplies the existing payload
 // validator and CLI error policy; this module never writes historical bytes.
 const fs = require("node:fs"), path = require("node:path");
-const { parseReleaseTag } = require("./release-version.js");
 
 function loadReleasePayloads(root, validatePayload, fail) {
   const releasesDir = path.join(root, "releases");
@@ -20,8 +19,6 @@ function loadReleasePayloads(root, validatePayload, fail) {
     catch { fail(`release file '${file}' is not valid UTF-8 JSON`); }
     validatePayload(payload, file);
     if (file === "latest.json") { latest = {payload, raw}; continue; }
-    try { parseReleaseTag(file.slice(0, -5)); }
-    catch { fail(`release file '${file}' must use an immutable versioned filename`); }
     if (file !== `${payload.tag}.json`) fail(`release file '${file}' does not match payload tag '${payload.tag}'`);
     result.push({payload, file, raw});
   }
