@@ -60,6 +60,30 @@ test("nested example fences stay literal in HTML and never become search section
   assert.deepEqual(search.records({}, markdown).map(record => record.section), ["", "real-heading"]);
 });
 
+test("front matter needs exact three-hyphen delimiter lines in HTML and search", () => {
+  const rules = ["----", "## Important", "Body", "----", "## Next"].join("\n");
+  assert.equal((renderMarkdown(rules).match(/<hr>/g) || []).length, 2);
+  assert.match(renderMarkdown(rules), /<h2 id="important">Important<\/h2>/);
+  assert.deepEqual(search.records({}, rules).slice(1).map(record => record.section), ["important", "next"]);
+
+  const metadata = ["\uFEFF---", "note: |", "  ----", "  ## Private metadata", "---", "## Next"].join("\r\n");
+  assert.equal(renderMarkdown(metadata), '<h2 id="next">Next</h2>');
+  const records = search.records({}, metadata);
+  assert.deepEqual(records.map(record => record.section), ["", "next"]);
+  assert.equal(records[0].text, "");
+});
+
+test("search skips real comments without swallowing fences or later sections", () => {
+  const markdown = ["<!--", "## Hidden", "```", "-->", "```html", "<!--", "```",
+    "## Visible", "-->", "## Later", "Text <!-- Hidden phrase --> after the comment."].join("\n");
+  const html = renderMarkdown(markdown);
+  assert.match(html, /<code class="language-html">&lt;!--<\/code>/);
+  assert.deepEqual([...html.matchAll(/<h2 id="([^"]+)"/g)].map(match => match[1]), ["visible", "later"]);
+  const records = search.records({}, markdown);
+  assert.deepEqual(records.map(record => record.section), ["", "visible", "later"]);
+  assert.doesNotMatch(records[2].text, /Hidden phrase/);
+});
+
 test("heading IDs are unique and match search anchors when suffixes collide", () => {
   for (const [headings, expected] of [
     [["Setup", "Setup", "Setup-1"], ["setup", "setup-1", "setup-1-1"]],
