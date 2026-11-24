@@ -1,3 +1,8 @@
+> [!IMPORTANT]
+> **Version 1 is frozen (2026-11-24).** This branch, `v1`, holds the last state of version 1 development. It receives fixes only when something is broken for current users; no new features.
+>
+> Version 2 is a rebuild on the `v2` branch, tracked in issue #256. Nothing changes for people who have version 1 installed: `main` and the `v1.3.0` release stay as they are until version 2 is released.
+
 > [!NOTE]
 > **⚠️ WORK IN PROGRESS**
 >
