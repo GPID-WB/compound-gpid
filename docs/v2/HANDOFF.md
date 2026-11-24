@@ -32,7 +32,7 @@ Nothing of version 1 has been removed from `v2` yet. The version 1 tree is still
 
 ## Next tasks, in order
 
-1. **0.2 (#212)** Freeze version 1: a `v1` branch and tag from `main`. Ask the maintainer before touching `main` or tags.
+1. **0.2 (#212)** Done. Version 1 is frozen on branch `v1`, cut from the tip of `dev` (which holds everything in `main` plus one unreleased help feature) with a notice in its README. `main` and the `v1.3.0` release are untouched and keep serving current installs. No tag was added, because the version 1 updater lists every tag that starts with `v`. Left for the maintainer: what to do with `dev` and with the two open version 1 pull requests (#181, #191).
 2. **1.1 (#217)** Hub layout: move `skills/cg/` to `packs/core/cg/`, add manifests and the pack index, remove the version 1 packaging from `v2`, remove `research_evidence/`.
 3. **1.2 (#218)** `cg.py`: `doctor`, `status`, `new`, `packs`, with tests.
 4. **1.6 (#222)** CI: skill linter, pack validator, budget check, glossary check, docs drift check.
@@ -50,6 +50,7 @@ Waiting on the maintainer: review of the nine draft principles (#215) and of the
 - **Read a source file in full before adapting it**, then cite it in `derived-from` and update the ledger row.
 - **Analysts first.** Examples are analytical; rigor of the calculation comes before anything else.
 - **No host is the base.** Anything one host needs is an optional adapter.
+- **Do not switch branches in this checkout.** The repository sits in a OneDrive folder. On 2026-11-24 a switch to `v1` and back made the sync client delete 14 tracked files and leave four duplicate folders ending in " 2". Nothing was lost, because everything was pushed. To work on another branch, use `git worktree add` in a folder outside OneDrive, or push a commit to the other branch without checking it out. After any odd result, run `git status` before continuing.
 - **A build session may be refused permission to start another coding agent.** Do not work around it; use the host script, which the maintainer runs.
 
 ## Which model
