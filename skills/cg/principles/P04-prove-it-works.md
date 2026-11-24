@@ -4,7 +4,7 @@ name: Prove it works
 applies-when: "after each slice and before declaring anything done"
 stages: "review"
 verifier: verification
-status: draft
+status: accepted
 derived-from: "docs/philosophy.md (principle 2); cursor/plugins@ca782ed:pstack/skills/principle-prove-it-works/SKILL.md; cursor/plugins@ca782ed:pstack/skills/principle-test-behavior-not-implementation/SKILL.md; cursor/plugins@ca782ed:pstack/skills/principle-explain-the-number/SKILL.md; cursor/plugins@ca782ed:pstack/skills/principle-sequence-verifiable-units/SKILL.md; cursor/plugins@ca782ed:pstack/skills/principle-fix-root-causes/SKILL.md; cursor/plugins@ca782ed:pstack/skills/benchmark-checklist/SKILL.md; cursor/plugins@ca782ed:pstack/skills/create-verification-skill/SKILL.md; cursor/plugins@ca782ed:pstack/skills/maintain-verification-skill/SKILL.md; cursor/plugins@ca782ed:pstack/skills/figure-it-out/SKILL.md; cursor/plugins@ca782ed:pstack/skills/tdd/SKILL.md; cursor/plugins@ca782ed:pstack/skills/poteto-mode/playbooks/bug-fix.md; cursor/plugins@ca782ed:pstack/skills/poteto-mode/playbooks/refactoring.md; mattpocock/skills@d653911:skills/engineering/tdd/SKILL.md; addyosmani/agent-skills@e997ac5:skills/using-agent-skills/SKILL.md"
 ---
 

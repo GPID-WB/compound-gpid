@@ -4,7 +4,7 @@ name: Shared language
 applies-when: "a word carries meaning that the human and the agent must both hold the same way"
 stages: "review"
 verifier: language
-status: draft
+status: accepted
 derived-from: "mattpocock/skills@d653911:skills/engineering/domain-modeling/SKILL.md; mattpocock/skills@d653911:skills/engineering/domain-modeling/GLOSSARY-FORMAT.md; mattpocock/skills@d653911:skills/engineering/setup-matt-pocock-skills/domain.md; mattpocock/skills@d653911:skills/productivity/wait-what/SKILL.md; mattpocock/skills@d653911:skills/productivity/writing-for-agents/SKILL.md; mattpocock/skills@d653911:GLOSSARY.md"
 ---
 

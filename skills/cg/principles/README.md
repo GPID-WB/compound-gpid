@@ -1,6 +1,6 @@
 # The principles
 
-Status: draft for maintainer review (task 0.5). Nothing is built on these files until they are accepted.
+Status (task 0.5): P3, P4 and P11 were accepted by the maintainer on 2026-11-24. The others are drafts. Each file's `status` field is the record.
 
 Everything made with Compound GPID is held to these principles, and so is the plugin itself. A principle here is not advice. Each one says what the working agent does, what evidence that leaves, and how a verifier checks it.
 

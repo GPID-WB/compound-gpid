@@ -4,7 +4,7 @@ name: Deterministic by default
 applies-when: "any output or check that code could produce"
 stages: "plan, review"
 verifier: determinism
-status: draft
+status: accepted
 derived-from: "cursor/plugins@ca782ed:pstack/skills/principle-build-the-lever/SKILL.md; cursor/plugins@ca782ed:pstack/skills/principle-make-operations-idempotent/SKILL.md; cursor/plugins@ca782ed:pstack/skills/principle-prove-it-works/SKILL.md; mattpocock/skills@d653911:skills/engineering/retro/SKILL.md; docs/philosophy.md (organizational risks: reproducibility)"
 ---
 
