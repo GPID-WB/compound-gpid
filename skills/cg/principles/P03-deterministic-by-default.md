@@ -14,7 +14,7 @@ Anything code can produce or check is produced or checked by code, and running i
 
 **Why.** An output nobody can regenerate cannot be reviewed, defended or corrected. A tool is something a reviewer can rerun. A model's answer is not.
 
-Terms used here are defined in `GLOSSARY.md`: output, unit, worked example, tool, by code, by judgement.
+Terms used here are defined in the plugin glossary (`../GLOSSARY.md`): output, unit, worked example, tool, by code, by judgement.
 
 ## In production
 
@@ -27,7 +27,7 @@ Terms used here are defined in `GLOSSARY.md`: output, unit, worked example, tool
 
 When one operation applies to many units (countries, survey years, files, tables), the agent works in this order:
 
-1. **Worked example.** The agent takes one unit through directly, step by step, and shows the human each step and the result. This is done by the agent, once, to learn what the tool must do. The human is not asked to do anything by hand.
+1. **Worked example.** The agent takes one unit through directly, step by step, and shows the human each step and the result. This is done by the agent, once, to learn what the tool must do. The human does none of it.
 2. **Tool.** The agent writes the smallest script that performs those steps.
 3. **Proof.** The agent runs the tool on that same unit and shows that it gives the result of the worked example.
 4. **Run.** Only then does the tool run on the remaining units.

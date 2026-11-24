@@ -19,7 +19,10 @@ Earlier decisions that stand: clean break with a one-time migration; brain, road
 - **Audience.** The plugin is built first for economists, researchers and data scientists, and for the people who build their R and Python packages, pipelines and Shiny dashboards. It is not aimed at application development. Rigor and robustness of the calculation come first. Consequences: the default track is `analysis`; examples in principles and playbooks are analytical; a practice from the three source repos is kept only where it holds for analytical work; application-only practices stay out of core.
 - **Verification and validation.** P4 now names both. Verification: the work does what the contract says. Validation: the result is right, against something independent of our code. pstack uses "verify" for the first and "validate" only for input checks, so validation in our sense is our own addition. Terms are fixed in `GLOSSARY.md`.
 - **Data governance.** P10 now covers the source, vintage, access classification and confidentiality of data. Whether this becomes its own principle is an open question for the maintainer.
-- **Glossary.** `GLOSSARY.md` at the repository root is the single place where terms are defined.
+- **Glossary.** The plugin glossary is `skills/cg/GLOSSARY.md`; it ships with core and is the single place where the plugin's terms are defined. Each project keeps its own `GLOSSARY.md` for its subject words, in the same format. This is mattpocock's glossary mechanism, not an extra file.
+- **Shared language is its own principle, P11**, with a `language` verifier and a code check (`tools/check_glossary.py`). P8 keeps decisions and limits. There are now eleven principles.
+- **The P1 verifier is named `contract`**, not `spec`, to match the glossary. Tickets that say "Spec verifier" mean this one.
+- **This plan predates the glossary** and uses some words the glossary now avoids ("by hand", "kernel", "orchestrator"). It is left as approved; the glossary governs new text.
 - **Host tests.** The build session could not run the hosts itself; see `docs/adr/0001-host-matrix.md`.
 - **research-evidence.** The repository `GPID-WB/research-evidence` now exists (empty). Task 3.4 moves `research_evidence/` into it.
 

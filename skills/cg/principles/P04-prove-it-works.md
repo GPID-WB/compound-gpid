@@ -17,7 +17,7 @@ Work is proven in two ways, and both are required.
 
 **Why.** Generating and checking are different jobs. When the same agent writes the code and the test, a passing test can repeat the code's misunderstanding. A pipeline can do exactly what was specified and still give a wrong estimate. "It runs" and "it looks right" are proxies.
 
-Terms used here are defined in `GLOSSARY.md`: verification, validation, real output, proxy, check, baseline, pin, reference value, cross-check, verdict, evidence.
+Terms used here are defined in the plugin glossary (`../GLOSSARY.md`): verification, validation, real output, proxy, check, baseline, pin, reference value, cross-check, verdict, evidence.
 
 ## In production
 

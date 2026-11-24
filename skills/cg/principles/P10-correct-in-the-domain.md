@@ -14,7 +14,7 @@ Statistical and methodological correctness outranks speed. The rules of the fiel
 
 **Why.** A general reviewer cannot see that a headcount ignored the weights or that two series use different PPP vintages. The output looks clean and is wrong. Where reliable information matters most, the person reading may be least able to judge the agent's answer.
 
-Terms used here are defined in `GLOSSARY.md`: input assertion, validation, lens.
+Terms used here are defined in the plugin glossary (`../GLOSSARY.md`): input assertion, validation, lens.
 
 ## In production
 

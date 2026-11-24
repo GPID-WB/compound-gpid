@@ -1,4 +1,4 @@
-# The ten principles
+# The principles
 
 Status: draft for maintainer review (task 0.5). Nothing is built on these files until they are accepted.
 
@@ -10,22 +10,23 @@ Read the full file for any principle you apply. Cite a principle in a reply only
 
 | ID | Principle | Applies when | Verifier |
 |---|---|---|---|
-| P1 | [Specify before generating](P01-specify-before-generating.md) | before anything consequential is produced, and when judging whether the result matches | `spec` |
+| P1 | [Specify before generating](P01-specify-before-generating.md) | before anything consequential is produced, and when judging whether the output matches | `contract` |
 | P2 | [The human decides and can explain it](P02-human-decides.md) | a choice changes behavior, scope, risk or method; at sign-off | `ownership` |
 | P3 | [Deterministic by default](P03-deterministic-by-default.md) | any output or check that code could produce | `determinism` |
 | P4 | [Prove it works](P04-prove-it-works.md) | after each slice and before declaring done | `verification` |
 | P5 | [Adversarial by default](P05-adversarial-by-default.md) | at each transition between phases, and when fixes keep failing | `adversary` |
 | P6 | [Smallest change, simplest design](P06-smallest-change.md) | sizing a plan or a diff, or tempted to add | `simplicity` |
 | P7 | [Honest claims](P07-honest-claims.md) | any statement about what was done, found or measured | `claims` |
-| P8 | [The reasoning is the artifact](P08-reasoning-is-the-artifact.md) | a decision, a term or a limitation that someone absent would need | `record` |
+| P8 | [The reasoning is the artifact](P08-reasoning-is-the-artifact.md) | a decision or a limitation that someone absent would need | `record` |
 | P9 | [Lessons become structure](P09-lessons-become-structure.md) | capturing what was learned | `lesson` |
 | P10 | [Correct in the domain](P10-correct-in-the-domain.md) | the work touches data, estimates, or published results | domain lenses |
+| P11 | [Shared language](P11-shared-language.md) | a word carries meaning both sides must hold the same way | `language` |
 
 ## Who this is for
 
 Economists, researchers and data scientists, and the people who build their packages, pipelines and dashboards. The work is analytical: estimates, datasets, reports, R and Python packages, Shiny dashboards. Rigor and robustness of the calculation come first. The examples in these files are analytical for that reason, and a principle borrowed from application development is kept only where it holds for analytical work.
 
-Words such as output, artifact, worked example, verification and validation have one meaning each, set in [`GLOSSARY.md`](../../../GLOSSARY.md).
+Words such as output, artifact, worked example, verification and validation have one meaning each, set in the plugin glossary, [`GLOSSARY.md`](../GLOSSARY.md).
 
 ## The five parts of every principle file
 
@@ -81,9 +82,9 @@ The `stages` field of each principle file is the source. `cg.py verifiers --stag
 
 | Stage | Verifiers |
 |---|---|
-| plan, before approval | `spec`, `determinism`, `simplicity`, domain lenses |
+| plan, before approval | `contract`, `determinism`, `simplicity`, domain lenses |
 | end of each slice | deterministic checks only |
-| review | `verification`, `determinism`, `adversary`, `simplicity`, `spec`, `claims`, domain lenses |
+| review | `verification`, `determinism`, `adversary`, `simplicity`, `contract`, `claims`, `language`, domain lenses |
 | sign-off | `ownership`, `record` |
 | compound | `lesson` |
 

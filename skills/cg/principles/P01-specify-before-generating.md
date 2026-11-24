@@ -3,7 +3,7 @@ id: P1
 name: Specify before generating
 applies-when: "before anything consequential is produced, and when judging whether a result matches what was asked"
 stages: "plan, review"
-verifier: spec
+verifier: contract
 status: draft
 derived-from: "docs/philosophy.md (principle 1); addyosmani/agent-skills@e997ac5:skills/spec-driven-development/SKILL.md; addyosmani/agent-skills@e997ac5:skills/using-agent-skills/SKILL.md; mattpocock/skills@d653911:skills/productivity/grilling/SKILL.md"
 ---
@@ -42,7 +42,7 @@ Before the agent produces anything consequential, the human has stated what they
 - The plan's contract section and its approval record.
 - The deferred list and any amendments.
 
-## Verifier: `spec`
+## Verifier: `contract`
 
 **At plan stage, inspect** the plan. **At review stage, inspect** the diff and outputs against the approved contract.
 

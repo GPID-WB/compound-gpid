@@ -1,10 +1,11 @@
 """Check text files against the avoided words in a glossary.
 
-Usage: python tools/check_glossary.py [--glossary PATH] FILE_OR_DIR ...
+Usage: python tools/check_glossary.py [--glossary PATH] [--notes] FILE_OR_DIR ...
 
 An avoided word with no condition is an error. An avoided word with a
 condition in brackets, such as "test (when it is not a unit test)", needs
-judgement, so it is listed as a note and does not fail the run.
+judgement, so it is only counted, and listed when --notes is given. It never
+fails the run.
 
 Skipped: YAML frontmatter, fenced code blocks, inline code, and the
 glossary file itself. Exit code 1 when any error is found.
@@ -59,6 +60,8 @@ def main(argv):
     glossary = DEFAULT_GLOSSARY
     if argv[:1] == ["--glossary"]:
         glossary, argv = Path(argv[1]), argv[2:]
+    show_notes = "--notes" in argv
+    argv = [a for a in argv if a != "--notes"]
     if not argv:
         print(__doc__)
         return 2
@@ -80,7 +83,8 @@ def main(argv):
             for word, term, cond in notes:
                 if re.search(rf"(?<![\w-]){re.escape(word)}s?(?![\w-])", low):
                     found_notes += 1
-                    print(f"note  {path}:{number}: '{word}' is avoided {cond} -> '{term}'")
+                    if show_notes:
+                        print(f"note  {path}:{number}: '{word}' is avoided {cond} -> '{term}'")
     print(f"{len(files)} files, {found_errors} errors, {found_notes} notes for a reviewer")
     return 1 if found_errors else 0
 
