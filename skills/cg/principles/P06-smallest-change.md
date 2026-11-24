@@ -16,12 +16,17 @@ Make the smallest change that meets the goal, on the simplest design that works.
 
 ## In production
 
-- **Plan.** Ask whether configuration, a convention or an existing tool already solves it. Prefer the plan with fewer steps and fewer files.
-- **Plan.** For build work, name the shape of the data first: the unit of observation, the keys, the columns that matter.
-- **Work.** Remove dead weight before adding. Prefer the boring, obvious solution.
-- **Work.** Add no abstraction, option, validator or guard that the contract does not call for.
-- **Scope.** Leave unrelated code, comments and files alone. Record what you saw: "Noticed but not touching: ...". Ask whether to turn those into tasks.
-- **Slices.** Keep each slice to a handful of files, small enough to review in one sitting.
+### Plan
+
+- Ask whether a setting, a convention or an existing package already solves it. Prefer the plan with fewer steps and fewer files.
+- Name the shape of the data first: the unit of observation, the keys, the columns that matter.
+- Keep each slice to a handful of files, small enough to review in one sitting.
+
+### Work
+
+- Remove dead weight before adding. Prefer the boring, obvious solution.
+- Add no abstraction, option or safeguard that the contract does not call for.
+- Leave unrelated code, comments and files alone. Record what you saw: "Noticed but not touching: ...". Ask whether to turn those into tasks.
 
 ## Evidence it leaves
 

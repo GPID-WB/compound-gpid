@@ -16,18 +16,27 @@ Each unit of work should make the next one easier. A verified lesson becomes a c
 
 ## In production
 
-- **Capture a lesson only if** the fix was verified, the lesson will still hold in six months, and it would change what someone does next time.
-- **Leave out** one-off details that drift: commit hashes, versions, counts.
-- **Classify it.** A mechanical lesson (a fixed pattern, a banned call, a required column, a file location) gets a check. A judgement call gets prose for the reviewer.
-- **Fix at the highest level that works:**
+### Compound: decide what to keep
+
+- Capture a lesson only if the fix was verified, the lesson will still hold in six months, and it would change what someone does next time.
+- Leave out one-off details that drift: commit hashes, versions, counts.
+- Count a class of mistake once it has happened twice.
+
+### Compound: turn it into structure
+
+- Classify the lesson. A mechanical lesson (a fixed pattern, a banned call, a required column, a file location) gets a check. A judgement call gets prose for the reviewer.
+- Fix at the highest level that works:
   1. change the design so the mistake cannot happen;
-  2. a type, a schema or an assertion at the boundary;
+  2. a schema or an input assertion where the data enters;
   3. a lint or CI check whose message names the fix;
-  4. a test of the behavior;
+  4. a check of the behavior;
   5. written guidance, last, only for judgement.
-- **Prove the check** by showing it fails on the real past mistake.
-- **Keep the rule table:** each rule beside what enforces it. Remove a rule once its mistake cannot happen.
-- **Count a class** once it has happened twice.
+- Prove the check by showing it fails on the real past mistake.
+- Keep the rule table: each rule beside what enforces it. Remove a rule once its mistake cannot happen.
+
+### Every stage
+
+- When you write the same instruction a second time, stop and make it a check.
 
 ## Evidence it leaves
 

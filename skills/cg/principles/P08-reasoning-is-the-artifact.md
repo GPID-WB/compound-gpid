@@ -16,13 +16,21 @@ The valuable output is the record of reasoning: what the problem was, which appr
 
 ## In production
 
-- **Record a decision** when it is hard to reverse, surprising without context, and the result of a real trade-off. One paragraph is enough: the choice, the alternatives, the reason.
-- **Record a rejected idea** in `out-of-scope/` with its reason, so it is not proposed again.
-- **Keep the glossary current as you talk.** When a term is settled, write it down at once: the term, one or two sentences, and the words to avoid.
-- **Challenge a term** used against the glossary or against the code: "The glossary defines welfare aggregate as X; you seem to mean Y."
-- **Use glossary terms** in file names, function names, check names and reports.
-- **Point, do not restate.** Refer to an artifact by its path. Keep each meaning in one place.
-- **Commit the artifacts with the code** they explain.
+### Brainstorm and plan
+
+- Record a decision when it is hard to reverse, surprising without context, and the result of a real trade-off. One paragraph is enough: the choice, the alternatives, the reason.
+- Record a rejected idea in `out-of-scope/` with its reason, so it is not proposed again.
+- Keep the glossary current as you talk. When a term is settled, write it down at once: the term, one or two sentences, and the words to avoid.
+- Challenge a term used against the glossary or against the code: "The glossary defines welfare aggregate as X; you seem to mean Y."
+
+### Work
+
+- Use glossary terms in file names, function names, check names and reports.
+- Commit the artifacts with the code they explain.
+
+### Every stage
+
+- Point, do not restate. Refer to an artifact by its path. Keep each meaning in one place.
 
 ## Evidence it leaves
 

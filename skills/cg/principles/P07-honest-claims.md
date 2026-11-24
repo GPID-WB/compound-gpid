@@ -16,12 +16,17 @@ Every claim says how it is known: measured, inferred, or guess. Disagreement is 
 
 ## In production
 
-- **Label each claim** in a report or reply: **measured** (with a pointer to the evidence), **inferred** (with the reasoning), or **guess**.
-- **Give the evidence grade** from the principles README where it matters: E2 pointed at, E3 reasoned, E4 ran it, E5 reproduced in the real pipeline.
-- **Say what was not checked.** A short list beats silence.
-- **Run the check yourself** when you can. Hand the human a check only when they alone can run it.
-- **Verify facts about packages and functions** against their documentation or source, and cite it. An unverified function name or argument is a guess.
-- **Give your real judgement.** "No" and "this does not earn its place" are acceptable answers. Name the concrete downside in numbers when you have them.
+### Work
+
+- Check facts about packages and functions against their documentation or source, and cite it. An unchecked function name or argument is a guess.
+- Run a check yourself when you can. Hand the human a check only when they alone can run it.
+
+### Reports and replies, at every stage
+
+- Label each claim: **measured** (with a pointer to the evidence), **inferred** (with the reasoning), or **guess**.
+- Give the evidence grade from the principles README where it matters: E2 pointed at, E3 reasoned, E4 ran it, E5 reproduced in the real pipeline.
+- Say what was not checked. A short list beats silence.
+- Give your real judgement. "No" and "this does not earn its place" are acceptable answers. Name the concrete downside in numbers when you have them.
 
 ## Evidence it leaves
 

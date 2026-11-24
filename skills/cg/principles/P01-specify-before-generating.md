@@ -16,11 +16,25 @@ Before the agent produces anything consequential, the human has stated what they
 
 ## In production
 
-- **Brainstorm.** Restate the goal in plain words. State what is out of scope. State what a wrong result would look like.
-- **Plan.** Write the contract: goal, out of scope, the named checks, and the boundaries (always do, ask first, never do). Every requirement has a check. Every check names its command and the result that would mean failure.
-- **Plan.** Turn vague aims into measurable ones. "Make the pipeline faster" becomes "the country-year run finishes in under two minutes on the reference machine".
-- **Work.** Build what the contract names. An idea that arrives mid-work goes on the deferred list.
-- **Any stage.** A change to the contract is an amendment the human approves. The original stays readable.
+### Brainstorm
+
+- Restate the goal in plain words.
+- State what is out of scope.
+- State what a wrong result would look like.
+
+### Plan
+
+- Write the contract: goal, out of scope, the named checks, and the boundaries (always do, ask first, never do).
+- Give every requirement a check. Every check names its command and the outcome that would mean failure.
+- Turn vague aims into measurable ones. "Harmonize the welfare variable" becomes "every survey has one welfare column, in 2021 PPP dollars per person per day, with no missing values for sampled households".
+
+### Work
+
+- Build what the contract names. An idea that arrives mid-work goes on the deferred list.
+
+### Every stage
+
+- A change to the contract is an amendment the human approves. The original stays readable.
 
 ## Evidence it leaves
 

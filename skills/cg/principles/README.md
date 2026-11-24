@@ -21,23 +21,29 @@ Read the full file for any principle you apply. Cite a principle in a reply only
 | P9 | [Lessons become structure](P09-lessons-become-structure.md) | capturing what was learned | `lesson` |
 | P10 | [Correct in the domain](P10-correct-in-the-domain.md) | the work touches data, estimates, or published results | domain lenses |
 
+## Who this is for
+
+Economists, researchers and data scientists, and the people who build their packages, pipelines and dashboards. The work is analytical: estimates, datasets, reports, R and Python packages, Shiny dashboards. Rigor and robustness of the calculation come first. The examples in these files are analytical for that reason, and a principle borrowed from application development is kept only where it holds for analytical work.
+
+Words such as output, artifact, worked example, verification and validation have one meaning each, set in [`GLOSSARY.md`](../../../GLOSSARY.md).
+
 ## The five parts of every principle file
 
 1. **Statement and why.**
-2. **In production.** What the working agent does, by stage. Playbooks and `worker.md` take their obligations from here.
+2. **In production.** What the working agent does. It is split by stage of the loop, in loop order: Setup, Brainstorm, Plan, Work, Review, Sign-off, Compound, and Every stage. A stage heading appears only when the principle asks something at that stage. When one stage holds two kinds of obligation, the heading names both, as in "Work: verification" and "Work: validation". Each bullet under a heading is one obligation. Playbooks and `worker.md` take their obligations from here.
 3. **Evidence it leaves.** A file or record a reviewer can open. A principle that left nothing behind was not applied.
 4. **Verifier.** Instructions for a reviewer that checks this one principle.
 5. **Deterministic checks.** What code checks. These are stronger than any reviewer and run first.
 
 ## How a verifier works
 
-A verifier is started in a fresh context. It receives the artifact under review, the approved contract, and its principle file. It never receives the author's explanation of the work.
+A verifier is started in a fresh context. It receives the work under review (the diff, the outputs, the artifacts), the approved contract, and its principle file. It never receives the author's explanation of the work.
 
 It returns one **verdict block**:
 
 ```
 principle: P3
-verdict: PASS | FLAG | NOT APPLICABLE
+verdict: PASS | FLAG | INCONCLUSIVE | NOT APPLICABLE
 review-mode: independent | self-review
 findings:
   - what: <one sentence>
@@ -53,6 +59,7 @@ Rules for every verifier:
 
 - A finding needs proof. A finding without proof is reported under `unverified`, never as a flag.
 - "No findings" is a valid result. Do not invent one.
+- INCONCLUSIVE means the verifier could not check. It is not a pass, and the human sees it as an open item.
 - A verifier reports. It does not fix, and it does not start another verifier.
 - When the host has no subagent tool, the same instructions run in the main thread and `review-mode` is `self-review`.
 
