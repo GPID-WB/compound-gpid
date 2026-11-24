@@ -4,6 +4,16 @@ Goal: replace assumptions about the four hosts with tested facts. Results go int
 
 Run this on one Mac and one World Bank Windows machine, in each host you use: Copilot (VS Code or Positron), Kilo, Claude Code, Codex. About ten minutes per host.
 
+## Command-line part: one command
+
+For Claude Code, Codex and the Kilo command line, the maintainer runs this from the repository root. It installs the test skills, asks each program the same four questions, saves the answers, and removes the test skills:
+
+```
+bash spike/host-matrix/run_cli_checks.sh
+```
+
+The build session then reads the results and fills in `docs/adr/0001-host-matrix.md`. The steps below are for the hosts that only run inside the editor (Copilot, and Kilo's editor panel), and for Windows.
+
 ## Setup, once per machine
 
 Route B, the user-level folder:

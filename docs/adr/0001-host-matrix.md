@@ -35,7 +35,7 @@ Record what each coding agent host does, from tests, before the design depends o
 
 On 2026-11-24 the agent building v2 tried to run the bundled Claude Code, Codex and Kilo binaries without a UI to answer the checklist. The session's safety policy blocks one coding agent from starting another, so no live test ran. Copilot and Kilo inside the editor have no way to be driven from a script at all.
 
-The live tests therefore need one of:
+A script now covers the three command-line programs: the maintainer runs `bash spike/host-matrix/run_cli_checks.sh` once and the build session reads the results. Otherwise the live tests need one of:
 
 1. the maintainer runs `spike/host-matrix/CHECKLIST.md` in each host (about ten minutes each); or
 2. the maintainer adds a permission rule that lets the build session run the three bundled binaries, which covers Claude Code, Codex and the Kilo command line, but still not Copilot or Kilo inside the editor.
