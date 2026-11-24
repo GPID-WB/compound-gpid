@@ -1,0 +1,50 @@
+---
+id: P1
+name: Specify before generating
+applies-when: "before anything consequential is produced, and when judging whether a result matches what was asked"
+stages: "plan, review"
+verifier: spec
+status: draft
+derived-from: "docs/philosophy.md (principle 1); addyosmani/agent-skills@e997ac5:skills/spec-driven-development/SKILL.md; addyosmani/agent-skills@e997ac5:skills/using-agent-skills/SKILL.md; mattpocock/skills@d653911:skills/productivity/grilling/SKILL.md"
+---
+
+# P1 Specify before generating
+
+Before the agent produces anything consequential, the human has stated what they want, what a correct result looks like, what an incorrect result looks like, and how the two will be told apart.
+
+**Why.** The specification is for the person who must judge the result, not for the agent. Without a standard for correctness there is nothing real to review.
+
+## In production
+
+- **Brainstorm.** Restate the goal in plain words. State what is out of scope. State what a wrong result would look like.
+- **Plan.** Write the contract: goal, out of scope, the named checks, and the boundaries (always do, ask first, never do). Every requirement has a check. Every check names its command and the result that would mean failure.
+- **Plan.** Turn vague aims into measurable ones. "Make the pipeline faster" becomes "the country-year run finishes in under two minutes on the reference machine".
+- **Work.** Build what the contract names. An idea that arrives mid-work goes on the deferred list.
+- **Any stage.** A change to the contract is an amendment the human approves. The original stays readable.
+
+## Evidence it leaves
+
+- The intent, with goal, out of scope and wrong-result statement.
+- The plan's contract section and its approval record.
+- The deferred list and any amendments.
+
+## Verifier: `spec`
+
+**At plan stage, inspect** the plan. **At review stage, inspect** the diff and outputs against the approved contract.
+
+Flag when:
+
+- the plan has no statement of what a wrong result looks like;
+- a requirement has no check, or a check serves no requirement;
+- a check cannot fail, or its pass condition is a matter of opinion;
+- something was built that the contract does not name;
+- something the contract names was not built, or was changed with no amendment.
+
+**Prove a flag** by quoting the contract line and pointing at the `file:line` of the diff, or by showing that a search for the required element returns nothing.
+
+**Leave alone:** wording preferences, and detail the human explicitly chose to leave open.
+
+## Deterministic checks
+
+- `cg.py validate`: the plan has every contract section, and each check has an ID and a command.
+- `cg.py approve` record exists and its hash matches the current plan.
