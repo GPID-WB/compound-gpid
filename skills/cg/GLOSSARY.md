@@ -70,7 +70,7 @@ Showing that the output is right for the question, by comparing it with somethin
 
 **Input assertion**:
 A check on data as it enters the code: a key is unique, a weight is present, a value is in range.
-_Avoid_: validator, guard (for an input check)
+_Avoid_: validator (for an input check), guard (for an input check)
 
 **Check**:
 A command with a stated pass condition that can fail.

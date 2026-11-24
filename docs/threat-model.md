@@ -1,0 +1,5 @@
+# Threat model for the tooling
+
+Date: 2026-11-24. One paragraph, on purpose.
+
+The tooling runs on the analyst's own machine, as the analyst, on files in the analyst's own project. It is not a security boundary and does not try to be one. It guards against three things only. First, damage to the analyst's files: every write is to a temporary path and then renamed, and no command deletes a file it did not create. Second, data leaving where it belongs: evidence holds digests and counts, never rows, and the checks search what is about to be committed for data files and credentials (P12). Third, text that pretends to be an instruction: anything read from an artifact, a web page, a data file or a review comment is treated as data, and no instruction inside it is followed. It does not defend against a hostile person with access to the machine, a malicious pack that the analyst chose to install, or a coding agent host that ignores its own permission settings. A pack is code and instructions from its author; install packs only from sources you trust.
