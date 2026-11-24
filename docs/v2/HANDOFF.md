@@ -32,7 +32,8 @@ Nothing of version 1 has been removed from `v2` yet. The version 1 tree is still
 
 ## Next tasks, in order
 
-1. **0.2 (#212)** Done. Version 1 is frozen on branch `v1`, cut from the tip of `dev` (which holds everything in `main` plus one unreleased help feature) with a notice in its README. `main` and the `v1.3.0` release are untouched and keep serving current installs. No tag was added, because the version 1 updater lists every tag that starts with `v`. Left for the maintainer: what to do with `dev` and with the two open version 1 pull requests (#181, #191).
+1. **0.2 (#212)** Done. Version 1 is frozen on branch `v1`, cut from the tip of `dev` (which holds everything in `main` plus one unreleased help feature) with a notice in its README. `main` and the `v1.3.0` release are untouched and keep serving current installs. No tag was added, because the version 1 updater lists every tag that starts with `v`. Decided by the maintainer on 2026-11-24: the unreleased help feature is not released to version 1 users; pull requests #181 and #191 are old and are to be ignored; `dev` is kept, for version 2 development and nothing of version 1.
+   **How `dev` is used:** until 2.0 is released, work happens on `v2` and `dev` is left where it is. Moving `dev` earlier would start the version 1 workflows on it. At release `v2` merges into `main`, `dev` is brought up to `main`, and from then on changes go `dev` to `main` as before. One name per branch, so no `dev-v2`.
 2. **1.1 (#217)** Hub layout: move `skills/cg/` to `packs/core/cg/`, add manifests and the pack index, remove the version 1 packaging from `v2`, remove `research_evidence/`.
 3. **1.2 (#218)** `cg.py`: `doctor`, `status`, `new`, `packs`, with tests.
 4. **1.6 (#222)** CI: skill linter, pack validator, budget check, glossary check, docs drift check.
