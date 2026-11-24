@@ -28,7 +28,7 @@ The maintainer keeps a local clone of each project beside this repository, under
 
 ## What is adopted
 
-The working ledger is section 5 of `.cg-docs/plans/2026-11-24-compound-gpid-v2.md`: one row per source component with a verdict (adapt, pattern, skip), the target in this repository, and what changes. Task 0.4 turns it into `docs/adoption-ledger.md` with a status column.
+The working ledger is `docs/adoption-ledger.md`: one row per source component with a verdict, the target in this repository, what changes, and a status.
 
 ## Check
 
