@@ -24,7 +24,7 @@ Compound GPID 2.0 has no base host.
 
 ## Consequences
 
-- Hosts that can be run from a script (Claude Code, Codex, the Kilo command line) are tested first and most often, because the check is one command. Copilot and the editor panels are tested by hand with the checklist.
+- Hosts that can be run from a script (Claude Code, Codex, the Kilo command line) are tested first and most often, because the check is one command. Copilot and the editor panels are tested by the maintainer with the checklist.
 - The plugin gives up host features that cannot be had everywhere, such as an agent picker. The guide gets the same effect from files and a script.
 - When a host changes how it finds skills, one adapter or one row changes.
 - The words "base", "canonical tree" and "generated tree" from version 1 have no meaning in version 2.
