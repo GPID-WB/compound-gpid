@@ -117,7 +117,7 @@ The same checks run in the author's own context. Recorded as such; weaker than i
 ## Data
 
 **Classification**:
-The access level an organization assigns to a piece of information.
+The access level an organization assigns to a piece of information, on its own scale from public to most restricted.
 
 **Restricted data**:
 Any data classified above Public, and any data whose classification is not known.

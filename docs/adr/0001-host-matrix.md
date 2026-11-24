@@ -33,7 +33,7 @@ One unplanned finding: asked "Please run the host probe", Claude Code could not 
 
 ## What this changes in the design
 
-1. **The pointer block goes into both files.** Setup writes it to `AGENTS.md` and to `CLAUDE.md`, because Claude Code does not read `AGENTS.md` and Codex does not read `CLAUDE.md`.
+1. **One pointer block, in `AGENTS.md`, imported by `CLAUDE.md`.** Claude Code does not read `AGENTS.md` and Codex does not read `CLAUDE.md`. Claude Code's documentation says a `CLAUDE.md` can pull in another file with a line such as `@AGENTS.md`, so setup writes the block once in `AGENTS.md` and makes sure `CLAUDE.md` holds that import line. The import is from documentation; the next run of the script tests it. If it fails, setup writes the block into both files.
 2. **`/cg` needs a second mechanism on Codex.** The frontmatter flag alone does not keep the guide from firing by itself there. Task 1.3 tests Codex's own per-skill policy file (`agents/openai.yaml`); if that fails, the guide's description must be written so it does not match ordinary requests.
 3. **Skills call their scripts by absolute path**, built from the folder the host reports. No playbook tells the agent to change directory.
 4. **The link layout is safe on these two hosts.** A real folder in `~/.agents/skills` with a link from `~/.claude/skills` is listed once in each.
@@ -51,6 +51,7 @@ One unplanned finding: asked "Please run the host probe", Claude Code could not 
 | Marketplace install | Not tried | After task 1.1 puts a manifest on `v2` |
 | Approval prompts | Cannot be counted without a UI | Checklist, in each editor |
 | Behavior after context compaction | Needs a long session | Checklist |
+| Does `@AGENTS.md` in `CLAUDE.md` load the block in Claude Code | From documentation only | Next run of the script, which now includes this case |
 | Does Claude Code read `~/.agents/skills` directly | The test skill was also linked from `~/.claude/skills`, so the two were not separated | One run with the link removed |
 
 ## Facts from documentation, not yet tested
@@ -77,4 +78,4 @@ The build session may not start other coding agents, so the maintainer ran the s
 
 ## Kill criteria
 
-Listed in `spike/host-matrix/CHECKLIST.md`. None was triggered by the two hosts tested. The primary install route and the user-invoked guide stay provisional until Copilot and Kilo are tested.
+Listed in `spike/host-matrix/CHECKLIST.md`. None was triggered by the two hosts tested. No host is the base (ADR 0004): a host counts as supported once its rows here are live.

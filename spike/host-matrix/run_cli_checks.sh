@@ -72,6 +72,10 @@ elif [ -x "$CLAUDE" ]; then
   run claude-2-invoke     "$CLAUDE" -p "$P2" "${ALLOW[@]}"
   run claude-3-auto       "$CLAUDE" -p "$P3" "${ALLOW[@]}"
   run claude-4-no-auto    "$CLAUDE" -p "$P4" "${ALLOW[@]}"
+  # Same project, but CLAUDE.md only imports AGENTS.md: does the AGENTS marker load?
+  echo "@AGENTS.md" > CLAUDE.md
+  run claude-5-import     "$CLAUDE" -p "$P1"
+  echo "Marker for the host test: CG-SPIKE-POINTER-CLAUDE" > CLAUDE.md
 else echo "Claude Code binary not found" > "$OUT/claude-missing.txt"; fi
 
 if ! want codex; then :
