@@ -21,6 +21,7 @@ Read the full file for any principle you apply. Cite a principle in a reply only
 | P9 | [Lessons become structure](P09-lessons-become-structure.md) | capturing what was learned | `lesson` |
 | P10 | [Correct in the domain](P10-correct-in-the-domain.md) | the work touches data, estimates, or published results | domain lenses |
 | P11 | [Shared language](P11-shared-language.md) | a word carries meaning both sides must hold the same way | `language` |
+| P12 | [Governed data](P12-governed-data.md) | the work reads, produces or describes a dataset or information about a person | `governance` |
 
 ## Who this is for
 
@@ -82,9 +83,9 @@ The `stages` field of each principle file is the source. `cg.py verifiers --stag
 
 | Stage | Verifiers |
 |---|---|
-| plan, before approval | `contract`, `determinism`, `simplicity`, domain lenses |
+| plan, before approval | `contract`, `determinism`, `simplicity`, `governance`, domain lenses |
 | end of each slice | deterministic checks only |
-| review | `verification`, `determinism`, `adversary`, `simplicity`, `contract`, `claims`, `language`, domain lenses |
+| review | `verification`, `determinism`, `adversary`, `simplicity`, `contract`, `claims`, `language`, `governance`, domain lenses |
 | sign-off | `ownership`, `record` |
 | compound | `lesson` |
 
@@ -96,4 +97,4 @@ Verifiers are model reviewers. They lower the chance of an unowned, unverified o
 
 ## Priorities
 
-P0 blocks everything: security, exposed personal data or credentials, silent data corruption, an incorrect statistical result. P1 blocks merge. P2 should be fixed. P3 is advisory.
+P0 blocks everything: exposed restricted data, personal data or credentials, silent data corruption, an incorrect statistical result. P1 blocks merge. P2 should be fixed. P3 is advisory.

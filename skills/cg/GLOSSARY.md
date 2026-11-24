@@ -114,6 +114,31 @@ A review by an agent in a fresh context that did not see the author's reasoning.
 **Self-review**:
 The same checks run in the author's own context. Recorded as such; weaker than independent review.
 
+## Data
+
+**Classification**:
+The access level an organization assigns to a piece of information.
+
+**Restricted data**:
+Any data classified above Public, and any data whose classification is not known.
+_Avoid_: sensitive data
+
+**Personal data**:
+Information about a person who can be identified.
+_Avoid_: PII
+
+**Data register**:
+The table in the plan that lists each dataset with its classification, source, version, owner and permitted use.
+
+**Approved tool**:
+An AI tool the organization has cleared for data of a given classification. The human declares it; the plugin cannot certify it.
+
+**Lineage**:
+The chain from an output back to the versions of the inputs that produced it.
+
+**AI-use statement**:
+The record of which AI tool and model contributed to a piece of work, what it contributed, from which sources, and who reviewed it.
+
 ## The loop
 
 **Guide**:
@@ -165,6 +190,8 @@ _Avoid_: kernel
 - The **conformance record** holds one verdict per principle. **Sign-off** needs all of them.
 - A **pack** holds skills and lenses. The **hub** lists packs.
 - The **guide** opens **playbooks**. A playbook applies **principles**.
+- The **data register** gives every dataset a **classification**. An **approved tool** is approved for a classification, not in general.
+- **Lineage** links an **output** to its inputs. The **AI-use statement** travels with the **defend-it brief**.
 
 ## Flagged ambiguities
 
