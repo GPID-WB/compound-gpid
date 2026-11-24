@@ -10,6 +10,10 @@
 # end. It changes nothing else. Expect a few minutes and a small token cost on
 # each account.
 #
+# Options, as environment variables:
+#     ONLY=kilo                      run one program: claude, codex or kilo
+#     KILO_MODEL=provider/model      model for Kilo; its default may not support tools
+#
 # Results land in spike/host-matrix/results/<time>/ (ignored by git, because the
 # answers contain local paths).
 
@@ -58,7 +62,10 @@ run() {  # run <label> <command...>
     > "$OUT/$label.txt" 2>&1 < /dev/null
 }
 
-if [ -x "$CLAUDE" ]; then
+want() { [ -z "${ONLY:-}" ] || [ "$ONLY" = "$1" ]; }
+
+if ! want claude; then :
+elif [ -x "$CLAUDE" ]; then
   run claude-0-version "$CLAUDE" --version
   ALLOW=(--allowedTools "Skill" "Read" "Bash(python3:*)" "Bash(python:*)")
   run claude-1-inventory  "$CLAUDE" -p "$P1"
@@ -67,7 +74,8 @@ if [ -x "$CLAUDE" ]; then
   run claude-4-no-auto    "$CLAUDE" -p "$P4" "${ALLOW[@]}"
 else echo "Claude Code binary not found" > "$OUT/claude-missing.txt"; fi
 
-if [ -x "$CODEX" ]; then
+if ! want codex; then :
+elif [ -x "$CODEX" ]; then
   run codex-0-version "$CODEX" --version
   run codex-0-help    "$CODEX" exec --help
   run codex-1-inventory "$CODEX" exec --skip-git-repo-check "$P1"
@@ -77,13 +85,16 @@ if [ -x "$CODEX" ]; then
   run codex-4-no-auto   "$CODEX" exec --skip-git-repo-check "$P4"
 else echo "Codex binary not found" > "$OUT/codex-missing.txt"; fi
 
-if [ -x "$KILO" ]; then
+if ! want kilo; then :
+elif [ -x "$KILO" ]; then
+  KM=(); [ -n "${KILO_MODEL:-}" ] && KM=(-m "$KILO_MODEL")
   run kilo-0-version "$KILO" --version
   run kilo-0-help    "$KILO" run --help
-  run kilo-1-inventory "$KILO" run "$P1"
-  run kilo-2-invoke    "$KILO" run "$P2"
-  run kilo-3-auto      "$KILO" run "$P3"
-  run kilo-4-no-auto   "$KILO" run "$P4"
+  run kilo-0-models  "$KILO" models
+  run kilo-1-inventory "$KILO" run ${KM[@]+"${KM[@]}"} "$P1"
+  run kilo-2-invoke    "$KILO" run ${KM[@]+"${KM[@]}"} "$P2"
+  run kilo-3-auto      "$KILO" run ${KM[@]+"${KM[@]}"} "$P3"
+  run kilo-4-no-auto   "$KILO" run ${KM[@]+"${KM[@]}"} "$P4"
 else echo "Kilo binary not found" > "$OUT/kilo-missing.txt"; fi
 
 echo
