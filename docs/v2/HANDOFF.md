@@ -52,7 +52,9 @@ The version 1 tree is gone from `v2`: the generated host trees, `.github`, `adap
 
 No task in this set failed its "Done when" twice. CI failed once each in tasks 1.6 and 1.4, both on Windows and both in tests, and was fixed in the next commit.
 
-Waiting on the maintainer: the Windows run (`spike/host-matrix/WINDOWS.md`), which arrives as a pull request from `spike/host-matrix-windows` into `v2`. It should now also run `install.py --packs core,lang-r` from a clone in a OneDrive folder whose name has spaces, the one part of task 1.4 not done.
+Windows: the command-line host run is merged (#258) and recorded in ADR 0001. It matched macOS except that `python3` does not exist (the agents used `python`) and a directory junction worked as the link; `install.py` and `cg.py` were changed for both. Still waiting on the maintainer: a run with the project inside OneDrive (run B of `spike/host-matrix/WINDOWS.md`), the editor panels on Windows, and `install.py --packs core,lang-r` from a clone in a OneDrive folder whose name has spaces.
+
+For task 1.3: no playbook may call `python3`. Start `cg.py` with the interpreter recorded in `~/.cg/launcher.json` (ADR 0001, design change 8).
 
 ## Working rules agreed with the maintainer
 
