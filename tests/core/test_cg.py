@@ -120,7 +120,8 @@ def test_status_names_missing_packs_and_the_command(env):
     assert code == 0
     assert state["phase"] == "ready"
     assert state["packs-missing"] == ["lang-r"]
-    assert state["add-command"] == f'"{sys.executable}" install.py --add lang-r'
+    call = "& " if os.name == "nt" else ""  # PowerShell needs '&' before a quoted path
+    assert state["add-command"] == f'{call}"{sys.executable}" install.py --add lang-r'
 
 
 def test_status_prints_pack_settings(env):
