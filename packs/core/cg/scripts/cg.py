@@ -242,6 +242,20 @@ def read_config(project: Path):
         return {}, [f".cg-docs/config.json is unreadable ({error})"]
 
 
+def read_settings(config):
+    """Flatten config['settings'] to sorted 'pack.key=value' lines (ADR 0003, rule 7)."""
+    settings = (config or {}).get("settings", {})
+    lines, problems = [], []
+    if not isinstance(settings, dict):
+        return [], [".cg-docs/config.json settings must be an object keyed by pack name"]
+    for pack, values in sorted(settings.items()):
+        if not isinstance(values, dict) or not all(isinstance(v, str) for v in values.values()):
+            problems.append(f".cg-docs/config.json settings.{pack} must map names to text values")
+            continue
+        lines += [f"{pack}.{key}={value}" for key, value in sorted(values.items())]
+    return lines, problems
+
+
 def compute_status(project: Path) -> dict:
     packs, pack_problems = discover_packs()
     core = next((p for p in packs if p["name"] == "core"), None)
@@ -257,6 +271,8 @@ def compute_status(project: Path) -> dict:
                 stops.append(f"this project needs core {needs}, installed core is {core['version']}")
         except ValueError as error:
             stops.append(f".cg-docs/config.json requires-core: {error}")
+    settings, problems = read_settings(config)
+    stops += problems
     found = artifacts(project)
     open_ones = [a for a in found if a["status"] in OPEN_STATUSES]
     phase = "setup" if config is None else "ready"
@@ -273,6 +289,7 @@ def compute_status(project: Path) -> dict:
         "packs-expected": expected,
         "packs-missing": missing,
         "add-command": add_command(missing) if missing else None,
+        "settings": settings,
         "stops": stops,
         "next": "stop and show the human the stops" if stops else f"read {PHASE_PLAYBOOK[phase]}",
         "playbook": str(playbook),
@@ -298,7 +315,7 @@ def cmd_status(args) -> int:
         print(json.dumps(state, indent=2, sort_keys=True))
         return 1 if state["stops"] else 0
     order = ["project", "core", "phase", "reason", "active", "open-artifacts", "waiting-on-human",
-             "packs-expected", "packs-missing", "add-command", "git", "branch", "changed-files",
+             "packs-expected", "packs-missing", "add-command", "settings", "git", "branch", "changed-files",
              "stops", "next", "playbook"]
     for key in order:
         if key not in state:

@@ -123,6 +123,26 @@ def test_status_names_missing_packs_and_the_command(env):
     assert state["add-command"] == f'"{sys.executable}" install.py --add lang-r'
 
 
+def test_status_prints_pack_settings(env):
+    docs = env["project"] / ".cg-docs"
+    docs.mkdir()
+    (docs / "config.json").write_text(json.dumps(
+        {"packs": ["core"], "settings": {"lang-r": {"r-syntax": "tidyverse"}}}))
+    code, out = env["cg"]("status")
+    assert code == 0, out
+    assert "settings: lang-r.r-syntax=tidyverse" in out
+    (docs / "config.json").write_text(json.dumps({"packs": ["core"]}))
+    assert "settings: none" in env["cg"]("status")[1]
+
+
+def test_status_stops_on_malformed_settings(env):
+    docs = env["project"] / ".cg-docs"
+    docs.mkdir()
+    (docs / "config.json").write_text(json.dumps({"settings": {"lang-r": {"r-syntax": 2}}}))
+    code, out = env["cg"]("status")
+    assert code == 1 and "settings.lang-r must map names to text values" in out
+
+
 def test_status_stops_when_project_needs_newer_core(env):
     docs = env["project"] / ".cg-docs"
     docs.mkdir()

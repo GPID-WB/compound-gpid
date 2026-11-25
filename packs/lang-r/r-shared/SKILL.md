@@ -41,7 +41,7 @@ Universal R style rules that apply in all projects regardless of the `r-syntax` 
 
 Ported from version 1's `r.instructions.md`, which applied to `*.R`, `*.r` and `*.Rmd` files.
 
-Check the project's `r-syntax` setting (in a version 1 project, the `r-syntax` field of `compound-gpid.local.md`) and load the appropriate dialect skill(s):
+Check the project's `r-syntax` setting: `settings` → `lang-r` → `r-syntax` in `.cg-docs/config.json`, which `cg.py status` prints as `lang-r.r-syntax=...` (in a version 1 project, the `r-syntax` field of `compound-gpid.local.md`). Then load the appropriate dialect skill(s):
 
 - `r-syntax: "data.table-collapse"` (or field absent → default): load `r-collapse` AND `r-datatable`
 - `r-syntax: "tidyverse"`: load `r-tidyverse`
