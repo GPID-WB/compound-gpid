@@ -5,6 +5,8 @@ Usage, with the interpreter that ~/.cg/launcher.json records as <python>:
   "<python>" cg.py status [--project PATH] [--json]
   "<python>" cg.py new TYPE TITLE... [--project PATH] [--date YYYY-MM-DD]
   "<python>" cg.py packs [--json]
+  "<python>" cg.py setup --packs a,b [--setting pack.key=value]... [--classification-levels "A;B"]
+                       [--approved-tool "agent=level"]... [--contact key=who]... [--project PATH] [--dry-run]
 
 PATH may be any folder inside the project: the commands use the nearest
 folder above it that holds .cg-docs/, else the root of its git repository.
@@ -419,6 +421,123 @@ def cmd_new(args) -> int:
     return 0
 
 
+# ---------------------------------------------------------------- setup
+
+START, END = "<!-- cg:start", "<!-- cg:end -->"
+BLOCK_RE = re.compile(r"^<!-- cg:start.*?^<!-- cg:end -->[ \t]*$", re.M | re.S)
+BUILD_IGNORE = ["^\\.cg-docs$", "^AGENTS\\.md$", "^CLAUDE\\.md$"]
+
+
+def pairs(items, what):
+    """'key=value' strings to a dict; None when one is malformed."""
+    found = {}
+    for item in items or []:
+        key, sep, value = item.partition("=")
+        if not sep or not key.strip() or not value.strip():
+            print(f"{what} must be written key=value: {item!r}")
+            return None
+        found[key.strip()] = value.strip()
+    return found
+
+
+def planned_setup(project: Path, args):
+    """Return (changes, problems): changes are (path, new text) for files that differ."""
+    names = [n.strip() for n in args.packs.split(",") if n.strip()]
+    if not names or not all(re.fullmatch(r"[a-z0-9]+(-[a-z0-9]+)*", n) for n in names):
+        return None, ["--packs must be pack names joined by commas, such as core,lang-r"]
+    settings, tools, contacts = (pairs(args.setting, "--setting"), pairs(args.approved_tool, "--approved-tool"),
+                                 pairs(args.contact, "--contact"))
+    if settings is None or tools is None or contacts is None:
+        return None, []
+    if any("." not in key for key in settings):
+        return None, ["--setting must be written pack.key=value, such as lang-r.r-syntax=tidyverse"]
+    problems, changes = [], []
+    config_path = project / ".cg-docs" / "config.json"
+    config = {}
+    if config_path.is_file():
+        try:
+            config = json.loads(config_path.read_text(encoding="utf-8"))
+            if not isinstance(config, dict):
+                raise ValueError("not a JSON object")
+        except (OSError, ValueError) as error:
+            return [], [f".cg-docs/config.json is unreadable ({error}); fix it, then run setup again"]
+    packs, _ = discover_packs()
+    core = next((p["version"] for p in packs if p["name"] == "core"), None)
+    config = dict(config)
+    config["packs"] = names
+    if core:
+        config["requires-core"] = core
+    merged = {k: dict(v) for k, v in (config.get("settings") or {}).items() if isinstance(v, dict)}
+    for key, value in sorted(settings.items()):
+        pack, _, name = key.partition(".")
+        merged.setdefault(pack, {})[name] = value
+    if merged:
+        config["settings"] = merged
+    if args.classification_levels:
+        config["classification-levels"] = [x.strip() for x in args.classification_levels.split(";") if x.strip()]
+    for key, values in (("approved-tools", tools), ("contacts", contacts)):
+        if values:
+            config[key] = {**(config.get(key) or {}), **values}
+    changes.append((config_path, json.dumps(config, indent=2, ensure_ascii=False) + "\n"))
+    verification = project / ".cg-docs" / "verification.md"
+    if not verification.is_file():
+        changes.append((verification, (CG_DIR / "templates" / "verification.md").read_text(encoding="utf-8")))
+    block = (CG_DIR / "templates" / "pointer-block.md").read_text(encoding="utf-8").strip()
+    agents = project / "AGENTS.md"
+    text = agents.read_text(encoding="utf-8") if agents.is_file() else ""
+    found = BLOCK_RE.findall(text)
+    if len(found) > 1:
+        problems.append(f"AGENTS.md holds {len(found)} pointer blocks; keep one, then run setup again")
+    elif found:
+        changes.append((agents, BLOCK_RE.sub(lambda m: block, text, count=1)))
+    else:
+        changes.append((agents, (text.rstrip("\n") + "\n\n" if text.strip() else "") + block + "\n"))
+    for other in ("CLAUDE.md", ".github/copilot-instructions.md"):
+        path = project / other
+        if path.is_file() and START in path.read_text(encoding="utf-8"):
+            problems.append(f"{other} holds the pointer block; it belongs in AGENTS.md only (ADR 0001), "
+                            f"so remove it there, then run setup again")
+    claude = project / "CLAUDE.md"
+    text = claude.read_text(encoding="utf-8") if claude.is_file() else ""
+    if "@AGENTS.md" not in [line.strip() for line in text.splitlines()]:
+        changes.append((claude, (text.rstrip("\n") + "\n" if text.strip() else "") + "@AGENTS.md\n"))
+    if (project / "DESCRIPTION").is_file():
+        ignore = project / ".Rbuildignore"
+        lines = ignore.read_text(encoding="utf-8").splitlines() if ignore.is_file() else []
+        lines += [line for line in BUILD_IGNORE if line not in lines]
+        changes.append((ignore, "\n".join(lines) + "\n"))
+    changes = [(path, new) for path, new in changes
+               if not path.is_file() or path.read_text(encoding="utf-8") != new]
+    return changes, problems
+
+
+def cmd_setup(args) -> int:
+    """Write what the human confirmed in the setup playbook. Run again, it changes only what differs."""
+    project = project_from(args.project)
+    if project is None:
+        return 2
+    changes, problems = planned_setup(project, args)
+    if changes is None:
+        for line in problems:
+            print(line)
+        return 2
+    if problems:
+        for line in problems:
+            print(f"refused: {line}")
+        return 1
+    for path, text in changes:
+        verb = "change" if path.is_file() else "create"
+        rel = path.relative_to(project).as_posix()
+        if args.dry_run:
+            print(f"would {verb} {rel}")
+        else:
+            write_atomic(path, text)
+            print(f"{verb}d {rel}")
+    if not changes:
+        print("nothing to change: the project already holds what setup writes")
+    return 0
+
+
 # ---------------------------------------------------------------- doctor
 
 def skill_roots(project: Path):
@@ -584,8 +703,17 @@ def main(argv=None) -> int:
     new.add_argument("--date")
     packs = sub.add_parser("packs", help="list the installed packs")
     packs.add_argument("--json", action="store_true")
+    setup = sub.add_parser("setup", help="write what the human confirmed in the setup playbook")
+    setup.add_argument("--packs", required=True)
+    setup.add_argument("--setting", action="append")
+    setup.add_argument("--classification-levels")
+    setup.add_argument("--approved-tool", action="append")
+    setup.add_argument("--contact", action="append")
+    setup.add_argument("--project", default=".")
+    setup.add_argument("--dry-run", action="store_true")
     args = parser.parse_args(argv)
-    return {"doctor": cmd_doctor, "status": cmd_status, "new": cmd_new, "packs": cmd_packs}[args.command](args)
+    commands = {"doctor": cmd_doctor, "status": cmd_status, "new": cmd_new, "packs": cmd_packs, "setup": cmd_setup}
+    return commands[args.command](args)
 
 
 if __name__ == "__main__":
