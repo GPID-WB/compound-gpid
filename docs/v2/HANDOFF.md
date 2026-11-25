@@ -112,9 +112,9 @@ Open points found while building (each is in its issue, and none was changed):
 - Claude Code names a plugin's skills `<plugin>:<skill>`, so a marketplace install gives the guide the name `/core:cg`; `install.py` gives `/cg` (#217).
 - ADR 0003 looks for packs beside the `cg` skill. A Claude Code marketplace install keeps each plugin in its own folder, so `cg.py packs` would see only core there (#217).
 - `r-syntax`, the R dialect setting, has no place in a v2 project; v1 kept it in `compound-gpid.local.md` (#221).
-- The glossary's unconditional `suite` and `manually` reject ordinary testing language in pack content (`test suite`); the port was reworded instead (#221).
-- Hub tooling (`tools/`, `install.py`) has no cap in `SCOPE.md`; the budget check reports it (#222).
-- There is no `LICENSE` file; the README and the manifests say MIT (#217).
+- Decided by the maintainer on 2026-11-24: the glossary stays strict. `suite` and `manually` remain unconditional, and pack content is reworded to pass, as in the `lang-r` port (#221).
+- Hub tooling (`tools/`, `install.py`) has no cap in `SCOPE.md`; the budget check reports it (#222). Proposed: 2,000 lines.
+- `LICENSE` (MIT) added on 2026-11-24, holder as in `GPID-WB/global-poverty-map`.
 - The documentation pages in `docs/` other than `adr/`, `v2/` and `install-block.md` still describe version 1 (task 7.5).
 
 - The plan's body predates the glossary and uses some avoided words. The amendments and the glossary govern.

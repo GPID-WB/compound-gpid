@@ -30,4 +30,4 @@ Compound GPID builds on Every's Compound Engineering and adapts ideas from addyo
 
 ## License
 
-MIT
+MIT, see `LICENSE`. Text adapted from other projects keeps its own notice in `THIRD_PARTY_NOTICES`.
