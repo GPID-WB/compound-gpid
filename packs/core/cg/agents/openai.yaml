@@ -1,0 +1,8 @@
+# Optional adapter for Codex (ADR 0004). Codex ignores the
+# disable-model-invocation line in SKILL.md and reads the same choice here.
+# The guide is safe without this file; see section 2 of SKILL.md.
+interface:
+  display_name: "Compound GPID guide"
+  short_description: "See where the work stands and open the next playbook"
+policy:
+  allow_implicit_invocation: false
