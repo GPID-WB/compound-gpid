@@ -1,6 +1,6 @@
 # Handoff: where the 2.0 build stands
 
-Written 2026-11-24 for whoever continues the work, in any coding agent. Last updated 2026-11-24 by the Fable 5.2 session that reviewed tasks 1.1, 1.2, 1.6, 1.4 and 1.5 and built task 1.3. Update this file when the state changes; it is the first thing to read.
+Written 2026-11-24 for whoever continues the work, in any coding agent. Last updated 2026-11-24 by the Opus 5.5 session that reviewed task 1.3 and fixed the review findings in its own code. Update this file when the state changes; it is the first thing to read.
 
 ## Read in this order
 
@@ -37,7 +37,7 @@ Issues: tracking issue #256 in `GPID-WB/compound-gpid`; tasks #211 to #255 and #
 | Playbooks | `packs/core/cg/playbooks/setup.md`, `quick.md` | task 1.3; each opens with what the agent owns and ends with a `Reply:` contract |
 | Pointer block and templates | `packs/core/cg/templates/` (`pointer-block.md`, `verification.md`, `work-report.md`) | task 1.3; the block is nine lines, written into `AGENTS.md` only, and this repository's `AGENTS.md` holds it |
 | Codex adapter | `packs/core/cg/agents/openai.yaml` | task 1.3; optional (ADR 0004); not yet run in Codex |
-| Tests | `tests/core/`, `tests/hub/` | 86 tests, and one that runs only on Windows; run `python3 -m pytest -q` (or `uvx pytest -q`) |
+| Tests | `tests/core/`, `tests/hub/` | 109 tests, and one that runs only on Windows; run `python3 -m pytest -q` (or `uvx pytest -q`) |
 
 The version 1 tree is gone from `v2`: the generated host trees, `.github`, `adapters/`, `bin/`, `scripts/`, the Pester tests, the installers and release machinery, `research_evidence/` and `c-research/`. All of it is unchanged on branch `v1`, and later ports read from there (`git show v1:<path>` or `git archive v1 <path>`). Kept: `.cg-docs/`, `docs/` (its version 1 pages are for task 7.5), `spike/`.
 
@@ -52,8 +52,10 @@ The version 1 tree is gone from `v2`: the generated host trees, `.github`, `adap
 6. **1.5 (#221)** Built. `lang-r`.
 7. **1.3 (#219)** Built by Fable 5.2. The guide, the `setup` and `quick` playbooks, the pointer block. What was done and not done is in the issue. No host has run it yet; that is the gate.
 8. **Review by Fable 5.2** of tasks 1.1, 1.2, 1.6, 1.4 and 1.5: done. Each issue has a review comment with findings, most severe first, each with proof. No finding blocked task 1.3. The findings to fix are listed under "Findings from the review" below.
-9. **Next, for Opus 5.5:** review task 1.3 (#219), and fix the review findings marked "before the gate".
-10. The gate **1.7 (#223)**, with the maintainer at the keyboard. It can be run now: `install.py --packs core,lang-r --dry-run` against the maintainer's real home folder on 2026-11-24 listed nine installs and no refusal. See "Before the gate" below.
+9. **Review by Opus 5.5** of task 1.3 (#219): done. Eight findings in the issue, none blocking the gate. Finding 1 was in Opus's code and is fixed; the others are in the table below.
+10. **Fixes by Opus 5.5**: every finding in Opus's code from the reviews is fixed except two left on purpose (see the table), each with a test that fails on the code before it. Each issue has a comment saying what was fixed.
+11. **Next: the gate 1.7 (#223)**, with the maintainer at the keyboard. It is ready: CI is green on all six runs, and `install.py --packs core,lang-r --dry-run` against the maintainer's real home folder on 2026-11-24 listed nine installs, no refusal, exit 0. See "Before the gate" below.
+12. **For Fable 5.2, before the pilot:** the wording findings of #219 (2 to 5 and 8) and #221 finding 1.
 
 No task in this set failed its "Done when" twice. CI failed once each in tasks 1.6 and 1.4, both on Windows and both in tests, and was fixed in the next commit.
 
@@ -63,31 +65,37 @@ For every later playbook: no file of the core pack names `python3` (a test holds
 
 ### Before the gate
 
-- Remove the host test skills first (`cg-spike-auto`, `cg-spike-hello`): they sit in both user skill folders, and `cg.py doctor` reports any folder named `cg-*` as a failure (#218, finding 4).
-- The toy project will be a new repository. Make one commit before the first `/cg`, or expect `git: not a repository` in status (#218, finding 3).
-- Run `install.py` with the machine's own Python, not one from a project's virtual environment (#218, finding 1).
+- Make the toy project outside this hub checkout and outside any folder that holds `.cg-docs/`. Status now looks upward for the nearest `.cg-docs/` (#218, finding 2), so a project inside this checkout would be taken for the hub.
+- The host test skills (`cg-spike-*`) are no longer in the user skill folders on the maintainer's Mac (checked 2026-11-24). If they come back, doctor only warns about them now (#218, finding 4).
+- A new repository with no commit is fine now (#218, finding 3), and so is running `install.py` from a virtual environment: the launcher records the base Python (#218, finding 1).
+- Version 1 is still on the maintainer's Mac (`~/.compound-gpid`, the PATH block in `~/.zshrc`, an entry in Kilo's settings). `install.py` reports it with the steps to remove it. It does not affect the gate.
 - In Codex, check the policy file: an ordinary request in plain words must not load `cg`, and `$cg` must still run (ADR 0001, "Still open").
 - In one host, ask for a plain piece of R code without `/cg` and note whether `r-shared` is loaded (#221, finding 1).
 
 ### Findings from the review
 
-Each is in its issue with proof. None was fixed; the code is Opus 5.5's.
+Each is in its issue with proof, and each fix is in a comment on that issue.
 
-| Issue | Finding | Priority | When |
+| Issue | Finding | Priority | State |
 |---|---|---|---|
-| #220 | A first install that fails part-way cannot be run again, and leaves a half-copied folder where hosts read | P1 | before the gate |
-| #220 | `--update` deletes a real folder that replaced its link in `~/.claude/skills` | P1 | before the gate |
-| #218 | The launcher records a virtual environment's Python, which later disappears | P1 | before the gate |
-| #218 | `status` from a subfolder reports a new project | P2 | before the pilot |
-| #218 | A repository with no commit is "not a repository" | P2 | before the gate, or commit first |
-| #218 | doctor fails on any `cg-*` folder; `install.py` leaves the same folder alone | P2 | before the gate, or remove the test skills first |
-| #218 | The add command is not runnable as printed in PowerShell (inferred) | P2 | before the Windows run |
-| #220 | A Claude Code plugin copy is seen only for a pack's lead skill | P2 | before the pilot |
-| #222 | The linter passes three frontmatter shapes a strict parser rejects or cuts, and mishandles folded descriptions | P2 | before packs from other teams |
-| #221 | `r-shared` holds the rule for which R skills to load, and its description does not say so | P2 | wording for Fable 5.2; check at the gate |
-| #221 | Two references to version 1's `/cg-fixbug` remain in `r-testing` | P2 | any time |
-| #217 | `2.0.0.9000` sorts after `2.0.0`, so the release stops every project set up during the build | P2 | maintainer's decision, before the pilot |
-| all five | P3 findings | P3 | with the next edit of each file |
+| #220 | A first install that fails part-way cannot be run again | P1 | fixed, `63325842` |
+| #220 | `--update` deletes a real folder that replaced its link | P1 | fixed, `63325842` |
+| #218 | The launcher records a virtual environment's Python | P1 | fixed, `a48e6307` |
+| #219 | doctor writes the launcher from the hub checkout, so the guide runs the hub's `cg.py` | P2 | fixed, `a48e6307` |
+| #218 | `status` from a subfolder, no-commit repository, `cg-*` folders, PowerShell, config shape, `new` titles, missing folder, usage text | P2, P3 | fixed, `a48e6307`, `e8b5d180`, `d23ab1e4` |
+| #220 | plugin copies beyond the lead skill, unknown `--remove`, doctor's exit code, tests reading `PATH` | P2, P3 | fixed, `e5885558` |
+| #222 | YAML shapes, folded descriptions, `../` paths in text, a pack needing a newer core, one glossary path list | P2, P3 | fixed, `910fa986` |
+| #222 | the `python3` and playbook rules are tests, not lint rules | P3 | left as tests on purpose |
+| #217 | `sync_version.py` from another folder; root `plugin.json` claim | P3 | fixed, `910fa986` |
+| #217 | `requires-core` has no source | P3 | in part: the validator fails a value newer than core; the rest waits on the version decision |
+| #221 | Two `/cg-fixbug` notes, "hand-computed" | P2, P3 | fixed, `bc4c9529` |
+| #217 | `2.0.0.9000` sorts after `2.0.0` | P2 | maintainer's decision, before the pilot |
+| #221 | `r-shared`'s description does not say it decides which R skills load | P2 | wording for Fable 5.2; check at the gate |
+| #221 | The team's name in two descriptions | P3 | task 7.3 |
+| #219 | Setup's writes are made by the model, not by code (P3) | P2 | before the pilot: a `cg.py` command (Opus) and the playbook calling it (Fable) |
+| #219 | Line 1 of the quick risk table and the build comment disagree on figure labels | P2 | wording for Fable 5.2; record each host's answers at the gate |
+| #219 | No step for `status` failing; no PowerShell note in the pointer block; config keys defined only in a playbook | P3 | wording for Fable 5.2 |
+| #219 | Model-started guide may raise an approval prompt; Codex sandbox and the launcher write | P3 | check at the gate |
 
 ## Working rules agreed with the maintainer
 
