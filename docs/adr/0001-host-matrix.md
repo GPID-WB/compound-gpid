@@ -47,6 +47,12 @@ Run on Windows Server 2022 on 2026-11-24, same host versions as on macOS (Codex 
 
 The harness itself ran with `py -3`. The `python` the agents found was a project's virtual environment, not a system install. Claude Code had one compound command refused before a plain one ran; no approval prompt was seen.
 
+## Live results: a project inside OneDrive (macOS)
+
+Run on 2026-11-24 with the throwaway project inside `OneDrive-WBG/cg host test/`, so its path held a space and sat under OneDrive; link layout. Report: `spike/host-matrix/reports/darwin-20261124-224920.txt`. Every answer matched the macOS run above: each skill listed once, Claude Code honored `disable-model-invocation` and Codex and Kilo did not, `@AGENTS.md` was followed, `python3` worked in all three, and no call failed. The OneDrive folder and the space changed nothing.
+
+The probe's lines `path has spaces` and `under OneDrive` describe the skill folder, not the project, so they read `False` in this run; the run information at the end of the report gives the project's.
+
 ## Live results: in the editor
 
 Same two test skills, link layout, in a test project with one marker each in `AGENTS.md`, `CLAUDE.md` and `.github/copilot-instructions.md`.
@@ -91,7 +97,7 @@ Kilo's panel behaved as Kilo's command line did.
 
 | Item | Why | What is needed |
 |---|---|---|
-| Windows, in part | Command line done (#258). Not run: a project inside OneDrive (neither `OneDriveCommercial` nor `OneDrive` was set), Copilot and Kilo's panel in the editor | Run B of `spike/host-matrix/WINDOWS.md` and the editor answer sheet on a machine with OneDrive |
+| Windows, in part | Command line done (#258). Not run: a project inside OneDrive (neither `OneDriveCommercial` nor `OneDrive` was set; on macOS it was run and changed nothing), Copilot and Kilo's panel in the editor | Run B of `spike/host-matrix/WINDOWS.md` and the editor answer sheet on a machine with OneDrive |
 | Copilot with a real copy in both folders | Run with the link only | `--manual --layout copy`, question (a) of the answer sheet; it matters most on Windows |
 | Does Copilot follow the `@AGENTS.md` line in `CLAUDE.md` | If it does, it loads the block twice | One Copilot chat in a project set up that way, at the gate (task 1.7) |
 | Approval prompts | None seen, but Copilot was on autopilot and the command-line runs have no UI | Count them at the gate, with the defaults a new user has |

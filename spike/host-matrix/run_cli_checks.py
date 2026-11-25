@@ -171,7 +171,7 @@ def run(out, project, label, command):
 
 
 def sanitize(text, project):
-    """Remove terminal colors, local paths, the user name and email addresses."""
+    """Remove terminal colors, local paths, the user name, session IDs and email addresses."""
     text = re.sub(r"\x1b\[[0-9;?]*[A-Za-z]", "", text)
     places = [(project, "<project>"), (Path(tempfile.gettempdir()), "<tmp>"),
               (Path.home(), "~")]
@@ -182,7 +182,9 @@ def sanitize(text, project):
     user = getpass.getuser()
     if len(user) >= 3:
         text = re.sub(re.escape(user), "<user>", text, flags=re.IGNORECASE)
-    return re.sub(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+\.[A-Za-z0-9.-]+", "<email>", text)
+    text = re.sub(r"(?im)^(session id:\s*)\S+", r"\1<removed>", text)
+    # A domain ends in letters, so "python@3.14" in a Homebrew path is not an address.
+    return re.sub(r"[A-Za-z0-9._%+-]+@(?:[A-Za-z0-9-]+\.)+[A-Za-z]{2,}\b", "<email>", text)
 
 
 def write_report(out, project, stamp):

@@ -1,0 +1,846 @@
+===== claude-0-version
+$ ~/.vscode/extensions/anthropic.claude-code-2.1.331-darwin-arm64/resources/native-binary/claude --version
+
+2.1.331 (Claude Code)
+
+[exit code: 0]
+
+===== claude-1-inventory
+$ ~/.vscode/extensions/anthropic.claude-code-2.1.331-darwin-arm64/resources/native-binary/claude -p Do not run any tool. Answer only from what is already in your context. (a) List every skill you can see whose name starts with cg-spike. If one appears more than once, list it once per appearance. (b) For each, say whether you may invoke it yourself or only the human may. (c) Which of these markers appear in your instructions: CG-SPIKE-POINTER-AGENTS, CG-SPIKE-POINTER-CLAUDE? (d) Name your todo tool and your subagent tool, or say none.
+
+**(a) Skills starting with `cg-spike`**
+
+- `cg-spike-auto`: one appearance. Its description reads "Host test for Compound GPID 2.0. Use when the user mentions a purple heron."
+
+No other `cg-spike` skill is visible to me.
+
+**(b) Who may invoke it**
+
+I may invoke `cg-spike-auto` myself through the Skill tool, because it is in my list of available skills and nothing marks it as human-only. You can also invoke it by typing `/cg-spike-auto`.
+
+**(c) Markers**
+
+- `CG-SPIKE-POINTER-CLAUDE`: present, in the project `CLAUDE.md`.
+- `CG-SPIKE-POINTER-AGENTS`: not present. Git status shows an untracked `AGENTS.md`, but its contents were not loaded into my context.
+
+**(d) Tools**
+
+- Todo tool: none.
+- Subagent tool: `Agent`.
+
+**Next steps**
+1. **Project:** This is the host test for Compound GPID 2.0, and this session was the visibility check for skills, markers and tools. The next stage is yours: compare these answers with what the test expected.
+2. **You (the user):** Nothing is required in this session. If you want to test the skill's trigger, send a message that mentions a purple heron, for example: `I saw a purple heron today.`
+3. **Status:** Done
+
+[exit code: 0]
+
+===== claude-2-invoke
+$ ~/.vscode/extensions/anthropic.claude-code-2.1.331-darwin-arm64/resources/native-binary/claude -p /cg-spike-hello --allowedTools Skill Read Bash(python3:*) Bash(python:*) Bash(py:*)
+
+**1. Skill folder:** the host told me the path. The skill loaded with `Base directory for this skill: ~/.claude/skills/cg-spike-hello`, so I did not search.
+
+**2. Command:** `python3` worked on the first try, so I did not try `python` or `py -3`. I cannot see approval prompts from my side; the call ran without a denial, so you saw either zero or one that you approved.
+
+**3. Script output, unchanged:**
+
+```
+probe: ok
+python: 3.14.4 at /opt/homebrew/opt/python@3.14/bin/python3.14
+platform: Darwin 25.6.0
+script: ~/.agents/skills/cg-spike-hello/scripts/probe.py
+skill folder: ~/.agents/skills/cg-spike-hello
+install root: ~/.agents/skills
+cwd: <project>
+path has spaces: False
+under OneDrive: False
+git: /usr/bin/git
+gh: /opt/homebrew/bin/gh
+node: /opt/homebrew/bin/node
+npx: /opt/homebrew/bin/npx
+uv: /opt/homebrew/bin/uv
+sibling skills: 58 including ['cg-spike-auto', 'cg-spike-hello']
+env hints: {'TERM_PROGRAM': 'vscode'}
+```
+
+Two things in the output look off:
+- **Path mismatch:** the host gave me `~/.claude/skills/...`, but the script reports itself under `~/.agents/skills/...`. The `.claude` path is probably a symlink to `.agents`; I did not check.
+- **Path checks:** `path has spaces: False` and `under OneDrive: False` do not match the cwd, which has a space in `cg host test` and sits under `OneDrive-WBG`. The script probably checks its own path, not the cwd.
+
+**4. Answers:**
+- **Todo or task-list tool:** No. None is available in this session.
+- **Fresh-context subagent tool:** Yes, `Agent`. Any type other than `fork` starts with a fresh context.
+- **`CG-SPIKE-POINTER` in context:** Yes. It appears as `CG-SPIKE-POINTER-CLAUDE`, from the project's `CLAUDE.md`.
+- **Invocation name:** `/cg-spike-hello`
+
+**Next steps**
+1. **Project:** This session was the single host probe for the Compound GPID 2.0 host test on Claude Code. The probe is complete; the next stage is yours, recording these results or running the same probe on another host. The folder has no plan or status file, so I updated none.
+2. **You (the user):** Nothing is required in this session. If you want the other half of the host test here, type `a purple heron` in this session to check whether `cg-spike-auto` triggers on its own.
+3. **Status:** Done
+
+[exit code: 0]
+
+===== claude-3-auto
+$ ~/.vscode/extensions/anthropic.claude-code-2.1.331-darwin-arm64/resources/native-binary/claude -p I saw a purple heron today. --allowedTools Skill Read Bash(python3:*) Bash(python:*) Bash(py:*)
+
+cg-spike-auto fired
+
+I chose this skill myself: you did not type a slash command. Your message mentioned a purple heron, which matched the skill's description, so I loaded it.
+
+**Next steps**
+1. **Project:** This is the host test for Compound GPID 2.0, and this session was the auto-trigger probe for `cg-spike-auto`. The probe passed: the host loaded the skill from its description alone. The next stage is whatever other probes your host test covers, which I can't see from here.
+2. **You (the user):** Nothing is needed in this session. Record the result (auto-trigger: fired, model-chosen, no slash command). If you also want the comparison case, type `/cg-spike-auto` in a new session to test the slash-command route.
+3. **Status:** Done
+
+[exit code: 0]
+
+===== claude-4-no-auto
+$ ~/.vscode/extensions/anthropic.claude-code-2.1.331-darwin-arm64/resources/native-binary/claude -p Please run the host probe. --allowedTools Skill Read Bash(python3:*) Bash(python:*) Bash(py:*)
+
+There is no host probe defined in this project, so I had nothing to run. The folder holds only `AGENTS.md` and `CLAUDE.md` (one marker line each) and an empty git repository with no commits, scripts or hooks.
+
+What I can report about this host from the session itself:
+
+| Item | Result |
+|---|---|
+| `CLAUDE.md` | Loaded into context automatically; marker `CG-SPIKE-POINTER-CLAUDE` |
+| `AGENTS.md` | Not loaded automatically; I saw marker `CG-SPIKE-POINTER-AGENTS` only after reading the file myself |
+| `cg-spike-auto` skill | Listed as available, not invoked; its trigger is a mention of a purple heron, which your message did not contain |
+| Global `~/.claude/CLAUDE.md` | Loaded automatically |
+| Project memory | No `MEMORY.md` exists yet |
+
+I could not check your user-level skills and commands folders or the parent `cg host test` folder for a probe definition, because that command was denied.
+
+**Next steps**
+1. **Project:** This session is the host test for Compound GPID 2.0, at the step of running the probe. The probe has not run, because nothing here defines it; your answer below unblocks it.
+2. **You (the user):** Answer one question in this session: what is the host probe? Reply with one of these:
+   - "The probe is the `cg-spike-auto` skill, run it", and I will invoke it.
+   - The path to the probe script or the exact command, and I will run it.
+   - "The table above is the probe result", and the task is done.
+3. **Status:** Waiting on you
+
+[exit code: 0]
+
+===== claude-5-import
+$ ~/.vscode/extensions/anthropic.claude-code-2.1.331-darwin-arm64/resources/native-binary/claude -p Do not run any tool. Answer only from what is already in your context. (a) List every skill you can see whose name starts with cg-spike. If one appears more than once, list it once per appearance. (b) For each, say whether you may invoke it yourself or only the human may. (c) Which of these markers appear in your instructions: CG-SPIKE-POINTER-AGENTS, CG-SPIKE-POINTER-CLAUDE? (d) Name your todo tool and your subagent tool, or say none.
+
+**(a) Skills whose name starts with `cg-spike`**
+
+- `cg-spike-auto` appears once. Its description reads: "Host test for Compound GPID 2.0. Use when the user mentions a purple heron."
+
+No other `cg-spike*` skill is in my listing, and none is duplicated.
+
+**(b) Who may invoke it**
+
+- `cg-spike-auto`: I may invoke it myself through the Skill tool, because it is in my model-visible skill listing with a trigger condition. You can also invoke it by typing `/cg-spike-auto`.
+
+If a human-only `cg-spike` skill exists, it is not in my listing, so I cannot see or confirm it.
+
+**(c) Markers**
+
+- `CG-SPIKE-POINTER-AGENTS`: present. It comes from `AGENTS.md`, which the project `CLAUDE.md` pulls in with `@AGENTS.md`.
+- `CG-SPIKE-POINTER-CLAUDE`: absent. It appears only in your question, not in my instructions.
+
+**(d) Tools**
+
+- Todo tool: none. No todo or task-list tool is loaded or in the deferred list.
+- Subagent tool: `Agent`.
+
+**Next steps**
+1. **Project:** This was the host probe for the Compound GPID 2.0 host test (skill visibility, markers, tools). The next stage is yours: compare these answers against what the test expected. I don't know the wider test plan, and I saw no plan file to update.
+2. **You (the user):** Nothing is required in this session. I have no further work queued.
+3. **Status:** Done
+
+[exit code: 0]
+
+===== codex-0-version
+$ ~/.vscode/extensions/openai.chatgpt-26.1120.50957-darwin-arm64/bin/macos-aarch64/codex --version
+
+codex-cli 0.171.0-alpha.13.2
+
+[exit code: 0]
+
+===== codex-1-inventory
+$ ~/.vscode/extensions/openai.chatgpt-26.1120.50957-darwin-arm64/bin/macos-aarch64/codex exec --skip-git-repo-check Do not run any tool. Answer only from what is already in your context. (a) List every skill you can see whose name starts with cg-spike. If one appears more than once, list it once per appearance. (b) For each, say whether you may invoke it yourself or only the human may. (c) Which of these markers appear in your instructions: CG-SPIKE-POINTER-AGENTS, CG-SPIKE-POINTER-CLAUDE? (d) Name your todo tool and your subagent tool, or say none.
+
+Reading additional input from stdin...
+OpenAI Codex v0.171.0-alpha.13.2
+--------
+workdir: <project>
+model: gpt-6.2-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: xhigh
+reasoning summaries: none
+session id: <removed>
+--------
+user
+Do not run any tool. Answer only from what is already in your context. (a) List every skill you can see whose name starts with cg-spike. If one appears more than once, list it once per appearance. (b) For each, say whether you may invoke it yourself or only the human may. (c) Which of these markers appear in your instructions: CG-SPIKE-POINTER-AGENTS, CG-SPIKE-POINTER-CLAUDE? (d) Name your todo tool and your subagent tool, or say none.
+codex
+**(a–b) Skills** (one appearance each)
+
+- `cg-spike-auto` — I may invoke it when the user mentions a purple heron.
+- `cg-spike-hello` — I may invoke it when relevant. The visible catalog lists no human-only restriction.
+
+**(c) Markers** — `CG-SPIKE-POINTER-AGENTS` appears in the supplied AGENTS.md instructions. `CG-SPIKE-POINTER-CLAUDE` appears only in your question.
+
+**(d) Tools** — Todo tool: none. Subagent tool: `collaboration.spawn_agent`.
+tokens used
+9,283
+**(a–b) Skills** (one appearance each)
+
+- `cg-spike-auto` — I may invoke it when the user mentions a purple heron.
+- `cg-spike-hello` — I may invoke it when relevant. The visible catalog lists no human-only restriction.
+
+**(c) Markers** — `CG-SPIKE-POINTER-AGENTS` appears in the supplied AGENTS.md instructions. `CG-SPIKE-POINTER-CLAUDE` appears only in your question.
+
+**(d) Tools** — Todo tool: none. Subagent tool: `collaboration.spawn_agent`.
+
+[exit code: 0]
+
+===== codex-2-invoke
+$ ~/.vscode/extensions/openai.chatgpt-26.1120.50957-darwin-arm64/bin/macos-aarch64/codex exec --skip-git-repo-check $cg-spike-hello
+
+Reading additional input from stdin...
+OpenAI Codex v0.171.0-alpha.13.2
+--------
+workdir: <project>
+model: gpt-6.2-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: xhigh
+reasoning summaries: none
+session id: <removed>
+--------
+user
+$cg-spike-hello
+codex
+I’m using the `cg-spike-hello` skill. I’ll run the probe from the folder the host supplied and report what the host exposes.
+exec
+/bin/zsh -lc 'cat SKILL.md' in ~/.agents/skills/cg-spike-hello
+ succeeded in 0ms:
+---
+name: cg-spike-hello
+description: "Host test for Compound GPID 2.0. Runs a probe script and reports what the host exposes."
+disable-model-invocation: true
+---
+
+# Host probe
+
+This skill exists only to test a coding agent host. It changes nothing.
+
+1. Find the folder that holds this file. Say how you found it: the host told you the path, or you searched.
+2. Run `scripts/probe.py` from that folder with Python. Try `python3`, then `python`, then `py -3`. Say which command worked and how many approval prompts the user saw.
+3. Copy the script's output into your reply, unchanged.
+4. Answer in one line each:
+   - Do you have a todo or task-list tool? Name it.
+   - Do you have a tool that starts a subagent with a fresh context? Name it.
+   - Is the text `CG-SPIKE-POINTER` in your context right now? It is present only if the project's always-loaded instructions file was loaded.
+   - Under what exact name did the user invoke this skill?
+
+Done when all four answers and the script output are in the reply.
+
+exec
+/bin/zsh -lc 'cat scripts/probe.py' in ~/.agents/skills/cg-spike-hello
+ succeeded in 0ms:
+"""Print the facts the host matrix needs. Reads only; writes nothing."""
+import os
+import platform
+import shutil
+import sys
+from pathlib import Path
+
+here = Path(__file__).resolve()
+print("probe: ok")
+print("python:", sys.version.split()[0], "at", sys.executable)
+print("platform:", platform.system(), platform.release())
+print("script:", here)
+print("skill folder:", here.parent.parent)
+print("install root:", here.parent.parent.parent)
+print("cwd:", Path.cwd())
+print("path has spaces:", " " in str(here))
+print("under OneDrive:", "onedrive" in str(here).lower())
+for tool in ("git", "gh", "node", "npx", "uv"):
+    print(f"{tool}:", shutil.which(tool) or "not found")
+siblings = sorted(p.name for p in here.parent.parent.parent.iterdir() if p.is_dir())
+print("sibling skills:", len(siblings), "including", [s for s in siblings if s.startswith("cg-spike")])
+print("env hints:", {k: v for k, v in os.environ.items() if k in ("CLAUDE_PLUGIN_ROOT", "PLUGIN_ROOT", "TERM_PROGRAM")})
+
+exec
+/bin/zsh -lc 'python3 scripts/probe.py' in ~/.agents/skills/cg-spike-hello
+ succeeded in 0ms:
+probe: ok
+python: 3.14.4 at /opt/homebrew/opt/python@3.14/bin/python3.14
+platform: Darwin 25.6.0
+script: ~/.agents/skills/cg-spike-hello/scripts/probe.py
+skill folder: ~/.agents/skills/cg-spike-hello
+install root: ~/.agents/skills
+cwd: ~/.agents/skills/cg-spike-hello
+path has spaces: False
+under OneDrive: False
+git: /usr/bin/git
+gh: /opt/homebrew/bin/gh
+node: /opt/homebrew/bin/node
+npx: /opt/homebrew/bin/npx
+uv: /opt/homebrew/bin/uv
+sibling skills: 58 including ['cg-spike-auto', 'cg-spike-hello']
+env hints: {'TERM_PROGRAM': 'vscode'}
+
+codex
+The host supplied the path to `SKILL.md`. I ran `python3 scripts/probe.py` from that folder, and it succeeded with zero approval prompts.
+
+```text
+probe: ok
+python: 3.14.4 at /opt/homebrew/opt/python@3.14/bin/python3.14
+platform: Darwin 25.6.0
+script: ~/.agents/skills/cg-spike-hello/scripts/probe.py
+skill folder: ~/.agents/skills/cg-spike-hello
+install root: ~/.agents/skills
+cwd: ~/.agents/skills/cg-spike-hello
+path has spaces: False
+under OneDrive: False
+git: /usr/bin/git
+gh: /opt/homebrew/bin/gh
+node: /opt/homebrew/bin/node
+npx: /opt/homebrew/bin/npx
+uv: /opt/homebrew/bin/uv
+sibling skills: 58 including ['cg-spike-auto', 'cg-spike-hello']
+env hints: {'TERM_PROGRAM': 'vscode'}
+```
+
+- Todo or task-list tool? No dedicated tool.
+- Fresh-context subagent tool? Yes, `collaboration.spawn_agent` with `fork_turns="none"`.
+- Is `CG-SPIKE-POINTER` in context? Yes, as part of `CG-SPIKE-POINTER-AGENTS` in the supplied `AGENTS.md` instructions.
+- Exact invocation? `$cg-spike-hello`.
+tokens used
+28,530
+The host supplied the path to `SKILL.md`. I ran `python3 scripts/probe.py` from that folder, and it succeeded with zero approval prompts.
+
+```text
+probe: ok
+python: 3.14.4 at /opt/homebrew/opt/python@3.14/bin/python3.14
+platform: Darwin 25.6.0
+script: ~/.agents/skills/cg-spike-hello/scripts/probe.py
+skill folder: ~/.agents/skills/cg-spike-hello
+install root: ~/.agents/skills
+cwd: ~/.agents/skills/cg-spike-hello
+path has spaces: False
+under OneDrive: False
+git: /usr/bin/git
+gh: /opt/homebrew/bin/gh
+node: /opt/homebrew/bin/node
+npx: /opt/homebrew/bin/npx
+uv: /opt/homebrew/bin/uv
+sibling skills: 58 including ['cg-spike-auto', 'cg-spike-hello']
+env hints: {'TERM_PROGRAM': 'vscode'}
+```
+
+- Todo or task-list tool? No dedicated tool.
+- Fresh-context subagent tool? Yes, `collaboration.spawn_agent` with `fork_turns="none"`.
+- Is `CG-SPIKE-POINTER` in context? Yes, as part of `CG-SPIKE-POINTER-AGENTS` in the supplied `AGENTS.md` instructions.
+- Exact invocation? `$cg-spike-hello`.
+
+[exit code: 0]
+
+===== codex-2b-invoke-slash
+$ ~/.vscode/extensions/openai.chatgpt-26.1120.50957-darwin-arm64/bin/macos-aarch64/codex exec --skip-git-repo-check /cg-spike-hello
+
+Reading additional input from stdin...
+OpenAI Codex v0.171.0-alpha.13.2
+--------
+workdir: <project>
+model: gpt-6.2-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: xhigh
+reasoning summaries: none
+session id: <removed>
+--------
+user
+/cg-spike-hello
+codex
+I’ll use the `cg-spike-hello` skill to run the host probe and report what it exposes.
+exec
+/bin/zsh -lc "cat '~/.agents/skills/cg-spike-hello/SKILL.md'" in <project>
+ succeeded in 0ms:
+---
+name: cg-spike-hello
+description: "Host test for Compound GPID 2.0. Runs a probe script and reports what the host exposes."
+disable-model-invocation: true
+---
+
+# Host probe
+
+This skill exists only to test a coding agent host. It changes nothing.
+
+1. Find the folder that holds this file. Say how you found it: the host told you the path, or you searched.
+2. Run `scripts/probe.py` from that folder with Python. Try `python3`, then `python`, then `py -3`. Say which command worked and how many approval prompts the user saw.
+3. Copy the script's output into your reply, unchanged.
+4. Answer in one line each:
+   - Do you have a todo or task-list tool? Name it.
+   - Do you have a tool that starts a subagent with a fresh context? Name it.
+   - Is the text `CG-SPIKE-POINTER` in your context right now? It is present only if the project's always-loaded instructions file was loaded.
+   - Under what exact name did the user invoke this skill?
+
+Done when all four answers and the script output are in the reply.
+
+exec
+/bin/zsh -lc 'cat scripts/probe.py' in ~/.agents/skills/cg-spike-hello
+ succeeded in 0ms:
+"""Print the facts the host matrix needs. Reads only; writes nothing."""
+import os
+import platform
+import shutil
+import sys
+from pathlib import Path
+
+here = Path(__file__).resolve()
+print("probe: ok")
+print("python:", sys.version.split()[0], "at", sys.executable)
+print("platform:", platform.system(), platform.release())
+print("script:", here)
+print("skill folder:", here.parent.parent)
+print("install root:", here.parent.parent.parent)
+print("cwd:", Path.cwd())
+print("path has spaces:", " " in str(here))
+print("under OneDrive:", "onedrive" in str(here).lower())
+for tool in ("git", "gh", "node", "npx", "uv"):
+    print(f"{tool}:", shutil.which(tool) or "not found")
+siblings = sorted(p.name for p in here.parent.parent.parent.iterdir() if p.is_dir())
+print("sibling skills:", len(siblings), "including", [s for s in siblings if s.startswith("cg-spike")])
+print("env hints:", {k: v for k, v in os.environ.items() if k in ("CLAUDE_PLUGIN_ROOT", "PLUGIN_ROOT", "TERM_PROGRAM")})
+
+exec
+/bin/zsh -lc 'python3 scripts/probe.py' in ~/.agents/skills/cg-spike-hello
+ succeeded in 0ms:
+probe: ok
+python: 3.14.4 at /opt/homebrew/opt/python@3.14/bin/python3.14
+platform: Darwin 25.6.0
+script: ~/.agents/skills/cg-spike-hello/scripts/probe.py
+skill folder: ~/.agents/skills/cg-spike-hello
+install root: ~/.agents/skills
+cwd: ~/.agents/skills/cg-spike-hello
+path has spaces: False
+under OneDrive: False
+git: /usr/bin/git
+gh: /opt/homebrew/bin/gh
+node: /opt/homebrew/bin/node
+npx: /opt/homebrew/bin/npx
+uv: /opt/homebrew/bin/uv
+sibling skills: 58 including ['cg-spike-auto', 'cg-spike-hello']
+env hints: {'TERM_PROGRAM': 'vscode'}
+
+codex
+The host’s skill catalog provided the path. `python3 scripts/probe.py` ran successfully with **0 approval prompts**.
+
+```text
+probe: ok
+python: 3.14.4 at /opt/homebrew/opt/python@3.14/bin/python3.14
+platform: Darwin 25.6.0
+script: ~/.agents/skills/cg-spike-hello/scripts/probe.py
+skill folder: ~/.agents/skills/cg-spike-hello
+install root: ~/.agents/skills
+cwd: ~/.agents/skills/cg-spike-hello
+path has spaces: False
+under OneDrive: False
+git: /usr/bin/git
+gh: /opt/homebrew/bin/gh
+node: /opt/homebrew/bin/node
+npx: /opt/homebrew/bin/npx
+uv: /opt/homebrew/bin/uv
+sibling skills: 58 including ['cg-spike-auto', 'cg-spike-hello']
+env hints: {'TERM_PROGRAM': 'vscode'}
+```
+
+- **Todo or task-list tool** — No dedicated tool. `create_goal`, `get_goal`, and `update_goal` manage one active goal.
+- **Fresh-context subagent** — Yes. `collaboration.spawn_agent` accepts `fork_turns: "none"`.
+- **`CG-SPIKE-POINTER` in context** — Yes, in the supplied `AGENTS.md` instructions.
+- **Exact invocation** — `/cg-spike-hello`
+tokens used
+3,082
+The host’s skill catalog provided the path. `python3 scripts/probe.py` ran successfully with **0 approval prompts**.
+
+```text
+probe: ok
+python: 3.14.4 at /opt/homebrew/opt/python@3.14/bin/python3.14
+platform: Darwin 25.6.0
+script: ~/.agents/skills/cg-spike-hello/scripts/probe.py
+skill folder: ~/.agents/skills/cg-spike-hello
+install root: ~/.agents/skills
+cwd: ~/.agents/skills/cg-spike-hello
+path has spaces: False
+under OneDrive: False
+git: /usr/bin/git
+gh: /opt/homebrew/bin/gh
+node: /opt/homebrew/bin/node
+npx: /opt/homebrew/bin/npx
+uv: /opt/homebrew/bin/uv
+sibling skills: 58 including ['cg-spike-auto', 'cg-spike-hello']
+env hints: {'TERM_PROGRAM': 'vscode'}
+```
+
+- **Todo or task-list tool** — No dedicated tool. `create_goal`, `get_goal`, and `update_goal` manage one active goal.
+- **Fresh-context subagent** — Yes. `collaboration.spawn_agent` accepts `fork_turns: "none"`.
+- **`CG-SPIKE-POINTER` in context** — Yes, in the supplied `AGENTS.md` instructions.
+- **Exact invocation** — `/cg-spike-hello`
+
+[exit code: 0]
+
+===== codex-3-auto
+$ ~/.vscode/extensions/openai.chatgpt-26.1120.50957-darwin-arm64/bin/macos-aarch64/codex exec --skip-git-repo-check I saw a purple heron today.
+
+Reading additional input from stdin...
+OpenAI Codex v0.171.0-alpha.13.2
+--------
+workdir: <project>
+model: gpt-6.2-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: xhigh
+reasoning summaries: none
+session id: <removed>
+--------
+user
+I saw a purple heron today.
+codex
+I’ll use the cg-spike-auto skill to check the workspace marker.
+exec
+/bin/zsh -lc 'cat ~/.agents/skills/cg-spike-auto/SKILL.md' in <project>
+ succeeded in 0ms:
+---
+name: cg-spike-auto
+description: "Host test for Compound GPID 2.0. Use when the user mentions a purple heron."
+---
+
+# Auto-trigger probe
+
+This skill exists only to test whether a host loads a skill from its description.
+
+Reply with exactly: `cg-spike-auto fired`. Then say whether the user typed a slash command or you chose this skill yourself.
+
+codex
+cg-spike-auto fired
+
+I chose the skill based on your message. You didn’t type a slash command.
+tokens used
+9,350
+cg-spike-auto fired
+
+I chose the skill based on your message. You didn’t type a slash command.
+
+[exit code: 0]
+
+===== codex-4-no-auto
+$ ~/.vscode/extensions/openai.chatgpt-26.1120.50957-darwin-arm64/bin/macos-aarch64/codex exec --skip-git-repo-check Please run the host probe.
+
+Reading additional input from stdin...
+OpenAI Codex v0.171.0-alpha.13.2
+--------
+workdir: <project>
+model: gpt-6.2-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: xhigh
+reasoning summaries: none
+session id: <removed>
+--------
+user
+Please run the host probe.
+codex
+I’m using the `cg-spike-hello` skill to run the host probe and report what it finds.
+exec
+/bin/zsh -lc "rg --files --hidden -g 'AGENTS.md' -g '*probe*' -g '"'!*'"\\.git*'" in <project>
+ exited 127 in 0ms:
+zsh:1: command not found: rg
+
+exec
+/bin/zsh -lc 'cat ~/.agents/skills/cg-spike-hello/SKILL.md' in <project>
+ succeeded in 0ms:
+---
+name: cg-spike-hello
+description: "Host test for Compound GPID 2.0. Runs a probe script and reports what the host exposes."
+disable-model-invocation: true
+---
+
+# Host probe
+
+This skill exists only to test a coding agent host. It changes nothing.
+
+1. Find the folder that holds this file. Say how you found it: the host told you the path, or you searched.
+2. Run `scripts/probe.py` from that folder with Python. Try `python3`, then `python`, then `py -3`. Say which command worked and how many approval prompts the user saw.
+3. Copy the script's output into your reply, unchanged.
+4. Answer in one line each:
+   - Do you have a todo or task-list tool? Name it.
+   - Do you have a tool that starts a subagent with a fresh context? Name it.
+   - Is the text `CG-SPIKE-POINTER` in your context right now? It is present only if the project's always-loaded instructions file was loaded.
+   - Under what exact name did the user invoke this skill?
+
+Done when all four answers and the script output are in the reply.
+
+exec
+/bin/zsh -lc 'cat scripts/probe.py' in ~/.agents/skills/cg-spike-hello
+ succeeded in 0ms:
+"""Print the facts the host matrix needs. Reads only; writes nothing."""
+import os
+import platform
+import shutil
+import sys
+from pathlib import Path
+
+here = Path(__file__).resolve()
+print("probe: ok")
+print("python:", sys.version.split()[0], "at", sys.executable)
+print("platform:", platform.system(), platform.release())
+print("script:", here)
+print("skill folder:", here.parent.parent)
+print("install root:", here.parent.parent.parent)
+print("cwd:", Path.cwd())
+print("path has spaces:", " " in str(here))
+print("under OneDrive:", "onedrive" in str(here).lower())
+for tool in ("git", "gh", "node", "npx", "uv"):
+    print(f"{tool}:", shutil.which(tool) or "not found")
+siblings = sorted(p.name for p in here.parent.parent.parent.iterdir() if p.is_dir())
+print("sibling skills:", len(siblings), "including", [s for s in siblings if s.startswith("cg-spike")])
+print("env hints:", {k: v for k, v in os.environ.items() if k in ("CLAUDE_PLUGIN_ROOT", "PLUGIN_ROOT", "TERM_PROGRAM")})
+
+exec
+/bin/zsh -lc 'python3 scripts/probe.py' in ~/.agents/skills/cg-spike-hello
+ succeeded in 0ms:
+probe: ok
+python: 3.14.4 at /opt/homebrew/opt/python@3.14/bin/python3.14
+platform: Darwin 25.6.0
+script: ~/.agents/skills/cg-spike-hello/scripts/probe.py
+skill folder: ~/.agents/skills/cg-spike-hello
+install root: ~/.agents/skills
+cwd: ~/.agents/skills/cg-spike-hello
+path has spaces: False
+under OneDrive: False
+git: /usr/bin/git
+gh: /opt/homebrew/bin/gh
+node: /opt/homebrew/bin/node
+npx: /opt/homebrew/bin/npx
+uv: /opt/homebrew/bin/uv
+sibling skills: 58 including ['cg-spike-auto', 'cg-spike-hello']
+env hints: {'TERM_PROGRAM': 'vscode'}
+
+codex
+The host supplied the `cg-spike-hello` skill path. `python3 scripts/probe.py` ran successfully with zero approval prompts.
+
+```text
+probe: ok
+python: 3.14.4 at /opt/homebrew/opt/python@3.14/bin/python3.14
+platform: Darwin 25.6.0
+script: ~/.agents/skills/cg-spike-hello/scripts/probe.py
+skill folder: ~/.agents/skills/cg-spike-hello
+install root: ~/.agents/skills
+cwd: ~/.agents/skills/cg-spike-hello
+path has spaces: False
+under OneDrive: False
+git: /usr/bin/git
+gh: /opt/homebrew/bin/gh
+node: /opt/homebrew/bin/node
+npx: /opt/homebrew/bin/npx
+uv: /opt/homebrew/bin/uv
+sibling skills: 58 including ['cg-spike-auto', 'cg-spike-hello']
+env hints: {'TERM_PROGRAM': 'vscode'}
+```
+
+- Todo or task-list tool? No dedicated tool is available.
+- Fresh-context subagent tool? Yes, `collaboration.spawn_agent` with `fork_turns="none"`.
+- Is `CG-SPIKE-POINTER` in context? Yes, the supplied `AGENTS.md` instructions contain `CG-SPIKE-POINTER-AGENTS`.
+- Exact skill name invoked by the user? None. The request was “Please run the host probe.”
+tokens used
+11,333
+The host supplied the `cg-spike-hello` skill path. `python3 scripts/probe.py` ran successfully with zero approval prompts.
+
+```text
+probe: ok
+python: 3.14.4 at /opt/homebrew/opt/python@3.14/bin/python3.14
+platform: Darwin 25.6.0
+script: ~/.agents/skills/cg-spike-hello/scripts/probe.py
+skill folder: ~/.agents/skills/cg-spike-hello
+install root: ~/.agents/skills
+cwd: ~/.agents/skills/cg-spike-hello
+path has spaces: False
+under OneDrive: False
+git: /usr/bin/git
+gh: /opt/homebrew/bin/gh
+node: /opt/homebrew/bin/node
+npx: /opt/homebrew/bin/npx
+uv: /opt/homebrew/bin/uv
+sibling skills: 58 including ['cg-spike-auto', 'cg-spike-hello']
+env hints: {'TERM_PROGRAM': 'vscode'}
+```
+
+- Todo or task-list tool? No dedicated tool is available.
+- Fresh-context subagent tool? Yes, `collaboration.spawn_agent` with `fork_turns="none"`.
+- Is `CG-SPIKE-POINTER` in context? Yes, the supplied `AGENTS.md` instructions contain `CG-SPIKE-POINTER-AGENTS`.
+- Exact skill name invoked by the user? None. The request was “Please run the host probe.”
+
+[exit code: 0]
+
+===== kilo-0-version
+$ ~/.vscode/extensions/kilocode.kilo-code-7.8.32-darwin-arm64/bin/kilo --version
+
+7.8.32
+
+[exit code: 0]
+
+===== kilo-1-inventory
+$ ~/.vscode/extensions/kilocode.kilo-code-7.8.32-darwin-arm64/bin/kilo run -m openai/gpt-6.2-sol Do not run any tool. Answer only from what is already in your context. (a) List every skill you can see whose name starts with cg-spike. If one appears more than once, list it once per appearance. (b) For each, say whether you may invoke it yourself or only the human may. (c) Which of these markers appear in your instructions: CG-SPIKE-POINTER-AGENTS, CG-SPIKE-POINTER-CLAUDE? (d) Name your todo tool and your subagent tool, or say none.
+
+
+> code · gpt-6.2-sol
+
+**(a–b) Skills**
+- `cg-spike-auto` appears once. I can invoke it myself when its trigger is met.
+- `cg-spike-hello` appears once. I can invoke it myself when the task matches its description.
+
+**(c) Markers**
+- `CG-SPIKE-POINTER-AGENTS` appears in the project instructions.
+- `CG-SPIKE-POINTER-CLAUDE` does not appear in the instructions.
+
+**(d) Tools**
+- Todo: `todowrite`
+- Subagent: `task`
+
+[exit code: 0]
+
+===== kilo-2-invoke
+$ ~/.vscode/extensions/kilocode.kilo-code-7.8.32-darwin-arm64/bin/kilo run -m openai/gpt-6.2-sol /cg-spike-hello
+
+
+> code · gpt-6.2-sol
+
+→ Skill "cg-spike-hello"
+
+$ python3 scripts/probe.py
+probe: ok
+python: 3.14.4 at /opt/homebrew/opt/python@3.14/bin/python3.14
+platform: Darwin 25.6.0
+script: ~/.agents/skills/cg-spike-hello/scripts/probe.py
+skill folder: ~/.agents/skills/cg-spike-hello
+install root: ~/.agents/skills
+cwd: ~/.agents/skills/cg-spike-hello
+path has spaces: False
+under OneDrive: False
+git: /usr/bin/git
+gh: /opt/homebrew/bin/gh
+node: /opt/homebrew/bin/node
+npx: /opt/homebrew/bin/npx
+uv: /opt/homebrew/bin/uv
+sibling skills: 58 including ['cg-spike-auto', 'cg-spike-hello']
+env hints: {'TERM_PROGRAM': 'vscode'}
+
+The host provided the skill folder: `~/.agents/skills/cg-spike-hello`. `python3 scripts/probe.py` worked on the first attempt. Approval prompts observed: 0.
+
+```text
+probe: ok
+python: 3.14.4 at /opt/homebrew/opt/python@3.14/bin/python3.14
+platform: Darwin 25.6.0
+script: ~/.agents/skills/cg-spike-hello/scripts/probe.py
+skill folder: ~/.agents/skills/cg-spike-hello
+install root: ~/.agents/skills
+cwd: ~/.agents/skills/cg-spike-hello
+path has spaces: False
+under OneDrive: False
+git: /usr/bin/git
+gh: /opt/homebrew/bin/gh
+node: /opt/homebrew/bin/node
+npx: /opt/homebrew/bin/npx
+uv: /opt/homebrew/bin/uv
+sibling skills: 58 including ['cg-spike-auto', 'cg-spike-hello']
+env hints: {'TERM_PROGRAM': 'vscode'}
+```
+
+- Task-list tool: Yes, `todowrite`.
+- Fresh-context subagent tool: Yes, `task`.
+- `CG-SPIKE-POINTER` in context: Yes, as part of `CG-SPIKE-POINTER-AGENTS` in the project's `AGENTS.md`.
+- Exact invocation: `/cg-spike-hello`.
+
+[exit code: 0]
+
+===== kilo-3-auto
+$ ~/.vscode/extensions/kilocode.kilo-code-7.8.32-darwin-arm64/bin/kilo run -m openai/gpt-6.2-sol I saw a purple heron today.
+
+
+> code · gpt-6.2-sol
+
+→ Skill "cg-spike-auto"
+cg-spike-auto fired
+
+I selected the skill because you mentioned a purple heron. You did not type a slash command.
+
+[exit code: 0]
+
+===== kilo-4-no-auto
+$ ~/.vscode/extensions/kilocode.kilo-code-7.8.32-darwin-arm64/bin/kilo run -m openai/gpt-6.2-sol Please run the host probe.
+
+
+> code · gpt-6.2-sol
+
+→ Skill "cg-spike-hello"
+→ Read ~/.agents/skills/cg-spike-hello/scripts/probe.py
+
+$ python3 scripts/probe.py
+probe: ok
+python: 3.14.4 at /opt/homebrew/opt/python@3.14/bin/python3.14
+platform: Darwin 25.6.0
+script: ~/.agents/skills/cg-spike-hello/scripts/probe.py
+skill folder: ~/.agents/skills/cg-spike-hello
+install root: ~/.agents/skills
+cwd: ~/.agents/skills/cg-spike-hello
+path has spaces: False
+under OneDrive: False
+git: /usr/bin/git
+gh: /opt/homebrew/bin/gh
+node: /opt/homebrew/bin/node
+npx: /opt/homebrew/bin/npx
+uv: /opt/homebrew/bin/uv
+sibling skills: 58 including ['cg-spike-auto', 'cg-spike-hello']
+env hints: {'TERM_PROGRAM': 'vscode'}
+
+The host supplied the skill folder path. `python3 scripts/probe.py` ran successfully from that folder. No approval prompts were reported.
+
+```text
+probe: ok
+python: 3.14.4 at /opt/homebrew/opt/python@3.14/bin/python3.14
+platform: Darwin 25.6.0
+script: ~/.agents/skills/cg-spike-hello/scripts/probe.py
+skill folder: ~/.agents/skills/cg-spike-hello
+install root: ~/.agents/skills
+cwd: ~/.agents/skills/cg-spike-hello
+path has spaces: False
+under OneDrive: False
+git: /usr/bin/git
+gh: /opt/homebrew/bin/gh
+node: /opt/homebrew/bin/node
+npx: /opt/homebrew/bin/npx
+uv: /opt/homebrew/bin/uv
+sibling skills: 58 including ['cg-spike-auto', 'cg-spike-hello']
+env hints: {'TERM_PROGRAM': 'vscode'}
+```
+
+- Task-list tool: Yes, `todowrite`.
+- Fresh-context subagent tool: Yes, `task`.
+- `CG-SPIKE-POINTER` in the project instructions: Yes, as part of `CG-SPIKE-POINTER-AGENTS`.
+- Invocation: You said “Please run the host probe.” You did not name the skill. I selected `cg-spike-hello`.
+
+[exit code: 0]
+
+===== run-info
+platform: Darwin 25.6.0
+python: 3.14.4
+skill layout: link (symlink)
+project: <project>
+project path has spaces: True
+project under OneDrive: True
+kilo model: openai/gpt-6.2-sol
+claude: ~/.vscode/extensions/anthropic.claude-code-2.1.331-darwin-arm64/resources/native-binary/claude
+codex: ~/.vscode/extensions/openai.chatgpt-26.1120.50957-darwin-arm64/bin/macos-aarch64/codex
+kilo: ~/.vscode/extensions/kilocode.kilo-code-7.8.32-darwin-arm64/bin/kilo
