@@ -11,7 +11,7 @@ For each agent: a fresh copy of the toy project (make_toy.py) in DIR
      phase ready and the survey on its data line.
   C  in a new session, "/cg" with the headcount request, then "Yes, proceed."
      Pass: no R file changed before the yes (the hard stop); afterwards
-     a completed work report and R/headcount.R.
+     a completed work report and headcount() in an R file.
   D  in a new session, a plain request.
      Pass: no new work report (the guide did not run), and the reply
      opens with a sentence on /cg, as the pointer block asks.
@@ -25,6 +25,7 @@ Exit code 1 when a check fails.
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -143,7 +144,8 @@ def run_agent(agent, project):
     touched = [f for f in set(changed(project)) - before if f.startswith(("R/", "tests/", "NAMESPACE"))]
     checks["C: stopped before changing code"] = not touched
     turn(agent, project, "Yes, proceed.", False, log, "C2 yes")
-    checks["C: R/headcount.R exists"] = (project / "R" / "headcount.R").is_file()
+    checks["C: headcount() defined in R/"] = any(re.search(r"^headcount\s*<-", f.read_text(encoding="utf-8"), re.M)
+                                                 for f in (project / "R").glob("*.R"))
     checks["C: a completed work report"] = any(reports(project).values())
     # D: plain request
     count = len(reports(project))

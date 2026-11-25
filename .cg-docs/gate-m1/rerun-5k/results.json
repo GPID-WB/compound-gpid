@@ -1,0 +1,13 @@
+{
+  "kilo": {
+    "B: nothing written before the yes": true,
+    "B: proposal names lang-r and data.table-collapse": true,
+    "B: phase ready": true,
+    "B: data rule recorded": true,
+    "C: stopped before changing code": true,
+    "C: R/headcount.R exists": false,
+    "C: a completed work report": false,
+    "D: no new work report": true,
+    "D: reply opens with a sentence on /cg": true
+  }
+}
