@@ -188,7 +188,7 @@ def test_new_creates_one_file_with_frontmatter(env):
     assert code == 0, out
     path = env["project"] / ".cg-docs" / "plans" / "2026-11-24-poverty-headcount-2024.md"
     text = path.read_text()
-    assert text.startswith('---\ntype: plan\ntitle: "Poverty headcount 2024"\ndate: 2026-11-24\nstatus: draft\n---\n')
+    assert text.startswith('---\ntype: plan\nschema: 2\ntitle: "Poverty headcount 2024"\ndate: 2026-11-24\nstatus: draft\n---\n')
     assert "# Poverty headcount 2024" in text
 
 
@@ -354,7 +354,7 @@ def test_new_keeps_a_title_with_braces_and_a_hash_as_written(env):
     title = "Compare {date} and {heading} #12"
     env["cg"]("new", "plan", title, "--date", "2026-11-24")
     path = next((env["project"] / ".cg-docs" / "plans").glob("*.md"))
-    assert load_cg().flat_frontmatter(path)["title"] == title
+    assert load_cg().read_frontmatter(path.read_text())[0]["title"] == title
     assert "# " + title in path.read_text()
 
 

@@ -1,5 +1,6 @@
 ---
 type: work-report
+schema: 2
 title: "{title}"
 date: {date}
 status: in-progress
@@ -14,7 +15,7 @@ size: quick
 
 ## Risk
 
-<each line of the risk table that was yes, and the human's approval; or "every line was no">
+<the lines `cg.py tier` printed, your reason for each no, and the human's reply when the tier was elevated>
 
 ## Changed
 

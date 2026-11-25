@@ -1,0 +1,53 @@
+---
+type: plan
+schema: 2
+title: "{title}"
+date: {date}
+status: draft
+---
+
+# {heading}
+
+The human approves this plan as it reads below. `cg.py approve` records their reply against this text, so a later change to it needs a new approval.
+
+## Contract
+
+### Goal
+
+<what will be true when the work is done, in terms someone can measure>
+
+### Out of scope
+
+<what this work will not do, and what is deferred>
+
+### Requirements
+
+| ID | Requirement |
+|---|---|
+| R1 | <one thing the work must do> |
+
+### Checks
+
+Every requirement has a check, and every check can fail.
+
+| ID | Requirement | Command | Fails when |
+|---|---|---|---|
+| C1 | R1 | <the command, as it will be run> | <the outcome that means the requirement is not met> |
+
+### Boundaries
+
+- Always: <what the agent does without asking>
+- Ask first: <what needs the human's yes each time>
+- Never: <what the agent does not do in this work>
+
+## Data register
+
+| Dataset | Classification | Source | Version | Owner | Permitted use |
+|---|---|---|---|---|---|
+| <path of a dataset the work reads or produces, or "none"> | | | | | |
+
+## Slices
+
+| Slice | What it delivers | Files | Checks | By code or by judgement |
+|---|---|---|---|---|
+| S1 | <a small piece that ends in a check> | <the files it may touch> | C1 | <by code, with the tool that does it; or by judgement> |

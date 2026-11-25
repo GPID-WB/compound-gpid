@@ -4,6 +4,10 @@ Usage, with the interpreter that ~/.cg/launcher.json records as <python>:
   "<python>" cg.py doctor [--project PATH]
   "<python>" cg.py status [--project PATH] [--json] [--guide]
   "<python>" cg.py new TYPE TITLE... [--project PATH] [--date YYYY-MM-DD]
+  "<python>" cg.py validate [FILE...] [--strict] [--json] [--project PATH]
+  "<python>" cg.py approve PLAN --reply "the human's reply, word for word" [--project PATH]
+  "<python>" cg.py tier --fact NAME=yes|no... --touches FILE... --reads FILE|none... [--agent NAME]
+                      [--json] [--project PATH]
   "<python>" cg.py packs [--json]
   "<python>" cg.py setup [--packs a,b] [--setting pack.key=value]... [--classification-levels "A;B"]
                        [--approved-tool "agent=level"]... [--data "path=level"]...
@@ -12,6 +16,9 @@ Usage, with the interpreter that ~/.cg/launcher.json records as <python>:
 status names the next playbook only with --guide: the guide asks for it, and an
 agent that runs status from the pointer block must not open a playbook (#223).
 setup needs --packs the first time; later runs keep the recorded packs.
+validate fails on a schema 2 artifact that breaks the schema; --strict, for a
+project's CI, fails on a warning too. Version 1 artifacts are read as they are.
+tier wants every fact in FACTS declared, and computes the rest.
 
 PATH may be any folder inside the project: the commands use the nearest
 folder above it that holds .cg-docs/, else the root of its git repository.
@@ -26,6 +33,7 @@ import datetime
 import hashlib
 import json
 import os
+import posixpath
 import re
 import shutil
 import subprocess
@@ -37,20 +45,59 @@ CG_DIR = Path(__file__).resolve().parent.parent  # the cg skill folder
 MIN_PYTHON = (3, 9)
 PACK_KEYS = ("name", "version", "requires-core", "skills", "lenses", "tracks")
 
-# Artifact types and the folder each lives in under .cg-docs/.
-# PLACEHOLDER: the artifact schema is set in task 2.1; the folders match version 1.
-ARTIFACT_FOLDERS = {
-    "intent": "brainstorms",
-    "plan": "plans",
-    "work-report": "work-reports",
-    "review": "reviews",
-    "decision": "decisions",
-    "solution": "solutions",
+# The artifact schema. An artifact is a Markdown file under .cg-docs/ whose
+# frontmatter is flat: one 'key: value' line per key, the value text or a
+# one-line list. A file that says `schema: 2` is held to the tables below. A
+# file with no `schema` key is version 1 and is read as it is (read_artifact).
+SCHEMA = "2"
+# Per type: the folder (version 1's, so old and new artifacts sit together),
+# each status with what it means for status (waiting on the human, open or
+# closed), and the headings the body must hold. The first status is the one
+# `new` writes: the artifact is still being written.
+ARTIFACTS = {
+    "intent": {"folder": "brainstorms",
+               "statuses": {"draft": "waiting", "decided": "closed", "dropped": "closed"},
+               "sections": ["## Goal", "## Out of scope", "## A wrong result"]},
+    "plan": {"folder": "plans",
+             "statuses": {"draft": "waiting", "approved": "open", "in-progress": "open",
+                          "completed": "closed", "superseded": "closed", "dropped": "closed"},
+             "sections": ["## Contract", "### Goal", "### Out of scope", "### Requirements", "### Checks",
+                          "### Boundaries", "## Data register", "## Slices"]},
+    "work-report": {"folder": "work-reports",
+                    "statuses": {"in-progress": "open", "completed": "closed"},
+                    "sections": ["## Changed", "## Checks", "## Evidence", "## Not checked"]},
+    "review": {"folder": "reviews",
+               "statuses": {"open": "waiting", "triaged": "open", "closed": "closed"},
+               "sections": ["## Findings", "## Not checked"]},
+    "decision": {"folder": "decisions",
+                 "statuses": {"proposed": "waiting", "accepted": "closed", "superseded": "closed"},
+                 "sections": ["## Decision"]},
+    "solution": {"folder": "solutions",
+                 "statuses": {"draft": "open", "verified": "closed", "superseded": "closed"},
+                 "sections": ["## Lesson", "## Enforced by"]},
 }
-# Statuses that mean the artifact is still open, and those that wait on the human.
-# PLACEHOLDER: set with the artifact schema in task 2.1.
-OPEN_STATUSES = {"draft", "active", "in-progress", "planned", "open", "approved", "blocked", "handoff"}
-WAITING_STATUSES = {"draft"}
+ARTIFACT_FOLDERS = {kind: spec["folder"] for kind, spec in ARTIFACTS.items()}
+COMMON_KEYS = ("type", "schema", "title", "date", "status")
+LINK_KEYS = ("intent", "plan", "work-report", "review", "supersedes")  # each a path from the project root
+KNOWN_KEYS = COMMON_KEYS + LINK_KEYS + ("size", "decided-by", "tags")
+SETTLED = ("dropped", "superseded")  # nobody will finish these, so unfilled text in them is no failure
+NEEDS_APPROVAL = ("approved", "in-progress", "completed")  # plan statuses that rest on the human's yes
+# Version 1 statuses that are open; `draft` waits on the human. Any other is closed.
+V1_STATES = {"draft": "waiting", **dict.fromkeys(
+    ("active", "in-progress", "planned", "open", "approved", "blocked", "handoff"), "open")}
+# Replies P2 names as not a yes. approve refuses them; whether any other reply is a clear yes is by judgement.
+NOT_A_YES = ("sounds good", "whatever you think", "sure, go on")
+# What the agent declares about a piece of work, each with what a yes means. tier adds what code
+# can work out: whether this coding agent may read each data file, and the number of files.
+FACTS = {
+    "number": "it computes a number someone will read, or can change one",
+    "personal": "it touches personal data, credentials or access rights",
+    "irreversible": "it deletes or overwrites data, or does something that cannot be undone",
+    "interface": "it adds or upgrades a dependency, or alters something other code or other people rely on",
+    "choice": "it needs a choice between real alternatives that the human has not made",
+    "no-check": "no check would fail if the change were wrong",
+}
+MAX_FILES = 5  # a change that touches more files than this is not small
 # Which playbook each phase opens.
 # PLACEHOLDER: extended in task 2.14; task 1.3 delivers setup and quick only.
 PHASE_PLAYBOOK = {"setup": "playbooks/setup.md", "ready": "playbooks/quick.md"}
@@ -84,33 +131,53 @@ def version_lt(a: str, b: str) -> bool:
     return va + (0,) * (width - len(va)) < vb + (0,) * (width - len(vb))
 
 
-def flat_frontmatter(path: Path) -> dict:
-    """Read the top-level 'key: value' lines of a Markdown file's frontmatter.
+def read_value(value: str):
+    """One frontmatter value: text, or a list for a one-line list such as [a, "b, c"]."""
+    quoted = re.match(r'"((?:[^"\\]|\\.)*)"', value) or re.match(r"'([^']*)'", value)
+    if quoted:  # a quoted value ends at its closing quote; a '#' inside it is text
+        text = quoted.group(1)
+        return re.sub(r'\\(["\\])', r"\1", text) if value[0] == '"' else text
+    value = re.sub(r"\s+#.*$", "", value).strip()
+    if value.startswith("[") and value.endswith("]"):
+        items = re.findall(r'\s*"((?:[^"\\]|\\.)*)"|\s*\'([^\']*)\'|([^,]+)', value[1:-1])
+        return [item for item in ((a or b or c).strip() for a, b, c in items) if item]
+    return value
 
-    Nested values are skipped; version 1 files hold some, and reading them is
-    task 2.1's reader.
+
+def read_frontmatter(text: str):
+    """Return (fields, body, problems) for the text of a Markdown file.
+
+    fields maps each top-level key to text, or to a list for a one-line list.
+    That is all schema 2 allows. Version 1 files also hold nested blocks: each
+    is read as the list of its lines, so nothing is dropped, and is named in
+    problems. Only a schema 2 artifact is failed for its problems.
     """
-    try:
-        lines = path.read_text(encoding="utf-8").splitlines()
-    except (OSError, UnicodeDecodeError):
-        return {}
+    lines = text.splitlines()
     if not lines or lines[0].strip() != "---":
-        return {}
-    fields = {}
-    for line in lines[1:]:
-        if line.strip() == "---":
-            break
+        return {}, text, ["no frontmatter: the first line is not ---"]
+    end = next((i for i, line in enumerate(lines[1:], 1) if line.strip() == "---"), None)
+    if end is None:
+        return {}, "", ["the frontmatter is not closed by a --- line"]
+    fields, problems, key, nested = {}, [], None, set()
+    for number, line in enumerate(lines[1:end], 2):
         match = re.match(r"([A-Za-z][\w-]*):\s*(.*)$", line)
-        if not match:
-            continue
-        value = match.group(2).strip()
-        quoted = re.match(r'"((?:[^"\\]|\\.)*)"', value) or re.match(r"'([^']*)'", value)
-        if quoted:  # a quoted value ends at its closing quote; a '#' inside it is text
-            text = quoted.group(1)
-            fields[match.group(1)] = re.sub(r'\\(["\\])', r"\1", text) if value[0] == '"' else text
-        else:
-            fields[match.group(1)] = re.sub(r"\s+#.*$", "", value).strip()
-    return fields
+        if match:
+            key, value = match.group(1), match.group(2).strip()
+            if key in fields:
+                problems.append(f"line {number}: the key '{key}' appears twice")
+            if value.startswith("{"):
+                problems.append(f"line {number}: '{key}' holds a map; a value is text or a one-line list")
+            fields[key] = read_value(value)
+        elif key is not None and line.strip() and line[0] in " \t-":
+            if key not in nested:
+                nested.add(key)
+                problems.append(f"line {number}: '{key}' holds a nested block; a value is text or a one-line list")
+                held = fields[key]
+                fields[key] = held if isinstance(held, list) else [] if held in ("", "|", ">", "|-", ">-") else [held]
+            fields[key].append(re.sub(r"^-\s+", "", line.strip()))
+        elif line.strip() and not line.lstrip().startswith("#"):
+            problems.append(f"line {number}: not a 'key: value' line")
+    return fields, "\n".join(lines[end + 1:]), problems
 
 
 def tree_digest(folder: Path) -> str:
@@ -235,16 +302,38 @@ def git_facts(project: Path) -> dict:
     return facts
 
 
+def read_artifact(path: Path, kind: str, project: Path) -> dict:
+    """One artifact as status and validate see it, whichever schema wrote it.
+
+    This is the version 1 reader too. A file with no `schema` key is version 1:
+    its type is its folder's, its status is read through V1_STATES, and nothing
+    in it is an error, so a version 1 folder needs no conversion.
+    """
+    try:
+        text = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        text = ""
+    fields, body, problems = read_frontmatter(text)
+    schema = str(fields["schema"]) if "schema" in fields else "1"
+    status = fields.get("status", "")
+    status = status.lower() if isinstance(status, str) else ""
+    # A schema 2 status that nobody defined stays in view until validate's message is acted on.
+    state = (V1_STATES.get(status, "closed") if schema == "1"
+             else ARTIFACTS[kind]["statuses"].get(status, "open"))
+    title = fields.get("title", "")
+    return {"type": kind, "schema": schema, "path": path.relative_to(project).as_posix(), "name": path.name,
+            "status": status, "state": state, "title": title if isinstance(title, str) else "",
+            "fields": fields, "body": body, "problems": problems}
+
+
 def artifacts(project: Path):
-    """Every artifact with its flat frontmatter, newest file name first."""
+    """Every artifact of the project, newest file name first.
+
+    Folders inside an artifact folder are read too: version 1 keeps its solutions by category.
+    """
     docs = project / ".cg-docs"
-    found = []
-    for kind, folder in sorted(ARTIFACT_FOLDERS.items()):
-        for path in sorted((docs / folder).glob("*.md")):
-            fields = flat_frontmatter(path)
-            found.append({"type": kind, "path": path.relative_to(project).as_posix(),
-                          "name": path.name, "status": fields.get("status", "").lower(),
-                          "title": fields.get("title", "")})
+    found = [read_artifact(path, kind, project) for kind, folder in sorted(ARTIFACT_FOLDERS.items())
+             for path in sorted((docs / folder).rglob("*.md"))]
     # Dated names (YYYY-MM-DD-...) first, newest first; undated names after them.
     found.sort(key=lambda a: (bool(re.match(r"\d{4}-\d{2}-\d{2}-", a["name"])), a["name"], a["path"]),
                reverse=True)
@@ -332,8 +421,11 @@ def compute_status(project: Path, guide: bool = False) -> dict:
     settings, problems = read_settings(config)
     stops += problems
     stops += rule_problems(config)
-    found = artifacts(project)
-    open_ones = [a for a in found if a["status"] in OPEN_STATUSES]
+    open_ones = [a for a in artifacts(project) if a["state"] != "closed"]
+    waiting = [f"{a['path']} (status {a['status']})" for a in open_ones if a["state"] == "waiting"]
+    waiting += [f"{a['path']} (status {a['status']}, not approved as it now reads)" for a in open_ones
+                if a["schema"] == SCHEMA and a["type"] == "plan" and a["status"] in NEEDS_APPROVAL
+                and not is_approved(project, a)]
     phase = "setup" if config is None else "ready"
     if stops:
         step = "stop and show the human the stops"
@@ -348,8 +440,7 @@ def compute_status(project: Path, guide: bool = False) -> dict:
         "reason": "no .cg-docs/config.json" if config is None else ".cg-docs/config.json found",
         "active": open_ones[0]["path"] if open_ones else None,
         "open-artifacts": len(open_ones),
-        "waiting-on-human": [f"{a['path']} (status {a['status']})"
-                             for a in open_ones if a["status"] in WAITING_STATUSES],
+        "waiting-on-human": waiting,
         "packs-expected": expected,
         "packs-missing": missing,
         "add-command": add_command(missing) if missing else None,
@@ -449,10 +540,7 @@ def cmd_new(args) -> int:
     if target.exists():
         print(f"exists, not overwritten: {target.relative_to(project).as_posix()}")
         return 1
-    template_dir = CG_DIR / "templates"
-    template = template_dir / f"{args.type}.md"
-    if not template.is_file():
-        template = template_dir / "artifact.md"
+    template = CG_DIR / "templates" / f"{args.type}.md"
     safe_title = title.replace("\\", "\\\\").replace('"', '\\"')
     values = {"type": args.type, "title": safe_title, "heading": title, "date": date}
     # One pass, so a title that itself holds "{date}" is kept as written (#218).
@@ -460,6 +548,367 @@ def cmd_new(args) -> int:
                   template.read_text(encoding="utf-8"))
     write_atomic(target, text)
     print(f"created {target.relative_to(project).as_posix()}")
+    return 0
+
+
+# ---------------------------------------------------------------- validate
+
+def headings(body: str):
+    """The level 2 and 3 headings of a body, outside fenced code."""
+    found, fenced = [], False
+    for line in body.splitlines():
+        if line.lstrip().startswith(("```", "~~~")):
+            fenced = not fenced
+        elif not fenced and re.match(r"#{2,3} \S", line):
+            found.append(" ".join(line.split()))
+    return found
+
+
+def table_rows(body: str, heading: str):
+    """The rows of the table under a heading, as lists of cells, without the table's two header lines.
+
+    A | inside backticks or after a backslash belongs to its cell, so a command may hold a pipe.
+    """
+    rows, inside = [], False
+    for line in body.splitlines():
+        if re.match(r"#{1,6} ", line):
+            inside = " ".join(line.split()) == heading
+        elif inside and line.lstrip().startswith("|"):
+            cells, cell, code, escaped = [], "", False, False
+            for char in line.strip():
+                code = code != (char == "`")
+                if char == "|" and not code and not escaped:
+                    cells.append(cell.strip())
+                    cell = ""
+                else:
+                    cell += char
+                escaped = char == "\\" and not escaped
+            rows.append(cells[1:] + ([cell.strip()] if cell.strip() else []))
+    return rows[2:]
+
+
+def contract_problems(body: str):
+    """What P1 asks of a contract that code can check: requirements and checks carry IDs, every
+    requirement has a check that names it, and every check has a command and a failing outcome."""
+    problems, ids, covered = [], [], set()
+    requirements = [row[0] for row in table_rows(body, "### Requirements") if row]
+    checks = [(row + [""] * 4)[:4] for row in table_rows(body, "### Checks") if row]
+    problems += [f"'{rid}' is not an ID such as R1" for rid in requirements if not re.fullmatch(r"R\d+", rid)]
+    if not requirements or not checks:
+        problems.append("the Requirements table and the Checks table each need a row")
+    for cid, serves, command, fails in checks:
+        if not re.fullmatch(r"C\d+", cid):
+            problems.append(f"'{cid}' is not an ID such as C1")
+        named = re.findall(r"R\d+", serves)
+        unknown = [rid for rid in named if rid not in requirements]
+        if not named:
+            problems.append(f"check {cid} names no requirement")
+        if unknown:
+            problems.append(f"check {cid} names {', '.join(unknown)}, which the Requirements table does not hold")
+        if not command.strip("` "):
+            problems.append(f"check {cid} has no command")
+        if not fails:
+            problems.append(f"check {cid} does not say which outcome means failure")
+        covered.update(named)
+        ids.append(cid)
+    problems += [f"the ID {i} appears twice" for i in sorted({i for i in ids + requirements
+                                                              if (ids + requirements).count(i) > 1})]
+    problems += [f"requirement {rid} has no check" for rid in requirements if rid not in covered]
+    return problems
+
+
+def unfilled(kind: str, body: str):
+    """The lines of a body that are still the template's own request to fill a part in."""
+    try:
+        template = (CG_DIR / "templates" / f"{kind}.md").read_text(encoding="utf-8")
+    except OSError:
+        return []
+    asks = {line.strip() for line in template.splitlines() if re.search(r"<[^<>]+>", line)}
+    return [line.strip() for line in body.splitlines() if line.strip() in asks]
+
+
+def artifact_problems(project: Path, a: dict, approving: bool = False):
+    """(errors, warnings) for one schema 2 artifact, against ARTIFACTS.
+
+    approving judges a plan the way approve must: its text has to be complete,
+    and the approval it is about to get is not yet asked for.
+    """
+    spec, fields = ARTIFACTS[a["type"]], a["fields"]
+    if a["schema"] != SCHEMA:
+        return [f"schema is {a['schema']}; this core reads schema {SCHEMA} and version 1, which has no "
+                f"schema key, so a higher number needs a newer core"], []
+    errors = list(a["problems"])
+    errors += [f"the key '{key}' is missing or empty" for key in COMMON_KEYS
+               if not isinstance(fields.get(key), str) or not fields[key]]
+    if fields.get("type") and fields["type"] != a["type"]:
+        errors.append(f"type is {fields['type']}, but {spec['folder']}/ holds {a['type']} artifacts")
+    if fields.get("date"):
+        try:
+            datetime.date.fromisoformat(str(fields["date"]))
+        except ValueError:
+            errors.append(f"date is not YYYY-MM-DD: {fields['date']}")
+    if a["status"] and a["status"] not in spec["statuses"]:
+        errors.append(f"status is {a['status']}; a {a['type']} is one of: {', '.join(spec['statuses'])}")
+    for key in LINK_KEYS:
+        value = fields.get(key) or []
+        for target in [value] if isinstance(value, str) else value:
+            if os.path.isabs(target) or not (project / target).is_file():
+                errors.append(f"{key}: no such file from the project root: {target}")
+    held = headings(a["body"])
+    missing = [f"the section '{heading}' is missing" for heading in spec["sections"] if heading not in held]
+    errors += missing
+    if a["type"] == "plan":
+        errors += [] if missing else contract_problems(a["body"])
+        if a["status"] in NEEDS_APPROVAL and not approving and not is_approved(project, a):
+            errors.append(f"its status is {a['status']}, but no approval is recorded for the plan as it now "
+                          f"reads; show the human the plan, and record their reply with approve")
+    if a["type"] == "decision" and a["status"] == "accepted" and not fields.get("decided-by"):
+        errors.append("an accepted decision names the person who decided, in 'decided-by'")
+    warnings = [f"the key '{key}' is not part of schema {SCHEMA}" for key in fields if key not in KNOWN_KEYS]
+    left = unfilled(a["type"], a["body"])
+    if left:
+        being_written = a["status"] == next(iter(spec["statuses"])) or a["status"] in SETTLED
+        (warnings if being_written and not approving else errors).append(
+            f"the template's text is still in it, first: {left[0]}")
+    return errors, warnings
+
+
+def artifact_at(project: Path, arg: str):
+    """(path, type) for a file named on the command line, or None when it is in no artifact folder."""
+    path = Path(arg)
+    if not path.is_absolute():
+        path = project / path if (project / path).is_file() else Path.cwd() / path
+    path = path.resolve()
+    for kind, folder in ARTIFACT_FOLDERS.items():
+        if path.is_file() and (project / ".cg-docs" / folder).resolve() in path.parents:
+            return path, kind
+    return None
+
+
+def cmd_validate(args) -> int:
+    project = project_from(args.project)
+    if project is None:
+        return 2
+    found = artifacts(project)
+    if args.paths:
+        chosen = [(arg, artifact_at(project, arg)) for arg in args.paths]
+        for arg, at in chosen:
+            if at is None:
+                print(f"not an artifact of this project: {arg}")
+                return 2
+        found = [read_artifact(path, kind, project) for _, (path, kind) in chosen]
+    report = []
+    for a in sorted((a for a in found if a["schema"] != "1"), key=lambda a: a["path"]):
+        errors, warnings = artifact_problems(project, a)
+        report.append({"path": a["path"], "type": a["type"], "status": a["status"],
+                       "errors": errors, "warnings": warnings})
+    problems = sum(len(r["errors"]) for r in report)
+    warnings = sum(len(r["warnings"]) for r in report)
+    failed = problems + (warnings if args.strict else 0)
+    if args.json:
+        print(json.dumps({"artifacts": report, "version-1": len(found) - len(report), "strict": args.strict,
+                          "problems": problems, "warnings": warnings}, indent=2, sort_keys=True))
+        return 1 if failed else 0
+    for r in report:
+        for line in r["errors"]:
+            print(f"FAIL {r['path']}: {line}")
+        for line in r["warnings"]:
+            print(f"{'FAIL' if args.strict else 'warn'} {r['path']}: {line}")
+    print(f"schema-{SCHEMA}: {len(report)}\nversion-1: {len(found) - len(report)} (read as they are)\n"
+          f"problems: {problems}\nwarnings: {warnings}")
+    return 1 if failed else 0
+
+
+# ---------------------------------------------------------------- approve
+
+def text_hash(body: str) -> str:
+    """The digest an approval is recorded against.
+
+    It covers the body below the frontmatter, so a status can move on without
+    voiding the approval. Line ends, trailing spaces and blank lines at either
+    end are left out, so a sync or an editor cannot void it either.
+    """
+    text = "\n".join(line.rstrip() for line in body.splitlines()).strip("\n")
+    return "sha256:" + hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def approvals(project: Path, artifact: dict):
+    """Every approval record of an artifact. One approval is one file under .cg-docs/approvals/."""
+    found, stem = [], Path(artifact["name"]).stem
+    for path in sorted((project / ".cg-docs" / "approvals").glob("*.json")):
+        if not path.name.startswith(stem + "."):
+            continue
+        try:
+            record = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        if isinstance(record, dict) and record.get("artifact") == artifact["path"]:
+            found.append(record)
+    return found
+
+
+def is_approved(project: Path, artifact: dict) -> bool:
+    """True when the human approved the artifact as it now reads."""
+    digest = text_hash(artifact["body"])
+    return any(record.get("hash") == digest for record in approvals(project, artifact))
+
+
+def cmd_approve(args) -> int:
+    """Record the human's approval of a plan: their reply word for word, who gave it, when, and
+    the digest of the text they approved. Run again on the same text, it changes nothing."""
+    project = project_from(args.project)
+    if project is None:
+        return 2
+    at = artifact_at(project, args.artifact)
+    if at is None or at[1] != "plan":
+        print(f"not a plan of this project: {args.artifact}")
+        return 2
+    plan = read_artifact(at[0], "plan", project)
+    refused = []
+    if plan["schema"] == "1":
+        refused.append("this is a version 1 plan, which holds no contract to approve; write the plan with new")
+    else:
+        refused += artifact_problems(project, plan, approving=True)[0]
+        if plan["status"] not in ("draft", "approved", "in-progress"):
+            refused.append(f"its status is {plan['status']}; a plan takes an approval while it is draft, "
+                           f"approved or in-progress")
+    reply = args.reply.strip()
+    if not reply:
+        refused.append("give the human's reply, word for word, with --reply")
+    elif reply.lower().strip(" .!\"'") in NOT_A_YES:
+        refused.append(f'"{reply}" is not a clear yes (P2); ask the human what is unclear, '
+                       f'and record the reply that settles it')
+
+    def git_config(key):
+        done = subprocess.run(["git", "-C", str(project), "config", "--get", key],
+                              capture_output=True, text=True) if shutil.which("git") else None
+        return done.stdout.strip() if done and done.returncode == 0 else ""
+    name, email = git_config("user.name"), git_config("user.email")
+    if not name:
+        refused.append('git has no user.name here, so the approval would name nobody; the human sets it '
+                       'with: git config user.name "Their Name"')
+    digest = text_hash(plan["body"])
+    record_path = project / ".cg-docs" / "approvals" / f"{at[0].stem}.{digest[7:23]}.json"
+    known = is_approved(project, plan)
+    if record_path.exists() and not known:
+        refused.append(f"{record_path.relative_to(project).as_posix()} exists and is not this plan's record")
+    if refused:
+        for line in refused:
+            print(f"refused: {line}")
+        return 1
+    if known:
+        print(f"already approved as it now reads: {plan['path']}")
+    else:
+        record = {"artifact": plan["path"], "hash": digest, "reply": args.reply, "name": name, "email": email,
+                  "time": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}
+        write_atomic(record_path, json.dumps(record, indent=2, ensure_ascii=False) + "\n")
+        print(f"approved {plan['path']}\nrecord: {record_path.relative_to(project).as_posix()}\n"
+              f"hash: {digest}\nby: {name} <{email}>")
+    if plan["status"] == "draft":  # the one line of the plan that code changes
+        text = at[0].read_text(encoding="utf-8")
+        write_atomic(at[0], re.sub(r"\A(---[ \t]*\n(?:(?!---|status:).*\n)*)status:.*", r"\1status: approved", text, count=1))
+    return 0
+
+
+# ---------------------------------------------------------------- tier
+
+def data_path(project: Path, arg: str) -> str:
+    """A path as the data rules write it: from the project root, with forward slashes."""
+    path = Path(arg)
+    if path.is_absolute():
+        try:
+            arg = path.resolve().relative_to(project).as_posix()
+        except ValueError:
+            pass
+    arg = posixpath.normpath(arg.replace("\\", "/"))
+    return "" if arg == "." else arg
+
+
+def clearance(project: Path, config: dict, path: str, agent: str) -> dict:
+    """Whether the recorded data rules let this coding agent read one file (P12).
+
+    The rule for the file wins, then the rule for the nearest folder above it.
+    A file is cleared when its level is Public, or when approved-tools gives
+    this agent that level or a more restricted one in classification-levels.
+    """
+    rules = {data_path(project, key): level for key, level in config.get("data", {}).items()}
+    over = [key for key in rules if key in ("", path) or path.startswith(key + "/")]
+    if not over:
+        return {"path": path, "level": None, "cleared": False, "why": "no classification is recorded for it"}
+    level = rules[max(over, key=len)]
+    found = {"path": path, "level": level, "cleared": True, "why": f"its level is {level}"}
+    if level.casefold() == "public":
+        return found
+    tools = {name.casefold(): (name, allowed) for name, allowed in config.get("approved-tools", {}).items()}
+    if agent.casefold() not in tools:
+        return {**found, "cleared": False, "why": f"its level is {level}, and no level is recorded for {agent}"}
+    name, allowed = tools[agent.casefold()]
+    order = [item.casefold() for item in config.get("classification-levels", [])]
+    if level.casefold() == allowed.casefold():
+        return {**found, "why": f"{name} may read {allowed}"}
+    if level.casefold() not in order or allowed.casefold() not in order:
+        return {**found, "cleared": False, "why": f"its level is {level}, and classification-levels does not "
+                                                  f"rank it against what {name} may read ({allowed})"}
+    if order.index(level.casefold()) < order.index(allowed.casefold()):
+        return {**found, "why": f"{name} may read up to {allowed}"}
+    return {**found, "cleared": False, "why": f"its level is {level}, above what {name} may read ({allowed})"}
+
+
+def cmd_tier(args) -> int:
+    """The risk level of a piece of work, from declared facts and never from an opinion.
+
+    The agent declares every fact in FACTS as yes or no, the files the change
+    touches and the data files it reads. Code adds the data rules and the file
+    count. Any yes makes the tier elevated.
+    """
+    project = project_from(args.project)
+    if project is None:
+        return 2
+    config, stops = read_config(project)
+    stops = stops + rule_problems(config)
+    if stops:
+        for line in stops:
+            print(f"stop: {line}")
+        return 1
+    facts = pairs(args.fact, "--fact")
+    if facts is None:
+        return 2
+    config, facts = config or {}, {name: value.lower() for name, value in facts.items()}
+    reads, usage = args.reads or [], []
+    if len(facts) < len(args.fact or []):
+        usage.append("a fact is declared more than once; declare each fact once")
+    usage += [f"'{name}' is not a fact; the facts are: {', '.join(FACTS)}" for name in facts if name not in FACTS]
+    usage += [f"--fact {name} must be yes or no" for name, value in facts.items() if value not in ("yes", "no")]
+    usage += [f"declare --fact {name}=yes or --fact {name}=no; a yes means {meaning}"
+              for name, meaning in FACTS.items() if name not in facts]
+    if not args.touches:
+        usage.append("give --touches once for each file the change will create, change or delete")
+    if not reads or ("none" in reads and len(reads) > 1):
+        usage.append("give --reads once for each data file the work will open or that code it runs will read, "
+                     "or --reads none alone when there is none")
+    elif reads != ["none"] and not args.agent:
+        names = ", ".join(sorted(config.get("approved-tools", {})))
+        usage.append("give --agent with the name of this coding agent, as setup recorded it"
+                     + (f": {names}" if names else ""))
+    if usage:
+        for line in usage:
+            print(line)
+        return 2
+    data = [] if reads == ["none"] else [clearance(project, config, data_path(project, r), args.agent) for r in reads]
+    files = sorted({data_path(project, f) for f in args.touches})
+    reasons = [f"{name}: {FACTS[name]}" for name in FACTS if facts[name] == "yes"]
+    reasons += [f"data: {d['path']} is not cleared for {args.agent}" for d in data if not d["cleared"]]
+    if len(files) > MAX_FILES:
+        reasons.append(f"size: the change touches {len(files)} files, more than {MAX_FILES}")
+    state = {"tier": "elevated" if reasons else "low", "reasons": reasons, "data": data, "files": files,
+             "facts": {name: facts[name] for name in FACTS}}
+    if args.json:
+        print(json.dumps(state, indent=2, sort_keys=True))
+        return 0
+    shown = [f"{d['path']}{'=' + d['level'] if d['level'] else ''}: "
+             f"{'cleared' if d['cleared'] else 'not cleared'} ({d['why']})" for d in data]
+    print(f"tier: {state['tier']}\nreasons: {'; '.join(reasons) or 'none'}\n"
+          f"data: {'; '.join(shown) or 'none'}\nfiles: {len(files)}")
     return 0
 
 
@@ -760,8 +1209,25 @@ def main(argv=None) -> int:
     setup.add_argument("--data", action="append", help="path=level: the classification the human gave a data file")
     setup.add_argument("--project", default=".")
     setup.add_argument("--dry-run", action="store_true")
+    validate = sub.add_parser("validate", help="check the artifacts under .cg-docs/ against the schema")
+    validate.add_argument("paths", nargs="*", help="artifacts to check; all of them when none is given")
+    validate.add_argument("--strict", action="store_true", help="for a project's CI: a warning fails too")
+    validate.add_argument("--json", action="store_true")
+    validate.add_argument("--project", default=".")
+    approve = sub.add_parser("approve", help="record the human's approval of a plan")
+    approve.add_argument("artifact", help="the plan the human approved")
+    approve.add_argument("--reply", required=True, help="the human's reply, word for word")
+    approve.add_argument("--project", default=".")
+    tier = sub.add_parser("tier", help="compute the risk level of a piece of work from declared facts")
+    tier.add_argument("--fact", action="append", help=f"name=yes or name=no, once for each of: {', '.join(FACTS)}")
+    tier.add_argument("--touches", action="append", help="a file the change will create, change or delete")
+    tier.add_argument("--reads", action="append", help="a data file the work reads, or none")
+    tier.add_argument("--agent", help="this coding agent, as setup recorded it under approved-tools")
+    tier.add_argument("--json", action="store_true")
+    tier.add_argument("--project", default=".")
     args = parser.parse_args(argv)
-    commands = {"doctor": cmd_doctor, "status": cmd_status, "new": cmd_new, "packs": cmd_packs, "setup": cmd_setup}
+    commands = {"doctor": cmd_doctor, "status": cmd_status, "new": cmd_new, "packs": cmd_packs, "setup": cmd_setup,
+                "validate": cmd_validate, "approve": cmd_approve, "tier": cmd_tier}
     return commands[args.command](args)
 
 

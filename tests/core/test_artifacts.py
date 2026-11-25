@@ -133,13 +133,14 @@ def test_frontmatter_is_text_and_one_line_lists_and_names_what_is_nested():
 def test_a_version_1_folder_is_read_without_conversion(env):
     """Done when (#224): an existing version 1 folder is read as it is. These are
     the shapes found in a real one: one-line lists, nested findings, a quoted
-    status, a status the reader does not know, and files with no frontmatter."""
+    status, a status the reader does not know, a file with no frontmatter, and
+    solutions kept in a folder per category."""
     env["put"]("plan", '---\ntitle: "Old"\nstatus: "active"\ntags: [a, b]\nphases:\n  - one\n---\n', "2026-03-01-old.md")
     env["put"]("plan", "---\nstatus: completed\\ncompleted-date: 2026-06-01\n---\n", "2026-03-02-odd.md")
     env["put"]("intent", "---\nstatus: decided\nchosen-approach: b\n---\n", "2026-02-01-idea.md")
     env["put"]("review", "---\ntype: review\nfindings:\n  p0: 0\n  p1: 2\n---\n", "2026-03-03-review.md")
     env["put"]("work-report", "# Notes with no frontmatter\n", "notes.md")
-    env["put"]("solution", '---\ntype: "bug"\ncategory: weights\n---\n', "2026-01-01-fix.md")
+    env["put"]("solution", '---\ntype: "bug"\ncategory: weights\n---\n', "data-quality/2026-01-01-fix.md")
     before = digest(env["project"])
     for flags in ((), ("--strict",)):
         code, out = env["cg"]("validate", *flags)
@@ -349,17 +350,20 @@ def test_each_declared_yes_raises_the_tier(env):
 
 
 def test_tier_takes_no_opinion_every_fact_is_declared(env):
-    env["config"]()
     code, out = env["cg"]("tier", "--fact", "number=no", "--touches", "a.R", "--reads", "none")
     assert code == 2 and all(f"--fact {name}=" in out for name in FACTS[1:]) and "tier:" not in out
     for args, words in ((ALL_NO + ["--fact", "size=no"], "'size' is not a fact"),
                         (ALL_NO[:-1] + ["no-check=maybe"], "no-check must be yes or no"),
+                        (ALL_NO + ["--fact", "number=yes", "--touches", "a.R", "--reads", "none"], "more than once"),
                         (ALL_NO + ["--reads", "none"], "--touches"),
                         (ALL_NO + ["--touches", "a.R"], "--reads"),
                         (ALL_NO + ["--touches", "a.R", "--reads", "none", "--reads", "d.csv"], "--reads none"),
                         (ALL_NO + ["--touches", "a.R", "--reads", "d.csv"], "--agent")):
         code, out = env["cg"]("tier", *args)
-        assert code == 2 and words in out and "tier:" not in out, (args, out)
+        assert code == 2 and words in out and "tier:" not in out and "Traceback" not in out, (args, out)
+    # A project with no config has no data rule, so no data file is cleared in it.
+    code, out = env["cg"]("tier", *ALL_NO, "--touches", "a.R", "--reads", "d.csv", "--agent", "Codex")
+    assert code == 0 and out.startswith("tier: elevated\nreasons: data: d.csv is not cleared for Codex\n"), out
 
 
 def test_tier_counts_the_files(env):
