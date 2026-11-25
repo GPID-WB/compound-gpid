@@ -17,6 +17,12 @@ import pytest
 HUB = Path(__file__).resolve().parents[2]
 
 
+def clean_path() -> str:
+    """PATH without a version 1 folder, so no test sees the machine's own install (#220)."""
+    return os.pathsep.join(p for p in os.environ.get("PATH", "").split(os.pathsep)
+                           if ".compound-gpid" not in p)
+
+
 @pytest.fixture
 def env(tmp_path):
     root = tmp_path.resolve()
@@ -28,7 +34,7 @@ def env(tmp_path):
                     ignore=shutil.ignore_patterns("__pycache__"))
     home = root / "home folder"
     home.mkdir()
-    environ = dict(os.environ, HOME=str(home), USERPROFILE=str(home))
+    environ = dict(os.environ, HOME=str(home), USERPROFILE=str(home), PATH=clean_path())
 
     def install(*args):
         done = subprocess.run([sys.executable, str(hub / "install.py"), *map(str, args)],
@@ -198,7 +204,7 @@ def test_falls_back_to_a_copy_when_links_are_not_allowed(env, monkeypatch):
 
     monkeypatch.setattr(module.os, "symlink", refuse)
     monkeypatch.setattr(module, "make_junction", lambda target, link: False)
-    monkeypatch.setattr(module, "run_doctor", lambda: None)
+    monkeypatch.setattr(module, "run_doctor", lambda: 0)
     assert module.main(["--packs", "core"]) == 0
     assert claude(env).is_dir() and not module.is_link(claude(env))
     record = json.loads((env["home"] / ".cg" / "installed.json").read_text())
@@ -221,7 +227,7 @@ def test_uses_a_junction_on_windows_when_symlinks_are_refused(env, monkeypatch):
         raise OSError("symbolic links not allowed")
 
     monkeypatch.setattr(module.os, "symlink", refuse)
-    monkeypatch.setattr(module, "run_doctor", lambda: None)
+    monkeypatch.setattr(module, "run_doctor", lambda: 0)
     assert module.main(["--packs", "core"]) == 0
     assert module.is_link(claude(env)) and not claude(env).is_symlink()
     assert (claude(env) / "SKILL.md").is_file()
@@ -235,6 +241,7 @@ def load_install(env, monkeypatch, name):
     """install.py loaded in this process, with HOME pointing at the scratch home."""
     monkeypatch.setenv("HOME", str(env["home"]))
     monkeypatch.setenv("USERPROFILE", str(env["home"]))
+    monkeypatch.setenv("PATH", clean_path())
     spec = importlib.util.spec_from_file_location(name, env["hub"] / "install.py")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -324,3 +331,36 @@ def test_remove_v1_removes_only_what_version_1_owned(env):
     assert "cg-mine: named like a version 1 skill but not provably version 1's" in out
     assert clone.is_dir()
     assert (env["home"] / ".zshrc").read_text() == zshrc
+
+
+# ---------------------------------------------------------------- review findings (#220)
+
+def test_a_scratch_install_sees_no_version_1_from_the_machine(env):
+    code, out = env["install"]("--packs", "core")
+    assert code == 0 and "version 1" not in out, out
+
+
+def test_refuses_any_skill_of_a_pack_installed_as_a_claude_code_plugin(env):
+    add_pack(env["hub"], skills=("x-one", "x-two"))
+    copy = env["home"] / ".claude" / "plugins" / "cache" / "compound" / "lang-x" / "0.1.0" / "x-two"
+    copy.mkdir(parents=True)
+    (copy / "SKILL.md").write_text("x")
+    code, out = env["install"]("--packs", "core,lang-x")
+    assert code == 1 and "'x-two' is also installed as a Claude Code plugin" in out
+
+
+def test_removing_a_pack_that_is_not_installed_says_so(env):
+    env["install"]("--packs", "core")
+    code, out = env["install"]("--remove", "lang-rr")
+    assert code == 1 and "pack 'lang-rr' is not installed" in out
+
+
+def test_a_failing_doctor_makes_the_install_exit_1(env, monkeypatch):
+    module = load_install(env, monkeypatch, "hub_install_doctor")
+    monkeypatch.setattr(module, "run_doctor", lambda: 1)
+    assert module.main(["--packs", "core"]) == 1
+    assert agents(env).is_dir()
+
+
+def test_the_usage_text_names_no_python3():
+    assert "python3" not in (HUB / "install.py").read_text(encoding="utf-8").split('"""')[1]

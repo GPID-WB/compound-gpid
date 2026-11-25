@@ -1,13 +1,13 @@
 """Install Compound GPID packs from this hub into the user's skill folders.
 
-Usage:
-  python3 install.py --packs core,lang-r        first install of these packs
-  python3 install.py --profile economist        first install of a profile
-  python3 install.py --add lang-stata           add packs
-  python3 install.py --remove lang-stata        remove packs
-  python3 install.py --update                   copy the installed packs again from this hub
-  python3 install.py --uninstall                remove everything install.py installed
-  python3 install.py --remove-v1 [--project P]  remove what version 1 left that it owned
+Usage, where <python> is Python 3.9 or later (py -3 or python on Windows):
+  <python> install.py --packs core,lang-r        first install of these packs
+  <python> install.py --profile economist        first install of a profile
+  <python> install.py --add lang-stata           add packs
+  <python> install.py --remove lang-stata        remove packs
+  <python> install.py --update                   copy the installed packs again from this hub
+  <python> install.py --uninstall                remove everything install.py installed
+  <python> install.py --remove-v1 [--project P]  remove what version 1 left that it owned
 Add --dry-run to any of them to see what would change.
 
 Where skills go (ADR 0001, design change 4): a real folder in ~/.agents/skills
@@ -195,12 +195,11 @@ def load_record():
 
 
 def plugin_copies(skill: str):
-    """Copies of a skill inside Claude Code's plugin folder (a marketplace install)."""
-    base = home() / ".claude" / "plugins"
+    """Copies of a skill that Claude Code installed as a plugin, lead skill or not (#220)."""
+    base = home() / ".claude" / "plugins" / "cache"
     if not base.is_dir():
         return []
-    return sorted(p.parent for p in base.rglob("SKILL.md")
-                  if p.parent.name == skill and (p.parent / "pack.json").is_file())
+    return sorted(p.parent for p in base.rglob("SKILL.md") if p.parent.name == skill)
 
 
 def conflicts(skills, record):
@@ -311,11 +310,12 @@ def remove_skills(names, record, dry):
         record["packs"].pop(name, None)
 
 
-def run_doctor():
+def run_doctor() -> int:
     cg = agents_root() / "cg" / "scripts" / "cg.py"
-    if cg.is_file():
-        print("\ncg.py doctor:", flush=True)  # flush so the lines above print first
-        subprocess.run([sys.executable, str(cg), "doctor"])
+    if not cg.is_file():
+        return 0
+    print("\ncg.py doctor:", flush=True)  # flush so the lines above print first
+    return subprocess.run([sys.executable, str(cg), "doctor"]).returncode
 
 
 def resolve_names(text, packs):
@@ -463,6 +463,11 @@ def main(argv=None) -> int:
             print("nothing is installed")
             return 1
         names = sorted(record["packs"]) if args.uninstall else [n.strip() for n in args.remove.split(",")]
+        absent = [n for n in names if n not in record["packs"]]
+        if absent:
+            print("\n".join(f"pack '{n}' is not installed; installed: {', '.join(sorted(record['packs']))}"
+                             for n in absent))
+            return 1
         if "core" in names and not args.uninstall and set(record["packs"]) - set(names):
             print("core is needed by the other packs; remove them too, or use --uninstall")
             return 1
@@ -512,8 +517,9 @@ def main(argv=None) -> int:
             if (home() / ".cg").is_dir() and not any((home() / ".cg").iterdir()):
                 (home() / ".cg").rmdir()
     report_v1(None, remove=False, dry=True)
-    if add and not dry:
-        run_doctor()
+    if add and not dry and run_doctor() != 0:
+        print("The packs are installed, but doctor found a problem above.")
+        return 1
     return 0
 
 
