@@ -29,7 +29,7 @@ Issues: tracking issue #256 in `GPID-WB/compound-gpid`; tasks #211 to #255 and #
 | Issue script | `tools/admin/create_v2_issues.py` | rerun to add tasks or refresh the tracking issue |
 | Hub layout and manifests | `packs/`, `.claude-plugin/marketplace.json` (the pack index), `plugin.json`, `packs/*/.claude-plugin/plugin.json` | task 1.1; `claude plugin validate --strict` passes; a marketplace install has not been tried in any host |
 | Version sync | `tools/sync_version.py` | each `pack.json` is its pack's version source; core's version is the hub's (`2.0.0.9000`); the root `plugin.json` `repository` is the hub URL's source; `docs/install-block.md` is the one other place it appears |
-| `cg.py` | `packs/core/cg/scripts/cg.py` | task 1.2: `doctor`, `status`, `new`, `packs`; standard library, Python 3.9 or later |
+| `cg.py` | `packs/core/cg/scripts/cg.py` | task 1.2: `doctor`, `status`, `new`, `packs`; and `setup`, which writes what the human confirmed in the setup playbook (#219, finding 2); standard library, Python 3.9 or later |
 | Checks and CI | `tools/lint_skills.py`, `tools/validate_pack.py`, `tools/check_budgets.py`, `.github/workflows/v2.yml` | task 1.6; CI runs the checks, and pytest on Linux, macOS and Windows with Python 3.9 and 3.13 |
 | Installer | `install.py`, `docs/install-block.md` | task 1.4; installs into `~/.agents/skills` with links from `~/.claude/skills`; owns only what `~/.cg/installed.json` lists |
 | `lang-r` pack | `packs/lang-r/` | task 1.5: the eight v1 R skills, renamed `r-*`; lead skill `r-shared` |
@@ -37,7 +37,8 @@ Issues: tracking issue #256 in `GPID-WB/compound-gpid`; tasks #211 to #255 and #
 | Playbooks | `packs/core/cg/playbooks/setup.md`, `quick.md` | task 1.3; each opens with what the agent owns and ends with a `Reply:` contract |
 | Pointer block and templates | `packs/core/cg/templates/` (`pointer-block.md`, `verification.md`, `work-report.md`) | task 1.3; the block is nine lines, written into `AGENTS.md` only, and this repository's `AGENTS.md` holds it |
 | Codex adapter | `packs/core/cg/agents/openai.yaml` | task 1.3; optional (ADR 0004); not yet run in Codex |
-| Tests | `tests/core/`, `tests/hub/` | 109 tests, and one that runs only on Windows; run `python3 -m pytest -q` (or `uvx pytest -q`) |
+| Tests | `tests/core/`, `tests/hub/`, `tests/spike/` | 117 tests, and one that runs only on Windows; run `python3 -m pytest -q` (or `uvx pytest -q`) |
+| Gate kit | `spike/gate/` | the toy R package, `make_toy.py` (one copy per agent, and the value to give it), `compare_status.py` (status across the copies, work reports, `--collect` for the evidence), and `README.md`, the steps and the table for #223 |
 
 The version 1 tree is gone from `v2`: the generated host trees, `.github`, `adapters/`, `bin/`, `scripts/`, the Pester tests, the installers and release machinery, `research_evidence/` and `c-research/`. All of it is unchanged on branch `v1`, and later ports read from there (`git show v1:<path>` or `git archive v1 <path>`). Kept: `.cg-docs/`, `docs/` (its version 1 pages are for task 7.5), `spike/`.
 
@@ -54,7 +55,7 @@ The version 1 tree is gone from `v2`: the generated host trees, `.github`, `adap
 8. **Review by Fable 5.2** of tasks 1.1, 1.2, 1.6, 1.4 and 1.5: done. Each issue has a review comment with findings, most severe first, each with proof. No finding blocked task 1.3. The findings to fix are listed under "Findings from the review" below.
 9. **Review by Opus 5.5** of task 1.3 (#219): done. Eight findings in the issue, none blocking the gate. Finding 1 was in Opus's code and is fixed; the others are in the table below.
 10. **Fixes by Opus 5.5**: every finding in Opus's code from the reviews is fixed except two left on purpose (see the table), each with a test that fails on the code before it. Each issue has a comment saying what was fixed.
-11. **Next: the gate 1.7 (#223)**, with the maintainer at the keyboard. It is ready: CI is green on all six runs, and `install.py --packs core,lang-r --dry-run` against the maintainer's real home folder on 2026-11-24 listed nine installs, no refusal, exit 0. See "Before the gate" below.
+11. **Next: the gate 1.7 (#223)**, with the maintainer at the keyboard, following `spike/gate/README.md`. It is ready: CI is green on all six runs, and `install.py --packs core,lang-r --dry-run` against the maintainer's real home folder on 2026-11-24 listed nine installs, no refusal, exit 0. See "Before the gate" below.
 12. **For Fable 5.2, before the pilot:** the wording findings of #219 (2 to 5 and 8) and #221 finding 1.
 
 No task in this set failed its "Done when" twice. CI failed once each in tasks 1.6 and 1.4, both on Windows and both in tests, and was fixed in the next commit.
@@ -92,7 +93,7 @@ Each is in its issue with proof, and each fix is in a comment on that issue.
 | #217 | `2.0.0.9000` sorts after `2.0.0` | P2 | maintainer's decision, before the pilot |
 | #221 | `r-shared`'s description does not say it decides which R skills load | P2 | wording for Fable 5.2; check at the gate |
 | #221 | The team's name in two descriptions | P3 | task 7.3 |
-| #219 | Setup's writes are made by the model, not by code (P3) | P2 | before the pilot: a `cg.py` command (Opus) and the playbook calling it (Fable) |
+| #219 | Setup's writes are made by the model, not by code (P3) | P2 | code half done: `cg.py setup` (`3e40f5bf`); the playbook calling it is Fable 5.2's, before the pilot |
 | #219 | Line 1 of the quick risk table and the build comment disagree on figure labels | P2 | wording for Fable 5.2; record each host's answers at the gate |
 | #219 | No step for `status` failing; no PowerShell note in the pointer block; config keys defined only in a playbook | P3 | wording for Fable 5.2 |
 | #219 | Model-started guide may raise an approval prompt; Codex sandbox and the launcher write | P3 | check at the gate |
