@@ -208,6 +208,28 @@ def test_falls_back_to_a_copy_when_links_are_not_allowed(env, monkeypatch):
     assert not claude(env).exists()
 
 
+@pytest.mark.skipif(os.name != "nt", reason="junctions exist only on Windows")
+def test_uses_a_junction_on_windows_when_symlinks_are_refused(env, monkeypatch):
+    monkeypatch.setenv("HOME", str(env["home"]))
+    monkeypatch.setenv("USERPROFILE", str(env["home"]))
+    spec = importlib.util.spec_from_file_location("hub_install_j", env["hub"] / "install.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+
+    def refuse(*args, **kwargs):
+        raise OSError("symbolic links not allowed")
+
+    monkeypatch.setattr(module.os, "symlink", refuse)
+    monkeypatch.setattr(module, "run_doctor", lambda: None)
+    assert module.main(["--packs", "core"]) == 0
+    assert module.is_link(claude(env)) and not claude(env).is_symlink()
+    assert (claude(env) / "SKILL.md").is_file()
+    record = json.loads((env["home"] / ".cg" / "installed.json").read_text())
+    assert record["skills"]["cg"]["claude"] == "link"
+    assert module.main(["--uninstall"]) == 0
+    assert not claude(env).exists() and not agents(env).exists()
+
+
 # ---------------------------------------------------------------- version 1
 
 def make_v1(env):

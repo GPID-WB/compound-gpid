@@ -74,8 +74,27 @@ def show(path: Path) -> str:
 # ---------------------------------------------------------------- files
 
 def is_link(path: Path) -> bool:
-    isjunction = getattr(os.path, "isjunction", lambda p: False)
-    return path.is_symlink() or isjunction(str(path))
+    """A symbolic link, or on Windows a directory junction (any Python version)."""
+    if path.is_symlink():
+        return True
+    if os.name != "nt" or not path.exists():
+        return False
+    isjunction = getattr(os.path, "isjunction", None)  # Python 3.12 and later
+    if isjunction is not None:
+        return isjunction(str(path))
+    try:
+        os.readlink(path)  # reads junctions on Windows since Python 3.8
+        return True
+    except (OSError, ValueError):
+        return False
+
+
+def make_junction(target: Path, link: Path) -> bool:
+    """Windows only: a directory junction needs no special rights (ADR 0001)."""
+    if os.name != "nt":
+        return False
+    done = subprocess.run(["cmd", "/c", "mklink", "/J", str(link), str(target)], capture_output=True)
+    return done.returncode == 0 and is_link(link)
 
 
 def remove_link(path: Path) -> None:
@@ -125,7 +144,10 @@ def place_copy(source: Path, target: Path) -> None:
 
 
 def place_link(target: Path, link: Path) -> str:
-    """Link link -> target; fall back to a copy. Returns 'link' or 'copy'."""
+    """Link link -> target: a symbolic link, else on Windows a junction, else a copy.
+
+    Returns 'link' or 'copy'.
+    """
     link.parent.mkdir(parents=True, exist_ok=True)
     if is_link(link):
         remove_link(link)
@@ -135,6 +157,8 @@ def place_link(target: Path, link: Path) -> str:
         os.symlink(target, link, target_is_directory=True)
         return "link"
     except (OSError, NotImplementedError):
+        if make_junction(target, link):
+            return "link"
         place_copy(target, link)
         return "copy"
 

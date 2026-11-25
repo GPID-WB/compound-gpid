@@ -120,7 +120,7 @@ def test_status_names_missing_packs_and_the_command(env):
     assert code == 0
     assert state["phase"] == "ready"
     assert state["packs-missing"] == ["lang-r"]
-    assert state["add-command"] == "python3 install.py --add lang-r"
+    assert state["add-command"] == f'"{sys.executable}" install.py --add lang-r'
 
 
 def test_status_stops_when_project_needs_newer_core(env):

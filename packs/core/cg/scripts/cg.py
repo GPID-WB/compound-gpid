@@ -287,7 +287,9 @@ def add_command(missing) -> str:
         script = f'"{Path(hub) / "install.py"}"'
     except (OSError, ValueError, KeyError, TypeError):
         script = "install.py"
-    return f"python3 {script} --add {','.join(missing)}"
+    # The interpreter running this script, not "python3", which Windows lacks (ADR 0001).
+    packs = ",".join(missing)
+    return f'"{sys.executable}" {script} --add {packs}'
 
 
 def cmd_status(args) -> int:
