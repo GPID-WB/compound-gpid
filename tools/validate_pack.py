@@ -52,6 +52,19 @@ def inside(base: Path, rel) -> bool:
     return base.resolve() in target.parents and target.is_file()
 
 
+def hub_core_version():
+    try:
+        data = json.loads((HUB / "packs" / "core" / "cg" / "pack.json").read_text(encoding="utf-8"))
+        return tuple(int(n) for n in data["version"].split("."))
+    except (OSError, ValueError, KeyError):
+        return None
+
+
+def newer(a, b) -> bool:
+    width = max(len(a), len(b))
+    return a + (0,) * (width - len(a)) > b + (0,) * (width - len(b))
+
+
 def check_contract(pack: Path, principles):
     """Return (data or None, problems) for one pack folder."""
     problems = []
@@ -77,6 +90,12 @@ def check_contract(pack: Path, principles):
     for key in ("version", "requires-core"):
         if not isinstance(data.get(key), str) or not VERSION.fullmatch(data.get(key, "")):
             problems.append(f"{manifest}: {key} must be numbers joined by dots, such as 2.0.0")
+    core = hub_core_version()
+    needs = data.get("requires-core")
+    if core and isinstance(needs, str) and VERSION.fullmatch(needs) and \
+            newer(tuple(int(n) for n in needs.split(".")), core):
+        problems.append(f"{manifest}: requires-core {needs} is newer than the hub's core "
+                        f"{'.'.join(map(str, core))}; no install could satisfy it (#217)")
     skills = data.get("skills")
     if not isinstance(skills, list) or not all(isinstance(s, str) for s in skills):
         problems.append(f"{manifest}: skills must be a list of folder names")

@@ -1,6 +1,10 @@
 """Check text files against the avoided words in a glossary.
 
-Usage: python tools/check_glossary.py [--glossary PATH] [--notes] FILE_OR_DIR ...
+Usage: python tools/check_glossary.py [--glossary PATH] [--notes] [FILE_OR_DIR ...]
+
+With no FILE_OR_DIR, the hub's own text is checked (DEFAULT_PATHS), from
+whatever folder the command runs in. CI, CONTRIBUTING.md and the handoff
+call it that way, so this list is the one place a new document is added.
 
 An avoided word with no condition is an error. An avoided word with a
 condition in brackets, such as "test (when it is not a unit test)", needs
@@ -14,7 +18,10 @@ import re
 import sys
 from pathlib import Path
 
-DEFAULT_GLOSSARY = Path("packs/core/cg/GLOSSARY.md")
+HUB = Path(__file__).resolve().parent.parent
+DEFAULT_GLOSSARY = HUB / "packs" / "core" / "cg" / "GLOSSARY.md"
+DEFAULT_PATHS = ["packs", "docs/adr", "docs/v2", "docs/adoption-ledger.md", "docs/install-block.md",
+                 "SCOPE.md", ".out-of-scope", "spike", "README.md", "CONTRIBUTING.md", "AGENTS.md"]
 
 
 def read_avoided(glossary: Path):
@@ -63,8 +70,7 @@ def main(argv):
     show_notes = "--notes" in argv
     argv = [a for a in argv if a != "--notes"]
     if not argv:
-        print(__doc__)
-        return 2
+        argv = [str(HUB / p) for p in DEFAULT_PATHS]
     errors, notes = read_avoided(glossary)
     files = []
     for arg in argv:

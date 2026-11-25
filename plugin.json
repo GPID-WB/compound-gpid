@@ -2,7 +2,7 @@
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "compound",
   "version": "2.0.0.9000",
-  "description": "Compound GPID: a hub of skill packs that keep analysts in charge of work done with a coding agent. The root installs the core pack.",
+  "description": "Compound GPID: a hub of skill packs that keep analysts in charge of work done with a coding agent. Install with install.py (docs/install-block.md); this manifest is kept valid, but no host has been run on it.",
   "author": {
     "name": "GPID-WB",
     "url": "https://github.com/GPID-WB"

@@ -77,7 +77,7 @@ def test_lint_fails_on_an_unquoted_colon(tmp_path):
     pack = make_pack(tmp_path)
     (pack / "x-one" / "SKILL.md").write_text("---\nname: x-one\ndescription: Use this: always\n---\n")
     code, out = run("lint_skills.py", pack)
-    assert code == 1 and "holds ': '" in out
+    assert code == 1 and "unquoted value holds ':'" in out
 
 
 def test_lint_fails_on_a_skill_over_its_line_budget(tmp_path):
@@ -278,3 +278,62 @@ def test_budgets_fail_on_two_user_invoked_skills_in_core(tmp_path):
 def test_budgets_fail_on_a_seventh_key(tmp_path):
     code, out = run("check_budgets.py", "--pack", make_pack(tmp_path, homepage="x"))
     assert code == 1 and "7 keys, over the budget of 6" in out
+
+
+# ---------------------------------------------------------------- review findings (#222, #217)
+
+def set_description(pack, line):
+    (pack / "x-one" / "SKILL.md").write_text(f"---\nname: x-one\n{line}\n---\n\nBody.\n")
+
+
+def test_lint_fails_on_unquoted_values_a_strict_parser_rejects_or_cuts(tmp_path):
+    pack = make_pack(tmp_path)
+    for value, char in (("[beta] Weighted statistics in R", "["), ("!important R things", "!"),
+                        ("Use for C #sharp and R", "#")):
+        set_description(pack, f"description: {value}")
+        code, out = run("lint_skills.py", pack)
+        assert code == 1 and f"unquoted value holds '{char}'" in out, (value, out)
+    set_description(pack, 'description: "Use for C #sharp and R"\nallowed-tools: [Read, Grep]')
+    assert run("lint_skills.py", pack)[0] == 0
+
+
+def test_lint_refuses_a_folded_description(tmp_path):
+    pack = make_pack(tmp_path)
+    for header in (">-", ">", "|"):
+        set_description(pack, f"description: {header}\n  Folded text " + "x" * 1100)
+        code, out = run("lint_skills.py", pack)
+        assert code == 1 and "write it as one quoted line" in out, (header, out)
+
+
+def test_lint_fails_on_a_plain_path_into_another_skill(tmp_path):
+    pack = make_pack(tmp_path, skills=("x-one", "x-two"))
+    skill = pack / "x-one" / "SKILL.md"
+    base = skill.read_text()
+    for line in ("Read `../x-two/SKILL.md` first.", "Read ../x-two/SKILL.md first."):
+        skill.write_text(base + line + "\n")
+        code, out = run("lint_skills.py", pack)
+        assert code == 1 and "path '../x-two/SKILL.md' leaves the skill folder 'x-one'" in out, (line, out)
+    (pack / "x-one" / "references").mkdir()
+    (pack / "x-one" / "references" / "a.md").write_text("Back to `../SKILL.md`.\n")
+    skill.write_text(base)
+    assert run("lint_skills.py", pack)[0] == 0
+    (pack / "x-one" / "references" / "a.md").write_text("See [it](../missing.md).\n")
+    code, out = run("lint_skills.py", pack)
+    assert code == 1 and "'../missing.md' points at nothing" in out
+
+
+def test_validate_fails_on_a_pack_needing_a_newer_core_than_the_hub(tmp_path):
+    code, out = run("validate_pack.py", make_pack(tmp_path, **{"requires-core": "99.0.0"}))
+    assert code == 1 and "requires-core 99.0.0 is newer than the hub's core" in out
+
+
+def test_glossary_check_with_no_argument_checks_the_hub_from_any_folder(tmp_path):
+    code, out = run("check_glossary.py", cwd=tmp_path)
+    assert code == 0, out
+    assert "README.md" in out or "files," in out
+    assert int(out.split(" files,")[0].split()[-1]) > 30
+
+
+def test_sync_version_finds_the_hub_from_any_folder(tmp_path):
+    code, out = run("sync_version.py", "--check", cwd=tmp_path)
+    assert code == 0 and "manifests in step" in out, out

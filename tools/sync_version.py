@@ -164,7 +164,8 @@ def sync(root: Path, check: bool):
 
 def main(argv):
     check = "--check" in argv
-    root = Path(argv[argv.index("--root") + 1]) if "--root" in argv else Path(".")
+    # The hub is the folder above tools/, whatever folder the command runs in (#217).
+    root = Path(argv[argv.index("--root") + 1]) if "--root" in argv else Path(__file__).resolve().parent.parent
     problems = sync(root.resolve(), check)
     for fixable, line in problems:
         print(("DRIFT " if check else "fixed ") + line if fixable else "ERROR " + line)

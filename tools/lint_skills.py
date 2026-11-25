@@ -10,15 +10,18 @@ Rules
 - Every folder of a pack holds a SKILL.md (folders starting with "." are
   host manifests and are skipped).
 - Frontmatter: present, ASCII only, top-level keys from PORTABLE_KEYS only,
-  and free of the YAML shapes a strict host parser rejects (tab indentation,
-  an unclosed quote, an unquoted value that starts with a YAML indicator or
-  holds ": ").
+  and free of the YAML shapes a strict host parser rejects or cuts: tab
+  indentation, an unclosed quote, a block scalar, and an unquoted value
+  holding anything but letters, digits, spaces and . , ( ) / _ -
+  (a one-line flow list such as [Read, Grep] is allowed).
 - `name` equals the folder name, lowercase words joined by hyphens, at most
   64 characters. `description` is present and at most 1024 characters.
 - Line budgets from SCOPE.md (LINE_BUDGETS below).
 - Principle files hold their four headed parts (REQUIRED_SECTIONS).
 - Links in every Markdown file of a skill resolve, and stay inside that skill
   folder (ADR 0003, rule 4). Web, mail and in-page links are not followed.
+  A relative path written as text or in backticks (../...) must also stay
+  inside the skill folder, since agents follow those too.
 
 Pattern from addyosmani/agent-skills@e997ac5:scripts/lib/skill-lint.js
 (spec-only top-level keys, the narrow YAML rules, name equals folder); the
@@ -49,6 +52,7 @@ REQUIRED_SECTIONS = {
     "principle": ["## In production", "## Evidence it leaves", "## Verifier", "## Deterministic checks"],
 }
 LINK = re.compile(r"!?\[[^\]]*\]\(\s*<?([^)\s>]+)>?(?:\s+\"[^\"]*\")?\s*\)")
+PATH_UP = re.compile(r"(?<![\w/.])((?:\.\./)+[^\s`'\")\]]*)")
 REF_LINK = re.compile(r"^\s{0,3}\[[^\]]+\]:\s*<?(\S+?)>?(?:\s|$)")
 
 
@@ -80,12 +84,17 @@ def yaml_problems(lines):
         if value[0] in "\"'":
             if len(value) < 2 or not value.endswith(value[0]):
                 found.append((number, f"opens a {value[0]} quote that never closes"))
-        elif re.match(r"[`@%*,]", value):
-            found.append((number, f"unquoted value starts with '{value[0]}'; wrap it in quotes"))
-        elif re.match(r"[|>]\S", value) or re.match(r"[-?&](\s|$)", value):
-            found.append((number, f"unquoted value starts with '{value[0]}'; wrap it in quotes"))
-        elif re.search(r":(\s|$)", value) and not re.match(r"[\[{]", value):
-            found.append((number, "unquoted value holds ': '; wrap it in quotes"))
+        elif re.fullmatch(r"[|>][-+]?\d*", value):
+            # A block scalar is valid YAML, but this reader would take the header for the value
+            # and the length limit would never apply (#222). Inputs are constrained (SCOPE.md).
+            found.append((number, "a block scalar ('|' or '>'); write it as one quoted line"))
+        elif re.fullmatch(r"\[[^\[\]]*\]|\{[^{}]*\}", value):
+            continue  # a one-line flow list or map, such as allowed-tools: [Read, Grep]
+        else:
+            bad = re.search(r"[^A-Za-z0-9 .,()/_-]", value)
+            if bad:
+                found.append((number, f"unquoted value holds '{bad.group(0)}', which YAML may read "
+                                      f"as syntax or cut at; wrap the value in quotes"))
     return found
 
 
@@ -168,13 +177,19 @@ def lint_file(path: Path, skill: Path, pack: Path, errors):
             if not any(h == section or h.startswith(section + ":") for h in headings):
                 errors.append((path, 1, f"principle file has no '{section}' section"))
     for number, line in prose(lines):
+        leaving = set()  # reported once here, so the link check below skips them
+        for target in sorted(set(PATH_UP.findall(line))):
+            resolved = (path.parent / target.split("#", 1)[0]).resolve()
+            if skill.resolve() not in (resolved, *resolved.parents):
+                leaving.add(target)
+                errors.append((path, number, f"path '{target}' leaves the skill folder '{skill.name}'"))
         line = re.sub(r"`[^`]*`", "", line)
         targets = LINK.findall(line) + REF_LINK.findall(line)
         for target in targets:
             if re.match(r"[a-z][a-z0-9+.-]*:", target, re.I) or target.startswith("#"):
                 continue
             target = target.split("#", 1)[0].split("?", 1)[0]
-            if not target:
+            if not target or target in leaving:
                 continue
             if target.startswith("/"):
                 errors.append((path, number, f"link '{target}' is an absolute path"))
