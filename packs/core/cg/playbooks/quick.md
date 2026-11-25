@@ -13,7 +13,7 @@ Until the plan and review playbooks are installed, this is the one playbook for 
 
 Say in one or two sentences what the human asked for and the smallest change that meets it (P6). Name what you will leave alone. If the request can be read two ways, ask which is meant. Do not pick one.
 
-If the human gave no request, ask what they want done and end your turn.
+If status shows an open work report under `active`, read it first: continue that work, or ask the human whether to close it. If the human gave no request and nothing is open, ask what they want done and end your turn.
 
 ## 2. Check the risk
 
@@ -57,7 +57,7 @@ Create the work report:
 
 Fill every section of the file it creates. Evidence holds commands, exit codes, digests and counts. It never holds data.
 
-Set `status: completed` when every check is verified. Otherwise leave `status: draft`, so that status keeps showing the work as open.
+Set `status: completed` when every check is verified. Otherwise leave `status: in-progress` and say so in the reply, so that status keeps showing the work as open.
 
 Commit only when the human asks. Then the work report goes in the same commit as the change (P8).
 

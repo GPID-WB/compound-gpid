@@ -14,7 +14,7 @@ Setup can be run again at any time. Every step works from what exists and change
 Read, and write nothing. Look things up instead of asking (P2).
 
 1. **State.** Keep the status output the guide already has: the project root, `core`, `git`. Run `"<python>" "<cg>" packs --json` to see the packs installed on this machine, and the folder of each pack's lead skill (`path`).
-2. **Files.** List the project's files: `git ls-files` in a repository, otherwise a listing of the folder without hidden and vendored folders. Count the files by extension.
+2. **Files.** List the project's files: `git ls-files --cached --others --exclude-standard` in a repository (tracked and new files, without ignored ones), otherwise a listing of the folder without hidden and vendored folders. Count the files by extension.
 3. **Packs the files call for.** `core` is always on the list. Add a pack only for files you found.
 
    | Files found | Pack |

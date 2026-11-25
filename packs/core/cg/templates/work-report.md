@@ -2,7 +2,7 @@
 type: work-report
 title: "{title}"
 date: {date}
-status: draft
+status: in-progress
 size: quick
 ---
 
