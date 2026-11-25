@@ -35,13 +35,13 @@ Put one proposal to the human, in this order. Give each part with what you found
 1. **Packs** this project expects, and for each one whether it is installed on this machine.
 2. **Pack settings**, each with the value you recommend and the lines of code that show it. Where the code shows nothing, recommend the pack's default and say that it is the default.
 3. **Verification profile** (P4), as a draft: the Run command, the Doctor command, and each output you could identify with what would prove it right. Where you found nothing, write "not found". Do not guess a command.
-4. **Data rules** (P12). Only the human can state these; you cannot look them up, and you do not judge the answers. Ask in one question, with an example answer the human can copy:
+4. **Data rules** (P12). Only the human can state these; you cannot look them up, and you do not judge the answers. Ask in one question, with an example answer the human can copy, and only for what the `data` line of status does not already show:
    - for each data file you found, its classification in the organization's words, for example `Public`;
-   - the highest level this coding agent may read;
+   - the highest level their organization lets this coding agent read;
    - if the human knows them, the names of the organization's classification levels, from public to most restricted.
 
-   When the human does not know an answer yet, that item stays open. While it is open, the file is restricted data.
-5. **Every file you will write or change**, by path. Take the list from the command in section 4, run with `--dry-run` added: it prints each file it would create or change, and writes nothing. Do not write the list from memory.
+   A description is not a classification: a file that a README calls synthetic or public still needs the human's answer. When the human does not know an answer yet, that item stays open. While it is open, the file is restricted data.
+5. **Every file you will write or change**, by path. Take the list from the command in section 4, run with the options you can already fill and with `--dry-run` added: it prints each file it would create or change, and writes nothing. Do not write the list from memory.
 
 State the assumptions you made. Then end your turn.
 
@@ -55,7 +55,7 @@ Write what was confirmed and nothing else. One command writes it, in the project
 
 `"<python>" "<cg>" setup --packs "<pack>,<pack>" --setting "<pack>.<setting>=<value>" --data "<file>=<level>" --approved-tool "<this coding agent>=<level>" --classification-levels "<level>;<level>" --project "<project root>"`
 
-Give `--setting`, `--data` and `--approved-tool` once per value. Leave out an option the human did not answer. Name the coding agent as the human names it. The command writes:
+Give `--setting`, `--data` and `--approved-tool` once per value. Leave out an option the human did not answer. Name the coding agent by its product name, unless the human names it otherwise, and say which name you used: quick work looks for that name. The command writes:
 
 1. **`.cg-docs/config.json`**, for example:
 
@@ -70,13 +70,13 @@ Give `--setting`, `--data` and `--approved-tool` once per value. Leave out an op
    }
    ```
 
-   Status reads `packs`, `requires-core`, `settings` and `data`.
+   Status reads `packs`, `requires-core`, `settings` and `data`. Quick work reads `approved-tools` and `classification-levels` for its risk line 2. In `data` and `approved-tools` each name has one level, as text. `classification-levels` is a list in order, from public to most restricted.
 2. **`.cg-docs/verification.md`**, from `templates/verification.md`, when it is missing.
 3. **`AGENTS.md`**, with the pointer block from `templates/pointer-block.md`: it replaces the block between `cg:start` and `cg:end`, or adds the block at the end, and changes nothing outside the markers.
 4. **`CLAUDE.md`**, holding the line `@AGENTS.md`. The pointer block goes in no other file, and nothing goes into `.github/copilot-instructions.md`: one coding agent loads all three files and would read the block twice.
 5. **`.Rbuildignore`**, only in an R package (a `DESCRIPTION` file in the root), with `^\.cg-docs$`, `^AGENTS\.md$` and `^CLAUDE\.md$`, so the package check does not report these files.
 
-If the command refuses, it has written nothing: show the human its message. Then fill `.cg-docs/verification.md` with the confirmed draft. Its status stays `draft` until the Run command has been run from start to finish.
+If the command refuses, it has written nothing: show the human its message and end your turn. Once it has written, fill `.cg-docs/verification.md` with the confirmed draft. Its status stays `draft` until the Run command has been run from start to finish.
 
 Commit nothing unless the human asks.
 
