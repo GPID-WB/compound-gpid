@@ -4,6 +4,16 @@ Go or no-go before milestone 2. The maintainer is at the keyboard; a build sessi
 
 "Done when" in #223: install of `core` and `lang-r` by the documented route in under five minutes per agent; `/cg` runs setup and a quick task that ends with recorded evidence; `cg.py status` reports the same state in every agent; no skill is listed twice; a written go or no-go.
 
+## Rerun without a human
+
+After a fix, `run_cli_gate.py` repeats steps B to D in Claude Code, Codex and Kilo from the command line, on fresh copies in `~/temp/cg-gate/rerun`, with their approval prompts off:
+
+```
+python3 spike/gate/run_cli_gate.py --kilo-model openai/gpt-6-luna
+```
+
+It judges each step from the files and from status, writes cleaned transcripts and `results.json` to `.cg-docs/gate-m1/rerun/`, and exits 1 when a check fails. Copilot and Posit Assistant have no command line: a human checks them in the editor.
+
 ## What stays and what is thrown away
 
 - **Stays (a real install):** the hub clone in `~/compound-gpid`, the skills `cg` and `r-*` in `~/.agents/skills` with their links in `~/.claude/skills`, and `~/.cg/` (the install record and the launcher). This is the install the pilot uses. To take it all away: `python3 ~/compound-gpid/install.py --uninstall`, then delete `~/compound-gpid`.
