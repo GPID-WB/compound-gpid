@@ -27,7 +27,7 @@ Look at the files the change will touch. Then answer each line with yes or no. F
 | 4 | It deletes or overwrites data, or does something that cannot be undone: a push to a shared branch, a release, a publication, a message sent. |
 | 5 | It adds or upgrades a dependency, or alters a function, a file format or a column that other code or other people rely on. |
 | 6 | It needs more than about five files, or a choice between real alternatives that the human has not made. |
-| 7 | You cannot name a check that would fail if the change were wrong. |
+| 7 | It cannot be checked: you can name no check that would fail if the change were wrong. |
 
 **Every answer is no.** Go on to step 3 without waiting.
 
