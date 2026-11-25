@@ -36,7 +36,7 @@ Put one proposal to the human, in this order. Give each part with what you found
 2. **Pack settings**, each with the value you recommend and the lines of code that show it. Where the code shows nothing, recommend the pack's default and say that it is the default.
 3. **Verification profile** (P4), as a draft: the Run command, the Doctor command, and each output you could identify with what would prove it right. Where you found nothing, write "not found". Do not guess a command.
 4. **Data rules** (P12). Only the human can state these; you cannot look them up, and you do not judge the answers. Ask in one question, with an example answer the human can copy, and only for what the `data` line of status does not already show:
-   - for each data file you found, its classification in the organization's words, for example `Public`;
+   - for each data file you found, its classification in the organization's words, for example `Public`. One answer may cover a folder and every file under it;
    - the highest level their organization lets this coding agent read;
    - if the human knows them, the names of the organization's classification levels, from public to most restricted.
 
@@ -53,9 +53,9 @@ Only a clear yes is approval (P2). A correction is not a yes: change the proposa
 
 Write what was confirmed and nothing else. One command writes it, in the project root. It keeps every key and every line that is already there, and changes only what differs. Show the command, then run it:
 
-`"<python>" "<cg>" setup --packs "<pack>,<pack>" --setting "<pack>.<setting>=<value>" --data "<file>=<level>" --approved-tool "<this coding agent>=<level>" --classification-levels "<level>;<level>" --project "<project root>"`
+`"<python>" "<cg>" setup --packs "<pack>,<pack>" --setting "<pack>.<setting>=<value>" --data "<file or folder>=<level>" --approved-tool "<this coding agent>=<level>" --classification-levels "<level>;<level>" --project "<project root>"`
 
-Give `--setting`, `--data` and `--approved-tool` once per value. Leave out an option the human did not answer. Name the coding agent by its product name, unless the human names it otherwise, and say which name you used: quick work looks for that name. The command writes:
+Give `--setting`, `--data` and `--approved-tool` once per value. Leave out an option the human did not answer. Name the coding agent by its product name, unless the human names it otherwise, and say which name you used: `cg.py tier` looks for that name. The command writes:
 
 1. **`.cg-docs/config.json`**, for example:
 
@@ -64,13 +64,13 @@ Give `--setting`, `--data` and `--approved-tool` once per value. Leave out an op
      "packs": ["core", "lang-r"],
      "requires-core": "<the installed core version>",
      "settings": {"<pack>": {"<setting>": "<value>"}},
-     "data": {"<file>": "<level>"},
+     "data": {"<file or folder>": "<level>"},
      "approved-tools": {"<this coding agent>": "<highest level it may read>"},
      "classification-levels": ["<level>", "<level>"]
    }
    ```
 
-   Status reads `packs`, `requires-core`, `settings` and `data`. Quick work reads `approved-tools` and `classification-levels` for its risk line 2. In `data` and `approved-tools` each name has one level, as text. `classification-levels` is a list in order, from public to most restricted.
+   Status reads `packs`, `requires-core`, `settings` and `data`. `cg.py tier` reads `data`, `approved-tools` and `classification-levels` to decide whether this coding agent may read a data file. In `data` a name is a file or a folder, written from the project root. A rule for a folder covers every file under it, and a rule for a file inside that folder wins. In `data` and `approved-tools` each name has one level, as text. `classification-levels` is a list in order, from public to most restricted.
 2. **`.cg-docs/verification.md`**, from `templates/verification.md`, when it is missing.
 3. **`AGENTS.md`**, with the pointer block from `templates/pointer-block.md`: it replaces the block between `cg:start` and `cg:end`, or adds the block at the end, and changes nothing outside the markers.
 4. **`CLAUDE.md`**, holding the line `@AGENTS.md`. The pointer block goes in no other file, and nothing goes into `.github/copilot-instructions.md`: one coding agent loads all three files and would read the block twice.

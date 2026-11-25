@@ -376,7 +376,7 @@ def read_settings(config):
     return lines, problems
 
 
-# The data rules quick work reads for its risk line 2 (#223), with the shape each must have.
+# The data rules that tier reads (#223, #224), with the shape each must have.
 RULE_KEYS = {"data": "map file paths to a classification level",
              "approved-tools": "map coding agent names to a classification level"}
 

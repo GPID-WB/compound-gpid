@@ -17,27 +17,32 @@ If status shows an open work report under `active`, read it first: continue that
 
 ## 2. Check the risk
 
-Look at the files the change will touch. Then answer each line with yes or no. Find the answers in the files and in the status output, and ask the human only for what they alone know. Answer from what the change does, not from how small it looks: each no needs a reason you can write in the record.
+Look at the files the change will touch. Then answer each fact below with yes or no. Find the answers in the files and in the status output, and ask the human only for what they alone know. Answer from what the change does, not from how small it looks: each no needs a reason you can write in the record.
 
-| # | Fact about the change |
+| Fact | It is a yes when the change |
 |---|---|
-| 1 | It computes a number someone will read, or can change one. New code that computes an estimate or a count is a yes, even when no number existed before. So is a change to a weight, a sample, a filter, a merge, a method or a unit of measure, or to the values in a table, a figure or a published dataset. A change to a label, a title, a colour or a layout that leaves every value and its unit of measure as it was is a no. |
-| 2 | You will open a data file, or run code that reads one, and the `data` line of status does not clear that file for this coding agent. The line clears a file when it gives the file's level as `Public`, or when `approved-tools` in `.cg-docs/config.json` names this coding agent at that level, or at a more restricted one in `classification-levels`. A file the line does not list is not cleared: "synthetic" or "public" written in a README, a comment or a file name is a description, not a classification. |
-| 3 | It touches personal data, credentials or access rights. |
-| 4 | It deletes or overwrites data, or does something that cannot be undone: a push to a shared branch, a release, a publication, a message sent. |
-| 5 | It adds or upgrades a dependency, or alters a function, a file format or a column that other code or other people rely on. |
-| 6 | It needs more than about five files, or a choice between real alternatives that the human has not made. |
-| 7 | It cannot be checked: you can name no check that would fail if the change were wrong. |
+| `number` | computes a number someone will read, or can change one. New code that computes an estimate or a count is a yes, even when no number existed before. So is a change to a weight, a sample, a filter, a merge, a method or a unit of measure, or to the values in a table, a figure or a published dataset. A change to a label, a title, a colour or a layout that leaves every value and its unit of measure as it was is a no. |
+| `personal` | touches personal data, credentials or access rights. |
+| `irreversible` | deletes or overwrites data, or does something that cannot be undone: a push to a shared branch, a release, a publication, a message sent. |
+| `interface` | adds or upgrades a dependency, or alters a function, a file format or a column that other code or other people rely on. |
+| `choice` | needs a choice between real alternatives that the human has not made. |
+| `no-check` | cannot be checked: you can name no check that would fail if the change were wrong. |
 
-**Every answer is no.** Go on to step 3 without waiting.
+Code computes the tier from your answers. It also counts the files, and it decides from the data rules in `.cg-docs/config.json` whether this coding agent may read each data file. Run:
 
-**Any answer is yes.** This is a hard stop. Tell the human which lines are yes and why. Then give a short contract: the goal, what is out of scope, and the checks you will run with the outcome that would mean failure. When line 2 is yes, ask in the same reply for what would clear the file, with an example answer the human can copy: its classification, and the highest level their organization lets this coding agent read. Say how you will work without seeing the data if they cannot answer yet (P12). End your turn, and go on only after a clear yes. When line 6 is yes because the work is large, say that it needs a plan, and offer the first slice that is small enough to do now.
+`"<python>" "<cg>" tier --fact number=<yes or no> --fact personal=<yes or no> --fact irreversible=<yes or no> --fact interface=<yes or no> --fact choice=<yes or no> --fact no-check=<yes or no> --touches "<file>" --reads "<data file>" --agent "<this coding agent>" --project "<project root>"`
+
+Give `--touches` once for each file the change will create, change or delete. Give `--reads` once for each data file you will open, or that code you run will read. When there is none, give `--reads none` and leave out `--agent`. Name this coding agent as setup recorded it. Only a recorded rule clears a data file: "synthetic" or "public" written in a README, a comment or a file name is a description, not a classification.
+
+**`tier: low`.** Go on to step 3 without waiting.
+
+**`tier: elevated`.** This is a hard stop. Tell the human each reason on the `reasons` line. Then give a short contract: the goal, what is out of scope, and the checks you will run with the outcome that would mean failure. When a reason is `data`, ask in the same reply for what would clear the file, with an example answer the human can copy: its classification, and the highest level their organization lets this coding agent read. Say how you will work without seeing the data if they cannot answer yet (P12). End your turn, and go on only after a clear yes. When a reason is `size`, say that the work needs a plan, and offer the first slice that is small enough to do now.
 
 **When the human answers a data question,** here or later in the work, record the answer before you go on, so that no later session asks again. Show the line, then run it:
 
-`"<python>" "<cg>" setup --data "<file>=<level>" --approved-tool "<this coding agent>=<level>" --project "<project root>"`
+`"<python>" "<cg>" setup --data "<file or folder>=<level>" --approved-tool "<this coding agent>=<level>" --project "<project root>"`
 
-Record only what the human stated, in their words for the level, such as `Public`. Leave out `--approved-tool` when they did not say what this coding agent may read. "Synthetic" or "test data" is a description, not a level: ask which level it is. Then run status again and answer line 2 from its `data` line. An answer about the data is not a yes to the contract.
+Record only what the human stated, in their words for the level, such as `Public`. A rule for a folder covers every file under it. Leave out `--approved-tool` when they did not say what this coding agent may read. "Synthetic" or "test data" is a description, not a level: ask which level it is. Then run `tier` again and read its `data` line. An answer about the data is not a yes to the contract.
 
 ## 3. Change
 
@@ -47,7 +52,7 @@ Record only what the human stated, in their words for the level, such as `Public
 - When one operation applies to many units, do one worked example, write the tool, show that the tool gives the outcome of the worked example, and only then run it on the rest (P3). Nothing that reaches a reader is typed in.
 - Check a function name or an argument you are not sure of in the package's documentation before you use it (P7).
 - Fail loudly: missing data, a null weight or an unmatched merge raises an error, never a silent fallback (P10).
-- If the change grows beyond what you restated, or a line in step 2 turns to yes, stop and return to step 2.
+- If the change grows beyond what you restated, or a fact in step 2 turns to yes, stop and return to step 2.
 
 ## 4. Prove
 
@@ -67,6 +72,12 @@ Fill every section of the file it creates. Evidence holds commands, exit codes, 
 
 Set `status: completed` when every check you named for this change, in step 2 or in the contract, ran and is verified. With no verified check, the work is not completed. Otherwise leave `status: in-progress` and say so in the reply, so that status keeps showing the work as open.
 
+Then have code check the record:
+
+`"<python>" "<cg>" validate "<the work report>" --project "<project root>"`
+
+A line that starts with `FAIL` names what is wrong in the work report. Fix it there and run the line again.
+
 What the project or the install does not have yet is not a failed check: a Doctor or Run command that the verification profile marks "not found", a `cg.py` command that `--help` does not list, a formatter that is not installed. Write each under "Not checked" and say it in the reply. It does not keep the work open. A check you named is the exception: when what it needs is missing, its verdict is inconclusive and the work stays open.
 
 A failure that was there before your change, in something the change did not touch, is not yours either. Show that it was there: run the same check on the unchanged code, or quote the baseline. Put it under "Noticed but not touching". It does not keep the work open. A check you wrote for this change fails on the old code by design, so this rule never covers it.
@@ -75,4 +86,4 @@ Commit only when the human asks. Then the work report goes in the same commit as
 
 **Reply:** what was asked, what changed and in which files, each check with its command and verdict, any check you changed after it failed with the source that showed it wrong, the self-review verdict for P3, P4 and P6, the path of the work report, what you did not check, and the "Noticed but not touching" list. Label each claim measured, inferred or guess.
 
-<!-- PLACEHOLDER: written in tasks 2.1 and 2.4. The table in step 2 moves into `cg.py tier`, and step 5 into `cg.py evidence`. -->
+<!-- PLACEHOLDER: written in task 2.4. Step 5 moves into `cg.py evidence`. -->

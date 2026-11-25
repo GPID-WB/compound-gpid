@@ -9,6 +9,7 @@ is also shown to fail on the mistake it guards against.
 import json
 import os
 import re
+import shlex
 import shutil
 import subprocess
 import sys
@@ -182,3 +183,38 @@ def test_quick_work_reads_the_lead_skill_of_each_expected_pack_before_writing_co
     text = (CG / "playbooks" / "quick.md").read_text(encoding="utf-8")
     change = text[text.index("## 3. Change"):text.index("## 4. Prove")]
     assert "lead skill" in change and "packs-expected" in change and "packs --json" in change
+
+
+def test_quick_work_takes_its_tier_from_code_and_the_line_runs_as_written(tmp_path):
+    """Gate M1 (#223): two agents skipped the hard stop on an estimate because they
+    read the risk table differently. The table now only defines the facts; code
+    computes the tier (task 2.1). The line in the playbook must hold every fact
+    cg.py wants, and must run."""
+    sys.path.insert(0, str(CG / "scripts"))
+    import cg
+    text = (CG / "playbooks" / "quick.md").read_text(encoding="utf-8")
+    risk = text[text.index("## 2. Check the risk"):text.index("## 3. Change")]
+    line = next(span for span in re.findall(r"`([^`\n]+)`", risk) if '"<cg>" tier ' in span)
+    for name in cg.FACTS:
+        assert f"| `{name}` |" in risk and f"--fact {name}=<yes or no>" in line, name
+    assert "**`tier: elevated`.** This is a hard stop." in risk and "**`tier: low`.**" in risk
+    assert not re.search(r"\bline \d", text), "the facts have names now, not line numbers"
+    home, project = tmp_path.resolve() / "home", tmp_path.resolve() / "project"
+    shutil.copytree(CG, home / ".agents" / "skills" / "cg", ignore=shutil.ignore_patterns("__pycache__"))
+    project.mkdir()
+    args = line.split('"<cg>" ', 1)[1].replace("<yes or no>", "no").replace(' --project "<project root>"', "")
+    code, out = run_cg(home, project, *shlex.split(args))
+    assert code == 0 and out.startswith("tier: elevated\nreasons: data: <data file> is not cleared"), out
+
+
+def test_quick_work_has_code_check_its_record():
+    text = (CG / "playbooks" / "quick.md").read_text(encoding="utf-8")
+    record = text[text.index("## 5. Record"):]
+    assert '"<cg>" validate "<the work report>"' in record and "FAIL" in record
+
+
+def test_setup_says_a_data_rule_may_name_a_folder():
+    """Gate M1 (#223), the maintainer's third decision: data rules by folder came with cg.py tier."""
+    text = (CG / "playbooks" / "setup.md").read_text(encoding="utf-8")
+    assert "folder" in text[text.index("**Data rules**"):text.index("## 3. Confirm")]
+    assert '--data "<file or folder>=<level>"' in text[text.index("## 4. Write"):]
