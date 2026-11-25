@@ -2,11 +2,16 @@
 
 Usage, with the interpreter that ~/.cg/launcher.json records as <python>:
   "<python>" cg.py doctor [--project PATH]
-  "<python>" cg.py status [--project PATH] [--json]
+  "<python>" cg.py status [--project PATH] [--json] [--guide]
   "<python>" cg.py new TYPE TITLE... [--project PATH] [--date YYYY-MM-DD]
   "<python>" cg.py packs [--json]
-  "<python>" cg.py setup --packs a,b [--setting pack.key=value]... [--classification-levels "A;B"]
-                       [--approved-tool "agent=level"]... [--contact key=who]... [--project PATH] [--dry-run]
+  "<python>" cg.py setup [--packs a,b] [--setting pack.key=value]... [--classification-levels "A;B"]
+                       [--approved-tool "agent=level"]... [--data "path=level"]... [--contact key=who]...
+                       [--project PATH] [--dry-run]
+
+status names the next playbook only with --guide: the guide asks for it, and an
+agent that runs status from the pointer block must not open a playbook (#223).
+setup needs --packs the first time; later runs keep the recorded packs.
 
 PATH may be any folder inside the project: the commands use the nearest
 folder above it that holds .cg-docs/, else the root of its git repository.
@@ -282,7 +287,15 @@ def read_settings(config):
     return lines, problems
 
 
-def compute_status(project: Path) -> dict:
+def read_data_rules(config):
+    """config['data'] as sorted 'path=level' lines: what the human said about each data file."""
+    data = (config or {}).get("data", {})
+    if not isinstance(data, dict) or not all(isinstance(v, str) for v in data.values()):
+        return [], ['.cg-docs/config.json data must map file paths to a classification level']
+    return [f"{path}={level}" for path, level in sorted(data.items())], []
+
+
+def compute_status(project: Path, guide: bool = False) -> dict:
     packs, pack_problems = discover_packs()
     core = next((p for p in packs if p["name"] == "core"), None)
     config, stops = read_config(project)
@@ -299,11 +312,18 @@ def compute_status(project: Path) -> dict:
             stops.append(f".cg-docs/config.json requires-core: {error}")
     settings, problems = read_settings(config)
     stops += problems
+    data_rules, problems = read_data_rules(config)
+    stops += problems
     found = artifacts(project)
     open_ones = [a for a in found if a["status"] in OPEN_STATUSES]
     phase = "setup" if config is None else "ready"
-    playbook = CG_DIR / PHASE_PLAYBOOK[phase]
-    return {
+    if stops:
+        step = "stop and show the human the stops"
+    elif guide:
+        step = f"read {PHASE_PLAYBOOK[phase]}"
+    else:
+        step = "the human types /cg to run the work through the guide"
+    state = {
         "project": str(project),
         "core": core["version"] if core else None,
         "phase": phase,
@@ -316,11 +336,14 @@ def compute_status(project: Path) -> dict:
         "packs-missing": missing,
         "add-command": add_command(missing) if missing else None,
         "settings": settings,
+        "data": data_rules,
         "stops": stops,
-        "next": "stop and show the human the stops" if stops else f"read {PHASE_PLAYBOOK[phase]}",
-        "playbook": str(playbook),
+        "next": step,
         **git_facts(project),
     }
+    if guide:
+        state["playbook"] = str(CG_DIR / PHASE_PLAYBOOK[phase])
+    return state
 
 
 def add_command(missing, windows=None) -> str:
@@ -365,12 +388,12 @@ def cmd_status(args) -> int:
     project = project_from(args.project)
     if project is None:
         return 2
-    state = compute_status(project)
+    state = compute_status(project, guide=args.guide)
     if args.json:
         print(json.dumps(state, indent=2, sort_keys=True))
         return 1 if state["stops"] else 0
     order = ["project", "core", "phase", "reason", "active", "open-artifacts", "waiting-on-human",
-             "packs-expected", "packs-missing", "add-command", "settings", "git", "branch", "commits", "changed-files",
+             "packs-expected", "packs-missing", "add-command", "settings", "data", "git", "branch", "commits", "changed-files",
              "stops", "next", "playbook"]
     for key in order:
         if key not in state:
@@ -442,12 +465,12 @@ def pairs(items, what):
 
 def planned_setup(project: Path, args):
     """Return (changes, problems): changes are (path, new text) for files that differ."""
-    names = [n.strip() for n in args.packs.split(",") if n.strip()]
-    if not names or not all(re.fullmatch(r"[a-z0-9]+(-[a-z0-9]+)*", n) for n in names):
+    names = [n.strip() for n in (args.packs or "").split(",") if n.strip()]
+    if args.packs is not None and (not names or not all(re.fullmatch(r"[a-z0-9]+(-[a-z0-9]+)*", n) for n in names)):
         return None, ["--packs must be pack names joined by commas, such as core,lang-r"]
-    settings, tools, contacts = (pairs(args.setting, "--setting"), pairs(args.approved_tool, "--approved-tool"),
-                                 pairs(args.contact, "--contact"))
-    if settings is None or tools is None or contacts is None:
+    settings, tools, contacts, data = (pairs(args.setting, "--setting"), pairs(args.approved_tool, "--approved-tool"),
+                                       pairs(args.contact, "--contact"), pairs(args.data, "--data"))
+    if settings is None or tools is None or contacts is None or data is None:
         return None, []
     if any("." not in key for key in settings):
         return None, ["--setting must be written pack.key=value, such as lang-r.r-syntax=tidyverse"]
@@ -461,10 +484,13 @@ def planned_setup(project: Path, args):
                 raise ValueError("not a JSON object")
         except (OSError, ValueError) as error:
             return [], [f".cg-docs/config.json is unreadable ({error}); fix it, then run setup again"]
+    if not names and not config.get("packs"):
+        return None, ["the first setup needs --packs, such as --packs core,lang-r"]
     packs, _ = discover_packs()
     core = next((p["version"] for p in packs if p["name"] == "core"), None)
     config = dict(config)
-    config["packs"] = names
+    if names:
+        config["packs"] = names
     if core:
         config["requires-core"] = core
     merged = {k: dict(v) for k, v in (config.get("settings") or {}).items() if isinstance(v, dict)}
@@ -475,7 +501,7 @@ def planned_setup(project: Path, args):
         config["settings"] = merged
     if args.classification_levels:
         config["classification-levels"] = [x.strip() for x in args.classification_levels.split(";") if x.strip()]
-    for key, values in (("approved-tools", tools), ("contacts", contacts)):
+    for key, values in (("approved-tools", tools), ("contacts", contacts), ("data", data)):
         if values:
             config[key] = {**(config.get(key) or {}), **values}
     changes.append((config_path, json.dumps(config, indent=2, ensure_ascii=False) + "\n"))
@@ -696,6 +722,7 @@ def main(argv=None) -> int:
     status = sub.add_parser("status", help="print the state of the work in a project")
     status.add_argument("--project", default=".")
     status.add_argument("--json", action="store_true")
+    status.add_argument("--guide", action="store_true", help="also name the playbook the guide opens next")
     new = sub.add_parser("new", help="create an artifact under .cg-docs/")
     new.add_argument("type", choices=sorted(ARTIFACT_FOLDERS))
     new.add_argument("title", nargs="+")
@@ -704,11 +731,12 @@ def main(argv=None) -> int:
     packs = sub.add_parser("packs", help="list the installed packs")
     packs.add_argument("--json", action="store_true")
     setup = sub.add_parser("setup", help="write what the human confirmed in the setup playbook")
-    setup.add_argument("--packs", required=True)
+    setup.add_argument("--packs")
     setup.add_argument("--setting", action="append")
     setup.add_argument("--classification-levels")
     setup.add_argument("--approved-tool", action="append")
     setup.add_argument("--contact", action="append")
+    setup.add_argument("--data", action="append", help="path=level: the classification the human gave a data file")
     setup.add_argument("--project", default=".")
     setup.add_argument("--dry-run", action="store_true")
     args = parser.parse_args(argv)

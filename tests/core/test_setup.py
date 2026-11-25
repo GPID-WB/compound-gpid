@@ -113,3 +113,25 @@ def test_setup_dry_run_and_bad_input_write_nothing(env):
     code, out = env["cg"]("setup", *ARGS)
     assert code == 1 and "config.json is unreadable" in out
     assert (project / ".cg-docs" / "config.json").read_text() == "{not json"
+
+
+def test_setup_records_data_rules_later_without_naming_the_packs_again(env):
+    """Gate M1 (#223): "the data are synthetic and public", said during the work,
+    reached the config in no agent. A second run records it and keeps the rest."""
+    project = env["project"]
+    code, out = env["cg"]("setup", "--packs", "core")
+    assert code == 0, out
+    code, out = env["cg"]("setup", "--data", "inst/extdata/survey.csv=Public", "--approved-tool", "Codex=Public")
+    assert code == 0, out
+    config = json.loads((project / ".cg-docs" / "config.json").read_text())
+    assert config["packs"] == ["core"]
+    assert config["data"] == {"inst/extdata/survey.csv": "Public"}
+    assert config["approved-tools"] == {"Codex": "Public"}
+    state = json.loads(env["cg"]("status", "--json")[1])
+    assert state["data"] == ["inst/extdata/survey.csv=Public"]
+
+
+def test_first_setup_needs_the_packs(env):
+    code, out = env["cg"]("setup", "--data", "survey.csv=Public")
+    assert code == 2 and "--packs" in out
+    assert files(env["project"]) == {}

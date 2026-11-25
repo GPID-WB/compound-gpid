@@ -95,11 +95,17 @@ def test_packs_reports_unreadable_pack_json(env):
 
 # ---------------------------------------------------------------- status
 
-def test_status_without_config_opens_setup(env):
-    code, out = env["cg"]("status")
+def test_status_for_the_guide_opens_setup_and_plain_status_names_no_playbook(env):
+    """Gate M1 (#223): agents that ran plain status from the pointer block followed
+    its playbook line without /cg. Only the guide asks for the playbook."""
+    code, out = env["cg"]("status", "--guide")
     assert code == 0, out
     assert "phase: setup" in out
     assert out.rstrip().endswith(str((env["skills"] / "cg").resolve() / "playbooks" / "setup.md"))
+    code, out = env["cg"]("status")
+    assert code == 0 and "phase: setup" in out
+    assert "playbook" not in out and "playbooks/" not in out
+    assert "next: the human types /cg to run the work through the guide" in out
 
 
 def test_status_is_identical_on_repeat_runs(env):
