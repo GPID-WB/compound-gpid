@@ -44,7 +44,7 @@ def work_reports(project: Path):
 
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("--dest", default=str(Path.home() / "cg-gate"))
+    parser.add_argument("--dest", default=str(Path.home() / "temp" / "cg-gate"))
     parser.add_argument("--launcher", default=str(Path.home() / ".cg" / "launcher.json"))
     parser.add_argument("--collect", action="store_true")
     parser.add_argument("--into", default=str(Path(__file__).resolve().parents[2] / ".cg-docs" / "gate-m1"))

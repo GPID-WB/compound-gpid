@@ -4,7 +4,8 @@ Usage: <python> spike/gate/make_toy.py [--dest DIR] [--hosts claude,codex,kilo,c
 
 Each copy is DIR/toy-r-<host>, a git repository with one commit, so every
 agent starts from the same state and none sees another's work. DIR defaults
-to ~/cg-gate. Nothing is overwritten: an existing copy stops the script.
+to ~/temp/cg-gate, a throwaway folder outside any synced folder: delete it
+after the gate. Nothing is overwritten: an existing copy stops the script.
 
 The script also prints the value to give the agent in the gate task, the
 weighted share of households below the line, computed here from the CSV and
@@ -46,7 +47,7 @@ def git(folder: Path, *args):
 
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("--dest", default=str(Path.home() / "cg-gate"))
+    parser.add_argument("--dest", default=str(Path.home() / "temp" / "cg-gate"))
     parser.add_argument("--hosts", default=",".join(HOSTS))
     args = parser.parse_args(argv)
     dest = Path(args.dest).expanduser().resolve()
