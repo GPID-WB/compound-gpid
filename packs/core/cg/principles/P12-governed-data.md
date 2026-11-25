@@ -49,7 +49,7 @@ Terms used here are defined in the plugin glossary (`../GLOSSARY.md`): classific
 
 ## Who to ask
 
-The agent does not settle a question of policy. It says that the question is for the human's organization, and the human asks there.
+The agent does not settle a question of policy, such as whether a tool is approved, how a file is classified, or whether personal data may be used. It names the open question and says that the answer comes from the human's organization: from whoever is responsible there for the use of AI, for information security or for personal data. The human asks, and the agent records the answer.
 
 ## Evidence it leaves
 
