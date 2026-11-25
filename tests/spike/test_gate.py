@@ -78,3 +78,28 @@ def test_the_readme_gives_the_agent_the_value_make_toy_computes():
     readme = (make_toy.TOY.parent / "README.md").read_text(encoding="utf-8")
     assert f"For the toy survey I expect {weighted:.6f}." in readme
     assert "VALUE" not in readme
+
+
+def test_the_rerun_sends_a_typed_cg_as_the_panel_does_and_reads_every_claude_message(tmp_path):
+    """Fable's review of the gate (#223): the rerun never sent the panel's shape,
+    and it judged Claude Code's reply by its last message only."""
+    sys.path.insert(0, str(GATE))
+    sys.path.insert(0, str(HUB / "spike" / "host-matrix"))
+    import run_cli_gate as gate
+    skill = tmp_path / "guide-skill"
+    skill.mkdir()
+    (skill / "SKILL.md").write_text("---\nname: cg\n---\n# The guide\n\nBody.\n", encoding="utf-8")
+    message = gate.panel_message("Add a test.", skill=skill)
+    assert message.startswith("# The guide\n\nBody.") and "/cg" not in message
+    assert f"Base directory for this skill: {skill}" in message and message.endswith("\n\nAdd a test.")
+    panel = gate.Agent("kilo-panel", "kilo", "openai/m")
+    assert panel.command("hello", True)[:2] == ["kilo", "run"]
+    claude = gate.Agent("claude", "claude", "")
+    events = [{"type": "system", "session_id": "s1"},
+              {"type": "assistant", "message": {"content": [{"type": "text", "text": "First."}]}},
+              {"type": "assistant", "message": {"content": [{"type": "tool_use", "name": "Bash"}]}},
+              {"type": "assistant", "message": {"content": [{"type": "text", "text": "Last."}]}},
+              {"type": "result", "result": "Last.", "session_id": "s1"}]
+    reply = claude.reply("\n".join(json.dumps(e) for e in events))
+    assert reply == "First.\n\nLast." and claude.session == "s1"
+    assert "stream-json" in claude.command("hi", True)

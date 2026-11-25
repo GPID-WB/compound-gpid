@@ -1,10 +1,14 @@
 """Run steps B to D of the gate (#223) in the command-line agents, without a human.
 
-Usage: <python> spike/gate/run_cli_gate.py [--only claude,codex,kilo] [--dest DIR]
+Usage: <python> spike/gate/run_cli_gate.py [--only claude,codex,kilo,kilo-panel] [--dest DIR]
                                            [--kilo-model provider/model] [--out DIR]
 
 For each agent: a fresh copy of the toy project (make_toy.py) in DIR
-(default ~/temp/cg-gate/rerun), then
+(default ~/temp/cg-gate/rerun), then the steps below. `kilo-panel` is Kilo
+sent a typed /cg the way Kilo's editor panel and Posit Assistant send it: the
+body of the guide's SKILL.md as the human's message, then the skill's folder,
+then what the human typed after /cg. From the command line `kilo run "/cg"`
+sends the three characters, a path that never failed (#223, Fable's review).
 
   B  "/cg" (Codex: "$cg"), then a yes that states the data rule.
      Pass: nothing written before the yes; afterwards status shows
@@ -19,7 +23,9 @@ For each agent: a fresh copy of the toy project (make_toy.py) in DIR
 The agents run with their approval prompts turned off, as most people run
 them. Each answer is judged from the files and from status, not from what
 the agent says. Transcripts, with local paths and the user name removed,
-and results.json go to --out (default .cg-docs/gate-m1/rerun/ in this hub).
+and results.json go to --out (default .cg-docs/gate-m1/rerun/ in this hub), as
+<agent>-transcript.md: a file named claude.md would be loaded by Claude Code
+as project instructions on a file system that ignores case.
 Exit code 1 when a check fails.
 """
 import argparse
@@ -44,6 +50,16 @@ YES_SETUP = (f"Yes. The survey {SURVEY} is synthetic and its classification is P
 REQUEST = ("Add a function `headcount(dt, line = 3)` that returns the weighted share of households "
            "with welfare below the line, with a testthat check. For the toy survey I expect 0.153846.")
 PLAIN = "Write a function that returns the number of households in the survey."
+SKILL = Path.home() / ".agents" / "skills" / "cg"
+GUIDE_MARKER = "[the text of the installed cg/SKILL.md]"
+
+
+def panel_message(request="", skill=SKILL):
+    """A typed /cg as Kilo's panel sends it (measured in Kilo's session store)."""
+    body = (skill / "SKILL.md").read_text(encoding="utf-8").split("\n---\n", 1)[1].strip("\n")
+    text = (f"{body}\n\n\nBase directory for this skill: {skill}\n"
+            "Relative paths in this skill (e.g., scripts/, references/) are relative to this base directory.")
+    return f"{text}\n\n{request}" if request else text
 
 
 class Agent:
@@ -57,7 +73,9 @@ class Agent:
         p = self.program
         if self.name == "claude":
             resume = [] if new else ["--resume", self.session]
-            return [p, "-p", prompt, "--output-format", "json", "--dangerously-skip-permissions", *resume]
+            # stream-json gives every message of the turn; "json" gives only the last (Fable's review).
+            return [p, "-p", prompt, "--output-format", "stream-json", "--verbose",
+                    "--dangerously-skip-permissions", *resume]
         if self.name == "codex":
             # `exec resume` takes no --sandbox, so the sandbox goes in as a setting.
             options = ["--json", "--skip-git-repo-check", "-c", 'sandbox_mode="workspace-write"']
@@ -66,18 +84,25 @@ class Agent:
         return [p, "run", "--auto", *model, *([] if new else ["--continue"]), prompt]
 
     def guide(self, request=""):
+        if self.name == "kilo-panel":
+            return panel_message(request)
         word = "$cg" if self.name == "codex" else "/cg"
         return f"{word} {request}".strip()
 
     def reply(self, output):
-        """The reply text, and the session id when the program gives one."""
+        """The reply text, every message of the turn in order, and the session id."""
         if self.name == "claude":
-            try:
-                data = json.loads(output)
-                self.session = data.get("session_id") or self.session
-                return data.get("result", output)
-            except ValueError:
-                return output
+            texts = []
+            for line in output.splitlines():
+                try:
+                    event = json.loads(line)
+                except ValueError:
+                    continue
+                self.session = event.get("session_id") or self.session
+                if event.get("type") == "assistant":
+                    texts += [c.get("text", "") for c in event.get("message", {}).get("content", [])
+                              if c.get("type") == "text" and c.get("text", "").strip()]
+            return "\n\n".join(texts) or output
         if self.name == "codex":
             texts = []
             for line in output.splitlines():
@@ -103,7 +128,8 @@ def turn(agent, project, prompt, new, log, label):
     except subprocess.TimeoutExpired as late:
         output, end = (late.stdout or b"").decode("utf-8", "replace"), f"[stopped after {LIMIT} seconds]"
     text = agent.reply(output) if "exit code" in end else output
-    log.append(f"### {label}\n\n> {prompt}\n\n{text}\n\n{end}\n")
+    shown = prompt.replace(panel_message(), GUIDE_MARKER) if agent.name == "kilo-panel" else prompt
+    log.append(f"### {label}\n\n> {shown}\n\n{text}\n\n{end}\n")
     return text
 
 
@@ -158,7 +184,7 @@ def run_agent(agent, project):
 
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("--only", default="claude,codex,kilo")
+    parser.add_argument("--only", default="claude,codex,kilo,kilo-panel")
     parser.add_argument("--dest", default=str(Path.home() / "temp" / "cg-gate" / "rerun"))
     parser.add_argument("--kilo-model", default="")
     parser.add_argument("--out", default=str(HUB / ".cg-docs" / "gate-m1" / "rerun"))
@@ -167,7 +193,7 @@ def main(argv=None) -> int:
     out.mkdir(parents=True, exist_ok=True)
     results, failed = {}, False
     for name in [n.strip() for n in args.only.split(",") if n.strip()]:
-        program = find_program(name)
+        program = find_program("kilo" if name == "kilo-panel" else name)
         if program is None:
             print(f"{name}: program not found, skipped")
             continue
@@ -178,7 +204,7 @@ def main(argv=None) -> int:
         checks, log = run_agent(Agent(name, program, args.kilo_model), project)
         results[name] = checks
         failed |= not all(checks.values())
-        (out / f"{name}.md").write_text(sanitize("\n".join(log), project), encoding="utf-8")
+        (out / f"{name}-transcript.md").write_text(sanitize("\n".join(log), project), encoding="utf-8")
         for check, ok in checks.items():
             print(f"  {'pass' if ok else 'FAIL'}  {check}", flush=True)
     (out / "results.json").write_text(json.dumps(results, indent=2) + "\n", encoding="utf-8")
