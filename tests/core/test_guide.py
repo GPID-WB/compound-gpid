@@ -161,3 +161,16 @@ def test_quick_work_can_complete_without_a_doctor_command():
     text = (CG / "playbooks" / "quick.md").read_text(encoding="utf-8")
     record = text[text.index("## 5. Record"):]
     assert "Doctor" in record and "does not keep the work open" in record
+
+
+def test_the_pointer_block_gives_the_sentence_on_cg_word_for_word():
+    """Rerun of gate M1 (#223): twice Claude Code did not open a plain reply with
+    the sentence on /cg when the block only described it."""
+    assert '"`/cg` would run this change with checks and a record."' in BLOCK
+
+
+def test_quick_work_is_not_held_open_by_a_failure_that_was_there_before():
+    """Rerun of gate M1 (#223): Codex kept a report open over an R CMD check
+    warning on code it had not touched."""
+    text = (CG / "playbooks" / "quick.md").read_text(encoding="utf-8")
+    assert "before your change" in text[text.index("## 5. Record"):]

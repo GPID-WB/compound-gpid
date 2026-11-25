@@ -68,6 +68,8 @@ Set `status: completed` when every check you ran is verified. Otherwise leave `s
 
 What the project or the install does not have yet is not a failed check: a Doctor or Run command that the verification profile marks "not found", a `cg.py` command that `--help` does not list, a tool that is not installed. Write each under "Not checked" and say it in the reply. It does not keep the work open.
 
+A check that also fails on the code as it was before your change is not your failure either. Show that it fails there too, by running the same check on the unchanged code or by quoting the baseline, and put it under "Noticed but not touching". It does not keep the work open.
+
 Commit only when the human asks. Then the work report goes in the same commit as the change (P8).
 
 **Reply:** what was asked, what changed and in which files, each check with its command and verdict, the self-review verdict for P3, P4 and P6, the path of the work report, what you did not check, and the "Noticed but not touching" list. Label each claim measured, inferred or guess.
