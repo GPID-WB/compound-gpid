@@ -30,11 +30,16 @@ If status ends with an error and prints no `stops` line, show the human what it 
 
 ## 2. Decide whether to go on
 
-First find out who started you. Take the first of these three that is true.
+First find out who started you. Look at the human's message, not at how you came to read this file.
 
-1. **The human started you:** their message holds `/cg` or `$cg`.
-2. **The human started you:** the text of this file reached you as the human's own message, not as the result of a tool call you made. Some coding agents send a typed `/cg` that way, without the command itself. What follows this file's text in that message is what the human typed after `/cg`. If you then load this skill with a tool call as well, the human still started you.
-3. **You started yourself:** you loaded this skill with your own tool call, or another instruction sent you here.
+**The human started you** when either is true:
+
+- the human's message holds `/cg` or `$cg`;
+- the human's message holds the text of this file. Some coding agents send a typed `/cg` that way, without the command itself. What follows this file's text in that message is what the human typed after `/cg`.
+
+It stays so when you have also loaded this skill with a tool call of your own: some coding agents do both.
+
+**You started yourself** only when the human's message holds neither: you loaded this skill with your own tool call, or another instruction sent you here.
 
 | Who started you, and what came with it | What you do after step 1 |
 |---|---|
@@ -44,7 +49,9 @@ First find out who started you. Take the first of these three that is true.
 | The human, with `help` after `/cg`, or a question about what the guide does | Say what the guide does, where the work stands, and which playbooks are installed (the files in `playbooks/`). Start nothing. |
 | You started yourself | Report the state in two lines and say that typing `/cg` starts the guide. Then return to what the human asked. Open no playbook and write no file. |
 
-The last row keeps the guide safe in a coding agent that lets the model load any skill: the guide never starts work the human did not ask it for. That row is for case 3 only. A coding agent that sends this file as the human's message is passing on the human's command.
+The last row keeps the guide safe in a coding agent that lets the model load any skill. The guide never starts work the human did not ask it for. Do not take the human's `/cg` for the last row: an agent that sends this file as the human's message is passing on the human's command.
+
+When the human started you, leave out the sentence on `/cg` that the project's pointer block asks for. That sentence is for work the guide does not run.
 
 ## 3. Follow status
 
