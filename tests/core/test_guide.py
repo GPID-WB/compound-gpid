@@ -144,3 +144,11 @@ def test_quick_work_gets_a_work_report_with_room_for_evidence(tmp_path):
     assert "PLACEHOLDER" not in text and 'title: "Fix the axis label"' in text
     for heading in ("## Checks", "## Evidence", "## Self-review", "## Not checked"):
         assert heading in text
+
+
+def test_setup_lists_the_files_it_will_write_from_a_dry_run():
+    """Rerun of gate M1 (#223): Kilo listed four files and setup wrote five
+    (.Rbuildignore in an R package). The list comes from cg.py, not memory."""
+    text = (CG / "playbooks" / "setup.md").read_text(encoding="utf-8")
+    proposal = text[text.index("## 2. Propose"):text.index("## 3. Confirm")]
+    assert "--dry-run" in proposal

@@ -41,7 +41,7 @@ Put one proposal to the human, in this order. Give each part with what you found
    - if the human knows them, the names of the organization's classification levels, from public to most restricted.
 
    When the human does not know an answer yet, that item stays open. While it is open, the file is restricted data.
-5. **Every file you will write or change**, by path, from section 4.
+5. **Every file you will write or change**, by path. Take the list from the command in section 4, run with `--dry-run` added: it prints each file it would create or change, and writes nothing. Do not write the list from memory.
 
 State the assumptions you made. Then end your turn.
 

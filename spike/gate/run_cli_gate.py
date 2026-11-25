@@ -58,7 +58,8 @@ class Agent:
             resume = [] if new else ["--resume", self.session]
             return [p, "-p", prompt, "--output-format", "json", "--dangerously-skip-permissions", *resume]
         if self.name == "codex":
-            options = ["--json", "--skip-git-repo-check", "--sandbox", "workspace-write"]
+            # `exec resume` takes no --sandbox, so the sandbox goes in as a setting.
+            options = ["--json", "--skip-git-repo-check", "-c", 'sandbox_mode="workspace-write"']
             return [p, "exec", *options, prompt] if new else [p, "exec", "resume", *options, self.session, prompt]
         model = ["-m", self.kilo_model] if self.kilo_model else []
         return [p, "run", "--auto", *model, *([] if new else ["--continue"]), prompt]
