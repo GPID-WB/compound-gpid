@@ -1,0 +1,12 @@
+{
+    "packs": [
+        "core",
+        "lang-r"
+    ],
+    "requires-core": "1.99.0.9000",
+    "settings": {
+        "lang-r": {
+            "r-syntax": "data.table-collapse"
+        }
+    }
+}
