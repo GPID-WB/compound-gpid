@@ -20,7 +20,7 @@ jobs:
         with:
           python-version: "3.13"
       - name: Glossary
-        run: python tools/check_glossary.py packs docs/adr docs/v2 docs/adoption-ledger.md SCOPE.md .out-of-scope spike README.md CONTRIBUTING.md AGENTS.md
+        run: python tools/check_glossary.py packs docs/adr docs/v2 docs/adoption-ledger.md SCOPE.md .out-of-scope spike README.md CONTRIBUTING.md AGENTS.md docs/install-block.md
       - name: Manifests in step with their sources
         run: python tools/sync_version.py --check
       - name: Skill linter

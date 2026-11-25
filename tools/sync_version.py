@@ -12,8 +12,8 @@ Targets: the root `plugin.json` version, each pack's
 `.claude-plugin/marketplace.json` (version, source).
 
 Also checked, never fixed: every hub pack has an index entry and every local
-index entry has a pack; outside the manifests, the hub URL appears in at most
-one file of what ships (`packs/`, `tools/`, files at the root, and
+index entry has a pack; outside the manifests, the hub URL appears in exactly
+one file of what ships (the install block) (`packs/`, `tools/`, files at the root, and
 `docs/install-block.md`), so moving the repository changes one line of text.
 
 Without --check, drifted fields are rewritten. With --check, nothing is
@@ -21,6 +21,7 @@ written. Exit code 1 when anything is out of step.
 """
 import json
 import os
+import subprocess
 import sys
 import tempfile
 from pathlib import Path
@@ -64,12 +65,29 @@ def manifest_files(root: Path):
     return files
 
 
+def tracked_files(root: Path):
+    """Files git tracks under root, or None when root is not a git checkout."""
+    try:
+        done = subprocess.run(["git", "-C", str(root), "ls-files", "-z"], capture_output=True)
+    except OSError:
+        return None
+    if done.returncode != 0:
+        return None
+    return {root / name for name in done.stdout.decode("utf-8").split("\0") if name}
+
+
 def url_files(root: Path, url: str):
-    """Files in the shipped scope, other than manifests, that hold the hub URL."""
+    """Files in the shipped scope, other than manifests, that hold the hub URL.
+
+    In a git checkout only tracked files count: untracked ones do not ship.
+    """
     candidates = [p for p in root.iterdir() if p.is_file()]
     for name in URL_SCOPE_DIRS:
         candidates += [p for p in (root / name).rglob("*") if p.is_file()]
     candidates += [root / name for name in URL_SCOPE_FILES if (root / name).is_file()]
+    tracked = tracked_files(root)
+    if tracked is not None:
+        candidates = [p for p in candidates if p in tracked]
     skip = manifest_files(root)
     found = []
     for path in sorted(set(candidates)):
@@ -138,9 +156,9 @@ def sync(root: Path, check: bool):
 
     if url:
         holders = url_files(root, url)
-        if len(holders) > URL_ALLOWED_IN:
+        if len(holders) != URL_ALLOWED_IN:
             flag(f"hub URL appears outside the manifests in {len(holders)} files "
-                            f"(at most {URL_ALLOWED_IN}): {', '.join(holders)}")
+                 f"(exactly {URL_ALLOWED_IN}, the install block): {', '.join(holders) or 'none'}")
     return problems
 
 

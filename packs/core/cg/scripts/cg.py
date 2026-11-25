@@ -272,12 +272,22 @@ def compute_status(project: Path) -> dict:
                              for a in open_ones if a["status"] in WAITING_STATUSES],
         "packs-expected": expected,
         "packs-missing": missing,
-        "add-command": f"python3 install.py --add {','.join(missing)}" if missing else None,
+        "add-command": add_command(missing) if missing else None,
         "stops": stops,
         "next": "stop and show the human the stops" if stops else f"read {PHASE_PLAYBOOK[phase]}",
         "playbook": str(playbook),
         **git_facts(project),
     }
+
+
+def add_command(missing) -> str:
+    """The install.py line that adds the missing packs, from the install record if there is one."""
+    try:
+        hub = json.loads((home() / ".cg" / "installed.json").read_text(encoding="utf-8"))["hub"]
+        script = f'"{Path(hub) / "install.py"}"'
+    except (OSError, ValueError, KeyError, TypeError):
+        script = "install.py"
+    return f"python3 {script} --add {','.join(missing)}"
 
 
 def cmd_status(args) -> int:

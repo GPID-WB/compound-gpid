@@ -21,6 +21,8 @@ def make_hub(root: Path, version="2.0.0", plugin_version=None) -> Path:
         {"name": "core", "version": plugin_version or version, "repository": URL})
     put(root / ".claude-plugin/marketplace.json",
         {"name": "hub", "plugins": [{"name": "core", "version": version, "source": "./packs/core"}]})
+    (root / "docs").mkdir(exist_ok=True)
+    (root / "docs" / "install-block.md").write_text(f"git clone {URL}\n")
     return root
 
 
@@ -74,20 +76,25 @@ def test_pack_without_index_entry_is_an_error(tmp_path):
 
 def test_hub_url_in_two_shipped_files_fails(tmp_path):
     hub = make_hub(tmp_path)
-    (hub / "install.py").write_text(f'HUB = "{URL}"\n')
     assert run(hub, "--check")[0] == 0
-    (hub / "tools").mkdir()
-    (hub / "tools" / "other.py").write_text(f'URL = "{URL}"\n')
+    (hub / "install.py").write_text(f'HUB = "{URL}"\n')
     code, out = run(hub, "--check")
     assert code == 1
     assert "hub URL appears outside the manifests in 2 files" in out
+
+
+def test_hub_url_nowhere_outside_the_manifests_fails(tmp_path):
+    hub = make_hub(tmp_path)
+    (hub / "docs" / "install-block.md").write_text("no URL here\n")
+    code, out = run(hub, "--check")
+    assert code == 1
+    assert "in 0 files (exactly 1, the install block): none" in out
 
 
 def test_hub_url_in_records_is_ignored(tmp_path):
     hub = make_hub(tmp_path)
     (hub / ".cg-docs").mkdir()
     (hub / ".cg-docs" / "old-plan.md").write_text(URL)
-    (hub / "install.py").write_text(URL)
     assert run(hub, "--check")[0] == 0
 
 

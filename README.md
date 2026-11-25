@@ -1,7 +1,7 @@
 # Compound GPID
 
 > [!WARNING]
-> This is branch `v2`, where Compound GPID 2.0 is being built. It cannot be installed yet.
+> This is branch `v2`, where Compound GPID 2.0 is being built. It installs (see `docs/install-block.md`), but the guide is not written yet, so there is nothing to use.
 > Version 1 is on branch `main` and frozen on branch `v1`; its install instructions are in the README there.
 
 Compound GPID helps analysts (economists, researchers and data scientists, and the people who build their packages, pipelines and dashboards) use a coding agent and still own and understand what gets built.
@@ -14,6 +14,7 @@ Version 2 is a hub of packs. Everyone installs the core pack; language, research
 |---|---|
 | `packs/` | One folder per pack. `packs/core/cg/` is the core pack's lead skill: the principles and the plugin glossary. |
 | `.claude-plugin/marketplace.json` | The pack index, in the marketplace format that hosts read. |
+| `install.py`, `docs/install-block.md` | The installer, and the one install text. |
 | `tools/` | Checks run in CI, and the version sync. |
 | `docs/adr/` | Decision records: hosts, sources, packs, no base host. |
 | `docs/v2/HANDOFF.md` | Where the build stands and what comes next. |
