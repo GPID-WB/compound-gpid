@@ -53,7 +53,7 @@ Count the approval prompts in each agent, with its default settings.
 
 ## After
 
-5. **Compare the four copies and collect the evidence.** Run this from the root of the checkout where the gate's evidence will be committed (the one you build in), then read the exit code on its own line:
+5. **Compare the four copies and collect the evidence.** Run this once, after all four agents are done, in a terminal outside the agents, from the root of the checkout where the gate's evidence will be committed (the one you build in), then read the exit code on its own line:
 
    ```
    python3 spike/gate/compare_status.py --collect
