@@ -40,6 +40,7 @@ Checked in CI. Going over fails the build.
 | Any other skill's `SKILL.md` | 500 lines, with longer material in files beside it |
 | Core tooling, excluding tests | 2,500 lines |
 | One pack's tooling, excluding tests | 1,500 lines |
+| Hub tooling (`tools/`, `install.py`), excluding tests | 2,000 lines |
 | Tests | at most 1.5 times the code they cover |
 | `pack.json` | six keys |
 | User-invoked skills in core | one: the guide |

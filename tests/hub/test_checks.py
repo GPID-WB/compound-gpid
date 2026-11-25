@@ -255,6 +255,17 @@ def test_budgets_fail_on_tests_over_1_5_times_the_code(tmp_path):
     assert code == 1 and "tests/lang-x: 16 lines, over 1.5 times the 10 lines" in out
 
 
+def test_budgets_fail_on_hub_tooling_over_2000_lines(tmp_path):
+    make_pack(tmp_path)
+    (tmp_path / "tools").mkdir()
+    (tmp_path / "tools" / "a.py").write_text("x = 1\n" * 1500)
+    (tmp_path / "install.py").write_text("x = 1\n" * 500)
+    assert run("check_budgets.py", "--root", tmp_path)[0] == 0
+    (tmp_path / "install.py").write_text("x = 1\n" * 501)
+    code, out = run("check_budgets.py", "--root", tmp_path)
+    assert code == 1 and "hub tooling (tools/, install.py) is 2001 lines, over its budget of 2000" in out
+
+
 def test_budgets_fail_on_two_user_invoked_skills_in_core(tmp_path):
     pack = make_pack(tmp_path, name="core", skills=("cg", "cg-extra"))
     for skill in ("cg", "cg-extra"):

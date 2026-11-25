@@ -5,14 +5,14 @@ Usage: python tools/check_budgets.py [--pack PACK_FOLDER] [--root PATH]
 Checked here (line budgets of skill files are in tools/lint_skills.py):
 - a pack's tooling, excluding tests: core at most 2,500 lines, any other
   pack at most 1,500;
+- hub tooling (tools/ and install.py), excluding tests: at most 2,000;
 - tests at most 1.5 times the code they cover, per group: tests/<pack>/
   covers packs/<pack>/, tests/hub/ covers tools/ and install.py;
 - `pack.json` at most six keys;
 - user-invoked skills in core (`disable-model-invocation: true`): one.
 
 Tooling is every file with a code extension (CODE_SUFFIXES). Lines are
-counted as `wc -l` counts them. Hub tooling has no cap in SCOPE.md and is
-reported only. Going over any budget is an error. Exit code 1 on any error.
+counted as `wc -l` counts them. Going over any budget is an error. Exit code 1 on any error.
 """
 import json
 import re
@@ -22,6 +22,7 @@ from pathlib import Path
 CODE_SUFFIXES = {".py", ".sh", ".ps1", ".cmd", ".bat", ".js", ".ts"}
 PACK_BUDGET = {"core": 2500}
 DEFAULT_PACK_BUDGET = 1500
+HUB_BUDGET = 2000
 TEST_RATIO = 1.5
 PACK_KEYS_MAX = 6
 CORE_USER_INVOKED_MAX = 1
@@ -94,7 +95,9 @@ def main(argv):
         for pack in sorted(p for p in (root / "packs").iterdir() if p.is_dir()):
             check_tests(root, pack.name, check_pack(pack, errors, report), errors, report)
         hub = count_lines(code_files(root / "tools", False, root) + code_files(root / "install.py", False, root))
-        report.append(f"hub tooling (tools/, install.py): {hub} lines, no cap in SCOPE.md")
+        report.append(f"hub tooling (tools/, install.py): {hub} of {HUB_BUDGET} lines")
+        if hub > HUB_BUDGET:
+            errors.append(f"hub tooling (tools/, install.py) is {hub} lines, over its budget of {HUB_BUDGET}")
         check_tests(root, "hub", hub, errors, report)
     for line in report:
         print(line)
