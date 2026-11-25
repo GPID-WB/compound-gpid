@@ -89,9 +89,19 @@ def yaml_problems(lines):
     return found
 
 
+def read_text(path: Path, errors):
+    try:
+        return path.read_text(encoding="utf-8")
+    except UnicodeDecodeError as error:
+        errors.append((path, 0, f"not UTF-8 ({error.reason} at byte {error.start})"))
+        return None
+
+
 def lint_frontmatter(skill: Path, errors):
     path = skill / "SKILL.md"
-    text = path.read_text(encoding="utf-8")
+    text = read_text(path, errors)
+    if text is None:
+        return
     front, _ = split_frontmatter(text)
     if front is None:
         errors.append((path, 1, "no frontmatter block (--- at the top, closed by ---)"))
@@ -143,7 +153,10 @@ def prose(lines):
 
 def lint_file(path: Path, skill: Path, pack: Path, errors):
     rel = path.relative_to(pack).as_posix()
-    lines = path.read_text(encoding="utf-8").splitlines()
+    text = read_text(path, errors) if path.name != "SKILL.md" else path.read_text(encoding="utf-8", errors="replace")
+    if text is None:
+        return
+    lines = text.splitlines()
     for test, budget, what in LINE_BUDGETS:
         if test(rel, pack.name):
             if len(lines) > budget:

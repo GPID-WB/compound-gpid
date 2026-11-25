@@ -58,9 +58,19 @@ def test_lint_fails_when_name_and_folder_differ(tmp_path):
 
 def test_lint_fails_on_non_ascii_frontmatter(tmp_path):
     pack = make_pack(tmp_path)
-    (pack / "x-one" / "SKILL.md").write_text('---\nname: x-one\ndescription: "Pobreza — R"\n---\n')
+    (pack / "x-one" / "SKILL.md").write_text('---\nname: x-one\ndescription: "Pobreza — R"\n---\n',
+                                             encoding="utf-8")
     code, out = run("lint_skills.py", pack)
     assert code == 1 and "not ASCII" in out
+
+
+def test_lint_reports_a_file_that_is_not_utf8(tmp_path):
+    pack = make_pack(tmp_path)
+    (pack / "x-one" / "notes.md").write_bytes("Pobreza — R\n".encode("cp1252"))
+    (pack / "x-one" / "SKILL.md").write_bytes('---\nname: x-one\ndescription: "—"\n---\n'.encode("cp1252"))
+    code, out = run("lint_skills.py", pack)
+    assert code == 1
+    assert out.count("not UTF-8") == 2
 
 
 def test_lint_fails_on_an_unquoted_colon(tmp_path):
