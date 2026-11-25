@@ -203,14 +203,20 @@ def git_facts(project: Path) -> dict:
     if shutil.which("git") is None:
         return {"git": "not found"}
     def git(*args):
-        done = subprocess.run(["git", "-C", str(project), *args], capture_output=True, text=True)
+        # --no-optional-locks: status only reads, so it never takes the index lock.
+        done = subprocess.run(["git", "--no-optional-locks", "-C", str(project), *args],
+                              capture_output=True, text=True)
         return done.stdout.strip() if done.returncode == 0 else None
-    branch = git("rev-parse", "--abbrev-ref", "HEAD")
-    if branch is None:
+    if git("rev-parse", "--is-inside-work-tree") != "true":
         return {"git": "not a repository"}
+    # symbolic-ref names the branch before the first commit too; detached HEAD has none.
+    branch = git("symbolic-ref", "--short", "-q", "HEAD") or "HEAD (detached)"
+    facts = {"git": "repository", "branch": branch}
+    if git("rev-parse", "--verify", "-q", "HEAD") is None:
+        facts["commits"] = "none"
     changed = git("status", "--porcelain")
-    return {"git": "repository", "branch": branch,
-            "changed-files": len(changed.splitlines()) if changed else 0}
+    facts["changed-files"] = len(changed.splitlines()) if changed else 0
+    return facts
 
 
 def artifacts(project: Path):
@@ -315,7 +321,7 @@ def cmd_status(args) -> int:
         print(json.dumps(state, indent=2, sort_keys=True))
         return 1 if state["stops"] else 0
     order = ["project", "core", "phase", "reason", "active", "open-artifacts", "waiting-on-human",
-             "packs-expected", "packs-missing", "add-command", "settings", "git", "branch", "changed-files",
+             "packs-expected", "packs-missing", "add-command", "settings", "git", "branch", "commits", "changed-files",
              "stops", "next", "playbook"]
     for key in order:
         if key not in state:
@@ -412,15 +418,55 @@ def check_copies(project: Path, packs):
     for label, folder in roots:
         leftovers = sorted(p.name for p in folder.iterdir() if is_v1_name(p.name))
         if leftovers:
-            lines.append(("FAIL", f"{label}: {len(leftovers)} version 1 folders "
-                                  f"({', '.join(leftovers[:5])}{', ...' if len(leftovers) > 5 else ''})"))
+            # A name alone does not prove version 1 made a folder, so this is a warning, and
+            # install.py --remove-v1 removes only what version 1 provably owns (#218).
+            lines.append(("warn", f"{label}: {len(leftovers)} folders named like version 1 skills "
+                                  f"({', '.join(leftovers[:5])}{', ...' if len(leftovers) > 5 else ''}); "
+                                  f"install.py --remove-v1 removes the ones version 1 provably left, "
+                                  f"and any others are yours to keep or remove"))
     return lines
 
 
+def base_interpreter():
+    """This Python, or the one a virtual environment was made from (#218).
+
+    A project's environment can be deleted, and every guide on the machine
+    starts cg.py through the launcher, so the launcher never records one.
+    """
+    if sys.prefix == sys.base_prefix:
+        return sys.executable
+    # Judge a path as written, not resolved: an environment's python is a link to the
+    # base one, and a resolved Homebrew path changes with every upgrade.
+    venv = {Path(os.path.abspath(sys.prefix)), Path(sys.prefix).resolve()}
+    version = f"{sys.version_info[0]}.{sys.version_info[1]}"
+    base = Path(sys.base_prefix)
+    candidates = [getattr(sys, "_base_executable", ""), base / "python.exe",
+                  base / "bin" / f"python{version}", base / "bin" / f"python{sys.version_info[0]}"]
+    for candidate in candidates:
+        if not candidate:
+            continue
+        path = Path(os.path.abspath(candidate))
+        if path.is_file() and not any(v == path or v in path.parents for v in venv):
+            return str(path)
+    return None
+
+
 def write_launcher(core_version) -> tuple:
-    """Record how this machine runs cg.py, for playbooks and pack scripts."""
+    """Record how this machine runs cg.py, for playbooks and pack scripts.
+
+    Only an installed copy writes it: a launcher pointing at a hub checkout
+    would make every guide run the hub's cg.py and playbooks (#219 review).
+    """
     path = home() / ".cg" / "launcher.json"
-    record = {"python": sys.executable, "cg": str(Path(__file__).resolve()), "core": core_version}
+    place = install_place()
+    if place not in ("~/.agents/skills", "~/.claude/skills"):
+        return "warn", (f"launcher not written: cg.py runs from {place}; "
+                        f"run doctor from the installed cg skill")
+    python = base_interpreter()
+    if python is None:
+        return "FAIL", ("launcher not written: this Python is in a virtual environment and the "
+                        "Python it was made from was not found; run doctor with the machine's Python")
+    record = {"python": python, "cg": str(Path(__file__).resolve()), "core": core_version}
     text = json.dumps(record, indent=2, sort_keys=True) + "\n"
     try:
         if path.is_file() and path.read_text(encoding="utf-8") == text:

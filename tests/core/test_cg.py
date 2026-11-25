@@ -217,7 +217,9 @@ def test_doctor_writes_the_launcher_once(env):
     code, out = env["cg"]("doctor")
     assert "launcher written" in out
     launcher = json.loads((env["home"] / ".cg" / "launcher.json").read_text())
-    assert launcher["python"] == sys.executable
+    assert Path(launcher["python"]).is_file()
+    if sys.prefix == sys.base_prefix:
+        assert launcher["python"] == sys.executable
     assert launcher["cg"] == str((env["skills"] / "cg" / "scripts" / "cg.py").resolve())
     assert launcher["core"] == "2.0.0"
     assert "launcher up to date" in env["cg"]("doctor")[1]
@@ -229,12 +231,45 @@ def test_doctor_passes_on_a_clean_install(env):
     assert "core runs from ~/.agents/skills" in out
 
 
-def test_doctor_flags_version_1_folders(env):
+def test_doctor_warns_on_folders_named_like_version_1_and_points_at_install(env):
     (env["home"] / ".claude" / "skills" / "cg-plan").mkdir(parents=True)
-    (env["home"] / ".claude" / "skills" / "cg-skill-r-shared").mkdir()
+    (env["home"] / ".claude" / "skills" / "cg-spike-hello").mkdir()
     code, out = env["cg"]("doctor")
-    assert code == 1
-    assert "user ~/.claude/skills: 2 version 1 folders (cg-plan, cg-skill-r-shared)" in out
+    assert code == 0, out
+    line = next(l for l in out.splitlines() if "cg-plan" in l)
+    assert line.startswith("warn ") and "2 folders named like version 1 skills (cg-plan, cg-spike-hello)" in line
+    assert "install.py --remove-v1" in line
+
+
+def test_doctor_records_the_interpreter_outside_a_virtual_environment(env, tmp_path):
+    venv = tmp_path.resolve() / "project venv"
+    subprocess.run([sys.executable, "-m", "venv", "--without-pip", str(venv)], check=True)
+    python = venv / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+    done = subprocess.run([str(python), str(env["skills"] / "cg" / "scripts" / "cg.py"), "doctor"],
+                          capture_output=True, text=True, cwd=env["project"],
+                          env=dict(os.environ, HOME=str(env["home"]), USERPROFILE=str(env["home"])))
+    launcher = json.loads((env["home"] / ".cg" / "launcher.json").read_text())
+    recorded = Path(launcher["python"])
+    assert recorded.is_file(), done.stdout
+    assert venv not in recorded.resolve().parents and venv not in recorded.parents, launcher["python"]
+
+
+def test_doctor_does_not_write_the_launcher_from_the_hub(env):
+    done = subprocess.run([sys.executable, str(CG / "scripts" / "cg.py"), "doctor"],
+                          capture_output=True, text=True, cwd=env["project"],
+                          env=dict(os.environ, HOME=str(env["home"]), USERPROFILE=str(env["home"])))
+    assert "launcher not written" in done.stdout
+    assert not (env["home"] / ".cg" / "launcher.json").exists()
+
+
+def test_status_knows_a_repository_before_its_first_commit(env):
+    if shutil.which("git") is None:
+        pytest.skip("git is not installed")
+    subprocess.run(["git", "init", "-q", str(env["project"])], check=True)
+    state = json.loads(env["cg"]("status", "--json")[1])
+    assert state["git"] == "repository", state
+    assert state["branch"] not in ("", "HEAD") and state["commits"] == "none"
+    assert not (env["project"] / ".git" / "index.lock").exists()
 
 
 def test_doctor_flags_a_stale_copy(env):
