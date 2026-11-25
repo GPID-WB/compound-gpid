@@ -69,3 +69,12 @@ def test_compare_status_finds_a_difference_and_a_missing_work_report(tmp_path):
     code, out = run("compare_status.py", "--dest", dest, "--launcher", launcher)
     assert code == 1
     assert "DIFF  settings" in out and "MISS  toy-r-claude" in out
+
+
+def test_the_readme_gives_the_agent_the_value_make_toy_computes():
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "spike" / "gate"))
+    import make_toy
+    weighted, _ = make_toy.headcounts(make_toy.TOY / "inst" / "extdata" / "survey.csv")
+    readme = (make_toy.TOY.parent / "README.md").read_text(encoding="utf-8")
+    assert f"For the toy survey I expect {weighted:.6f}." in readme
+    assert "VALUE" not in readme

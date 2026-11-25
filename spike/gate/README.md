@@ -36,18 +36,57 @@ Go or no-go before milestone 2. The maintainer is at the keyboard; a build sessi
 
 ## In each agent, in its own copy
 
-Open `~/temp/cg-gate/toy-r-<agent>`. Each step in a new chat. Fill the table under Record as you go.
+Open `~/temp/cg-gate/toy-r-<agent>`. Each step in a new chat. Fill the table under Record as you go. Each line to type is in a box below, with a copy button in the Markdown preview.
 
-- **A. Skills.** Type `/` (in Codex, also `$`). `cg` and the eight `r-*` skills should each appear once.
-- **B. Setup.** Type `/cg`. The guide should run status and then propose a setup: the packs `core` and `lang-r`, `r-syntax` set to `data.table-collapse` (the code loads `data.table`), a draft verification profile, three questions about data rules, and the list of files it will write. Answer the data questions (for example: "the data are synthetic and public"), then say yes. Check that it wrote only the files it listed, and that it showed `phase: ready`.
-- **C. Quick task.** Type, with the value from step 3:
+**A. Skills.** Type `/` (in Codex, also `$`). `cg` and the eight `r-*` skills of lang-r should each appear once. Skills of your own with names that start with `r-` may appear too.
 
-  > /cg Add a function `headcount(dt, line = 3)` that returns the weighted share of households with welfare below the line, with a testthat check. For the toy survey I expect VALUE.
+**B. Setup.** Type:
 
-  The change moves an estimate, so line 1 of the quick lane's risk table should be yes: a hard stop with a short contract. Say yes. Then it should change the code, run the tests, compare its number with yours, and leave a work report under `.cg-docs/work-reports/` marked `completed`.
-- **D. A plain request, without `/cg`:** "Write a function that returns the number of households in the survey." Note which skills it loaded (`r-shared`? `r-datatable`?), whether it mentioned `/cg` once (the pointer block asks for that), and that the guide did not start by itself.
-- **E. Codex only:** "Where does the work stand?" must not load `cg`, and `$cg status` must still run (`agents/openai.yaml`).
-- **F. Copilot only:** ask "Quote each line of your instructions that mentions Compound GPID." If the pointer block appears twice, Copilot follows the `@AGENTS.md` line in `CLAUDE.md` as well (ADR 0001, still open).
+```text
+/cg
+```
+
+The guide should run status and then propose a setup: the packs `core` and `lang-r`, `r-syntax` set to `data.table-collapse` (the code loads `data.table`), a draft verification profile, three questions about data rules, and the list of files it will write. Answer the data questions, for example:
+
+```text
+The data are synthetic and public.
+```
+
+Then say yes. Check that it wrote only the files it listed, and that it showed `phase: ready`.
+
+**C. Quick task.** In a new chat, type:
+
+```text
+/cg Add a function `headcount(dt, line = 3)` that returns the weighted share of households with welfare below the line, with a testthat check. For the toy survey I expect 0.153846.
+```
+
+The value 0.153846 is the one `make_toy.py` prints in step 3; a test keeps the two the same. The change moves an estimate, so line 1 of the quick lane's risk table should be yes: a hard stop with a short contract. Say yes. Then it should change the code, run the tests, compare its number with yours, and leave a work report under `.cg-docs/work-reports/` marked `completed`.
+
+**D. A plain request, without `/cg`.** In a new chat, type:
+
+```text
+Write a function that returns the number of households in the survey.
+```
+
+Note which skills it loaded (`r-shared`? `r-datatable`?), whether it mentioned `/cg` once (the pointer block asks for that), and that the guide did not start by itself.
+
+**E. Codex only.** In a new chat, type the line below. It must not load `cg`:
+
+```text
+Where does the work stand?
+```
+
+Then, in another new chat, this must still run the guide's status (`agents/openai.yaml`):
+
+```text
+$cg status
+```
+
+**F. Copilot only.** In a new chat, type the line below. If the pointer block appears twice, Copilot follows the `@AGENTS.md` line in `CLAUDE.md` as well (ADR 0001, still open):
+
+```text
+Quote each line of your instructions that mentions Compound GPID.
+```
 
 Count the approval prompts in each agent, with its default settings.
 
