@@ -1,17 +1,9 @@
-# Ensure bash scripts always use LF line endings in the repo
-# (prevents CRLF corruption when checked out on Windows)
-*.md            text eol=lf
-*.json          text eol=lf
-*.toml          text eol=lf
-*.py            text eol=lf
-*.ps1           text eol=lf
-*.sh            text eol=lf
-bin/cg-*        text eol=lf
-**/cg-skill-management/templates/*.svg text eol=lf
-**/cg-skill-management/templates/*.txt text eol=lf
-*.yml           text eol=lf
-*.yaml          text eol=lf
-*.html          text eol=lf
-
-# Ensure Windows batch wrappers keep CRLF (required by CMD.EXE)
-bin/*.cmd       text eol=crlf
+# Text files keep LF line endings on every operating system.
+*.md    text eol=lf
+*.json  text eol=lf
+*.py    text eol=lf
+*.sh    text eol=lf
+*.yml   text eol=lf
+*.yaml  text eol=lf
+*.toml  text eol=lf
+*.txt   text eol=lf
