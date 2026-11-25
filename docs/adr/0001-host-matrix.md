@@ -6,7 +6,7 @@ Date: 2026-11-24. Status: **partly tested**. Claude Code, Codex and Kilo were ru
 
 Record what each coding agent host does, from tests, before the design depends on it. Each fact carries its basis:
 
-- **live**: observed by running the host on the maintainer's Mac on 2026-11-24 with `spike/host-matrix/run_cli_checks.sh`. All three hosts were run without a UI, so the editor panels may differ.
+- **live**: observed by running the host on the maintainer's Mac on 2026-11-24 with the script in `spike/host-matrix/` (now `run_cli_checks.py`). All three hosts were run without a UI, so the editor panels may differ.
 - **docs**: read in the vendor's documentation on 2026-11-23. Not tested here.
 - **inspected**: seen by reading files and folders. No host was run.
 
@@ -53,12 +53,12 @@ Three further findings:
 | Copilot in VS Code or Positron | No way to run it from a script. | The maintainer follows `spike/host-matrix/CHECKLIST.md` in the Copilot chat panel |
 | Kilo's editor panel | Same reason | Same checklist |
 | Kilo with other models | One model was run | Repeat at the gate (task 1.7) with the model the pilot users will have |
-| Windows | Python command, OneDrive paths with spaces, approval prompts | One run of the script and the checklist on a World Bank Windows machine |
+| Windows | Python command, OneDrive paths with spaces, whether links are allowed, approval prompts | An agent on a World Bank Windows machine follows `spike/host-matrix/WINDOWS.md` and pushes the reports |
 | Marketplace install | Not tried | After task 1.1 puts a manifest on `v2` |
 | Approval prompts | Cannot be counted without a UI | Checklist, in each editor |
 | Behavior after context compaction | Needs a long session | Checklist |
-| Does Claude Code read `~/.agents/skills` directly | The test skill was also linked from `~/.claude/skills`, so the two were not separated | One run with the link removed |
-| Does Kilo also read `~/.claude/skills` | The skill was listed once, so either it does not or it removes duplicates | One run with the skill only in `~/.claude/skills` |
+| Does Claude Code read `~/.agents/skills` directly | The test skill was also linked from `~/.claude/skills`, so the two were not separated | `python3 spike/host-matrix/run_cli_checks.py --only claude --layout agents-only` |
+| Do Kilo and Codex also read `~/.claude/skills` | Each skill was listed once, so either they do not or they remove duplicates | `python3 spike/host-matrix/run_cli_checks.py --only kilo,codex --layout claude-only --kilo-model openai/gpt-6.2-sol` |
 
 ## Facts from documentation, not yet tested
 

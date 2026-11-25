@@ -9,10 +9,16 @@ Run this on one Mac and one World Bank Windows machine, in each host you use: Co
 For Claude Code, Codex and the Kilo command line, the maintainer runs this from the repository root. It installs the test skills, asks each program the same four questions, saves the answers, and removes the test skills:
 
 ```
-bash spike/host-matrix/run_cli_checks.sh
+# macOS
+python3 spike/host-matrix/run_cli_checks.py --kilo-model openai/gpt-6.2-sol
+
+# Windows
+py -3 spike\host-matrix\run_cli_checks.py --kilo-model openai/gpt-6.2-sol --report
 ```
 
-The build session then reads the results and fills in `docs/adr/0001-host-matrix.md`. The steps below are for the hosts that only run inside the editor (Copilot, and Kilo's editor panel), and for Windows.
+The options are listed at the top of the script. `--report` writes a copy without local paths that can be committed. On Windows, [`WINDOWS.md`](WINDOWS.md) is a handoff an agent can follow from start to finish.
+
+The build session then reads the results and fills in `docs/adr/0001-host-matrix.md`. The steps below are for the hosts that only run inside the editor (Copilot, and Kilo's editor panel).
 
 ## Setup, once per machine
 
