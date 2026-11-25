@@ -1,70 +1,76 @@
 # ADR 0001: Host matrix
 
-Date: 2026-11-24. Status: **partly tested**. Claude Code and Codex were run on macOS. Kilo, Copilot and Windows are still open (issue #211).
+Date: 2026-11-24. Status: **partly tested**. Claude Code, Codex and Kilo were run on macOS. Copilot and Windows are still open (issue #211).
 
 ## Purpose
 
 Record what each coding agent host does, from tests, before the design depends on it. Each fact carries its basis:
 
-- **live**: observed by running the host on the maintainer's Mac on 2026-11-24 with `spike/host-matrix/run_cli_checks.sh`. Both hosts were run without a UI, so the editor panels may differ.
+- **live**: observed by running the host on the maintainer's Mac on 2026-11-24 with `spike/host-matrix/run_cli_checks.sh`. All three hosts were run without a UI, so the editor panels may differ.
 - **docs**: read in the vendor's documentation on 2026-11-23. Not tested here.
 - **inspected**: seen by reading files and folders. No host was run.
 
-Versions run: Claude Code 2.1.331, Codex 0.171.0-alpha.13.2, Kilo 7.8.32 (failed before answering, see below).
+Versions run: Claude Code 2.1.331, Codex 0.171.0-alpha.13.2, Kilo 7.8.32 with the model `openai/gpt-6.2-sol`.
 
 ## Live results
 
 The two test skills were installed the way the `skills` installer already does it on this machine: a real folder in `~/.agents/skills` and a link to it from `~/.claude/skills`.
 
-| Question | Claude Code | Codex |
-|---|---|---|
-| Finds the skills | yes, through `~/.claude/skills` | yes, in `~/.agents/skills` |
-| Lists a skill twice | no | no |
-| Honors `disable-model-invocation` | **yes**: the skill is hidden from the model and still runs when typed as `/cg-spike-hello` | **no**: the model saw the skill and ran it on a plain request |
-| Loads a skill from its description | yes | yes |
-| Tells the model the skill's folder | yes ("Base directory for this skill: ...") | yes |
-| Runs the skill's script | yes, by absolute path; a `cd` into the skill folder was refused | yes, with the skill folder as working directory |
-| Python command that worked | `python3` | `python3` |
-| Always-loaded instructions | `CLAUDE.md` only; **`AGENTS.md` was not loaded** | `AGENTS.md` only |
-| Todo tool | none in this mode | none in this mode |
-| Subagent tool | `Agent` | `collaboration.spawn_agent`, on explicit request |
+| Question | Claude Code | Codex | Kilo |
+|---|---|---|---|
+| Finds the skills | yes, through `~/.claude/skills` | yes, in `~/.agents/skills` | yes, in `~/.agents/skills` |
+| Lists a skill twice | no | no | no |
+| Honors `disable-model-invocation` | **yes**: the skill is hidden from the model and still runs when typed as `/cg-spike-hello` | **no**: the model saw the skill and ran it on a plain request | **no**: the model saw the skill and ran it on a plain request |
+| Runs a skill typed as `/name` | yes | yes, as `$name` and as `/name` | yes |
+| Loads a skill from its description | yes | yes | yes |
+| Tells the model the skill's folder | yes ("Base directory for this skill: ...") | yes | yes |
+| Runs the skill's script | yes, by absolute path; a `cd` into the skill folder was refused | yes, with the skill folder as working directory | yes, with the skill folder as working directory |
+| Python command that worked | `python3` | `python3` | `python3` |
+| Always-loaded instructions | `CLAUDE.md` only; `AGENTS.md` is loaded only when `CLAUDE.md` holds the line `@AGENTS.md` | `AGENTS.md` only | `AGENTS.md` only |
+| Todo tool | none in this mode | none in this mode | `todowrite` |
+| Subagent tool | `Agent` | `collaboration.spawn_agent`, on explicit request | `task` |
 
-One unplanned finding: asked "Please run the host probe", Claude Code could not see the hidden skill and ran the other test skill instead, although its description did not match. A model-invoked skill can be picked for a request that was meant for a user-invoked one.
+Three further findings:
+
+- **The import works.** With a `CLAUDE.md` that holds only `@AGENTS.md`, Claude Code loaded the marker from `AGENTS.md`. This was from documentation before; it is live now.
+- **A hidden skill can be answered by the wrong one.** Asked "Please run the host probe", Claude Code could not see the user-invoked skill. In the first run it started the other test skill, although its description did not match. In the second run it started nothing and asked. The behavior is not stable.
+- **Kilo depends on the model chosen.** Kilo's default model on this machine could not call tools, and every prompt stopped. A model name that starts with `kilo/` is billed to the Kilo account and stopped for lack of credits. `openai/gpt-6.2-sol`, through the maintainer's own subscription, worked. Skill discovery is the host's doing, but whether a skill runs depends on the model.
 
 ## What this changes in the design
 
-1. **One pointer block, in `AGENTS.md`, imported by `CLAUDE.md`.** Claude Code does not read `AGENTS.md` and Codex does not read `CLAUDE.md`. Claude Code's documentation says a `CLAUDE.md` can pull in another file with a line such as `@AGENTS.md`, so setup writes the block once in `AGENTS.md` and makes sure `CLAUDE.md` holds that import line. The import is from documentation; the next run of the script tests it. If it fails, setup writes the block into both files.
-2. **`/cg` needs a second mechanism on Codex.** The frontmatter flag alone does not keep the guide from firing by itself there. Task 1.3 tests Codex's own per-skill policy file (`agents/openai.yaml`); if that fails, the guide's description must be written so it does not match ordinary requests.
-3. **Skills call their scripts by absolute path**, built from the folder the host reports. No playbook tells the agent to change directory.
-4. **The link layout is safe on these two hosts.** A real folder in `~/.agents/skills` with a link from `~/.claude/skills` is listed once in each.
+1. **One pointer block, in `AGENTS.md`, imported by `CLAUDE.md`.** Codex and Kilo read `AGENTS.md`. Claude Code reads `CLAUDE.md` and follows the import line. Setup writes the block once in `AGENTS.md` and makes sure `CLAUDE.md` holds `@AGENTS.md`. Tested live on all three.
+2. **The guide must be safe when the model starts it.** Two of three hosts ignore `disable-model-invocation`, so the flag is a convenience on Claude Code and not a guarantee anywhere. Task 1.3 designs the guide for that: its first action only reads state, it never starts work the human did not ask for, and its description is written so that ordinary requests do not match it. Task 1.3 also tests Codex's per-skill policy file (`agents/openai.yaml`) as an optional adapter (ADR 0004).
+3. **Skills call their scripts by absolute path**, built from the folder the host reports. No playbook tells the agent to change directory. Codex and Kilo happened to start in the skill folder; Claude Code refuses to go there.
+4. **The link layout is safe on these three hosts.** A real folder in `~/.agents/skills` with a link from `~/.claude/skills` is listed once in each.
 5. **Routing evals get a new kind of negative case:** a request aimed at a user-invoked skill must not be answered by some other skill.
-6. **State stays in files.** Neither host offered a todo tool when run without a UI, so the visible checklist cannot be the only record of progress.
+6. **State stays in files.** Only Kilo offered a todo tool when run without a UI, so the visible checklist cannot be the only record of progress.
+7. **The install page says what Kilo needs:** a model that can call tools, chosen by the human. `cg.py doctor` cannot check this from outside the host, so the guide's first reply on a model without tools is the only signal.
 
 ## Still open
 
 | Item | Why | What is needed |
 |---|---|---|
-| Kilo | Two runs, no answer yet. Run 1: all four prompts stopped with "No endpoints found that support tool use", because the model set as Kilo's default cannot call tools. Run 2, with `kilo/openai/gpt-6.2-sol`: all four stopped with "Add credits to continue, or switch to a free model". A model name that starts with `kilo/` is billed to the Kilo account, which had no credits. Kilo also lists the same model under `openai/` and `github-copilot/`; from the listing, those go through the account signed in with that provider (inferred, not yet run). | Rerun through a provider that is already paid for: `ONLY=kilo KILO_MODEL=openai/gpt-6.2-sol bash spike/host-matrix/run_cli_checks.sh`, or `KILO_MODEL=github-copilot/gpt-6.2-sol` |
 | Copilot in VS Code or Positron | No way to run it from a script. | The maintainer follows `spike/host-matrix/CHECKLIST.md` in the Copilot chat panel |
 | Kilo's editor panel | Same reason | Same checklist |
+| Kilo with other models | One model was run | Repeat at the gate (task 1.7) with the model the pilot users will have |
 | Windows | Python command, OneDrive paths with spaces, approval prompts | One run of the script and the checklist on a World Bank Windows machine |
 | Marketplace install | Not tried | After task 1.1 puts a manifest on `v2` |
 | Approval prompts | Cannot be counted without a UI | Checklist, in each editor |
 | Behavior after context compaction | Needs a long session | Checklist |
-| Does `@AGENTS.md` in `CLAUDE.md` load the block in Claude Code | From documentation only | Next run of the script, which now includes this case |
 | Does Claude Code read `~/.agents/skills` directly | The test skill was also linked from `~/.claude/skills`, so the two were not separated | One run with the link removed |
+| Does Kilo also read `~/.claude/skills` | The skill was listed once, so either it does not or it removes duplicates | One run with the skill only in `~/.claude/skills` |
 
 ## Facts from documentation, not yet tested
 
-| Fact | Copilot (VS Code) | Kilo | Basis |
-|---|---|---|---|
-| Reads `~/.agents/skills` | yes | yes, by default | docs |
-| Reads `~/.claude/skills` | yes | only with Claude compatibility on | docs |
-| Skills shown as slash commands | yes | yes | docs |
-| Plugin marketplace from a GitHub repository | yes | none | docs |
-| `disable-model-invocation` | documented | unknown | docs |
+| Fact | Copilot (VS Code) | Basis |
+|---|---|---|
+| Reads `~/.agents/skills` | yes | docs |
+| Reads `~/.claude/skills` | yes | docs |
+| Skills shown as slash commands | yes | docs |
+| Plugin marketplace from a GitHub repository | yes; Kilo has none | docs |
+| `disable-model-invocation` | documented | docs |
 
-Copilot reads both user-level folders according to its documentation, so the link layout that is safe on Claude Code and Codex might list a skill twice there. That is the first thing to check in Copilot.
+Copilot reads both user-level folders according to its documentation, so the link layout that is safe on the three tested hosts might list a skill twice there. That is the first thing to check in Copilot.
 
 ## Seen on the maintainer's Mac (inspected)
 
@@ -78,4 +84,4 @@ The build session may not start other coding agents, so the maintainer ran the s
 
 ## Kill criteria
 
-Listed in `spike/host-matrix/CHECKLIST.md`. None was triggered by the two hosts tested. No host is the base (ADR 0004): a host counts as supported once its rows here are live.
+Listed in `spike/host-matrix/CHECKLIST.md`. None was triggered by the three hosts tested. No host is the base (ADR 0004): a host counts as supported once its rows here are live.

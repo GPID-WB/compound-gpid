@@ -19,7 +19,7 @@ Issues: tracking issue #256 in `GPID-WB/compound-gpid`; tasks #211 to #255 and #
 | Approved plan with amendments | `.cg-docs/plans/` | current |
 | Twelve principles | `skills/cg/principles/` | all accepted on 2026-11-24 as the working version; they are meant to be revised (see "How a principle changes" in the index) |
 | Plugin glossary and its check | `skills/cg/GLOSSARY.md`, `tools/check_glossary.py` | in use |
-| Host record | `docs/adr/0001-host-matrix.md` | Claude Code and Codex tested on macOS; Kilo ran twice without an answer (model without tools, then no credits); Copilot, Windows open |
+| Host record | `docs/adr/0001-host-matrix.md` | Claude Code, Codex and Kilo tested on macOS without a UI; the `@AGENTS.md` import works; Codex and Kilo ignore `disable-model-invocation`; Copilot and Windows open |
 | Host test kit | `spike/host-matrix/` | the maintainer runs `run_cli_checks.sh`; results are git-ignored |
 | Sources, notices, ledger | `docs/adr/0002-sources.md`, `THIRD_PARTY_NOTICES`, `docs/adoption-ledger.md` | current |
 | Pack contract | `docs/adr/0003-packs.md` | accepted on 2026-11-24 as the working contract; free to change before 2.0 by amending the record; layout to be tested in tasks 1.1 and 1.5 |
@@ -42,7 +42,7 @@ Nothing of version 1 has been removed from `v2` yet. The version 1 tree is still
 7. **1.3 (#219)** The guide, the `setup` and `quick` playbooks, the pointer block. Second build session; see "Which model builds which task".
 8. The gate **1.7 (#223)**, with the maintainer at the keyboard.
 
-Waiting on the maintainer: a Kilo rerun through a provider that is already paid for, and one full run of the script for the `@AGENTS.md` case (both in ADR 0001); the Copilot checklist (#211); a Windows machine.
+Waiting on the maintainer: the Copilot checklist (#211); a Windows machine. Neither blocks tasks 1.1 to 1.6.
 
 ## Working rules agreed with the maintainer
 
