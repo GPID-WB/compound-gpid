@@ -287,12 +287,32 @@ def read_settings(config):
     return lines, problems
 
 
-def read_data_rules(config):
-    """config['data'] as sorted 'path=level' lines: what the human said about each data file."""
-    data = (config or {}).get("data", {})
-    if not isinstance(data, dict) or not all(isinstance(v, str) for v in data.values()):
-        return [], ['.cg-docs/config.json data must map file paths to a classification level']
-    return [f"{path}={level}" for path, level in sorted(data.items())], []
+# The data rules quick work reads for its risk line 2 (#223), with the shape each must have.
+RULE_KEYS = {"data": "map file paths to a classification level",
+             "approved-tools": "map coding agent names to a classification level",
+             "contacts": "map a topic to who to ask"}
+
+
+def rule_problems(config):
+    """Shape problems in the data rules of a config, worded as stops."""
+    problems = []
+    for key, shape in RULE_KEYS.items():
+        value = (config or {}).get(key, {})
+        if not isinstance(value, dict) or not all(isinstance(v, str) for v in value.values()):
+            problems.append(f".cg-docs/config.json {key} must {shape}, as text")
+    levels = (config or {}).get("classification-levels", [])
+    if not isinstance(levels, list) or not all(isinstance(v, str) for v in levels):
+        problems.append('.cg-docs/config.json classification-levels must be a list of level names, '
+                        'from public to most restricted, such as ["Public", "Internal"]')
+    return problems
+
+
+def rule_lines(config, key):
+    """config[key] as sorted 'name=level' lines, or [] when its shape is wrong."""
+    value = (config or {}).get(key, {})
+    if not isinstance(value, dict):
+        return []
+    return [f"{name}={level}" for name, level in sorted(value.items()) if isinstance(level, str)]
 
 
 def compute_status(project: Path, guide: bool = False) -> dict:
@@ -312,8 +332,7 @@ def compute_status(project: Path, guide: bool = False) -> dict:
             stops.append(f".cg-docs/config.json requires-core: {error}")
     settings, problems = read_settings(config)
     stops += problems
-    data_rules, problems = read_data_rules(config)
-    stops += problems
+    stops += rule_problems(config)
     found = artifacts(project)
     open_ones = [a for a in found if a["status"] in OPEN_STATUSES]
     phase = "setup" if config is None else "ready"
@@ -336,7 +355,8 @@ def compute_status(project: Path, guide: bool = False) -> dict:
         "packs-missing": missing,
         "add-command": add_command(missing) if missing else None,
         "settings": settings,
-        "data": data_rules,
+        "data": rule_lines(config, "data"),
+        "approved-tools": rule_lines(config, "approved-tools"),
         "stops": stops,
         "next": step,
         **git_facts(project),
@@ -393,7 +413,7 @@ def cmd_status(args) -> int:
         print(json.dumps(state, indent=2, sort_keys=True))
         return 1 if state["stops"] else 0
     order = ["project", "core", "phase", "reason", "active", "open-artifacts", "waiting-on-human",
-             "packs-expected", "packs-missing", "add-command", "settings", "data", "git", "branch", "commits", "changed-files",
+             "packs-expected", "packs-missing", "add-command", "settings", "data", "approved-tools", "git", "branch", "commits", "changed-files",
              "stops", "next", "playbook"]
     for key in order:
         if key not in state:
@@ -484,6 +504,9 @@ def planned_setup(project: Path, args):
                 raise ValueError("not a JSON object")
         except (OSError, ValueError) as error:
             return [], [f".cg-docs/config.json is unreadable ({error}); fix it, then run setup again"]
+    shape = rule_problems(config)
+    if shape:
+        return [], [f"{line}; fix it, then run setup again" for line in shape]
     if not names and not config.get("packs"):
         return None, ["the first setup needs --packs, such as --packs core,lang-r"]
     packs, _ = discover_packs()

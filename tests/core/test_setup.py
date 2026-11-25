@@ -135,3 +135,22 @@ def test_first_setup_needs_the_packs(env):
     code, out = env["cg"]("setup", "--data", "survey.csv=Public")
     assert code == 2 and "--packs" in out
     assert files(env["project"]) == {}
+
+
+def test_status_prints_approved_tools_and_stops_on_a_wrong_shape(env):
+    """Fable's review of the gate (#223, item 4): quick work's risk line 2 reads
+    approved-tools and classification-levels, so status checks their shape and
+    prints approved-tools, and line 2 can be answered from status alone."""
+    project = env["project"]
+    assert env["cg"]("setup", *ARGS)[0] == 0
+    state = json.loads(env["cg"]("status", "--json")[1])
+    assert state["approved-tools"] == ["Claude Code=Official Use Only"] and state["stops"] == []
+    config_path = project / ".cg-docs" / "config.json"
+    for key, bad in (("approved-tools", ["Claude Code"]), ("classification-levels", "Public;Internal"),
+                     ("approved-tools", {"Claude Code": 3})):
+        config = json.loads(config_path.read_text())
+        config[key] = bad
+        config_path.write_text(json.dumps(config))
+        code, out = env["cg"]("status", "--json")
+        assert code == 1 and any(key in stop for stop in json.loads(out)["stops"]), (key, out)
+    assert env["cg"]("setup", *ARGS)[0] == 1  # setup refuses to merge into a wrong shape
