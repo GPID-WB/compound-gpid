@@ -337,3 +337,18 @@ def test_glossary_check_with_no_argument_checks_the_hub_from_any_folder(tmp_path
 def test_sync_version_finds_the_hub_from_any_folder(tmp_path):
     code, out = run("sync_version.py", "--check", cwd=tmp_path)
     assert code == 0 and "manifests in step" in out, out
+
+
+def test_no_pack_file_names_a_version_1_command():
+    """Version 1 commands such as /cg-fixbug do not exist in version 2 (#221).
+
+    Frontmatter is skipped: a derived-from field cites version 1 files as sources.
+    """
+    import re
+    found = []
+    for path in sorted((HUB / "packs").rglob("*.md")):
+        lines = path.read_text(encoding="utf-8").splitlines()
+        start = lines.index("---", 1) + 1 if lines[:1] == ["---"] else 0
+        found += [f"{path.relative_to(HUB)}:{n}" for n, line in enumerate(lines[start:], start + 1)
+                  if re.search(r"/cg-[a-z]|\bcg-fixbug\b", line)]
+    assert found == []

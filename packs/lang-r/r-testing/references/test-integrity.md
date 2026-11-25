@@ -22,10 +22,8 @@ Valid sources (in priority order):
 | 3 | **Mathematical/statistical definition** | FGT₀ = fraction of population with consumption < z |
 | 4 | **External reference** | World Bank Poverty Handbook, methodology note |
 | 5 | **Package convention** | `collapse::fmean()` returns a named numeric vector |
-| 6 | **Hand-computed example** | For `c(1, 2, 3)` with line = 2: FGT₀ = 2/3 = 0.667 |
+| 6 | **Reference value**, worked out independently of the code | For `c(1, 2, 3)` with line = 2: FGT₀ = 2/3 = 0.667 |
 | 7 | **Backward-compatibility contract** | Prior tagged release documented output shape |
-
-> This list mirrors the source types declared in `/cg-fixbug` Step 1.5.
 
 **If no source can be identified**: ask the maintainer. Do not proceed with a guess.
 
@@ -58,11 +56,6 @@ A sequence to confirm a test genuinely detects the absence of the intended behav
 
 Only after all six steps are complete is the fix verified. A test that was never seen
 to fail is not a safety net — it is noise.
-
-> **When using this protocol in `/cg-fixbug`**: sub-points 1–5 of Step 4 correspond to
-> steps 2–6 of this protocol (step 1 — write the test first — happens in cg-fixbug Step 2).
-> Sub-point 6 (flawed test repair) is an extension beyond this protocol.
-> Sub-point 2 = step 3 above (failure matches symptom); sub-point 5 = step 6 above (regressions).
 
 ---
 
