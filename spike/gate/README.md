@@ -70,7 +70,7 @@ Then say yes. Check that it wrote only the files it listed, and that it showed `
 /cg Add a function `headcount(dt, line = 3)` that returns the weighted share of households with welfare below the line, with a testthat check. For the toy survey I expect 0.153846.
 ```
 
-The value 0.153846 is the one `make_toy.py` prints in step 3; a test keeps the two the same. The change moves an estimate, so line 1 of the quick lane's risk table should be yes: a hard stop with a short contract. Say yes. Then it should change the code, run the tests, compare its number with yours, and leave a work report under `.cg-docs/work-reports/` marked `completed`.
+The value 0.153846 is the one `make_toy.py` prints in step 3; a test keeps the two the same. The change moves an estimate, so the fact `number` is a yes and `cg.py tier` should print `tier: elevated`: a hard stop with a short contract. Say yes. Then it should change the code, run the tests, compare its number with yours, and leave a work report under `.cg-docs/work-reports/` marked `completed`.
 
 **D. A plain request, without `/cg`.** In a new chat, type:
 

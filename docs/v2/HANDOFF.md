@@ -1,6 +1,6 @@
 # Handoff: where the 2.0 build stands
 
-Written 2026-11-24 for whoever continues the work, in any coding agent. Last updated 2026-11-25 by the Opus 5.5 session that recorded the gate's go (task 1.7, #223), after the review of its wording by Fable 5.2. Update this file when the state changes; it is the first thing to read.
+Written 2026-11-24 for whoever continues the work, in any coding agent. Last updated 2026-11-25 by the Fable 5.2 session that built task 2.1 (#224), the first task of milestone 2. Update this file when the state changes; it is the first thing to read.
 
 ## Read in this order
 
@@ -8,7 +8,7 @@ Written 2026-11-24 for whoever continues the work, in any coding agent. Last upd
 2. The plan: `.cg-docs/plans/2026-11-24-compound-gpid-v2.md`. Its "Amendments after approval" section overrides the body where they differ.
 3. `packs/core/cg/GLOSSARY.md`. Every new text uses these words.
 4. `packs/core/cg/principles/README.md`, then the principle files you need.
-5. The decision records in `docs/adr/` (0001 hosts, 0002 sources, 0003 packs, 0004 no base host) and `SCOPE.md`.
+5. The decision records in `docs/adr/` (0001 hosts, 0002 sources, 0003 packs, 0004 no base host, 0005 artifacts, approvals and the tier) and `SCOPE.md`.
 
 Issues: tracking issue #256 in `GPID-WB/compound-gpid`; tasks #211 to #255 and #257, label `v2`. Branch: `v2`.
 
@@ -29,7 +29,8 @@ Issues: tracking issue #256 in `GPID-WB/compound-gpid`; tasks #211 to #255 and #
 | Issue script | `tools/admin/create_v2_issues.py` | rerun to add tasks or refresh the tracking issue |
 | Hub layout and manifests | `packs/`, `.claude-plugin/marketplace.json` (the pack index), `plugin.json`, `packs/*/.claude-plugin/plugin.json` | task 1.1; `claude plugin validate --strict` passes; a marketplace install has not been tried in any host |
 | Version sync | `tools/sync_version.py` | each `pack.json` is its pack's version source; core's version is the hub's (`1.99.0.9000`, the work in progress before 2.0.0); the root `plugin.json` `repository` is the hub URL's source; `docs/install-block.md` is the one other place it appears |
-| `cg.py` | `packs/core/cg/scripts/cg.py` | task 1.2: `doctor`, `status`, `new`, `packs`; and `setup`, which writes what the human confirmed in the setup playbook (#219, finding 2) and records data rules (`--data path=level`, later runs without `--packs`). `status` names the next playbook only with `--guide`, which only the guide passes (#223); it prints a `data` line. Standard library, Python 3.9 or later |
+| `cg.py` | `packs/core/cg/scripts/cg.py` | task 1.2: `doctor`, `status`, `new`, `packs`; and `setup`, which writes what the human confirmed in the setup playbook (#219, finding 2) and records data rules (`--data path=level`, later runs without `--packs`). `status` names the next playbook only with `--guide`, which only the guide passes (#223); it prints a `data` line. Task 2.1 added `validate`, `approve` and `tier` (next row). Standard library, Python 3.9 or later; 1,235 of its 2,500 lines |
+| Artifact schema, approvals, tier | `docs/adr/0005-artifacts.md`; the table `ARTIFACTS` in `cg.py`; `packs/core/cg/templates/` (one template per artifact type) | task 2.1, proposed and not yet reviewed: schema 2 with `schema: 2` as its marker, version 1 artifacts read as they are, `cg.py validate` (`--strict` for a project's CI), `cg.py approve` (one file per approval under `.cg-docs/approvals/`), `cg.py tier` (six declared facts, and the data rules and the file count from code) |
 | Checks and CI | `tools/lint_skills.py`, `tools/validate_pack.py`, `tools/check_budgets.py`, `.github/workflows/v2.yml` | task 1.6; CI runs the checks, and pytest on Linux, macOS and Windows with Python 3.9 and 3.13 |
 | Installer | `install.py`, `docs/install-block.md` | task 1.4; installs into `~/.agents/skills` with links from `~/.claude/skills`; owns only what `~/.cg/installed.json` lists |
 | `lang-r` pack | `packs/lang-r/` | task 1.5: the eight v1 R skills, renamed `r-*`; lead skill `r-shared` |
@@ -37,7 +38,7 @@ Issues: tracking issue #256 in `GPID-WB/compound-gpid`; tasks #211 to #255 and #
 | Playbooks | `packs/core/cg/playbooks/setup.md`, `quick.md` | task 1.3; each opens with what the agent owns and ends with a `Reply:` contract |
 | Pointer block and templates | `packs/core/cg/templates/` (`pointer-block.md`, `verification.md`, `work-report.md`) | task 1.3; the block is nine lines, written into `AGENTS.md` only, and this repository's `AGENTS.md` holds it |
 | Codex adapter | `packs/core/cg/agents/openai.yaml` | task 1.3; optional (ADR 0004); not yet run in Codex |
-| Tests | `tests/core/`, `tests/hub/`, `tests/spike/` | 127 tests, and one that runs only on Windows; run `python3 -m pytest -q` (or `uvx pytest -q`) |
+| Tests | `tests/core/`, `tests/hub/`, `tests/spike/` | 153 tests, and one that runs only on Windows; run `python3 -m pytest -q` (or `uvx pytest -q`) |
 | Gate kit | `spike/gate/` | the toy R package, `make_toy.py` (one copy per agent, and the value to give it), `compare_status.py` (status across the copies, work reports, `--collect` for the evidence), and `README.md`, the steps and the table for #223. `run_cli_gate.py` reruns steps B to D in Claude Code, Codex and Kilo from the command line with approval prompts off, and judges each step from files and status. It has two known gaps, noted on #223 for Opus 5.5 (item 14 below). Two one-off probes for the path it misses are in `.cg-docs/gate-m1/panel-shape/`, with a `README.md` |
 
 The version 1 tree is gone from `v2`: the generated host trees, `.github`, `adapters/`, `bin/`, `scripts/`, the Pester tests, the installers and release machinery, `research_evidence/` and `c-research/`. All of it is unchanged on branch `v1`, and later ports read from there (`git show v1:<path>` or `git archive v1 <path>`). Kept: `.cg-docs/`, `docs/` (its version 1 pages are for task 7.5), `spike/`.
@@ -65,7 +66,24 @@ The version 1 tree is gone from `v2`: the generated host trees, `.github`, `adap
     - *Not fixed:* in the panel's shape with a request after `/cg`, Kilo still opens its reply with the pointer block's sentence and then runs the guide. Claude Code loaded no `r-*` skill in any of its 15 rerun sessions, ten of which were asked to write R code; Since the new description Kilo loaded `r-shared` and both dialect skills in three of six steps that write R code, against none of eight before (#221).
 14. **Fable's code items and the maintainer's three decisions: done, 2026-11-25.** Opus 5.5 did the four code items of Fable's review (`967ddf30`, `34f73cd7`, `81dcd279`): status checks and prints the data rules, `run_cli_gate.py` reads every Claude Code message and has a `kilo-panel` agent that sends the panel's shape, and transcripts are `<agent>-transcript.md`. Rerun with them, `rerun-9/`: Claude Code and `kilo-panel` 9 of 9. The maintainer decided: quick work has the agent read the lead skill of each expected pack before it writes code (step 3; rule 1 of ADR 0003 amended, `cde18ff4`); `cg.py setup` no longer takes `--contact`; data rules by folder wait for `cg.py tier` (task 2.1). The maintainer checked a bare `/cg` once in Posit Assistant and once in Kilo's panel: both proposed a setup.
 15. **The gate 1.7 (#223): go, decided by the maintainer on 2026-11-25.** Milestone 1 is done. Copilot was not retested after the fixes (it has no command line); check it during the pilot. To retest without a human after a change to the guide or the playbooks: `python3 spike/gate/run_cli_gate.py --kilo-model openai/gpt-6-luna` (Claude Code, Codex, Kilo, and Kilo with the panel's shape).
-16. **Next: milestone 2**, from task 2.1 (#224, artifact schema, version 1 reader, `validate`, `approve`, `tier`), built by Fable 5.2 and reviewed by Opus 5.5, in the order of the plan.
+16. **2.1 (#224)** Built by Fable 5.2 on 2026-11-25. Artifact schema, version 1 reader, `validate`, `approve`, `tier`. Its three "Done when" lines hold, each with a test (`tests/core/test_artifacts.py`). See "Ready for review" below.
+17. **Next: the review of 2.1 by Opus 5.5**, then task 2.2 (#225, grilling, restate, assumptions, `brainstorm`), built by Fable 5.2.
+
+### Ready for review: task 2.1 (#224), for Opus 5.5
+
+Read `docs/adr/0005-artifacts.md` first: it gives each choice with the alternatives set aside. Then the commits `9ee64743` (the tests, failing), `b7b6bd7c` (the code and the templates) and `74e9148d` (the playbook wording). Things to try to break:
+
+- **The version 1 reader.** `read_frontmatter` and `read_artifact` in `cg.py`. A file with no `schema` key is never failed. `cg.py validate --project .` in this repository reads its 668 version 1 artifacts with no problem; before this task, status did not see the 235 solutions, which version 1 keeps in a folder per category.
+- **The approval digest.** It covers the plan's body and leaves out line ends and trailing spaces. Check that nothing an agent can do to a plan after approval goes unseen, and that nothing a sync does voids an approval.
+- **The tier.** `clearance` decides whether this coding agent may read a file. Names and levels are compared without regard to case. Only the word `Public` counts as public: the first entry of `classification-levels` does not, in case an organization's list starts higher.
+- **The wording** of step 2 and step 5 of `playbooks/quick.md`, the data lines of `playbooks/setup.md`, and the five new templates. The facts table kept the wording the gate passed, with a name for each fact in place of a line number.
+
+Known limits, none fixed here:
+
+- An artifact written without `schema: 2` is read as version 1, so `validate` checks nothing in it. `cg.py new` writes the key; an agent that writes a file itself can leave it out.
+- `approve` cannot know that the human said what `--reply` holds. It refuses three replies by exact wording, and the rest is for the `ownership` verifier.
+- The six facts are still the agent's answers. Code only makes sure that each is given, that one yes is enough, and that the data and size facts are not the agent's to give.
+- Task 2.1 was not built with `/cg`, though its issue asks for that from task 1.7 on. The session was started with a plain prompt, this repository has no `.cg-docs/config.json` (status says `phase: setup`), and the one playbook for work, quick, stops at more than five files. Until the plan playbook exists (task 2.3), a task of this size has no playbook to run in.
 
 No task in this set failed its "Done when" twice. CI failed once each in tasks 1.6 and 1.4, both on Windows and both in tests, and was fixed in the next commit.
 
@@ -146,9 +164,13 @@ Rules for a build session:
 
 Placeholders (each file says `PLACEHOLDER: written in task <n>`):
 
-- `packs/core/cg/templates/artifact.md`: the template `cg.py new` fills for every type except a work report; task 2.1.
-- `packs/core/cg/playbooks/quick.md`: the risk table in step 2 stands in for `cg.py tier` (task 2.1), and step 5 for `cg.py evidence` (task 2.4). Until then the agent answers the table and fills the work report itself.
-- In `cg.py`: `PHASE_PLAYBOOK` (no config means `setup`, config means `quick`; task 2.14), `ARTIFACT_FOLDERS`, `OPEN_STATUSES` and `WAITING_STATUSES` (task 2.1).
+- `packs/core/cg/playbooks/quick.md`: step 5 stands in for `cg.py evidence` (task 2.4). Until then the agent fills the work report itself, and `cg.py validate` checks that no part of it is left unfilled.
+- In `cg.py`: `PHASE_PLAYBOOK` (no config means `setup`, config means `quick`; task 2.14).
+
+Decisions for the maintainer from task 2.1 (each is in ADR 0005 under "Open", and in #224):
+
+- P12's check line says the tier is raised when a dataset is above Public or unclassified. The code raises it when the file is not cleared for this coding agent, as the rest of P12 and the quick playbook say. One of the two changes.
+- Whether to run `/cg` in this repository once, so that it has a `.cg-docs/config.json` and later tasks can be built with the guide.
 
 Decisions taken in task 1.3 that a reviewer should check (each is also in #219):
 
