@@ -1,6 +1,5 @@
 ---
-name: cg-skill-r-shared
-user-invokable: false
+name: r-shared
 description: "Base R style and error-handling rules universal to all R dialects. Load for assignment style, naming conventions, line length, TRUE/FALSE enforcement, and rlang/cli error handling patterns. Dialect-neutral -- applies regardless of r-syntax setting."
 ---
 
@@ -37,3 +36,21 @@ Universal R style rules that apply in all projects regardless of the `r-syntax` 
 - Document datasets with `@format` and `@source`.
 - Use `@family` to group related functions.
 - Write examples that run without external data or side effects.
+
+## Which R Skills to Load
+
+Ported from version 1's `r.instructions.md`, which applied to `*.R`, `*.r` and `*.Rmd` files.
+
+Check the project's `r-syntax` setting (in a version 1 project, the `r-syntax` field of `compound-gpid.local.md`) and load the appropriate dialect skill(s):
+
+- `r-syntax: "data.table-collapse"` (or field absent → default): load `r-collapse` AND `r-datatable`
+- `r-syntax: "tidyverse"`: load `r-tidyverse`
+- Any other value: default to `data.table-collapse` behavior and warn the user. Accepted values: `"data.table-collapse"` and `"tidyverse"`.
+
+Regardless of dialect, also load:
+
+- `r-visualization` when writing or reviewing visualization code (`ggplot2`, `wbplot`)
+- `r-analytical` for domain-specific analytical work (survey analysis, welfare measurement, econometrics, Stata migration)
+- `r-technical` for infrastructure work (packages, plumber, Shiny, targets, httr2, renv)
+- `r-testing` when writing, reviewing, or debugging R tests
+- this skill, `r-shared`, for base R style rules (`<-` assignment, `snake_case`, `TRUE`/`FALSE`, line length)

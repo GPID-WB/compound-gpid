@@ -1,12 +1,11 @@
 ---
-name: cg-skill-r-testing
-user-invokable: false
-description: "Best practices for testing R code with testthat 3+. Use when writing, reviewing, debugging, or improving tests in .R or .Rmd files -- including test_that(), describe()/it(), expect_*() calls, test fixtures, mocking, and snapshot tests. Covers test structure, core expectations, design principles, test data construction (data.table for data.table-collapse projects, tibble for tidyverse projects), collapse for statistical assertions in both dialects, fixtures, mocking with local_mocked_bindings(), snapshots, and BDD-style testing. Load alongside cg-skill-r-technical for plumber/httr2 API testing and cg-skill-r-analytical for welfare/survey testing patterns."
+name: r-testing
+description: "Best practices for testing R code with testthat 3+. Use when writing, reviewing, debugging, or improving tests in .R or .Rmd files -- including test_that(), describe()/it(), expect_*() calls, test fixtures, mocking, and snapshot tests. Covers test structure, core expectations, design principles, test data construction (data.table for data.table-collapse projects, tibble for tidyverse projects), collapse for statistical assertions in both dialects, fixtures, mocking with local_mocked_bindings(), snapshots, and BDD-style testing. Load alongside r-technical for plumber/httr2 API testing and r-analytical for welfare/survey testing patterns."
 ---
 
 # Testing R Code with testthat
 
-Modern best practices for R testing using testthat 3+. Default examples use **data.table** for test data construction and **collapse** for statistical assertions. For projects with `r-syntax: "tidyverse"` in `compound-gpid.local.md`, use `tibble()` and dplyr for test data construction — statistical assertions still use collapse functions since they work identically on tibbles.
+Modern best practices for R testing using testthat 3+. Default examples use **data.table** for test data construction and **collapse** for statistical assertions. For projects with `r-syntax: "tidyverse"`, use `tibble()` and dplyr for test data construction — statistical assertions still use collapse functions since they work identically on tibbles.
 
 ## Initial Setup
 
@@ -357,14 +356,14 @@ Read `references/fixtures.md` in this directory for helper files, setup files, d
 | Task | Code |
 |------|------|
 | Initialize | `usethis::use_testthat(3)` |
-| Run full suite | `devtools::test()` |
+| Run all tests | `devtools::test()` |
 | Run single file | `testthat::test_file("tests/testthat/test-x.R")` |
 | Review snapshots | `testthat::snapshot_review()` |
 
 ## Cross-References
 
-- **`cg-skill-r-technical`** — Load for plumber endpoint and httr2 mock testing, including its `references/testing-apis.md` resource
-- **`cg-skill-r-analytical`** — Load for welfare/survey testing patterns (FGT indices, weighted stats, PPP units)
+- **`r-technical`** — Load for plumber endpoint and httr2 mock testing, including its `references/testing-apis.md` resource
+- **`r-analytical`** — Load for welfare/survey testing patterns (FGT indices, weighted stats, PPP units)
 - **[references/bdd.md](references/bdd.md)** — BDD-style testing: describe/it, nesting, test-first workflows
 - **[references/mocking.md](references/mocking.md)** — Mocking strategies, webfakes, httptest2
 - **[references/fixtures.md](references/fixtures.md)** — Fixture patterns, database fixtures, helper/setup files

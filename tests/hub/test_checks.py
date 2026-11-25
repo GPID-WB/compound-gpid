@@ -138,6 +138,18 @@ def test_lint_fails_on_a_principle_without_its_sections(tmp_path):
     assert "no '## Verifier' section" not in out
 
 
+def test_lint_reads_a_pack_folder_without_pack_json_as_a_pack(tmp_path):
+    pack = make_pack(tmp_path)
+    (pack / "x-one" / "pack.json").unlink()
+    (pack / "x-one" / "references").mkdir()
+    (pack / "x-one" / "references" / "notes.md").write_text("Notes.\n")
+    skill = pack / "x-one" / "SKILL.md"
+    skill.write_text(skill.read_text().replace("description:", "user-invocable: false\ndescription:"))
+    code, out = run("lint_skills.py", pack)
+    assert code == 1
+    assert "'user-invocable' is not portable" in out and "without a SKILL.md" not in out
+
+
 def test_lint_fails_on_a_pack_folder_without_skill(tmp_path):
     pack = make_pack(tmp_path)
     (pack / "stray").mkdir()

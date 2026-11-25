@@ -1,7 +1,6 @@
 ---
-name: cg-skill-r-tidyverse
-description: "Modern tidyverse patterns for R. Load when r-syntax is 'tidyverse' in compound-gpid.local.md, or when writing/reviewing R code using dplyr, tidyr, readr, stringr, or purrr. Covers dplyr 1.2+ patterns (.by grouping, join_by, pick/across/reframe), native pipe |>, pivot_longer/pivot_wider, stringr, readr I/O, and GPID-specific patterns in tidyverse style. Note: even in tidyverse mode, collapse functions (fmean, fsum, etc.) are used for weighted statistics since they work natively on tibbles."
-user-invocable: false
+name: r-tidyverse
+description: "Modern tidyverse patterns for R. Load when the project's r-syntax setting is 'tidyverse', or when writing/reviewing R code using dplyr, tidyr, readr, stringr, or purrr. Covers dplyr 1.2+ patterns (.by grouping, join_by, pick/across/reframe), native pipe |>, pivot_longer/pivot_wider, stringr, readr I/O, and GPID-specific patterns in tidyverse style. Note: even in tidyverse mode, collapse functions (fmean, fsum, etc.) are used for weighted statistics since they work natively on tibbles."
 ---
 
 # tidyverse Data Manipulation
@@ -40,5 +39,5 @@ For projects with external coauthors or where tidyverse readability is required.
 
 ---
 
-> For weighted grouped statistics (fmean, fsum, fmedian), load `cg-skill-r-collapse` — these work on tibbles and are the recommended approach even in tidyverse projects.
-> For analytical domain knowledge (welfare, econometrics), load `cg-skill-r-analytical`.
+> For weighted grouped statistics (fmean, fsum, fmedian), load `r-collapse` — these work on tibbles and are the recommended approach even in tidyverse projects.
+> For analytical domain knowledge (welfare, econometrics), load `r-analytical`.

@@ -1,0 +1,17 @@
+{
+  "name": "lang-r",
+  "version": "2.0.0.9000",
+  "requires-core": "2.0.0.9000",
+  "skills": [
+    "r-shared",
+    "r-analytical",
+    "r-collapse",
+    "r-datatable",
+    "r-technical",
+    "r-testing",
+    "r-tidyverse",
+    "r-visualization"
+  ],
+  "lenses": [],
+  "tracks": []
+}

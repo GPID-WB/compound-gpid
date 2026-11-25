@@ -177,7 +177,7 @@ region_results <- rbindlist(lapply(regions, function(r) {
 
 Use `srvyr` when:
 - You need complex ratio estimators (`survey_ratio()`)
-- You need replicate weight methods (BRR, jackknife) that are cumbersome to implement manually
+- You need replicate weight methods (BRR, jackknife) that are cumbersome to implement yourself
 - You need `svyglm()` for survey-weighted regressions with proper design-based inference
 - The survey has a multi-stage design with finite population corrections at each stage
 

@@ -1,12 +1,11 @@
 ---
-name: cg-skill-r-datatable
-description: "data.table patterns for R data manipulation. Load when r-syntax is 'data.table-collapse' in compound-gpid.local.md, or when writing/reviewing R code using DT[i,j,by] syntax, :=, fread/fwrite, joins, reshaping, or any data.table manipulation. Covers filtering, column creation by reference, joins (equi, non-equi, rolling), melt/dcast reshaping, fifelse/fcase, .SD/.SDcols, set()/setkey(), performance patterns, and data.table anti-patterns. Use alongside cg-skill-r-collapse for statistical computing."
-user-invocable: false
+name: r-datatable
+description: "data.table patterns for R data manipulation. Load when the project's r-syntax setting is 'data.table-collapse' (the default), or when writing/reviewing R code using DT[i,j,by] syntax, :=, fread/fwrite, joins, reshaping, or any data.table manipulation. Covers filtering, column creation by reference, joins (equi, non-equi, rolling), melt/dcast reshaping, fifelse/fcase, .SD/.SDcols, set()/setkey(), performance patterns, and data.table anti-patterns. Use alongside r-collapse for statistical computing."
 ---
 
 # data.table Data Manipulation
 
-`data.table` is the team's primary tool for data manipulation when using the `data.table-collapse` dialect. All operations flow through one unified `DT[i, j, by]` syntax. Use `collapse` functions (from `cg-skill-r-collapse`) for all grouped/weighted statistical computing inside or alongside data.table.
+`data.table` is the team's primary tool for data manipulation when using the `data.table-collapse` dialect. All operations flow through one unified `DT[i, j, by]` syntax. Use `collapse` functions (from `r-collapse`) for all grouped/weighted statistical computing inside or alongside data.table.
 
 ## Core Paradigm
 
@@ -51,6 +50,6 @@ DT[i, j, by]
 
 ---
 
-> For grouped/weighted statistics, use `cg-skill-r-collapse` — collapse functions work directly inside `dt[, j, by]`.
-> For dplyr/tidyverse manipulation, use `cg-skill-r-tidyverse`.
-> For analytical domain knowledge (welfare, econometrics), use `cg-skill-r-analytical`.
+> For grouped/weighted statistics, use `r-collapse` — collapse functions work directly inside `dt[, j, by]`.
+> For dplyr/tidyverse manipulation, use `r-tidyverse`.
+> For analytical domain knowledge (welfare, econometrics), use `r-analytical`.

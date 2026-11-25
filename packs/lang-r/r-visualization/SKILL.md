@@ -1,7 +1,6 @@
 ---
-name: cg-skill-r-visualization
+name: r-visualization
 description: "ggplot2 and wbplot visualization patterns for World Bank GPID charts. Load when creating or reviewing R visualizations. Covers theme_wb(), WBCOLORS, scale_color_wb_d/scale_fill_wb_d, chart type conventions (line, bar, facet, scatter), ggsave standards, and World Bank style rules. Dialect-neutral: works with both data.table-collapse and tidyverse workflows."
-user-invocable: false
 ---
 
 # R Visualization
@@ -24,4 +23,4 @@ user-invocable: false
 
 ---
 
-> This skill is dialect-neutral. Use `cg-skill-r-collapse` or `cg-skill-r-datatable` (data.table-collapse) or `cg-skill-r-tidyverse` to prepare data before plotting.
+> This skill is dialect-neutral. Use `r-collapse` or `r-datatable` (data.table-collapse) or `r-tidyverse` to prepare data before plotting.

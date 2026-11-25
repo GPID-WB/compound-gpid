@@ -1,5 +1,5 @@
 ---
-name: cg-skill-r-analytical
+name: r-analytical
 description: "R patterns for analytical work: haven for Stata migration, fixest for econometrics, modelsummary for tables, ggplot2+wbplot for World Bank visualizations, and welfare/poverty measurement patterns. Covers domain knowledge for survey analysis, FGT poverty indices, inequality measures, and econometric workflows."
 ---
 
@@ -7,7 +7,7 @@ description: "R patterns for analytical work: haven for Stata migration, fixest 
 
 Reference skill for analytical R work in the GPID team. Oriented toward senior economists working on survey data, poverty measurement, and econometrics.
 
-For data manipulation and statistical computing, consult the dialect skills loaded via `r.instructions.md` based on your project's `r-syntax` setting in `compound-gpid.local.md`.
+For data manipulation and statistical computing, consult the dialect skills that `r-shared` names for your project's `r-syntax` setting.
 
 ## Quick Reference
 
@@ -16,7 +16,7 @@ For data manipulation and statistical computing, consult the dialect skills load
 | Read .dta files | `haven` | `read_dta()`, `as_factor()`, `zap_labels()` |
 | Econometrics | `fixest` | `feols()`, `feglm()`, `sunab()` for staggered DiD |
 | Output tables | `modelsummary` | `msummary()` to Word/LaTeX/HTML |
-| Visualization | `ggplot2` + `wbplot` | see `cg-skill-r-visualization` |
+| Visualization | `ggplot2` + `wbplot` | see `r-visualization` |
 | Research docs | Quarto | Parametrized reports, cross-references, multi-format |
 | Welfare measures | FGT indices, Gini, PPP unit tracking — see Welfare Patterns workflow |
 
@@ -34,7 +34,7 @@ For data manipulation and statistical computing, consult the dialect skills load
 
 ---
 
-> For data manipulation and statistical computing patterns, load `cg-skill-r-collapse`, `cg-skill-r-datatable`, or `cg-skill-r-tidyverse` based on your project's `r-syntax` setting.
-> For visualization (`theme_wb()`, `WBCOLORS`), load `cg-skill-r-visualization`.
-> For infrastructure workflows (package development, Shiny, targets, httr2), use `cg-skill-r-technical`.
-> For comprehensive testthat patterns, load `cg-skill-r-testing`.
+> For data manipulation and statistical computing patterns, load `r-collapse`, `r-datatable`, or `r-tidyverse` based on your project's `r-syntax` setting.
+> For visualization (`theme_wb()`, `WBCOLORS`), load `r-visualization`.
+> For infrastructure workflows (package development, Shiny, targets, httr2), use `r-technical`.
+> For comprehensive testthat patterns, load `r-testing`.

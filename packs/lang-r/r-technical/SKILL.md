@@ -1,6 +1,5 @@
 ---
-name: cg-skill-r-technical
-user-invokable: false
+name: r-technical
 description: "R patterns for technical work: roxygen2, package development, plumber APIs (with API testing in references/testing-apis.md), Shiny apps, targets pipelines, httr2 HTTP clients, and renv/pak environment management."
 ---
 
@@ -8,7 +7,7 @@ description: "R patterns for technical work: roxygen2, package development, plum
 
 Reference skill for technical R development in the GPID team. Covers the full stack for building R packages, REST APIs, Shiny applications, and data pipelines.
 
-For data manipulation and statistical computing, consult the dialect skills loaded via `r.instructions.md` based on your project's `r-syntax` setting in `compound-gpid.local.md`.
+For data manipulation and statistical computing, consult the dialect skills that `r-shared` names for your project's `r-syntax` setting.
 
 ## Quick Reference
 
@@ -40,6 +39,6 @@ For data manipulation and statistical computing, consult the dialect skills load
 
 ---
 
-> For data manipulation and statistical computing patterns, load `cg-skill-r-collapse`, `cg-skill-r-datatable`, or `cg-skill-r-tidyverse` based on your project's `r-syntax` setting.
-> For comprehensive R testing patterns (testthat, fixtures, mocking, snapshots, BDD), load `cg-skill-r-testing`.
-> For analytical workflows (survey analysis, welfare measurement, fixest, modelsummary, wbplot), use `cg-skill-r-analytical`.
+> For data manipulation and statistical computing patterns, load `r-collapse`, `r-datatable`, or `r-tidyverse` based on your project's `r-syntax` setting.
+> For comprehensive R testing patterns (testthat, fixtures, mocking, snapshots, BDD), load `r-testing`.
+> For analytical workflows (survey analysis, welfare measurement, fixest, modelsummary, wbplot), use `r-analytical`.

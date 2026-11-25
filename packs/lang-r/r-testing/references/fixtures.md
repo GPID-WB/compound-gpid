@@ -131,7 +131,7 @@ withr::local_options(
 )
 ```
 
-**Use setup files for:** package-wide test options, environment variable configuration, one-time expensive setup, suite initialization.
+**Use setup files for:** package-wide test options, environment variable configuration, one-time expensive setup, initialization of the whole test run.
 
 ## File System Discipline
 
@@ -250,4 +250,4 @@ dt <- data.table(value = rnorm(100))
 
 **Use constructors for data variation across tests; static files for fixed reference data.**
 
-**Commit fixture files to version control** — they are part of your test suite.
+**Commit fixture files to version control** — they are part of your tests.

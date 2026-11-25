@@ -71,7 +71,7 @@ dt[, poor := welfare_2017ppp < 2.15]
 
 ### Aggregate-then-merge instead of using TRA
 
-> Load `cg-skill-r-technical` for the same pattern in non-welfare contexts.
+> Load `r-technical` for the same pattern in non-welfare contexts.
 
 **Problem:** Computing group statistics and merging back instead of using the `TRA` argument.
 
@@ -112,7 +112,7 @@ fmean(dt$welfare, g = dt$region, w = dt$weight)  # collapse, weighted
 ## collapse Anti-Patterns
 
 > **Collapse anti-patterns** (masking, `qDT()`, `GRP()` pre-computation)
-> are in the `cg-skill-r-collapse` skill.
+> are in the `r-collapse` skill.
 > The patterns below are specific to analytical work.
 
 *No analytical-specific collapse anti-patterns at this time. General collapse anti-patterns are in the shared file above.*

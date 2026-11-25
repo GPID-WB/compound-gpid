@@ -12,6 +12,12 @@
       "version": "2.0.0.9000",
       "source": "./packs/core",
       "description": "The core pack: the guide, the playbooks, the principles and the tooling. Everyone installs it."
+    },
+    {
+      "name": "lang-r",
+      "version": "2.0.0.9000",
+      "source": "./packs/lang-r",
+      "description": "R skills: base style, collapse, data.table, tidyverse, analytical work, packages and pipelines, testthat, and World Bank charts."
     }
   ]
 }

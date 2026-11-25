@@ -134,7 +134,7 @@ tests/testthat/
 
 Each snapshot file is human-readable markdown with the test name as heading, the code that generated the output, and the captured output.
 
-**Always commit `_snaps/` to git** — snapshots are part of the test suite.
+**Always commit `_snaps/` to git** — snapshots are part of the tests.
 
 ## Common Patterns
 

@@ -85,7 +85,7 @@ dt |> mutate(
 )
 ```
 
-> **Note**: Load `cg-skill-r-collapse` for the full weighted statistics reference. `fmean`, `fsum`, `fmedian`, and `flag` work identically on tibbles and are the recommended approach for weighted/panel operations even in tidyverse projects.
+> **Note**: Load `r-collapse` for the full weighted statistics reference. `fmean`, `fsum`, `fmedian`, and `flag` work identically on tibbles and are the recommended approach for weighted/panel operations even in tidyverse projects.
 
 ## Joining: join_by() (dplyr 1.2+)
 

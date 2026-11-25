@@ -1,7 +1,6 @@
 ---
-name: cg-skill-r-collapse
+name: r-collapse
 description: "collapse fast statistical computing for R. Load when writing or reviewing grouped/weighted statistics, aggregation, or panel data operations with the collapse package. Covers fmean/fsum/fmedian/fnth and all Fast Statistical Functions, GRP objects, TRA transformation types, fwithin/fbetween/fscale, flag/fdiff/fgrowth, collap(), fsummarise/fmutate, qsu/descr, and collapse anti-patterns. Dialect-neutral: collapse works on data.table, tibble, and data.frame equally."
-user-invocable: false
 ---
 
 # collapse Statistical Computing
@@ -30,7 +29,7 @@ user-invocable: false
 
 ## When to Use This Skill
 
-Load alongside `cg-skill-r-datatable` (for `data.table-collapse` dialect) or `cg-skill-r-tidyverse` (for tidyverse dialect — collapse is still recommended for weighted statistical computing even in tidyverse projects).
+Load alongside `r-datatable` (for `data.table-collapse` dialect) or `r-tidyverse` (for tidyverse dialect — collapse is still recommended for weighted statistical computing even in tidyverse projects).
 
 ## References
 
@@ -40,6 +39,6 @@ Load alongside `cg-skill-r-datatable` (for `data.table-collapse` dialect) or `cg
 
 ---
 
-> For data manipulation (filtering, joining, reshaping with data.table), use `cg-skill-r-datatable`.
-> For dplyr/tidyverse manipulation patterns, use `cg-skill-r-tidyverse`.
-> For analytical domain knowledge (welfare measurement, survey analysis, econometrics), use `cg-skill-r-analytical`.
+> For data manipulation (filtering, joining, reshaping with data.table), use `r-datatable`.
+> For dplyr/tidyverse manipulation patterns, use `r-tidyverse`.
+> For analytical domain knowledge (welfare measurement, survey analysis, econometrics), use `r-analytical`.

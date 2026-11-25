@@ -1,6 +1,6 @@
 # Testing APIs — Plumber and httr2
 
-Patterns for testing plumber REST endpoints and httr2 HTTP client code. This reference belongs in `cg-skill-r-technical` because the testing patterns are tightly coupled to the technologies (plumber, httr2). For general R testing patterns (testthat, fixtures, mocking, snapshots), load `cg-skill-r-testing`.
+Patterns for testing plumber REST endpoints and httr2 HTTP client code. This reference belongs in `r-technical` because the testing patterns are tightly coupled to the technologies (plumber, httr2). For general R testing patterns (testthat, fixtures, mocking, snapshots), load `r-testing`.
 
 ## Testing Plumber Endpoints
 

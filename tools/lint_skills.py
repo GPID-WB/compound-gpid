@@ -190,7 +190,9 @@ def skill_folders(arg: Path):
     """Return (pack folder, skill folder) pairs for a hub, pack or skill path."""
     if (arg / "SKILL.md").is_file():
         return [(arg.parent, arg)]
-    packs = [arg] if any(arg.glob("*/pack.json")) else sorted(p for p in arg.iterdir() if p.is_dir())
+    # A pack folder has skill folders as children; the hub's packs/ folder has pack folders.
+    is_pack = any(arg.glob("*/SKILL.md")) or any(arg.glob("*/pack.json"))
+    packs = [arg] if is_pack else sorted(p for p in arg.iterdir() if p.is_dir())
     pairs = []
     for pack in packs:
         pairs += [(pack, s) for s in sorted(pack.iterdir()) if s.is_dir() and not s.name.startswith(".")]

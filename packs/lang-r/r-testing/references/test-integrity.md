@@ -1,6 +1,6 @@
 # Test Integrity Reference
 
-Companion to `cg-skill-r-testing`. Covers how to verify that tests assert the intended
+Companion to `r-testing`. Covers how to verify that tests assert the intended
 behavior of a function, not merely the behavior the current implementation happens to
 produce. Load this file when working on bug fixes or when reviewing tests for tautology.
 
@@ -52,7 +52,7 @@ A sequence to confirm a test genuinely detects the absence of the intended behav
 5. **Confirm green phase** — run the test again. The test must now **pass**:
    > "Green phase: `[test name]` passes after fix."
 
-6. **Confirm no regressions** — run the full test suite. All previously passing tests must
+6. **Confirm no regressions** — run all the tests. All previously passing tests must
    still pass. If regressions appear, investigate before proceeding.
    > "Existing tests: N passing, 0 regressions."
 
@@ -68,7 +68,7 @@ to fail is not a safety net — it is noise.
 
 ## Test Gap Taxonomy
 
-Classification of why an existing test suite missed a bug. Use this when a bug
+Classification of why existing tests missed a bug. Use this when a bug
 reaches production despite tests being present.
 
 | Category | Meaning | Typical Signal |

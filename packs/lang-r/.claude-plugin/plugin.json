@@ -1,0 +1,21 @@
+{
+  "name": "lang-r",
+  "version": "2.0.0.9000",
+  "description": "R skills: base style, collapse, data.table, tidyverse, analytical work, packages and pipelines, testthat, and World Bank charts.",
+  "author": {
+    "name": "GPID-WB",
+    "url": "https://github.com/GPID-WB"
+  },
+  "repository": "https://github.com/GPID-WB/compound-gpid",
+  "license": "MIT",
+  "skills": [
+    "./r-shared",
+    "./r-analytical",
+    "./r-collapse",
+    "./r-datatable",
+    "./r-technical",
+    "./r-testing",
+    "./r-tidyverse",
+    "./r-visualization"
+  ]
+}

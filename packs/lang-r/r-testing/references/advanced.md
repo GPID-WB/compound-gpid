@@ -4,7 +4,7 @@ Advanced patterns for production-quality test suites. All data construction uses
 
 ## Version Compatibility
 
-Key version-gated functions in the cg-skill-r-testing reference files:
+Key version-gated functions in the r-testing reference files:
 
 | Function | Minimum testthat | Notes |
 |---|---|---|
