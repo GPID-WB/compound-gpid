@@ -31,7 +31,7 @@ python3 spike/host-matrix/run_cli_checks.py --manual        # Windows: py -3 spi
 It installs the two test skills, makes a small test project named `cg-spike-project` in your home folder (with a marker line in `AGENTS.md`, `CLAUDE.md` and `.github/copilot-instructions.md`), and writes an answer sheet, `cg-spike-answers.txt`, also in your home folder.
 
 1. Open the folder `cg-spike-project` in the editor. Restart the editor if the skills do not appear.
-2. Open the answer sheet. For each host it lists four steps, each done in a new chat: paste the text, copy the reply under its heading.
+2. Open the answer sheet in a plain text program, not in the editor: the editor can show an open file to the agent, and the sheet holds the words the test looks for. For each host it lists four steps, each done in a new chat: paste the text, copy the reply under its heading. Nothing has to be run in a terminal.
 3. Answer the three short questions per host at the end of its block.
 4. Run the script again with `--manual-done`. It keeps the sheet with the results and removes the skills, the project and the sheet.
 

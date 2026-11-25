@@ -217,12 +217,27 @@ def manual_start(layout):
     steps = [("1", "Paste this prompt", MANUAL_P1), ("2", "Type this", P2),
              ("3", "Paste this prompt", P3), ("4", "Paste this prompt", P4)]
     sheet = [
-        "Host test inside the editor. Skill layout: " + layout,
+        "HOST TEST INSIDE THE EDITOR (about 10 minutes). Skill layout: " + layout,
         "",
-        "For each host below: open the folder cg-spike-project (in your home folder)",
-        "in the editor, then do the four steps, EACH IN A NEW CHAT. Copy the whole",
-        "reply under its heading in this file. Then answer the three short questions.",
-        "If a host cannot do a step, write what happened; that is a result.",
+        "You need two windows:",
+        "  - the editor (VS Code or Positron) with the folder cg-spike-project open.",
+        "    You chat there. Nothing has to be run in a terminal.",
+        "  - this file, open in a plain text program (TextEdit, Notepad).",
+        "    You paste the replies here.",
+        "Do NOT open this file inside the editor: the editor can show an open file",
+        "to the agent, and this file holds the words the test looks for.",
+        "",
+        "Do this twice: first in the Copilot chat panel (pick the mode 'Agent'),",
+        "then in the Kilo chat panel.",
+        "  1. Start a NEW chat.",
+        "  2. Copy the line under 'Step 1' below, paste it in the chat, send it.",
+        "  3. When the reply is complete, copy all of it and paste it here under",
+        "     'Reply to step 1'. If the agent asks permission to run something,",
+        "     allow it, and count how many times it asked.",
+        "  4. Start a NEW chat for step 2, then step 3, then step 4, the same way.",
+        "  5. Answer the three short questions at the end of that host's block.",
+        "If something does not work, write what you saw. That is a result too.",
+        "Save this file when you are done.",
         "",
     ]
     for host in ("COPILOT (agent mode)", "KILO"):
@@ -236,8 +251,10 @@ def manual_start(layout):
                   "c. How many approval prompts did step 2 show you? ", ""]
     MANUAL_SHEET.write_text("\n".join(sheet), encoding="utf-8")
     print("Ready.\n  Test project:", MANUAL_PROJECT, "\n  Answer sheet:", MANUAL_SHEET)
-    print("Open the answer sheet and follow it. Restart the editor first if the "
-          "skills do not appear.\nWhen you are done, run this script with --manual-done.")
+    print("Open the test project in the editor and the answer sheet in a plain text "
+          "program (not in the editor), then follow the sheet.\nRestart the editor "
+          "first if the skills do not appear.\nWhen you are done, run this script "
+          "with --manual-done.")
 
 
 def manual_done(report):
