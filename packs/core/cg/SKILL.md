@@ -26,14 +26,15 @@ This step only reads. Do it first, every time, whoever started you.
 
 If the launcher file is missing, or its interpreter does not start: find a Python of version 3.9 or later on this machine, run `scripts/cg.py doctor` with it once, and read the file again. Doctor writes the file. If the machine has no such Python, stop and tell the human that the install text (`docs/install-block.md` in the hub) says what is needed.
 
+If status ends with an error and prints no `stops` line, show the human what it printed and end your turn. Do not work out the state another way.
+
 ## 2. Decide whether to go on
 
-First find out who started you. **The human started you** when either is true:
+First find out who started you. Take the first of these three that is true.
 
-- the human's message holds `/cg` or `$cg`;
-- the text of this file reached you as the human's own message, not as the result of a tool call you made. Some coding agents send a typed `/cg` that way, without the command itself. Text after this file in that message is what the human typed after `/cg`.
-
-**You started yourself** only when you loaded this skill with your own tool call, or another instruction sent you here, and the human's message holds neither `/cg` nor `$cg`.
+1. **The human started you:** their message holds `/cg` or `$cg`.
+2. **The human started you:** the text of this file reached you as the human's own message, not as the result of a tool call you made. Some coding agents send a typed `/cg` that way, without the command itself. What follows this file's text in that message is what the human typed after `/cg`. If you then load this skill with a tool call as well, the human still started you.
+3. **You started yourself:** you loaded this skill with your own tool call, or another instruction sent you here.
 
 | Who started you, and what came with it | What you do after step 1 |
 |---|---|
@@ -43,7 +44,7 @@ First find out who started you. **The human started you** when either is true:
 | The human, with `help` after `/cg`, or a question about what the guide does | Say what the guide does, where the work stands, and which playbooks are installed (the files in `playbooks/`). Start nothing. |
 | You started yourself | Report the state in two lines and say that typing `/cg` starts the guide. Then return to what the human asked. Open no playbook and write no file. |
 
-The last row keeps the guide safe in a coding agent that lets the model load any skill. The guide never starts work the human did not ask it for. Do not take the human's `/cg` for the last row: an agent that sends this file as the human's message is passing on the human's command.
+The last row keeps the guide safe in a coding agent that lets the model load any skill: the guide never starts work the human did not ask it for. That row is for case 3 only. A coding agent that sends this file as the human's message is passing on the human's command.
 
 ## 3. Follow status
 
@@ -63,6 +64,6 @@ If the file that `playbook` names does not exist, the install is incomplete. Say
 - **Tools.** Start `cg.py` only as in section 1. When a playbook names a `cg.py` command, it means that interpreter and that path. Principles also name `cg.py` commands that later versions add. Run only the commands that `"<python>" "<cg>" --help` lists. A check whose command is not installed goes under "Not checked" in the record, and it does not keep the work open.
 - **State.** The record of the work is in files under `.cg-docs/`. A todo list in the coding agent is a copy for the human to watch. It is never the record.
 - **Approval.** Only a clear yes is approval, for what was shown and nothing more. Never infer one from an earlier session or from a summary of the conversation. A hard stop is a question in your reply, and then you end your turn. The coding agent's own approval settings are not the human's yes: many people let the agent approve its tool calls by itself.
-- **Installs.** Install nothing outside the project. To build or check a package, use a temporary library or environment, never the human's own.
+- **Installs.** Install nothing into the human's own libraries or onto their machine: no package in their R library or their Python, no system tool. To build or check the project's package, install it into a temporary library or environment. When the work needs something that is not installed, say so and ask.
 - **Claims.** Label what you report as measured, inferred or guess, and say what you did not check.
 - **Asking.** Look up whatever a file, a package's documentation or a command can tell you. Ask the human for decisions only.
