@@ -23,8 +23,8 @@ Terms used here are defined in the plugin glossary (`../GLOSSARY.md`): classific
 ### Setup
 
 - Record the organization's classification scheme in the project configuration: the names of its levels, from public to most restricted.
-- Record who to ask about AI use, security and privacy. The defaults for World Bank Group staff are listed under "Who to ask" below.
 - Ask the human which AI tools are approved for which level, and record the answer. The agent does not judge approval; it records what the human declares.
+- Record the classification the human gives each data file found. A file with no recorded classification is restricted data.
 
 ### Plan
 
@@ -49,13 +49,7 @@ Terms used here are defined in the plugin glossary (`../GLOSSARY.md`): classific
 
 ## Who to ask
 
-The agent does not settle a question of policy. It names the office and the human asks. For World Bank Group staff:
-
-- Use of AI: ai@worldbankgroup.org
-- Information security: infosec@worldbank.org
-- Personal data: the Data Privacy Office
-
-A project in another organization records its own contacts at setup.
+The agent does not settle a question of policy. It says that the question is for the human's organization, and the human asks there.
 
 ## Evidence it leaves
 

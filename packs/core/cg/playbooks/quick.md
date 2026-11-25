@@ -17,12 +17,12 @@ If status shows an open work report under `active`, read it first: continue that
 
 ## 2. Check the risk
 
-Look at the files the change will touch. Then answer each line with yes or no. Find the answers in the files, and ask the human only for what they alone know.
+Look at the files the change will touch. Then answer each line with yes or no. Find the answers in the files and in the status output, and ask the human only for what they alone know. Answer from what the change does, not from how small it looks: each no needs a reason you can write in the record.
 
 | # | Fact about the change |
 |---|---|
-| 1 | It can move a number someone will read: an estimate, a weight, a sample, a merge, a method, a unit, a table, a figure or a published dataset. |
-| 2 | It reads data, and `.cg-docs/config.json` does not show that this coding agent is approved for that data's classification. |
+| 1 | It produces a number someone will read, or can change one: an estimate, a weight, a sample, a merge, a method, a unit, a table, a figure or a published dataset. New code that computes such a number counts, even when no number existed before. |
+| 2 | It reads a data file that the `data` line of status does not clear for this coding agent. A file is cleared when its level there is `Public`, or when `approved-tools` in `.cg-docs/config.json` names this agent at that level or above. A file described as synthetic or public anywhere else is not cleared. |
 | 3 | It touches personal data, credentials or access rights. |
 | 4 | It deletes or overwrites data, or does something that cannot be undone: a push to a shared branch, a release, a publication, a message sent. |
 | 5 | It adds or upgrades a dependency, or alters a function, a file format or a column that other code or other people rely on. |
@@ -32,6 +32,12 @@ Look at the files the change will touch. Then answer each line with yes or no. F
 **Every answer is no.** Go on to step 3 without waiting.
 
 **Any answer is yes.** This is a hard stop. Tell the human which lines are yes and why. Then give a short contract: the goal, what is out of scope, the checks you will run with the outcome that would mean failure, and for line 2 how you will work without seeing the data (P12). End your turn, and go on only after a clear yes. When line 6 is yes because the work is large, say that it needs a plan, and offer the first slice that is small enough to do now.
+
+**When the human answers a data question,** record the answer before you go on, so that no later session asks again. Show the line, then run it:
+
+`"<python>" "<cg>" setup --data "<file>=<level>" --approved-tool "<this coding agent>=<level>" --project "<project root>"`
+
+Use the human's words for the level, such as `Public`. Status then shows the file on its `data` line.
 
 ## 3. Change
 
@@ -45,6 +51,7 @@ Look at the files the change will touch. Then answer each line with yes or no. F
 ## 4. Prove
 
 - Run the checks yourself. Where you can, see each check fail before the change and pass after it. Check the real output, not a step on the way to it.
+- When a check fails, fix the code, not the check. Change an expected value or a tolerance only when a source independent of the code shows it was wrong, and name that source in the record (P4).
 - For a number that changed, compare it with something independent of the code: a reference value, a published figure, or what the human said they expected before the check ran (P4).
 - Give each check one verdict: verified, not verified or inconclusive. Inconclusive is not a pass.
 - Read the Verifier section of P3, P4 and P6 in `principles/`, and judge your own change against each. This is a self-review, and the record says so.

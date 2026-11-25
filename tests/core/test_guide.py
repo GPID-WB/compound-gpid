@@ -66,7 +66,46 @@ def test_this_repository_holds_the_pointer_block_once_and_only_in_agents_md():
 def test_the_guide_is_user_invoked_and_reads_state_through_the_launcher():
     text = (CG / "SKILL.md").read_text(encoding="utf-8")
     assert "disable-model-invocation: true" in text.split("\n---\n", 1)[0]
-    assert "launcher.json" in text and "status --project" in text
+    assert "launcher.json" in text and "status --guide --project" in text
+    # The pointer block runs plain status, which names no playbook (#223).
+    assert "status --project" in BLOCK and "--guide" not in BLOCK
+
+
+def named_commands(text: str):
+    """The cg.py commands a text tells the agent to run, outside HTML comments,
+    leaving out lines that say the command is not installed yet."""
+    text = re.sub(r"<!--.*?-->", "", text, flags=re.S)
+    return {m.group(1) for line in text.splitlines() if "once installed" not in line
+            for span in re.findall(r"`([^`]+)`", line)
+            for m in re.finditer(r"(?:cg\.py|\"<cg>\")\s+([a-z][a-z-]*)", span)}
+
+
+def test_what_the_agent_runs_names_only_cg_py_commands_that_exist():
+    """Gate M1 (#223): P04 named `cg.py guard`, which arrives in task 2.4; an agent
+    that ran it got exit 2 and could not complete quick work. The guide and the
+    playbooks name only installed commands. Principles may name planned ones,
+    because the guide says to run only what `cg.py --help` lists."""
+    parser_help = subprocess.run([sys.executable, str(CG / "scripts" / "cg.py"), "--help"],
+                                 capture_output=True, text=True).stdout
+    existing = set(re.search(r"\{([a-z,-]+)\}", parser_help).group(1).split(","))
+    for path in [CG / "SKILL.md", *sorted((CG / "playbooks").glob("*.md")), *sorted((CG / "templates").glob("*.md"))]:
+        unknown = named_commands(path.read_text(encoding="utf-8")) - existing
+        assert not unknown, f"{path.relative_to(HUB)} names cg.py {sorted(unknown)}"
+    assert "--help" in (CG / "SKILL.md").read_text(encoding="utf-8")
+    planned = set()
+    for path in sorted((CG / "principles").glob("*.md")):
+        planned |= named_commands(path.read_text(encoding="utf-8"))
+    assert "guard" in planned - existing  # the case the rule in the guide covers
+    assert named_commands("Run `cg.py guard` now.") == {"guard"}
+    assert named_commands("- `cg.py guard`, once installed: no skipped checks.") == set()
+
+
+def test_no_file_of_the_core_pack_holds_an_email_address():
+    """The maintainer removed the organization contacts from P12 (#223)."""
+    address = re.compile(r"[\w.+-]+@[\w-]+\.[\w.]+")
+    for path in sorted(CG.rglob("*.md")):
+        assert not address.search(path.read_text(encoding="utf-8")), path
+    assert address.search("Use of AI: ai@example.org")
 
 
 def run_cg(home: Path, project: Path, *args):
@@ -80,7 +119,7 @@ def test_status_names_a_playbook_that_exists_before_and_after_setup(tmp_path):
     home, project = tmp_path.resolve() / "home", tmp_path.resolve() / "project"
     shutil.copytree(CG, home / ".agents" / "skills" / "cg", ignore=shutil.ignore_patterns("__pycache__"))
     project.mkdir()
-    code, out = run_cg(home, project, "status", "--json")
+    code, out = run_cg(home, project, "status", "--json", "--guide")
     state = json.loads(out)
     assert code == 0 and state["phase"] == "setup" and Path(state["playbook"]).is_file()
     # What the setup playbook tells the agent to write must be a config that status accepts.
@@ -89,7 +128,7 @@ def test_status_names_a_playbook_that_exists_before_and_after_setup(tmp_path):
     config.update(packs=["core"], **{"requires-core": state["core"]})
     (project / ".cg-docs").mkdir()
     (project / ".cg-docs" / "config.json").write_text(json.dumps(config), encoding="utf-8")
-    code, out = run_cg(home, project, "status", "--json")
+    code, out = run_cg(home, project, "status", "--json", "--guide")
     state = json.loads(out)
     assert code == 0 and state["phase"] == "ready" and state["stops"] == [], out
     assert Path(state["playbook"]).is_file() and state["settings"] == ["<pack>.<setting>=<value>"]

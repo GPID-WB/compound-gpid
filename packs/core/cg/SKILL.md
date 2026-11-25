@@ -19,24 +19,31 @@ This step only reads. Do it first, every time, whoever started you.
 1. Read `~/.cg/launcher.json` in the human's home folder (on Windows, `%USERPROFILE%\.cg\launcher.json`). It holds `python`, the interpreter, and `cg`, the tool.
 2. Run the tool with that interpreter. Give both by absolute path, in quotes:
 
-   `"<python>" "<cg>" status --project "<project root>"`
+   `"<python>" "<cg>" status --guide --project "<project root>"`
 
    In PowerShell, put `&` before the first quote. The project root is the folder the human opened, the one that holds `.git` or `.cg-docs`. Pass it even when your shell is already there.
-3. Read every line that status prints. Status is the source for where the work stands. What was said earlier in the conversation is not.
+3. Read every line that status prints. Status is the source for where the work stands. What was said earlier in the conversation is not. `--guide` adds the line `playbook`, which only the guide uses.
 
 If the launcher file is missing, or its interpreter does not start: find a Python of version 3.9 or later on this machine, run `scripts/cg.py doctor` with it once, and read the file again. Doctor writes the file. If the machine has no such Python, stop and tell the human that the install text (`docs/install-block.md` in the hub) says what is needed.
 
 ## 2. Decide whether to go on
 
-| What started you | What you do after step 1 |
-|---|---|
-| The human typed `/cg` or `$cg` with nothing after it | Follow section 3. |
-| The human typed `/cg` and a request | Follow section 3, and hand the request to the playbook. |
-| The human typed `/cg status`, or asked where the work stands | Report the state in a few lines. Start nothing. |
-| The human typed `/cg help`, or asked what the guide does | Say what the guide does, where the work stands, and which playbooks are installed (the files in `playbooks/`). Start nothing. |
-| Anything else: you loaded this skill yourself, or another instruction sent you here | Report the state in two lines and say that typing `/cg` starts the guide. Then return to what the human asked. Open no playbook and write no file. |
+First find out who started you. **The human started you** when either is true:
 
-The last row keeps the guide safe in a coding agent that lets the model load any skill. The guide never starts work the human did not ask it for.
+- the human's message holds `/cg` or `$cg`;
+- the text of this file reached you as the human's own message, not as the result of a tool call you made. Some coding agents send a typed `/cg` that way, without the command itself. Text after this file in that message is what the human typed after `/cg`.
+
+**You started yourself** only when you loaded this skill with your own tool call, or another instruction sent you here, and the human's message holds neither `/cg` nor `$cg`.
+
+| Who started you, and what came with it | What you do after step 1 |
+|---|---|
+| The human, with nothing after `/cg` | Follow section 3. |
+| The human, with a request after `/cg` | Follow section 3, and hand the request to the playbook. |
+| The human, with `status` after `/cg`, or a question about where the work stands | Report the state in a few lines. Start nothing. |
+| The human, with `help` after `/cg`, or a question about what the guide does | Say what the guide does, where the work stands, and which playbooks are installed (the files in `playbooks/`). Start nothing. |
+| You started yourself | Report the state in two lines and say that typing `/cg` starts the guide. Then return to what the human asked. Open no playbook and write no file. |
+
+The last row keeps the guide safe in a coding agent that lets the model load any skill. The guide never starts work the human did not ask it for. Do not take the human's `/cg` for the last row: an agent that sends this file as the human's message is passing on the human's command.
 
 ## 3. Follow status
 
@@ -53,8 +60,9 @@ If the file that `playbook` names does not exist, the install is incomplete. Say
 
 - **Principles.** `principles/README.md` is the index. Read the full file of a principle before you apply it. Cite a principle only if you read its file in this session.
 - **Words.** `GLOSSARY.md` fixes the words Compound GPID uses. The project's own terms are in the project's `GLOSSARY.md`, when it has one. Write to the human in those words and in short sentences.
-- **Tools.** Start `cg.py` only as in section 1. When a playbook names a `cg.py` command, it means that interpreter and that path.
+- **Tools.** Start `cg.py` only as in section 1. When a playbook names a `cg.py` command, it means that interpreter and that path. Principles also name `cg.py` commands that later versions add. Run only the commands that `"<python>" "<cg>" --help` lists. A check whose command is not installed goes under "Not checked" in the record, and it does not keep the work open.
 - **State.** The record of the work is in files under `.cg-docs/`. A todo list in the coding agent is a copy for the human to watch. It is never the record.
-- **Approval.** Only a clear yes is approval, for what was shown and nothing more. Never infer one from an earlier session or from a summary of the conversation.
+- **Approval.** Only a clear yes is approval, for what was shown and nothing more. Never infer one from an earlier session or from a summary of the conversation. A hard stop is a question in your reply, and then you end your turn. The coding agent's own approval settings are not the human's yes: many people let the agent approve its tool calls by itself.
+- **Installs.** Install nothing outside the project. To build or check a package, use a temporary library or environment, never the human's own.
 - **Claims.** Label what you report as measured, inferred or guess, and say what you did not check.
 - **Asking.** Look up whatever a file, a package's documentation or a command can tell you. Ask the human for decisions only.
