@@ -1,10 +1,13 @@
 """cg.py: the deterministic tooling of the core pack.
 
-Usage:
-  python3 cg.py doctor [--project PATH]
-  python3 cg.py status [--project PATH] [--json]
-  python3 cg.py new TYPE TITLE... [--project PATH] [--date YYYY-MM-DD]
-  python3 cg.py packs [--json]
+Usage, with the interpreter that ~/.cg/launcher.json records as <python>:
+  "<python>" cg.py doctor [--project PATH]
+  "<python>" cg.py status [--project PATH] [--json]
+  "<python>" cg.py new TYPE TITLE... [--project PATH] [--date YYYY-MM-DD]
+  "<python>" cg.py packs [--json]
+
+PATH may be any folder inside the project: the commands use the nearest
+folder above it that holds .cg-docs/, else the root of its git repository.
 
 Standard library only, Python 3.9 or later, one implementation for every
 operating system. Every write is atomic and each record is its own file.
@@ -91,9 +94,15 @@ def flat_frontmatter(path: Path) -> dict:
         if line.strip() == "---":
             break
         match = re.match(r"([A-Za-z][\w-]*):\s*(.*)$", line)
-        if match:
-            value = re.sub(r"\s+#.*$", "", match.group(2)).strip()
-            fields[match.group(1)] = value.strip('"').strip("'")
+        if not match:
+            continue
+        value = match.group(2).strip()
+        quoted = re.match(r'"((?:[^"\\]|\\.)*)"', value) or re.match(r"'([^']*)'", value)
+        if quoted:  # a quoted value ends at its closing quote; a '#' inside it is text
+            text = quoted.group(1)
+            fields[match.group(1)] = re.sub(r'\\(["\\])', r"\1", text) if value[0] == '"' else text
+        else:
+            fields[match.group(1)] = re.sub(r"\s+#.*$", "", value).strip()
     return fields
 
 
@@ -236,6 +245,7 @@ def artifacts(project: Path):
 
 
 def read_config(project: Path):
+    """Return (config or None, problems). A key of the wrong shape is dropped and named."""
     path = project / ".cg-docs" / "config.json"
     if not path.is_file():
         return None, []
@@ -243,9 +253,17 @@ def read_config(project: Path):
         data = json.loads(path.read_text(encoding="utf-8"))
         if not isinstance(data, dict):
             raise ValueError("not a JSON object")
-        return data, []
     except (OSError, ValueError) as error:
         return {}, [f".cg-docs/config.json is unreadable ({error})"]
+    problems = []
+    packs = data.get("packs", [])
+    if not isinstance(packs, list) or not all(isinstance(n, str) for n in packs):
+        problems.append('.cg-docs/config.json packs must be a list of pack names, such as ["core", "lang-r"]')
+        data = {**data, "packs": []}
+    if "requires-core" in data and not isinstance(data["requires-core"], str):
+        problems.append('.cg-docs/config.json requires-core must be a version in quotes, such as "2.0.0"')
+        data = {k: v for k, v in data.items() if k != "requires-core"}
+    return data, problems
 
 
 def read_settings(config):
@@ -303,20 +321,49 @@ def compute_status(project: Path) -> dict:
     }
 
 
-def add_command(missing) -> str:
-    """The install.py line that adds the missing packs, from the install record if there is one."""
+def add_command(missing, windows=None) -> str:
+    """The install.py line that adds the missing packs, from the install record if there is one.
+
+    In PowerShell a line that starts with a quoted path needs '&' to run it.
+    """
     try:
         hub = json.loads((home() / ".cg" / "installed.json").read_text(encoding="utf-8"))["hub"]
         script = f'"{Path(hub) / "install.py"}"'
     except (OSError, ValueError, KeyError, TypeError):
         script = "install.py"
-    # The interpreter running this script, not "python3", which Windows lacks (ADR 0001).
+    # The interpreter running this script, not a fixed command name, which Windows may lack (ADR 0001).
     packs = ",".join(missing)
-    return f'"{sys.executable}" {script} --add {packs}'
+    call = "& " if (os.name == "nt" if windows is None else windows) else ""
+    return f'{call}"{sys.executable}" {script} --add {packs}'
+
+
+def find_root(folder: Path) -> Path:
+    """The nearest folder at or above folder that holds .cg-docs/, else its git root (#218)."""
+    for candidate in (folder, *folder.parents):
+        if (candidate / ".cg-docs").is_dir():
+            return candidate
+    if shutil.which("git"):
+        done = subprocess.run(["git", "--no-optional-locks", "-C", str(folder), "rev-parse", "--show-toplevel"],
+                              capture_output=True, text=True)
+        if done.returncode == 0 and done.stdout.strip():
+            return Path(done.stdout.strip()).resolve()
+    return folder
+
+
+def project_from(arg):
+    """The project root for --project, or None when the folder does not exist."""
+    folder = Path(arg).resolve()
+    if not folder.is_dir():
+        print(f"no such folder: {folder}")
+        return None
+    return find_root(folder)
 
 
 def cmd_status(args) -> int:
-    state = compute_status(Path(args.project).resolve())
+    project = project_from(args.project)
+    if project is None:
+        return 2
+    state = compute_status(project)
     if args.json:
         print(json.dumps(state, indent=2, sort_keys=True))
         return 1 if state["stops"] else 0
@@ -341,7 +388,9 @@ def slugify(title: str) -> str:
 
 
 def cmd_new(args) -> int:
-    project = Path(args.project).resolve()
+    project = project_from(args.project)
+    if project is None:
+        return 2
     title = " ".join(args.title).strip()
     if not title:
         print("give a title: cg.py new TYPE TITLE...")
@@ -361,9 +410,10 @@ def cmd_new(args) -> int:
     if not template.is_file():
         template = template_dir / "artifact.md"
     safe_title = title.replace("\\", "\\\\").replace('"', '\\"')
-    text = (template.read_text(encoding="utf-8")
-            .replace("{type}", args.type).replace("{title}", safe_title)
-            .replace("{heading}", title).replace("{date}", date))
+    values = {"type": args.type, "title": safe_title, "heading": title, "date": date}
+    # One pass, so a title that itself holds "{date}" is kept as written (#218).
+    text = re.sub(r"\{(type|title|heading|date)\}", lambda m: values[m.group(1)],
+                  template.read_text(encoding="utf-8"))
     write_atomic(target, text)
     print(f"created {target.relative_to(project).as_posix()}")
     return 0
@@ -489,7 +539,9 @@ def install_place() -> str:
 
 
 def cmd_doctor(args) -> int:
-    project = Path(args.project).resolve()
+    project = project_from(args.project)
+    if project is None:
+        return 2
     lines = []
     py = sys.version_info[:3]
     lines.append(("ok" if py >= MIN_PYTHON else "FAIL",

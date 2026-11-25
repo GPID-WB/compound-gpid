@@ -299,3 +299,57 @@ def test_doctor_accepts_the_link_layout(env):
     code, out = env["cg"]("doctor")
     assert code == 0, out
     assert "cg: user ~/.agents/skills, user ~/.claude/skills" in out
+
+
+# ---------------------------------------------------------------- review findings (#218)
+
+def load_cg():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("cg_module", CG / "scripts" / "cg.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_status_from_a_subfolder_finds_the_project_root(env):
+    docs = env["project"] / ".cg-docs"
+    docs.mkdir()
+    (docs / "config.json").write_text(json.dumps({"packs": ["core"]}))
+    (env["project"] / "R").mkdir()
+    state = json.loads(env["cg"]("status", "--json", "--project", str(env["project"] / "R"))[1])
+    assert state["phase"] == "ready" and state["project"] == str(env["project"]), state
+
+
+def test_status_of_a_folder_that_does_not_exist_is_an_error(env):
+    code, out = env["cg"]("status", "--project", str(env["project"] / "nowhere"))
+    assert code == 2 and "no such folder" in out
+
+
+def test_status_stops_on_a_config_of_the_wrong_shape(env):
+    docs = env["project"] / ".cg-docs"
+    docs.mkdir()
+    for config, words in (({"packs": "lang-r"}, "packs must be a list of pack names"),
+                          ({"packs": ["lang-r", 3]}, "packs must be a list of pack names"),
+                          ({"requires-core": 2}, "requires-core must be a version")):
+        (docs / "config.json").write_text(json.dumps(config))
+        code, out = env["cg"]("status")
+        assert code == 1 and words in out and "Traceback" not in out, (config, out)
+        assert "packs-missing: none" in out
+
+
+def test_the_add_command_runs_as_printed_in_powershell():
+    cg = load_cg()
+    assert cg.add_command(["lang-r"], windows=True).startswith('& "')
+    assert not cg.add_command(["lang-r"], windows=False).startswith("&")
+
+
+def test_new_keeps_a_title_with_braces_and_a_hash_as_written(env):
+    title = "Compare {date} and {heading} #12"
+    env["cg"]("new", "plan", title, "--date", "2026-11-24")
+    path = next((env["project"] / ".cg-docs" / "plans").glob("*.md"))
+    assert load_cg().flat_frontmatter(path)["title"] == title
+    assert "# " + title in path.read_text()
+
+
+def test_the_usage_text_names_no_python3():
+    assert "python3" not in (CG / "scripts" / "cg.py").read_text(encoding="utf-8")
