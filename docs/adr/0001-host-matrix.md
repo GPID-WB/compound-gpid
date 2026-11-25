@@ -79,7 +79,7 @@ Kilo's panel behaved as Kilo's command line did.
 | Approval prompts | None seen, but Copilot was on autopilot and the command-line runs have no UI | Count them at the gate, with the defaults a new user has |
 | Copilot on the smallest model colleagues commonly pick | The model used was not written down | Repeat step 2 of the answer sheet on that model, at the gate |
 | Kilo with other models | One model was run | Repeat at the gate with the model the pilot users will have |
-| Marketplace install | Not tried. From documentation: Claude Code, Codex and Copilot can add one from a GitHub repository; Kilo has none | After task 1.1 puts a manifest on `v2` |
+| Marketplace install | Not tried. From documentation: Claude Code, Codex and Copilot can add one from a GitHub repository; Kilo has none. Since task 1.1, `v2` has `.claude-plugin/marketplace.json` and one `.claude-plugin/plugin.json` per pack, and `claude plugin validate --strict` passes on both (inspected). The validator lists core's skill as `core:cg`: Claude Code names a plugin's skills `<plugin>:<skill>`, so the guide would be `/core:cg` from the marketplace and `/cg` from `install.py` | Install `core` from the marketplace in each host and note the name the guide gets |
 | Behavior after context compaction | Needs a long session | A long chat in each editor |
 
 ## Seen on the maintainer's Mac (inspected)

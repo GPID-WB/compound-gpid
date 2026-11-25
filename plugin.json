@@ -1,0 +1,15 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "compound",
+  "version": "2.0.0.9000",
+  "description": "Compound GPID: a hub of skill packs that keep analysts in charge of work done with a coding agent. The root installs the core pack.",
+  "author": {
+    "name": "GPID-WB",
+    "url": "https://github.com/GPID-WB"
+  },
+  "repository": "https://github.com/GPID-WB/compound-gpid",
+  "license": "MIT",
+  "skills": [
+    "./packs/core/cg"
+  ]
+}

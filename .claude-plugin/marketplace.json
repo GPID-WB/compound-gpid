@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "compound",
+  "owner": {
+    "name": "GPID-WB",
+    "url": "https://github.com/GPID-WB"
+  },
+  "description": "The Compound GPID pack index. Install core first, then the packs you need.",
+  "plugins": [
+    {
+      "name": "core",
+      "version": "2.0.0.9000",
+      "source": "./packs/core",
+      "description": "The core pack: the guide, the playbooks, the principles and the tooling. Everyone installs it."
+    }
+  ]
+}
