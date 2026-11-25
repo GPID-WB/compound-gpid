@@ -197,9 +197,10 @@ def test_falls_back_to_a_copy_when_links_are_not_allowed(env, monkeypatch):
         raise OSError("links not allowed")
 
     monkeypatch.setattr(module.os, "symlink", refuse)
+    monkeypatch.setattr(module, "make_junction", lambda target, link: False)
     monkeypatch.setattr(module, "run_doctor", lambda: None)
     assert module.main(["--packs", "core"]) == 0
-    assert claude(env).is_dir() and not claude(env).is_symlink()
+    assert claude(env).is_dir() and not module.is_link(claude(env))
     record = json.loads((env["home"] / ".cg" / "installed.json").read_text())
     assert record["skills"]["cg"]["claude"] == "copy"
     (claude(env) / "SKILL.md").write_text("edited copy")
