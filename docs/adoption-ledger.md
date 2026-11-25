@@ -21,7 +21,7 @@ Pinned at 0.6.18, `e997ac5`. MIT licence.
 | `planning-and-task-breakdown` | Adapt | `plan` | vertical slices, checkpoints, never overwrite an unfinished plan | open |
 | `incremental-implementation` | Adapt | `work` | one slice, evidence, commit | open |
 | `constraint-driven-development` | Adapt | charter constraints as a floor, `cg.py guard` | diff may not delete or skip tests or add suppressions | open |
-| `context-engineering` | Adapt | `status`, pointer block | restartable boundaries; never infer approval from chat | open |
+| `context-engineering` | Adapt | `status`, pointer block | restartable boundaries; never infer approval from chat | cited |
 | `source-driven-development` | Adapt | rule in `worker.md` and language packs | check package docs for R, Stata, Python and cite them | cited |
 | `doubt-driven-development` | Adapt | Adversary verifier, P5 | the work and the contract only; three rounds; "doubt theater" flag | cited |
 | `test-driven-development` | Adapt | `work`, language packs | failing check first; prove-it for bugs | open |
@@ -56,7 +56,7 @@ Pinned at 1.3.2, `d653911`. MIT licence.
 | `prototype` | Adapt | `brainstorm` | settle a fork by running something, on a throwaway branch | open |
 | `research` | Adapt | grilling | fact-finding in a fresh context, with citations | open |
 | `to-questionnaire` | Adapt | `brainstorm` | when the knowledge sits with a colleague, such as the survey team | open |
-| `setup-matt-pocock-skills` | Adapt | `setup` | explore, propose, confirm, write a pointer block | cited |
+| `setup-matt-pocock-skills` | Adapt | `setup` | explore, propose, confirm, write a pointer block | done |
 | `ask-matt`, phase boundaries | Adapt | help and `status` | continue, clear, hand off, or delegate | open |
 | `handoff` | Adapt | `status` | pause note computed from files | open |
 | `retro` | Adapt | `compound`, P9 | mechanical lesson becomes a check | cited |
@@ -74,10 +74,10 @@ Pinned at 0.15.48, `ca782ed`. MIT licence.
 
 | Source | Verdict | Lands in | What changes for us | Status |
 |---|---|---|---|---|
-| `poteto-mode` (router, principles index, reply rules) | Adapt | `cg/SKILL.md`, principles index | approval gates added; no model-specific setup | cited |
+| `poteto-mode` (router, principles index, reply rules) | Adapt | `cg/SKILL.md`, principles index | approval gates added; no model-specific setup | done |
 | the 24 `principle-*` skills | Adapt | P3, P4, P6, P9 and others | merged into twelve principles; each has a verifier | cited |
 | `worker.md` | Adapt | `worker.md` | first line of every kickoff to another agent | open |
-| playbooks: bug fix, feature, refactoring, investigation, prototype, multi-phase plan, opening a PR, session pickup, pause safely | Adapt | `bugfix`, `work`, `understand`, `brainstorm`, `plan`, `ship`, `status` | ownership statement and `Reply:` contract kept | open |
+| playbooks: bug fix, feature, refactoring, investigation, prototype, multi-phase plan, opening a PR, session pickup, pause safely | Adapt | `bugfix`, `work`, `understand`, `brainstorm`, `plan`, `ship`, `status` | ownership statement and `Reply:` contract kept | cited |
 | `figure-it-out` | Adapt | `custom` playbook | falsifiable done condition; verdicts verified, not verified, inconclusive | cited |
 | `show-me-your-work` | Adapt | `cg.py decide`, `cg.py evidence` | append-only trail written by script, audited at the end | open |
 | `ketchup`, `recall`, `in-your-own-words`, `bro` | Adapt | `status`, restate step | list of decisions waiting on the human | open |

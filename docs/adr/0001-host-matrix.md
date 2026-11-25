@@ -98,6 +98,7 @@ Kilo's panel behaved as Kilo's command line did.
 | Copilot on the smallest model colleagues commonly pick | The model used was not written down | Repeat step 2 of the answer sheet on that model, at the gate |
 | Kilo with other models | One model was run | Repeat at the gate with the model the pilot users will have |
 | Marketplace install | Not tried. From documentation: Claude Code, Codex and Copilot can add one from a GitHub repository; Kilo has none. Since task 1.1, `v2` has `.claude-plugin/marketplace.json` and one `.claude-plugin/plugin.json` per pack, and `claude plugin validate --strict` passes on both (inspected). The validator lists core's skill as `core:cg`: Claude Code names a plugin's skills `<plugin>:<skill>`, so the guide would be `/core:cg` from the marketplace and `/cg` from `install.py` | Nothing: decided on 2026-11-24 that `install.py` is the one supported route in every host (ADR 0003, "Changes"); the marketplace files stay valid and unadvertised |
+| Codex's per-skill policy file | Added in task 1.3 as `packs/core/cg/agents/openai.yaml` (`policy.allow_implicit_invocation: false`), in the form mattpocock/skills uses. Not run: the build session may not start Codex | At the gate (task 1.7): in a project that is set up, ask Codex for an ordinary change in plain words and note whether it loads `cg`; then type `$cg` and note that it still runs |
 | Behavior after context compaction | Needs a long session | A long chat in each editor |
 
 ## Seen on the maintainer's Mac (inspected)

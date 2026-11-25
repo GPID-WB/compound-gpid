@@ -1,7 +1,7 @@
 # Compound GPID
 
 > [!WARNING]
-> This is branch `v2`, where Compound GPID 2.0 is being built. It installs (see `docs/install-block.md`), but the guide is not written yet, so there is nothing to use.
+> This is branch `v2`, where Compound GPID 2.0 is being built. It installs (see `docs/install-block.md`), and the guide `/cg` can set up a project and do quick work. Plans, reviews and sign-off come with milestone 2, so it is not ready for real work yet.
 > Version 1 is on branch `main` and frozen on branch `v1`; its install instructions are in the README there.
 
 Compound GPID helps analysts (economists, researchers and data scientists, and the people who build their packages, pipelines and dashboards) use a coding agent and still own and understand what gets built.
@@ -12,7 +12,7 @@ Version 2 is a hub of packs. Everyone installs the core pack; language, research
 
 | Path | What it is |
 |---|---|
-| `packs/` | One folder per pack. `packs/core/cg/` is the core pack's lead skill: the principles and the plugin glossary. |
+| `packs/` | One folder per pack. `packs/core/cg/` is the core pack's lead skill: the guide, its playbooks, the principles and the plugin glossary. |
 | `.claude-plugin/marketplace.json` | The pack index, read by `install.py`. It is also a valid Claude Code marketplace, but that is not a supported way to install. |
 | `install.py`, `docs/install-block.md` | The installer, and the one install text. |
 | `tools/` | Checks run in CI, and the version sync. |

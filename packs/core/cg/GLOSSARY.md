@@ -149,6 +149,9 @@ _Avoid_: orchestrator
 The steps for one kind of work: brainstorm, plan, work, review, compound, bugfix and others.
 _Avoid_: command (for a playbook), prompt (for a playbook), workflow (for a playbook)
 
+**Pointer block**:
+The few lines setup writes into a project's `AGENTS.md`, between two markers, so that any coding agent knows the project is run with the guide and how to see where the work stands.
+
 **Track**:
 The kind of work: analysis, build, bug, writing, understand.
 
@@ -190,6 +193,7 @@ _Avoid_: kernel
 - The **conformance record** holds one verdict per principle. **Sign-off** needs all of them.
 - A **pack** holds skills and lenses. The **hub** lists packs.
 - The **guide** opens **playbooks**. A playbook applies **principles**.
+- Setup writes the **pointer block** once per project, in one file.
 - The **data register** gives every dataset a **classification**. An **approved tool** is approved for a classification, not in general.
 - **Lineage** links an **output** to its inputs. The **AI-use statement** travels with the **defend-it brief**.
 
