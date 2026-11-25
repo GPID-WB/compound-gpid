@@ -1,0 +1,2 @@
+export(read_survey)
+importFrom(data.table, fread)

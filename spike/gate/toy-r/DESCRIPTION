@@ -1,0 +1,14 @@
+Package: toypov
+Title: Toy Poverty Measures for the Compound GPID Gate
+Version: 0.0.1
+Authors@R: person("Gate", "Kit", role = c("aut", "cre"), email = "gate@example.invalid")
+Description: A small package used to try Compound GPID in each coding agent.
+    It reads a synthetic household survey. The data are made up.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Imports:
+    data.table
+Suggests:
+    testthat (>= 3.0.0),
+    withr
+Config/testthat/edition: 3
