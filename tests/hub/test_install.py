@@ -48,7 +48,7 @@ def add_pack(hub: Path, name="lang-x", skills=("x-one",)):
     for skill in skills:
         (hub / "packs" / name / skill).mkdir(parents=True, exist_ok=True)
         (hub / "packs" / name / skill / "SKILL.md").write_text(f"---\nname: {skill}\ndescription: x\n---\n")
-    data = {"name": name, "version": "0.1.0", "requires-core": "2.0.0", "skills": list(skills),
+    data = {"name": name, "version": "0.1.0", "requires-core": "1.0.0", "skills": list(skills),
             "lenses": [], "tracks": []}
     (hub / "packs" / name / skills[0] / "pack.json").write_text(json.dumps(data))
     index_path = hub / ".claude-plugin" / "marketplace.json"
@@ -78,7 +78,7 @@ def test_first_install_puts_core_in_both_folders(env):
     assert (agents(env) / "SKILL.md").is_file() and not agents(env).is_symlink()
     assert (claude(env) / "SKILL.md").is_file()
     record = json.loads((env["home"] / ".cg" / "installed.json").read_text())
-    assert record["packs"] == {"core": "2.0.0.9000"}
+    assert record["packs"] == {"core": "1.99.0.9000"}
     assert record["hub"] == str(env["hub"])
     assert "cg.py doctor:" in out
     assert (env["home"] / ".cg" / "launcher.json").is_file()

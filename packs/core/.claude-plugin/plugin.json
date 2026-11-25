@@ -1,6 +1,6 @@
 {
   "name": "core",
-  "version": "2.0.0.9000",
+  "version": "1.99.0.9000",
   "description": "The core pack: the guide, the playbooks, the principles and the tooling. Everyone installs it.",
   "author": {
     "name": "GPID-WB",

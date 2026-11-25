@@ -28,7 +28,7 @@ Issues: tracking issue #256 in `GPID-WB/compound-gpid`; tasks #211 to #255 and #
 | Evidence workbench | repository `GPID-WB/research-evidence` | moved with history, tests pass; removed from this repository in task 1.1 |
 | Issue script | `tools/admin/create_v2_issues.py` | rerun to add tasks or refresh the tracking issue |
 | Hub layout and manifests | `packs/`, `.claude-plugin/marketplace.json` (the pack index), `plugin.json`, `packs/*/.claude-plugin/plugin.json` | task 1.1; `claude plugin validate --strict` passes; a marketplace install has not been tried in any host |
-| Version sync | `tools/sync_version.py` | each `pack.json` is its pack's version source; core's version is the hub's (`2.0.0.9000`); the root `plugin.json` `repository` is the hub URL's source; `docs/install-block.md` is the one other place it appears |
+| Version sync | `tools/sync_version.py` | each `pack.json` is its pack's version source; core's version is the hub's (`1.99.0.9000`, the work in progress before 2.0.0); the root `plugin.json` `repository` is the hub URL's source; `docs/install-block.md` is the one other place it appears |
 | `cg.py` | `packs/core/cg/scripts/cg.py` | task 1.2: `doctor`, `status`, `new`, `packs`; and `setup`, which writes what the human confirmed in the setup playbook (#219, finding 2); standard library, Python 3.9 or later |
 | Checks and CI | `tools/lint_skills.py`, `tools/validate_pack.py`, `tools/check_budgets.py`, `.github/workflows/v2.yml` | task 1.6; CI runs the checks, and pytest on Linux, macOS and Windows with Python 3.9 and 3.13 |
 | Installer | `install.py`, `docs/install-block.md` | task 1.4; installs into `~/.agents/skills` with links from `~/.claude/skills`; owns only what `~/.cg/installed.json` lists |
@@ -90,7 +90,7 @@ Each is in its issue with proof, and each fix is in a comment on that issue.
 | #217 | `sync_version.py` from another folder; root `plugin.json` claim | P3 | fixed, `910fa986` |
 | #217 | `requires-core` has no source | P3 | in part: the validator fails a value newer than core; the rest waits on the version decision |
 | #221 | Two `/cg-fixbug` notes, "hand-computed" | P2, P3 | fixed, `bc4c9529` |
-| #217 | `2.0.0.9000` sorts after `2.0.0` | P2 | maintainer's decision, before the pilot |
+| #217 | `2.0.0.9000` sorts after `2.0.0` | P2 | fixed: the maintainer chose `1.99.0.9000`; a test holds every pack before 2.0.0 |
 | #221 | `r-shared`'s description does not say it decides which R skills load | P2 | wording for Fable 5.2; check at the gate |
 | #221 | The team's name in two descriptions | P3 | task 7.3 |
 | #219 | Setup's writes are made by the model, not by code (P3) | P2 | code half done: `cg.py setup` (`3e40f5bf`); the playbook calling it is Fable 5.2's, before the pilot |

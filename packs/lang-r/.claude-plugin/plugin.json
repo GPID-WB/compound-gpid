@@ -1,6 +1,6 @@
 {
   "name": "lang-r",
-  "version": "2.0.0.9000",
+  "version": "1.99.0.9000",
   "description": "R skills: base style, collapse, data.table, tidyverse, analytical work, packages and pipelines, testthat, and World Bank charts.",
   "author": {
     "name": "GPID-WB",

@@ -23,7 +23,7 @@ def make_pack(root: Path, name="lang-x", skills=("x-one",), lead=None, **overrid
     for skill in skills:
         (pack / skill).mkdir(parents=True)
         (pack / skill / "SKILL.md").write_text(GOOD_SKILL.format(name=skill))
-    data = {"name": name, "version": "0.1.0", "requires-core": "2.0.0",
+    data = {"name": name, "version": "0.1.0", "requires-core": "1.0.0",
             "skills": list(skills), "lenses": [], "tracks": [], **overrides}
     (pack / (lead or skills[0]) / "pack.json").write_text(json.dumps(data))
     return pack

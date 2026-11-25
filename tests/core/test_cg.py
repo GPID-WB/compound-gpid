@@ -354,3 +354,16 @@ def test_new_keeps_a_title_with_braces_and_a_hash_as_written(env):
 
 def test_the_usage_text_names_no_python3():
     assert "python3" not in (CG / "scripts" / "cg.py").read_text(encoding="utf-8")
+
+
+def test_the_build_version_sorts_before_the_release_it_leads_to():
+    """#217 finding 1: a project set up during the build records requires-core;
+    on release day the released core must satisfy it, so every pack's version
+    and requires-core must sort before the release this build leads to."""
+    sys.path.insert(0, str(CG / "scripts"))
+    import cg
+    release = "2.0.0"
+    for manifest in sorted((HUB / "packs").glob("*/*/pack.json")):
+        data = json.loads(manifest.read_text())
+        for key in ("version", "requires-core"):
+            assert cg.version_lt(data[key], release), f"{manifest}: {key} {data[key]} is not before {release}"
