@@ -31,7 +31,7 @@ In every failure the reply was the last row of section 2: the state in two lines
 
 The ten runs of the third row are the three `v2-*` files in `b1-three-variants/`, and in `final/` six repeats (`b1-*`) and one full probe (`kilo-panel.md`, 9 of 9 from B to D) on the text of `d93dfef6`.
 
-Not fixed: with a request after `/cg` in the panel's shape, Kilo still opened its reply with the pointer block's sentence, "`/cg` would run this change with checks and a record", and then ran the guide (`final/kilo-panel.md`, step C1). From the command line, where the message holds `/cg`, it no longer does (`../rerun-8/kilo.md`).
+Not fixed: with a request after `/cg` in the panel's shape, Kilo still opened its reply with the pointer block's sentence, "`/cg` would run this change with checks and a record", and then ran the guide (`final/kilo-panel.md`, step C1). From the command line, where the message holds `/cg`, it no longer does (`../rerun-8/kilo-transcript.md`).
 
 These are small samples from one model in one coding agent. They show that the path is not reliable with the first two texts. They do not show that it is reliable with the third. Kilo's panel and Posit Assistant themselves were not run; the maintainer checks a bare `/cg` there.
 
