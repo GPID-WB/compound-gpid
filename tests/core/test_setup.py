@@ -13,8 +13,7 @@ CG = HUB / "packs" / "core" / "cg"
 BLOCK = (CG / "templates" / "pointer-block.md").read_text(encoding="utf-8").strip()
 ARGS = ["--packs", "core,lang-r", "--setting", "lang-r.r-syntax=data.table-collapse",
         "--classification-levels", "Public;Official Use Only;Confidential;Strictly Confidential",
-        "--approved-tool", "Claude Code=Official Use Only",
-        "--contact", "ai-use=ai@example.org", "--contact", "security=security@example.org"]
+        "--approved-tool", "Claude Code=Official Use Only"]
 
 
 @pytest.fixture
@@ -45,7 +44,7 @@ def test_setup_writes_what_status_needs_and_a_second_run_changes_nothing(env):
     assert config["settings"] == {"lang-r": {"r-syntax": "data.table-collapse"}}
     assert config["classification-levels"][0] == "Public" and len(config["classification-levels"]) == 4
     assert config["approved-tools"] == {"Claude Code": "Official Use Only"}
-    assert config["contacts"] == {"ai-use": "ai@example.org", "security": "security@example.org"}
+    assert "contacts" not in config
     assert (project / "AGENTS.md").read_text().count("cg:start") == 1
     assert (project / "CLAUDE.md").read_text() == "@AGENTS.md\n"
     assert (project / ".cg-docs" / "verification.md").is_file()
@@ -154,3 +153,9 @@ def test_status_prints_approved_tools_and_stops_on_a_wrong_shape(env):
         code, out = env["cg"]("status", "--json")
         assert code == 1 and any(key in stop for stop in json.loads(out)["stops"]), (key, out)
     assert env["cg"]("setup", *ARGS)[0] == 1  # setup refuses to merge into a wrong shape
+
+
+def test_setup_takes_no_contacts(env):
+    """The maintainer removed contacts from setup (#223, decision 2)."""
+    code, out = env["cg"]("setup", "--packs", "core", "--contact", "ai-use=someone")
+    assert code == 2 and files(env["project"]) == {}

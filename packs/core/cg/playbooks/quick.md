@@ -41,6 +41,7 @@ Record only what the human stated, in their words for the level, such as `Public
 
 ## 3. Change
 
+- Before you write code, read the lead skill of each pack on the `packs-expected` line of status. `"<python>" "<cg>" packs --json` gives each lead skill's folder as `path`. Follow what it says about which of its pack's skills to load for this work, and load them.
 - Before you change code that already produces an output, capture the baseline: the current value or digest of each output the change may move (P4).
 - Make the change, and only that change. Unrelated things you see go on a "Noticed but not touching" list (P6).
 - When one operation applies to many units, do one worked example, write the tool, show that the tool gives the outcome of the worked example, and only then run it on the rest (P3). Nothing that reaches a reader is typed in.

@@ -46,7 +46,7 @@ A pack that only carries knowledge, such as a language pack with no lenses, leav
 
 ### How core and packs meet
 
-1. **Skills need no contract.** A pack's skills are loaded by the host from their descriptions. Core does not know they exist.
+1. **Skills need no contract.** A pack's skills are loaded by the host from their descriptions. In quick work the guide also has the agent read the lead skill of each pack the project expects, before it writes code, and the lead skill says which of its pack's skills to load. Core knows a pack's lead skill through `pack.json` and does not know its other skills.
 2. **Lenses and tracks are found by code.** `cg.py packs` looks in the folders beside the `cg` skill for a `pack.json` and reads it. `cg.py verifiers` adds every lens whose `when` matches the changed files and the track. The guide adds every track a pack declares.
 3. **Core never imports from a pack, and a pack never imports from core.** A pack's script that needs core calls the `cg.py` command line, through the launcher that setup recorded.
 4. **A pack's files stay in its own folders.** No file in one skill folder is reached by a relative path from another.
@@ -86,6 +86,8 @@ Another team publishes a pack by keeping it in its own repository, passing `tool
 - 2026-11-24: accepted as the working contract.
 - 2026-11-24, decided by the maintainer: `install.py` is the one supported install route, in every host. The hub's Claude Code marketplace files stay valid (CI checks them) but are not advertised, and a marketplace install is not supported: Claude Code keeps each plugin in its own folder, so the packs are not beside `cg` (tested in task 1.1). This settles the first open question below.
 - 2026-11-24, decided by the maintainer: a project records a pack's settings in `.cg-docs/config.json` under `settings`, keyed by pack name (rule 7 above). No key is added to `pack.json`; a pack's lead skill says which settings it reads and what happens when one is absent.
+
+- 2026-11-25, decided by the maintainer (gate M1, #223): rule 1 gains the lead-skill step. From descriptions alone, Claude Code loaded no `r-*` skill in 15 rerun sessions and Kilo loaded them in 3 of 6 steps that wrote R code. The step is one line in the quick playbook.
 
 ## Open, to be settled by tests
 

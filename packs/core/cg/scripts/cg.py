@@ -6,7 +6,7 @@ Usage, with the interpreter that ~/.cg/launcher.json records as <python>:
   "<python>" cg.py new TYPE TITLE... [--project PATH] [--date YYYY-MM-DD]
   "<python>" cg.py packs [--json]
   "<python>" cg.py setup [--packs a,b] [--setting pack.key=value]... [--classification-levels "A;B"]
-                       [--approved-tool "agent=level"]... [--data "path=level"]... [--contact key=who]...
+                       [--approved-tool "agent=level"]... [--data "path=level"]...
                        [--project PATH] [--dry-run]
 
 status names the next playbook only with --guide: the guide asks for it, and an
@@ -289,8 +289,7 @@ def read_settings(config):
 
 # The data rules quick work reads for its risk line 2 (#223), with the shape each must have.
 RULE_KEYS = {"data": "map file paths to a classification level",
-             "approved-tools": "map coding agent names to a classification level",
-             "contacts": "map a topic to who to ask"}
+             "approved-tools": "map coding agent names to a classification level"}
 
 
 def rule_problems(config):
@@ -488,9 +487,9 @@ def planned_setup(project: Path, args):
     names = [n.strip() for n in (args.packs or "").split(",") if n.strip()]
     if args.packs is not None and (not names or not all(re.fullmatch(r"[a-z0-9]+(-[a-z0-9]+)*", n) for n in names)):
         return None, ["--packs must be pack names joined by commas, such as core,lang-r"]
-    settings, tools, contacts, data = (pairs(args.setting, "--setting"), pairs(args.approved_tool, "--approved-tool"),
-                                       pairs(args.contact, "--contact"), pairs(args.data, "--data"))
-    if settings is None or tools is None or contacts is None or data is None:
+    settings, tools, data = (pairs(args.setting, "--setting"), pairs(args.approved_tool, "--approved-tool"),
+                             pairs(args.data, "--data"))
+    if settings is None or tools is None or data is None:
         return None, []
     if any("." not in key for key in settings):
         return None, ["--setting must be written pack.key=value, such as lang-r.r-syntax=tidyverse"]
@@ -524,7 +523,7 @@ def planned_setup(project: Path, args):
         config["settings"] = merged
     if args.classification_levels:
         config["classification-levels"] = [x.strip() for x in args.classification_levels.split(";") if x.strip()]
-    for key, values in (("approved-tools", tools), ("contacts", contacts), ("data", data)):
+    for key, values in (("approved-tools", tools), ("data", data)):
         if values:
             config[key] = {**(config.get(key) or {}), **values}
     changes.append((config_path, json.dumps(config, indent=2, ensure_ascii=False) + "\n"))
@@ -758,7 +757,6 @@ def main(argv=None) -> int:
     setup.add_argument("--setting", action="append")
     setup.add_argument("--classification-levels")
     setup.add_argument("--approved-tool", action="append")
-    setup.add_argument("--contact", action="append")
     setup.add_argument("--data", action="append", help="path=level: the classification the human gave a data file")
     setup.add_argument("--project", default=".")
     setup.add_argument("--dry-run", action="store_true")

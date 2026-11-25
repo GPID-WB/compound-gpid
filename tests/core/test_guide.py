@@ -174,3 +174,11 @@ def test_quick_work_is_not_held_open_by_a_failure_that_was_there_before():
     warning on code it had not touched."""
     text = (CG / "playbooks" / "quick.md").read_text(encoding="utf-8")
     assert "before your change" in text[text.index("## 5. Record"):]
+
+
+def test_quick_work_reads_the_lead_skill_of_each_expected_pack_before_writing_code():
+    """Gate M1 (#223, decision 1): Claude Code loaded no r-* skill in 15 rerun
+    sessions, Kilo in 3 of 6, from the descriptions alone."""
+    text = (CG / "playbooks" / "quick.md").read_text(encoding="utf-8")
+    change = text[text.index("## 3. Change"):text.index("## 4. Prove")]
+    assert "lead skill" in change and "packs-expected" in change and "packs --json" in change
