@@ -64,7 +64,9 @@ Create the work report:
 
 Fill every section of the file it creates. Evidence holds commands, exit codes, digests and counts. It never holds data.
 
-Set `status: completed` when every check is verified. Otherwise leave `status: in-progress` and say so in the reply, so that status keeps showing the work as open.
+Set `status: completed` when every check you ran is verified. Otherwise leave `status: in-progress` and say so in the reply, so that status keeps showing the work as open.
+
+What the project or the install does not have yet is not a failed check: a Doctor or Run command that the verification profile marks "not found", a `cg.py` command that `--help` does not list, a tool that is not installed. Write each under "Not checked" and say it in the reply. It does not keep the work open.
 
 Commit only when the human asks. Then the work report goes in the same commit as the change (P8).
 

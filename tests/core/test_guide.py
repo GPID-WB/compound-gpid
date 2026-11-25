@@ -152,3 +152,12 @@ def test_setup_lists_the_files_it_will_write_from_a_dry_run():
     text = (CG / "playbooks" / "setup.md").read_text(encoding="utf-8")
     proposal = text[text.index("## 2. Propose"):text.index("## 3. Confirm")]
     assert "--dry-run" in proposal
+
+
+def test_quick_work_can_complete_without_a_doctor_command():
+    """Rerun of gate M1 (#223): Codex kept a report open because the new project's
+    verification profile had no Doctor command, which is "not found" in most new
+    projects. Quick work must say that a missing step does not keep it open."""
+    text = (CG / "playbooks" / "quick.md").read_text(encoding="utf-8")
+    record = text[text.index("## 5. Record"):]
+    assert "Doctor" in record and "does not keep the work open" in record
