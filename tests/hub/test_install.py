@@ -231,6 +231,53 @@ def test_uses_a_junction_on_windows_when_symlinks_are_refused(env, monkeypatch):
     assert not claude(env).exists() and not agents(env).exists()
 
 
+def load_install(env, monkeypatch, name):
+    """install.py loaded in this process, with HOME pointing at the scratch home."""
+    monkeypatch.setenv("HOME", str(env["home"]))
+    monkeypatch.setenv("USERPROFILE", str(env["home"]))
+    spec = importlib.util.spec_from_file_location(name, env["hub"] / "install.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    monkeypatch.setattr(module, "run_doctor", lambda: 0)
+    return module
+
+
+def test_a_failed_first_install_can_be_run_again(env, monkeypatch):
+    add_pack(env["hub"], skills=("x-one", "x-two", "x-three"))
+    module = load_install(env, monkeypatch, "hub_install_fail")
+    real_copytree = module.shutil.copytree
+
+    def fail_on_x_two(source, target, *args, **kwargs):
+        if Path(source).name == "x-two":
+            real_copytree(source, target, *args, **kwargs)  # a half-made copy, as a locked file leaves
+            raise PermissionError("Permission denied: x-two/SKILL.md")
+        return real_copytree(source, target, *args, **kwargs)
+
+    monkeypatch.setattr(module.shutil, "copytree", fail_on_x_two)
+    assert module.main(["--packs", "core,lang-x"]) == 1
+    skills = env["home"] / ".agents" / "skills"
+    assert sorted(p.name for p in skills.iterdir()) == ["cg", "x-one"]  # no staging folder left
+    monkeypatch.setattr(module.shutil, "copytree", real_copytree)
+    assert module.main(["--packs", "core,lang-x"]) == 0
+    record = json.loads((env["home"] / ".cg" / "installed.json").read_text())
+    assert sorted(record["packs"]) == ["core", "lang-x"] and "unfinished" not in record
+    assert sorted(record["skills"]) == ["cg", "x-one", "x-three", "x-two"]
+
+
+def test_update_refuses_a_folder_that_replaced_its_link(env, monkeypatch):
+    env["install"]("--packs", "core")
+    if not claude(env).is_symlink():
+        pytest.skip("this machine made a copy, not a link")
+    claude(env).unlink()
+    claude(env).mkdir()
+    (claude(env) / "SKILL.md").write_text("my own notes")
+    for args in (["--update"], ["--uninstall"], ["--update", "--force"]):
+        code, out = env["install"](*args)
+        assert code == 1, (args, out)
+        assert "~/.claude/skills/cg is a folder install.py did not make" in out
+        assert (claude(env) / "SKILL.md").read_text() == "my own notes"
+
+
 # ---------------------------------------------------------------- version 1
 
 def make_v1(env):

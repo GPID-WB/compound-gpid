@@ -133,7 +133,12 @@ def place_copy(source: Path, target: Path) -> None:
     staging = target.parent / f".cg-new-{target.name}"
     if staging.exists():
         remove_tree(staging)
-    shutil.copytree(source, staging, ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
+    try:
+        shutil.copytree(source, staging, ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
+    except BaseException:
+        if staging.exists():
+            remove_tree(staging)  # never leave a half-made copy where hosts read
+        raise
     if target.exists() or is_link(target):
         old = target.parent / f".cg-old-{target.name}"
         os.replace(target, old)
@@ -218,6 +223,23 @@ def conflicts(skills, record):
     return found
 
 
+def not_owned_any_more(skills, record):
+    """A recorded link that something else replaced. --force does not override this."""
+    found = []
+    for skill in skills:
+        info = record["skills"].get(skill)
+        path = claude_root() / skill
+        if not info or info["claude"] != "link" or not (path.exists() or is_link(path)):
+            continue
+        if not is_link(path):
+            found.append(f"{show(path)} is a folder install.py did not make (it made a link there); "
+                         f"move it away, then run again")
+        elif path.resolve() != (agents_root() / skill).resolve():
+            found.append(f"{show(path)} links somewhere install.py did not link it; "
+                         f"remove that link, then run again")
+    return found
+
+
 def changed_since_install(skills, record):
     found = []
     for skill in skills:
@@ -237,7 +259,19 @@ def changed_since_install(skills, record):
 
 # ---------------------------------------------------------------- actions
 
+def save(record):
+    write_json(record_path(), record)
+
+
 def install_skills(names, packs, record, dry):
+    """Install the packs' skills, writing the record after each step.
+
+    Until the last pack is done the record says "unfinished", so a run that
+    stops part-way owns what it already placed and can be run again.
+    """
+    if not dry:
+        record["unfinished"] = names
+        save(record)
     for name in names:
         pack = packs[name]
         for skill in pack["skills"]:
@@ -246,10 +280,13 @@ def install_skills(names, packs, record, dry):
             if dry:
                 continue
             place_copy(pack["folder"] / skill, target)
+            record["skills"][skill] = {"pack": name, "claude": "missing", "digest": digest(target)}
+            save(record)
             how = place_link(target, claude_root() / skill)
             if how == "copy":
                 print(f"  links are not allowed here; {show(claude_root() / skill)} is a second copy")
-            record["skills"][skill] = {"pack": name, "claude": how, "digest": digest(target)}
+            record["skills"][skill]["claude"] = how
+            save(record)
         record["packs"][name] = pack["version"]
 
 
@@ -397,7 +434,7 @@ def main(argv=None) -> int:
     record = record or {"hub": str(HUB), "packs": {}, "skills": {}}
 
     if args.packs or args.profile:
-        if not fresh:
+        if not fresh and not record.get("unfinished"):
             print(f"already installed ({', '.join(sorted(record['packs']))}); "
                   f"use --add, --remove, --update or --uninstall")
             return 1
@@ -430,7 +467,7 @@ def main(argv=None) -> int:
             print("core is needed by the other packs; remove them too, or use --uninstall")
             return 1
         skills = [s for s, info in record["skills"].items() if info["pack"] in names]
-        problems = [] if args.force else changed_since_install(skills, record)
+        problems = not_owned_any_more(skills, record) + ([] if args.force else changed_since_install(skills, record))
         if problems:
             print("\n".join(f"refused: {p}" for p in problems))
             return 1
@@ -441,7 +478,7 @@ def main(argv=None) -> int:
             return 1
         names = sorted(n for n in record["packs"] if n in packs)
         skills = [s for s, info in record["skills"].items() if info["pack"] in names]
-        problems = [] if args.force else changed_since_install(skills, record)
+        problems = not_owned_any_more(skills, record) + ([] if args.force else changed_since_install(skills, record))
         if problems:
             print("\n".join(f"refused: {p}" for p in problems))
             return 1
@@ -455,9 +492,15 @@ def main(argv=None) -> int:
         if problems:
             print("\n".join(f"refused: {p}" for p in problems))
             return 1
-        install_skills(add, packs, record, dry)
+        try:
+            install_skills(add, packs, record, dry)
+        except OSError as error:
+            print(f"stopped: {error}")
+            print("What was installed so far is recorded. Fix the cause, then run the same command again.")
+            return 1
 
     if not dry:
+        record.pop("unfinished", None)
         if record["packs"]:
             record["hub"] = str(HUB)
             write_json(record_path(), record)
