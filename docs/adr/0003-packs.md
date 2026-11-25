@@ -52,6 +52,7 @@ A pack that only carries knowledge, such as a language pack with no lenses, leav
 4. **A pack's files stay in its own folders.** No file in one skill folder is reached by a relative path from another.
 5. **Versions are checked, not assumed.** `cg.py packs` reports a pack whose `requires-core` is higher than the installed core, and `cg.py status` stops on it.
 6. **A project says which packs it expects** in `.cg-docs/config.json`. `cg.py status` names any that are missing and prints the one command that adds them.
+7. **A project's settings for a pack** sit in the same file, under `settings`, one object per pack with flat string values: `"settings": {"lang-r": {"r-syntax": "tidyverse"}}`. `cg.py status` prints them. A setting that is absent takes the default that the pack's lead skill states.
 
 ### Where packs come from
 
@@ -83,9 +84,11 @@ Another team publishes a pack by keeping it in its own repository, passing `tool
 ## Changes
 
 - 2026-11-24: accepted as the working contract.
+- 2026-11-24, decided by the maintainer: `install.py` is the one supported install route, in every host. The hub's Claude Code marketplace files stay valid (CI checks them) but are not advertised, and a marketplace install is not supported: Claude Code keeps each plugin in its own folder, so the packs are not beside `cg` (tested in task 1.1). This settles the first open question below.
+- 2026-11-24, decided by the maintainer: a project records a pack's settings in `.cg-docs/config.json` under `settings`, keyed by pack name (rule 7 above). No key is added to `pack.json`; a pack's lead skill says which settings it reads and what happens when one is absent.
 
 ## Open, to be settled by tests
 
-- Whether the folders beside `cg` are the right place to look when packs are installed from a host's marketplace instead of copied by the installer. Tasks 1.1 and 1.5.
-- How each host's own manifest points at a pack folder. Task 1.1.
+- Settled 2026-11-24: marketplace installs are not supported (see "Changes"), so the folders beside `cg` are the place to look.
+- Settled in task 1.1: the index (`.claude-plugin/marketplace.json`) points at each pack folder, and each pack's `.claude-plugin/plugin.json` lists its skill folders. Kept valid, not advertised.
 - Whether `/cr` as an alias works the same in every host. Task 3.2.

@@ -13,7 +13,7 @@ Version 2 is a hub of packs. Everyone installs the core pack; language, research
 | Path | What it is |
 |---|---|
 | `packs/` | One folder per pack. `packs/core/cg/` is the core pack's lead skill: the principles and the plugin glossary. |
-| `.claude-plugin/marketplace.json` | The pack index, in the marketplace format that hosts read. |
+| `.claude-plugin/marketplace.json` | The pack index, read by `install.py`. It is also a valid Claude Code marketplace, but that is not a supported way to install. |
 | `install.py`, `docs/install-block.md` | The installer, and the one install text. |
 | `tools/` | Checks run in CI, and the version sync. |
 | `docs/adr/` | Decision records: hosts, sources, packs, no base host. |
