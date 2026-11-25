@@ -42,7 +42,7 @@ Nothing of version 1 has been removed from `v2` yet. The version 1 tree is still
 7. **1.3 (#219)** The guide, the `setup` and `quick` playbooks, the pointer block. Second build session; see "Which model builds which task".
 8. The gate **1.7 (#223)**, with the maintainer at the keyboard.
 
-Waiting on the maintainer: the editor test for Copilot and Kilo's panel (`run_cli_checks.py --manual`, #211); one Kilo rerun with `--layout copy`; the Windows run (`spike/host-matrix/WINDOWS.md`), which arrives as a pull request from `spike/host-matrix-windows` into `v2`. None of these blocks tasks 1.1 to 1.6. Task 1.1 keeps `spike/` in place and reads design changes 4 and 7 of ADR 0001 for where skills are installed.
+Waiting on the maintainer: the editor test for Copilot and Kilo's panel (`run_cli_checks.py --manual`, #211); the Windows run (`spike/host-matrix/WINDOWS.md`), which arrives as a pull request from `spike/host-matrix-windows` into `v2`. None of these blocks tasks 1.1 to 1.6. Task 1.1 keeps `spike/` in place and reads design changes 4 and 7 of ADR 0001 for where skills are installed.
 
 ## Working rules agreed with the maintainer
 
