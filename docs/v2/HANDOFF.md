@@ -102,18 +102,17 @@ Placeholders (each file says `PLACEHOLDER: written in task <n>`):
 
 Decisions taken in tasks 1.1 to 1.6 that a reviewer should check:
 
-- `.cg-docs/config.json` keys read by `cg.py status`: `packs` and `requires-core`. Setup (1.3) writes this file.
+- `.cg-docs/config.json` keys read by `cg.py status`: `packs`, `requires-core` and `settings`. Setup (1.3) writes this file.
 - Per-machine state is in `~/.cg/`: `launcher.json` (written by `cg.py doctor`) and `installed.json` (written by `install.py`).
 - Install profiles: `economist` = core, lang-r, lang-stata, research, writing-wb; `developer` = core, lang-r, lang-python.
 - The marketplace is named `compound` and its plugins are named after the packs.
 
 Open points found while building (each is in its issue, and none was changed):
 
-- Claude Code names a plugin's skills `<plugin>:<skill>`, so a marketplace install gives the guide the name `/core:cg`; `install.py` gives `/cg` (#217).
-- ADR 0003 looks for packs beside the `cg` skill. A Claude Code marketplace install keeps each plugin in its own folder, so `cg.py packs` would see only core there (#217).
-- `r-syntax`, the R dialect setting, has no place in a v2 project; v1 kept it in `compound-gpid.local.md` (#221).
+- Decided 2026-11-24: `install.py` is the one supported install route in every host; the marketplace files stay valid and unadvertised (ADR 0003, "Changes"). Tested: a marketplace install names the guide `/core:cg` and `cg.py packs` then sees only core.
+- Decided 2026-11-24: a project's pack settings go in `.cg-docs/config.json` under `settings`, keyed by pack (ADR 0003, rule 7); `cg.py status` prints them. For `lang-r`: `"settings": {"lang-r": {"r-syntax": "tidyverse"}}`; absent means `data.table-collapse`, the default the maintainer chose. Setup (task 1.3) proposes the value from the project's R code and the human confirms it.
 - Decided by the maintainer on 2026-11-24: the glossary stays strict. `suite` and `manually` remain unconditional, and pack content is reworded to pass, as in the `lang-r` port (#221).
-- Hub tooling (`tools/`, `install.py`) has no cap in `SCOPE.md`; the budget check reports it (#222). Proposed: 2,000 lines.
+- Decided 2026-11-24: hub tooling (`tools/`, `install.py`) is capped at 2,000 lines in `SCOPE.md`, checked in CI (#222).
 - `LICENSE` (MIT) added on 2026-11-24, holder as in `GPID-WB/global-poverty-map`.
 - The documentation pages in `docs/` other than `adr/`, `v2/` and `install-block.md` still describe version 1 (task 7.5).
 
