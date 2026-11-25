@@ -49,7 +49,7 @@ Waiting on the maintainer: the Windows run (`spike/host-matrix/WINDOWS.md`), whi
 - **Commit often**, small commits, conventional messages, on `v2`. Unfinished work is fine. Push `v2` as you go. Ask before touching `main`, tags or other branches.
 - **Run checks yourself.** Hand the maintainer only what needs their decision or cannot be done from the session.
 - **Everything here is public.** Write governance text as general rules. Keep any organization's internal policy detail, tool approvals and audit findings out of files and commit messages.
-- **Shared language is strict.** Run `python3 tools/check_glossary.py packs docs/adr docs/v2 docs/adoption-ledger.md SCOPE.md .out-of-scope spike` before each commit and read its exit code directly; a pipe once hid a failure.
+- **Shared language is strict.** Run `python3 tools/check_glossary.py packs docs/adr docs/v2 docs/adoption-ledger.md SCOPE.md .out-of-scope spike README.md CONTRIBUTING.md AGENTS.md` (and the other checks in `CONTRIBUTING.md`) before each commit and read its exit code directly; a pipe once hid a failure.
 - **Read a source file in full before adapting it**, then cite it in `derived-from` and update the ledger row.
 - **Analysts first.** Examples are analytical; rigor of the calculation comes before anything else.
 - **No host is the base.** Anything one host needs is an optional adapter.
