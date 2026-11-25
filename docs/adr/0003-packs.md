@@ -1,6 +1,6 @@
 # ADR 0003: Packs and the contract between a pack and core
 
-Date: 2026-11-24. Status: proposed. The file layout is provisional until tasks 1.1 and 1.5 test it on the hosts.
+Date: 2026-11-24. Status: accepted by the maintainer on 2026-11-24 as the working contract. It is expected to change: see "How this contract changes" below. The file layout is provisional until tasks 1.1 and 1.5 test it on the hosts.
 
 ## Context
 
@@ -72,7 +72,17 @@ Another team publishes a pack by keeping it in its own repository, passing `tool
 - Core can stay small: a feature someone wants becomes a pack, not a change to core.
 - Nothing is discarded from version 1. Content moves into the pack where it belongs.
 - A person installs only what they use, so the descriptions held in the model's context stay few.
-- The contract is the one place two repositories can disagree. It changes only through a new decision record.
+- The contract is the one place two repositories can disagree, so every change to it is written down.
+
+## How this contract changes
+
+- **Before 2.0 is released,** no pack outside the hub depends on the contract. When a build task shows that a key, a path or a rule is wrong, change it in the same pull request: amend this record with a dated line under "Changes", and update the validator and every `pack.json` in the hub together.
+- **After 2.0 is released,** other repositories depend on it. A change then needs a new decision record, and a change that breaks existing packs also raises the core version that packs name in `requires-core`.
+- The six-key limit is a budget, not a law. A seventh key needs the same case as any other change to core (`SCOPE.md`).
+
+## Changes
+
+- 2026-11-24: accepted as the working contract.
 
 ## Open, to be settled by tests
 

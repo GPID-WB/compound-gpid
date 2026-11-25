@@ -4,7 +4,7 @@ name: Governed data
 applies-when: "the work reads, produces or describes any dataset, or any information about a person"
 stages: "plan, review"
 verifier: governance
-status: draft
+status: accepted
 derived-from: "general data governance practice: information classification, data privacy principles, disclosure of AI use; docs/philosophy.md (organizational risks); compound-gpid.md (constraints)"
 ---
 

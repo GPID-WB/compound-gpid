@@ -12,7 +12,11 @@
 #
 # Options, as environment variables:
 #     ONLY=kilo                      run one program: claude, codex or kilo
-#     KILO_MODEL=provider/model      model for Kilo; its default may not support tools
+#     KILO_MODEL=provider/model      model for Kilo; its default may not support tools.
+#                                    The provider decides who pays: kilo/... needs credits on
+#                                    the Kilo account; openai/... and github-copilot/... use the
+#                                    account signed in with that provider. The run saves the full
+#                                    list in kilo-0-models.txt.
 #
 # Results land in spike/host-matrix/results/<time>/ (ignored by git, because the
 # answers contain local paths).

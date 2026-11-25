@@ -24,7 +24,8 @@ The size of the change does not matter. One word and a rewrite face the same bar
 | Something one host needs | an adapter (ADR 0004) |
 | A rule code can check | a check in `tools/`, before any text |
 | A change to how the loop works for everyone | core, through the bar above |
-| A new principle, or a change to one | the maintainer's decision, with a decision record |
+| A new principle, or a change to what one means | the maintainer's decision; see "How a principle changes" in the principles index |
+| Clearer wording of a principle, same meaning | an ordinary commit |
 
 ## Budgets
 

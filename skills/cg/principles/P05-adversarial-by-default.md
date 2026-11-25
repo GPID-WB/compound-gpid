@@ -4,7 +4,7 @@ name: Adversarial by default
 applies-when: "at each transition between phases, and when fixes keep failing"
 stages: "review"
 verifier: adversary
-status: draft
+status: accepted
 derived-from: "docs/philosophy.md (principle 3); addyosmani/agent-skills@e997ac5:skills/doubt-driven-development/SKILL.md; cursor/plugins@ca782ed:pstack/skills/interrogate/SKILL.md; cursor/plugins@ca782ed:pstack/skills/principle-attack-the-premise/SKILL.md"
 ---
 

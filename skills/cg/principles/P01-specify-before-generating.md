@@ -4,7 +4,7 @@ name: Specify before generating
 applies-when: "before anything consequential is produced, and when judging whether a result matches what was asked"
 stages: "plan, review"
 verifier: contract
-status: draft
+status: accepted
 derived-from: "docs/philosophy.md (principle 1); addyosmani/agent-skills@e997ac5:skills/spec-driven-development/SKILL.md; addyosmani/agent-skills@e997ac5:skills/using-agent-skills/SKILL.md; mattpocock/skills@d653911:skills/productivity/grilling/SKILL.md"
 ---
 

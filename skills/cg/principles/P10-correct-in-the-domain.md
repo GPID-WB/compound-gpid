@@ -4,7 +4,7 @@ name: Correct in the domain
 applies-when: "the work touches data, estimates, methods or published results"
 stages: "plan, review"
 verifier: domain-lenses
-status: draft
+status: accepted
 derived-from: "compound-gpid.md (constraints); docs/philosophy.md (competence asymmetry and gaps not yet covered); cursor/plugins@ca782ed:pstack/skills/principle-explain-the-number/SKILL.md; cursor/plugins@ca782ed:pstack/skills/principle-boundary-discipline/SKILL.md"
 ---
 

@@ -44,7 +44,7 @@ One unplanned finding: asked "Please run the host probe", Claude Code could not 
 
 | Item | Why | What is needed |
 |---|---|---|
-| Kilo | All four prompts stopped with "No endpoints found that support tool use": the model set as Kilo's default cannot call tools. | Rerun with a model that can: `ONLY=kilo KILO_MODEL=<provider/model> bash spike/host-matrix/run_cli_checks.sh` |
+| Kilo | Two runs, no answer yet. Run 1: all four prompts stopped with "No endpoints found that support tool use", because the model set as Kilo's default cannot call tools. Run 2, with `kilo/openai/gpt-6.2-sol`: all four stopped with "Add credits to continue, or switch to a free model". A model name that starts with `kilo/` is billed to the Kilo account, which had no credits. Kilo also lists the same model under `openai/` and `github-copilot/`; from the listing, those go through the account signed in with that provider (inferred, not yet run). | Rerun through a provider that is already paid for: `ONLY=kilo KILO_MODEL=openai/gpt-6.2-sol bash spike/host-matrix/run_cli_checks.sh`, or `KILO_MODEL=github-copilot/gpt-6.2-sol` |
 | Copilot in VS Code or Positron | No way to run it from a script. | The maintainer follows `spike/host-matrix/CHECKLIST.md` in the Copilot chat panel |
 | Kilo's editor panel | Same reason | Same checklist |
 | Windows | Python command, OneDrive paths with spaces, approval prompts | One run of the script and the checklist on a World Bank Windows machine |

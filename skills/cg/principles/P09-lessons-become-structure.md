@@ -4,7 +4,7 @@ name: Lessons become structure
 applies-when: "capturing what was learned, or writing the same instruction a second time"
 stages: "compound"
 verifier: lesson
-status: draft
+status: accepted
 derived-from: "cursor/plugins@ca782ed:pstack/skills/principle-encode-lessons-in-structure/SKILL.md; cursor/plugins@ca782ed:pstack/skills/correct/SKILL.md; cursor/plugins@ca782ed:pstack/skills/reflect/SKILL.md; mattpocock/skills@d653911:skills/engineering/retro/SKILL.md; EveryInc compound engineering (the compound step)"
 ---
 

@@ -4,7 +4,7 @@ name: The human decides and can explain it
 applies-when: "a choice changes behavior, scope, risk or method; and at sign-off"
 stages: "sign-off"
 verifier: ownership
-status: draft
+status: accepted
 derived-from: "docs/philosophy.md (principle 4); mattpocock/skills@d653911:skills/productivity/grilling/SKILL.md; addyosmani/agent-skills@e997ac5:skills/using-agent-skills/SKILL.md; addyosmani/agent-skills@e997ac5:skills/interview-me/SKILL.md"
 ---
 

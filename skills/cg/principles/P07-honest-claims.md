@@ -4,7 +4,7 @@ name: Honest claims
 applies-when: "any statement about what was done, found or measured"
 stages: "review"
 verifier: claims
-status: draft
+status: accepted
 derived-from: "docs/philosophy.md (principle 6); cursor/plugins@ca782ed:pstack/skills/poteto-mode/SKILL.md; cursor/plugins@ca782ed:pstack/skills/blast-radius/SKILL.md; addyosmani/agent-skills@e997ac5:skills/using-agent-skills/SKILL.md; addyosmani/agent-skills@e997ac5:skills/source-driven-development/SKILL.md"
 ---
 

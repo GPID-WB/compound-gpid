@@ -1,6 +1,6 @@
 # The principles
 
-Status (task 0.5): P3, P4 and P11 were accepted by the maintainer on 2026-11-24. The others are drafts. Each file's `status` field is the record.
+Status (task 0.5): all twelve were accepted by the maintainer on 2026-11-24 as the working version. Accepted means in force now. It does not mean final: see [How a principle changes](#how-a-principle-changes). Each file's `status` field is the record.
 
 Everything made with Compound GPID is held to these principles, and so is the plugin itself. A principle here is not advice. Each one says what the working agent does, what evidence that leaves, and how a verifier checks it.
 
@@ -94,6 +94,15 @@ Quick work runs the deterministic checks and one combined pass of `determinism`,
 ## What these files cannot do
 
 Verifiers are model reviewers. They lower the chance of an unowned, unverified or irreproducible result; they do not remove it. The human at sign-off is the last check, and no file in this folder can do that part for them.
+
+## How a principle changes
+
+These files are expected to improve with use. Nobody should work around a principle that is wrong, unclear or too costly to follow: say so, and the file gets fixed.
+
+- **Clearer wording, same meaning:** an ordinary commit.
+- **A change of meaning** (what the working agent must do, what evidence is left, what the verifier flags): the maintainer decides. The commit says what was observed in real use and what changed. The verifier section and its planted-violation test change in the same commit, so the text and the check cannot drift apart.
+- **Adding, merging or removing a principle:** the maintainer decides, with a decision record in `docs/adr/`.
+- **Planned reviews:** at each milestone gate and after the pilot, the maintainer and the build session read the findings that were accepted with a written reason, the INCONCLUSIVE verdicts and the `dogfood` issues, and revise the principles those point at.
 
 ## Priorities
 

@@ -4,7 +4,7 @@ name: Smallest change, simplest design
 applies-when: "sizing a plan or a diff, or tempted to add an abstraction, an option or a safeguard"
 stages: "plan, review"
 verifier: simplicity
-status: draft
+status: accepted
 derived-from: "addyosmani/agent-skills@e997ac5:skills/using-agent-skills/SKILL.md; cursor/plugins@ca782ed:pstack/skills/principle-laziness-protocol/SKILL.md; cursor/plugins@ca782ed:pstack/skills/principle-subtract-before-you-add/SKILL.md; cursor/plugins@ca782ed:pstack/skills/principle-foundational-thinking/SKILL.md; cursor/plugins@ca782ed:pstack/skills/principle-minimize-reader-load/SKILL.md; mattpocock/skills@d653911:SCOPE.md"
 ---
 

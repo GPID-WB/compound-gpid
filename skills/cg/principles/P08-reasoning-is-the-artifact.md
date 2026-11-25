@@ -4,7 +4,7 @@ name: The reasoning is the artifact
 applies-when: "a decision or a limitation that someone who was not present would need"
 stages: "sign-off"
 verifier: record
-status: draft
+status: accepted
 derived-from: "docs/philosophy.md (principles 5 and 7); mattpocock/skills@d653911:skills/engineering/domain-modeling/SKILL.md; mattpocock/skills@d653911:skills/productivity/writing-for-agents/SKILL.md; addyosmani/agent-skills@e997ac5:skills/documentation-and-adrs/SKILL.md"
 ---
 
