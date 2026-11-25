@@ -1,6 +1,6 @@
 # Handoff: where the 2.0 build stands
 
-Written 2026-11-24 for whoever continues the work, in any coding agent. Last updated 2026-11-25 by the Fable 5.2 session that reviewed the wording written for the gate (task 1.7, #223). Update this file when the state changes; it is the first thing to read.
+Written 2026-11-24 for whoever continues the work, in any coding agent. Last updated 2026-11-25 by the Opus 5.5 session that recorded the gate's go (task 1.7, #223), after the review of its wording by Fable 5.2. Update this file when the state changes; it is the first thing to read.
 
 ## Read in this order
 
