@@ -32,4 +32,4 @@ The working ledger is `docs/adoption-ledger.md`: one row per source component wi
 
 ## Check
 
-Every `derived-from` path in `skills/cg/principles/` was checked against the local clones on 2026-11-24: 48 sources, all present.
+Every `derived-from` path in the principle files (then in `skills/cg/principles/`, now `packs/core/cg/principles/`) was checked against the local clones on 2026-11-24: 48 sources, all present.

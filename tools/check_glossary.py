@@ -14,7 +14,7 @@ import re
 import sys
 from pathlib import Path
 
-DEFAULT_GLOSSARY = Path("skills/cg/GLOSSARY.md")
+DEFAULT_GLOSSARY = Path("packs/core/cg/GLOSSARY.md")
 
 
 def read_avoided(glossary: Path):

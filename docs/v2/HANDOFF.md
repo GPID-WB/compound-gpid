@@ -6,8 +6,8 @@ Written 2026-11-24 for whoever continues the work, in any coding agent. Update t
 
 1. This file.
 2. The plan: `.cg-docs/plans/2026-11-24-compound-gpid-v2.md`. Its "Amendments after approval" section overrides the body where they differ.
-3. `skills/cg/GLOSSARY.md`. Every new text uses these words.
-4. `skills/cg/principles/README.md`, then the principle files you need.
+3. `packs/core/cg/GLOSSARY.md`. Every new text uses these words.
+4. `packs/core/cg/principles/README.md`, then the principle files you need.
 5. The decision records in `docs/adr/` (0001 hosts, 0002 sources, 0003 packs, 0004 no base host) and `SCOPE.md`.
 
 Issues: tracking issue #256 in `GPID-WB/compound-gpid`; tasks #211 to #255 and #257, label `v2`. Branch: `v2`.
@@ -17,8 +17,8 @@ Issues: tracking issue #256 in `GPID-WB/compound-gpid`; tasks #211 to #255 and #
 | Thing | Where | State |
 |---|---|---|
 | Approved plan with amendments | `.cg-docs/plans/` | current |
-| Twelve principles | `skills/cg/principles/` | all accepted on 2026-11-24 as the working version; they are meant to be revised (see "How a principle changes" in the index) |
-| Plugin glossary and its check | `skills/cg/GLOSSARY.md`, `tools/check_glossary.py` | in use |
+| Twelve principles | `packs/core/cg/principles/` | all accepted on 2026-11-24 as the working version; they are meant to be revised (see "How a principle changes" in the index) |
+| Plugin glossary and its check | `packs/core/cg/GLOSSARY.md`, `tools/check_glossary.py` | in use |
 | Host record | `docs/adr/0001-host-matrix.md` | all four hosts tested on macOS (Copilot and Kilo's panel in the editor); Copilot honors the flag and loads `AGENTS.md`, `CLAUDE.md` and `copilot-instructions.md` together; the `@AGENTS.md` import works; Codex and Kilo ignore `disable-model-invocation`; Claude Code reads only `~/.claude/skills`, Codex only `~/.agents/skills`, Kilo both; Windows open |
 | Host test kit | `spike/host-matrix/` | the maintainer runs `run_cli_checks.py` (macOS and Windows); raw results are git-ignored, `--report` writes a copy that can be committed; `WINDOWS.md` is a handoff for an agent on Windows |
 | Sources, notices, ledger | `docs/adr/0002-sources.md`, `THIRD_PARTY_NOTICES`, `docs/adoption-ledger.md` | current |
@@ -49,7 +49,7 @@ Waiting on the maintainer: the Windows run (`spike/host-matrix/WINDOWS.md`), whi
 - **Commit often**, small commits, conventional messages, on `v2`. Unfinished work is fine. Push `v2` as you go. Ask before touching `main`, tags or other branches.
 - **Run checks yourself.** Hand the maintainer only what needs their decision or cannot be done from the session.
 - **Everything here is public.** Write governance text as general rules. Keep any organization's internal policy detail, tool approvals and audit findings out of files and commit messages.
-- **Shared language is strict.** Run `python3 tools/check_glossary.py skills docs/adr docs/v2 docs/adoption-ledger.md SCOPE.md .out-of-scope spike` before each commit and read its exit code directly; a pipe once hid a failure.
+- **Shared language is strict.** Run `python3 tools/check_glossary.py packs docs/adr docs/v2 docs/adoption-ledger.md SCOPE.md .out-of-scope spike` before each commit and read its exit code directly; a pipe once hid a failure.
 - **Read a source file in full before adapting it**, then cite it in `derived-from` and update the ledger row.
 - **Analysts first.** Examples are analytical; rigor of the calculation comes before anything else.
 - **No host is the base.** Anything one host needs is an optional adapter.
