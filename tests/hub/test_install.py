@@ -237,7 +237,8 @@ def test_install_reports_version_1_without_removing_it(env):
     assert code == 0, out
     assert "version 1 left ~/.claude/skills/cg-plan; install.py --remove-v1 removes it" in out
     assert "version 1 is installed at ~/.compound-gpid" in out
-    assert "--uninstall" in out and "~/.zshrc holds the version 1 PATH block" in out
+    assert ("-Uninstall" if os.name == "nt" else "scripts/install.sh --uninstall") in out
+    assert "~/.zshrc holds the version 1 PATH block" in out
     assert (env["home"] / ".claude" / "skills" / "cg-plan").is_symlink()
 
 
