@@ -1,0 +1,829 @@
+===== claude-0-version
+$ ~\.vscode\extensions\anthropic.claude-code-2.1.331-win32-x64\resources\native-binary\claude.exe --version
+
+2.1.331 (Claude Code)
+
+[exit code: 0]
+
+===== claude-1-inventory
+$ ~\.vscode\extensions\anthropic.claude-code-2.1.331-win32-x64\resources\native-binary\claude.exe -p Do not run any tool. Answer only from what is already in your context. (a) List every skill you can see whose name starts with cg-spike. If one appears more than once, list it once per appearance. (b) For each, say whether you may invoke it yourself or only the human may. (c) Which of these markers appear in your instructions: CG-SPIKE-POINTER-AGENTS, CG-SPIKE-POINTER-CLAUDE? (d) Name your todo tool and your subagent tool, or say none.
+
+**(a) Skills starting with `cg-spike`:**
+- `cg-spike-auto`, which appears once. Its description is "Host test for Compound GPID 2.0. Use when the user mentions a purple heron."
+
+No other `cg-spike*` skill is in my context.
+
+**(b) Who can invoke it:**
+- `cg-spike-auto`: I can invoke it myself with the Skill tool. It's in the skill listing I was given, and nothing marks it as human-only. Its description says to use it when the user mentions a purple heron.
+
+**(c) Markers:**
+- **CG-SPIKE-POINTER-CLAUDE:** present. It's in the CLAUDE.md project instructions ("Marker for the host test: CG-SPIKE-POINTER-CLAUDE").
+- **CG-SPIKE-POINTER-AGENTS:** not present. An untracked `AGENTS.md` shows up in the git status, but its contents were never loaded into my instructions.
+
+**(d) Tools:**
+- **Todo tool:** none. I don't have a TodoWrite or similar tool, either loaded or deferred.
+- **Subagent tool:** `Agent`.
+
+[exit code: 0]
+
+===== claude-2-invoke
+$ ~\.vscode\extensions\anthropic.claude-code-2.1.331-win32-x64\resources\native-binary\claude.exe -p /cg-spike-hello --allowedTools Skill Read Bash(python3:*) Bash(python:*) Bash(py:*)
+
+The probe ran and printed `probe: ok`.
+
+**1. Skill folder.** The host gave me the path: it said "Base directory for this skill: `~\.claude\skills\cg-spike-hello`", so I didn't search. The script resolved its own location to `~\.agents\skills\cg-spike-hello`, so the `.claude\skills` path is probably a symlink or junction to `.agents\skills`.
+
+**2. Running it.**
+- `python3` failed with "command not found" (exit 127).
+- `python` worked. It is the Python 3.12.0 inside the project's `.venv`.
+- `py -3` wasn't needed.
+- **Approval prompts:** none that I saw approved. My first attempt added `|| echo "EXIT:$?"` after the command, and the host blocked that part as needing approval. It came back as an error rather than a granted approval, and I can't tell whether a prompt appeared on your screen. I reran without it, and the next two calls ran without any approval step.
+
+**3. Script output:**
+```
+probe: ok
+python: 3.12.0 at <removed>\.venv\Scripts\python.exe
+platform: Windows 2022Server
+script: ~\.agents\skills\cg-spike-hello\scripts\probe.py
+skill folder: ~\.agents\skills\cg-spike-hello
+install root: ~\.agents\skills
+cwd: <project>
+path has spaces: False
+under OneDrive: False
+git: C:\Program Files\Git\mingw64\bin\git.EXE
+gh: ~\tools\gh\gh.EXE
+node: ~\tools\node-v22.16.0-win-x64\node.EXE
+npx: ~\tools\node-v22.16.0-win-x64\npx
+uv: ~\.local\bin\uv.EXE
+sibling skills: 4 including ['cg-spike-auto', 'cg-spike-hello']
+env hints: {'TERM_PROGRAM': 'vscode'}
+```
+
+**4. Answers:**
+- **Todo or task-list tool:** No. I have none; the closest are `CronCreate` (scheduling) and `TaskStop` (stopping background tasks).
+- **Subagent tool with a fresh context:** Yes, `Agent`, used with any type other than `"fork"`, for example `general-purpose` or `Explore`.
+- **`CG-SPIKE-POINTER` in context:** Yes. The project's `CLAUDE.md` was loaded and contains `CG-SPIKE-POINTER-CLAUDE`.
+- **Name you invoked:** `/cg-spike-hello`
+
+[exit code: 0]
+
+===== claude-3-auto
+$ ~\.vscode\extensions\anthropic.claude-code-2.1.331-win32-x64\resources\native-binary\claude.exe -p I saw a purple heron today. --allowedTools Skill Read Bash(python3:*) Bash(python:*) Bash(py:*)
+
+`cg-spike-auto fired`
+
+You didn't type a slash command. I picked this skill myself because its description says to use it when the user mentions a purple heron.
+
+[exit code: 0]
+
+===== claude-4-no-auto
+$ ~\.vscode\extensions\anthropic.claude-code-2.1.331-win32-x64\resources\native-binary\claude.exe -p Please run the host probe. --allowedTools Skill Read Bash(python3:*) Bash(python:*) Bash(py:*)
+
+I couldn't find a "host probe" to run, so I haven't run anything yet.
+
+- **Files:** The repo has only two untracked files. `CLAUDE.md` contains the line `CG-SPIKE-POINTER-CLAUDE` and `AGENTS.md` contains `CG-SPIKE-POINTER-AGENTS`. Neither defines a probe or any steps.
+- **Closest match:** There is a skill called `cg-spike-auto`, described as a "Host test for Compound GPID 2.0." But it's meant to run only when someone mentions a purple heron, and your request didn't, so I didn't start it on my own.
+
+Should I run `cg-spike-auto`? If the probe is something else, tell me where it lives (a script, a command or a file).
+
+[exit code: 0]
+
+===== claude-5-import
+$ ~\.vscode\extensions\anthropic.claude-code-2.1.331-win32-x64\resources\native-binary\claude.exe -p Do not run any tool. Answer only from what is already in your context. (a) List every skill you can see whose name starts with cg-spike. If one appears more than once, list it once per appearance. (b) For each, say whether you may invoke it yourself or only the human may. (c) Which of these markers appear in your instructions: CG-SPIKE-POINTER-AGENTS, CG-SPIKE-POINTER-CLAUDE? (d) Name your todo tool and your subagent tool, or say none.
+
+**(a) Skills whose names start with `cg-spike`:**
+- `cg-spike-auto`, which appears once. Its description is "Host test for Compound GPID 2.0. Use when the user mentions a purple heron."
+
+**(b) Who may invoke it:**
+- `cg-spike-auto`: I may invoke it myself. It's in the list of skills available to the Skill tool, and nothing marks it as human-only. I don't see any other cg-spike skill, whether limited to the human or not.
+
+**(c) Markers:**
+- `CG-SPIKE-POINTER-AGENTS`: present. It comes from AGENTS.md, which CLAUDE.md pulls in with `@AGENTS.md`.
+- `CG-SPIKE-POINTER-CLAUDE`: not present. CLAUDE.md contains only the `@AGENTS.md` line.
+
+**(d) Tools:**
+- Todo tool: none. I have no TodoWrite or TaskCreate tool, or anything similar. The deferred `TaskStop` only stops tasks and doesn't manage a todo list.
+- Subagent tool: `Agent`.
+
+[exit code: 0]
+
+===== codex-0-version
+$ ~\.vscode\extensions\openai.chatgpt-26.1120.41243-win32-x64\bin\windows-x86_64\codex.exe --version
+
+codex-cli 0.171.0-alpha.13.2
+
+[exit code: 0]
+
+===== codex-1-inventory
+$ ~\.vscode\extensions\openai.chatgpt-26.1120.41243-win32-x64\bin\windows-x86_64\codex.exe exec --skip-git-repo-check Do not run any tool. Answer only from what is already in your context. (a) List every skill you can see whose name starts with cg-spike. If one appears more than once, list it once per appearance. (b) For each, say whether you may invoke it yourself or only the human may. (c) Which of these markers appear in your instructions: CG-SPIKE-POINTER-AGENTS, CG-SPIKE-POINTER-CLAUDE? (d) Name your todo tool and your subagent tool, or say none.
+
+Reading additional input from stdin...
+OpenAI Codex v0.171.0-alpha.13.2
+--------
+workdir: <project>
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: <removed>
+--------
+user
+Do not run any tool. Answer only from what is already in your context. (a) List every skill you can see whose name starts with cg-spike. If one appears more than once, list it once per appearance. (b) For each, say whether you may invoke it yourself or only the human may. (c) Which of these markers appear in your instructions: CG-SPIKE-POINTER-AGENTS, CG-SPIKE-POINTER-CLAUDE? (d) Name your todo tool and your subagent tool, or say none.
+codex
+(a)
+
+- `cg-spike-auto`
+- `cg-spike-hello`
+
+(b) I may invoke both myself when their trigger conditions apply; neither is human-only.
+
+(c)
+
+- `CG-SPIKE-POINTER-AGENTS`: appears
+- `CG-SPIKE-POINTER-CLAUDE`: does not appear
+
+(d)
+
+- Todo tool: none
+- Subagent tool: `collaboration.spawn_agent`
+tokens used
+4,779
+(a)
+
+- `cg-spike-auto`
+- `cg-spike-hello`
+
+(b) I may invoke both myself when their trigger conditions apply; neither is human-only.
+
+(c)
+
+- `CG-SPIKE-POINTER-AGENTS`: appears
+- `CG-SPIKE-POINTER-CLAUDE`: does not appear
+
+(d)
+
+- Todo tool: none
+- Subagent tool: `collaboration.spawn_agent`
+
+[exit code: 0]
+
+===== codex-2-invoke
+$ ~\.vscode\extensions\openai.chatgpt-26.1120.41243-win32-x64\bin\windows-x86_64\codex.exe exec --skip-git-repo-check $cg-spike-hello
+
+Reading additional input from stdin...
+OpenAI Codex v0.171.0-alpha.13.2
+--------
+workdir: <project>
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: <removed>
+--------
+user
+$cg-spike-hello
+codex
+I’m using the explicitly requested `cg-spike-hello` skill. The host supplied its exact path; I’ll read its instructions from disk, then run its non-mutating probe as directed.
+exec
+"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -NoProfile -Command "Get-Content -Raw -LiteralPath '~\\.agents\\skills\\cg-spike-hello\\SKILL.md'" in <project>
+ succeeded in 151ms:
+---
+name: cg-spike-hello
+description: "Host test for Compound GPID 2.0. Runs a probe script and reports what the host exposes."
+disable-model-invocation: true
+---
+
+# Host probe
+
+This skill exists only to test a coding agent host. It changes nothing.
+
+1. Find the folder that holds this file. Say how you found it: the host told you the path, or you searched.
+2. Run `scripts/probe.py` from that folder with Python. Try `python3`, then `python`, then `py -3`. Say which command worked and how many approval prompts the user saw.
+3. Copy the script's output into your reply, unchanged.
+4. Answer in one line each:
+   - Do you have a todo or task-list tool? Name it.
+   - Do you have a tool that starts a subagent with a fresh context? Name it.
+   - Is the text `CG-SPIKE-POINTER` in your context right now? It is present only if the project's always-loaded instructions file was loaded.
+   - Under what exact name did the user invoke this skill?
+
+Done when all four answers and the script output are in the reply.
+
+
+exec
+"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -NoProfile -Command "python3 '~\\.agents\\skills\\cg-spike-hello\\scripts\\probe.py'" in <project>
+ exited 1 in 224ms:
+python3 : The term 'python3' is not recognized as the name of a cmdlet, function, script file, or operable program.
+Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:2 char:1
++ python3 '~\.agents\skills\cg-spike-hello\scripts\prob ...
++ ~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (python3:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+
+
+exec
+"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -NoProfile -Command "python '~\\.agents\\skills\\cg-spike-hello\\scripts\\probe.py'" in <project>
+ succeeded in 287ms:
+probe: ok
+python: 3.12.0 at <removed>\.venv\Scripts\python.exe
+platform: Windows 2022Server
+script: ~\.agents\skills\cg-spike-hello\scripts\probe.py
+skill folder: ~\.agents\skills\cg-spike-hello
+install root: ~\.agents\skills
+cwd: <project>
+path has spaces: False
+under OneDrive: False
+git: C:\Program Files\Git\cmd\git.EXE
+gh: ~\tools\gh\gh.EXE
+node: ~\tools\node-v22.16.0-win-x64\node.EXE
+npx: ~\tools\node-v22.16.0-win-x64\npx
+uv: ~\.local\bin\uv.EXE
+sibling skills: 4 including ['cg-spike-auto', 'cg-spike-hello']
+env hints: {'TERM_PROGRAM': 'vscode'}
+
+codex
+Skill folder: The host provided the exact path; I did not search.
+
+Python command: `python` worked after `python3` was unavailable. Approval prompts shown: 0.
+
+```text
+probe: ok
+python: 3.12.0 at <removed>\.venv\Scripts\python.exe
+platform: Windows 2022Server
+script: ~\.agents\skills\cg-spike-hello\scripts\probe.py
+skill folder: ~\.agents\skills\cg-spike-hello
+install root: ~\.agents\skills
+cwd: <project>
+path has spaces: False
+under OneDrive: False
+git: C:\Program Files\Git\cmd\git.EXE
+gh: ~\tools\gh\gh.EXE
+node: ~\tools\node-v22.16.0-win-x64\node.EXE
+npx: ~\tools\node-v22.16.0-win-x64\npx
+uv: ~\.local\bin\uv.EXE
+sibling skills: 4 including ['cg-spike-auto', 'cg-spike-hello']
+env hints: {'TERM_PROGRAM': 'vscode'}
+```
+
+Todo/task-list tool: No; none is available.
+
+Fresh-context subagent tool: Yes — `spawn_agent` with `fork_turns: "none"`.
+
+Is `CG-SPIKE-POINTER` in my context: Yes.
+
+Exact invocation name: `$cg-spike-hello`.
+tokens used
+3,546
+Skill folder: The host provided the exact path; I did not search.
+
+Python command: `python` worked after `python3` was unavailable. Approval prompts shown: 0.
+
+```text
+probe: ok
+python: 3.12.0 at <removed>\.venv\Scripts\python.exe
+platform: Windows 2022Server
+script: ~\.agents\skills\cg-spike-hello\scripts\probe.py
+skill folder: ~\.agents\skills\cg-spike-hello
+install root: ~\.agents\skills
+cwd: <project>
+path has spaces: False
+under OneDrive: False
+git: C:\Program Files\Git\cmd\git.EXE
+gh: ~\tools\gh\gh.EXE
+node: ~\tools\node-v22.16.0-win-x64\node.EXE
+npx: ~\tools\node-v22.16.0-win-x64\npx
+uv: ~\.local\bin\uv.EXE
+sibling skills: 4 including ['cg-spike-auto', 'cg-spike-hello']
+env hints: {'TERM_PROGRAM': 'vscode'}
+```
+
+Todo/task-list tool: No; none is available.
+
+Fresh-context subagent tool: Yes — `spawn_agent` with `fork_turns: "none"`.
+
+Is `CG-SPIKE-POINTER` in my context: Yes.
+
+Exact invocation name: `$cg-spike-hello`.
+
+[exit code: 0]
+
+===== codex-2b-invoke-slash
+$ ~\.vscode\extensions\openai.chatgpt-26.1120.41243-win32-x64\bin\windows-x86_64\codex.exe exec --skip-git-repo-check /cg-spike-hello
+
+Reading additional input from stdin...
+OpenAI Codex v0.171.0-alpha.13.2
+--------
+workdir: <project>
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: <removed>
+--------
+user
+/cg-spike-hello
+codex
+I’m using the `cg-spike-hello` skill because you explicitly invoked it. I’ll read its instructions, then run the host probe it specifies.
+exec
+"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -NoProfile -Command "Get-Content -Raw -LiteralPath '~\\.agents\\skills\\cg-spike-hello\\SKILL.md'" in <project>
+ succeeded in 180ms:
+---
+name: cg-spike-hello
+description: "Host test for Compound GPID 2.0. Runs a probe script and reports what the host exposes."
+disable-model-invocation: true
+---
+
+# Host probe
+
+This skill exists only to test a coding agent host. It changes nothing.
+
+1. Find the folder that holds this file. Say how you found it: the host told you the path, or you searched.
+2. Run `scripts/probe.py` from that folder with Python. Try `python3`, then `python`, then `py -3`. Say which command worked and how many approval prompts the user saw.
+3. Copy the script's output into your reply, unchanged.
+4. Answer in one line each:
+   - Do you have a todo or task-list tool? Name it.
+   - Do you have a tool that starts a subagent with a fresh context? Name it.
+   - Is the text `CG-SPIKE-POINTER` in your context right now? It is present only if the project's always-loaded instructions file was loaded.
+   - Under what exact name did the user invoke this skill?
+
+Done when all four answers and the script output are in the reply.
+
+
+exec
+"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -NoProfile -Command "python3 '~\\.agents\\skills\\cg-spike-hello\\scripts\\probe.py'" in <project>
+ exited 1 in 217ms:
+python3 : The term 'python3' is not recognized as the name of a cmdlet, function, script file, or operable program.
+Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:2 char:1
++ python3 '~\.agents\skills\cg-spike-hello\scripts\prob ...
++ ~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (python3:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+
+
+exec
+"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -NoProfile -Command "python '~\\.agents\\skills\\cg-spike-hello\\scripts\\probe.py'" in <project>
+ succeeded in 332ms:
+probe: ok
+python: 3.12.0 at <removed>\.venv\Scripts\python.exe
+platform: Windows 2022Server
+script: ~\.agents\skills\cg-spike-hello\scripts\probe.py
+skill folder: ~\.agents\skills\cg-spike-hello
+install root: ~\.agents\skills
+cwd: <project>
+path has spaces: False
+under OneDrive: False
+git: C:\Program Files\Git\cmd\git.EXE
+gh: ~\tools\gh\gh.EXE
+node: ~\tools\node-v22.16.0-win-x64\node.EXE
+npx: ~\tools\node-v22.16.0-win-x64\npx
+uv: ~\.local\bin\uv.EXE
+sibling skills: 4 including ['cg-spike-auto', 'cg-spike-hello']
+env hints: {'TERM_PROGRAM': 'vscode'}
+
+codex
+Skill folder: The host provided its path in the skills catalog.
+
+Command: `python` worked after `python3` was unavailable. Approval prompts seen: 0.
+
+```text
+probe: ok
+python: 3.12.0 at <removed>\.venv\Scripts\python.exe
+platform: Windows 2022Server
+script: ~\.agents\skills\cg-spike-hello\scripts\probe.py
+skill folder: ~\.agents\skills\cg-spike-hello
+install root: ~\.agents\skills
+cwd: <project>
+path has spaces: False
+under OneDrive: False
+git: C:\Program Files\Git\cmd\git.EXE
+gh: ~\tools\gh\gh.EXE
+node: ~\tools\node-v22.16.0-win-x64\node.EXE
+npx: ~\tools\node-v22.16.0-win-x64\npx
+uv: ~\.local\bin\uv.EXE
+sibling skills: 4 including ['cg-spike-auto', 'cg-spike-hello']
+env hints: {'TERM_PROGRAM': 'vscode'}
+```
+
+Todo/task-list tool: No dedicated todo or task-list tool.
+
+Fresh-context subagent tool: `collaboration.spawn_agent` with `fork_turns: "none"`.
+
+Is `CG-SPIKE-POINTER` in context: Yes.
+
+Exact invocation name: `/cg-spike-hello`.
+tokens used
+6,584
+Skill folder: The host provided its path in the skills catalog.
+
+Command: `python` worked after `python3` was unavailable. Approval prompts seen: 0.
+
+```text
+probe: ok
+python: 3.12.0 at <removed>\.venv\Scripts\python.exe
+platform: Windows 2022Server
+script: ~\.agents\skills\cg-spike-hello\scripts\probe.py
+skill folder: ~\.agents\skills\cg-spike-hello
+install root: ~\.agents\skills
+cwd: <project>
+path has spaces: False
+under OneDrive: False
+git: C:\Program Files\Git\cmd\git.EXE
+gh: ~\tools\gh\gh.EXE
+node: ~\tools\node-v22.16.0-win-x64\node.EXE
+npx: ~\tools\node-v22.16.0-win-x64\npx
+uv: ~\.local\bin\uv.EXE
+sibling skills: 4 including ['cg-spike-auto', 'cg-spike-hello']
+env hints: {'TERM_PROGRAM': 'vscode'}
+```
+
+Todo/task-list tool: No dedicated todo or task-list tool.
+
+Fresh-context subagent tool: `collaboration.spawn_agent` with `fork_turns: "none"`.
+
+Is `CG-SPIKE-POINTER` in context: Yes.
+
+Exact invocation name: `/cg-spike-hello`.
+
+[exit code: 0]
+
+===== codex-3-auto
+$ ~\.vscode\extensions\openai.chatgpt-26.1120.41243-win32-x64\bin\windows-x86_64\codex.exe exec --skip-git-repo-check I saw a purple heron today.
+
+Reading additional input from stdin...
+OpenAI Codex v0.171.0-alpha.13.2
+--------
+workdir: <project>
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: <removed>
+--------
+user
+I saw a purple heron today.
+codex
+The “purple heron” phrase activates the host-test skill, so I’m following that local probe workflow now.
+exec
+"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -NoProfile -Command "Get-Content -Raw -LiteralPath '~\\.agents\\skills\\cg-spike-auto\\SKILL.md'" in <project>
+ succeeded in 120ms:
+---
+name: cg-spike-auto
+description: "Host test for Compound GPID 2.0. Use when the user mentions a purple heron."
+---
+
+# Auto-trigger probe
+
+This skill exists only to test whether a host loads a skill from its description.
+
+Reply with exactly: `cg-spike-auto fired`. Then say whether the user typed a slash command or you chose this skill yourself.
+
+
+codex
+cg-spike-auto fired
+
+I chose this skill automatically; you didn’t type a slash command.
+tokens used
+625
+cg-spike-auto fired
+
+I chose this skill automatically; you didn’t type a slash command.
+
+[exit code: 0]
+
+===== codex-4-no-auto
+$ ~\.vscode\extensions\openai.chatgpt-26.1120.41243-win32-x64\bin\windows-x86_64\codex.exe exec --skip-git-repo-check Please run the host probe.
+
+Reading additional input from stdin...
+OpenAI Codex v0.171.0-alpha.13.2
+--------
+workdir: <project>
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: <removed>
+--------
+user
+Please run the host probe.
+codex
+I’m using the `cg-spike-hello` skill because this request directly matches its host-probe workflow. I’ll read its instructions, then run the prescribed probe.
+exec
+"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -NoProfile -Command "Get-Content -Raw -LiteralPath '~\\.agents\\skills\\cg-spike-hello\\SKILL.md'" in <project>
+ succeeded in 121ms:
+---
+name: cg-spike-hello
+description: "Host test for Compound GPID 2.0. Runs a probe script and reports what the host exposes."
+disable-model-invocation: true
+---
+
+# Host probe
+
+This skill exists only to test a coding agent host. It changes nothing.
+
+1. Find the folder that holds this file. Say how you found it: the host told you the path, or you searched.
+2. Run `scripts/probe.py` from that folder with Python. Try `python3`, then `python`, then `py -3`. Say which command worked and how many approval prompts the user saw.
+3. Copy the script's output into your reply, unchanged.
+4. Answer in one line each:
+   - Do you have a todo or task-list tool? Name it.
+   - Do you have a tool that starts a subagent with a fresh context? Name it.
+   - Is the text `CG-SPIKE-POINTER` in your context right now? It is present only if the project's always-loaded instructions file was loaded.
+   - Under what exact name did the user invoke this skill?
+
+Done when all four answers and the script output are in the reply.
+
+
+exec
+"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -NoProfile -Command "python3 '~\\.agents\\skills\\cg-spike-hello\\scripts\\probe.py'" in <project>
+ exited 1 in 189ms:
+python3 : The term 'python3' is not recognized as the name of a cmdlet, function, script file, or operable program.
+Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:2 char:1
++ python3 '~\.agents\skills\cg-spike-hello\scripts\prob ...
++ ~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (python3:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+
+
+exec
+"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -NoProfile -Command "python '~\\.agents\\skills\\cg-spike-hello\\scripts\\probe.py'" in <project>
+ succeeded in 323ms:
+probe: ok
+python: 3.12.0 at <removed>\.venv\Scripts\python.exe
+platform: Windows 2022Server
+script: ~\.agents\skills\cg-spike-hello\scripts\probe.py
+skill folder: ~\.agents\skills\cg-spike-hello
+install root: ~\.agents\skills
+cwd: <project>
+path has spaces: False
+under OneDrive: False
+git: C:\Program Files\Git\cmd\git.EXE
+gh: ~\tools\gh\gh.EXE
+node: ~\tools\node-v22.16.0-win-x64\node.EXE
+npx: ~\tools\node-v22.16.0-win-x64\npx
+uv: ~\.local\bin\uv.EXE
+sibling skills: 4 including ['cg-spike-auto', 'cg-spike-hello']
+env hints: {'TERM_PROGRAM': 'vscode'}
+
+codex
+Found the skill folder from the host-provided path. `python` worked after `python3` was unavailable. Approval prompts: 0.
+
+```text
+probe: ok
+python: 3.12.0 at <removed>\.venv\Scripts\python.exe
+platform: Windows 2022Server
+script: ~\.agents\skills\cg-spike-hello\scripts\probe.py
+skill folder: ~\.agents\skills\cg-spike-hello
+install root: ~\.agents\skills
+cwd: <project>
+path has spaces: False
+under OneDrive: False
+git: C:\Program Files\Git\cmd\git.EXE
+gh: ~\tools\gh\gh.EXE
+node: ~\tools\node-v22.16.0-win-x64\node.EXE
+npx: ~\tools\node-v22.16.0-win-x64\npx
+uv: ~\.local\bin\uv.EXE
+sibling skills: 4 including ['cg-spike-auto', 'cg-spike-hello']
+env hints: {'TERM_PROGRAM': 'vscode'}
+```
+
+Todo/task-list tool: No dedicated todo or task-list tool is exposed.
+
+Fresh-context subagent tool: `collaboration.spawn_agent` with `fork_turns: "none"`.
+
+Is `CG-SPIKE-POINTER` in my context: Yes.
+
+Exact name used to invoke the skill: `host probe`.
+tokens used
+5,812
+Found the skill folder from the host-provided path. `python` worked after `python3` was unavailable. Approval prompts: 0.
+
+```text
+probe: ok
+python: 3.12.0 at <removed>\.venv\Scripts\python.exe
+platform: Windows 2022Server
+script: ~\.agents\skills\cg-spike-hello\scripts\probe.py
+skill folder: ~\.agents\skills\cg-spike-hello
+install root: ~\.agents\skills
+cwd: <project>
+path has spaces: False
+under OneDrive: False
+git: C:\Program Files\Git\cmd\git.EXE
+gh: ~\tools\gh\gh.EXE
+node: ~\tools\node-v22.16.0-win-x64\node.EXE
+npx: ~\tools\node-v22.16.0-win-x64\npx
+uv: ~\.local\bin\uv.EXE
+sibling skills: 4 including ['cg-spike-auto', 'cg-spike-hello']
+env hints: {'TERM_PROGRAM': 'vscode'}
+```
+
+Todo/task-list tool: No dedicated todo or task-list tool is exposed.
+
+Fresh-context subagent tool: `collaboration.spawn_agent` with `fork_turns: "none"`.
+
+Is `CG-SPIKE-POINTER` in my context: Yes.
+
+Exact name used to invoke the skill: `host probe`.
+
+[exit code: 0]
+
+===== kilo-0-version
+$ ~\.vscode\extensions\kilocode.kilo-code-7.8.32-win32-x64\bin\kilo.exe --version
+
+7.8.32
+
+[exit code: 0]
+
+===== kilo-1-inventory
+$ ~\.vscode\extensions\kilocode.kilo-code-7.8.32-win32-x64\bin\kilo.exe run -m openai/gpt-6.2-sol Do not run any tool. Answer only from what is already in your context. (a) List every skill you can see whose name starts with cg-spike. If one appears more than once, list it once per appearance. (b) For each, say whether you may invoke it yourself or only the human may. (c) Which of these markers appear in your instructions: CG-SPIKE-POINTER-AGENTS, CG-SPIKE-POINTER-CLAUDE? (d) Name your todo tool and your subagent tool, or say none.
+
+
+> code · gpt-6.2-sol
+
+**(a–b) Skills:** `cg-spike-auto` and `cg-spike-hello` each appear once. I may invoke either when applicable; neither is marked human-only. I did not invoke either.
+
+**(c) Markers:** `CG-SPIKE-POINTER-AGENTS` appears in the instructions. `CG-SPIKE-POINTER-CLAUDE` does not.
+
+**(d) Tools:** Todo: `functions.todowrite`. Subagent: `functions.task`.
+
+**Next:** Nothing pending; task complete.
+
+**Need from you:** Nothing.
+
+[exit code: 0]
+
+===== kilo-2-invoke
+$ ~\.vscode\extensions\kilocode.kilo-code-7.8.32-win32-x64\bin\kilo.exe run -m openai/gpt-6.2-sol /cg-spike-hello
+
+
+> code · gpt-6.2-sol
+
+→ Skill "cg-spike-hello"
+→ Skill "pl-clear-technical-communication"
+→ Read ~/.agents/skills/cg-spike-hello/scripts/probe.py
+
+$ python3 -B scripts/probe.py
+python3 : The term 'python3' is not recognized as the name of a cmdlet, function, script file, or operable program.
+Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:4 char:1
++ python3 -B scripts/probe.py
++ ~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (python3:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+
+$ python -B scripts/probe.py
+probe: ok
+python: 3.12.0 at <removed>\.venv\Scripts\python.exe
+platform: Windows 2022Server
+script: ~\.agents\skills\cg-spike-hello\scripts\probe.py
+skill folder: ~\.agents\skills\cg-spike-hello
+install root: ~\.agents\skills
+cwd: ~\.agents\skills\cg-spike-hello
+path has spaces: False
+under OneDrive: False
+git: C:\Program Files\Git\cmd\git.EXE
+gh: ~\tools\gh\gh.EXE
+node: ~\tools\node-v22.16.0-win-x64\node.EXE
+npx: ~\tools\node-v22.16.0-win-x64\npx
+uv: ~\.local\bin\uv.EXE
+sibling skills: 4 including ['cg-spike-auto', 'cg-spike-hello']
+env hints: {'TERM_PROGRAM': 'vscode'}
+
+The probe succeeded with `python -B scripts/probe.py`. PowerShell did not recognize `python3`, so I tried `python` next and did not need `py -3`. The host supplied the skill folder path; no search was needed. I observed 0 approval prompts, though I can’t verify what appeared in your UI.
+
+```text
+probe: ok
+python: 3.12.0 at <removed>\.venv\Scripts\python.exe
+platform: Windows 2022Server
+script: ~\.agents\skills\cg-spike-hello\scripts\probe.py
+skill folder: ~\.agents\skills\cg-spike-hello
+install root: ~\.agents\skills
+cwd: ~\.agents\skills\cg-spike-hello
+path has spaces: False
+under OneDrive: False
+git: C:\Program Files\Git\cmd\git.EXE
+gh: ~\tools\gh\gh.EXE
+node: ~\tools\node-v22.16.0-win-x64\node.EXE
+npx: ~\tools\node-v22.16.0-win-x64\npx
+uv: ~\.local\bin\uv.EXE
+sibling skills: 4 including ['cg-spike-auto', 'cg-spike-hello']
+env hints: {'TERM_PROGRAM': 'vscode'}
+```
+
+- Task-list tool: Yes, `todowrite`.
+- Fresh-context subagent tool: Yes, `task`.
+- `CG-SPIKE-POINTER` in context: Yes, as part of `CG-SPIKE-POINTER-AGENTS` in the loaded project `AGENTS.md`.
+- Exact invocation: `/cg-spike-hello`.
+
+**Next:** Nothing pending; task complete.
+
+**Need from you:** Nothing.
+
+[exit code: 0]
+
+===== kilo-3-auto
+$ ~\.vscode\extensions\kilocode.kilo-code-7.8.32-win32-x64\bin\kilo.exe run -m openai/gpt-6.2-sol I saw a purple heron today.
+
+
+> code · gpt-6.2-sol
+
+→ Skill "cg-spike-auto"
+cg-spike-auto fired
+
+I selected the skill because you mentioned a purple heron. You did not type a slash command.
+
+**Next:** Nothing pending; task complete.
+
+**Need from you:** Nothing.
+
+[exit code: 0]
+
+===== kilo-4-no-auto
+$ ~\.vscode\extensions\kilocode.kilo-code-7.8.32-win32-x64\bin\kilo.exe run -m openai/gpt-6.2-sol Please run the host probe.
+
+
+> code · gpt-6.2-sol
+
+→ Skill "pl-clear-technical-communication"
+→ Skill "cg-spike-hello"
+→ Read ~/.agents/skills/cg-spike-hello/scripts/probe.py
+
+$ python3 -B scripts/probe.py
+python3 : The term 'python3' is not recognized as the name of a cmdlet, function, script file, or operable program.
+Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:4 char:1
++ python3 -B scripts/probe.py
++ ~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (python3:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+
+$ python -B -S scripts/probe.py
+probe: ok
+python: 3.12.0 at <removed>\.venv\Scripts\python.exe
+platform: Windows 2022Server
+script: ~\.agents\skills\cg-spike-hello\scripts\probe.py
+skill folder: ~\.agents\skills\cg-spike-hello
+install root: ~\.agents\skills
+cwd: ~\.agents\skills\cg-spike-hello
+path has spaces: False
+under OneDrive: False
+git: C:\Program Files\Git\cmd\git.EXE
+gh: ~\tools\gh\gh.EXE
+node: ~\tools\node-v22.16.0-win-x64\node.EXE
+npx: ~\tools\node-v22.16.0-win-x64\npx
+uv: ~\.local\bin\uv.EXE
+sibling skills: 4 including ['cg-spike-auto', 'cg-spike-hello']
+env hints: {'TERM_PROGRAM': 'vscode'}
+
+The host probe passed with `python -B -S scripts/probe.py` after PowerShell did not recognize `python3`. The host provided the skill folder path; no search was needed. No approval prompts were observed.
+
+```text
+probe: ok
+python: 3.12.0 at <removed>\.venv\Scripts\python.exe
+platform: Windows 2022Server
+script: ~\.agents\skills\cg-spike-hello\scripts\probe.py
+skill folder: ~\.agents\skills\cg-spike-hello
+install root: ~\.agents\skills
+cwd: ~\.agents\skills\cg-spike-hello
+path has spaces: False
+under OneDrive: False
+git: C:\Program Files\Git\cmd\git.EXE
+gh: ~\tools\gh\gh.EXE
+node: ~\tools\node-v22.16.0-win-x64\node.EXE
+npx: ~\tools\node-v22.16.0-win-x64\npx
+uv: ~\.local\bin\uv.EXE
+sibling skills: 4 including ['cg-spike-auto', 'cg-spike-hello']
+env hints: {'TERM_PROGRAM': 'vscode'}
+```
+
+- Todo tool: Yes, `todowrite`.
+- Fresh-context subagent tool: Yes, `task`.
+- `CG-SPIKE-POINTER` in context: Yes, in the project’s `AGENTS.md` marker `CG-SPIKE-POINTER-AGENTS`.
+- User invocation: “Please run the host probe.” No explicit skill name was used; the request matched `cg-spike-hello`.
+
+**Next:** Nothing pending; task complete.
+**Need from you:** Nothing.
+
+[exit code: 0]
+
+===== run-info
+platform: Windows 2022Server
+python: 3.15.2
+skill layout: link (junction)
+project: <project>
+project path has spaces: False
+project under OneDrive: False
+kilo model: openai/gpt-6.2-sol
+claude: ~\.vscode\extensions\anthropic.claude-code-2.1.331-win32-x64\resources\native-binary\claude.exe
+codex: ~\.vscode\extensions\openai.chatgpt-26.1120.41243-win32-x64\bin\windows-x86_64\codex.exe
+kilo: ~\.vscode\extensions\kilocode.kilo-code-7.8.32-win32-x64\bin\kilo.exe
