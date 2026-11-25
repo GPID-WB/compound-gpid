@@ -20,32 +20,27 @@ The options are listed at the top of the script. `--report` writes a copy withou
 
 The build session then reads the results and fills in `docs/adr/0001-host-matrix.md`. The steps below are for the hosts that only run inside the editor (Copilot, and Kilo's editor panel).
 
-## Setup, once per machine
+## Editor part: Copilot and Kilo's panel
 
-Route B, the user-level folder:
+These two run only inside the editor, so a person does this part. The script prepares it and cleans up after it:
 
 ```
-# macOS
-mkdir -p ~/.agents/skills && cp -R spike/host-matrix/skills/cg-spike-* ~/.agents/skills/
-
-# Windows PowerShell
-New-Item -ItemType Directory -Force "$HOME\.agents\skills" | Out-Null
-Copy-Item -Recurse spike\host-matrix\skills\cg-spike-* "$HOME\.agents\skills\"
+python3 spike/host-matrix/run_cli_checks.py --manual        # Windows: py -3 spike\host-matrix\run_cli_checks.py --manual
 ```
 
-Then open any test project that has a file `AGENTS.md` containing the line `CG-SPIKE-POINTER`. For Claude Code, put the same line in `CLAUDE.md`. Restart the host.
+It installs the two test skills, makes a small test project named `cg-spike-project` in your home folder (with a marker line in `AGENTS.md`, `CLAUDE.md` and `.github/copilot-instructions.md`), and writes an answer sheet, `cg-spike-answers.txt`, also in your home folder.
 
-## Tests, per host
+1. Open the folder `cg-spike-project` in the editor. Restart the editor if the skills do not appear.
+2. Open the answer sheet. For each host it lists four steps, each done in a new chat: paste the text, copy the reply under its heading.
+3. Answer the three short questions per host at the end of its block.
+4. Run the script again with `--manual-done`. It keeps the sheet with the results and removes the skills, the project and the sheet.
 
-| # | Do this | Record |
-|---|---|---|
-| 1 | Type `/` and look for `cg-spike-hello` | Listed? Under what exact name? Listed twice? |
-| 2 | Run `/cg-spike-hello` | Paste the reply: script output, Python command that worked, number of approval prompts, the four answers |
-| 3 | In a new chat, write "I saw a purple heron today" | Did `cg-spike-auto` fire? |
-| 4 | In a new chat, write "run the host probe" without a slash | Did `cg-spike-hello` run by itself? It should not (`disable-model-invocation`) |
-| 5 | Is `cg-spike-auto` also offered as a slash command? | Yes or no |
-| 6 | In a long chat, after the host compacts or summarizes context, ask "is CG-SPIKE-POINTER still in your context?" | Yes or no |
-| 7 | Copilot only: repeat test 2 on the smallest model your colleagues commonly pick | Did it follow all four steps? |
+Two checks the sheet does not cover, for when there is time:
+
+| Check | Record |
+|---|---|
+| In a long chat, after the host compacts or summarizes context, ask "is CG-SPIKE-POINTER still in your context?" | Yes or no |
+| Copilot only: repeat step 2 on the smallest model your colleagues commonly pick | Did it follow all four steps? |
 
 ## Route A, the plugin marketplace (Claude Code, Codex, Copilot)
 
@@ -69,7 +64,3 @@ This Mac has 45 skills present in both `~/.agents/skills` and `~/.claude/skills`
 - If `disable-model-invocation` is ignored on a host, `/cg` needs a description that cannot fire by accident on that host.
 - If user-level skills in `~/.agents/skills` are not discovered by Copilot, Codex or Kilo, the primary install route changes.
 - If always-loaded instructions are dropped after compaction, the guide must re-run `cg.py status` at the start of every turn that touches active work.
-
-## Cleanup
-
-Delete `~/.agents/skills/cg-spike-hello` and `~/.agents/skills/cg-spike-auto`.

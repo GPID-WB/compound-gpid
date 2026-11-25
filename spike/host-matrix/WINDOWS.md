@@ -2,7 +2,7 @@
 
 For a coding agent on a Windows machine, started by the human with: "Read `spike/host-matrix/WINDOWS.md` and do what it says."
 
-You are helping test how coding agent hosts behave on Windows (issue #211). You run one script three times, help the human with a short test in the editor, and push a few report files. You own getting clean results back to the repository. You do not fix, build or tidy anything else.
+You are helping test how coding agent hosts behave on Windows (issue #211). You run one script three times, help the human with a short test in the editor, and open a pull request with a few report files. You own getting clean results back to the repository. You do not fix, build or tidy anything else.
 
 ## Before you start
 
@@ -13,12 +13,17 @@ Check these and stop with a clear message if one fails.
    ```
    git clone --branch v2 --single-branch https://github.com/GPID-WB/compound-gpid C:\dev\compound-gpid
    ```
-3. `py -3 --version` works. If not, try `python --version`, and use whichever works in every command below. Tell the human which one worked; that is a result too.
+3. Make the branch this work goes on. It is safe here because the folder is outside OneDrive:
+   ```
+   git switch -c spike/host-matrix-windows
+   ```
+4. `py -3 --version` works. If not, try `python --version`, and use whichever works in every command below. Tell the human which one worked; that is a result too.
 
 ## Boundaries
 
-- Change files only under `spike/host-matrix/reports/`.
-- Do not switch branches, and do not touch `main`, `v1`, `dev` or any tag.
+- Add files only under `spike/host-matrix/reports/`.
+- The one file you may edit is `spike/host-matrix/run_cli_checks.py`, and only when a run fails for a reason that belongs to Windows (a path, a file ending, a missing command). Make the smallest change that lets the run finish, keep it working on macOS, and commit it by itself with a message that says what failed. There is one script for every system; do not add a second one for Windows.
+- Stay on `spike/host-matrix-windows`. Do not push to `v2`, `main`, `v1` or `dev`, and do not touch any tag.
 - The script starts the Claude Code, Codex and Kilo command-line programs and uses a small amount of each account's quota. If your host refuses to let you start them, do not look for another way. Give the human the command to run in PowerShell, wait, then continue from the reports.
 - Everything pushed here is public. Push nothing that names a person, an email address, a machine or an internal address.
 
@@ -56,44 +61,37 @@ The script already replaced local paths, the user name and email addresses. Read
 
 Two hosts run only inside the editor: Copilot, and Kilo's own panel. Prepare the test, then hand over.
 
-1. Install the test skills:
-   ```
-   New-Item -ItemType Directory -Force "$HOME\.agents\skills" | Out-Null
-   Copy-Item -Recurse -Force spike\host-matrix\skills\cg-spike-* "$HOME\.agents\skills\"
-   ```
-2. Ask the human to do tests 1 to 5 of `spike/host-matrix/CHECKLIST.md` in a new Copilot chat and a new Kilo chat, in any project whose `AGENTS.md` holds the line `CG-SPIKE-POINTER`, and to count the approval prompts they see. The editor may need a restart before the skills appear.
-3. Write what the human reports, in their words, to `spike\host-matrix\reports\windows-manual.txt`, one block per host, with the host's version and the model used.
-4. Remove the test skills:
-   ```
-   Remove-Item -Recurse -Force "$HOME\.agents\skills\cg-spike-hello", "$HOME\.agents\skills\cg-spike-auto"
-   ```
+1. Run `py -3 spike\host-matrix\run_cli_checks.py --manual`. It installs the test skills, makes a test project named `cg-spike-project` in the human's home folder, and writes an answer sheet, `cg-spike-answers.txt`, beside it.
+2. Tell the human: open the folder `cg-spike-project` in the editor, open the answer sheet, and follow it. It is four steps per host, each in a new chat, plus three short questions. About ten minutes.
+3. When the human says they are done, run `py -3 spike\host-matrix\run_cli_checks.py --manual-done --report`. It writes the report and removes the skills, the project and the sheet.
 
-If the human has no time for this step, skip it and say it is still open.
+Do not fill in the answer sheet yourself. If the human has no time for this step, run `--manual-done` anyway to clean up, and say the step is still open.
 
-## Step 4: push
+## Step 4: commit and open the pull request
 
 ```
 git status --short
 ```
 
-Only files under `spike/host-matrix/reports/` may appear. If anything else does, stop and tell the human. Then:
+Only files under `spike/host-matrix/reports/` may appear, plus `run_cli_checks.py` if you had to fix it. If anything else does, stop and tell the human. Then:
 
 ```
 git add spike/host-matrix/reports
 git commit -m "test(spike): host matrix results on Windows"
-git pull --rebase origin v2
-git push origin v2
+git push -u origin spike/host-matrix-windows
 ```
 
-If the pull or the push fails, stop and show the human the message. Do not force anything.
+Open a pull request from `spike/host-matrix-windows` into `v2`, titled "Host matrix results on Windows". Use `gh pr create --base v2` if `gh` is installed; otherwise give the human the link that `git push` printed. In the description, put the same content as your reply below. Do not merge it.
+
+If the push fails, stop and show the human the message. Do not force anything.
 
 ## Reply
 
 End with one message to the human that holds:
 
-- the commit you pushed, or why nothing was pushed;
+- the link to the pull request, or why none was opened;
 - one line per program and run: found or not, and the answers from step 2;
 - anything that differed from this note: a command that failed, a prompt that timed out, something you replaced in a report;
 - what is still open.
 
-The build session on the other machine reads the reports from `v2` and updates `docs/adr/0001-host-matrix.md`. Do not edit that file here.
+The build session on the other machine reviews the pull request, checks once more that nothing in it is private, updates `docs/adr/0001-host-matrix.md` and merges. Do not edit that file here.

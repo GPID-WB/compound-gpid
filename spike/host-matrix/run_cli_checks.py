@@ -29,6 +29,12 @@ Options (each also reads the environment variable in brackets):
                                 name and email addresses removed, to
                                 spike/host-matrix/reports/ (tracked by git)
 
+    --manual                    prepare the test for hosts that only run inside
+                                the editor (Copilot, Kilo's panel): install the
+                                test skills, make a test project and an answer
+                                sheet in the home folder, print what to do
+    --manual-done               collect the answer sheet and remove all of it
+
 Raw answers land in spike/host-matrix/results/<time>/, ignored by git because
 they contain local paths. Standard library only.
 """
@@ -149,7 +155,10 @@ def run(out, project, label, command):
         command = ["cmd", "/c", *command]
     shown = " ".join(str(part) for part in command)
     try:
+        # PWD too: a program that reads it would otherwise take the folder the
+        # script was started from as its project, and load that folder's files.
         done = subprocess.run([str(part) for part in command], cwd=project,
+                              env=dict(os.environ, PWD=str(project)),
                               stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
                               stderr=subprocess.STDOUT, timeout=LIMIT)
         text, end = done.stdout, f"[exit code: {done.returncode}]"
@@ -189,8 +198,71 @@ def write_report(out, project, stamp):
     return report
 
 
+MANUAL_PROJECT = Path.home() / "cg-spike-project"
+MANUAL_SHEET = Path.home() / "cg-spike-answers.txt"
+MANUAL_MARKERS = {"AGENTS.md": "AGENTS", "CLAUDE.md": "CLAUDE",
+                  ".github/copilot-instructions.md": "COPILOT"}
+MANUAL_P1 = P1.replace("CG-SPIKE-POINTER-CLAUDE?",
+                       "CG-SPIKE-POINTER-CLAUDE, CG-SPIKE-POINTER-COPILOT?")
+
+
+def manual_start(layout):
+    """Install the test skills, make the test project and the answer sheet."""
+    layout = install_skills(layout)
+    for name, marker in MANUAL_MARKERS.items():
+        target = MANUAL_PROJECT / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(f"Marker for the host test: CG-SPIKE-POINTER-{marker}\n",
+                          encoding="utf-8")
+    steps = [("1", "Paste this prompt", MANUAL_P1), ("2", "Type this", P2),
+             ("3", "Paste this prompt", P3), ("4", "Paste this prompt", P4)]
+    sheet = [
+        "Host test inside the editor. Skill layout: " + layout,
+        "",
+        "For each host below: open the folder cg-spike-project (in your home folder)",
+        "in the editor, then do the four steps, EACH IN A NEW CHAT. Copy the whole",
+        "reply under its heading in this file. Then answer the three short questions.",
+        "If a host cannot do a step, write what happened; that is a result.",
+        "",
+    ]
+    for host in ("COPILOT (agent mode)", "KILO"):
+        sheet += ["#" * 70, f"HOST: {host}", "Version and model used: ", ""]
+        for number, verb, prompt in steps:
+            sheet += [f"--- Step {number}. {verb}:", prompt, "",
+                      f"Reply to step {number}:", "", ""]
+        sheet += ["--- Three questions, from what you saw:",
+                  "a. Type / in the chat box. Is cg-spike-hello offered? Once or twice? ",
+                  "b. Is cg-spike-auto also offered after / ? ",
+                  "c. How many approval prompts did step 2 show you? ", ""]
+    MANUAL_SHEET.write_text("\n".join(sheet), encoding="utf-8")
+    print("Ready.\n  Test project:", MANUAL_PROJECT, "\n  Answer sheet:", MANUAL_SHEET)
+    print("Open the answer sheet and follow it. Restart the editor first if the "
+          "skills do not appear.\nWhen you are done, run this script with --manual-done.")
+
+
+def manual_done(report):
+    """Keep the answer sheet with the results, then remove everything."""
+    stamp = time.strftime("%Y%m%d-%H%M%S")
+    out = HERE / "results" / stamp
+    if MANUAL_SHEET.exists():
+        out.mkdir(parents=True)
+        shutil.copy(MANUAL_SHEET, out / "manual-answers.txt")
+        print("Answers saved in:\n ", out)
+        if report:
+            print("Report without local paths, for git:\n ",
+                  write_report(out, MANUAL_PROJECT, stamp + "-manual"))
+    else:
+        print("No answer sheet found at", MANUAL_SHEET)
+    remove_skills()
+    shutil.rmtree(MANUAL_PROJECT, ignore_errors=True)
+    remove(MANUAL_SHEET)
+    print("Test skills, test project and answer sheet removed.")
+
+
 def main():
     parser = argparse.ArgumentParser(description="Host matrix, command-line part.")
+    parser.add_argument("--manual", action="store_true")
+    parser.add_argument("--manual-done", action="store_true")
     parser.add_argument("--only", default=os.environ.get("ONLY", ""))
     parser.add_argument("--kilo-model", default=os.environ.get("KILO_MODEL", ""))
     parser.add_argument("--layout", default=os.environ.get("LAYOUT", "link"),
@@ -198,6 +270,10 @@ def main():
     parser.add_argument("--project-parent", default=None)
     parser.add_argument("--report", action="store_true")
     args = parser.parse_args()
+    if args.manual:
+        return manual_start(args.layout)
+    if args.manual_done:
+        return manual_done(args.report)
     wanted = [h for h in args.only.split(",") if h] or list(HOSTS)
     unknown = sorted(set(wanted) - set(HOSTS))
     if unknown:
