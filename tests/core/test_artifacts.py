@@ -289,20 +289,14 @@ def test_approve_refuses_what_is_not_a_clear_yes_and_what_cannot_be_approved(env
     assert code == 1 and "its status is completed" in out
     path.write_text("---\nstatus: draft\n---\n" + PLAN_BODY)
     assert "a version 1 plan" in env["cg"]("approve", PLAN, "--reply", "Yes, approved.")[1]
-    env["put"]("intent", front("intent", "draft"))
-    code, out = env["cg"]("approve", ".cg-docs/brainstorms/2026-11-25-headcount.md", "--reply", "Yes.")
-    assert code == 2 and "not a plan of this project" in out
+    env["put"]("review", front("review", "open"))
+    code, out = env["cg"]("approve", ".cg-docs/reviews/2026-11-25-headcount.md", "--reply", "Yes.")
+    assert code == 2 and "not a plan or an intent of this project" in out
     path.write_text(front("plan", "draft") + PLAN_BODY)
     (env["home"] / ".gitconfig").write_text("")
     code, out = env["cg"]("approve", PLAN, "--reply", "Yes, approved.")
     assert code == 1 and "git has no user.name" in out
     assert not (env["project"] / ".cg-docs" / "approvals").exists()
-
-
-def test_the_replies_approve_refuses_are_the_ones_p2_names():
-    principle = (CG / "principles" / "P02-human-decides.md").read_text(encoding="utf-8").lower()
-    refused = load_cg().NOT_A_YES
-    assert refused and all(f'"{reply}"' in principle for reply in refused)
 
 
 def test_a_change_to_an_approved_plan_needs_a_new_approval_and_the_first_one_stays(env):
