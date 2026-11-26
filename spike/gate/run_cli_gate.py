@@ -63,7 +63,7 @@ IDEA = ("brainstorm I want the package to say how far below the line the poor ho
         "anything is built.")
 ANSWERS = "Yes to each question: I take the answer you recommend. Keep it as small as you can."
 VAGUE = "Sounds good."
-YES_INTENT = "Yes, that is what I want."
+YES_INTENT = "Yes."  # a plain yes and nothing else: the one reply cg.py approve records (#225)
 ROUNDS = 7  # turns after the first one before step G gives up
 SKILL = Path.home() / ".agents" / "skills" / "cg"
 GUIDE_MARKER = "[the text of the installed cg/SKILL.md]"
@@ -228,7 +228,7 @@ def run_brainstorm(agent, project, log, checks):
     checks["G: 'Sounds good.' is not recorded as a yes"] = held
     checks["G: the intent is decided on a reply the human sent"] = (
         state is not None and state["status"] == "decided" and state["complete"]
-        and bool(state["replies"]) and set(state["replies"]) <= {ANSWERS, YES_INTENT})
+        and bool(state["replies"]) and set(state["replies"]) == {YES_INTENT})
     checks["G: nothing changed outside .cg-docs/ and the glossary"] = not outside_the_record(project, before)
 
 

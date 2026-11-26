@@ -65,7 +65,7 @@ ARTIFACTS = {
     "intent": {"folder": "brainstorms",
                "statuses": {"draft": "waiting", "decided": "closed", "dropped": "closed"},
                "sections": ["## Goal", "## Out of scope", "## A wrong result", "## Facts", "## Decisions",
-                            "## Assumptions"]},
+                            "## Assumptions", "## Approaches considered"]},
     "plan": {"folder": "plans",
              "statuses": {"draft": "waiting", "approved": "open", "in-progress": "open",
                           "completed": "closed", "superseded": "closed", "dropped": "closed"},
@@ -96,10 +96,14 @@ APPROVED = {"plan": (("draft", "approved", "in-progress"), "approved", ("approve
 # Version 1 statuses that are open; `draft` waits on the human. Any other is closed.
 V1_STATES = {"draft": "waiting", **dict.fromkeys(
     ("active", "in-progress", "planned", "open", "approved", "blocked", "handoff"), "open")}
-# approve records a reply only when it holds a plain yes (PLAIN_YES), no negation before it and no
-# condition (the maintainer's decision of 2026-11-26, #225). A reply that holds none is refused, and
-# when it opens with one of the replies below the refusal says what to ask next (P2). grilling.md
-# names each of them and each plain yes: a test holds the two together.
+# approve records a reply only when it is a plain yes and nothing else (the maintainer's decisions
+# of 2026-11-26, #225): at least one of YES, and beside it only words of FILLER. Lists of what makes a
+# reply not a yes kept missing cases, so the rule names what a yes is. grilling.md names each of YES,
+# and each reply below, which only choose what the refusal says to ask next: a test holds them together.
+YES = ("yes", "ok", "okay", "approved", "confirmed", "agreed", "i approve", "i confirm", "i agree", "go ahead",
+       "sí", "si", "de acuerdo", "adelante")
+FILLER = ("please", "thanks", "thank you", "gracias", "por favor", "it", "this", "that", "the", "intent", "plan",
+          "as written", "as it is", "as it reads", "as shown", "proceed", "do it", "read it")
 NOT_A_YES = {"sounds good": "vague", "looks good": "vague", "sure, go on": "vague", "sure, let's go": "vague",
              "i guess": "vague", "if you say so": "vague",
              "whatever you think": "handed-back", "up to you": "handed-back", "your call": "handed-back",
@@ -113,31 +117,11 @@ KINDS = {
     "no": "says no, or not yet; nothing is recorded, and nothing goes ahead on it",
     "no-yes": "holds no plain yes, so it is not recorded; ask whether it is a yes or what should change, "
               "and record the reply that settles it",
-    "condition": "holds a condition or a correction, so it is not a yes to what was shown; change that, "
-                 "show the part that changed, and record the yes to it",
-    "question": "is a question, not an answer; answer it, ask again, and record the reply that settles it",
+    "more": "says more than a plain yes, so it is not recorded; when it asks, corrects or adds something, "
+            "deal with that and show what changed, then ask for a plain yes and record that reply",
 }
-PLAIN_YES = r"\b(yes|ok|okay|i approve|approved|i confirm|confirmed|i agree|agreed|go ahead|de acuerdo)\b"
-# "sí" is a yes. Without its accent, "si" is also "if", so it counts only alone or before a comma or a stop.
-SI = r"(?<!\w)sí(?!\w)|^\W*si(?=\W*$|\s*[,.;:!])"
-# One of these before the yes turns it round: "that is not ok", "I can't say yes yet", "nunca dije que sí".
-NEGATION = (r"\b(no|not|nope|nah|never|dont|doesnt|didnt|cannot|cant|wont|wouldnt|isnt|arent|wasnt|werent|"
-            r"havent|hasnt|hadnt|shouldnt|couldnt|mustnt|neednt|aint|neither|nor|nothing|none|nobody|hardly|"
-            r"nunca|jamás|jamas|tampoco|nada|nadie|ni|ninguno|ninguna)\b")
-# A reply that opens with one of these words is a no, or a not yet, and is never recorded as a yes (#224).
+# A reply that opens with one of these words is a no, or a not yet (#224).
 SAYS_NO = r"(no|nope|not|don['’]?t|do not|stop|wait|hold on|cancel|never)\b"
-# One of these anywhere is a not yet, before or after the yes: "OK, wait" (review of #225).
-NOT_YET = (r"\b(wait|stop|hold on|hang on|cancel|let me think|think about it|not yet|espera|déjame pensar|"
-           r"dejame pensar|todavía no|todavia no|aún no|aun no)\b")
-# A yes that goes on with one of these is a yes to something else than what was shown (#225). "si" is
-# left only where it means "if": an opening "si" that is a yes has been read as one before this runs.
-HAS_CONDITION = (r"\b(but|except|unless|however|although|though|also|plus|instead|if|assuming|provided|"
-                 r"on condition|so long as|as long as|subject to|too|as well|pero|aunque|excepto|salvo|sino|"
-                 r"siempre que|siempre y cuando|a menos que|con tal|sin embargo|también|además|si)\b")
-# A change asked for after the yes, with no word that marks it: "Yes, drop D2", "Yes, and add the gap".
-CORRECTION = (r"(?:^|[.,;:!—–]\s*|\b(?:and|then|y|e|luego)\s+)(?:please\s+|por favor\s+)?"
-              r"(?:add|change|drop|remove|delete|rename|replace|switch|swap|use|move|keep only|"
-              r"añade|agrega|cambia|quita|elimina|borra|usa|pon)\b")
 # What stands in a table cell that nobody has filled in yet. The human's own words go in quotes.
 NOT_FILLED = (r"(still |not yet |remains )?(open|pending|t\.?b\.?[dac]\.?|todo|fixme|xxx+|placeholder|unknown|"
               r"undecided|unanswered|unclear|unsure|unconfirmed|waiting|awaiting|later(?=\W*$)|n\.?/?a\.?|to be \w+|"
@@ -943,28 +927,27 @@ def is_approved(project: Path, artifact: dict) -> bool:
 def the_yes(project: Path, reply: str):
     """What keeps a reply from being recorded as the human's yes (P2), and who gave it, from git.
 
-    A reply is recorded only when it holds a plain yes, with no negation before
-    it, no not yet anywhere, no question and no condition or correction.
-    Everything else is refused, with what to ask next."""
+    A reply is recorded only when it is a plain yes and nothing else: it holds
+    one of YES, and every other word in it is of FILLER. Everything else is
+    refused, with what to ask next."""
     refused, said = [], reply.strip()
 
     def plain(text):  # lower case, without punctuation, so "Sure go on!" is "sure, go on"; "sí" keeps its accent
         return " ".join(re.sub(r"[^\w ]+", " ", re.sub(r"['’]", "", text.lower())).split())
-    read = re.sub(SI, " yes ", said.lower())
-    words = plain(read)
+
+    def any_of(phrases):
+        return r"\b(?:" + "|".join(re.escape(plain(p)) for p in sorted(phrases, key=len, reverse=True)) + r")\b"
+    words = plain(said)
     opens = next((kind for phrase, kind in NOT_A_YES.items() if f"{words} ".startswith(plain(phrase) + " ")), None)
-    yes = re.search(PLAIN_YES, words)
+    yes = re.search(any_of(YES), words)
     if not said:
         refused.append("give the human's reply, word for word, with --reply")
-    elif (re.match(SAYS_NO, said.lower()) or (yes and re.search(NOT_YET, words))
-          or (yes and re.search(NEGATION, words[:yes.start()]))):
+    elif re.match(SAYS_NO, said.lower()):
         refused.append(f'"{said}" {KINDS["no"]}')
     elif not yes:
         refused.append(f'"{said}" {KINDS[opens or "no-yes"]}')
-    elif re.search(r"[?¿]", said):
-        refused.append(f'"{said}" {KINDS["question"]}')
-    elif re.search(HAS_CONDITION, words) or re.search(CORRECTION, read.strip()):
-        refused.append(f'"{said}" {KINDS["condition"]}')
+    elif re.sub(any_of(YES + FILLER), " ", words).strip() or re.search(r"[?¿]", said):  # "Ok?" asks
+        refused.append(f'"{said}" {KINDS["more"]}')
 
     def git_config(key):
         done = subprocess.run(["git", "-C", str(project), "config", "--get", key],

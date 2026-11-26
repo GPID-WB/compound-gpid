@@ -11,7 +11,7 @@ Read `grilling.md` in full before your first question. It is beside the guide's 
 
 ## 1. Start or resume
 
-- If status lists an intent (a file under `.cg-docs/brainstorms/`) with status `draft` under `waiting-on-human`, read it. When it is about what the human asks now, continue from its open decisions, and do not ask again what it already answers. When it is about something else, leave it as it is and say that it is still open.
+- If status lists an intent (a file under `.cg-docs/brainstorms/`) with status `draft` under `waiting-on-human`, read each one. When one is about what the human asks now, continue from its open decisions, and do not ask again what it already answers. When it is about something else, leave it as it is and say that it is still open.
 - If the human gave nothing to think through, ask what they want to work out, and end your turn.
 - Otherwise create the intent, and write into it as you go:
 
@@ -33,7 +33,7 @@ Say in one sentence what you think the human wants, and what you are still missi
 
 Do this once the goal is clear, and before the human settles on the first approach that came to mind.
 
-**Widen.** Name the approaches that could meet the goal: three to five that differ in kind, each in a line or two, each tied to something you found in the project. These questions find them:
+**Widen.** Name the approaches that could meet the goal: up to five that differ in kind, fewer when fewer are viable, each in a line or two, each tied to something you found in the project. These questions find them:
 
 - What is the simplest version that still answers the question? What would doing nothing cost?
 - Does a package, a function or an output the project already has do this?
@@ -47,6 +47,8 @@ Do this once the goal is clear, and before the human settles on the first approa
 
 Put the choice of approach to the human as a decision, with the one you recommend and its trade-off. End your turn.
 
+**When a decision waits on an experiment or on someone else,** the brainstorm stops here for now. Leave the intent a `draft` with that decision open, skip steps 5 and 6, and reply as step 7 says. The human comes back to it with `/cg brainstorm` when the answer is in.
+
 ## 5. Restate
 
 When no decision is open, fill the rest of the intent: Goal, Out of scope, A wrong result, Assumptions and Approaches considered. Then have code check it:
@@ -57,7 +59,7 @@ A line that starts with `FAIL` or `warn` names what is still open or unfilled. S
 
 ## 6. Confirm
 
-This is a hard stop. Show the human the intent as the file reads: the restatement, each decision with their answer, and the assumptions in the block `grilling.md` gives. Ask whether this is what they want, say that their yes is recorded under their name, and end your turn.
+This is a hard stop. Show the human the intent as the file reads: the restatement, each decision with their answer, and the assumptions in the block `grilling.md` gives. Ask whether this is what they want. Say that a plain yes confirms it and is recorded under their name, and that you will take anything else as a change or a question. Then end your turn.
 
 When they answer, record the reply before anything else. Show the line, then run it:
 

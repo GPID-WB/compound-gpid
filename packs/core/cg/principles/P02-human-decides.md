@@ -62,6 +62,6 @@ Flag when:
 
 - An approval exists for the current plan hash.
 - An intent is `decided` only with an approval on record for its text. `cg.py approve` refuses it while a section has nothing written under it, a fact has no source, or a decision has no recommended answer or no answer from the human. A cell that only stands for "not yet", such as `open`, "pending" or "TBD", is no answer.
-- `cg.py approve` records a reply only when it holds a plain yes, with no negation before it and no condition. It refuses every other reply, and says what to ask next (`grilling.md`).
+- `cg.py approve` records a reply only when it is a plain yes and nothing else. It refuses every other reply, and says what to ask next (`grilling.md`).
 - Every decision record has a `decided-by` field naming a person.
 - The brief contains all five sections.
