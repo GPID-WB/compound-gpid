@@ -13,7 +13,7 @@ It did not hold. Tasks 2.1 to 2.3 moved into code what an agent must not get wro
 - what an intent and a plan may leave open, after a plan that still marked a value as pending was called complete at a gate rerun;
 - the data rules, after the answers about data were never recorded at the first gate.
 
-After the review of task 2.3, `cg.py` stood at 1,705 lines, with `evidence`, `guard`, `verifiers`, `conformance`, `repro`, `decide`, `index` and `search` still to come. That review listed what the earlier tasks could give back without losing a check: about 50 lines. Task 2.4 then added `evidence` and `guard`, and what holds them, in 335 lines.
+After the review of task 2.3, `cg.py` stood at 1,705 lines, with `evidence`, `guard`, `verifiers`, `conformance`, `repro`, `decide`, `index` and `search` still to come. That review listed what the earlier tasks could give back without losing a check: about 50 lines. Task 2.4 then added `evidence` and `guard`, and what holds them, in 337 lines.
 
 ## Decision
 
