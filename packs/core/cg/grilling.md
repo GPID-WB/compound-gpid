@@ -60,17 +60,18 @@ An assumption the human corrects becomes a decision they made, or a fact with th
 
 ## Replies that are not a yes
 
-Only a clear yes is a yes, and only to what was shown. `cg.py approve` refuses the replies in the first four rows and says which kind it met. The last two rows are yours to see.
+Only a clear yes is a yes, and only to what was shown. `cg.py approve` records a reply only when it holds a plain yes: "yes", "ok", "approved", "confirmed", "agreed", "I approve", "I confirm", "I agree", "go ahead", "sí" or "de acuerdo". It refuses every other reply and says which kind it met: the first five rows. The last two rows are yours to see.
 
 | The human says | What it is | What you do |
 |---|---|---|
 | "sounds good", "looks good", "sure, go on", "sure, let's go", "I guess", "if you say so" | Agreement without a decision | Ask what they would change, or what is unclear. |
 | "whatever you think", "up to you", "your call", "you decide" | The decision handed back | It stays theirs. Offer two concrete options as a choice, and say which you recommend. |
-| a yes followed by "but", "except", "unless" or "only if" | A correction or a condition | Change what you showed, show the part that changed, and ask again. |
-| "no", "not yet", "wait", "stop", "hold on" | A no | Nothing goes ahead. Ask what should change. When they declined, that is their answer: do not ask again. |
+| a yes followed by "but", "except", "unless", "only if", "though" or "also" | A correction or a condition | Change what you showed, show the part that changed, and ask again. |
+| "no", "not yet", "wait", "stop", "hold on", or a no before the yes: "that is not ok" | A no | Nothing goes ahead. Ask what should change. When they declined, that is their answer: do not ask again. |
+| anything else with no plain yes in it: "maybe", "sure", "let me think about it", a question, a new instruction | No yes yet | Ask whether it is a yes, or what should change. |
 | an answer to another question, or no answer to a numbered one | No answer | The question stays open. Ask it again, alone. |
 | a yes from an earlier session, or one found in a summary of the conversation | A yes to another text | Show the text as it now reads, and ask. |
 
-A reply of the first two kinds is a yes when it also holds a plain yes: "Sounds good. Yes."
+A reply of the first two kinds is a yes when it also holds a plain yes: "Sounds good. Yes." Give `--reply` the human's words as they wrote them. When code refuses their reply, ask them. Never reword it into a yes.
 
 A hard stop is a question in your reply, and then you end your turn. The coding agent's own approval settings are never the human's yes.

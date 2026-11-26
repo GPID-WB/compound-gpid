@@ -96,9 +96,10 @@ APPROVED = {"plan": (("draft", "approved", "in-progress"), "approved", ("approve
 # Version 1 statuses that are open; `draft` waits on the human. Any other is closed.
 V1_STATES = {"draft": "waiting", **dict.fromkeys(
     ("active", "in-progress", "planned", "open", "approved", "blocked", "handoff"), "open")}
-# The replies that are not a yes (P2, #225), each with its kind. approve refuses a reply that opens
-# with one of them and holds no plain yes. grilling.md names each one: a test holds the two together.
-# Whether any other reply is a clear yes is by judgement.
+# approve records a reply only when it holds a plain yes (PLAIN_YES), no negation before it and no
+# condition (the maintainer's decision of 2026-11-26, #225). A reply that holds none is refused, and
+# when it opens with one of the replies below the refusal says what to ask next (P2). grilling.md
+# names each of them and each plain yes: a test holds the two together.
 NOT_A_YES = {"sounds good": "vague", "looks good": "vague", "sure, go on": "vague", "sure, let's go": "vague",
              "i guess": "vague", "if you say so": "vague",
              "whatever you think": "handed-back", "up to you": "handed-back", "your call": "handed-back",
@@ -110,14 +111,24 @@ KINDS = {
     "handed-back": "hands the decision back, and it stays the human's (P2); offer two concrete options as "
                    "a choice, say which you recommend, and record the reply that settles it",
     "no": "says no, or not yet; nothing is recorded, and nothing goes ahead on it",
+    "no-yes": "holds no plain yes, so it is not recorded; ask whether it is a yes or what should change, "
+              "and record the reply that settles it",
     "condition": "holds a condition or a correction, so it is not a yes to what was shown; change that, "
                  "show the part that changed, and record the yes to it",
 }
-PLAIN_YES = r"\b(yes|i approve|approved|i confirm|confirmed|i agree|agreed)\b"
+PLAIN_YES = r"\b(yes|ok|okay|i approve|approved|i confirm|confirmed|i agree|agreed|go ahead|de acuerdo)\b"
+# "sí" is a yes. Without its accent, "si" is also "if", so it counts only alone or before a comma or a stop.
+SI = r"(?<!\w)sí(?!\w)|^\W*si(?=\W*$|\s*[,.;:!])"
+# One of these before the yes turns it round: "that is not ok", "I can't say yes yet".
+NEGATION = r"\b(no|not|nope|nah|never|dont|doesnt|didnt|cannot|cant|wont|wouldnt|isnt|arent|neither|nor)\b"
 # A reply that opens with one of these words is a no, or a not yet, and is never recorded as a yes (#224).
 SAYS_NO = r"(no|nope|not|don['’]?t|do not|stop|wait|hold on|cancel|never)\b"
 # A yes that goes on with one of these is a yes to something else than what was shown (#225).
-HAS_CONDITION = r"\b(but|except|unless|however|although|only if|as long as|provided that)\b"
+HAS_CONDITION = (r"\b(but|except|unless|however|although|though|also|plus|instead|only if|as long as|"
+                 r"provided that|pero)\b")
+# What stands in a table cell that nobody has filled in yet. The human's own words go in quotes.
+NOT_FILLED = (r"(still |not yet |remains )?(open|pending|tbd|tba|todo|unknown|undecided|unanswered|waiting|"
+              r"awaiting|n/?a|to be \w+|not (yet )?(decided|answered|known)|not yet)\b")
 # What the agent declares about a piece of work, each with what a yes means. tier adds what code
 # can work out: whether this coding agent may read each data file, and the number of files.
 FACTS = {
@@ -680,21 +691,51 @@ def contract_problems(body: str):
     return problems
 
 
+def blank(cell: str) -> bool:
+    """True when a table cell holds nothing: no word, or one that only stands for 'not yet', such
+    as `open`, pending, TBD or ?. Marks of emphasis are left out; a text in quotes is content."""
+    text = re.sub(r"[`*_()\[\]]", "", cell).strip().lower()
+    return not re.search(r"\w", text) or bool(re.match(NOT_FILLED, text))
+
+
+def empty_sections(body: str, wanted):
+    """The wanted headings with nothing written under them: no line of text, and no table row
+    below a table's two header lines. What is under a deeper heading counts for the one above."""
+    lines, found, fenced = body.splitlines(), [], False
+    rule = re.compile(r"\|?[\s:|-]*-[\s:|-]*\|?")
+    level, name, holds = 0, None, False
+    for number, line in enumerate(lines + ["# end"]):
+        if line.lstrip().startswith(("```", "~~~")):
+            fenced = not fenced
+            continue
+        mark = None if fenced else re.match(r"(#{1,6}) ", line)
+        if mark and name and len(mark.group(1)) <= level:
+            found += [] if holds else [name]
+            name = None
+        if mark and not name and " ".join(line.split()) in wanted:
+            level, name, holds = len(mark.group(1)), " ".join(line.split()), False
+        elif name and not mark and line.strip() and not rule.fullmatch(line.strip()):
+            after = lines[number + 1].strip() if number + 1 < len(lines) else ""
+            holds = holds or not (line.lstrip().startswith("|") and rule.fullmatch(after))
+    return found
+
+
 def intent_problems(body: str):
     """What grilling must leave settled that code can check (P2): each fact names its source, and
     each decision was put to the human with a recommended answer and has their answer."""
     facts = [(row + [""] * 2)[:2] for row in table_rows(body, "## Facts") if row]
     decisions = [(row + [""] * 4)[:4] for row in table_rows(body, "## Decisions") if row]
     problems = [] if facts and decisions else ["the Facts table and the Decisions table each need a row"]
-    problems += [f"the fact '{fact}' names no source" for fact, source in facts if not source.strip("` ")]
+    problems += [f"the fact '{fact}' names no source" for fact, source in facts if blank(source)]
     ids = [did for did, *_ in decisions]
     for did, _, recommended, answer in decisions:
         if not re.fullmatch(r"D\d+", did):
             problems.append(f"'{did}' is not an ID such as D1")
-        if not recommended:
+        if blank(recommended):
             problems.append(f"decision {did} has no recommended answer")
-        if not answer or re.match(r"open\b", answer.lower()):
-            problems.append(f"decision {did} has no answer from the human yet")
+        if blank(answer):
+            problems.append(f"decision {did} has no answer from the human yet"
+                            + (f"; when '{answer}' is what they said, put it in quotes" if answer else ""))
     return problems + [f"the ID {i} appears twice" for i in sorted({i for i in ids if ids.count(i) > 1})]
 
 
@@ -752,11 +793,13 @@ def artifact_problems(project: Path, a: dict, approving: bool = False):
                       f"reads; show the human the {a['type']}, and record their reply with approve")
     if a["type"] == "decision" and a["status"] == "accepted" and not fields.get("decided-by"):
         errors.append("an accepted decision names the person who decided, in 'decided-by'")
+    # What is unfinished is a warning while the artifact is being written, and an error after.
+    being_written = (a["status"] == next(iter(spec["statuses"])) or a["status"] in SETTLED) and not approving
+    unfinished = [f"nothing is written under '{heading}'" for heading in empty_sections(a["body"], spec["sections"])]
     left = unfilled(a["type"], a["body"])
     if left:
-        being_written = a["status"] == next(iter(spec["statuses"])) or a["status"] in SETTLED
-        (warnings if being_written and not approving else errors).append(
-            f"the template's text is still in it, first: {left[0]}")
+        unfinished.append(f"the template's text is still in it, first: {left[0]}")
+    (warnings if being_written else errors).extend(unfinished)
     return errors, warnings
 
 
@@ -846,19 +889,23 @@ def is_approved(project: Path, artifact: dict) -> bool:
 
 
 def the_yes(project: Path, reply: str):
-    """What keeps a reply from being recorded as the human's yes (P2), and who gave it, from git."""
+    """What keeps a reply from being recorded as the human's yes (P2), and who gave it, from git.
+
+    A reply is recorded only when it holds a plain yes, with no negation before
+    it and no condition. Everything else is refused, with what to ask next."""
     refused, said = [], reply.strip()
 
     def plain(text):  # lower case, without punctuation, so "Sure go on!" is "sure, go on"
         return " ".join(re.sub(r"[^a-z0-9 ]+", " ", re.sub(r"['’]", "", text.lower())).split())
-    words = plain(said)
+    words = plain(re.sub(SI, " yes ", said.lower()))
     opens = next((kind for phrase, kind in NOT_A_YES.items() if f"{words} ".startswith(plain(phrase) + " ")), None)
+    yes = re.search(PLAIN_YES, words)
     if not said:
         refused.append("give the human's reply, word for word, with --reply")
-    elif re.match(SAYS_NO, said.lower()):
+    elif re.match(SAYS_NO, said.lower()) or (yes and re.search(NEGATION, words[:yes.start()])):
         refused.append(f'"{said}" {KINDS["no"]}')
-    elif opens and not re.search(PLAIN_YES, words):
-        refused.append(f'"{said}" {KINDS[opens]}')
+    elif not yes:
+        refused.append(f'"{said}" {KINDS[opens or "no-yes"]}')
     elif re.search(HAS_CONDITION, words):
         refused.append(f'"{said}" {KINDS["condition"]}')
 
