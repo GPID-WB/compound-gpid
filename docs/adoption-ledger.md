@@ -17,8 +17,8 @@ Pinned at 0.6.18, `e997ac5`. MIT licence.
 | `using-agent-skills` (router, six behaviors, failure modes) | Adapt | `cg/SKILL.md`, `worker.md`, P2, P6, P7 | state comes from a script; the guide does not fire by itself | cited |
 | `interview-me` | Adapt | `grilling.md`, `brainstorm` | a first reading stated with what is still missing, in place of a confidence number nobody can check (P7); restate with out-of-scope; the stop when the next three answers can be predicted; the list of replies that are not a yes, held in `cg.py` | done |
 | `idea-refine` | Adapt | `brainstorm` | the widen-then-narrow step replaces `/cg-ideate`; its questions are for analytical work (the simplest version, what the project already has, the rawest input, an independent source) | done |
-| `spec-driven-development` | Adapt | `plan`, P1 | assumptions block; Always / Ask first / Never boundaries; deferred scope; amendments instead of rewrites; a hard stop | cited |
-| `planning-and-task-breakdown` | Adapt | `plan` | vertical slices, checkpoints, never overwrite an unfinished plan | open |
+| `spec-driven-development` | Adapt | `plan`, P1, `grilling.md` | the assumptions block is in `grilling.md`; the plan's contract keeps the Always / Ask first / Never lists and puts what is deferred under Out of scope; a change to an approved plan is an amendment in the same file, with a dated line, and the record of the earlier approval keeps the earlier text, in place of a delta file; the hard stop is held by code, which records only a plain yes; success criteria become checks with a command and an outcome that means failure; the capability map and the parts on code style and project structure are not taken | done |
+| `planning-and-task-breakdown` | Adapt | `plan` | a slice goes from an input to an output someone can read, for one unit, in place of one feature through every layer; the first slice is the worked example; baselines and pins come first, and the slice most likely to fail early; each slice ends in a check, which takes the place of checkpoints; five files at most; slices are a table in the plan and not a task list of their own; `cg.py new plan` makes no plan beside an unfinished one unless the human said it is other work | done |
 | `incremental-implementation` | Adapt | `work` | one slice, evidence, commit | open |
 | `constraint-driven-development` | Adapt | charter constraints as a floor, `cg.py guard` | diff may not delete or skip tests or add suppressions | open |
 | `context-engineering` | Adapt | `status`, pointer block | restartable boundaries; never infer approval from chat | cited |
@@ -46,8 +46,8 @@ Pinned at 1.3.2, `d653911`. MIT licence.
 |---|---|---|---|---|
 | `grilling`, `grill-me`, `grill-with-docs` | Adapt | `grilling.md`, P2 | used by brainstorm now, by plan and triage later; rounds of three decisions at most; each answer is written into the intent in the turn it comes | done |
 | `domain-modeling` (glossary, ADR format) | Adapt | the two glossaries (P11), decision records (P8) | project terms such as welfare aggregate, PPP vintage | cited |
-| `to-spec` | Adapt | `plan` | synthesize, do not re-interview; agree the checks | open |
-| `to-tickets` | Adapt | `plan` slices, issues pack | tracer bullets, blocking edges, tracker as verbs | open |
+| `to-spec` | Adapt | `plan` | the plan is written from the decided intent, with no second interview; the human agrees the checks at the hard stop, each shown with what it catches and what no check would catch; no user stories; file paths are kept, per slice, because the work is held to them | done |
+| `to-tickets` | Adapt | `plan` slices, issues pack | the first slice is the thinnest whole path; slices are ordered rows, each resting only on the rows above it; one mechanical change across many files is cut as add, move in batches, remove; publishing to a tracker waits for the issues pack | done for `plan`; open for the issues pack |
 | `implement`, `implement-spec` | Adapt | `work` | fresh context per slice for deep work | open |
 | `wayfinder` | Adapt | deep size, roadmap pack | decision map for multi-session work | open |
 | `tdd` | Adapt | `work`, P4 | no check at a point the human has not confirmed | cited |
@@ -77,7 +77,7 @@ Pinned at 0.15.48, `ca782ed`. MIT licence.
 | `poteto-mode` (router, principles index, reply rules) | Adapt | `cg/SKILL.md`, principles index | approval gates added; no model-specific setup | done |
 | the 24 `principle-*` skills | Adapt | P3, P4, P6, P9 and others | merged into twelve principles; each has a verifier | cited |
 | `worker.md` | Adapt | `worker.md` | first line of every kickoff to another agent | open |
-| playbooks: bug fix, feature, refactoring, investigation, prototype, multi-phase plan, opening a PR, session pickup, pause safely | Adapt | `bugfix`, `work`, `understand`, `brainstorm`, `plan`, `ship`, `status` | ownership statement and `Reply:` contract kept | cited |
+| playbooks: bug fix, feature, refactoring, investigation, prototype, multi-phase plan, opening a PR, session pickup, pause safely | Adapt | `bugfix`, `work`, `understand`, `brainstorm`, `plan`, `ship`, `status` | ownership statement and `Reply:` contract kept; from `multi-phase-plan`, the plan is the output and no slice starts in the same turn | cited |
 | `figure-it-out` | Adapt | `custom` playbook | falsifiable done condition; verdicts verified, not verified, inconclusive | cited |
 | `show-me-your-work` | Adapt | `cg.py decide`, `cg.py evidence` | append-only trail written by script, audited at the end | open |
 | `ketchup`, `recall`, `in-your-own-words`, `bro` | Adapt | `status`, restate step | list of decisions waiting on the human; `in-your-own-words` is the restate step of `grilling.md` | cited |
@@ -87,7 +87,7 @@ Pinned at 0.15.48, `ca782ed`. MIT licence.
 | `benchmark-checklist`, Explain the Number | Adapt | analysis track, Verification verifier | applied to any reported statistic | cited |
 | `create-verification-skill`, `maintain-verification-skill` | Adapt | the verification profile written by `setup` (P4) | how to run and check this project; source of check IDs | cited |
 | `reflect`, `correct` | Adapt | `compound`, Lesson verifier | rule-to-check table; prove the check fails on the past mistake | cited |
-| `architect`, Foundational Thinking | Adapt | `plan` for build work | name the data shape and keys first | open |
+| `architect`, Foundational Thinking | Adapt | `plan` | the shape of the data is named before any step: the unit of observation, the key and the columns, and for an estimate the weights and the population; what every later slice needs goes first; sketching two shapes is left to the brainstorm's widening | done |
 | `sharpen`, `reframe` | Adapt | `brainstorm` | the field's term with a source that was opened, when the human describes it in everyday words; the widening questions; an experiment in place of an opinion | done |
 | `unslop`, `technical-writing` | Pattern | writing pack | numbered rules other skills cite | open |
 | `comment-sicko` | Pattern | principle verifiers | one verifier per principle | open |
