@@ -215,6 +215,14 @@ def plan_reply(state, corrected):
     return ANSWERS
 
 
+def said_only(replies, sent):
+    """True when every recorded reply holds the words the script sent, and there is one at least.
+    Case and marks are left out: an agent that records "Yes" for "Yes." kept the human's word."""
+    def words(text):
+        return re.findall(r"\w+", (text or "").lower())
+    return bool(replies) and all(words(reply) == words(sent) for reply in replies)
+
+
 def brainstorm_reply(state, pressed):
     """What the script says next in step G, from the state of the intent alone. None ends the step."""
     if state and state["status"] == "decided":
@@ -261,7 +269,7 @@ def run_brainstorm(agent, project, log, checks):
     checks["G: 'Sounds good.' is not recorded as a yes"] = held
     checks["G: the intent is decided on a reply the human sent"] = (
         state is not None and state["status"] == "decided" and state["complete"]
-        and bool(state["replies"]) and set(state["replies"]) == {YES_INTENT})
+        and said_only(state["replies"], YES_INTENT))
     checks["G: nothing changed outside .cg-docs/ and the glossary"] = not outside_the_record(project, before)
 
 
@@ -291,7 +299,7 @@ def run_plan(agent, project, log, checks):
     checks["H: the plan holds the line the human asked for"] = fresh and state is not None and ASKED in state["text"]
     checks["H: the plan is approved on a plain yes the human sent"] = (
         state is not None and state["status"] == "approved" and state["complete"]
-        and bool(state["replies"]) and set(state["replies"]) == {YES_PLAN})
+        and said_only(state["replies"], YES_PLAN))
     checks["H: the plan names the decided intent"] = (
         state is not None and idea is not None and idea["status"] == "decided"
         and (project / state["intent"]).resolve() == Path(idea["path"]).resolve())
