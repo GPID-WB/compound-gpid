@@ -1134,9 +1134,8 @@ def cmd_approve(args) -> int:
     refused += more
     digest = text_hash(plan["body"])
     known, stamp, earlier = is_approved(project, plan), now(), approvals(project, plan)
-    # The name holds the time, so a text approved a second time gets a record of its own.
-    record_path = (project / ".cg-docs" / "approvals"
-                   / f"{at[0].stem}.{digest[7:23]}.{re.sub(r'[-:]', '', stamp)}.json")
+    # The name holds the number of the approval, so a text approved a second time gets a record of its own.
+    record_path = project / ".cg-docs" / "approvals" / f"{at[0].stem}.{digest[7:23]}.{len(earlier) + 1}.json"
     dated, before = amendments(plan["body"]), amendments(str(earlier[-1].get("text", "")) if earlier else "")
     if kind == "plan" and earlier and not known and (len(dated) <= len(before) or not set(before) <= set(dated)):
         refused.append("this plan was approved before, and a change to an approved plan is an amendment (P1); add "
