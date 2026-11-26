@@ -115,20 +115,41 @@ KINDS = {
               "and record the reply that settles it",
     "condition": "holds a condition or a correction, so it is not a yes to what was shown; change that, "
                  "show the part that changed, and record the yes to it",
+    "question": "is a question, not an answer; answer it, ask again, and record the reply that settles it",
 }
 PLAIN_YES = r"\b(yes|ok|okay|i approve|approved|i confirm|confirmed|i agree|agreed|go ahead|de acuerdo)\b"
 # "sí" is a yes. Without its accent, "si" is also "if", so it counts only alone or before a comma or a stop.
 SI = r"(?<!\w)sí(?!\w)|^\W*si(?=\W*$|\s*[,.;:!])"
-# One of these before the yes turns it round: "that is not ok", "I can't say yes yet".
-NEGATION = r"\b(no|not|nope|nah|never|dont|doesnt|didnt|cannot|cant|wont|wouldnt|isnt|arent|neither|nor)\b"
+# One of these before the yes turns it round: "that is not ok", "I can't say yes yet", "nunca dije que sí".
+NEGATION = (r"\b(no|not|nope|nah|never|dont|doesnt|didnt|cannot|cant|wont|wouldnt|isnt|arent|wasnt|werent|"
+            r"havent|hasnt|hadnt|shouldnt|couldnt|mustnt|neednt|aint|neither|nor|nothing|none|nobody|hardly|"
+            r"nunca|jamás|jamas|tampoco|nada|nadie|ni|ninguno|ninguna)\b")
 # A reply that opens with one of these words is a no, or a not yet, and is never recorded as a yes (#224).
 SAYS_NO = r"(no|nope|not|don['’]?t|do not|stop|wait|hold on|cancel|never)\b"
-# A yes that goes on with one of these is a yes to something else than what was shown (#225).
-HAS_CONDITION = (r"\b(but|except|unless|however|although|though|also|plus|instead|only if|as long as|"
-                 r"provided that|pero)\b")
+# One of these anywhere is a not yet, before or after the yes: "OK, wait" (review of #225).
+NOT_YET = (r"\b(wait|stop|hold on|hang on|cancel|let me think|think about it|not yet|espera|déjame pensar|"
+           r"dejame pensar|todavía no|todavia no|aún no|aun no)\b")
+# A yes that goes on with one of these is a yes to something else than what was shown (#225). "si" is
+# left only where it means "if": an opening "si" that is a yes has been read as one before this runs.
+HAS_CONDITION = (r"\b(but|except|unless|however|although|though|also|plus|instead|if|assuming|provided|"
+                 r"on condition|so long as|as long as|subject to|too|as well|pero|aunque|excepto|salvo|sino|"
+                 r"siempre que|siempre y cuando|a menos que|con tal|sin embargo|también|además|si)\b")
+# A change asked for after the yes, with no word that marks it: "Yes, drop D2", "Yes, and add the gap".
+CORRECTION = (r"(?:^|[.,;:!—–]\s*|\b(?:and|then|y|e|luego)\s+)(?:please\s+|por favor\s+)?"
+              r"(?:add|change|drop|remove|delete|rename|replace|switch|swap|use|move|keep only|"
+              r"añade|agrega|cambia|quita|elimina|borra|usa|pon)\b")
 # What stands in a table cell that nobody has filled in yet. The human's own words go in quotes.
-NOT_FILLED = (r"(still |not yet |remains )?(open|pending|tbd|tba|todo|unknown|undecided|unanswered|waiting|"
-              r"awaiting|n/?a|to be \w+|not (yet )?(decided|answered|known)|not yet)\b")
+NOT_FILLED = (r"(still |not yet |remains )?(open|pending|t\.?b\.?[dac]\.?|todo|fixme|xxx+|placeholder|unknown|"
+              r"undecided|unanswered|unclear|unsure|unconfirmed|waiting|awaiting|later(?=\W*$)|n\.?/?a\.?|to be \w+|"
+              r"to (decide|confirm|check|ask|answer|fill|follow)|ask( the human)?|fill( in)?(?=\W*$)|"
+              r"not (yet )?(decided|answered|known|asked|given|sure|checked|confirmed)|not yet|"
+              r"no (answer|reply|decision)( yet)?|none yet|nothing yet|don'?t know|no idea|"
+              r"pendiente|por (decidir|confirmar|definir|ver|responder)|sin (respuesta|decidir|definir)|"
+              r"abiert[oa]|desconocid[oa]|no s[eé])(?!\w)")
+# What stands in a Source cell that names no source. "the human" is a source (grilling.md).
+NO_SOURCE = (r"(none|no source|nowhere|not (found|checked|looked up|verified)|guess(ed)?|my guess|"
+             r"assum(ed|ption)|(from )?memory|(general|common) knowledge|i think|i believe|presumably|"
+             r"ninguna|ninguno|sin fuente)(?!\w)")
 # What the agent declares about a piece of work, each with what a yes means. tier adds what code
 # can work out: whether this coding agent may read each data file, and the number of files.
 FACTS = {
@@ -494,6 +515,8 @@ def compute_status(project: Path, guide: bool = False, asked=None) -> dict:
     playbook = f"playbooks/{asked}.md" if asked and phase != "setup" else PHASE_PLAYBOOK[phase]
     if stops:
         step = "stop and show the human the stops"
+    elif guide and asked and phase == "setup" and asked != "setup":
+        step = f"read {playbook}; {asked}, which the human asked for, opens once setup is done"
     elif guide:
         step = f"read {playbook}"
     else:
@@ -642,12 +665,17 @@ def table_rows(body: str, heading: str):
     """The rows of the table under a heading, as lists of cells, without the table's two header lines.
 
     A | inside backticks or after a backslash belongs to its cell, so a command may hold a pipe.
+    Every table under the heading counts, a table under a deeper heading too, and each one
+    drops its own two header lines (review of #225: a second round under `### Round 2`).
     """
-    rows, inside = [], False
-    for line in body.splitlines():
-        if re.match(r"#{1,6} ", line):
-            inside = " ".join(line.split()) == heading
-        elif inside and line.lstrip().startswith("|"):
+    rows, table, level = [], [], 0
+    for line in body.splitlines() + [""]:
+        mark = re.match(r"(#{1,6}) ", line)
+        if not (level and mark is None and line.lstrip().startswith("|")):
+            rows, table = rows + table[2:], []
+        if mark and not (level and len(mark.group(1)) > level):
+            level = len(mark.group(1)) if " ".join(line.split()) == heading else 0
+        elif level and mark is None and line.lstrip().startswith("|"):
             cells, cell, code, escaped = [], "", False, False
             for char in line.strip():
                 code = code != (char == "`")
@@ -657,8 +685,8 @@ def table_rows(body: str, heading: str):
                 else:
                     cell += char
                 escaped = char == "\\" and not escaped
-            rows.append(cells[1:] + ([cell.strip()] if cell.strip() else []))
-    return rows[2:]
+            table.append(cells[1:] + ([cell.strip()] if cell.strip() else []))
+    return rows
 
 
 def contract_problems(body: str):
@@ -691,17 +719,36 @@ def contract_problems(body: str):
     return problems
 
 
-def blank(cell: str) -> bool:
+def blank(cell: str, source: bool = False) -> bool:
     """True when a table cell holds nothing: no word, or one that only stands for 'not yet', such
-    as `open`, pending, TBD or ?. Marks of emphasis are left out; a text in quotes is content."""
-    text = re.sub(r"[`*_()\[\]]", "", cell).strip().lower()
-    return not re.search(r"\w", text) or bool(re.match(NOT_FILLED, text))
+    as `open`, pending, TBD or ?. Marks of emphasis, and a list mark or a bracket before the word,
+    are left out; a text in quotes is content. With source, "none" or "a guess" is nothing too."""
+    text = bare(cell)
+    return (not re.search(r"\w", text) or bool(re.match(NOT_FILLED, text))
+            or (source and bool(re.match(NO_SOURCE, text))))
+
+
+def bare(text: str) -> str:
+    """A cell or a line without marks of emphasis, HTML comments, one-word tags such as <br> or
+    <open>, entities, and the list mark or bracket before its first word, in lower case."""
+    text = re.sub(r"<!--.*?-->|</?\w+\s*/?>|&#?\w+;", "", text)  # a template's request of several words stays
+    text = re.sub(r"[`*_~()\[\]{}]", "", text).strip().lower()
+    return re.sub(r"^(\d+[.)]\s+|[^\w\"'“‘«])+", "", text)
+
+
+def filler(line: str) -> bool:
+    """True when a line under a heading says nothing: no word, or only a placeholder such as TBD.
+    In a table row, every cell must be so. A line that only starts with such a word is content."""
+    cells = line.strip().strip("|").split("|") if line.lstrip().startswith("|") else [line]
+    return all(not re.search(r"\w", bare(cell)) or re.fullmatch(NOT_FILLED + r"[\W_]*", bare(cell))
+               for cell in cells)
 
 
 def empty_sections(body: str, wanted):
     """The wanted headings with nothing written under them: no line of text, and no table row
-    below a table's two header lines. What is under a deeper heading counts for the one above."""
-    lines, found, fenced = body.splitlines(), [], False
+    below a table's two header lines. What is under a deeper heading counts for the one above.
+    A line of filler, such as TBD, an HTML comment or a bare mark, is nothing (review of #225)."""
+    lines, found, fenced = re.sub(r"<!--.*?-->", "", body, flags=re.S).splitlines(), [], False
     rule = re.compile(r"\|?[\s:|-]*-[\s:|-]*\|?")
     level, name, holds = 0, None, False
     for number, line in enumerate(lines + ["# end"]):
@@ -714,7 +761,7 @@ def empty_sections(body: str, wanted):
             name = None
         if mark and not name and " ".join(line.split()) in wanted:
             level, name, holds = len(mark.group(1)), " ".join(line.split()), False
-        elif name and not mark and line.strip() and not rule.fullmatch(line.strip()):
+        elif name and not mark and not filler(line) and not rule.fullmatch(line.strip()):
             after = lines[number + 1].strip() if number + 1 < len(lines) else ""
             holds = holds or not (line.lstrip().startswith("|") and rule.fullmatch(after))
     return found
@@ -726,7 +773,7 @@ def intent_problems(body: str):
     facts = [(row + [""] * 2)[:2] for row in table_rows(body, "## Facts") if row]
     decisions = [(row + [""] * 4)[:4] for row in table_rows(body, "## Decisions") if row]
     problems = [] if facts and decisions else ["the Facts table and the Decisions table each need a row"]
-    problems += [f"the fact '{fact}' names no source" for fact, source in facts if blank(source)]
+    problems += [f"the fact '{fact}' names no source" for fact, source in facts if blank(source, source=True)]
     ids = [did for did, *_ in decisions]
     for did, _, recommended, answer in decisions:
         if not re.fullmatch(r"D\d+", did):
@@ -749,6 +796,11 @@ def unfilled(kind: str, body: str):
     except OSError:
         return []
     asks = set(re.findall(r"<[^<>]+>", template))
+    if kind == "intent":  # the assumptions block of grilling.md holds requests too (review of #225)
+        try:
+            asks |= set(re.findall(r"<[^<>]+>", (CG_DIR / "grilling.md").read_text(encoding="utf-8")))
+        except OSError:
+            pass
     return [line.strip() for line in body.splitlines() if any(ask in line for ask in asks)]
 
 
@@ -892,21 +944,26 @@ def the_yes(project: Path, reply: str):
     """What keeps a reply from being recorded as the human's yes (P2), and who gave it, from git.
 
     A reply is recorded only when it holds a plain yes, with no negation before
-    it and no condition. Everything else is refused, with what to ask next."""
+    it, no not yet anywhere, no question and no condition or correction.
+    Everything else is refused, with what to ask next."""
     refused, said = [], reply.strip()
 
-    def plain(text):  # lower case, without punctuation, so "Sure go on!" is "sure, go on"
-        return " ".join(re.sub(r"[^a-z0-9 ]+", " ", re.sub(r"['’]", "", text.lower())).split())
-    words = plain(re.sub(SI, " yes ", said.lower()))
+    def plain(text):  # lower case, without punctuation, so "Sure go on!" is "sure, go on"; "sí" keeps its accent
+        return " ".join(re.sub(r"[^\w ]+", " ", re.sub(r"['’]", "", text.lower())).split())
+    read = re.sub(SI, " yes ", said.lower())
+    words = plain(read)
     opens = next((kind for phrase, kind in NOT_A_YES.items() if f"{words} ".startswith(plain(phrase) + " ")), None)
     yes = re.search(PLAIN_YES, words)
     if not said:
         refused.append("give the human's reply, word for word, with --reply")
-    elif re.match(SAYS_NO, said.lower()) or (yes and re.search(NEGATION, words[:yes.start()])):
+    elif (re.match(SAYS_NO, said.lower()) or (yes and re.search(NOT_YET, words))
+          or (yes and re.search(NEGATION, words[:yes.start()]))):
         refused.append(f'"{said}" {KINDS["no"]}')
     elif not yes:
         refused.append(f'"{said}" {KINDS[opens or "no-yes"]}')
-    elif re.search(HAS_CONDITION, words):
+    elif re.search(r"[?¿]", said):
+        refused.append(f'"{said}" {KINDS["question"]}')
+    elif re.search(HAS_CONDITION, words) or re.search(CORRECTION, read.strip()):
         refused.append(f'"{said}" {KINDS["condition"]}')
 
     def git_config(key):

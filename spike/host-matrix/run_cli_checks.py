@@ -40,6 +40,7 @@ they contain local paths. Standard library only.
 """
 import argparse
 import getpass
+import json
 import os
 import platform
 import re
@@ -48,6 +49,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import unicodedata
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -182,15 +184,21 @@ def sanitize(text, project, names=None):
                 text = re.sub(re.escape(spelled), lambda _: word, text, flags=re.IGNORECASE)
     # Addresses go first: once the user name is replaced inside one, it is no longer read as an address.
     # A domain ends in letters, so "python@3.14" in a Homebrew path is not an address.
-    text = re.sub(r"[A-Za-z0-9._%+-]+@(?:[A-Za-z0-9-]+\.)+[A-Za-z]{2,}\b", "<email>", text)
+    text = re.sub(r"[A-Za-z0-9._%+-]+(?:@|%40)(?:[A-Za-z0-9-]+\.)+[A-Za-z]{2,}\b", "<email>", text)
     if names is None:
         asked = subprocess.run(["git", "-C", str(project), "config", "--get", "user.name"],
                                capture_output=True, text=True) \
             if shutil.which("git") else None
         names = [asked.stdout.strip()] if asked and asked.returncode == 0 else []
     for name in names:
-        if len(name) >= 3:
-            text = re.sub(re.escape(name), "<name>", text, flags=re.IGNORECASE)
+        # Each spelling a transcript can hold: as typed, composed or decomposed, JSON-escaped, and
+        # without its accents (review of #225: a name with letters outside ASCII stayed).
+        forms = {unicodedata.normalize(norm, name) for norm in ("NFC", "NFD")}
+        forms |= {json.dumps(form)[1:-1] for form in set(forms)}
+        forms.add("".join(c for c in unicodedata.normalize("NFD", name) if not unicodedata.combining(c)))
+        for form in sorted(forms, key=len, reverse=True):
+            if len(form) >= 3:
+                text = re.sub(re.escape(form), "<name>", text, flags=re.IGNORECASE)
     user = getpass.getuser()
     if len(user) >= 3:
         text = re.sub(re.escape(user), "<user>", text, flags=re.IGNORECASE)

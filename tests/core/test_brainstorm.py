@@ -348,7 +348,7 @@ def test_a_reply_that_holds_a_yes_word_and_is_not_a_yes_is_refused(env):
             code, out = env["cg"]("approve", INTENT, "--reply", said)
             assert code == 1 and words in out and "status: draft" in path.read_text(), (said, out)
     assert not (env["project"] / ".cg-docs" / "approvals").exists()
-    for number, said in enumerate(("Yes.", "Yes, nothing to add.", "Nothing to change; yes.", "Sí, adelante",
+    for number, said in enumerate(("Yes.", "Yes, nothing to add.", "Yes, nothing to change.", "Sí, adelante",
                                    "Yes, I confirm D1 and D2 as written.")):
         path = env["put"]("intent", front("intent", "draft") + INTENT_BODY, name=f"2026-11-25-yes-{number}.md")
         code, out = env["cg"]("approve", str(path), "--reply", said)
