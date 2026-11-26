@@ -258,3 +258,17 @@ def test_step_h_needs_the_line_it_asked_for_to_be_new(monkeypatch, tmp_path):
     checks = {}
     gate.run_plan(gate.Agent("kilo", "kilo", "openai/m"), tmp_path, [], checks)
     assert not checks["H: the plan holds the line the human asked for"], checks
+
+
+def test_the_rerun_takes_a_recorded_yes_by_its_words_and_not_by_its_full_stop():
+    """Gate rerun 17 (#226): the human wrote "Yes." and one agent recorded "Yes". The plan was
+    approved on the human's word, and the script counted it as failed for a full stop. The dropped
+    mark is reported in the handoff; the check asks whether the words are the ones the human sent."""
+    sys.path.insert(0, str(GATE))
+    sys.path.insert(0, str(HUB / "spike" / "host-matrix"))
+    import run_cli_gate as gate
+    assert gate.said_only(["Yes"], gate.YES_PLAN) and gate.said_only(["yes.", "Yes."], gate.YES_INTENT)
+    assert not gate.said_only([], gate.YES_PLAN)
+    assert not gate.said_only(["Yes, that is what I want."], gate.YES_PLAN)
+    assert not gate.said_only(["Yes.", gate.ANSWERS], gate.YES_PLAN)
+    assert not gate.said_only([None], gate.YES_PLAN)  # a record that could not be read
