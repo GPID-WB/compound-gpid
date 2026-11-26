@@ -33,7 +33,7 @@ Before any step, name the shape of the data (P6, P10): for each dataset, the uni
 Writing a plan shows what the intent left open. Handle it by what it changes:
 
 - **The goal, the scope or the approach.** That is a change to the intent, and a decided intent changes only with a new yes. Say that `/cg brainstorm` reopens it, and end your turn.
-- **A choice inside the plan that only the human can make,** such as the value they expect, a tolerance, or which output proves the work. Put it to them as `grilling.md` says, with the answer you recommend, and end your turn. Write their answer into the plan, in their words.
+- **A choice inside the plan that only the human can make,** such as the value they expect, a tolerance, or which output proves the work. Put it to them as `grilling.md` says, and end your turn. Write their answer into the plan, in their words.
 - **Anything smaller.** Take the simplest reasonable default, and write it in the plan, where the human sees it at the hard stop.
 
 ## 3. Write the contract
@@ -92,7 +92,7 @@ A decision on data is not a yes to the plan. Change the plan to what they decide
 
 `"<python>" "<cg>" validate "<the plan>" --project "<project root>"`
 
-A line that starts with `FAIL` or `warn` names what is not ready: a requirement with no check, a check with no outcome that means failure or that no slice runs, a dataset with no recorded level, a part of the template that is still unfilled. Fix it in the plan, or settle it with the human, and run the line again. Go on only when it prints `problems: 0` and `warnings: 0`.
+A line that starts with `FAIL` or `warn` names what is not ready: a requirement with no check, a check with no outcome that means failure or that no slice runs, a dataset with no recorded level, a part of the template that is still unfilled. Fix it in the plan, or settle it with the human, and run the line again. Go on only when it prints `problems: 0` and `warnings: 0`. An amendment is the one exception: its line that no approval is recorded for the plan as it now reads stays until step 7, and nothing else may be left.
 
 Then judge the plan against the principles a plan is held to. Read the Verifier section of P1, P3, P6 and P12 in `principles/`, and of P10 when the work computes an estimate. Look for what each one flags at plan stage, and fix what you find. Give each principle a verdict, PASS, FLAG or NOT APPLICABLE, with the finding. This is a self-review, and you say so at the hard stop.
 

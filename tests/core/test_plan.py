@@ -245,6 +245,8 @@ def test_the_plan_playbook_holds_what_the_issue_names():
     assert "thinnest" in slices and "by code" in slices and "by judgement" in slices and "ends in" in slices
     checked = text[text.index("## 6."):text.index("## 7.")]
     assert "PLACEHOLDER: written in task 2.5" in checked and "self-review" in checked
+    # An amended plan fails validate until it is approved again, and the playbook says so.
+    assert "no approval is recorded for the plan as it now reads" in checked
     for principle in ("P1", "P3", "P6", "P12"):
         assert principle in checked, principle
 
