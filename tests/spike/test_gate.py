@@ -189,3 +189,51 @@ def test_the_rerun_says_yes_again_when_the_agent_stops_a_second_time(monkeypatch
     assert said == ["C1 request", "C2 yes", "C3 yes"] and all(checks.values()), (said, checks)
     said, checks = run(stops=9)  # an agent that never writes is not asked forever
     assert said == ["C1 request", "C2 yes", "C3 yes", "C4 yes"] and not checks["C: headcount() defined in R/"]
+
+
+def test_the_rerun_takes_a_plan_to_its_hard_stop_and_judges_it_from_the_files(monkeypatch, tmp_path):
+    """Task 2.3 (#226): step H. The script answers from the state of the plan alone. To a complete
+    draft it first sends a yes that goes on, which code does not record and the agent has to act on,
+    and only then a plain yes. An agent that records the first one fails the step."""
+    sys.path.insert(0, str(GATE))
+    sys.path.insert(0, str(HUB / "spike" / "host-matrix"))
+    import run_cli_gate as gate
+    draft = {"status": "draft", "complete": False, "replies": [], "intent": "", "text": ""}
+    assert gate.plan_reply(None, False) == gate.plan_reply(draft, False) == gate.ANSWERS
+    assert gate.plan_reply({**draft, "complete": True}, False) == gate.CORRECTION
+    assert gate.plan_reply({**draft, "complete": True}, True) == gate.YES_PLAN
+    assert gate.plan_reply({**draft, "status": "approved"}, True) is None
+    sys.path.insert(0, str(CG.parent))
+    import cg
+
+    def refused(reply):  # a machine with no git identity adds a line of its own
+        return [line for line in cg.the_yes(HUB, reply)[0] if "user.name" not in line]
+    assert "says more than a plain yes" in refused(gate.CORRECTION)[0] and refused(gate.YES_PLAN) == []
+    assert gate.ASKED.lower() in gate.CORRECTION.lower()
+
+    def run(records_the_correction):
+        idea = {"path": tmp_path / ".cg-docs" / "brainstorms" / "idea.md", "status": "decided"}
+        state = {**draft, "complete": True, "intent": ".cg-docs/brainstorms/idea.md"}
+        said = []
+
+        def turn(agent, project, prompt, new, log, label):
+            said.append(label)
+            if prompt == gate.CORRECTION and records_the_correction:
+                state.update(status="approved", replies=[prompt])
+            elif prompt == gate.CORRECTION:
+                state.update(text=f"- Never: change a file under {gate.ASKED}.")
+            elif prompt == gate.YES_PLAN:
+                state.update(status="approved", replies=[prompt])
+            return ""
+        monkeypatch.setattr(gate, "turn", turn)
+        monkeypatch.setattr(gate, "newest", lambda project, folder: dict(state) if folder == "plans" else idea)
+        monkeypatch.setattr(gate, "changed", lambda project: [".cg-docs/plans/plan.md"])
+        checks = {}
+        gate.run_plan(gate.Agent("kilo", "kilo", "openai/m"), tmp_path, [], checks)
+        return said, checks
+    said, checks = run(records_the_correction=False)
+    assert said == ["H1 ask for the plan", "H2 a yes that goes on", "H3 yes"] and len(checks) == 6, (said, checks)
+    assert all(checks.values()), checks
+    said, checks = run(records_the_correction=True)
+    assert not checks["H: a yes that goes on is not recorded as a yes"]
+    assert not checks["H: the plan is approved on a plain yes the human sent"]
