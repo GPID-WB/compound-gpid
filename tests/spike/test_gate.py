@@ -124,3 +124,16 @@ def test_the_rerun_answers_a_brainstorm_from_the_state_of_the_intent_alone():
     assert gate.VAGUE.lower().strip(".") in cg.NOT_A_YES
     for reply in (gate.ANSWERS, gate.YES_INTENT):  # a machine with no git identity adds a line of its own
         assert [line for line in cg.the_yes(HUB, reply)[0] if "user.name" not in line] == [], reply
+
+
+def test_a_transcript_keeps_no_name_and_no_email_of_the_person_who_ran_it(monkeypatch, tmp_path):
+    """Gate reruns 13 and 14 (#225): Kilo printed the line of `cg.py approve` that names who
+    said yes. The user name was replaced first, which left "<user>@the-organization" behind,
+    and the name from git stayed. Nothing of either goes into the evidence."""
+    sys.path.insert(0, str(HUB / "spike" / "host-matrix"))
+    import run_cli_checks as checks
+    monkeypatch.setattr(checks.getpass, "getuser", lambda: "jdoe")
+    said = "approved plan.md\nby: Jane Q. Doe <jdoe@example.org>\nread on the decision of Jane Q. Doe, 2026-11-26\n"
+    clean = checks.sanitize(said, tmp_path, names=["Jane Q. Doe"])
+    assert clean == "approved plan.md\nby: <name> <<email>>\nread on the decision of <name>, 2026-11-26\n"
+    assert "python@3.14" in checks.sanitize("/opt/python@3.14/bin", tmp_path, names=[])
