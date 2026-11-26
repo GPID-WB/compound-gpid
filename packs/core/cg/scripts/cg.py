@@ -6,6 +6,7 @@ Usage, with the interpreter that ~/.cg/launcher.json records as <python>:
   "<python>" cg.py new TYPE TITLE... [--project PATH] [--date YYYY-MM-DD]
   "<python>" cg.py validate [FILE...] [--strict] [--json] [--project PATH]
   "<python>" cg.py approve PLAN --reply "the human's reply, word for word" [--project PATH]
+  "<python>" cg.py approve --reads FILE... --agent NAME --reply "..." [--project PATH]
   "<python>" cg.py tier --fact NAME=yes|no... --touches FILE... --reads FILE|none... [--agent NAME]
                       [--json] [--project PATH]
   "<python>" cg.py packs [--json]
@@ -19,6 +20,8 @@ setup needs --packs the first time; later runs keep the recorded packs.
 validate fails on a schema 2 artifact that breaks the schema; --strict, for a
 project's CI, fails on a warning too. Version 1 artifacts are read as they are.
 tier wants every fact in FACTS declared, and computes the rest.
+approve --reads records the human's decision that a coding agent reads a data
+file it is not cleared for; tier then names the decision and no longer stops.
 
 PATH may be any folder inside the project: the commands use the nearest
 folder above it that holds .cg-docs/, else the root of its git repository.
@@ -447,6 +450,8 @@ def compute_status(project: Path, guide: bool = False) -> dict:
         "settings": settings,
         "data": rule_lines(config, "data"),
         "approved-tools": rule_lines(config, "approved-tools"),
+        "data-decisions": [f"{r['reads'] or '.'} ({r['agent']}, {r['name']}, {r['time'][:10]})"
+                           for r in data_decisions(project)],
         "stops": stops,
         "next": step,
         **git_facts(project),
@@ -503,7 +508,8 @@ def cmd_status(args) -> int:
         print(json.dumps(state, indent=2, sort_keys=True))
         return 1 if state["stops"] else 0
     order = ["project", "core", "phase", "reason", "active", "open-artifacts", "waiting-on-human",
-             "packs-expected", "packs-missing", "add-command", "settings", "data", "approved-tools", "git", "branch", "commits", "changed-files",
+             "packs-expected", "packs-missing", "add-command", "settings", "data", "approved-tools",
+             "data-decisions", "git", "branch", "commits", "changed-files",
              "stops", "next", "playbook"]
     for key in order:
         if key not in state:
@@ -753,12 +759,42 @@ def is_approved(project: Path, artifact: dict) -> bool:
     return any(record.get("hash") == digest for record in approvals(project, artifact))
 
 
+def the_yes(project: Path, reply: str):
+    """What keeps a reply from being recorded as the human's yes (P2), and who gave it, from git."""
+    refused, said = [], reply.strip()
+    if not said:
+        refused.append("give the human's reply, word for word, with --reply")
+    elif said.lower().strip(" .!\"'") in NOT_A_YES:
+        refused.append(f'"{said}" is not a clear yes (P2); ask the human what is unclear, '
+                       f'and record the reply that settles it')
+
+    def git_config(key):
+        done = subprocess.run(["git", "-C", str(project), "config", "--get", key],
+                              capture_output=True, text=True) if shutil.which("git") else None
+        return done.stdout.strip() if done and done.returncode == 0 else ""
+    name, email = git_config("user.name"), git_config("user.email")
+    if not name:
+        refused.append('git has no user.name here, so the record would name nobody; the human sets it '
+                       'with: git config user.name "Their Name"')
+    return refused, name, email
+
+
+def now() -> str:
+    return datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
 def cmd_approve(args) -> int:
     """Record the human's approval of a plan: their reply word for word, who gave it, when, and
-    the digest of the text they approved. Run again on the same text, it changes nothing."""
+    the digest of the text they approved. Run again on the same text, it changes nothing.
+    With --reads, record their decision on data instead (approve_reads)."""
     project = project_from(args.project)
     if project is None:
         return 2
+    if bool(args.artifact) == bool(args.reads):
+        print("give a plan, or --reads with the data the human decided on, and not both")
+        return 2
+    if args.reads:
+        return approve_reads(project, args)
     at = artifact_at(project, args.artifact)
     if at is None or at[1] != "plan":
         print(f"not a plan of this project: {args.artifact}")
@@ -772,21 +808,8 @@ def cmd_approve(args) -> int:
         if plan["status"] not in ("draft", "approved", "in-progress"):
             refused.append(f"its status is {plan['status']}; a plan takes an approval while it is draft, "
                            f"approved or in-progress")
-    reply = args.reply.strip()
-    if not reply:
-        refused.append("give the human's reply, word for word, with --reply")
-    elif reply.lower().strip(" .!\"'") in NOT_A_YES:
-        refused.append(f'"{reply}" is not a clear yes (P2); ask the human what is unclear, '
-                       f'and record the reply that settles it')
-
-    def git_config(key):
-        done = subprocess.run(["git", "-C", str(project), "config", "--get", key],
-                              capture_output=True, text=True) if shutil.which("git") else None
-        return done.stdout.strip() if done and done.returncode == 0 else ""
-    name, email = git_config("user.name"), git_config("user.email")
-    if not name:
-        refused.append('git has no user.name here, so the approval would name nobody; the human sets it '
-                       'with: git config user.name "Their Name"')
+    more, name, email = the_yes(project, args.reply)
+    refused += more
     digest = text_hash(plan["body"])
     record_path = project / ".cg-docs" / "approvals" / f"{at[0].stem}.{digest[7:23]}.json"
     known = is_approved(project, plan)
@@ -800,7 +823,7 @@ def cmd_approve(args) -> int:
         print(f"already approved as it now reads: {plan['path']}")
     else:
         record = {"artifact": plan["path"], "hash": digest, "reply": args.reply, "name": name, "email": email,
-                  "time": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}
+                  "time": now()}
         write_atomic(record_path, json.dumps(record, indent=2, ensure_ascii=False) + "\n")
         print(f"approved {plan['path']}\nrecord: {record_path.relative_to(project).as_posix()}\n"
               f"hash: {digest}\nby: {name} <{email}>")
@@ -822,6 +845,68 @@ def data_path(project: Path, arg: str) -> str:
             pass
     arg = posixpath.normpath(arg.replace("\\", "/"))
     return "" if arg == "." else arg
+
+
+def data_decisions(project: Path):
+    """Every decision of the human that a coding agent reads data it is not cleared for (P12).
+    One decision is one file, .cg-docs/approvals/data.<digest>.json."""
+    found = []
+    for path in sorted((project / ".cg-docs" / "approvals").glob("data.*.json")):
+        try:
+            record = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        if isinstance(record, dict) and all(isinstance(record.get(key), str)
+                                            for key in ("reads", "agent", "name", "time")):
+            found.append(record)
+    return found
+
+
+def decision_for(decisions, found: dict, agent: str):
+    """The decision that covers one file: for this agent, for the file or a folder
+    above it, and for the level the file has now. A new level asks for a new decision."""
+    for record in decisions:
+        place = record["reads"]
+        if (record["agent"].casefold() == agent.casefold() and record.get("level") == found["level"]
+                and (place in ("", found["path"]) or found["path"].startswith(place + "/"))):
+            return record
+    return None
+
+
+def approve_reads(project: Path, args) -> int:
+    """Record that the human lets a coding agent read data it is not cleared for: the place,
+    the agent, the level it had, their reply word for word, who gave it and when."""
+    config, stops = read_config(project)
+    stops = stops + rule_problems(config)
+    if stops:
+        for line in stops:
+            print(f"stop: {line}")
+        return 1
+    if not args.agent:
+        print("give --agent with the name of this coding agent, as tier takes it")
+        return 2
+    refused, name, email = the_yes(project, args.reply)
+    if refused:
+        for line in refused:
+            print(f"refused: {line}")
+        return 1
+    for arg in args.reads:
+        found = clearance(project, config or {}, data_path(project, arg), args.agent)
+        shown = found["path"] or "."
+        if found["cleared"]:
+            print(f"{shown} is cleared for {args.agent} ({found['why']}); there is nothing to record")
+        elif decision_for(data_decisions(project), found, args.agent):
+            print(f"already recorded: {args.agent} reads {shown}")
+        else:
+            key = "\n".join([found["path"], args.agent.casefold(), found["level"] or ""])
+            record_path = (project / ".cg-docs" / "approvals"
+                           / f"data.{hashlib.sha256(key.encode('utf-8')).hexdigest()[:16]}.json")
+            record = {"reads": found["path"], "agent": args.agent, "level": found["level"],
+                      "reply": args.reply, "name": name, "email": email, "time": now()}
+            write_atomic(record_path, json.dumps(record, indent=2, ensure_ascii=False) + "\n")
+            print(f"recorded: {args.agent} reads {shown}, which is not cleared ({found['why']})\n"
+                  f"record: {record_path.relative_to(project).as_posix()}\nby: {name} <{email}>")
+    return 0
 
 
 def clearance(project: Path, config: dict, path: str, agent: str) -> dict:
@@ -859,7 +944,9 @@ def cmd_tier(args) -> int:
 
     The agent declares every fact in FACTS as yes or no, the files the change
     touches and the data files it reads. Code adds the data rules and the file
-    count. Any yes makes the tier elevated.
+    count. Any yes makes the tier elevated. A data file that is not cleared
+    raises it until the human's decision to read it is recorded; after that,
+    every run names the decision.
     """
     project = project_from(args.project)
     if project is None:
@@ -895,9 +982,14 @@ def cmd_tier(args) -> int:
             print(line)
         return 2
     data = [] if reads == ["none"] else [clearance(project, config, data_path(project, r), args.agent) for r in reads]
+    decisions = data_decisions(project)
+    for d in data:
+        made = None if d["cleared"] else decision_for(decisions, d, args.agent)
+        d["decision"] = made and {key: made.get(key) for key in ("name", "time", "reply")}
     files = sorted({data_path(project, f) for f in args.touches})
     reasons = [f"{name}: {FACTS[name]}" for name in FACTS if facts[name] == "yes"]
-    reasons += [f"data: {d['path']} is not cleared for {args.agent}" for d in data if not d["cleared"]]
+    reasons += [f"data: {d['path']} is not cleared for {args.agent}" for d in data
+                if not d["cleared"] and not d["decision"]]
     if len(files) > MAX_FILES:
         reasons.append(f"size: the change touches {len(files)} files, more than {MAX_FILES}")
     state = {"tier": "elevated" if reasons else "low", "reasons": reasons, "data": data, "files": files,
@@ -906,7 +998,9 @@ def cmd_tier(args) -> int:
         print(json.dumps(state, indent=2, sort_keys=True))
         return 0
     shown = [f"{d['path']}{'=' + d['level'] if d['level'] else ''}: "
-             f"{'cleared' if d['cleared'] else 'not cleared'} ({d['why']})" for d in data]
+             f"{'cleared' if d['cleared'] else 'not cleared'} ({d['why']})"
+             + (f"; read on the decision of {d['decision']['name']}, {d['decision']['time'][:10]}"
+                if d["decision"] else "") for d in data]
     print(f"tier: {state['tier']}\nreasons: {'; '.join(reasons) or 'none'}\n"
           f"data: {'; '.join(shown) or 'none'}\nfiles: {len(files)}")
     return 0
@@ -1214,8 +1308,11 @@ def main(argv=None) -> int:
     validate.add_argument("--strict", action="store_true", help="for a project's CI: a warning fails too")
     validate.add_argument("--json", action="store_true")
     validate.add_argument("--project", default=".")
-    approve = sub.add_parser("approve", help="record the human's approval of a plan")
-    approve.add_argument("artifact", help="the plan the human approved")
+    approve = sub.add_parser("approve", help="record the human's approval of a plan, or their decision on data")
+    approve.add_argument("artifact", nargs="?", help="the plan the human approved")
+    approve.add_argument("--reads", action="append", help="a data file or folder the human lets --agent read "
+                                                          "though it is not cleared")
+    approve.add_argument("--agent", help="with --reads: this coding agent, as tier takes it")
     approve.add_argument("--reply", required=True, help="the human's reply, word for word")
     approve.add_argument("--project", default=".")
     tier = sub.add_parser("tier", help="compute the risk level of a piece of work from declared facts")
