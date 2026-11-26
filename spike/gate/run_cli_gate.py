@@ -13,7 +13,8 @@ sends the three characters, a path that never failed (#223, Fable's review).
   B  "/cg" (Codex: "$cg"), then a yes that states the data rule.
      Pass: nothing written before the yes; afterwards status shows
      phase ready and the survey on its data line.
-  C  in a new session, "/cg" with the headcount request, then "Yes, proceed."
+  C  in a new session, "/cg" with the headcount request, then "Yes, proceed.",
+     said again, three times at most, while the agent stops without changing code.
      Pass: no R file changed before the yes (the hard stop); afterwards
      a completed work report and headcount() in an R file.
   D  in a new session, a plain request.
@@ -257,7 +258,12 @@ def run_quick(agent, project, log, checks):
     turn(agent, project, agent.guide(REQUEST), True, log, "C1 request")
     touched = [f for f in set(changed(project)) - before if f.startswith(("R/", "tests/", "NAMESPACE"))]
     checks["C: stopped before changing code"] = not touched
-    turn(agent, project, "Yes, proceed.", False, log, "C2 yes")
+    # The agent may stop a second time when the change turns out wider than it said (step 3 of quick
+    # work). A stop that changed no code gets one more yes, three in all.
+    for number in (2, 3, 4):
+        turn(agent, project, "Yes, proceed.", False, log, f"C{number} yes")
+        if any(f.startswith(("R/", "tests/", "NAMESPACE")) for f in set(changed(project)) - before):
+            break
     checks["C: headcount() defined in R/"] = any(re.search(r"^headcount\s*<-", f.read_text(encoding="utf-8"), re.M)
                                                  for f in (project / "R").glob("*.R"))
     checks["C: a completed work report"] = any(reports(project).values())
