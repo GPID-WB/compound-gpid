@@ -21,26 +21,27 @@ size: quick
 
 | File | What changed and why |
 |---|---|
+| <a file the change created, changed or deleted> | <what changed in it, and why> |
 
 ## Checks
 
 | Check | Command | Exit code | Verdict |
 |---|---|---|---|
-| <what it shows> | <the command as run> | <code> | <verified, not verified or inconclusive> |
+| <what it shows> | <the command as run> | <the exit code> | <verified, not verified or inconclusive> |
 
 ## Evidence
 
 - Commit the checks ran on: <`git rev-parse --short HEAD`, with "+changes" when the change is not committed>
-- Digest of each output file the change produced or moved: <path and `git hash-object <path>`, before and after where there was a baseline>
+- Digest of each output file the change produced or moved: <the path and its digest from `git hash-object`, before and after where there was a baseline>
 - Validation, for a number: <what it was compared with, and the two values; or "no number changed">
 
 ## Self-review
 
 | Principle | Verdict | Finding, with file and line |
 |---|---|---|
-| P3 Deterministic by default | <PASS, FLAG or NOT APPLICABLE> | |
-| P4 Prove it works | | |
-| P6 Smallest change | | |
+| P3 Deterministic by default | <PASS, FLAG or NOT APPLICABLE> | <the finding with file and line, or "none"> |
+| P4 Prove it works | <PASS, FLAG or NOT APPLICABLE> | <the finding with file and line, or "none"> |
+| P6 Smallest change | <PASS, FLAG or NOT APPLICABLE> | <the finding with file and line, or "none"> |
 
 review-mode: self-review
 

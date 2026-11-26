@@ -637,13 +637,16 @@ def contract_problems(body: str):
 
 
 def unfilled(kind: str, body: str):
-    """The lines of a body that are still the template's own request to fill a part in."""
+    """The lines of a body that still hold one of the template's requests to fill a part in.
+
+    One request left in a line counts, so a table row is not filled until each of its cells is
+    (#224, review finding 7). A test holds every template to a request in each cell."""
     try:
         template = (CG_DIR / "templates" / f"{kind}.md").read_text(encoding="utf-8")
     except OSError:
         return []
-    asks = {line.strip() for line in template.splitlines() if re.search(r"<[^<>]+>", line)}
-    return [line.strip() for line in body.splitlines() if line.strip() in asks]
+    asks = set(re.findall(r"<[^<>]+>", template))
+    return [line.strip() for line in body.splitlines() if any(ask in line for ask in asks)]
 
 
 def artifact_problems(project: Path, a: dict, approving: bool = False):

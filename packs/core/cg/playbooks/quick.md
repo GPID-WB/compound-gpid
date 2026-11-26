@@ -36,7 +36,7 @@ Give `--touches` once for each file the change will create, change or delete. Gi
 
 **`tier: low`.** Go on to step 3 without waiting.
 
-**`tier: elevated`.** This is a hard stop. Tell the human each reason on the `reasons` line. Then give a short contract: the goal, what is out of scope, and the checks you will run with the outcome that would mean failure. When a reason is `data`, ask in the same reply for what would clear the file, with an example answer the human can copy: its classification, and the highest level their organization lets this coding agent read. Say how you will work without seeing the data if they cannot answer yet (P12). The human answers for the data, so say too that they may decide you read the file as it stands, that reading it sends its contents to the company that runs the model, and that code records the decision under their name. End your turn, and go on only after a clear yes. When a reason is `size`, say that the work needs a plan, and offer the first slice that is small enough to do now.
+**`tier: elevated`.** This is a hard stop. Tell the human each reason on the `reasons` line. Then give a short contract: the goal, what is out of scope, and the checks you will run with the outcome that would mean failure. When a reason is `data`, ask in the same reply for what would clear the file, with an example answer the human can copy: its classification, and the highest level their organization lets this coding agent read. Say how you will work without seeing the data if they cannot answer yet (P12). The human answers for the data, so say too that they may decide you read the file as it stands, that reading it sends its contents to the company that runs the model, that their organization's rules still bind them, and that code records the decision under their name. End your turn, and go on only after a clear yes. When a reason is `size`, say that the work needs a plan, and offer the first slice that is small enough to do now.
 
 **When the human answers a data question,** here or later in the work, record the answer before you go on, so that no later session asks again. Show the line, then run it:
 
@@ -44,11 +44,13 @@ Give `--touches` once for each file the change will create, change or delete. Gi
 
 Record only what the human stated, in their words for the level, such as `Public`. A rule for a folder covers every file under it. Leave out `--approved-tool` when they did not say what this coding agent may read. "Synthetic" or "test data" is a description, not a level: ask which level it is. Then run `tier` again and read its `data` line. An answer about the data is not a yes to the contract.
 
-**When the human decides that you read a file that is not cleared,** record their reply before you open the file. Show the line, then run it:
+**When the human decides that you read a file that is not cleared,** record their reply before you open the file. Give `--reads` the place the human named and nothing wider: the file when they named a file, a folder only when they named the folder. Show the line, then run it:
 
 `"<python>" "<cg>" approve --reads "<file or folder>" --agent "<this coding agent>" --reply "<the human's reply, word for word>" --project "<project root>"`
 
-If it prints `refused`, the reply was not a clear yes: ask again, and leave the file closed. Then run `tier` again. Its `data` line names the decision, and the file no longer raises the tier. The decision lets you read the file. Rows and values still stay out of the work report, the evidence and every commit.
+If it prints `refused`, nothing was recorded and the file stays closed. Read the reason it gives. When the human declined, that is their answer: work without the data, and do not ask again. When the reply was not a clear yes, or it agrees in words that open with a no, ask one question: what is unclear, or for a plain yes. When git has no user name, show the human the line the command printed.
+
+Once the decision is recorded, run `tier` again. Its `data` line names the decision, and the file no longer raises the tier. The decision lets you read the file. It is not a yes to the contract: when the reply does not also say yes to the contract you gave, ask for that before you change anything. Rows and values still stay out of the work report, the evidence and every commit.
 
 ## 3. Change
 

@@ -33,7 +33,7 @@ Terms used here are defined in the plugin glossary (`../GLOSSARY.md`): classific
 - Write the data register: every dataset the work will use, with its classification, source, version, owner and permitted use.
 - Treat a dataset with no known classification as restricted data. Stop and ask the human, who asks the data owner if they do not know.
 - Compare the highest classification in the register with what the current tool is approved for. If the tool is not approved, say so before reading anything, and plan the work so the agent sees no restricted data: it writes and reviews code, and works from the schema, from public data or from a synthetic sample.
-- The human may decide that the agent reads the data all the same. Warn them before they decide: reading a file sends its contents to the company that runs the model, their organization's rules bind them, and the decision is recorded under their name. Record it with `cg.py approve --reads` before the file is opened: their reply word for word, their name, the time, the file and its classification. The decision holds for that coding agent and that classification, and a change in either asks for a new one.
+- The human may decide that the agent reads the data all the same. Warn them before they decide: reading a file sends its contents to the company that runs the model, their organization's rules bind them, and the decision is recorded under their name. Record it with `cg.py approve --reads` before the file is opened: their reply word for word, their name, the time, the file and its classification. The decision holds for that coding agent, for the file or folder the human named, and for that classification. Another coding agent, another place or a new classification asks for a new decision.
 - Give every output a classification. An output made from restricted data is restricted until the data owner says otherwise.
 - If the work builds a new system that processes personal data, tell the human to ask the privacy office whether an assessment is needed before it is deployed.
 
@@ -87,7 +87,7 @@ A flag for exposed restricted data, exposed personal data or an exposed credenti
 ## Deterministic checks
 
 - Every dataset path the code reads appears in the data register with a classification.
-- `cg.py tier` raises the tier when a data file the work reads is not cleared for the current tool and no decision of the human to read it is recorded. A file is cleared when its recorded classification is Public, or one the tool is declared approved for. Once a decision is recorded, `tier` names it on every run.
+- `cg.py tier` raises the tier when a data file the work reads is not cleared for the current tool and no decision of the human to read it is recorded. A file is cleared when its recorded classification is Public, or is the one the tool is declared approved for or a less restricted one in the organization's scheme. A folder that the work reads is held to every rule recorded below it. Once a decision is recorded, `tier` names it on every run.
 - A search of changed files for data files, credential patterns and row-level content.
 - Evidence entries contain digests and counts only.
 - The AI-use statement is present before sign-off is offered.

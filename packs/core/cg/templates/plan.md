@@ -44,7 +44,7 @@ Every requirement has a check, and every check can fail.
 
 | Dataset | Classification | Source | Version | Owner | Permitted use |
 |---|---|---|---|---|---|
-| <path of a dataset the work reads or produces, or "none"> | | | | | |
+| <path of a dataset the work reads or produces, or "none"> | <its classification, in the human's words> | <where it comes from> | <its version or date> | <who owns it> | <what the work may do with it> |
 
 ## Slices
 
