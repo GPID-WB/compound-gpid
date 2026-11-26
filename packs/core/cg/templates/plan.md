@@ -9,7 +9,7 @@ intent: {intent}
 
 # {heading}
 
-The human approves this plan as it reads below. `cg.py approve` records their reply against this text, so a later change to it needs a new approval.
+The human approves this plan as it reads below. `cg.py approve` records their reply against this text, so a later change is an amendment, a dated line under `## Amendments`, and needs a new approval.
 
 ## Contract
 

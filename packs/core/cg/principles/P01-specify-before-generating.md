@@ -61,6 +61,6 @@ Flag when:
 ## Deterministic checks
 
 - `cg.py validate`: the intent has its goal, its out of scope and its wrong-result statement.
-- `cg.py validate`: the plan has every contract section. Each check has an ID, a command and an outcome that means failure, and a slice ends in it.
+- `cg.py validate`: the plan has every contract section. Each check has an ID, a command and an outcome that means failure, and a slice ends in it. Nothing in the plan is still marked as open.
 - `cg.py new plan` makes a plan only on a decided intent, and `cg.py approve` refuses a plan whose intent is not decided as it now reads.
-- `cg.py approve` record exists and its hash matches the current plan. The record keeps the text that was approved, and a changed plan is approved again only with a new dated line under `## Amendments`.
+- `cg.py approve` record exists and its hash matches the current plan. The record keeps the text that was approved, and a changed plan is approved again only with a new dated line under `## Amendments`, beside the earlier lines.

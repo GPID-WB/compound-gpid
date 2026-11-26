@@ -15,7 +15,7 @@ Say in one or two sentences what the human asked for and the smallest change tha
 
 If status shows an open work report under `active`, read it first: continue that work, or ask the human whether to close it. If the human gave no request and nothing is open, ask what they want done and end your turn.
 
-When the request names a slice of an approved plan, read the plan first. Its contract holds here: do that slice and no other, touch only the files the slice lists, and run the checks it ends in.
+When the request names a slice of an approved plan, read the plan first, and run `validate` on it as step 5 does for the work report. When it prints `FAIL`, or status lists the plan under `waiting-on-human`, do no slice: say that the plan needs the human's yes first, and end your turn. Otherwise its contract holds here: do that slice and no other, touch only the files the slice lists, and run the checks it ends in.
 
 ## 2. Check the risk
 

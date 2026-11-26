@@ -72,7 +72,9 @@ PLAIN = "Write a function that returns the number of households in the survey."
 IDEA = ("brainstorm I want the package to say how far below the line the poor households are, and not only "
         "how many of them there are. I am not sure which measure to use. Think it through with me before "
         "anything is built.")
-ANSWERS = "Yes to each question: I take the answer you recommend. Keep it as small as you can."
+ANSWERS = ("Yes to each question: I take the answer you recommend. I have no figure of my own to give: where a "
+           "reference value is needed, use a hand-built example whose value follows from arithmetic. Keep it as "
+           "small as you can.")
 VAGUE = "Sounds good."
 YES_INTENT = "Yes."  # a plain yes and nothing else: the one reply cg.py approve records (#225)
 ROUNDS = 7  # turns after the first one before step G or step H gives up

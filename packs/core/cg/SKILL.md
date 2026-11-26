@@ -46,7 +46,7 @@ It stays so when you have also loaded this skill with a tool call of your own: s
 | The human, with nothing after `/cg` | Follow section 3. |
 | The human, with a request after `/cg` | Follow section 3, and hand the request to the playbook. |
 | The human, with `brainstorm` after `/cg`, or asking to think through what to do or which approach to take, with no change asked for yet | Run the status line again with `--playbook brainstorm` added. Then follow section 3, and hand what they wrote to the playbook. When status opens setup first, tell the human that the brainstorm follows it. |
-| The human, with `plan` after `/cg`, or asking for a plan of work that is too large for quick work | Run the status line again with `--playbook plan` added. Then follow section 3, and hand what they wrote to the playbook. When status opens setup first, tell the human that the plan follows it. |
+| The human, with `plan` after `/cg`, or asking for a plan | Run the status line again with `--playbook plan` added. Then follow section 3, and hand what they wrote to the playbook. When status opens setup first, tell the human that the plan follows it. |
 | The human, with a question about the project after `/cg` that asks for no change, such as what a function returns | Answer it from the files. Start nothing. |
 | The human, with `status` after `/cg`, or a question about where the work stands | Report the state in a few lines. Start nothing. |
 | The human, with `help` after `/cg`, or a question about what the guide does | Say what the guide does, where the work stands, and which playbooks are installed (the files in `playbooks/`). Start nothing. |

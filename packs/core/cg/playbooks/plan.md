@@ -11,10 +11,10 @@ Read `grilling.md` in full before your first question. It is beside the guide's 
 
 ## 1. Start or resume
 
-A plan is built on a decided intent: the record of what the human wants, what is out of scope and what a wrong result looks like. Read each intent under `.cg-docs/brainstorms/` whose status is `decided`, and each plan under `.cg-docs/plans/` that is not finished. Then take the first line below that fits.
+A plan is built on a decided intent: the record of what the human wants, what is out of scope and what a wrong result looks like. Read each intent under `.cg-docs/brainstorms/` whose status is `decided`, and each plan under `.cg-docs/plans/` with `schema: 2` that is not finished. Then take the first line below that fits.
 
 - **A plan for this work is a `draft`.** Continue in that file from where it stands. Never start a second plan for the same work, and never write a new text over an unfinished plan.
-- **A plan for this work is `approved` or `in-progress`.** It is frozen: progress goes into the work report, never into the plan. When the human asks for no change to it, say where it stands and end your turn. A change they ask for is an amendment. Change only what has to change, and add a line under a heading `## Amendments` at the end of the plan: `- <today's date, as YYYY-MM-DD>: <what changes, and why>`. Keep the earlier lines. Then go to step 6. The human approves the amended plan, and the record of each earlier approval keeps the text they approved then.
+- **A plan for this work is `approved` or `in-progress`.** It is frozen: progress goes into the work report, never into the plan. When the human asks for no change to it, say where it stands and end your turn. A change they ask for is an amendment. Change only what has to change, and add a line under a heading `## Amendments` at the end of the plan: `- <today's date, as YYYY-MM-DD>: <what changes, and why>`. Keep the earlier lines. Make the change through the steps it touches, 3 to 5, then go to step 6. The human approves the amended plan, and the record of each earlier approval keeps the text they approved then.
 - **No decided intent covers what the human asks for.** Write no plan from the conversation. Say that `/cg brainstorm` followed by the request settles first what is wanted, name what you see as still open, and end your turn.
 - **Otherwise** create the plan on the intent:
 
@@ -28,12 +28,12 @@ The plan is the record of the planning. A later session continues from the file,
 
 Do not interview the human again. The intent holds their answers: read it in full, with its facts, its decisions and its assumptions, and plan the approach they chose. Then look up what the plan needs and the intent does not hold (P2): the code and the outputs the work will touch, the commands this project is run and checked with in `.cg-docs/verification.md`, the project's `GLOSSARY.md`, and earlier plans and decision records on the same subject. Write the plan in the project's own terms (P11).
 
-Before any step, name the shape of the data (P6, P10): for each dataset, the unit of observation, the key and the columns that matter; for each estimate, the unit of observation, the weights and the population it covers. Take them from the code that reads the data, from the codebook or from the documentation. They go into the plan under the data register, below its table.
+Before any step, name the shape of the data (P6, P10): for each dataset, the unit of observation, the key and the columns that matter; for each estimate, the unit of observation, the weights and the population it covers. Take them from the code that reads the data, from the codebook or from the documentation. They go into the plan below the table of the data register, as sentences and never as a table: code reads every table there as datasets.
 
 Writing a plan shows what the intent left open. Handle it by what it changes:
 
 - **The goal, the scope or the approach.** That is a change to the intent, and a decided intent changes only with a new yes. Say that `/cg brainstorm` reopens it, and end your turn.
-- **A choice inside the plan that only the human can make,** such as the value they expect, a tolerance, or which output proves the work. Put it to them as `grilling.md` says, and end your turn. Write their answer into the plan, in their words.
+- **A choice inside the plan that only the human can make,** such as the value they expect, a tolerance, or which output proves the work. Put it to them as `grilling.md` says, and end your turn. Until they answer, each place of the value in the plan holds a request in angle brackets, such as `<the expected share, from the human>`: code names it as open, so the plan cannot go to approval with it. Then write their answer into the plan, in their words. When they have no value to give, ask which check stands in its place.
 - **Anything smaller.** Take the simplest reasonable default, and write it in the plan, where the human sees it at the hard stop.
 
 ## 3. Write the contract
@@ -47,7 +47,7 @@ The contract is the part of the plan the human approves and the work is held to 
   1. Its command is written as it will be run, with its arguments. Take it from the verification profile when the profile has one.
   2. "Fails when" names an outcome someone can observe: an exit code, a value, a count, a difference from a baseline. An outcome that is a matter of opinion is no check.
   3. It looks at the real output and not at a proxy: the number in the final table, the function as its caller calls it. "It runs" and "the file exists" prove nothing.
-  4. It would fail if the requirement were not met. A check that already passes on the project as it is today cannot fail for this work: replace it. A baseline or a pin is the one exception, because its job is to show that something stayed the same.
+  4. It would fail if the requirement were not met. A check that already passes on the project as it is today, as far as reading the code shows, cannot fail for this work: replace it. A baseline or a pin is the one exception, because its job is to show that something stayed the same.
   5. For a number, it compares the number with something independent of the code: a reference value, a published figure, or the value the human expects. The tolerance is set now and written in the row.
 
   At least one check must fail on the wrong result the intent names. Below the table, write what no check would catch, or that you know of nothing (P5, P7).
@@ -100,7 +100,7 @@ Then judge the plan against the principles a plan is held to. Read the Verifier 
 
 ## 7. Approve
 
-This is a hard stop. Show the human the plan as the file reads, and not a summary of it: the contract, with what each check catches and what no check would catch; the slices in order; the data register, with each dataset that stays closed and how the work goes on without it; the `reasons` line of `tier`; and your self-review, named as a self-review. For an amendment, show first what changed against the text they approved before, which the newest record under `.cg-docs/approvals/` holds as `text`. Ask whether they approve the plan. Say that a plain yes approves it and is recorded under their name, and that you will take anything else as a change or a question. Then end your turn.
+This is a hard stop. Show the human the plan as the file reads, and not a summary of it: the contract, with what each check catches and what no check would catch; the slices in order; the data register, with each dataset that stays closed and how the work goes on without it; the `reasons` line of `tier`; and your self-review, named as a self-review. For an amendment, show first what changed against the text they approved before, which the record the plan names under `approval` holds as `text`. Ask whether they approve the plan. Say that a plain yes approves it and is recorded under their name, and that you will take anything else as a change or a question. Then end your turn.
 
 When they answer, record the reply before anything else. Show the line, then run it:
 
@@ -110,7 +110,7 @@ It sets the plan to `approved` and writes the path of the record into the plan. 
 
 ## 8. Hand over
 
-Planning ends with the approved plan, not with a change. Do not start a slice in the same turn. Commit only when the human asks: the plan, its intent and their records under `.cg-docs/approvals/` then go into one commit (P8).
+Planning ends with the approved plan, not with a change. Do not start a slice in the same turn. Commit only when the human asks: the plan, its intent and their records under `.cg-docs/approvals/` then go into one commit, with `.cg-docs/config.json` when step 5 changed it (P8).
 
 **Reply:** the path of the plan and its status, the goal in one sentence, each requirement with its checks, the slices in order, each dataset that stays closed, what is deferred, what no check would catch, the self-review verdict for each principle, what you did not look up, and what the human can do next: `/cg` followed by the first slice, which quick work does when it is small enough. When the turn ends before the plan is approved, say which step you are at and what you are waiting for. Label each claim measured, inferred or guess.
 
