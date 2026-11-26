@@ -87,6 +87,7 @@ A flag for exposed restricted data, exposed personal data or an exposed credenti
 ## Deterministic checks
 
 - Every dataset path the code reads appears in the data register with a classification.
+- `cg.py approve` refuses a plan whose data register lists a dataset with no recorded classification, or with another one than the recorded one.
 - `cg.py tier` raises the tier when a data file the work reads is not cleared for the current tool and no decision of the human to read it is recorded. A file is cleared when its recorded classification is Public, or is the one the tool is declared approved for or a less restricted one in the organization's scheme. A folder that the work reads is held to every rule recorded below it. Once a decision is recorded, `tier` names it on every run.
 - A search of changed files for data files, credential patterns and row-level content.
 - Evidence entries contain digests and counts only.

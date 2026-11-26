@@ -39,7 +39,7 @@ def test_every_check_in_a_plan_can_fail(env):
         refused(env, path, GOOD.replace("| no error is raised |", f"| {cell} |"),
                 "check C2 does not say which outcome means failure")
     for cell in ("never", "Never, it is a smoke run", "nothing", "None.", "It cannot fail.", "this check can't fail",
-                 "always passes"):
+                 "always passes", "N/A - a smoke run", "not applicable"):
         refused(env, path, GOOD.replace("| no error is raised |", f"| {cell} |"), "check C2 cannot fail")
     for cell in ("TBD", "`to be decided`", "..."):
         refused(env, path, GOOD.replace("`Rscript tests/missing-weight.R`", cell), "check C2 has no command")
@@ -57,7 +57,7 @@ def test_every_check_in_a_plan_can_fail(env):
         refused(env, path, GOOD.replace(old, new), words)
     # An outcome that starts like a placeholder, or that holds the word fail, is still an outcome.
     for cell in ("unknown country codes are left in the output", "the run does not fail on a missing weight",
-                 "nothing is returned", "none of the rows has a weight", "open rows remain"):
+                 "nothing is returned", "none of the rows has a weight", "open rows remain", "NA is returned"):
         path.write_text(GOOD.replace("| no error is raised |", f"| {cell} |"), encoding="utf-8")
         assert env["cg"]("validate", "--strict", PLAN) == (0, CLEAN), cell
     path.write_text(GOOD.replace("| by code: R/headcount.R |", "| by judgement |"), encoding="utf-8")
@@ -79,7 +79,7 @@ def test_a_plan_is_approved_only_by_the_humans_recorded_yes_which_is_written_int
     (record,) = env["plan-records"]()
     text = path.read_text()
     assert "\nstatus: approved\n" in text and text.endswith(PLAN_BODY)
-    assert f"\napproval: .cg-docs/approvals/{record.name}\n" in text.split("\n---\n")[0]
+    assert f"\napproval: .cg-docs/approvals/{record.name}\n" in text.split("---\n")[1]
     held = json.loads(record.read_text(encoding="utf-8"))
     assert held["reply"] == "Yes." and held["text"] == PLAN_BODY.strip("\n")  # the text they said yes to
     assert env["cg"]("validate", "--strict", PLAN) == (0, CLEAN)
@@ -139,6 +139,9 @@ def test_the_data_register_is_held_to_the_recorded_classifications(env):
         code, out = env["cg"]("approve", PLAN, "--reply", "Yes.")
         assert code == 1 and words in out and "setup --data" in out and "status: draft" in path.read_text(), out
     env["config"](data={"inst/extdata": "PUBLIC"})  # a folder's rule covers the file, in any case
+    assert env["cg"]("validate", "--strict", PLAN) == (0, CLEAN)
+    path.write_text(GOOD.replace(row, row.replace("| Public |", "| **Public** |").replace("inst/", "`inst/")
+                                 .replace(".csv |", ".csv` |")), encoding="utf-8")
     assert env["cg"]("validate", "--strict", PLAN) == (0, CLEAN)
     for cell in ("unknown", "TBD", ""):
         path.write_text(GOOD.replace("| the team |", f"| {cell} |"), encoding="utf-8")
@@ -281,7 +284,7 @@ def test_the_lines_the_plan_playbook_runs_work_as_written(env):
 
 def test_the_plan_template_asks_for_what_code_checks_and_new_fills_in_the_intent():
     template = (CG / "templates" / "plan.md").read_text(encoding="utf-8")
-    assert "\nintent: {intent}\n" in template.split("\n---\n")[0]
+    assert "\nintent: {intent}\n" in template.split("---\n")[1]
     assert "no check" in template[template.index("### Checks"):template.index("### Boundaries")]
     assert "recorded" in template[template.index("## Data register"):template.index("## Slices")]
 

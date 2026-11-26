@@ -4,6 +4,7 @@ Usage, with the interpreter that ~/.cg/launcher.json records as <python>:
   "<python>" cg.py doctor [--project PATH]
   "<python>" cg.py status [--project PATH] [--json] [--guide [--playbook NAME]]
   "<python>" cg.py new TYPE TITLE... [--project PATH] [--date YYYY-MM-DD]
+  "<python>" cg.py new plan TITLE... --intent INTENT [--other-work] [--project PATH] [--date YYYY-MM-DD]
   "<python>" cg.py validate [FILE...] [--strict] [--json] [--project PATH]
   "<python>" cg.py approve PLAN|INTENT --reply "the human's reply, word for word" [--project PATH]
   "<python>" cg.py approve --reads FILE... --agent NAME --reply "..." [--project PATH]
@@ -18,7 +19,10 @@ status names the next playbook only with --guide: the guide asks for it, and an
 agent that runs status from the pointer block must not open a playbook (#223).
 --playbook is the playbook the human asked for by name; a project that is not
 set up gets setup first.
+new plan makes a plan on a decided intent, and none beside an unfinished plan
+unless the human said that it is other work (--other-work).
 approve records the human's yes to a plan or to an intent, as the file reads.
+An approved plan changes by an amendment: a dated line under ## Amendments.
 setup needs --packs the first time; later runs keep the recorded packs.
 validate fails on a schema 2 artifact that breaks the schema; --strict, for a
 project's CI, fails on a warning too. Version 1 artifacts are read as they are.
@@ -86,7 +90,8 @@ ARTIFACTS = {
 }
 ARTIFACT_FOLDERS = {kind: spec["folder"] for kind, spec in ARTIFACTS.items()}
 COMMON_KEYS = ("type", "schema", "title", "date", "status")
-LINK_KEYS = ("intent", "plan", "work-report", "review", "supersedes")  # each a path from the project root
+# Each a path from the project root. `approval` is the record of the human's yes, written by approve.
+LINK_KEYS = ("intent", "plan", "work-report", "review", "supersedes", "approval")
 KNOWN_KEYS = COMMON_KEYS + LINK_KEYS + ("size", "decided-by", "tags")
 SETTLED = ("dropped", "superseded")  # nobody will finish these, so unfilled text in them is no failure
 # The artifacts that rest on the human's yes. Per type: the statuses a file may have when approve
@@ -130,6 +135,9 @@ NOT_FILLED = (r"(still |not yet |remains )?(open|pending|t\.?b\.?[dac]\.?|todo|f
               r"no (answer|reply|decision)( yet)?|none yet|nothing yet|don'?t know|no idea|"
               r"pendiente|por (decidir|confirmar|definir|ver|responder)|sin (respuesta|decidir|definir)|"
               r"abiert[oa]|desconocid[oa]|no s[eé])(?!\w)")
+# A "Fails when" cell that says its check cannot fail. Whether a command can fail is by judgement.
+CANNOT_FAIL = (r"((it|this|this check|the check) )?(never\b|nothing\W*$|none\W*$|n/a\b|not applicable\b|"
+               r"(cannot|can ?not|can'?t) fail\b|always (passes|succeeds)\b)")
 # What stands in a Source cell that names no source. "the human" is a source (grilling.md).
 NO_SOURCE = (r"(none|no source|nowhere|not (found|checked|looked up|verified)|guess(ed)?|my guess|"
              r"assum(ed|ption)|(from )?memory|(general|common) knowledge|i think|i believe|presumably|"
@@ -621,11 +629,26 @@ def cmd_new(args) -> int:
     if target.exists():
         print(f"exists, not overwritten: {target.relative_to(project).as_posix()}")
         return 1
+    intent = decided_intent(project, args.intent) if args.type == "plan" and args.intent else None
+    if args.type == "plan":  # what a plan is built on, and what it must not push aside (#226)
+        unfinished = [f"{a['path']} (status {a['status']})" for a in artifacts(project)
+                      if a["type"] == "plan" and a["schema"] == SCHEMA and a["state"] != "closed"]
+        if intent is None:
+            print("refused: a plan is built on a decided intent; give its path with --intent. An intent is "
+                  "decided by the human's recorded yes to its text. When no decided intent covers this work, "
+                  "the human starts one with /cg brainstorm")
+            return 1
+        if unfinished and not args.other_work:
+            print(f"refused: a plan is not finished: {'; '.join(unfinished)}\nThe same work goes on in that file: "
+                  "a draft is edited, and an approved plan takes an amendment. When this is other work, ask the "
+                  "human whether the new plan stands beside it, and after their yes add --other-work")
+            return 1
     template = CG_DIR / "templates" / f"{args.type}.md"
     safe_title = title.replace("\\", "\\\\").replace('"', '\\"')
-    values = {"type": args.type, "title": safe_title, "heading": title, "date": date}
+    values = {"type": args.type, "title": safe_title, "heading": title, "date": date,
+              "intent": intent["path"] if intent else ""}
     # One pass, so a title that itself holds "{date}" is kept as written (#218).
-    text = re.sub(r"\{(type|title|heading|date)\}", lambda m: values[m.group(1)],
+    text = re.sub(r"\{(type|title|heading|date|intent)\}", lambda m: values[m.group(1)],
                   template.read_text(encoding="utf-8"))
     write_atomic(target, text)
     print(f"created {target.relative_to(project).as_posix()}")
@@ -691,16 +714,74 @@ def contract_problems(body: str):
             problems.append(f"check {cid} names no requirement")
         if unknown:
             problems.append(f"check {cid} names {', '.join(unknown)}, which the Requirements table does not hold")
-        if not command.strip("` "):
+        if nothing(command):
             problems.append(f"check {cid} has no command")
-        if not fails:
+        if nothing(fails):
             problems.append(f"check {cid} does not say which outcome means failure")
+        elif re.match(CANNOT_FAIL, bare(fails)):
+            problems.append(f"check {cid} cannot fail: '{fails}' names no outcome that means failure")
         covered.update(named)
         ids.append(cid)
-    problems += [f"the ID {i} appears twice" for i in sorted({i for i in ids + requirements
-                                                              if (ids + requirements).count(i) > 1})]
+    # A slice ends in a check, and a check that no slice ends in is never run (P4). Each slice says
+    # which files it may touch (P6) and whether it is done by code, with the tool, or by judgement (P3).
+    slices, run = [(row + [""] * 5)[:5] for row in table_rows(body, "## Slices") if row], set()
+    problems += [] if slices else ["the Slices table needs a row"]
+    for sid, _, files, checked, how in slices:
+        if not re.fullmatch(r"S\d+", sid):
+            problems.append(f"'{sid}' is not an ID such as S1")
+        named = re.findall(r"C\d+", checked)
+        if not named:
+            problems.append(f"slice {sid} ends in no check")
+        if set(named) - set(ids):
+            problems.append(f"slice {sid} names {', '.join(sorted(set(named) - set(ids)))}, which the Checks "
+                            f"table does not hold")
+        if nothing(files):
+            problems.append(f"slice {sid} names no file")
+        if not re.search(r"\bby (code|judgement)\b", bare(how)):
+            problems.append(f"slice {sid} does not say whether it is done by code or by judgement")
+        elif "by judgement" not in bare(how) and nothing(bare(how).replace("by code", "")):
+            problems.append(f"slice {sid} is done by code and names no tool")
+        run.update(named)
+    problems += [f"check {cid} is run by no slice" for cid in ids if slices and cid not in run]
+    ids += requirements + [sid for sid, *_ in slices]
+    problems += [f"the ID {i} appears twice" for i in sorted({i for i in ids if ids.count(i) > 1})]
     problems += [f"requirement {rid} has no check" for rid in requirements if rid not in covered]
     return problems
+
+
+def plan_inputs(project: Path, a: dict):
+    """What a plan rests on that code can check before the human's yes: a decided intent (P1), and
+    for each dataset in its register the classification the human had recorded (P12). A level
+    typed into the plan is a description; only a recorded rule is a classification."""
+    named = a["fields"].get("intent") or []
+    named = [named] if isinstance(named, str) else named
+    problems = [] if named else ["it names no intent; a plan is built on a decided intent, linked under 'intent'"]
+    problems += [f"the intent {target} is not decided as it now reads; the human confirms it first, in a brainstorm"
+                 for target in named if (project / target).is_file() and not decided_intent(project, target)]
+    config = read_config(project)[0]
+    config = {} if rule_problems(config) else config or {}
+    for row in table_rows(a["body"], "## Data register"):
+        cells = [cell.strip("`\"'*~ ") for cell in (row + [""] * 6)[:6]]
+        name, level = cells[:2]
+        if name.lower() == "none" or "<" in name:  # no dataset, or a row of the template, which unfilled() names
+            continue
+        recorded = None if nothing(name) else clearance(project, config, data_path(project, name), "")["level"]
+        if any(nothing(cell) for cell in cells):
+            problems.append(f"the data register leaves a cell of {name or 'a row'} unfilled")
+        elif recorded is None:
+            problems.append(f"no classification is recorded for {name}, which the data register lists; ask the "
+                            f"human for its level, and record it with setup --data")
+        elif not same_level(recorded, level):
+            problems.append(f"the data register gives {name} as {level}, and the recorded classification is "
+                            f"{recorded}; write the recorded one, or record the human's with setup --data")
+    return problems
+
+
+def decided_intent(project: Path, target: str):
+    """The intent a path names, when it is decided on the human's yes to its text; else None."""
+    at = artifact_at(project, target)
+    intent = read_artifact(at[0], "intent", project) if at and at[1] == "intent" else None
+    return intent if intent and intent["status"] == "decided" and is_approved(project, intent) else None
 
 
 def blank(cell: str, source: bool = False) -> bool:
@@ -720,12 +801,16 @@ def bare(text: str) -> str:
     return re.sub(r"^(\d+[.)]\s+|[^\w\"'“‘«])+", "", text)
 
 
+def nothing(cell: str) -> bool:
+    """True when a cell says nothing: no word, or only a placeholder such as TBD. A cell that only
+    starts with such a word is content: "unknown codes are left in the output" names an outcome."""
+    return not re.search(r"\w", bare(cell)) or bool(re.fullmatch(NOT_FILLED + r"[\W_]*", bare(cell)))
+
+
 def filler(line: str) -> bool:
-    """True when a line under a heading says nothing: no word, or only a placeholder such as TBD.
-    In a table row, every cell must be so. A line that only starts with such a word is content."""
+    """True when a line under a heading says nothing. In a table row, every cell must say nothing."""
     cells = line.strip().strip("|").split("|") if line.lstrip().startswith("|") else [line]
-    return all(not re.search(r"\w", bare(cell)) or re.fullmatch(NOT_FILLED + r"[\W_]*", bare(cell))
-               for cell in cells)
+    return all(nothing(cell) for cell in cells)
 
 
 def empty_sections(body: str, wanted):
@@ -820,8 +905,10 @@ def artifact_problems(project: Path, a: dict, approving: bool = False):
     errors += missing
     warnings = [f"the key '{key}' is not part of schema {SCHEMA}" for key in fields if key not in KNOWN_KEYS]
     rests_on_yes = a["status"] in APPROVED.get(a["type"], ((), "", ()))[2]
-    if a["type"] == "plan":
-        errors += [] if missing else contract_problems(a["body"])
+    if a["type"] == "plan" and not missing:
+        errors += contract_problems(a["body"])
+        if approving or a["status"] == "draft":  # a draft's inputs may still be open; a yes needs them settled
+            (errors if approving else warnings).extend(plan_inputs(project, a))
     if a["type"] == "intent" and not missing:  # an open decision is a draft's normal state
         (errors if approving or rests_on_yes else warnings).extend(intent_problems(a["body"]))
     if rests_on_yes and not approving and not is_approved(project, a):
@@ -894,8 +981,18 @@ def text_hash(body: str) -> str:
     voiding the approval. Line ends, trailing spaces and blank lines at either
     end are left out, so a sync or an editor cannot void it either.
     """
-    text = "\n".join(line.rstrip() for line in body.splitlines()).strip("\n")
-    return "sha256:" + hashlib.sha256(text.encode("utf-8")).hexdigest()
+    return "sha256:" + hashlib.sha256(approved_text(body).encode("utf-8")).hexdigest()
+
+
+def approved_text(body: str) -> str:
+    """A body as an approval holds it: without trailing spaces and without blank lines at either end."""
+    return "\n".join(line.rstrip() for line in body.splitlines()).strip("\n")
+
+
+def amendments(body: str) -> int:
+    """The number of dated lines under `## Amendments`, such as `- 2026-11-26: what changes and why`."""
+    found = re.search(r"^## Amendments[ \t]*$(.*?)(?=^## |\Z)", body, re.M | re.S)
+    return len(re.findall(r"^[-*] \d{4}-\d\d-\d\d\b", found.group(1), re.M)) if found else 0
 
 
 def approvals(project: Path, artifact: dict):
@@ -996,7 +1093,12 @@ def cmd_approve(args) -> int:
     refused += more
     digest = text_hash(plan["body"])
     record_path = project / ".cg-docs" / "approvals" / f"{at[0].stem}.{digest[7:23]}.json"
-    known, stamp = is_approved(project, plan), now()
+    known, stamp, earlier = is_approved(project, plan), now(), approvals(project, plan)
+    if kind == "plan" and earlier and not known and (
+            amendments(plan["body"]) <= amendments(str(earlier[-1].get("text", "")))):
+        refused.append("this plan was approved before, and a change to an approved plan is an amendment (P1); add "
+                       "a line under a heading '## Amendments' at its end, such as '- 2026-11-26: what changes, "
+                       "and why', keep the earlier lines, and show the human what changed")
     if record_path.exists() and not known:
         try:
             held = json.loads(record_path.read_text(encoding="utf-8"))
@@ -1014,15 +1116,23 @@ def cmd_approve(args) -> int:
     if known:
         print(f"already approved as it now reads: {plan['path']}")
     else:
+        # The record keeps the text the human said yes to, so what was approved stays readable (P1).
         record = {"artifact": plan["path"], "hash": digest, "reply": args.reply, "name": name, "email": email,
-                  "time": stamp}
+                  "time": stamp, "text": approved_text(plan["body"])}
         write_atomic(record_path, json.dumps(record, indent=2, ensure_ascii=False) + "\n")
         print(f"approved {plan['path']}\nrecord: {record_path.relative_to(project).as_posix()}\n"
               f"hash: {digest}\nby: {name} <{email}>")
-    if plan["status"] == "draft":  # the one line of the file that code changes
-        text = at[0].read_text(encoding="utf-8-sig")
-        write_atomic(at[0], re.sub(r"\A(---[ \t]*\n(?:(?!---|status:).*\n)*)status:.*", rf"\1status: {written}",
-                                   text, count=1))
+    # The two lines of the file that code changes: its status, and the record of the yes just written.
+    keys = {**({} if known else {"approval": record_path.relative_to(project).as_posix()}),
+            **({"status": written} if plan["status"] == "draft" else {})}
+    lines = at[0].read_text(encoding="utf-8-sig").split("\n")
+    end = next(i for i, line in enumerate(lines[1:], 1) if line.strip() == "---")
+    for key, value in keys.items():
+        spot = next((i for i in range(1, end) if lines[i].startswith(f"{key}:")), end)
+        lines[spot:spot + (spot < end)] = [f"{key}: {value}"]
+        end += spot == end
+    if keys:
+        write_atomic(at[0], "\n".join(lines))
     return 0
 
 
@@ -1510,6 +1620,9 @@ def main(argv=None) -> int:
     new.add_argument("title", nargs="+")
     new.add_argument("--project", default=".")
     new.add_argument("--date")
+    new.add_argument("--intent", help="for a plan: the decided intent it is built on")
+    new.add_argument("--other-work", action="store_true",
+                     help="for a plan: the human said it stands beside the unfinished plan")
     packs = sub.add_parser("packs", help="list the installed packs")
     packs.add_argument("--json", action="store_true")
     setup = sub.add_parser("setup", help="write what the human confirmed in the setup playbook")

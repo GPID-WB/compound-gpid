@@ -7,13 +7,15 @@ derived-from: "cursor/plugins@ca782ed:pstack/skills/poteto-mode/playbooks/featur
 
 **You own this piece of work from the request to the evidence: restate, check the risk, change, prove, record.** Quick work has no hard stop unless step 2 finds a reason for one. It always leaves evidence.
 
-Until the plan and review playbooks are installed, this is the one playbook for work in a project that is set up.
+Until the work and review playbooks are installed, this is the one playbook that changes a project that is set up.
 
 ## 1. Restate
 
 Say in one or two sentences what the human asked for and the smallest change that meets it (P6). Name what you will leave alone. If the request can be read two ways, ask which is meant. Do not pick one.
 
 If status shows an open work report under `active`, read it first: continue that work, or ask the human whether to close it. If the human gave no request and nothing is open, ask what they want done and end your turn.
+
+When the request names a slice of an approved plan, read the plan first. Its contract holds here: do that slice and no other, touch only the files the slice lists, and run the checks it ends in.
 
 ## 2. Check the risk
 
@@ -36,7 +38,7 @@ Give `--touches` once for each file the change will create, change or delete. Gi
 
 **`tier: low`.** Go on to step 3 without waiting.
 
-**`tier: elevated`.** This is a hard stop. Tell the human each reason on the `reasons` line. Then give a short contract: the goal, what is out of scope, and the checks you will run with the outcome that would mean failure. When a reason is `data`, ask in the same reply for what would clear the file, with an example answer the human can copy: its classification, and the highest level their organization lets this coding agent read. Say how you will work without seeing the data if they cannot answer yet (P12). The human answers for the data, so say too that they may decide you read the file as it stands, that reading it sends its contents to the company that runs the model, that their organization's rules still bind them, and that code records the decision under their name when they reply with a plain yes. End your turn, and go on only after a clear yes. When a reason is `size`, say that the work needs a plan, and offer the first slice that is small enough to do now. When a reason is `choice`, put the choice to the human in the same reply, with the answer you recommend and its trade-off. If one question cannot settle it, say that `/cg brainstorm` works it through before anything changes.
+**`tier: elevated`.** This is a hard stop. Tell the human each reason on the `reasons` line. Then give a short contract: the goal, what is out of scope, and the checks you will run with the outcome that would mean failure. When a reason is `data`, ask in the same reply for what would clear the file, with an example answer the human can copy: its classification, and the highest level their organization lets this coding agent read. Say how you will work without seeing the data if they cannot answer yet (P12). The human answers for the data, so say too that they may decide you read the file as it stands, that reading it sends its contents to the company that runs the model, that their organization's rules still bind them, and that code records the decision under their name when they reply with a plain yes. End your turn, and go on only after a clear yes. When a reason is `size`, say that the work needs a plan, which `/cg plan` writes once `/cg brainstorm` has settled what is wanted, and offer the first slice that is small enough to do now. When a reason is `choice`, put the choice to the human in the same reply, with the answer you recommend and its trade-off. If one question cannot settle it, say that `/cg brainstorm` works it through before anything changes.
 
 **When the human answers a data question,** here or later in the work, record the answer before you go on, so that no later session asks again. Show the line, then run it:
 

@@ -4,6 +4,7 @@ schema: 2
 title: "{title}"
 date: {date}
 status: draft
+intent: {intent}
 ---
 
 # {heading}
@@ -34,6 +35,8 @@ Every requirement has a check, and every check can fail.
 |---|---|---|---|
 | C1 | R1 | <the command, as it will be run> | <the outcome that means the requirement is not met> |
 
+What no check would catch: <what could still be wrong while every check passes, or "nothing known">
+
 ### Boundaries
 
 - Always: <what the agent does without asking>
@@ -44,7 +47,9 @@ Every requirement has a check, and every check can fail.
 
 | Dataset | Classification | Source | Version | Owner | Permitted use |
 |---|---|---|---|---|---|
-| <path of a dataset the work reads or produces, or "none"> | <its classification, in the human's words> | <where it comes from> | <its version or date> | <who owns it> | <what the work may do with it> |
+| <path of a dataset the work reads or produces, or "none"> | <its classification, as recorded: the level on the `data` line of status> | <where it comes from> | <its version or date> | <who owns it> | <what the work may do with it> |
+
+Shape of the data: <for each dataset, the unit of observation, the key and the columns that matter; for each estimate, the unit of observation, the weights and the population it covers; or "no dataset">
 
 ## Slices
 

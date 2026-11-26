@@ -63,6 +63,9 @@ _Avoid_: spec (for the approved document)
 **Requirement**:
 One thing the contract says the work must do.
 
+**Amendment**:
+A change to an approved plan. The plan says what changed and why, the human approves it again, and the record of the earlier approval keeps the text they approved before.
+
 ## Checking
 
 **Verification**:
@@ -196,6 +199,7 @@ _Avoid_: kernel
 
 - A plan holds one **contract**. A contract lists **requirements** and **checks**.
 - A plan is cut into **slices**. Each slice ends in a check.
+- A plan is built on a decided **intent**. An approved plan changes only by an **amendment**.
 - A check that ran leaves **evidence** and gets a **verdict**.
 - **Verification** and **validation** together are what "prove it works" means.
 - A **verifier** reads one **lens**, checks one **principle**, and returns a verdict block.

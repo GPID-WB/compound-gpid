@@ -75,6 +75,7 @@ Flag when:
 
 ## Deterministic checks
 
+- `cg.py validate`: every slice of a plan says whether it is done by code or by judgement, and a slice done by code names its tool.
 - `cg.py repro`: run the declared command twice and compare output digests.
 - A lockfile exists for each language the project uses.
 - A search of changed files for sampling and random calls with no seed nearby.

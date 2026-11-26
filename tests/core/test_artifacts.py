@@ -262,7 +262,7 @@ def test_validate_passes_a_filled_plan_and_names_each_break_of_the_schema(env):
         (good.replace('title: "Headcount"\n', ""), "the key 'title' is missing or empty"),
         (good.replace("schema: 2", "schema: 3"), "a higher number needs a newer core"),
         (good.replace("status: draft\n", "status: draft\nsteps:\n  - one\n"), "'steps' holds a nested block"),
-        (good.replace("status: draft\n", "status: draft\nintent: .cg-docs/brainstorms/none.md\n"), "intent: no such file"),
+        (good.replace(IDEA, ".cg-docs/brainstorms/none.md"), "intent: no such file"),
         (good.replace("### Boundaries", "### Limits"), "the section '### Boundaries' is missing"),
         (good.replace("## Data register", "## Data"), "the section '## Data register' is missing"),
         (good.replace("| C2 | R2 |", "| C2 | R1 |"), "requirement R2 has no check"),
