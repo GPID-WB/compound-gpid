@@ -118,12 +118,16 @@ def test_the_rerun_answers_a_brainstorm_from_the_state_of_the_intent_alone():
     assert gate.brainstorm_reply({**draft, "complete": True}, False) == gate.VAGUE
     assert gate.brainstorm_reply({**draft, "complete": True}, True) == gate.YES_INTENT
     assert gate.brainstorm_reply({**draft, "status": "decided"}, True) is None
-    # What the script sends must be what cg.py takes it for: one reply that is not a yes, two that are.
+    # What the script sends must be what cg.py takes it for. Only the last one is a yes to the intent:
+    # the answers to a round say more than a plain yes, so no agent can have them recorded as one.
     sys.path.insert(0, str(CG.parent))
     import cg
-    assert gate.VAGUE.lower().strip(".") in cg.NOT_A_YES
-    for reply in (gate.ANSWERS, gate.YES_INTENT):  # a machine with no git identity adds a line of its own
-        assert [line for line in cg.the_yes(HUB, reply)[0] if "user.name" not in line] == [], reply
+
+    def refused(reply):  # a machine with no git identity adds a line of its own
+        return [line for line in cg.the_yes(HUB, reply)[0] if "user.name" not in line]
+    assert gate.VAGUE.lower().strip(".") in cg.NOT_A_YES and "agrees without deciding" in refused(gate.VAGUE)[0]
+    assert "says more than a plain yes" in refused(gate.ANSWERS)[0]
+    assert refused(gate.YES_INTENT) == []
 
 
 def test_a_transcript_keeps_no_name_and_no_email_of_the_person_who_ran_it(monkeypatch, tmp_path):

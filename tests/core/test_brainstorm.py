@@ -66,11 +66,11 @@ def test_an_intent_is_decided_only_by_the_humans_recorded_yes(env):
     path = env["put"]("intent", front("intent", "draft") + INTENT_BODY)
     assert env["cg"]("validate", "--strict")[0] == 0
     assert json.loads(env["cg"]("status", "--json")[1])["waiting-on-human"] == [f"{INTENT} (status draft)"]
-    code, out = env["cg"]("approve", INTENT, "--reply", "Yes, that is what I want.")
+    code, out = env["cg"]("approve", INTENT, "--reply", "Yes.")
     assert code == 0 and f"approved {INTENT}" in out and "by: Test Human" in out, out
     assert "status: decided" in path.read_text() and path.read_text().endswith(INTENT_BODY)
     (record,) = records(env["project"])
-    assert record["reply"] == "Yes, that is what I want." and record["artifact"] == INTENT
+    assert record["reply"] == "Yes." and record["artifact"] == INTENT
     assert record["hash"] == load_cg().text_hash(INTENT_BODY)
     assert env["cg"]("validate", "--strict")[0] == 0
     assert json.loads(env["cg"]("status", "--json")[1])["waiting-on-human"] == []
@@ -86,10 +86,10 @@ def test_a_status_typed_into_an_intent_is_not_the_humans_yes(env):
 
 def test_a_decided_intent_that_changes_needs_a_new_yes(env):
     path = env["put"]("intent", front("intent", "draft") + INTENT_BODY)
-    env["cg"]("approve", INTENT, "--reply", "Yes, that is what I want.")
+    env["cg"]("approve", INTENT, "--reply", "Yes.")
     path.write_text(path.read_text().replace("99th percentile", "95th percentile"))
     assert env["cg"]("validate")[0] == 1
-    code, out = env["cg"]("approve", INTENT, "--reply", "Yes, the 95th percentile.")
+    code, out = env["cg"]("approve", INTENT, "--reply", "Yes, approved.")
     assert code == 0 and "status: decided" in path.read_text(), out
     assert len(records(env["project"])) == 2 and env["cg"]("validate")[0] == 0
 
@@ -116,7 +116,7 @@ def test_an_intent_with_something_still_open_is_not_confirmed(env):
     path = env["put"]("intent", good)
     for text, words in breaks:
         path.write_text(text, encoding="utf-8")
-        code, out = env["cg"]("approve", INTENT, "--reply", "Yes, that is what I want.")
+        code, out = env["cg"]("approve", INTENT, "--reply", "Yes.")
         assert code == 1 and "refused" in out and words in out, (words, out)
         assert "status: draft" in path.read_text() and not (env["project"] / ".cg-docs" / "approvals").exists()
     # While the intent is a draft, an open decision is its normal state: a warning, which --strict fails.
@@ -127,7 +127,7 @@ def test_an_intent_with_something_still_open_is_not_confirmed(env):
     path.write_text(breaks[0][0].replace("status: draft", "status: decided"), encoding="utf-8")
     assert "FAIL" in env["cg"]("validate")[1]
     path.write_text(good.replace("status: draft", "status: dropped"), encoding="utf-8")
-    code, out = env["cg"]("approve", INTENT, "--reply", "Yes, that is what I want.")
+    code, out = env["cg"]("approve", INTENT, "--reply", "Yes.")
     assert code == 1 and "an intent takes an approval while it is draft or decided" in out, out
     path.write_text(good.replace("status: draft", "status: parked"), encoding="utf-8")
     assert "status is parked; an intent is one of: draft, decided, dropped" in env["cg"]("validate")[1]
@@ -142,15 +142,17 @@ def test_replies_that_are_not_a_yes_are_refused_with_what_to_ask_next(env):
             code, out = env["cg"]("approve", INTENT, "--reply", said)
             assert code == 1 and f'refused: "{said.strip()}" {cg.KINDS[kind]}' in out, (said, out)
     cases = [("Whatever you think is best.", "hands the decision back"), ("Sure go on", "agrees without deciding"),
-             ("Yes, but use the 95th percentile.", "a condition or a correction"),
-             ("Go ahead, unless the survey team objects", "a condition or a correction"),
+             ("Yes, but use the 95th percentile.", "says more than a plain yes"),
+             ("Go ahead, unless the survey team objects", "says more than a plain yes"),
              ("Not yet.", "says no, or not yet")]
     for said, words in cases:
         code, out = env["cg"]("approve", INTENT, "--reply", said)
         assert code == 1 and words in out and "status: draft" in path.read_text(), (said, out)
     assert not (env["project"] / ".cg-docs" / "approvals").exists()
-    # A reply that opens the same way and then says a plain yes is a yes.
-    assert env["cg"]("approve", INTENT, "--reply", "Sounds good. Yes.")[0] == 0
+    # A reply that opens the same way and then says yes still says more than a plain yes.
+    code, out = env["cg"]("approve", INTENT, "--reply", "Sounds good. Yes.")
+    assert code == 1 and "says more than a plain yes" in out
+    assert env["cg"]("approve", INTENT, "--reply", "Yes.")[0] == 0
 
 
 def test_status_opens_the_playbook_the_human_asked_for_once_the_project_is_set_up(env):
@@ -234,7 +236,7 @@ def test_the_lines_the_brainstorm_runs_work_as_written(env):
     asked = approve.replace("<the intent>", made)
     # The line as written holds no reply yet, and code does not take its placeholder for a yes.
     assert "holds no plain yes" in env["cg"](*shlex.split(asked))[1]
-    code, out = env["cg"](*shlex.split(asked.replace("<the human's reply, word for word>", "Yes, that is it.")))
+    code, out = env["cg"](*shlex.split(asked.replace("<the human's reply, word for word>", "Yes.")))
     assert code == 0 and "approved" in out and "status: decided" in path.read_text(), out
 
 
@@ -248,33 +250,48 @@ def test_the_intent_template_holds_what_grilling_settles(env):
 
 # ---------------------------------------------------------------- review of 2.2 before Opus (#225)
 
-def test_only_a_reply_that_holds_a_plain_yes_is_recorded(env):
-    """The maintainer's decision of 2026-11-26 (#225): code records a reply only when it holds a
-    plain yes word. Before, it refused a list and recorded the rest, "I'd rather not" included."""
+def test_only_a_plain_yes_and_nothing_else_is_recorded(env):
+    """The maintainer's two decisions of 2026-11-26 (#225). First: a reply is recorded only when it
+    holds a plain yes word. Then, after the review by Opus 5.5 showed that lists of what is not a
+    yes keep missing cases: only when it holds nothing else. Each hard stop asks for a plain yes."""
     path = env["put"]("intent", front("intent", "draft") + INTENT_BODY)
-    refused = [("I don't approve", "holds no plain yes"), ("I do not agree", "holds no plain yes"),
-               ("I'd rather not", "holds no plain yes"), ("Absolutely not", "holds no plain yes"),
-               ("Maybe", "holds no plain yes"), ("Let me think about it", "holds no plain yes"),
-               ("Sure", "holds no plain yes"), ("Is D1 really the Pareto tail?", "holds no plain yes"),
-               ("Change D1 to the 95th percentile", "holds no plain yes"), ("Si quieres", "holds no plain yes"),
-               ("That is not ok", "says no"), ("It isn't approved", "says no"), ("I can't say yes yet", "says no"),
-               ("No estoy de acuerdo", "says no"), ("Todavía no estoy de acuerdo", "says no"),
-               ("Yes, and also add the poverty gap", "a condition or a correction"),
-               ("Yes, though drop D1", "a condition or a correction"),
-               ("Sí, pero solo la ola de 2019", "a condition or a correction")]
-    for said, words in refused:
-        code, out = env["cg"]("approve", INTENT, "--reply", said)
-        assert code == 1 and words in out and "status: draft" in path.read_text(), (said, out)
+    refused = {
+        "holds no plain yes": ["I don't approve", "I do not agree", "I'd rather not", "Absolutely not", "Maybe",
+                               "Let me think about it", "Sure", "Proceed.", "Thanks", "Please do it",
+                               "Is D1 really the Pareto tail?", "Change D1 to the 95th percentile"],
+        "says more than a plain yes": ["Yes, that is what I want.", "Sounds good. Yes.", "Yes. No other change.",
+                                       "Yes, nothing to change.", "Yes to D1, no to D2", "OK, your call",
+                                       "Yes, up to you", "I agree with nothing here", "Approved? Not by me",
+                                       "Yes, the recommended answer for each", "Yes, approved. What's next?",
+                                       "That is not ok", "It isn't approved", "I can't say yes yet", "Is this ok?",
+                                       "Yes, and also add the poverty gap", "Yes, drop D2.", "Si quieres",
+                                       "Todavía no estoy de acuerdo", "Sí, pero solo la ola de 2019",
+                                       "Yes, I confirm D1 and D2 as written."],
+        "says no, or not yet": ["No.", "Not yet", "No problem, go ahead", "No estoy de acuerdo", "Wait, ok"],
+        "agrees without deciding": ["Sounds good.", "Looks good to me"],
+        "hands the decision back": ["Up to you", "Whatever you think is best."],
+    }
+    for words, replies in refused.items():
+        for said in replies:
+            code, out = env["cg"]("approve", INTENT, "--reply", said)
+            assert code == 1 and words in out and "status: draft" in path.read_text(), (said, out)
     assert not (env["project"] / ".cg-docs" / "approvals").exists()
-    for number, said in enumerate(("ok", "OK.", "Okay, do it", "Sí", "Sí.", "si, de acuerdo", "De acuerdo.", "Go ahead.",
-                                   "I agree", "Approved", "Confirmed.", "Yes. No other change.", "Sounds good. Yes.")):
+    for number, said in enumerate(("yes", "Yes.", "OK", "Okay.", "Ok, thanks!", "Yes, please.", "Yes, go ahead.",
+                                   "Go ahead.", "Approved.", "I approve the plan as written.", "I approve this intent",
+                                   "Confirmed, thank you.", "Agreed.", "I agree", "I confirm it.", "Sí.", "Si",
+                                   "Sí, de acuerdo.", "De acuerdo, gracias.", "Sí, adelante", "Yes, proceed.",
+                                   "Yes, read it.", "Yes, do it.", 'Yes,  "approved".')):
         path = env["put"]("intent", front("intent", "draft") + INTENT_BODY, name=f"2026-11-25-reply-{number}.md")
         code, out = env["cg"]("approve", str(path), "--reply", said)
         assert code == 0 and "status: decided" in path.read_text(), (said, out)
-    text = GRILLING.read_text(encoding="utf-8")
-    plain = text[text.index("## Replies that are not a yes"):]
-    for word in ("yes", "ok", "approved", "confirmed", "agreed", "go ahead", "sí", "de acuerdo"):
-        assert f'"{word}"' in plain, word
+    plain = GRILLING.read_text(encoding="utf-8")
+    plain = plain[plain.index("## Replies that are not a yes"):]
+    for word in load_cg().YES:
+        assert f'"{word}"' in plain.lower(), word
+    # Each hard stop that code records tells the human that a plain yes is what confirms.
+    assert "plain yes" in PLAYBOOK.read_text(encoding="utf-8").split("## 6. Confirm")[1].split("## 7.")[0]
+    quick = (CG / "playbooks" / "quick.md").read_text(encoding="utf-8")
+    assert "plain yes" in quick[quick.index("**`tier: elevated`.**"):quick.index("**When the human answers a data question,**")]
 
 
 def test_a_cell_that_only_stands_for_not_yet_is_no_answer_no_source_and_no_recommendation(env):
@@ -330,13 +347,13 @@ def test_a_reply_that_holds_a_yes_word_and_is_not_a_yes_is_refused(env):
     condition or a negation in Spanish were each recorded."""
     path = env["put"]("intent", front("intent", "draft") + INTENT_BODY)
     refused = {
-        "is a question": ["Is this ok?", "Who approved this?", "Ok?", "¿De acuerdo?"],
-        "says no, or not yet": ["OK, wait.", "Ok, stop.", "Okay, hold on.", "OK, let me think about it.",
+        "says more than a plain yes": ["Is this ok?", "Who approved this?", "Ok?", "¿De acuerdo?"],
+        " plain yes": ["OK, wait.", "Ok, stop.", "Okay, hold on.", "OK, let me think about it.",
                                 "Yes, no wait.", '"Wait, ok"', "I haven't approved this", "It hasn't been approved",
                                 "I shouldn't say yes", "Nothing here is ok", "None of this is ok",
                                 "Nobody approved this", "Nunca dije que sí", "Jamás estaré de acuerdo",
                                 "Tampoco estoy de acuerdo", "Para nada de acuerdo"],
-        "a condition or a correction": ["Yes if you drop D2", "Yes, assuming D2 uses the 2019 file",
+        "says more than a plain yes, so": ["Yes if you drop D2", "Yes, assuming D2 uses the 2019 file",
                                         "Yes, on condition that D2 changes", "Yes, and add the poverty gap too",
                                         "Yes. Change D2 to the 2019 file.", "Yes, drop D2.",
                                         "Sí, aunque cambia D2", "Sí, excepto D2", "Sí, salvo D2",
@@ -348,8 +365,10 @@ def test_a_reply_that_holds_a_yes_word_and_is_not_a_yes_is_refused(env):
             code, out = env["cg"]("approve", INTENT, "--reply", said)
             assert code == 1 and words in out and "status: draft" in path.read_text(), (said, out)
     assert not (env["project"] / ".cg-docs" / "approvals").exists()
-    for number, said in enumerate(("Yes.", "Yes, nothing to add.", "Yes, nothing to change.", "Sí, adelante",
-                                   "Yes, I confirm D1 and D2 as written.")):
+    # The clear yeses this test held as recorded say more than a plain yes, and are asked once more.
+    for said in ("Yes, nothing to add.", "Yes, nothing to change.", "Yes, I confirm D1 and D2 as written."):
+        assert env["cg"]("approve", INTENT, "--reply", said)[0] == 1, said
+    for number, said in enumerate(("Yes.", "Sí, adelante", "Yes, I confirm it as written.")):
         path = env["put"]("intent", front("intent", "draft") + INTENT_BODY, name=f"2026-11-25-yes-{number}.md")
         code, out = env["cg"]("approve", str(path), "--reply", said)
         assert code == 0 and "status: decided" in path.read_text(), (said, out)

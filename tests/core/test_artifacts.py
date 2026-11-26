@@ -257,7 +257,7 @@ PLAN = ".cg-docs/plans/2026-11-25-headcount.md"
 def test_approve_stores_the_reply_the_identity_the_time_and_the_hash(env):
     """Done when (#224)."""
     path = env["put"]("plan", front("plan", "draft") + PLAN_BODY)
-    reply = 'Yes, approved. Keep "line" at 3.\nNo other change.'
+    reply = 'Yes,  "approved".\nThank you.'  # stored as written, marks and line end included
     code, out = env["cg"]("approve", PLAN, "--reply", reply)
     assert code == 0 and f"approved {PLAN}" in out and "by: Test Human <human@example.org>" in out, out
     records = sorted((env["project"] / ".cg-docs" / "approvals").glob("*.json"))
@@ -315,10 +315,10 @@ def test_a_change_to_an_approved_plan_needs_a_new_approval_and_the_first_one_sta
     assert code == 1 and "no approval is recorded for the plan as it now reads" in out
     state = json.loads(env["cg"]("status", "--json")[1])
     assert state["waiting-on-human"] == [f"{PLAN} (status in-progress, not approved as it now reads)"]
-    code, out = env["cg"]("approve", PLAN, "--reply", "Yes, 0.25 is the value I expect.")
+    code, out = env["cg"]("approve", PLAN, "--reply", "OK, approved.")
     assert code == 0 and "status: in-progress" in path.read_text(), out
     records = [json.loads(p.read_text()) for p in sorted((env["project"] / ".cg-docs" / "approvals").glob("*.json"))]
-    assert sorted(r["reply"] for r in records) == ["Yes, 0.25 is the value I expect.", "Yes, approved."]
+    assert sorted(r["reply"] for r in records) == ["OK, approved.", "Yes, approved."]
     assert env["cg"]("validate")[0] == 0
 
 
@@ -420,7 +420,7 @@ def test_the_human_may_decide_that_an_agent_reads_a_file_that_is_not_cleared(env
     reads = ["--touches", "R/a.R", "--reads", "data/raw/hh.dta", "--agent", "Claude Code"]
     why = "its level is Confidential, above what Claude Code may read (Official Use Only)"
     assert env["cg"]("tier", *ALL_NO, *reads)[1].startswith("tier: elevated\nreasons: data: data/raw/hh.dta is not cleared")
-    reply = "Yes, read it. I answer for that."
+    reply = "Yes, read it."
     code, out = env["cg"]("approve", "--reads", "data/raw/hh.dta", "--agent", "Claude Code", "--reply", reply)
     assert code == 0 and "Test Human <human@example.org>" in out and why in out, out
     files = sorted((env["project"] / ".cg-docs" / "approvals").glob("*.json"))
@@ -437,7 +437,7 @@ def test_the_human_may_decide_that_an_agent_reads_a_file_that_is_not_cleared(env
     assert "data/raw/hh.dta (Claude Code, Test Human, 2" in env["cg"]("status")[1].split("data-decisions: ")[1]
     # Recorded again, it changes nothing.
     before = digest(env["project"])
-    code, out = env["cg"]("approve", "--reads", "data/raw/hh.dta", "--agent", "claude code", "--reply", "Yes again.")
+    code, out = env["cg"]("approve", "--reads", "data/raw/hh.dta", "--agent", "claude code", "--reply", "Yes.")
     assert code == 0 and "already recorded" in out and digest(env["project"]) == before
 
 
@@ -447,7 +447,7 @@ def test_a_decision_on_data_holds_for_one_agent_one_place_and_one_level(env):
     def tier(path, agent="Claude Code"):
         return env["cg"]("tier", *ALL_NO, "--touches", "R/a.R", "--reads", path, "--agent", agent)[1].split("\n")[0]
 
-    env["cg"]("approve", "--reads", "data/raw", "--agent", "Claude Code", "--reply", "Yes, the raw folder.")
+    env["cg"]("approve", "--reads", "data/raw", "--agent", "Claude Code", "--reply", "Yes.")
     assert tier("data/raw/hh.dta") == tier("data/raw/2024/hh.dta") == "tier: low"  # a folder covers what is under it
     assert tier("data/raw/hh.dta", agent="Codex") == "tier: elevated"
     assert tier("data/rawer/hh.dta", agent="Codex") == tier("inst/extdata/other.csv") == "tier: elevated"
@@ -497,7 +497,7 @@ def test_a_rule_or_a_decision_for_the_project_root_covers_nothing_outside_the_pr
     state = tier("data/x.csv", *outside)
     assert [d["cleared"] for d in state["data"]] == [True, False, False] and state["tier"] == "elevated", state
     env["config"]()
-    assert env["cg"]("approve", "--reads", ".", "--agent", "Kilo", "--reply", "Yes, the project's files.")[0] == 0
+    assert env["cg"]("approve", "--reads", ".", "--agent", "Kilo", "--reply", "Yes.")[0] == 0
     state = tier("data/x.csv", *outside)
     assert [bool(d["decision"]) for d in state["data"]] == [True, False, False] and state["tier"] == "elevated", state
 
@@ -515,7 +515,7 @@ def test_a_folder_that_is_read_is_held_to_each_rule_below_it(env):
     assert state["tier"] == "elevated" and "data: data/hr.csv is not cleared for Kilo" in state["reasons"], state
     assert tier(".")["tier"] == "elevated"
     env["config"](data={"data": "Internal", "data/hr.csv": "Confidential"})
-    env["cg"]("approve", "--reads", "data", "--agent", "Kilo", "--reply", "Yes, the data folder.")
+    env["cg"]("approve", "--reads", "data", "--agent", "Kilo", "--reply", "Yes.")
     assert tier("data/x.csv")["tier"] == "low"
     assert tier("data")["tier"] == "elevated"  # the decision was for Internal; hr.csv is Confidential
 
@@ -530,7 +530,9 @@ def test_a_reply_that_says_no_is_never_recorded_as_a_yes(env):
         code, out = env["cg"]("approve", PLAN, "--reply", reply)
         assert code == 1 and "refused" in out and "status: draft" in path.read_text(), (reply, out)
     assert not (env["project"] / ".cg-docs" / "approvals").exists()
-    assert env["cg"]("approve", PLAN, "--reply", "Yes. No other change.")[0] == 0
+    # Since the maintainer's second decision of 2026-11-26 (#225), a yes that goes on is refused too.
+    assert env["cg"]("approve", PLAN, "--reply", "Yes. No other change.")[0] == 1
+    assert env["cg"]("approve", PLAN, "--reply", "Yes.")[0] == 0
 
 
 def test_a_schema_2_file_the_reader_cannot_parse_is_still_checked(env):
@@ -558,11 +560,11 @@ def test_a_plan_put_back_to_the_text_an_amendment_replaced_needs_a_new_approval(
     env["cg"]("approve", PLAN, "--reply", "Yes, approved.")
     first = path.read_text()
     path.write_text(first.replace("0.153846", "0.25"))
-    assert env["cg"]("approve", PLAN, "--reply", "Yes, 0.25; 0.153846 was wrong.")[0] == 0
+    assert env["cg"]("approve", PLAN, "--reply", "Yes, approved.")[0] == 0
     path.write_text(first)
     code, out = env["cg"]("validate")
     assert code == 1 and "no approval is recorded for the plan as it now reads" in out, out
-    code, out = env["cg"]("approve", PLAN, "--reply", "Yes, back to 0.153846 after all.")
+    code, out = env["cg"]("approve", PLAN, "--reply", "Yes, I approve it as written.")
     assert code == 0 and "refused" not in out, out
     assert env["cg"]("validate")[0] == 0
     records = sorted((env["project"] / ".cg-docs" / "approvals").glob("*.json"))
@@ -573,7 +575,7 @@ def test_a_decision_on_data_holds_when_its_level_changes_only_in_case(env):
     """Finding 6: levels are compared without regard to case (ADR 0005), so the
     same level written in other case is no new level."""
     env["config"](**RULES)
-    env["cg"]("approve", "--reads", "data/raw", "--agent", "Claude Code", "--reply", "Yes, the raw folder.")
+    env["cg"]("approve", "--reads", "data/raw", "--agent", "Claude Code", "--reply", "Yes.")
     env["config"](**{**RULES, "data": {**RULES["data"], "data/raw": "CONFIDENTIAL"}})
     out = env["cg"]("tier", *ALL_NO, "--touches", "R/a.R", "--reads", "data/raw/hh.dta", "--agent", "Claude Code")[1]
     assert out.startswith("tier: low"), out
