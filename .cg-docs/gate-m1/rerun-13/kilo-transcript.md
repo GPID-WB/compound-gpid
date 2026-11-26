@@ -1040,7 +1040,7 @@ $ "/opt/homebrew/opt/python@3.14/bin/python3.14" "~/.agents/skills/cg/scripts/cg
 approved .cg-docs/brainstorms/2026-11-26-choose-poverty-depth-measure.md
 record: .cg-docs/approvals/2026-11-26-choose-poverty-depth-measure.cf72e430912406ee.json
 hash: sha256:cf72e430912406ee1456ff3a7f6f01837dc1ea12c491e5999f6172c48e0eb4f4
-by: R.Andres Castaneda <<user>@worldbank.org>
+by: <name> <<email>>
 
 
 
