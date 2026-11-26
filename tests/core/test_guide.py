@@ -218,3 +218,29 @@ def test_setup_says_a_data_rule_may_name_a_folder():
     text = (CG / "playbooks" / "setup.md").read_text(encoding="utf-8")
     assert "folder" in text[text.index("**Data rules**"):text.index("## 3. Confirm")]
     assert '--data "<file or folder>=<level>"' in text[text.index("## 4. Write"):]
+
+
+def test_quick_work_lets_the_human_decide_on_data_and_the_line_that_records_it_runs_as_written(tmp_path):
+    """The maintainer's rule of 2026-11-25 (#224): the human answers for the data. The
+    agent warns, the human may go on, and code records the decision before a file is opened."""
+    text = (CG / "playbooks" / "quick.md").read_text(encoding="utf-8")
+    risk = text[text.index("## 2. Check the risk"):text.index("## 3. Change")]
+    assert "the company that runs the model" in risk and "before you open" in risk
+    line = next(span for span in re.findall(r"`([^`\n]+)`", risk) if '"<cg>" approve ' in span)
+    home, project = tmp_path.resolve() / "home", tmp_path.resolve() / "project"
+    shutil.copytree(CG, home / ".agents" / "skills" / "cg", ignore=shutil.ignore_patterns("__pycache__"))
+    project.mkdir()
+    subprocess.run(["git", "init", "-q", str(project)], check=True)
+    subprocess.run(["git", "-C", str(project), "config", "user.name", "Test Human"], check=True)
+    args = line.split('"<cg>" ', 1)[1].replace(' --project "<project root>"', "")
+    code, out = run_cg(home, project, *shlex.split(args))
+    assert code == 0 and "recorded: <this coding agent> reads <file or folder>" in out, out
+
+
+def test_p12_says_the_human_answers_for_the_data_and_its_check_line_is_what_tier_does():
+    """The check line said the tier is raised for any dataset above Public. The code
+    raises it only for a file this coding agent is not cleared for, with no decision recorded."""
+    text = (CG / "principles" / "P12-governed-data.md").read_text(encoding="utf-8")
+    checks = text[text.index("## Deterministic checks"):]
+    assert "above Public or unclassified" not in checks and "not cleared" in checks and "decision" in checks
+    assert "The human answers for the data" in text and "`cg.py approve --reads`" in text

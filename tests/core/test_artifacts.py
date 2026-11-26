@@ -23,6 +23,10 @@ TYPES = {"intent": "brainstorms", "plan": "plans", "work-report": "work-reports"
 CLEAN = "schema-2: 1\nversion-1: 0 (read as they are)\nproblems: 0\nwarnings: 0\n"
 FACTS = ["number", "personal", "irreversible", "interface", "choice", "no-check"]
 ALL_NO = [arg for name in FACTS for arg in ("--fact", f"{name}=no")]
+RULES = {"data": {"inst/extdata/survey.csv": "Public", "data": "Official Use Only",
+                  "data/raw": "Confidential", "data/raw/codebook.csv": "public"},
+         "approved-tools": {"Claude Code": "Official Use Only"},
+         "classification-levels": ["Public", "Official Use Only", "Confidential"]}
 PLAN_BODY = """
 # Headcount
 
@@ -377,10 +381,7 @@ def test_tier_counts_the_files(env):
 def test_tier_clears_a_data_file_only_from_the_recorded_rules(env):
     """Gate M1 (#223): two agents read the data line of the risk table differently.
     Code decides it now, and a rule may name a folder (decision 3 of the gate)."""
-    env["config"](**{"data": {"inst/extdata/survey.csv": "Public", "data": "Official Use Only",
-                              "data/raw": "Confidential", "data/raw/codebook.csv": "public"},
-                     "approved-tools": {"Claude Code": "Official Use Only"},
-                     "classification-levels": ["Public", "Official Use Only", "Confidential"]})
+    env["config"](**RULES)
 
     def data(path, agent="Claude Code"):
         code, out = env["cg"]("tier", *ALL_NO, "--touches", "R/a.R", "--reads", path, "--agent", agent, "--json")
@@ -410,3 +411,76 @@ def test_tier_stops_on_data_rules_of_the_wrong_shape(env):
     env["config"](**{"data": ["survey.csv"]})
     code, out = env["cg"]("tier", *ALL_NO, "--touches", "a.R", "--reads", "none")
     assert code == 1 and "data must map file paths to a classification level" in out and "tier:" not in out
+
+
+# ---------------------------------------------------------------- the human's decision on data
+
+def test_the_human_may_decide_that_an_agent_reads_a_file_that_is_not_cleared(env):
+    """The maintainer's rule of 2026-11-25 (#224): the human answers for the data.
+    A file that is not cleared stops the work once, for their decision. Once code
+    holds that decision, tier names it on every run and no longer stops."""
+    env["config"](**RULES)
+    reads = ["--touches", "R/a.R", "--reads", "data/raw/hh.dta", "--agent", "Claude Code"]
+    why = "its level is Confidential, above what Claude Code may read (Official Use Only)"
+    assert env["cg"]("tier", *ALL_NO, *reads)[1].startswith("tier: elevated\nreasons: data: data/raw/hh.dta is not cleared")
+    reply = "Yes, read it. I answer for that."
+    code, out = env["cg"]("approve", "--reads", "data/raw/hh.dta", "--agent", "Claude Code", "--reply", reply)
+    assert code == 0 and "Test Human <human@example.org>" in out and why in out, out
+    files = sorted((env["project"] / ".cg-docs" / "approvals").glob("*.json"))
+    assert len(files) == 1 and files[0].name.startswith("data.")
+    record = json.loads(files[0].read_text(encoding="utf-8"))
+    assert re.fullmatch(r"\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ", record.pop("time"))
+    assert record == {"reads": "data/raw/hh.dta", "agent": "Claude Code", "level": "Confidential",
+                      "reply": reply, "name": "Test Human", "email": "human@example.org"}
+    code, out = env["cg"]("tier", *ALL_NO, *reads)
+    assert code == 0 and out.startswith(f"tier: low\nreasons: none\ndata: data/raw/hh.dta=Confidential: not cleared "
+                                        f"({why}); read on the decision of Test Human, 2"), out
+    item = json.loads(env["cg"]("tier", *ALL_NO, *reads, "--json")[1])["data"][0]
+    assert item["cleared"] is False and item["decision"]["reply"] == reply
+    assert "data/raw/hh.dta (Claude Code, Test Human, 2" in env["cg"]("status")[1].split("data-decisions: ")[1]
+    # Recorded again, it changes nothing.
+    before = digest(env["project"])
+    code, out = env["cg"]("approve", "--reads", "data/raw/hh.dta", "--agent", "claude code", "--reply", "Yes again.")
+    assert code == 0 and "already recorded" in out and digest(env["project"]) == before
+
+
+def test_a_decision_on_data_holds_for_one_agent_one_place_and_one_level(env):
+    env["config"](**RULES)
+
+    def tier(path, agent="Claude Code"):
+        return env["cg"]("tier", *ALL_NO, "--touches", "R/a.R", "--reads", path, "--agent", agent)[1].split("\n")[0]
+
+    env["cg"]("approve", "--reads", "data/raw", "--agent", "Claude Code", "--reply", "Yes, the raw folder.")
+    assert tier("data/raw/hh.dta") == tier("data/raw/2024/hh.dta") == "tier: low"  # a folder covers what is under it
+    assert tier("data/raw/hh.dta", agent="Codex") == "tier: elevated"
+    assert tier("data/rawer/hh.dta", agent="Codex") == tier("inst/extdata/other.csv") == "tier: elevated"
+    # The decision was for Confidential data. A new level asks for a new decision.
+    env["config"](**{**RULES, "data": {**RULES["data"], "data/raw": "Strictly Confidential"}})
+    assert tier("data/raw/hh.dta") == "tier: elevated"
+    # A file with no classification can be decided on too, and stays covered only while it has none.
+    env["cg"]("approve", "--reads", "inst/extdata/other.csv", "--agent", "Codex", "--reply", "Yes.")
+    assert tier("inst/extdata/other.csv", agent="Codex") == "tier: low"
+    assert tier("inst/extdata/other.csv") == "tier: elevated"
+
+
+def test_a_decision_on_data_is_refused_without_a_clear_yes_and_not_needed_for_a_cleared_file(env):
+    env["config"](**RULES)
+    records = env["project"] / ".cg-docs" / "approvals"
+    ask = ["approve", "--reads", "data/raw/hh.dta", "--agent", "Claude Code", "--reply"]
+    for reply in ("Sounds good.", "whatever you think", "Sure, go on!", "  "):
+        code, out = env["cg"](*ask, reply)
+        assert code == 1 and "refused" in out and not records.exists(), (reply, out)
+    code, out = env["cg"]("approve", "--reads", "data/clean/pov.dta", "--agent", "Claude Code", "--reply", "Yes.")
+    assert code == 0 and "nothing to record" in out and not records.exists(), out
+    for args, words in ((["approve", "--reads", "data/raw/hh.dta", "--reply", "Yes."], "--agent"),
+                        (["approve", "--reply", "Yes."], "a plan, or --reads"),
+                        (["approve", PLAN, "--reads", "data/raw/hh.dta", "--agent", "Codex", "--reply", "Yes."],
+                         "a plan, or --reads")):
+        code, out = env["cg"](*args)
+        assert code == 2 and words in out and "Traceback" not in out and not records.exists(), (args, out)
+    (env["home"] / ".gitconfig").write_text("")
+    code, out = env["cg"](*ask, "Yes, read it.")
+    assert code == 1 and "git has no user.name" in out and not records.exists()
+    env["config"](**{"data": ["survey.csv"]})
+    code, out = env["cg"](*ask, "Yes, read it.")
+    assert code == 1 and "data must map file paths" in out
