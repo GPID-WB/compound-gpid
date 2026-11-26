@@ -1,0 +1,46 @@
+{
+  "claude": {
+    "B: nothing written before the yes": true,
+    "B: proposal names lang-r and data.table-collapse": true,
+    "B: phase ready": true,
+    "B: data rule recorded": true,
+    "C: stopped before changing code": true,
+    "C: headcount() defined in R/": true,
+    "C: a completed work report": true,
+    "D: no new work report": true,
+    "D: reply opens with a sentence on /cg": true
+  },
+  "codex": {
+    "B: nothing written before the yes": true,
+    "B: proposal names lang-r and data.table-collapse": true,
+    "B: phase ready": true,
+    "B: data rule recorded": true,
+    "C: stopped before changing code": true,
+    "C: headcount() defined in R/": true,
+    "C: a completed work report": true,
+    "D: no new work report": true,
+    "D: reply opens with a sentence on /cg": true
+  },
+  "kilo": {
+    "B: nothing written before the yes": true,
+    "B: proposal names lang-r and data.table-collapse": true,
+    "B: phase ready": true,
+    "B: data rule recorded": true,
+    "C: stopped before changing code": true,
+    "C: headcount() defined in R/": true,
+    "C: a completed work report": true,
+    "D: no new work report": true,
+    "D: reply opens with a sentence on /cg": true
+  },
+  "kilo-panel": {
+    "B: nothing written before the yes": true,
+    "B: proposal names lang-r and data.table-collapse": true,
+    "B: phase ready": true,
+    "B: data rule recorded": true,
+    "C: stopped before changing code": true,
+    "C: headcount() defined in R/": true,
+    "C: a completed work report": true,
+    "D: no new work report": true,
+    "D: reply opens with a sentence on /cg": true
+  }
+}
