@@ -140,6 +140,9 @@ NOT_FILLED = (r"(still |not yet |remains )?(open|pending|t\.?b\.?[dac]\.?|todo|f
 CANNOT_FAIL = (r"(there is )?((it|this|this check|the check)( will| would| can| does)? )?((never|n/a|not applicable|"
                r"none|nothing)(\W*$|\s*[,;:(]|\s+[-–—]\s)|(never|cannot|can ?not|can'?t|will not|won'?t|no)\s+"
                r"fail|always (passes|succeeds)\b|(passes|succeeds)\W*$|no (failing )?outcome\b)")
+# A mark of something still open, inside other text. Capitals only, so "pending households" is prose.
+OPEN_MARK = (r"(?<![\"'])\b[A-Z0-9_-]*(TBD|TODO|FIXME|XXX|PENDING|PLACEHOLDER)[A-Z0-9_-]*\b(?![\"'])|\?\?\?|"
+             r"<[A-Za-z][a-z]*( [A-Za-z][a-z]*)+>")
 # What stands in a Source cell that names no source. "the human" is a source (grilling.md).
 NO_SOURCE = (r"(none|no source|nowhere|not (found|checked|looked up|verified)|guess(ed)?|my guess|"
              r"assum(ed|ption)|(from )?memory|(general|common) knowledge|i think|i believe|presumably|"
@@ -894,6 +897,18 @@ def unfilled(kind: str, body: str):
     return [line.strip() for line in body.splitlines() if any(ask in line for ask in asks)]
 
 
+def open_marks(body: str):
+    """The lines of a body, outside fenced code and comments, that mark something as still open
+    inside other text: a word in capitals such as TBD or VALUE-PENDING, ???, or a request such as
+    <the expected value>. A value in quotes is data (gate rerun 16, #226)."""
+    lines, fenced = [], False
+    for line in re.sub(r"<!--.*?-->", "", body, flags=re.S).splitlines():
+        fenced = fenced != line.lstrip().startswith(("```", "~~~"))
+        if not fenced and re.search(OPEN_MARK, line):
+            lines.append(line.strip())
+    return lines
+
+
 def artifact_problems(project: Path, a: dict, approving: bool = False):
     """(errors, warnings) for one schema 2 artifact, against ARTIFACTS.
 
@@ -951,6 +966,8 @@ def artifact_problems(project: Path, a: dict, approving: bool = False):
     left = unfilled(a["type"], a["body"])
     if left:
         unfinished.append(f"the template's text is still in it, first: {left[0]}")
+    marked = [line for line in open_marks(a["body"]) if line not in left] if a["type"] == "plan" else []
+    unfinished += [f"it still marks something as open, first: {marked[0]}"] if marked else []
     (warnings if being_written else errors).extend(unfinished)
     return errors, warnings
 
