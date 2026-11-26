@@ -15,28 +15,12 @@ Usage, with the interpreter that ~/.cg/launcher.json records as <python>:
                        [--approved-tool "agent=level"]... [--data "path=level"]...
                        [--project PATH] [--dry-run]
 
-status names the next playbook only with --guide: the guide asks for it, and an
-agent that runs status from the pointer block must not open a playbook (#223).
---playbook is the playbook the human asked for by name; a project that is not
-set up gets setup first.
-new plan makes a plan on a decided intent, and none beside an unfinished plan
-unless the human said that it is other work (--other-work).
-approve records the human's yes to a plan or to an intent, as the file reads.
-An approved plan changes by an amendment: a dated line under ## Amendments.
-setup needs --packs the first time; later runs keep the recorded packs.
-validate fails on a schema 2 artifact that breaks the schema; --strict, for a
-project's CI, fails on a warning too. Version 1 artifacts are read as they are.
-tier wants every fact in FACTS declared, and computes the rest.
-approve --reads records the human's decision that a coding agent reads a data
-file it is not cleared for; tier then names the decision and no longer stops.
-
-PATH may be any folder inside the project: the commands use the nearest
-folder above it that holds .cg-docs/, else the root of its git repository.
+What each command does and why is in docs/adr/0005-artifacts.md and in its --help.
+PATH may be any folder inside the project: the commands use the nearest folder
+above it that holds .cg-docs/, else the root of its git repository.
 
 Standard library only, Python 3.9 or later, one implementation for every
 operating system. Every write is atomic and each record is its own file.
-Output depends only on the files read, so a rerun on unchanged files prints
-the same thing.
 """
 import argparse
 import datetime
@@ -183,6 +167,19 @@ def parse_version(text):
     if not isinstance(text, str) or not re.fullmatch(r"\d+(\.\d+)*", text):
         raise ValueError(f"not a version: {text!r}")
     return tuple(int(part) for part in text.split("."))
+
+
+def say(lines, word="refused") -> int:
+    """Print each line behind the word that says what it is. Returns the exit code of a refusal."""
+    for line in lines:
+        print(f"{word}: {line}")
+    return 1
+
+
+def write_record(project: Path, path: Path, record: dict) -> str:
+    """Write one record as its own file. Returns its path from the project root."""
+    write_atomic(path, json.dumps(record, indent=2, ensure_ascii=False) + "\n")
+    return path.relative_to(project).as_posix()
 
 
 def article(kind: str) -> str:
@@ -710,19 +707,22 @@ def rows_of(body: str, heading: str, width: int, problems: list):
     return [(row + [""] * width)[:width] for row in rows]
 
 
+def id_problems(ids, letter: str):
+    """What is wrong with the IDs of one table: each is the letter and a number, and none appears twice."""
+    return ([f"'{i}' is not an ID such as {letter}1" for i in ids if not re.fullmatch(letter + r"\d+", i)]
+            + [f"the ID {i} appears twice" for i in sorted({i for i in ids if ids.count(i) > 1})])
+
+
 def contract_problems(body: str):
     """What P1 asks of a contract that code can check: requirements and checks carry IDs, every
     requirement has a check that names it, and every check has a command and a failing outcome."""
     problems, ids, covered = [], [], set()
     rows = rows_of(body, "### Requirements", 2, problems)
     requirements, checks = [rid for rid, _ in rows], rows_of(body, "### Checks", 4, problems)
-    problems += [f"'{rid}' is not an ID such as R1" for rid in requirements if not re.fullmatch(r"R\d+", rid)]
     problems += [f"requirement {rid} says nothing" for rid, text in rows if nothing(text)]
     if not requirements or not checks:
         problems.append("the Requirements table and the Checks table each need a row")
     for cid, serves, command, fails in checks:
-        if not re.fullmatch(r"C\d+", cid):
-            problems.append(f"'{cid}' is not an ID such as C1")
         named = re.findall(r"R\d+", serves)
         unknown = [rid for rid in named if rid not in requirements]
         if not named:
@@ -742,8 +742,6 @@ def contract_problems(body: str):
     slices, run = rows_of(body, "## Slices", 5, problems), set()
     problems += [] if slices else ["the Slices table needs a row"]
     for sid, _, files, checked, how in slices:
-        if not re.fullmatch(r"S\d+", sid):
-            problems.append(f"'{sid}' is not an ID such as S1")
         named = re.findall(r"C\d+", checked)
         if not named:
             problems.append(f"slice {sid} ends in no check")
@@ -758,8 +756,7 @@ def contract_problems(body: str):
             problems.append(f"slice {sid} is done by code and names no tool")
         run.update(named)
     problems += [f"check {cid} is run by no slice" for cid in ids if slices and cid not in run]
-    ids += requirements + [sid for sid, *_ in slices]
-    problems += [f"the ID {i} appears twice" for i in sorted({i for i in ids if ids.count(i) > 1})]
+    problems += id_problems(requirements, "R") + id_problems(ids, "C") + id_problems([s[0] for s in slices], "S")
     problems += [f"requirement {rid} has no check" for rid in requirements if rid not in covered]
     return problems
 
@@ -808,15 +805,6 @@ def decided_intent(project: Path, target: str):
     return intent if intent and intent["status"] == "decided" and is_approved(project, intent) else None
 
 
-def blank(cell: str, source: bool = False) -> bool:
-    """True when a table cell holds nothing: no word, or one that only stands for 'not yet', such
-    as `open`, pending, TBD or ?. Marks of emphasis, and a list mark or a bracket before the word,
-    are left out; a text in quotes is content. With source, "none" or "a guess" is nothing too."""
-    text = bare(cell)
-    return (not re.search(r"\w", text) or bool(re.match(NOT_FILLED, text))
-            or (source and bool(re.match(NO_SOURCE, text))))
-
-
 def bare(text: str) -> str:
     """A cell or a line without marks of emphasis, HTML comments, one-word tags such as <br> or
     <open>, entities, and the list mark or bracket before its first word, in lower case."""
@@ -825,10 +813,14 @@ def bare(text: str) -> str:
     return re.sub(r"^(\d+[.)]\s+|[^\w\"'“‘«])+", "", text)
 
 
-def nothing(cell: str) -> bool:
-    """True when a cell says nothing: no word, or only a placeholder such as TBD. A cell that only
-    starts with such a word is content: "unknown codes are left in the output" names an outcome."""
-    return not re.search(r"\w", bare(cell)) or bool(re.fullmatch(NOT_FILLED + r"[\W_]*", bare(cell)))
+def nothing(cell: str, opens: bool = False, source: bool = False) -> bool:
+    """True when a cell says nothing: no word, or only a placeholder such as `open`, pending, TBD
+    or ?. A cell that only starts with such a word is content: "unknown codes are left in the
+    output" names an outcome. With opens, for an answer or a source, it is nothing too, and the
+    human's own words go in quotes. With source, "none" or "a guess" is nothing as well."""
+    text = bare(cell)
+    return (not re.search(r"\w", text) or bool(re.match(NOT_FILLED + ("" if opens else r"[\W_]*\Z"), text))
+            or (source and bool(re.match(NO_SOURCE, text))))
 
 
 def filler(line: str) -> bool:
@@ -866,17 +858,14 @@ def intent_problems(body: str):
     facts = [(row + [""] * 2)[:2] for row in table_rows(body, "## Facts") if row]
     decisions = [(row + [""] * 4)[:4] for row in table_rows(body, "## Decisions") if row]
     problems = [] if facts and decisions else ["the Facts table and the Decisions table each need a row"]
-    problems += [f"the fact '{fact}' names no source" for fact, source in facts if blank(source, source=True)]
-    ids = [did for did, *_ in decisions]
+    problems += [f"the fact '{fact}' names no source" for fact, source in facts if nothing(source, opens=True, source=True)]
     for did, _, recommended, answer in decisions:
-        if not re.fullmatch(r"D\d+", did):
-            problems.append(f"'{did}' is not an ID such as D1")
-        if blank(recommended):
+        if nothing(recommended, opens=True):
             problems.append(f"decision {did} has no recommended answer")
-        if blank(answer):
+        if nothing(answer, opens=True):
             problems.append(f"decision {did} has no answer from the human yet"
                             + (f"; when '{answer}' is what they said, put it in quotes" if answer else ""))
-    return problems + [f"the ID {i} appears twice" for i in sorted({i for i in ids if ids.count(i) > 1})]
+    return problems + id_problems([did for did, *_ in decisions], "D")
 
 
 def unfilled(kind: str, body: str):
@@ -1144,32 +1133,24 @@ def cmd_approve(args) -> int:
     more, name, email = the_yes(project, args.reply)
     refused += more
     digest = text_hash(plan["body"])
-    record_path = project / ".cg-docs" / "approvals" / f"{at[0].stem}.{digest[7:23]}.json"
     known, stamp, earlier = is_approved(project, plan), now(), approvals(project, plan)
+    # The name holds the time, so a text approved a second time gets a record of its own.
+    record_path = (project / ".cg-docs" / "approvals"
+                   / f"{at[0].stem}.{digest[7:23]}.{re.sub(r'[-:]', '', stamp)}.json")
     dated, before = amendments(plan["body"]), amendments(str(earlier[-1].get("text", "")) if earlier else "")
     if kind == "plan" and earlier and not known and (len(dated) <= len(before) or not set(before) <= set(dated)):
         refused.append("this plan was approved before, and a change to an approved plan is an amendment (P1); add "
                        "a line under a heading '## Amendments' at its end, such as '- 2026-11-26: what changes, "
                        "and why', keep the earlier lines, and show the human what changed")
-    if record_path.exists() and not known:
-        held = record_at(record_path)
-        if held.get("artifact") == plan["path"] and held.get("hash") == digest:
-            # This text was approved before an amendment replaced it: a new yes gets a record of its own.
-            record_path = record_path.with_name(f"{record_path.stem}.{re.sub(r'[-:]', '', stamp)}.json")
-        else:
-            refused.append(f"{record_path.relative_to(project).as_posix()} exists and is not this {kind}'s record")
     if refused:
-        for line in refused:
-            print(f"refused: {line}")
-        return 1
+        return say(refused)
     if known:
         print(f"already approved as it now reads: {plan['path']}")
     else:
         # The record keeps the text the human said yes to, so what was approved stays readable (P1).
         record = {"artifact": plan["path"], "hash": digest, "reply": args.reply, "name": name, "email": email,
                   "time": stamp, "text": approved_text(plan["body"])}
-        write_atomic(record_path, json.dumps(record, indent=2, ensure_ascii=False) + "\n")
-        print(f"approved {plan['path']}\nrecord: {record_path.relative_to(project).as_posix()}\n"
+        print(f"approved {plan['path']}\nrecord: {write_record(project, record_path, record)}\n"
               f"hash: {digest}\nby: {name} <{email}>")
     # The two lines of the file that code changes: its status, and the record of the yes just written.
     keys = {**({} if known else {"approval": record_path.relative_to(project).as_posix()}),
@@ -1239,17 +1220,13 @@ def approve_reads(project: Path, args) -> int:
     config, stops = read_config(project)
     stops = stops + rule_problems(config)
     if stops:
-        for line in stops:
-            print(f"stop: {line}")
-        return 1
+        return say(stops, "stop")
     if not args.agent:
         print("give --agent with the name of this coding agent, as tier takes it")
         return 2
     refused, name, email = the_yes(project, args.reply)
     if refused:
-        for line in refused:
-            print(f"refused: {line}")
-        return 1
+        return say(refused)
     for arg in args.reads:
         found = clearance(project, config or {}, data_path(project, arg), args.agent)
         shown = found["path"] or "."
@@ -1263,9 +1240,8 @@ def approve_reads(project: Path, args) -> int:
                            / f"data.{hashlib.sha256(key.encode('utf-8')).hexdigest()[:16]}.json")
             record = {"reads": found["path"], "agent": args.agent, "level": found["level"],
                       "reply": args.reply, "name": name, "email": email, "time": now()}
-            write_atomic(record_path, json.dumps(record, indent=2, ensure_ascii=False) + "\n")
             print(f"recorded: {args.agent} reads {shown}, which is not cleared ({found['why']})\n"
-                  f"record: {record_path.relative_to(project).as_posix()}\nby: {name} <{email}>")
+                  f"record: {write_record(project, record_path, record)}\nby: {name} <{email}>")
     return 0
 
 
@@ -1319,9 +1295,7 @@ def cmd_tier(args) -> int:
     config, stops = read_config(project)
     stops = stops + rule_problems(config)
     if stops:
-        for line in stops:
-            print(f"stop: {line}")
-        return 1
+        return say(stops, "stop")
     facts = pairs(args.fact, "--fact")
     if facts is None:
         return 2
@@ -1481,9 +1455,7 @@ def cmd_setup(args) -> int:
             print(line)
         return 2
     if problems:
-        for line in problems:
-            print(f"refused: {line}")
-        return 1
+        return say(problems)
     for path, text in changes:
         verb = "change" if path.is_file() else "create"
         rel = path.relative_to(project).as_posix()
