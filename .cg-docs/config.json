@@ -1,0 +1,10 @@
+{
+  "packs": [
+    "core"
+  ],
+  "requires-core": "1.99.0.9000",
+  "data": {
+    ".cg-docs/token/workflow-costs.csv": "Public",
+    "spike/gate/toy-r/inst/extdata/survey.csv": "Public"
+  }
+}

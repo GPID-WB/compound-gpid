@@ -1,6 +1,6 @@
 # Handoff: where the 2.0 build stands
 
-Written 2026-11-24 for whoever continues the work, in any coding agent. Last updated 2026-11-25 by the Fable 5.2 session that built task 2.1 (#224), the first task of milestone 2, and then wrote in the maintainer's decision on who answers for the data. Update this file when the state changes; it is the first thing to read.
+Written 2026-11-24 for whoever continues the work, in any coding agent. Last updated 2026-11-25 by the Fable 5.2 session that built task 2.1 (#224), the first task of milestone 2, then wrote in the maintainer's decision on who answers for the data, and set this repository up for `/cg` on 2026-11-26. Update this file when the state changes; it is the first thing to read.
 
 ## Read in this order
 
@@ -85,7 +85,7 @@ Known limits, none fixed here:
 - An artifact written without `schema: 2` is read as version 1, so `validate` checks nothing in it. `cg.py new` writes the key; an agent that writes a file itself can leave it out.
 - `approve` cannot know that the human said what `--reply` holds. It refuses three replies by exact wording, and the rest is for the `ownership` verifier.
 - The six facts are still the agent's answers. Code only makes sure that each is given, that one yes is enough, and that the data and size facts are not the agent's to give.
-- Task 2.1 was not built with `/cg`, though its issue asks for that from task 1.7 on. The session was started with a plain prompt, this repository has no `.cg-docs/config.json` (status says `phase: setup`), and the one playbook for work, quick, stops at more than five files. Until the plan playbook exists (task 2.3), a task of this size has no playbook to run in. The maintainer asked on 2026-11-25 for this repository to be set up; the setup proposal was put to them and waits for their yes.
+- Task 2.1 was not built with `/cg`, though its issue asks for that from task 1.7 on. The session was started with a plain prompt, this repository had no `.cg-docs/config.json`, and the one playbook for work, quick, stops at more than five files. Until the plan playbook exists (task 2.3), a task of this size has no playbook to run in. The repository is set up since 2026-11-26 (see the decisions under "Known loose ends"), so a change of five files or fewer can now go through `/cg`.
 - A decision on data rests on the reply the agent passes to `--reply`, as a plan's approval does. Nothing stops an agent from recording a decision for a folder when the human named one file; the reply is stored word for word so that a reader can see it.
 
 No task in this set failed its "Done when" twice. CI failed once each in tasks 1.6 and 1.4, both on Windows and both in tests, and was fixed in the next commit.
@@ -173,7 +173,7 @@ Placeholders (each file says `PLACEHOLDER: written in task <n>`):
 Decisions from task 2.1, taken by the maintainer on 2026-11-25:
 
 - P12's check line changed to say what `cg.py tier` does, and the human answers for the data (item 17 above, ADR 0005 under "Tier").
-- This repository is to be set up for `/cg`. Setup needs the maintainer's yes to its proposal, and their answer on the two data files it found. Until `.cg-docs/config.json` exists, status says `phase: setup`.
+- This repository is set up for `/cg`, with the maintainer's yes of 2026-11-26: `core` is the one expected pack, and the two data files found (`.cg-docs/token/workflow-costs.csv` and the gate's toy survey) are recorded as Public, the maintainer's classification. `.cg-docs/config.json` holds no approved tool and no level names, so nothing about an organization's rules is in this public repository. `.cg-docs/verification.md` is a draft: Run and Doctor are "not found", and the outputs map names the checks of `CONTRIBUTING.md` and the gate rerun. Status says `phase: ready`. It also counts 31 open version 1 artifacts and names a version 1 plan as `active`; the first `/cg` here will meet them.
 
 Decisions taken in task 1.3 that a reviewer should check (each is also in #219):
 
