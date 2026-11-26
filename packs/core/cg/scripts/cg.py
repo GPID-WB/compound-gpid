@@ -135,9 +135,11 @@ NOT_FILLED = (r"(still |not yet |remains )?(open|pending|t\.?b\.?[dac]\.?|todo|f
               r"no (answer|reply|decision)( yet)?|none yet|nothing yet|don'?t know|no idea|"
               r"pendiente|por (decidir|confirmar|definir|ver|responder)|sin (respuesta|decidir|definir)|"
               r"abiert[oa]|desconocid[oa]|no s[eé])(?!\w)")
-# A "Fails when" cell that says its check cannot fail. Whether a command can fail is by judgement.
-CANNOT_FAIL = (r"((it|this|this check|the check) )?(never\b|nothing\W*$|none\W*$|n/a\b|not applicable\b|"
-               r"(cannot|can ?not|can'?t) fail\b|always (passes|succeeds)\b)")
+# A "Fails when" cell that says its check cannot fail: a bare word, or a claim about the check.
+# "never converges" and "N/A values appear" are outcomes (review of #226). The rest is by judgement.
+CANNOT_FAIL = (r"(there is )?((it|this|this check|the check)( will| would| can| does)? )?((never|n/a|not applicable|"
+               r"none|nothing)(\W*$|\s*[,;:(]|\s+[-–—]\s)|(never|cannot|can ?not|can'?t|will not|won'?t|no)\s+"
+               r"fail|always (passes|succeeds)\b|(passes|succeeds)\W*$|no (failing )?outcome\b)")
 # What stands in a Source cell that names no source. "the human" is a source (grilling.md).
 NO_SOURCE = (r"(none|no source|nowhere|not (found|checked|looked up|verified)|guess(ed)?|my guess|"
              r"assum(ed|ption)|(from )?memory|(general|common) knowledge|i think|i believe|presumably|"
@@ -696,13 +698,23 @@ def table_rows(body: str, heading: str):
     return rows
 
 
+def rows_of(body: str, heading: str, width: int, problems: list):
+    """The rows of the table under a heading, each `width` cells wide. A row with more cells is
+    named: a | outside backticks split a cell, and what followed it is out of view (review of #226)."""
+    rows = [row for row in table_rows(body, heading) if row]
+    problems += [f"the row {row[0]} under '{heading}' has {len(row)} cells and the table {width}; a | inside a "
+                 f"cell goes in backticks" for row in rows if len(row) > width]
+    return [(row + [""] * width)[:width] for row in rows]
+
+
 def contract_problems(body: str):
     """What P1 asks of a contract that code can check: requirements and checks carry IDs, every
     requirement has a check that names it, and every check has a command and a failing outcome."""
     problems, ids, covered = [], [], set()
-    requirements = [row[0] for row in table_rows(body, "### Requirements") if row]
-    checks = [(row + [""] * 4)[:4] for row in table_rows(body, "### Checks") if row]
+    rows = rows_of(body, "### Requirements", 2, problems)
+    requirements, checks = [rid for rid, _ in rows], rows_of(body, "### Checks", 4, problems)
     problems += [f"'{rid}' is not an ID such as R1" for rid in requirements if not re.fullmatch(r"R\d+", rid)]
+    problems += [f"requirement {rid} says nothing" for rid, text in rows if nothing(text)]
     if not requirements or not checks:
         problems.append("the Requirements table and the Checks table each need a row")
     for cid, serves, command, fails in checks:
@@ -724,7 +736,7 @@ def contract_problems(body: str):
         ids.append(cid)
     # A slice ends in a check, and a check that no slice ends in is never run (P4). Each slice says
     # which files it may touch (P6) and whether it is done by code, with the tool, or by judgement (P3).
-    slices, run = [(row + [""] * 5)[:5] for row in table_rows(body, "## Slices") if row], set()
+    slices, run = rows_of(body, "## Slices", 5, problems), set()
     problems += [] if slices else ["the Slices table needs a row"]
     for sid, _, files, checked, how in slices:
         if not re.fullmatch(r"S\d+", sid):
@@ -760,13 +772,19 @@ def plan_inputs(project: Path, a: dict):
                  for target in named if (project / target).is_file() and not decided_intent(project, target)]
     config = read_config(project)[0]
     config = {} if rule_problems(config) else config or {}
-    for row in table_rows(a["body"], "## Data register"):
-        cells = [cell.strip("`\"'*~ ") for cell in (row + [""] * 6)[:6]]
-        name, level = cells[:2]
-        if name.lower() == "none" or "<" in name:  # no dataset, or a row of the template, which unfilled() names
+    # A row of the template is skipped: unfilled() names it. Any other row is a dataset (review of #226).
+    rows = [[cell.strip("`\"'*~<> ") for cell in row] for row in rows_of(a["body"], "## Data register", 6, problems)
+            if not unfilled("plan", "| " + " | ".join(row) + " |")]
+    rules, listed = rule_paths(project, config), {data_path(project, row[0]) for row in rows}
+    for name, level, *cells in rows:
+        if name.lower() == "none":  # no dataset
             continue
-        recorded = None if nothing(name) else clearance(project, config, data_path(project, name), "")["level"]
-        if any(nothing(cell) for cell in cells):
+        place = data_path(project, name)
+        recorded = None if nothing(name) else clearance(project, config, place, "")["level"]
+        # A folder is read with every file in it, as tier reads it (#224): a file at another level needs a row.
+        hidden = [f"{key} in it is recorded as {rules[key]}" for key in sorted(rules) if key != place
+                  and within(key, place) and key not in listed and not same_level(rules[key], level)]
+        if any(nothing(cell) for cell in [name, level, *cells]):
             problems.append(f"the data register leaves a cell of {name or 'a row'} unfilled")
         elif recorded is None:
             problems.append(f"no classification is recorded for {name}, which the data register lists; ask the "
@@ -774,6 +792,9 @@ def plan_inputs(project: Path, a: dict):
         elif not same_level(recorded, level):
             problems.append(f"the data register gives {name} as {level}, and the recorded classification is "
                             f"{recorded}; write the recorded one, or record the human's with setup --data")
+        elif hidden:
+            problems.append(f"the data register gives {name} as {level}, and {'; '.join(hidden)}; give it a row "
+                            f"of its own")
     return problems
 
 
@@ -900,13 +921,21 @@ def artifact_problems(project: Path, a: dict, approving: bool = False):
         for target in [value] if isinstance(value, str) else value:
             if os.path.isabs(target) or not (project / target).is_file():
                 errors.append(f"{key}: no such file from the project root: {target}")
+            elif key == "approval":  # the artifact names its own record, and the record holds its text (#226)
+                held = record_at(project / target)
+                if held.get("artifact") != a["path"]:
+                    errors.append(f"approval: {target} is not a record of this {a['type']}")
+                elif "text" in held and text_hash(str(held["text"])) != held.get("hash"):
+                    errors.append(f"approval: {target} does not hold the text it was approved for")
+                elif held.get("hash") != text_hash(a["body"]) and is_approved(project, a):
+                    errors.append(f"approval: {target} names the record of an earlier text; the newest one is in force")
     held = headings(a["body"])
     missing = [f"the section '{heading}' is missing" for heading in spec["sections"] if heading not in held]
     errors += missing
     warnings = [f"the key '{key}' is not part of schema {SCHEMA}" for key in fields if key not in KNOWN_KEYS]
     rests_on_yes = a["status"] in APPROVED.get(a["type"], ((), "", ()))[2]
-    if a["type"] == "plan" and not missing:
-        errors += contract_problems(a["body"])
+    if a["type"] == "plan" and not missing:  # a plan set aside half written is left as it is (review of #226)
+        (warnings if a["status"] in SETTLED else errors).extend(contract_problems(a["body"]))
         if approving or a["status"] == "draft":  # a draft's inputs may still be open; a yes needs them settled
             (errors if approving else warnings).extend(plan_inputs(project, a))
     if a["type"] == "intent" and not missing:  # an open decision is a draft's normal state
@@ -989,23 +1018,29 @@ def approved_text(body: str) -> str:
     return "\n".join(line.rstrip() for line in body.splitlines()).strip("\n")
 
 
-def amendments(body: str) -> int:
-    """The number of dated lines under `## Amendments`, such as `- 2026-11-26: what changes and why`."""
+def amendments(body: str):
+    """The dated lines under `## Amendments`, such as `- 2026-11-26: what changes and why`. A date
+    alone says nothing, so it is no amendment (review of #226)."""
     found = re.search(r"^## Amendments[ \t]*$(.*?)(?=^## |\Z)", body, re.M | re.S)
-    return len(re.findall(r"^[-*] \d{4}-\d\d-\d\d\b", found.group(1), re.M)) if found else 0
+    return [line.rstrip() for line in re.findall(r"^[-*] \d{4}-\d\d-\d\d:[ \t]*\S.*$", found.group(1), re.M)] \
+        if found else []
+
+
+def record_at(path: Path) -> dict:
+    """A record under .cg-docs/approvals/, or {} when the file is no record."""
+    try:
+        record = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    return record if isinstance(record, dict) else {}
 
 
 def approvals(project: Path, artifact: dict):
     """Every approval record of an artifact. One approval is one file under .cg-docs/approvals/."""
     found, stem = [], Path(artifact["name"]).stem
     for path in sorted((project / ".cg-docs" / "approvals").glob("*.json")):
-        if not path.name.startswith(stem + "."):
-            continue
-        try:
-            record = json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, ValueError):
-            continue
-        if isinstance(record, dict) and record.get("artifact") == artifact["path"]:
+        record = record_at(path) if path.name.startswith(stem + ".") else {}
+        if record.get("artifact") == artifact["path"]:
             found.append((str(record.get("time", "")), path.stat().st_mtime_ns, path.name, record))
     # Oldest first. The time is to the second; within one second the file written last is the newer.
     return [record for *_, record in sorted(found, key=lambda item: item[:3])]
@@ -1094,17 +1129,14 @@ def cmd_approve(args) -> int:
     digest = text_hash(plan["body"])
     record_path = project / ".cg-docs" / "approvals" / f"{at[0].stem}.{digest[7:23]}.json"
     known, stamp, earlier = is_approved(project, plan), now(), approvals(project, plan)
-    if kind == "plan" and earlier and not known and (
-            amendments(plan["body"]) <= amendments(str(earlier[-1].get("text", "")))):
+    dated, before = amendments(plan["body"]), amendments(str(earlier[-1].get("text", "")) if earlier else "")
+    if kind == "plan" and earlier and not known and (len(dated) <= len(before) or not set(before) <= set(dated)):
         refused.append("this plan was approved before, and a change to an approved plan is an amendment (P1); add "
                        "a line under a heading '## Amendments' at its end, such as '- 2026-11-26: what changes, "
                        "and why', keep the earlier lines, and show the human what changed")
     if record_path.exists() and not known:
-        try:
-            held = json.loads(record_path.read_text(encoding="utf-8"))
-        except (OSError, ValueError):
-            held = None
-        if isinstance(held, dict) and held.get("artifact") == plan["path"] and held.get("hash") == digest:
+        held = record_at(record_path)
+        if held.get("artifact") == plan["path"] and held.get("hash") == digest:
             # This text was approved before an amendment replaced it: a new yes gets a record of its own.
             record_path = record_path.with_name(f"{record_path.stem}.{re.sub(r'[-:]', '', stamp)}.json")
         else:
@@ -1169,16 +1201,9 @@ def same_level(a, b) -> bool:
 def data_decisions(project: Path):
     """Every decision of the human that a coding agent reads data it is not cleared for (P12).
     One decision is one file, .cg-docs/approvals/data.<digest>.json."""
-    found = []
-    for path in sorted((project / ".cg-docs" / "approvals").glob("data.*.json")):
-        try:
-            record = json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, ValueError):
-            continue
-        if isinstance(record, dict) and all(isinstance(record.get(key), str)
-                                            for key in ("reads", "agent", "name", "time")):
-            found.append(record)
-    return found
+    found = [record_at(path) for path in sorted((project / ".cg-docs" / "approvals").glob("data.*.json"))]
+    return [record for record in found if all(isinstance(record.get(key), str)
+                                              for key in ("reads", "agent", "name", "time"))]
 
 
 def decision_for(decisions, found: dict, agent: str):

@@ -271,11 +271,13 @@ def run_plan(agent, project, log, checks):
     checks["H: a draft plan after the first turn, not approved, and nothing else touched"] = (
         state is not None and state["status"] == "draft" and not state["replies"]
         and not outside_the_record(project, before))
-    corrected = held = False
+    corrected = held = fresh = False
     for number in range(2, ROUNDS + 2):
         say = plan_reply(state, corrected)
         if say is None:
             break
+        if say == CORRECTION:  # the line asked for proves the correction only if it was not there before
+            fresh = state is not None and ASKED not in state["text"]
         label = {CORRECTION: "a yes that goes on", YES_PLAN: "yes"}.get(say, "answer")
         turn(agent, project, say, False, log, f"H{number} {label}")
         state = newest(project, "plans")
@@ -284,7 +286,7 @@ def run_plan(agent, project, log, checks):
             held = state is not None and state["status"] == "draft" and not state["replies"]
     idea = newest(project, "brainstorms")
     checks["H: a yes that goes on is not recorded as a yes"] = held
-    checks["H: the plan holds the line the human asked for"] = state is not None and ASKED in state["text"]
+    checks["H: the plan holds the line the human asked for"] = fresh and state is not None and ASKED in state["text"]
     checks["H: the plan is approved on a plain yes the human sent"] = (
         state is not None and state["status"] == "approved" and state["complete"]
         and bool(state["replies"]) and set(state["replies"]) == {YES_PLAN})

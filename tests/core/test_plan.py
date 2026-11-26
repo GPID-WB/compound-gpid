@@ -202,7 +202,7 @@ def test_an_approved_plan_changes_only_by_an_amendment_and_what_was_approved_sta
     newest = next(p.name for p in env["plan-records"]() if "0.25" in p.read_text(encoding="utf-8"))
     assert f"\napproval: .cg-docs/approvals/{newest}\n" in path.read_text()
     # A second change needs a second line: the first one does not cover it.
-    path.write_text(path.read_text().replace("0.25", "0.3"), encoding="utf-8")
+    path.write_text(path.read_text().replace("differs from 0.25", "differs from 0.3"), encoding="utf-8")  # keeps line 1
     assert "this plan was approved before" in env["cg"]("approve", PLAN, "--reply", "Yes.")[1]
     path.write_text(path.read_text() + "- 2026-11-27: the expected share is 0.3.\n", encoding="utf-8")
     assert env["cg"]("approve", PLAN, "--reply", "Yes.")[0] == 0 and len(env["plan-records"]()) == 3
