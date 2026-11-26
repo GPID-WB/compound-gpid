@@ -1,7 +1,7 @@
 # Compound GPID
 
 > [!WARNING]
-> This is branch `v2`, where Compound GPID 2.0 is being built. It installs (see `docs/install-block.md`), and the guide `/cg` can set up a project, think an idea through with you (`/cg brainstorm`), write the plan you approve (`/cg plan`) and do quick work. Work on a plan, reviews and sign-off come with milestone 2, so it is not ready for real work yet.
+> This is branch `v2`, where Compound GPID 2.0 is being built. It installs (see `docs/install-block.md`), and the guide `/cg` can set up a project, think an idea through with you (`/cg brainstorm`), write the plan you approve (`/cg plan`), do the work of that plan slice by slice (`/cg work`) and do quick work. Reviews and sign-off come later in milestone 2, so it is not ready for real work yet.
 > Version 1 is on branch `main` and frozen on branch `v1`; its install instructions are in the README there.
 
 Compound GPID helps analysts (economists, researchers and data scientists, and the people who build their packages, pipelines and dashboards) use a coding agent and still own and understand what gets built.

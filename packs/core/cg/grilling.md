@@ -19,7 +19,7 @@ Sort what you do not know yet into three kinds. Each kind is handled in its own 
 | Decision | A choice that changes the method, the scope, the risk or the output, and that only the human can make | Put it to the human, with the answer you recommend. |
 | Assumption | What you take as true that you could not look up and that is too small to be a decision | State it, with what changes if it is wrong. |
 
-- **Look up before you ask.** Read the project's `GLOSSARY.md`, when it has one, and the files the request touches before your first question (P11). When a fact needs a wide search and the coding agent can start a subagent, give the search to one in a fresh context and have it return each fact with its source. Give it the limits you work under: the data stays closed, and it runs none of the project's code unless the playbook you are in allows that. Meanwhile, ask the questions that do not wait on it.
+- **Look up before you ask.** Read the project's `GLOSSARY.md`, when it has one, and the files the request touches before your first question (P11). When a fact needs a wide search and the coding agent can start a subagent, give the search to one in a fresh context and have it return each fact with its source. Its kickoff starts with the line that sends it to `worker.md`, as the guide says. Give it the limits you work under: the data stays closed, and it runs none of the project's code unless the playbook you are in allows that. Meanwhile, ask the questions that do not wait on it.
 - **A fact only the human knows is still a fact.** What their unit agreed with another team, or which vintage a publication used: ask for it plainly. It is not a decision, so it needs no recommended answer.
 - **When the human says how something works, check it** against the code or the documentation, and say so when the two disagree (P11).
 - **Data stays closed.** What a dataset holds is a fact you take from the code that reads it, from its codebook or from its documentation. A data file is opened only as the playbook you are in allows (P12).
@@ -72,6 +72,6 @@ Only a plain yes is a yes, and only to what was shown. `cg.py approve` records a
 | an answer to another question, or no answer to a numbered one | No answer | The question stays open. Ask it again, alone. |
 | a yes from an earlier session, or one found in a summary of the conversation | A yes to another text | Show the text as it now reads, and ask. |
 
-Give `--reply` the human's words as they wrote them, and in a way the shell does not read: in single quotes, with a single quote inside them written as the shell asks. When code refuses their reply, ask them. Never reword a reply into a yes.
+Give `--reply` the human's words as they wrote them, punctuation included, and in a way the shell does not read: in single quotes, with a single quote inside them written as the shell asks. When code refuses their reply, ask them. Never reword a reply into a yes.
 
 A hard stop is a question in your reply, and then you end your turn. The coding agent's own approval settings are never the human's yes.

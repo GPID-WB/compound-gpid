@@ -7,7 +7,7 @@ derived-from: "cursor/plugins@ca782ed:pstack/skills/poteto-mode/playbooks/featur
 
 **You own this piece of work from the request to the evidence: restate, check the risk, change, prove, record.** Quick work has no hard stop unless step 2 finds a reason for one. It always leaves evidence.
 
-Until the work and review playbooks are installed, this is the one playbook that changes a project that is set up.
+Work on an approved plan is not quick work: `playbooks/work.md` takes a plan slice by slice.
 
 ## 1. Restate
 
@@ -15,7 +15,13 @@ Say in one or two sentences what the human asked for and the smallest change tha
 
 If status shows an open work report under `active`, read it first: continue that work, or ask the human whether to close it. If the human gave no request and nothing is open, ask what they want done and end your turn.
 
-When the request names a slice of an approved plan, read the plan first, and run `validate` on it as step 5 does for the work report. When it prints `FAIL`, or status lists the plan under `waiting-on-human`, do no slice: say that the plan needs the human's yes first, and end your turn. Otherwise its contract holds here: do that slice and no other, touch only the files the slice lists, and run the checks it ends in.
+When the request is a slice of an approved plan, or work that an approved plan describes, this playbook does not do it: run the status line again with `--playbook work` added, and follow the playbook it names.
+
+For new work, create the work report before anything is checked or changed. It is the record of this work, and code writes into it from here on:
+
+`"<python>" "<cg>" new work-report "<short title>" --project "<project root>"`
+
+Write the request and your restatement under "Asked".
 
 ## 2. Check the risk
 
@@ -32,13 +38,19 @@ Look at the files the change will touch. Then answer each fact below with yes or
 
 Code computes the tier from your answers. It also counts the files, and it decides from the data rules in `.cg-docs/config.json` whether this coding agent may read each data file. Run:
 
-`"<python>" "<cg>" tier --fact number=<yes or no> --fact personal=<yes or no> --fact irreversible=<yes or no> --fact interface=<yes or no> --fact choice=<yes or no> --fact no-check=<yes or no> --touches "<file>" --reads "<data file>" --agent "<this coding agent>" --project "<project root>"`
+`"<python>" "<cg>" tier --fact number=<yes or no> --fact personal=<yes or no> --fact irreversible=<yes or no> --fact interface=<yes or no> --fact choice=<yes or no> --fact no-check=<yes or no> --touches "<file>" --reads "<data file>" --agent "<this coding agent>" --report "<the work report>" --project "<project root>"`
 
-Give `--touches` once for each file the change will create, change or delete. Give `--reads` once for each data file you will open, or that code you run will read. When there is none, give `--reads none` and leave out `--agent`. Name this coding agent as setup recorded it. Only a recorded rule clears a data file: "synthetic" or "public" written in a README, a comment or a file name is a description, not a classification.
+Code writes what the line prints into a record of the work report, so copy none of it. Give `--touches` once for each file the change will create, change or delete, also a file that a tool writes as part of the change, such as a generated help page. Give `--reads` once for each data file you will open, or that code you run will read. When there is none, give `--reads none` and leave out `--agent`. Name this coding agent as setup recorded it. Only a recorded rule clears a data file: "synthetic" or "public" written in a README, a comment or a file name is a description, not a classification.
 
 **`tier: low`.** Go on to step 3 without waiting.
 
-**`tier: elevated`.** This is a hard stop. Tell the human each reason on the `reasons` line. Then give a short contract: the goal, what is out of scope, and the checks you will run with the outcome that would mean failure. When a reason is `data`, ask in the same reply for what would clear the file, with an example answer the human can copy: its classification, and the highest level their organization lets this coding agent read. Say how you will work without seeing the data if they cannot answer yet (P12). The human answers for the data, so say too that they may decide you read the file as it stands, that reading it sends its contents to the company that runs the model, that their organization's rules still bind them, and that code records the decision under their name when they reply with a plain yes. End your turn, and go on only after a clear yes. When a reason is `size`, say that the work needs a plan, which `/cg plan` writes once `/cg brainstorm` has settled what is wanted, and offer the first slice that is small enough to do now. When a reason is `choice`, put the choice to the human in the same reply, with the answer you recommend and its trade-off. If one question cannot settle it, say that `/cg brainstorm` works it through before anything changes.
+**`tier: elevated`.** This is a hard stop. Tell the human each reason on the `reasons` line. Then give a short contract: the goal, what is out of scope, and the checks you will run with the outcome that would mean failure. Write it under "Risk" in the work report first, and show it as the file reads. When a reason is `irreversible`, it names what will be done that cannot be undone, and to which file or place. When a reason is `data`, ask in the same reply for what would clear the file, with an example answer the human can copy: its classification, and the highest level their organization lets this coding agent read. Say how you will work without seeing the data if they cannot answer yet (P12). The human answers for the data, so say too that they may decide you read the file as it stands, that reading it sends its contents to the company that runs the model, that their organization's rules still bind them, and that code records the decision under their name when they reply with a plain yes. For the contract, say that a plain yes confirms it and is recorded under their name, and that you will take anything else as a change or a question. End your turn. When a reason is `size`, say that the work needs a plan, which `/cg plan` writes once `/cg brainstorm` has settled what is wanted, and offer the first slice that is small enough to do now. When a reason is `choice`, put the choice to the human in the same reply, with the answer you recommend and its trade-off. If one question cannot settle it, say that `/cg brainstorm` works it through before anything changes.
+
+**When the human says yes to the contract,** record the reply before you change anything. Show the line, then run it:
+
+`"<python>" "<cg>" approve "<the work report>" --reply "<the human's reply, word for word>" --project "<project root>"`
+
+If it prints `refused`, nothing was recorded and nothing changes. The reason says what kind of reply it was and what to ask next. A stop holds for the facts and the files you gave `tier`: when you run `tier` again and it is still elevated, the stop is a new one.
 
 **When the human answers a data question,** here or later in the work, record the answer before you go on, so that no later session asks again. Show the line, then run it:
 
@@ -66,21 +78,26 @@ Once the decision is recorded, run `tier` again. Its `data` line names the decis
 
 ## 4. Prove
 
-- Run the checks yourself. Where you can, see each check fail before the change and pass after it. Check the real output, not a step on the way to it.
+- Run each check through code, which records that it ran: its command, its exit code, a digest of what it printed, and the commit. Put the command in single quotes when it holds double quotes. Show the line, then run it:
+
+  `"<python>" "<cg>" evidence --run "<the check's command>" --report "<the work report>" --project "<project root>"`
+
+- Where you can, see each check fail before the change and pass after it. Check the real output, not a step on the way to it.
 - For a number that changed, compare it with something independent of the code: a reference value, a published figure, or what the human said they expected before the check ran (P4). Compare at the precision the value was given in: 12.4 is right to one decimal and says nothing about the second. Set that tolerance before the first run.
 - When a check fails, fix the code, not the check. Change an expected value or a tolerance only when a source independent of the code shows it was wrong, and name that source in the record and in the reply (P4).
-- Give each check one verdict: verified, not verified or inconclusive. Inconclusive is not a pass.
+- Each check gets one verdict: verified, not verified or inconclusive. Inconclusive is not a pass. Code gives it from the exit code: 0 is verified, anything else is not. When a check ends with 0 and what it printed shows the failure, run the line again with `--verdict not-verified` added, or with `--verdict inconclusive` when the check could not tell.
+- Then have code look at the change as a whole:
+
+  `"<python>" "<cg>" guard --report "<the work report>" --project "<project root>"`
+
+  A line that starts with `FAIL` names a test that was removed or skipped, a checker that was silenced, a file you changed and did not give to `tier`, or that no check is verified on the files as they now are. Fix the change, and never the finding. For a file you did not give to `tier`, return to step 2. When a finding is what the human asked for, such as a test that goes with the code it tested, show it to them and let them decide.
 - Read the Verifier section of P3, P4 and P6 in `principles/`, and judge your own change against each. This is a self-review, and the record says so.
 
 ## 5. Record
 
-Create the work report:
+Fill every section of the work report. Code holds the commands, the exit codes, the verdicts and the digests, and the report holds what code cannot record. Neither ever holds data.
 
-`"<python>" "<cg>" new work-report "<short title>" --project "<project root>"`
-
-Fill every section of the file it creates. Evidence holds commands, exit codes, digests and counts. It never holds data.
-
-Set `status: completed` when every check you named for this change, in step 2 or in the contract, ran and is verified. With no verified check, the work is not completed. Otherwise leave `status: in-progress` and say so in the reply, so that status keeps showing the work as open.
+Set `status: completed` when every check you named for this change, in step 2 or in the contract, ran through `evidence` and is verified. With no verified check, the work is not completed, and code fails a report that says it is. Otherwise leave `status: in-progress` and say so in the reply, so that status keeps showing the work as open.
 
 Then have code check the record:
 
@@ -94,6 +111,4 @@ A failure that was there before your change, in something the change did not tou
 
 Commit only when the human asks. Then the work report goes in the same commit as the change (P8).
 
-**Reply:** what was asked, what changed and in which files, each check with its command and verdict, any check you changed after it failed with the source that showed it wrong, the self-review verdict for P3, P4 and P6, the path of the work report, what you did not check, and the "Noticed but not touching" list. Label each claim measured, inferred or guess.
-
-<!-- PLACEHOLDER: written in task 2.4. Step 5 moves into `cg.py evidence`. -->
+**Reply:** what was asked, what changed and in which files, each check with its command and verdict, what `guard` printed, any check you changed after it failed with the source that showed it wrong, the self-review verdict for P3, P4 and P6, the path of the work report, what you did not check, and the "Noticed but not touching" list. Label each claim measured, inferred or guess.

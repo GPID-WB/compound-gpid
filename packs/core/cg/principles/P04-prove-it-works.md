@@ -95,7 +95,7 @@ Flag when:
 
 ## Deterministic checks
 
-- Every check ID in the approved plan has an evidence entry at the current commit.
-- `cg.py guard`: the diff does not delete or skip checks or add suppressions.
+- `cg.py evidence`: a check ID runs the command the approved plan declares for it, and any other command is labelled ad hoc. A work report is completed only when every check ID of its plan has a verified evidence entry.
+- `cg.py guard`: the diff does not delete or skip checks or add suppressions, and each check of the slice has verified evidence on the files as they now are.
 - Every evidence entry records exit code 0, or is listed as failing.
 - The verification profile's doctor passes before any check is trusted.

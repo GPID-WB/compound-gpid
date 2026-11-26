@@ -44,7 +44,7 @@ The contract is the part of the plan the human approves and the work is held to 
 - **Out of scope.** What this work will not do, from the intent, and what is deferred: an idea that is good and that the goal does not need goes here in one line, with the reason, so that it is kept and not built (P6).
 - **Requirements.** One thing the work must do in each row. A requirement that needs "and" is two.
 - **Checks.** Every requirement has at least one check, and every check can fail (P4). Hold each check to these five:
-  1. Its command is written as it will be run, with its arguments. Take it from the verification profile when the profile has one.
+  1. Its command is written as it will be run, with its arguments, and in backticks: code runs what stands between them, from the project root. Take it from the verification profile when the profile has one.
   2. "Fails when" names an outcome someone can observe: an exit code, a value, a count, a difference from a baseline. An outcome that is a matter of opinion is no check.
   3. It looks at the real output and not at a proxy: the number in the final table, the function as its caller calls it. "It runs" and "the file exists" prove nothing.
   4. It would fail if the requirement were not met. A check that already passes on the project as it is today, as far as reading the code shows, cannot fail for this work: replace it. A baseline or a pin is the one exception, because its job is to show that something stayed the same.
@@ -112,6 +112,4 @@ It sets the plan to `approved` and writes the path of the record into the plan. 
 
 Planning ends with the approved plan, not with a change. Do not start a slice in the same turn. Commit only when the human asks: the plan, its intent and their records under `.cg-docs/approvals/` then go into one commit, with `.cg-docs/config.json` when step 5 changed it (P8).
 
-**Reply:** the path of the plan and its status, the goal in one sentence, each requirement with its checks, the slices in order, each dataset that stays closed, what is deferred, what no check would catch, the self-review verdict for each principle, what you did not look up, and what the human can do next: `/cg` followed by the first slice, which quick work does when it is small enough. When the turn ends before the plan is approved, say which step you are at and what you are waiting for. Label each claim measured, inferred or guess.
-
-<!-- PLACEHOLDER: written in task 2.4. The work playbook takes an approved plan slice by slice. Until then quick work does one slice at a time. -->
+**Reply:** the path of the plan and its status, the goal in one sentence, each requirement with its checks, the slices in order, each dataset that stays closed, what is deferred, what no check would catch, the self-review verdict for each principle, what you did not look up, and what the human can do next: `/cg work`, which takes the plan slice by slice. When the turn ends before the plan is approved, say which step you are at and what you are waiting for. Label each claim measured, inferred or guess.

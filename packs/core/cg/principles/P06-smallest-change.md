@@ -51,5 +51,5 @@ Flag when:
 
 ## Deterministic checks
 
-- The files touched in each slice are among the files that slice declared.
+- `cg.py guard`: the files touched in each slice are among the files that slice declared.
 - The size of the diff is reported beside the plan's estimate.

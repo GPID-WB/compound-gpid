@@ -51,7 +51,7 @@ In Kilo, choose a model that can call tools; with one that cannot, nothing runs.
 
 ## 3. First use
 
-Open a project in your coding agent and type `/cg`. The first time, the guide proposes a setup for the project and waits for your yes before it writes anything. After that, `/cg` followed by a request does the work, `/cg brainstorm` followed by an idea works out with you what is wanted before anything changes, `/cg plan` then writes the plan you approve before larger work starts, and `/cg status` only says where the work stands.
+Open a project in your coding agent and type `/cg`. The first time, the guide proposes a setup for the project and waits for your yes before it writes anything. After that, `/cg` followed by a request does the work, `/cg brainstorm` followed by an idea works out with you what is wanted before anything changes, `/cg plan` then writes the plan you approve before larger work starts, `/cg work` does the work of an approved plan slice by slice, and `/cg status` only says where the work stands. The guide stops and asks before anything that cannot be undone, such as deleting data or pushing to a shared branch, also when your coding agent approves its own tool calls.
 
 ## 4. Later
 
