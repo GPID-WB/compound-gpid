@@ -4,7 +4,8 @@ schema: 2
 title: "{title}"
 date: {date}
 status: in-progress
-size: quick
+size: {size}
+plan: {plan}
 ---
 
 # {heading}
@@ -15,7 +16,7 @@ size: quick
 
 ## Risk
 
-<the lines `cg.py tier` printed, your reason for each no, and the human's reply when the tier was elevated>
+<your reason for each fact you answered no. At a hard stop, written before you ask: the short contract, or the action that cannot be undone, as the human is asked to say yes to it>
 
 ## Changed
 
@@ -25,14 +26,15 @@ size: quick
 
 ## Checks
 
-| Check | Command | Exit code | Verdict |
-|---|---|---|---|
-| <what it shows> | <the command as run> | <the exit code> | <verified, not verified or inconclusive> |
+| Check | What a failure of it would show, and what it does not look at |
+|---|---|
+| <its ID in the plan, or its command> | <what it catches, and what it would miss> |
 
 ## Evidence
 
-- Commit the checks ran on: <`git rev-parse --short HEAD`, with "+changes" when the change is not committed>
-- Digest of each output file the change produced or moved: <the path and its digest from `git hash-object`, before and after where there was a baseline>
+Code records each run of a check: its command, its exit code, its verdict, a digest of what it printed and the commit. `cg.py evidence` with this file as `--report` lists the records. They hold digests and counts and never data, and this file holds no data either.
+
+- Digest of each output file the change produced or moved: <the path and its digest from `git hash-object`, before and after where there was a baseline; or "no output moved">
 - Validation, for a number: <what it was compared with, and the two values; or "no number changed">
 
 ## Self-review

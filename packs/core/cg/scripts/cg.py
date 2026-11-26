@@ -5,17 +5,22 @@ Usage, with the interpreter that ~/.cg/launcher.json records as <python>:
   "<python>" cg.py status [--project PATH] [--json] [--guide [--playbook NAME]]
   "<python>" cg.py new TYPE TITLE... [--project PATH] [--date YYYY-MM-DD]
   "<python>" cg.py new plan TITLE... --intent INTENT [--other-work] [--project PATH] [--date YYYY-MM-DD]
+  "<python>" cg.py new work-report TITLE... [--plan PLAN] [--project PATH] [--date YYYY-MM-DD]
   "<python>" cg.py validate [FILE...] [--strict] [--json] [--project PATH]
   "<python>" cg.py approve PLAN|INTENT --reply "the human's reply, word for word" [--project PATH]
   "<python>" cg.py approve --reads FILE... --agent NAME --reply "..." [--project PATH]
-  "<python>" cg.py tier --fact NAME=yes|no... --touches FILE... --reads FILE|none... [--agent NAME]
-                      [--json] [--project PATH]
+  "<python>" cg.py approve REPORT --reply "..." [--project PATH]
+  "<python>" cg.py tier --fact NAME=yes|no... --touches FILE...|--slice ID --reads FILE|none... [--agent NAME]
+                      [--report REPORT] [--json] [--project PATH]
+  "<python>" cg.py evidence [CHECK-ID | --run COMMAND] [--verdict not-verified|inconclusive] --report REPORT
+                      [--project PATH]
+  "<python>" cg.py guard [--report REPORT] [--base COMMIT] [--project PATH]
   "<python>" cg.py packs [--json]
   "<python>" cg.py setup [--packs a,b] [--setting pack.key=value]... [--classification-levels "A;B"]
                        [--approved-tool "agent=level"]... [--data "path=level"]...
                        [--project PATH] [--dry-run]
 
-What each command does and why is in docs/adr/0005-artifacts.md and in its --help.
+What each command does and why is in docs/adr/0005-artifacts.md, 0006-evidence.md and in its --help.
 PATH may be any folder inside the project: the commands use the nearest folder
 above it that holds .cg-docs/, else the root of its git repository.
 
@@ -24,6 +29,7 @@ operating system. Every write is atomic and each record is its own file.
 """
 import argparse
 import datetime
+import fnmatch
 import hashlib
 import json
 import ntpath
@@ -142,6 +148,20 @@ FACTS = {
     "no-check": "no check would fail if the change were wrong",
 }
 MAX_FILES = 5  # a change that touches more files than this is not small
+# A yes to one of these facts stops the work each time, on a plan too: no earlier approval covers it (#227).
+ALWAYS_STOP = ("irreversible",)
+# What guard looks for in a change (P4): per rule a pattern, whether only test files are searched,
+# and whether more of it (True) or less of it (False) than the commit holds is the problem.
+TEST_FILE = r"(^|/)(tests?|testthat|spec)/|(^|/)test[-_.][^/]*$|[-_.](test|spec)s?\.[^/.]+$"
+GUARD = (
+    ("test-removed", r"\btest_that\s*\(|^\s*(async\s+)?def test_\w+|^\s*(it|test|describe)\s*\(|^\s*func Test\w+",
+     True, False),
+    ("assertion-removed", r"\bexpect(_\w+)?\s*\(|\bassert\w*\b|\bstopifnot\s*\(", True, False),
+    ("test-skipped", r"\bskip(_\w+)?\s*\(|\.skip\b|\bmark\.(skip|xfail)|\bx(it|describe)\s*\(|\bt\.Skip\(", True, True),
+    ("suppression-added", r"\bsuppress(Warnings|Messages)\s*\(|#\s*(nolint|noqa|type:\s*ignore|pragma:\s*no cover)|"
+                          r"\b(filterwarnings|simplefilter)\s*\(|\bwarn\s*=\s*-\s*\d|\bsilent\s*=\s*T(RUE)?\b|"
+                          r"@ts-(ignore|nocheck)|eslint-disable|\|\|\s*true\b", False, True),
+)
 # Which playbook each phase opens.
 # PLACEHOLDER: extended in task 2.14; task 1.3 delivers setup and quick only.
 PHASE_PLAYBOOK = {"setup": "playbooks/setup.md", "ready": "playbooks/quick.md"}
@@ -180,6 +200,16 @@ def write_record(project: Path, path: Path, record: dict) -> str:
     """Write one record as its own file. Returns its path from the project root."""
     write_atomic(path, json.dumps(record, indent=2, ensure_ascii=False) + "\n")
     return path.relative_to(project).as_posix()
+
+
+def git(project: Path, *args):
+    """What a git command prints in a folder, or None when it fails or git is not installed.
+    These commands only read, so none takes the index lock."""
+    if shutil.which("git") is None:
+        return None
+    done = subprocess.run(["git", "--no-optional-locks", "-c", "core.quotepath=off", "-C", str(project), *args],
+                          capture_output=True, text=True, encoding="utf-8", errors="replace")
+    return done.stdout.strip() if done.returncode == 0 else None
 
 
 def article(kind: str) -> str:
@@ -352,19 +382,14 @@ def cmd_packs(args) -> int:
 def git_facts(project: Path) -> dict:
     if shutil.which("git") is None:
         return {"git": "not found"}
-    def git(*args):
-        # --no-optional-locks: status only reads, so it never takes the index lock.
-        done = subprocess.run(["git", "--no-optional-locks", "-C", str(project), *args],
-                              capture_output=True, text=True)
-        return done.stdout.strip() if done.returncode == 0 else None
-    if git("rev-parse", "--is-inside-work-tree") != "true":
+    if git(project, "rev-parse", "--is-inside-work-tree") != "true":
         return {"git": "not a repository"}
     # symbolic-ref names the branch before the first commit too; detached HEAD has none.
-    branch = git("symbolic-ref", "--short", "-q", "HEAD") or "HEAD (detached)"
+    branch = git(project, "symbolic-ref", "--short", "-q", "HEAD") or "HEAD (detached)"
     facts = {"git": "repository", "branch": branch}
-    if git("rev-parse", "--verify", "-q", "HEAD") is None:
+    if git(project, "rev-parse", "--verify", "-q", "HEAD") is None:
         facts["commits"] = "none"
-    changed = git("status", "--porcelain")
+    changed = git(project, "status", "--porcelain")
     facts["changed-files"] = len(changed.splitlines()) if changed else 0
     return facts
 
@@ -504,6 +529,10 @@ def compute_status(project: Path, guide: bool = False, asked=None) -> dict:
     waiting += [f"{a['path']} (status {a['status']}, not approved as it now reads)" for a in found
                 if a["schema"] == SCHEMA and a["status"] in APPROVED.get(a["type"], ((), "", ()))[2]
                 and not is_approved(project, a)]
+    for a in (a for a in open_ones if a["type"] == "work-report" and a["schema"] == SCHEMA):
+        held = tier_of(project, a)
+        if held and held[1].get("stop") and not held[3]:
+            waiting.append(f"{a['path']} (stops for the human's yes: {'; '.join(held[1]['stop'])})")
     phase = "setup" if config is None else "ready"
     # The playbook the human asked for by name, once the project is set up; else the phase's.
     playbook = f"playbooks/{asked}.md" if asked and phase != "setup" else PHASE_PLAYBOOK[phase]
@@ -561,12 +590,8 @@ def find_root(folder: Path) -> Path:
     for candidate in (folder, *folder.parents):
         if (candidate / ".cg-docs").is_dir():
             return candidate
-    if shutil.which("git"):
-        done = subprocess.run(["git", "--no-optional-locks", "-C", str(folder), "rev-parse", "--show-toplevel"],
-                              capture_output=True, text=True)
-        if done.returncode == 0 and done.stdout.strip():
-            return Path(done.stdout.strip()).resolve()
-    return folder
+    top = git(folder, "rev-parse", "--show-toplevel")
+    return Path(top).resolve() if top else folder
 
 
 def project_from(arg):
@@ -645,14 +670,28 @@ def cmd_new(args) -> int:
                   "a draft is edited, and an approved plan takes an amendment. When this is other work, ask the "
                   "human whether the new plan stands beside it, and after their yes add --other-work")
             return 1
+    plan = None
+    if args.type == "work-report" and args.plan:  # what holds the work to the plan (#227)
+        plan = plan_of(project, {"fields": {"plan": args.plan}}, True)
+        going = [a["path"] for a in artifacts(project) if a["type"] == "work-report" and a["state"] != "closed"
+                 and plan and a["fields"].get("plan") == plan["path"]]
+        if plan is None or going:
+            print(f"refused: the work on this plan has a work report that is not finished: {going[0]}; continue in "
+                  f"that file" if going else
+                  "refused: work starts on a plan the human approved as it now reads; show them the plan, and "
+                  "record their reply with approve. A change to an approved plan is an amendment")
+            return 1
     template = CG_DIR / "templates" / f"{args.type}.md"
     safe_title = title.replace("\\", "\\\\").replace('"', '\\"')
     values = {"type": args.type, "title": safe_title, "heading": title, "date": date,
-              "intent": intent["path"] if intent else ""}
+              "intent": intent["path"] if intent else "", "plan": plan["path"] if plan else "",
+              "size": "standard" if plan else "quick"}
     # One pass, so a title that itself holds "{date}" is kept as written (#218).
-    text = re.sub(r"\{(type|title|heading|date|intent)\}", lambda m: values[m.group(1)],
+    text = re.sub(r"\{(type|title|heading|date|intent|plan|size)\}", lambda m: values[m.group(1)],
                   template.read_text(encoding="utf-8"))
     write_atomic(target, text)
+    if plan and plan["status"] == "approved":
+        set_front(project / plan["path"], {"status": "in-progress"})
     print(f"created {target.relative_to(project).as_posix()}")
     return 0
 
@@ -858,7 +897,7 @@ def intent_problems(body: str):
     facts = [(row + [""] * 2)[:2] for row in table_rows(body, "## Facts") if row]
     decisions = [(row + [""] * 4)[:4] for row in table_rows(body, "## Decisions") if row]
     problems = [] if facts and decisions else ["the Facts table and the Decisions table each need a row"]
-    problems += [f"the fact '{fact}' names no source" for fact, source in facts if nothing(source, opens=True, source=True)]
+    problems += [f"the fact '{fact}' names no source" for fact, source in facts if nothing(source, True, True)]
     for did, _, recommended, answer in decisions:
         if nothing(recommended, opens=True):
             problems.append(f"decision {did} has no recommended answer")
@@ -947,6 +986,8 @@ def artifact_problems(project: Path, a: dict, approving: bool = False):
     if rests_on_yes and not approving and not is_approved(project, a):
         errors.append(f"its status is {a['status']}, but no approval is recorded for the {a['type']} as it now "
                       f"reads; show the human the {a['type']}, and record their reply with approve")
+    if a["type"] == "work-report" and a["status"] == "completed":
+        errors += unproven(project, a)
     if a["type"] == "decision" and a["status"] == "accepted" and not fields.get("decided-by"):
         errors.append("an accepted decision names the person who decided, in 'decided-by'")
     # What is unfinished is a warning while the artifact is being written, and an error after.
@@ -1027,9 +1068,14 @@ def approved_text(body: str) -> str:
 def amendments(body: str):
     """The dated lines under `## Amendments`, such as `- 2026-11-26: what changes and why`. A date
     alone says nothing, so it is no amendment (review of #226)."""
-    found = re.search(r"^## Amendments[ \t]*$(.*?)(?=^## |\Z)", body, re.M | re.S)
-    return [line.rstrip() for line in re.findall(r"^[-*] \d{4}-\d\d-\d\d:[ \t]*\S.*$", found.group(1), re.M)] \
-        if found else []
+    return [line.rstrip() for line in re.findall(r"^[-*] \d{4}-\d\d-\d\d:[ \t]*\S.*$",
+                                                 section(body, "## Amendments"), re.M)]
+
+
+def section(body: str, heading: str) -> str:
+    """What stands under a level 2 heading, up to the next one; nothing when the heading is not there."""
+    found = re.search(rf"^{re.escape(heading)}[ \t]*$(.*?)(?=^## |\Z)", body, re.M | re.S)
+    return found.group(1).strip("\n") if found else ""
 
 
 def record_at(path: Path) -> dict:
@@ -1086,12 +1132,7 @@ def the_yes(project: Path, reply: str):
         refused.append(f'"{said}" {KINDS[opens or "no-yes"]}')
     elif re.sub(any_of(YES + FILLER), " ", words).strip() or re.search(r"[?¿]", said):  # "Ok?" asks
         refused.append(f'"{said}" {KINDS["more"]}')
-
-    def git_config(key):
-        done = subprocess.run(["git", "-C", str(project), "config", "--get", key],
-                              capture_output=True, text=True) if shutil.which("git") else None
-        return done.stdout.strip() if done and done.returncode == 0 else ""
-    name, email = git_config("user.name"), git_config("user.email")
+    name, email = (git(project, "config", "--get", key) or "" for key in ("user.name", "user.email"))
     if not name:
         refused.append('git has no user.name here, so the record would name nobody; the human sets it '
                        'with: git config user.name "Their Name"')
@@ -1115,8 +1156,10 @@ def cmd_approve(args) -> int:
     if args.reads:
         return approve_reads(project, args)
     at = artifact_at(project, args.artifact)
+    if at and at[1] == "work-report":
+        return approve_stop(project, read_artifact(at[0], "work-report", project), args.reply)
     if at is None or at[1] not in APPROVED:
-        print(f"not a plan or an intent of this project: {args.artifact}")
+        print(f"not a plan, an intent or a work report of this project: {args.artifact}")
         return 2
     kind = at[1]
     takes, written, _ = APPROVED[kind]
@@ -1152,17 +1195,21 @@ def cmd_approve(args) -> int:
         print(f"approved {plan['path']}\nrecord: {write_record(project, record_path, record)}\n"
               f"hash: {digest}\nby: {name} <{email}>")
     # The two lines of the file that code changes: its status, and the record of the yes just written.
-    keys = {**({} if known else {"approval": record_path.relative_to(project).as_posix()}),
-            **({"status": written} if plan["status"] == "draft" else {})}
-    lines = at[0].read_text(encoding="utf-8-sig").split("\n")
+    set_front(at[0], {**({} if known else {"approval": record_path.relative_to(project).as_posix()}),
+                      **({"status": written} if plan["status"] == "draft" else {})})
+    return 0
+
+
+def set_front(path: Path, keys: dict) -> None:
+    """Set keys in the frontmatter of an artifact, and change nothing else in the file."""
+    lines = path.read_text(encoding="utf-8-sig").split("\n")
     end = next(i for i, line in enumerate(lines[1:], 1) if line.strip() == "---")
     for key, value in keys.items():
         spot = next((i for i in range(1, end) if lines[i].startswith(f"{key}:")), end)
         lines[spot:spot + (spot < end)] = [f"{key}: {value}"]
         end += spot == end
     if keys:
-        write_atomic(at[0], "\n".join(lines))
-    return 0
+        write_atomic(path, "\n".join(lines))
 
 
 # ---------------------------------------------------------------- tier
@@ -1286,7 +1333,10 @@ def cmd_tier(args) -> int:
     touches and the data files it reads. Code adds the data rules and the file
     count. Any yes makes the tier elevated. A data file that is not cleared
     raises it until the human's decision to read it is recorded; after that,
-    every run names the decision.
+    every run names the decision. With --report, code writes these lines as a
+    record of the work report and names the reasons that stop the work until
+    the human's yes is recorded: every reason in quick work, and on an approved
+    plan those of ALWAYS_STOP, which no earlier approval covers.
     """
     project = project_from(args.project)
     if project is None:
@@ -1299,14 +1349,24 @@ def cmd_tier(args) -> int:
     if facts is None:
         return 2
     config, facts = config or {}, {name: value.lower() for name, value in facts.items()}
-    reads, usage = args.reads or [], []
+    reads, usage, touches = args.reads or [], [], args.touches or []
+    report = report_at(project, args.report) if args.report else None
+    if args.report and report is None:
+        return 2
+    plan = plan_of(project, report, True) if report else None  # a plan that is not approved covers nothing
+    if plan or args.slice:  # the files of a slice are the plan's to say (P6)
+        files = {row[0]: row[2] for row in rows_of(plan["body"], "## Slices", 5, [])} if plan else {}
+        if args.slice not in files:
+            usage.append(f"give --slice with the slice this work is on, and not --touches: '{args.slice or ''}' is "
+                         f"no slice of the plan the work report names; its slices are: {', '.join(files) or 'none'}")
+        touches = listed(project, files.get(args.slice, ""))
     if len(facts) < len(args.fact or []):
         usage.append("a fact is declared more than once; declare each fact once")
     usage += [f"'{name}' is not a fact; the facts are: {', '.join(FACTS)}" for name in facts if name not in FACTS]
     usage += [f"--fact {name} must be yes or no" for name, value in facts.items() if value not in ("yes", "no")]
     usage += [f"declare --fact {name}=yes or --fact {name}=no; a yes means {meaning}"
               for name, meaning in FACTS.items() if name not in facts]
-    if not args.touches:
+    if not touches and not args.slice:
         usage.append("give --touches once for each file the change will create, change or delete")
     if not reads or ("none" in reads and len(reads) > 1):
         usage.append("give --reads once for each data file the work will open or that code it runs will read, "
@@ -1327,7 +1387,7 @@ def cmd_tier(args) -> int:
     for d in data:
         made = None if d["cleared"] else decision_for(decisions, d, args.agent)
         d["decision"] = made and {key: made.get(key) for key in ("name", "time", "reply")}
-    files = sorted({data_path(project, f) for f in args.touches})
+    files = sorted({data_path(project, f) for f in touches})
     reasons = [f"{name}: {FACTS[name]}" for name in FACTS if facts[name] == "yes"]
     reasons += [f"data: {d['path']} is not cleared for {args.agent}" for d in data
                 if not d["cleared"] and not d["decision"]]
@@ -1335,6 +1395,12 @@ def cmd_tier(args) -> int:
         reasons.append(f"size: the change touches {len(files)} files, more than {MAX_FILES}")
     state = {"tier": "elevated" if reasons else "low", "reasons": reasons, "data": data, "files": files,
              "facts": {name: facts[name] for name in FACTS}}
+    if report:  # the start of a slice, or of quick work: what was declared, and what had changed before it
+        state["stop"] = [r for r in reasons if plan is None or r.split(":")[0] in ALWAYS_STOP]
+        kept = {key: state[key] for key in ("tier", "reasons", "stop", "files", "facts")}
+        state["record"] = add_record(project, report, "tier", {
+            "kind": "tier", "slice": args.slice, **kept, "before": digests(project, changed_files(project) or []),
+            "data": [{key: d[key] for key in ("path", "level", "cleared")} for d in data]})
     if args.json:
         print(json.dumps(state, indent=2, sort_keys=True))
         return 0
@@ -1344,7 +1410,259 @@ def cmd_tier(args) -> int:
                 if d["decision"] else "") for d in data]
     print(f"tier: {state['tier']}\nreasons: {'; '.join(reasons) or 'none'}\n"
           f"data: {'; '.join(shown) or 'none'}\nfiles: {len(files)}")
+    if report:
+        print(f"stop: {'; '.join(state['stop']) or 'none'}\nrecord: {state['record']}")
     return 0
+
+
+# ---------------------------------------------------------------- evidence and guard
+
+def report_at(project: Path, arg: str):
+    """The work report a path names, as read_artifact reads it. When it names none, a line says so."""
+    at = artifact_at(project, arg)
+    if at and at[1] == "work-report":
+        return read_artifact(at[0], "work-report", project)
+    print(f"not a work report of this project: {arg}")
+
+
+def plan_of(project: Path, report: dict, in_force: bool = False):
+    """The plan a work report names under `plan`, or None. With in_force, only a plan that work may
+    go on under: the human approved it as it now reads, and it is not finished."""
+    at = artifact_at(project, str(report["fields"].get("plan") or ""))
+    plan = read_artifact(at[0], "plan", project) if at and at[1] == "plan" else None
+    live = plan and plan["status"] in ("approved", "in-progress") and is_approved(project, plan)
+    return plan if live or not in_force else None
+
+
+def listed(project: Path, cell: str):
+    """The files a slice lists in its Files cell: paths, folders or patterns, apart by commas or spaces."""
+    parts = (part.strip("`\"'") for part in re.split(r"[\s,;]+|<br\s*/?>", cell))
+    return [data_path(project, part) for part in parts if part]
+
+
+def covers(names, path: str) -> bool:
+    """True when a path is one of the names, is under one that is a folder, or fits one that is a pattern."""
+    return any(within(path, name) or fnmatch.fnmatchcase(path, name) for name in names)
+
+
+def changed_files(project: Path, base: str = "HEAD"):
+    """Every file that differs from a commit, new files too, outside .cg-docs/; None when git cannot say."""
+    known = git(project, "diff", "--name-only", "--no-renames", "--relative", "-z", base, "--")
+    new = git(project, "ls-files", "-z", "--others", "--exclude-standard")
+    if known is None or new is None:
+        return None
+    return sorted({name for name in (known + "\0" + new).split("\0") if name and not name.startswith(".cg-docs/")})
+
+
+def digests(project: Path, names) -> dict:
+    """A digest of each named file as it now is, so that code can tell later whether it changed."""
+    return {name: hashlib.sha256((project / name).read_bytes()).hexdigest()[:16] if (project / name).is_file()
+            else "gone" for name in names}
+
+
+def work_state(project: Path, declared) -> str:
+    """One digest of the declared files that differ from the last commit. Evidence holds for this state of them."""
+    held = digests(project, [name for name in changed_files(project) or [] if covers(declared, name)])
+    return "sha256:" + hashlib.sha256(json.dumps(held, sort_keys=True).encode("utf-8")).hexdigest()
+
+
+def records(project: Path, report: dict, kind: str):
+    """The records of one kind that code wrote for a work report, oldest first, as (path, record). A
+    record is one file under .cg-docs/evidence/<the work report's name>/, named by its number."""
+    folder = project / ".cg-docs" / "evidence" / Path(report["name"]).stem
+    found = [(path, record_at(path)) for path in sorted(folder.glob("*.json"))]
+    return [(path, record) for path, record in found if kind in ("any", record.get("kind"))]
+
+
+def add_record(project: Path, report: dict, label: str, record: dict) -> str:
+    """Write one more record for a work report, and never over another. Returns its path."""
+    record = {"report": report["path"], **record, "time": now()}
+    name = f"{len(records(project, report, 'any')) + 1:04d}-{re.sub(r'[-:]', '', record['time'])}-{label}.json"
+    return write_record(project, project / ".cg-docs" / "evidence" / Path(report["name"]).stem / name, record)
+
+
+def runs(project: Path, report: dict) -> dict:
+    """The newest record of each check that ran: under its ID when the plan declares it, else under its command."""
+    return {r.get("check") if r.get("label") == "declared" else r.get("command-digest"): r
+            for _, r in records(project, report, "check")}
+
+
+def tier_of(project: Path, report: dict):
+    """The newest tier record of a work report as (path, record, digest, yes), or None. yes says
+    whether the human's yes to that record is on file."""
+    found = records(project, report, "tier")
+    if not found:
+        return None
+    digest = text_hash(found[-1][0].read_text(encoding="utf-8"))
+    return (*found[-1], digest, any(a.get("hash") == digest for a in approvals(project, report)))
+
+
+def open_stop(project: Path, report: dict):
+    """What keeps a piece of work from going on, or None: no risk computed for it yet, or a stop
+    of its newest tier record that the human has not said yes to. No check is recorded past it."""
+    held = tier_of(project, report)
+    if held is None:
+        return "no risk is computed for this work yet; run tier with --report first"
+    if held[1].get("stop") and not held[3]:
+        return (f"this work stops for the human's yes ({'; '.join(held[1]['stop'])}). Write under '## Risk' in the "
+                f"work report what will be done, show it, ask, and end your turn. Record their reply with: approve "
+                f"{report['path']} --reply")
+    return None
+
+
+def approve_stop(project: Path, report: dict, reply: str) -> int:
+    """Record the human's yes to go on past a stop of tier: their reply word for word, who gave it,
+    when, the tier record it answers, and what the work report said under Risk. The yes holds for
+    that record alone: the next stop asks again."""
+    held = tier_of(project, report)
+    if held is None or not held[1].get("stop") or held[3]:
+        print("already recorded: the human's yes to this stop" if held and held[3] else
+              "nothing stops this work: its newest tier record names no reason that needs the human's yes, so "
+              "there is nothing to record")
+        return 0
+    path, tier, digest, _ = held
+    refused, name, email = the_yes(project, reply)
+    asked = section(report["body"], "## Risk")
+    if not asked.strip() or unfilled("work-report", asked):
+        refused.append("the work report does not say under '## Risk' what the human is asked to say yes to; write "
+                       "it there, show it to them, and ask again")
+    if refused:
+        return say(refused)
+    record = {"artifact": report["path"], "tier": path.relative_to(project).as_posix(), "hash": digest, "reply": reply,
+              "name": name, "email": email, "time": now(), "text": asked}
+    target = (project / ".cg-docs" / "approvals"
+              / f"{Path(report['name']).stem}.{digest[7:23]}.{len(approvals(project, report)) + 1}.json")
+    print(f"recorded: the human's yes to {'; '.join(tier['stop'])}\nrecord: {write_record(project, target, record)}\n"
+          f"by: {name} <{email}>")
+    return 0
+
+
+def unproven(project: Path, report: dict):
+    """What keeps a work report from being completed: completion follows from evidence, never from
+    a status typed into the file (P4). Every check of its plan is verified; in quick work, one is."""
+    stop, plan = open_stop(project, report), plan_of(project, report)
+    verified = {key for key, run in runs(project, report).items() if run.get("verdict") == "verified"}
+    wanted = [row[0] for row in rows_of(plan["body"], "### Checks", 4, [])] if plan else []
+    problems = [stop] * bool(stop) + [f"check {cid} of the plan has no verified evidence; run it with evidence {cid}"
+                                      for cid in wanted if cid not in verified]
+    if not plan and not verified:
+        problems.append("no check is verified in the evidence of this work; run each check through evidence, and "
+                        "with no verified check leave the status in-progress")
+    return problems
+
+
+def cmd_evidence(args) -> int:
+    """Run a check and record that it ran: the command, the exit code, the verdict, a digest and
+    two counts of what it printed, and the commit. What it printed is shown and never stored.
+
+    A check ID runs the command the approved plan declares for it. Any other command is given
+    with --run and labelled ad hoc. With neither, the records of the work report are listed.
+    """
+    project = project_from(args.project)
+    report = report_at(project, args.report) if project else None
+    if report and args.check and args.run:
+        print("give a check ID of the plan, or --run with another command, and not both")
+    if report is None or (args.check and args.run):
+        return 2
+    plan = plan_of(project, report)
+    checks = {row[0]: row[2] for row in rows_of(plan["body"], "### Checks", 4, [])} if plan else {}
+    if not args.check and not args.run:
+        held = runs(project, report)
+        for path, r in records(project, report, "any"):
+            print(f"{path.name}: " + (f"tier {r.get('tier')}; stop: {'; '.join(r.get('stop') or []) or 'none'}"
+                                      if r.get("kind") == "tier" else
+                                      f"{r.get('check')} ({r.get('label')}), exit {r.get('exit')}, {r.get('verdict')}: "
+                                      f"{r.get('command')}"))
+        for row in rows_of(plan["body"], "## Slices", 5, []) if plan else []:
+            print(f"{row[0]}: " + "; ".join(f"{cid} {held[cid]['verdict'] if cid in held else 'not run'}"
+                                            for cid in re.findall(r"C\d+", row[3])))
+        return 0
+    refused = [open_stop(project, report)]
+    if args.check and plan is None:
+        refused.append("this work report names no plan, so no check is declared for it; give the command with "
+                       "--run, and it is recorded as ad hoc")
+    elif args.check and not plan_of(project, report, True):
+        refused.append(f"the plan {plan['path']} is not approved as it now reads; a change to an approved plan is "
+                       f"an amendment, which the human approves before a check of it runs")
+    elif args.check and args.check not in checks:
+        refused.append(f"{args.check} is not a check of the approved plan, whose checks are {', '.join(checks)}; any "
+                       f"other command is given with --run and recorded as ad hoc")
+    if any(refused):
+        return say(filter(None, refused))
+    cell = re.search(r"`([^`]+)`", checks.get(args.check, ""))  # the command is what the plan holds in backticks
+    command = args.run or (cell.group(1) if cell else checks[args.check])
+    done = subprocess.run(command, shell=True, cwd=project, capture_output=True, stdin=subprocess.DEVNULL)
+    printed = done.stdout + done.stderr
+    sys.stdout.buffer.write(printed + b"\n" * (printed[-1:] not in (b"", b"\n")))
+    sys.stdout.buffer.flush()
+    verdict = (args.verdict or ("verified" if done.returncode == 0 else "not verified")).replace("-", " ")
+    sha = "sha256:" + hashlib.sha256(printed).hexdigest()
+    record = {"kind": "check", "check": args.check or "ad hoc", "label": "declared" if args.check else "ad hoc",
+              **({"plan": plan["path"], "plan-hash": text_hash(plan["body"])} if args.check else {}),
+              "command": command[:300], "command-digest": "sha256:" + hashlib.sha256(command.encode()).hexdigest(),
+              "exit": done.returncode, "verdict": verdict,
+              "output": {"digest": sha, "lines": printed.count(b"\n"), "bytes": len(printed)},
+              "commit": git(project, "rev-parse", "--short", "HEAD") or "none",
+              "state": work_state(project, tier_of(project, report)[1].get("files") or [])}
+    print(f"check: {record['check']} ({record['label']})\nexit: {done.returncode}\nverdict: {verdict}\n"
+          f"output: {record['output']['lines']} lines, {len(printed)} bytes, {sha}\n"
+          f"record: {add_record(project, report, args.check or 'ad-hoc', record)}")
+    return 0 if verdict == "verified" else 1
+
+
+def cmd_guard(args) -> int:
+    """Fail when a change lowers the bar or leaves what was declared (P4, P6).
+
+    In the diff against a commit, new files included: a test file deleted, tests or assertions
+    taken out, a test skipped, a checker silenced (GUARD). With --report, also: a stop the human
+    has not answered, a file changed since the slice started that the slice does not list (in
+    quick work, that tier was not given), and a check with no verified evidence on the files as
+    they now are. It names the rule and the file, never a line. Exit code 2: guard could not run.
+    """
+    project = project_from(args.project)
+    report = report_at(project, args.report) if project and args.report else None
+    files = changed_files(project, args.base) if project else None
+    if files is None or (args.report and report is None):
+        print(f"guard cannot run: git cannot compare the files of this project with {args.base}")
+        return 2
+    found = []
+    for name in files:
+        file, test = project / name, bool(re.search(TEST_FILE, name, re.I))
+        if not file.is_file():
+            found += [f"test-deleted: {name}"] * test
+        elif file.suffix.lower() not in (".md", ".txt", ".rst") and file.stat().st_size < 1_000_000:
+            new, old = file.read_text(encoding="utf-8", errors="replace"), git(project, "show", f"{args.base}:./{name}")
+            for rule, pattern, tests_only, more in GUARD:
+                was = len(re.findall(pattern, old or "", re.M))
+                lines = [str(new.count("\n", 0, m.start()) + 1) for m in re.finditer(pattern, new, re.M)]
+                if (test or not tests_only) and (len(lines) > was if more else len(lines) < was):
+                    found.append(f"{rule}: {name} holds {len(lines)} where {args.base} holds {was}"
+                                 + f"; see lines {', '.join(lines)}" * more)
+    held = tier_of(project, report) if report else None
+    stop = open_stop(project, report) if report else None
+    found += [f"stop: {stop}"] * bool(stop)
+    if held:
+        tier, plan, tiers = held[1], plan_of(project, report), [r for _, r in records(project, report, "tier")]
+        while len(tiers) > 1 and tiers[-2].get("slice") == tier.get("slice"):  # back to the start of this slice
+            tiers.pop()
+        before, declared = tiers[-1].get("before") or {}, tier.get("files") or []
+        where = f"slice {tier['slice']} does not list it" if tier.get("slice") else "tier was not given it"
+        mine = [name for name in files if digests(project, [name])[name] != before.get(name)]
+        found += [f"outside: {name} changed and {where}; undo it, or run tier again with it, which may stop the work"
+                  for name in mine if not covers(declared, name)]
+        rows = {row[0]: row[3] for row in rows_of(plan["body"], "## Slices", 5, [])} if plan else {}
+        state, text = work_state(project, declared), text_hash(plan["body"]) if plan else None
+        fresh = {key for key, run in runs(project, report).items() if run.get("verdict") == "verified"
+                 and run.get("state") == state and run.get("plan-hash") in (None, text)}
+        wanted = re.findall(r"C\d+", rows.get(tier.get("slice"), ""))
+        found += [f"no-evidence: check {cid} is not verified on the files as they now are; run it with evidence {cid}"
+                  for cid in wanted if cid not in fresh]
+        if not wanted and not fresh:
+            found.append("no-evidence: no check is verified on the files as they now are; run each through evidence")
+    for line in found:
+        print(f"FAIL {line}")
+    print(f"guard: {len(found)} problem{'s' * (len(found) > 1)}" if found else "guard: clean")
+    return 1 if found else 0
 
 
 # ---------------------------------------------------------------- setup
@@ -1636,6 +1954,7 @@ def main(argv=None) -> int:
     new.add_argument("--intent", help="for a plan: the decided intent it is built on")
     new.add_argument("--other-work", action="store_true",
                      help="for a plan: the human said it stands beside the unfinished plan")
+    new.add_argument("--plan", help="for a work report: the approved plan the work is held to")
     packs = sub.add_parser("packs", help="list the installed packs")
     packs.add_argument("--json", action="store_true")
     setup = sub.add_parser("setup", help="write what the human confirmed in the setup playbook")
@@ -1653,7 +1972,8 @@ def main(argv=None) -> int:
     validate.add_argument("--project", default=".")
     approve = sub.add_parser("approve", help="record the human's yes to a plan or an intent, or their decision "
                                              "on data")
-    approve.add_argument("artifact", nargs="?", help="the plan or the intent the human said yes to")
+    approve.add_argument("artifact", nargs="?", help="the plan or the intent the human said yes to, or the work "
+                                                     "report whose stop they said yes to")
     approve.add_argument("--reads", action="append", help="a data file or folder the human lets --agent read "
                                                           "though it is not cleared")
     approve.add_argument("--agent", help="with --reads: this coding agent, as tier takes it")
@@ -1664,11 +1984,26 @@ def main(argv=None) -> int:
     tier.add_argument("--touches", action="append", help="a file the change will create, change or delete")
     tier.add_argument("--reads", action="append", help="a data file the work reads, or none")
     tier.add_argument("--agent", help="this coding agent, as setup recorded it under approved-tools")
+    tier.add_argument("--slice", help="on a plan: the slice that starts; its files are the plan's to say")
+    tier.add_argument("--report", help="the work report: code writes what it prints as a record of it")
     tier.add_argument("--json", action="store_true")
     tier.add_argument("--project", default=".")
+    evidence = sub.add_parser("evidence", help="run a check and record that it ran, or list the records")
+    evidence.add_argument("check", nargs="?", help="the ID of a check the approved plan declares")
+    evidence.add_argument("--run", help="any other command: it is recorded as ad hoc")
+    evidence.add_argument("--verdict", choices=("not-verified", "inconclusive"),
+                          help="what the exit code cannot see: the check exits with 0 and its outcome means failure")
+    evidence.add_argument("--report", required=True, help="the work report the check belongs to")
+    evidence.add_argument("--project", default=".")
+    guard = sub.add_parser("guard", help="fail when a change removes or skips tests, silences a checker, or leaves "
+                                         "what was declared")
+    guard.add_argument("--report", help="the work report: also hold the change to its slice and its evidence")
+    guard.add_argument("--base", default="HEAD", help="the commit the change is compared with")
+    guard.add_argument("--project", default=".")
     args = parser.parse_args(argv)
     commands = {"doctor": cmd_doctor, "status": cmd_status, "new": cmd_new, "packs": cmd_packs, "setup": cmd_setup,
-                "validate": cmd_validate, "approve": cmd_approve, "tier": cmd_tier}
+                "validate": cmd_validate, "approve": cmd_approve, "tier": cmd_tier, "evidence": cmd_evidence,
+                "guard": cmd_guard}
     return commands[args.command](args)
 
 

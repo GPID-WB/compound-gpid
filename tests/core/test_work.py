@@ -316,15 +316,15 @@ STOP_LIST = ("delet", "overwrit", "push", "release", "publish", "message", "cred
 
 
 def run_line(env, line, **values):
-    """Run one line of a playbook as it is written, with each request in angle brackets answered."""
+    """Run one line of a playbook as it is written, with each request in angle brackets answered.
+    A fact is answered before the line is split, and the rest after, so a command keeps its quotes."""
     return env["cg"](*[re.sub(r"<([^<>]+)>", lambda m: values.get(m.group(1), m.group(0)), part)
-                       for part in shlex.split(line)])
+                       for part in shlex.split(line.replace("<yes or no>", "no"))])
 
 
 def test_the_lines_the_work_playbook_and_quick_work_run_work_as_written(env):
     project = start(env, report=False)
-    values = {"short title": "Headcount", "the plan": PLAN, "the work report": REPORT, "yes or no": "no",
-              "slice ID": "S1", "check ID": "C1", "the check's command": f"{PY} check1.py", "data file": "none",
+    values = {"short title": "Headcount", "the plan": PLAN, "the work report": REPORT, "slice ID": "S1", "check ID": "C1", "the check's command": f"{PY} check1.py", "data file": "none",
               "the human's reply, word for word": "Yes.", "file": CODE}
     work = lines_run(WORK.read_text(encoding="utf-8"))
     assert [line.split()[0] for line in work] == ["evidence", "new", "tier", "evidence", "guard", "approve", "validate"]
@@ -340,15 +340,15 @@ def test_the_lines_the_work_playbook_and_quick_work_run_work_as_written(env):
     assert "schema-2: 1" in run_line(env, validate, **values)[1]
     # Quick work runs the same lines, with the files given to tier and the check's command given to evidence.
     quick = lines_run(QUICK_TEXT.read_text(encoding="utf-8"))
-    assert [line.split()[0] for line in quick] == ["new", "tier", "approve", "setup", "approve", "evidence", "guard",
-                                                   "validate"]
-    assert quick[2] == approve and quick[7] == validate and quick[6] == guard and "--plan" not in quick[0]
+    assert [line.split()[0] for line in quick] == ["new", "tier", "approve", "setup", "approve", "packs", "evidence",
+                                                   "guard", "validate"]
+    assert quick[2] == approve and quick[8] == validate and quick[7] == guard and "--plan" not in quick[0]
     assert quick[1] == tier.replace('--slice "<slice ID>"', '--touches "<file>"')
     values["the work report"] = ".cg-docs/work-reports/2026-11-27-label.md"
     assert run_line(env, quick[0] + " --date 2026-11-27", **{**values, "short title": "Label"})[0] == 0
     assert "\nstop: none\n" in run_line(env, quick[1].replace(' --agent "<this coding agent>"', ""), **values)[1]
-    code, out = run_line(env, quick[5], **values)
-    assert code == 0 and "(ad hoc)" in out and "--run" in quick[5], out
+    code, out = run_line(env, quick[6], **values)
+    assert code == 0 and "(ad hoc)" in out and "--run" in quick[6], out
     assert run_line(env, guard, **values) == (0, "guard: clean\n")
     assert (project / values["the work report"]).is_file()
 

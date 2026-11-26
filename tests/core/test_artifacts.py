@@ -359,7 +359,7 @@ def test_approve_refuses_what_is_not_a_clear_yes_and_what_cannot_be_approved(env
     assert "a version 1 plan" in env["cg"]("approve", PLAN, "--reply", "Yes, approved.")[1]
     env["put"]("review", front("review", "open"))
     code, out = env["cg"]("approve", ".cg-docs/reviews/2026-11-25-headcount.md", "--reply", "Yes.")
-    assert code == 2 and "not a plan or an intent of this project" in out
+    assert code == 2 and "not a plan, an intent or a work report of this project" in out
     path.write_text(front("plan", "draft") + PLAN_BODY)
     (env["home"] / ".gitconfig").write_text("")
     code, out = env["cg"]("approve", PLAN, "--reply", "Yes, approved.")
