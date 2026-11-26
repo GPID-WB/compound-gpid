@@ -644,6 +644,21 @@ def test_a_plan_put_back_to_the_text_an_amendment_replaced_needs_a_new_approval(
     assert len(list((env["project"] / ".cg-docs" / "approvals").glob("2026-11-20-headcount.*.json"))) == 3
 
 
+def test_a_text_approved_twice_within_one_second_keeps_both_records(env, monkeypatch):
+    """CI on 08925e26 (#227): once the name of a record held the time in place of a branch of its
+    own, an intent put back to an earlier text in the second of its first yes wrote over that
+    record. The clock is held still here, so the test does not depend on the machine's speed."""
+    cg = load_cg()
+    monkeypatch.setattr(cg, "now", lambda: "2026-11-26T10:00:00Z")
+    monkeypatch.setenv("GIT_CONFIG_GLOBAL", str(env["home"] / ".gitconfig"))
+    intent = env["put"]("intent", front("intent", "draft") + INTENT_BODY, Path(IDEA).name)
+    first = intent.read_text()
+    for text in (first, first.replace("99th percentile", "95th percentile"), first):
+        intent.write_text(re.sub(r"status: \w+", "status: draft", text, count=1))
+        assert cg.main(["approve", str(intent), "--reply", "Yes.", "--project", str(env["project"])]) == 0
+    assert len(list((env["project"] / ".cg-docs" / "approvals").glob("2026-11-20-headcount.*.json"))) == 3
+
+
 def test_a_decision_on_data_holds_when_its_level_changes_only_in_case(env):
     """Finding 6: levels are compared without regard to case (ADR 0005), so the
     same level written in other case is no new level."""
