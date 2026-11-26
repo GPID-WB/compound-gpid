@@ -233,7 +233,8 @@ def test_quick_work_lets_the_human_decide_on_data_and_the_line_that_records_it_r
     subprocess.run(["git", "init", "-q", str(project)], check=True)
     subprocess.run(["git", "-C", str(project), "config", "user.name", "Test Human"], check=True)
     args = line.split('"<cg>" ', 1)[1].replace(' --project "<project root>"', "")
-    code, out = run_cg(home, project, *shlex.split(args))
+    assert "holds no plain yes" in run_cg(home, project, *shlex.split(args))[1]  # the placeholder is no reply
+    code, out = run_cg(home, project, *shlex.split(args.replace("<the human's reply, word for word>", "Yes, read it.")))
     assert code == 0 and "recorded: <this coding agent> reads <file or folder>" in out, out
 
 

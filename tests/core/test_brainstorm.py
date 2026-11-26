@@ -231,7 +231,10 @@ def test_the_lines_the_brainstorm_runs_work_as_written(env):
     assert env["cg"](*shlex.split(validate.replace("<the intent>", made)))[0] == 0
     path = env["project"] / made
     path.write_text(path.read_text().split("\n# ", 1)[0] + INTENT_BODY, encoding="utf-8")
-    code, out = env["cg"](*shlex.split(approve.replace("<the intent>", made)))
+    asked = approve.replace("<the intent>", made)
+    # The line as written holds no reply yet, and code does not take its placeholder for a yes.
+    assert "holds no plain yes" in env["cg"](*shlex.split(asked))[1]
+    code, out = env["cg"](*shlex.split(asked.replace("<the human's reply, word for word>", "Yes, that is it.")))
     assert code == 0 and "approved" in out and "status: decided" in path.read_text(), out
 
 
@@ -241,3 +244,79 @@ def test_the_intent_template_holds_what_grilling_settles(env):
     for heading in ("## Goal", "## Out of scope", "## A wrong result", "## Facts", "## Decisions", "## Assumptions"):
         assert heading in template and heading in cg.ARTIFACTS["intent"]["sections"], heading
     assert '"open"' in template[template.index("## Decisions"):template.index("## Assumptions")]
+
+
+# ---------------------------------------------------------------- review of 2.2 before Opus (#225)
+
+def test_only_a_reply_that_holds_a_plain_yes_is_recorded(env):
+    """The maintainer's decision of 2026-11-26 (#225): code records a reply only when it holds a
+    plain yes word. Before, it refused a list and recorded the rest, "I'd rather not" included."""
+    path = env["put"]("intent", front("intent", "draft") + INTENT_BODY)
+    refused = [("I don't approve", "holds no plain yes"), ("I do not agree", "holds no plain yes"),
+               ("I'd rather not", "holds no plain yes"), ("Absolutely not", "holds no plain yes"),
+               ("Maybe", "holds no plain yes"), ("Let me think about it", "holds no plain yes"),
+               ("Sure", "holds no plain yes"), ("Is D1 really the Pareto tail?", "holds no plain yes"),
+               ("Change D1 to the 95th percentile", "holds no plain yes"), ("Si quieres", "holds no plain yes"),
+               ("That is not ok", "says no"), ("It isn't approved", "says no"), ("I can't say yes yet", "says no"),
+               ("No estoy de acuerdo", "says no"), ("Todavía no estoy de acuerdo", "says no"),
+               ("Yes, and also add the poverty gap", "a condition or a correction"),
+               ("Yes, though drop D1", "a condition or a correction"),
+               ("Sí, pero solo la ola de 2019", "a condition or a correction")]
+    for said, words in refused:
+        code, out = env["cg"]("approve", INTENT, "--reply", said)
+        assert code == 1 and words in out and "status: draft" in path.read_text(), (said, out)
+    assert not (env["project"] / ".cg-docs" / "approvals").exists()
+    for number, said in enumerate(("ok", "OK.", "Okay, do it", "Sí", "Sí.", "si, de acuerdo", "De acuerdo.", "Go ahead.",
+                                   "I agree", "Approved", "Confirmed.", "Yes. No other change.", "Sounds good. Yes.")):
+        path = env["put"]("intent", front("intent", "draft") + INTENT_BODY, name=f"2026-11-25-reply-{number}.md")
+        code, out = env["cg"]("approve", str(path), "--reply", said)
+        assert code == 0 and "status: decided" in path.read_text(), (said, out)
+    text = GRILLING.read_text(encoding="utf-8")
+    plain = text[text.index("## Replies that are not a yes"):]
+    for word in ("yes", "ok", "approved", "confirmed", "agreed", "go ahead", "sí", "de acuerdo"):
+        assert f'"{word}"' in plain, word
+
+
+def test_a_cell_that_only_stands_for_not_yet_is_no_answer_no_source_and_no_recommendation(env):
+    """Before, only the word open counted as no answer: "pending", "TBD", "?" and `open` in
+    backticks, which is how the playbook prints the word, each let an intent be decided."""
+    answered = "| Yes, the Pareto tail. |"
+    for cell in ("`open`", "*open*", "(open)", "still open", "pending", "Pending.", "TBD", "?", "-", "n/a",
+                 "to be decided", "not yet decided", "waiting for the survey team"):
+        path = env["put"]("intent", front("intent", "draft") + INTENT_BODY.replace(answered, f"| {cell} |"))
+        code, out = env["cg"]("approve", INTENT, "--reply", "Yes.")
+        assert code == 1 and "decision D1 has no answer from the human yet" in out, (cell, out)
+        assert "status: draft" in path.read_text()
+    # The human's own words stand when they are in quotes.
+    env["put"]("intent", front("intent", "draft") + INTENT_BODY.replace(answered, '| "Pending the tail, yes." |'))
+    assert env["cg"]("approve", INTENT, "--reply", "Yes.")[0] == 0
+    for old, new, words in (("`R/welfare.R:41`", "unknown", "names no source"), ("`R/welfare.R:41`", "?", "names no source"),
+                            ("A Pareto tail above the 99th percentile; it adds a threshold to choose", "-",
+                             "decision D1 has no recommended answer")):
+        env["put"]("intent", front("intent", "draft") + INTENT_BODY.replace(old, new), name="2026-11-25-cells.md")
+        code, out = env["cg"]("approve", ".cg-docs/brainstorms/2026-11-25-cells.md", "--reply", "Yes.")
+        assert code == 1 and words in out, (new, out)
+
+
+def test_a_section_with_nothing_written_under_it_is_not_confirmed(env):
+    """Before, a heading with nothing under it passed: an intent was decided with no goal, no
+    out of scope, no wrong result or no assumptions, once the template's own text was deleted."""
+    for heading, text in (("## Goal", INTENT_BODY.split("## Goal")[1].split("##")[0]),
+                          ("## Out of scope", "\nThe 2016 wave is not estimated again.\n"),
+                          ("## A wrong result", INTENT_BODY.split("## A wrong result")[1].split("##")[0]),
+                          ("## Assumptions", INTENT_BODY.split("## Assumptions")[1].split("##")[0])):
+        assert text.strip() and INTENT_BODY.count(text) == 1
+        path = env["put"]("intent", front("intent", "draft") + INTENT_BODY.replace(text, "\n\n"))
+        code, out = env["cg"]("validate", INTENT)
+        assert code == 0 and f"warn {INTENT}: nothing is written under '{heading}'" in out, (heading, out)
+        code, out = env["cg"]("approve", INTENT, "--reply", "Yes.")
+        assert code == 1 and f"nothing is written under '{heading}'" in out and "status: draft" in path.read_text()
+    # A table with its two header lines and no row holds nothing either.
+    env["cg"]("new", "work-report", "Fix the label", "--date", "2026-11-25")
+    report = env["project"] / ".cg-docs" / "work-reports" / "2026-11-25-fix-the-label.md"
+    done = re.sub(r"<[^<>]+>", "filled", report.read_text(encoding="utf-8")).replace("status: in-progress", "status: completed")
+    report.write_text(done, encoding="utf-8")
+    assert env["cg"]("validate", str(report))[0] == 0
+    report.write_text(done.replace("| filled | filled |\n\n## Checks", "\n## Checks"), encoding="utf-8")
+    code, out = env["cg"]("validate", str(report))
+    assert code == 1 and "nothing is written under '## Changed'" in out, out
