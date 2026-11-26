@@ -383,7 +383,9 @@ def test_the_lines_the_plan_playbook_runs_work_as_written(env):
     assert "holds no plain yes" in env["cg"](*shlex.split(asked))[1]  # the placeholder is no reply
     code, out = env["cg"](*shlex.split(asked.replace("<the human's reply, word for word>", "Yes.")))
     assert code == 0 and "approved" in out and "status: approved" in path.read_text(), out
-    quick = lines_run((CG / "playbooks" / "quick.md").read_text(encoding="utf-8"))
+    # Quick work gives the same lines a work report, which a plan does not have yet (task 2.4).
+    quick = [line.replace(' --report "<the work report>"', "")
+             for line in lines_run((CG / "playbooks" / "quick.md").read_text(encoding="utf-8"))]
     others = [line for line in lines if line not in (new, validate, approve)]
     assert {line.split()[0] for line in others} == {"tier", "setup", "approve"} and len(others) == 3
     assert all(line in quick for line in others), others

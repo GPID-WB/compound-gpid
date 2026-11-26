@@ -158,8 +158,13 @@ def env(tmp_path):
     def plan_records():
         return sorted((project / ".cg-docs" / "approvals").glob("2026-11-25-headcount.*.json"))
 
+    def proved(report):
+        """What a completed work report rests on since task 2.4 (#227): the risk code computed, and a verified check."""
+        assert cg("tier", *ALL_NO, "--touches", "R/a.R", "--reads", "none", "--report", str(report))[0] == 0
+        assert cg("evidence", "--run", f'"{sys.executable}" -c "print(1)"', "--report", str(report))[0] == 0
+
     return {"home": home, "project": project, "cg": cg, "put": put, "config": config, "base": base,
-            "plan-records": plan_records}
+            "plan-records": plan_records, "proved": proved}
 
 
 def load_cg():
@@ -293,6 +298,7 @@ def test_template_text_left_in_a_record_is_a_warning_while_open_and_a_failure_on
     assert code == 1 and "the template's text is still in it, first: <the request" in out, out
     filled = "\n".join("filled in" if "<" in line else line for line in path.read_text().splitlines())
     path.write_text(filled)
+    env["proved"](path)
     assert env["cg"]("validate", str(path)) == (0, CLEAN)
 
 
@@ -684,6 +690,7 @@ def test_every_cell_a_template_leaves_to_fill_asks_for_its_content_and_counts_as
     text = path.read_text(encoding="utf-8").replace("status: in-progress", "status: completed")
     asks = re.findall(r"<[^<>]+>", text)
     path.write_text(re.sub(r"<[^<>]+>", "filled", text), encoding="utf-8")
+    env["proved"](path)
     assert env["cg"]("validate", str(path)) == (0, CLEAN)
     # One request left in a line that is otherwise filled: the second cell of the first
     # row under Changed, and the finding of P4 (the fourth request under Self-review).

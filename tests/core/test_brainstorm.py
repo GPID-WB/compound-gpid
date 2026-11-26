@@ -293,6 +293,7 @@ def test_a_section_with_nothing_written_under_it_is_not_confirmed(env):
     report = env["project"] / ".cg-docs" / "work-reports" / "2026-11-25-fix-the-label.md"
     done = re.sub(r"<[^<>]+>", "filled", report.read_text(encoding="utf-8")).replace("status: in-progress", "status: completed")
     report.write_text(done, encoding="utf-8")
+    env["proved"](report)
     assert env["cg"]("validate", str(report))[0] == 0
     report.write_text(done.replace("| filled | filled |\n\n## Checks", "\n## Checks"), encoding="utf-8")
     code, out = env["cg"]("validate", str(report))

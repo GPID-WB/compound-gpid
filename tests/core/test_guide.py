@@ -96,7 +96,7 @@ def test_what_the_agent_runs_names_only_cg_py_commands_that_exist():
     planned = set()
     for path in sorted((CG / "principles").glob("*.md")):
         planned |= named_commands(path.read_text(encoding="utf-8"))
-    assert "guard" in planned - existing  # the case the rule in the guide covers
+    assert "repro" in planned - existing  # the case the rule in the guide covers; guard came in task 2.4
     assert named_commands("Run `cg.py guard` now.") == {"guard"}
     assert named_commands("- `cg.py guard`, once installed: no skipped checks.") == set()
 
@@ -202,7 +202,10 @@ def test_quick_work_takes_its_tier_from_code_and_the_line_runs_as_written(tmp_pa
     home, project = tmp_path.resolve() / "home", tmp_path.resolve() / "project"
     shutil.copytree(CG, home / ".agents" / "skills" / "cg", ignore=shutil.ignore_patterns("__pycache__"))
     project.mkdir()
-    args = line.split('"<cg>" ', 1)[1].replace("<yes or no>", "no").replace(' --project "<project root>"', "")
+    # Since task 2.4 the line names the work report, where code writes what it prints.
+    assert run_cg(home, project, "new", "work-report", "Label", "--date", "2026-11-24")[0] == 0
+    args = (line.split('"<cg>" ', 1)[1].replace("<yes or no>", "no").replace(' --project "<project root>"', "")
+            .replace("<the work report>", ".cg-docs/work-reports/2026-11-24-label.md"))
     code, out = run_cg(home, project, *shlex.split(args))
     assert code == 0 and out.startswith("tier: elevated\nreasons: data: <data file> is not cleared"), out
 
@@ -226,7 +229,7 @@ def test_quick_work_lets_the_human_decide_on_data_and_the_line_that_records_it_r
     text = (CG / "playbooks" / "quick.md").read_text(encoding="utf-8")
     risk = text[text.index("## 2. Check the risk"):text.index("## 3. Change")]
     assert "the company that runs the model" in risk and "before you open" in risk
-    line = next(span for span in re.findall(r"`([^`\n]+)`", risk) if '"<cg>" approve ' in span)
+    line = next(span for span in re.findall(r"`([^`\n]+)`", risk) if '"<cg>" approve --reads' in span)
     home, project = tmp_path.resolve() / "home", tmp_path.resolve() / "project"
     shutil.copytree(CG, home / ".agents" / "skills" / "cg", ignore=shutil.ignore_patterns("__pycache__"))
     project.mkdir()
