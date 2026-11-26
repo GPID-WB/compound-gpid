@@ -137,3 +137,18 @@ def test_a_transcript_keeps_no_name_and_no_email_of_the_person_who_ran_it(monkey
     clean = checks.sanitize(said, tmp_path, names=["Jane Q. Doe"])
     assert clean == "approved plan.md\nby: <name> <<email>>\nread on the decision of <name>, 2026-11-26\n"
     assert "python@3.14" in checks.sanitize("/opt/python@3.14/bin", tmp_path, names=[])
+
+
+def test_a_transcript_keeps_no_name_in_another_spelling(monkeypatch, tmp_path):
+    """Review of 2.2 by Opus 5.5, finding 6 (#225): a name with letters outside ASCII stayed in a
+    transcript when it came JSON-escaped or decomposed, and an address stayed when its @ was %40."""
+    import json
+    import unicodedata
+    sys.path.insert(0, str(HUB / "spike" / "host-matrix"))
+    import run_cli_checks as checks
+    monkeypatch.setattr(checks.getpass, "getuser", lambda: "zprobe")
+    name = "Zoë Núñez Probe"
+    for said in (json.dumps({"out": f"by: {name}"}), unicodedata.normalize("NFD", f"by: {name}"),
+                 "by: Zoe Nunez Probe", "mailto:zoe.n%40example.org"):
+        clean = checks.sanitize(said, tmp_path, names=[name])
+        assert "Probe" not in clean and "zoe.n" not in clean and "example.org" not in clean, clean

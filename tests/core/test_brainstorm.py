@@ -320,3 +320,109 @@ def test_a_section_with_nothing_written_under_it_is_not_confirmed(env):
     report.write_text(done.replace("| filled | filled |\n\n## Checks", "\n## Checks"), encoding="utf-8")
     code, out = env["cg"]("validate", str(report))
     assert code == 1 and "nothing is written under '## Changed'" in out, out
+
+
+# ---------------------------------------------------------------- review of 2.2 by Opus 5.5 (#225)
+
+def test_a_reply_that_holds_a_yes_word_and_is_not_a_yes_is_refused(env):
+    """Review finding 1: a yes word was enough. A question that holds one, a stop after it, a
+    condition with "if", a correction with no marker word, a negation the list missed, and a
+    condition or a negation in Spanish were each recorded."""
+    path = env["put"]("intent", front("intent", "draft") + INTENT_BODY)
+    refused = {
+        "is a question": ["Is this ok?", "Who approved this?", "Ok?", "¿De acuerdo?"],
+        "says no, or not yet": ["OK, wait.", "Ok, stop.", "Okay, hold on.", "OK, let me think about it.",
+                                "Yes, no wait.", '"Wait, ok"', "I haven't approved this", "It hasn't been approved",
+                                "I shouldn't say yes", "Nothing here is ok", "None of this is ok",
+                                "Nobody approved this", "Nunca dije que sí", "Jamás estaré de acuerdo",
+                                "Tampoco estoy de acuerdo", "Para nada de acuerdo"],
+        "a condition or a correction": ["Yes if you drop D2", "Yes, assuming D2 uses the 2019 file",
+                                        "Yes, on condition that D2 changes", "Yes, and add the poverty gap too",
+                                        "Yes. Change D2 to the 2019 file.", "Yes, drop D2.",
+                                        "Sí, aunque cambia D2", "Sí, excepto D2", "Sí, salvo D2",
+                                        "Sí, siempre que uses 2019", "Sí, a menos que D2 cambie", "Sí, si quitas D2",
+                                        "Sí, sin embargo cambia D2", "Sí, también añade la brecha"],
+    }
+    for words, replies in refused.items():
+        for said in replies:
+            code, out = env["cg"]("approve", INTENT, "--reply", said)
+            assert code == 1 and words in out and "status: draft" in path.read_text(), (said, out)
+    assert not (env["project"] / ".cg-docs" / "approvals").exists()
+    for number, said in enumerate(("Yes.", "Yes, nothing to add.", "Nothing to change; yes.", "Sí, adelante",
+                                   "Yes, I confirm D1 and D2 as written.")):
+        path = env["put"]("intent", front("intent", "draft") + INTENT_BODY, name=f"2026-11-25-yes-{number}.md")
+        code, out = env["cg"]("approve", str(path), "--reply", said)
+        assert code == 0 and "status: decided" in path.read_text(), (said, out)
+
+
+def test_what_sits_under_a_subheading_of_facts_or_decisions_is_checked(env):
+    """Review finding 2: table_rows read only the table right under the heading, so a second round
+    of decisions under `### Round 2`, or facts under a subheading, were never checked."""
+    good = front("intent", "draft") + INTENT_BODY
+    round_two = ("\n### Round 2\n\n| ID | Decision | Recommended answer, with its trade-off | The human's answer |\n"
+                 "|---|---|---|---|\n| D3 | Which survey year | 2019, the latest | open |\n")
+    more_facts = "\n### From the codebook\n\n| Fact | Source |\n|---|---|\n| Weights are household weights | |\n"
+    second_table = ("\nAsked later:\n\n| ID | Decision | Recommended answer, with its trade-off | The human's answer |\n"
+                    "|---|---|---|---|\n| D3 | Which survey year | 2019, the latest | pending |\n")
+    for text, words in ((good.replace("\n## Assumptions", round_two + "\n## Assumptions"), "decision D3 has no answer"),
+                        (good.replace("\n## Decisions", more_facts + "\n## Decisions"), "names no source"),
+                        (good.replace("\n## Assumptions", second_table + "\n## Assumptions"), "decision D3 has no answer")):
+        path = env["put"]("intent", text)
+        code, out = env["cg"]("approve", INTENT, "--reply", "Yes.")
+        assert code == 1 and words in out and "status: draft" in path.read_text(), (words, out)
+
+
+def test_the_assumptions_block_from_grilling_is_not_filled_while_its_requests_are_in_it(env):
+    """Review finding 3: grilling.md's block, pasted with its requests left in, passed."""
+    text = GRILLING.read_text(encoding="utf-8")
+    block = text[text.index("```\nAssumptions"):text.index("Correct me now.\n```") + len("Correct me now.\n```")]
+    assumptions = INTENT_BODY.split("## Assumptions")[1].split("##")[0]
+    path = env["put"]("intent", front("intent", "draft") + INTENT_BODY.replace(assumptions, f"\n\n{block}\n\n"))
+    code, out = env["cg"]("approve", INTENT, "--reply", "Yes.")
+    assert code == 1 and "the template's text is still in it" in out and "status: draft" in path.read_text(), out
+
+
+def test_a_placeholder_behind_a_mark_or_off_the_list_is_no_answer_and_none_is_no_source(env):
+    """Review finding 4: a list mark or a bracket before a placeholder hid it, the list missed
+    common ones and Spanish ones, and "none" or "guess" counted as a source."""
+    answered = "| Yes, the Pareto tail. |"
+    for cell in ("- pending", "— TBD", "<open>", "{open}", "> open", "~~open~~", "1. TBD", "TBC", "t.b.d.", "n.a.",
+                 "XXX", "FIXME", "to decide", "to confirm", "not asked yet", "no answer yet", "ask the human",
+                 "unclear", "not sure", "don't know", "pendiente", "por decidir", "sin respuesta"):
+        path = env["put"]("intent", front("intent", "draft") + INTENT_BODY.replace(answered, f"| {cell} |"))
+        code, out = env["cg"]("approve", INTENT, "--reply", "Yes.")
+        assert code == 1 and "decision D1 has no answer from the human yet" in out, (cell, out)
+        assert "status: draft" in path.read_text()
+    for source in ("none", "no source", "not found", "not checked", "guess", "my guess", "assumed", "from memory",
+                   "general knowledge", "I think so"):
+        env["put"]("intent", front("intent", "draft") + INTENT_BODY.replace("`R/welfare.R:41`", source),
+                   name="2026-11-25-source.md")
+        code, out = env["cg"]("approve", ".cg-docs/brainstorms/2026-11-25-source.md", "--reply", "Yes.")
+        assert code == 1 and "names no source" in out, (source, out)
+    # "None" stays a human's answer, and "the human" stays a source.
+    env["put"]("intent", front("intent", "draft") + INTENT_BODY.replace(answered, "| None. |")
+               .replace("`R/welfare.R:41`", "the human"), name="2026-11-25-none.md")
+    assert env["cg"]("approve", ".cg-docs/brainstorms/2026-11-25-none.md", "--reply", "Yes.")[0] == 0
+
+
+def test_a_section_that_holds_only_filler_is_empty(env):
+    """Review finding 5: one line of filler under a heading passed."""
+    goal = INTENT_BODY.split("## Goal")[1].split("##")[0]
+    for filler in ("TBD", "- TBD", "...", "***", "<!-- to fill -->", "<!--\nto fill\n-->", "&nbsp;", "<br>", "n/a",
+                   "```\nTBD\n```"):
+        path = env["put"]("intent", front("intent", "draft") + INTENT_BODY.replace(goal, f"\n\n{filler}\n\n"))
+        code, out = env["cg"]("approve", INTENT, "--reply", "Yes.")
+        assert code == 1 and "nothing is written under '## Goal'" in out, (filler, out)
+        assert "status: draft" in path.read_text()
+    # "none" is what grilling.md asks for when nothing is assumed.
+    assumptions = INTENT_BODY.split("## Assumptions")[1].split("##")[0]
+    env["put"]("intent", front("intent", "draft") + INTENT_BODY.replace(assumptions, "\n\nnone\n\n"))
+    assert env["cg"]("approve", INTENT, "--reply", "Yes.")[0] == 0
+
+
+def test_a_playbook_asked_for_before_setup_is_named_as_waiting(env):
+    """Review finding 7: in a project that is not set up, --playbook brainstorm opened setup and
+    said nothing of the brainstorm, so the guide had no line to tell the human."""
+    state = json.loads(env["cg"]("status", "--guide", "--playbook", "brainstorm", "--json")[1])
+    assert state["playbook"].endswith("setup.md")
+    assert state["next"] == "read playbooks/setup.md; brainstorm, which the human asked for, opens once setup is done"
