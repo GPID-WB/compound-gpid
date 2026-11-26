@@ -580,3 +580,31 @@ def test_a_decision_on_data_holds_when_its_level_changes_only_in_case(env):
     env["config"](**{**RULES, "data": {**RULES["data"], "data/raw": "CONFIDENTIAL"}})
     out = env["cg"]("tier", *ALL_NO, "--touches", "R/a.R", "--reads", "data/raw/hh.dta", "--agent", "Claude Code")[1]
     assert out.startswith("tier: low"), out
+
+
+# ---------------------------------------------------------------- review of 2.1, findings left for wording
+
+def test_every_cell_a_template_leaves_to_fill_asks_for_its_content_and_counts_as_unfilled(env):
+    """Review finding 7 (#224): a completed work report passed with no changed file and no
+    verdict for P4 or P6, because those cells were empty in the template and asked for nothing.
+    Now each cell asks, and one request left anywhere in a line is unfilled text."""
+    for kind in TYPES:
+        template = (CG / "templates" / f"{kind}.md").read_text(encoding="utf-8")
+        assert not re.search(r"\|[ \t]*\|", template), f"{kind}: a table cell is left empty"
+        assert all(" " in ask for ask in re.findall(r"<[^<>]+>", template)), f"{kind}: a request of one word"
+    env["cg"]("new", "work-report", "Fix the label", "--date", "2026-11-25")
+    path = env["project"] / ".cg-docs" / "work-reports" / "2026-11-25-fix-the-label.md"
+    text = path.read_text(encoding="utf-8").replace("status: in-progress", "status: completed")
+    asks = re.findall(r"<[^<>]+>", text)
+    path.write_text(re.sub(r"<[^<>]+>", "filled", text), encoding="utf-8")
+    assert env["cg"]("validate", str(path)) == (0, CLEAN)
+    # One request left in a line that is otherwise filled: the second cell of the first
+    # row under Changed, and the finding of P4 (the fourth request under Self-review).
+    for heading, nth in (("## Changed", 1), ("## Self-review", 3)):
+        spots = [m.start() for m in re.finditer(r"<[^<>]+>", text)]
+        kept = [at for at in spots if at > text.index(heading)][nth]
+        half = re.sub(r"<[^<>]+>", lambda m: m.group(0) if m.start() == kept else "filled", text)
+        assert any(line.startswith("| ") and "filled" in line and "<" in line for line in half.splitlines())
+        path.write_text(half, encoding="utf-8")
+        code, out = env["cg"]("validate", str(path))
+        assert code == 1 and "the template's text is still in it" in out, (heading, out)

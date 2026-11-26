@@ -244,3 +244,29 @@ def test_p12_says_the_human_answers_for_the_data_and_its_check_line_is_what_tier
     checks = text[text.index("## Deterministic checks"):]
     assert "above Public or unclassified" not in checks and "not cleared" in checks and "decision" in checks
     assert "The human answers for the data" in text and "`cg.py approve --reads`" in text
+
+
+def test_quick_work_says_what_a_decision_on_data_covers_and_what_refused_means():
+    """Review of task 2.1 by Opus 5.5 (#224), findings 8 to 11, all in step 2 of quick work."""
+    text = (CG / "playbooks" / "quick.md").read_text(encoding="utf-8")
+    risk = text[text.index("## 2. Check the risk"):text.index("## 3. Change")]
+    stop = risk[risk.index("**`tier: elevated`.**"):risk.index("**When the human answers a data question,**")]
+    decision = risk[risk.index("**When the human decides that you read a file"):]
+    # 8: P12 names three things to warn of, and the playbook gave two.
+    assert "the company that runs the model" in stop and "organization's rules" in stop and "their name" in stop
+    # 9: a yes to reading a file is not a yes to the contract.
+    assert "not a yes to the contract" in decision
+    # 10: the place recorded is the one the human named.
+    assert "the human named" in decision and "nothing wider" in decision
+    # 11: refused has three causes, and only one of them calls for asking again.
+    refused = decision[decision.index("`refused`"):]
+    assert "do not ask again" in refused and "plain yes" in refused and "user name" in refused
+
+
+def test_p12_names_the_place_of_a_decision_and_its_check_line_is_as_wide_as_the_code():
+    """Review of task 2.1 by Opus 5.5 (#224), findings 12 and 13."""
+    text = (CG / "principles" / "P12-governed-data.md").read_text(encoding="utf-8")
+    holds = next(line for line in text.splitlines() if "`cg.py approve --reads`" in line)
+    assert "file or folder" in holds[holds.index("holds for"):]
+    checks = text[text.index("## Deterministic checks"):]
+    assert "less restricted" in checks and "folder" in checks
