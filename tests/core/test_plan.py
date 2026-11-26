@@ -208,6 +208,93 @@ def test_an_approved_plan_changes_only_by_an_amendment_and_what_was_approved_sta
     assert env["cg"]("approve", PLAN, "--reply", "Yes.")[0] == 0 and len(env["plan-records"]()) == 3
 
 
+# ---------------------------------------------------------------- the review by Opus 5.5 (#226)
+
+def test_a_check_that_says_in_other_words_that_it_cannot_fail_is_refused_and_an_outcome_like_one_is_not(env):
+    path = env["put"]("plan", GOOD)
+    for cell in ("This will never fail", "Will not fail", "No failure is expected", "There is no failing outcome",
+                 "It passes", "No outcome means failure"):
+        refused(env, path, GOOD.replace("| no error is raised |", f"| {cell} |"), "check C2 cannot fail")
+    for cell in ("Never-treated households get a weight of 0", "N/A values appear in the welfare column",
+                 "not applicable rows remain in the output", "never converges within 100 iterations",
+                 "the code never fails on a missing weight"):
+        path.write_text(GOOD.replace("| no error is raised |", f"| {cell} |"), encoding="utf-8")
+        assert env["cg"]("validate", "--strict", PLAN) == (0, CLEAN), cell
+
+
+def test_a_row_with_more_cells_than_its_table_or_an_empty_requirement_is_named(env):
+    """A | outside backticks splits a cell, and the outcome that means failure moves out of view."""
+    path = env["put"]("plan", GOOD)
+    refused(env, path, GOOD.replace("`Rscript tests/missing-weight.R` | no error is raised",
+                                    "Rscript -e 'x |> nrow()' | never"), "a | inside a cell goes in backticks")
+    refused(env, path, GOOD.replace("| R2 | headcount() stops on a missing weight |", "| R2 | |"),
+            "requirement R2 says nothing")
+
+
+def test_a_plan_set_aside_half_written_does_not_fail_validate(env):
+    """The playbook has a plan that is not finished set to `dropped`, with its text left as it is."""
+    half = GOOD.replace("`Rscript tests/missing-weight.R` | no error is raised", "TBD | TBD")
+    path = env["put"]("plan", half)
+    assert env["cg"]("validate", PLAN)[0] == 1
+    for status in ("dropped", "superseded"):
+        path.write_text(half.replace("status: draft", f"status: {status}"), encoding="utf-8")
+        code, out = env["cg"]("validate", PLAN)
+        assert code == 0 and f"warn {PLAN}: check C2 has no command" in out, out
+
+
+def test_the_plan_names_the_record_of_its_own_approval_and_that_record_holds_its_text(env):
+    path = env["put"]("plan", GOOD)
+    assert env["cg"]("approve", PLAN, "--reply", "Yes.")[0] == 0
+    approved, (record,) = path.read_text(), env["plan-records"]()
+    (env["project"] / "README.md").write_text("A file that is no record.\n")
+    for other in ("README.md", IDEA, ".cg-docs/config.json"):
+        path.write_text(re.sub(r"approval: .*", f"approval: {other}", approved), encoding="utf-8")
+        code, out = env["cg"]("validate", PLAN)
+        assert code == 1 and f"approval: {other} is not a record of this plan" in out, out
+    path.write_text(approved, encoding="utf-8")
+    held = record.read_text(encoding="utf-8")
+    record.write_text(json.dumps({**json.loads(held), "text": "Another text."}), encoding="utf-8")
+    code, out = env["cg"]("validate", PLAN)
+    assert code == 1 and "does not hold the text it was approved for" in out, out
+    record.write_text(held, encoding="utf-8")
+    path.write_text(approved.replace("0.153846", "0.25") + AMENDED, encoding="utf-8")
+    assert env["cg"]("approve", PLAN, "--reply", "Yes.")[0] == 0
+    path.write_text(re.sub(r"approval: .*", f"approval: .cg-docs/approvals/{record.name}", path.read_text()))
+    code, out = env["cg"]("validate", PLAN)
+    assert code == 1 and "names the record of an earlier text" in out, out
+
+
+def test_an_amendment_keeps_the_earlier_lines_and_says_what_changes(env):
+    path = env["put"]("plan", GOOD)
+    assert env["cg"]("approve", PLAN, "--reply", "Yes.")[0] == 0
+    path.write_text(path.read_text().replace("0.153846", "0.25") + AMENDED, encoding="utf-8")
+    assert env["cg"]("approve", PLAN, "--reply", "Yes.")[0] == 0
+    second, line = path.read_text().replace("differs from 0.25", "differs from 0.3"), AMENDED.strip().split("\n")[-1]
+    for text in (second.replace(line, "- 2026-11-27: the expected share is 0.3.\n- 2026-11-27: nothing else."),
+                 second + "- 2026-11-27\n"):
+        path.write_text(text, encoding="utf-8")
+        code, out = env["cg"]("approve", PLAN, "--reply", "Yes.")
+        assert code == 1 and "this plan was approved before" in out and "keep the earlier lines" in out, out
+    path.write_text(second + "- 2026-11-27: the expected share is 0.3.\n", encoding="utf-8")
+    assert env["cg"]("approve", PLAN, "--reply", "Yes.")[0] == 0
+
+
+def test_the_data_register_names_no_dataset_in_a_way_that_hides_its_recorded_level(env):
+    """A folder in the register is read with every file in it, as tier reads it (#224)."""
+    row = "| inst/extdata/survey.csv | Public | synthetic | 1 | the team | any |"
+    path = env["put"]("plan", GOOD)
+    env["config"](data={"inst/extdata": "Public", "inst/extdata/raw.dta": "Confidential"})
+    for name, words in (("inst/extdata", "inst/extdata/raw.dta in it is recorded as Confidential"),
+                        ("<inst/extdata/raw.dta>", "the data register gives inst/extdata/raw.dta as Public, and the "
+                                                   "recorded classification is Confidential")):
+        path.write_text(GOOD.replace(row, row.replace("inst/extdata/survey.csv", name)), encoding="utf-8")
+        code, out = env["cg"]("approve", PLAN, "--reply", "Yes.")
+        assert code == 1 and words in out, (name, out)
+    raw = row.replace("inst/extdata/survey.csv", "inst/extdata/raw.dta").replace("Public", "Confidential")
+    path.write_text(GOOD.replace(row, row.replace("survey.csv", "") + "\n" + raw), encoding="utf-8")
+    assert env["cg"]("validate", "--strict", PLAN) == (0, CLEAN)
+
+
 # ---------------------------------------------------------------- the text
 
 PLAYBOOK = CG / "playbooks" / "plan.md"

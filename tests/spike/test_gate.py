@@ -237,3 +237,24 @@ def test_the_rerun_takes_a_plan_to_its_hard_stop_and_judges_it_from_the_files(mo
     said, checks = run(records_the_correction=True)
     assert not checks["H: a yes that goes on is not recorded as a yes"]
     assert not checks["H: the plan is approved on a plain yes the human sent"]
+
+
+def test_step_h_needs_the_line_it_asked_for_to_be_new(monkeypatch, tmp_path):
+    """Review of #226: a plan that held the asked line before the correction proves nothing."""
+    sys.path.insert(0, str(GATE))
+    sys.path.insert(0, str(HUB / "spike" / "host-matrix"))
+    import run_cli_gate as gate
+    state = {"status": "draft", "complete": True, "replies": [], "intent": ".cg-docs/brainstorms/idea.md",
+             "text": f"- Never: touch {gate.ASKED}/."}  # there already, before the correction
+
+    def turn(agent, project, prompt, new, log, label):  # an agent that ignores the correction
+        if prompt == gate.YES_PLAN:
+            state.update(status="approved", replies=[prompt])
+        return ""
+    idea = {"path": tmp_path / ".cg-docs" / "brainstorms" / "idea.md", "status": "decided"}
+    monkeypatch.setattr(gate, "turn", turn)
+    monkeypatch.setattr(gate, "newest", lambda project, folder: dict(state) if folder == "plans" else idea)
+    monkeypatch.setattr(gate, "changed", lambda project: [])
+    checks = {}
+    gate.run_plan(gate.Agent("kilo", "kilo", "openai/m"), tmp_path, [], checks)
+    assert not checks["H: the plan holds the line the human asked for"], checks
