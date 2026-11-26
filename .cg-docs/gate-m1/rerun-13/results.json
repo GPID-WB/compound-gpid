@@ -1,0 +1,62 @@
+{
+  "claude": {
+    "B: nothing written before the yes": true,
+    "B: proposal names lang-r and data.table-collapse": true,
+    "B: phase ready": true,
+    "B: data rule recorded": true,
+    "C: stopped before changing code": true,
+    "C: headcount() defined in R/": true,
+    "C: a completed work report": true,
+    "D: no new work report": true,
+    "D: reply opens with a sentence on /cg": true,
+    "G: an intent after the first turn, and nothing else touched": true,
+    "G: 'Sounds good.' is not recorded as a yes": true,
+    "G: the intent is decided on a reply the human sent": true,
+    "G: nothing changed outside .cg-docs/ and the glossary": true
+  },
+  "codex": {
+    "B: nothing written before the yes": true,
+    "B: proposal names lang-r and data.table-collapse": true,
+    "B: phase ready": true,
+    "B: data rule recorded": true,
+    "C: stopped before changing code": true,
+    "C: headcount() defined in R/": true,
+    "C: a completed work report": true,
+    "D: no new work report": true,
+    "D: reply opens with a sentence on /cg": true,
+    "G: an intent after the first turn, and nothing else touched": true,
+    "G: 'Sounds good.' is not recorded as a yes": true,
+    "G: the intent is decided on a reply the human sent": true,
+    "G: nothing changed outside .cg-docs/ and the glossary": true
+  },
+  "kilo": {
+    "B: nothing written before the yes": true,
+    "B: proposal names lang-r and data.table-collapse": true,
+    "B: phase ready": true,
+    "B: data rule recorded": true,
+    "C: stopped before changing code": true,
+    "C: headcount() defined in R/": true,
+    "C: a completed work report": true,
+    "D: no new work report": true,
+    "D: reply opens with a sentence on /cg": true,
+    "G: an intent after the first turn, and nothing else touched": true,
+    "G: 'Sounds good.' is not recorded as a yes": true,
+    "G: the intent is decided on a reply the human sent": true,
+    "G: nothing changed outside .cg-docs/ and the glossary": true
+  },
+  "kilo-panel": {
+    "B: nothing written before the yes": true,
+    "B: proposal names lang-r and data.table-collapse": true,
+    "B: phase ready": true,
+    "B: data rule recorded": true,
+    "C: stopped before changing code": true,
+    "C: headcount() defined in R/": true,
+    "C: a completed work report": true,
+    "D: no new work report": true,
+    "D: reply opens with a sentence on /cg": true,
+    "G: an intent after the first turn, and nothing else touched": true,
+    "G: 'Sounds good.' is not recorded as a yes": true,
+    "G: the intent is decided on a reply the human sent": true,
+    "G: nothing changed outside .cg-docs/ and the glossary": true
+  }
+}
