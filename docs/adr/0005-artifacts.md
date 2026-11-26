@@ -55,7 +55,7 @@ The first gate (#223) also showed three things an agent gets wrong when they are
 
 - A version 1 folder needs no migration step, and task 7.1 has no artifacts to convert.
 - Later playbooks get their gates from code: the plan playbook (2.3) ends in `approve`, and work (2.4) can refuse to start on a plan that `validate` fails.
-- `cg.py` is at 1,663 of its 2,500 lines, with ten commands of milestone 2 still to come. Tasks 2.2 and 2.3 added no command: an intent and a plan go through `new`, `validate` and `approve`. Task 2.3 added 113 lines to them.
+- `cg.py` was at 1,663 of its 2,500 lines when task 2.3 was built, with ten commands of milestone 2 still to come. The limit is 4,000 lines since 2026-11-26 (ADR 0007). Tasks 2.2 and 2.3 added no command: an intent and a plan go through `new`, `validate` and `approve`. Task 2.3 added 113 lines to them.
 - An agent can now read data its organization has not approved it for, when the human says so. The record names who decided, and the `governance` verifier leaves that decision to the human (P12, "Leave alone").
 
 ## Open

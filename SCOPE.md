@@ -38,7 +38,7 @@ Checked in CI. Going over fails the build.
 | A principle file | 120 lines |
 | A lens | 60 lines |
 | Any other skill's `SKILL.md` | 500 lines, with longer material in files beside it |
-| Core tooling, excluding tests | 2,500 lines |
+| Core tooling, excluding tests | 4,000 lines (ADR 0007) |
 | One pack's tooling, excluding tests | 1,500 lines |
 | Hub tooling (`tools/`, `install.py`), excluding tests | 2,000 lines |
 | Tests | at most 1.5 times the code they cover |

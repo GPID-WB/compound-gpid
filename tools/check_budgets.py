@@ -3,7 +3,7 @@
 Usage: python tools/check_budgets.py [--pack PACK_FOLDER] [--root PATH]
 
 Checked here (line budgets of skill files are in tools/lint_skills.py):
-- a pack's tooling, excluding tests: core at most 2,500 lines, any other
+- a pack's tooling, excluding tests: core at most 4,000 lines (ADR 0007), any other
   pack at most 1,500;
 - hub tooling (tools/ and install.py), excluding tests: at most 2,000;
 - tests at most 1.5 times the code they cover, per group: tests/<pack>/
@@ -20,7 +20,7 @@ import sys
 from pathlib import Path
 
 CODE_SUFFIXES = {".py", ".sh", ".ps1", ".cmd", ".bat", ".js", ".ts"}
-PACK_BUDGET = {"core": 2500}
+PACK_BUDGET = {"core": 4000}
 DEFAULT_PACK_BUDGET = 1500
 HUB_BUDGET = 2000
 TEST_RATIO = 1.5
