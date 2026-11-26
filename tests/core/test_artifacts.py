@@ -484,3 +484,99 @@ def test_a_decision_on_data_is_refused_without_a_clear_yes_and_not_needed_for_a_
     env["config"](**{"data": ["survey.csv"]})
     code, out = env["cg"](*ask, "Yes, read it.")
     assert code == 1 and "data must map file paths" in out
+
+
+# ---------------------------------------------------------------- review of task 2.1 by Opus 5.5 (#224)
+
+def test_a_rule_or_a_decision_for_the_project_root_covers_nothing_outside_the_project(env):
+    """Finding 1: "." is the project. A file reached with ../ or an absolute path is not in it."""
+    outside = ["../other/salaries.csv", str(env["project"].parent / "hr.csv")]
+
+    def tier(*paths):
+        reads = [arg for path in paths for arg in ("--reads", path)]
+        return json.loads(env["cg"]("tier", *ALL_NO, "--touches", "R/a.R", *reads, "--agent", "Kilo", "--json")[1])
+
+    env["config"](data={".": "Public"})
+    state = tier("data/x.csv", *outside)
+    assert [d["cleared"] for d in state["data"]] == [True, False, False] and state["tier"] == "elevated", state
+    env["config"]()
+    assert env["cg"]("approve", "--reads", ".", "--agent", "Kilo", "--reply", "Yes, the project's files.")[0] == 0
+    state = tier("data/x.csv", *outside)
+    assert [bool(d["decision"]) for d in state["data"]] == [True, False, False] and state["tier"] == "elevated", state
+
+
+def test_a_folder_that_is_read_is_held_to_each_rule_below_it(env):
+    """Finding 2: reading a folder reads the files in it, so a file with its own,
+    stricter rule is not cleared, or covered by a decision, because its folder is."""
+    env["config"](data={"data": "Public", "data/hr.csv": "Confidential"})
+
+    def tier(path):
+        return json.loads(env["cg"]("tier", *ALL_NO, "--touches", "R/a.R", "--reads", path, "--agent", "Kilo",
+                                    "--json")[1])
+
+    state = tier("data")
+    assert state["tier"] == "elevated" and "data: data/hr.csv is not cleared for Kilo" in state["reasons"], state
+    assert tier(".")["tier"] == "elevated"
+    env["config"](data={"data": "Internal", "data/hr.csv": "Confidential"})
+    env["cg"]("approve", "--reads", "data", "--agent", "Kilo", "--reply", "Yes, the data folder.")
+    assert tier("data/x.csv")["tier"] == "low"
+    assert tier("data")["tier"] == "elevated"  # the decision was for Internal; hr.csv is Confidential
+
+
+def test_a_reply_that_says_no_is_never_recorded_as_a_yes(env):
+    """Finding 3: "a reply that is not a clear yes writes nothing" (HANDOFF, task 2.1)."""
+    env["config"](**RULES)
+    path = env["put"]("plan", front("plan", "draft") + PLAN_BODY)
+    for reply in ("No.", "no, not yet", "Not yet", "Don't read it", "do not", "Wait", "Stop.", "Cancel that", "nope"):
+        code, out = env["cg"]("approve", "--reads", "data/raw/hh.dta", "--agent", "Claude Code", "--reply", reply)
+        assert code == 1 and "refused" in out, (reply, out)
+        code, out = env["cg"]("approve", PLAN, "--reply", reply)
+        assert code == 1 and "refused" in out and "status: draft" in path.read_text(), (reply, out)
+    assert not (env["project"] / ".cg-docs" / "approvals").exists()
+    assert env["cg"]("approve", PLAN, "--reply", "Yes. No other change.")[0] == 0
+
+
+def test_a_schema_2_file_the_reader_cannot_parse_is_still_checked(env):
+    """Finding 4: only a file with no schema key is version 1. A byte order mark,
+    a frontmatter that is never closed, or a file that is not UTF-8 does not make one."""
+    plan = front("plan", "draft") + PLAN_BODY
+    path = env["put"]("plan", plan)
+    path.write_bytes(b"\xef\xbb\xbf" + plan.encode())
+    assert env["cg"]("validate", "--strict") == (0, CLEAN)
+    assert env["cg"]("approve", PLAN, "--reply", "Yes, approved.")[0] == 0
+    assert "status: approved" in path.read_text(encoding="utf-8-sig")
+    typed = front("plan", "approved") + PLAN_BODY.replace("0.153846", "0.2")
+    for raw in (b"\xef\xbb\xbf" + typed.encode(), typed.replace("approved\n---\n", "approved\n", 1).encode(),
+                typed.replace("Other poverty", "Other povérty").encode("cp1252")):
+        path.write_bytes(raw)
+        code, out = env["cg"]("validate")
+        assert code == 1 and "schema-2: 1" in out, out
+        assert json.loads(env["cg"]("status", "--json")[1])["waiting-on-human"], out
+
+
+def test_a_plan_put_back_to_the_text_an_amendment_replaced_needs_a_new_approval(env):
+    """Finding 5: the newest approval is the one in force. Restoring the text it
+    replaced (git checkout, an undo) is a change the human has not approved."""
+    path = env["put"]("plan", front("plan", "draft") + PLAN_BODY)
+    env["cg"]("approve", PLAN, "--reply", "Yes, approved.")
+    first = path.read_text()
+    path.write_text(first.replace("0.153846", "0.25"))
+    assert env["cg"]("approve", PLAN, "--reply", "Yes, 0.25; 0.153846 was wrong.")[0] == 0
+    path.write_text(first)
+    code, out = env["cg"]("validate")
+    assert code == 1 and "no approval is recorded for the plan as it now reads" in out, out
+    code, out = env["cg"]("approve", PLAN, "--reply", "Yes, back to 0.153846 after all.")
+    assert code == 0 and "refused" not in out, out
+    assert env["cg"]("validate")[0] == 0
+    records = sorted((env["project"] / ".cg-docs" / "approvals").glob("*.json"))
+    assert len(records) == 3
+
+
+def test_a_decision_on_data_holds_when_its_level_changes_only_in_case(env):
+    """Finding 6: levels are compared without regard to case (ADR 0005), so the
+    same level written in other case is no new level."""
+    env["config"](**RULES)
+    env["cg"]("approve", "--reads", "data/raw", "--agent", "Claude Code", "--reply", "Yes, the raw folder.")
+    env["config"](**{**RULES, "data": {**RULES["data"], "data/raw": "CONFIDENTIAL"}})
+    out = env["cg"]("tier", *ALL_NO, "--touches", "R/a.R", "--reads", "data/raw/hh.dta", "--agent", "Claude Code")[1]
+    assert out.startswith("tier: low"), out
