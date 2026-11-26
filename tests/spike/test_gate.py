@@ -103,3 +103,24 @@ def test_the_rerun_sends_a_typed_cg_as_the_panel_does_and_reads_every_claude_mes
     reply = claude.reply("\n".join(json.dumps(e) for e in events))
     assert reply == "First.\n\nLast." and claude.session == "s1"
     assert "stream-json" in claude.command("hi", True)
+
+
+def test_the_rerun_answers_a_brainstorm_from_the_state_of_the_intent_alone():
+    """Task 2.2 (#225): step G cannot read the agent's questions, so it decides what to say
+    from the files. It says yes only to an intent in which nothing is open, and only after
+    a reply that is not a yes."""
+    sys.path.insert(0, str(GATE))
+    sys.path.insert(0, str(HUB / "spike" / "host-matrix"))
+    import run_cli_gate as gate
+    draft = {"status": "draft", "complete": False, "replies": []}
+    assert gate.brainstorm_reply(None, False) == gate.ANSWERS
+    assert gate.brainstorm_reply(draft, False) == gate.ANSWERS
+    assert gate.brainstorm_reply({**draft, "complete": True}, False) == gate.VAGUE
+    assert gate.brainstorm_reply({**draft, "complete": True}, True) == gate.YES_INTENT
+    assert gate.brainstorm_reply({**draft, "status": "decided"}, True) is None
+    # What the script sends must be what cg.py takes it for: one reply that is not a yes, two that are.
+    sys.path.insert(0, str(CG.parent))
+    import cg
+    assert gate.VAGUE.lower().strip(".") in cg.NOT_A_YES
+    for reply in (gate.ANSWERS, gate.YES_INTENT):  # a machine with no git identity adds a line of its own
+        assert [line for line in cg.the_yes(HUB, reply)[0] if "user.name" not in line] == [], reply

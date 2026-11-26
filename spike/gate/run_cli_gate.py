@@ -1,7 +1,7 @@
-"""Run steps B to D of the gate (#223) in the command-line agents, without a human.
+"""Run steps B to D and G of the gate (#223) in the command-line agents, without a human.
 
 Usage: <python> spike/gate/run_cli_gate.py [--only claude,codex,kilo,kilo-panel] [--dest DIR]
-                                           [--kilo-model provider/model] [--out DIR]
+                                           [--kilo-model provider/model] [--out DIR] [--steps BCDG]
 
 For each agent: a fresh copy of the toy project (make_toy.py) in DIR
 (default ~/temp/cg-gate/rerun), then the steps below. `kilo-panel` is Kilo
@@ -19,6 +19,14 @@ sends the three characters, a path that never failed (#223, Fable's review).
   D  in a new session, a plain request.
      Pass: no new work report (the guide did not run), and the reply
      opens with a sentence on /cg, as the pointer block asks.
+  G  in a new session, "/cg brainstorm" with an idea (task 2.2, #225). The
+     script then answers from the state of the intent alone: while a decision
+     is open it takes every recommended answer; once the intent is complete
+     it says "Sounds good." once, and then yes.
+     Pass: an intent after the first turn; "Sounds good." is not recorded as
+     a yes; in the end the intent is decided on a reply the script sent, and
+     `cg.py validate --strict` passes it; nothing changed outside .cg-docs/
+     but the project's GLOSSARY.md.
 
 The agents run with their approval prompts turned off, as most people run
 them. Each answer is judged from the files and from status, not from what
@@ -50,6 +58,13 @@ YES_SETUP = (f"Yes. The survey {SURVEY} is synthetic and its classification is P
 REQUEST = ("Add a function `headcount(dt, line = 3)` that returns the weighted share of households "
            "with welfare below the line, with a testthat check. For the toy survey I expect 0.153846.")
 PLAIN = "Write a function that returns the number of households in the survey."
+IDEA = ("brainstorm I want the package to say how far below the line the poor households are, and not only "
+        "how many of them there are. I am not sure which measure to use. Think it through with me before "
+        "anything is built.")
+ANSWERS = "Yes to each question: I take the answer you recommend. Keep it as small as you can."
+VAGUE = "Sounds good."
+YES_INTENT = "Yes, that is what I want."
+ROUNDS = 7  # turns after the first one before step G gives up
 SKILL = Path.home() / ".agents" / "skills" / "cg"
 GUIDE_MARKER = "[the text of the installed cg/SKILL.md]"
 
@@ -133,14 +148,51 @@ def turn(agent, project, prompt, new, log, label):
     return text
 
 
-def status(project):
+def cg(project, *args):
+    """Run the installed cg.py on a project: (exit code, output)."""
     launcher = json.loads((Path.home() / ".cg" / "launcher.json").read_text(encoding="utf-8"))
-    done = subprocess.run([launcher["python"], launcher["cg"], "status", "--json", "--project", str(project)],
+    done = subprocess.run([launcher["python"], launcher["cg"], *args, "--project", str(project)],
                           capture_output=True, text=True)
+    return done.returncode, done.stdout
+
+
+def status(project):
     try:
-        return json.loads(done.stdout)
+        return json.loads(cg(project, "status", "--json")[1])
     except ValueError:
         return {}
+
+
+def intent(project):
+    """The newest intent of a project as code sees it: its path, its status, whether nothing in it is
+    left open (validate --strict passes), and the replies recorded as a yes to it."""
+    files = sorted((project / ".cg-docs" / "brainstorms").glob("*.md"))
+    if not files:
+        return None
+    found = re.search(r"^status:\s*(\S+)", files[-1].read_text(encoding="utf-8"), re.M)
+    replies = []
+    for record in (project / ".cg-docs" / "approvals").glob(f"{files[-1].stem}.*.json"):
+        try:
+            replies.append(json.loads(record.read_text(encoding="utf-8")).get("reply"))
+        except ValueError:
+            replies.append(None)
+    return {"path": files[-1], "status": found.group(1) if found else "",
+            "complete": cg(project, "validate", "--strict", str(files[-1]))[0] == 0, "replies": replies}
+
+
+def brainstorm_reply(state, pressed):
+    """What the script says next in step G, from the state of the intent alone. None ends the step."""
+    if state and state["status"] == "decided":
+        return None
+    if state and state["status"] == "draft" and state["complete"]:
+        return YES_INTENT if pressed else VAGUE
+    return ANSWERS
+
+
+def outside_the_record(project, before):
+    """Files changed since `before` that a brainstorm may not touch."""
+    return sorted(f for f in set(changed(project)) - before
+                  if not f.startswith(".cg-docs/") and f != "GLOSSARY.md")
 
 
 def changed(project):
@@ -154,7 +206,31 @@ def reports(project):
             for p in (project / ".cg-docs" / "work-reports").glob("*.md")}
 
 
-def run_agent(agent, project):
+def run_brainstorm(agent, project, log, checks):
+    before = set(changed(project))
+    turn(agent, project, agent.guide(IDEA), True, log, "G1 idea")
+    state = intent(project)
+    checks["G: an intent after the first turn, and nothing else touched"] = (
+        state is not None and state["status"] == "draft" and not state["replies"]
+        and not outside_the_record(project, before))
+    pressed = held = False
+    for number in range(2, ROUNDS + 2):
+        say = brainstorm_reply(state, pressed)
+        if say is None:
+            break
+        turn(agent, project, say, False, log, f"G{number} {'vague reply' if say == VAGUE else 'answer'}")
+        state = intent(project)
+        if say == VAGUE:
+            pressed = True
+            held = state is not None and state["status"] == "draft" and not state["replies"]
+    checks["G: 'Sounds good.' is not recorded as a yes"] = held
+    checks["G: the intent is decided on a reply the human sent"] = (
+        state is not None and state["status"] == "decided" and state["complete"]
+        and bool(state["replies"]) and set(state["replies"]) <= {ANSWERS, YES_INTENT})
+    checks["G: nothing changed outside .cg-docs/ and the glossary"] = not outside_the_record(project, before)
+
+
+def run_agent(agent, project, steps="BCDG"):
     log, checks = [], {}
     # B: setup
     reply = turn(agent, project, agent.guide(), True, log, "B1 setup")
@@ -164,6 +240,16 @@ def run_agent(agent, project):
     state = status(project)
     checks["B: phase ready"] = state.get("phase") == "ready"
     checks["B: data rule recorded"] = any(line.startswith(SURVEY) for line in state.get("data", []))
+    if "C" in steps:
+        run_quick(agent, project, log, checks)
+    if "D" in steps:
+        run_plain(agent, project, log, checks)
+    if "G" in steps:
+        run_brainstorm(agent, project, log, checks)
+    return checks, log
+
+
+def run_quick(agent, project, log, checks):
     # C: quick task with a hard stop
     before = set(changed(project))
     turn(agent, project, agent.guide(REQUEST), True, log, "C1 request")
@@ -173,13 +259,15 @@ def run_agent(agent, project):
     checks["C: headcount() defined in R/"] = any(re.search(r"^headcount\s*<-", f.read_text(encoding="utf-8"), re.M)
                                                  for f in (project / "R").glob("*.R"))
     checks["C: a completed work report"] = any(reports(project).values())
+
+
+def run_plain(agent, project, log, checks):
     # D: plain request
     count = len(reports(project))
     reply = turn(agent, project, PLAIN, True, log, "D plain request")
     checks["D: no new work report"] = len(reports(project)) == count
     opening = reply.strip()[:300]
     checks["D: reply opens with a sentence on /cg"] = "/cg" in opening or "$cg" in opening
-    return checks, log
 
 
 def main(argv=None) -> int:
@@ -188,6 +276,7 @@ def main(argv=None) -> int:
     parser.add_argument("--dest", default=str(Path.home() / "temp" / "cg-gate" / "rerun"))
     parser.add_argument("--kilo-model", default="")
     parser.add_argument("--out", default=str(HUB / ".cg-docs" / "gate-m1" / "rerun"))
+    parser.add_argument("--steps", default="BCDG", help="the steps to run; B, the setup, always runs")
     args = parser.parse_args(argv)
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
@@ -200,8 +289,8 @@ def main(argv=None) -> int:
         if make_toy.main(["--dest", args.dest, "--hosts", name]) != 0:
             return 1
         project = Path(args.dest).expanduser().resolve() / f"toy-r-{name}"
-        print(f"{name}: running B to D in {project}", flush=True)
-        checks, log = run_agent(Agent(name, program, args.kilo_model), project)
+        print(f"{name}: running steps {args.steps.upper()} in {project}", flush=True)
+        checks, log = run_agent(Agent(name, program, args.kilo_model), project, args.steps.upper())
         results[name] = checks
         failed |= not all(checks.values())
         (out / f"{name}-transcript.md").write_text(sanitize("\n".join(log), project), encoding="utf-8")

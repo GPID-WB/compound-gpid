@@ -6,7 +6,7 @@ Go or no-go before milestone 2. The maintainer is at the keyboard; a build sessi
 
 ## Rerun without a human
 
-After a fix, `run_cli_gate.py` repeats steps B to D in Claude Code, Codex and Kilo from the command line, on fresh copies in `~/temp/cg-gate/rerun`, with their approval prompts off:
+After a fix, `run_cli_gate.py` repeats steps B to D and G in Claude Code, Codex and Kilo from the command line, on fresh copies in `~/temp/cg-gate/rerun`, with their approval prompts off:
 
 ```
 python3 spike/gate/run_cli_gate.py --kilo-model openai/gpt-6-luna
@@ -97,6 +97,14 @@ $cg status
 ```text
 Quote each line of your instructions that mentions Compound GPID.
 ```
+
+**G. Brainstorm** (task 2.2, #225). In a new chat, type:
+
+```text
+/cg brainstorm I want the package to say how far below the line the poor households are, and not only how many of them there are. I am not sure which measure to use. Think it through with me before anything is built.
+```
+
+It should look things up in the package first, then ask you at most three numbered questions at a time, each with the answer it recommends, and write an intent under `.cg-docs/brainstorms/` as it goes. It should change no code. When it shows you the whole intent and asks whether this is what you want, answer `Sounds good.` once: it should ask what is unclear, and record nothing. Then say yes: the intent becomes `decided`, with your reply in a file under `.cg-docs/approvals/`.
 
 Count the approval prompts in each agent, with its default settings.
 
