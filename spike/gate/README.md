@@ -6,7 +6,7 @@ Go or no-go before milestone 2. The maintainer is at the keyboard; a build sessi
 
 ## Rerun without a human
 
-After a fix, `run_cli_gate.py` repeats steps B to D and G in Claude Code, Codex and Kilo from the command line, on fresh copies in `~/temp/cg-gate/rerun`, with their approval prompts off:
+After a fix, `run_cli_gate.py` repeats steps B to D, G and H in Claude Code, Codex and Kilo from the command line, on fresh copies in `~/temp/cg-gate/rerun`, with their approval prompts off:
 
 ```
 python3 spike/gate/run_cli_gate.py --kilo-model openai/gpt-6-luna
@@ -105,6 +105,14 @@ Quote each line of your instructions that mentions Compound GPID.
 ```
 
 It should look things up in the package first, then ask you at most three numbered questions at a time, each with the answer it recommends, and write an intent under `.cg-docs/brainstorms/` as it goes. It should change no code. When it shows you the whole intent and asks whether this is what you want, answer `Sounds good.` once: it should ask what is unclear, and record nothing. Then say yes: the intent becomes `decided`, with your reply in a file under `.cg-docs/approvals/`.
+
+**H. Plan** (task 2.3, #226). After step G, in a new chat, type:
+
+```text
+/cg plan Write the plan for the work we settled in the brainstorm.
+```
+
+It should read the decided intent, and write a plan under `.cg-docs/plans/` that names it. It should change no code and open no data file. When it shows you the whole plan and asks whether you approve it, the plan is still a `draft`. Answer `Yes, but add one line to the Never list first: no file under data-raw/ is changed.`: it should change the plan, record nothing, and ask again. Then answer `Yes.`: the plan becomes `approved`, its frontmatter names the record under `.cg-docs/approvals/`, and that record holds your reply and the text you approved.
 
 Count the approval prompts in each agent, with its default settings.
 

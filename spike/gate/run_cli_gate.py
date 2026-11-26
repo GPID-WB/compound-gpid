@@ -1,7 +1,7 @@
-"""Run steps B to D and G of the gate (#223) in the command-line agents, without a human.
+"""Run steps B to D, G and H of the gate (#223) in the command-line agents, without a human.
 
 Usage: <python> spike/gate/run_cli_gate.py [--only claude,codex,kilo,kilo-panel] [--dest DIR]
-                                           [--kilo-model provider/model] [--out DIR] [--steps BCDG]
+                                           [--kilo-model provider/model] [--out DIR] [--steps BCDGH]
 
 For each agent: a fresh copy of the toy project (make_toy.py) in DIR
 (default ~/temp/cg-gate/rerun), then the steps below. `kilo-panel` is Kilo
@@ -28,6 +28,16 @@ sends the three characters, a path that never failed (#223, Fable's review).
      a yes; in the end the intent is decided on a reply the script sent, and
      `cg.py validate --strict` passes it; nothing changed outside .cg-docs/
      but the project's GLOSSARY.md.
+  H  in a new session, "/cg plan" (task 2.3, #226). It needs the decided
+     intent of step G, so G runs first even when --steps leaves it out. The
+     script answers from the state of the plan alone: while the plan is not
+     complete it takes every recommended answer; to a complete draft it first
+     says yes and asks for one more line in the plan, and then says "Yes.".
+     Pass: a draft plan after the first turn, with no approval; the yes that
+     goes on is not recorded; in the end the plan holds the line asked for,
+     names the decided intent, is approved on "Yes." alone, and passes
+     `cg.py validate --strict`; nothing changed outside .cg-docs/ but the
+     project's GLOSSARY.md.
 
 The agents run with their approval prompts turned off, as most people run
 them. Each answer is judged from the files and from status, not from what
@@ -65,7 +75,11 @@ IDEA = ("brainstorm I want the package to say how far below the line the poor ho
 ANSWERS = "Yes to each question: I take the answer you recommend. Keep it as small as you can."
 VAGUE = "Sounds good."
 YES_INTENT = "Yes."  # a plain yes and nothing else: the one reply cg.py approve records (#225)
-ROUNDS = 7  # turns after the first one before step G gives up
+ROUNDS = 7  # turns after the first one before step G or step H gives up
+ASK_PLAN = "plan Write the plan for the work we settled in the brainstorm."
+ASKED = "data-raw"  # what the script asks to see in the plan before it says yes
+CORRECTION = f"Yes, but add one line to the Never list first: no file under {ASKED}/ is changed."
+YES_PLAN = "Yes."
 SKILL = Path.home() / ".agents" / "skills" / "cg"
 GUIDE_MARKER = "[the text of the installed cg/SKILL.md]"
 
@@ -164,23 +178,39 @@ def status(project):
         return {}
 
 
-def intent(project):
-    """The newest intent of a project as code sees it: its path, its status, whether nothing in it is
-    left open (validate --strict passes), and the replies recorded as a yes to it."""
-    files = sorted((project / ".cg-docs" / "brainstorms").glob("*.md"))
+def newest(project, folder):
+    """The newest artifact of a folder as code sees it: its path, its status, whether nothing in it is
+    left open (validate --strict passes), the replies recorded as a yes to it, the intent it names,
+    and its text."""
+    files = sorted((project / ".cg-docs" / folder).glob("*.md"))
     if not files:
         return None
-    found = re.search(r"^status:\s*(\S+)", files[-1].read_text(encoding="utf-8"), re.M)
+    text = files[-1].read_text(encoding="utf-8")
+    found, link = (re.search(rf"^{key}:[ \t]*(\S+)", text.split("\n---", 1)[0], re.M) for key in ("status", "intent"))
     replies = []
     for path in (project / ".cg-docs" / "approvals").glob(f"{files[-1].stem}.*.json"):
         try:
             record = json.loads(path.read_text(encoding="utf-8"))
         except ValueError:
-            record = {"artifact": f".cg-docs/brainstorms/{files[-1].name}"}  # unreadable: counted, with no reply
-        if record.get("artifact") == f".cg-docs/brainstorms/{files[-1].name}":  # a plan may share the name
+            record = {"artifact": f".cg-docs/{folder}/{files[-1].name}"}  # unreadable: counted, with no reply
+        if record.get("artifact") == f".cg-docs/{folder}/{files[-1].name}":  # a plan may share an intent's name
             replies.append(record.get("reply"))
     return {"path": files[-1], "status": found.group(1) if found else "",
-            "complete": cg(project, "validate", "--strict", str(files[-1]))[0] == 0, "replies": replies}
+            "complete": cg(project, "validate", "--strict", str(files[-1]))[0] == 0, "replies": replies,
+            "intent": link.group(1) if link else "", "text": text}
+
+
+def intent(project):
+    return newest(project, "brainstorms")
+
+
+def plan_reply(state, corrected):
+    """What the script says next in step H, from the state of the plan alone. None ends the step."""
+    if state and state["status"] == "approved":
+        return None
+    if state and state["status"] == "draft" and state["complete"]:
+        return YES_PLAN if corrected else CORRECTION
+    return ANSWERS
 
 
 def brainstorm_reply(state, pressed):
@@ -233,7 +263,38 @@ def run_brainstorm(agent, project, log, checks):
     checks["G: nothing changed outside .cg-docs/ and the glossary"] = not outside_the_record(project, before)
 
 
-def run_agent(agent, project, steps="BCDG"):
+def run_plan(agent, project, log, checks):
+    # H: a plan on the decided intent, to its hard stop
+    before = set(changed(project))
+    turn(agent, project, agent.guide(ASK_PLAN), True, log, "H1 ask for the plan")
+    state = newest(project, "plans")
+    checks["H: a draft plan after the first turn, not approved, and nothing else touched"] = (
+        state is not None and state["status"] == "draft" and not state["replies"]
+        and not outside_the_record(project, before))
+    corrected = held = False
+    for number in range(2, ROUNDS + 2):
+        say = plan_reply(state, corrected)
+        if say is None:
+            break
+        label = {CORRECTION: "a yes that goes on", YES_PLAN: "yes"}.get(say, "answer")
+        turn(agent, project, say, False, log, f"H{number} {label}")
+        state = newest(project, "plans")
+        if say == CORRECTION:
+            corrected = True
+            held = state is not None and state["status"] == "draft" and not state["replies"]
+    idea = newest(project, "brainstorms")
+    checks["H: a yes that goes on is not recorded as a yes"] = held
+    checks["H: the plan holds the line the human asked for"] = state is not None and ASKED in state["text"]
+    checks["H: the plan is approved on a plain yes the human sent"] = (
+        state is not None and state["status"] == "approved" and state["complete"]
+        and bool(state["replies"]) and set(state["replies"]) == {YES_PLAN})
+    checks["H: the plan names the decided intent"] = (
+        state is not None and idea is not None and idea["status"] == "decided"
+        and (project / state["intent"]).resolve() == Path(idea["path"]).resolve())
+    checks["H: nothing changed outside .cg-docs/ and the glossary"] = not outside_the_record(project, before)
+
+
+def run_agent(agent, project, steps="BCDGH"):
     log, checks = [], {}
     # B: setup
     reply = turn(agent, project, agent.guide(), True, log, "B1 setup")
@@ -247,8 +308,10 @@ def run_agent(agent, project, steps="BCDG"):
         run_quick(agent, project, log, checks)
     if "D" in steps:
         run_plain(agent, project, log, checks)
-    if "G" in steps:
+    if "G" in steps or "H" in steps:  # the plan is built on the intent that step G leaves
         run_brainstorm(agent, project, log, checks)
+    if "H" in steps:
+        run_plan(agent, project, log, checks)
     return checks, log
 
 
@@ -284,7 +347,8 @@ def main(argv=None) -> int:
     parser.add_argument("--dest", default=str(Path.home() / "temp" / "cg-gate" / "rerun"))
     parser.add_argument("--kilo-model", default="")
     parser.add_argument("--out", default=str(HUB / ".cg-docs" / "gate-m1" / "rerun"))
-    parser.add_argument("--steps", default="BCDG", help="the steps to run; B, the setup, always runs")
+    parser.add_argument("--steps", default="BCDGH", help="the steps to run; B, the setup, always runs, "
+                                                         "and G runs before H")
     args = parser.parse_args(argv)
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
