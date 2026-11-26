@@ -246,6 +246,24 @@ def test_an_irreversible_action_always_stops_and_goes_on_only_on_the_humans_reco
     assert code == 1 and STOPS in out, out
 
 
+def test_a_yes_to_one_stop_never_covers_the_next_one_even_within_the_same_second(env, monkeypatch):
+    """CI on 7162a8b7 (#227): two runs of tier within one second wrote two records with the same
+    text, and the yes to the first one covered the second. The clock is held still here."""
+    project = start(env)
+    cg = load_cg()
+    monkeypatch.setattr(cg, "now", lambda: "2026-11-26T10:00:00Z")
+    monkeypatch.setenv("GIT_CONFIG_GLOBAL", str(env["home"] / ".gitconfig"))
+    here = ["--project", str(project)]
+    fill(project / REPORT, risk="Delete data/old.csv, which no commit holds.")
+    assert cg.main(["tier", *yes("irreversible"), *SLICE, *here]) == 0
+    assert cg.main(["approve", REPORT, "--reply", "Yes.", *here]) == 0
+    assert cg.main(["evidence", "C1", "--report", REPORT, *here]) == 0
+    assert cg.main(["tier", *yes("irreversible"), *SLICE, *here]) == 0
+    assert cg.main(["evidence", "C1", "--report", REPORT, *here]) == 1  # the second stop is not answered
+    assert cg.main(["approve", REPORT, "--reply", "Yes.", *here]) == 0
+    assert len(list((project / ".cg-docs" / "approvals").glob("2026-11-26-headcount.*.json"))) == 2
+
+
 def test_work_starts_on_a_plan_approved_as_it_now_reads_and_is_completed_only_on_evidence(env):
     """ADR 0005 left open what holds the work to the plan. The work report names the plan, and
     it is completed when every check of the plan has verified evidence (version 1 issue #98)."""
