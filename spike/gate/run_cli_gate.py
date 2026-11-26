@@ -171,11 +171,13 @@ def intent(project):
         return None
     found = re.search(r"^status:\s*(\S+)", files[-1].read_text(encoding="utf-8"), re.M)
     replies = []
-    for record in (project / ".cg-docs" / "approvals").glob(f"{files[-1].stem}.*.json"):
+    for path in (project / ".cg-docs" / "approvals").glob(f"{files[-1].stem}.*.json"):
         try:
-            replies.append(json.loads(record.read_text(encoding="utf-8")).get("reply"))
+            record = json.loads(path.read_text(encoding="utf-8"))
         except ValueError:
-            replies.append(None)
+            record = {"artifact": f".cg-docs/brainstorms/{files[-1].name}"}  # unreadable: counted, with no reply
+        if record.get("artifact") == f".cg-docs/brainstorms/{files[-1].name}":  # a plan may share the name
+            replies.append(record.get("reply"))
     return {"path": files[-1], "status": found.group(1) if found else "",
             "complete": cg(project, "validate", "--strict", str(files[-1]))[0] == 0, "replies": replies}
 

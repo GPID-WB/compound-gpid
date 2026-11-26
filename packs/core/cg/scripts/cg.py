@@ -156,6 +156,11 @@ def parse_version(text):
     return tuple(int(part) for part in text.split("."))
 
 
+def article(kind: str) -> str:
+    """'a plan', 'an intent': a type with its article, for a message."""
+    return f"{'an' if kind[0] in 'aeiou' else 'a'} {kind}"
+
+
 def version_lt(a: str, b: str) -> bool:
     va, vb = parse_version(a), parse_version(b)
     width = max(len(va), len(vb))
@@ -727,7 +732,7 @@ def artifact_problems(project: Path, a: dict, approving: bool = False):
         except ValueError:
             errors.append(f"date is not YYYY-MM-DD: {fields['date']}")
     if a["status"] and a["status"] not in spec["statuses"]:
-        errors.append(f"status is {a['status']}; a {a['type']} is one of: {', '.join(spec['statuses'])}")
+        errors.append(f"status is {a['status']}; {article(a['type'])} is one of: {', '.join(spec['statuses'])}")
     for key in LINK_KEYS:
         value = fields.get(key) or []
         for target in [value] if isinstance(value, str) else value:
@@ -898,7 +903,7 @@ def cmd_approve(args) -> int:
     else:
         refused += artifact_problems(project, plan, approving=True)[0]
         if plan["status"] not in takes:
-            refused.append(f"its status is {plan['status']}; a {kind} takes an approval while it is "
+            refused.append(f"its status is {plan['status']}; {article(kind)} takes an approval while it is "
                            f"{', '.join(takes[:-1])} or {takes[-1]}")
     more, name, email = the_yes(project, args.reply)
     refused += more

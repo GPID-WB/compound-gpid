@@ -15,8 +15,8 @@ Pinned at 0.6.18, `e997ac5`. MIT licence.
 | Source | Verdict | Lands in | What changes for us | Status |
 |---|---|---|---|---|
 | `using-agent-skills` (router, six behaviors, failure modes) | Adapt | `cg/SKILL.md`, `worker.md`, P2, P6, P7 | state comes from a script; the guide does not fire by itself | cited |
-| `interview-me` | Adapt | grilling primitive | hypothesis with confidence, restate with out-of-scope, list of replies that are not a yes | cited |
-| `idea-refine` | Adapt | `brainstorm` | widen-then-narrow step replaces `/cg-ideate` | open |
+| `interview-me` | Adapt | `grilling.md`, `brainstorm` | a first reading stated with what is still missing, in place of a confidence number nobody can check (P7); restate with out-of-scope; the stop when the next three answers can be predicted; the list of replies that are not a yes, held in `cg.py` | done |
+| `idea-refine` | Adapt | `brainstorm` | the widen-then-narrow step replaces `/cg-ideate`; its questions are for analytical work (the simplest version, what the project already has, the rawest input, an independent source) | done |
 | `spec-driven-development` | Adapt | `plan`, P1 | assumptions block; Always / Ask first / Never boundaries; deferred scope; amendments instead of rewrites; a hard stop | cited |
 | `planning-and-task-breakdown` | Adapt | `plan` | vertical slices, checkpoints, never overwrite an unfinished plan | open |
 | `incremental-implementation` | Adapt | `work` | one slice, evidence, commit | open |
@@ -44,7 +44,7 @@ Pinned at 1.3.2, `d653911`. MIT licence.
 
 | Source | Verdict | Lands in | What changes for us | Status |
 |---|---|---|---|---|
-| `grilling`, `grill-me`, `grill-with-docs` | Adapt | grilling primitive, P2 | used by brainstorm, plan and triage | cited |
+| `grilling`, `grill-me`, `grill-with-docs` | Adapt | `grilling.md`, P2 | used by brainstorm now, by plan and triage later; rounds of three decisions at most; each answer is written into the intent in the turn it comes | done |
 | `domain-modeling` (glossary, ADR format) | Adapt | the two glossaries (P11), decision records (P8) | project terms such as welfare aggregate, PPP vintage | cited |
 | `to-spec` | Adapt | `plan` | synthesize, do not re-interview; agree the checks | open |
 | `to-tickets` | Adapt | `plan` slices, issues pack | tracer bullets, blocking edges, tracker as verbs | open |
@@ -53,9 +53,9 @@ Pinned at 1.3.2, `d653911`. MIT licence.
 | `tdd` | Adapt | `work`, P4 | no check at a point the human has not confirmed | cited |
 | `diagnosing-bugs` | Adapt | `bugfix` | feedback loop first, ranked hypotheses shown to the user, regression test before the fix | open |
 | `code-review` | Adapt | `review` | standards and spec reviewed separately, never merged | open |
-| `prototype` | Adapt | `brainstorm` | settle a fork by running something, on a throwaway branch | open |
-| `research` | Adapt | grilling | fact-finding in a fresh context, with citations | open |
-| `to-questionnaire` | Adapt | `brainstorm` | when the knowledge sits with a colleague, such as the survey team | open |
+| `prototype` | Adapt | `brainstorm` | a choice that running something can settle is named as an experiment; the brainstorm does not run it, quick work does, so the data rules and the tier hold | done |
+| `research` | Adapt | `grilling.md` | fact-finding in a fresh context, each fact with its source | done |
+| `to-questionnaire` | Adapt | `grilling.md` | when the knowledge sits with a colleague, such as the survey team: the questions are written for that person and the decision stays open | done |
 | `setup-matt-pocock-skills` | Adapt | `setup` | explore, propose, confirm, write a pointer block | done |
 | `ask-matt`, phase boundaries | Adapt | help and `status` | continue, clear, hand off, or delegate | open |
 | `handoff` | Adapt | `status` | pause note computed from files | open |
@@ -80,7 +80,7 @@ Pinned at 0.15.48, `ca782ed`. MIT licence.
 | playbooks: bug fix, feature, refactoring, investigation, prototype, multi-phase plan, opening a PR, session pickup, pause safely | Adapt | `bugfix`, `work`, `understand`, `brainstorm`, `plan`, `ship`, `status` | ownership statement and `Reply:` contract kept | cited |
 | `figure-it-out` | Adapt | `custom` playbook | falsifiable done condition; verdicts verified, not verified, inconclusive | cited |
 | `show-me-your-work` | Adapt | `cg.py decide`, `cg.py evidence` | append-only trail written by script, audited at the end | open |
-| `ketchup`, `recall`, `in-your-own-words`, `bro` | Adapt | `status`, restate step | list of decisions waiting on the human | open |
+| `ketchup`, `recall`, `in-your-own-words`, `bro` | Adapt | `status`, restate step | list of decisions waiting on the human; `in-your-own-words` is the restate step of `grilling.md` | cited |
 | `how`, `why`, `teach` | Adapt | `understand` | part of sign-off, not optional | open |
 | `interrogate` | Adapt | Adversary verifier | findings reproduced; dropped findings listed | cited |
 | `blast-radius` | Adapt | scope lens, P7 | its ladder of certainty becomes our evidence grades E1 to E5 | cited |
@@ -88,7 +88,7 @@ Pinned at 0.15.48, `ca782ed`. MIT licence.
 | `create-verification-skill`, `maintain-verification-skill` | Adapt | the verification profile written by `setup` (P4) | how to run and check this project; source of check IDs | cited |
 | `reflect`, `correct` | Adapt | `compound`, Lesson verifier | rule-to-check table; prove the check fails on the past mistake | cited |
 | `architect`, Foundational Thinking | Adapt | `plan` for build work | name the data shape and keys first | open |
-| `sharpen`, `reframe` | Adapt | `brainstorm` | expert vocabulary with verified links when the user is outside their field | open |
+| `sharpen`, `reframe` | Adapt | `brainstorm` | the field's term with a source that was opened, when the human describes it in everyday words; the widening questions; an experiment in place of an opinion | done |
 | `unslop`, `technical-writing` | Pattern | writing pack | numbered rules other skills cite | open |
 | `comment-sicko` | Pattern | principle verifiers | one verifier per principle | open |
 | `poteto-help` | Adapt | help | routes without starting work | open |

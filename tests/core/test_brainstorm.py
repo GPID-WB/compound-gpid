@@ -126,6 +126,11 @@ def test_an_intent_with_something_still_open_is_not_confirmed(env):
     assert env["cg"]("validate", "--strict")[0] == 1
     path.write_text(breaks[0][0].replace("status: draft", "status: decided"), encoding="utf-8")
     assert "FAIL" in env["cg"]("validate")[1]
+    path.write_text(good.replace("status: draft", "status: dropped"), encoding="utf-8")
+    code, out = env["cg"]("approve", INTENT, "--reply", "Yes, that is what I want.")
+    assert code == 1 and "an intent takes an approval while it is draft or decided" in out, out
+    path.write_text(good.replace("status: draft", "status: parked"), encoding="utf-8")
+    assert "status is parked; an intent is one of: draft, decided, dropped" in env["cg"]("validate")[1]
 
 
 def test_replies_that_are_not_a_yes_are_refused_with_what_to_ask_next(env):
