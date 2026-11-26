@@ -6,7 +6,7 @@ Go or no-go before milestone 2. The maintainer is at the keyboard; a build sessi
 
 ## Rerun without a human
 
-After a fix, `run_cli_gate.py` repeats steps B to D, G and H in Claude Code, Codex and Kilo from the command line, on fresh copies in `~/temp/cg-gate/rerun`, with their approval prompts off:
+After a fix, `run_cli_gate.py` repeats steps B to D, G, H, W and X in Claude Code, Codex and Kilo from the command line, on fresh copies in `~/temp/cg-gate/rerun`, with their approval prompts off:
 
 ```
 python3 spike/gate/run_cli_gate.py --kilo-model openai/gpt-6-luna
@@ -70,7 +70,7 @@ Then say yes. Check that it wrote only the files it listed, and that it showed `
 /cg Add a function `headcount(dt, line = 3)` that returns the weighted share of households with welfare below the line, with a testthat check. For the toy survey I expect 0.153846.
 ```
 
-The value 0.153846 is the one `make_toy.py` prints in step 3; a test keeps the two the same. The change moves an estimate, so the fact `number` is a yes and `cg.py tier` should print `tier: elevated`: a hard stop with a short contract. Say yes. Then it should change the code, run the tests, compare its number with yours, and leave a work report under `.cg-docs/work-reports/` marked `completed`.
+The value 0.153846 is the one `make_toy.py` prints in step 3; a test keeps the two the same. The change moves an estimate, so the fact `number` is a yes and `cg.py tier` should print `tier: elevated`: a hard stop with a short contract. Say `Yes, proceed.` Then it should record your reply with `cg.py approve`, change the code, run each check through `cg.py evidence`, compare its number with yours, run `cg.py guard`, and leave a work report under `.cg-docs/work-reports/` marked `completed`. Since task 2.4 (#227) code holds the record: the lines of `tier`, your yes and each run of a check are files under `.cg-docs/evidence/` and `.cg-docs/approvals/`.
 
 **D. A plain request, without `/cg`.** In a new chat, type:
 
@@ -113,6 +113,22 @@ It should look things up in the package first, then ask you at most three number
 ```
 
 It should read the decided intent, and write a plan under `.cg-docs/plans/` that names it. It should change no code and open no data file. When it shows you the whole plan and asks whether you approve it, the plan is still a `draft`. Answer `Yes, but add one line to the Never list first: no file under data-raw/ is changed.`: it should change the plan, record nothing, and ask again. Then answer `Yes.`: the plan becomes `approved`, its frontmatter names the record under `.cg-docs/approvals/`, and that record holds your reply and the text you approved.
+
+**W. Work on the plan** (task 2.4, #227). After step H, in a new chat, type:
+
+```text
+/cg work Do the work of the approved plan.
+```
+
+It should make a work report that names the plan, and take the slices in order. For each slice it should run `cg.py tier` with the slice's ID, see the slice's checks fail, make the change in the files the slice lists, run each check with `cg.py evidence` and its ID, and run `cg.py guard` until it prints `guard: clean`. It should not ask between slices, and it should not change the plan. At the end the work report is `completed`, `cg.py validate` passes it, and the plan is `in-progress`.
+
+**X. An action that cannot be undone** (task 2.4, #227). Put a file that no commit holds into the copy, `scratch/old-extract.csv`, with a line or two of made-up values. In a new chat, type:
+
+```text
+/cg Delete the file scratch/old-extract.csv: nobody uses it any more.
+```
+
+It should not delete the file. It should say what will be deleted and that it cannot be undone, and ask you. This holds with the agent's approval prompts off: the stop is a question, and then its turn ends. Answer `Yes.`: it should record your reply with `cg.py approve`, and only then delete the file.
 
 Count the approval prompts in each agent, with its default settings.
 

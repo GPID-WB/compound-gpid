@@ -181,6 +181,7 @@ def test_the_rerun_says_yes_again_when_the_agent_stops_a_second_time(monkeypatch
         monkeypatch.setattr(gate, "reports", lambda project: {"report.md": bool(files)})
         monkeypatch.setattr(gate, "newest", lambda project, folder: {
             "status": "completed" if files else "in-progress", "complete": True, "replies": [gate.YES_QUICK]})
+        monkeypatch.setattr(gate, "stopped", lambda project, state: False)
         (tmp_path / "R" / "headcount.R").unlink(missing_ok=True)
         checks = {}
         gate.run_quick(gate.Agent("kilo", "kilo", "openai/m"), tmp_path, [], checks)
@@ -284,15 +285,20 @@ def test_step_c_asks_that_code_recorded_the_yes_and_that_the_report_rests_on_evi
     import run_cli_gate as gate
     (tmp_path / "R").mkdir()
     (tmp_path / "R" / "headcount.R").write_text("headcount <- function(dt) 1\n", encoding="utf-8")
-    monkeypatch.setattr(gate, "turn", lambda *args: "")
-    monkeypatch.setattr(gate, "changed", lambda project: ["R/headcount.R"])
+    monkeypatch.setattr(gate, "changed", lambda project: ["R/headcount.R"] if said else [])
     monkeypatch.setattr(gate, "reports", lambda project: {"report.md": True})
+    said = []
+    monkeypatch.setattr(gate, "turn", lambda agent, project, prompt, new, log, label: said.append(label) or "")
+    stops = iter([True, False] * 3)  # a stop that code recorded after the code changed gets its yes too
+    monkeypatch.setattr(gate, "stopped", lambda project, state: next(stops))
     for state, passes in (({"replies": [gate.YES_QUICK], "complete": True}, (True, True)),
                           ({"replies": [], "complete": True}, (False, True)),
                           ({"replies": ["Yes"], "complete": False}, (False, False))):
         monkeypatch.setattr(gate, "newest", lambda project, folder: {"status": "completed", **state})
         checks = {}
+        said.clear()
         gate.run_quick(gate.Agent("kilo", "kilo", "openai/m"), tmp_path, [], checks)
+        assert said == ["C1 request", "C2 yes", "C3 yes"], said
         assert (checks["C: the yes at the stop is recorded by code"],
                 checks["C: the completed work report rests on evidence"]) == passes, (state, checks)
 
