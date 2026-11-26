@@ -35,6 +35,7 @@ import argparse
 import datetime
 import hashlib
 import json
+import ntpath
 import os
 import posixpath
 import re
@@ -90,6 +91,8 @@ V1_STATES = {"draft": "waiting", **dict.fromkeys(
     ("active", "in-progress", "planned", "open", "approved", "blocked", "handoff"), "open")}
 # Replies P2 names as not a yes. approve refuses them; whether any other reply is a clear yes is by judgement.
 NOT_A_YES = ("sounds good", "whatever you think", "sure, go on")
+# A reply that opens with one of these words is a no, or a not yet, and is never recorded as a yes (#224).
+SAYS_NO = r"(no|nope|not|don['’]?t|do not|stop|wait|hold on|cancel|never)\b"
 # What the agent declares about a piece of work, each with what a yes means. tier adds what code
 # can work out: whether this coding agent may read each data file, and the number of files.
 FACTS = {
@@ -154,14 +157,19 @@ def read_frontmatter(text: str):
     That is all schema 2 allows. Version 1 files also hold nested blocks: each
     is read as the list of its lines, so nothing is dropped, and is named in
     problems. Only a schema 2 artifact is failed for its problems.
+
+    A byte order mark is no part of the text. A frontmatter that is never
+    closed is read up to its first blank line, so a file that says `schema: 2`
+    is still held to schema 2 (#224, review finding 4).
     """
-    lines = text.splitlines()
+    lines = text.removeprefix("﻿").splitlines()
     if not lines or lines[0].strip() != "---":
         return {}, text, ["no frontmatter: the first line is not ---"]
     end = next((i for i, line in enumerate(lines[1:], 1) if line.strip() == "---"), None)
-    if end is None:
-        return {}, "", ["the frontmatter is not closed by a --- line"]
     fields, problems, key, nested = {}, [], None, set()
+    if end is None:
+        problems.append("the frontmatter is not closed by a --- line")
+        end = next((i for i, line in enumerate(lines[1:], 1) if not line.strip()), len(lines))
     for number, line in enumerate(lines[1:end], 2):
         match = re.match(r"([A-Za-z][\w-]*):\s*(.*)$", line)
         if match:
@@ -313,10 +321,15 @@ def read_artifact(path: Path, kind: str, project: Path) -> dict:
     in it is an error, so a version 1 folder needs no conversion.
     """
     try:
-        text = path.read_text(encoding="utf-8")
-    except (OSError, UnicodeDecodeError):
-        text = ""
+        raw = path.read_bytes()
+    except OSError:
+        raw = b""
+    try:
+        text, encoding = raw.decode("utf-8"), []
+    except UnicodeDecodeError:  # read it all the same, so a schema 2 file is still checked (#224)
+        text, encoding = raw.decode("utf-8", errors="replace"), ["the file is not UTF-8; save it as UTF-8"]
     fields, body, problems = read_frontmatter(text)
+    problems = encoding + problems
     schema = str(fields["schema"]) if "schema" in fields else "1"
     status = fields.get("status", "")
     status = status.lower() if isinstance(status, str) else ""
@@ -749,14 +762,19 @@ def approvals(project: Path, artifact: dict):
         except (OSError, ValueError):
             continue
         if isinstance(record, dict) and record.get("artifact") == artifact["path"]:
-            found.append(record)
-    return found
+            found.append((str(record.get("time", "")), path.stat().st_mtime_ns, path.name, record))
+    # Oldest first. The time is to the second; within one second the file written last is the newer.
+    return [record for *_, record in sorted(found, key=lambda item: item[:3])]
 
 
 def is_approved(project: Path, artifact: dict) -> bool:
-    """True when the human approved the artifact as it now reads."""
-    digest = text_hash(artifact["body"])
-    return any(record.get("hash") == digest for record in approvals(project, artifact))
+    """True when the human's newest approval is for the artifact as it now reads.
+
+    An amendment replaces the text approved before it. Putting that text back is
+    a change the human has not approved (#224, review finding 5).
+    """
+    found = approvals(project, artifact)
+    return bool(found) and found[-1].get("hash") == text_hash(artifact["body"])
 
 
 def the_yes(project: Path, reply: str):
@@ -767,6 +785,8 @@ def the_yes(project: Path, reply: str):
     elif said.lower().strip(" .!\"'") in NOT_A_YES:
         refused.append(f'"{said}" is not a clear yes (P2); ask the human what is unclear, '
                        f'and record the reply that settles it')
+    elif re.match(SAYS_NO, said.lower()):
+        refused.append(f'"{said}" says no, or not yet; nothing is recorded, and nothing goes ahead on it')
 
     def git_config(key):
         done = subprocess.run(["git", "-C", str(project), "config", "--get", key],
@@ -812,9 +832,17 @@ def cmd_approve(args) -> int:
     refused += more
     digest = text_hash(plan["body"])
     record_path = project / ".cg-docs" / "approvals" / f"{at[0].stem}.{digest[7:23]}.json"
-    known = is_approved(project, plan)
+    known, stamp = is_approved(project, plan), now()
     if record_path.exists() and not known:
-        refused.append(f"{record_path.relative_to(project).as_posix()} exists and is not this plan's record")
+        try:
+            held = json.loads(record_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            held = None
+        if isinstance(held, dict) and held.get("artifact") == plan["path"] and held.get("hash") == digest:
+            # This text was approved before an amendment replaced it: a new yes gets a record of its own.
+            record_path = record_path.with_name(f"{record_path.stem}.{re.sub(r'[-:]', '', stamp)}.json")
+        else:
+            refused.append(f"{record_path.relative_to(project).as_posix()} exists and is not this plan's record")
     if refused:
         for line in refused:
             print(f"refused: {line}")
@@ -823,12 +851,12 @@ def cmd_approve(args) -> int:
         print(f"already approved as it now reads: {plan['path']}")
     else:
         record = {"artifact": plan["path"], "hash": digest, "reply": args.reply, "name": name, "email": email,
-                  "time": now()}
+                  "time": stamp}
         write_atomic(record_path, json.dumps(record, indent=2, ensure_ascii=False) + "\n")
         print(f"approved {plan['path']}\nrecord: {record_path.relative_to(project).as_posix()}\n"
               f"hash: {digest}\nby: {name} <{email}>")
     if plan["status"] == "draft":  # the one line of the plan that code changes
-        text = at[0].read_text(encoding="utf-8")
+        text = at[0].read_text(encoding="utf-8-sig")
         write_atomic(at[0], re.sub(r"\A(---[ \t]*\n(?:(?!---|status:).*\n)*)status:.*", r"\1status: approved", text, count=1))
     return 0
 
@@ -845,6 +873,22 @@ def data_path(project: Path, arg: str) -> str:
             pass
     arg = posixpath.normpath(arg.replace("\\", "/"))
     return "" if arg == "." else arg
+
+
+def within(path: str, place: str) -> bool:
+    """True when a path, as data_path writes it, is place or is under it.
+
+    The place "" is the project root, so it covers no path outside the project:
+    none that starts with ../ and none that is absolute (#224, review finding 1).
+    """
+    if place == "":
+        return not (path == ".." or path.startswith("../") or posixpath.isabs(path) or ntpath.isabs(path))
+    return path == place or path.startswith(place + "/")
+
+
+def same_level(a, b) -> bool:
+    """Levels are compared without regard to case; no level (None) is a level of its own."""
+    return a is None and b is None or a is not None and b is not None and a.casefold() == b.casefold()
 
 
 def data_decisions(project: Path):
@@ -866,9 +910,8 @@ def decision_for(decisions, found: dict, agent: str):
     """The decision that covers one file: for this agent, for the file or a folder
     above it, and for the level the file has now. A new level asks for a new decision."""
     for record in decisions:
-        place = record["reads"]
-        if (record["agent"].casefold() == agent.casefold() and record.get("level") == found["level"]
-                and (place in ("", found["path"]) or found["path"].startswith(place + "/"))):
+        if (record["agent"].casefold() == agent.casefold() and same_level(record.get("level"), found["level"])
+                and within(found["path"], record["reads"])):
             return record
     return None
 
@@ -909,6 +952,11 @@ def approve_reads(project: Path, args) -> int:
     return 0
 
 
+def rule_paths(project: Path, config: dict) -> dict:
+    """The data rules, each path as data_path writes it."""
+    return {data_path(project, key): level for key, level in config.get("data", {}).items()}
+
+
 def clearance(project: Path, config: dict, path: str, agent: str) -> dict:
     """Whether the recorded data rules let this coding agent read one file (P12).
 
@@ -916,8 +964,8 @@ def clearance(project: Path, config: dict, path: str, agent: str) -> dict:
     A file is cleared when its level is Public, or when approved-tools gives
     this agent that level or a more restricted one in classification-levels.
     """
-    rules = {data_path(project, key): level for key, level in config.get("data", {}).items()}
-    over = [key for key in rules if key in ("", path) or path.startswith(key + "/")]
+    rules = rule_paths(project, config)
+    over = [key for key in rules if within(path, key)]
     if not over:
         return {"path": path, "level": None, "cleared": False, "why": "no classification is recorded for it"}
     level = rules[max(over, key=len)]
@@ -981,7 +1029,10 @@ def cmd_tier(args) -> int:
         for line in usage:
             print(line)
         return 2
-    data = [] if reads == ["none"] else [clearance(project, config, data_path(project, r), args.agent) for r in reads]
+    # A folder that is read is read with every file in it, so each rule below it is checked too (#224).
+    places, rules = [] if reads == ["none"] else [data_path(project, r) for r in reads], rule_paths(project, config)
+    places += sorted({key for place in places for key in rules if key != place and within(key, place)} - set(places))
+    data = [clearance(project, config, place, args.agent) for place in places]
     decisions = data_decisions(project)
     for d in data:
         made = None if d["cleared"] else decision_for(decisions, d, args.agent)
