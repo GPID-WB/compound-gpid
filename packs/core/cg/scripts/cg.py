@@ -1489,12 +1489,14 @@ def runs(project: Path, report: dict) -> dict:
 
 def tier_of(project: Path, report: dict):
     """The newest tier record of a work report as (path, record, digest, yes), or None. yes says
-    whether the human's yes to that record is on file."""
+    whether the human's yes to that record is on file: to that file and to what it holds, since
+    two records of one second hold the same text."""
     found = records(project, report, "tier")
     if not found:
         return None
-    digest = text_hash(found[-1][0].read_text(encoding="utf-8"))
-    return (*found[-1], digest, any(a.get("hash") == digest for a in approvals(project, report)))
+    name, digest = found[-1][0].relative_to(project).as_posix(), text_hash(found[-1][0].read_text(encoding="utf-8"))
+    return (*found[-1], digest, any(a.get("hash") == digest and a.get("tier") == name
+                                    for a in approvals(project, report)))
 
 
 def open_stop(project: Path, report: dict):
