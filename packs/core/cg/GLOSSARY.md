@@ -32,6 +32,9 @@ _Avoid_: real artifact
 A document the loop writes under `.cg-docs/`: intent, plan, work report, review, decision record, solution.
 _Avoid_: output (for these documents)
 
+**Intent**:
+The artifact a brainstorm leaves: the goal, what is out of scope, what a wrong result looks like, the facts that were looked up, the decisions the human made and the assumptions they confirmed.
+
 **Unit**:
 One of many like things the same operation applies to: a country, a survey year, a file, a table, a model specification.
 
@@ -149,6 +152,12 @@ _Avoid_: orchestrator
 The steps for one kind of work: brainstorm, plan, work, review, compound, bugfix and others.
 _Avoid_: command (for a playbook), prompt (for a playbook), workflow (for a playbook)
 
+**Grilling**:
+The way the agent reaches a shared understanding with the human before work is planned or changed: it looks up every fact, puts each decision to the human with a recommended answer, and goes on until nothing is assumed in silence.
+
+**Assumption**:
+Something the agent takes as true that it neither looked up nor had the human decide. It is always written down, with what changes if it is wrong.
+
 **Pointer block**:
 The few lines setup writes into a project's `AGENTS.md`, between two markers, so that any coding agent knows the project is run with the guide and how to see where the work stands.
 
@@ -193,6 +202,7 @@ _Avoid_: kernel
 - The **conformance record** holds one verdict per principle. **Sign-off** needs all of them.
 - A **pack** holds skills and lenses. The **hub** lists packs.
 - The **guide** opens **playbooks**. A playbook applies **principles**.
+- A brainstorm leaves an **intent**. **Grilling** settles its decisions, and what is left unsettled is written down as an **assumption**.
 - Setup writes the **pointer block** once per project, in one file.
 - The **data register** gives every dataset a **classification**. An **approved tool** is approved for a classification, not in general.
 - **Lineage** links an **output** to its inputs. The **AI-use statement** travels with the **defend-it brief**.

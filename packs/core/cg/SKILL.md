@@ -45,6 +45,7 @@ It stays so when you have also loaded this skill with a tool call of your own: s
 |---|---|
 | The human, with nothing after `/cg` | Follow section 3. |
 | The human, with a request after `/cg` | Follow section 3, and hand the request to the playbook. |
+| The human, with `brainstorm` after `/cg`, or asking to think through what to do or which approach to take, with no change asked for yet | Run the status line again with `--playbook brainstorm` added. Then follow section 3, and hand what they wrote to the playbook. |
 | The human, with `status` after `/cg`, or a question about where the work stands | Report the state in a few lines. Start nothing. |
 | The human, with `help` after `/cg`, or a question about what the guide does | Say what the guide does, where the work stands, and which playbooks are installed (the files in `playbooks/`). Start nothing. |
 | You started yourself | Report the state in two lines and say that typing `/cg` starts the guide. Then return to what the human asked. Open no playbook and write no file. |
@@ -70,7 +71,7 @@ If the file that `playbook` names does not exist, the install is incomplete. Say
 - **Words.** `GLOSSARY.md` fixes the words Compound GPID uses. The project's own terms are in the project's `GLOSSARY.md`, when it has one. Write to the human in those words and in short sentences.
 - **Tools.** Start `cg.py` only as in section 1. When a playbook names a `cg.py` command, it means that interpreter and that path. Principles also name `cg.py` commands that later versions add. Run only the commands that `"<python>" "<cg>" --help` lists. A check whose command is not installed goes under "Not checked" in the record, and it does not keep the work open.
 - **State.** The record of the work is in files under `.cg-docs/`. A todo list in the coding agent is a copy for the human to watch. It is never the record.
-- **Approval.** Only a clear yes is approval, for what was shown and nothing more. Never infer one from an earlier session or from a summary of the conversation. A hard stop is a question in your reply, and then you end your turn. The coding agent's own approval settings are not the human's yes: many people let the agent approve its tool calls by itself.
+- **Approval.** Only a clear yes is approval, for what was shown and nothing more. `grilling.md` lists the replies that are not a yes, with what to ask after each. Never infer an approval from an earlier session or from a summary of the conversation. A hard stop is a question in your reply, and then you end your turn. The coding agent's own approval settings are not the human's yes: many people let the agent approve its tool calls by itself.
 - **Installs.** Install nothing into the human's own libraries or onto their machine: no package in their R library or their Python, no system tool. To build or check the project's package, install it into a temporary library or environment. When the work needs something that is not installed, say so and ask.
 - **Claims.** Label what you report as measured, inferred or guess, and say what you did not check.
-- **Asking.** Look up whatever a file, a package's documentation or a command can tell you. Ask the human for decisions only.
+- **Asking.** Look up whatever a file, a package's documentation or a command can tell you. Ask the human for decisions only. `grilling.md` says how a decision is put to them.

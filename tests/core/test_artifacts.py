@@ -172,9 +172,12 @@ def test_status_reads_both_schemas(env):
     env["put"]("intent", front("intent", "decided"))
     state = json.loads(env["cg"]("status", "--json")[1])
     assert state["open-artifacts"] == 4  # the decided intent is closed; a status nobody defined stays in view
+    # A status typed into an intent is not the human's yes (#225), so it waits on them all the same.
     assert state["waiting-on-human"] == [".cg-docs/reviews/2026-11-25-headcount.md (status open)",
                                          ".cg-docs/plans/2026-11-25-headcount.md (status draft)",
-                                         ".cg-docs/plans/2026-01-01-old.md (status draft)"]
+                                         ".cg-docs/plans/2026-01-01-old.md (status draft)",
+                                         ".cg-docs/brainstorms/2026-11-25-headcount.md "
+                                         "(status decided, not approved as it now reads)"]
 
 
 # ---------------------------------------------------------------- the schema and validate
@@ -467,9 +470,9 @@ def test_a_decision_on_data_is_refused_without_a_clear_yes_and_not_needed_for_a_
     code, out = env["cg"]("approve", "--reads", "data/clean/pov.dta", "--agent", "Claude Code", "--reply", "Yes.")
     assert code == 0 and "nothing to record" in out and not records.exists(), out
     for args, words in ((["approve", "--reads", "data/raw/hh.dta", "--reply", "Yes."], "--agent"),
-                        (["approve", "--reply", "Yes."], "a plan, or --reads"),
+                        (["approve", "--reply", "Yes."], "or --reads with the data"),
                         (["approve", PLAN, "--reads", "data/raw/hh.dta", "--agent", "Codex", "--reply", "Yes."],
-                         "a plan, or --reads")):
+                         "or --reads with the data")):
         code, out = env["cg"](*args)
         assert code == 2 and words in out and "Traceback" not in out and not records.exists(), (args, out)
     (env["home"] / ".gitconfig").write_text("")

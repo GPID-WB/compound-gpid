@@ -51,7 +51,7 @@ In Kilo, choose a model that can call tools; with one that cannot, nothing runs.
 
 ## 3. First use
 
-Open a project in your coding agent and type `/cg`. The first time, the guide proposes a setup for the project and waits for your yes before it writes anything. After that, `/cg` followed by a request does the work, and `/cg status` only says where the work stands.
+Open a project in your coding agent and type `/cg`. The first time, the guide proposes a setup for the project and waits for your yes before it writes anything. After that, `/cg` followed by a request does the work, `/cg brainstorm` followed by an idea works out with you what is wanted before anything changes, and `/cg status` only says where the work stands.
 
 ## 4. Later
 

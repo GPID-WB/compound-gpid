@@ -61,5 +61,7 @@ Flag when:
 ## Deterministic checks
 
 - An approval exists for the current plan hash.
+- An intent is `decided` only with an approval on record for its text. `cg.py approve` refuses it while a fact has no source, or a decision has no recommended answer or no answer from the human.
+- `cg.py approve` refuses a reply that opens with a no, holds a condition, or is on the list of replies that are not a yes (`grilling.md`).
 - Every decision record has a `decided-by` field naming a person.
 - The brief contains all five sections.

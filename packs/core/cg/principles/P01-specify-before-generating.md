@@ -60,5 +60,6 @@ Flag when:
 
 ## Deterministic checks
 
+- `cg.py validate`: the intent has its goal, its out of scope and its wrong-result statement.
 - `cg.py validate`: the plan has every contract section, and each check has an ID and a command.
 - `cg.py approve` record exists and its hash matches the current plan.

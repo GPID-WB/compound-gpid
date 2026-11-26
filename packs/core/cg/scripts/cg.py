@@ -2,10 +2,10 @@
 
 Usage, with the interpreter that ~/.cg/launcher.json records as <python>:
   "<python>" cg.py doctor [--project PATH]
-  "<python>" cg.py status [--project PATH] [--json] [--guide]
+  "<python>" cg.py status [--project PATH] [--json] [--guide [--playbook NAME]]
   "<python>" cg.py new TYPE TITLE... [--project PATH] [--date YYYY-MM-DD]
   "<python>" cg.py validate [FILE...] [--strict] [--json] [--project PATH]
-  "<python>" cg.py approve PLAN --reply "the human's reply, word for word" [--project PATH]
+  "<python>" cg.py approve PLAN|INTENT --reply "the human's reply, word for word" [--project PATH]
   "<python>" cg.py approve --reads FILE... --agent NAME --reply "..." [--project PATH]
   "<python>" cg.py tier --fact NAME=yes|no... --touches FILE... --reads FILE|none... [--agent NAME]
                       [--json] [--project PATH]
@@ -16,6 +16,9 @@ Usage, with the interpreter that ~/.cg/launcher.json records as <python>:
 
 status names the next playbook only with --guide: the guide asks for it, and an
 agent that runs status from the pointer block must not open a playbook (#223).
+--playbook is the playbook the human asked for by name; a project that is not
+set up gets setup first.
+approve records the human's yes to a plan or to an intent, as the file reads.
 setup needs --packs the first time; later runs keep the recorded packs.
 validate fails on a schema 2 artifact that breaks the schema; --strict, for a
 project's CI, fails on a warning too. Version 1 artifacts are read as they are.
@@ -61,7 +64,8 @@ SCHEMA = "2"
 ARTIFACTS = {
     "intent": {"folder": "brainstorms",
                "statuses": {"draft": "waiting", "decided": "closed", "dropped": "closed"},
-               "sections": ["## Goal", "## Out of scope", "## A wrong result"]},
+               "sections": ["## Goal", "## Out of scope", "## A wrong result", "## Facts", "## Decisions",
+                            "## Assumptions"]},
     "plan": {"folder": "plans",
              "statuses": {"draft": "waiting", "approved": "open", "in-progress": "open",
                           "completed": "closed", "superseded": "closed", "dropped": "closed"},
@@ -85,14 +89,35 @@ COMMON_KEYS = ("type", "schema", "title", "date", "status")
 LINK_KEYS = ("intent", "plan", "work-report", "review", "supersedes")  # each a path from the project root
 KNOWN_KEYS = COMMON_KEYS + LINK_KEYS + ("size", "decided-by", "tags")
 SETTLED = ("dropped", "superseded")  # nobody will finish these, so unfilled text in them is no failure
-NEEDS_APPROVAL = ("approved", "in-progress", "completed")  # plan statuses that rest on the human's yes
+# The artifacts that rest on the human's yes. Per type: the statuses a file may have when approve
+# records a yes, the status code then writes over `draft`, and the statuses that need a yes on record.
+APPROVED = {"plan": (("draft", "approved", "in-progress"), "approved", ("approved", "in-progress", "completed")),
+            "intent": (("draft", "decided"), "decided", ("decided",))}
 # Version 1 statuses that are open; `draft` waits on the human. Any other is closed.
 V1_STATES = {"draft": "waiting", **dict.fromkeys(
     ("active", "in-progress", "planned", "open", "approved", "blocked", "handoff"), "open")}
-# Replies P2 names as not a yes. approve refuses them; whether any other reply is a clear yes is by judgement.
-NOT_A_YES = ("sounds good", "whatever you think", "sure, go on")
+# The replies that are not a yes (P2, #225), each with its kind. approve refuses a reply that opens
+# with one of them and holds no plain yes. grilling.md names each one: a test holds the two together.
+# Whether any other reply is a clear yes is by judgement.
+NOT_A_YES = {"sounds good": "vague", "looks good": "vague", "sure, go on": "vague", "sure, let's go": "vague",
+             "i guess": "vague", "if you say so": "vague",
+             "whatever you think": "handed-back", "up to you": "handed-back", "your call": "handed-back",
+             "you decide": "handed-back"}
+# What approve says of each kind of reply it refuses, with the question that comes next.
+KINDS = {
+    "vague": "agrees without deciding (P2); ask what they would change or what is unclear, and record "
+             "the reply that settles it",
+    "handed-back": "hands the decision back, and it stays the human's (P2); offer two concrete options as "
+                   "a choice, say which you recommend, and record the reply that settles it",
+    "no": "says no, or not yet; nothing is recorded, and nothing goes ahead on it",
+    "condition": "holds a condition or a correction, so it is not a yes to what was shown; change that, "
+                 "show the part that changed, and record the yes to it",
+}
+PLAIN_YES = r"\b(yes|i approve|approved|i confirm|confirmed|i agree|agreed)\b"
 # A reply that opens with one of these words is a no, or a not yet, and is never recorded as a yes (#224).
 SAYS_NO = r"(no|nope|not|don['’]?t|do not|stop|wait|hold on|cancel|never)\b"
+# A yes that goes on with one of these is a yes to something else than what was shown (#225).
+HAS_CONDITION = r"\b(but|except|unless|however|although|only if|as long as|provided that)\b"
 # What the agent declares about a piece of work, each with what a yes means. tier adds what code
 # can work out: whether this coding agent may read each data file, and the number of files.
 FACTS = {
@@ -419,7 +444,12 @@ def rule_lines(config, key):
     return [f"{name}={level}" for name, level in sorted(value.items()) if isinstance(level, str)]
 
 
-def compute_status(project: Path, guide: bool = False) -> dict:
+def playbooks():
+    """The names of the installed playbooks."""
+    return sorted(path.stem for path in (CG_DIR / "playbooks").glob("*.md"))
+
+
+def compute_status(project: Path, guide: bool = False, asked=None) -> dict:
     packs, pack_problems = discover_packs()
     core = next((p for p in packs if p["name"] == "core"), None)
     config, stops = read_config(project)
@@ -437,16 +467,19 @@ def compute_status(project: Path, guide: bool = False) -> dict:
     settings, problems = read_settings(config)
     stops += problems
     stops += rule_problems(config)
-    open_ones = [a for a in artifacts(project) if a["state"] != "closed"]
+    found = artifacts(project)
+    open_ones = [a for a in found if a["state"] != "closed"]
     waiting = [f"{a['path']} (status {a['status']})" for a in open_ones if a["state"] == "waiting"]
-    waiting += [f"{a['path']} (status {a['status']}, not approved as it now reads)" for a in open_ones
-                if a["schema"] == SCHEMA and a["type"] == "plan" and a["status"] in NEEDS_APPROVAL
+    waiting += [f"{a['path']} (status {a['status']}, not approved as it now reads)" for a in found
+                if a["schema"] == SCHEMA and a["status"] in APPROVED.get(a["type"], ((), "", ()))[2]
                 and not is_approved(project, a)]
     phase = "setup" if config is None else "ready"
+    # The playbook the human asked for by name, once the project is set up; else the phase's.
+    playbook = f"playbooks/{asked}.md" if asked and phase != "setup" else PHASE_PLAYBOOK[phase]
     if stops:
         step = "stop and show the human the stops"
     elif guide:
-        step = f"read {PHASE_PLAYBOOK[phase]}"
+        step = f"read {playbook}"
     else:
         step = "the human types /cg to run the work through the guide"
     state = {
@@ -470,7 +503,7 @@ def compute_status(project: Path, guide: bool = False) -> dict:
         **git_facts(project),
     }
     if guide:
-        state["playbook"] = str(CG_DIR / PHASE_PLAYBOOK[phase])
+        state["playbook"] = str(CG_DIR / playbook)
     return state
 
 
@@ -516,7 +549,13 @@ def cmd_status(args) -> int:
     project = project_from(args.project)
     if project is None:
         return 2
-    state = compute_status(project, guide=args.guide)
+    if args.playbook and not args.guide:
+        print("--playbook goes with --guide: only the guide opens a playbook")
+        return 2
+    if args.playbook and args.playbook not in playbooks():
+        print(f"no playbook named '{args.playbook}'; the installed playbooks are: {', '.join(playbooks())}")
+        return 2
+    state = compute_status(project, guide=args.guide, asked=args.playbook)
     if args.json:
         print(json.dumps(state, indent=2, sort_keys=True))
         return 1 if state["stops"] else 0
@@ -636,6 +675,24 @@ def contract_problems(body: str):
     return problems
 
 
+def intent_problems(body: str):
+    """What grilling must leave settled that code can check (P2): each fact names its source, and
+    each decision was put to the human with a recommended answer and has their answer."""
+    facts = [(row + [""] * 2)[:2] for row in table_rows(body, "## Facts") if row]
+    decisions = [(row + [""] * 4)[:4] for row in table_rows(body, "## Decisions") if row]
+    problems = [] if facts and decisions else ["the Facts table and the Decisions table each need a row"]
+    problems += [f"the fact '{fact}' names no source" for fact, source in facts if not source.strip("` ")]
+    ids = [did for did, *_ in decisions]
+    for did, _, recommended, answer in decisions:
+        if not re.fullmatch(r"D\d+", did):
+            problems.append(f"'{did}' is not an ID such as D1")
+        if not recommended:
+            problems.append(f"decision {did} has no recommended answer")
+        if not answer or re.match(r"open\b", answer.lower()):
+            problems.append(f"decision {did} has no answer from the human yet")
+    return problems + [f"the ID {i} appears twice" for i in sorted({i for i in ids if ids.count(i) > 1})]
+
+
 def unfilled(kind: str, body: str):
     """The lines of a body that still hold one of the template's requests to fill a part in.
 
@@ -652,8 +709,8 @@ def unfilled(kind: str, body: str):
 def artifact_problems(project: Path, a: dict, approving: bool = False):
     """(errors, warnings) for one schema 2 artifact, against ARTIFACTS.
 
-    approving judges a plan the way approve must: its text has to be complete,
-    and the approval it is about to get is not yet asked for.
+    approving judges a plan or an intent the way approve must: its text has to
+    be complete, and the approval it is about to get is not yet asked for.
     """
     spec, fields = ARTIFACTS[a["type"]], a["fields"]
     if a["schema"] != SCHEMA:
@@ -679,14 +736,17 @@ def artifact_problems(project: Path, a: dict, approving: bool = False):
     held = headings(a["body"])
     missing = [f"the section '{heading}' is missing" for heading in spec["sections"] if heading not in held]
     errors += missing
+    warnings = [f"the key '{key}' is not part of schema {SCHEMA}" for key in fields if key not in KNOWN_KEYS]
+    rests_on_yes = a["status"] in APPROVED.get(a["type"], ((), "", ()))[2]
     if a["type"] == "plan":
         errors += [] if missing else contract_problems(a["body"])
-        if a["status"] in NEEDS_APPROVAL and not approving and not is_approved(project, a):
-            errors.append(f"its status is {a['status']}, but no approval is recorded for the plan as it now "
-                          f"reads; show the human the plan, and record their reply with approve")
+    if a["type"] == "intent" and not missing:  # an open decision is a draft's normal state
+        (errors if approving or rests_on_yes else warnings).extend(intent_problems(a["body"]))
+    if rests_on_yes and not approving and not is_approved(project, a):
+        errors.append(f"its status is {a['status']}, but no approval is recorded for the {a['type']} as it now "
+                      f"reads; show the human the {a['type']}, and record their reply with approve")
     if a["type"] == "decision" and a["status"] == "accepted" and not fields.get("decided-by"):
         errors.append("an accepted decision names the person who decided, in 'decided-by'")
-    warnings = [f"the key '{key}' is not part of schema {SCHEMA}" for key in fields if key not in KNOWN_KEYS]
     left = unfilled(a["type"], a["body"])
     if left:
         being_written = a["status"] == next(iter(spec["statuses"])) or a["status"] in SETTLED
@@ -783,13 +843,19 @@ def is_approved(project: Path, artifact: dict) -> bool:
 def the_yes(project: Path, reply: str):
     """What keeps a reply from being recorded as the human's yes (P2), and who gave it, from git."""
     refused, said = [], reply.strip()
+
+    def plain(text):  # lower case, without punctuation, so "Sure go on!" is "sure, go on"
+        return " ".join(re.sub(r"[^a-z0-9 ]+", " ", re.sub(r"['’]", "", text.lower())).split())
+    words = plain(said)
+    opens = next((kind for phrase, kind in NOT_A_YES.items() if f"{words} ".startswith(plain(phrase) + " ")), None)
     if not said:
         refused.append("give the human's reply, word for word, with --reply")
-    elif said.lower().strip(" .!\"'") in NOT_A_YES:
-        refused.append(f'"{said}" is not a clear yes (P2); ask the human what is unclear, '
-                       f'and record the reply that settles it')
     elif re.match(SAYS_NO, said.lower()):
-        refused.append(f'"{said}" says no, or not yet; nothing is recorded, and nothing goes ahead on it')
+        refused.append(f'"{said}" {KINDS["no"]}')
+    elif opens and not re.search(PLAIN_YES, words):
+        refused.append(f'"{said}" {KINDS[opens]}')
+    elif re.search(HAS_CONDITION, words):
+        refused.append(f'"{said}" {KINDS["condition"]}')
 
     def git_config(key):
         done = subprocess.run(["git", "-C", str(project), "config", "--get", key],
@@ -807,30 +873,33 @@ def now() -> str:
 
 
 def cmd_approve(args) -> int:
-    """Record the human's approval of a plan: their reply word for word, who gave it, when, and
-    the digest of the text they approved. Run again on the same text, it changes nothing.
-    With --reads, record their decision on data instead (approve_reads)."""
+    """Record the human's yes to a plan or to an intent: their reply word for word, who gave it,
+    when, and the digest of the text they said yes to. Run again on the same text, it changes
+    nothing. With --reads, record their decision on data instead (approve_reads)."""
     project = project_from(args.project)
     if project is None:
         return 2
     if bool(args.artifact) == bool(args.reads):
-        print("give a plan, or --reads with the data the human decided on, and not both")
+        print("give a plan or an intent, or --reads with the data the human decided on, and not both")
         return 2
     if args.reads:
         return approve_reads(project, args)
     at = artifact_at(project, args.artifact)
-    if at is None or at[1] != "plan":
-        print(f"not a plan of this project: {args.artifact}")
+    if at is None or at[1] not in APPROVED:
+        print(f"not a plan or an intent of this project: {args.artifact}")
         return 2
-    plan = read_artifact(at[0], "plan", project)
+    kind = at[1]
+    takes, written, _ = APPROVED[kind]
+    plan = read_artifact(at[0], kind, project)
     refused = []
     if plan["schema"] == "1":
-        refused.append("this is a version 1 plan, which holds no contract to approve; write the plan with new")
+        refused.append(f"this is a version 1 {kind}, which holds nothing code can check before a yes; "
+                       f"write the {kind} with new")
     else:
         refused += artifact_problems(project, plan, approving=True)[0]
-        if plan["status"] not in ("draft", "approved", "in-progress"):
-            refused.append(f"its status is {plan['status']}; a plan takes an approval while it is draft, "
-                           f"approved or in-progress")
+        if plan["status"] not in takes:
+            refused.append(f"its status is {plan['status']}; a {kind} takes an approval while it is "
+                           f"{', '.join(takes[:-1])} or {takes[-1]}")
     more, name, email = the_yes(project, args.reply)
     refused += more
     digest = text_hash(plan["body"])
@@ -845,7 +914,7 @@ def cmd_approve(args) -> int:
             # This text was approved before an amendment replaced it: a new yes gets a record of its own.
             record_path = record_path.with_name(f"{record_path.stem}.{re.sub(r'[-:]', '', stamp)}.json")
         else:
-            refused.append(f"{record_path.relative_to(project).as_posix()} exists and is not this plan's record")
+            refused.append(f"{record_path.relative_to(project).as_posix()} exists and is not this {kind}'s record")
     if refused:
         for line in refused:
             print(f"refused: {line}")
@@ -858,9 +927,10 @@ def cmd_approve(args) -> int:
         write_atomic(record_path, json.dumps(record, indent=2, ensure_ascii=False) + "\n")
         print(f"approved {plan['path']}\nrecord: {record_path.relative_to(project).as_posix()}\n"
               f"hash: {digest}\nby: {name} <{email}>")
-    if plan["status"] == "draft":  # the one line of the plan that code changes
+    if plan["status"] == "draft":  # the one line of the file that code changes
         text = at[0].read_text(encoding="utf-8-sig")
-        write_atomic(at[0], re.sub(r"\A(---[ \t]*\n(?:(?!---|status:).*\n)*)status:.*", r"\1status: approved", text, count=1))
+        write_atomic(at[0], re.sub(r"\A(---[ \t]*\n(?:(?!---|status:).*\n)*)status:.*", rf"\1status: {written}",
+                                   text, count=1))
     return 0
 
 
@@ -1342,6 +1412,7 @@ def main(argv=None) -> int:
     status.add_argument("--project", default=".")
     status.add_argument("--json", action="store_true")
     status.add_argument("--guide", action="store_true", help="also name the playbook the guide opens next")
+    status.add_argument("--playbook", help="with --guide: the playbook the human asked for by name")
     new = sub.add_parser("new", help="create an artifact under .cg-docs/")
     new.add_argument("type", choices=sorted(ARTIFACT_FOLDERS))
     new.add_argument("title", nargs="+")
@@ -1362,8 +1433,9 @@ def main(argv=None) -> int:
     validate.add_argument("--strict", action="store_true", help="for a project's CI: a warning fails too")
     validate.add_argument("--json", action="store_true")
     validate.add_argument("--project", default=".")
-    approve = sub.add_parser("approve", help="record the human's approval of a plan, or their decision on data")
-    approve.add_argument("artifact", nargs="?", help="the plan the human approved")
+    approve = sub.add_parser("approve", help="record the human's yes to a plan or an intent, or their decision "
+                                             "on data")
+    approve.add_argument("artifact", nargs="?", help="the plan or the intent the human said yes to")
     approve.add_argument("--reads", action="append", help="a data file or folder the human lets --agent read "
                                                           "though it is not cleared")
     approve.add_argument("--agent", help="with --reads: this coding agent, as tier takes it")
