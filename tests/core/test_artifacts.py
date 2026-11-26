@@ -70,11 +70,54 @@ Other poverty measures.
 
 | Slice | What it delivers | Files | Checks | By code or by judgement |
 |---|---|---|---|---|
-| S1 | headcount() | R/headcount.R | C1, C2 | by code |
+| S1 | headcount() | R/headcount.R | C1, C2 | by code: R/headcount.R |
+"""
+# The decided intent every plan in these tests is built on, and the one data rule its register needs.
+IDEA = ".cg-docs/brainstorms/2026-11-20-headcount.md"
+INTENT_BODY = """
+# Top-coded incomes in the welfare aggregate
+
+## Goal
+
+Decide how the welfare aggregate treats top-coded incomes, so that the Gini of the 2019 wave can be compared with 2016.
+
+## Out of scope
+
+The 2016 wave is not estimated again.
+
+## A wrong result
+
+A Gini that moves by more than its standard error when only the threshold of the rule moves.
+
+## Facts
+
+| Fact | Source |
+|---|---|
+| Households with a missing weight are dropped | `R/welfare.R:41` |
+| The survey report gives a Gini of 0.41 for 2019 | the survey report, table 3.2 |
+
+## Decisions
+
+| ID | Decision | Recommended answer, with its trade-off | The human's answer |
+|---|---|---|---|
+| D1 | Which rule replaces the top-coded values | A Pareto tail above the 99th percentile; it adds a threshold to choose | Yes, the Pareto tail. |
+| D2 | Which approach goes to the plan | The Pareto tail as one new function; the other approach changes nothing | The new function. |
+
+## Assumptions
+
+- The 2016 wave was not adjusted. If it was, no rule here makes the two waves comparable.
+
+## Approaches considered
+
+| Approach | What it costs | What it risks |
+|---|---|---|
+| Leave the values as they are | nothing | a Gini that is biased down |
+| A Pareto tail above the 99th percentile | one new function and its check | a result that depends on the threshold |
 """
 
 
 def front(kind, status, extra=""):
+    extra = (f"intent: {IDEA}\n" if kind == "plan" else "") + extra
     return f'---\ntype: {kind}\nschema: 2\ntitle: "Headcount"\ndate: 2026-11-25\nstatus: {status}\n{extra}---\n'
 
 
@@ -92,7 +135,17 @@ def env(tmp_path):
                                *args, "--project", str(project)], capture_output=True, text=True, env=environ)
         return done.returncode, done.stdout + done.stderr
 
+    def base():
+        """What a plan is built on (#226): a decided intent, and a recorded rule for its dataset."""
+        if not (project / IDEA).exists():
+            put("intent", front("intent", "draft") + INTENT_BODY, Path(IDEA).name)
+            assert cg("approve", IDEA, "--reply", "Yes.")[0] == 0
+            if not (project / ".cg-docs" / "config.json").exists():
+                config(data={"inst/extdata/survey.csv": "Public"})
+
     def put(kind, text, name="2026-11-25-headcount.md"):
+        if kind == "plan":
+            base()
         path = project / ".cg-docs" / TYPES[kind] / name
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(text, encoding="utf-8")
@@ -102,7 +155,11 @@ def env(tmp_path):
         (project / ".cg-docs").mkdir(exist_ok=True)
         (project / ".cg-docs" / "config.json").write_text(json.dumps({"packs": ["core"], **keys}))
 
-    return {"home": home, "project": project, "cg": cg, "put": put, "config": config}
+    def plan_records():
+        return sorted((project / ".cg-docs" / "approvals").glob("2026-11-25-headcount.*.json"))
+
+    return {"home": home, "project": project, "cg": cg, "put": put, "config": config, "base": base,
+            "plan-records": plan_records}
 
 
 def load_cg():
@@ -183,10 +240,12 @@ def test_status_reads_both_schemas(env):
 # ---------------------------------------------------------------- the schema and validate
 
 def test_every_type_has_a_template_that_meets_the_schema_and_still_asks_to_be_filled(env):
+    env["base"]()  # a plan is made on a decided intent (#226), which is the seventh artifact below
     for kind in TYPES:
-        assert env["cg"]("new", kind, "Headcount", "--date", "2026-11-25")[0] == 0
+        more = ["--intent", IDEA] if kind == "plan" else []
+        assert env["cg"]("new", kind, "Headcount", "--date", "2026-11-25", *more)[0] == 0
     code, out = env["cg"]("validate")
-    assert code == 0 and "schema-2: 6\nversion-1: 0 (read as they are)\nproblems: 0\nwarnings: 6\n" in out, out
+    assert code == 0 and "schema-2: 7\nversion-1: 0 (read as they are)\nproblems: 0\nwarnings: 6\n" in out, out
     assert out.count("the template's text is still in it") == 6 and "PLACEHOLDER" not in out
     code, out = env["cg"]("validate", "--strict")
     assert code == 1 and out.count("FAIL") == 6, out
@@ -195,7 +254,7 @@ def test_every_type_has_a_template_that_meets_the_schema_and_still_asks_to_be_fi
 def test_validate_passes_a_filled_plan_and_names_each_break_of_the_schema(env):
     good = front("plan", "draft") + PLAN_BODY
     path = env["put"]("plan", good)
-    assert env["cg"]("validate", "--strict") == (0, CLEAN)
+    assert env["cg"]("validate", "--strict", PLAN) == (0, CLEAN)
     breaks = [
         (good.replace("status: draft", "status: done"), "status is done; a plan is one of: draft, approved"),
         (good.replace("type: plan", "type: review"), "type is review, but plans/ holds plan artifacts"),
@@ -220,7 +279,7 @@ def test_validate_passes_a_filled_plan_and_names_each_break_of_the_schema(env):
     path.write_text(good.replace("status: draft\n", "status: draft\nestimated-effort: 2h\n"), encoding="utf-8")
     code, out = env["cg"]("validate")
     assert code == 0 and "warn .cg-docs/plans/2026-11-25-headcount.md: the key 'estimated-effort' is not part of schema 2" in out
-    assert env["cg"]("validate", "--strict")[0] == 1
+    assert env["cg"]("validate", "--strict", PLAN)[0] == 1
 
 
 def test_template_text_left_in_a_record_is_a_warning_while_open_and_a_failure_once_completed(env):
@@ -260,8 +319,8 @@ def test_approve_stores_the_reply_the_identity_the_time_and_the_hash(env):
     reply = 'Yes,  "approved".\nThank you.'  # stored as written, marks and line end included
     code, out = env["cg"]("approve", PLAN, "--reply", reply)
     assert code == 0 and f"approved {PLAN}" in out and "by: Test Human <human@example.org>" in out, out
-    records = sorted((env["project"] / ".cg-docs" / "approvals").glob("*.json"))
-    assert len(records) == 1 and records[0].name.startswith("2026-11-25-headcount.")
+    records = env["plan-records"]()
+    assert len(records) == 1
     record = json.loads(records[0].read_text(encoding="utf-8"))
     assert record["reply"] == reply and record["artifact"] == PLAN
     assert (record["name"], record["email"]) == ("Test Human", "human@example.org")
@@ -284,7 +343,7 @@ def test_approve_refuses_what_is_not_a_clear_yes_and_what_cannot_be_approved(env
     path.write_text(front("plan", "draft") + PLAN_BODY.replace("| C2 | R2 |", "| C2 | R1 |"))
     code, out = env["cg"]("approve", PLAN, "--reply", "Yes, approved.")
     assert code == 1 and "requirement R2 has no check" in out
-    env["cg"]("new", "plan", "Unfilled", "--date", "2026-11-25")
+    env["cg"]("new", "plan", "Unfilled", "--date", "2026-11-25", "--intent", IDEA, "--other-work")
     code, out = env["cg"]("approve", ".cg-docs/plans/2026-11-25-unfilled.md", "--reply", "Yes, approved.")
     assert code == 1 and "the template's text is still in it" in out
     path.write_text(front("plan", "completed") + PLAN_BODY)
@@ -299,7 +358,7 @@ def test_approve_refuses_what_is_not_a_clear_yes_and_what_cannot_be_approved(env
     (env["home"] / ".gitconfig").write_text("")
     code, out = env["cg"]("approve", PLAN, "--reply", "Yes, approved.")
     assert code == 1 and "git has no user.name" in out
-    assert not (env["project"] / ".cg-docs" / "approvals").exists()
+    assert env["plan-records"]() == [] and len(list((env["project"] / ".cg-docs" / "approvals").iterdir())) == 1
 
 
 def test_a_change_to_an_approved_plan_needs_a_new_approval_and_the_first_one_stays(env):
@@ -315,9 +374,11 @@ def test_a_change_to_an_approved_plan_needs_a_new_approval_and_the_first_one_sta
     assert code == 1 and "no approval is recorded for the plan as it now reads" in out
     state = json.loads(env["cg"]("status", "--json")[1])
     assert state["waiting-on-human"] == [f"{PLAN} (status in-progress, not approved as it now reads)"]
+    with path.open("a") as plan:  # a change to an approved plan is an amendment, and says so (#226)
+        plan.write("\n## Amendments\n\n- 2026-11-26: the expected share is 0.25, from the survey report.\n")
     code, out = env["cg"]("approve", PLAN, "--reply", "OK, approved.")
     assert code == 0 and "status: in-progress" in path.read_text(), out
-    records = [json.loads(p.read_text()) for p in sorted((env["project"] / ".cg-docs" / "approvals").glob("*.json"))]
+    records = [json.loads(p.read_text()) for p in env["plan-records"]()]
     assert sorted(r["reply"] for r in records) == ["OK, approved.", "Yes, approved."]
     assert env["cg"]("validate")[0] == 0
 
@@ -529,7 +590,7 @@ def test_a_reply_that_says_no_is_never_recorded_as_a_yes(env):
         assert code == 1 and "refused" in out, (reply, out)
         code, out = env["cg"]("approve", PLAN, "--reply", reply)
         assert code == 1 and "refused" in out and "status: draft" in path.read_text(), (reply, out)
-    assert not (env["project"] / ".cg-docs" / "approvals").exists()
+    assert env["plan-records"]() == [] and not list((env["project"] / ".cg-docs" / "approvals").glob("data.*"))
     # Since the maintainer's second decision of 2026-11-26 (#225), a yes that goes on is refused too.
     assert env["cg"]("approve", PLAN, "--reply", "Yes. No other change.")[0] == 1
     assert env["cg"]("approve", PLAN, "--reply", "Yes.")[0] == 0
@@ -541,14 +602,14 @@ def test_a_schema_2_file_the_reader_cannot_parse_is_still_checked(env):
     plan = front("plan", "draft") + PLAN_BODY
     path = env["put"]("plan", plan)
     path.write_bytes(b"\xef\xbb\xbf" + plan.encode())
-    assert env["cg"]("validate", "--strict") == (0, CLEAN)
+    assert env["cg"]("validate", "--strict", PLAN) == (0, CLEAN)
     assert env["cg"]("approve", PLAN, "--reply", "Yes, approved.")[0] == 0
     assert "status: approved" in path.read_text(encoding="utf-8-sig")
     typed = front("plan", "approved") + PLAN_BODY.replace("0.153846", "0.2")
     for raw in (b"\xef\xbb\xbf" + typed.encode(), typed.replace("approved\n---\n", "approved\n", 1).encode(),
                 typed.replace("Other poverty", "Other povérty").encode("cp1252")):
         path.write_bytes(raw)
-        code, out = env["cg"]("validate")
+        code, out = env["cg"]("validate", PLAN)
         assert code == 1 and "schema-2: 1" in out, out
         assert json.loads(env["cg"]("status", "--json")[1])["waiting-on-human"], out
 
@@ -559,16 +620,28 @@ def test_a_plan_put_back_to_the_text_an_amendment_replaced_needs_a_new_approval(
     path = env["put"]("plan", front("plan", "draft") + PLAN_BODY)
     env["cg"]("approve", PLAN, "--reply", "Yes, approved.")
     first = path.read_text()
-    path.write_text(first.replace("0.153846", "0.25"))
+    amended = "\n## Amendments\n\n- 2026-11-26: the expected share is 0.25.\n"
+    path.write_text(first.replace("0.153846", "0.25") + amended)
     assert env["cg"]("approve", PLAN, "--reply", "Yes, approved.")[0] == 0
     path.write_text(first)
     code, out = env["cg"]("validate")
     assert code == 1 and "no approval is recorded for the plan as it now reads" in out, out
+    # Since task 2.3 (#226) the way back is an amendment too: one more dated line than the text in force.
+    code, out = env["cg"]("approve", PLAN, "--reply", "Yes, I approve it as written.")
+    assert code == 1 and "amendment" in out, out
+    path.write_text(first + amended + "- 2026-11-27: back to 0.153846; the report was misread.\n")
     code, out = env["cg"]("approve", PLAN, "--reply", "Yes, I approve it as written.")
     assert code == 0 and "refused" not in out, out
-    assert env["cg"]("validate")[0] == 0
-    records = sorted((env["project"] / ".cg-docs" / "approvals").glob("*.json"))
-    assert len(records) == 3
+    assert env["cg"]("validate")[0] == 0 and len(env["plan-records"]()) == 3
+    # An intent has no amendments. Put back to a text it was decided on before, it takes a new yes,
+    # and the record of that yes stands beside the first one for the same text.
+    intent = env["project"] / IDEA
+    decided = intent.read_text()
+    intent.write_text(decided.replace("99th percentile", "95th percentile"))
+    assert env["cg"]("approve", IDEA, "--reply", "Yes.")[0] == 0
+    intent.write_text(decided)
+    assert env["cg"]("validate", IDEA)[0] == 1 and env["cg"]("approve", IDEA, "--reply", "Yes.")[0] == 0
+    assert len(list((env["project"] / ".cg-docs" / "approvals").glob("2026-11-20-headcount.*.json"))) == 3
 
 
 def test_a_decision_on_data_holds_when_its_level_changes_only_in_case(env):

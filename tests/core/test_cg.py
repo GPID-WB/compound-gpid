@@ -184,11 +184,11 @@ def test_status_reads_version_1_frontmatter(env):
 # ---------------------------------------------------------------- new
 
 def test_new_creates_one_file_with_frontmatter(env):
-    code, out = env["cg"]("new", "plan", "Poverty", "headcount", "2024", "--date", "2026-11-24")
+    code, out = env["cg"]("new", "review", "Poverty", "headcount", "2024", "--date", "2026-11-24")
     assert code == 0, out
-    path = env["project"] / ".cg-docs" / "plans" / "2026-11-24-poverty-headcount-2024.md"
+    path = env["project"] / ".cg-docs" / "reviews" / "2026-11-24-poverty-headcount-2024.md"
     text = path.read_text()
-    assert text.startswith('---\ntype: plan\nschema: 2\ntitle: "Poverty headcount 2024"\ndate: 2026-11-24\nstatus: draft\n---\n')
+    assert text.startswith('---\ntype: review\nschema: 2\ntitle: "Poverty headcount 2024"\ndate: 2026-11-24\nstatus: open\n---\n')
     assert "# Poverty headcount 2024" in text
 
 
@@ -352,8 +352,8 @@ def test_the_add_command_runs_as_printed_in_powershell():
 
 def test_new_keeps_a_title_with_braces_and_a_hash_as_written(env):
     title = "Compare {date} and {heading} #12"
-    env["cg"]("new", "plan", title, "--date", "2026-11-24")
-    path = next((env["project"] / ".cg-docs" / "plans").glob("*.md"))
+    env["cg"]("new", "review", title, "--date", "2026-11-24")
+    path = next((env["project"] / ".cg-docs" / "reviews").glob("*.md"))
     assert load_cg().read_frontmatter(path.read_text())[0]["title"] == title
     assert "# " + title in path.read_text()
 

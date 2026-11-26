@@ -9,49 +9,9 @@ import json
 import re
 import shlex
 
-from test_artifacts import CG, env, front, load_cg  # noqa: F401  (env is a fixture)
+from test_artifacts import CG, INTENT_BODY, env, front, load_cg  # noqa: F401  (env is a fixture)
 
 INTENT = ".cg-docs/brainstorms/2026-11-25-headcount.md"
-INTENT_BODY = """
-# Top-coded incomes in the welfare aggregate
-
-## Goal
-
-Decide how the welfare aggregate treats top-coded incomes, so that the Gini of the 2019 wave can be compared with 2016.
-
-## Out of scope
-
-The 2016 wave is not estimated again.
-
-## A wrong result
-
-A Gini that moves by more than its standard error when only the threshold of the rule moves.
-
-## Facts
-
-| Fact | Source |
-|---|---|
-| Households with a missing weight are dropped | `R/welfare.R:41` |
-| The survey report gives a Gini of 0.41 for 2019 | the survey report, table 3.2 |
-
-## Decisions
-
-| ID | Decision | Recommended answer, with its trade-off | The human's answer |
-|---|---|---|---|
-| D1 | Which rule replaces the top-coded values | A Pareto tail above the 99th percentile; it adds a threshold to choose | Yes, the Pareto tail. |
-| D2 | Which approach goes to the plan | The Pareto tail as one new function; the other approach changes nothing | The new function. |
-
-## Assumptions
-
-- The 2016 wave was not adjusted. If it was, no rule here makes the two waves comparable.
-
-## Approaches considered
-
-| Approach | What it costs | What it risks |
-|---|---|---|
-| Leave the values as they are | nothing | a Gini that is biased down |
-| A Pareto tail above the 99th percentile | one new function and its check | a result that depends on the threshold |
-"""
 
 
 def records(project):
@@ -165,7 +125,7 @@ def test_status_opens_the_playbook_the_human_asked_for_once_the_project_is_set_u
     assert state["next"] == "read playbooks/brainstorm.md"
     assert json.loads(env["cg"]("status", "--guide", "--json")[1])["playbook"].endswith("quick.md")
     code, out = env["cg"]("status", "--guide", "--playbook", "ideate")
-    assert code == 2 and "no playbook named 'ideate'" in out and "brainstorm, quick, setup" in out, out
+    assert code == 2 and "no playbook named 'ideate'" in out and "brainstorm, plan, quick, setup" in out, out
     code, out = env["cg"]("status", "--playbook", "brainstorm")
     assert code == 2 and "--guide" in out
 
