@@ -295,6 +295,24 @@ def test_the_data_register_names_no_dataset_in_a_way_that_hides_its_recorded_lev
     assert env["cg"]("validate", "--strict", PLAN) == (0, CLEAN)
 
 
+def test_a_plan_that_still_marks_a_value_as_open_is_not_complete_and_is_not_approved(env):
+    """Gate rerun 16: an agent wrote VALUE-PENDING where the human's expected value goes, in the
+    check's command and its outcome, and validate --strict called the plan complete."""
+    path = env["put"]("plan", GOOD)
+    for mark in ("VALUE-PENDING", "TBD", "TODO", "XXX", "???", "<the expected value>"):
+        text = GOOD.replace("| the share differs from 0.153846 |", f"| the share differs from {mark} |")
+        path.write_text(text, encoding="utf-8")
+        code, out = env["cg"]("validate", "--strict", PLAN)
+        assert code == 1 and "still marks something as open" in out and mark in out, (mark, out)
+        code, out = env["cg"]("approve", PLAN, "--reply", "Yes.")
+        assert code == 1 and "still marks something as open" in out, (mark, out)
+    # A value in quotes, a word in prose, a tag and fenced code are no mark.
+    for line in ("Rows with status \"PENDING\" are dropped.", "Pending households are kept.", "One line<br>two.",
+                 "```\n# TODO: an old comment in the code\n```"):
+        path.write_text(GOOD.replace("Other poverty measures.", line), encoding="utf-8")
+        assert env["cg"]("validate", "--strict", PLAN) == (0, CLEAN), line
+
+
 # ---------------------------------------------------------------- the text
 
 PLAYBOOK = CG / "playbooks" / "plan.md"
