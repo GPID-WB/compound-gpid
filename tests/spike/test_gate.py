@@ -156,3 +156,36 @@ def test_a_transcript_keeps_no_name_in_another_spelling(monkeypatch, tmp_path):
                  "by: Zoe Nunez Probe", "mailto:zoe.n%40example.org"):
         clean = checks.sanitize(said, tmp_path, names=[name])
         assert "Probe" not in clean and "zoe.n" not in clean and "example.org" not in clean, clean
+
+
+def test_the_rerun_says_yes_again_when_the_agent_stops_a_second_time(monkeypatch, tmp_path):
+    """Gate rerun 15 (#225): after the yes, one agent found that the change needed two more files
+    than it had declared, and stopped again to ask, as step 3 of quick work tells it to. The script
+    sent one yes only and counted the step as failed. It now answers a stop that changed no code."""
+    sys.path.insert(0, str(GATE))
+    sys.path.insert(0, str(HUB / "spike" / "host-matrix"))
+    import run_cli_gate as gate
+    (tmp_path / "R").mkdir()
+
+    def run(stops):
+        said, files = [], []
+
+        def turn(agent, project, prompt, new, log, label):
+            said.append(label)
+            if label != "C1 request" and len(said) - 1 > stops:  # the yes after the last stop: the agent writes
+                (tmp_path / "R" / "headcount.R").write_text("headcount <- function(dt) 1\n", encoding="utf-8")
+                files.append("R/headcount.R")
+            return ""
+        monkeypatch.setattr(gate, "turn", turn)
+        monkeypatch.setattr(gate, "changed", lambda project: list(files))
+        monkeypatch.setattr(gate, "reports", lambda project: {"report.md": bool(files)})
+        (tmp_path / "R" / "headcount.R").unlink(missing_ok=True)
+        checks = {}
+        gate.run_quick(gate.Agent("kilo", "kilo", "openai/m"), tmp_path, [], checks)
+        return said, checks
+    said, checks = run(stops=0)
+    assert said == ["C1 request", "C2 yes"] and all(checks.values())
+    said, checks = run(stops=1)
+    assert said == ["C1 request", "C2 yes", "C3 yes"] and all(checks.values()), (said, checks)
+    said, checks = run(stops=9)  # an agent that never writes is not asked forever
+    assert said == ["C1 request", "C2 yes", "C3 yes", "C4 yes"] and not checks["C: headcount() defined in R/"]
