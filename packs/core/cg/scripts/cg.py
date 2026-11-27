@@ -1897,6 +1897,15 @@ def line_at(text: str, pattern: str) -> int:
     return next((n for n, line in enumerate(text.splitlines(), 1) if re.search(pattern, line)), 1)
 
 
+def current(project: Path, report: dict, path: Path, record: dict) -> bool:
+    """True when the record of a run holds the files as they now are: the files of the slice in force when it ran, from
+    the commit that slice began on (#230); for repro, the whole change. A run on another state proves nothing now."""
+    if record.get("kind") == "repro":
+        return record.get("state") == seen(project, report)
+    tier = ([r for p, r in records(project, report, "tier") if p.name < path.name] or [{}])[-1]
+    return record.get("state") == work_state(project, tier.get("files") or [], base_of(project, report, before=path.name))
+
+
 def rerun(project: Path, report: dict, plan: dict, wanted: dict) -> int:
     """A verifier reruns the checks of the plan itself (P4, #230): each command as the approved plan declares it, on
     the files as they now are. The record is the verifier's, apart from the evidence of the work, and holds no line of
@@ -1916,10 +1925,8 @@ def rerun(project: Path, report: dict, plan: dict, wanted: dict) -> int:
         at = f"{plan['path']}:{row}"
         results[cid] = {"exit": done.returncode, "output": {"digest": sha, "lines": printed.count(b"\n"),
                                                             "bytes": len(printed)}, "work": None}
-        if work:  # the files of the slice in force when the work ran it, and the commit it began on, as they now are
-            tier = ([r for p, r in records(project, report, "tier") if p.name < path.name] or [{}])[-1]
-            now = work.get("state") == work_state(project, tier.get("files") or [],
-                                                  base_of(project, report, before=path.name))
+        if work:
+            now = current(project, report, path, work)
             results[cid]["work"] = {"record": path.relative_to(project).as_posix(), "exit": work.get("exit"),
                                     "verdict": work.get("verdict"), "same-output": (work.get("output") or {}).get(
                                         "digest") == sha, "on": "the files as they now are" if now else
@@ -2261,7 +2268,7 @@ def cmd_claims(args) -> int:
         if name.startswith(".cg-docs/evidence/"):  # a record of a run of this work
             return record_at(path).get("report") == report["path"]
         if path.is_file() and first and not covers(rules, name) and path.stat().st_size < 1_000_000:
-            return int(last or first) <= path.read_bytes().count(b"\n") + 1
+            return int(last or first) <= len(path.read_bytes().splitlines())
         return path.exists() or any(within(c, name) for c in changed)
 
     def held(typed, name):  # a number as the output holds it, at its decimals; one that code may not read is no finding
@@ -2287,8 +2294,10 @@ def cmd_claims(args) -> int:
             ("unmatched", any(not held(number, s) for s in spans if s in mapped for number in typed))) if on]
     wanted, heading, count = ("### Goal", "### Requirements", "### Checks", "## Data register", "## Slices"), "", set()
     for n, line in enumerate((project / plan["path"]).read_text(encoding="utf-8").splitlines() if plan else [], 1):
-        heading = " ".join(line.split()) if re.match(r"#{1,6} ", line) else heading  # a command is no file it builds
-        named = [m.group(1) for m in re.finditer(FILE_NAME, re.sub(r"`[^`]*`", "", line), re.I)] if heading in wanted else []
+        heading = " ".join(line.split()) if re.match(r"#{1,6} ", line) else heading  # a command is no file it builds,
+        spans = (re.fullmatch(FILE_NAME, span, re.I) for span in re.findall(r"`([^`]+)`", line))  # but a span that is a name
+        named = [m.group(1) for m in [*spans, *re.finditer(FILE_NAME, re.sub(r"`[^`]*`", "", line), re.I)] if m] if (
+            heading in wanted) else []
         count |= set(named)
         if any(not there(name) for name in named if within(name, "")):
             found.append(("not-built", f"{plan['path']}:{n}"))
@@ -2476,13 +2485,14 @@ def proven(project: Path, finding: str, a: dict, run: bool = False):
     under .cg-docs/evidence/. Marks of Markdown around the pointer, and a column after the line, are
     read past (review of #228). Else None. Whether the pointer shows what the sentence says is for the
     reader to judge. With run, as P5 asks: only the record of a run of this work that failed, and that
-    holds its command whole, so that anyone can run it again (#231)."""
+    holds its command whole, so that anyone can run it again (#231), on the files as they now are (review of #231)."""
     found = re.match(r"[`*\"']*(.{1,400}?)(?::(\d+)(?:-(\d+)|:\d+)?)?[`*\"']*:\s+(\S.*)$", finding)
     name = data_path(project, found.group(1).strip("`*\"' ")) if found else ".."
     rules = data_rules(project)  # the kickoff clears no data file
     runs = [p.relative_to(project).as_posix() for p, r in records(project, a, "any") if r.get("kind") in (
         "check", "repro", "rerun", "scope", "claims") and r.get("report") == a["path"] and (not run or (r.get("exit") or any(
-            r.get("exits") or [])) and r.get("command-digest") == sha_of(str(r.get("command"))))] \
+            r.get("exits") or [])) and r.get("command-digest") == sha_of(str(r.get("command")))
+            and current(project, a, p, r))] \
         if a["type"] == "work-report" else []  # #229, #230, #231
     try:
         if project not in (project / name).resolve().parents or covers(rules, name):  # a link that leaves is no file
