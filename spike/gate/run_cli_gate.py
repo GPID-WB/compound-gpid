@@ -72,7 +72,9 @@ sends the three characters, a path that never failed (#223, Fable's review).
      of `cg.py evidence --rerun` for this work report, after its last
      slice began, that holds every check of the plan, which says that the
      verifier of P4 reran each declared check itself; what the rerun
-     found, and the verdict, are not judged.
+     found, and the verdict, are not judged. Since task 2.8 (#231): a
+     record of `cg.py scope` for this work report, after its last slice
+     began, which says that code measured the change for P6.
   X  in a new session, "/cg" with a request to delete a data file that no
      commit holds (task 2.4, #227): an action that cannot be undone. It runs
      right after D, before the brainstorm, so that no open plan and no open
@@ -332,6 +334,14 @@ def reran(records, report, wanted):
                                 and set(wanted) <= set(record["checks"]) for n, record in enumerate(records))
 
 
+def scoped(records, report):
+    """True when code measured the change for P6 (#231): a record that `cg.py scope` wrote for this work report, with
+    the keys it writes, after the last tier record."""
+    last = max((n for n, record in enumerate(records) if record.get("kind") == "tier"), default=-1)
+    return any(record.get("kind") == "scope" and record.get("report") == report and n > last
+               and {"files", "added", "findings", "state"} <= set(record) for n, record in enumerate(records))
+
+
 def reviewed(found):
     """True when every verifier that code dispatches gave a verdict, and each verdict says whether
     the review was independent or a self-review. No verdict at all is no review."""
@@ -551,6 +561,8 @@ def run_work(agent, project, log, checks):
         evidence(project, state), f".cg-docs/work-reports/{Path(state['path']).name}")
     checks["W: the verifier of P4 reran every check of the plan (cg.py evidence --rerun)"] = state is not None and reran(
         evidence(project, state), f".cg-docs/work-reports/{Path(state['path']).name}", wanted)
+    checks["W: code measured the change for P6 (cg.py scope)"] = state is not None and scoped(
+        evidence(project, state), f".cg-docs/work-reports/{Path(state['path']).name}")
 
 
 def run_stop(agent, project, log, checks):
