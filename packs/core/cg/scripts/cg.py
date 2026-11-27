@@ -29,7 +29,8 @@ PATH may be any folder inside the project: the commands use the nearest folder
 above it that holds .cg-docs/, else the root of its git repository.
 
 Standard library only, Python 3.9 or later, one implementation for every
-operating system. Every write is atomic and each record is its own file.
+operating system. Every write is atomic, and each record is its own file; a
+verdict is one line added to the conformance record of its artifact.
 """
 import argparse
 import datetime
