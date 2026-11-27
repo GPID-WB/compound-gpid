@@ -53,3 +53,4 @@ Regardless of dialect, also load:
 - Document datasets with `@format` and `@source`.
 - Use `@family` to group related functions.
 - Write examples that run without external data or side effects.
+- `roxygen2` writes `man/` and `NAMESPACE` from the comments of every file, so a change to one function can rewrite other help files. A slice that changes roxygen comments or an exported function lists `man/` and `NAMESPACE` among its files, or runs `devtools::document()` in a check and lists the files that check writes.
