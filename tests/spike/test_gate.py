@@ -145,7 +145,9 @@ def test_a_transcript_keeps_no_name_and_no_email_of_the_person_who_ran_it(monkey
 
 def test_a_transcript_keeps_no_name_in_another_spelling(monkeypatch, tmp_path):
     """Review of 2.2 by Opus 5.5, finding 6 (#225): a name with letters outside ASCII stayed in a
-    transcript when it came JSON-escaped or decomposed, and an address stayed when its @ was %40."""
+    transcript when it came JSON-escaped or decomposed, and an address stayed when its @ was %40.
+    Lens run adversary-2 (#231): Kilo typed the home folder wrong, and a piece of the user name
+    stayed beside the "<user>" put in for the rest."""
     import json
     import unicodedata
     sys.path.insert(0, str(HUB / "spike" / "host-matrix"))
@@ -153,9 +155,11 @@ def test_a_transcript_keeps_no_name_in_another_spelling(monkeypatch, tmp_path):
     monkeypatch.setattr(checks.getpass, "getuser", lambda: "zprobe")
     name = "Zoë Núñez Probe"
     for said in (json.dumps({"out": f"by: {name}"}), unicodedata.normalize("NFD", f"by: {name}"),
-                 "by: Zoe Nunez Probe", "mailto:zoe.n%40example.org"):
+                 "by: Zoe Nunez Probe", "mailto:zoe.n%40example.org", "not found: /Users/zprozprobe/temp/x",
+                 "cd /home/zprob/x", "C:\\Users\\zprozprobe\\temp", json.dumps("C:\\Users\\zprozprobe\\temp")):
         clean = checks.sanitize(said, tmp_path, names=[name])
         assert "Probe" not in clean and "zoe.n" not in clean and "example.org" not in clean, clean
+        assert "zpro" not in clean.lower(), clean
 
 
 def test_the_rerun_says_yes_again_when_the_agent_stops_a_second_time(monkeypatch, tmp_path):
