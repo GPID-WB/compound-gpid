@@ -182,6 +182,9 @@ def sanitize(text, project, names=None):
         for form in {str(place), str(place.resolve())}:
             for spelled in {form, form.replace("\\", "/"), form.replace("\\", "\\\\")}:
                 text = re.sub(re.escape(spelled), lambda _: word, text, flags=re.IGNORECASE)
+    # A home folder typed another way by the agent: its name goes whole (lens run adversary-2, #231).
+    text = re.sub(r"(?i)(/Users/|/home/|[A-Z]:(?:\\){1,2}Users(?:\\){1,2})[^/\\\s\"'`<>]+",
+                  lambda found: found.group(1) + "<user>", text)
     # Addresses go first: once the user name is replaced inside one, it is no longer read as an address.
     # A domain ends in letters, so "python@3.14" in a Homebrew path is not an address.
     text = re.sub(r"[A-Za-z0-9._%+-]+(?:@|%40)(?:[A-Za-z0-9-]+\.)+[A-Za-z]{2,}\b", "<email>", text)
