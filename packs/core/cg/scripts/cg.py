@@ -242,15 +242,20 @@ VERIFY = (
     ("cannot-fail", "command", r"\|\|\s*(true|:|exit\s+0|echo)\b|;\s*(true|:|exit\s+0|echo\b[^|;&]*)\s*$|^\s*(true|:|"
      r"exit\s+0|echo\b[^|;&]*)\s*$|(?<![|>])\|(?![|>])\s*(tee|head|tail|cat|sort|uniq|wc|cut|tr|column|more)\b[^|;&]*$|"
      r"--exit-zero\b|\bpython[\d.]*\s+-O|\bdevtools::test\s*\((?![^)]*stop_on_failure\s*=\s*T)|\bstop_on_failure\s*="
-     r"\s*F|\brcmdcheck\s*\((?![^)]*error_on)", "a command whose exit code is the check's own: nothing after it that "
+     r"\s*F|\brcmdcheck\s*\((?![^)]*error_on)|\b(testthat::)?test_file\s*\((?![^)]*stop_on_failure\s*=\s*T)|\btry\s*\("
+     r"|\btryCatch\s*\((?!.*\b(stop|quit|q)\s*\()", "a command whose exit code is the check's own: nothing after it that "
      "sets the exit code, such as || true, ; echo or a pipe; devtools::test(stop_on_failure = TRUE) and "
      'rcmdcheck::rcmdcheck(error_on = "warning") in R; no --exit-zero and no python -O'),
-    ("proxy", "command", r"^\s*(test\s+-[edfs]|\[\s+-[edfs]|ls|stat|cat|head|wc|Test-Path)\b|\b(file|dir)\.exists\s*\(|"
+    ("proxy", "command", r"^\s*(test\s+-[edfs]|\[\s+-[edfs]|ls|stat|cat|head|wc|Test-Path)\b(?!.*(&&|;))|^\s*(grep|"
+     r"findstr|Select-String)\b.*(\.([Rr]|py|do|ado|[Rq]md)\b|\btests?/|\btestthat/)|^\s*python[\d.]*\s+-c\s+[\"']\s*(import|"
+     r"from)\s+[\w., ]+(\s+import\s+[\w., *]+)?\s*;?\s*[\"']\s*$|^\s*Rscript\s+-e\s+[\"']\s*((devtools|pkgload)::load_all|"
+     r"library|require(Namespace)?|source)\s*\([^;]*\)\s*;?\s*[\"']\s*$|\b(file|dir)\.exists\s*\(|"
      r"\bos\.path\.(exists|isfile|isdir)\s*\(|\.(exists|is_file)\s*\(\s*\)|\b(py_compile|compileall)\b|\bR\s+CMD\s+"
      r"(build|INSTALL)\b|--(version|collect-only|no-tests)\b", "a check on the value of the real output, against an "
      "expected value from a source independent of the code, at the tolerance the plan sets"),
-    ("unrecorded", "report", r"^(?!.*\b(not|no|never|fail(s|ed)?|unverified)\b).*\b(verified|pass(es|ed)?|green|ok|"
-     r"succeed(s|ed)?|holds|confirmed)\b", "the run of that check through evidence, or the claim taken out of the work "
+    ("unrecorded", "report", r"^(?!.*\b(not|no|never|cannot|\w+n['’]t|fail(s|ed)?\s+to)\W+(\w+\W+){0,3}?(verified|"
+     r"pass(es|ed)?|green|ok|succeed(s|ed)?|holds|confirmed)\b).*\b(verified|pass(es|ed)?|green|ok|succeed(s|ed)?|holds|"
+     r"confirmed)\b", "the run of that check through evidence, or the claim taken out of the work "
      "report"),
     ("no-validation", "profile", "", "a reference value, a cross-check in a second software, or the expectation the "
      "human stated before the run, named in the outputs map and held by a check of the plan"),
@@ -659,8 +664,9 @@ def compute_status(project: Path, guide: bool = False, asked=None) -> dict:
             waiting.append(f"{a['path']} (stops for the human's yes: {'; '.join(held[1]['stop'])})")
     phase = "setup" if config is None else "ready"
     # The work playbook needs a plan to work on; with none, a request for a change is quick work (gate rerun 22).
+    # A plan approved and changed since is one: the work playbook sends the human to /cg plan (review of #230).
     idle = asked == "work" and phase != "setup" and not any(a["type"] == "plan" and a["schema"] == SCHEMA and (
-        a["status"] == "in-progress" or a["status"] == "approved" and is_approved(project, a)) for a in found)
+        a["status"] == "in-progress" or a["status"] == "approved" and approvals(project, a)) for a in found)
     # The playbook the human asked for by name, once the project is set up; else the phase's.
     playbook = PHASE_PLAYBOOK["ready"] if idle else f"playbooks/{asked}.md" if asked and phase != "setup" else \
         PHASE_PLAYBOOK[phase]
@@ -1965,13 +1971,13 @@ def pins(path: Path) -> bool:
     if path.name not in ("requirements.txt", "environment.yml") or not path.is_file():
         return path.is_file()
     text = path.read_text(encoding="utf-8", errors="replace")
-    if path.name == "environment.yml":  # each item under dependencies, a pip: list among them
-        items = [i for i in re.findall(r"^\s*-\s+([^#\s][^#]*?)\s*$", text.partition("dependencies:")[2], re.M)
-                 if not i.endswith(":")]
-        return bool(items) and all(re.match(r"[\w.\-\[\]]+\s*={1,3}\s*\d", item) for item in items)
-    items = [line.split("#")[0].strip() for line in text.splitlines()]  # an option, such as -r or --hash, is no package
-    items = [item for item in items if item and not item.startswith("-")]
-    return bool(items) and all(re.match(r"[\w.\-\[\], ]+={2,3}\s*\d", item) for item in items)
+    if path.name == "environment.yml":  # each item under dependencies up to the next key, a pip: list among them
+        block = re.split(r"^\S", text.partition("dependencies:")[2], flags=re.M)[0]
+        items = [i for i in re.findall(r"^\s*-\s+([^#\s][^#]*?)\s*$", block, re.M) if not i.endswith(":")]
+        return bool(items) and all(re.match(r"([\w.\-]+::)?[\w.\-\[\]]+\s*={1,3}\s*\d[^*]*$", i) for i in items)
+    items = [line.split("#")[0].strip() for line in text.splitlines()]  # an option, such as --hash, is no package;
+    items = [i for i in items if i and (not i.startswith("-") or re.match(r"-[re]|--(requirement|editable)", i))]
+    return bool(items) and all(re.match(r"[\w.\-\[\], ]+={2,3}\s*\d[^*]*$", item) for item in items)  # -r, -e: no pin
 
 
 def unheld(project: Path, mapped, names):
@@ -1997,7 +2003,7 @@ def profile(project: Path):
     command = lines[0] if len(lines) == 1 else ""
     paths = [data_path(project, path) for row in rows_of(body, "## Outputs map", 3, [])
              for path in re.findall(r"`([^`]+)`", row[1])]
-    return (None if re.fullmatch(r"(<[^<>]*>|not found\W*)?", command, re.I) else command), [
+    return (None if re.fullmatch(r"(<[^<>]*>|(not found|none|n/?a)\b.*)?", command, re.I) else command), [
         path for path in paths if path and within(path, "")]
 
 
