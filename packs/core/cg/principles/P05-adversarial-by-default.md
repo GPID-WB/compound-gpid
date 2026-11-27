@@ -59,5 +59,5 @@ Rules:
 - `cg.py verifiers` writes the kickoff of each verifier from fixed text and from paths. It takes no text from the agent that did the work but the name of the artifact's file, which `cg.py new` makes.
 - `cg.py conformance` records a finding as a flag only when it opens with a pointer that code can open, and writes down the kind of review the agent declares: independent or a self-review.
 - An adversary report exists for standard and deep work.
-- `cg.py conformance` keeps a finding of the adversary only when it points at the record of a run of this work that failed and that holds its command whole, so that anyone can run it again (`proof: run` above). It lists every other finding as dropped, not reproduced, beside the ones the adversary dropped itself.
+- `cg.py conformance` keeps a finding of the adversary only when it points at the record of a run of this work that failed on the files as they now are and that holds its command whole, so that anyone can run it again (`proof: run` above). It lists every other finding as dropped, not reproduced, beside the ones the adversary dropped itself.
 - It numbers the rounds of the adversary, one for each state of the change, and refuses a fourth, and a third after two rounds that gave findings and reproduced none (`rounds: 3` above).

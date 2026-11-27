@@ -34,8 +34,8 @@ A claim is a line of the work report, or of a text written for readers, that say
 | A file or a record named that is not there | `no-such-file`: sure | a file the change deleted, which the line says it deleted | the path as the project holds it, or the claim taken out | P1 |
 | A file the Changed table names that the change left as it was | `unchanged`: sure | none | the row taken out | P2 |
 | A claim labelled measured with no pointer | `unpointed`: sure | none | the pointer to what shows it, or the label inferred or guess | P1 |
-| A function named that does not exist | `undefined`: to judge | a function of the language or of a package the project loads: its documentation names it, and the line cites the page | the name as it is defined, with the page of its documentation | P1 |
-| A number in the text that differs from its output | `unmatched`: to judge | the number is a result that the output holds, rounded, and not a line, a tolerance or a count of draws | the number as the output holds it, written by code | P1 |
+| A function named that does not exist | `undefined`: to judge | no code of the project, of the language or of a package it loads defines it; one that its documentation names, with the page cited in the line: leave it | the name as it is defined, with the page of its documentation | P1 |
+| A number in the text that differs from its output | `unmatched`: to judge | the line gives it as a result of that output, and not as a line, a tolerance or a count of draws; code compared it with the output, so open no output | the number as the output holds it, written by code | P1 |
 | An inference or a guess written as fact | none | a cause, a trend or a comparison that no pointer shows, with no label or labelled measured | the label inferred with its reasoning, or guess | P1 |
 | A pointer that does not show what is claimed | none | the record or the line opens and shows something else, or the opposite | the pointer that shows it, or the claim taken out | P1 |
 | Nothing said of what was not checked | none | "Not checked" says nothing, or leaves out what the plan says no check would catch | the list of what was not checked | P2 |

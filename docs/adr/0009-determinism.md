@@ -67,6 +67,8 @@ A folder of planted cases for each other verifier, with the unweighted headcount
 
 - 2026-11-27, review of task 2.7 (#230): a `requirements.txt` that includes another file (`-r`) or installs a folder (`-e`) is no pin whatever its other lines hold, and neither is a version with a wildcard; an `environment.yml`'s dependencies end at the next key, and a package may name its channel (`conda-forge::numpy=1.26.4`). A Run block that says "not found" with a reason, "none" or "n/a" holds no Run command: in gate rerun 22 a setup agent wrote "not found: <a reason>", which `repro` took for the command.
 
+- 2026-11-27, review of task 2.8 (#231), from the second run of the lens. A finding of `differs` points at the line of code that writes the output in another order or draws with no seed, with the record of `repro` named in its sentence, where the lens had it point at the record alone, which shows that an output differs and not where. An order or a clock is a fault when it reaches any file the run writes, mapped or not, where the lens said an output that is compared, and a fetch is one when the run fetches the address, on each run or under a setting. Code is as it was.
+
 ## Open
 
 - Whether an R package needs `renv.lock`. Code names its absence; the lens tells the verifier to leave a package alone.

@@ -2582,7 +2582,8 @@ def cmd_conformance(args) -> int:
                   f"\n{key}: {text}" for key in ("unverified", "dropped") for text in entry[key]))
         if lost:
             print("  code found no proof it can open at the start of a finding " + (
-                "not reproduced: the record of a run of this work that failed and holds its command whole" if run else
+                "not reproduced: the record of a run of this work that failed on the files as they now are and holds its "
+                "command whole" if run else
                 "unverified: a line of a file of the project that is no data file, written path:line, or the record of "
                 "a run of this work under .cg-docs/evidence/"))
         print(f"record: {path.relative_to(project).as_posix()}")

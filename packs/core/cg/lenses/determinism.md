@@ -41,16 +41,16 @@ Point at the line of the plan, or of the profile.
 | A draw with no seed | `unseeded`, and `differs` on an output: sure | a seed set in a file that runs first, which your note names; a seed set inside a function, which seeds no draw outside it | `set.seed(<a seed>)` in R, `numpy.random.default_rng(<a seed>)` in Python, `set seed <a seed>` in Stata, above the first draw | P1 |
 | An environment that is not pinned | `unpinned`: sure | an R package declares what it needs in `DESCRIPTION` and pins nothing: leave it | `renv::snapshot()`; `uv init --bare`, then `uv add` for each package the code imports; or `version 18` as the first command of a do-file | P2 |
 | A path that holds on one machine only | `home-path`: sure | a path to a drive or a server that only one machine has, which no rule finds | a path from the project root, such as `here::here("data", "survey.csv")`; for data that its rule keeps outside the project, a folder that each machine sets, such as `Sys.getenv("SURVEY_DIR")` | P2 |
-| An output that depends on order or on the clock | `differs`: sure; `unsorted`, `clock`: to judge | the order or the time reaches an output that is compared; rows after a join, a set or a `distinct()` with no sort | `arrange()` or `sort_values()` before the write, `sorted()` around a listing, the date passed in as an input | P1 |
-| A fetch with no saved copy | `network`: to judge | the run reads the address, and no copy with its date and source | a copy saved in the project, read from there, with its source in the data register | P2 |
+| An output that depends on order or on the clock | `differs`: sure; `unsorted`, `clock`: to judge | the order or the time reaches a file the run writes, mapped or not; rows after a join, a set or a `distinct()` with no sort | `arrange()` or `sort_values()` before the write, `sorted()` around a listing, the date passed in as an input | P1 |
+| A fetch with no saved copy | `network`: to judge | the run fetches the address, on each run or under a setting, and no copy with its date and source | a copy saved in the project, read from there, with its source in the data register | P2 |
 | Clerical work asked of the model | none | an instruction that has the model copy, count or transcribe what a command could | the command that does it | P2 |
 
 ## Prove and propose
 
-- A finding of code that names a line: point at that line. One that names no line, such as `differs`, `unpinned` or `no-run`: point at the record of `repro`.
+- A finding of code that names a line: point at that line. `differs` names an output: point at the line of code that writes it in another order or draws with no seed, and name the record of `repro` in the sentence. One that names no line, such as `unpinned` or `no-run`: point at the record of `repro`.
 - Write each finding as rule 4 of `verifier.md` says, with the priority of its row and `fix:` with the code of its row, written for this file and this line.
 - Never copy what the line holds into the finding: a path under a home folder holds a person's name, and a typed number is a value (rule 6).
 
 ## Leave alone
 
-Interpretation and the choice of a method, one or two obvious edits, a number in prose that no output holds, a clock that only times a run, and a listing whose order reaches no output. Say in your note what you left and why.
+Interpretation and the choice of a method, one or two obvious edits, a number in prose that no output holds, a clock that only times a run, and a listing whose order reaches no file the run writes. Say in your note what you left and why.

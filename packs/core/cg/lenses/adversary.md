@@ -10,10 +10,10 @@ This lens is for the verifier of P5. It says what code holds of your findings, w
 
 ## What code holds
 
-A finding of yours stands only when a run reproduced it. Its pointer is the record of a probe you ran through the line your kickoff gives for a run, the probe ended with an exit code other than 0, and the record holds its command whole, so that anyone can run it again. Code lists every other finding as dropped, not reproduced, beside the ones you drop yourself.
+A finding of yours stands only when a run reproduced it. Its pointer is the record of a probe you ran through the line your kickoff gives for a run, on the files as they now are, the probe ended with an exit code other than 0, and the record holds its command whole, so that anyone can run it again. Code lists every other finding as dropped, not reproduced, beside the ones you drop yourself.
 
 - Your kickoff is one round. The work has three rounds at most, one for each state of the change, and code numbers them. It refuses a fourth, and a third after two rounds that gave findings and reproduced none, which is doubt theater.
-- The records of the work are in the folder of evidence that your kickoff names. Account for each run in it that ended with an exit code other than 0 and is no check of the plan, such as a probe of an earlier round: run its command again through the line for a run, and write it as a finding when it fails again, or under `dropped` when it passes.
+- The records of the work are in the folder of evidence that your kickoff names. Account for each probe of an earlier round in it that ended with an exit code other than 0, one command that starts `python -B -c` or `Rscript -e`: run it again through the line for a run, and write it as a finding when it fails again, or under `dropped` when it passes. Run no other command of the record: the working agent ran it, and it can write, delete or print data (rules 3 and 4 of `worker.md`).
 - A check of the plan that fails is P4's, and an output that two runs write differently is P3's: leave both.
 
 ## Where to probe
