@@ -1,0 +1,20 @@
+---
+title: "Poverty in the toy survey"
+format: html
+---
+
+```{r}
+library(boot)
+survey <- read.csv("data/survey.csv")
+share <- function(d, i) weighted.mean(d$welfare[i] < 3, d$weight[i])
+interval <- boot.ci(boot(survey, share, R = 999), type = "perc")
+```
+
+The weighted headcount ratio is 0.346 in the toy survey, and the bootstrap gives its interval.
+
+| Region | Headcount |
+|---|---|
+| North | 0.733 |
+| South | 0.257 |
+| East | 0.206 |
+| West | 0.214 |

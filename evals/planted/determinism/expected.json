@@ -1,0 +1,28 @@
+{
+  "verifier": "determinism",
+  "about": "Each case is a violation planted in project/ (review stage) or in plan.md (plan stage). 'code' names the rule of cg.py repro that finds its part, or null when only judgement can. A finding catches a case when its pointer is 'file' at the line that holds 'text', three lines either way, or is one of 'or', where 'record' is a record under .cg-docs/evidence/.",
+  "review": [
+    {"flag": "an output no script regenerates", "code": "not-written", "file": "output/table.csv", "or": ["record"]},
+    {"flag": "an output no script regenerates", "code": "changed", "file": "output/headcount.csv", "or": ["record"]},
+    {"flag": "a number typed into prose", "code": "typed-number", "file": "report.qmd", "text": "is 0.346"},
+    {"flag": "a number typed into prose", "code": "typed-number", "file": "report.qmd", "text": "| North |"},
+    {"flag": "a manual step", "code": null, "file": "README.md", "text": "Copy the interval"},
+    {"flag": "unseeded randomness", "code": "unseeded", "file": "pipeline.py", "text": "random.choices("},
+    {"flag": "unseeded randomness", "code": "unseeded", "file": "report.qmd", "text": "boot(survey"},
+    {"flag": "unseeded randomness", "code": "unseeded", "file": "do/robustness.do", "text": "bootstrap r("},
+    {"flag": "unseeded randomness", "code": "differs", "file": "output/ci.csv", "or": ["record", "pipeline.py"]},
+    {"flag": "an unpinned environment", "code": "unpinned", "file": "uv.lock", "or": ["record", "pipeline.py"]},
+    {"flag": "an unpinned environment", "code": "unpinned", "file": "renv.lock", "or": ["record", "report.qmd"]},
+    {"flag": "an unpinned environment", "code": "unpinned", "file": "do/robustness.do", "text": "* Bootstrap of"},
+    {"flag": "a user-specific path", "code": "home-path", "file": "pipeline.py", "text": "/Users/"},
+    {"flag": "order dependence", "code": null, "file": "pipeline.py", "text": "regions = {", "or": ["output/regions.csv"]},
+    {"flag": "order dependence", "code": "unsorted", "file": "pipeline.py", "text": "glob.glob("},
+    {"flag": "order dependence", "code": "clock", "file": "pipeline.py", "text": "date.today()"},
+    {"flag": "a fetch with no saved copy", "code": "network", "file": "pipeline.py", "text": "https://"}
+  ],
+  "plan": [
+    {"flag": "an output made by judgement", "code": null, "file": "@plan", "text": "| S3 |"},
+    {"flag": "a manual step", "code": null, "file": "@plan", "text": "| S4 |"},
+    {"flag": "unseeded randomness", "code": null, "file": "@plan", "text": "| S2 |"}
+  ]
+}

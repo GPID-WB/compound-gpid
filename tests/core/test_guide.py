@@ -96,7 +96,7 @@ def test_what_the_agent_runs_names_only_cg_py_commands_that_exist():
     planned = set()
     for path in sorted((CG / "principles").glob("*.md")):
         planned |= named_commands(path.read_text(encoding="utf-8"))
-    assert "repro" in planned - existing  # the case the rule in the guide covers; guard came in task 2.4
+    assert not planned - existing  # guard came in task 2.4 and repro in task 2.6: none is planned now
     assert named_commands("Run `cg.py guard` now.") == {"guard"}
     assert named_commands("- `cg.py guard`, once installed: no skipped checks.") == set()
 

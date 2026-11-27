@@ -343,6 +343,7 @@ def test_the_rerun_takes_the_work_on_a_plan_to_its_end_and_judges_it_from_the_re
                 records.append({"kind": "check", "check": "C2" if declares else "ad hoc", "label": label_,
                                 "verdict": "verified"})
                 waiting[0] = False
+                records.append({"kind": "repro", "verdict": "inconclusive"})  # code's part of P3, at the close
                 report.update(status="completed", complete=True)
             return ""
         monkeypatch.setattr(gate, "turn", turn)
@@ -357,7 +358,7 @@ def test_the_rerun_takes_the_work_on_a_plan_to_its_end_and_judges_it_from_the_re
         gate.run_work(gate.Agent("kilo", "kilo", "openai/m"), tmp_path, [], checks)
         return said, checks
     said, checks = run(declares=True)
-    assert said == ["W1 ask for the work", "W2 yes at a stop"] and len(checks) == 6 and all(checks.values()), checks
+    assert said == ["W1 ask for the work", "W2 yes at a stop"] and len(checks) == 7 and all(checks.values()), checks
     said, checks = run(declares=False)
     assert not checks["W: every check of the plan ran as the plan declares it, and is verified"], checks
 
@@ -610,3 +611,20 @@ def test_steps_h_and_w_ask_for_a_verdict_of_each_verifier_and_for_its_kind_of_re
         checks = {}
         gate.run_work(gate.Agent("kilo", "kilo", "openai/m"), tmp_path, [], checks)
         assert checks["W: each verifier of the review stage gave a verdict, with its kind of review"] == kinds, found
+
+
+def test_step_w_asks_that_code_ran_its_part_of_p3_on_the_work(monkeypatch, tmp_path):
+    """Task 2.6 (#229): at the close of the work the playbook has code run `cg.py repro`, which runs the
+    project's Run command twice and searches the change, and records it. Step W asks for that record
+    among the evidence of the work report it judges, from the files alone. It measures that code's part
+    ran, and neither what it found nor whether the determinism verifier read it."""
+    sys.path.insert(0, str(GATE))
+    sys.path.insert(0, str(HUB / "spike" / "host-matrix"))
+    import run_cli_gate as gate
+    assert gate.reproduced([{"kind": "tier"}, {"kind": "check"}, {"kind": "repro", "verdict": "not verified"}])
+    assert not gate.reproduced([{"kind": "tier"}, {"kind": "check", "check": "repro"}]) and not gate.reproduced([])
+    state = {"path": tmp_path / ".cg-docs" / "work-reports" / "2026-11-27-x.md"}
+    folder = tmp_path / ".cg-docs" / "evidence" / "2026-11-27-x"
+    folder.mkdir(parents=True)
+    (folder / "0001-20261127T000000Z-repro.json").write_text(json.dumps({"kind": "repro"}), encoding="utf-8")
+    assert gate.reproduced(gate.evidence(tmp_path, state))

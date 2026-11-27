@@ -1,0 +1,13 @@
+hhid,region,welfare,weight
+HH-0001,North,1.20,10
+HH-0002,North,2.85,12
+HH-0003,North,4.10,8
+HH-0004,South,5.60,15
+HH-0005,South,2.40,9
+HH-0006,South,7.30,11
+HH-0007,East,3.95,14
+HH-0008,East,1.75,7
+HH-0009,East,6.20,13
+HH-0010,West,8.40,10
+HH-0011,West,2.10,6
+HH-0012,West,4.80,12

@@ -81,7 +81,7 @@ def test_which_verifiers_run_is_computed_from_the_principle_files_and_the_lenses
     p7 = installed(env) / "principles" / "P07-honest-claims.md"
     p7.write_text(p7.read_text(encoding="utf-8").replace('stages: "review"', 'stages: "plan, review"'), encoding="utf-8")
     lens = installed(env) / "lenses" / "claims.md"
-    lens.parent.mkdir()
+    lens.parent.mkdir(exist_ok=True)  # since task 2.6 core has a lens of its own
     lens.write_text("How the claims verifier works.\n", encoding="utf-8")
     claims = next(v for v in dispatched(env, PLAN, "plan") if v["verifier"] == "claims")
     assert claims["principle"] == "P7" and claims["reads"] == [p7.as_posix(), lens.as_posix()], claims
