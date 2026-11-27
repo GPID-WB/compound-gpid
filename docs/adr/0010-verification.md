@@ -62,6 +62,8 @@ Each rule carries the change that would replace what it finds, and the rerun pri
 
 - 2026-11-27, review of task 2.7 (#230). `unrecorded` takes a word of negation only when it stands at most three words before the word of success, so a claim with a negation elsewhere in its line is found. `cannot-fail` also finds `testthat::test_file()` without `stop_on_failure = TRUE`, `try()`, and a `tryCatch()` that stops nothing, which exit with 0 when a test fails (measured with testthat 3.3; `devtools::check()` run by `Rscript` errors on a warning, so it can fail). `proxy` also finds a check that only loads code or searches a test or code file, and no longer a file test followed by `&&` or `;`. An approved plan changed since its yes sends a request for its work to the work playbook, as an in-progress one does, and that playbook sends the human to `/cg plan`. The lens has the verifier account for each line of code that starts with `FLAG`, and read no output for its values. The runner leaves out the byte code that a rerun makes Python write, and a finding catches a case only when it names ten lines at most, or a record that is there.
 
+- 2026-11-27, task 2.8 (#231), V18 of the review of task 2.7: the kickoff says, on the line after the rerun line, that only the verifier `verification` runs it, once, and that any other verifier leaves it and reads the record of that rerun when there is one. Nothing in code changed: the line is still in every kickoff at the review stage of work on a plan.
+
 ## Open
 
 - Whether `validate` applies the rule `cannot-fail` to a plan's commands at the plan stage, before the human approves the plan. It was not built: it would change what `approve` takes, which every gate has passed, and P4 has no verifier at the plan stage.
