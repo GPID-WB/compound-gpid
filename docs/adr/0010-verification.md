@@ -64,6 +64,8 @@ Each rule carries the change that would replace what it finds, and the rerun pri
 
 - 2026-11-27, task 2.8 (#231), V18 of the review of task 2.7: the kickoff says, on the line after the rerun line, that only the verifier `verification` runs it, once, and that any other verifier leaves it and reads the record of that rerun when there is one. Nothing in code changed: the line is still in every kickoff at the review stage of work on a plan.
 
+- 2026-11-27, task 2.8 (#231), second half, from the first run of the lens (ADR 0012): the rule `unbacked` names a claim of success or of validation that names no check of the plan and no record of a run of this work, beside `unrecorded`, with one pattern for both that now holds the words of validation (matches, agrees, reproduces, validated). Both read only the lines the agent wrote: none of the template's own text and none under "## Asked". The lens has the verifier trace each reported number to the line that computes it, and name each filter, merge, weight and unit on the way. The planted claim of validation is now found by code.
+
 ## Open
 
 - Whether `validate` applies the rule `cannot-fail` to a plan's commands at the plan stage, before the human approves the plan. It was not built: it would change what `approve` takes, which every gate has passed, and P4 has no verifier at the plan stage.

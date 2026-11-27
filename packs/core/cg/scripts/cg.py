@@ -27,7 +27,7 @@ Usage, with the interpreter that ~/.cg/launcher.json records as <python>:
                        [--project PATH] [--dry-run]
 
 What each command does and why is in docs/adr/0005-artifacts.md, 0006-evidence.md, 0008-verifiers.md,
-0009-determinism.md and in its --help.
+0009 to 0012, and in its --help.
 PATH may be any folder inside the project: the commands use the nearest folder
 above it that holds .cg-docs/, else the root of its git repository.
 

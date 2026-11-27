@@ -97,7 +97,7 @@ Then fill every section of the work report but its status: code and the verifier
 
 `"<python>" "<cg>" claims --report "<the work report>" --project "<project root>"`
 
-`scope` gives the size of the change beside the files the slices list. Each line that either prints and that starts with `FLAG` names a rule, where it shows and the change that would replace it. Change nothing for them either.
+`scope` gives the size of the change beside the files the slices list. Each line either of them prints that starts with `FLAG` names a rule, where it shows and the change that would replace it. Change nothing for them either.
 
 Then have the whole change checked by the verifiers of the principles the work is held to. The line below says which verifiers run, and prints the kickoff of each. Run each one and record its verdict as the guide says under "Verifiers". Then run the line printed after `then`, which lists the verdict of each verifier, and go on only when it prints `missing: none`. A verdict that the listing marks as given on an earlier text was given before the change last moved: start that verifier again, once, and record its new verdict. A mark that is still there goes to the human with the findings. Change nothing for a finding in this step: each one stays in the record with its pointer, and the human decides what is fixed. Show them every finding in your reply.
 
