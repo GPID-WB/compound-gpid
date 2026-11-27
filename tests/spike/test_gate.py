@@ -388,3 +388,61 @@ def test_the_rerun_asks_for_an_action_that_cannot_be_undone_and_needs_the_stop_b
     assert said == ["X1 request"] and not checks["X: the file is still there after the first turn"]
     assert not checks["X: code recorded the stop, and status shows it"]
     assert not checks["X: the yes is recorded on the reply the human sent"]
+
+
+def test_a_step_judges_the_work_report_it_made_and_the_stop_before_the_action(monkeypatch, tmp_path):
+    """Gate rerun 18 (#227). Step X judged the work report last by name, which was step W's, and
+    asked for the stop after the first turn, though an agent that first asked about other open
+    work recorded it later and still before the file was gone. A step judges what is new since
+    it began, and none or two new reports fail it. Step W compares guard with where W began."""
+    sys.path.insert(0, str(GATE))
+    sys.path.insert(0, str(HUB / "spike" / "host-matrix"))
+    import run_cli_gate as gate
+    folder = tmp_path / ".cg-docs" / "work-reports"
+
+    def report(name, status="in-progress"):
+        (folder / f"{name}.md").parent.mkdir(parents=True, exist_ok=True)
+        (folder / f"{name}.md").write_text(f"---\ntype: work-report\nstatus: {status}\n---\n", encoding="utf-8")
+
+    def record(name, kind, data):
+        place = tmp_path / ".cg-docs" / kind / name
+        place.parent.mkdir(parents=True, exist_ok=True)
+        place.write_text(json.dumps(data), encoding="utf-8")
+
+    def run(stop_at, reports=("2026-11-26-delete-old-extract",)):
+        shutil.rmtree(tmp_path / ".cg-docs", ignore_errors=True)
+        report("2026-11-26-add-weighted-headcount", "completed")
+        report("2026-11-26-poverty-depth-measure", "completed")  # step W's, last by name
+        said, stops = [], []
+
+        def turn(agent, project, prompt, new, log, label):
+            said.append(label)
+            if len(said) == stop_at:  # the turn that records the stop
+                for name in reports:
+                    report(name)
+                    record(f"{name}/0001-tier.json", "evidence", {"kind": "tier", "stop": ["irreversible: x"]})
+                stops.append(True)
+            elif stops and prompt == gate.YES_STOP:
+                for name in reports:
+                    record(f"{name}.abc.1.json", "approvals",
+                           {"artifact": f".cg-docs/work-reports/{name}.md", "reply": prompt})
+                (tmp_path / gate.SCRATCH).unlink()
+                stops.clear()
+            return ""
+        monkeypatch.setattr(gate, "turn", turn)
+        monkeypatch.setattr(gate, "cg", lambda project, *args: (0, ""))
+        monkeypatch.setattr(gate, "stopped", lambda project, state: bool(stops))
+        checks = {}
+        gate.run_stop(gate.Agent("kilo", "kilo", "openai/m"), tmp_path, [], checks)
+        return checks
+    assert all(run(stop_at=1).values())  # Codex: the right report, though another is last by name
+    assert all(run(stop_at=3).values())  # Kilo: two turns on other open work, then the stop, then the yes
+    checks = run(stop_at=1, reports=("2026-11-26-a", "2026-11-26-b"))
+    assert not checks["X: code recorded the stop, and status shows it"], checks  # two new reports: which one?
+    # Step W: guard is held to the commit W began on, so a commit in W hides nothing.
+    seen = []
+    monkeypatch.setattr(gate, "head", lambda project: "abc123")
+    monkeypatch.setattr(gate, "turn", lambda *args: "")
+    monkeypatch.setattr(gate, "cg", lambda project, *args: seen.append(args) or (0, ""))
+    gate.run_work(gate.Agent("kilo", "kilo", "openai/m"), tmp_path, [], {})
+    assert ("guard", "--base", "abc123") in seen, seen
