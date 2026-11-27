@@ -535,6 +535,7 @@ def compute_status(project: Path, guide: bool = False, asked=None) -> dict:
     stops += rule_problems(config)
     found = artifacts(project)
     open_ones = [a for a in found if a["state"] != "closed"]
+    planned = {a["fields"].get("intent") for a in found if a["type"] == "plan" and a["status"] != "dropped"}
     waiting = [f"{a['path']} (status {a['status']})" for a in open_ones if a["state"] == "waiting"]
     waiting += [f"{a['path']} (status {a['status']}, not approved as it now reads)" for a in found
                 if a["schema"] == SCHEMA and a["status"] in APPROVED.get(a["type"], ((), "", ()))[2]
@@ -562,6 +563,9 @@ def compute_status(project: Path, guide: bool = False, asked=None) -> dict:
         "active": open_ones[0]["path"] if open_ones else None,
         "open-artifacts": len(open_ones),
         "waiting-on-human": waiting,
+        # A decided intent is closed, so nothing above shows it: name each one no plan is built on yet.
+        "ready-to-plan": [a["path"] for a in found if a["schema"] == SCHEMA and a["type"] == "intent"
+                          and a["status"] == "decided" and is_approved(project, a) and a["path"] not in planned],
         "packs-expected": expected,
         "packs-missing": missing,
         "add-command": add_command(missing) if missing else None,
@@ -627,7 +631,7 @@ def cmd_status(args) -> int:
     if args.json:
         print(json.dumps(state, indent=2, sort_keys=True))
         return 1 if state["stops"] else 0
-    order = ["project", "core", "phase", "reason", "active", "open-artifacts", "waiting-on-human",
+    order = ["project", "core", "phase", "reason", "active", "open-artifacts", "waiting-on-human", "ready-to-plan",
              "packs-expected", "packs-missing", "add-command", "settings", "data", "approved-tools",
              "data-decisions", "git", "branch", "commits", "changed-files",
              "stops", "next", "playbook"]

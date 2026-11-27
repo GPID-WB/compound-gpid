@@ -11,7 +11,7 @@ Read `grilling.md` in full before your first question. It is beside the guide's 
 
 ## 1. Start or resume
 
-A plan is built on a decided intent: the record of what the human wants, what is out of scope and what a wrong result looks like. Read each intent under `.cg-docs/brainstorms/` whose status is `decided`, and each plan under `.cg-docs/plans/` with `schema: 2` that is not finished. Then take the first line below that fits.
+A plan is built on a decided intent: the record of what the human wants, what is out of scope and what a wrong result looks like. Status names under `ready-to-plan` each decided intent that no plan is built on yet. Read each of them, each other intent under `.cg-docs/brainstorms/` whose status is `decided`, and each plan under `.cg-docs/plans/` with `schema: 2` that is not finished. Then take the first line below that fits.
 
 - **A plan for this work is a `draft`.** Continue in that file from where it stands. Never start a second plan for the same work, and never write a new text over an unfinished plan.
 - **A plan for this work is `approved` or `in-progress`.** It is frozen: progress goes into the work report, never into the plan. When the human asks for no change to it, say where it stands and end your turn. A change they ask for is an amendment. Change only what has to change, and add a line under a heading `## Amendments` at the end of the plan: `- <today's date, as YYYY-MM-DD>: <what changes, and why>`. Keep the earlier lines. Make the change through the steps it touches, 3 to 5, then go to step 6. The human approves the amended plan, and the record of each earlier approval keeps the text they approved then.
