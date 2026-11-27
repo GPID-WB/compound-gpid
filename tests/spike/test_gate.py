@@ -261,6 +261,7 @@ def test_step_h_needs_the_line_it_asked_for_to_be_new(monkeypatch, tmp_path):
     monkeypatch.setattr(gate, "turn", turn)
     monkeypatch.setattr(gate, "newest", lambda project, folder, before=None: dict(state) if folder == "plans" else idea)
     monkeypatch.setattr(gate, "changed", lambda project: [])
+    monkeypatch.setattr(gate, "conformance", lambda project, state, stage, log: {})
     checks = {}
     gate.run_plan(gate.Agent("kilo", "kilo", "openai/m"), tmp_path, [], checks)
     assert not checks["H: the plan holds the line the human asked for"], checks

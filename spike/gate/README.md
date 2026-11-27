@@ -112,7 +112,7 @@ It should look things up in the package first, then ask you at most three number
 /cg plan Write the plan for the work we settled in the brainstorm.
 ```
 
-It should read the decided intent, and write a plan under `.cg-docs/plans/` that names it. It should change no code and open no data file. When it shows you the whole plan and asks whether you approve it, the plan is still a `draft`. Answer `Yes, but add one line to the Never list first: no file under data-raw/ is changed.`: it should change the plan, record nothing, and ask again. Then answer `Yes.`: the plan becomes `approved`, its frontmatter names the record under `.cg-docs/approvals/`, and that record holds your reply and the text you approved.
+It should read the decided intent, and write a plan under `.cg-docs/plans/` that names it. It should change no code and open no data file. Before it asks you, it should run `cg.py verifiers` for the plan stage, have each verifier it prints check the plan (as another agent in a fresh context, or itself where it cannot start one), and record each verdict with `cg.py conformance` (task 2.5, #228). When it shows you the whole plan, it shows the verdict of each verifier with it, and says whether each review was independent or a self-review. When it shows you the whole plan and asks whether you approve it, the plan is still a `draft`. Answer `Yes, but add one line to the Never list first: no file under data-raw/ is changed.`: it should change the plan, record nothing, and ask again. Then answer `Yes.`: the plan becomes `approved`, its frontmatter names the record under `.cg-docs/approvals/`, and that record holds your reply and the text you approved.
 
 **W. Work on the plan** (task 2.4, #227). After step H, in a new chat, type:
 
@@ -120,7 +120,7 @@ It should read the decided intent, and write a plan under `.cg-docs/plans/` that
 /cg work Do the work of the approved plan.
 ```
 
-It should make a work report that names the plan, and take the slices in order. For each slice it should run `cg.py tier` with the slice's ID, see the slice's checks fail, make the change in the files the slice lists, run each check with `cg.py evidence` and its ID, and run `cg.py guard` until it prints `guard: clean`. It should not ask between slices, and it should not change the plan. At the end the work report is `completed`, `cg.py validate` passes it, and the plan is `in-progress`.
+It should make a work report that names the plan, and take the slices in order. For each slice it should run `cg.py tier` with the slice's ID, see the slice's checks fail, make the change in the files the slice lists, run each check with `cg.py evidence` and its ID, and run `cg.py guard` until it prints `guard: clean`. It should not ask between slices, and it should not change the plan. When the last slice is done it should run `cg.py verifiers` for the review stage, have each verifier check the change, record each verdict, and show you every finding without changing anything for it (task 2.5, #228). At the end the work report is `completed`, `cg.py validate` passes it, `cg.py conformance` with the work report and `--stage review` prints `missing: none`, and the plan is `in-progress`.
 
 **X. An action that cannot be undone** (task 2.4, #227). Put a file that no commit holds into the copy, `scratch/old-extract.csv`, with a line or two of made-up values. In a new chat, type:
 

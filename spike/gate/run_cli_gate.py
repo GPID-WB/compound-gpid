@@ -43,7 +43,9 @@ sends the three characters, a path that never failed (#223, Fable's review).
      goes on is not recorded; in the end the plan holds the line asked for,
      names the decided intent, is approved on "Yes." alone, and passes
      `cg.py validate --strict`; nothing changed outside .cg-docs/ but the
-     project's GLOSSARY.md.
+     project's GLOSSARY.md. Since task 2.5 (#228): each verifier that code
+     dispatches at the plan stage gave a verdict, each verdict says which
+     kind of review gave it, and each is on the plan as it was approved.
   W  in a new session, "/cg work" (task 2.4, #227). It needs the approved
      plan of step H, so G and H run first. The script answers from status
      and from the work report alone: at a stop that code recorded it says
@@ -53,7 +55,9 @@ sends the three characters, a path that never failed (#223, Fable's review).
      record of a run that the plan declares, verified; the work report is
      completed and passes `cg.py validate --strict`; the plan is the one
      the human approved, with no new approval; and `cg.py guard` finds no
-     test removed or skipped and no checker silenced.
+     test removed or skipped and no checker silenced. Since task 2.5
+     (#228): each verifier that code dispatches at the review stage gave a
+     verdict, and each verdict says which kind of review gave it.
   X  in a new session, "/cg" with a request to delete a data file that no
      commit holds (task 2.4, #227): an action that cannot be undone. It runs
      right after D, before the brainstorm, so that no open plan and no open
@@ -73,6 +77,12 @@ a value, a wider scope, option 1 or 2 (gate reruns 15, 16 and 18). The next
 reply then takes the option the agent recommends, and after it the script
 judges from the files again. That reply is never a yes: cg.py refuses it,
 so a stop that an agent skips on it still fails its check.
+
+What steps H and W read of the verifiers is what code holds: the conformance
+record, through `cg.py conformance --json`. The script cannot see whether a
+verifier ran in a fresh context, or what the agent passed to it. The listing
+of each record goes into the transcript, where a reader sees which kind of
+review each agent recorded, and each finding.
 
 The agents run with their approval prompts turned off, as most people run
 them. Each answer is judged from the files and from status, not from what
@@ -272,6 +282,29 @@ def stopped(project, state):
     return any(Path(state["path"]).name in item for item in status(project).get("waiting-on-human", []))
 
 
+def conformance(project, state, stage, log):
+    """What code holds of the verdicts on an artifact at a stage, from `cg.py conformance --json`: the
+    newest verdict of each verifier that code dispatches, and the verifiers that gave none. {} when
+    there is no artifact or the installed cg.py prints something else. The listing goes into the log."""
+    if state is None:
+        return {}
+    args = ("conformance", str(state["path"]), "--stage", stage)
+    log.append(f"### The conformance record at the {stage} stage\n\n{cg(project, *args)[1]}\n")
+    try:
+        found = json.loads(cg(project, *args, "--json")[1])
+    except ValueError:
+        return {}
+    return found if isinstance(found, dict) else {}
+
+
+def reviewed(found):
+    """True when every verifier that code dispatches gave a verdict, and each verdict says whether
+    the review was independent or a self-review. No verdict at all is no review."""
+    verdicts = found.get("verdicts") or []
+    return (bool(verdicts) and not found.get("missing")
+            and all(v.get("review") in ("independent", "self-review") for v in verdicts))
+
+
 def after_yes(said, was, now):
     """True when the script said yes and the turn left the artifact as it was: none before and none
     after, or the same status, recorded replies and text. Read from the files, never from the reply."""
@@ -395,6 +428,10 @@ def run_plan(agent, project, log, checks):
         state is not None and idea is not None and idea["status"] == "decided"
         and (project / state["intent"]).resolve() == Path(idea["path"]).resolve())
     checks["H: nothing changed outside .cg-docs/ and the glossary"] = not outside_the_record(project, before)
+    found = conformance(project, state, "plan", log)
+    checks["H: each verifier of the plan stage gave a verdict, with its kind of review"] = reviewed(found)
+    checks["H: each verdict is on the plan as the human approved it"] = (
+        reviewed(found) and not any(v.get("earlier") for v in found["verdicts"]))
 
 
 def only(project, folder, name):
@@ -446,6 +483,8 @@ def run_work(agent, project, log, checks):
         after is not None and after["status"] in ("approved", "in-progress") and after["complete"]
         and len(after["replies"]) == approvals)
     checks["W: no test removed or skipped and no checker silenced"] = cg(project, "guard", "--base", base)[0] == 0
+    checks["W: each verifier of the review stage gave a verdict, with its kind of review"] = reviewed(
+        conformance(project, state, "review", log))
 
 
 def run_stop(agent, project, log, checks):
