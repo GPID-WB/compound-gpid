@@ -43,7 +43,7 @@ A dataset that the `data` line calls `not cleared` and that the plan lists stays
 ## 3. Change
 
 - Before the first slice, read the lead skill of each pack on the `packs-expected` line of status and load what it names, as step 3 of `playbooks/quick.md` says.
-- **See the slice's checks fail first.** Run each check the slice ends in, as step 4 writes it, before the change. A check that fails now and passes after the change proves the change. Three kinds of check may pass before the change, because their job is to show that something stayed the same: a baseline, a pin, and a regression check, such as the project's whole test run. Go on, and see that each still passes after the change. A check of any other kind that passes before the change proves nothing for this slice, and the plan is wrong: section 5, rule 3.
+- **See the slice's checks fail first.** Run each check the slice ends in, as step 4 writes it, before the change. A check that fails now and passes after the change proves the change. Three kinds of check may pass before the change, because their job is to show that something stayed the same: a baseline, a pin, and a regression check, such as the project's whole test run. Go on, and see that each still passes after the change. A check of any other kind that passes before the change proves nothing for this slice, and the plan is wrong: section 5, rule 3. Read why a check fails, too: one that fails because the machine lacks a program or a package, or because the code it tests is not loaded, proves nothing about the change either, and that is section 5, rule 3.
 - Before you change code that already produces an output, capture the baseline the plan names.
 - Make the change this slice describes, in the files it lists, and nothing else (P6). What you see beside it goes on the "Noticed but not touching" list of the work report.
 - When the slice is a worked example, show each step and its outcome. When it is the tool, show that the tool gives the outcome of the worked example before it runs on the other units (P3). Nothing that reaches a reader is typed in.
@@ -65,7 +65,7 @@ Then have code look at the slice as a whole:
 
 `"<python>" "<cg>" guard --report "<the work report>" --project "<project root>"`
 
-A line that starts with `FAIL` names a test that was removed or skipped, a checker that was silenced, a file that changed and that the slice does not list, or a check of the slice with no verified evidence on the files as they now are. Fix the change, and never the finding. The slice is done when the line prints `guard: clean`. Write its files into the "Changed" table of the work report, and start the next slice at step 2 without asking.
+A line that starts with `FAIL` names a test that was removed or skipped, a checker that was silenced, a file that changed and that the slice does not list, or a check of the slice with no verified evidence on the files as they now are. Fix the change, and never the finding. A file that a recorded run made, such as the folder that `R CMD check` writes, is named `written`: delete it, which running that check again undoes. The slice is done when the line prints `guard: clean`. Write its files into the "Changed" table of the work report, and start the next slice at step 2 without asking.
 
 ## 5. Stop rules
 
@@ -85,7 +85,13 @@ Each rule below stops the work, whatever the plan says and however far the work 
 
 ## 6. Close
 
-When every slice is done, have the whole change checked by the verifiers of the principles the work is held to. The line below says which verifiers run, and prints the kickoff of each. Run each one and record its verdict as the guide says under "Verifiers". Then run the line printed after `then`, which lists the verdict of each verifier, and go on only when it prints `missing: none`. A verdict that the listing marks as given on an earlier text was given before the change last moved: start that verifier again, once, and record its new verdict. A mark that is still there goes to the human with the findings. Change nothing for a finding in this step: each one stays in the record with its pointer, and the human decides what is fixed. Show them every finding in your reply.
+When every slice is done, have code run the project and search the whole change for what P3 names, before any verifier starts:
+
+`"<python>" "<cg>" repro --report "<the work report>" --project "<project root>"`
+
+It runs the Run command of `.cg-docs/verification.md` twice, so the outputs are written where that command writes them, and it compares their digests. It shows nothing of what the command printed. Each line that starts with `FLAG` names a rule, where it shows and the code that would replace it. Change nothing for it: the verifiers read its record, and the human decides. When it prints `refused`, a stop waits: section 5.
+
+Then have the whole change checked by the verifiers of the principles the work is held to. The line below says which verifiers run, and prints the kickoff of each. Run each one and record its verdict as the guide says under "Verifiers". Then run the line printed after `then`, which lists the verdict of each verifier, and go on only when it prints `missing: none`. A verdict that the listing marks as given on an earlier text was given before the change last moved: start that verifier again, once, and record its new verdict. A mark that is still there goes to the human with the findings. Change nothing for a finding in this step: each one stays in the record with its pointer, and the human decides what is fixed. Show them every finding in your reply.
 
 `"<python>" "<cg>" verifiers "<the work report>" --stage review --project "<project root>"`
 

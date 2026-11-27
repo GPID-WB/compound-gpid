@@ -69,14 +69,13 @@ Flag when:
 - a run fetches from the network with no saved snapshot;
 - an agent instruction asks the model for clerical work a command could do.
 
-**Prove a flag** by naming the output and showing that no tool writes it, or by running the pipeline twice and showing the outputs differ. For each flag, propose the code that would replace the manual or model step.
+**Prove a flag** by pointing at the line where it shows, or at the record of `cg.py repro`, which ran the pipeline twice and compared the digests of the outputs. For each flag, propose the code that would replace the manual or model step.
 
 **Leave alone:** interpretation, choice of method, and one or two obvious edits. Those are by judgement or trivial, and neither needs a tool.
 
 ## Deterministic checks
 
 - `cg.py validate`: every slice of a plan says whether it is done by code or by judgement, and a slice done by code names its tool.
-- `cg.py repro`: run the declared command twice and compare output digests.
-- A lockfile exists for each language the project uses.
-- A search of changed files for sampling and random calls with no seed nearby.
-- A search of changed files for user-specific absolute paths.
+- `cg.py repro`: runs the Run command of the verification profile twice and compares the digests of the outputs its outputs map names. It names an output that neither run wrote, one that the two runs wrote differently, and one that differs from what was on file before.
+- `cg.py repro` also searches the files of the change: a draw with no seed above it, a path under a home folder, the clock, the network, a listing that is not sorted, and a number typed into the prose of a report. It names a language of the project with no lockfile, and a do-file with no `version` command.
+- Its record is in the evidence of the work, and `../lenses/determinism.md` says which of its findings are sure and which are for the verifier to judge.
