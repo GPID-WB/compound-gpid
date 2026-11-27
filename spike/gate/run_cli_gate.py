@@ -300,9 +300,13 @@ def conformance(project, state, stage, log):
     return found if isinstance(found, dict) else {}
 
 
-def reproduced(records):
-    """True when code ran its part of P3 on the work: a record of `cg.py repro` among its evidence (#229)."""
-    return any(record.get("kind") == "repro" for record in records)
+def reproduced(records, report):
+    """True when code ran its part of P3 on the work (#229): a record that `cg.py repro` wrote for this work
+    report, with the keys it writes, after the last tier record. A record typed by hand, one of another work
+    report, and one written before the last slice began passed (review of #229)."""
+    last = max((n for n, record in enumerate(records) if record.get("kind") == "tier"), default=-1)
+    return any(record.get("kind") == "repro" and record.get("report") == report and n > last
+               and {"exits", "outputs", "findings", "state"} <= set(record) for n, record in enumerate(records))
 
 
 def reviewed(found):
@@ -493,7 +497,8 @@ def run_work(agent, project, log, checks):
     checks["W: no test removed or skipped and no checker silenced"] = cg(project, "guard", "--base", base)[0] == 0
     checks["W: each verifier of the review stage gave a verdict, with its kind of review"] = reviewed(
         conformance(project, state, "review", log))
-    checks["W: code ran its part of P3 on the work (cg.py repro)"] = reproduced(evidence(project, state) if state else [])
+    checks["W: code ran its part of P3 on the work (cg.py repro)"] = state is not None and reproduced(
+        evidence(project, state), f".cg-docs/work-reports/{Path(state['path']).name}")
 
 
 def run_stop(agent, project, log, checks):

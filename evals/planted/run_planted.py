@@ -79,12 +79,14 @@ def judge(project: Path, cases, reply: str, plan=PLAN):
     """What a reply shows, from its last verdict block and from the files: its verdict, whether each
     finding proposes the code that would replace it, and whether each case is caught. A case is caught
     by a finding whose pointer is its file, at the line that holds its text, three lines either way,
-    or is one of the places under "or", where "record" is a record under .cg-docs/evidence/."""
+    or is one of the places under "or", where "record" is a record under .cg-docs/evidence/. One
+    finding catches one case: five findings that each named a whole file caught every case (review)."""
     block = reply[reply.rfind("principle:"):] if "principle:" in reply else reply
     verdict = re.search(r"^\s*verdict:\s*(\S+)", block, re.M)
     found = [m.groups() for m in map(FINDING.match, block.split("\nnote:")[0].splitlines()) if m]
     result = {"verdict: FLAG": bool(verdict) and verdict.group(1).strip("`*") == "FLAG",
               "each finding proposes the code that replaces it": bool(found) and all("fix:" in f[3] for f in found)}
+    options, owner = {}, {}
     for case in cases:
         name, line = plan if case["file"] == "@plan" else case["file"], 0
         if "text" in case:
@@ -92,10 +94,19 @@ def judge(project: Path, cases, reply: str, plan=PLAN):
             line = next(number for number, text in enumerate(lines, 1) if case["text"] in text)
         allowed = case.get("or", [])
         key = f"{case['flag']}: {case['file']}" + (f", at '{case['text']}'" if "text" in case else "")
-        result[key] = any(
+        options[key] = [n for n, (path, first, last, _) in enumerate(found) if (
             ("record" in allowed) if path.startswith(".cg-docs/evidence/") else path in allowed or path == name and (
-                not line or bool(first) and int(first) - 3 <= line <= int(last or first) + 3)
-            for path, first, last, _ in found)
+                not line or bool(first) and int(first) - 3 <= line <= int(last or first) + 3))]
+
+    def place(key, seen):  # give the case a finding of its own, moving another case to another finding if it must
+        for n in options[key]:
+            if n not in seen:
+                seen.add(n)
+                if n not in owner or place(owner[n], seen):
+                    owner[n] = key
+                    return True
+        return False
+    result.update({key: place(key, set()) for key in options})
     return result
 
 
