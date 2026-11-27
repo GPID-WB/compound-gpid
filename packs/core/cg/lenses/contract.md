@@ -10,7 +10,7 @@ This lens is for the verifier of P1. It says what code holds of the contract, wh
 
 ## What code holds
 
-The contract is what the human approved: the plan's Goal, Out of scope, Requirements, Checks and Boundaries, built on the intent they decided. The line "The contract" of your kickoff says whether they approved the plan as it now reads; when they did not, that is your first finding.
+The contract is what the human approved: the plan's Goal, Out of scope, Requirements, Checks and Boundaries, built on the intent they decided. At the review stage the line "The contract" of your kickoff says whether they approved the plan as it now reads; when they did not, that is your first finding. At the plan stage they have not approved it yet.
 
 - At the plan stage the playbook ran `cg.py validate` before you: each requirement has a check and each check a requirement, a command in one pair of backticks and an outcome that means failure, a slice runs every check, and nothing is left open. Do not run it. Judge what it cannot read: what the words say, against the intent.
 - At the review stage code has run `cg.py claims` on the work. Its record is the newest file with `"kind": "claims"` in the folder of evidence that your kickoff names. Each entry under `findings` with the rule `not-built` is yours, and every other rule is P7's. With no such record, write one finding with no pointer: `claims` has not run on this work. Do not run it again.
