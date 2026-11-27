@@ -871,7 +871,8 @@ def test_issue_259_an_approval_holds_the_reply_of_its_turn_and_a_text_shown_befo
     docs = tmp_path / ".cg-docs"
     for folder in ("approvals", "brainstorms", "plans", "work-reports"):
         (docs / folder).mkdir(parents=True)
-    intent, plan = ".cg-docs/brainstorms/2026-11-27-measure-poverty-depth.md", ".cg-docs/plans/2026-11-27-measure-poverty-depth.md"
+    intent = ".cg-docs/brainstorms/2026-11-27-measure-poverty-depth.md"
+    plan = ".cg-docs/plans/2026-11-27-measure-poverty-depth.md"
     report = ".cg-docs/work-reports/2026-11-27-add-headcount.md"
     count = [0]
 
@@ -926,7 +927,7 @@ def test_issue_259_an_approval_holds_the_reply_of_its_turn_and_a_text_shown_befo
             written["late"] = record(report, "Yes.", risk)
             return "Recorded your earlier yes."
         if label == "R2":
-            return "Reply all fix, or decide each: **F1** and **F2–F3** say the help page is wrong. Data: inst/extdata/survey.csv."
+            return "Reply all fix, or decide each: **F1** and **F2–F3** say the help is wrong. Data: inst/extdata/survey.csv."
         if label == "R3":
             decisions = [{"id": f"F{n}", "decision": "accept", "reason": "x"} for n in (1, 2, 3)]
             written["route"] = record(report, prompt, kind="route", decisions=decisions)

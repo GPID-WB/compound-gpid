@@ -100,6 +100,15 @@ Steps C, G, H, W and X each judge the artifact made since the step began,
 and fail when there is none or more than one (gate rerun 18: several work
 reports carry the same date, so the last by name is not the newest).
 
+Steps C, X, G, H, W and R also hold every approval record a turn writes to what
+the human saw (#259; gate rerun 24, turn W7, where one "Yes." was recorded
+against two texts of the intent written after it). The record holds the reply
+the script sent in that turn; the text it approves stood in its artifact before
+the turn began; and the agent's output in the session before the reply names
+the artifact (file name or title), the data path, or each finding decided.
+Agents show a text in summary, so that last test is weak: it cannot tell a
+text shown from one only named.
+
 When a yes of the script changes nothing, the artifact reads after the turn
 as it did before it, the agent asked something that a yes does not answer:
 a value, a wider scope, option 1 or 2 (gate reruns 15, 16 and 18). The next
@@ -190,6 +199,7 @@ class Agent:
     def __init__(self, name, program, kilo_model):
         self.name, self.program, self.kilo_model = name, str(program), kilo_model
         self.session = None
+        self.said, self.problems = [], {}  # the replies of this session so far; what unshown found, by step
 
     def command(self, prompt, new):
         p = self.program
@@ -242,7 +252,7 @@ class Agent:
 
 
 def turn(agent, project, prompt, new, log, label):
-    command = agent.command(prompt, new)
+    command, before = agent.command(prompt, new), held(project)
     try:
         done = subprocess.run(command, cwd=project, env=dict(os.environ, PWD=str(project)),
                               stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=LIMIT)
@@ -252,7 +262,85 @@ def turn(agent, project, prompt, new, log, label):
     text = agent.reply(output) if "exit code" in end else output
     shown = prompt.replace(panel_message(), GUIDE_MARKER) if agent.name == "kilo-panel" else prompt
     log.append(f"### {label}\n\n> {shown}\n\n{text}\n\n{end}\n")
+    agent.said = [] if new else agent.said  # what the human was shown in this session before this reply
+    after = held(project)
+    found = unshown(before, after, prompt, "\n\n".join(agent.said))
+    agent.problems.setdefault(label[0], []).extend(found)
+    fresh = [name for name, raw in after[0].items() if before[0].get(name) != raw]
+    if fresh:  # a reader of the transcript sees each record the turn wrote, and what is wrong with it
+        good = [name for name in fresh if not any(problem.startswith(name) for problem in found)]
+        lines = [f"- {problem}" for problem in found] + [f"- {name}: nothing wrong" for name in good]
+        log.append(f"### The approvals recorded in turn {label}\n\n" + "\n".join(lines) + "\n")
+    agent.said.append(text)
     return text
+
+
+SHOWN = "each approval holds the reply of its turn and a text the agent showed before it"
+
+
+def held(project):
+    """What a turn begins and ends with (#259): each approval record by name, with its bytes, and the text of each
+    artifact that an approval can hold."""
+    docs = project / ".cg-docs"
+    records = {path.name: path.read_bytes() for path in sorted((docs / "approvals").glob("*.json"))}
+    texts = {path.relative_to(project).as_posix(): path.read_text(encoding="utf-8", errors="replace")
+             for folder in ("brainstorms", "plans", "work-reports") for path in sorted((docs / folder).glob("*.md"))}
+    return records, texts
+
+
+def words(text):
+    return re.findall(r"\w+", (text or "").lower())
+
+
+def flat(text):
+    """A text as cg.py keeps an approved one, with any line ends: no trailing spaces, no blank lines at either end."""
+    return "\n".join(line.rstrip() for line in (text or "").splitlines()).strip("\n")
+
+
+def ids(text):
+    """The findings an output names: F1, and each one of a range such as F4-F6, F4–F6 or F4 to F6."""
+    found = set()
+    for first, last in re.findall(r"\bF(\d+)(?:\s*(?:-|–|—|to)\s*F?(\d+))?\b", text or ""):
+        found.update(f"F{n}" for n in range(int(first), min(int(last or first), int(first) + 99) + 1))
+    return found
+
+
+def unshown(before, after, reply, said):
+    """What is wrong with each approval record that a turn wrote or changed, from held() before and after it (#259).
+    The record holds a reply other than the one the human sent in this turn, so it was written in a later turn or holds
+    words of no reply; it approves a text that did not stand in its artifact when the human replied, so they cannot have
+    seen it (gate rerun 24, turn W7); or what the agent said in the session before the reply names neither its artifact,
+    by file name or title, nor its data path, nor each finding it decides. Agents show a text in summary, so the last
+    test is weak by design: the exact part is the second. Empty when nothing is wrong."""
+    (old, texts), problems = before, []
+    seen = f" {' '.join(words(said))} "
+    for name, raw in after[0].items():
+        if old.get(name) == raw:
+            continue
+        try:
+            record = json.loads(raw.decode("utf-8"))
+        except ValueError:
+            record = None
+        record = record if isinstance(record, dict) else {}
+        place = str(record.get("artifact") or "")
+        if not said_only([record.get("reply")], reply):
+            problems.append(f"{name}: it holds a reply the human did not send in this turn")
+        if isinstance(record.get("text"), str):
+            if flat(record["text"]) not in flat(texts.get(place, "")):
+                problems.append(f"{name}: the text it approves was not in {place} when the human replied")
+            title = re.search(r"^# (.+)$", texts.get(place, ""), re.M)
+            if Path(place).stem not in said and not (title and f" {' '.join(words(title.group(1)))} " in seen):
+                problems.append(f"{name}: the agent named {place} nowhere in its output before the reply")
+        elif isinstance(record.get("reads"), str):
+            if record["reads"] and f" {' '.join(words(record['reads']))} " not in seen:
+                problems.append(f"{name}: the agent showed {record['reads']} nowhere in its output before the reply")
+        elif isinstance(record.get("decisions"), list):
+            missing = sorted({str(d.get("id")) for d in record["decisions"] if isinstance(d, dict)} - ids(said))
+            if missing:
+                problems.append(f"{name}: the agent showed no finding {', '.join(missing)} before the reply")
+        else:
+            problems.append(f"{name}: it holds no text, data path or finding that can be held to what was shown")
+    return problems
 
 
 def cg(project, *args):
@@ -711,6 +799,9 @@ def run_agent(agent, project, steps="BCDGHWXR"):
         state = run_work(agent, project, log, checks)
         if "R" in steps:
             run_review(agent, project, log, checks, state)
+    for step in "CXGHWR":  # each step that records approvals holds every record to what the agent showed (#259)
+        if step in agent.problems:
+            checks[f"{step}: {SHOWN}"] = not agent.problems[step]
     return checks, log
 
 
