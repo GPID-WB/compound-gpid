@@ -200,7 +200,8 @@ DETERMINISM = (
      "with the seed in the work report"),
     ("home-path", CODE_FILES, "code", r"(?<![\w.])(/Users/|/home/|[A-Za-z]:[\\/]{1,2}Users[\\/]{1,2})[^\s\"'/\\]|"
      r"[\"']~[/\\]", None, 'a path from the project root, such as here::here("data", "survey.csv") in R, or a path from '
-     "the folder of the script in Python"),
+     'the folder of the script in Python; for data that its rule keeps outside the project, a folder that each machine '
+     'sets, such as Sys.getenv("SURVEY_DIR")'),
     ("clock", CODE_FILES, "code", r"\bSys\.(time|Date)\s*\(|\b(datetime|date)\.(now|today|utcnow)\s*\(|"
      r"\btime\.time\s*\(|\bc\(current_(date|time)\)|\$S_(DATE|TIME)\b", None,
      "the date passed in as an input, and no clock in an output that is compared"),

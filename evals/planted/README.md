@@ -12,7 +12,7 @@ Each folder here holds the planted violations of one verifier (plan, section 4.3
 ## Two parts
 
 - **What code finds** runs in CI: `tests/core/test_determinism.py` copies `project/` and holds `cg.py repro` to each case whose `code` is a rule.
-- **What is judged** needs a model reading the lens, and CI cannot start one. `run_planted.py` builds the project as the work leaves it, prints the kickoff code gives the verifier, starts a coding agent on it with approval prompts off, and judges the verdict block from the files. Run it after `install.py --update`, since it uses the installed core:
+- **What is judged** needs a model reading the lens, and CI cannot start one. `run_planted.py` builds the project as the work leaves it, prints the kickoff code gives the verifier, starts a coding agent on it with approval prompts off, and judges the verdict block it returns, with the files: each case needs a finding of its own. Run it after `install.py --update`, since it uses the installed core:
 
   ```
   python3 evals/planted/run_planted.py --verifier determinism --only claude,codex,kilo --kilo-model openai/gpt-6-luna

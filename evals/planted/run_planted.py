@@ -14,7 +14,8 @@ as a draft plan. `cg.py verifiers` prints the kickoff, and the agent gets it, in
 no word added (the guide's rule "Verifiers").
 
 It judges each reply from its verdict block and from the files: the verdict is FLAG; each finding
-proposes the code that would replace it (`fix:`); each case of <verifier>/expected.json is caught; and
+proposes the code that would replace it (`fix:`); each case of <verifier>/expected.json is caught by a
+finding of its own; and
 the verifier changed no file of the project but the records of a run. The agents run with approval
 prompts off, as in the gate. --dry-run builds every copy, prints each kickoff and the line that would
 start the agent, and starts nothing. Transcripts and results.json go to --out (default DIR/out).

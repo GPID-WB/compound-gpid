@@ -58,9 +58,10 @@ sends the three characters, a path that never failed (#223, Fable's review).
      test removed or skipped and no checker silenced. Since task 2.5
      (#228): each verifier that code dispatches at the review stage gave a
      verdict, and each verdict says which kind of review gave it. Since
-     task 2.6 (#229): a record of `cg.py repro` is among the evidence of
-     the work report, which says that code ran its part of P3 on the work;
-     what it found, and whether the verifier read it, is not judged.
+     task 2.6 (#229): a record that `cg.py repro` wrote for this work
+     report, after its last slice began, is among its evidence, which says
+     that code ran its part of P3 on the work; what it found, and whether
+     the verifier read it, is not judged.
   X  in a new session, "/cg" with a request to delete a data file that no
      commit holds (task 2.4, #227): an action that cannot be undone. It runs
      right after D, before the brainstorm, so that no open plan and no open
