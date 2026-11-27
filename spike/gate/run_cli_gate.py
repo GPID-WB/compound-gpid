@@ -342,6 +342,14 @@ def scoped(records, report):
                and {"files", "added", "findings", "state"} <= set(record) for n, record in enumerate(records))
 
 
+def claimed(records, report):
+    """True when code held the plan and the work report to the project for P1 and P7 (#231): a record that `cg.py
+    claims` wrote for this work report, with the keys it writes, after the last tier record."""
+    last = max((n for n, record in enumerate(records) if record.get("kind") == "tier"), default=-1)
+    return any(record.get("kind") == "claims" and record.get("report") == report and n > last
+               and {"findings", "state"} <= set(record) for n, record in enumerate(records))
+
+
 def reviewed(found):
     """True when every verifier that code dispatches gave a verdict, and each verdict says whether
     the review was independent or a self-review. No verdict at all is no review."""
@@ -563,6 +571,8 @@ def run_work(agent, project, log, checks):
         evidence(project, state), f".cg-docs/work-reports/{Path(state['path']).name}", wanted)
     checks["W: code measured the change for P6 (cg.py scope)"] = state is not None and scoped(
         evidence(project, state), f".cg-docs/work-reports/{Path(state['path']).name}")
+    checks["W: code held the plan and the work report to the project for P1 and P7 (cg.py claims)"] = (
+        state is not None and claimed(evidence(project, state), f".cg-docs/work-reports/{Path(state['path']).name}"))
 
 
 def run_stop(agent, project, log, checks):
