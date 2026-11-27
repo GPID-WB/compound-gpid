@@ -91,6 +91,12 @@ When every slice is done, have code run the project and search the whole change 
 
 It runs the Run command of `.cg-docs/verification.md` twice, so the outputs are written where that command writes them, and it compares their digests. An output that someone typed or edited after a run would be written over, and only a commit keeps what it held, so `repro` refuses while an output is not as the last commit holds it, and names it. Commit it when the human asks for that, or stop as section 5, rule 1 says, and run the line again after their recorded yes. It takes as long as two runs: give it that time, and never start it again while a run of it goes on. It shows nothing of what the command printed. Each line that starts with `FLAG` names a rule, where it shows and the code that would replace it. Change nothing for it: the verifiers read its record, and the human decides. When it prints `refused`, a stop waits: section 5.
 
+Then have code measure the change for what P6 names. It runs nothing, and writes only its record:
+
+`"<python>" "<cg>" scope --report "<the work report>" --project "<project root>"`
+
+It gives the size of the change beside the files the slices list, and each line that starts with `FLAG` names a rule, where it shows and the change that would replace it. Change nothing for it either.
+
 Then have the whole change checked by the verifiers of the principles the work is held to. The line below says which verifiers run, and prints the kickoff of each. Run each one and record its verdict as the guide says under "Verifiers". Then run the line printed after `then`, which lists the verdict of each verifier, and go on only when it prints `missing: none`. A verdict that the listing marks as given on an earlier text was given before the change last moved: start that verifier again, once, and record its new verdict. A mark that is still there goes to the human with the findings. Change nothing for a finding in this step: each one stays in the record with its pointer, and the human decides what is fixed. Show them every finding in your reply.
 
 `"<python>" "<cg>" verifiers "<the work report>" --stage review --project "<project root>"`
