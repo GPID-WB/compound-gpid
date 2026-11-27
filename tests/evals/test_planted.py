@@ -5,6 +5,8 @@ hold what it judges from a reply and from the files, and that a dry run builds t
 kickoff of each stage, with the lens in it, and starts no agent.
 """
 import json
+import os
+import shlex
 import shutil
 import subprocess
 import sys
@@ -27,6 +29,8 @@ def test_a_finding_catches_a_case_at_its_line_or_where_the_case_allows_and_each_
              {"flag": "an unpinned environment", "file": "uv.lock", "or": ["record"]}]
     line = next(n for n, text in enumerate((project / "pipeline.py").read_text().splitlines(), 1)
                 if "random.choices(" in text)
+    (project / ".cg-docs" / "evidence" / "x").mkdir(parents=True)  # a pointer at a record names one that is there
+    (project / ".cg-docs" / "evidence" / "x" / "0003-repro.json").write_text("{}", encoding="utf-8")
     block = ("principle: P3\nverdict: FLAG\nfindings:\n"
              f"  - `pipeline.py:{line + 1}`: the bootstrap draws with no seed (P1; fix: random.seed(7) above it)\n"
              "  - .cg-docs/evidence/x/0003-repro.json: no lockfile (P2; fix: uv lock)\nnote: none\n")
@@ -100,3 +104,36 @@ def test_the_verification_folder_builds_the_work_as_it_went_and_the_runner_asks_
     reply = head + f"  - {run_planted.REPORT}:{report}: C5 never ran (P1; fix: run it)\nnote: none\n"
     result = run_planted.judge(project, cases, reply)
     assert result["a claim with no evidence: @report, at 'C5 passes'"] and sum(result.values()) == 3, result
+
+
+def test_review_of_2_7_the_rerun_leaves_the_files_the_runner_counts_and_a_lazy_reply_catches_no_case(tmp_path):
+    """Review of #230. The kickoff's rerun line, run as the lens asks, made Python write the byte code of the module
+    a check imports into the project, so the runner said that a verifier which did right changed a file. And a
+    reply whose findings each named a whole file, as many as the file has cases, caught every case, and so did
+    findings that point at a record of a run that is not there. A finding catches a case at its line when it
+    names ten lines at most, and a record only when it is one."""
+    sys.path.insert(0, str(RUNNER.parent))
+    import run_planted
+    environ = {key: value for key, value in os.environ.items() if key != "PYTHONDONTWRITEBYTECODE"}
+    done = subprocess.run([sys.executable, str(RUNNER), "--dry-run", "--cg", str(CG), "--dest", str(tmp_path / "lens"),
+                           "--only", "codex", "--verifier", "verification"], capture_output=True, text=True, env=environ)
+    project = tmp_path / "lens" / "toy-poverty-codex"
+    assert done.returncode == 0, done.stdout + done.stderr
+    before = run_planted.state(project)
+    kickoff = run_planted.kickoff([sys.executable, str(CG)], project, run_planted.REPORT, "review", "verification")
+    line = kickoff.split("Every check of the plan, rerun by code: ")[1].splitlines()[0]
+    assert subprocess.run(shlex.split(line.replace("\\", "/")), capture_output=True, env=environ).returncode == 1, line
+    assert run_planted.state(project) == before
+    cases = json.loads((RUNNER.parent / "verification" / "expected.json").read_text(encoding="utf-8"))["review"]
+    def size(name):
+        return len((project / run_planted.PLACES.get(name, name)).read_text(encoding="utf-8").splitlines())
+    head, many = "principle: P4\nverdict: FLAG\nfindings:\n", []
+    for name, count in (("@plan", 4), ("@report", 2), ("@profile", 1), ("pipeline.py", 2), ("checks/headcount.py", 1)):
+        many += [f"  - {run_planted.PLACES.get(name, name)}:1-{size(name)}: this file breaks P4 (P1; fix: rewrite it)"] * count
+    result = run_planted.judge(project, cases, head + "\n".join(many) + "\nnote: none\n")
+    assert sum(result.values()) - 2 <= 1, result  # the case of a failing check allows any line of pipeline.py
+    fake = head + "  - .cg-docs/evidence/2026-11-27-poverty-brief/0099-rerun.json: a check fails (P1; fix: fix it)\n" * 6
+    assert sum(run_planted.judge(project, cases, fake + "note: none\n").values()) - 2 == 0
+    record = sorted((project / ".cg-docs" / "evidence" / "2026-11-27-poverty-brief").glob("*-rerun.json"))[-1]
+    real = fake.replace("0099-rerun.json", record.name)
+    assert sum(run_planted.judge(project, cases, real + "note: none\n").values()) - 2 == 6

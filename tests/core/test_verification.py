@@ -162,3 +162,45 @@ def test_the_lens_says_what_code_reruns_what_is_judged_and_asks_what_else_each_n
     p4 = (CG / "principles" / "P04-prove-it-works.md").read_text(encoding="utf-8")
     assert "`cg.py evidence --rerun`" in p4.split("## Deterministic checks")[1]
     assert list((HUB / "docs" / "adr").glob("0010-*.md")) and "the verification verifier" in (HUB / "README.md").read_text()
+
+
+# ---------------------------------------------------------------- the review of task 2.7
+
+def test_review_of_2_7_a_claim_beside_a_negation_and_r_runs_that_exit_with_0_on_a_failure_are_found():
+    """Review of #230. `unrecorded` skipped a line with any word of negation, so "C5 passes, and no share lies
+    outside 0 and 1" was no claim. `cannot-fail` missed testthat::test_file() and a test run inside try() or a
+    tryCatch() that stops nothing, which exit with 0 when a test fails (testthat 3.3). `proxy` missed a check
+    that only loads code or searches a test file, and named one that tests a file exists and then its value."""
+    rules = {rule: pattern for rule, part, pattern, fix in load_cg().VERIFY if part in ("command", "report")}
+    claims = ["- C5 passes, and no share lies outside 0 and 1.", "- C5 is not yet run, but C2 passes.",
+              "- C4 fails; C5 passes.", "- C5 passed without an error."]
+    negated = ["- C5 does not pass yet.", "- C5 has not passed.", "- C5 didn't pass.", "- C5 failed to pass.",
+               "- C5 never passed.", "- C5 is not verified.", "- No run of C5 passed.", "| C5 | a share outside 0 and 1 |"]
+    assert [c for c in claims if not re.search(rules["unrecorded"], c, re.I)] == []
+    assert [c for c in negated if re.search(rules["unrecorded"], c, re.I)] == []
+    cannot = ['Rscript -e "testthat::test_file(\'tests/testthat/test-gap.R\')"',
+              'Rscript -e "library(testthat); test_file(\'tests/testthat/test-gap.R\')"',
+              'Rscript -e "try(testthat::test_dir(\'tests\'))"',
+              'Rscript -e "tryCatch(testthat::test_dir(\'tests\'), error = function(e) NULL)"']
+    can = ['Rscript -e "testthat::test_file(\'tests/testthat/test-gap.R\', stop_on_failure = TRUE)"',
+           'Rscript -e "tryCatch(testthat::test_dir(\'tests\'), error = function(e) stop(\'failed\'))"',
+           'Rscript -e "devtools::check()"', 'Rscript -e "testthat::test_dir(\'tests\')"']
+    assert [c for c in cannot if not re.search(rules["cannot-fail"], c)] == []
+    assert [c for c in can if re.search(rules["cannot-fail"], c)] == []
+    proxy = ['python -c "import pipeline"', 'Rscript -e "devtools::load_all()"', "Rscript -e \"library(toy)\"",
+             "Rscript -e \"source('R/headcount.R')\"", "grep -q expect_equal tests/testthat/test-headcount.R"]
+    sound = ["test -f output/table.csv && python checks/value.py", "[ -s output/ci.csv ] && python checks/interval.py",
+             'Rscript -e "devtools::load_all(); stopifnot(abs(headcount(x) - 0.153846) < 1e-6)"',
+             'python -c "import sys; sys.exit(1)"', "grep -q North output/table.csv"]
+    assert [c for c in proxy if not re.search(rules["proxy"], c)] == []
+    assert [c for c in sound if re.search(rules["proxy"], c)] == []
+
+
+def test_review_of_2_7_each_lens_has_the_verifier_account_for_every_finding_of_code():
+    """Item 46 of the handoff: two agents missed a finding that repro had named. Each lens has the verifier
+    account for every finding of code: a finding of its own, or a line of its note with the reason."""
+    for name, part in (("determinism", "## What code found"), ("verification", "## First, rerun the checks")):
+        text = (CG / "lenses" / f"{name}.md").read_text(encoding="utf-8")
+        section = text.split(part)[1].split("\n## ")[0]
+        assert "Account for each" in section and "set it aside" in section and "your note" in section, name
+        assert len(text.splitlines()) <= 60, name

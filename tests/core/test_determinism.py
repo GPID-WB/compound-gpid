@@ -289,3 +289,36 @@ def test_review_of_2_6_the_texts_say_what_repro_writes_over_and_what_a_cache_a_f
     assert "Sys.getenv" in next(rule[-1] for rule in load_cg().DETERMINISM if rule[0] == "home-path")
     assert "a block of more than one such line" in (HUB / "docs" / "adr" / "0009-determinism.md").read_text()
     assert "a finding of its own" in (HUB / "evals" / "planted" / "README.md").read_text(encoding="utf-8")
+
+
+def test_review_of_2_7_an_included_file_or_a_wildcard_is_no_pin_and_a_pinned_environment_with_its_channels_is(env):
+    """Review of #230. An included file or a folder beside a line with == was a pin, though ADR 0009 says it is
+    none, and so was a wildcard; an environment.yml with every version was none when a key followed its
+    dependencies or a package named its channel."""
+    cg, project = load_cg(), env["project"]
+    for name, text, pinned in (
+            ("requirements.txt", "-r base.txt\nnumpy==1.26.4\n", False),
+            ("requirements.txt", "--requirement base.txt\nnumpy==1.26.4\n", False),
+            ("requirements.txt", "-e .\nnumpy==1.26.4\n", False), ("requirements.txt", "numpy==1.*\n", False),
+            ("requirements.txt", "--index-url https://pypi.org/simple\nnumpy==1.26.4\n", True),
+            ("environment.yml", "name: brief\ndependencies:\n  - numpy=1.26.4\nchannels:\n  - conda-forge\n", True),
+            ("environment.yml", "dependencies:\n  - conda-forge::numpy=1.26.4\n  - python=3.11.6\n", True),
+            ("environment.yml", "dependencies:\n  - numpy=1.*\n", False)):
+        (project / name).write_text(text, encoding="utf-8")
+        assert cg.pins(project / name) == pinned, (name, text)
+
+
+def test_review_of_2_7_a_run_block_that_says_not_found_with_a_reason_holds_no_command(env):
+    """Review of #230, gate rerun 22: repro took "not found: <a reason>" in the Run block for the Run command,
+    and since task 2.7 refused to run it over an output the work changed, a stop for the human."""
+    project = env["project"]
+    (project / ".cg-docs").mkdir()
+    (project / "out.csv").write_text("1\n")
+    for words in ("not found: no single command that produces the package output was identified",
+                  "Not found (an R package)", "none", "n/a"):
+        (project / ".cg-docs" / "verification.md").write_text(PROFILE.format(run=words), encoding="utf-8")
+        assert load_cg().profile(project)[0] is None, words
+    report = begin(env)
+    code, out, record, _ = repro(env, report)
+    assert "refused" not in out and ("no-run", ".cg-docs/verification.md") in [
+        (f["rule"], f["where"]) for f in record["findings"]], out

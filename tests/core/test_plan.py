@@ -481,3 +481,15 @@ def test_status_names_each_decided_intent_that_no_plan_is_built_on_yet(env):
     assert "\nready-to-plan: none\n" in env["cg"]("status")[1]
     text = (CG / "playbooks" / "plan.md").read_text(encoding="utf-8")
     assert "`ready-to-plan`" in text[text.index("## 1. Start or resume"):text.index("## 2.")]
+
+
+def test_review_of_2_7_a_check_ends_the_slice_whose_change_makes_it_pass():
+    """Gate rerun 23: a plan put a test in a slice of its own and the code it tests in the next, so the first
+    slice's checks could not pass and the work stopped for an amendment. Code cannot tell such a slice from one
+    that pins a behavior, which passes before the change, so the playbook says it."""
+    text = (CG / "playbooks" / "plan.md").read_text(encoding="utf-8")
+    step = text[text.index("## 4. Cut the slices"):text.index("## 5.")]
+    first = next(line for line in step.splitlines() if line.startswith("- **What every later slice needs comes first"))
+    assert "the check that fails until the work is done" not in first
+    assert "A check ends the slice whose change makes it pass" in step and "with the code it tests" in step
+    assert len(text.splitlines()) <= 120

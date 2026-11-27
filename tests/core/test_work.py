@@ -625,3 +625,19 @@ def test_gate_rerun_22_a_request_for_the_work_with_no_approved_plan_goes_to_quic
     row = next(line for line in (CG / "SKILL.md").read_text(encoding="utf-8").splitlines()
                if line.startswith("|") and "`work` after `/cg`" in line)
     assert "no plan is approved" in row and "quick work" in row
+
+
+def test_review_of_2_7_an_approved_plan_changed_since_its_yes_goes_to_the_work_playbook_as_one_in_progress_does(env):
+    """Review of #230: an approved plan amended and not approved again sent its work to quick work, outside the
+    plan, and an in-progress plan in the same state to the work playbook, whose step 1 sends the human to /cg
+    plan. Both go to the work playbook now; a plan the human never approved still goes to quick work."""
+    project = start(env, report=False)
+    plan = project / PLAN
+    plan.write_text(plan.read_text(encoding="utf-8") + "\n## Amendments\n\n- 2026-11-27: C2 also checks the region.\n",
+                    encoding="utf-8")
+    for status in ("approved", "in-progress"):
+        plan.write_text(re.sub(r"^status: \S+", f"status: {status}", plan.read_text(encoding="utf-8"), flags=re.M),
+                        encoding="utf-8")
+        state = json.loads(env["cg"]("status", "--guide", "--playbook", "work", "--json")[1])
+        assert state["playbook"].endswith("work.md") and state["next"] == "read playbooks/work.md", (status, state)
+        assert any("not approved as it now reads" in item for item in state["waiting-on-human"]), state
