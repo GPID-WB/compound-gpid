@@ -15,6 +15,8 @@ from test_artifacts import (CG, CLEAN, IDEA, INTENT_BODY, PLAN, PLAN_BODY, env, 
 
 GOOD = front("plan", "draft") + PLAN_BODY
 SLICE = "| S1 | headcount() | R/headcount.R | C1, C2 | by code: R/headcount.R |"
+QUESTION = ('| Q1 | C1 | How close the share must be to the expected one | six decimals; a looser one would pass an '
+            'unweighted share | "Six decimals." |')
 AMENDED = "\n## Amendments\n\n- 2026-11-26: the expected share is 0.25, from the survey report.\n"
 
 
@@ -299,7 +301,7 @@ def test_a_plan_that_still_marks_a_value_as_open_is_not_complete_and_is_not_appr
     """Gate rerun 16: an agent wrote VALUE-PENDING where the human's expected value goes, in the
     check's command and its outcome, and validate --strict called the plan complete."""
     path = env["put"]("plan", GOOD)
-    for mark in ("VALUE-PENDING", "TBD", "TODO", "XXX", "???", "<the expected value>"):
+    for mark in ("VALUE-PENDING", "TBD", "TODO", "XXX", "???", "<the expected value>", "(Q1)", "(Q12)"):
         text = GOOD.replace("| the share differs from 0.153846 |", f"| the share differs from {mark} |")
         path.write_text(text, encoding="utf-8")
         code, out = env["cg"]("validate", "--strict", PLAN)
@@ -308,9 +310,41 @@ def test_a_plan_that_still_marks_a_value_as_open_is_not_complete_and_is_not_appr
         assert code == 1 and "still marks something as open" in out, (mark, out)
     # A value in quotes, a word in prose, a tag and fenced code are no mark.
     for line in ("Rows with status \"PENDING\" are dropped.", "Pending households are kept.", "One line<br>two.",
-                 "```\n# TODO: an old comment in the code\n```"):
+                 "```\n# TODO: an old comment in the code\n```", "The data of Q1 2026, and the answer to Q1."):
         path.write_text(GOOD.replace("Other poverty measures.", line), encoding="utf-8")
         assert env["cg"]("validate", "--strict", PLAN) == (0, CLEAN), line
+
+
+def test_what_a_plan_still_asks_the_human_is_in_its_open_questions_and_keeps_it_from_approval(env):
+    """The maintainer's decision of 2026-11-26: a plan has a section for the choices inside it that
+    only the human can make. Code holds it as it holds the decisions of an intent: a draft may
+    wait for an answer, and a plan that waits for one is not approved. While it waits, the place
+    of the value names the question, as (Q1), and that mark keeps the plan from approval too."""
+    path = env["put"]("plan", GOOD)
+    assert QUESTION in GOOD and "## Open questions" in load_cg().ARTIFACTS["plan"]["sections"]
+    for old, new, words in (
+            ('| "Six decimals." |', "| open |", "question Q1 has no answer from the human yet"),
+            ('| "Six decimals." |', "| |", "question Q1 has no answer from the human yet"),
+            ('| "Six decimals." |', "| pending the survey team |", "when 'pending the survey team' is what they said, "
+                                                                 "put it in quotes"),
+            ("| six decimals; a looser one would pass an unweighted share |", "| ? |", "question Q1 has no recommended answer"),
+            ("| Q1 | C1 |", "| first | C1 |", "'first' is not an ID such as Q1"),
+            (QUESTION, QUESTION + "\n" + QUESTION, "the ID Q1 appears twice"),
+            ("the share differs from 0.153846", "the share differs from (Q1)", "it still marks something as open")):
+        assert old in GOOD
+        path.write_text(GOOD.replace(old, new), encoding="utf-8")
+        code, out = env["cg"]("validate", PLAN)
+        assert code == 0 and f"warn {PLAN}: " in out and words in out, (new, out)  # a draft may wait
+        assert env["cg"]("validate", "--strict", PLAN)[0] == 1
+        code, out = env["cg"]("approve", PLAN, "--reply", "Yes.")
+        assert code == 1 and "refused" in out and words in out and "status: draft" in path.read_text(), (new, out)
+    refused(env, path, GOOD.replace("## Open questions", "## Questions"), "the section '## Open questions' is missing")
+    refused(env, path, GOOD.replace(QUESTION + "\n", ""), "nothing is written under '## Open questions'")
+    # A plan that asks nothing says so in one row, as the data register does.
+    for row in ("| none | none | none | none | none |", "| **None** | None | none. | none | none |"):
+        path.write_text(GOOD.replace(QUESTION, row), encoding="utf-8")
+        assert env["cg"]("validate", "--strict", PLAN) == (0, CLEAN), row
+    assert env["cg"]("approve", PLAN, "--reply", "Yes.")[0] == 0
 
 
 # ---------------------------------------------------------------- the text
@@ -396,6 +430,23 @@ def test_the_plan_template_asks_for_what_code_checks_and_new_fills_in_the_intent
     assert "\nintent: {intent}\n" in template.split("---\n")[1]
     assert "no check" in template[template.index("### Checks"):template.index("### Boundaries")]
     assert "recorded" in template[template.index("## Data register"):template.index("## Slices")]
+    asked = template[template.index("## Open questions"):]
+    assert "| ID | About | Question | Recommended answer, with its trade-off | The human's answer |" in asked
+    assert "| Q1 |" in asked and '"none"' in asked and '"open"' in asked
+
+
+def test_the_plan_playbook_puts_what_is_open_into_the_table_and_the_brainstorm_asks_for_the_value_first():
+    """The maintainer's view: questioning belongs in the brainstorm, and the plan does not interview
+    the human again. What a plan still has to ask goes into its Open questions table."""
+    text = PLAYBOOK.read_text(encoding="utf-8")
+    read = text[text.index("## 2."):text.index("## 3.")]
+    for words in ("Do not interview the human again", "Open questions", "`(Q1)`", "recommend", "end your turn"):
+        assert words in read, words
+    assert "angle brackets" not in text and "Open questions" in text[text.index("## 7. Approve"):text.index("## 8.")]
+    brainstorm = (CG / "playbooks" / "brainstorm.md").read_text(encoding="utf-8")
+    restate = brainstorm[brainstorm.index("## 5. Restate"):brainstorm.index("## 6.")]
+    for words in ("an expected value", "a reference figure", "a tolerance", "Ask for it now"):
+        assert words in restate, words
 
 
 def test_the_other_texts_name_the_plan():

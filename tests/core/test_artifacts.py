@@ -71,6 +71,12 @@ Other poverty measures.
 | Slice | What it delivers | Files | Checks | By code or by judgement |
 |---|---|---|---|---|
 | S1 | headcount() | R/headcount.R | C1, C2 | by code: R/headcount.R |
+
+## Open questions
+
+| ID | About | Question | Recommended answer, with its trade-off | The human's answer |
+|---|---|---|---|---|
+| Q1 | C1 | How close the share must be to the expected one | six decimals; a looser one would pass an unweighted share | "Six decimals." |
 """
 # The decided intent every plan in these tests is built on, and the one data rule its register needs.
 IDEA = ".cg-docs/brainstorms/2026-11-20-headcount.md"
