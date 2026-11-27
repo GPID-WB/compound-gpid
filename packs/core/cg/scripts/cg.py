@@ -15,12 +15,16 @@ Usage, with the interpreter that ~/.cg/launcher.json records as <python>:
   "<python>" cg.py evidence [CHECK-ID | --run COMMAND] [--verdict not-verified|inconclusive] --report REPORT
                       [--project PATH]
   "<python>" cg.py guard [--report REPORT] [--base COMMIT] [--project PATH]
+  "<python>" cg.py verifiers PLAN|REPORT|SOLUTION --stage STAGE [--json] [--project PATH]
+  "<python>" cg.py conformance PLAN|REPORT|SOLUTION [--stage STAGE] [--verifier NAME --verdict VERDICT
+                      --review independent|self-review [--finding "POINTER: WHAT"]... [--note TEXT]] [--json]
   "<python>" cg.py packs [--json]
   "<python>" cg.py setup [--packs a,b] [--setting pack.key=value]... [--classification-levels "A;B"]
                        [--approved-tool "agent=level"]... [--data "path=level"]...
                        [--project PATH] [--dry-run]
 
-What each command does and why is in docs/adr/0005-artifacts.md, 0006-evidence.md and in its --help.
+What each command does and why is in docs/adr/0005-artifacts.md, 0006-evidence.md, 0008-verifiers.md
+and in its --help.
 PATH may be any folder inside the project: the commands use the nearest folder
 above it that holds .cg-docs/, else the root of its git repository.
 
@@ -82,7 +86,7 @@ ARTIFACT_FOLDERS = {kind: spec["folder"] for kind, spec in ARTIFACTS.items()}
 COMMON_KEYS = ("type", "schema", "title", "date", "status")
 # Each a path from the project root. `approval` is the record of the human's yes, written by approve.
 LINK_KEYS = ("intent", "plan", "work-report", "review", "supersedes", "approval")
-KNOWN_KEYS = COMMON_KEYS + LINK_KEYS + ("size", "decided-by", "tags")
+KNOWN_KEYS = COMMON_KEYS + LINK_KEYS + ("size", "decided-by", "tags", "track")
 SETTLED = ("dropped", "superseded")  # nobody will finish these, so unfilled text in them is no failure
 # The artifacts that rest on the human's yes. Per type: the statuses a file may have when approve
 # records a yes, the status code then writes over `draft`, and the statuses that need a yes on record.
@@ -172,6 +176,11 @@ GUARD = (
 COMMENT = r"^[ \t]*(#|//|\*).*$"
 # What git compares with before a repository's first commit: the empty tree.
 EMPTY_TREE = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
+# The stages a principle file may name under `stages`, each with the type of artifact its verifiers
+# look at. Which verifiers run at a stage is the principle files' to say, and no list here (#228).
+STAGES = {"plan": "plan", "review": "work-report", "sign-off": "work-report", "compound": "solution"}
+VERDICTS = ("PASS", "FLAG", "INCONCLUSIVE", "NOT-APPLICABLE")
+REVIEWS = {"independent": "independent review", "self-review": "self-review"}
 # Which playbook each phase opens.
 # PLACEHOLDER: extended in task 2.14; task 1.3 delivers setup and quick only.
 PHASE_PLAYBOOK = {"setup": "playbooks/setup.md", "ready": "playbooks/quick.md"}
@@ -703,6 +712,8 @@ def cmd_new(args) -> int:
     # One pass, so a title that itself holds "{date}" is kept as written (#218).
     text = re.sub(r"\{(type|title|heading|date|intent|plan|size)\}", lambda m: values[m.group(1)],
                   template.read_text(encoding="utf-8"))
+    if plan:  # on a plan the verdicts are in the conformance record, which says who gave each (#228)
+        text = re.sub(r"^## Self-review\n.*?(?=^## )", "", text, flags=re.M | re.S)
     write_atomic(target, text)
     if plan and plan["status"] == "approved":
         set_front(project / plan["path"], {"status": "in-progress"})
@@ -1523,10 +1534,11 @@ def name_key(name: str) -> str:
     return sha_of(name)[7:23]
 
 
-def base_of(project: Path, report: dict) -> str:
+def base_of(project: Path, report: dict, whole: bool = False) -> str:
     """The commit the work began on: the one the first tier record of this slice holds, so that a commit
-    in the slice hides nothing from guard (review of #227); before a first commit, the empty tree."""
-    tiers = [r for _, r in records(project, report, "tier")]
+    in the slice hides nothing from guard (review of #227); before a first commit, the empty tree.
+    With whole, the commit the first slice began on: what a verifier compares the whole change with."""
+    tiers = [r for _, r in records(project, report, "tier")][:1 if whole else None]
     while len(tiers) > 1 and tiers[-2].get("slice") == tiers[-1].get("slice"):  # back to the start of this slice
         tiers.pop()
     return (tiers[-1].get("commit") if tiers else None) or git(project, "rev-parse", "--verify", "-q", "HEAD") \
@@ -1757,6 +1769,232 @@ def cmd_guard(args) -> int:
         print(f"FAIL {line}")
     print(f"guard: {len(found)} problem{'s' * (len(found) > 1)}" if found else "guard: clean")
     return 1 if found else 0
+
+
+# ---------------------------------------------------------------- verifiers and conformance
+
+def principles():
+    """Each principle as the frontmatter of its file says it: its ID, its name, its verifier and the
+    stages that verifier runs at. Dispatch is computed from these files (plan, section 4.2)."""
+    found = []
+    for path in sorted((CG_DIR / "principles").glob("P*.md")):
+        fields = read_frontmatter(path.read_text(encoding="utf-8"))[0]
+        found.append({**{key: str(fields.get(key, "")) for key in ("id", "name", "verifier")}, "path": path,
+                      "stages": [stage.strip() for stage in str(fields.get("stages", "")).split(",") if stage.strip()]})
+    return found
+
+
+def work_files(project: Path, a: dict):
+    """The files a lens of a pack is matched against: for a plan the files its slices list, for a work
+    report the files that differ from the commit the work began on. None when code cannot tell, and
+    then no lens is ruled out: git cannot say, or a slice lists a folder or a pattern."""
+    if a["type"] == "plan":
+        names = [name for row in rows_of(a["body"], "## Slices", 5, []) for name in listed(project, row[2])]
+        return None if any("*" in name or "." not in posixpath.basename(name) for name in names) else names
+    return changed_files(project, base_of(project, a, True)) if a["type"] == "work-report" else []
+
+
+def dispatch(project: Path, a: dict, stage: str):
+    """The verifiers that check an artifact at a stage, computed and never remembered: one for each
+    principle whose `stages` names the stage, and one for each lens of an installed pack that serves
+    such a principle and whose `when` fits the files and the track of the work (ADR 0003, rule 2).
+    Each reads its principle file, and its lens when there is one: lenses/<verifier>.md in core."""
+    files, track, found = work_files(project, a), a["fields"].get("track"), []
+    lenses = [(pack, lens) for pack in discover_packs()[0]
+              for lens in (read_pack(Path(pack["path"]) / "pack.json")[0] or {}).get("lenses") or []
+              if isinstance(lens, dict)]
+    for p in (p for p in principles() if stage in p["stages"]):
+        own = CG_DIR / "lenses" / f"{p['verifier']}.md"
+        found.append({"verifier": p["verifier"], "principle": p["id"], "name": p["name"],
+                      "reads": [p["path"]] + [own] * own.is_file()})
+        for pack, lens in lenses:
+            when = lens.get("when") if isinstance(lens.get("when"), dict) else {"files": lens.get("when")}
+            patterns = listed(project, when["files"]) if isinstance(when.get("files"), str) else []
+            # A trigger that code cannot read rules nothing out, and a track narrows once the artifact names one.
+            if lens.get("principle") == p["id"] and (not track or when.get("track") in (None, track)) and (
+                    files is None or not patterns or any(covers(patterns, name) for name in files)):
+                found.append({"verifier": f"{pack['name']}.{lens.get('id')}", "principle": p["id"], "name": p["name"],
+                              "reads": [p["path"], Path(pack["path"]) / str(lens.get("file"))]})
+    return found
+
+
+def cg_line(project: Path, *words) -> str:
+    """A line of cg.py as the agent runs it, with the interpreter, this file and the project filled in."""
+    return " ".join([f'"{sys.executable}"', f'"{Path(__file__).resolve()}"', *words, f'--project "{project.as_posix()}"'])
+
+
+def kickoff(project: Path, a: dict, stage: str, v: dict) -> str:
+    """The text that starts one verifier: templates/kickoff.md, with nothing filled in but paths and
+    IDs that code computes. No line of an artifact and no word of the agent that did the work goes
+    into it, and the command takes none, so no kickoff holds the author's explanation (P5)."""
+    def link(artifact, key):  # a link of the frontmatter is passed on only when it names a file
+        value = artifact["fields"].get(key)
+        return value if isinstance(value, str) and (project / value).is_file() else "a file that is not there"
+    values = {"cg": CG_DIR.as_posix(), "verifier": v["verifier"], "principle": f"{v['principle']} {v['name']}",
+              "stage": stage, "project": project.as_posix(), "artifact": a["path"], "contract": "none",
+              "evidence": "none", "run": "none at this stage, so point at a file and a line",
+              "reads": "\n".join(f"{number}. {Path(path).as_posix()}"
+                                 for number, path in enumerate([CG_DIR / "verifier.md", *v["reads"]], 1))}
+    if a["type"] == "plan":
+        values["contract"] = f"in the plan itself; the human decided the intent it is built on, {link(a, 'intent')}"
+    elif a["type"] == "work-report":
+        base, plan = base_of(project, a, True), plan_of(project, a)
+        values.update(
+            artifact=f"every file that differs from commit {base} (`git diff {base}`), each file that no commit holds "
+                     f"(`git status --short`), and the work report {a['path']}",
+            contract='no plan: this is quick work, and what the human asked is under "Asked" in the work report',
+            evidence=f".cg-docs/evidence/{Path(a['name']).stem}/ and .cg-docs/approvals/",
+            run=cg_line(project, "evidence", "--run", '"<the command>"', "--report", f'"{a["path"]}"'))
+        if plan:
+            values["contract"] = f"the plan {plan['path']}, " + (
+                f"which the human approved as the record {link(plan, 'approval')} holds it"
+                if is_approved(project, plan) else "which the human has not approved as it now reads")
+    template = (CG_DIR / "templates" / "kickoff.md").read_text(encoding="utf-8")
+    return re.sub(r"\{([a-z]+)\}", lambda m: values.get(m.group(1), m.group(0)), template).strip()
+
+
+def staged(project: Path, arg: str, stage):
+    """The artifact that the verifiers of a stage look at, or of any stage when none is given, as
+    read_artifact reads it. When the file is none, a line says so."""
+    at = artifact_at(project, arg)
+    if at and (at[1] == STAGES[stage] if stage else at[1] in STAGES.values()):
+        return read_artifact(*at, project)
+    print(f"at the {stage} stage the verifiers check {article(STAGES[stage])} of this project, and this is none: {arg}"
+          if stage else f"not a plan, a work report or a solution of this project: {arg}")
+
+
+def cmd_verifiers(args) -> int:
+    """Print the verifiers that check an artifact at a stage: each with the kickoff that starts it,
+    and the line that records its verdict. Then the line that lists the verdicts."""
+    project = project_from(args.project)
+    a = staged(project, args.artifact, args.stage) if project else None
+    if a is None:
+        return 2
+    target = ["conformance", f'"{a["path"]}"', "--stage", args.stage]
+    found = [{**v, "reads": [Path(path).as_posix() for path in v["reads"]],
+              "kickoff": kickoff(project, a, args.stage, v),
+              "record": cg_line(project, *target, "--verifier", v["verifier"], "--verdict",
+                                f"<{', '.join(VERDICTS[:-1])} or {VERDICTS[-1]}>", "--review",
+                                "<independent or self-review>")} for v in dispatch(project, a, args.stage)]
+    if args.json:
+        print(json.dumps(found, indent=2, sort_keys=True))
+        return 0
+    print(f"stage: {args.stage}\nartifact: {a['path']}\n"
+          f"verifiers: {'; '.join(v['verifier'] + ' (' + v['principle'] + ')' for v in found) or 'none'}")
+    for v in found:
+        print(f"\n== {v['verifier']} ({v['principle']} {v['name']})\nkickoff:\n{v['kickoff']}\nrecord: {v['record']}")
+    print(f"\nthen: {cg_line(project, *target)}")
+    return 0
+
+
+def verdicts(project: Path, a: dict):
+    """(path, verdicts): the conformance record of an artifact, one file under .cg-docs/conformance/
+    in a folder named as the artifact's, and every verdict code wrote into it, oldest first."""
+    path = project / ".cg-docs" / "conformance" / ARTIFACT_FOLDERS[a["type"]] / f"{Path(a['name']).stem}.json"
+    return path, [v for v in record_at(path).get("verdicts") or [] if isinstance(v, dict)]
+
+
+def standing(project: Path, a: dict, stage: str):
+    """Where an artifact stands at a stage: (stage, verifier, verdict) for each verifier that dispatch()
+    names, with its newest verdict on record, or None. A verdict says under `earlier` whether the text
+    it was given on has changed since. What applies is computed again each time, as the work now is."""
+    newest = {v.get("verifier"): {**v, "earlier": v.get("on") not in (None, text_hash(a["body"]))}
+              for v in verdicts(project, a)[1] if v.get("stage") == stage}
+    return [(stage, v, newest.get(v["verifier"])) for v in dispatch(project, a, stage)]
+
+
+def proven(project: Path, finding: str):
+    """(pointer, sentence) when a finding opens with proof that code can open: a file of the project
+    with a line it holds, as path:line, or the record of a run under .cg-docs/evidence/. Else None.
+    Whether the pointer shows what the sentence says is for the reader to judge."""
+    found = re.match(r"(.{1,400}?)(?::(\d+))?:\s+(\S.*)$", finding, re.S)
+    name = data_path(project, found.group(1).strip("`\"' ")) if found else ".."
+    try:
+        if not within(name, ""):
+            return None
+        with open(project / name, "rb") as handle:  # a file of the project: its lines are counted, never kept
+            lines = sum(1 for _ in handle)
+    except (OSError, ValueError):
+        return None
+    held = (1 <= int(found.group(2)) <= lines if found.group(2) else
+            name.startswith(".cg-docs/evidence/") and record_at(project / name).get("kind") == "check")
+    return (name + (":" + found.group(2) if found.group(2) else ""), found.group(3)) if held else None
+
+
+def cmd_conformance(args) -> int:
+    """Record the verdict of one verifier on an artifact, or list its conformance record.
+
+    A verdict is recorded only for a verifier that dispatch() names, and only with the kind of
+    review that gave it. Code opens the proof of each finding: a finding with none goes under
+    `unverified`, and a FLAG whose findings all lack it is recorded as UNVERIFIED. A record holds
+    pointers and short sentences, and names no person. With no --verifier, the newest verdict of
+    each verifier is listed, for work on a plan the plan's too. Exit code 1 while a verifier has
+    given none: that is what keeps sign-off from being offered.
+    """
+    project = project_from(args.project)
+    a = staged(project, args.artifact, args.stage) if project else None
+    if a is None:
+        return 2
+    path, held = verdicts(project, a)
+    if args.verifier:
+        if not (args.stage and args.verdict and args.review):
+            print("to record a verdict give --stage, --verifier, --verdict and --review: independent when another agent "
+                  "in a fresh context gave the verdict on the kickoff alone, self-review when the agent that did the "
+                  "work gave it")
+            return 2
+        named = {v["verifier"]: v for v in dispatch(project, a, args.stage)}
+        findings, refused = [text.strip() for text in args.finding or [] if text.strip()], []
+        note = (args.note or "").strip()
+        if args.verifier not in named:
+            refused.append(f"{args.verifier} is no verifier of the {args.stage} stage for {a['path']}; code says which "
+                           f"ones run: {', '.join(named) or 'none'}")
+        if (args.verdict == "FLAG") != bool(findings):
+            refused.append("a FLAG comes with each finding, given once each with --finding, and any other verdict "
+                           "comes with none: one finding makes the verdict a FLAG")
+        if args.verdict in VERDICTS[2:] and not note:
+            refused.append(f"{args.verdict} needs --note: what kept the verifier from checking, or why the principle "
+                           f"does not apply to this work")
+        if path.is_file() and not record_at(path):
+            refused.append(f"{path.relative_to(project).as_posix()} cannot be read as a conformance record; put it "
+                           f"right or move it away first, so that no verdict in it is written over")
+        if refused:
+            return say(refused)
+        opened = [(text, proven(project, text)) for text in findings]
+        entry = {"stage": args.stage, "verifier": args.verifier, "principle": named[args.verifier]["principle"],
+                 "verdict": args.verdict.replace("-", " ") if any(p for _, p in opened) or not findings else "UNVERIFIED",
+                 "review": args.review, "findings": [{"where": p[0], "what": p[1][:300]} for _, p in opened if p],
+                 "unverified": [text[:300] for text, p in opened if not p], "note": note[:300],
+                 # A verdict is on the text it was given on. A work report changes as it is filled in, so it has none.
+                 "on": None if a["type"] == "work-report" else text_hash(a["body"]), "time": now()}
+        print(f"recorded: {args.verifier} ({entry['principle']}) at the {args.stage} stage: {entry['verdict']}, "
+              f"{REVIEWS[args.review]}" + "".join(f"\nunverified: {text}" for text in entry["unverified"]))
+        if entry["unverified"]:
+            print("  code found no proof it can open at the start of an unverified finding: a file of the project "
+                  "with a line it holds, written path:line, or the record of a run under .cg-docs/evidence/")
+        print(f"record: {write_record(project, path, {'artifact': a['path'], 'verdicts': held + [entry]})}")
+        return 0
+    plan = plan_of(project, a) if a["type"] == "work-report" and not args.stage else None
+    rows = standing(project, plan, "plan") if plan else []
+    for stage in [args.stage] if args.stage else [s for s, kind in STAGES.items() if kind == a["type"]]:
+        rows += standing(project, a, stage)
+    missing = [f"{stage} {v['verifier']}" for stage, v, given in rows if not given]
+    shown = [given for *_, given in rows if given]
+    if args.json:
+        print(json.dumps({"artifact": a["path"], "verdicts": shown, "missing": missing}, indent=2, sort_keys=True))
+        return 1 if missing else 0
+    for stage, v, g in rows:
+        print(f"{stage} {v['principle']} {v['verifier']}: " + ("no verdict" if not g else (
+            f"{g.get('verdict')}, {REVIEWS.get(g.get('review'))}" + ", on an earlier text" * g["earlier"]
+            + "".join(f"\n  finding: {f.get('where')}: {f.get('what')}" for f in g.get("findings") or [])
+            + "".join(f"\n  unverified: {text}" for text in g.get("unverified") or [])
+            + f"\n  note: {g.get('note')}" * bool(g.get("note")))))
+    kinds = [g.get("review") for g in shown]
+    print(f"missing: {'; '.join(missing) or 'none'}\nindependent review: {kinds.count('independent')}; "
+          f"self-review: {kinds.count('self-review')}")
+    if a["type"] == "work-report" and not args.stage:
+        print("sign-off: " + ("blocked until each verifier under missing has given a verdict" if missing
+                              else "every verifier has given a verdict"))
+    return 1 if missing else 0
 
 
 # ---------------------------------------------------------------- setup
@@ -2094,10 +2332,26 @@ def main(argv=None) -> int:
     guard.add_argument("--report", help="the work report: also hold the change to its slice and its evidence")
     guard.add_argument("--base", default="HEAD", help="the commit the change is compared with")
     guard.add_argument("--project", default=".")
+    verifiers = sub.add_parser("verifiers", help="print the verifiers that check an artifact at a stage, each with "
+                                                 "its kickoff")
+    conformance = sub.add_parser("conformance", help="record the verdict of a verifier, or list the verdicts on an "
+                                                     "artifact")
+    for command in (verifiers, conformance):
+        command.add_argument("artifact", help="the plan, the work report or the solution that is checked")
+        command.add_argument("--stage", choices=sorted(STAGES), required=command is verifiers)
+        command.add_argument("--json", action="store_true")
+        command.add_argument("--project", default=".")
+    conformance.add_argument("--verifier", help="the verifier whose verdict is recorded, as verifiers names it")
+    conformance.add_argument("--verdict", choices=VERDICTS, type=lambda text: text.upper().replace(" ", "-"))
+    conformance.add_argument("--review", choices=sorted(REVIEWS), help="who gave the verdict: another agent in a "
+                                                                       "fresh context, or the agent that did the work")
+    conformance.add_argument("--finding", action="append", help="once for each finding: its pointer, a colon, and "
+                                                                "what is wrong in one sentence")
+    conformance.add_argument("--note", help="what the verifier could not check, or why the principle does not apply")
     args = parser.parse_args(argv)
     commands = {"doctor": cmd_doctor, "status": cmd_status, "new": cmd_new, "packs": cmd_packs, "setup": cmd_setup,
                 "validate": cmd_validate, "approve": cmd_approve, "tier": cmd_tier, "evidence": cmd_evidence,
-                "guard": cmd_guard}
+                "guard": cmd_guard, "verifiers": cmd_verifiers, "conformance": cmd_conformance}
     return commands[args.command](args)
 
 

@@ -1,7 +1,7 @@
 # Compound GPID
 
 > [!WARNING]
-> This is branch `v2`, where Compound GPID 2.0 is being built. It installs (see `docs/install-block.md`), and the guide `/cg` can set up a project, think an idea through with you (`/cg brainstorm`), write the plan you approve (`/cg plan`), do the work of that plan slice by slice (`/cg work`) and do quick work. Reviews and sign-off come later in milestone 2, so it is not ready for real work yet.
+> This is branch `v2`, where Compound GPID 2.0 is being built. It installs (see `docs/install-block.md`), and the guide `/cg` can set up a project, think an idea through with you (`/cg brainstorm`), write the plan you approve (`/cg plan`), do the work of that plan slice by slice (`/cg work`) and do quick work. A plan and the finished work are checked by verifiers, one for each principle, and you see each verdict. The review with you and sign-off come later in milestone 2, so it is not ready for real work yet.
 > Version 1 is on branch `main` and frozen on branch `v1`; its install instructions are in the README there.
 
 Compound GPID helps analysts (economists, researchers and data scientists, and the people who build their packages, pipelines and dashboards) use a coding agent and still own and understand what gets built.
@@ -16,7 +16,7 @@ Version 2 is a hub of packs. Everyone installs the core pack; language, research
 | `.claude-plugin/marketplace.json` | The pack index, read by `install.py`. It is also a valid Claude Code marketplace, but that is not a supported way to install. |
 | `install.py`, `docs/install-block.md` | The installer, and the one install text. |
 | `tools/` | Checks run in CI, and the version sync. |
-| `docs/adr/` | Decision records: hosts, sources, packs, no base host, artifacts, evidence and the guard, the budget of the core tooling. |
+| `docs/adr/` | Decision records: hosts, sources, packs, no base host, artifacts, evidence and the guard, the budget of the core tooling, the verifier engine. |
 | `docs/v2/HANDOFF.md` | Where the build stands and what comes next. |
 | `SCOPE.md`, `.out-of-scope/` | What belongs in core, the size budgets, and ideas already set aside. |
 | `.cg-docs/` | This project's own plans, reviews and solutions, from version 1 on. |

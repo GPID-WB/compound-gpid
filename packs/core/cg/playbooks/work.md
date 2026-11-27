@@ -85,20 +85,20 @@ Each rule below stops the work, whatever the plan says and however far the work 
 
 ## 6. Close
 
-When every slice is done, read the Verifier section of P3, P4 and P6 in `principles/`, and judge the whole change against each. Fill the "Self-review" table of the work report. This is a self-review, and the record says so.
+When every slice is done, have the whole change checked by the verifiers of the principles the work is held to. The line below says which verifiers run, and prints the kickoff of each. Run each one and record its verdict as the guide says under "Verifiers". Then run the line printed after `then`, which lists the verdict of each verifier, and go on only when it prints `missing: none`. Change nothing for a finding in this step: each one stays in the record with its pointer, and the human decides what is fixed. Show them every finding in your reply.
 
-<!-- PLACEHOLDER: written in task 2.5. The self-review above stands in for the dispatch of the `determinism`, `verification` and `simplicity` verifiers, each in a fresh context, on the change, the evidence and the approved contract. -->
+`"<python>" "<cg>" verifiers "<the work report>" --stage review --project "<project root>"`
 
-Fill every other section of the work report. Set `status: completed` only when every check of the plan is `verified`: code fails a work report that says so without the evidence. Then have code check the record:
+Fill every section of the work report. Set `status: completed` only when every check of the plan is `verified`: code fails a work report that says so without the evidence. Then have code check the record:
 
 `"<python>" "<cg>" validate "<the work report>" --project "<project root>"`
 
-A line that starts with `FAIL` names what is missing. Fix it and run the line again. The plan stays `in-progress`: the work is proven, and nobody has reviewed it or signed it off yet.
+A line that starts with `FAIL` names what is missing. Fix it and run the line again. The plan stays `in-progress`: the work is proven and each verifier gave its verdict, and the human has not decided on the findings or signed the work off yet.
 
 Commit only when the human asks, or when the plan's Always list says that each slice is committed. A commit inside a slice hides nothing from `guard`, which compares with the commit the slice began on. The change, the work report and its records under `.cg-docs/evidence/` and `.cg-docs/approvals/` go in one commit (P8). A push is rule 1.
 
 **A slice in a fresh context.** When the coding agent can start another agent, you may give it one slice. The first line of its kickoff is the one the guide gives, which sends it to `worker.md`. After it, give pointers and none of your reasoning: the plan, the slice, the files it lists and the checks it ends in. That agent makes the change and reports. You run `tier` before it starts, and `evidence` and `guard` after it reports. The record is yours, and so is every stop.
 
-**Reply:** the plan and the work report, each with its status; each slice that is done, with its checks and their verdicts as `evidence` lists them; what `guard` printed for the last slice; each stop, with what you asked and what you are waiting for; each finding the human decided on; the self-review verdict for P3, P4 and P6; what you did not check; the "Noticed but not touching" list; and the slices that are left. Label each claim measured, inferred or guess.
+**Reply:** the plan and the work report, each with its status; each slice that is done, with its checks and their verdicts as `evidence` lists them; what `guard` printed for the last slice; each stop, with what you asked and what you are waiting for; each finding the human decided on; the verdict of each verifier with the kind of review that gave it, and each finding with its pointer; what you did not check; the "Noticed but not touching" list; and the slices that are left. Label each claim measured, inferred or guess.
 
-<!-- PLACEHOLDER: written in task 2.9. The review playbook takes the proven work next. Until then the work ends with the plan `in-progress`. -->
+<!-- PLACEHOLDER: written in task 2.9. The review playbook takes the proven work next: it dispatches the verifiers of the review stage, which section 6 does until then, and has the human decide on each finding. Until then the work ends with the plan `in-progress`. -->

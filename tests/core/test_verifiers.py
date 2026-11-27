@@ -243,12 +243,17 @@ def test_a_conformance_record_holds_no_name_no_output_and_no_long_text(env):
     project = working(env)
     long = "a household is counted twice " * 30
     assert give(env, REPORT, "review", "claims", "FLAG", "independent", "--finding", f"{CODE}:1: {long}",
-                "--finding", long, "--note", long)[0] == 0
+                "--finding", long, "--finding", f"{long}: no file has a name this long", "--note", long)[0] == 0
     (last,) = held(env, REPORT)
     assert set(last) == {"stage", "verifier", "principle", "verdict", "review", "findings", "unverified", "note", "on", "time"}
-    assert len(last["findings"][0]["what"]) == len(last["unverified"][0]) == len(last["note"]) == 300
-    text = (project / ".cg-docs" / "conformance" / "work-reports" / "2026-11-26-headcount.json").read_text(encoding="utf-8")
+    assert len(last["findings"][0]["what"]) == len(last["note"]) == 300 and [len(u) for u in last["unverified"]] == [300, 300]
+    path = project / ".cg-docs" / "conformance" / "work-reports" / "2026-11-26-headcount.json"
+    text = path.read_text(encoding="utf-8")
     assert not re.search(r"Test Human|example\.org|share 0\.153846", text) and '"artifact": "' + REPORT in text
+    # The record is one file that grows. One that cannot be read is never written over.
+    path.write_text(text[:-20], encoding="utf-8")
+    code, out = give(env, REPORT, "review", "claims")
+    assert code == 1 and "cannot be read as a conformance record" in out and path.read_text(encoding="utf-8") == text[:-20]
 
 
 def test_work_on_a_plan_gets_a_work_report_with_no_self_review_table(env):
@@ -313,7 +318,7 @@ def test_the_guide_says_how_a_verifier_is_started_and_verifier_md_what_it_does()
     text = (CG / "verifier.md").read_text(encoding="utf-8")
     assert len(text.splitlines()) <= 40 and "derived-from:" in text.split("\n---\n")[0]
     for words in ("one principle", "a claim to check", "`path:line`", "unverified", "No finding is a valid result",
-                  "Data stays closed", "start no other verifier", "INCONCLUSIVE", "NOT APPLICABLE", "`worker.md`",
+                  "Data stays closed", "Start no other verifier", "INCONCLUSIVE", "NOT APPLICABLE", "`worker.md`",
                   "no person's name"):
         assert words in text, words
     kickoff = (CG / "templates" / "kickoff.md").read_text(encoding="utf-8")

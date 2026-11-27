@@ -41,29 +41,15 @@ Words such as output, artifact, worked example, verification and validation have
 
 A verifier is started in a fresh context. It receives the work under review (the diff, the outputs, the artifacts), the approved contract, and its principle file. It never receives the author's explanation of the work.
 
-It returns one **verdict block**:
-
-```
-principle: P3
-verdict: PASS | FLAG | INCONCLUSIVE | NOT APPLICABLE
-review-mode: independent | self-review
-findings:
-  - what: <one sentence>
-    where: <file:line or artifact section>
-    proof: <command run and its output, or the quoted line>
-    grade: E2 | E3 | E4 | E5
-    priority: P0 | P1 | P2 | P3
-    fix: <proposed change>
-not-checked: <what the verifier could not inspect, and why>
-```
+It returns one **verdict block**: the principle, a verdict of PASS, FLAG, INCONCLUSIVE or NOT APPLICABLE, its findings, and a note on what it could not inspect. `verifier.md`, beside the guide, gives the block and the rules every verifier follows. `cg.py verifiers` writes the kickoff of each verifier from fixed text and from paths, and `cg.py conformance` records each verdict in the conformance record.
 
 Rules for every verifier:
 
-- A finding needs proof. A finding without proof is reported under `unverified`, never as a flag.
+- A finding needs proof that code can open: a file and a line, or the record of a run. A finding without it is recorded under `unverified`, never as a flag.
 - "No findings" is a valid result. Do not invent one.
 - INCONCLUSIVE means the verifier could not check. It is not a pass, and the human sees it as an open item.
 - A verifier reports. It does not fix, and it does not start another verifier.
-- When the host has no subagent tool, the same instructions run in the main thread and `review-mode` is `self-review`.
+- When the host has no subagent tool, the same instructions run in the main thread, and the conformance record says `self-review`.
 
 ## Evidence grades
 
@@ -79,7 +65,7 @@ Used in findings and in every claim an agent makes (P7).
 
 ## When verifiers run
 
-The `stages` field of each principle file is the source. `cg.py verifiers --stage <stage>` (task 2.5) reads it and prints the dispatch list, so the order below is computed and never recalled from memory.
+The `stages` field of each principle file is the source. `cg.py verifiers --stage <stage>` reads it and prints the dispatch list, so the order below is computed and never recalled from memory.
 
 | Stage | Verifiers |
 |---|---|
