@@ -16,6 +16,8 @@ Usage, with the interpreter that ~/.cg/launcher.json records as <python>:
                       [--project PATH]
   "<python>" cg.py guard [--report REPORT] [--base COMMIT] [--project PATH]
   "<python>" cg.py repro --report REPORT [--project PATH]
+  "<python>" cg.py scope --report REPORT [--project PATH]
+  "<python>" cg.py claims --report REPORT [--project PATH]
   "<python>" cg.py verifiers PLAN|REPORT|SOLUTION --stage STAGE [--json] [--project PATH]
   "<python>" cg.py conformance PLAN|REPORT|SOLUTION [--stage STAGE] [--verifier NAME --verdict VERDICT
                       --review independent|self-review [--finding "POINTER: WHAT"]... [--note TEXT]] [--json]
@@ -34,6 +36,7 @@ operating system. Every write is atomic, and each record is its own file; a
 verdict is one line added to the conformance record of its artifact.
 """
 import argparse
+import builtins
 import datetime
 import fnmatch
 import hashlib
@@ -238,6 +241,10 @@ REPRO_RULES = tuple(dict.fromkeys([rule for rule, *_ in DETERMINISM] + ["unpinne
 # What a verifier's rerun of the checks finds of P4 (#230): per rule, where it looks (a check's command, a line of the
 # work report, a row of the outputs map), a pattern, and the change that would replace what it finds. Which finding
 # stands is the lens's to say. A check that cannot fail: its exit code is set by what follows it, or by a default.
+# A claim is a line of the work report with a word of success or of validation that no negation stands just before.
+SUCCESS = (r"(verified|validated|pass(es|ed)?|green|ok|succeed(s|ed)?|holds|confirmed|match(es|ed)?|agree(s|d)?|"
+           r"reproduc(es|ed))")
+CLAIM = rf"^(?!.*\b(not|no|never|cannot|\w+n['’]t|fail(s|ed)?\s+to)\W+(\w+\W+){{0,3}}?{SUCCESS}\b).*\b{SUCCESS}\b"
 VERIFY = (
     ("cannot-fail", "command", r"\|\|\s*(true|:|exit\s+0|echo)\b|;\s*(true|:|exit\s+0|echo\b[^|;&]*)\s*$|^\s*(true|:|"
      r"exit\s+0|echo\b[^|;&]*)\s*$|(?<![|>])\|(?![|>])\s*(tee|head|tail|cat|sort|uniq|wc|cut|tr|column|more)\b[^|;&]*$|"
@@ -253,10 +260,9 @@ VERIFY = (
      r"\bos\.path\.(exists|isfile|isdir)\s*\(|\.(exists|is_file)\s*\(\s*\)|\b(py_compile|compileall)\b|\bR\s+CMD\s+"
      r"(build|INSTALL)\b|--(version|collect-only|no-tests)\b", "a check on the value of the real output, against an "
      "expected value from a source independent of the code, at the tolerance the plan sets"),
-    ("unrecorded", "report", r"^(?!.*\b(not|no|never|cannot|\w+n['’]t|fail(s|ed)?\s+to)\W+(\w+\W+){0,3}?(verified|"
-     r"pass(es|ed)?|green|ok|succeed(s|ed)?|holds|confirmed)\b).*\b(verified|pass(es|ed)?|green|ok|succeed(s|ed)?|holds|"
-     r"confirmed)\b", "the run of that check through evidence, or the claim taken out of the work "
-     "report"),
+    ("unrecorded", "report", CLAIM, "the run of that check through evidence, or the claim taken out of the work report"),
+    ("unbacked", "report", CLAIM, "the check of the plan that compares it, run through evidence, or the record of its run "
+     "named in the line; or the claim taken out of the work report"),
     ("no-validation", "profile", "", "a reference value, a cross-check in a second software, or the expectation the "
      "human stated before the run, named in the outputs map and held by a check of the plan"),
     ("not-run", "run", "", "the check run through evidence on the files as they now are, before the work is called done"),
@@ -273,6 +279,24 @@ SCOPE = {
     "unused-argument": "the argument taken out of the function, and out of every call that passes it",
 }
 DEFINES = r"^([ \t]*)(?:def\s+(\w+)\s*\(([^)]*)\)|([\w.]+)\s*(?:<-|=)\s*function\s*\(([^)]*)\))"
+# What cg.py claims finds (#231): of P7 in the work report, and of P1 in the plan, each rule with its principle and the
+# change that would replace what it finds. The verifier of each principle accounts for its rules. A file is named by a
+# name with a suffix, after a folder or not, with a line or a range after a colon.
+CLAIMS = {
+    "no-such-file": ("P7", "the path of the file or of the record as the project holds it, and its line; or the claim "
+                           "taken out"),
+    "unchanged": ("P7", "the row taken out of the Changed table, since the change left that file as it was"),
+    "unpointed": ("P7", "a pointer to what shows it, a check of the plan, the record of a run or a file and its line; "
+                        "or the label inferred, with the reasoning, or guess"),
+    "undefined": ("P7", "the name the project or its package defines, with the page of the package's documentation "
+                        "that names it; or the claim taken out"),
+    "unmatched": ("P7", "the number as the output holds it, read from the output by code, such as inline code in a "
+                        "report; or the claim taken out"),
+    "not-built": ("P1", "the file built as the plan names it; or an amendment the human approves that takes it out"),
+}
+FILE_NAME = (r"(?<![\w/.\-])((?:\.?[\w\-]+/)*[\w.\-]*[\w\-]\.(?:py|r|rmd|qmd|do|ado|csv|tsv|json|jsonl|md|txt|rds|rda|"
+             r"dta|parquet|xlsx?|sav|ya?ml|toml|lock|sh|tex|html|pdf|png|svg))(?::(\d+)(?:-(\d+))?)?(?![\w/\-])")
+MEASURED = r"(^[\s>*-]*|\(|\|\s*)\**measured\**\s*[:,)|]"  # the label of a claim (P7), and no verb
 # The stages a principle file may name under `stages`, each with the type of artifact its verifiers
 # look at. Which verifiers run at a stage is the principle files' to say, and no list here (#228).
 STAGES = {"plan": "plan", "review": "work-report", "sign-off": "work-report", "compound": "solution"}
@@ -1851,6 +1875,23 @@ def cmd_evidence(args) -> int:
     return 0 if verdict == "verified" else 1
 
 
+def said(text: str):
+    """(number, heading, line) for each line of a work report in which the agent can make a claim (#231): none of its
+    frontmatter, none the template holds as it stands, none under "## Asked", which holds the human's words, and no
+    heading, header or rule of a table, fenced code or HTML comment."""
+    fixed = {line.strip() for line in (CG_DIR / "templates" / "work-report.md").read_text(encoding="utf-8").splitlines()}
+    text = re.sub(r"<!--.*?-->", lambda m: "\n" * m.group(0).count("\n"), text, flags=re.S)
+    lines, heading, fenced, rule = text.splitlines(), "", False, r"\|?[\s:|-]*-[\s:|-]*\|?"
+    head = text[:text.find("\n---\n", 3) + 1].count("\n") + 1 if text.startswith("---\n") else 0
+    for n, line in enumerate(lines, 1):
+        fence = line.lstrip().startswith(("```", "~~~"))
+        fenced = fenced != fence
+        heading = line.strip() if re.match(r"#{1,6} ", line) and not fenced else heading
+        if n > head and not (fence or fenced or line.startswith("#") or heading == "## Asked" or line.strip() in fixed
+                             or re.fullmatch(rule, line.strip()) or n < len(lines) and re.fullmatch(rule, lines[n].strip())):
+            yield n, heading, line
+
+
 def line_at(text: str, pattern: str) -> int:
     """The number of the first line of a text that a pattern finds, else 1."""
     return next((n for n, line in enumerate(text.splitlines(), 1) if re.search(pattern, line)), 1)
@@ -1887,10 +1928,12 @@ def rerun(project: Path, report: dict, plan: dict, wanted: dict) -> int:
         found += [{"rule": rule, "where": at, "fix": rules[rule][1]} for rule in [rule] if rule]
         found += [{"rule": rule, "where": at, "fix": fix} for rule, part, pattern, fix in VERIFY if part == "command"
                   and (re.search(pattern, command) or rule == "proxy" and command == run)]
-    verified = {cid for cid, (_, r) in newest.items() if r.get("verdict") == "verified"}
-    found += [{"rule": "unrecorded", "where": f"{report['path']}:{n}", "fix": rules["unrecorded"][1]}  # claims
-              for n, line in enumerate(texts[report["path"]].splitlines(), 1)
-              if set(re.findall(r"\bC\d+\b", line)) - verified and re.search(rules["unrecorded"][0], line, re.I)]
+    verified, own = {cid for cid, (_, r) in newest.items() if r.get("verdict") == "verified"}, records(project, report, "any")
+    for n, _, line in said(texts[report["path"]]):  # a claim of a check with no verified run, or of no check (#231)
+        named = set(re.findall(r"\bC\d+\b", line))
+        rule = "unrecorded" if named - verified else "" if named or any(p.name in line for p, _ in own) else "unbacked"
+        if rule and re.search(CLAIM, line, re.I):
+            found.append({"rule": rule, "where": f"{report['path']}:{n}", "fix": rules[rule][1]})
     found += [{"rule": "no-validation", "where": f"{at_profile}:{line_at(texts[at_profile], '^[|] *' + re.escape(cell))}",
                "fix": rules["no-validation"][1]} for cell, _, proof in rows_of(texts[at_profile], "## Outputs map", 3, [])
               if nothing(proof, source=True) or re.fullmatch(r"<[^<>]*>", proof.strip())]
@@ -2147,6 +2190,13 @@ def defined(text: str) -> dict:
     return found
 
 
+def code_of(project: Path, rules) -> dict:
+    """The R and Python code of the project by its name, each comment line left blank; no file a data rule names."""
+    return {name: re.sub(COMMENT, "", (project / name).read_text(encoding="utf-8", errors="replace"), flags=re.M)
+            for name in changed_files(project, EMPTY_TREE) or [] if posixpath.splitext(name)[1].lower() in R_CODE + PY_CODE
+            and not covers(rules, name) and (project / name).is_file() and (project / name).stat().st_size < 1_000_000}
+
+
 def cmd_scope(args) -> int:
     """Measure the change against the plan, and search it for what code can find of P6 (#231): the size of the change
     beside the files the slices list; a file whose change is of layout alone; and each function the change adds that
@@ -2164,12 +2214,7 @@ def cmd_scope(args) -> int:
     def numstat(*more):  # (added, removed) of each file git holds that the change touched
         return {name: (a, r) for a, r, name in (line.split("\t", 2) for line in (git(
             project, "diff", *more, "--numstat", "--no-renames", base, "--") or "").splitlines()) if name in files}
-    plain, layout, texts = numstat(), numstat("-w"), {}
-    for name in changed_files(project, EMPTY_TREE) or []:  # the code of the project, its comment lines left blank
-        path = project / name
-        if posixpath.splitext(name)[1].lower() in R_CODE + PY_CODE and not covers(rules, name) and path.is_file() \
-                and path.stat().st_size < 1_000_000:
-            texts[name] = re.sub(COMMENT, "", path.read_text(encoding="utf-8", errors="replace"), flags=re.M)
+    plain, layout, texts = numstat(), numstat("-w"), code_of(project, rules)
     calls = "\n".join(text for name, text in texts.items() if not re.search(TEST_FILE, name, re.I))
     found = [("reformat", name, "") for name in plain if name not in layout]
     for name in [n for n in files if n in texts and n.lower().endswith((".py", ".r")) and not re.search(TEST_FILE, n, re.I)]:
@@ -2192,6 +2237,67 @@ def cmd_scope(args) -> int:
           + (f"the slices list {len(declared)} files" if plan else f"tier was given {len(declared)} files")
           + "".join(f"\nFLAG {f['rule']}: {f['where']}; fix: {f['fix']}" for f in found)
           + f"\nrecord: {add_record(project, report, 'scope', record)}")
+    return 1 if found else 0
+
+
+def cmd_claims(args) -> int:
+    """Hold what the plan and the work report name to the project and its records (#231). Of P7, in the work report: a
+    file or a record it names that is not there, or a line past the end of its file; a file its Changed table names that
+    the change left as it was; a claim labelled measured with no pointer; a function it names that no code of the
+    project defines; a number on a line that names an output, which that output does not hold. Of P1, a file that the
+    plan names in its contract, its data register or its slices, and that the project does not hold. It runs nothing
+    and reads no data file, and the record holds each rule and where it shows, never a number or what a line holds."""
+    project = project_from(args.project)
+    report = report_at(project, args.report) if project else None
+    if report is None:
+        return 2
+    base, plan, rules, mapped = base_of(project, report, True), plan_of(project, report), data_rules(project), \
+        profile(project)[1]
+    changed, found, read = changed_files(project, base) or [], [], 0
+    known = set(dir(builtins)).union(*(defined(text) for text in code_of(project, rules).values()))
+
+    def there(name, first=None, last=None):  # a file of the project, its line too, or one the change deleted
+        path = project / name
+        if name.startswith(".cg-docs/evidence/"):  # a record of a run of this work
+            return record_at(path).get("report") == report["path"]
+        if path.is_file() and first and not covers(rules, name) and path.stat().st_size < 1_000_000:
+            return int(last or first) <= path.read_bytes().count(b"\n") + 1
+        return path.exists() or any(within(c, name) for c in changed)
+
+    def held(typed, name):  # a number as the output holds it, at its decimals; one that code may not read is no finding
+        path = project / name
+        if not path.is_file() or covers(rules, name) or path.stat().st_size >= 1_000_000:
+            return True
+        value, places = typed.rstrip("% "), len(typed.rstrip("% ").partition(".")[2])
+        return any(f"{x * scale:.{places}f}" == f"{float(value):.{places}f}" for x in map(float, re.findall(
+            r"-?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?", path.read_text(encoding="utf-8", errors="replace")))
+                   for scale in (1, 100) if scale == 1 or typed.endswith("%"))
+    for n, heading, line in said((project / report["path"]).read_text(encoding="utf-8", errors="replace")):
+        spans, prose, read = re.findall(r"`([^`]+)`", line), re.sub(r"`[^`]*`", "", line), read + 1
+        names = [m.groups() for m in (re.fullmatch(FILE_NAME, s, re.I) for s in spans) if m] + [
+            m.groups() for m in re.finditer(FILE_NAME, prose, re.I) if m.group(2)]  # a file in prose counts with a line
+        cell = line.strip().strip("|").split("|")[0].strip(" `*'\"") if heading == "## Changed" else ""
+        cell = cell if line.lstrip().startswith("|") and not re.search(r"[\s*]", cell) else ""  # no prose, no pattern
+        typed = re.findall(r"(?<![\w.])(\d+(?:\.\d+)?\s?%|\d+\.\d+)(?![\w.]*\d)", prose)  # a share in %, or a decimal
+        found += [(rule, f"{report['path']}:{n}") for rule, on in (
+            ("no-such-file", any(not there(*m) for m in names) or cell and not there(cell)),
+            ("unchanged", cell and (project / cell).exists() and not any(within(c, cell) for c in changed)),
+            ("unpointed", re.search(MEASURED, line, re.I) and not names and not re.search(r"\bC\d+\b", line)),
+            ("undefined", any(name not in known for name in re.findall(r"^([A-Za-z_]\w*)\(", "\n".join(spans), re.M))),
+            ("unmatched", any(not held(number, s) for s in spans if s in mapped for number in typed))) if on]
+    wanted, heading, count = ("### Goal", "### Requirements", "### Checks", "## Data register", "## Slices"), "", set()
+    for n, line in enumerate((project / plan["path"]).read_text(encoding="utf-8").splitlines() if plan else [], 1):
+        heading = " ".join(line.split()) if re.match(r"#{1,6} ", line) else heading  # a command is no file it builds
+        named = [m.group(1) for m in re.finditer(FILE_NAME, re.sub(r"`[^`]*`", "", line), re.I)] if heading in wanted else []
+        count |= set(named)
+        if any(not there(name) for name in named if within(name, "")):
+            found.append(("not-built", f"{plan['path']}:{n}"))
+    found = [{"rule": rule, "where": where, "fix": CLAIMS[rule][1]} for rule, where in found]
+    record = {"kind": "claims", "check": "claims", "findings": found,
+              "commit": git(project, "rev-parse", "--short", "HEAD") or "none", "state": seen(project, report)}
+    print(f"claims: {read} lines of the work report; " + (f"the plan names {len(count)} files" if plan else "no plan")
+          + "".join(f"\nFLAG {f['rule']}: {f['where']}; fix: {f['fix']}" for f in found)
+          + f"\nrecord: {add_record(project, report, 'claims', record)}")
     return 1 if found else 0
 
 
@@ -2375,7 +2481,7 @@ def proven(project: Path, finding: str, a: dict, run: bool = False):
     name = data_path(project, found.group(1).strip("`*\"' ")) if found else ".."
     rules = data_rules(project)  # the kickoff clears no data file
     runs = [p.relative_to(project).as_posix() for p, r in records(project, a, "any") if r.get("kind") in (
-        "check", "repro", "rerun", "scope") and r.get("report") == a["path"] and (not run or (r.get("exit") or any(
+        "check", "repro", "rerun", "scope", "claims") and r.get("report") == a["path"] and (not run or (r.get("exit") or any(
             r.get("exits") or [])) and r.get("command-digest") == sha_of(str(r.get("command"))))] \
         if a["type"] == "work-report" else []  # #229, #230, #231
     try:
@@ -2837,10 +2943,12 @@ def main(argv=None) -> int:
                                          "of the outputs, and search the change for what code can find of P3")
     repro.add_argument("--report", required=True, help="the work report the runs belong to")
     repro.add_argument("--project", default=".")
-    scope = sub.add_parser("scope", help="measure the change against the plan, and search it for what code can find "
-                                         "of P6")
-    scope.add_argument("--report", required=True, help="the work report the change belongs to")
-    scope.add_argument("--project", default=".")
+    for name, text in (("scope", "measure the change against the plan, and search it for what code can find of P6"),
+                       ("claims", "hold what the plan and the work report name to the project and its records, for "
+                                  "what code can find of P1 and P7")):
+        command = sub.add_parser(name, help=text)
+        command.add_argument("--report", required=True, help="the work report the change belongs to")
+        command.add_argument("--project", default=".")
     verifiers = sub.add_parser("verifiers", help="print the verifiers that check an artifact at a stage, each with "
                                                  "its kickoff")
     conformance = sub.add_parser("conformance", help="record the verdict of a verifier, or list the verdicts on an "
@@ -2862,8 +2970,8 @@ def main(argv=None) -> int:
     args = parser.parse_args(argv)
     commands = {"doctor": cmd_doctor, "status": cmd_status, "new": cmd_new, "packs": cmd_packs, "setup": cmd_setup,
                 "validate": cmd_validate, "approve": cmd_approve, "tier": cmd_tier, "evidence": cmd_evidence,
-                "guard": cmd_guard, "repro": cmd_repro, "scope": cmd_scope, "verifiers": cmd_verifiers,
-                "conformance": cmd_conformance}
+                "guard": cmd_guard, "repro": cmd_repro, "scope": cmd_scope, "claims": cmd_claims,
+                "verifiers": cmd_verifiers, "conformance": cmd_conformance}
     return commands[args.command](args)
 
 

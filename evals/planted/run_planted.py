@@ -61,7 +61,8 @@ def build(folder: Path, project: Path, cg, cases):
     puts back what "earlier" says the files held then, runs the Run command and records the slice's checks. With
     "report", that file is the body of the work report. With "repro", the human's yes to writing over the outputs
     that no commit holds is on record (stop rule 1 of the work playbook), and `cg.py repro` runs. With "before", that
-    folder is the project at the commit the work began on, and with "scope", `cg.py scope` runs at the end (#231)."""
+    folder is the project at the commit the work began on, and with "scope" or "claims", that command of cg.py runs at the
+    end (#231)."""
     def cg_ok(*args):
         code, out = run_cg(cg, project, *args)
         if code and args[0] != "evidence":  # a check may fail, as the work left it
@@ -116,8 +117,9 @@ def build(folder: Path, project: Path, cg, cases):
         report.write_text(re.sub(r"(## Risk\n\n)<[^<>]+>", lambda m: m.group(1) + RISK, text), encoding="utf-8")
         cg_ok("approve", REPORT, "--reply", "Yes.")
         print(run_cg(cg, project, "repro", "--report", REPORT)[1].splitlines()[-1])  # the line that names its record
-    if cases.get("scope"):  # as the work playbook runs it once every slice is done (#231)
-        print(run_cg(cg, project, "scope", "--report", REPORT)[1].splitlines()[-1])
+    for command in ("scope", "claims"):  # as the work playbook runs them once every slice is done (#231)
+        if cases.get(command):
+            print(run_cg(cg, project, command, "--report", REPORT)[1].splitlines()[-1])
 
 
 def records(project: Path):
@@ -168,13 +170,14 @@ def judge(project: Path, cases, reply: str, plan=PLAN, probes=()):
     A pointer names ten lines at most, and a record that is there: as many findings that each named
     a whole file as it has cases, or a record that no run wrote, still did (review of #230). Where a case
     allows "run", the pointer is one of probes, a run of the verifier's turn that failed, and the sentence
-    names the case's line, or a line of "also" (#231). A line listed under `dropped:` is no finding."""
+    names the case's line, or a line of "also" (#231). A line listed under `dropped:` is no finding. A finding at the
+    line of a case catches that case alone, and none beside it or under "or" (lens run 1 of #231)."""
     block = reply[reply.rfind("principle:"):] if "principle:" in reply else reply
     verdict = re.search(r"^\s*verdict:\s*(\S+)", block, re.M)
     found = [m.groups() for m in map(FINDING.match, re.split(r"\n\s*(?:dropped|note):", block)[0].splitlines()) if m]
     result = {"verdict: FLAG": bool(verdict) and verdict.group(1).strip("`*") == "FLAG",
               "each finding proposes the code that replaces it": bool(found) and all("fix:" in f[3] for f in found)}
-    options, owner = {}, {}
+    options, owner, spots = {}, {}, {}
     for case in cases:
         name, line, near = {**PLACES, "@plan": plan}.get(case["file"], case["file"]), 0, []
         if "text" in case:
@@ -183,12 +186,16 @@ def judge(project: Path, cases, reply: str, plan=PLAN, probes=()):
             line = near[0]
         allowed = case.get("or", [])
         key = f"{case['flag']}: {case['file']}" + (f", at '{case['text']}'" if "text" in case else "")
+        spots[key] = (name, line)
         options[key] = [n for n, (path, first, last, what) in enumerate(found) if (
             ("record" in allowed and (project / path).is_file() or "run" in allowed and path in probes and any(
                 int(a) - 3 <= at <= int(b or a) + 3 for a, b in re.findall(rf"{re.escape(name)}:(\d+)(?:-(\d+))?", what)
                 for at in near)) if path.startswith(".cg-docs/evidence/") else
             path in allowed or path == name and (not line or bool(first) and int(last or first) - int(first) <= 10
                                                  and int(first) - 3 <= line <= int(last or first) + 3))]
+    exact = {n: {key for key, (name, line) in spots.items() if path == name and first and int(first) == line and not last}
+             for n, (path, first, last, _) in enumerate(found)}
+    options = {key: [n for n in found_at if not exact[n] or key in exact[n]] for key, found_at in options.items()}
 
     def place(key, seen):  # give the case a finding of its own, moving another case to another finding if it must
         for n in options[key]:
