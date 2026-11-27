@@ -658,3 +658,70 @@ def test_step_w_asks_that_the_verification_verifier_reran_every_check_of_the_pla
     assert not gate.reran([{"kind": "tier"}, dict(ran, report=".cg-docs/work-reports/2026-11-26-y.md")], report, wanted)
     assert not gate.reran([{"kind": "tier"}, {"kind": "rerun", "report": report}], report, wanted)  # typed by hand
     assert not gate.reran([{"kind": "tier"}, ran], report, set())  # a plan with no check reran nothing
+
+
+def test_gate_reruns_21_and_23_step_w_asks_for_the_amendment_the_agent_proposes_and_says_yes_to_it(monkeypatch, tmp_path):
+    """Gate reruns 21 and 23 (#231): three times the work stopped on a weakness of the agent's own plan, and the
+    agent rightly asked for an amendment, which the script's human could not give. When a turn leaves the work
+    report in progress with no new record and the plan with no new amendment, the next reply asks for the amendment
+    the agent proposes. Once the plan holds a new dated line under ## Amendments and status shows it waiting, the
+    reply is "Yes.". Two checks say whether an amendment was made and whether it was approved on a plain yes, and
+    the check that the plan is the one the human approved still fails after one."""
+    sys.path.insert(0, str(GATE))
+    sys.path.insert(0, str(HUB / "spike" / "host-matrix"))
+    sys.path.insert(0, str(CG.parent))
+    import cg
+    import run_cli_gate as gate
+    assert gate.AMEND == "Make the amendment you propose to the plan, show it to me, and ask me to approve it."
+    assert [line for line in cg.the_yes(HUB, gate.AMEND)[0] if "user.name" not in line]  # never a yes
+    going = {"status": "in-progress", "complete": False}
+    assert gate.work_reply(going, False, True) == gate.AMEND and gate.work_reply(going, True, True) == gate.YES_STOP
+    assert gate.work_reply(going, False, True, True) == gate.YES_PLAN and gate.work_reply(going, False) == gate.GO_ON
+    dated = "## Amendments\n\n- 2026-11-27: S2 also lists man/ and NAMESPACE.\n\n## Slices\n\n- 2026-11-28: none\n"
+    assert gate.amendments({"text": dated}) == ["- 2026-11-27: S2 also lists man/ and NAMESPACE."]
+    assert gate.amendments(None) == [] and gate.amendments({"text": "## Amendments\n\n- 2026-11-27:\n"}) == []
+
+    def run(recorded, amends=True):
+        text = "| C1 | R1 | `a` | x |\n| C2 | R2 | `b` | y |\n"
+        plan = {"path": tmp_path / "plan.md", "status": "in-progress", "complete": True, "replies": ["Yes."], "text": text}
+        report = {"path": tmp_path / "report.md", "status": "in-progress", "complete": False, "replies": [],
+                  "plan": "plan.md"}
+        said, records, waits = [], [], [False]
+
+        def turn(agent, project, prompt, new, log, label):
+            said.append(label)
+            if len(said) == 1:  # the first slice, and then the agent asks for an amendment of the plan
+                records.extend([{"kind": "tier"}, {"kind": "check", "check": "C1", "label": "declared",
+                                                   "verdict": "verified"}])
+            elif prompt == gate.AMEND and amends:
+                plan["text"], waits[0] = text + "\n" + dated, True
+            elif prompt == gate.YES_PLAN and waits[0]:
+                plan["replies"], waits[0] = plan["replies"] + [recorded], False
+                records.append({"kind": "check", "check": "C2", "label": "declared", "verdict": "verified"})
+                report.update(status="completed", complete=True)
+            return ""
+        monkeypatch.setattr(gate, "turn", turn)
+        monkeypatch.setattr(gate, "newest", lambda project, folder, before=None: dict(plan if folder == "plans" else report))
+        monkeypatch.setattr(gate, "evidence", lambda project, state: list(records))
+        monkeypatch.setattr(gate, "stopped", lambda project, state: False)
+        monkeypatch.setattr(gate, "status", lambda project: {"waiting-on-human": [
+            ".cg-docs/plans/plan.md (status in-progress, not approved as it now reads)"] if waits[0] else []})
+        monkeypatch.setattr(gate, "in_force", lambda project: "plan.md")
+        monkeypatch.setattr(gate, "cg", lambda project, *args: (0, "guard: clean\n"))
+        monkeypatch.setattr(gate, "conformance", lambda project, state, stage, log: {
+            "missing": [], "verdicts": [{"review": "self-review", "earlier": False}]})
+        checks = {}
+        gate.run_work(gate.Agent("kilo", "kilo", "openai/m"), tmp_path, [], checks)
+        return said, checks
+    said, checks = run("Yes.")
+    assert said == ["W1 ask for the work", "W2 go on", "W3 asks for the amendment", "W4 yes to the amendment"], said
+    assert checks["W: the work report is completed, and code accepts it"], checks
+    assert checks["W: each amendment made in the work is approved on a plain yes the human sent"], checks
+    assert not checks["W: the work went on with no amendment to the plan"]
+    assert not checks["W: the plan is the one the human approved"]  # as strict as before: the plan changed in W
+    said, checks = run("Yes, and drop C2.")  # the agent recorded words the human never sent
+    assert not checks["W: each amendment made in the work is approved on a plain yes the human sent"], checks
+    said, checks = run("Yes.", amends=False)  # asked once, no amendment: the script goes back to "go on"
+    assert said[:4] == ["W1 ask for the work", "W2 go on", "W3 asks for the amendment", "W4 go on"], said
+    assert checks["W: the work went on with no amendment to the plan"] and not checks[
+        "W: the work report is completed, and code accepts it"], checks
