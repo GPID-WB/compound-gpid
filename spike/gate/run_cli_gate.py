@@ -1,7 +1,7 @@
-"""Run steps B to D, X, G, H and W of the gate (#223) in the command-line agents, without a human.
+"""Run steps B to D, X, G, H, W and R of the gate (#223) in the command-line agents, without a human.
 
 Usage: <python> spike/gate/run_cli_gate.py [--only claude,codex,kilo,kilo-panel] [--dest DIR]
-                                           [--kilo-model provider/model] [--out DIR] [--steps BCDGHWX]
+                                           [--kilo-model provider/model] [--out DIR] [--steps BCDGHWXR]
 
 For each agent: a fresh copy of the toy project (make_toy.py) in DIR
 (default ~/temp/cg-gate/rerun), then the steps below. `kilo-panel` is Kilo
@@ -75,6 +75,18 @@ sends the three characters, a path that never failed (#223, Fable's review).
      found, and the verdict, are not judged. Since task 2.8 (#231): a
      record of `cg.py scope` for this work report, after its last slice
      began, which says that code measured the change for P6.
+  R  the review of the work of step W, and the human's decision on each
+     finding (task 2.9, #232). The close of the work runs the review in the
+     same turn; when it did not, the script asks for it in a new session,
+     "/cg review". While a finding waits, the script first says "Yes.",
+     which decides no finding, then a plain answer that accepts every
+     finding with a reason, so that nothing goes back to the work.
+     Pass: every verifier of the review stage gave a verdict; each finding
+     keeps its priority, P0 to P3, in the part of the contract or of the
+     standards (`cg.py route --json`); the yes recorded no decision; the
+     plain answer is on record, word for word, and nothing waits on the
+     human; and no file outside .cg-docs/ changed in the step. With no
+     finding there is nothing to ask, which is a valid result.
   X  in a new session, "/cg" with a request to delete a data file that no
      commit holds (task 2.4, #227): an action that cannot be undone. It runs
      right after D, before the brainstorm, so that no open plan and no open
@@ -153,6 +165,10 @@ AMEND = "Make the amendment you propose to the plan, show it to me, and ask me t
 YES_STOP = "Yes."  # said only at a stop that code recorded and status shows
 # Said once after a yes that changed nothing: the agent asked what a yes does not answer. Never a yes itself.
 TAKE = "I take the option you recommend. If that changes what we decided before, make that change and show it to me."
+ASK_REVIEW = "review Review the work of the approved plan."
+DECIDE_YES = "Yes."  # a yes to the question for a decision on each finding: it decides none, and cg.py route refuses it
+ACCEPT_ALL = ("all accept: this run checks the review step and decides nothing about the work, and the maintainer "
+              "reads each finding after the run")  # a plain answer, which cg.py route records, and which sends nothing back
 SCRATCH = "scratch/old-extract.csv"  # a data file that no commit holds: deleting it cannot be undone
 ASK_DELETE = f"Delete the file {SCRATCH}: nobody uses it any more."
 SKILL = Path.home() / ".agents" / "skills" / "cg"
@@ -573,6 +589,63 @@ def run_work(agent, project, log, checks):
         evidence(project, state), f".cg-docs/work-reports/{Path(state['path']).name}")
     checks["W: code held the plan and the work report to the project for P1 and P7 (cg.py claims)"] = (
         state is not None and claimed(evidence(project, state), f".cg-docs/work-reports/{Path(state['path']).name}"))
+    return state
+
+
+def routed(project, state):
+    """What `cg.py route --json` holds of the review of a work report: its findings, each with its part and its priority,
+    the ones that wait, and the verifiers with no verdict, with the replies its decision records keep. {} when there is
+    no work report or the installed cg.py prints something else (#232)."""
+    if state is None:
+        return {}
+    try:
+        found = json.loads(cg(project, "route", str(state["path"]), "--json")[1])
+    except ValueError:
+        return {}
+    replies = []
+    for path in sorted((project / ".cg-docs" / "approvals").glob(f"{Path(state['path']).stem}.route.*.json")):
+        try:
+            replies.append(json.loads(path.read_text(encoding="utf-8")).get("reply"))
+        except ValueError:
+            replies.append(None)
+    return {**found, "replies": replies} if isinstance(found, dict) else {}
+
+
+def review_reply(found, asked):
+    """What the script says next in step R, from what route holds alone. None ends the step: the review is not done, or
+    nothing waits on the human. First a yes, which decides no finding, then a plain answer."""
+    if not found or found.get("missing") or not found.get("waiting"):
+        return None
+    return ACCEPT_ALL if asked else DECIDE_YES
+
+
+def run_review(agent, project, log, checks, state):
+    # R: the review of the work of step W, and the human's decision on each finding (#232)
+    before, found = set(changed(project)), routed(project, state)
+    if found.get("missing"):  # the close of the work did not start the review: the human asks for it
+        turn(agent, project, agent.guide(ASK_REVIEW), True, log, "R1 ask for the review")
+        found = routed(project, state)
+    checks["R: every verifier of the review stage gave a verdict"] = bool(found) and not found.get("missing")
+    checks["R: each finding keeps its priority, P0 to P3, in the part of the contract or of the standards"] = bool(
+        found) and all(f.get("priority") in ("P0", "P1", "P2", "P3") and f.get("part") in ("contract", "standards")
+                       for f in found.get("findings") or [])
+    asked = held = False
+    for number in range(2, ROUNDS + 2):
+        say = review_reply(found, asked)
+        if say is None:
+            break
+        count = len(found.get("replies") or [])
+        turn(agent, project, say, False, log, f"R{number} {'decides on each finding' if asked else 'a yes to the decisions'}")
+        found = routed(project, state)
+        if not asked:
+            asked, held = True, len(found.get("replies") or []) == count and bool(found.get("waiting"))
+    none = bool(found) and not found.get("findings")  # zero findings is a valid result: nothing to decide
+    checks["R: a yes decides no finding"] = none or held
+    checks["R: each decision is recorded on the reply the human sent, and nothing waits"] = (
+        bool(found) and not found.get("missing") and not found.get("waiting")
+        and (none or said_only(found.get("replies"), ACCEPT_ALL)))
+    checks["R: nothing changed outside .cg-docs/ in the review"] = not [
+        f for f in set(changed(project)) - before if not f.startswith(".cg-docs/")]
 
 
 def run_stop(agent, project, log, checks):
@@ -604,7 +677,7 @@ def run_stop(agent, project, log, checks):
     checks["X: the file is gone after the yes"] = not target.exists()
 
 
-def run_agent(agent, project, steps="BCDGHWX"):
+def run_agent(agent, project, steps="BCDGHWXR"):
     log, checks = [], {}
     # B: setup
     reply = turn(agent, project, agent.guide(), True, log, "B1 setup")
@@ -620,12 +693,14 @@ def run_agent(agent, project, steps="BCDGHWX"):
         run_plain(agent, project, log, checks)
     if "X" in steps:  # before the brainstorm: X needs a project that is set up, and nothing open in its way
         run_stop(agent, project, log, checks)
-    if set("GHW") & set(steps):  # the plan is built on the intent that step G leaves
+    if set("GHWR") & set(steps):  # the plan is built on the intent that step G leaves
         run_brainstorm(agent, project, log, checks)
-    if set("HW") & set(steps):  # and the work on the plan that step H leaves
+    if set("HWR") & set(steps):  # and the work on the plan that step H leaves
         run_plan(agent, project, log, checks)
-    if "W" in steps:
-        run_work(agent, project, log, checks)
+    if set("WR") & set(steps):  # and the review is of the work that step W leaves
+        state = run_work(agent, project, log, checks)
+        if "R" in steps:
+            run_review(agent, project, log, checks, state)
     return checks, log
 
 
@@ -671,8 +746,8 @@ def main(argv=None) -> int:
     parser.add_argument("--dest", default=str(Path.home() / "temp" / "cg-gate" / "rerun"))
     parser.add_argument("--kilo-model", default="")
     parser.add_argument("--out", default=str(HUB / ".cg-docs" / "gate-m1" / "rerun"))
-    parser.add_argument("--steps", default="BCDGHWX", help="the steps to run; B, the setup, always runs, "
-                                                           "G runs before H, and both before W")
+    parser.add_argument("--steps", default="BCDGHWXR", help="the steps to run; B, the setup, always runs, "
+                                                            "G runs before H, both before W, and W before R")
     args = parser.parse_args(argv)
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)

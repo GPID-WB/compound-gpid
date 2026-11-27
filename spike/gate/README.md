@@ -6,13 +6,13 @@ Go or no-go before milestone 2. The maintainer is at the keyboard; a build sessi
 
 ## Rerun without a human
 
-After a fix, `run_cli_gate.py` repeats steps B to D, then X, G, H and W, in Claude Code, Codex and Kilo from the command line, on fresh copies in `~/temp/cg-gate/rerun`, with their approval prompts off:
+After a fix, `run_cli_gate.py` repeats steps B to D, then X, G, H, W and R, in Claude Code, Codex and Kilo from the command line, on fresh copies in `~/temp/cg-gate/rerun`, with their approval prompts off:
 
 ```
 python3 spike/gate/run_cli_gate.py --kilo-model openai/gpt-6-luna
 ```
 
-It judges each step from the files and from status, and decides what to say next from them alone. When a yes it gave changed nothing, its next reply takes the option the agent recommends. It writes cleaned transcripts and `results.json` to `.cg-docs/gate-m1/rerun/`, and exits 1 when a check fails. Copilot and Posit Assistant have no command line: a human checks them in the editor.
+It judges each step from the files and from status, and decides what to say next from them alone. Step R (task 2.9) is the review of the work of step W: every verifier of the review stage gives its verdict, each finding keeps its priority in the part of the contract or of the standards, the script's "Yes." decides no finding, and its plain answer, which accepts every finding with a reason, is recorded word for word and leaves nothing waiting. With no finding there is nothing to ask. When a yes it gave changed nothing, its next reply takes the option the agent recommends. It writes cleaned transcripts and `results.json` to `.cg-docs/gate-m1/rerun/`, and exits 1 when a check fails. Copilot and Posit Assistant have no command line: a human checks them in the editor.
 
 ## What stays and what is thrown away
 
