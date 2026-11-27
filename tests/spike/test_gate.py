@@ -774,3 +774,47 @@ def test_step_w_asks_that_code_held_the_plan_and_the_work_report_to_the_project(
     assert not gate.claimed([ran, {"kind": "tier"}], report)  # before the last slice began
     assert not gate.claimed([{"kind": "tier"}, {"kind": "claims", "report": report}], report)  # typed by hand
     assert not gate.claimed([{"kind": "tier"}, dict(ran, report=".cg-docs/work-reports/2026-11-26-y.md")], report)
+
+
+def test_step_r_has_the_human_decide_on_each_finding_and_a_yes_decides_none(monkeypatch, tmp_path):
+    """Task 2.9 (#232): step R, the review of the work of step W, reached from the guide. When the close of the work did
+    not start it, the human asks for it. Every verifier gives its verdict, each finding keeps its priority in its part,
+    the script's first answer is "Yes.", which decides no finding, and its second a plain answer that code records.
+    With no finding there is no question, and nothing waits on the human."""
+    sys.path.insert(0, str(GATE))
+    sys.path.insert(0, str(HUB / "spike" / "host-matrix"))
+    import run_cli_gate as gate
+    sys.path.insert(0, str(CG.parent))
+    import cg
+    ids = ["F1", "F2"]
+    assert cg.the_answer(HUB, gate.DECIDE_YES, ids, ids)[1]  # a yes is never a decision on a finding
+    decided, refused = cg.the_answer(HUB, gate.ACCEPT_ALL, ids, ids)[:2]
+    assert [line for line in refused if "user.name" not in line] == [] and {d for d, _ in decided.values()} == {"accept"}
+
+    def run(findings, ask=False, records_yes=False):
+        state, said, replies = {"path": tmp_path / "report.md"}, [], []
+        missing, waiting = [["review contract"] if ask else []], [f["id"] for f in findings]
+
+        def turn(agent, project, prompt, new, log, label):
+            said.append(label)
+            missing[0] = []
+            if prompt == gate.ACCEPT_ALL or records_yes and prompt == gate.DECIDE_YES:
+                replies.append(prompt)
+                waiting.clear()
+            return ""
+        monkeypatch.setattr(gate, "turn", turn)
+        monkeypatch.setattr(gate, "changed", lambda project: [".cg-docs/approvals/report.route.1.json"])
+        monkeypatch.setattr(gate, "routed", lambda project, report: {
+            "missing": missing[0], "findings": findings, "waiting": list(waiting), "replies": list(replies)})
+        checks = {}
+        gate.run_review(gate.Agent("kilo", "kilo", "openai/m"), tmp_path, [], checks, state)
+        return said, checks
+    found = [{"id": "F1", "part": "contract", "priority": "P1"}, {"id": "F2", "part": "standards", "priority": "P0"}]
+    said, checks = run(found, ask=True)
+    assert said == ["R1 ask for the review", "R2 a yes to the decisions", "R3 decides on each finding"], said
+    assert len(checks) == 5 and all(checks.values()), checks
+    said, checks = run([])
+    assert said == [] and len(checks) == 5 and all(checks.values()), checks  # zero findings: no question
+    said, checks = run(found, records_yes=True)
+    assert not checks["R: a yes decides no finding"] and said == ["R2 a yes to the decisions"], (said, checks)
+    assert gate.run_agent.__defaults__ == ("BCDGHWXR",)  # every rerun runs step R after step W
