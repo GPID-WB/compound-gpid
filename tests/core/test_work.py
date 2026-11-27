@@ -456,6 +456,30 @@ def test_the_tier_record_names_no_file_the_work_does_not_declare(env):
     assert "FAIL outside: data/interviews/jane_roe.csv" in env["cg"]("guard", "--report", REPORT)[1]
 
 
+def test_a_work_report_that_will_not_be_finished_is_dropped_and_then_blocks_nothing(env):
+    """Gate rerun 18 (#227): an open work report held back the next piece of work for two agents,
+    and no status closed a work report unfinished. A dropped one keeps its text, needs no evidence,
+    and is no longer open, active or waiting, also with a stop the human never said yes to."""
+    project = start(env)
+    report = project / REPORT
+    assert env["cg"]("tier", *yes("irreversible"), *SLICE)[0] == 0
+    state = json.loads(env["cg"]("status", "--json")[1])
+    assert state["active"] == REPORT and any(REPORT in item for item in state["waiting-on-human"]), state
+    kept = report.read_text().replace("status: in-progress", "status: dropped")
+    report.write_text(kept)
+    state = json.loads(env["cg"]("status", "--json")[1])
+    assert state["active"] == PLAN and state["open-artifacts"] == 1 and state["waiting-on-human"] == [], state
+    code, out = env["cg"]("validate", REPORT)
+    assert code == 0 and "problems: 0" in out and "evidence" not in out and report.read_text() == kept, out
+    # The work of the plan can start again, in a work report of its own.
+    code, out = env["cg"]("new", "work-report", "Headcount again", "--date", "2026-11-27", "--plan", PLAN)
+    assert code == 0 and "created" in out, out
+    cg = load_cg()
+    assert cg.ARTIFACTS["work-report"]["statuses"]["dropped"] == "closed" and "dropped" in cg.SETTLED
+    for text in (WORK.read_text(encoding="utf-8"), QUICK_TEXT.read_text(encoding="utf-8")):  # when the agent sets it
+        assert "`status: dropped`" in text and "not to be finished" in text and "Never set it" in text
+
+
 # ---------------------------------------------------------------- the texts
 
 WORK, WORKER, QUICK_TEXT = (CG / "playbooks" / "work.md", CG / "worker.md", CG / "playbooks" / "quick.md")
