@@ -212,7 +212,7 @@ def test_review_of_2_6_repro_writes_over_no_output_that_no_commit_holds_without_
     (project / ".cg-docs").mkdir()
     (project / ".cg-docs" / "verification.md").write_text(PROFILE.format(run=f"{PY} run.py"), encoding="utf-8")
     report = begin(env)
-    (project / "out.csv").write_text("typed\n")
+    (project / "out.csv").write_bytes(b"typed\n")  # the test's git on Windows reads the line-end setting, cg.py's not
     code, out, record, _ = repro(env, report)
     assert code == 1 and "refused: " in out and "out.csv" in out and not record, out
     assert (project / "out.csv").read_text() == "typed\n"
