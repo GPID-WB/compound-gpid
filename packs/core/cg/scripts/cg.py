@@ -304,12 +304,15 @@ STAGES = {"plan": "plan", "review": "work-report", "sign-off": "work-report", "c
 VERDICTS = ("PASS", "FLAG", "INCONCLUSIVE", "NOT-APPLICABLE")
 REVIEWS = {"independent": "independent review", "self-review": "self-review"}
 # A finding gives its priority, P0 to P3, in brackets with its fix, as verifier.md's block writes it: (P1; fix: ...).
+# The bracket its fix follows comes first, so a fix that cites a principle, "(P3)", leaves it (review of #232).
 PRIORITY = r"\(\s*(P[0-3])\b"
 # What the human may decide on a finding of the review (#232), in English and in Spanish, and the word for every finding
 # that waits. A principle file says `axis: contract` when its findings are on the contract; any other is a standard.
 DECIDE = {"fix": "fix", "arreglar": "fix", "corregir": "fix", "accept": "accept", "aceptar": "accept", "drop": "drop",
           "descartar": "drop"}
 EVERY = ("all", "todos", "todas")
+# A reason to accept that opens on one of these is a condition, and accepts nothing yet (review of #232).
+CONDITION = r"(?:only |solo )?(?:if|unless|provided|as long as|when|until|once|si|salvo|a menos|siempre que|cuando|hasta)\b"
 # Which playbook each phase opens.
 # PLACEHOLDER: extended in task 2.14; task 1.3 delivers setup and quick only.
 PHASE_PLAYBOOK = {"setup": "playbooks/setup.md", "ready": "playbooks/quick.md"}
@@ -703,7 +706,8 @@ def compute_status(project: Path, guide: bool = False, asked=None) -> dict:
         held = tier_of(project, a)
         if held and held[1].get("stop") and not held[3]:
             waiting.append(f"{a['path']} (stops for the human's yes: {'; '.join(held[1]['stop'])})")
-    for a in (a for a in found if a["type"] == "work-report" and a["schema"] == SCHEMA and verdicts(project, a)[1]):
+    for a in (a for a in found if a["type"] == "work-report" and a["schema"] == SCHEMA and a["status"] != "dropped"
+              and verdicts(project, a)[1]):  # the human ended dropped work: nothing of it waits (review of #232)
         missing, listed = review_of(project, a)  # a review whose every verifier gave its verdict waits on the human (#232)
         left = [f["id"] for f in listed if not f["decision"]]
         if left and not missing:
@@ -2400,6 +2404,7 @@ def kickoff(project: Path, a: dict, stage: str, v: dict) -> str:
     values = {"cg": CG_DIR.as_posix(), "verifier": v["verifier"], "principle": f"{v['principle']} {v['name']}",
               "stage": stage, "project": project.as_posix(), "artifact": a["path"], "contract": "none",
               "evidence": "none", "run": "none at this stage, so point at a file and a line", "rerun": "none at this stage",
+              "cleared": "",
               "reads": "\n".join(f"{number}. {Path(path).as_posix()}"
                                  for number, path in enumerate([CG_DIR / "verifier.md", *v["reads"]], 1))}
     if a["type"] == "plan":
@@ -2416,6 +2421,11 @@ def kickoff(project: Path, a: dict, stage: str, v: dict) -> str:
             run=cg_line(project, "evidence", "--run", '"<the command>"', "--report", f'"{a["path"]}"'),
             rerun=cg_line(project, "evidence", "--rerun", "--report", f'"{a["path"]}"') if plan else
             "none: no plan declares a check for this work")
+        if plan and is_approved(project, plan) and rows_of(plan["body"], "## Data register", 6, []):
+            values["cleared"] = (  # gate rerun 25: worker.md keeps closed the data a kickoff names no decision for
+                " The checks that line runs read the data files that the plan's data register lists. The human approved "
+                "the plan with that register: that is their recorded decision that its checks read them, through that "
+                "line alone, which shows you no line a check prints. Open no data file yourself.")
         if plan:
             record = link(plan, "approval")
             values["contract"] = f"the plan {plan['path']}, " + (
@@ -2578,7 +2588,8 @@ def cmd_conformance(args) -> int:
         if args.verdict in VERDICTS[2:] and not note:
             refused.append(f"{args.verdict} needs --note: what kept the verifier from checking, or why the principle "
                            f"does not apply to this work")
-        level = {text: (re.findall(PRIORITY, text) or [""])[-1] for text in findings}  # findings keep P0 to P3 (#232)
+        level = {text: (re.findall(PRIORITY + r"\s*;", text) or re.findall(PRIORITY, text) or [""])[-1]
+                 for text in findings}  # findings keep P0 to P3 (#232)
         if not all(level.values()):
             refused.append("each finding ends with its priority, P0 to P3, and its fix in brackets, as the verdict block of "
                            "verifier.md writes it, such as (P1; fix: the change); give each finding whole, as the verifier "
@@ -2714,8 +2725,15 @@ def the_answer(project: Path, reply: str, ids, waiting):
         if extra(head) or kind != "accept" and (extra(tail) or re.search(r"\bF\d+\b", tail, re.I)):
             refused.append(f'"{part}" says more than which findings and one decision; ask for each decision in this form: '
                            f'F1 fix; F2 accept: <the reason>; F3 drop')
-        elif kind == "accept" and not extra(reason):
+        elif kind == "accept" and (not extra(reason) or re.match(SAYS_NO + r"\W*(?:now|yet)?\W*$", reason.lower())
+                                   or re.fullmatch(NOT_FILLED, reason.lower().strip(" .!"))):
             refused.append(f'"{part}" accepts with no reason; the human gives it in their words, such as F2 accept: <why>')
+        elif kind == "accept" and re.match(CONDITION, plain(reason)):
+            refused.append(f'"{part}" accepts on a condition, so it decides nothing yet; ask whether it is accepted as it '
+                           f'is, and why, or what has to happen first')
+        elif kind == "accept" and re.search(rf"\bF\d+\b\s*[:\-–]?\s*{ruled}|{ruled}\s+F\d+\b", reason, re.I):
+            refused.append(f'"{part}" gives another finding a decision inside its reason; ask for each decision in this '
+                           f'form: F1 fix; F2 accept: <the reason>; F3 drop')
         elif re.search(rf"\b(?:{'|'.join(EVERY)})\b", head, re.I):
             every.append((kind, reason * (kind == "accept")))
         elif not named and len(waiting) != 1:
@@ -2748,6 +2766,9 @@ def cmd_route(args) -> int:
                                            "quick work does it in this work report"),
             "accept": "kept for sign-off, with the human's reason", "drop": "closed, with no change"}
     if args.reply is not None:
+        if a["status"] == "dropped":
+            print("refused: the work report is dropped: the human ended the work, so no finding of it goes anywhere")
+            return 1
         if missing or not found:
             print(f"refused: the review is not done: {'; '.join(missing)} gave no verdict" if missing else
                   "nothing to decide: no verifier found anything in this work")

@@ -10,6 +10,6 @@ The contract: {contract}
 What code recorded: {evidence}
 A run that code records: {run}
 Every check of the plan, rerun by code: {rerun}
-Only the verifier `verification` runs the line above, once. Any other verifier leaves it, and reads the record of that rerun, `"kind": "rerun"`, when there is one.
+Only the verifier `verification` runs the line above, once. Any other verifier leaves it, and reads the record of that rerun, `"kind": "rerun"`, when there is one.{cleared}
 
 Return one verdict block, as `verifier.md` gives it, and nothing else.

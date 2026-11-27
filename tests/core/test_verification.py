@@ -64,7 +64,7 @@ def test_the_verifier_reruns_every_declared_check_itself_and_code_finds_its_part
     assert v["reads"][-1].endswith("cg/lenses/verification.md")
     # Gate rerun 25: the verifier kept the data closed, as worker.md says, since the kickoff named no decision of the
     # human for the data the checks read. The plan's approval with its data register is that decision (review of #232).
-    assert "the human approved the plan with that register" in v["kickoff"] and "Open no data file yourself" in v["kickoff"]
+    assert "The human approved the plan with that register" in v["kickoff"] and "Open no data file yourself" in v["kickoff"]
     assert "holds for that line alone" in (CG / "verifier.md").read_text(encoding="utf-8")
     line = v["kickoff"].split("Every check of the plan, rerun by code: ")[1].splitlines()[0]
     words = shlex.split(line.replace("\\", "/"))
