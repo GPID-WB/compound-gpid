@@ -499,3 +499,10 @@ def test_the_texts_hold_what_the_review_of_task_2_5_found_in_their_wording():
         line = next(line for line in principle.splitlines() if line.startswith("**Prove a flag**"))
         assert "`cg.py evidence --run`" in line and "stays out of the finding" in line, name
         assert "its output" not in principle[principle.index("## Verifier"):].replace("digest of its output", ""), name
+    plan, work = ((CG / "playbooks" / name).read_text(encoding="utf-8") for name in ("plan.md", "work.md"))
+    check, approve = plan[plan.index("## 6."):plan.index("## 7.")], plan[plan.index("## 7."):plan.index("## 8.")]
+    assert "each one you can fix" in check and "say at the hard stop why" in check  # W8
+    assert "one round of every verifier" in approve and "given on an earlier text" in approve  # W8, W11
+    assert "each finding with its pointer" in plan[plan.index("**Reply:**"):]  # W9
+    close = work[work.index("## 6."):]
+    assert "each finding of `guard` the human decided on" in close and "given on an earlier text" in close  # W10, W11
