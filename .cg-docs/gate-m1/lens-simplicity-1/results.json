@@ -1,0 +1,34 @@
+{
+  "codex": {
+    "review: verdict: FLAG": true,
+    "review: each finding proposes the code that replaces it": true,
+    "review: a change that only tidies: checks/headcount.py, at 'EXPECTED = 52 / 110'": false,
+    "review: a function that nothing calls: pipeline.py, at 'def share_text('": true,
+    "review: an abstraction with one caller: pipeline.py, at 'def members('": false,
+    "review: an option nobody uses: pipeline.py, at 'def by_region('": false,
+    "review: a check for a state that cannot occur: pipeline.py, at 'if LINE < 0:'": false,
+    "review: the verifier changed no file of the project": true,
+    "plan: verdict: FLAG": true,
+    "plan: each finding proposes the code that replaces it": true,
+    "plan: an option that no requirement asks for: @plan, at '| S2 |'": true,
+    "plan: a check for a state that cannot occur: @plan, at '| S3 |'": true,
+    "plan: a slice that tidies code the goal does not touch: @plan, at '| S4 |'": true,
+    "plan: the verifier changed no file of the project": true
+  },
+  "kilo": {
+    "review: verdict: FLAG": true,
+    "review: each finding proposes the code that replaces it": true,
+    "review: a change that only tidies: checks/headcount.py, at 'EXPECTED = 52 / 110'": true,
+    "review: a function that nothing calls: pipeline.py, at 'def share_text('": true,
+    "review: an abstraction with one caller: pipeline.py, at 'def members('": true,
+    "review: an option nobody uses: pipeline.py, at 'def by_region('": true,
+    "review: a check for a state that cannot occur: pipeline.py, at 'if LINE < 0:'": false,
+    "review: the verifier changed no file of the project": true,
+    "plan: verdict: FLAG": true,
+    "plan: each finding proposes the code that replaces it": true,
+    "plan: an option that no requirement asks for: @plan, at '| S2 |'": true,
+    "plan: a check for a state that cannot occur: @plan, at '| S3 |'": true,
+    "plan: a slice that tidies code the goal does not touch: @plan, at '| S4 |'": true,
+    "plan: the verifier changed no file of the project": true
+  }
+}
