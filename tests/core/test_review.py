@@ -156,7 +156,7 @@ def test_the_general_lenses_port_the_v1_review_agents_to_the_verifiers_that_had_
             ("language", "P11", ("cg-code-quality", "cg-documentation"), ("glossary", "avoid", "two meanings",
                                                                           "help page", "linter")),
             ("governance", "P12", ("cg-version-control",), ("## At the plan stage", "data register", "credential",
-                                                             "personal data", "`approve --reads`", "lineage", "P0"))):
+                                                             "personal data", "approve --reads`", "lineage", "P0"))):
         text = (CG / "lenses" / f"{name}.md").read_text(encoding="utf-8")
         front, body = text.split("\n---\n", 1)
         assert len(text.splitlines()) <= 60 and f"principle: {principle}" in front, name

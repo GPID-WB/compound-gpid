@@ -428,15 +428,15 @@ def test_the_lines_that_code_prints_for_a_verifier_run_as_written(env):
 def test_the_playbooks_have_code_say_which_verifiers_run_and_name_none():
     """#228: the two playbooks dispatch through `verifiers`, in place of the self-review that stood
     in. Neither names a verifier or a principle to check: that is computed, never remembered."""
-    plan, work = ((CG / "playbooks" / name).read_text(encoding="utf-8") for name in ("plan.md", "work.md"))
-    steps = plan[plan.index("## 6."):plan.index("## 7.")], work[work.index("## 6."):]
+    plan, work = ((CG / "playbooks" / name).read_text(encoding="utf-8") for name in ("plan.md", "review.md"))
+    steps = plan[plan.index("## 6."):plan.index("## 7.")], work[work.index("## 2."):work.index("## 3.")]  # #232
     for step, stage, artifact in zip(steps, ("plan", "review"), ("<the plan>", "<the work report>")):
         assert f'verifiers "{artifact}" --stage {stage}' in " ".join(lines_run(step)), stage
         for words in ("`missing: none`", '"Verifiers"', "`then`", "the human decides"):
             assert words in step, (stage, words)
         assert "PLACEHOLDER: written in task 2.5" not in step and "self-review" not in step
         assert not re.search(r"`(contract|determinism|simplicity|governance|verification|claims)`|\bP\d+ and P\d+", step)
-    assert "PLACEHOLDER: written in task 2.9" in work and "independent or a self-review" in plan[plan.index("## 7."):]
+    assert "PLACEHOLDER" not in work and "independent or a self-review" in plan[plan.index("## 7."):]
     quick = (CG / "playbooks" / "quick.md").read_text(encoding="utf-8")
     assert "This is a self-review, and the record says so." in quick and "verifiers" not in quick  # quick work is as it was
 
@@ -509,7 +509,8 @@ def test_the_texts_hold_what_the_review_of_task_2_5_found_in_their_wording():
     assert "one round of every verifier" in approve and "given on an earlier text" in approve  # W8, W11
     assert "each finding with its pointer" in plan[plan.index("**Reply:**"):]  # W9
     close = work[work.index("## 6."):]
-    assert "each finding of `guard` the human decided on" in close and "given on an earlier text" in close  # W10, W11
+    review = (CG / "playbooks" / "review.md").read_text(encoding="utf-8")  # since #232 the review dispatches
+    assert "each finding of `guard` the human decided on" in close and "given on an earlier text" in review  # W10, W11
     index = (CG / "principles" / "README.md").read_text(encoding="utf-8")
     assert "the approved contract, and its principle file" not in index and "the kickoff that code prints" in index  # W13
     assert "Used in findings" not in index and "is E4" in index  # W14

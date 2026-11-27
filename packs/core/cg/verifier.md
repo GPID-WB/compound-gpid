@@ -30,4 +30,4 @@ note: <what you could not inspect, and why; or why the principle does not apply>
 - **INCONCLUSIVE:** you could not check. It is not a pass, and the note says what was in the way.
 - **NOT APPLICABLE:** the work holds nothing that this principle is about, and the note says why.
 
-The priorities are in `principles/README.md`: P0 blocks everything, P1 blocks a merge, P2 should be fixed, P3 is advisory.
+The priorities are in `principles/README.md`: P0 blocks everything, P1 blocks a merge, P2 should be fixed, P3 is advisory. Each finding gives one: code refuses a finding with none, and the human decides on each finding by its priority.
