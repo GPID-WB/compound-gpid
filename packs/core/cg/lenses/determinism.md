@@ -12,7 +12,7 @@ This lens is for the verifier of P3. It says what code has already found, what i
 
 At the review stage, code has run `cg.py repro` on the work. Its record is the newest file with `"kind": "repro"` in the folder of evidence that your kickoff names. It ran the Run command of `.cg-docs/verification.md` twice, compared the digest of each output that the outputs map names, and searched the files of the change. Each entry under `findings` is a rule, where it shows, and the code that would replace it. Each rule is in the table below.
 
-- Do not run `repro`, the Run command or the pipeline: each writes the outputs, and rule 7 of `verifier.md` holds. What code did not run, say in your note.
+- Do not run `repro`, the Run command or the pipeline: each writes the outputs, and rule 7 of `verifier.md` holds. Your note says what you did not run.
 - With no such record, write one finding with no pointer: `repro` has not run on this work.
 - A rule marked sure names a fault. Open the line, and write it as a finding unless the column "You judge" says to leave it.
 - A rule marked to judge only points at a line. It is a finding when the column "You judge" holds for it.
