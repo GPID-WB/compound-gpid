@@ -1,0 +1,27 @@
+{
+  "verifier": "simplicity",
+  "data": {"data/survey.csv": "Public"},
+  "about": "Each case is a violation of P6 planted in plan.md (plan stage) or in the change (review stage). before/ holds the project at the commit the work began on, and project/ the project as the work leaves it, so the change is what differs. 'code' names the rule of cg.py scope that finds its part, or null when only judgement can. '@plan' is the plan of the built project, which the human approved. A finding catches a case when its pointer is 'file' at the line that holds 'text', three lines either way, or is one of 'or', where 'record' is a record under .cg-docs/evidence/. 'work' is the work as it went: for each slice the checks that ran. 'scope' has the runner run cg.py scope once every slice is done, as the work playbook does.",
+  "intent": "intent.md",
+  "report": "report.md",
+  "before": "before",
+  "scope": true,
+  "work": [
+    {"slice": "S1", "checks": ["C1"]},
+    {"slice": "S2", "checks": ["C1"]},
+    {"slice": "S3", "checks": ["C1"]},
+    {"slice": "S4", "checks": ["C2"]}
+  ],
+  "plan": [
+    {"flag": "an option that no requirement asks for", "code": null, "file": "@plan", "text": "| S2 |"},
+    {"flag": "a check for a state that cannot occur", "code": null, "file": "@plan", "text": "| S3 |"},
+    {"flag": "a slice that tidies code the goal does not touch", "code": null, "file": "@plan", "text": "| S4 |"}
+  ],
+  "review": [
+    {"flag": "a change that only tidies", "code": "reformat", "file": "checks/headcount.py", "text": "EXPECTED = 52 / 110", "or": ["record", "checks/headcount.py"]},
+    {"flag": "a function that nothing calls", "code": "no-caller", "file": "pipeline.py", "text": "def share_text("},
+    {"flag": "an abstraction with one caller", "code": "one-caller", "file": "pipeline.py", "text": "def members("},
+    {"flag": "an option nobody uses", "code": "unused-argument", "file": "pipeline.py", "text": "def by_region("},
+    {"flag": "a check for a state that cannot occur", "code": null, "file": "pipeline.py", "text": "if LINE < 0:"}
+  ]
+}

@@ -139,3 +139,45 @@ def test_review_of_2_7_the_rerun_leaves_the_files_the_runner_counts_and_a_lazy_r
     record = sorted((project / ".cg-docs" / "evidence" / "2026-11-27-poverty-brief").glob("*-rerun.json"))[-1]
     real = fake.replace("0099-rerun.json", record.name)
     assert sum(run_planted.judge(project, cases, real + "note: none\n").values()) - 2 == 6
+
+
+def test_the_adversary_folder_builds_its_work_and_a_case_is_caught_only_by_a_run_of_the_turn_that_failed(tmp_path):
+    """Task 2.8 (#231): the planted work of P5 is a plan the human approved and its slices done, with faults that no
+    check of the plan catches. A finding catches a case only when it points at the record of a run that failed and
+    that the verifier made in its turn, and its sentence names the line of the fault; the block lists what it dropped.
+    What the adversary drops is no finding, and the runner reads no line under `dropped:` as one."""
+    sys.path.insert(0, str(RUNNER.parent))
+    import run_planted
+    done = subprocess.run([sys.executable, str(RUNNER), "--dry-run", "--cg", str(CG), "--dest", str(tmp_path / "lens"),
+                           "--only", "kilo", "--verifier", "adversary"], capture_output=True, text=True)
+    out, project = done.stdout + done.stderr, tmp_path / "lens" / "toy-poverty-kilo"
+    assert done.returncode == 0 and out.count("You are the verifier `adversary`") == 1 and "lenses/adversary.md" in out
+    cases = json.loads((RUNNER.parent / "adversary" / "expected.json").read_text(encoding="utf-8"))["review"]
+    known = run_planted.records(project)
+    command = cases[0]["probe"].replace("python ", f'"{sys.executable}" ', 1)
+    assert subprocess.run([sys.executable, str(CG), "evidence", "--run", command, "--report", run_planted.REPORT,
+                           "--project", str(project)], capture_output=True).returncode == 1
+    probes = run_planted.failed(project, known)
+    line = next(n for n, text in enumerate((project / "pipeline.py").read_text().splitlines(), 1) if cases[0]["text"] in text)
+    block = (f"principle: P5\nverdict: FLAG\nfindings:\n  - {sorted(probes)[0]}: `pipeline.py:{line}` counts a household "
+             f"at the line (R1) (P1; fix: <)\ndropped:\n  - pipeline.py:{line}: none (P1; fix: x)\nnote: none\n")
+    result = run_planted.judge(project, cases, block, probes=probes)
+    assert len(probes) == 1 and result[f"{cases[0]['flag']}: pipeline.py, at '{cases[0]['text']}'"], result
+    assert sum(result.values()) == 3, result  # the verdict, the fixes and the one case: a dropped line catches none
+    assert sum(run_planted.judge(project, cases, block).values()) == 2  # a run that is not of the verifier's turn
+    assert sum(run_planted.judge(project, cases, block.replace(f":{line}`", ":1`"), probes=probes).values()) == 2
+    assert run_planted.dropped(block) and not run_planted.dropped(block.replace("dropped:", "kept:"))
+
+
+def test_the_simplicity_folder_builds_the_change_on_the_commit_it_began_on_and_runs_scope(tmp_path):
+    """Task 2.8 (#231): the planted change of P6 needs the project as it was, so before/ is committed first and the
+    work then leaves project/ as it is. The plan stage and the review stage each get a kickoff, and the runner runs
+    cg.py scope once every slice is done, as the work playbook does."""
+    done = subprocess.run([sys.executable, str(RUNNER), "--dry-run", "--cg", str(CG), "--dest", str(tmp_path / "lens"),
+                           "--only", "codex", "--verifier", "simplicity"], capture_output=True, text=True)
+    out, project = done.stdout + done.stderr, tmp_path / "lens" / "toy-poverty-codex"
+    assert done.returncode == 0 and out.count("You are the verifier `simplicity`") == 2, out
+    log = subprocess.run(["git", "-C", str(project), "log", "--oneline"], capture_output=True, text=True).stdout
+    changed = subprocess.run(["git", "-C", str(project), "status", "--short"], capture_output=True, text=True).stdout
+    assert len(log.splitlines()) == 1 and " M pipeline.py" in changed and "?? checks/table.py" in changed, changed
+    assert list((project / ".cg-docs" / "evidence").rglob("*-scope.json")), out

@@ -1,0 +1,23 @@
+{
+  "verifier": "adversary",
+  "data": {"data/survey.csv": "Public", "data/regions.csv": "Public"},
+  "about": "Each case is a fault planted in project/ that breaks a requirement of plan.md, and that no check of the plan catches, since the toy survey holds no household that shows it (review stage). 'code' is 'run': code keeps a finding of the adversary only when it points at the record of a run of this work that failed and holds its command whole. 'probe' is one such run, which fails on the planted fault and passes once it is fixed; CI runs it, and the agent never sees it. A finding catches a case when its pointer is a record of a run that the verifier made in its turn and that failed, and its sentence names 'file' at the line that holds 'text', or one of 'also', three lines either way. 'decoy' is a probe of a suspicion that the code answers as the contract asks: it passes, and the verifier lists it under dropped. 'work' is the work as it went: for each slice the checks that ran.",
+  "intent": "intent.md",
+  "report": "report.md",
+  "dropped": true,
+  "work": [
+    {"slice": "S1", "checks": ["C1", "C3"]},
+    {"slice": "S2", "checks": ["C2"]}
+  ],
+  "review": [
+    {"flag": "a household at the line is counted as poor (R1)", "code": "run", "file": "pipeline.py", "text": "row[\"welfare\"] <= line", "or": ["run"],
+     "probe": "python -B -c \"import pipeline as p; assert p.headcount([dict(welfare=3.0, weight=1.0)]) == 0\""},
+    {"flag": "a missing weight is read as 0 and the run goes on (R3)", "code": "run", "file": "pipeline.py", "text": "float(row[\"weight\"] or 0)", "or": ["run"],
+     "probe": "python -B -c \"import unittest, pipeline as p; unittest.TestCase().assertRaises(ValueError, p.household, dict(hhid='a', region='N', welfare='2', weight=''))\""},
+    {"flag": "a negative welfare is counted as poor and the run goes on (R3)", "code": "run", "file": "pipeline.py", "text": "\"welfare\": float(row[\"welfare\"])", "or": ["run"],
+     "probe": "python -B -c \"import unittest, pipeline as p; unittest.TestCase().assertRaises(ValueError, p.household, dict(hhid='a', region='N', welfare='-1', weight='2'))\""},
+    {"flag": "a household whose region has no name is left out of the national figure (R2)", "code": "run", "file": "pipeline.py", "text": "return headcount(named(rows, names))", "also": ["if row[\"region\"] in found"], "or": ["run"],
+     "probe": "python -B -c \"import pipeline as p; assert p.national([dict(region='X', welfare=1.0, weight=1.0), dict(region='N', welfare=5.0, weight=1.0)], [dict(region='N', name='North')]) == 0.5\""}
+  ],
+  "decoy": {"flag": "a group with no weight", "probe": "python -B -c \"import unittest, pipeline as p; unittest.TestCase().assertRaises(ValueError, p.headcount, [])\""}
+}

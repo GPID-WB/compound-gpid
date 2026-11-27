@@ -499,8 +499,8 @@ def test_the_lines_the_work_playbook_and_quick_work_run_work_as_written(env):
               "the human's reply, word for word": "Yes.", "file": CODE}
     work = lines_run(WORK.read_text(encoding="utf-8"))
     assert [line.split()[0] for line in work] == ["evidence", "new", "tier", "evidence", "guard", "approve", "repro",
-                                                  "verifiers", "validate"]
-    listing, new, tier, check, guard, approve, repro, verifiers, validate = work
+                                                  "scope", "verifiers", "validate"]
+    listing, new, tier, check, guard, approve, repro, scope, verifiers, validate = work
     assert "--plan" in new and "--slice" in tier and "--touches" not in tier and check.startswith('evidence "<check ID>"')
     assert run_line(env, new + " --date 2026-11-26", **values)[0] == 0
     no_agent = tier.replace(' --agent "<this coding agent>"', "")
@@ -510,6 +510,7 @@ def test_the_lines_the_work_playbook_and_quick_work_run_work_as_written(env):
     assert "FAIL no-evidence: check C2" in run_line(env, guard, **values)[1]
     assert "nothing stops this work" in run_line(env, approve, **values)[1]
     assert "FLAG no-run: .cg-docs/verification.md" in run_line(env, repro, **values)[1]  # this project has no profile
+    assert run_line(env, scope, **values)[1].startswith("change: 0 files, +0 -0 lines; the slices list ")  # #231
     assert "\nverifiers: contract (P1); determinism (P3); verification (P4); " in run_line(env, verifiers, **values)[1]
     assert "schema-2: 1" in run_line(env, validate, **values)[1]
     # Quick work runs the same lines, with the files given to tier and the check's command given to evidence.
