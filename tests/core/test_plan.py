@@ -371,7 +371,7 @@ def test_the_plan_playbook_writes_no_code_opens_no_data_and_ends_in_a_hard_stop(
 
 def test_the_plan_playbook_holds_what_the_issue_names():
     """#226: thin vertical slices, declared checks, boundaries, deferred scope; an unfinished plan
-    is never overwritten; and the plan-stage verifiers, a marked placeholder until task 2.5."""
+    is never overwritten; and the plan-stage verifiers, which code dispatches since task 2.5 (#228)."""
     text = PLAYBOOK.read_text(encoding="utf-8")
     start = text[text.index("## 1."):text.index("## 2.")]
     assert "`--other-work`" in start and "`exists, not overwritten`" in start and "amendment" in start
@@ -383,11 +383,9 @@ def test_the_plan_playbook_holds_what_the_issue_names():
     slices = text[text.index("## 4."):text.index("## 5.")]
     assert "thinnest" in slices and "by code" in slices and "by judgement" in slices and "ends in" in slices
     checked = text[text.index("## 6."):text.index("## 7.")]
-    assert "PLACEHOLDER: written in task 2.5" in checked and "self-review" in checked
+    assert "PLACEHOLDER" not in text and '"<cg>" verifiers "<the plan>" --stage plan' in checked
     # An amended plan fails validate until it is approved again, and the playbook says so.
     assert "no approval is recorded for the plan as it now reads" in checked
-    for principle in ("P1", "P3", "P6", "P12"):
-        assert principle in checked, principle
 
 
 def test_the_guide_opens_the_plan_through_status(env):
@@ -405,14 +403,16 @@ def test_the_lines_the_plan_playbook_runs_work_as_written(env):
     env["base"]()
     text = PLAYBOOK.read_text(encoding="utf-8")
     lines = lines_run(text)
-    new, validate, approve = (next(line for line in lines if line.startswith(word))
-                              for word in ("new plan", "validate", "approve \"<the plan>\""))
+    new, validate, approve, verifiers = (next(line for line in lines if line.startswith(word))
+                                         for word in ("new plan", "validate", "approve \"<the plan>\"", "verifiers"))
     code, out = env["cg"](*shlex.split(new.replace("<the decided intent>", IDEA)), "--date", "2026-11-25")
     assert code == 0 and out.startswith("created .cg-docs/plans/2026-11-25-"), out
     made = out.split()[1]
     assert env["cg"](*shlex.split(validate.replace("<the plan>", made)))[0] == 0
     path = env["project"] / made
     path.write_text(path.read_text().split("\n# ", 1)[0] + PLAN_BODY, encoding="utf-8")
+    code, out = env["cg"](*shlex.split(verifiers.replace("<the plan>", made)))
+    assert code == 0 and "\nverifiers: contract (P1); " in out and f"conformance \"{made}\" --stage plan" in out, out
     asked = approve.replace("<the plan>", made)
     assert "holds no plain yes" in env["cg"](*shlex.split(asked))[1]  # the placeholder is no reply
     code, out = env["cg"](*shlex.split(asked.replace("<the human's reply, word for word>", "Yes.")))
@@ -420,7 +420,7 @@ def test_the_lines_the_plan_playbook_runs_work_as_written(env):
     # Quick work gives the same lines a work report, which a plan does not have yet (task 2.4).
     quick = [line.replace(' --report "<the work report>"', "")
              for line in lines_run((CG / "playbooks" / "quick.md").read_text(encoding="utf-8"))]
-    others = [line for line in lines if line not in (new, validate, approve)]
+    others = [line for line in lines if line not in (new, validate, approve, verifiers)]
     assert {line.split()[0] for line in others} == {"tier", "setup", "approve"} and len(others) == 3
     assert all(line in quick for line in others), others
 

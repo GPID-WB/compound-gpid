@@ -498,8 +498,9 @@ def test_the_lines_the_work_playbook_and_quick_work_run_work_as_written(env):
     values = {"short title": "Headcount", "the plan": PLAN, "the work report": REPORT, "slice ID": "S1", "check ID": "C1", "the check's command": f"{PY} check1.py", "data file": "none",
               "the human's reply, word for word": "Yes.", "file": CODE}
     work = lines_run(WORK.read_text(encoding="utf-8"))
-    assert [line.split()[0] for line in work] == ["evidence", "new", "tier", "evidence", "guard", "approve", "validate"]
-    listing, new, tier, check, guard, approve, validate = work
+    assert [line.split()[0] for line in work] == ["evidence", "new", "tier", "evidence", "guard", "approve", "verifiers",
+                                                  "validate"]
+    listing, new, tier, check, guard, approve, verifiers, validate = work
     assert "--plan" in new and "--slice" in tier and "--touches" not in tier and check.startswith('evidence "<check ID>"')
     assert run_line(env, new + " --date 2026-11-26", **values)[0] == 0
     no_agent = tier.replace(' --agent "<this coding agent>"', "")
@@ -508,6 +509,7 @@ def test_the_lines_the_work_playbook_and_quick_work_run_work_as_written(env):
     assert "S1: C1 verified; C2 not run" in run_line(env, listing, **values)[1]
     assert "FAIL no-evidence: check C2" in run_line(env, guard, **values)[1]
     assert "nothing stops this work" in run_line(env, approve, **values)[1]
+    assert "\nverifiers: contract (P1); determinism (P3); verification (P4); " in run_line(env, verifiers, **values)[1]
     assert "schema-2: 1" in run_line(env, validate, **values)[1]
     # Quick work runs the same lines, with the files given to tier and the check's command given to evidence.
     quick = lines_run(QUICK_TEXT.read_text(encoding="utf-8"))
@@ -539,9 +541,7 @@ def test_the_work_playbook_takes_one_slice_at_a_time_and_names_the_stops():
         assert words in slices, words
     assert "Never" in slices and "expected value" in slices  # a check is never made easier
     close = text[text.index("## 6."):]
-    assert "PLACEHOLDER: written in task 2.5" in close and "self-review" in close and "`worker.md`" in text
-    for principle in ("P3", "P4", "P6"):
-        assert principle in close, principle
+    assert "PLACEHOLDER: written in task 2.5" not in text and "--stage review" in close and "`worker.md`" in text
     assert "Commit" in close and "only when" in close
 
 
