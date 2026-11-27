@@ -1907,12 +1907,12 @@ def proven(project: Path, finding: str):
     """(pointer, sentence) when a finding opens with proof that code can open: a file of the project
     with a line it holds, as path:line, or the record of a run under .cg-docs/evidence/. Else None.
     Whether the pointer shows what the sentence says is for the reader to judge."""
-    found = re.match(r"(.{1,400}?)(?::(\d+))?:\s+(\S.*)$", finding, re.S)
+    found = re.match(r"(.{1,400}?)(?::(\d+))?:\s+(\S.*)$", finding)
     name = data_path(project, found.group(1).strip("`\"' ")) if found else ".."
     try:
-        if not within(name, ""):
+        if project not in (project / name).resolve().parents:  # a link that leaves the project is no file of it
             return None
-        with open(project / name, "rb") as handle:  # a file of the project: its lines are counted, never kept
+        with open(project / name, "rb") as handle:  # its lines are counted, and nothing of it is kept
             lines = sum(1 for _ in handle)
     except (OSError, ValueError):
         return None
@@ -1943,8 +1943,8 @@ def cmd_conformance(args) -> int:
                   "work gave it")
             return 2
         named = {v["verifier"]: v for v in dispatch(project, a, args.stage)}
-        findings, refused = [text.strip() for text in args.finding or [] if text.strip()], []
-        note = (args.note or "").strip()
+        findings, refused = [" ".join(text.split()) for text in args.finding or [] if text.strip()], []
+        note = " ".join((args.note or "").split())
         if args.verifier not in named:
             refused.append(f"{args.verifier} is no verifier of the {args.stage} stage for {a['path']}; code says which "
                            f"ones run: {', '.join(named) or 'none'}")
