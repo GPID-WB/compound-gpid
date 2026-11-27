@@ -13,7 +13,7 @@ Work on an approved plan is not quick work: `playbooks/work.md` takes a plan sli
 
 Say in one or two sentences what the human asked for and the smallest change that meets it (P6). Name what you will leave alone. If the request can be read two ways, ask which is meant. Do not pick one.
 
-If status shows an open work report under `active`, read it first: continue that work, or ask the human whether to close it. If the human gave no request and nothing is open, ask what they want done and end your turn.
+If status shows an open work report under `active`, read it first. When the request is that work, continue in that file. When it is other work, name what is open in one line, leave it as it is, and go on with the request. Open work of another request does not hold this one back: not an open work report, and not a draft or a stop of other work that status lists under `waiting-on-human`. If the human gave no request and nothing is open, ask what they want done and end your turn.
 
 When the request is a slice of an approved plan, or work that an approved plan describes, this playbook does not do it: run the status line again with `--playbook work` added, and follow the playbook it names.
 
@@ -25,7 +25,7 @@ Write the request and your restatement under "Asked".
 
 ## 2. Check the risk
 
-Look at the files the change will touch. Then answer each fact below with yes or no. Find the answers in the files and in the status output, and ask the human only for what they alone know. Answer from what the change does, not from how small it looks: each no needs a reason you can write in the record.
+Look at the files the change will touch, and open no data file to do it: until the `data` line of `tier` below calls a file `cleared`, or names the human's decision that you read it, you look at its name and at the code that reads it, never at its contents. That holds for a file you are asked to delete or to move, too. Then answer each fact below with yes or no. Find the answers in the files and in the status output, and ask the human only for what they alone know. Answer from what the change does, not from how small it looks: each no needs a reason you can write in the record.
 
 | Fact | It is a yes when the change |
 |---|---|
@@ -44,7 +44,9 @@ Code writes what the line prints into a record of the work report, so copy none 
 
 **`tier: low`.** Go on to step 3 without waiting.
 
-**`tier: elevated`.** This is a hard stop. Tell the human each reason on the `reasons` line. Then give a short contract: the goal, what is out of scope, and the checks you will run with the outcome that would mean failure. Write it under "Risk" in the work report first, and show it as the file reads. When a reason is `irreversible`, it names what will be done that cannot be undone, and to which file or place. When a reason is `data`, ask in the same reply for what would clear the file, with an example answer the human can copy: its classification, and the highest level their organization lets this coding agent read. Say how you will work without seeing the data if they cannot answer yet (P12). The human answers for the data, so say too that they may decide you read the file as it stands, that reading it sends its contents to the company that runs the model, that their organization's rules still bind them, and that code records the decision under their name when they reply with a plain yes. For the contract, say that a plain yes confirms it and is recorded under their name, and that you will take anything else as a change or a question. End your turn. When a reason is `size`, say that the work needs a plan, which `/cg plan` writes once `/cg brainstorm` has settled what is wanted, and offer the first slice that is small enough to do now. When a reason is `choice`, put the choice to the human in the same reply, with the answer you recommend and its trade-off. If one question cannot settle it, say that `/cg brainstorm` works it through before anything changes.
+**`tier: elevated`.** This is a hard stop. Tell the human each reason on the `reasons` line. Then give a short contract: the goal, what is out of scope, and the checks you will run with the outcome that would mean failure. Write it under "Risk" in the work report first, and show it as the file reads. When a reason is `irreversible`, it names what will be done that cannot be undone, and to which file or place. When a reason is `data`, ask in the same reply for what would clear the file, with an example answer the human can copy: its classification, and the highest level their organization lets this coding agent read. Say how you will work without seeing the data if they cannot answer yet (P12). The human answers for the data, so say too that they may decide you read the file as it stands, that reading it sends its contents to the company that runs the model, that their organization's rules still bind them, and that code records the decision under their name when they reply with a plain yes. With a `data` reason, the data is the one thing you ask for in this reply: the yes to the contract is asked for once the data is settled. With no `data` reason, say for the contract that a plain yes confirms it and is recorded under their name, and that you will take anything else as a change or a question. End your turn. When a reason is `size`, say that the work needs a plan, which `/cg plan` writes once `/cg brainstorm` has settled what is wanted, and offer the first slice that is small enough to do now. When a reason is `choice`, put the choice to the human in the same reply, with the answer you recommend and its trade-off. If one question cannot settle it, say that `/cg brainstorm` works it through before anything changes.
+
+**A stop with a `data` reason keeps this order.** First the data: the human's classification of the file, or their decision that you read it, each recorded as the paragraphs below say; or the file is left out of the work. Then `tier` again. Then, when `tier` is still elevated, the contract and the question for its yes, in a reply of its own. A yes to the contract opens no data file: code refuses it while the `stop` line names one.
 
 **When the human says yes to the contract,** record the reply before you change anything. Show the line, then run it:
 
@@ -64,7 +66,7 @@ Record only what the human stated, in their words for the level, such as `Public
 
 If it prints `refused`, nothing was recorded and the file stays closed. Read the reason it gives. When the human declined, that is their answer: work without the data, and do not ask again. When the reply says more than a plain yes, deal with what it adds or asks, then ask for a plain yes. When it holds no yes, ask one question: what is unclear. When git has no user name, show the human the line the command printed.
 
-Once the decision is recorded, run `tier` again. Its `data` line names the decision, and the file no longer raises the tier. The decision lets you read the file. It is not a yes to the contract: when the reply does not also say yes to the contract you gave, ask for that before you change anything. Rows and values still stay out of the work report, the evidence and every commit.
+Once the decision is recorded, run `tier` again. Its `data` line names the decision, and the file no longer raises the tier. The decision lets you read the file. It is not a yes to the contract: when `tier` is still elevated, show the contract and ask for its yes before you change anything. Rows and values still stay out of the work report, the evidence and every commit.
 
 ## 3. Change
 
@@ -78,7 +80,7 @@ Once the decision is recorded, run `tier` again. Its `data` line names the decis
 
 ## 4. Prove
 
-- Run each check through code, which records that it ran: its command, its exit code, a digest of what it printed, and the commit. Put the command in single quotes when it holds double quotes. Show the line, then run it:
+- Run each check through code, which records that it ran: its command, its exit code, a digest of what it printed, and the commit. Put the command in single quotes when it holds double quotes. Code keeps the text of the command in the record, which is committed: write no value and no name from a dataset into it. What the check needs of them goes into a file that the command reads. Show the line, then run it:
 
   `"<python>" "<cg>" evidence --run "<the check's command>" --report "<the work report>" --project "<project root>"`
 

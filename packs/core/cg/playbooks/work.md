@@ -35,14 +35,15 @@ Take the next slice in the plan's order, and no other. Finish it, with its check
 Code takes the files from the slice. Give `--reads` once for each data file you will open, or that code you run will read. When there is none, give `--reads none` and leave out `--agent`. Then read the line `stop`.
 
 - **`stop: none`.** Go on to step 3 without waiting. Whatever else the `reasons` line holds, the human approved with the plan.
-- **`stop:` with a reason.** Go to section 5, rule 1, before anything else.
+- **`stop:` with an `irreversible` reason.** Go to section 5, rule 1, before anything else.
+- **`stop:` with a `data` reason.** The slice reads a data file that is not cleared and that the plan's data register does not list, so the plan's approval does not cover it. A yes to the stop does not open the file: code refuses it. Take the first that fits. The slice can do without the file: leave it out, and run the `tier` line again. The human decides that you read it: record that reply as step 2 of `playbooks/quick.md` says, before the file is opened, and run the `tier` line again. Otherwise the plan has to change: section 5, rule 3.
 
-A dataset that the `data` line calls `not cleared` stays closed, in the way the plan says: you never open it, and a check reports an exit code or a count and never a row (P12). When the human decides that you read it, step 2 of `playbooks/quick.md` says how that reply is recorded before the file is opened.
+A dataset that the `data` line calls `not cleared` and that the plan lists stays closed, in the way the plan says: you never open it, and a check reports an exit code or a count and never a row (P12). The human may decide that you read it, and the same step of quick work says how that reply is recorded before the file is opened.
 
 ## 3. Change
 
 - Before the first slice, read the lead skill of each pack on the `packs-expected` line of status and load what it names, as step 3 of `playbooks/quick.md` says.
-- **See the slice's checks fail first.** Run each check the slice ends in, as step 4 writes it, before the change. A check that fails now and passes after the change proves the change. A check that passes before the change proves nothing for this slice, unless it is a baseline or a pin, whose job is to stay the same. When it is neither, the plan is wrong: section 5, rule 3.
+- **See the slice's checks fail first.** Run each check the slice ends in, as step 4 writes it, before the change. A check that fails now and passes after the change proves the change. Three kinds of check may pass before the change, because their job is to show that something stayed the same: a baseline, a pin, and a regression check, such as the project's whole test run. Go on, and see that each still passes after the change. A check of any other kind that passes before the change proves nothing for this slice, and the plan is wrong: section 5, rule 3.
 - Before you change code that already produces an output, capture the baseline the plan names.
 - Make the change this slice describes, in the files it lists, and nothing else (P6). What you see beside it goes on the "Noticed but not touching" list of the work report.
 - When the slice is a worked example, show each step and its outcome. When it is the tool, show that the tool gives the outcome of the worked example before it runs on the other units (P3). Nothing that reaches a reader is typed in.
@@ -57,7 +58,7 @@ Run each check the slice ends in through code. It runs the command the approved 
 
 - Code gives the verdict from the exit code: 0 is `verified`, anything else is `not verified`. Read what the check printed against the plan's "Fails when". When a check ends with 0 and its outcome means failure, run the line again with `--verdict not-verified` added, or with `--verdict inconclusive` when the check could not tell. Inconclusive is not a pass.
 - Never get a check to pass by making it easier: no change to its command, to an expected value or to a tolerance, no test removed or skipped, no warning or error silenced. When a check fails, fix the first place in the code where things went wrong.
-- A command of your own goes through `evidence --run`, as step 4 of quick work writes it. Code labels it ad hoc, and it never stands for a check of the plan.
+- A command of your own goes through `evidence --run`, as step 4 of quick work writes it. Code labels it ad hoc, and it never stands for a check of the plan. Code keeps the text of the command in a record that is committed, so no value and no name from a dataset goes into it.
 - For a number, compare it with what the plan names as independent of the code, at the tolerance the plan set, and write what it was compared with under "Evidence" in the work report (P4).
 
 Then have code look at the slice as a whole:
@@ -92,7 +93,7 @@ Fill every other section of the work report. Set `status: completed` only when e
 
 A line that starts with `FAIL` names what is missing. Fix it and run the line again. The plan stays `in-progress`: the work is proven, and nobody has reviewed it or signed it off yet.
 
-Commit only when the human asks, or when the plan's Always list says that each slice is committed. Run `guard` before the commit, which leaves it nothing to compare. The change, the work report and its records under `.cg-docs/evidence/` and `.cg-docs/approvals/` go in one commit (P8). A push is rule 1.
+Commit only when the human asks, or when the plan's Always list says that each slice is committed. A commit inside a slice hides nothing from `guard`, which compares with the commit the slice began on. The change, the work report and its records under `.cg-docs/evidence/` and `.cg-docs/approvals/` go in one commit (P8). A push is rule 1.
 
 **A slice in a fresh context.** When the coding agent can start another agent, you may give it one slice. The first line of its kickoff is the one the guide gives, which sends it to `worker.md`. After it, give pointers and none of your reasoning: the plan, the slice, the files it lists and the checks it ends in. That agent makes the change and reports. You run `tier` before it starts, and `evidence` and `guard` after it reports. The record is yours, and so is every stop.
 

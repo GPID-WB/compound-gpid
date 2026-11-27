@@ -521,6 +521,26 @@ def test_the_work_playbook_takes_one_slice_at_a_time_and_names_the_stops():
     assert "Commit" in close and "only when" in close
 
 
+def test_the_texts_hold_what_the_review_of_task_2_4_found_in_their_wording():
+    """Review of #227, W1 to W10. In gate rerun 18 one agent stopped the work for good because the
+    package's whole test run passed before the change, and two took open work of another request
+    for a reason not to start."""
+    work, quick, plan = (path.read_text(encoding="utf-8") for path in (WORK, QUICK_TEXT, CG / "playbooks" / "plan.md"))
+    for text in (work[work.index("## 3."):work.index("## 4.")], plan[plan.index("## 3."):plan.index("## 4.")]):
+        assert "a regression check" in text and "still pass" in text  # W1
+    assert "does not hold this one back" in quick[quick.index("## 1."):quick.index("## 2.")]  # W2
+    for text in (plan, (CG / "templates" / "plan.md").read_text(encoding="utf-8")):  # W3 and W4
+        assert "one pair of backticks" in text and "the last command's" in text
+    for text in (work, quick):  # W5
+        assert "no value and no name from a dataset" in text
+    risk = quick[quick.index("## 2."):quick.index("## 3.")]
+    assert "keeps this order" in risk and "open no data file" in risk  # W6 and W7
+    assert "`data` reason" in work[work.index("## 2."):work.index("## 3.")]  # W6
+    assert "offered a choice" in (CG / "grilling.md").read_text(encoding="utf-8")  # W8
+    assert "a database or a store outside the project" in WORKER.read_text(encoding="utf-8")  # W9
+    assert "leaves it nothing to compare" not in work  # W10
+
+
 def test_worker_md_is_what_every_other_agent_reads_first():
     """Plan, section 4.2: `worker.md` is read first by every agent that another agent starts. It
     is short, it holds the stops and the data rule that no kickoff may lift, and the guide says so."""
@@ -544,7 +564,7 @@ def test_the_other_texts_name_the_work_playbook_and_what_code_now_records(env):
     assert state["playbook"].endswith("work.md") and state["next"] == "read playbooks/work.md"
     quick, plan = QUICK_TEXT.read_text(encoding="utf-8"), (CG / "playbooks" / "plan.md").read_text(encoding="utf-8")
     assert "PLACEHOLDER" not in quick and "PLACEHOLDER: written in task 2.4" not in plan
-    assert "`/cg work`" in plan[plan.index("**Reply:**"):] and "in backticks" in plan[plan.index("## 3."):plan.index("## 4.")]
+    assert "`/cg work`" in plan[plan.index("**Reply:**"):] and "pair of backticks" in plan[plan.index("## 3."):plan.index("## 4.")]
     restate = quick[quick.index("## 1. Restate"):quick.index("## 2.")]
     assert "`--playbook work`" in restate and '"<cg>" new work-report' in restate
     stop = quick[quick.index("**`tier: elevated`.**"):quick.index("**When the human answers a data question,**")]

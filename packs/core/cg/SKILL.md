@@ -62,7 +62,7 @@ When the human started you, leave out the sentence on `/cg` that the project's p
 Take these lines of the status output in this order.
 
 1. `stops`. When it is not `none`: tell the human each stop in plain words, with the command that fixes it when status gives one, and end your turn.
-2. `waiting-on-human`. When it is not `none`: list each item before anything else. Those decisions are the human's.
+2. `waiting-on-human`. When it is not `none`: list each item before anything else. Those decisions are the human's. Then continue: an item that waits holds back its own work, and not another request.
 3. `packs-missing`. When it is not `none`: show the line from `add-command` and say what the missing pack would add. Then continue. A missing pack does not stop the work.
 4. `playbook`. Read that file in full and follow it. Status chooses the playbook. You do not choose one from memory, and you do not skip it because the request looks simple.
 

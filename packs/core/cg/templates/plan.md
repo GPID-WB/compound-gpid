@@ -29,11 +29,11 @@ The human approves this plan as it reads below. `cg.py approve` records their re
 
 ### Checks
 
-Every requirement has a check, and every check can fail.
+Every requirement has a check, and every check can fail. A Command cell holds one command, written in full, in one pair of backticks: code runs it as it stands, and its exit code is the check's. The exit code of a pipe or of `;` is the last command's.
 
 | ID | Requirement | Command | Fails when |
 |---|---|---|---|
-| C1 | R1 | <the command, as it will be run> | <the outcome that means the requirement is not met> |
+| C1 | R1 | <the command, as it will be run, in one pair of backticks> | <the outcome that means the requirement is not met> |
 
 What no check would catch: <what could still be wrong while every check passes, or "nothing known">
 

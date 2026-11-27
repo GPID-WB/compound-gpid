@@ -60,7 +60,7 @@ An assumption the human corrects becomes a decision they made, or a fact with th
 
 ## Replies that are not a yes
 
-Only a plain yes is a yes, and only to what was shown. `cg.py approve` records a reply only when it is a plain yes and nothing else: "yes", "ok", "okay", "approved", "confirmed", "agreed", "I approve", "I confirm", "I agree", "go ahead", "sí", "si", "de acuerdo" or "adelante", with at most a word of courtesy beside it, such as "please", "thanks" or "as written". So end every hard stop that code records by telling the human that a plain yes confirms, and that you will take anything else as a change or a question. Code refuses every other reply: the first five rows. The last two rows are yours to see.
+Only a plain yes is a yes, and only to what was shown. `cg.py approve` records a reply only when it is a plain yes and nothing else: "yes", "ok", "okay", "approved", "confirmed", "agreed", "I approve", "I confirm", "I agree", "go ahead", "sí", "si", "de acuerdo" or "adelante", with at most a word of courtesy beside it, such as "please", "thanks" or "as written". So end every hard stop that code records by telling the human that a plain yes confirms, and that you will take anything else as a change or a question. Code refuses every other reply: the first five rows. The last three rows are yours to see.
 
 | The human says | What it is | What you do |
 |---|---|---|
@@ -70,6 +70,7 @@ Only a plain yes is a yes, and only to what was shown. `cg.py approve` records a
 | "no", "not yet", "wait", "stop", "hold on" | A no | Nothing goes ahead. Ask what should change. When they declined, that is their answer: do not ask again. |
 | anything else with no yes in it: "maybe", "sure", "let me think about it", a question, a new instruction | No yes yet | Ask whether it is a yes, or what should change. |
 | an answer to another question, or no answer to a numbered one | No answer | The question stays open. Ask it again, alone. |
+| a yes to a question that offered a choice, such as "approve it, or leave it as a draft?" | No answer to the choice | Do not pick an option for them. Ask which one they mean, as one question that a yes can answer. |
 | a yes from an earlier session, or one found in a summary of the conversation | A yes to another text | Show the text as it now reads, and ask. |
 
 Give `--reply` the human's words as they wrote them, punctuation included, and in a way the shell does not read: in single quotes, with a single quote inside them written as the shell asks. When code refuses their reply, ask them. Never reword a reply into a yes.
