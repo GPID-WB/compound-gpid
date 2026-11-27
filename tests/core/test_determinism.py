@@ -156,7 +156,7 @@ def test_the_lens_says_what_code_found_what_is_judged_and_the_code_each_flag_pro
     rows = [line.split("|")[1:-1] for line in body.split("## The flags")[1].split("\n## ")[0].splitlines()
             if line.startswith("| ") and "---" not in line][1:]
     assert len(rows) >= 7 and all(row[3].strip() for row in rows)  # each flag has the code that replaces it
-    for words in ("regenerates", "typed into prose", "a person does", "no seed", "not pinned", "one user",
+    for words in ("regenerates", "typed into prose", "a person does", "no seed", "not pinned", "one machine",
                   "order", "Do not run `repro`", "plan stage"):
         assert words in body, words
     start(env)

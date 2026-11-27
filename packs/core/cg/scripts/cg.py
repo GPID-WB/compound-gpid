@@ -15,6 +15,7 @@ Usage, with the interpreter that ~/.cg/launcher.json records as <python>:
   "<python>" cg.py evidence [CHECK-ID | --run COMMAND] [--verdict not-verified|inconclusive] --report REPORT
                       [--project PATH]
   "<python>" cg.py guard [--report REPORT] [--base COMMIT] [--project PATH]
+  "<python>" cg.py repro --report REPORT [--project PATH]
   "<python>" cg.py verifiers PLAN|REPORT|SOLUTION --stage STAGE [--json] [--project PATH]
   "<python>" cg.py conformance PLAN|REPORT|SOLUTION [--stage STAGE] [--verifier NAME --verdict VERDICT
                       --review independent|self-review [--finding "POINTER: WHAT"]... [--note TEXT]] [--json]
@@ -23,8 +24,8 @@ Usage, with the interpreter that ~/.cg/launcher.json records as <python>:
                        [--approved-tool "agent=level"]... [--data "path=level"]...
                        [--project PATH] [--dry-run]
 
-What each command does and why is in docs/adr/0005-artifacts.md, 0006-evidence.md, 0008-verifiers.md
-and in its --help.
+What each command does and why is in docs/adr/0005-artifacts.md, 0006-evidence.md, 0008-verifiers.md,
+0009-determinism.md and in its --help.
 PATH may be any folder inside the project: the commands use the nearest folder
 above it that holds .cg-docs/, else the root of its git repository.
 
@@ -177,6 +178,53 @@ GUARD = (
 COMMENT = r"^[ \t]*(#|//|\*).*$"
 # What git compares with before a repository's first commit: the empty tree.
 EMPTY_TREE = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
+# What repro looks for in the files of a change (P3, #229): per rule, the files it reads, the part of a file
+# (code, or the prose of a report), a pattern, a pattern that clears every line from its own down, and the
+# code that would replace what it finds. Which finding stands, and which is a line to judge, is the lens's.
+R_CODE, PY_CODE, STATA = (".r", ".rmd", ".qmd"), (".py", ".ipynb"), (".do", ".ado")
+CODE_FILES = R_CODE + PY_CODE + STATA + (".sh", ".ps1", ".yml", ".yaml")
+DETERMINISM = (
+    ("unseeded", R_CODE, "code", r"\b(sample(\.int|_n|_frac)?|slice_sample|r(unif|norm|binom|pois|exp|gamma|beta)|boot|"
+     r"bootstraps|initial_split|vfold_cv|kmeans)\s*\(", r"\bset\.seed\s*\(|\b(with|local)_seed\s*\(",
+     "set.seed(<a seed>) above the first draw, with the seed in the work report"),
+    ("unseeded", PY_CODE, "code", r"\brandom\.(?!seed\b)\w+\s*\(|\.sample\s*\(|\btrain_test_split\s*\(",
+     r"\.seed\s*\(|default_rng\s*\(\s*\w|random_state\s*=\s*\w|\bRandom\s*\(\s*\w", "rng = numpy.random.default_rng("
+     "<a seed>) and each draw from rng, or random.seed(<a seed>) above the first draw, with the seed in the work report"),
+    ("unseeded", STATA, "code", r"^\s*((quietly|qui|noisily|capture)\s+)*(sample|bsample|bootstrap|simulate|permute)\b|"
+     r"\br(uniform|normal|binomial|poisson)\s*\(", r"\bset\s+seed\b|\bseed\s*\(\s*\d",
+     "set seed <a seed> above the first draw, with the seed in the work report"),
+    ("home-path", CODE_FILES, "code", r"(?<![\w.])(/Users/|/home/|[A-Za-z]:[\\/]{1,2}Users[\\/]{1,2})[^\s\"'/\\]|"
+     r"[\"']~[/\\]", None, 'a path from the project root, such as here::here("data", "survey.csv") in R, or a path from '
+     "the folder of the script in Python"),
+    ("clock", CODE_FILES, "code", r"\bSys\.(time|Date)\s*\(|\b(datetime|date)\.(now|today|utcnow)\s*\(|"
+     r"\btime\.time\s*\(|\bc\(current_(date|time)\)", None,
+     "the date passed in as an input, and no clock in an output that is compared"),
+    ("network", CODE_FILES, "code", r"https?://", None,
+     "a copy of the download saved in the project and read from there, with its date and source in the data register"),
+    ("unsorted", PY_CODE, "code", r"^(?!.*\bsorted\().*(\bos\.(listdir|scandir)|\.(i?glob|rglob|iterdir))\s*\(", None,
+     "sorted() around the listing"),
+    ("typed-number", (".rmd", ".qmd"), "prose", r"(?<![\w.,])(\d+\.\d+|\d{1,3}(,\d{3})+)(?!\.?\d|\w)|\b\d+(\.\d+)?\s?%",
+     None, "inline code that reads the number from the output, such as `r round(<the object>, 3)`"),
+)
+# A language the project holds needs a lockfile at its root; a do-file needs its version command.
+LOCKFILES = ((R_CODE, ("renv.lock",), "renv::init() and renv::snapshot(), with renv.lock committed"),
+             (PY_CODE, ("uv.lock", "poetry.lock", "Pipfile.lock", "pylock.toml"), "uv lock, with uv.lock committed"))
+STATA_PIN = "version <the Stata version, such as 18> as the first command of the do-file"
+# What the two runs of repro can show of an output, each with the code that would replace it.
+RUN_FIXES = {
+    "no-run": "one command under Run in .cg-docs/verification.md that makes every output from the inputs, such as "
+              "Rscript run.R or targets::tar_make()",
+    "run-failed": "a Run command that runs to its end from the project root on this machine",
+    "missing": "the path of the output in the outputs map, or the step of the Run command that writes it",
+    "not-written": "the step of the Run command that writes this output from the inputs",
+    "once": "a Run command that writes every output on each run, so that the second run is a rerun",
+    "differs": "a seed above each draw, an order set before each write, such as arrange() or sort_values(), and no "
+               "clock in the output",
+    "changed": "the output as the Run command writes it, with nothing typed or edited in it afterwards",
+    "unmapped": "a row of the outputs map for each output the runs wrote, and a temporary folder outside the project "
+                "for the rest",
+}
+REPRO_RULES = tuple(dict.fromkeys([rule for rule, *_ in DETERMINISM] + ["unpinned", *RUN_FIXES]))
 # The stages a principle file may name under `stages`, each with the type of artifact its verifiers
 # look at. Which verifiers run at a stage is the principle files' to say, and no list here (#228).
 STAGES = {"plan": "plan", "review": "work-report", "sign-off": "work-report", "compound": "solution"}
@@ -1525,13 +1573,18 @@ def covers(names, path: str) -> bool:
     return any(within(path, name) or fnmatch.fnmatchcase(path, name) for name in names)
 
 
+def new_files(project: Path):
+    """The files that git neither holds nor ignores, outside .cg-docs/; None when git cannot say."""
+    found = git(project, "ls-files", "-z", "--others", "--exclude-standard")
+    return None if found is None else {name for name in found.split("\0") if name and not name.startswith(".cg-docs/")}
+
+
 def changed_files(project: Path, base: str = "HEAD"):
     """Every file that differs from a commit, new files too, outside .cg-docs/; None when git cannot say."""
-    known = git(project, "diff", "--name-only", "--no-renames", "--relative", "-z", base, "--")
-    new = git(project, "ls-files", "-z", "--others", "--exclude-standard")
+    known, new = git(project, "diff", "--name-only", "--no-renames", "--relative", "-z", base, "--"), new_files(project)
     if known is None or new is None:
         return None
-    return sorted({name for name in (known + "\0" + new).split("\0") if name and not name.startswith(".cg-docs/")})
+    return sorted({name for name in known.split("\0") if name and not name.startswith(".cg-docs/")} | new)
 
 
 def digests(project: Path, names) -> dict:
@@ -1711,6 +1764,7 @@ def cmd_evidence(args) -> int:
     if any(refused):
         return say(filter(None, refused))
     command = args.run or command_of(checks[args.check])  # the command is what the plan holds in backticks
+    made = new_files(project) or set()  # the files a run makes are kept by a digest of their names, for guard
     done = subprocess.run(command, shell=True, cwd=project, capture_output=True, stdin=subprocess.DEVNULL)
     printed = done.stdout + done.stderr
     sys.stdout.buffer.write(printed + b"\n" * (printed[-1:] not in (b"", b"\n")))
@@ -1722,6 +1776,7 @@ def cmd_evidence(args) -> int:
               "command": command[:300], "command-digest": sha_of(command),
               "exit": done.returncode, "verdict": verdict,
               "output": {"digest": sha, "lines": printed.count(b"\n"), "bytes": len(printed)},
+              "wrote": [name_key(name) for name in sorted((new_files(project) or set()) - made)],
               "commit": git(project, "rev-parse", "--short", "HEAD") or "none",
               "state": work_state(project, tier_of(project, report)[1].get("files") or [], base_of(project, report))}
     print(f"check: {record['check']} ({record['label']})\nexit: {done.returncode}\nverdict: {verdict}\n"
@@ -1776,7 +1831,12 @@ def cmd_guard(args) -> int:
         where = f"slice {tier['slice']} does not list it" if tier.get("slice") else "tier was not given it"
         now = digests(project, files)
         mine = [name for name in files if now[name] not in (before.get(name_key(name)), before.get(name))]
-        found += [f"outside: {name} changed and {where}; undo it, or run tier again with it, which may stop the work"
+        # A file that a recorded run made, such as the folder of R CMD check, is no change of the slice (gate rerun 21).
+        made = {key: r.get("check") for _, r in records(project, report, "any") for key in r.get("wrote") or []}
+        found += [f"written: {name} was written by a run of {made[name_key(name)]}, and {where}; it is no change of the "
+                  f"slice: delete it, which running that again undoes"
+                  if name_key(name) in made else
+                  f"outside: {name} changed and {where}; undo it, or run tier again with it, which may stop the work"
                   for name in mine if not covers(declared, name)]
         rows = {row[0]: row[3] for row in rows_of(plan["body"], "## Slices", 5, [])} if plan else {}
         state, text = work_state(project, declared, base), text_hash(plan["body"]) if plan else None
@@ -1791,6 +1851,122 @@ def cmd_guard(args) -> int:
         print(f"FAIL {line}")
     print(f"guard: {len(found)} problem{'s' * (len(found) > 1)}" if found else "guard: clean")
     return 1 if found else 0
+
+
+# ---------------------------------------------------------------- repro
+
+def profile(project: Path):
+    """The Run command of the verification profile (P4), the first line of the block under '## Run', or
+    None when it says "not found" or is still a request; and the paths in backticks of its outputs map."""
+    try:
+        body = read_frontmatter((project / ".cg-docs" / "verification.md").read_text(encoding="utf-8"))[1]
+    except OSError:
+        return None, []
+    block = re.search(r"^```[^\n]*\n(.*?)^```", section(body, "## Run"), re.M | re.S)
+    command = next((line.strip() for line in (block.group(1) if block else "").splitlines() if line.strip()), "")
+    paths = [data_path(project, path) for row in rows_of(body, "## Outputs map", 3, [])
+             for path in re.findall(r"`([^`]+)`", row[1])]
+    return (None if re.fullmatch(r"(<[^<>]*>|not found\W*)?", command, re.I) else command), [
+        path for path in paths if path and within(path, "")]
+
+
+def snapshot(project: Path, mapped) -> dict:
+    """Each file the outputs map names, a folder by its files, as (when it was written, a digest), or None."""
+    found = {}
+    for place in mapped:
+        here = project / place
+        for path in sorted(project.glob(place)) if "*" in place else sorted(here.rglob("*")) if here.is_dir() else [here]:
+            name = path.relative_to(project).as_posix()
+            if not path.is_dir():
+                found[name] = (path.stat().st_mtime_ns, digests(project, [name])[name]) if path.is_file() else None
+    return found
+
+
+def scan(project: Path, names):
+    """What code finds of P3 in the files of a change (DETERMINISM), each as its rule, where it shows and the
+    code that would replace it; lines in a row are one. No file that a data rule names is read. In a report a
+    fence holds code, and the rest is prose, its headings left out."""
+    data = (read_config(project)[0] or {}).get("data")
+    rules = [key for key in rule_paths(project, {"data": data}) if key] if isinstance(data, dict) else []
+    found = []
+    for name in sorted(names):
+        suffix, path = posixpath.splitext(name)[1].lower(), project / name
+        if suffix not in CODE_FILES or covers(rules, name) or not path.is_file() or path.stat().st_size > 1_000_000:
+            continue
+        text, literate, fenced, parts = path.read_text(encoding="utf-8", errors="replace"), suffix in R_CODE[1:], False, []
+        if literate:  # its YAML header is neither code nor prose, and keeps its lines
+            text = re.sub(r"\A---\n.*?\n---\n", lambda m: "\n" * m.group(0).count("\n"), text, flags=re.S)
+        for line in text.splitlines():
+            fence = literate and line.lstrip().startswith(("```", "~~~"))
+            fenced = fenced != fence
+            parts.append(("prose", "" if line.lstrip().startswith(("#", "<!--")) else re.sub(r"`[^`]*`", "", line))
+                         if literate and not fenced and not fence else ("code", "" if fence else re.sub(COMMENT, "", line)))
+        if suffix in STATA and not any(re.match(r"\s*version\s+\d", line) for _, line in parts):
+            found.append({"rule": "unpinned", "where": f"{name}:1", "fix": STATA_PIN})
+        for rule, kinds, part, pattern, clears, fix in (rule for rule in DETERMINISM if suffix in rule[1]):
+            spans, cleared = [], False
+            for number, (kind, line) in enumerate(parts, 1):
+                cleared = cleared or bool(clears and kind == part and re.search(clears, line))
+                if kind == part and not cleared and re.search(pattern, line):
+                    spans = spans[:-1] + [[spans[-1][0], number]] if spans and spans[-1][1] == number - 1 else \
+                        spans + [[number, number]]
+            found += [{"rule": rule, "where": f"{name}:{a}" + f"-{b}" * (b > a), "fix": fix} for a, b in spans]
+    return found
+
+
+def cmd_repro(args) -> int:
+    """Run the Run command of the verification profile twice in the project, as the human runs it, and compare
+    the digests of the outputs; search the change for what code can find of P3 (#229). The record holds the
+    exit codes, the digests and each finding with the code that would replace it, never what the command
+    printed (P12); the files the runs made, by a digest of each name, for guard."""
+    project = project_from(args.project)
+    report = report_at(project, args.report) if project else None
+    if report is None:
+        return 2
+    stop = open_stop(project, report)
+    if stop:
+        return say([stop])
+    command, mapped = profile(project)
+    found = scan(project, changed_files(project, base_of(project, report, True)) or [])
+    held = {posixpath.splitext(name)[1].lower() for name in changed_files(project, EMPTY_TREE) or []}
+    found += [{"rule": "unpinned", "where": locks[0], "fix": fix} for kinds, locks, fix in LOCKFILES
+              if held & set(kinds) and not any((project / lock).is_file() for lock in locks)]
+    exits, outputs, wrote, unmapped = [], {}, [], []
+    if command is None:
+        found.append({"rule": "no-run", "where": ".cg-docs/verification.md", "fix": RUN_FIXES["no-run"]})
+    else:
+        before, states = new_files(project) or set(), [snapshot(project, mapped)]
+        for _ in range(2):
+            exits.append(subprocess.run(command, shell=True, cwd=project, capture_output=True,
+                                        stdin=subprocess.DEVNULL).returncode)
+            states.append(snapshot(project, mapped))
+        wrote = sorted((new_files(project) or set()) - before)
+        for name in sorted(set().union(*states)):
+            was, one, two = (state.get(name) for state in states)
+            first, second = bool(one and one[0] != (was or [None])[0]), bool(two and two[0] != (one or [None])[0])
+            verdict = ("missing" if two is None else "not-written" if not (first or second) else "once"
+                       if first != second else "differs" if one[1] != two[1] else "changed" if was and was[1] != one[1]
+                       else "same")
+            outputs[name] = {"before": was and was[1], "runs": [one and one[1], two and two[1]], "verdict": verdict}
+            if verdict != "same":
+                found.append({"rule": verdict, "where": name, "fix": RUN_FIXES[verdict]})
+        unmapped = [name for name in wrote if name not in outputs]
+        found += [{"rule": rule, "where": ".cg-docs/verification.md", "fix": RUN_FIXES[rule]}
+                  for rule, on in (("run-failed", any(exits)), ("unmapped", unmapped)) if on]
+    compared = [o["verdict"] for o in outputs.values() if o["verdict"] in ("same", "differs", "changed")]
+    verdict = "inconclusive" if command is None else "not verified" if any(exits) or "differs" in compared else \
+        "verified" if compared else "inconclusive"
+    record = {"kind": "repro", "check": "repro", "command": (command or "")[:300], "command-digest": sha_of(command or ""),
+              "exits": exits, "verdict": verdict, "outputs": outputs, "findings": found,
+              "wrote": [name_key(name) for name in wrote], "commit": git(project, "rev-parse", "--short", "HEAD") or "none",
+              "state": seen(project, report)}
+    print(f"run: {command or 'none: .cg-docs/verification.md declares no Run command'}"
+          + "".join(f"\nrun {number}: exit {code}" for number, code in enumerate(exits, 1))
+          + "".join(f"\noutput: {name}: {o['verdict']}" for name, o in outputs.items())
+          + "".join(f"\nFLAG {f['rule']}: {f['where']}; fix: {f['fix']}" for f in found)
+          + f"\nwritten by the runs, and named by no row of the outputs map: {', '.join(unmapped)}" * bool(unmapped)
+          + f"\nverdict: {verdict}\nrecord: {add_record(project, report, 'repro', record)}")
+    return 0 if verdict == "verified" and not found else 1
 
 
 # ---------------------------------------------------------------- verifiers and conformance
@@ -1968,7 +2144,8 @@ def proven(project: Path, finding: str, a: dict):
     name = data_path(project, found.group(1).strip("`*\"' ")) if found else ".."
     data = (read_config(project)[0] or {}).get("data")  # the kickoff clears no data file, and a rule for the root names none
     rules = [key for key in rule_paths(project, {"data": data}) if key] if isinstance(data, dict) else []
-    runs = [p.relative_to(project).as_posix() for p, _ in records(project, a, "check")] if a["type"] == "work-report" else []
+    runs = [p.relative_to(project).as_posix() for p, r in records(project, a, "any") if r.get("kind") in ("check", "repro")
+            ] if a["type"] == "work-report" else []  # the record of repro is a run too (#229)
     try:
         if project not in (project / name).resolve().parents or covers(rules, name):  # a link that leaves is no file
             return None
@@ -2403,6 +2580,10 @@ def main(argv=None) -> int:
     guard.add_argument("--report", help="the work report: also hold the change to its slice and its evidence")
     guard.add_argument("--base", default="HEAD", help="the commit the change is compared with")
     guard.add_argument("--project", default=".")
+    repro = sub.add_parser("repro", help="run the Run command of the verification profile twice, compare the digests "
+                                         "of the outputs, and search the change for what code can find of P3")
+    repro.add_argument("--report", required=True, help="the work report the runs belong to")
+    repro.add_argument("--project", default=".")
     verifiers = sub.add_parser("verifiers", help="print the verifiers that check an artifact at a stage, each with "
                                                  "its kickoff")
     conformance = sub.add_parser("conformance", help="record the verdict of a verifier, or list the verdicts on an "
@@ -2422,7 +2603,7 @@ def main(argv=None) -> int:
     args = parser.parse_args(argv)
     commands = {"doctor": cmd_doctor, "status": cmd_status, "new": cmd_new, "packs": cmd_packs, "setup": cmd_setup,
                 "validate": cmd_validate, "approve": cmd_approve, "tier": cmd_tier, "evidence": cmd_evidence,
-                "guard": cmd_guard, "verifiers": cmd_verifiers, "conformance": cmd_conformance}
+                "guard": cmd_guard, "repro": cmd_repro, "verifiers": cmd_verifiers, "conformance": cmd_conformance}
     return commands[args.command](args)
 
 

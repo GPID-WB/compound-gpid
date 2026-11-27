@@ -127,7 +127,7 @@ def test_evidence_stores_a_bounded_digest_and_never_what_a_check_printed(env):
     assert run["output"] == {"digest": "sha256:" + hashlib.sha256(printed).hexdigest(), "lines": 20000,
                              "bytes": len(printed)}
     assert set(run) == {"kind", "report", "check", "label", "command", "command-digest", "exit", "verdict",
-                        "output", "commit", "state", "time"}
+                        "output", "wrote", "commit", "state", "time"} and run["wrote"] == []  # names, as digests (#229)
     long = f"{PY} -c \"x = '{'4.25,' * 1000}'\""
     assert env["cg"]("evidence", "--run", long, "--report", REPORT)[0] == 0
     last = held(env)[-1]
