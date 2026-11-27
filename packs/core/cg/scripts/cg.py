@@ -202,6 +202,27 @@ def write_atomic(path: Path, text: str) -> None:
         raise
 
 
+def append_line(path: Path, line: str) -> None:
+    """Add one line at the end of a file. On POSIX an append is one step. On Windows it moves to the end
+    and then writes, so two writers of one instant can land at one place, and one line is lost after its
+    writer looked (CI, review of #228): there writers take turns, by a lock on one byte far past the end,
+    which no reader touches. Closing the file lets the lock go in any case."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, lock = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_APPEND | getattr(os, "O_BINARY", 0)), None
+    try:
+        if os.name == "nt":
+            import msvcrt
+            lock = msvcrt
+            os.lseek(fd, 1 << 40, os.SEEK_SET)
+            lock.locking(fd, lock.LK_LOCK, 1)  # tries again each second, ten times, then raises OSError
+        os.write(fd, line.encode("utf-8"))
+        if lock:
+            os.lseek(fd, 1 << 40, os.SEEK_SET)
+            lock.locking(fd, lock.LK_UNLCK, 1)
+    finally:
+        os.close(fd)
+
+
 def parse_version(text):
     """'2.0.0.9000' -> (2, 0, 0, 9000). Raises ValueError on anything else."""
     if not isinstance(text, str) or not re.fullmatch(r"\d+(\.\d+)*", text):
@@ -2003,12 +2024,10 @@ def cmd_conformance(args) -> int:
                  "review": args.review, "findings": [{"where": p[0], "what": p[1][:300]} for _, p in opened if p],
                  "unverified": [text[:300] for text, p in opened if not p], "note": note[:300],
                  "on": seen(project, a), "time": now()}  # a verdict is on what it was given on
-        problem = "a line added after one that was cut short, or in the same instant as another, could not be read"
+        problem = "a line added after one that was cut short could not be read"
         for _ in range(3):  # so look after each write, and add it again
             try:
-                path.parent.mkdir(parents=True, exist_ok=True)
-                with open(path, "a", encoding="utf-8", newline="\n") as handle:
-                    handle.write(json.dumps(entry, ensure_ascii=False) + "\n")
+                append_line(path, json.dumps(entry, ensure_ascii=False) + "\n")
             except OSError as error:  # a file held by another program, as a sync client may hold one
                 problem = str(error)
                 continue
