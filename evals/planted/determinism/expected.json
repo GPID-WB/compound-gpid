@@ -1,5 +1,6 @@
 {
   "verifier": "determinism",
+  "data": {"data/survey.csv": "Public"},
   "about": "Each case is a violation planted in project/ (review stage) or in plan.md (plan stage). 'code' names the rule of cg.py repro that finds its part, or null when only judgement can. A finding catches a case when its pointer is 'file' at the line that holds 'text', three lines either way, or is one of 'or', where 'record' is a record under .cg-docs/evidence/.",
   "review": [
     {"flag": "an output no script regenerates", "code": "not-written", "file": "output/table.csv", "or": ["record"]},

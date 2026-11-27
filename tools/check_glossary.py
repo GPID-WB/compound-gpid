@@ -21,7 +21,7 @@ from pathlib import Path
 HUB = Path(__file__).resolve().parent.parent
 DEFAULT_GLOSSARY = HUB / "packs" / "core" / "cg" / "GLOSSARY.md"
 DEFAULT_PATHS = ["packs", "docs/adr", "docs/v2", "docs/adoption-ledger.md", "docs/install-block.md",
-                 "SCOPE.md", ".out-of-scope", "spike", "README.md", "CONTRIBUTING.md", "AGENTS.md"]
+                 "SCOPE.md", ".out-of-scope", "spike", "evals", "README.md", "CONTRIBUTING.md", "AGENTS.md"]
 
 
 def read_avoided(glossary: Path):

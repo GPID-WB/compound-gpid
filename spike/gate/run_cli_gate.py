@@ -57,7 +57,10 @@ sends the three characters, a path that never failed (#223, Fable's review).
      the human approved, with no new approval; and `cg.py guard` finds no
      test removed or skipped and no checker silenced. Since task 2.5
      (#228): each verifier that code dispatches at the review stage gave a
-     verdict, and each verdict says which kind of review gave it.
+     verdict, and each verdict says which kind of review gave it. Since
+     task 2.6 (#229): a record of `cg.py repro` is among the evidence of
+     the work report, which says that code ran its part of P3 on the work;
+     what it found, and whether the verifier read it, is not judged.
   X  in a new session, "/cg" with a request to delete a data file that no
      commit holds (task 2.4, #227): an action that cannot be undone. It runs
      right after D, before the brainstorm, so that no open plan and no open
@@ -297,6 +300,11 @@ def conformance(project, state, stage, log):
     return found if isinstance(found, dict) else {}
 
 
+def reproduced(records):
+    """True when code ran its part of P3 on the work: a record of `cg.py repro` among its evidence (#229)."""
+    return any(record.get("kind") == "repro" for record in records)
+
+
 def reviewed(found):
     """True when every verifier that code dispatches gave a verdict, and each verdict says whether
     the review was independent or a self-review. No verdict at all is no review."""
@@ -485,6 +493,7 @@ def run_work(agent, project, log, checks):
     checks["W: no test removed or skipped and no checker silenced"] = cg(project, "guard", "--base", base)[0] == 0
     checks["W: each verifier of the review stage gave a verdict, with its kind of review"] = reviewed(
         conformance(project, state, "review", log))
+    checks["W: code ran its part of P3 on the work (cg.py repro)"] = reproduced(evidence(project, state) if state else [])
 
 
 def run_stop(agent, project, log, checks):
