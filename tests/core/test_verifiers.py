@@ -39,9 +39,18 @@ def give(env, artifact, stage, verifier, verdict="PASS", review="self-review", *
 
 
 def held(env, artifact):
-    """The conformance record of an artifact: every verdict code wrote for it, oldest first, one to a line."""
+    """The conformance record of an artifact: every verdict code wrote for it, oldest first, one to a line.
+    A line that cannot be read counts for nothing, as in code: on Windows two lines added in the same
+    instant can land at one place, and the later one leaves the tail of the earlier as a line of its own
+    (CI, windows-latest, review of #228). The writer of that line looked, and added it again."""
     path = env["project"] / ".cg-docs" / "conformance" / Path(artifact).parent.name / (Path(artifact).stem + ".jsonl")
-    return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()] if path.is_file() else []
+    found = []
+    for line in path.read_text(encoding="utf-8", errors="replace").splitlines() if path.is_file() else []:
+        try:
+            found.append(json.loads(line))
+        except ValueError:
+            pass
+    return [v for v in found if isinstance(v, dict)]
 
 
 def working(env):
