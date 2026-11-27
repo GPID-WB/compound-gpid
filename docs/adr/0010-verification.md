@@ -66,6 +66,8 @@ Each rule carries the change that would replace what it finds, and the rerun pri
 
 - 2026-11-27, task 2.8 (#231), second half, from the first run of the lens (ADR 0012): the rule `unbacked` names a claim of success or of validation that names no check of the plan and no record of a run of this work, beside `unrecorded`, with one pattern for both that now holds the words of validation (matches, agrees, reproduces, validated). Both read only the lines the agent wrote: none of the template's own text and none under "## Asked". The lens has the verifier trace each reported number to the line that computes it, and name each filter, merge, weight and unit on the way. The planted claim of validation is now found by code.
 
+- 2026-11-27, review of task 2.9 (#232), from gate rerun 25: the decision under **Data** above reached no kickoff. Codex's verifier read rule 4 of `worker.md`, found no decision of the human for the data the checks read, kept the data closed and ran no rerun. The line after the rerun line now says, when the plan is approved as it now reads and its data register lists a dataset, that the human approved the plan with that register, which is their recorded decision that its checks read those files through the rerun line alone, and that the verifier opens no data file itself; rule 6 of `verifier.md` says the same.
+
 ## Open
 
 - Whether `validate` applies the rule `cannot-fail` to a plan's commands at the plan stage, before the human approves the plan. It was not built: it would change what `approve` takes, which every gate has passed, and P4 has no verifier at the plan stage.
