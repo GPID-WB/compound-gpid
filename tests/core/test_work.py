@@ -11,7 +11,6 @@ import hashlib
 import json
 import re
 import shlex
-import shutil
 import subprocess
 import sys
 
@@ -401,8 +400,7 @@ def test_guard_holds_a_slice_to_the_commit_it_began_on_and_runs_before_the_first
     code, out = env["cg"]("guard", "--report", REPORT)
     assert code == 1 and f"FAIL test-deleted: {TEST}" in out and "FAIL outside: R/other.R" in out, out
     assert "no-evidence" not in out, out
-    shutil.rmtree(project / ".git")
-    git(project, "init", "-q")
+    git(project, "update-ref", "-d", "HEAD")  # a repository with no commit yet
     assert env["cg"]("guard") == (0, "guard: clean\n")
 
 
@@ -436,17 +434,14 @@ def test_guard_sees_a_test_commented_out_a_skip_by_condition_and_a_silenced_erro
     project = env["project"]
     git(project, "init", "-q")
     for name, old, new in MISSED + [("R/load.R", "f <- 1\n", "suppressMessages(library(data.table))\nf <- 1\n")]:
-        shutil.rmtree(project / ".git")
-        for path in [p for p in project.rglob("*") if p.is_file() and ".cg-docs" not in p.parts]:
-            path.unlink()
         (project / name).parent.mkdir(parents=True, exist_ok=True)
         (project / name).write_text(old)
-        git(project, "init", "-q")
         git(project, "add", "-A")
-        git(project, "commit", "-q", "-m", "base")
+        git(project, "commit", "-q", "--allow-empty", "-m", "base")
         (project / name).write_text(new)
         code, out = env["cg"]("guard")
         assert (code == 1) == (name != "R/load.R"), (name, new, out)
+        (project / name).write_text(old)
 
 
 def test_the_tier_record_names_no_file_the_work_does_not_declare(env):
