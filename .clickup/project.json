@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "name": "Compound GPID",
+  "objective": "Build and release Compound GPID 2.0 on branch v2: principles enforced by code, one guide (/cg), a hub of packs.",
+  "clickup": {
+    "workspace_id": "37469623",
+    "list_id": "901113191434",
+    "root_task_ids": [
+      "868hrz0p4"
+    ]
+  },
+  "github": {
+    "repository": "GPID-WB/compound-gpid",
+    "base_branch": "v2",
+    "status_map": {
+      "in_progress": "in progress",
+      "review": "in review",
+      "done": "done"
+    },
+    "require_checks": true
+  },
+  "routing": {
+    "runtime": "cup",
+    "cup_profile": "work",
+    "prefer": [],
+    "overrides": {
+      "task.context": [
+        "context-mcp",
+        "cup",
+        "rest-mcp",
+        "official"
+      ]
+    },
+    "comment_reader": "upstream"
+  }
+}

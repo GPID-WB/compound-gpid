@@ -4,6 +4,7 @@ Safe to rerun: existing labels, milestones and issues (matched by exact title)
 are reused, never duplicated. Pass --dry-run to print what would be created.
 """
 import json
+import re
 import subprocess
 import sys
 import time
@@ -286,6 +287,11 @@ def body(t, numbers):
     return "\n".join(out)
 
 
+def keep_blocks(body):
+    """The ClickUp link blocks in a body, which a rewrite of the tracking issue keeps."""
+    return [m.group(0) for m in re.finditer(r"<!-- clickup-skills:(\S+) -->.*?<!-- /clickup-skills:\1 -->", body or "", re.S)]
+
+
 def main():
     labels = {l["name"] for l in json.loads(gh("label", "list", "-R", REPO, "--limit", "200", "--json", "name"))}
     for name, color, desc in [("v2", "5319e7", "Compound GPID 2.0"), ("dogfood", "fbca04", "Friction found while building v2 with /cg")]:
@@ -324,6 +330,8 @@ def main():
     lines += ["**Standing rule:** from M1 on, any task that changes what a human types or sees updates the documentation in the same change, and the docs drift check (task 7.5) must pass.", ""]
     lines += ["Based on ideas from addyosmani/agent-skills, mattpocock/skills and cursor/plugins (pstack), all MIT licensed; see the adoption ledger in task 0.4."]
     if track_title in existing:
+        old = json.loads(gh("issue", "view", str(existing[track_title]), "-R", REPO, "--json", "body"))["body"]
+        lines += ["", *keep_blocks(old)]
         gh("issue", "edit", str(existing[track_title]), "-R", REPO, "--body-file", "-", input_text="\n".join(lines))
         print("tracking", existing[track_title], "updated")
     else:
