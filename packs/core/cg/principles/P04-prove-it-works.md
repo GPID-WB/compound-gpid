@@ -97,5 +97,6 @@ Flag when:
 
 - `cg.py evidence`: a check ID runs the command the approved plan declares for it, and any other command is labelled ad hoc. A work report is completed only when every check ID of its plan has a verified evidence entry.
 - `cg.py guard`: the diff does not delete or skip checks or add suppressions, and each check of the slice has verified evidence on the files as they now are.
+- `cg.py evidence --rerun`: the verifier's run of every check of the plan, as the plan declares it, on the files as they now are. It compares each check with the work's newest run of it, names what a rule finds of P4, and shows and keeps no line of what a check printed.
 - Every evidence entry records exit code 0, or is listed as failing.
 - The verification profile's doctor passes before any check is trusted.

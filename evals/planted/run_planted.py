@@ -4,19 +4,21 @@ Usage: <python> evals/planted/run_planted.py [--verifier determinism] [--only cl
                                              [--stages review,plan] [--dest DIR] [--out DIR]
                                              [--kilo-model provider/model] [--cg PATH] [--dry-run]
 
-CI holds what code finds of each planted violation (tests/core/test_determinism.py). The rest is by
-judgement: a model reads the lens, and CI cannot start a model, so this script gives that part a run.
+CI holds what code finds of each planted violation (tests/core/test_determinism.py and
+test_verification.py). The rest is by judgement: a model reads the lens, and CI cannot start a model,
+so this script gives that part a run.
 For each agent it builds a copy of the planted project in DIR (default ~/temp/cg-lens): the files of
 <verifier>/project/, its verification profile, the rule for its data file, and git with no commit, so
-that every file is the change. For the review stage it adds a work report, the risk of the work and
-the record of `cg.py repro`, as the work playbook leaves them; for the plan stage, <verifier>/plan.md
-as a draft plan. `cg.py verifiers` prints the kickoff, and the agent gets it, in a new session, with
-no word added (the guide's rule "Verifiers").
+that every file is the change. For the review stage it adds a work report, the risk of the work and,
+as the cases ask, the record of `cg.py repro`, or an approved plan and each slice with the checks the
+work ran (#230), as the work playbook leaves them; for the plan stage, <verifier>/plan.md as a draft
+plan. The stages are those the cases hold. `cg.py verifiers` prints the kickoff, and the agent gets it,
+in a new session, with no word added (the guide's rule "Verifiers").
 
 It judges each reply from its verdict block and from the files: the verdict is FLAG; each finding
 proposes the code that would replace it (`fix:`); each case of <verifier>/expected.json is caught by a
-finding of its own; and
-the verifier changed no file of the project but the records of a run. The agents run with approval
+finding of its own; the verifier changed no file of the project but the records of a run; and, where
+the cases ask it, the verifier reran every check of the plan itself. The agents run with approval
 prompts off, as in the gate. --dry-run builds every copy, prints each kickoff and the line that would
 start the agent, and starts nothing. Transcripts and results.json go to --out (default DIR/out).
 Exit code 1 when a check fails.
