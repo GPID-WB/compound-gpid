@@ -81,3 +81,34 @@ def test_the_contract_and_claims_lenses_hold_what_code_does_in_the_shape_of_the_
         assert "`cg.py claims`" in text.split("## Deterministic checks")[1], name
     assert list((HUB / "docs" / "adr").glob("0012-*.md")) and "the contract and the claims verifiers" in (
         HUB / "README.md").read_text(encoding="utf-8")
+
+
+def test_review_of_2_8_a_file_the_plan_names_in_backticks_is_held_and_a_line_past_the_end_of_a_file_is_none(env):
+    """Review of #231. `not-built` read the names of the plan only outside backticks, and plans name the files of their
+    slices in backticks (8 of the 9 plans of gate reruns 20 to 23), so it found the planted file only as the planted
+    plan wrote it. A command is still no file it builds. And a line one past the end of a file was a line of it."""
+    project, _ = build(env, "contract")
+    plan, report = project / ".cg-docs/plans/2026-11-27-poverty-brief.md", project / REPORT
+    text = plan.read_text(encoding="utf-8").replace("written to output/notes.md", "written to `output/notes.md`")
+    plan.write_bytes(text.replace("checks/layout.py`", "checks/later.py`").encode("utf-8"))
+    end = len((project / "pipeline.py").read_bytes().splitlines())
+    report.write_bytes(report.read_bytes() + "".join(f"- Measured: `pipeline.py:{n}`.\n" for n in (end, end + 1)).encode())
+    found, last = re.findall(r"^FLAG (\S+): ([^:\s]+):(\d+);", env["cg"]("claims", "--report", REPORT)[1], re.M), \
+        len(report.read_text(encoding="utf-8").splitlines())
+    notes = 1 + next(n for n, line in enumerate(text.splitlines()) if "`output/notes.md`" in line)
+    assert [f for f in found if f[0] == "not-built"] == [("not-built", plan.relative_to(project).as_posix(), str(notes))]
+    assert ("no-such-file", REPORT, str(last)) in found and ("no-such-file", REPORT, str(last - 1)) not in found, found
+
+
+def test_review_of_2_8_each_lens_says_what_its_planted_cases_hold_and_reruns_no_command_of_the_working_agent():
+    """Review of #231 and the lens runs. The determinism lens had a finding of `differs` point at the record alone, where
+    the fix needs the line, and judged an order or a clock only in an output that is compared; the claims lens wrote
+    the column of two rules to judge as when to leave them, and Kilo opened no output to judge `unmatched`, which code
+    had compared; the adversary lens had the verifier run again any failed command of the work, the working agent's."""
+    lens = {name: (CG / "lenses" / f"{name}.md").read_text(encoding="utf-8") for name in ("determinism", "claims",
+                                                                                              "adversary")}
+    assert "`differs` names an output: point at the line of code" in lens["determinism"] and "mapped or not" in (
+        lens["determinism"]) and "fetches the address" in lens["determinism"]
+    row = next(line for line in lens["claims"].splitlines() if line.startswith("| A function named"))
+    assert ": leave it" in row and "open no output" in lens["claims"]
+    assert "Run no other command of the record" in lens["adversary"] and "rules 3 and 4 of `worker.md`" in lens["adversary"]

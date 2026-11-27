@@ -214,3 +214,54 @@ def test_lens_run_1_a_finding_at_the_line_of_a_case_catches_that_case_and_no_cas
     result = run_planted.judge(project, cases, block)
     assert result["a claim of validation with no record: @report, at 'matches the figure'"], result
     assert sum(result.values()) - 2 == 2, result
+
+
+def test_review_of_2_8_no_review_case_of_simplicity_is_a_design_the_human_approved_and_the_plan_stage_reads_the_draft(
+        tmp_path):
+    """Review of #231 (lens run 1 of the simplicity lens): three review cases of P6 were code that slices S2, S3 and S4 of
+    the approved plan ask for, which the lens says to leave as a design the human chose. Codex left them, as the lens
+    says, and the runner counted them as missed. The approved plan now asks for none of them, and the plan stage judges
+    the draft before it, which had those three slices."""
+    sys.path.insert(0, str(RUNNER.parent))
+    import run_planted
+    done = subprocess.run([sys.executable, str(RUNNER), "--dry-run", "--cg", str(CG), "--dest", str(tmp_path / "lens"),
+                           "--only", "codex", "--verifier", "simplicity"], capture_output=True, text=True)
+    out, project = done.stdout + done.stderr, tmp_path / "lens" / "toy-poverty-codex"
+    cases = json.loads((RUNNER.parent / "simplicity" / "expected.json").read_text(encoding="utf-8"))
+    approved, draft = ((project / name).read_text(encoding="utf-8") for name in (run_planted.PLAN, run_planted.DRAFT))
+    assert done.returncode == 0 and f"Under review: {run_planted.DRAFT}" in out, out
+    assert [c["text"] for c in cases["plan"] if c["text"] in approved] == [] and all(c["text"] in draft for c in cases["plan"])
+    assert not [word for word in ("scale", "negative", "laid out") if word in approved.split("## Slices")[1]]
+    head = "principle: P6\nverdict: FLAG\nfindings:\n"
+    line = next(n for n, text in enumerate(draft.splitlines(), 1) if "| S3 |" in text)
+    reply = head + f"  - {run_planted.DRAFT}:{line}: S3 guards a state that cannot occur (P3; fix: drop S3)\nnote: none\n"
+    assert run_planted.judge(project, cases["plan"], reply, plan=run_planted.DRAFT)["a check for a state that cannot occur: @plan, at '| S3 |'"]
+
+
+def test_review_of_2_8_a_finding_near_the_line_of_a_case_is_for_that_case_and_a_case_holds_the_lines_under_also(tmp_path):
+    """Lens runs 2 of #231. Kilo's finding on the filter on the weight, one line above it, went to the case of C4, which
+    takes any line of pipeline.py under "or", and the record that showed C4 went to the check that never ran, which
+    Kilo had folded into its finding on the claim. Codex's finding on the poverty gap, at the line that writes it, was
+    outside the window of the case at its definition. A finding within three lines of the line of a case at its file
+    now goes to such a case alone, and the lines under "also" are lines of the case."""
+    sys.path.insert(0, str(RUNNER.parent))
+    import run_planted
+    for verifier in ("verification", "contract"):
+        done = subprocess.run([sys.executable, str(RUNNER), "--dry-run", "--cg", str(CG), "--dest", str(tmp_path / verifier),
+                               "--only", "kilo", "--verifier", verifier], capture_output=True, text=True)
+        assert done.returncode == 0, done.stdout + done.stderr
+    project, cases = tmp_path / "verification" / "toy-poverty-kilo", {name: json.loads(
+        (RUNNER.parent / name / "expected.json").read_text(encoding="utf-8"))["review"] for name in ("verification", "contract")}
+    def line(project, name, text):
+        return next(n for n, held in enumerate((project / name).read_text(encoding="utf-8").splitlines(), 1) if text in held)
+    record = sorted((project / ".cg-docs" / "evidence").rglob("*-C1.json"))[0].relative_to(project).as_posix()
+    head = "principle: P4\nverdict: FLAG\nfindings:\n"
+    reply = head + (f"  - {record}: C4 fails on the files as they now are (P1; fix: the region)\n"
+                    f"  - {run_planted.REPORT}:{line(project, run_planted.REPORT, 'C5 passes')}: C5 never ran (P1; fix: run it)\n"
+                    f"  - pipeline.py:{line(project, 'pipeline.py', 'if row[') - 1}: a filter drops households (P1; fix: x)\n")
+    assert run_planted.judge(project, cases["verification"], reply)['a number that measures something else: pipeline.py, '
+                                                                     'at \'if row["weight"]\'']
+    project = tmp_path / "contract" / "toy-poverty-kilo"
+    reply = head + f"  - pipeline.py:{line(project, 'pipeline.py', 'headcount,gap')}: a poverty gap is written (P1; fix: x)\n"
+    assert run_planted.judge(project, cases["contract"], reply)["something built that the contract does not name: "
+                                                                "pipeline.py, at 'def gap('"]

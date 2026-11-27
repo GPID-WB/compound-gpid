@@ -65,6 +65,21 @@ def test_a_finding_of_the_adversary_stands_only_when_a_run_reproduced_it_and_the
     assert held(env, REPORT)[-1]["findings"] and "round" not in held(env, REPORT)[-1]
 
 
+
+def test_review_of_2_8_a_run_on_an_earlier_state_of_the_files_reproduces_nothing(env):
+    """Review of #231. A finding of the adversary stood on a run that failed before the change last moved: the probe of
+    round 1 kept its finding in round 2, after the fault was fixed and the probe passed, as a check of the plan run
+    before its slice's change would. A run reproduces a fault only on the files as they now are, as the rerun says."""
+    project, cases = build(env, "adversary")
+    case, pipeline = cases["review"][0], project / "pipeline.py"
+    finding = f"{probe(env, case['probe'])[1]}: {case['flag']} (P1; fix: <)"
+    assert give(env, REPORT, "review", "adversary", "FLAG", "independent", "--finding", finding)[0] == 0
+    assert held(env, REPORT)[-1]["verdict"] == "FLAG"
+    pipeline.write_bytes(pipeline.read_bytes().replace(b'row["welfare"] <= line', b'row["welfare"] < line'))
+    assert give(env, REPORT, "review", "adversary", "FLAG", "independent", "--finding", finding)[0] == 0
+    entry = held(env, REPORT)[-1]
+    assert (entry["verdict"], entry["round"], entry["dropped"]) == ("UNVERIFIED", 2, [f"not reproduced: {finding}"]), entry
+
 def test_the_adversary_has_three_rounds_one_for_each_state_of_the_change_and_stops_at_doubt_theater(env):
     """Done when (#231): bounded to three rounds. A round is the adversary's verdict on one state of the change, so a
     second verdict on the same state is the same round. Code numbers each, refuses a fourth, and refuses a third
