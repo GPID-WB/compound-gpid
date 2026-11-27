@@ -50,7 +50,7 @@ Rules:
 - "No verified findings" is a valid result.
 - Two rounds with findings and none actionable is doubt theater. Say so and stop.
 
-**Prove a flag** with the exact command, the output it printed, and the output the contract requires.
+**Prove a flag** with the exact command, run through `cg.py evidence --run`. The finding points at the record of that run, and its sentence says which requirement of the contract the run shows broken. What the command printed stays out of the finding.
 
 ## Deterministic checks
 
@@ -58,4 +58,4 @@ Rules:
 - `cg.py conformance` records a finding as a flag only when it opens with a pointer that code can open, and writes down whether the review was independent or a self-review.
 - An adversary report exists for standard and deep work.
 - The report records three rounds or fewer.
-- Each finding carries a command and its output.
+- Each finding points at the record of the run that proves it.

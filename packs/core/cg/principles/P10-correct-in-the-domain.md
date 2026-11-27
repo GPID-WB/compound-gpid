@@ -58,7 +58,7 @@ Flag when:
 - a filter removes observations that the stated population includes;
 - a value is outside its possible range.
 
-**Prove a flag** by running a check on the data or the output and showing the outcome: a count, a comparison of weighted against unweighted, a range.
+**Prove a flag** by running a check on the data or the output, through `cg.py evidence --run`, that shows the outcome: a count, a comparison of weighted against unweighted, a range. The finding points at the record of that run. What the check printed stays out of the finding.
 
 A silent correctness failure is priority P0.
 

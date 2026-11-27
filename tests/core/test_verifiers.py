@@ -472,3 +472,30 @@ def test_every_stage_a_principle_names_is_one_that_code_dispatches():
     assert {stage for p in named.values() for stage in p["stages"]} == set(cg.STAGES)
     assert all((CG / "principles" / p["path"].name).read_text(encoding="utf-8").count("\n## Verifier") == 1
                for p in named.values())
+
+
+def test_the_texts_hold_what_the_review_of_task_2_5_found_in_their_wording():
+    """Review of #228, W1 to W17. In double quotes a POSIX shell took `dt$w` for `dt` and ran what stood
+    between backticks in a verifier's finding; four lines of the principles asked for what a command
+    printed in a finding, which goes into a committed record; and a verifier that left a scratch file
+    in the project marked every verdict on the work report as given on an earlier text."""
+    guide = (CG / "SKILL.md").read_text(encoding="utf-8")
+    rule = next(line for line in guide.splitlines() if line.startswith("- **Verifiers.**"))
+    inside = "'\\''"  # W1: a single quote inside single quotes, as a POSIX shell asks for it
+    assert f"`{inside}`" in rule and "`''` in PowerShell" in rule and "`--note`" in rule
+    assert shlex.split(f"'dt$w `echo x` it{inside}s'") == ["dt$w `echo x` it's"]
+    for words in ("no verdict block", "once more", "INCONCLUSIVE", "never guess", "start them at once"):  # W2, W12
+        assert words in rule, words
+    text = (CG / "verifier.md").read_text(encoding="utf-8")
+    rules = {line[0]: line for line in text.splitlines() if re.match(r"\d\. \*\*", line)}
+    assert "`path:12-14`" in rules["4"] and "data file is no pointer" in rules["4"]  # W6
+    assert "stays out of the finding" in rules["4"] and "rule 4 of the first file" in (
+        CG / "templates" / "kickoff.md").read_text(encoding="utf-8")  # W3
+    assert "Run no command that prints a row" in rules["6"] and "tells you an exit code" not in text  # W4
+    assert "outside the project" in rules["7"] and "delete it before you return" in rules["7"]  # W5
+    assert "takes the place of the report" in text  # W7
+    for name in ("P04-prove-it-works.md", "P05-adversarial-by-default.md", "P10-correct-in-the-domain.md"):  # W3
+        principle = (CG / "principles" / name).read_text(encoding="utf-8")
+        line = next(line for line in principle.splitlines() if line.startswith("**Prove a flag**"))
+        assert "`cg.py evidence --run`" in line and "stays out of the finding" in line, name
+        assert "its output" not in principle[principle.index("## Verifier"):].replace("digest of its output", ""), name

@@ -89,7 +89,7 @@ Flag when:
 - a check was deleted, skipped or loosened;
 - a verdict of inconclusive was reported as a pass.
 
-**Prove a flag** with the command you ran and its output.
+**Prove a flag** with the command you ran, through `cg.py evidence --run`. The finding points at the record of that run, which keeps the command, its exit code and a digest of its output. What the command printed stays out of the finding.
 
 **Leave alone:** missing checks for behavior the contract does not cover. Note those under `not-checked`.
 
