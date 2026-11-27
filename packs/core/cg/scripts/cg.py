@@ -181,45 +181,53 @@ EMPTY_TREE = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
 # What repro looks for in the files of a change (P3, #229): per rule, the files it reads, the part of a file
 # (code, or the prose of a report), a pattern, a pattern that clears every line from its own down, and the
 # code that would replace what it finds. Which finding stands, and which is a line to judge, is the lens's.
+# A seed with no value seeds from the clock, and a seed given to one call seeds that line alone (review of #229).
 R_CODE, PY_CODE, STATA = (".r", ".rmd", ".qmd"), (".py", ".ipynb"), (".do", ".ado")
 CODE_FILES = R_CODE + PY_CODE + STATA + (".sh", ".ps1", ".yml", ".yaml")
 DETERMINISM = (
-    ("unseeded", R_CODE, "code", r"\b(sample(\.int|_n|_frac)?|slice_sample|r(unif|norm|binom|pois|exp|gamma|beta)|boot|"
-     r"bootstraps|initial_split|vfold_cv|kmeans)\s*\(", r"\bset\.seed\s*\(|\b(with|local)_seed\s*\(",
-     "set.seed(<a seed>) above the first draw, with the seed in the work report"),
-    ("unseeded", PY_CODE, "code", r"\brandom\.(?!seed\b)\w+\s*\(|\.sample\s*\(|\btrain_test_split\s*\(",
-     r"\.seed\s*\(|default_rng\s*\(\s*\w|random_state\s*=\s*\w|\bRandom\s*\(\s*\w", "rng = numpy.random.default_rng("
-     "<a seed>) and each draw from rng, or random.seed(<a seed>) above the first draw, with the seed in the work report"),
-    ("unseeded", STATA, "code", r"^\s*((quietly|qui|noisily|capture)\s+)*(sample|bsample|bootstrap|simulate|permute)\b|"
-     r"\br(uniform|normal|binomial|poisson)\s*\(", r"\bset\s+seed\b|\bseed\s*\(\s*\d",
-     "set seed <a seed> above the first draw, with the seed in the work report"),
+    ("unseeded", R_CODE, "code", r"^(?!.*\b(with_seed\s*\(|future\.seed\s*=|seed\s*=\s*(TRUE|\d))).*\b(sample(\.int|_n|"
+     r"_frac)?|slice_sample|r(unif|norm|lnorm|binom|nbinom|pois|exp|gamma|beta|t|chisq|cauchy|logis|weibull|geom|hyper|"
+     r"multinom)|rmvnorm|mvrnorm|boot|bootstraps|initial_split|vfold_cv|kmeans)\s*\(",
+     r"\bset\.seed\s*\(\s*(?!NULL\b)[^)\s]|\blocal_seed\s*\(", "set.seed(<a seed>) above the first draw, with the seed "
+     "in the work report"),
+    ("unseeded", PY_CODE, "code", r"^(?!.*\brandom_state\s*=\s*(?!None\b)\w).*(\brandom\.(?!seed\b)\w+\s*\(|(?<![\w.])"
+     r"default_rng\s*\(|\.(sample|rvs)\s*\(|\btrain_test_split\s*\()", r"\.seed\s*\(\s*(?!None\b)[^)\s]|"
+     r"default_rng\s*\(\s*(?!None\b)\w|\bRandom\s*\(\s*(?!None\b)\w", "rng = numpy.random.default_rng(<a seed>) and "
+     "each draw from rng, or random.seed(<a seed>) above the first draw, with the seed in the work report"),
+    ("unseeded", STATA, "code", r"^(?!.*\bseed\s*\(\s*\d)(\s*((qui\w*|noi\w*|cap\w*)\s+|by\w*\b[^:]*:\s*)*(sample|bsample|"
+     r"bootstrap|simulate|permute)\b|.*\b(r(uniform(int)?|normal|beta|binomial|chi2|exponential|gamma|logistic|"
+     r"nbinomial|poisson|t|weibull)|uniform)\s*\()", r"\bset\s+seed\b", "set seed <a seed> above the first draw, "
+     "with the seed in the work report"),
     ("home-path", CODE_FILES, "code", r"(?<![\w.])(/Users/|/home/|[A-Za-z]:[\\/]{1,2}Users[\\/]{1,2})[^\s\"'/\\]|"
      r"[\"']~[/\\]", None, 'a path from the project root, such as here::here("data", "survey.csv") in R, or a path from '
      "the folder of the script in Python"),
     ("clock", CODE_FILES, "code", r"\bSys\.(time|Date)\s*\(|\b(datetime|date)\.(now|today|utcnow)\s*\(|"
-     r"\btime\.time\s*\(|\bc\(current_(date|time)\)", None,
+     r"\btime\.time\s*\(|\bc\(current_(date|time)\)|\$S_(DATE|TIME)\b", None,
      "the date passed in as an input, and no clock in an output that is compared"),
     ("network", CODE_FILES, "code", r"https?://", None,
      "a copy of the download saved in the project and read from there, with its date and source in the data register"),
-    ("unsorted", PY_CODE, "code", r"^(?!.*\bsorted\().*(\bos\.(listdir|scandir)|\.(i?glob|rglob|iterdir))\s*\(", None,
+    ("unsorted", PY_CODE, "code", r"^(?!.*\bsorted\().*(\bos\.(listdir|scandir|walk)|\.(i?glob|rglob|iterdir))\s*\(", None,
      "sorted() around the listing"),
     ("typed-number", (".rmd", ".qmd"), "prose", r"(?<![\w.,])(\d+\.\d+|\d{1,3}(,\d{3})+)(?!\.?\d|\w)|\b\d+(\.\d+)?\s?%",
      None, "inline code that reads the number from the output, such as `r round(<the object>, 3)`"),
 )
 # A language the project holds needs a lockfile at its root; a do-file needs its version command.
 LOCKFILES = ((R_CODE, ("renv.lock",), "renv::init() and renv::snapshot(), with renv.lock committed"),
-             (PY_CODE, ("uv.lock", "poetry.lock", "Pipfile.lock", "pylock.toml"), "uv lock, with uv.lock committed"))
+             (PY_CODE, ("uv.lock", "poetry.lock", "Pipfile.lock", "pylock.toml", "pdm.lock", "pixi.lock", "conda-lock.yml"),
+              "uv init --bare, uv add <each package the code imports> and uv lock, with pyproject.toml and uv.lock committed"))
 STATA_PIN = "version <the Stata version, such as 18> as the first command of the do-file"
 # What the two runs of repro can show of an output, each with the code that would replace it.
 RUN_FIXES = {
-    "no-run": "one command under Run in .cg-docs/verification.md that makes every output from the inputs, such as "
-              "Rscript run.R or targets::tar_make()",
+    "no-run": "one command on one line under Run in .cg-docs/verification.md that makes every output from the inputs, "
+              'such as Rscript run.R or Rscript -e "targets::tar_make()"',
     "run-failed": "a Run command that runs to its end from the project root on this machine",
     "missing": "the path of the output in the outputs map, or the step of the Run command that writes it",
-    "not-written": "the step of the Run command that writes this output from the inputs",
-    "once": "a Run command that writes every output on each run, so that the second run is a rerun",
-    "differs": "a seed above each draw, an order set before each write, such as arrange() or sort_values(), and no "
-               "clock in the output",
+    "not-written": "the step of the Run command that writes this output from the inputs; for a pipeline that keeps a "
+                   "cache, a Run command that rebuilds every output, such as make -B",
+    "once": "a Run command that writes every output on each run, so that the second run is a rerun; for a pipeline "
+            "that keeps a cache, one that rebuilds every output, such as make -B",
+    "differs": "one seed above the first draw, an order set before each write, such as arrange() or sort_values(), "
+               "and no clock in the output",
     "changed": "the output as the Run command writes it, with nothing typed or edited in it afterwards",
     "unmapped": "a row of the outputs map for each output the runs wrote, and a temporary folder outside the project "
                 "for the rest",
@@ -1856,14 +1864,16 @@ def cmd_guard(args) -> int:
 # ---------------------------------------------------------------- repro
 
 def profile(project: Path):
-    """The Run command of the verification profile (P4), the first line of the block under '## Run', or
-    None when it says "not found" or is still a request; and the paths in backticks of its outputs map."""
+    """The Run command of the verification profile (P4), the one line of the block under '## Run' that is no
+    comment, or None when it says "not found", is still a request, or is more than one line, of which running
+    one would run part of the pipeline (review of #229); and the paths in backticks of its outputs map."""
     try:
         body = read_frontmatter((project / ".cg-docs" / "verification.md").read_text(encoding="utf-8"))[1]
     except OSError:
         return None, []
     block = re.search(r"^```[^\n]*\n(.*?)^```", section(body, "## Run"), re.M | re.S)
-    command = next((line.strip() for line in (block.group(1) if block else "").splitlines() if line.strip()), "")
+    lines = [line.strip() for line in (block.group(1) if block else "").splitlines() if line.strip()[:1] not in "#"]
+    command = lines[0] if len(lines) == 1 else ""
     paths = [data_path(project, path) for row in rows_of(body, "## Outputs map", 3, [])
              for path in re.findall(r"`([^`]+)`", row[1])]
     return (None if re.fullmatch(r"(<[^<>]*>|not found\W*)?", command, re.I) else command), [
@@ -1941,7 +1951,7 @@ def cmd_repro(args) -> int:
                                         stdin=subprocess.DEVNULL).returncode)
             states.append(snapshot(project, mapped))
         wrote = sorted((new_files(project) or set()) - before)
-        for name in sorted(set().union(*states)):
+        for name in sorted(name for name in set().union(*states) if not (project / name).is_dir()):  # a folder they made
             was, one, two = (state.get(name) for state in states)
             first, second = bool(one and one[0] != (was or [None])[0]), bool(two and two[0] != (one or [None])[0])
             verdict = ("missing" if two is None else "not-written" if not (first or second) else "once"
@@ -1956,11 +1966,15 @@ def cmd_repro(args) -> int:
     compared = [o["verdict"] for o in outputs.values() if o["verdict"] in ("same", "differs", "changed")]
     verdict = "inconclusive" if command is None else "not verified" if any(exits) or "differs" in compared else \
         "verified" if compared else "inconclusive"
+    # A file found under a folder or by a pattern of the map is kept by a digest of its name, as one the map does
+    # not name is: its name can be a person's (P12, review of #229). The screen shows the names.
+    kept = {name: name if name in mapped else name_key(name) for name in outputs}
     record = {"kind": "repro", "check": "repro", "command": (command or "")[:300], "command-digest": sha_of(command or ""),
-              "exits": exits, "verdict": verdict, "outputs": outputs, "findings": found,
+              "exits": exits, "verdict": verdict, "outputs": {kept[name]: o for name, o in outputs.items()},
+              "findings": [{**f, "where": kept.get(f["where"], f["where"])} for f in found],
               "wrote": [name_key(name) for name in wrote], "commit": git(project, "rev-parse", "--short", "HEAD") or "none",
               "state": seen(project, report)}
-    print(f"run: {command or 'none: .cg-docs/verification.md declares no Run command'}"
+    print(f"run: {command or 'none: .cg-docs/verification.md declares no Run command on one line'}"
           + "".join(f"\nrun {number}: exit {code}" for number, code in enumerate(exits, 1))
           + "".join(f"\noutput: {name}: {o['verdict']}" for name, o in outputs.items())
           + "".join(f"\nFLAG {f['rule']}: {f['where']}; fix: {f['fix']}" for f in found)
@@ -2145,7 +2159,7 @@ def proven(project: Path, finding: str, a: dict):
     data = (read_config(project)[0] or {}).get("data")  # the kickoff clears no data file, and a rule for the root names none
     rules = [key for key in rule_paths(project, {"data": data}) if key] if isinstance(data, dict) else []
     runs = [p.relative_to(project).as_posix() for p, r in records(project, a, "any") if r.get("kind") in ("check", "repro")
-            ] if a["type"] == "work-report" else []  # the record of repro is a run too (#229)
+            and r.get("report") == a["path"]] if a["type"] == "work-report" else []  # repro's is a run too (#229)
     try:
         if project not in (project / name).resolve().parents or covers(rules, name):  # a link that leaves is no file
             return None
