@@ -725,3 +725,14 @@ def test_gate_reruns_21_and_23_step_w_asks_for_the_amendment_the_agent_proposes_
     assert said[:4] == ["W1 ask for the work", "W2 go on", "W3 asks for the amendment", "W4 go on"], said
     assert checks["W: the work went on with no amendment to the plan"] and not checks[
         "W: the work report is completed, and code accepts it"], checks
+
+
+def test_gate_rerun_23_the_lead_r_skill_has_a_slice_list_what_roxygen2_writes():
+    """Gate rerun 23 (#231): a plan for a new exported R function listed its own help file, and roxygen2 rewrote two
+    more, so guard stopped the slice. The lead skill of lang-r, read before any R work, says that a slice that changes
+    roxygen comments or an exported function lists what roxygen2 writes, or the files of a check that runs it."""
+    text = (HUB / "packs" / "lang-r" / "r-shared" / "SKILL.md").read_text(encoding="utf-8")
+    part = text.split("## Documentation")[1]
+    for words in ("A slice that changes roxygen comments or an exported function lists", "`man/` and `NAMESPACE`",
+                  "`devtools::document()` in a check", "other help files"):
+        assert words in part, words
