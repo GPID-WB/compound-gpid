@@ -52,4 +52,4 @@ Flag when:
 ## Deterministic checks
 
 - `cg.py guard`: the files touched in each slice are among the files that slice declared.
-- The size of the diff is reported beside the plan's estimate.
+- `cg.py scope` reports the size of the change beside the files the slices list, and names a change of layout alone, a function the change adds that no line calls or one line calls, and an argument its body never reads.

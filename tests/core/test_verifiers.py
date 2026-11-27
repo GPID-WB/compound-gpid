@@ -256,11 +256,12 @@ def test_a_conformance_record_holds_no_name_no_output_and_no_long_text(env):
     project = working(env)
     long = "a household is counted twice " * 30
     assert give(env, REPORT, "review", "claims", "FLAG", "independent", "--finding", f"{CODE}:1: {long}",
-                "--finding", long, "--finding", f"{long}: no file has a name this long", "--note", long)[0] == 0
+                "--finding", long, "--finding", f"{long}: no file has a name this long", "--note", long, "--dropped", long)[0] == 0
     (last,) = held(env, REPORT)
     assert set(last) == {"artifact", "stage", "verifier", "principle", "verdict", "review", "findings", "unverified", "note",
-                         "on", "time"} and last["artifact"] == REPORT
+                         "on", "time", "dropped"} and last["artifact"] == REPORT  # dropped: #231
     assert len(last["findings"][0]["what"]) == len(last["note"]) == 300 and [len(u) for u in last["unverified"]] == [300, 300]
+    assert [len(d) for d in last["dropped"]] == [300]
     path = project / ".cg-docs" / "conformance" / "work-reports" / "2026-11-26-headcount.jsonl"
     text = path.read_bytes().decode("utf-8")
     assert not re.search(r"Test Human|example\.org|share 0\.153846", text) and text.count("\n") == 1

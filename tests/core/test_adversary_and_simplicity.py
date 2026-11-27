@@ -82,7 +82,7 @@ def test_the_adversary_has_three_rounds_one_for_each_state_of_the_change_and_sto
     rounds = [(v["artifact"], v["round"], v["verdict"]) for v in held(env, REPORT) + held(env, quick)]
     assert rounds == [(REPORT, 1, "PASS")] * 2 + [(REPORT, 2, "PASS"), (REPORT, 3, "PASS")] + [
         (quick, 1, "UNVERIFIED")] * 2 + [(quick, 2, "UNVERIFIED")], rounds
-    assert "three rounds" in give(env, REPORT, "review", "adversary", "PASS", "independent")[1]
+    assert "has had its 3 rounds" in give(env, REPORT, "review", "adversary", "PASS", "independent")[1]
     assert "doubt theater" in out and "round 2 of 3" in env["cg"]("conformance", quick, "--stage", "review")[1]
 
 

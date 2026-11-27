@@ -264,6 +264,15 @@ VERIFY = (
      "evidence again; never a change to the check"),
 )
 VERIFY_RULES = tuple(rule for rule, *_ in VERIFY)
+# What cg.py scope finds of P6 in a change (#231), each rule with the change that would replace what it finds; which
+# finding stands is the lens's to say. A function and its arguments are read from a definition on one line, Python or R.
+SCOPE = {
+    "reformat": "the file put back as the commit the work began on holds it: a change of layout alone is no part of the task",
+    "no-caller": "the function taken out, since no line of the project outside its tests calls it",
+    "one-caller": "the body of the function written where its one caller is, unless its name tells a reader what they need",
+    "unused-argument": "the argument taken out of the function, and out of every call that passes it",
+}
+DEFINES = r"^([ \t]*)(?:def\s+(\w+)\s*\(([^)]*)\)|([\w.]+)\s*(?:<-|=)\s*function\s*\(([^)]*)\))"
 # The stages a principle file may name under `stages`, each with the type of artifact its verifiers
 # look at. Which verifiers run at a stage is the principle files' to say, and no list here (#228).
 STAGES = {"plan": "plan", "review": "work-report", "sign-off": "work-report", "compound": "solution"}
@@ -1464,6 +1473,12 @@ def rule_paths(project: Path, config: dict) -> dict:
     return {data_path(project, key): level for key, level in config.get("data", {}).items()}
 
 
+def data_rules(project: Path):
+    """The paths the project's data rules name, which code never reads; a rule for the root names none (#228)."""
+    data = (read_config(project)[0] or {}).get("data")
+    return [key for key in rule_paths(project, {"data": data}) if key] if isinstance(data, dict) else []
+
+
 def clearance(project: Path, config: dict, path: str, agent: str) -> dict:
     """Whether the recorded data rules let this coding agent read one file (P12).
 
@@ -2023,9 +2038,7 @@ def scan(project: Path, names):
     """What code finds of P3 in the files of a change (DETERMINISM), each as its rule, where it shows and the
     code that would replace it; lines in a row are one. No file that a data rule names is read. In a report a
     fence holds code, and the rest is prose, its headings left out."""
-    data = (read_config(project)[0] or {}).get("data")
-    rules = [key for key in rule_paths(project, {"data": data}) if key] if isinstance(data, dict) else []
-    found = []
+    rules, found = data_rules(project), []
     for name in sorted(names):
         suffix, path = posixpath.splitext(name)[1].lower(), project / name
         if suffix not in CODE_FILES or covers(rules, name) or not path.is_file() or path.stat().st_size > 1_000_000:
@@ -2117,15 +2130,82 @@ def cmd_repro(args) -> int:
     return 0 if verdict == "verified" and not found else 1
 
 
+def defined(text: str) -> dict:
+    """Each function a text of Python or R defines on one line, by its name: its line, its arguments, and its body,
+    which is what follows the arguments, the lines indented below it, and a closing brace at its indent (#231)."""
+    lines, found = text.splitlines(), {}
+    for n, m in ((n, re.match(DEFINES, line)) for n, line in enumerate(lines, 1)):
+        if not m:
+            continue
+        body, indent = [lines[n - 1][m.end():]], len(m.group(1))
+        for later in lines[n:]:
+            if later.strip() and len(later) - len(later.lstrip()) <= indent:
+                body += [later] * later.lstrip().startswith(("}", ")"))
+                break
+            body.append(later)
+        found[m.group(2) or m.group(4)] = (n, m.group(3) or m.group(5) or "", "\n".join(body))
+    return found
+
+
+def cmd_scope(args) -> int:
+    """Measure the change against the plan, and search it for what code can find of P6 (#231): the size of the change
+    beside the files the slices list; a file whose change is of layout alone; and each function the change adds that
+    no line outside the tests calls, or one line calls, or with an argument its body never reads. It reads no data
+    file, and the record holds counts, rules and where each shows, never what a line holds. It runs nothing."""
+    project = project_from(args.project)
+    report = report_at(project, args.report) if project else None
+    if report is None:
+        return 2
+    base, plan, rules = base_of(project, report, True), plan_of(project, report), data_rules(project)
+    files = [name for name in changed_files(project, base) or [] if not covers(profile(project)[1] + rules, name)]
+    declared = {n for row in rows_of(plan["body"], "## Slices", 5, []) for n in listed(project, row[2])} if plan else {
+        n for _, r in records(project, report, "tier") for n in r.get("files") or []}
+
+    def numstat(*more):  # (added, removed) of each file git holds that the change touched
+        return {name: (a, r) for a, r, name in (line.split("\t", 2) for line in (git(
+            project, "diff", *more, "--numstat", "--no-renames", base, "--") or "").splitlines()) if name in files}
+    plain, layout, texts = numstat(), numstat("-w"), {}
+    for name in changed_files(project, EMPTY_TREE) or []:  # the code of the project, its comment lines left blank
+        path = project / name
+        if posixpath.splitext(name)[1].lower() in R_CODE + PY_CODE and not covers(rules, name) and path.is_file() \
+                and path.stat().st_size < 1_000_000:
+            texts[name] = re.sub(COMMENT, "", path.read_text(encoding="utf-8", errors="replace"), flags=re.M)
+    calls = "\n".join(text for name, text in texts.items() if not re.search(TEST_FILE, name, re.I))
+    found = [("reformat", name, "") for name in plain if name not in layout]
+    for name in [n for n in files if n in texts and n.lower().endswith((".py", ".r")) and not re.search(TEST_FILE, n, re.I)]:
+        old = defined(re.sub(COMMENT, "", git(project, "show", f"{base}:./{name}") or "", flags=re.M))
+        for function, (n, params, body) in [(f, d) for f, d in defined(texts[name]).items() if f not in old]:
+            uses = len(re.findall(rf"(?<!\w){re.escape(function)}(?!\w)", calls)) - 1  # its definition is no call
+            unused = [arg for arg in re.findall(r"(?:^|,)\s*\**([A-Za-z_.][\w.]*)", params) if arg not in (
+                "self", "cls", "...") and not re.search(rf"(?<!\w){re.escape(arg)}(?!\w)", body)]
+            found += [("no-caller" if uses < 1 else "one-caller", f"{name}:{n}", "")] * (uses < 2) + [
+                ("unused-argument", f"{name}:{n}", f": {arg}") for arg in unused]
+    found = [{"rule": rule, "where": where, "fix": SCOPE[rule] + more} for rule, where, more in found]
+    added = sum(int(a) for a, _ in plain.values() if a.isdigit()) + sum((project / n).read_bytes().count(b"\n") for n in
+                                                                          files if n not in plain and (project / n).is_file()
+                                                                          and (project / n).stat().st_size < 1_000_000)
+    removed = sum(int(r) for _, r in plain.values() if r.isdigit())
+    record = {"kind": "scope", "check": "scope", "files": len(files), "added": added, "removed": removed,
+              "listed": len(declared), "findings": found, "commit": git(project, "rev-parse", "--short", "HEAD") or "none",
+              "state": seen(project, report)}
+    print(f"change: {len(files)} files, +{added} -{removed} lines; "
+          + (f"the slices list {len(declared)} files" if plan else f"tier was given {len(declared)} files")
+          + "".join(f"\nFLAG {f['rule']}: {f['where']}; fix: {f['fix']}" for f in found)
+          + f"\nrecord: {add_record(project, report, 'scope', record)}")
+    return 1 if found else 0
+
+
 # ---------------------------------------------------------------- verifiers and conformance
 
 def principles():
-    """Each principle as the frontmatter of its file says it: its ID, its name, its verifier and the
-    stages that verifier runs at. Dispatch is computed from these files (plan, section 4.2)."""
+    """Each principle as the frontmatter of its file says it: its ID, its name, its verifier, the stages that
+    verifier runs at, and since #231 what proves a finding of it (`proof: run`) and how many rounds it has.
+    Dispatch is computed from these files (plan, section 4.2)."""
     found = []
     for path in sorted((CG_DIR / "principles").glob("P*.md")):
         fields = read_frontmatter(path.read_text(encoding="utf-8"))[0]
-        found.append({**{key: str(fields.get(key, "")) for key in ("id", "name", "verifier")}, "path": path,
+        found.append({**{key: str(fields.get(key, "")) for key in ("id", "name", "verifier", "proof", "rounds")},
+                      "path": path,
                       "stages": [stage.strip() for stage in str(fields.get("stages", "")).split(",") if stage.strip()]})
     return found
 
@@ -2151,8 +2231,8 @@ def dispatch(project: Path, a: dict, stage: str):
               for lens in (read_pack(Path(pack["path"]) / "pack.json")[0] or {}).get("lenses") or []
               if isinstance(lens, dict)]
     for p in (p for p in principles() if stage in p["stages"]):
-        own = CG_DIR / "lenses" / f"{p['verifier']}.md"
-        found.append({"verifier": p["verifier"], "principle": p["id"], "name": p["name"],
+        own, held = CG_DIR / "lenses" / f"{p['verifier']}.md", {k: p[k] for k in ("name", "proof", "rounds")}
+        found.append({"verifier": p["verifier"], "principle": p["id"], **held,
                       "reads": [p["path"]] + [own] * own.is_file()})
         for pack, lens in lenses:
             when = lens.get("when") if isinstance(lens.get("when"), dict) else {"files": lens.get("when")}
@@ -2162,7 +2242,7 @@ def dispatch(project: Path, a: dict, stage: str):
             if lens.get("principle") == p["id"] and (not track or when.get("track") in (None, track)) and (
                     files is None or not patterns or any(covers(patterns, f) for f in files)) and all(
                     v["verifier"] != name for v in found):
-                found.append({"verifier": name, "principle": p["id"], "name": p["name"],
+                found.append({"verifier": name, "principle": p["id"], **held,
                               "reads": [p["path"], Path(pack["path"]) / str(lens.get("file"))]})
     return found
 
@@ -2284,18 +2364,20 @@ def standing(project: Path, a: dict, stage: str):
     return [(stage, v, newest.get(v["verifier"])) for v in dispatch(project, a, stage)]
 
 
-def proven(project: Path, finding: str, a: dict):
+def proven(project: Path, finding: str, a: dict, run: bool = False):
     """(pointer, sentence) when a finding opens with proof that code can open: a line of a file of the
     project that no data rule names, as path:line or path:first-last, or a record of a run of this work
     under .cg-docs/evidence/. Marks of Markdown around the pointer, and a column after the line, are
     read past (review of #228). Else None. Whether the pointer shows what the sentence says is for the
-    reader to judge."""
+    reader to judge. With run, as P5 asks: only the record of a run of this work that failed, and that
+    holds its command whole, so that anyone can run it again (#231)."""
     found = re.match(r"[`*\"']*(.{1,400}?)(?::(\d+)(?:-(\d+)|:\d+)?)?[`*\"']*:\s+(\S.*)$", finding)
     name = data_path(project, found.group(1).strip("`*\"' ")) if found else ".."
-    data = (read_config(project)[0] or {}).get("data")  # the kickoff clears no data file, and a rule for the root names none
-    rules = [key for key in rule_paths(project, {"data": data}) if key] if isinstance(data, dict) else []
+    rules = data_rules(project)  # the kickoff clears no data file
     runs = [p.relative_to(project).as_posix() for p, r in records(project, a, "any") if r.get("kind") in (
-        "check", "repro", "rerun") and r.get("report") == a["path"]] if a["type"] == "work-report" else []  # #229, #230
+        "check", "repro", "rerun", "scope") and r.get("report") == a["path"] and (not run or (r.get("exit") or any(
+            r.get("exits") or [])) and r.get("command-digest") == sha_of(str(r.get("command"))))] \
+        if a["type"] == "work-report" else []  # #229, #230, #231
     try:
         if project not in (project / name).resolve().parents or covers(rules, name):  # a link that leaves is no file
             return None
@@ -2304,7 +2386,7 @@ def proven(project: Path, finding: str, a: dict):
     except (OSError, ValueError):
         return None
     first, last = (int(found.group(2)), int(found.group(3) or found.group(2))) if found.group(2) else (0, 0)
-    held = name in runs if not first else 1 <= first <= last <= lines and (
+    held = name in runs if not first else not run and 1 <= first <= last <= lines and (
         name in runs or not name.startswith(".cg-docs/evidence/"))
     return (name + (f":{first}" + f"-{last}" * bool(found.group(3)) if first else ""), found.group(4)) if held else None
 
@@ -2314,7 +2396,9 @@ def cmd_conformance(args) -> int:
 
     A verdict is recorded only for a verifier that dispatch() names, and only with the kind of
     review that gave it. Code opens the proof of each finding: a finding with none goes under
-    `unverified`, and a FLAG whose findings all lack it is recorded as UNVERIFIED. A record holds
+    `unverified`, or for a principle whose proof is a run under `dropped`, beside the findings the verifier
+    dropped; a FLAG whose findings all lack it is recorded as UNVERIFIED. A principle may bound its rounds,
+    one for each state of the change (#231). A record holds
     pointers and short sentences, and names no person. With no --verifier, the newest verdict of
     each verifier is listed, for work on a plan the plan's too. Exit code 1 while a verifier has
     given none: that is what keeps sign-off from being offered.
@@ -2330,9 +2414,20 @@ def cmd_conformance(args) -> int:
                   "in a fresh context gave the verdict on the kickoff alone, self-review when the agent that did the "
                   "work gave it")
             return 2
-        named = {v["verifier"]: v for v in dispatch(project, a, args.stage)}
+        named, on = {v["verifier"]: v for v in dispatch(project, a, args.stage)}, seen(project, a)
         findings, refused = [" ".join(text.split()) for text in args.finding or [] if text.strip()], []
-        note = " ".join((args.note or "").split())
+        note, rule = " ".join((args.note or "").split()), named.get(args.verifier) or {}
+        # A round is the verdict on one state of the change; a bound of rounds is P5's (#231): three, and two that
+        # reproduced nothing are doubt theater. Each round's newest verdict counts.
+        given = [v for v in verdicts(project, a)[1] if (v.get("stage"), v.get("verifier")) == (args.stage, args.verifier)]
+        ends = [v for n, v in enumerate(given) if n + 1 == len(given) or given[n + 1].get("on") != v.get("on")]
+        bound, fresh = int(rule["rounds"]) if str(rule.get("rounds")).isdigit() else 0, not given or given[-1]["on"] != on
+        if bound and fresh and len(ends) >= bound:
+            refused.append(f"{args.verifier} has had its {bound} rounds on this work, one for each state of the change; "
+                           f"a round more is not run, and its findings go to the human")
+        elif bound and fresh and [v.get("verdict") for v in ends[-2:]] == ["UNVERIFIED"] * 2:
+            refused.append(f"the last two rounds of {args.verifier} gave findings and reproduced none, which is doubt "
+                           f"theater (P5): it stops, and the human decides on what the record holds")
         if args.verifier not in named:
             refused.append(f"{args.verifier} is no verifier of the {args.stage} stage for {a['path']}; code says which "
                            f"ones run: {', '.join(named) or 'none'}")
@@ -2344,13 +2439,16 @@ def cmd_conformance(args) -> int:
                            f"does not apply to this work")
         if refused:
             return say(refused)
-        opened = [(text, proven(project, text, a)) for text in findings]
+        run = rule.get("proof") == "run"  # P5: a finding stands only on a run that reproduced it (#231)
+        opened = [(text, proven(project, text, a, run)) for text in findings]
+        lost = [text[:300] for text, p in opened if not p]
         entry = {"artifact": a["path"], "stage": args.stage, "verifier": args.verifier,
                  "principle": named[args.verifier]["principle"],
                  "verdict": args.verdict.replace("-", " ") if any(p for _, p in opened) or not findings else "UNVERIFIED",
                  "review": args.review, "findings": [{"where": p[0], "what": p[1][:300]} for _, p in opened if p],
-                 "unverified": [text[:300] for text, p in opened if not p], "note": note[:300],
-                 "on": seen(project, a), "time": now()}  # a verdict is on what it was given on
+                 "unverified": [] if run else lost, "note": note[:300], "on": on, "time": now(),  # on what it was given
+                 "dropped": [" ".join(t.split())[:300] for t in args.dropped or [] if t.strip()] + [
+                     f"not reproduced: {text}" for text in lost] * run, **({"round": len(ends) + fresh} if bound else {})}
         problem = "a line added after one that was cut short could not be read"
         for _ in range(3):  # so look after each write, and add it again
             try:
@@ -2364,11 +2462,13 @@ def cmd_conformance(args) -> int:
             return say([f"the verdict of {args.verifier} is not recorded, because three writes left no line that code "
                         f"can read ({problem}); run the line again"])
         print(f"recorded: {args.verifier} ({entry['principle']}) at the {args.stage} stage: {entry['verdict']}, "
-              f"{REVIEWS[args.review]}" + "".join(f"\nunverified: {text}" for text in entry["unverified"]))
-        if entry["unverified"]:
-            print("  code found no proof it can open at the start of an unverified finding: a line of a file of the "
-                  "project that is no data file, written path:line, or the record of a run of this work under "
-                  ".cg-docs/evidence/")
+              f"{REVIEWS[args.review]}" + f", round {entry.get('round')} of {bound}" * bool(bound) + "".join(
+                  f"\n{key}: {text}" for key in ("unverified", "dropped") for text in entry[key]))
+        if lost:
+            print("  code found no proof it can open at the start of a finding " + (
+                "not reproduced: the record of a run of this work that failed and holds its command whole" if run else
+                "unverified: a line of a file of the project that is no data file, written path:line, or the record of "
+                "a run of this work under .cg-docs/evidence/"))
         print(f"record: {path.relative_to(project).as_posix()}")
         return 0
     plan = plan_of(project, a) if a["type"] == "work-report" and not args.stage else None
@@ -2382,9 +2482,10 @@ def cmd_conformance(args) -> int:
         return 1 if missing else 0
     for stage, v, g in rows:
         print(f"{stage} {v['principle']} {v['verifier']}: " + ("no verdict" if not g else (
-            f"{g.get('verdict')}, {REVIEWS.get(g.get('review'))}" + ", on an earlier text" * g["earlier"]
+            f"{g.get('verdict')}, {REVIEWS.get(g.get('review'))}" + f", round {g.get('round')} of {v.get('rounds')}"
+            * bool(g.get("round")) + ", on an earlier text" * g["earlier"]
             + "".join(f"\n  finding: {f.get('where')}: {f.get('what')}" for f in g.get("findings") or [])
-            + "".join(f"\n  unverified: {text}" for text in g.get("unverified") or [])
+            + "".join(f"\n  {key}: {text}" for key in ("unverified", "dropped") for text in g.get(key) or [])
             + f"\n  note: {g.get('note')}" * bool(g.get("note")))))
     kinds = [g.get("review") for g in shown]
     print(f"missing: {'; '.join(missing) or 'none'}\nindependent review: {kinds.count('independent')}; "
@@ -2736,6 +2837,10 @@ def main(argv=None) -> int:
                                          "of the outputs, and search the change for what code can find of P3")
     repro.add_argument("--report", required=True, help="the work report the runs belong to")
     repro.add_argument("--project", default=".")
+    scope = sub.add_parser("scope", help="measure the change against the plan, and search it for what code can find "
+                                         "of P6")
+    scope.add_argument("--report", required=True, help="the work report the change belongs to")
+    scope.add_argument("--project", default=".")
     verifiers = sub.add_parser("verifiers", help="print the verifiers that check an artifact at a stage, each with "
                                                  "its kickoff")
     conformance = sub.add_parser("conformance", help="record the verdict of a verifier, or list the verdicts on an "
@@ -2752,10 +2857,13 @@ def main(argv=None) -> int:
     conformance.add_argument("--finding", action="append", help="once for each finding: its pointer, a colon, and "
                                                                 "what is wrong in one sentence")
     conformance.add_argument("--note", help="what the verifier could not check, or why the principle does not apply")
+    conformance.add_argument("--dropped", action="append", help="once for each finding the verifier dropped: what it "
+                                                                "suspected, and why no run showed it")
     args = parser.parse_args(argv)
     commands = {"doctor": cmd_doctor, "status": cmd_status, "new": cmd_new, "packs": cmd_packs, "setup": cmd_setup,
                 "validate": cmd_validate, "approve": cmd_approve, "tier": cmd_tier, "evidence": cmd_evidence,
-                "guard": cmd_guard, "repro": cmd_repro, "verifiers": cmd_verifiers, "conformance": cmd_conformance}
+                "guard": cmd_guard, "repro": cmd_repro, "scope": cmd_scope, "verifiers": cmd_verifiers,
+                "conformance": cmd_conformance}
     return commands[args.command](args)
 
 

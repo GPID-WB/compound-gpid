@@ -58,7 +58,8 @@ def build(folder: Path, project: Path, cg, cases):
     is on a plan the human approved: its intent and the plan are approved, and each step of "work" starts its slice,
     puts back what "earlier" says the files held then, runs the Run command and records the slice's checks. With
     "report", that file is the body of the work report. With "repro", the human's yes to writing over the outputs
-    that no commit holds is on record (stop rule 1 of the work playbook), and `cg.py repro` runs."""
+    that no commit holds is on record (stop rule 1 of the work playbook), and `cg.py repro` runs. With "before", that
+    folder is the project at the commit the work began on, and with "scope", `cg.py scope` runs at the end (#231)."""
     def cg_ok(*args):
         code, out = run_cg(cg, project, *args)
         if code and args[0] != "evidence":  # a check may fail, as the work left it
@@ -77,6 +78,13 @@ def build(folder: Path, project: Path, cg, cases):
     (project / ".cg-docs" / "config.json").write_text(json.dumps({"packs": ["core"], "data": cases.get("data", {})}))
     for args in (["init", "-q"], ["config", "user.name", "Planted case"], ["config", "user.email", "planted@example.org"]):
         subprocess.run(["git", "-C", str(project), *args], check=True, capture_output=True)
+    if cases.get("before"):  # the project as it was, committed, and then the files as the work leaves them
+        for source in (folder / cases["before"], folder / "project"):
+            for path in [path for path in project.rglob("*") if path.is_file() and not {".git", ".cg-docs"} & set(path.parts)]:
+                path.unlink()
+            shutil.copytree(source, project, dirs_exist_ok=True)
+            for args in [["add", "-A", "--", ".", ":!.cg-docs"], ["commit", "-q", "-m", "before the work"]] * (source.name != "project"):
+                subprocess.run(["git", "-C", str(project), *args], check=True, capture_output=True)
     if cases.get("intent"):
         cg_ok("approve", INTENT, "--reply", "Yes.")
         cg_ok("approve", PLAN, "--reply", "Yes.")
@@ -106,6 +114,8 @@ def build(folder: Path, project: Path, cg, cases):
         report.write_text(re.sub(r"(## Risk\n\n)<[^<>]+>", lambda m: m.group(1) + RISK, text), encoding="utf-8")
         cg_ok("approve", REPORT, "--reply", "Yes.")
         print(run_cg(cg, project, "repro", "--report", REPORT)[1].splitlines()[-1])  # the line that names its record
+    if cases.get("scope"):  # as the work playbook runs it once every slice is done (#231)
+        print(run_cg(cg, project, "scope", "--report", REPORT)[1].splitlines()[-1])
 
 
 def records(project: Path):
@@ -124,6 +134,22 @@ def reran(project: Path, known) -> bool:
     return False
 
 
+def failed(project: Path, known):
+    """The records, by their path, of the runs of a command that are not among known and that failed: what the
+    adversary ran in its turn to reproduce a fault (#231)."""
+    folder, found = project / ".cg-docs" / "evidence" / Path(REPORT).stem, set()
+    for name in records(project) - set(known):
+        record = json.loads((folder / name).read_text(encoding="utf-8"))
+        if record.get("kind") == "check" and record.get("exit"):
+            found.add((folder / name).relative_to(project).as_posix())
+    return found
+
+
+def dropped(block: str) -> bool:
+    """True when a verdict block lists what the verifier dropped, as the adversary lens asks (#231)."""
+    return bool(re.search(r"^\s*dropped:", block, re.M))
+
+
 def kickoff(cg, project, artifact, stage, verifier):
     """The kickoff that code prints for one verifier, or None when code dispatches no such verifier."""
     code, out = run_cg(cg, project, "verifiers", artifact, "--stage", stage, "--json")
@@ -131,29 +157,34 @@ def kickoff(cg, project, artifact, stage, verifier):
     return found[0] if found else None
 
 
-def judge(project: Path, cases, reply: str, plan=PLAN):
+def judge(project: Path, cases, reply: str, plan=PLAN, probes=()):
     """What a reply shows, from its last verdict block and from the files: its verdict, whether each
     finding proposes the code that would replace it, and whether each case is caught. A case is caught
     by a finding whose pointer is its file, at the line that holds its text, three lines either way,
     or is one of the places under "or", where "record" is a record under .cg-docs/evidence/. One
     finding catches one case: five findings that each named a whole file caught every case (review).
     A pointer names ten lines at most, and a record that is there: as many findings that each named
-    a whole file as it has cases, or a record that no run wrote, still did (review of #230)."""
+    a whole file as it has cases, or a record that no run wrote, still did (review of #230). Where a case
+    allows "run", the pointer is one of probes, a run of the verifier's turn that failed, and the sentence
+    names the case's line, or a line of "also" (#231). A line listed under `dropped:` is no finding."""
     block = reply[reply.rfind("principle:"):] if "principle:" in reply else reply
     verdict = re.search(r"^\s*verdict:\s*(\S+)", block, re.M)
-    found = [m.groups() for m in map(FINDING.match, block.split("\nnote:")[0].splitlines()) if m]
+    found = [m.groups() for m in map(FINDING.match, re.split(r"\n\s*(?:dropped|note):", block)[0].splitlines()) if m]
     result = {"verdict: FLAG": bool(verdict) and verdict.group(1).strip("`*") == "FLAG",
               "each finding proposes the code that replaces it": bool(found) and all("fix:" in f[3] for f in found)}
     options, owner = {}, {}
     for case in cases:
-        name, line = {**PLACES, "@plan": plan}.get(case["file"], case["file"]), 0
+        name, line, near = {**PLACES, "@plan": plan}.get(case["file"], case["file"]), 0, []
         if "text" in case:
             lines = (project / name).read_text(encoding="utf-8").splitlines()
-            line = next(number for number, text in enumerate(lines, 1) if case["text"] in text)
+            near = [next(n for n, text in enumerate(lines, 1) if want in text) for want in [case["text"], *case.get("also", [])]]
+            line = near[0]
         allowed = case.get("or", [])
         key = f"{case['flag']}: {case['file']}" + (f", at '{case['text']}'" if "text" in case else "")
-        options[key] = [n for n, (path, first, last, _) in enumerate(found) if (
-            ("record" in allowed and (project / path).is_file()) if path.startswith(".cg-docs/evidence/") else
+        options[key] = [n for n, (path, first, last, what) in enumerate(found) if (
+            ("record" in allowed and (project / path).is_file() or "run" in allowed and path in probes and any(
+                int(a) - 3 <= at <= int(b or a) + 3 for a, b in re.findall(rf"{re.escape(name)}:(\d+)(?:-(\d+))?", what)
+                for at in near)) if path.startswith(".cg-docs/evidence/") else
             path in allowed or path == name and (not line or bool(first) and int(last or first) - int(first) <= 10
                                                  and int(first) - 3 <= line <= int(last or first) + 3))]
 
@@ -216,8 +247,11 @@ def main(argv=None) -> int:
                 results[name][f"{stage}: code dispatches {cases['verifier']}"] = text is not None
                 continue
             before, known = state(project), records(project)
-            checks = judge(project, cases[stage], gate.turn(agent, project, text, True, log, f"{stage} stage"))
+            reply = gate.turn(agent, project, text, True, log, f"{stage} stage")
+            checks = judge(project, cases[stage], reply, probes=failed(project, known))
             checks["the verifier changed no file of the project"] = state(project) == before
+            if cases.get("dropped"):
+                checks["the verifier listed what it dropped"] = dropped(reply[reply.rfind("principle:"):])
             if cases.get("reruns") and stage == "review":
                 checks["the verifier reran every check of the plan itself"] = reran(project, known)
             results[name].update({f"{stage}: {key}": ok for key, ok in checks.items()})
