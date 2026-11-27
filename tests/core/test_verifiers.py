@@ -9,6 +9,8 @@ gave it. The last tests hold the texts to that code, and run each line that code
 import json
 import re
 import shlex
+import subprocess
+import sys
 from pathlib import Path
 
 from test_artifacts import ALL_NO, CG, PLAN, env, load_cg  # noqa: F401  (env is a fixture)
@@ -37,9 +39,9 @@ def give(env, artifact, stage, verifier, verdict="PASS", review="self-review", *
 
 
 def held(env, artifact):
-    """The conformance record of an artifact: every verdict code wrote for it, oldest first."""
-    path = env["project"] / ".cg-docs" / "conformance" / Path(artifact).parent.name / (Path(artifact).stem + ".json")
-    return json.loads(path.read_text(encoding="utf-8"))["verdicts"] if path.is_file() else []
+    """The conformance record of an artifact: every verdict code wrote for it, oldest first, one to a line."""
+    path = env["project"] / ".cg-docs" / "conformance" / Path(artifact).parent.name / (Path(artifact).stem + ".jsonl")
+    return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()] if path.is_file() else []
 
 
 def working(env):
@@ -247,15 +249,33 @@ def test_a_conformance_record_holds_no_name_no_output_and_no_long_text(env):
     assert give(env, REPORT, "review", "claims", "FLAG", "independent", "--finding", f"{CODE}:1: {long}",
                 "--finding", long, "--finding", f"{long}: no file has a name this long", "--note", long)[0] == 0
     (last,) = held(env, REPORT)
-    assert set(last) == {"stage", "verifier", "principle", "verdict", "review", "findings", "unverified", "note", "on", "time"}
+    assert set(last) == {"artifact", "stage", "verifier", "principle", "verdict", "review", "findings", "unverified", "note",
+                         "on", "time"} and last["artifact"] == REPORT
     assert len(last["findings"][0]["what"]) == len(last["note"]) == 300 and [len(u) for u in last["unverified"]] == [300, 300]
-    path = project / ".cg-docs" / "conformance" / "work-reports" / "2026-11-26-headcount.json"
-    text = path.read_text(encoding="utf-8")
-    assert not re.search(r"Test Human|example\.org|share 0\.153846", text) and '"artifact": "' + REPORT in text
-    # The record is one file that grows. One that cannot be read is never written over.
-    path.write_text(text[:-20], encoding="utf-8")
-    code, out = give(env, REPORT, "review", "claims")
-    assert code == 1 and "cannot be read as a conformance record" in out and path.read_text(encoding="utf-8") == text[:-20]
+    path = project / ".cg-docs" / "conformance" / "work-reports" / "2026-11-26-headcount.jsonl"
+    text = path.read_bytes().decode("utf-8")
+    assert not re.search(r"Test Human|example\.org|share 0\.153846", text) and text.count("\n") == 1
+
+
+def test_verdicts_recorded_at_the_same_moment_are_all_kept_and_none_is_written_over(env):
+    """A coding agent may run the nine lines that record a verdict at once. The record is one file,
+    and a verdict is one line that is only ever added to it: nothing is read, changed and written
+    back. A line that cannot be read stays where it is, and counts for nothing."""
+    project = working(env)
+    line = [sys.executable, str(installed(env) / "scripts" / "cg.py"), "conformance", REPORT, "--stage", "review",
+            "--verdict", "PASS", "--review", "independent", "--project", str(project)]
+    running = [subprocess.Popen([*line, "--verifier", name], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+               for name in REVIEW_STAGE * 2]
+    assert [process.wait() for process in running] == [0] * 18
+    assert sorted(v["verifier"] for v in held(env, REPORT)) == sorted(REVIEW_STAGE * 2)
+    assert env["cg"]("conformance", REPORT, "--stage", "review")[0] == 0
+    path = project / ".cg-docs" / "conformance" / "work-reports" / "2026-11-26-headcount.jsonl"
+    before = path.read_bytes()
+    path.write_bytes(before + b'{"stage": "review", "verifier": "claims", "verd')  # a line cut short, with no line end
+    assert give(env, REPORT, "review", "claims", "FLAG", "self-review", "--finding", f"{CODE}:1: typed in")[0] == 0
+    assert path.read_bytes().startswith(before + b'{"stage": "review", "verifier": "claims", "verd')
+    code, out = env["cg"]("conformance", REPORT, "--stage", "review")
+    assert code == 0 and "review P7 claims: FLAG, self-review\n" in out, out
 
 
 def test_work_on_a_plan_gets_a_work_report_with_no_self_review_table(env):
