@@ -265,3 +265,34 @@ def test_review_of_2_8_a_finding_near_the_line_of_a_case_is_for_that_case_and_a_
     reply = head + f"  - pipeline.py:{line(project, 'pipeline.py', 'headcount,gap')}: a poverty gap is written (P1; fix: x)\n"
     assert run_planted.judge(project, cases["contract"], reply)["something built that the contract does not name: "
                                                                 "pipeline.py, at 'def gap('"]
+
+
+def test_lens_run_2_a_finding_near_a_case_another_finding_took_goes_to_no_other_case_it_names(tmp_path):
+    """Lens run 2 of the adversary lens (#231). Codex probed the negative welfare, and its probe failed, but its sentence
+    put the fault at pipeline.py:33, three lines from the case at line 36, which its finding at line 36 had taken, and
+    far from line 11, where welfare is read. Decided here: such a finding goes to no other case, also when it names the
+    requirement of a case that no finding caught. The runner cannot read a sentence, and a requirement ID is the one
+    thing it could take: findings that each name a line beside one case and the ID of another would then catch cases
+    whose lines they never named. The human sent to line 33 reads code that holds no fault."""
+    sys.path.insert(0, str(RUNNER.parent))
+    import run_planted
+    done = subprocess.run([sys.executable, str(RUNNER), "--dry-run", "--cg", str(CG), "--dest", str(tmp_path / "lens"),
+                           "--only", "codex", "--verifier", "adversary"], capture_output=True, text=True)
+    project = tmp_path / "lens" / "toy-poverty-codex"
+    assert done.returncode == 0, done.stdout + done.stderr
+    cases = json.loads((RUNNER.parent / "adversary" / "expected.json").read_text(encoding="utf-8"))["review"]
+    known, records = run_planted.records(project), []
+    for case in (cases[0], cases[2]):  # a household at the line, and a negative welfare: each probe fails
+        command = case["probe"].replace("python ", f'"{sys.executable}" ', 1)
+        assert subprocess.run([sys.executable, str(CG), "evidence", "--run", command, "--report", run_planted.REPORT,
+                               "--project", str(project)], capture_output=True).returncode == 1
+        records = sorted(run_planted.failed(project, known))
+    line = next(n for n, text in enumerate((project / "pipeline.py").read_text().splitlines(), 1) if cases[0]["text"] in text)
+    block = (f"principle: P5\nverdict: FLAG\nfindings:\n"
+             f"  - {records[0]}: R1 is broken because pipeline.py:{line} counts welfare at the line (P1; fix: <)\n"
+             f"  - {records[1]}: R3 is broken because pipeline.py:{line - 3} accepts negative welfare (P1; fix: stop)\n"
+             "dropped:\n  - none: none\nnote: none\n")
+    result = run_planted.judge(project, cases, block, probes=set(records))
+    assert len(records) == 2 and result[f"{cases[0]['flag']}: pipeline.py, at '{cases[0]['text']}'"], result
+    assert not result[f"{cases[2]['flag']}: pipeline.py, at '{cases[2]['text']}'"], result
+    assert sum(result.values()) == 3, result  # the verdict, the fixes and the one case
