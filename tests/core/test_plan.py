@@ -463,3 +463,21 @@ def test_the_other_texts_name_the_plan():
     p1 = (CG / "principles" / "P01-specify-before-generating.md").read_text(encoding="utf-8")
     assert "slice" in p1[p1.index("## Deterministic checks"):] and "decided intent" in p1[p1.index("## Deterministic checks"):]
     assert "approval" in cg.LINK_KEYS and "**Amendment**" in (CG / "GLOSSARY.md").read_text(encoding="utf-8")
+
+
+def test_status_names_each_decided_intent_that_no_plan_is_built_on_yet(env):
+    """Gate rerun 19 (#227): one agent asked for a plan read status, saw `open-artifacts: 0`, and
+    said that no decided brainstorm existed. A decided intent is closed, so status did not show
+    it. Status now names what is ready to plan, and the plan playbook starts from that line."""
+    env["base"]()  # a decided intent, with the human's yes on record
+    env["put"]("intent", front("intent", "draft") + INTENT_BODY, "2026-11-21-draft.md")
+    env["put"]("intent", front("intent", "decided") + INTENT_BODY, "2026-11-22-typed.md")  # no yes on record
+    state = json.loads(env["cg"]("status", "--json")[1])
+    assert state["ready-to-plan"] == [IDEA], state
+    assert f"\nready-to-plan: {IDEA}\n" in env["cg"]("status")[1]
+    code, out = env["cg"]("new", "plan", "Headcount", "--date", "2026-11-25", "--intent", IDEA)
+    assert code == 0, out
+    assert json.loads(env["cg"]("status", "--json")[1])["ready-to-plan"] == []
+    assert "\nready-to-plan: none\n" in env["cg"]("status")[1]
+    text = (CG / "playbooks" / "plan.md").read_text(encoding="utf-8")
+    assert "`ready-to-plan`" in text[text.index("## 1. Start or resume"):text.index("## 2.")]
