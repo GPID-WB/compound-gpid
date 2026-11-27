@@ -609,7 +609,7 @@ def test_gate_rerun_22_a_request_for_the_work_with_no_approved_plan_goes_to_quic
     got the work playbook, found no approved plan, changed nothing and sent the human to /cg plan. With no plan
     approved as it now reads, status names quick work and says why; with one, the work playbook. A plan and a
     brainstorm open as they did, and the guide's row for the work says where such a request goes."""
-    env["config"]()
+    env["config"](data={"inst/extdata/survey.csv": "Public"})
     for draft in (False, True):
         if draft:
             env["put"]("plan", front("plan", "draft") + BODY)

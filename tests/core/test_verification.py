@@ -16,7 +16,7 @@ import sys
 from test_artifacts import ALL_NO, CG, HUB, env, load_cg  # noqa: F401  (env is a fixture)
 from test_determinism import at
 from test_verifiers import dispatched, give, held
-from test_work import PLAN, PY, REPORT as WORK, SLICE, start
+from test_work import PLAN, PY, REPORT as WORK, SLICE, start, yes
 
 sys.path.insert(0, str(HUB / "evals" / "planted"))
 import run_planted  # noqa: E402
@@ -107,7 +107,7 @@ def test_the_rerun_needs_a_plan_runs_nothing_past_a_stop_and_can_take_one_check(
     assert list(record["checks"]) == ["C1"] and record["checks"]["C1"]["work"]["on"] == "the files as they now are"
     assert record["checks"]["C1"]["work"]["same-output"] and "not-run" not in out, out
     assert env["cg"]("evidence", "--rerun", "--run", f"{PY} check1.py", "--report", WORK)[0] == 2
-    assert env["cg"]("tier", *[a.replace("choice=no", "choice=yes") for a in ALL_NO], *SLICE)[0] == 0
+    assert env["cg"]("tier", *yes("irreversible"), *SLICE)[0] == 0  # on a plan, the one fact that always stops
     code, out, _, _ = rerun(env, WORK)
     assert code == 1 and "refused: this work stops for the human's yes" in out, out
     quick = ".cg-docs/work-reports/2026-11-26-quick.md"

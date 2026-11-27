@@ -214,8 +214,9 @@ DETERMINISM = (
 )
 # A language the project holds needs a lockfile at its root; a do-file needs its version command.
 LOCKFILES = ((R_CODE, ("renv.lock",), "renv::init() and renv::snapshot(), with renv.lock committed"),
-             (PY_CODE, ("uv.lock", "poetry.lock", "Pipfile.lock", "pylock.toml", "pdm.lock", "pixi.lock", "conda-lock.yml"),
-              "uv init --bare, uv add <each package the code imports> and uv lock, with pyproject.toml and uv.lock committed"))
+             (PY_CODE, ("uv.lock", "poetry.lock", "Pipfile.lock", "pylock.toml", "pdm.lock", "pixi.lock", "conda-lock.yml",
+                        "requirements.txt", "environment.yml"), "uv init --bare, uv add <each package the code imports> "
+              "and uv lock, with pyproject.toml and uv.lock committed; or each package pinned with == in requirements.txt"))
 STATA_PIN = "version <the Stata version, such as 18> as the first command of the do-file"
 # What the two runs of repro can show of an output, each with the code that would replace it.
 RUN_FIXES = {
@@ -234,6 +235,30 @@ RUN_FIXES = {
                 "for the rest",
 }
 REPRO_RULES = tuple(dict.fromkeys([rule for rule, *_ in DETERMINISM] + ["unpinned", *RUN_FIXES]))
+# What a verifier's rerun of the checks finds of P4 (#230): per rule, where it looks (a check's command, a line of the
+# work report, a row of the outputs map), a pattern, and the change that would replace what it finds. Which finding
+# stands is the lens's to say. A check that cannot fail: its exit code is set by what follows it, or by a default.
+VERIFY = (
+    ("cannot-fail", "command", r"\|\|\s*(true|:|exit\s+0|echo)\b|;\s*(true|:|exit\s+0|echo\b[^|;&]*)\s*$|^\s*(true|:|"
+     r"exit\s+0|echo\b[^|;&]*)\s*$|(?<![|>])\|(?![|>])\s*(tee|head|tail|cat|sort|uniq|wc|cut|tr|column|more)\b[^|;&]*$|"
+     r"--exit-zero\b|\bpython[\d.]*\s+-O|\bdevtools::test\s*\((?![^)]*stop_on_failure\s*=\s*T)|\bstop_on_failure\s*="
+     r"\s*F|\brcmdcheck\s*\((?![^)]*error_on)", "a command whose exit code is the check's own: nothing after it that "
+     "sets the exit code, such as || true, ; echo or a pipe; devtools::test(stop_on_failure = TRUE) and "
+     'rcmdcheck::rcmdcheck(error_on = "warning") in R; no --exit-zero and no python -O'),
+    ("proxy", "command", r"^\s*(test\s+-[edfs]|\[\s+-[edfs]|ls|stat|cat|head|wc|Test-Path)\b|\b(file|dir)\.exists\s*\(|"
+     r"\bos\.path\.(exists|isfile|isdir)\s*\(|\.(exists|is_file)\s*\(\s*\)|\b(py_compile|compileall)\b|\bR\s+CMD\s+"
+     r"(build|INSTALL)\b|--(version|collect-only|no-tests)\b", "a check on the value of the real output, against an "
+     "expected value from a source independent of the code, at the tolerance the plan sets"),
+    ("unrecorded", "report", r"^(?!.*\b(not|no|never|fail(s|ed)?|unverified)\b).*\b(verified|pass(es|ed)?|green|ok|"
+     r"succeed(s|ed)?|holds|confirmed)\b", "the run of that check through evidence, or the claim taken out of the work "
+     "report"),
+    ("no-validation", "profile", "", "a reference value, a cross-check in a second software, or the expectation the "
+     "human stated before the run, named in the outputs map and held by a check of the plan"),
+    ("not-run", "run", "", "the check run through evidence on the files as they now are, before the work is called done"),
+    ("fails", "run", "", "the fix in the code, at the first place where things go wrong, and the check run through "
+     "evidence again; never a change to the check"),
+)
+VERIFY_RULES = tuple(rule for rule, *_ in VERIFY)
 # The stages a principle file may name under `stages`, each with the type of artifact its verifiers
 # look at. Which verifiers run at a stage is the principle files' to say, and no list here (#228).
 STAGES = {"plan": "plan", "review": "work-report", "sign-off": "work-report", "compound": "solution"}
@@ -633,10 +658,17 @@ def compute_status(project: Path, guide: bool = False, asked=None) -> dict:
         if held and held[1].get("stop") and not held[3]:
             waiting.append(f"{a['path']} (stops for the human's yes: {'; '.join(held[1]['stop'])})")
     phase = "setup" if config is None else "ready"
+    # The work playbook needs a plan to work on; with none, a request for a change is quick work (gate rerun 22).
+    idle = asked == "work" and phase != "setup" and not any(a["type"] == "plan" and a["schema"] == SCHEMA and (
+        a["status"] == "in-progress" or a["status"] == "approved" and is_approved(project, a)) for a in found)
     # The playbook the human asked for by name, once the project is set up; else the phase's.
-    playbook = f"playbooks/{asked}.md" if asked and phase != "setup" else PHASE_PLAYBOOK[phase]
+    playbook = PHASE_PLAYBOOK["ready"] if idle else f"playbooks/{asked}.md" if asked and phase != "setup" else \
+        PHASE_PLAYBOOK[phase]
     if stops:
         step = "stop and show the human the stops"
+    elif guide and idle:
+        step = (f"read {playbook}; no plan is approved as it now reads, so the work playbook has nothing to work on: "
+                f"a request for a change is quick work, and /cg plan makes a plan when the human wants one")
     elif guide and asked and phase == "setup" and asked != "setup":
         step = f"read {playbook}; {asked}, which the human asked for, opens once setup is done"
     elif guide:
@@ -1618,11 +1650,12 @@ def name_key(name: str) -> str:
     return sha_of(name)[7:23]
 
 
-def base_of(project: Path, report: dict, whole: bool = False) -> str:
+def base_of(project: Path, report: dict, whole: bool = False, before: str = "") -> str:
     """The commit the work began on: the one the first tier record of this slice holds, so that a commit
     in the slice hides nothing from guard (review of #227); before a first commit, the empty tree.
-    With whole, the commit the first slice began on: what a verifier compares the whole change with."""
-    tiers = [r for _, r in records(project, report, "tier")][:1 if whole else None]
+    With whole, the commit the first slice began on: what a verifier compares the whole change with.
+    With before, the name of a record: the slice in force when that record was written."""
+    tiers = [r for p, r in records(project, report, "tier") if not before or p.name < before][:1 if whole else None]
     while len(tiers) > 1 and tiers[-2].get("slice") == tiers[-1].get("slice"):  # back to the start of this slice
         tiers.pop()
     return (tiers[-1].get("commit") if tiers else None) or git(project, "rev-parse", "--verify", "-q", "HEAD") \
@@ -1740,38 +1773,41 @@ def cmd_evidence(args) -> int:
     """
     project = project_from(args.project)
     report = report_at(project, args.report) if project else None
-    if report and args.check and args.run:
+    if report and args.run and (args.check or args.rerun):
         print("give a check ID of the plan, or --run with another command, and not both")
-    if report is None or (args.check and args.run):
+    if report is None or (args.run and (args.check or args.rerun)):
         return 2
     plan = plan_of(project, report)
     checks = {row[0]: row[2] for row in rows_of(plan["body"], "### Checks", 4, [])} if plan else {}
-    if not args.check and not args.run:
+    if not args.check and not args.run and not args.rerun:
         held = runs(project, report)
         for path, r in records(project, report, "any"):
             print(f"{path.name}: " + (f"tier {r.get('tier')}; stop: {'; '.join(r.get('stop') or []) or 'none'}"
                                       if r.get("kind") == "tier" else
-                                      f"{r.get('check')} ({r.get('label')}), exit {r.get('exit')}, {r.get('verdict')}: "
-                                      f"{r.get('command')}"))
+                                      f"{r.get('check')} ({r.get('label')}), exit {r.get('exit', r.get('exits'))}, "
+                                      f"{r.get('verdict')}: {r.get('command')}"))
         for row in rows_of(plan["body"], "## Slices", 5, []) if plan else []:
             print(f"{row[0]}: " + "; ".join(f"{cid} {held[cid]['verdict'] if cid in held else 'not run'}"
                                             for cid in re.findall(r"C\d+", row[3])))
         return 0
-    refused = [open_stop(project, report)]
-    if args.check and plan is None:
+    refused, wanted = [open_stop(project, report)], [args.check] if args.check else list(checks) * args.rerun
+    unclear = [cid for cid in wanted if cid in checks and command_of(checks[cid]) is None]
+    if (args.check or args.rerun) and plan is None:
         refused.append("this work report names no plan, so no check is declared for it; give the command with "
                        "--run, and it is recorded as ad hoc")
-    elif args.check and not plan_of(project, report, True):
+    elif (args.check or args.rerun) and not plan_of(project, report, True):
         refused.append(f"the plan {plan['path']} is not approved as it now reads; a change to an approved plan is "
                        f"an amendment, which the human approves before a check of it runs")
     elif args.check and args.check not in checks:
         refused.append(f"{args.check} is not a check of the approved plan, whose checks are {', '.join(checks)}; any "
                        f"other command is given with --run and recorded as ad hoc")
-    elif args.check and command_of(checks[args.check]) is None:
-        refused.append(f"the Command cell of {args.check} is not one text in backticks, so what it runs is not "
+    elif unclear:
+        refused.append(f"the Command cell of {unclear[0]} is not one text in backticks, so what it runs is not "
                        f"clear; that is a change to the plan, an amendment the human approves")
     if any(refused):
         return say(filter(None, refused))
+    if args.rerun:
+        return rerun(project, report, plan, {cid: command_of(checks[cid]) for cid in wanted})
     command = args.run or command_of(checks[args.check])  # the command is what the plan holds in backticks
     made = new_files(project) or set()  # the files a run makes are kept by a digest of their names, for guard
     done = subprocess.run(command, shell=True, cwd=project, capture_output=True, stdin=subprocess.DEVNULL)
@@ -1792,6 +1828,65 @@ def cmd_evidence(args) -> int:
           f"output: {record['output']['lines']} lines, {len(printed)} bytes, {sha}\n"
           f"record: {add_record(project, report, args.check or 'ad-hoc', record)}")
     return 0 if verdict == "verified" else 1
+
+
+def line_at(text: str, pattern: str) -> int:
+    """The number of the first line of a text that a pattern finds, else 1."""
+    return next((n for n, line in enumerate(text.splitlines(), 1) if re.search(pattern, line)), 1)
+
+
+def rerun(project: Path, report: dict, plan: dict, wanted: dict) -> int:
+    """A verifier reruns the checks of the plan itself (P4, #230): each command as the approved plan declares it, on
+    the files as they now are. The record is the verifier's, apart from the evidence of the work, and holds no line of
+    what a check printed, which is never shown either (P12). Each check is compared with the work's newest run of it
+    and the state of the files that run covered; then code names what a rule can find of P4 (VERIFY)."""
+    at_profile, (run, _), made = ".cg-docs/verification.md", profile(project), new_files(project) or set()
+    texts = {name: (project / name).read_text(encoding="utf-8", errors="replace") if (project / name).is_file() else ""
+             for name in (plan["path"], report["path"], at_profile)}
+    rules = {rule: (pattern, fix) for rule, _, pattern, fix in VERIFY}
+    newest = {r.get("check"): (p, r) for p, r in records(project, report, "check") if r.get("label") == "declared"
+              and r.get("plan") == plan["path"] and r.get("command-digest") == sha_of(wanted.get(r.get("check")) or "")}
+    results, found = {}, []
+    for cid, command in wanted.items():
+        done = subprocess.run(command, shell=True, cwd=project, capture_output=True, stdin=subprocess.DEVNULL)
+        printed, (path, work) = done.stdout + done.stderr, newest.get(cid, (None, None))
+        sha, row = "sha256:" + hashlib.sha256(printed).hexdigest(), line_at(texts[plan["path"]], f"^[|] *{cid} *[|]")
+        at = f"{plan['path']}:{row}"
+        results[cid] = {"exit": done.returncode, "output": {"digest": sha, "lines": printed.count(b"\n"),
+                                                            "bytes": len(printed)}, "work": None}
+        if work:  # the files of the slice in force when the work ran it, and the commit it began on, as they now are
+            tier = ([r for p, r in records(project, report, "tier") if p.name < path.name] or [{}])[-1]
+            now = work.get("state") == work_state(project, tier.get("files") or [],
+                                                  base_of(project, report, before=path.name))
+            results[cid]["work"] = {"record": path.relative_to(project).as_posix(), "exit": work.get("exit"),
+                                    "verdict": work.get("verdict"), "same-output": (work.get("output") or {}).get(
+                                        "digest") == sha, "on": "the files as they now are" if now else
+                                    "an earlier state of its files"}
+        rule = "fails" if work and done.returncode else "not-run" if not work else ""
+        found += [{"rule": rule, "where": at, "fix": rules[rule][1]} for rule in [rule] if rule]
+        found += [{"rule": rule, "where": at, "fix": fix} for rule, part, pattern, fix in VERIFY if part == "command"
+                  and (re.search(pattern, command) or rule == "proxy" and command == run)]
+    verified = {cid for cid, (_, r) in newest.items() if r.get("verdict") == "verified"}
+    found += [{"rule": "unrecorded", "where": f"{report['path']}:{n}", "fix": rules["unrecorded"][1]}  # claims
+              for n, line in enumerate(texts[report["path"]].splitlines(), 1)
+              if set(re.findall(r"\bC\d+\b", line)) - verified and re.search(rules["unrecorded"][0], line, re.I)]
+    found += [{"rule": "no-validation", "where": f"{at_profile}:{line_at(texts[at_profile], '^[|] *' + re.escape(cell))}",
+               "fix": rules["no-validation"][1]} for cell, _, proof in rows_of(texts[at_profile], "## Outputs map", 3, [])
+              if nothing(proof, source=True) or re.fullmatch(r"<[^<>]*>", proof.strip())]
+    exits = [r["exit"] for r in results.values()]
+    verdict = "inconclusive" if not exits else "not verified" if any(exits) else "verified"
+    record = {"kind": "rerun", "check": "rerun", "label": "by a verifier", "plan": plan["path"],
+              "plan-hash": text_hash(plan["body"]), "command": ", ".join(wanted), "exits": exits, "verdict": verdict,
+              "checks": results, "findings": found, "commit": git(project, "rev-parse", "--short", "HEAD") or "none",
+              "wrote": [name_key(name) for name in sorted((new_files(project) or set()) - made)],
+              "state": seen(project, report)}
+    shown = {cid: f"the work's run: exit {w['exit']}, {w['verdict']}, on {w['on']}" + ", and it printed other bytes"
+             * (not w["same-output"]) if w else "the work has no run of it"
+             for cid, w in ((cid, r["work"]) for cid, r in results.items())}
+    print("".join(f"{cid}: exit {r['exit']}; {shown[cid]}\n" for cid, r in results.items())
+          + "".join(f"FLAG {f['rule']}: {f['where']}; fix: {f['fix']}\n" for f in found)
+          + f"verdict: {verdict}\nrecord: {add_record(project, report, 'rerun', record)}")
+    return 0 if verdict == "verified" and not found else 1
 
 
 def cmd_guard(args) -> int:
@@ -1863,6 +1958,31 @@ def cmd_guard(args) -> int:
 
 
 # ---------------------------------------------------------------- repro
+
+def pins(path: Path) -> bool:
+    """True when a file pins an environment: a lockfile; a requirements.txt in which every package pins its version
+    with ==; an environment.yml whose dependencies each carry a version (review of #229, R17)."""
+    if path.name not in ("requirements.txt", "environment.yml") or not path.is_file():
+        return path.is_file()
+    text = path.read_text(encoding="utf-8", errors="replace")
+    if path.name == "environment.yml":  # each item under dependencies, a pip: list among them
+        items = [i for i in re.findall(r"^\s*-\s+([^#\s][^#]*?)\s*$", text.partition("dependencies:")[2], re.M)
+                 if not i.endswith(":")]
+        return bool(items) and all(re.match(r"[\w.\-\[\]]+\s*={1,3}\s*\d", item) for item in items)
+    items = [line.split("#")[0].strip() for line in text.splitlines()]  # an option, such as -r or --hash, is no package
+    items = [item for item in items if item and not item.startswith("-")]
+    return bool(items) and all(re.match(r"[\w.\-\[\], ]+={2,3}\s*\d", item) for item in items)
+
+
+def unheld(project: Path, mapped, names):
+    """The outputs among names that no commit holds as they now are: changed since the last one, new, or ignored by
+    git; every one of them when git cannot say. A run writes over them, and nothing would keep what they held."""
+    head = git(project, "rev-parse", "--verify", "-q", "HEAD")
+    changed = changed_files(project, head or EMPTY_TREE)
+    ignored = git(project, "ls-files", "-z", "--others", "--ignored", "--exclude-standard", "--", *mapped)
+    loose = None if changed is None or ignored is None else set(changed) | set(ignored.split("\0"))
+    return [name for name in names if loose is None or name in loose]
+
 
 def profile(project: Path):
     """The Run command of the verification profile (P4), the one line of the block under '## Run' that is no
@@ -1941,8 +2061,15 @@ def cmd_repro(args) -> int:
     found = scan(project, changed_files(project, base_of(project, report, True)) or [])
     held = {posixpath.splitext(name)[1].lower() for name in changed_files(project, EMPTY_TREE) or []}
     found += [{"rule": "unpinned", "where": locks[0], "fix": fix} for kinds, locks, fix in LOCKFILES
-              if held & set(kinds) and not any((project / lock).is_file() for lock in locks)]
+              if held & set(kinds) and not any(pins(project / lock) for lock in locks)]
     exits, outputs, wrote, unmapped = [], {}, [], []
+    kinds = [r.get("kind") for _, r in records(project, report, "any")]
+    loose = unheld(project, mapped, [name for name, held in snapshot(project, mapped).items() if held]) if command else []
+    if loose and not (tier_of(project, report)[1].get("facts", {}).get("irreversible") == "yes"  # stop rule 1, its yes
+                      and "repro" not in kinds[len(kinds) - kinds[::-1].index("tier"):]):  # for one run (#230)
+        return say([f"the runs would write over outputs that no commit holds as they now are: {', '.join(loose)}. That "
+                    f"is section 5, rule 1 of the work playbook: commit them if the human asks for it, or declare the "
+                    f"overwrite with tier and irreversible=yes, ask, and run repro again after their recorded yes"])
     if command is None:
         found.append({"rule": "no-run", "where": ".cg-docs/verification.md", "fix": RUN_FIXES["no-run"]})
     else:
@@ -2051,7 +2178,7 @@ def kickoff(project: Path, a: dict, stage: str, v: dict) -> str:
         return value if (held.get("artifact"), held.get("hash")) == (artifact["path"], text_hash(artifact["body"])) else None
     values = {"cg": CG_DIR.as_posix(), "verifier": v["verifier"], "principle": f"{v['principle']} {v['name']}",
               "stage": stage, "project": project.as_posix(), "artifact": a["path"], "contract": "none",
-              "evidence": "none", "run": "none at this stage, so point at a file and a line",
+              "evidence": "none", "run": "none at this stage, so point at a file and a line", "rerun": "none at this stage",
               "reads": "\n".join(f"{number}. {Path(path).as_posix()}"
                                  for number, path in enumerate([CG_DIR / "verifier.md", *v["reads"]], 1))}
     if a["type"] == "plan":
@@ -2065,7 +2192,9 @@ def kickoff(project: Path, a: dict, stage: str, v: dict) -> str:
                      f"(`git status --short`), and the work report {a['path']}",
             contract='no plan: this is quick work, and what the human asked is under "Asked" in the work report',
             evidence=f".cg-docs/evidence/{Path(a['name']).stem}/ and .cg-docs/approvals/",
-            run=cg_line(project, "evidence", "--run", '"<the command>"', "--report", f'"{a["path"]}"'))
+            run=cg_line(project, "evidence", "--run", '"<the command>"', "--report", f'"{a["path"]}"'),
+            rerun=cg_line(project, "evidence", "--rerun", "--report", f'"{a["path"]}"') if plan else
+            "none: no plan declares a check for this work")
         if plan:
             record = link(plan, "approval")
             values["contract"] = f"the plan {plan['path']}, " + (
@@ -2159,8 +2288,8 @@ def proven(project: Path, finding: str, a: dict):
     name = data_path(project, found.group(1).strip("`*\"' ")) if found else ".."
     data = (read_config(project)[0] or {}).get("data")  # the kickoff clears no data file, and a rule for the root names none
     rules = [key for key in rule_paths(project, {"data": data}) if key] if isinstance(data, dict) else []
-    runs = [p.relative_to(project).as_posix() for p, r in records(project, a, "any") if r.get("kind") in ("check", "repro")
-            and r.get("report") == a["path"]] if a["type"] == "work-report" else []  # repro's is a run too (#229)
+    runs = [p.relative_to(project).as_posix() for p, r in records(project, a, "any") if r.get("kind") in (
+        "check", "repro", "rerun") and r.get("report") == a["path"]] if a["type"] == "work-report" else []  # #229, #230
     try:
         if project not in (project / name).resolve().parents or covers(rules, name):  # a link that leaves is no file
             return None
@@ -2586,6 +2715,8 @@ def main(argv=None) -> int:
     evidence = sub.add_parser("evidence", help="run a check and record that it ran, or list the records")
     evidence.add_argument("check", nargs="?", help="the ID of a check the approved plan declares")
     evidence.add_argument("--run", help="any other command: it is recorded as ad hoc")
+    evidence.add_argument("--rerun", action="store_true", help="for a verifier: run every check of the plan, or the "
+                                                               "one named, record the run as its own, and show no output")
     evidence.add_argument("--verdict", choices=("not-verified", "inconclusive"),
                           help="what the exit code cannot see: the check exits with 0 and its outcome means failure")
     evidence.add_argument("--report", required=True, help="the work report the check belongs to")
