@@ -33,8 +33,10 @@ Before any step, name the shape of the data (P6, P10): for each dataset, the uni
 Writing a plan shows what the intent left open. Handle it by what it changes:
 
 - **The goal, the scope or the approach.** That is a change to the intent, and a decided intent changes only with a new yes. Say that `/cg brainstorm` reopens it, and end your turn.
-- **A choice inside the plan that only the human can make,** such as the value they expect, a tolerance, or which output proves the work. Put it to them as `grilling.md` says, and end your turn. Until they answer, each place of the value in the plan holds a request in angle brackets, such as `<the expected share, from the human>`: code names it as open, so the plan cannot go to approval with it. Then write their answer into the plan, in their words. When they have no value to give, ask which check stands in its place.
+- **A choice inside the plan that only the human can make,** such as the value they expect from a check, a tolerance, which output proves the work, what needs their yes each time, or the classification of a dataset. Give it a row in the Open questions table of the plan: its ID, the part of the plan it is about, the question, and the answer you recommend with its trade-off. For what the human alone knows, such as a classification, the recommended cell says what the plan does until their answer comes. Put the open rows to the human in one round, as `grilling.md` says, and end your turn. Until they answer, each place in the plan where the answer goes names the question's ID in brackets, such as `(Q1)`. Code names an unanswered row and such a mark as open, so the plan cannot go to approval with either. Then write their answer into the row, in their words, and what follows from it into each place that named the question. When they have no value to give, ask which check stands in its place.
 - **Anything smaller.** Take the simplest reasonable default, and write it in the plan, where the human sees it at the hard stop.
+
+The Open questions table holds the second kind and nothing else. After a brainstorm most plans ask nothing, and the table then has one row that says "none" in each cell.
 
 ## 3. Write the contract
 
@@ -70,7 +72,7 @@ Give each row its ID, what it delivers as its reader will see it, the files it m
 
 List every dataset the work reads or produces, one row each (P12). When there is none, one row says "none" in each cell.
 
-- **Classification** is the level recorded for the dataset, or for a folder above it: the `data` line of status. Code holds the register to those rules. A level you only type into the plan does not count, and neither does "synthetic" or "public" in a README or a file name. When no level is recorded, for an input or for an output the work will produce, ask the human for it, with an example answer they can copy, and end your turn. An output made from restricted data keeps that data's level until the data owner says otherwise. Record what the human states before you go on. Show the line, then run it:
+- **Classification** is the level recorded for the dataset, or for a folder above it: the `data` line of status. Code holds the register to those rules. A level you only type into the plan does not count, and neither does "synthetic" or "public" in a README or a file name. When no level is recorded, for an input or for an output the work will produce, that is an open question of step 2: ask the human for it, with an example answer they can copy, and end your turn. An output made from restricted data keeps that data's level until the data owner says otherwise. Record what the human states before you go on. Show the line, then run it:
 
   `"<python>" "<cg>" setup --data "<file or folder>=<level>" --approved-tool "<this coding agent>=<level>" --project "<project root>"`
 
@@ -93,7 +95,7 @@ A decision on data is not a yes to the plan. Change the plan to what they decide
 
 `"<python>" "<cg>" validate "<the plan>" --project "<project root>"`
 
-A line that starts with `FAIL` or `warn` names what is not ready: a requirement with no check, a check with no outcome that means failure or that no slice runs, a dataset with no recorded level, a part of the template that is still unfilled. Fix it in the plan, or settle it with the human, and run the line again. Go on only when it prints `problems: 0` and `warnings: 0`. An amendment is the one exception: its line that no approval is recorded for the plan as it now reads stays until step 7, and nothing else may be left.
+A line that starts with `FAIL` or `warn` names what is not ready: a requirement with no check, a check with no outcome that means failure or that no slice runs, a dataset with no recorded level, a question the human has not answered or whose ID still stands where its answer goes, a part of the template that is still unfilled. Fix it in the plan, or settle it with the human, and run the line again. Go on only when it prints `problems: 0` and `warnings: 0`. An amendment is the one exception: its line that no approval is recorded for the plan as it now reads stays until step 7, and nothing else may be left.
 
 Then judge the plan against the principles a plan is held to. Read the Verifier section of P1, P3, P6 and P12 in `principles/`, and of P10 when the work computes an estimate. Look for what each one flags at plan stage, and fix what you find. Give each principle a verdict, PASS, FLAG or NOT APPLICABLE, with the finding. This is a self-review, and you say so at the hard stop.
 
@@ -101,7 +103,7 @@ Then judge the plan against the principles a plan is held to. Read the Verifier 
 
 ## 7. Approve
 
-This is a hard stop. Show the human the plan as the file reads, and not a summary of it: the contract, with what each check catches and what no check would catch; the slices in order; the data register, with each dataset that stays closed and how the work goes on without it; the `reasons` line of `tier`; and your self-review, named as a self-review. For an amendment, show first what changed against the text they approved before, which the record the plan names under `approval` holds as `text`. Ask whether they approve the plan. Say that a plain yes approves it and is recorded under their name, and that you will take anything else as a change or a question. Then end your turn.
+This is a hard stop. Show the human the plan as the file reads, and not a summary of it: the contract, with what each check catches and what no check would catch; the slices in order; the data register, with each dataset that stays closed and how the work goes on without it; the Open questions, each with the answer they gave; the `reasons` line of `tier`; and your self-review, named as a self-review. For an amendment, show first what changed against the text they approved before, which the record the plan names under `approval` holds as `text`. Ask whether they approve the plan. Say that a plain yes approves it and is recorded under their name, and that you will take anything else as a change or a question. Then end your turn.
 
 When they answer, record the reply before anything else. Show the line, then run it:
 
@@ -113,4 +115,4 @@ It sets the plan to `approved` and writes the path of the record into the plan. 
 
 Planning ends with the approved plan, not with a change. Do not start a slice in the same turn. Commit only when the human asks: the plan, its intent and their records under `.cg-docs/approvals/` then go into one commit, with `.cg-docs/config.json` when step 5 changed it (P8).
 
-**Reply:** the path of the plan and its status, the goal in one sentence, each requirement with its checks, the slices in order, each dataset that stays closed, what is deferred, what no check would catch, the self-review verdict for each principle, what you did not look up, and what the human can do next: `/cg work`, which takes the plan slice by slice. When the turn ends before the plan is approved, say which step you are at and what you are waiting for. Label each claim measured, inferred or guess.
+**Reply:** the path of the plan and its status, the goal in one sentence, each requirement with its checks, the slices in order, each dataset that stays closed, each open question with its answer or that it waits, what is deferred, what no check would catch, the self-review verdict for each principle, what you did not look up, and what the human can do next: `/cg work`, which takes the plan slice by slice. When the turn ends before the plan is approved, say which step you are at and what you are waiting for. Label each claim measured, inferred or guess.

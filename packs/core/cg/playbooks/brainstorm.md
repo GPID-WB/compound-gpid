@@ -51,6 +51,8 @@ Put the choice of approach to the human as a decision, with the one you recommen
 
 ## 5. Restate
 
+Before you restate, read the answers in the Decisions table once more for a value the human said they will give later: an expected value, a reference figure or a tolerance. Ask for it now, with what the work would use in its place if they have none, and end your turn. Write their answer into the row when it comes. The plan is built on these answers and does not interview the human again.
+
 When no decision is open, fill the rest of the intent: Goal, Out of scope, A wrong result, Assumptions and Approaches considered. Then have code check it:
 
 `"<python>" "<cg>" validate "<the intent>" --project "<project root>"`

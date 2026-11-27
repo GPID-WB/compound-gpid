@@ -330,6 +330,7 @@ def test_what_a_plan_still_asks_the_human_is_in_its_open_questions_and_keeps_it_
             ("| six decimals; a looser one would pass an unweighted share |", "| ? |", "question Q1 has no recommended answer"),
             ("| Q1 | C1 |", "| first | C1 |", "'first' is not an ID such as Q1"),
             (QUESTION, QUESTION + "\n" + QUESTION, "the ID Q1 appears twice"),
+            (QUESTION + "\n", "", "the Open questions table needs a row"),
             ("the share differs from 0.153846", "the share differs from (Q1)", "it still marks something as open")):
         assert old in GOOD
         path.write_text(GOOD.replace(old, new), encoding="utf-8")
@@ -339,7 +340,6 @@ def test_what_a_plan_still_asks_the_human_is_in_its_open_questions_and_keeps_it_
         code, out = env["cg"]("approve", PLAN, "--reply", "Yes.")
         assert code == 1 and "refused" in out and words in out and "status: draft" in path.read_text(), (new, out)
     refused(env, path, GOOD.replace("## Open questions", "## Questions"), "the section '## Open questions' is missing")
-    refused(env, path, GOOD.replace(QUESTION + "\n", ""), "nothing is written under '## Open questions'")
     # A plan that asks nothing says so in one row, as the data register does.
     for row in ("| none | none | none | none | none |", "| **None** | None | none. | none | none |"):
         path.write_text(GOOD.replace(QUESTION, row), encoding="utf-8")
@@ -432,7 +432,7 @@ def test_the_plan_template_asks_for_what_code_checks_and_new_fills_in_the_intent
     assert "recorded" in template[template.index("## Data register"):template.index("## Slices")]
     asked = template[template.index("## Open questions"):]
     assert "| ID | About | Question | Recommended answer, with its trade-off | The human's answer |" in asked
-    assert "| Q1 |" in asked and '"none"' in asked and '"open"' in asked
+    assert "| Q1 |" in asked and '"none"' in asked and '"open"' in asked and "(Q1)" not in asked  # a mark of its own
 
 
 def test_the_plan_playbook_puts_what_is_open_into_the_table_and_the_brainstorm_asks_for_the_value_first():

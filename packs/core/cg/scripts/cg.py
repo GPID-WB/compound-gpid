@@ -64,7 +64,7 @@ ARTIFACTS = {
              "statuses": {"draft": "waiting", "approved": "open", "in-progress": "open",
                           "completed": "closed", "superseded": "closed", "dropped": "closed"},
              "sections": ["## Contract", "### Goal", "### Out of scope", "### Requirements", "### Checks",
-                          "### Boundaries", "## Data register", "## Slices"]},
+                          "### Boundaries", "## Data register", "## Slices", "## Open questions"]},
     "work-report": {"folder": "work-reports",
                     "statuses": {"in-progress": "open", "completed": "closed", "dropped": "closed"},
                     "sections": ["## Changed", "## Checks", "## Evidence", "## Not checked"]},
@@ -131,8 +131,9 @@ CANNOT_FAIL = (r"(there is )?((it|this|this check|the check)( will| would| can| 
                r"none|nothing)(\W*$|\s*[,;:(]|\s+[-–—]\s)|(never|cannot|can ?not|can'?t|will not|won'?t|no)\s+"
                r"fail|always (passes|succeeds)\b|(passes|succeeds)\W*$|no (failing )?outcome\b)")
 # A mark of something still open, inside other text. Capitals only, so "pending households" is prose.
+# (Q1) stands where the answer to a question of the plan goes, until the answer is written there.
 OPEN_MARK = (r"(?<![\"'])\b[A-Z0-9_-]*(TBD|TODO|FIXME|XXX|PENDING|PLACEHOLDER)[A-Z0-9_-]*\b(?![\"'])|\?\?\?|"
-             r"<[A-Za-z][a-z]*( [A-Za-z][a-z]*)+>")
+             r"<[A-Za-z][a-z]*( [A-Za-z][a-z]*)+>|\(Q\d+\)")
 # What stands in a Source cell that names no source. "the human" is a source (grilling.md).
 NO_SOURCE = (r"(none|no source|nowhere|not (found|checked|looked up|verified)|guess(ed)?|my guess|"
              r"assum(ed|ption)|(from )?memory|(general|common) knowledge|i think|i believe|presumably|"
@@ -825,9 +826,10 @@ def contract_problems(body: str):
 
 
 def plan_inputs(project: Path, a: dict):
-    """What a plan rests on that code can check before the human's yes: a decided intent (P1), and
-    for each dataset in its register the classification the human had recorded (P12). A level
-    typed into the plan is a description; only a recorded rule is a classification."""
+    """What a plan rests on that code can check before the human's yes: a decided intent (P1), for
+    each dataset in its register the classification the human had recorded (P12), and their answer
+    to each open question (P2). A level typed into the plan is a description; only a recorded rule
+    is a classification."""
     named = a["fields"].get("intent") or []
     named = [named] if isinstance(named, str) else named
     problems = [] if named else ["it names no intent; a plan is built on a decided intent, linked under 'intent'"]
@@ -858,7 +860,9 @@ def plan_inputs(project: Path, a: dict):
         elif hidden:
             problems.append(f"the data register gives {name} as {level}, and {'; '.join(hidden)}; give it a row "
                             f"of its own")
-    return problems
+    asked = rows_of(a["body"], "## Open questions", 5, problems)
+    problems += [] if asked else ['the Open questions table needs a row: a question, or "none" in each cell']
+    return problems + asked_problems([q for q in asked if any(bare(c).strip(".") != "none" for c in q)], "question")
 
 
 def decided_intent(project: Path, target: str):
@@ -915,6 +919,20 @@ def empty_sections(body: str, wanted):
     return found
 
 
+def asked_problems(rows, word: str):
+    """What is wrong with rows that were put to the human (P2), an intent's decisions or a plan's open
+    questions: the last two cells are the recommended answer and the human's answer, and a cell that
+    only stands for "not yet" is neither. The IDs are the word's first letter and a number."""
+    problems = []
+    for rid, *_, recommended, answer in rows:
+        if nothing(recommended, opens=True):
+            problems.append(f"{word} {rid} has no recommended answer")
+        if nothing(answer, opens=True):
+            problems.append(f"{word} {rid} has no answer from the human yet"
+                            + (f"; when '{answer}' is what they said, put it in quotes" if answer else ""))
+    return problems + id_problems([row[0] for row in rows], word[0].upper())
+
+
 def intent_problems(body: str):
     """What grilling must leave settled that code can check (P2): each fact names its source, and
     each decision was put to the human with a recommended answer and has their answer."""
@@ -922,13 +940,7 @@ def intent_problems(body: str):
     decisions = [(row + [""] * 4)[:4] for row in table_rows(body, "## Decisions") if row]
     problems = [] if facts and decisions else ["the Facts table and the Decisions table each need a row"]
     problems += [f"the fact '{fact}' names no source" for fact, source in facts if nothing(source, True, True)]
-    for did, _, recommended, answer in decisions:
-        if nothing(recommended, opens=True):
-            problems.append(f"decision {did} has no recommended answer")
-        if nothing(answer, opens=True):
-            problems.append(f"decision {did} has no answer from the human yet"
-                            + (f"; when '{answer}' is what they said, put it in quotes" if answer else ""))
-    return problems + id_problems([did for did, *_ in decisions], "D")
+    return problems + asked_problems(decisions, "decision")
 
 
 def unfilled(kind: str, body: str):
@@ -951,8 +963,8 @@ def unfilled(kind: str, body: str):
 
 def open_marks(body: str):
     """The lines of a body, outside fenced code and comments, that mark something as still open
-    inside other text: a word in capitals such as TBD or VALUE-PENDING, ???, or a request such as
-    <the expected value>. A value in quotes is data (gate rerun 16, #226)."""
+    inside other text: a word in capitals such as TBD or VALUE-PENDING, ???, a request such as
+    <the expected value>, or the ID of an open question, (Q1). A value in quotes is data (gate rerun 16, #226)."""
     lines, fenced = [], False
     for line in re.sub(r"<!--.*?-->", "", body, flags=re.S).splitlines():
         fenced = fenced != line.lstrip().startswith(("```", "~~~"))

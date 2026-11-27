@@ -56,3 +56,11 @@ Shape of the data: <for each dataset, the unit of observation, the key and the c
 | Slice | What it delivers | Files | Checks | By code or by judgement |
 |---|---|---|---|---|
 | S1 | <a small piece that ends in a check> | <the files it may touch> | C1 | <by code, with the tool that does it; or by judgement> |
+
+## Open questions
+
+What only the human can decide inside this plan, each put to them with a recommended answer. The answer is theirs, in their words. Where an answer is still to come, its place in the plan names the question's ID in brackets. A plan that asks nothing has one row that says "none" in each cell.
+
+| ID | About | Question | Recommended answer, with its trade-off | The human's answer |
+|---|---|---|---|---|
+| Q1 | <the part of the plan it is about: a check ID, a boundary or a dataset> | <one choice inside the plan that only the human can make> | <the answer you recommend, and what it costs> | <the human's answer, in their words; "open" until they give it> |

@@ -61,7 +61,7 @@ Flag when:
 ## Deterministic checks
 
 - An approval exists for the current plan hash.
-- An intent is `decided` only with an approval on record for its text. `cg.py approve` refuses it while a section has nothing written under it, a fact has no source, or a decision has no recommended answer or no answer from the human. A cell that only stands for "not yet", such as `open`, "pending" or "TBD", is no answer.
+- An intent is `decided` only with an approval on record for its text. `cg.py approve` refuses it while a section has nothing written under it, a fact has no source, or a decision has no recommended answer or no answer from the human. A cell that only stands for "not yet", such as `open`, "pending" or "TBD", is no answer. A plan's open questions are held in the same way.
 - `cg.py approve` records a reply only when it is a plain yes and nothing else. It refuses every other reply, and says what to ask next (`grilling.md`).
 - `cg.py tier` names an action that cannot be undone as a stop each time, in work on an approved plan too. `cg.py evidence` records no check past a stop until `cg.py approve` holds the human's plain yes to it.
 - Every decision record has a `decided-by` field naming a person.
