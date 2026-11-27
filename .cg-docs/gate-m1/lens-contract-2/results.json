@@ -1,0 +1,32 @@
+{
+  "codex": {
+    "review: verdict: FLAG": true,
+    "review: each finding proposes the code that replaces it": true,
+    "review: something the contract names that was not built: @plan, at 'output/notes.md'": true,
+    "review: a value of the contract changed with no amendment: pipeline.py, at 'LINE = 3.65'": true,
+    "review: a requirement built otherwise than the contract says: pipeline.py, at 'if len(members) >= SMALL'": true,
+    "review: something built that the contract does not name: pipeline.py, at 'def gap('": true,
+    "review: the verifier changed no file of the project": true,
+    "plan: verdict: FLAG": true,
+    "plan: each finding proposes the code that replaces it": true,
+    "plan: a check that names its requirement and passes with it broken: @plan, at '| C1 |'": true,
+    "plan: a pass condition that is a matter of opinion: @plan, at '| C3 |'": true,
+    "plan: the wrong result of the intent, with no check that fails on it: @plan, at 'What no check would catch'": true,
+    "plan: the verifier changed no file of the project": true
+  },
+  "kilo": {
+    "review: verdict: FLAG": true,
+    "review: each finding proposes the code that replaces it": true,
+    "review: something the contract names that was not built: @plan, at 'output/notes.md'": true,
+    "review: a value of the contract changed with no amendment: pipeline.py, at 'LINE = 3.65'": true,
+    "review: a requirement built otherwise than the contract says: pipeline.py, at 'if len(members) >= SMALL'": true,
+    "review: something built that the contract does not name: pipeline.py, at 'def gap('": true,
+    "review: the verifier changed no file of the project": true,
+    "plan: verdict: FLAG": true,
+    "plan: each finding proposes the code that replaces it": true,
+    "plan: a check that names its requirement and passes with it broken: @plan, at '| C1 |'": true,
+    "plan: a pass condition that is a matter of opinion: @plan, at '| C3 |'": true,
+    "plan: the wrong result of the intent, with no check that fails on it: @plan, at 'What no check would catch'": true,
+    "plan: the verifier changed no file of the project": true
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "codex": {
+    "review: verdict: FLAG": true,
+    "review: each finding proposes the code that replaces it": true,
+    "review: a claim labelled measured that points at a record that is not there: @report, at '0009-C2.json'": true,
+    "review: a number that is not the one its output holds: @report, at 'is 0.52'": true,
+    "review: a claim labelled measured with no pointer: @report, at 'every region of the survey has a row'": true,
+    "review: a function named that the project does not define: @report, at 'regional_shares()'": true,
+    "review: a file the Changed table names that the change left as it was: @report, at '| README.md |'": true,
+    "review: an inference written as fact, with no label: @report, at 'because its households earn more'": true,
+    "review: a pointer that does not show what is claimed: @report, at 'above one half'": true,
+    "review: nothing said of what was not checked: @report, at 'Nothing: every check'": true,
+    "review: the verifier changed no file of the project": true
+  },
+  "kilo": {
+    "review: verdict: FLAG": true,
+    "review: each finding proposes the code that replaces it": true,
+    "review: a claim labelled measured that points at a record that is not there: @report, at '0009-C2.json'": true,
+    "review: a number that is not the one its output holds: @report, at 'is 0.52'": true,
+    "review: a claim labelled measured with no pointer: @report, at 'every region of the survey has a row'": true,
+    "review: a function named that the project does not define: @report, at 'regional_shares()'": true,
+    "review: a file the Changed table names that the change left as it was: @report, at '| README.md |'": true,
+    "review: an inference written as fact, with no label: @report, at 'because its households earn more'": true,
+    "review: a pointer that does not show what is claimed: @report, at 'above one half'": true,
+    "review: nothing said of what was not checked: @report, at 'Nothing: every check'": false,
+    "review: the verifier changed no file of the project": true
+  }
+}

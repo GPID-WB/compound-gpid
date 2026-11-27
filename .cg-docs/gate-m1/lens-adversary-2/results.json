@@ -1,0 +1,22 @@
+{
+  "codex": {
+    "review: verdict: FLAG": true,
+    "review: each finding proposes the code that replaces it": true,
+    "review: a household at the line is counted as poor (R1): pipeline.py, at 'row[\"welfare\"] <= line'": true,
+    "review: a missing weight is read as 0 and the run goes on (R3): pipeline.py, at 'float(row[\"weight\"] or 0)'": true,
+    "review: a negative welfare is counted as poor and the run goes on (R3): pipeline.py, at '\"welfare\": float(row[\"welfare\"])'": false,
+    "review: a household whose region has no name is left out of the national figure (R2): pipeline.py, at 'return headcount(named(rows, names))'": true,
+    "review: the verifier changed no file of the project": true,
+    "review: the verifier listed what it dropped": true
+  },
+  "kilo": {
+    "review: verdict: FLAG": true,
+    "review: each finding proposes the code that replaces it": true,
+    "review: a household at the line is counted as poor (R1): pipeline.py, at 'row[\"welfare\"] <= line'": true,
+    "review: a missing weight is read as 0 and the run goes on (R3): pipeline.py, at 'float(row[\"weight\"] or 0)'": false,
+    "review: a negative welfare is counted as poor and the run goes on (R3): pipeline.py, at '\"welfare\": float(row[\"welfare\"])'": false,
+    "review: a household whose region has no name is left out of the national figure (R2): pipeline.py, at 'return headcount(named(rows, names))'": true,
+    "review: the verifier changed no file of the project": true,
+    "review: the verifier listed what it dropped": true
+  }
+}
