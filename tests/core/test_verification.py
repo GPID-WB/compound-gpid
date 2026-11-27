@@ -203,4 +203,5 @@ def test_review_of_2_7_each_lens_has_the_verifier_account_for_every_finding_of_c
         text = (CG / "lenses" / f"{name}.md").read_text(encoding="utf-8")
         section = text.split(part)[1].split("\n## ")[0]
         assert "Account for each" in section and "set it aside" in section and "your note" in section, name
+        assert name == "determinism" or "open no output to read its values (rule 6)" in text  # P12, review of #230
         assert len(text.splitlines()) <= 60, name

@@ -62,7 +62,7 @@ A slice is a small piece of the plan that ends in a check and can be reviewed in
 
 - **Cut along the path, not across it.** A slice goes from an input to an output someone can read, for a narrow case: one indicator, one survey year, one table. "All the cleaning, then all the estimates, then all the tables" shows nothing until the last slice.
 - **The first slice is the thinnest whole path:** one unit, from the rawest input to the real output, with its check. When one operation applies to many units, that first slice is the worked example, the next one is the tool that gives the same outcome, and only then come the other units (P3).
-- **What every later slice needs comes first:** the baseline of an output that may move, the pin of a behavior that must stay, the check that fails until the work is done. Put the slice most likely to fail early.
+- **What every later slice needs comes first:** the baseline of an output that may move, and the pin of a behavior that must stay. A check ends the slice whose change makes it pass, so a test of new behavior goes in the slice with the code it tests. Put the slice most likely to fail early.
 - **Keep each slice small:** a handful of files, five at most, and one thing delivered. A slice that needs "and" to describe is two. One mechanical change across many files, such as a renamed column, is cut in three: add the new form beside the old one, move the callers in batches, then remove the old form.
 - **Order them.** Each slice rests only on the slices above it, and leaves the project working.
 

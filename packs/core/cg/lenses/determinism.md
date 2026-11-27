@@ -16,6 +16,7 @@ At the review stage, code has run `cg.py repro` on the work. Its record is the n
 - With no such record, write one finding with no pointer: `repro` has not run on this work.
 - A rule marked sure names a fault. Open the line, and write it as a finding unless the column "You judge" says to leave it.
 - A rule marked to judge only points at a line. It is a finding when the column "You judge" holds for it.
+- Account for each entry under `findings`: write it as a finding of yours, or name it in your note with the reason you set it aside.
 - Then look for what code cannot see: the rows with no rule, and the column "You judge" of each row.
 
 ## At the plan stage

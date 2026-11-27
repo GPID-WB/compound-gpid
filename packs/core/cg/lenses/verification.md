@@ -17,6 +17,7 @@ Before you judge anything, run the line of your kickoff after "Every check of th
 - When it prints `refused`, nothing ran, and the reason says why. Your verdict is FLAG for a finding that needs no rerun, and INCONCLUSIVE when there is none. Your note gives the reason.
 - A rule marked sure names a fault. Open its line, and write it as a finding unless the column "You judge" says to leave it.
 - A rule marked to judge only points at a line. It is a finding when the column "You judge" holds for it.
+- Account for each line that starts with `FLAG`: write it as a finding of yours, or name it in your note with the reason you set it aside.
 - Then look for what code cannot see: the rows with no rule, and every reported number.
 
 ## The flags
@@ -33,7 +34,7 @@ Before you judge anything, run the line of your kickoff after "Every check of th
 
 ## Every reported number
 
-For each number that the work report, an output or a report gives, ask what else it could be measuring. Look for each answer in the code, the checks and their records:
+For each number that the work report or a report of the project gives, and each output that the outputs map names, ask what else it could be measuring. Look for each answer in the code, the checks and their records, and open no output to read its values (rule 6):
 
 - rows dropped, a missing value or weight passed over, a merge that did not match, a filter that left nothing;
 - a cached or stale output, a step or a branch that never ran, an error that was caught and passed over;

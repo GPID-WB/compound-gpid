@@ -58,9 +58,13 @@ Each rule carries the change that would replace what it finds, and the rerun pri
 - Every kickoff has one more line, which only one verifier is asked to run.
 - A FLAG of the rerun blocks nothing. Its findings go to the human through the verifier.
 
+## Changes
+
+- 2026-11-27, review of task 2.7 (#230). `unrecorded` takes a word of negation only when it stands at most three words before the word of success, so a claim with a negation elsewhere in its line is found. `cannot-fail` also finds `testthat::test_file()` without `stop_on_failure = TRUE`, `try()`, and a `tryCatch()` that stops nothing, which exit with 0 when a test fails (measured with testthat 3.3; `devtools::check()` run by `Rscript` errors on a warning, so it can fail). `proxy` also finds a check that only loads code or searches a test or code file, and no longer a file test followed by `&&` or `;`. An approved plan changed since its yes sends a request for its work to the work playbook, as an in-progress one does, and that playbook sends the human to `/cg plan`. The lens has the verifier account for each line of code that starts with `FLAG`, and read no output for its values. The runner leaves out the byte code that a rerun makes Python write, and a finding catches a case only when it names ten lines at most, or a record that is there.
+
 ## Open
 
 - Whether `validate` applies the rule `cannot-fail` to a plan's commands at the plan stage, before the human approves the plan. It was not built: it would change what `approve` takes, which every gate has passed, and P4 has no verifier at the plan stage.
-- The rules are lists. Known misses: a check wrapped in `try()` in R; a Stata do-file run in batch mode, whose exit code may not show an error (not tried here); a claim of success in other words, such as "C3 is fine".
+- The rules are lists. Known misses: a Stata do-file run in batch mode, whose exit code may not show an error (not tried here); a pipe into `grep`; a claim of success in other words, such as "C3 is fine", or in another language; a proof cell of the outputs map that says in words that nothing independent was found. Known false alarms: a pipe inside a quoted string, a pipe under `pipefail`, `rcmdcheck()` with `RCMDCHECK_ERROR_ON` set.
 - Whether a run on an earlier state of its files is a finding of its own when the rerun passes.
 - Quick work has no plan, so its verifier reruns nothing. Its self-review is as earlier gates passed it.
