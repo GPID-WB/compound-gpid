@@ -193,9 +193,14 @@ def test_validate_fails_on_a_lens_with_an_unknown_principle(tmp_path):
     code, out = run("validate_pack.py", pack)
     assert code == 1 and "principle 'P99' is not one of core's principles" in out
     lens["principle"] = "P10"
-    (pack / "x-one" / "pack.json").write_text(json.dumps(
-        {**json.loads((pack / "x-one" / "pack.json").read_text()), "lenses": [lens]}))
-    assert run("validate_pack.py", pack)[0] == 0
+    manifest = json.loads((pack / "x-one" / "pack.json").read_text())
+    # The shape of `when` (ADR 0003, 2026-11-27): patterns as text, or an object with files and a track.
+    for when, good in (("*.R", True), ({"files": "*.R, R/", "track": "research"}, True), ({"files": "*.R"}, True),
+                       (["*.R"], False), ("", False), ({"track": "research"}, False), ({"files": "*.R", "stage": "plan"}, False),
+                       ({"files": 3}, False)):
+        (pack / "x-one" / "pack.json").write_text(json.dumps({**manifest, "lenses": [{**lens, "when": when}]}))
+        code, out = run("validate_pack.py", pack)
+        assert (code == 0) == good and ("when must be file patterns as text" in out) != good, (when, out)
 
 
 def test_validate_fails_on_a_playbook_outside_the_lead(tmp_path):
