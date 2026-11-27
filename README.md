@@ -16,11 +16,12 @@ Version 2 is a hub of packs. Everyone installs the core pack; language, research
 | `.claude-plugin/marketplace.json` | The pack index, read by `install.py`. It is also a valid Claude Code marketplace, but that is not a supported way to install. |
 | `install.py`, `docs/install-block.md` | The installer, and the one install text. |
 | `tools/` | Checks run in CI, and the version sync. |
-| `docs/adr/` | Decision records: hosts, sources, packs, no base host, artifacts, evidence and the guard, the budget of the core tooling, the verifier engine. |
+| `docs/adr/` | Decision records: hosts, sources, packs, no base host, artifacts, evidence and the guard, the budget of the core tooling, the verifier engine, the determinism verifier and `cg.py repro`. |
 | `docs/v2/HANDOFF.md` | Where the build stands and what comes next. |
 | `SCOPE.md`, `.out-of-scope/` | What belongs in core, the size budgets, and ideas already set aside. |
 | `.cg-docs/` | This project's own plans, reviews and solutions, from version 1 on. |
-| `spike/` | The host test kit used for ADR 0001. |
+| `spike/` | The host test kit used for ADR 0001, and the gate kit. |
+| `evals/planted/` | The planted violations of each verifier, and the script that gives a lens its planted project through a coding agent (ADR 0009). |
 
 The documentation pages under `docs/` other than `adr/` and `v2/` still describe version 1. They are reviewed in task 7.5.
 

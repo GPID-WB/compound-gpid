@@ -59,7 +59,7 @@ Pinned at 1.3.2, `d653911`. MIT licence.
 | `setup-matt-pocock-skills` | Adapt | `setup` | explore, propose, confirm, write a pointer block | done |
 | `ask-matt`, phase boundaries | Adapt | help and `status` | continue, clear, hand off, or delegate | open |
 | `handoff` | Adapt | `status` | pause note computed from files | open |
-| `retro` | Adapt | `compound`, P9 | mechanical lesson becomes a check | cited |
+| `retro` | Adapt | `compound`, P9, `lenses/determinism.md` | mechanical lesson becomes a check; in task 2.6 its line between a violation a check can catch and a judgement call splits each flag of P3: `cg.py repro` finds what a rule can, and the lens names what is left to the verifier (ADR 0009). The session logs, the steering files and the coding standards file are not taken | cited; done for the determinism lens |
 | `teach`, `wait-what` | Adapt | `understand` | plain-language re-pitch using glossary terms | cited |
 | `pr` | Adapt | `ship` | PR body contract | open |
 | `triage` and its agent brief | Adapt | issues pack; out-of-scope records in core |  | open |
@@ -75,7 +75,7 @@ Pinned at 0.15.48, `ca782ed`. MIT licence.
 | Source | Verdict | Lands in | What changes for us | Status |
 |---|---|---|---|---|
 | `poteto-mode` (router, principles index, reply rules) | Adapt | `cg/SKILL.md`, principles index | approval gates added; no model-specific setup | done |
-| the 24 `principle-*` skills | Adapt | P3, P4, P6, P9 and others | merged into twelve principles; each has a verifier | cited |
+| the 24 `principle-*` skills | Adapt | P3, P4, P6, P9 and others | merged into twelve principles; each has a verifier. For P3 (task 2.6): from `principle-build-the-lever`, no tool in the diff is a finding, and each fix of the determinism lens proposes the code; from `principle-make-operations-idempotent`, a run done twice converges, which `cg.py repro` measures by two runs and their digests, and the files a run leaves are named for what they are; from `principle-prove-it-works`, a comparison that a script reruns beats a look, and a finding points at a line or a record, never at a summary. Delegates that read a skill they cannot edit, and codemods, are not taken | cited; done for the determinism lens |
 | `worker.md` | Adapt | `worker.md` | first line of every kickoff to another agent, as the guide says; three rules that no kickoff may lift: decisions go back to the human through the agent that started it, nothing is done that cannot be undone, and data stays closed; the rules on pull requests are not taken | done |
 | playbooks: bug fix, feature, refactoring, investigation, prototype, multi-phase plan, opening a PR, session pickup, pause safely | Adapt | `bugfix`, `work`, `understand`, `brainstorm`, `plan`, `ship`, `status` | ownership statement and `Reply:` contract kept; from `multi-phase-plan`, the plan is the output and no slice starts in the same turn | cited |
 | `figure-it-out` | Adapt | `custom` playbook | falsifiable done condition; verdicts verified, not verified, inconclusive | cited |
@@ -85,7 +85,7 @@ Pinned at 0.15.48, `ca782ed`. MIT licence.
 | `interrogate` | Adapt | `cg.py conformance`, Adversary verifier | in the engine: a finding counts as a flag only with proof that code can open, and a run is proof once `cg.py evidence --run` recorded it; a finding with no proof is recorded as unverified, where the source drops it and lists the count; several adversaries on several models are not taken; the Adversary verifier is still open | done for the engine; open for the Adversary verifier |
 | `blast-radius` | Adapt | scope lens, P7 | its ladder of certainty becomes our evidence grades E1 to E5 | cited |
 | `benchmark-checklist`, Explain the Number | Adapt | analysis track, Verification verifier | applied to any reported statistic | cited |
-| `create-verification-skill`, `maintain-verification-skill` | Adapt | the verification profile written by `setup` (P4) | how to run and check this project; source of check IDs | cited |
+| `create-verification-skill`, `maintain-verification-skill` | Adapt | the verification profile written by `setup` (P4), `cg.py repro` | how to run and check this project; source of check IDs; since task 2.6, `repro` takes the Run command and the outputs map from it, and a profile with no Run command is a finding of P3. Driving a user interface, the feature map and the maintenance pass are not taken | cited |
 | `reflect`, `correct` | Adapt | `compound`, Lesson verifier | rule-to-check table; prove the check fails on the past mistake | cited |
 | `architect`, Foundational Thinking | Adapt | `plan` | the shape of the data is named before any step: the unit of observation, the key and the columns, and for an estimate the weights and the population; what every later slice needs goes first; sketching two shapes is left to the brainstorm's widening | done |
 | `sharpen`, `reframe` | Adapt | `brainstorm` | the field's term with a source that was opened, when the human describes it in everyday words; the widening questions; an experiment in place of an opinion | done |
@@ -98,6 +98,6 @@ Pinned at 0.15.48, `ca782ed`. MIT licence.
 ## Not from the three sources
 
 - Validation as a separate duty from verification (P4), the seven questions for a number rewritten for statistics, and predict-then-check: ours.
-- One verifier per principle with a conformance record and planted-violation tests: ours, extending pstack's single-rule reviewer.
+- One verifier per principle with a conformance record and planted-violation tests: ours, extending pstack's single-rule reviewer. The planted cases are in `evals/planted/`, one folder for each verifier, the first for P3 (task 2.6).
 - P10 Correct in the domain and P12 Governed data: ours.
 - The compound step and the loop itself: Every's Compound Engineering, credited in `docs/why-compound-gpid.md`.
