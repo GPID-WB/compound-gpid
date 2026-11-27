@@ -406,3 +406,16 @@ def test_a_playbook_asked_for_before_setup_is_named_as_waiting(env):
     state = json.loads(env["cg"]("status", "--guide", "--playbook", "brainstorm", "--json")[1])
     assert state["playbook"].endswith("setup.md")
     assert state["next"] == "read playbooks/setup.md; brainstorm, which the human asked for, opens once setup is done"
+
+
+def test_a_reply_goes_to_approve_only_when_it_answers_the_question_that_was_asked():
+    """Gate rerun 19 (handoff, item 34): asked "the classification, or a decision to read the file?",
+    an agent passed "Yes, proceed." to `approve --reads`, and code recorded it. Code sees the reply and
+    never the question, so the texts are what holds this: grilling.md beside its row for a yes to a
+    choice, and quick work where a decision on data is recorded."""
+    replies = GRILLING.read_text(encoding="utf-8").split("## Replies that are not a yes")[1]
+    assert "only when it answers the question you asked" in replies and "never the question" in replies
+    assert "a decision to read the file?" in replies and "offered a choice" in replies
+    quick = (CG / "playbooks" / "quick.md").read_text(encoding="utf-8")
+    decides = quick[quick.index("**When the human decides that you read"):quick.index("Once the decision is recorded")]
+    assert "asked for it alone" in decides and "answers neither" in decides

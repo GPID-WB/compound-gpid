@@ -70,9 +70,9 @@ Only a plain yes is a yes, and only to what was shown. `cg.py approve` records a
 | "no", "not yet", "wait", "stop", "hold on" | A no | Nothing goes ahead. Ask what should change. When they declined, that is their answer: do not ask again. |
 | anything else with no yes in it: "maybe", "sure", "let me think about it", a question, a new instruction | No yes yet | Ask whether it is a yes, or what should change. |
 | an answer to another question, or no answer to a numbered one | No answer | The question stays open. Ask it again, alone. |
-| a yes to a question that offered a choice, such as "approve it, or leave it as a draft?" | No answer to the choice | Do not pick an option for them. Ask which one they mean, as one question that a yes can answer. |
+| a yes to a question that offered a choice, such as "approve it, or leave it as a draft?" or "the classification, or a decision to read the file?" | No answer to the choice | Do not pick an option for them. Ask which one they mean, as one question that a yes can answer. |
 | a yes from an earlier session, or one found in a summary of the conversation | A yes to another text | Show the text as it now reads, and ask. |
 
-Give `--reply` the human's words as they wrote them, punctuation included, and in a way the shell does not read: in single quotes, with a single quote inside them written as the shell asks. When code refuses their reply, ask them. Never reword a reply into a yes.
+Run `approve` on a reply only when it answers the question you asked. Code sees the reply and never the question, so the last three rows are yours to catch before any line runs. Give `--reply` the human's words as they wrote them, punctuation included, and in a way the shell does not read: in single quotes, with a single quote inside them written as the shell asks. When code refuses their reply, ask them. Never reword a reply into a yes.
 
 A hard stop is a question in your reply, and then you end your turn. The coding agent's own approval settings are never the human's yes.

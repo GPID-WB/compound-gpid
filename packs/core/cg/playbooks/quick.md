@@ -60,7 +60,7 @@ If it prints `refused`, nothing was recorded and nothing changes. The reason say
 
 Record only what the human stated, in their words for the level, such as `Public`. A rule for a folder covers every file under it. Leave out `--approved-tool` when they did not say what this coding agent may read. "Synthetic" or "test data" is a description, not a level: ask which level it is. Then run `tier` again and read its `data` line. An answer about the data is not a yes to the contract.
 
-**When the human decides that you read a file that is not cleared,** record their reply before you open the file. Give `--reads` the place the human named and nothing wider: the file when they named a file, a folder only when they named the folder. Show the line, then run it:
+**When the human decides that you read a file that is not cleared,** record their reply before you open the file. Their reply is that decision only when your question asked for it alone: a yes to a question that also offered a classification answers neither, so ask which one they mean. Give `--reads` the place the human named and nothing wider: the file when they named a file, a folder only when they named the folder. Show the line, then run it:
 
 `"<python>" "<cg>" approve --reads "<file or folder>" --agent "<this coding agent>" --reply "<the human's reply, word for word>" --project "<project root>"`
 
