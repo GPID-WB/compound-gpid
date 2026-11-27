@@ -818,3 +818,42 @@ def test_step_r_has_the_human_decide_on_each_finding_and_a_yes_decides_none(monk
     said, checks = run(found, records_yes=True)
     assert not checks["R: a yes decides no finding"] and said == ["R2 a yes to the decisions"], (said, checks)
     assert gate.run_agent.__defaults__ == ("BCDGHWXR",)  # every rerun runs step R after step W
+
+
+def test_review_of_2_9_step_r_passes_nothing_when_no_review_ran_and_sees_a_file_changed_again(monkeypatch, tmp_path):
+    """Review of task 2.9 (#232). In gate rerun 25 the panel's review never ran, every verifier still missing, and two
+    checks of step R passed on no finding. And a file that step W left changed and that the agent changes again in a
+    later step, such as a fix made after the human's decision, kept its name, so no step saw the change."""
+    sys.path.insert(0, str(GATE))
+    sys.path.insert(0, str(HUB / "spike" / "host-matrix"))
+    import run_cli_gate as gate
+    code = tmp_path / "R" / "poverty_gap.R"
+    code.parent.mkdir()
+    code.write_bytes(b"poverty_gap <- function(dt) 1\n")
+
+    def run(missing, edits):
+        replies, waiting = [], ["F1"]
+
+        def turn(agent, project, prompt, new, log, label):
+            if edits:
+                code.write_bytes(b"poverty_gap <- function(dt) 2\n")
+            if prompt == gate.ACCEPT_ALL:
+                replies.append(prompt)
+                waiting.clear()
+            return ""
+        monkeypatch.setattr(gate, "turn", turn)
+        monkeypatch.setattr(gate, "changed", lambda project: ["R/poverty_gap.R"])
+        monkeypatch.setattr(gate, "routed", lambda project, report: {
+            "missing": list(missing), "waiting": [] if missing else list(waiting), "replies": list(replies),
+            "findings": [] if missing else [{"id": "F1", "part": "standards", "priority": "P2"}]})
+        checks = {}
+        gate.run_review(gate.Agent("kilo", "kilo", "openai/m"), tmp_path, [], checks, {"path": tmp_path / "r.md"})
+        return checks
+    checks = run(["review contract"], edits=False)
+    assert not any(value for name, value in checks.items() if "outside" not in name), checks
+    checks = run([], edits=True)
+    assert not checks["R: nothing changed outside .cg-docs/ in the review"], checks
+    assert all(value for name, value in checks.items() if "outside" not in name), checks
+    held = {"R/poverty_gap.R": "x"}
+    monkeypatch.setattr(gate, "files_now", lambda project: dict(held), raising=False)
+    assert gate.outside_the_record(tmp_path, {"R/poverty_gap.R": "y"}) == ["R/poverty_gap.R"]  # steps G and H

@@ -62,6 +62,10 @@ def test_the_verifier_reruns_every_declared_check_itself_and_code_finds_its_part
     before = sorted(path.name for path in folder.glob("*.json"))
     v = next(v for v in dispatched(env, REPORT, "review") if v["verifier"] == "verification")
     assert v["reads"][-1].endswith("cg/lenses/verification.md")
+    # Gate rerun 25: the verifier kept the data closed, as worker.md says, since the kickoff named no decision of the
+    # human for the data the checks read. The plan's approval with its data register is that decision (review of #232).
+    assert "the human approved the plan with that register" in v["kickoff"] and "Open no data file yourself" in v["kickoff"]
+    assert "holds for that line alone" in (CG / "verifier.md").read_text(encoding="utf-8")
     line = v["kickoff"].split("Every check of the plan, rerun by code: ")[1].splitlines()[0]
     words = shlex.split(line.replace("\\", "/"))
     assert words[-2:] == ["--project", project.as_posix()] and "<" not in line, line
@@ -98,6 +102,7 @@ def test_the_rerun_needs_a_plan_runs_nothing_past_a_stop_and_can_take_one_check(
     project = start(env)
     assert env["cg"]("tier", *ALL_NO, *SLICE)[0] == 0
     assert "rerun by code: none at this stage" in dispatched(env, PLAN, "plan")[0]["kickoff"]
+    assert "approved the plan with that register" not in dispatched(env, PLAN, "plan")[0]["kickoff"]
     code, out, record, _ = rerun(env, WORK)
     rows = [where(project, {"file": PLAN, "text": f"| {cid} |"}) for cid in ("C1", "C2")]
     assert record["exits"] == [0, 3] and [(f["rule"], f["where"]) for f in record["findings"]] == [
@@ -115,6 +120,7 @@ def test_the_rerun_needs_a_plan_runs_nothing_past_a_stop_and_can_take_one_check(
     code, out, _, _ = rerun(env, quick)
     assert code == 1 and "names no plan" in out, out
     assert "rerun by code: none: no plan declares a check" in dispatched(env, quick, "review")[0]["kickoff"]
+    assert "approved the plan with that register" not in dispatched(env, quick, "review")[0]["kickoff"]
     assert not list((project / ".cg-docs" / "evidence" / "2026-11-26-quick").glob("*-rerun.json"))
 
 

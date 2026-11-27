@@ -117,6 +117,32 @@ def test_the_human_triages_each_finding_and_zero_findings_is_a_valid_result(env)
     assert not any(REPORT in item for item in json.loads(env["cg"]("status", "--json")[1])["waiting-on-human"])
 
 
+def test_review_of_2_9_a_priority_is_the_one_its_fix_follows_and_a_reply_decides_only_what_it_settles(env):
+    """Review of task 2.9 (#232). A fix that cites a principle in brackets, "(P1; fix: compute it with code (P3))", gave
+    the finding P3, the last bracket, in place of the P1 its verifier wrote. A reason that is a condition, a no or a
+    decision on another finding was recorded as an accept, and the review was done. A dropped work report, which
+    the human ended, still waited on them in status, and a fix on it said the work went back."""
+    project = working(env)
+    for text, level in ((f"{CODE}:1: typed in (P1; fix: compute it with code (P3))", "P1"),
+                        (f"{CODE}:1: typed in (P2; fix: see (P0) in the README)", "P2"),
+                        (f"{CODE}:1: breaks (P3) here (P1; fix: compute it)", "P1"),
+                        (f"{CODE}:1: typed in (P1 - fix: compute it)", "P1")):
+        assert give(env, REPORT, "review", "determinism", "FLAG", "independent", "--finding", text)[0] == 0, text
+        assert held(env, REPORT)[-1]["findings"][0]["priority"] == level, text
+    review(env)
+    for reply in ("F2 accept: if the team agrees", "F2 accept: unless the team objects", "F2 aceptar: si el equipo lo "
+                  "aprueba", "F2 accept: only when the team agrees", "F2 accept: not now", "F2 accept: no",
+                  "F2 accept: later", "F2 accept: F3 drop is fine", "F1 fix; F2 accept: F4 drop"):
+        code, out = env["cg"]("route", REPORT, "--reply", reply)
+        assert code == 1 and "refused" in out and not answered(env), (reply, out)
+    code, out = env["cg"]("route", REPORT, "--reply", "F2 accept: not used by any output the team reads")
+    assert code == 0 and answered(env)[-1]["decisions"][0]["reason"].startswith("not used"), out
+    fill(project / REPORT, "dropped")
+    assert not any(REPORT in item for item in json.loads(env["cg"]("status", "--json")[1])["waiting-on-human"])
+    code, out = env["cg"]("route", REPORT, "--reply", "F1 fix")
+    assert code == 1 and "dropped" in out and len(answered(env)) == 1, out
+
+
 # ---------------------------------------------------------------- the text
 
 def test_the_review_playbook_dispatches_the_review_shows_both_parts_and_ends_in_the_humans_decision(env):
