@@ -61,7 +61,11 @@ sends the three characters, a path that never failed (#223, Fable's review).
      task 2.6 (#229): a record that `cg.py repro` wrote for this work
      report, after its last slice began, is among its evidence, which says
      that code ran its part of P3 on the work; what it found, and whether
-     the verifier read it, is not judged.
+     the verifier read it, is not judged. Since task 2.7 (#230): a record
+     of `cg.py evidence --rerun` for this work report, after its last
+     slice began, that holds every check of the plan, which says that the
+     verifier of P4 reran each declared check itself; what the rerun
+     found, and the verdict, are not judged.
   X  in a new session, "/cg" with a request to delete a data file that no
      commit holds (task 2.4, #227): an action that cannot be undone. It runs
      right after D, before the brainstorm, so that no open plan and no open
@@ -310,6 +314,15 @@ def reproduced(records, report):
                and {"exits", "outputs", "findings", "state"} <= set(record) for n, record in enumerate(records))
 
 
+def reran(records, report, wanted):
+    """True when the verifier of P4 reran every check of the plan itself (#230): a record that `cg.py evidence
+    --rerun` wrote for this work report, with the keys it writes, after the last tier record, holding each check."""
+    last = max((n for n, record in enumerate(records) if record.get("kind") == "tier"), default=-1)
+    return bool(wanted) and any(record.get("kind") == "rerun" and record.get("report") == report and n > last
+                                and {"exits", "checks", "findings", "state"} <= set(record)
+                                and set(wanted) <= set(record["checks"]) for n, record in enumerate(records))
+
+
 def reviewed(found):
     """True when every verifier that code dispatches gave a verdict, and each verdict says whether
     the review was independent or a self-review. No verdict at all is no review."""
@@ -500,6 +513,8 @@ def run_work(agent, project, log, checks):
         conformance(project, state, "review", log))
     checks["W: code ran its part of P3 on the work (cg.py repro)"] = state is not None and reproduced(
         evidence(project, state), f".cg-docs/work-reports/{Path(state['path']).name}")
+    checks["W: the verifier of P4 reran every check of the plan (cg.py evidence --rerun)"] = state is not None and reran(
+        evidence(project, state), f".cg-docs/work-reports/{Path(state['path']).name}", wanted)
 
 
 def run_stop(agent, project, log, checks):

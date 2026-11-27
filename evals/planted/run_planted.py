@@ -37,6 +37,9 @@ import run_cli_gate as gate  # noqa: E402  (its Agent and its turn, and the tool
 
 REPORT = ".cg-docs/work-reports/2026-11-27-poverty-brief.md"
 PLAN = ".cg-docs/plans/2026-11-27-poverty-brief.md"
+INTENT = ".cg-docs/brainstorms/2026-11-27-poverty-brief.md"
+PLACES = {"@plan": PLAN, "@report": REPORT, "@profile": ".cg-docs/verification.md"}  # where a case may show
+RISK = "repro runs the pipeline twice and writes over the outputs, which no commit holds."
 ASKED = "Add the bootstrap interval of the headcount ratio and the table by region to the poverty brief."
 NO = [arg for fact in ("number", "personal", "irreversible", "interface", "choice", "no-check")
       for arg in ("--fact", f"{fact}=no")]
@@ -49,24 +52,74 @@ def run_cg(cg, project, *args):
 
 
 def build(folder: Path, project: Path, cg, cases):
-    """The planted project as the work leaves it, before its verifiers start."""
+    """The planted project as the work leaves it, before its verifiers start. With "intent" in the cases, the work
+    is on a plan the human approved: its intent and the plan are approved, and each step of "work" starts its slice,
+    puts back what "earlier" says the files held then, runs the Run command and records the slice's checks. With
+    "report", that file is the body of the work report. With "repro", the human's yes to writing over the outputs
+    that no commit holds is on record (stop rule 1 of the work playbook), and `cg.py repro` runs."""
+    def cg_ok(*args):
+        code, out = run_cg(cg, project, *args)
+        if code and args[0] != "evidence":  # a check may fail, as the work left it
+            raise SystemExit(f"cg.py {args[0]} failed on {project}:\n{out}")
+        return out
+    python = "python" if os.name == "nt" else "python3"  # a path to the interpreter would be a finding of its own
     shutil.copytree(folder / "project", project)
     (project / ".cg-docs" / "plans").mkdir(parents=True)
-    python = "python" if os.name == "nt" else "python3"  # a path to the interpreter would be a finding of its own
-    profile = (folder / "verification.md").read_text(encoding="utf-8").replace("\npython ", f"\n{python} ")
-    (project / ".cg-docs" / "verification.md").write_text(profile, encoding="utf-8")
+    for name, place in (("verification.md", PLACES["@profile"]), ("plan.md", PLAN), (cases.get("intent"), INTENT)):
+        if name:  # each command of the profile and of the plan runs with the interpreter this machine has
+            text = (folder / name).read_text(encoding="utf-8").replace("python ", f"{python} ")
+            text = text.replace("status: draft\n", f"status: draft\nintent: {INTENT}\n") if place == PLAN and \
+                cases.get("intent") else text
+            (project / place).parent.mkdir(parents=True, exist_ok=True)
+            (project / place).write_text(text, encoding="utf-8")
     (project / ".cg-docs" / "config.json").write_text(json.dumps({"packs": ["core"], "data": cases.get("data", {})}))
-    shutil.copy(folder / "plan.md", project / PLAN)
-    subprocess.run(["git", "init", "-q", str(project)], check=True, capture_output=True)
-    for args in (("new", "work-report", "Poverty brief", "--date", "2026-11-27"),
-                 ("tier", *NO, "--touches", "pipeline.py", "--reads", "none", "--report", REPORT)):
-        code, out = run_cg(cg, project, *args)
-        if code:
-            raise SystemExit(f"cg.py {args[0]} failed on {project}:\n{out}")
-    report = project / REPORT
-    report.write_text(re.sub(r"(## Asked\n\n)<[^<>]+>", lambda m: m.group(1) + ASKED, report.read_text(encoding="utf-8")),
+    for args in (["init", "-q"], ["config", "user.name", "Planted case"], ["config", "user.email", "planted@example.org"]):
+        subprocess.run(["git", "-C", str(project), *args], check=True, capture_output=True)
+    if cases.get("intent"):
+        cg_ok("approve", INTENT, "--reply", "Yes.")
+        cg_ok("approve", PLAN, "--reply", "Yes.")
+    cg_ok("new", "work-report", "Poverty brief", "--date", "2026-11-27", *(["--plan", PLAN] * bool(cases.get("intent"))))
+    report, run = project / REPORT, re.search(r"^```\n(.+)\n```", (project / PLACES["@profile"]).read_text(
+        encoding="utf-8"), re.M).group(1)
+    text = report.read_text(encoding="utf-8")
+    report.write_text(text[:text.index("\n---\n", 4) + 5] + "\n" + (folder / cases["report"]).read_text(encoding="utf-8")
+                      if cases.get("report") else re.sub(r"(## Asked\n\n)<[^<>]+>", lambda m: m.group(1) + ASKED, text),
                       encoding="utf-8")
-    print(run_cg(cg, project, "repro", "--report", REPORT)[1].splitlines()[-1])  # the line that names its record
+    if not cases.get("work"):
+        cg_ok("tier", *NO, "--touches", "pipeline.py", "--reads", "none", "--report", REPORT)
+    for step in cases.get("work", []):  # each slice as the work did it, on the files as they were then
+        kept = {name: (project / name).read_text(encoding="utf-8") for name in step.get("earlier", {})}
+        for name, (now, then) in step.get("earlier", {}).items():
+            (project / name).write_text(kept[name].replace(now, then), encoding="utf-8")
+        cg_ok("tier", *NO, "--slice", step["slice"], "--reads", "none", "--report", REPORT)
+        subprocess.run(run, shell=True, cwd=project, capture_output=True)
+        for check in step["checks"]:
+            cg_ok("evidence", check, "--report", REPORT)
+        for name, text in kept.items():
+            (project / name).write_text(text, encoding="utf-8")
+    if cases.get("repro"):  # the runs write over typed outputs that no commit holds: the human's yes first
+        cg_ok("tier", *[arg.replace("irreversible=no", "irreversible=yes") for arg in NO], "--touches", "pipeline.py",
+              "--reads", "none", "--report", REPORT)
+        text = report.read_text(encoding="utf-8")
+        report.write_text(re.sub(r"(## Risk\n\n)<[^<>]+>", lambda m: m.group(1) + RISK, text), encoding="utf-8")
+        cg_ok("approve", REPORT, "--reply", "Yes.")
+        print(run_cg(cg, project, "repro", "--report", REPORT)[1].splitlines()[-1])  # the line that names its record
+
+
+def records(project: Path):
+    """The names of the records code wrote for the work report so far."""
+    return {path.name for path in (project / ".cg-docs" / "evidence" / Path(REPORT).stem).glob("*.json")}
+
+
+def reran(project: Path, known) -> bool:
+    """True when a record of a rerun that is not among known holds every check of the plan: the verifier reran
+    each declared check itself (#230)."""
+    wanted = set(re.findall(r"^\|\s*(C\d+)\s*\|", (project / PLAN).read_text(encoding="utf-8"), re.M))
+    for name in records(project) - set(known):
+        record = json.loads((project / ".cg-docs" / "evidence" / Path(REPORT).stem / name).read_text(encoding="utf-8"))
+        if record.get("kind") == "rerun" and wanted and wanted <= set(record.get("checks") or {}):
+            return True
+    return False
 
 
 def kickoff(cg, project, artifact, stage, verifier):
@@ -89,7 +142,7 @@ def judge(project: Path, cases, reply: str, plan=PLAN):
               "each finding proposes the code that replaces it": bool(found) and all("fix:" in f[3] for f in found)}
     options, owner = {}, {}
     for case in cases:
-        name, line = plan if case["file"] == "@plan" else case["file"], 0
+        name, line = {**PLACES, "@plan": plan}.get(case["file"], case["file"]), 0
         if "text" in case:
             lines = (project / name).read_text(encoding="utf-8").splitlines()
             line = next(number for number, text in enumerate(lines, 1) if case["text"] in text)
@@ -125,7 +178,7 @@ def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--verifier", default="determinism", help="a folder beside this script")
     parser.add_argument("--only", default="claude,codex,kilo")
-    parser.add_argument("--stages", default="review,plan")
+    parser.add_argument("--stages", default="", help="by default the stages that <verifier>/expected.json holds")
     parser.add_argument("--dest", default=str(Path.home() / "temp" / "cg-lens"))
     parser.add_argument("--out", default="")
     parser.add_argument("--kilo-model", default="")
@@ -148,7 +201,7 @@ def main(argv=None) -> int:
             continue
         build(folder, project, cg, cases)
         log, results[name] = [], {}
-        for stage in [s.strip() for s in args.stages.split(",") if s.strip()]:
+        for stage in [s.strip() for s in args.stages.split(",") if s.strip()] or [s for s in ("review", "plan") if s in cases]:
             text, agent = kickoff(cg, project, PLAN if stage == "plan" else REPORT, stage, cases["verifier"]), \
                 gate.Agent(name, program, args.kilo_model)
             if text is None or args.dry_run:
@@ -156,9 +209,11 @@ def main(argv=None) -> int:
                       f"{agent.command('<the kickoff above>', True)}\n")
                 results[name][f"{stage}: code dispatches {cases['verifier']}"] = text is not None
                 continue
-            before = state(project)
+            before, known = state(project), records(project)
             checks = judge(project, cases[stage], gate.turn(agent, project, text, True, log, f"{stage} stage"))
             checks["the verifier changed no file of the project"] = state(project) == before
+            if cases.get("reruns") and stage == "review":
+                checks["the verifier reran every check of the plan itself"] = reran(project, known)
             results[name].update({f"{stage}: {key}": ok for key, ok in checks.items()})
         out.mkdir(parents=True, exist_ok=True)
         (out / f"{name}-transcript.md").write_text(gate.sanitize("\n".join(log), project), encoding="utf-8")
