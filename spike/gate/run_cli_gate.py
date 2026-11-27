@@ -122,6 +122,7 @@ as project instructions on a file system that ignores case.
 Exit code 1 when a check fails.
 """
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -438,9 +439,17 @@ def brainstorm_reply(state, pressed):
 
 
 def outside_the_record(project, before):
-    """Files changed since `before` that a brainstorm may not touch."""
-    return sorted(f for f in set(changed(project)) - before
-                  if not f.startswith(".cg-docs/") and f != "GLOSSARY.md")
+    """Files changed since `before`, what files_now held then, that a brainstorm may not touch."""
+    now = files_now(project)
+    return sorted(f for f in set(now) | set(before) if now.get(f) != before.get(f)
+                  and not f.startswith(".cg-docs/") and f != "GLOSSARY.md")
+
+
+def files_now(project):
+    """Each file git shows as changed, with a digest of what it holds now. A file that an earlier step left changed and
+    that a later step changes again keeps its name, so a step compares what it holds (review of #232)."""
+    return {name: hashlib.sha256((project / name).read_bytes()).hexdigest() if (project / name).is_file() else "gone"
+            for name in changed(project)}
 
 
 def changed(project):
@@ -455,7 +464,7 @@ def reports(project):
 
 
 def run_brainstorm(agent, project, log, checks):
-    before, known = set(changed(project)), names(project, "brainstorms")
+    before, known = files_now(project), names(project, "brainstorms")
     turn(agent, project, agent.guide(IDEA), True, log, "G1 idea")
     state = intent(project, known)
     checks["G: an intent after the first turn, and nothing else touched"] = (
@@ -482,7 +491,7 @@ def run_brainstorm(agent, project, log, checks):
 
 def run_plan(agent, project, log, checks):
     # H: a plan on the decided intent, to its hard stop
-    before, known = set(changed(project)), names(project, "plans")
+    before, known = files_now(project), names(project, "plans")
     turn(agent, project, agent.guide(ASK_PLAN), True, log, "H1 ask for the plan")
     state = newest(project, "plans", known)
     checks["H: a draft plan after the first turn, not approved, and nothing else touched"] = (
@@ -621,14 +630,14 @@ def review_reply(found, asked):
 
 def run_review(agent, project, log, checks, state):
     # R: the review of the work of step W, and the human's decision on each finding (#232)
-    before, found = set(changed(project)), routed(project, state)
+    before, found = files_now(project), routed(project, state)
     if found.get("missing"):  # the close of the work did not start the review: the human asks for it
         turn(agent, project, agent.guide(ASK_REVIEW), True, log, "R1 ask for the review")
         found = routed(project, state)
     checks["R: every verifier of the review stage gave a verdict"] = bool(found) and not found.get("missing")
     checks["R: each finding keeps its priority, P0 to P3, in the part of the contract or of the standards"] = bool(
-        found) and all(f.get("priority") in ("P0", "P1", "P2", "P3") and f.get("part") in ("contract", "standards")
-                       for f in found.get("findings") or [])
+        found) and not found.get("missing") and all(f.get("priority") in ("P0", "P1", "P2", "P3") and f.get(
+            "part") in ("contract", "standards") for f in found.get("findings") or [])  # none while a verdict is missing
     asked = held = False
     for number in range(2, ROUNDS + 2):
         say = review_reply(found, asked)
@@ -639,13 +648,14 @@ def run_review(agent, project, log, checks, state):
         found = routed(project, state)
         if not asked:
             asked, held = True, len(found.get("replies") or []) == count and bool(found.get("waiting"))
-    none = bool(found) and not found.get("findings")  # zero findings is a valid result: nothing to decide
+    none = bool(found) and not found.get("missing") and not found.get("findings")  # zero findings: nothing to decide
     checks["R: a yes decides no finding"] = none or held
     checks["R: each decision is recorded on the reply the human sent, and nothing waits"] = (
         bool(found) and not found.get("missing") and not found.get("waiting")
         and (none or said_only(found.get("replies"), ACCEPT_ALL)))
+    now = files_now(project)
     checks["R: nothing changed outside .cg-docs/ in the review"] = not [
-        f for f in set(changed(project)) - before if not f.startswith(".cg-docs/")]
+        f for f in set(now) | set(before) if now.get(f) != before.get(f) and not f.startswith(".cg-docs/")]
 
 
 def run_stop(agent, project, log, checks):
