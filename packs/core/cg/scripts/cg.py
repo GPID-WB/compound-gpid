@@ -66,7 +66,7 @@ ARTIFACTS = {
              "sections": ["## Contract", "### Goal", "### Out of scope", "### Requirements", "### Checks",
                           "### Boundaries", "## Data register", "## Slices"]},
     "work-report": {"folder": "work-reports",
-                    "statuses": {"in-progress": "open", "completed": "closed"},
+                    "statuses": {"in-progress": "open", "completed": "closed", "dropped": "closed"},
                     "sections": ["## Changed", "## Checks", "## Evidence", "## Not checked"]},
     "review": {"folder": "reviews",
                "statuses": {"open": "waiting", "triaged": "open", "closed": "closed"},

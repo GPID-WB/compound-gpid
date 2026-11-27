@@ -75,11 +75,13 @@ Each rule below stops the work, whatever the plan says and however far the work 
 
    `"<python>" "<cg>" approve "<the work report>" --reply "<the human's reply, word for word>" --project "<project root>"`
 
-   If it prints `refused`, nothing was recorded and the action does not happen: the reason says what to ask next. Until a yes is recorded, code runs no check for this work. The yes covers that one action, and the next one stops again.
+   If it prints `refused`, nothing was recorded and the action does not happen: the reason says what to ask next. When the human said no, the action does not happen, and you do not ask for it again. Ask whether the work goes on without it or ends here. Going on without an action that the plan names is rule 3. Ending is the last paragraph of this section. Until a yes is recorded, code runs no check for this work. The yes covers that one action, and the next one stops again.
 2. **A check that will not pass.** After two attempts to fix the code, stop. Say what you tried, what the check printed, and where you think the fault is.
 3. **The plan has to change.** The slice needs a file it does not list, a check or its tolerance is wrong, a requirement cannot be met as written, or the work needs a decision the plan does not hold. Say what and why, and end your turn. The human decides, and `/cg plan` writes the amendment they approve. Code runs no check of a plan that was changed without it.
 4. **Ask first.** Whatever the plan's Ask first list names, each time it comes up.
 5. **A finding of `guard` that the plan asks for,** such as a test that goes with the code it tested. Show it, and let the human decide. Write their answer under "Not checked".
+
+**Work that will not be finished.** When the human says that the work is not to be finished, set `status: dropped` in the work report. Write under "Not checked" which slices are done, what was left, and that the human ended the work, in their words. Leave the rest of the file as it is. Code then counts the work report as closed and asks it for no evidence, status no longer shows it as open or as waiting, and a new work report can start on the plan. When the human says that the plan is dropped too, set its status to `dropped` as well, and leave its text. Never set it on your own: work that nobody ended stays `in-progress`.
 
 ## 6. Close
 

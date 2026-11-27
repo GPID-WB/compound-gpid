@@ -13,7 +13,7 @@ Work on an approved plan is not quick work: `playbooks/work.md` takes a plan sli
 
 Say in one or two sentences what the human asked for and the smallest change that meets it (P6). Name what you will leave alone. If the request can be read two ways, ask which is meant. Do not pick one.
 
-If status shows an open work report under `active`, read it first. When the request is that work, continue in that file. When it is other work, name what is open in one line, leave it as it is, and go on with the request. Open work of another request does not hold this one back: not an open work report, and not a draft or a stop of other work that status lists under `waiting-on-human`. If the human gave no request and nothing is open, ask what they want done and end your turn.
+If status shows an open work report under `active`, read it first. When the request is that work, continue in that file. When it is other work, name what is open in one line, leave it as it is, and go on with the request. Open work of another request does not hold this one back: not an open work report, and not a draft or a stop of other work that status lists under `waiting-on-human`. When the human says that open work is not to be finished, close it as step 5 says. If the human gave no request and nothing is open, ask what they want done and end your turn.
 
 When the request is a slice of an approved plan, or work that an approved plan describes, this playbook does not do it: run the status line again with `--playbook work` added, and follow the playbook it names.
 
@@ -52,7 +52,7 @@ Code writes what the line prints into a record of the work report, so copy none 
 
 `"<python>" "<cg>" approve "<the work report>" --reply "<the human's reply, word for word>" --project "<project root>"`
 
-If it prints `refused`, nothing was recorded and nothing changes. The reason says what kind of reply it was and what to ask next. A stop holds for the facts and the files you gave `tier`: when you run `tier` again and it is still elevated, the stop is a new one.
+If it prints `refused`, nothing was recorded and nothing changes. The reason says what kind of reply it was and what to ask next. When the human said no and asks for no change, that is their answer: do not ask again, and close the work as step 5 says. A stop holds for the facts and the files you gave `tier`: when you run `tier` again and it is still elevated, the stop is a new one.
 
 **When the human answers a data question,** here or later in the work, record the answer before you go on, so that no later session asks again. Show the line, then run it:
 
@@ -100,6 +100,8 @@ Once the decision is recorded, run `tier` again. Its `data` line names the decis
 Fill every section of the work report. Code holds the commands, the exit codes, the verdicts and the digests, and the report holds what code cannot record. Neither ever holds data.
 
 Set `status: completed` when every check you named for this change, in step 2 or in the contract, ran through `evidence` and is verified. With no verified check, the work is not completed, and code fails a report that says it is. Otherwise leave `status: in-progress` and say so in the reply, so that status keeps showing the work as open.
+
+**Work that will not be finished.** When the human says that the work is not to be finished, or says no at the hard stop and asks for no change, set `status: dropped` in the work report. Write under "Not checked" which files were changed and left as they are, what was not done, and that the human ended the work, in their words. Leave the rest of the file as it is. Code then counts the work as closed and asks it for no evidence, and status no longer shows it as open or as waiting. Never set it on your own: work that nobody ended stays `in-progress`.
 
 Then have code check the record:
 
