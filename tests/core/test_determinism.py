@@ -218,3 +218,18 @@ def test_the_lens_says_what_code_found_what_is_judged_and_the_code_each_flag_pro
     p3 = (CG / "principles" / "P03-deterministic-by-default.md").read_text(encoding="utf-8")
     assert "the record of `cg.py repro`" in p3.split("## Verifier")[1] and "`cg.py repro`" in p3.split("## Deter")[1]
     assert list((HUB / "docs" / "adr").glob("0009-*.md")) and "determinism" in (HUB / "README.md").read_text()
+
+
+def test_review_of_2_6_the_texts_say_what_repro_writes_over_and_what_a_cache_a_function_or_a_data_rule_changes():
+    """Review of #229: the work playbook did not say that repro writes over an output typed by hand, or that it
+    takes two runs; the lens did not say that a cache writes nothing up to date, that a seed in a function seeds
+    no draw outside it, or how to point at data its rule keeps outside the project, and its `uv lock` fails with no
+    pyproject.toml; a plan's rule for a check said "loads the code it tests itself"."""
+    lens = (CG / "lenses" / "determinism.md").read_text(encoding="utf-8")
+    assert all(words in lens for words in ("keeps a cache", "inside a function", "`uv init --bare`", "Sys.getenv"))
+    close = (CG / "playbooks" / "work.md").read_text(encoding="utf-8").split("## 6. Close")[1]
+    assert "written over, and only a commit keeps what it held" in close and "never start it again" in close
+    assert "the command itself loads the code it tests" in (CG / "playbooks" / "plan.md").read_text(encoding="utf-8")
+    assert "Sys.getenv" in next(rule[-1] for rule in load_cg().DETERMINISM if rule[0] == "home-path")
+    assert "a block of more than one such line" in (HUB / "docs" / "adr" / "0009-determinism.md").read_text()
+    assert "a finding of its own" in (HUB / "evals" / "planted" / "README.md").read_text(encoding="utf-8")
