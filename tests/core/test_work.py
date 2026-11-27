@@ -11,6 +11,7 @@ import hashlib
 import json
 import re
 import shlex
+import shutil
 import subprocess
 import sys
 
@@ -325,6 +326,139 @@ def test_quick_work_stops_at_any_reason_and_its_record_is_the_evidence(env):
     assert "\nstop: none\n" in env["cg"]("tier", *ALL_NO, *QUICK)[1]
     code, out = env["cg"]("approve", REPORT, "--reply", "Yes.")
     assert code == 0 and "nothing stops this work" in out and len(list((project / ".cg-docs" / "approvals").glob("2026-11-26-*"))) == 1
+
+
+# ---------------------------------------------------------------- the review of task 2.4
+
+def test_completion_counts_a_run_only_under_its_own_plan_and_the_command_it_declares(env):
+    """Review of #227, finding 1. With the work report pointed at another approved plan for one
+    run, a check that never passed under its own plan counted for completion."""
+    project = start(env)
+    other = ".cg-docs/plans/2026-11-25-other.md"
+    env["put"]("plan", front("plan", "draft") + BODY.replace("check2.py", "check1.py"), "2026-11-25-other.md")
+    assert env["cg"]("approve", other, "--reply", "Yes.")[0] == 0
+    assert env["cg"]("tier", *ALL_NO, *SLICE)[0] == 0
+    report = project / REPORT
+    text = report.read_text()
+    report.write_text(text.replace(f"plan: {PLAN}", f"plan: {other}"))
+    assert env["cg"]("evidence", "C2", "--report", REPORT)[0] == 0  # check1.py, the other plan's C2
+    report.write_text(text)
+    assert env["cg"]("evidence", "C1", "--report", REPORT)[0] == 0
+    fill(report, status="completed")
+    code, out = env["cg"]("validate", REPORT)
+    assert code == 1 and "check C2 of the plan has no verified evidence" in out, out
+
+
+def test_a_check_runs_only_a_command_cell_that_holds_one_text_in_backticks(env):
+    """Review of #227, finding 2. Code ran the first text in backticks, `cd tests` or a file name
+    in gate rerun 17's plans, or a whole cell of prose; and a \\| that the table shows as | was
+    run with its backslash."""
+    project = start(env, report=False)
+    plan, cg = project / PLAN, load_cg()
+    approved = plan.read_text()
+    for cell in (f"Run `cd tests`, then `{PY} check2.py`", f"{PY} check2.py, then compare the share"):
+        plan.write_text(approved.replace(f"`{PY} check2.py`", cell).replace("status: approved", "status: draft"))
+        code, out = env["cg"]("validate", PLAN)
+        assert code == 1 and "check C2: its command is not one text in backticks" in out, out
+    assert cg.command_of("`a \\| b` (the table shows a | b)") == "a | b" and cg.command_of("`a` and `b`") is None
+    assert cg.command_of("`Rscript tests/run.R`, from the root") == "Rscript tests/run.R"
+
+
+def test_a_data_file_that_is_not_cleared_is_read_only_on_the_humans_decision_on_data(env):
+    """Review of #227, finding 3. In quick work a yes to the contract answered a stop whose reason
+    was a data file that is not cleared, and no decision on data was recorded. On a plan, such a
+    file stopped nothing, also when the plan's data register does not list it."""
+    project = start(env)
+    env["config"](data={"inst/extdata/survey.csv": "Confidential", "data/secret.csv": "Confidential"})
+    reads = ["--agent", "Claude Code", "--report", REPORT]
+    out = env["cg"]("tier", *ALL_NO, "--slice", "S1", "--reads", "inst/extdata/survey.csv", *reads)[1]
+    assert "reasons: data: inst/extdata/survey.csv" in out and "\nstop: none\n" in out, out  # the register lists it
+    out = env["cg"]("tier", *ALL_NO, "--slice", "S1", "--reads", "data/secret.csv", *reads)[1]
+    assert "\nstop: data: data/secret.csv" in out, out  # the register does not
+    quick = ".cg-docs/work-reports/2026-11-27-label.md"
+    assert env["cg"]("new", "work-report", "Label", "--date", "2026-11-27")[0] == 0
+    out = env["cg"]("tier", *ALL_NO, "--touches", CODE, "--reads", "data/secret.csv", *reads[:2], "--report", quick)[1]
+    fill(project / quick, risk="Goal: a weighted share. Check: the share is 0.153846.")
+    code, out = env["cg"]("approve", quick, "--reply", "Yes.")
+    assert code == 1 and "approve --reads" in out and not held(env, "x"), out
+    assert env["cg"]("approve", "--reads", "data/secret.csv", "--agent", "Claude Code", "--reply", "Yes.")[0] == 0
+    out = env["cg"]("tier", *ALL_NO, "--touches", CODE, "--reads", "data/secret.csv", *reads[:2], "--report", quick)[1]
+    assert "\nstop: none\n" in out, out
+
+
+def test_guard_holds_a_slice_to_the_commit_it_began_on_and_runs_before_the_first_commit(env):
+    """Review of #227, finding 4. A commit in the slice hid a deleted test and a file outside the
+    slice from guard, and in a repository with no commit guard could never print clean."""
+    project = start(env)
+    assert env["cg"]("tier", *ALL_NO, *SLICE)[0] == 0
+    (project / CODE).write_text(FIXED)
+    (project / "R" / "other.R").write_text("other <- 1\n")
+    (project / TEST).unlink()
+    git(project, "add", "-A")
+    git(project, "commit", "-q", "-m", "the slice")
+    for check in ("C1", "C2"):
+        assert env["cg"]("evidence", check, "--report", REPORT)[0] == 0
+    code, out = env["cg"]("guard", "--report", REPORT)
+    assert code == 1 and f"FAIL test-deleted: {TEST}" in out and "FAIL outside: R/other.R" in out, out
+    assert "no-evidence" not in out, out
+    shutil.rmtree(project / ".git")
+    git(project, "init", "-q")
+    assert env["cg"]("guard") == (0, "guard: clean\n")
+
+
+MISSED = [  # the file, what it held, what it holds now: each lowers the bar, and guard missed it
+    ("tests/testthat/test-a.R", 'test_that("w", {\n  expect_equal(f(1), 2)\n})\n',
+     '# test_that("w", {\n#   expect_equal(f(1), 2)\n# })\n'),
+    ("tests/testthat/test-a.R", 'test_that("w", {\n  expect_equal(f(1), 2)\n})\n',
+     'if (FALSE) test_that("w", {\n  expect_equal(f(1), 2)\n})\n'),
+    ("tests/testthat.R", 'library(testthat)\ntest_check("pkg")\n', "library(testthat)\n"),
+    ("tests/test_a.py", "def test_a():\n    assert f(1) == 2\n", "def test_a():\n    # assert f(1) == 2\n    pass\n"),
+    ("tests/test_a.py", "def test_a(self):\n    assert f(1) == 2\n", "def test_a(self):\n    self.skipTest('x')\n    assert f(1) == 2\n"),
+    ("tests/test_a.py", "def test_a():\n    assert f(1) == 2\n", "@unittest.skipIf(True, 'x')\ndef test_a():\n    assert f(1) == 2\n"),
+    ("tests/test_a.py", "def test_a():\n    assert f(1) == 2\n", "np = pytest.importorskip('np')\ndef test_a():\n    assert f(1) == 2\n"),
+    ("src/a.py", "def f(x):\n    check(x)\n", "def f(x):\n    try:\n        check(x)\n    except Exception:\n        pass\n"),
+    ("src/a.py", "x = 1\n", "x = 1  # pylint: disable=all\n"),
+    ("src/a.py", "def f():\n    g()\n", "def f():\n    with contextlib.suppress(Exception):\n        g()\n"),
+    ("pyproject.toml", "[tool.pytest.ini_options]\n", '[tool.pytest.ini_options]\naddopts = "--ignore=tests/test_a.py"\n'),
+    ("R/a.R", "f <- function(x) stopifnot(x > 0)\n", "f <- function(x) tryCatch(stopifnot(x > 0), error = function(e) NULL)\n"),
+    ("tests/test_a.do", "assert w > 0\n", "capture assert w > 0\n"),
+    ("do/clean.do", "assert w > 0\n", "cap noi assert w > 0\n"),
+    ("tests/test_a.do", "assert w > 0\nassert y > 0\n", "assert w > 0\n* assert y > 0\n"),
+    ("tests/run.sh", "set -e\nRscript t.R\n", "set +e\nRscript t.R\n"),
+    ("src/a.ts", "let x = 1\n", "// @ts-expect-error\nlet x = 1\n"),
+]
+
+
+def test_guard_sees_a_test_commented_out_a_skip_by_condition_and_a_silenced_error(env):
+    """Review of #227, finding 5: each change in MISSED lowers the bar in R, Python, Stata or the
+    shell, and guard printed clean. suppressMessages() around library() silences no warning or
+    error, and guard failed it."""
+    project = env["project"]
+    git(project, "init", "-q")
+    for name, old, new in MISSED + [("R/load.R", "f <- 1\n", "suppressMessages(library(data.table))\nf <- 1\n")]:
+        shutil.rmtree(project / ".git")
+        for path in [p for p in project.rglob("*") if p.is_file() and ".cg-docs" not in p.parts]:
+            path.unlink()
+        (project / name).parent.mkdir(parents=True, exist_ok=True)
+        (project / name).write_text(old)
+        git(project, "init", "-q")
+        git(project, "add", "-A")
+        git(project, "commit", "-q", "-m", "base")
+        (project / name).write_text(new)
+        code, out = env["cg"]("guard")
+        assert (code == 1) == (name != "R/load.R"), (name, new, out)
+
+
+def test_the_tier_record_names_no_file_the_work_does_not_declare(env):
+    """Review of #227, finding 6. The tier record kept the name of every file that had changed or
+    that no commit holds, a data file named after a person among them, and is committed."""
+    project = start(env)
+    (project / "data" / "interviews").mkdir(parents=True)
+    (project / "data" / "interviews" / "jane_roe.csv").write_text("id,answer\n1,42\n")
+    assert env["cg"]("tier", *ALL_NO, *SLICE)[0] == 0
+    assert "jane_roe" not in json.dumps(held(env, "tier"))
+    (project / "data" / "interviews" / "jane_roe.csv").write_text("id,answer\n1,43\n")
+    assert "FAIL outside: data/interviews/jane_roe.csv" in env["cg"]("guard", "--report", REPORT)[1]
 
 
 # ---------------------------------------------------------------- the texts
