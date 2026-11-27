@@ -22,21 +22,21 @@ This repository has no build step: the packs are written, not generated.
 One command that only reads, and shows the environment is fit to run (package versions, data vintage present, credentials valid):
 
 ```
-not found
+python3 packs/core/cg/scripts/cg.py doctor --project .
 ```
 
 ## Outputs map
 
 | Output | Where it lives | What proves it right |
 |---|---|---|
-| The core tooling | `packs/core/cg/scripts/cg.py` | `python3 -m pytest -q tests/core` |
-| The installer and the hub tools | `install.py`, `tools/` | `python3 -m pytest -q tests/hub` |
+| The core tooling | `packs/core/cg/scripts/cg.py` | `uvx --offline pytest -q tests/core` |
+| The installer and the hub tools | `install.py`, `tools/` | `uvx --offline pytest -q tests/hub` |
 | The guide and the playbooks | `packs/core/cg/SKILL.md`, `packs/core/cg/playbooks/` | `python3 spike/gate/run_cli_gate.py --kilo-model openai/gpt-6-luna`: each agent passes every step |
 | The packs and their skills | `packs/` | `python3 tools/validate_pack.py`, `python3 tools/lint_skills.py packs`, `python3 tools/sync_version.py --check` |
 | The wording | every file the glossary covers | `python3 tools/check_glossary.py` |
 | The size of the tooling and the tests | `SCOPE.md` | `python3 tools/check_budgets.py` |
 
-The checks are the ones `CONTRIBUTING.md` lists. CI (`.github/workflows/v2.yml`) runs them on Linux, macOS and Windows.
+The checks are the ones `CONTRIBUTING.md` lists. `uvx --offline` runs pytest from the local cache, since the package index is not always reachable from this machine. CI (`.github/workflows/v2.yml`) runs them on Linux, macOS and Windows.
 
 ## Evidence
 
