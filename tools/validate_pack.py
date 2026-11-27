@@ -11,7 +11,9 @@ Rules
 - `pack.json` has the six keys and no others, with the right types.
 - `skills` lists every skill folder of the pack, and each listed folder exists.
 - Each lens has `id`, `file`, `principle` and `when`; its file exists inside
-  the lead skill; its principle exists among core's principle files.
+  the lead skill; its principle exists among core's principle files; its
+  `when` is file patterns as text, or an object with `files` and optionally
+  `track` (ADR 0003, 2026-11-27).
 - Each track has `track` and `playbook` (and optionally `alias`); the
   playbook exists inside the lead skill.
 - Skill names are unique across every pack validated together.
@@ -125,8 +127,15 @@ def check_contract(pack: Path, principles):
                                 + (" and optionally alias" if key == "tracks" else ""))
             if not inside(lead, entry.get(path_key)):
                 problems.append(f"{where} {path_key} '{entry.get(path_key)}' is not a file inside {lead.name}/")
-            if key == "lenses" and entry.get("principle") not in principles:
+            if key != "lenses":
+                continue
+            if entry.get("principle") not in principles:
                 problems.append(f"{where} principle '{entry.get('principle')}' is not one of core's principles")
+            when = entry.get("when") if isinstance(entry.get("when"), dict) else {"files": entry.get("when")}
+            texts = [when.get("files"), when.get("track", "any")]
+            if not set(when) <= {"files", "track"} or not all(isinstance(text, str) and text.strip() for text in texts):
+                problems.append(f"{where} when must be file patterns as text, such as '*.R, *.Rmd', or an object "
+                                f"with files and optionally track")
     return data, problems
 
 

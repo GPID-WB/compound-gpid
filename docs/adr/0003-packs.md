@@ -39,7 +39,7 @@ Installing a pack copies its skill folders, unchanged, into the folder where the
 | `version` | The pack's version. |
 | `requires-core` | The lowest core version the pack works with. |
 | `skills` | The names of the pack's skill folders. |
-| `lenses` | A list. Each entry: `id`, `file` (path inside the lead skill), `principle` (the principle it serves), `when` (file patterns and, optionally, a track). |
+| `lenses` | A list. Each entry: `id`, `file` (path inside the lead skill), `principle` (the principle it serves), `when` (file patterns and, optionally, a track; its shape is under "Changes", 2026-11-27). |
 | `tracks` | A list. Each entry: `track`, `playbook` (path inside the lead skill), and optionally `alias` (a command name such as `cr`). |
 
 A pack that only carries knowledge, such as a language pack with no lenses, leaves `lenses` and `tracks` empty.
@@ -88,6 +88,7 @@ Another team publishes a pack by keeping it in its own repository, passing `tool
 - 2026-11-24, decided by the maintainer: a project records a pack's settings in `.cg-docs/config.json` under `settings`, keyed by pack name (rule 7 above). No key is added to `pack.json`; a pack's lead skill says which settings it reads and what happens when one is absent.
 
 - 2026-11-25, decided by the maintainer (gate M1, #223): rule 1 gains the lead-skill step. From descriptions alone, Claude Code loaded no `r-*` skill in 15 rerun sessions and Kilo loaded them in 3 of 6 steps that wrote R code. The step is one line in the quick playbook.
+- 2026-11-27, task 2.5 (#228), for the maintainer's acceptance with ADR 0008: the shape of `when`, which this record had left open. It is the file patterns as text, apart by commas or spaces, such as `"*.R, *.Rmd"`; or an object with `files`, that same text, and optionally `track`, the name of a track. A pattern is a path, a folder or a pattern with `*`, as in a slice's Files cell. A lens runs at the stages of the principle it serves, and its verifier is named `<pack>.<id>`. A lens that names a track is held to it only once the artifact names one. The validator checks the shape. `cg.py verifiers` lets a lens run when it cannot read its `when`, so that no check is lost in silence.
 
 ## Open, to be settled by tests
 
