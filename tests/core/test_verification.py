@@ -205,3 +205,11 @@ def test_review_of_2_7_each_lens_has_the_verifier_account_for_every_finding_of_c
         assert "Account for each" in section and "set it aside" in section and "your note" in section, name
         assert name == "determinism" or "open no output to read its values (rule 6)" in text  # P12, review of #230
         assert len(text.splitlines()) <= 60, name
+
+
+def test_review_of_2_7_only_the_verification_verifier_runs_the_rerun_line_of_its_kickoff():
+    """V18 of the review of #230: every verifier at the review stage gets the rerun line, and nothing told the other
+    eight to leave it. The kickoff says that the verifier `verification` alone runs it, and the others read its record."""
+    text = (CG / "templates" / "kickoff.md").read_text(encoding="utf-8")
+    rest = text.split("Every check of the plan, rerun by code: {rerun}\n")[1].splitlines()[0]
+    assert "Only the verifier `verification` runs the line above" in rest and "reads the record" in rest, rest
