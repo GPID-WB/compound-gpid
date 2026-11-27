@@ -125,7 +125,7 @@ def test_status_opens_the_playbook_the_human_asked_for_once_the_project_is_set_u
     assert state["next"] == "read playbooks/brainstorm.md"
     assert json.loads(env["cg"]("status", "--guide", "--json")[1])["playbook"].endswith("quick.md")
     code, out = env["cg"]("status", "--guide", "--playbook", "ideate")
-    assert code == 2 and "no playbook named 'ideate'" in out and "brainstorm, plan, quick, setup" in out, out
+    assert code == 2 and "no playbook named 'ideate'" in out and "brainstorm, plan, quick, review, setup" in out, out
     code, out = env["cg"]("status", "--playbook", "brainstorm")
     assert code == 2 and "--guide" in out
 
