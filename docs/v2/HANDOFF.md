@@ -693,6 +693,8 @@ A judgement to test at the first gate. Text that decides how an agent behaves (p
 
 2026-11-27: the account reached its Fable 5.2 limit, and the maintainer asked to continue with Opus 5.5 instead of Fable 5.2. Until the maintainer says otherwise, this line overrides the table and the first rule below: Opus 5.5 agents build the tasks and fix the wording, and a second Opus 5.5 agent in a fresh context reviews each one. That is an independent review, but no longer one by a second model.
 
+2026-11-27, later: the maintainer made this the standing rule, to save the Fable 5.2 limit for the work that really needs it. Opus 5.5 does almost every task that was Fable 5.2's: builds, wording fixes and reviews, at high or extra-high effort (extra-high for builds and reviews, high for smaller steps). Small bookkeeping, such as ClickUp updates, goes to Sonnet. Fable 5.2 is used only when the dispatching session judges that a task needs it and the maintainer agrees; the session asks first.
+
 Rules for a build session:
 
 - **Build only the tasks assigned to the model you are.** When the next task belongs to the other model, stop, update this file, and say so.
