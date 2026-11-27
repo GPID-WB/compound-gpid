@@ -50,10 +50,7 @@ What no check would catch: a region with too few households for its share to mea
 
 | Slice | What it delivers | Files | Checks | By code or by judgement |
 |---|---|---|---|---|
-| S1 | the table by region, written to output/table.csv | pipeline.py, checks/table.py | C1 | by code: pipeline.py |
-| S2 | an option to scale the shares of the table, for a use later on | pipeline.py | C1 | by code: pipeline.py |
-| S3 | a check in the table's function that the poverty line is not negative | pipeline.py | C1 | by code: pipeline.py |
-| S4 | the check of the ratio of the whole survey laid out again, as the new check is | checks/headcount.py | C2 | by code: checks/headcount.py |
+| S1 | the table by region, written to output/table.csv, beside the ratio of the whole survey as it was | pipeline.py, checks/table.py, checks/headcount.py | C1, C2 | by code: pipeline.py |
 
 ## Open questions
 

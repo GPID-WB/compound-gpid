@@ -13,7 +13,7 @@ that every file is the change. For the review stage it adds a work report, the r
 as the cases ask, the record of `cg.py repro`, or an approved plan and each slice with the checks the
 work ran (#230), and the project at the commit the work began on with the record of `cg.py scope` (#231),
 as the work playbook leaves them; for the plan stage, <verifier>/plan.md as a draft
-plan. The stages are those the cases hold. `cg.py verifiers` prints the kickoff, and the agent gets it,
+plan, or the draft that "draft" names when the plan the human approved is another (review of #231). The stages are those the cases hold. `cg.py verifiers` prints the kickoff, and the agent gets it,
 in a new session, with no word added (the guide's rule "Verifiers").
 
 It judges each reply from its verdict block and from the files: the verdict is FLAG; each finding
@@ -41,6 +41,7 @@ import run_cli_gate as gate  # noqa: E402  (its Agent and its turn, and the tool
 
 REPORT = ".cg-docs/work-reports/2026-11-27-poverty-brief.md"
 PLAN = ".cg-docs/plans/2026-11-27-poverty-brief.md"
+DRAFT = ".cg-docs/plans/2026-11-26-poverty-brief.md"  # a draft that the plan stage judges, when the cases name one
 INTENT = ".cg-docs/brainstorms/2026-11-27-poverty-brief.md"
 PLACES = {"@plan": PLAN, "@report": REPORT, "@profile": ".cg-docs/verification.md"}  # where a case may show
 RISK = "repro runs the pipeline twice and writes over the outputs, which no commit holds."
@@ -71,10 +72,11 @@ def build(folder: Path, project: Path, cg, cases):
     python = "python" if os.name == "nt" else "python3"  # a path to the interpreter would be a finding of its own
     shutil.copytree(folder / "project", project)
     (project / ".cg-docs" / "plans").mkdir(parents=True)
-    for name, place in (("verification.md", PLACES["@profile"]), ("plan.md", PLAN), (cases.get("intent"), INTENT)):
+    for name, place in (("verification.md", PLACES["@profile"]), ("plan.md", PLAN), (cases.get("intent"), INTENT),
+                        (cases.get("draft"), DRAFT)):
         if name:  # each command of the profile and of the plan runs with the interpreter this machine has
             text = (folder / name).read_text(encoding="utf-8").replace("python ", f"{python} ")
-            text = text.replace("status: draft\n", f"status: draft\nintent: {INTENT}\n") if place == PLAN and \
+            text = text.replace("status: draft\n", f"status: draft\nintent: {INTENT}\n") if place in (PLAN, DRAFT) and \
                 cases.get("intent") else text
             (project / place).parent.mkdir(parents=True, exist_ok=True)
             (project / place).write_text(text, encoding="utf-8")
@@ -161,6 +163,16 @@ def kickoff(cg, project, artifact, stage, verifier):
     return found[0] if found else None
 
 
+def at(finding, name: str, lines, exact=False) -> bool:
+    """True when a finding points at the file of a case, within three lines of one of its lines, in ten lines at most,
+    or at any line of it when the case has none; with exact, at its first line, and no range."""
+    path, first, last, _ = finding
+    if exact:
+        return bool(lines) and path == name and bool(first) and not last and int(first) == lines[0]
+    return path == name and (not lines or bool(first) and int(last or first) - int(first) <= 10 and any(
+        int(first) - 3 <= line <= int(last or first) + 3 for line in lines))
+
+
 def judge(project: Path, cases, reply: str, plan=PLAN, probes=()):
     """What a reply shows, from its last verdict block and from the files: its verdict, whether each
     finding proposes the code that would replace it, and whether each case is caught. A case is caught
@@ -171,7 +183,9 @@ def judge(project: Path, cases, reply: str, plan=PLAN, probes=()):
     a whole file as it has cases, or a record that no run wrote, still did (review of #230). Where a case
     allows "run", the pointer is one of probes, a run of the verifier's turn that failed, and the sentence
     names the case's line, or a line of "also" (#231). A line listed under `dropped:` is no finding. A finding at the
-    line of a case catches that case alone, and none beside it or under "or" (lens run 1 of #231)."""
+    line of a case catches that case alone, and none beside it or under "or" (lens run 1 of #231); one within three
+    lines of the line of a case catches such a case, and none under "or"; and the lines of "also" are lines of the
+    case (lens runs 2, review of #231)."""
     block = reply[reply.rfind("principle:"):] if "principle:" in reply else reply
     verdict = re.search(r"^\s*verdict:\s*(\S+)", block, re.M)
     found = [m.groups() for m in map(FINDING.match, re.split(r"\n\s*(?:dropped|note):", block)[0].splitlines()) if m]
@@ -179,23 +193,21 @@ def judge(project: Path, cases, reply: str, plan=PLAN, probes=()):
               "each finding proposes the code that replaces it": bool(found) and all("fix:" in f[3] for f in found)}
     options, owner, spots = {}, {}, {}
     for case in cases:
-        name, line, near = {**PLACES, "@plan": plan}.get(case["file"], case["file"]), 0, []
+        name, near = {**PLACES, "@plan": plan}.get(case["file"], case["file"]), []
         if "text" in case:
             lines = (project / name).read_text(encoding="utf-8").splitlines()
             near = [next(n for n, text in enumerate(lines, 1) if want in text) for want in [case["text"], *case.get("also", [])]]
-            line = near[0]
         allowed = case.get("or", [])
         key = f"{case['flag']}: {case['file']}" + (f", at '{case['text']}'" if "text" in case else "")
-        spots[key] = (name, line)
-        options[key] = [n for n, (path, first, last, what) in enumerate(found) if (
-            ("record" in allowed and (project / path).is_file() or "run" in allowed and path in probes and any(
-                int(a) - 3 <= at <= int(b or a) + 3 for a, b in re.findall(rf"{re.escape(name)}:(\d+)(?:-(\d+))?", what)
-                for at in near)) if path.startswith(".cg-docs/evidence/") else
-            path in allowed or path == name and (not line or bool(first) and int(last or first) - int(first) <= 10
-                                                 and int(first) - 3 <= line <= int(last or first) + 3))]
-    exact = {n: {key for key, (name, line) in spots.items() if path == name and first and int(first) == line and not last}
-             for n, (path, first, last, _) in enumerate(found)}
-    options = {key: [n for n in found_at if not exact[n] or key in exact[n]] for key, found_at in options.items()}
+        spots[key] = (name, near)
+        options[key] = [n for n, finding in enumerate(found) if (
+            ("record" in allowed and (project / finding[0]).is_file() or "run" in allowed and finding[0] in probes and any(
+                int(a) - 3 <= line <= int(b or a) + 3 for a, b in re.findall(rf"{re.escape(name)}:(\d+)(?:-(\d+))?",
+                                                                            finding[3]) for line in near))
+            if finding[0].startswith(".cg-docs/evidence/") else finding[0] in allowed or at(finding, name, near))]
+    own = {n: [key for key, spot in spots.items() if at(finding, *spot, True)] or [
+        key for key, spot in spots.items() if spot[1] and at(finding, *spot)] for n, finding in enumerate(found)}
+    options = {key: [n for n in found_at if not own[n] or key in own[n]] for key, found_at in options.items()}
 
     def place(key, seen):  # give the case a finding of its own, moving another case to another finding if it must
         for n in options[key]:
@@ -248,7 +260,8 @@ def main(argv=None) -> int:
         build(folder, project, cg, cases)
         log, results[name] = [], {}
         for stage in [s.strip() for s in args.stages.split(",") if s.strip()] or [s for s in ("review", "plan") if s in cases]:
-            text, agent = kickoff(cg, project, PLAN if stage == "plan" else REPORT, stage, cases["verifier"]), \
+            plan = DRAFT if cases.get("draft") else PLAN  # the plan that the plan stage judges
+            text, agent = kickoff(cg, project, plan if stage == "plan" else REPORT, stage, cases["verifier"]), \
                 gate.Agent(name, program, args.kilo_model)
             if text is None or args.dry_run:
                 print(f"== {name}, {stage} stage: no agent started\n{text}\n\nwould run: "
@@ -257,7 +270,7 @@ def main(argv=None) -> int:
                 continue
             before, known = state(project), records(project)
             reply = gate.turn(agent, project, text, True, log, f"{stage} stage")
-            checks = judge(project, cases[stage], reply, probes=failed(project, known))
+            checks = judge(project, cases[stage], reply, plan if stage == "plan" else PLAN, failed(project, known))
             checks["the verifier changed no file of the project"] = state(project) == before
             if cases.get("dropped"):
                 checks["the verifier listed what it dropped"] = dropped(reply[reply.rfind("principle:"):])

@@ -1,16 +1,14 @@
 {
   "verifier": "simplicity",
   "data": {"data/survey.csv": "Public"},
-  "about": "Each case is a violation of P6 planted in plan.md (plan stage) or in the change (review stage). before/ holds the project at the commit the work began on, and project/ the project as the work leaves it, so the change is what differs. 'code' names the rule of cg.py scope that finds its part, or null when only judgement can. '@plan' is the plan of the built project, which the human approved. A finding catches a case when its pointer is 'file' at the line that holds 'text', three lines either way, or is one of 'or', where 'record' is a record under .cg-docs/evidence/. 'work' is the work as it went: for each slice the checks that ran. 'scope' has the runner run cg.py scope once every slice is done, as the work playbook does.",
+  "about": "Each case is a violation of P6 planted in plan.md (plan stage) or in the change (review stage). before/ holds the project at the commit the work began on, and project/ the project as the work leaves it, so the change is what differs. 'code' names the rule of cg.py scope that finds its part, or null when only judgement can. '@plan' is the plan of the built project, which the human approved; at the plan stage it is the draft that 'draft' names, whose slices S2, S3 and S4 the human did not approve, so no slice of plan.md asks for a review case. A finding catches a case when its pointer is 'file' at the line that holds 'text', three lines either way, or is one of 'or', where 'record' is a record under .cg-docs/evidence/. 'work' is the work as it went: for each slice the checks that ran. 'scope' has the runner run cg.py scope once every slice is done, as the work playbook does.",
   "intent": "intent.md",
   "report": "report.md",
+  "draft": "draft.md",
   "before": "before",
   "scope": true,
   "work": [
-    {"slice": "S1", "checks": ["C1"]},
-    {"slice": "S2", "checks": ["C1"]},
-    {"slice": "S3", "checks": ["C1"]},
-    {"slice": "S4", "checks": ["C2"]}
+    {"slice": "S1", "checks": ["C1", "C2"]}
   ],
   "plan": [
     {"flag": "an option that no requirement asks for", "code": null, "file": "@plan", "text": "| S2 |"},

@@ -1,7 +1,7 @@
 {
   "verifier": "contract",
   "data": {"data/survey.csv": "Public"},
-  "about": "Each case breaks P1: a contract planted in plan.md, on the intent the human decided (plan stage), or work in project/ that leaves the contract the human approved (review stage). 'code' names the rule of cg.py claims that finds its part, or null when only judgement can; at the plan stage code's part is cg.py validate, which the plan passes. '@plan' is the plan of the built project, which the human approved. A finding catches a case when its pointer is 'file' at the line that holds 'text', three lines either way, or is one of 'or', where 'record' is a record under .cg-docs/evidence/. 'work' is the work as it went: for each slice the checks that ran. 'claims' has the runner run cg.py claims once every slice is done, as the work playbook does.",
+  "about": "Each case breaks P1: a contract planted in plan.md, on the intent the human decided (plan stage), or work in project/ that leaves the contract the human approved (review stage). 'code' names the rule of cg.py claims that finds its part, or null when only judgement can; at the plan stage code's part is cg.py validate, which the plan passes. '@plan' is the plan of the built project, which the human approved. A finding catches a case when its pointer is 'file' at the line that holds 'text', or one of 'also', three lines either way, or is one of 'or', where 'record' is a record under .cg-docs/evidence/. 'work' is the work as it went: for each slice the checks that ran. 'claims' has the runner run cg.py claims once every slice is done, as the work playbook does.",
   "intent": "intent.md",
   "report": "report.md",
   "claims": true,
@@ -18,6 +18,6 @@
     {"flag": "something the contract names that was not built", "code": "not-built", "file": "@plan", "text": "output/notes.md", "or": ["record"]},
     {"flag": "a value of the contract changed with no amendment", "code": null, "file": "pipeline.py", "text": "LINE = 3.65"},
     {"flag": "a requirement built otherwise than the contract says", "code": null, "file": "pipeline.py", "text": "if len(members) >= SMALL"},
-    {"flag": "something built that the contract does not name", "code": null, "file": "pipeline.py", "text": "def gap("}
+    {"flag": "something built that the contract does not name", "code": null, "file": "pipeline.py", "text": "def gap(", "also": ["headcount,gap"]}
   ]
 }
