@@ -48,7 +48,7 @@ def test_a_finding_of_the_adversary_stands_only_when_a_run_reproduced_it_and_the
         kept, given = kept + [record], given + ["--finding", f"{record}: {case['flag']} (P1; fix: an error)"]
     (_, passed), (_, cut) = probe(env, cases["decoy"]["probe"]), probe(env, f'python -B -c "assert {"1" * 300} == 0"')
     assert json.loads((project / passed).read_text(encoding="utf-8"))["exit"] == 0
-    lost = [f"{passed}: a group with no weight", "pipeline.py:36: the share counts", f"{cut}: a probe cut short"]
+    lost = [f"{passed}: a group with no weight (P2; fix: x)", "pipeline.py:36: the share counts (P2; fix: x)", f"{cut}: a probe cut short (P2; fix: x)"]
     assert give(env, REPORT, "review", "adversary", "FLAG", "independent", *given, *[a for f in lost for a in (
         "--finding", f)], "--dropped", f"{passed}: an empty group stops the run, as R4 asks")[0] == 0
     entry = held(env, REPORT)[-1]
@@ -85,7 +85,7 @@ def test_the_adversary_has_three_rounds_one_for_each_state_of_the_change_and_sto
     second verdict on the same state is the same round. Code numbers each, refuses a fourth, and refuses a third
     after two rounds that gave findings and reproduced none, which P5 calls doubt theater."""
     project, _ = build(env, "adversary")
-    quick, line = ".cg-docs/work-reports/2026-11-26-quick.md", "pipeline.py:36: the share counts a household twice"
+    quick, line = ".cg-docs/work-reports/2026-11-26-quick.md", "pipeline.py:36: the share counts a household twice (P2; fix: x)"
     assert env["cg"]("new", "work-report", "Quick", "--date", "2026-11-26")[0] == 0
     for report, verdict in ((REPORT, ("PASS",)), (quick, ("FLAG", "--finding", line))):
         for number in (1, 1, 2, 3, 4):
@@ -123,7 +123,7 @@ def test_scope_measures_the_change_and_finds_the_part_of_each_planted_case_of_p6
            and text.split("def ")[1].split("(")[0] in ("households", "headcount", "main")}
     assert not [f for f in record["findings"] if f["where"].split(":")[0] == "pipeline.py" and int(
         f["where"].split(":")[1]) in old], record["findings"]
-    assert give(env, REPORT, "review", "simplicity", "FLAG", "independent", "--finding", f"{path}: x")[0] == 0
+    assert give(env, REPORT, "review", "simplicity", "FLAG", "independent", "--finding", f"{path}: x (P2; fix: x)")[0] == 0
     assert held(env, REPORT)[-1]["findings"][0]["where"] == path
 
 

@@ -86,7 +86,7 @@ def test_the_verifier_reruns_every_declared_check_itself_and_code_finds_its_part
     # A finding at the record of the rerun is proof, and so is one at the line of the plan that code named.
     plan_line = next(f["where"] for f in record["findings"] if f["rule"] == "fails")
     assert give(env, REPORT, "review", "verification", "FLAG", "independent", "--finding",
-                f"{path}: C4 fails on the files as they now are", "--finding", f"{plan_line}: C4 fails")[0] == 0
+                f"{path}: C4 fails on the files as they now are (P2; fix: x)", "--finding", f"{plan_line}: C4 fails (P2; fix: x)")[0] == 0
     assert [f["where"] for f in held(env, REPORT)[-1]["findings"]] == [path, plan_line]
 
 

@@ -157,26 +157,28 @@ def test_a_flag_without_proof_is_recorded_as_unverified(env):
     assert env["cg"]("evidence", "--run", f"{PY} check1.py", "--report", REPORT)[0] == 0
     run, tier = (sorted(p.relative_to(project).as_posix() for p in (project / ".cg-docs" / "evidence").rglob(f"*{end}.json"))[0]
                  for end in ("ad-hoc", "tier"))
-    loose = ["the share ignores the weights", "R/nothing.R:1: no such file", f"{CODE}:99: no such line", f"{CODE}: no line",
-             f"{CODE}:0: no such line", "../outside.R:1: outside the project", f"{Path(__file__).as_posix()}:1: outside it",
-             f"{tier}: a record of tier is no run", "the plan says: nothing about a seed", "R:1: a folder is no file"]
+    loose = [f + " (P2; fix: x)" for f in (
+        "the share ignores the weights", "R/nothing.R:1: no such file", f"{CODE}:99: no such line", f"{CODE}: no line",
+        f"{CODE}:0: no such line", "../outside.R:1: outside the project", f"{Path(__file__).as_posix()}:1: outside it",
+        f"{tier}: a record of tier is no run", "the plan says: nothing about a seed", "R:1: a folder is no file")]
     if hasattr(Path, "symlink_to") and __import__("os").name != "nt":  # a link out of the project is no file of it
         (project / "link.R").symlink_to(Path(__file__))
-        loose.append("link.R:1: a link that leaves the project")
+        loose.append("link.R:1: a link that leaves the project (P2; fix: x)")
     code, out = give(env, REPORT, "review", "determinism", "FLAG", "independent", *[x for f in loose for x in ("--finding", f)])
     assert code == 0 and "determinism (P3) at the review stage: UNVERIFIED, independent review" in out, out
     assert out.count("\nunverified: ") == len(loose) and "path:line" in out
     last = held(env, REPORT)[-1]
-    assert last["verdict"] == "UNVERIFIED" and last["findings"] == [] and last["unverified"] == loose
-    proven = [f"{CODE}:1: the share is typed in (P1; fix: compute it)", f"{run}: a zero weight\n  gives NaN",
-              f"{(project / CODE).as_posix()}:1: an absolute path inside the project"]
+    assert last["verdict"] == "UNVERIFIED" and last["findings"] == [] and [u["what"] for u in last["unverified"]] == loose
+    proven = [f"{CODE}:1: the share is typed in (P1; fix: compute it)", f"{run}: a zero weight\n  gives NaN" + " (P2; fix: x)",
+              f"{(project / CODE).as_posix()}:1: an absolute path inside the project (P3; fix: x)"]
     code, out = give(env, REPORT, "review", "determinism", "FLAG", "independent", "--finding", loose[0],
                      *[x for f in proven for x in ("--finding", f)])
     last = held(env, REPORT)[-1]
-    assert code == 0 and ": FLAG, independent review" in out and last["verdict"] == "FLAG" and last["unverified"] == loose[:1]
-    assert last["findings"] == [{"where": f"{CODE}:1", "what": "the share is typed in (P1; fix: compute it)"},
-                                {"where": run, "what": "a zero weight gives NaN"},
-                                {"where": f"{CODE}:1", "what": "an absolute path inside the project"}]
+    assert code == 0 and ": FLAG, independent review" in out and last["verdict"] == "FLAG" and last["unverified"] == [{"what": loose[0], "priority": "P2"}]
+    assert last["findings"] == [{"where": f"{CODE}:1", "what": "the share is typed in (P1; fix: compute it)", "priority": "P1"},
+                                {"where": run, "what": "a zero weight gives NaN (P2; fix: x)", "priority": "P2"},
+                                {"where": f"{CODE}:1", "what": "an absolute path inside the project (P3; fix: x)",
+                                 "priority": "P3"}]
     count = len(held(env, REPORT))
     for verdict, more in (("FLAG", []), ("PASS", ["--finding", proven[0]]), ("INCONCLUSIVE", ["--finding", proven[0]])):
         code, out = give(env, REPORT, "review", "determinism", verdict, "self-review", "--note", "x", *more)
@@ -216,12 +218,12 @@ def test_conformance_blocks_sign_off_until_every_applicable_principle_has_a_verd
         code, out = give(env, PLAN, "plan", "contract", verdict)
         assert code == 1 and f"refused: {verdict} needs --note" in out and not held(env, PLAN), out
     for name in PLAN_STAGE:
-        assert give(env, PLAN, "plan", name, "FLAG", "self-review", "--finding", f"{PLAN}:9: the goal names no unit")[0] == 0
+        assert give(env, PLAN, "plan", name, "FLAG", "self-review", "--finding", f"{PLAN}:9: the goal names no unit (P2; fix: x)")[0] == 0
     assert env["cg"]("conformance", PLAN, "--stage", "plan")[0] == 0  # a FLAG is a verdict: the human decides on it
     assert give(env, PLAN, "plan", "contract")[0] == 0
     code, out = env["cg"]("conformance", PLAN)
     assert code == 0 and "plan P1 contract: PASS, self-review\n" in out and "\nmissing: none\n" in out, out  # the newest counts
-    assert f"plan P3 determinism: FLAG, self-review\n  finding: {PLAN}:9: the goal names no unit\n" in out
+    assert f"plan P3 determinism: FLAG, self-review\n  finding: {PLAN}:9: the goal names no unit (P2; fix: x)\n" in out
     assert len(held(env, PLAN)) == 6 and held(env, PLAN)[0]["verdict"] == "FLAG"  # and the earlier one is kept
     # The work on the plan: sign-off waits for the plan's verdicts, the review's and its own.
     code, out = env["cg"]("conformance", REPORT)
@@ -254,13 +256,13 @@ def test_a_conformance_record_holds_no_name_no_output_and_no_long_text(env):
     """P12. A verdict holds pointers and one sentence for each finding, cut at 300 characters. It
     names no person, and what a command printed stays where code put it: a digest, in the evidence."""
     project = working(env)
-    long = "a household is counted twice " * 30
+    long = "a household is counted twice " * 30 + "(P2; fix: x)"
     assert give(env, REPORT, "review", "claims", "FLAG", "independent", "--finding", f"{CODE}:1: {long}",
                 "--finding", long, "--finding", f"{long}: no file has a name this long", "--note", long, "--dropped", long)[0] == 0
     (last,) = held(env, REPORT)
     assert set(last) == {"artifact", "stage", "verifier", "principle", "verdict", "review", "findings", "unverified", "note",
                          "on", "time", "dropped"} and last["artifact"] == REPORT  # dropped: #231
-    assert len(last["findings"][0]["what"]) == len(last["note"]) == 300 and [len(u) for u in last["unverified"]] == [300, 300]
+    assert len(last["findings"][0]["what"]) == len(last["note"]) == 300 and [len(u["what"]) for u in last["unverified"]] == [300, 300]
     assert [len(d) for d in last["dropped"]] == [300]
     path = project / ".cg-docs" / "conformance" / "work-reports" / "2026-11-26-headcount.jsonl"
     text = path.read_bytes().decode("utf-8")
@@ -282,7 +284,7 @@ def test_verdicts_recorded_at_the_same_moment_are_all_kept_and_none_is_written_o
     path = project / ".cg-docs" / "conformance" / "work-reports" / "2026-11-26-headcount.jsonl"
     before = path.read_bytes()
     path.write_bytes(before + b'{"stage": "review", "verifier": "claims", "verd')  # a line cut short, with no line end
-    assert give(env, REPORT, "review", "claims", "FLAG", "self-review", "--finding", f"{CODE}:1: typed in")[0] == 0
+    assert give(env, REPORT, "review", "claims", "FLAG", "self-review", "--finding", f"{CODE}:1: typed in (P2; fix: x)")[0] == 0
     assert path.read_bytes().startswith(before + b'{"stage": "review", "verifier": "claims", "verd')
     code, out = env["cg"]("conformance", REPORT, "--stage", "review")
     assert code == 0 and "review P7 claims: FLAG, self-review\n" in out, out
@@ -351,14 +353,15 @@ def test_proof_is_a_line_of_a_file_that_is_no_data_or_a_run_of_this_work_written
     assert env["cg"]("evidence", "--run", f"{PY} check1.py", "--report", REPORT)[0] == 0
     run, tier = (sorted(p.relative_to(project).as_posix() for p in (project / ".cg-docs" / "evidence").rglob(f"*{end}.json"))[0]
                  for end in ("ad-hoc", "tier"))
-    loose = ["data/raw/survey.csv:2: the second household has an income of 10", "inst/extdata/survey.csv:1: public data",
-             ".cg-docs/evidence/2026-11-26-other/0001-x-ad-hoc.json: a record typed by hand", f"{tier}:1: a tier record",
-             f"{CODE}:1-2: a range past the last line"]
-    proven = [f"`{CODE}:1`: in backticks", f"**{CODE}:1**: in bold", f"{CODE}:1-1: a range", f"{CODE}:1:5: and a column",
-              f"{run}: this work's own run"]
+    loose = [f + " (P2; fix: x)" for f in (
+        "data/raw/survey.csv:2: the second household has an income of 10", "inst/extdata/survey.csv:1: public data",
+        ".cg-docs/evidence/2026-11-26-other/0001-x-ad-hoc.json: a record typed by hand", f"{tier}:1: a tier record",
+        f"{CODE}:1-2: a range past the last line")]
+    proven = [f + " (P2; fix: x)" for f in (f"`{CODE}:1`: in backticks", f"**{CODE}:1**: in bold", f"{CODE}:1-1: a range",
+                                             f"{CODE}:1:5: and a column", f"{run}: this work's own run")]
     code, out = give(env, REPORT, "review", "determinism", "FLAG", "independent", *[x for f in loose + proven for x in ("--finding", f)])
     last = held(env, REPORT)[-1]
-    assert code == 0 and last["unverified"] == loose, out
+    assert code == 0 and [u["what"] for u in last["unverified"]] == loose, out
     assert [f["where"] for f in last["findings"]] == [f"{CODE}:1", f"{CODE}:1", f"{CODE}:1-1", f"{CODE}:1", run], last
 
 

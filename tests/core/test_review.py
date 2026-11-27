@@ -88,7 +88,7 @@ def test_the_human_triages_each_finding_and_zero_findings_is_a_valid_result(env)
     assert any(REPORT in item and "route" in item for item in json.loads(env["cg"]("status", "--json")[1])[
         "waiting-on-human"])
     for reply in ("Yes.", "Sounds good.", "F1 fix?", "F1 fix if it is quick", "F9 fix", "F2 accept", "F1 fix; F1 drop",
-                  "Wait, F1 fix", "fix", "F1, F2 fix and F3 drop", "accept all: ok", "F1 F2 fix the line"):
+                  "Wait, F1 fix", "fix", "F1 fix and F2", "accept all: ok", "F1 F2 fix the line"):
         code, out = env["cg"]("route", REPORT, "--reply", reply)
         assert code == 1 and "refused" in out and not answered(env), (reply, out)
     code, out = env["cg"]("route", REPORT, "--reply", "F1 fix")

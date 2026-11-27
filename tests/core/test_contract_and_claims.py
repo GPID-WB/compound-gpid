@@ -34,7 +34,7 @@ def claims(env, cases, principle):
     assert all(f"FLAG {f['rule']}: {f['where']}; fix: {f['fix']}" in out for f in record["findings"])
     line = record["findings"][0]["where"]
     assert give(env, REPORT, "review", {"P1": "contract", "P7": "claims"}[principle], "FLAG", "independent",
-                "--finding", f"{path}: code found it", "--finding", f"{line}: code found it")[0] == 0
+                "--finding", f"{path}: code found it (P2; fix: x)", "--finding", f"{line}: code found it (P2; fix: x)")[0] == 0
     assert [f["where"] for f in held(env, REPORT)[-1]["findings"]] == [path, line]
     return out + (env["project"] / path).read_text(encoding="utf-8")
 

@@ -21,13 +21,14 @@ Usage, with the interpreter that ~/.cg/launcher.json records as <python>:
   "<python>" cg.py verifiers PLAN|REPORT|SOLUTION --stage STAGE [--json] [--project PATH]
   "<python>" cg.py conformance PLAN|REPORT|SOLUTION [--stage STAGE] [--verifier NAME --verdict VERDICT
                       --review independent|self-review [--finding "POINTER: WHAT"]... [--note TEXT]] [--json]
+  "<python>" cg.py route REPORT [--json] [--reply "the human's reply, word for word"] [--project PATH]
   "<python>" cg.py packs [--json]
   "<python>" cg.py setup [--packs a,b] [--setting pack.key=value]... [--classification-levels "A;B"]
                        [--approved-tool "agent=level"]... [--data "path=level"]...
                        [--project PATH] [--dry-run]
 
 What each command does and why is in docs/adr/0005-artifacts.md, 0006-evidence.md, 0008-verifiers.md,
-0009 to 0012, and in its --help.
+0009 to 0013, and in its --help.
 PATH may be any folder inside the project: the commands use the nearest folder
 above it that holds .cg-docs/, else the root of its git repository.
 
@@ -302,6 +303,13 @@ MEASURED = r"(^[\s>*-]*|\(|\|\s*)\**measured\**\s*[:,)|]"  # the label of a clai
 STAGES = {"plan": "plan", "review": "work-report", "sign-off": "work-report", "compound": "solution"}
 VERDICTS = ("PASS", "FLAG", "INCONCLUSIVE", "NOT-APPLICABLE")
 REVIEWS = {"independent": "independent review", "self-review": "self-review"}
+# A finding gives its priority, P0 to P3, in brackets with its fix, as verifier.md's block writes it: (P1; fix: ...).
+PRIORITY = r"\(\s*(P[0-3])\b"
+# What the human may decide on a finding of the review (#232), in English and in Spanish, and the word for every finding
+# that waits. A principle file says `axis: contract` when its findings are on the contract; any other is a standard.
+DECIDE = {"fix": "fix", "arreglar": "fix", "corregir": "fix", "accept": "accept", "aceptar": "accept", "drop": "drop",
+          "descartar": "drop"}
+EVERY = ("all", "todos", "todas")
 # Which playbook each phase opens.
 # PLACEHOLDER: extended in task 2.14; task 1.3 delivers setup and quick only.
 PHASE_PLAYBOOK = {"setup": "playbooks/setup.md", "ready": "playbooks/quick.md"}
@@ -695,6 +703,11 @@ def compute_status(project: Path, guide: bool = False, asked=None) -> dict:
         held = tier_of(project, a)
         if held and held[1].get("stop") and not held[3]:
             waiting.append(f"{a['path']} (stops for the human's yes: {'; '.join(held[1]['stop'])})")
+    for a in (a for a in found if a["type"] == "work-report" and a["schema"] == SCHEMA and verdicts(project, a)[1]):
+        missing, listed = review_of(project, a)  # a review whose every verifier gave its verdict waits on the human (#232)
+        left = [f["id"] for f in listed if not f["decision"]]
+        if left and not missing:
+            waiting.append(f"{a['path']} (the human decides on {len(left)} findings of its review; route lists them)")
     phase = "setup" if config is None else "ready"
     # The work playbook needs a plan to work on; with none, a request for a change is quick work (gate rerun 22).
     # A plan approved and changed since is one: the work playbook sends the human to /cg plan (review of #230).
@@ -1309,6 +1322,18 @@ def is_approved(project: Path, artifact: dict) -> bool:
     return bool(found) and found[-1].get("hash") == text_hash(artifact["body"])
 
 
+def plain(text):
+    """Lower case, without punctuation, so "Sure go on!" is "sure, go on"; "sí" keeps its accent."""
+    return " ".join(re.sub(r"[^\w ]+", " ", re.sub(r"['’]", "", text.lower())).split())
+
+
+def who(project: Path):
+    """(refused, name, email): who gives a reply, from git; a record that would name nobody is refused."""
+    name, email = (git(project, "config", "--get", key) or "" for key in ("user.name", "user.email"))
+    return ([] if name else ['git has no user.name here, so the record would name nobody; the human sets it with: '
+                             'git config user.name "Their Name"']), name, email
+
+
 def the_yes(project: Path, reply: str):
     """What keeps a reply from being recorded as the human's yes (P2), and who gave it, from git.
 
@@ -1316,9 +1341,6 @@ def the_yes(project: Path, reply: str):
     one of YES, and every other word in it is of FILLER. Everything else is
     refused, with what to ask next."""
     refused, said = [], reply.strip()
-
-    def plain(text):  # lower case, without punctuation, so "Sure go on!" is "sure, go on"; "sí" keeps its accent
-        return " ".join(re.sub(r"[^\w ]+", " ", re.sub(r"['’]", "", text.lower())).split())
 
     def any_of(phrases):
         return r"\b(?:" + "|".join(re.escape(plain(p)) for p in sorted(phrases, key=len, reverse=True)) + r")\b"
@@ -1333,11 +1355,8 @@ def the_yes(project: Path, reply: str):
         refused.append(f'"{said}" {KINDS[opens or "no-yes"]}')
     elif re.sub(any_of(YES + FILLER), " ", words).strip() or re.search(r"[?¿]", said):  # "Ok?" asks
         refused.append(f'"{said}" {KINDS["more"]}')
-    name, email = (git(project, "config", "--get", key) or "" for key in ("user.name", "user.email"))
-    if not name:
-        refused.append('git has no user.name here, so the record would name nobody; the human sets it '
-                       'with: git config user.name "Their Name"')
-    return refused, name, email
+    more, name, email = who(project)
+    return refused + more, name, email
 
 
 def now() -> str:
@@ -2314,13 +2333,14 @@ def cmd_claims(args) -> int:
 
 def principles():
     """Each principle as the frontmatter of its file says it: its ID, its name, its verifier, the stages that
-    verifier runs at, and since #231 what proves a finding of it (`proof: run`) and how many rounds it has.
+    verifier runs at, since #231 what proves a finding of it (`proof: run`) and how many rounds it has, and since #232
+    whether its findings are on the contract or on the standards the work is held to (`axis: contract`).
     Dispatch is computed from these files (plan, section 4.2)."""
     found = []
     for path in sorted((CG_DIR / "principles").glob("P*.md")):
         fields = read_frontmatter(path.read_text(encoding="utf-8"))[0]
         found.append({**{key: str(fields.get(key, "")) for key in ("id", "name", "verifier", "proof", "rounds")},
-                      "path": path,
+                      "axis": "contract" if fields.get("axis") == "contract" else "standards", "path": path,
                       "stages": [stage.strip() for stage in str(fields.get("stages", "")).split(",") if stage.strip()]})
     return found
 
@@ -2507,6 +2527,11 @@ def proven(project: Path, finding: str, a: dict, run: bool = False):
     return (name + (f":{first}" + f"-{last}" * bool(found.group(3)) if first else ""), found.group(4)) if held else None
 
 
+def said_of(line) -> str:
+    """The sentence of a line under `unverified` or `dropped`: since #232 a finding there keeps its priority beside it."""
+    return str(line.get("what", "")) if isinstance(line, dict) else str(line)
+
+
 def cmd_conformance(args) -> int:
     """Record the verdict of one verifier on an artifact, or list its conformance record.
 
@@ -2553,6 +2578,11 @@ def cmd_conformance(args) -> int:
         if args.verdict in VERDICTS[2:] and not note:
             refused.append(f"{args.verdict} needs --note: what kept the verifier from checking, or why the principle "
                            f"does not apply to this work")
+        level = {text: (re.findall(PRIORITY, text) or [""])[-1] for text in findings}  # findings keep P0 to P3 (#232)
+        if not all(level.values()):
+            refused.append("each finding ends with its priority, P0 to P3, and its fix in brackets, as the verdict block of "
+                           "verifier.md writes it, such as (P1; fix: the change); give each finding whole, as the verifier "
+                           "wrote it, and start a verifier that gave none once more on the same kickoff")
         if refused:
             return say(refused)
         run = rule.get("proof") == "run"  # P5: a finding stands only on a run that reproduced it (#231)
@@ -2561,8 +2591,10 @@ def cmd_conformance(args) -> int:
         entry = {"artifact": a["path"], "stage": args.stage, "verifier": args.verifier,
                  "principle": named[args.verifier]["principle"],
                  "verdict": args.verdict.replace("-", " ") if any(p for _, p in opened) or not findings else "UNVERIFIED",
-                 "review": args.review, "findings": [{"where": p[0], "what": p[1][:300]} for _, p in opened if p],
-                 "unverified": [] if run else lost, "note": note[:300], "on": on, "time": now(),  # on what it was given
+                 "review": args.review, "findings": [{"where": p[0], "what": p[1][:300], "priority": level[text]}
+                                                     for text, p in opened if p],
+                 "unverified": [] if run else [{"what": text[:300], "priority": level[text]} for text, p in opened if not p],
+                 "note": note[:300], "on": on, "time": now(),  # on what it was given
                  "dropped": [" ".join(t.split())[:300] for t in args.dropped or [] if t.strip()] + [
                      f"not reproduced: {text}" for text in lost] * run, **({"round": len(ends) + fresh} if bound else {})}
         problem = "a line added after one that was cut short could not be read"
@@ -2579,7 +2611,7 @@ def cmd_conformance(args) -> int:
                         f"can read ({problem}); run the line again"])
         print(f"recorded: {args.verifier} ({entry['principle']}) at the {args.stage} stage: {entry['verdict']}, "
               f"{REVIEWS[args.review]}" + f", round {entry.get('round')} of {bound}" * bool(bound) + "".join(
-                  f"\n{key}: {text}" for key in ("unverified", "dropped") for text in entry[key]))
+                  f"\n{key}: {said_of(text)}" for key in ("unverified", "dropped") for text in entry[key]))
         if lost:
             print("  code found no proof it can open at the start of a finding " + (
                 "not reproduced: the record of a run of this work that failed on the files as they now are and holds its "
@@ -2602,7 +2634,7 @@ def cmd_conformance(args) -> int:
             f"{g.get('verdict')}, {REVIEWS.get(g.get('review'))}" + f", round {g.get('round')} of {v.get('rounds')}"
             * bool(g.get("round")) + ", on an earlier text" * g["earlier"]
             + "".join(f"\n  finding: {f.get('where')}: {f.get('what')}" for f in g.get("findings") or [])
-            + "".join(f"\n  {key}: {text}" for key in ("unverified", "dropped") for text in g.get(key) or [])
+            + "".join(f"\n  {key}: {said_of(text)}" for key in ("unverified", "dropped") for text in g.get(key) or [])
             + f"\n  note: {g.get('note')}" * bool(g.get("note")))))
     kinds = [g.get("review") for g in shown]
     print(f"missing: {'; '.join(missing) or 'none'}\nindependent review: {kinds.count('independent')}; "
@@ -2611,6 +2643,148 @@ def cmd_conformance(args) -> int:
         print("sign-off: " + ("blocked until each verifier under missing has given a verdict" if missing
                               else "every verifier has given a verdict"))
     return 1 if missing else 0
+
+
+# ---------------------------------------------------------------- the review and the human's decisions
+
+def review_of(project: Path, a: dict):
+    """(missing, findings): where the review of a work report stands (#232). The verifiers of the review stage with no
+    verdict, and each finding of the newest verdict of each, the unverified ones too: the contract's part first, then the
+    standards', each by priority, numbered F1, F2 and so on in that order, with the human's newest decision on it. The
+    conformance record holds the findings, and nothing else does. A decision names a finding by a digest of its
+    verifier, pointer and sentence, so it holds for that finding alone; a fix holds until a verifier finds it again on
+    another state of the change."""
+    axis, rows, decided, found = {p["id"]: p["axis"] for p in principles()}, standing(project, a, "review"), {}, []
+    for record in approvals(project, a):
+        decided.update({d.get("finding"): d for d in record.get("decisions") or [] if isinstance(d, dict)})
+    for _, v, g in rows:
+        for f in [*((g or {}).get("findings") or []), *((u if isinstance(u, dict) else {"what": u})
+                                                        for u in (g or {}).get("unverified") or [])]:
+            key = sha_of(json.dumps([v["verifier"], f.get("where"), f.get("what")]))[7:23]
+            d = decided.get(key) or {}
+            held = d and (d.get("decision") != "fix" or d.get("on") == g.get("on"))
+            found.append({"part": axis.get(v["principle"], "standards"), "priority": f.get("priority") or "P?",
+                          "principle": v["principle"], "verifier": v["verifier"], "where": f.get("where"),
+                          "what": f.get("what"), "proven": bool(f.get("where")), "earlier": g["earlier"], "finding": key,
+                          "on": g.get("on"), "decision": d.get("decision") if held else None,
+                          "reason": d.get("reason", "") if held else ""})
+    found.sort(key=lambda f: (f["part"] != "contract", f["priority"]))  # each part apart, and never ranked across
+    for number, f in enumerate(found, 1):
+        f["id"] = f"F{number}"
+    return [f"review {v['verifier']}" for _, v, g in rows if not g], found
+
+
+def the_answer(project: Path, reply: str, ids, waiting):
+    """(decisions, refused, name, email): what the human decided on findings of a review, from their reply alone (P2,
+    #232). Each part of the reply names findings by ID, or all of those that wait, and one decision: fix, accept with
+    the reason in their words, or drop. A part ends at ; or a new line, or where the next part begins. Anything more in
+    a part, a question, an opening no, or two decisions for one finding refuses the whole reply, as the_yes refuses a
+    yes that says more, and the human is asked again."""
+    said, decided, every, refused = reply.strip(), {}, [], []
+    ruled = r"\b(?:" + "|".join(DECIDE) + r")\b"
+    subject = r"(?:\bF\d+\b|\b(?:" + "|".join(EVERY) + r")\b)"
+    begins = rf"\s*(?:{subject}(?:\s*(?:,|&|\band\b|\by\b)\s*{subject})*\s*[:\-–]?\s*{ruled}|{ruled}\s+{subject})"
+    filler = {w for phrase in FILLER + YES + ("and", "y", "finding", "findings", "of", "them") for w in plain(phrase).split()}
+
+    def extra(text):  # the words of a part that name no finding and are no filler
+        return [w for w in plain(re.sub(r"\bF\d+\b", " ", text, flags=re.I)).split() if w not in filler and w not in EVERY]
+    if not said:
+        refused.append("give the human's reply, word for word, with --reply")
+    elif re.match(SAYS_NO, said.lower()) or re.search(r"[?¿]", said):
+        refused.append(f'"{said}" says no, not yet, or asks something; nothing is recorded: answer what it asks, then '
+                       f'ask again for a decision on each finding')
+    parts = []
+    for chunk in re.split(r"[;\n]+", said) if not refused else []:
+        start = 0
+        for cut in re.finditer(rf"(?:[,.]|\band\b|\by\b)(?={begins})", chunk, re.I):
+            if re.search(ruled, chunk[start:cut.start()], re.I):  # a new part begins only after a decision
+                parts.append(chunk[start:cut.start()])
+                start = cut.end()
+        parts.append(chunk[start:])
+    for part in (part.strip() for part in parts if part.strip()):
+        word = re.search(ruled, part, re.I)
+        if not word:
+            refused.append(f'"{part}" gives no decision: name each finding with fix, accept and the reason, or drop')
+            continue
+        kind, head, tail = DECIDE[word.group(0).lower()], part[:word.start()], part[word.end():]
+        lead = None if re.search(subject, head, re.I) else re.match(rf"(?:\s*(?:{subject}|,|&|\band\b|\by\b))+", tail, re.I)
+        head, tail = (head + lead.group(0), tail[lead.end():]) if lead else (head, tail)
+        reason = re.sub(r"^[\s:,.–—-]*(?:(?:because|since|as|porque)\b)?[\s:,]*", "", tail).strip()
+        named = [n.upper() for n in re.findall(r"\bF\d+\b", head, re.I)]
+        if extra(head) or kind != "accept" and (extra(tail) or re.search(r"\bF\d+\b", tail, re.I)):
+            refused.append(f'"{part}" says more than which findings and one decision; ask for each decision in this form: '
+                           f'F1 fix; F2 accept: <the reason>; F3 drop')
+        elif kind == "accept" and not extra(reason):
+            refused.append(f'"{part}" accepts with no reason; the human gives it in their words, such as F2 accept: <why>')
+        elif re.search(rf"\b(?:{'|'.join(EVERY)})\b", head, re.I):
+            every.append((kind, reason * (kind == "accept")))
+        elif not named and len(waiting) != 1:
+            refused.append(f'"{part}" names no finding; name each by its ID, or say all')
+        for name in named or (waiting if not every and len(waiting) == 1 and not refused else []):
+            if name not in ids:
+                refused.append(f"{name} is no finding of this review; route lists them")
+            elif decided.setdefault(name, (kind, reason * (kind == "accept"))) != (kind, reason * (kind == "accept")):
+                refused.append(f"{name} is given two decisions; ask which one stands")
+    if len(set(every)) > 1:
+        refused.append("all is given two decisions; ask which one stands")
+    for name in waiting if every else []:
+        decided.setdefault(name, every[0])
+    more, name, email = who(project)
+    return decided, refused + more, name, email
+
+
+def cmd_route(args) -> int:
+    """List the findings of the review of a work report, the contract's apart from the standards', each by priority,
+    with the human's decision on each and where it goes; or record their decisions from their reply (#232). Exit code
+    1 while a verifier of the review stage gave no verdict or a finding waits on the human."""
+    project = project_from(args.project)
+    a = staged(project, args.report, "review") if project else None
+    if a is None:
+        return 2
+    (missing, found), plan = review_of(project, a), plan_of(project, a)
+    waiting = [f["id"] for f in found if not f["decision"]]
+    goes = {"fix": "back to the work: " + ("/cg plan writes an amendment that adds a slice for it, the human approves "
+                                           "it, and /cg work does that slice in this work report" if plan else
+                                           "quick work does it in this work report"),
+            "accept": "kept for sign-off, with the human's reason", "drop": "closed, with no change"}
+    if args.reply is not None:
+        if missing or not found:
+            print(f"refused: the review is not done: {'; '.join(missing)} gave no verdict" if missing else
+                  "nothing to decide: no verifier found anything in this work")
+            return 1 if missing else 0
+        decided, refused, name, email = the_answer(project, args.reply, [f["id"] for f in found], waiting)
+        if refused:
+            return say(refused)
+        record = {"artifact": a["path"], "reply": args.reply, "name": name, "email": email, "time": now(), "decisions": [
+            {**{k: f[k] for k in ("id", "finding", "on", "verifier", "principle", "priority", "where")},
+             "decision": decided[f["id"]][0], "reason": decided[f["id"]][1]} for f in found if f["id"] in decided]}
+        folder = project / ".cg-docs" / "approvals"
+        target = folder / f"{Path(a['name']).stem}.route.{len(list(folder.glob(Path(a['name']).stem + '.route.*.json'))) + 1}.json"
+        back = a["status"] == "completed" and any(d["decision"] == "fix" for d in record["decisions"])
+        print("".join(f"recorded: {d['id']} {d['decision']}{': ' + d['reason'] if d['reason'] else ''}\n"
+                      for d in record["decisions"]) + f"record: {write_record(project, target, record)}\nby: {name} <{email}>")
+        if back:  # a finding the human sends back to the work reopens it
+            set_front(project / a["path"], {"status": "in-progress"})
+            print(f"work report: {a['path']} is in-progress again, since a finding goes back to the work")
+        return 0
+    shown = [{**{k: f[k] for k in ("id", "part", "priority", "principle", "verifier", "where", "what", "proven", "earlier",
+                                   "decision", "reason")}, "next": goes.get(f["decision"], "waits on the human")} for f in found]
+    if args.json:
+        print(json.dumps({"report": a["path"], "missing": missing, "findings": shown, "waiting": waiting}, indent=2))
+        return 1 if missing or waiting else 0
+    lines = [f"review: {a['path']}", f"missing: {'; '.join(missing) or 'none'}"] + ["findings: none"] * (not found)
+    for part in ("contract", "standards") if found else ():
+        lines.append(f"{part} findings: {sum(f['part'] == part for f in shown)}")
+        lines += [f"{f['id']} {f['priority']} {f['verifier']} ({f['principle']}): {f['where'] or 'no proof'}: {f['what']}"
+                  + ", given on an earlier state of the change" * f["earlier"] + "\n  decision: " + (
+                      f"{f['decision']}{': ' + f['reason'] if f['reason'] else ''}" if f["decision"] else "none yet")
+                  + f"; next: {f['next']}" for f in shown if f["part"] == part]
+    print("\n".join(lines + [f"waiting: {', '.join(waiting) or 'none'}", "next: " + (
+        "start each verifier under missing, as the review playbook says" if missing else
+        f"the human decides on each finding under waiting, and route records their reply with --reply" if waiting else
+        "the work goes back for each finding to fix" if any(f["decision"] == "fix" for f in found) else
+        "nothing waits on the human; sign-off comes next")]))
+    return 1 if missing or waiting else 0
 
 
 # ---------------------------------------------------------------- setup
@@ -2978,11 +3152,18 @@ def main(argv=None) -> int:
     conformance.add_argument("--note", help="what the verifier could not check, or why the principle does not apply")
     conformance.add_argument("--dropped", action="append", help="once for each finding the verifier dropped: what it "
                                                                 "suspected, and why no run showed it")
+    route = sub.add_parser("route", help="list the findings of the review of a work report, the contract's apart from the "
+                                         "standards', each by priority, or record the human's decision on them")
+    route.add_argument("report", help="the work report under review")
+    route.add_argument("--reply", help="the human's reply, word for word: findings by ID, or all, each with fix, accept "
+                                       "and the reason, or drop")
+    route.add_argument("--json", action="store_true")
+    route.add_argument("--project", default=".")
     args = parser.parse_args(argv)
     commands = {"doctor": cmd_doctor, "status": cmd_status, "new": cmd_new, "packs": cmd_packs, "setup": cmd_setup,
                 "validate": cmd_validate, "approve": cmd_approve, "tier": cmd_tier, "evidence": cmd_evidence,
                 "guard": cmd_guard, "repro": cmd_repro, "scope": cmd_scope, "claims": cmd_claims,
-                "verifiers": cmd_verifiers, "conformance": cmd_conformance}
+                "verifiers": cmd_verifiers, "conformance": cmd_conformance, "route": cmd_route}
     return commands[args.command](args)
 
 

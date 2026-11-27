@@ -98,9 +98,9 @@ def test_repro_catches_the_part_of_each_planted_violation_that_code_can_find(env
     assert not [word for word in ("HH-0001", "0.346", "0.733", "analyst", "first household") if word in shown]
     # A verifier points at the record, and its lens is the third file it reads, at both stages.
     assert give(env, BRIEF, "review", "determinism", "FLAG", "independent", "--finding",
-                f"{path}: the two runs wrote different bytes to output/ci.csv")[0] == 0
+                f"{path}: the two runs wrote different bytes to output/ci.csv (P1; fix: a seed)")[0] == 0
     assert held(env, BRIEF)[-1]["findings"] == [{"where": path, "what": "the two runs wrote different bytes to "
-                                                                        "output/ci.csv"}]
+                                                                        "output/ci.csv (P1; fix: a seed)", "priority": "P1"}]
     assert dispatched(env, BRIEF, "review")[1]["reads"][-1].endswith("cg/lenses/determinism.md")
     # The files the runs made are named apart from a change outside the work; the output they changed is not.
     code, out = env["cg"]("guard", "--report", BRIEF)
@@ -109,7 +109,7 @@ def test_repro_catches_the_part_of_each_planted_violation_that_code_can_find(env
     # Review of #229: a record of another work report, copied beside this one's, is no proof (ADR 0008).
     copied = path.replace("-repro.json", "-copied-repro.json")
     (project / copied).write_text(json.dumps({**record, "report": ".cg-docs/work-reports/2026-11-26-other.md"}))
-    assert give(env, BRIEF, "review", "determinism", "FLAG", "independent", "--finding", f"{copied}: other work")[0] == 0
+    assert give(env, BRIEF, "review", "determinism", "FLAG", "independent", "--finding", f"{copied}: other work (P2; fix: x)")[0] == 0
     assert held(env, BRIEF)[-1]["verdict"] == "UNVERIFIED", held(env, BRIEF)[-1]
 
 
