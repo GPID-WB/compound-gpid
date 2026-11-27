@@ -154,14 +154,23 @@ ALWAYS_STOP = ("irreversible",)
 # and whether more of it (True) or less of it (False) than the commit holds is the problem.
 TEST_FILE = r"(^|/)(tests?|testthat|spec)/|(^|/)test[-_.][^/]*$|[-_.](test|spec)s?\.[^/.]+$"
 GUARD = (
-    ("test-removed", r"\btest_that\s*\(|^\s*(async\s+)?def test_\w+|^\s*(it|test|describe)\s*\(|^\s*func Test\w+",
-     True, False),
+    ("test-removed", r"\btest_that\s*\(|^\s*(async\s+)?def test_\w+|^\s*(it|test|describe)\s*\(|^\s*func Test\w+|"
+                     r"\btest_(check|dir|file)\s*\(|\bunittest\.main\s*\(", True, False),
     ("assertion-removed", r"\bexpect(_\w+)?\s*\(|\bassert\w*\b|\bstopifnot\s*\(", True, False),
-    ("test-skipped", r"\bskip(_\w+)?\s*\(|\.skip\b|\bmark\.(skip|xfail)|\bx(it|describe)\s*\(|\bt\.Skip\(", True, True),
-    ("suppression-added", r"\bsuppress(Warnings|Messages)\s*\(|#\s*(nolint|noqa|type:\s*ignore|pragma:\s*no cover)|"
+    ("test-skipped", r"\b(skip(_\w+|If|Unless|Test)?|importorskip)\s*\(|\.skip\b|\bmark\.(skip|xfail)|\bx(it|describe)\s*\(|"
+                     r"\bt\.Skip\(|\bif\s*\(\s*(FALSE|F|0)\s*\)|^\s*if\s+(False|0)\s*:", True, True),
+    ("test-excluded", r"--(ignore|deselect)(-glob)?[=\s]|\bcollect_ignore(_glob)?\b", False, True),
+    # A message is no warning and no error, so suppressMessages() is not here (review of #227).
+    ("suppression-added", r"\bsuppress(Warnings)?\s*\(|#\s*(nolint|noqa|type:\s*ignore|pragma:\s*no cover)|pylint:\s*disable|"
                           r"\b(filterwarnings|simplefilter)\s*\(|\bwarn\s*=\s*-\s*\d|\bsilent\s*=\s*T(RUE)?\b|"
-                          r"@ts-(ignore|nocheck)|eslint-disable|\|\|\s*true\b", False, True),
+                          r"@ts-(ignore|nocheck|expect-error)|eslint-disable|\|\|\s*(true\b|:)|\bset\s+\+e\b|"
+                          r"\bexcept\b[^:\n]*:\s*(pass|\.\.\.)\s*$|\berror\s*=\s*function\s*\([^)]*\)\s*(NULL|NA\b|\{\s*\})|"
+                          r"\bcap(t|tu|tur|ture)?\s+(noi(sily)?\s+)?(assert|confirm)\b", False, True),
 )
+# A line that is only a comment holds no test, assertion or skip: # in R, Python and the shell, * and // in Stata.
+COMMENT = r"^[ \t]*(#|//|\*).*$"
+# What git compares with before a repository's first commit: the empty tree.
+EMPTY_TREE = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
 # Which playbook each phase opens.
 # PLACEHOLDER: extended in task 2.14; task 1.3 delivers setup and quick only.
 PHASE_PLAYBOOK = {"setup": "playbooks/setup.md", "ready": "playbooks/quick.md"}
@@ -752,6 +761,18 @@ def id_problems(ids, letter: str):
             + [f"the ID {i} appears twice" for i in sorted({i for i in ids if ids.count(i) > 1})])
 
 
+def command_of(cell: str):
+    """What a Command cell declares: its one text in backticks, with a \\| read as the table shows
+    it. None when it holds no such text or more than one: code would run a file name or prose
+    (gate rerun 17, review of #227)."""
+    spans = [span.strip() for span in re.findall(r"`([^`]+)`", cell)]
+    return spans[0].replace("\\|", "|") if len(spans) == 1 and spans[0] else None
+
+
+def sha_of(text: str) -> str:
+    return "sha256:" + hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
 def contract_problems(body: str):
     """What P1 asks of a contract that code can check: requirements and checks carry IDs, every
     requirement has a check that names it, and every check has a command and a failing outcome."""
@@ -770,6 +791,9 @@ def contract_problems(body: str):
             problems.append(f"check {cid} names {', '.join(unknown)}, which the Requirements table does not hold")
         if nothing(command):
             problems.append(f"check {cid} has no command")
+        elif command_of(command) is None and not re.match(r"<[^<>]+>$", command.strip()):  # a request: unfilled()
+            problems.append(f"check {cid}: its command is not one text in backticks; code runs what stands between "
+                            f"them, so write the command as it is run in one pair of backticks")
         if nothing(fails):
             problems.append(f"check {cid} does not say which outcome means failure")
         elif re.match(CANNOT_FAIL, bare(fails)):
@@ -1396,10 +1420,17 @@ def cmd_tier(args) -> int:
     state = {"tier": "elevated" if reasons else "low", "reasons": reasons, "data": data, "files": files,
              "facts": {name: facts[name] for name in FACTS}}
     if report:  # the start of a slice, or of quick work: what was declared, and what had changed before it
-        state["stop"] = [r for r in reasons if plan is None or r.split(":")[0] in ALWAYS_STOP]
+        # The plan's approval covers a data file its register lists; one it does not list stops (review of #227).
+        register = [data_path(project, row[0].strip("`\"'*~<> ")) for row in rows_of(plan["body"], "## Data register",
+                                                                                    6, [])] if plan else []
+        unlisted = {f"data: {d['path']} is not cleared for {args.agent}" for d in data if not covers(register, d["path"])}
+        state["stop"] = [r for r in reasons if plan is None or r.split(":")[0] in ALWAYS_STOP or r in unlisted]
         kept = {key: state[key] for key in ("tier", "reasons", "stop", "files", "facts")}
+        commit = git(project, "rev-parse", "--verify", "-q", "HEAD")
         state["record"] = add_record(project, report, "tier", {
-            "kind": "tier", "slice": args.slice, **kept, "before": digests(project, changed_files(project) or []),
+            "kind": "tier", "slice": args.slice, **kept, "commit": commit, "before": {
+                name_key(name): held for name, held in digests(project, changed_files(project, commit or EMPTY_TREE)
+                                                                or []).items()},
             "data": [{key: d[key] for key in ("path", "level", "cleared")} for d in data]})
     if args.json:
         print(json.dumps(state, indent=2, sort_keys=True))
@@ -1455,14 +1486,41 @@ def changed_files(project: Path, base: str = "HEAD"):
 
 
 def digests(project: Path, names) -> dict:
-    """A digest of each named file as it now is, so that code can tell later whether it changed."""
-    return {name: hashlib.sha256((project / name).read_bytes()).hexdigest()[:16] if (project / name).is_file()
-            else "gone" for name in names}
+    """A digest of each named file as it now is, so that code can tell later whether it changed.
+    A data file can be large, so it is read a block at a time."""
+    found = {}
+    for name in names:
+        held = hashlib.sha256()
+        try:
+            with open(project / name, "rb") as handle:
+                for block in iter(lambda: handle.read(1 << 20), b""):
+                    held.update(block)
+            found[name] = held.hexdigest()[:16]
+        except OSError:
+            found[name] = "gone"
+    return found
 
 
-def work_state(project: Path, declared) -> str:
-    """One digest of the declared files that differ from the last commit. Evidence holds for this state of them."""
-    held = digests(project, [name for name in changed_files(project) or [] if covers(declared, name)])
+def name_key(name: str) -> str:
+    """How the tier record names a file it did not declare: by a digest, so no name of a file the work
+    does not touch, a data file named after a person among them, is written down (review of #227)."""
+    return sha_of(name)[7:23]
+
+
+def base_of(project: Path, report: dict) -> str:
+    """The commit the work began on: the one the first tier record of this slice holds, so that a commit
+    in the slice hides nothing from guard (review of #227); before a first commit, the empty tree."""
+    tiers = [r for _, r in records(project, report, "tier")]
+    while len(tiers) > 1 and tiers[-2].get("slice") == tiers[-1].get("slice"):  # back to the start of this slice
+        tiers.pop()
+    return (tiers[-1].get("commit") if tiers else None) or git(project, "rev-parse", "--verify", "-q", "HEAD") \
+        or EMPTY_TREE
+
+
+def work_state(project: Path, declared, base: str = "HEAD") -> str:
+    """One digest of the declared files that differ from the commit the work began on. Evidence holds for this
+    state of them."""
+    held = digests(project, [name for name in changed_files(project, base) or [] if covers(declared, name)])
     return "sha256:" + hashlib.sha256(json.dumps(held, sort_keys=True).encode("utf-8")).hexdigest()
 
 
@@ -1524,6 +1582,10 @@ def approve_stop(project: Path, report: dict, reply: str) -> int:
         return 0
     path, tier, digest, _ = held
     refused, name, email = the_yes(project, reply)
+    if any(reason.startswith("data: ") for reason in tier["stop"]):  # a yes to the contract opens no file (P12)
+        refused.append("a data file that is not cleared stops this work, and a yes to the contract does not open it; "
+                       "record the human's decision to read it with approve --reads, or leave the file out, and run "
+                       "tier again")
     asked = section(report["body"], "## Risk")
     if not asked.strip() or unfilled("work-report", asked):
         refused.append("the work report does not say under '## Risk' what the human is asked to say yes to; write "
@@ -1543,8 +1605,12 @@ def unproven(project: Path, report: dict):
     """What keeps a work report from being completed: completion follows from evidence, never from
     a status typed into the file (P4). Every check of its plan is verified; in quick work, one is."""
     stop, plan = open_stop(project, report), plan_of(project, report)
-    verified = {key for key, run in runs(project, report).items() if run.get("verdict") == "verified"}
-    wanted = [row[0] for row in rows_of(plan["body"], "### Checks", 4, [])] if plan else []
+    declared = {row[0]: command_of(row[2]) or "" for row in rows_of(plan["body"], "### Checks", 4, [])} if plan else {}
+    # A declared run counts under its own plan, for the command that plan now declares (review of #227).
+    verified = {key for key, run in runs(project, report).items() if run.get("verdict") == "verified" and (
+        run.get("label") != "declared" or plan and run.get("plan") == plan["path"]
+        and run.get("command-digest") == sha_of(declared.get(key, "")))}
+    wanted = list(declared)
     problems = [stop] * bool(stop) + [f"check {cid} of the plan has no verified evidence; run it with evidence {cid}"
                                       for cid in wanted if cid not in verified]
     if not plan and not verified:
@@ -1589,10 +1655,12 @@ def cmd_evidence(args) -> int:
     elif args.check and args.check not in checks:
         refused.append(f"{args.check} is not a check of the approved plan, whose checks are {', '.join(checks)}; any "
                        f"other command is given with --run and recorded as ad hoc")
+    elif args.check and command_of(checks[args.check]) is None:
+        refused.append(f"the Command cell of {args.check} is not one text in backticks, so what it runs is not "
+                       f"clear; that is a change to the plan, an amendment the human approves")
     if any(refused):
         return say(filter(None, refused))
-    cell = re.search(r"`([^`]+)`", checks.get(args.check, ""))  # the command is what the plan holds in backticks
-    command = args.run or (cell.group(1) if cell else checks[args.check])
+    command = args.run or command_of(checks[args.check])  # the command is what the plan holds in backticks
     done = subprocess.run(command, shell=True, cwd=project, capture_output=True, stdin=subprocess.DEVNULL)
     printed = done.stdout + done.stderr
     sys.stdout.buffer.write(printed + b"\n" * (printed[-1:] not in (b"", b"\n")))
@@ -1601,11 +1669,11 @@ def cmd_evidence(args) -> int:
     sha = "sha256:" + hashlib.sha256(printed).hexdigest()
     record = {"kind": "check", "check": args.check or "ad hoc", "label": "declared" if args.check else "ad hoc",
               **({"plan": plan["path"], "plan-hash": text_hash(plan["body"])} if args.check else {}),
-              "command": command[:300], "command-digest": "sha256:" + hashlib.sha256(command.encode()).hexdigest(),
+              "command": command[:300], "command-digest": sha_of(command),
               "exit": done.returncode, "verdict": verdict,
               "output": {"digest": sha, "lines": printed.count(b"\n"), "bytes": len(printed)},
               "commit": git(project, "rev-parse", "--short", "HEAD") or "none",
-              "state": work_state(project, tier_of(project, report)[1].get("files") or [])}
+              "state": work_state(project, tier_of(project, report)[1].get("files") or [], base_of(project, report))}
     print(f"check: {record['check']} ({record['label']})\nexit: {done.returncode}\nverdict: {verdict}\n"
           f"output: {record['output']['lines']} lines, {len(printed)} bytes, {sha}\n"
           f"record: {add_record(project, report, args.check or 'ad-hoc', record)}")
@@ -1623,22 +1691,29 @@ def cmd_guard(args) -> int:
     """
     project = project_from(args.project)
     report = report_at(project, args.report) if project and args.report else None
-    files = changed_files(project, args.base) if project else None
+    base = args.base  # with --report, the commit the slice began on (review of #227); before any commit, none
+    if project and base == "HEAD":
+        base = base_of(project, report) if report else "HEAD" if git(project, "rev-parse", "--verify", "-q", "HEAD") \
+            else EMPTY_TREE
+    files = changed_files(project, base) if project else None
     if files is None or (args.report and report is None):
         print(f"guard cannot run: git cannot compare the files of this project with {args.base}")
         return 2
-    found = []
+    found, shown = [], "the first commit" if base == EMPTY_TREE else args.base if base == args.base else base[:12]
     for name in files:
         file, test = project / name, bool(re.search(TEST_FILE, name, re.I))
         if not file.is_file():
             found += [f"test-deleted: {name}"] * test
         elif file.suffix.lower() not in (".md", ".txt", ".rst") and file.stat().st_size < 1_000_000:
-            new, old = file.read_text(encoding="utf-8", errors="replace"), git(project, "show", f"{args.base}:./{name}")
+            new, old = file.read_text(encoding="utf-8", errors="replace"), git(project, "show", f"{base}:./{name}") or ""
+            # A test, an assertion or a skip in a comment is not run (review of #227); a suppression is a comment.
+            run = [re.sub(COMMENT, "", text, flags=re.M) for text in (new, old)]
             for rule, pattern, tests_only, more in GUARD:
-                was = len(re.findall(pattern, old or "", re.M))
-                lines = [str(new.count("\n", 0, m.start()) + 1) for m in re.finditer(pattern, new, re.M)]
+                now, then = run if tests_only else (new, old)
+                was = len(re.findall(pattern, then, re.M))
+                lines = [str(now.count("\n", 0, m.start()) + 1) for m in re.finditer(pattern, now, re.M)]
                 if (test or not tests_only) and (len(lines) > was if more else len(lines) < was):
-                    found.append(f"{rule}: {name} holds {len(lines)} where {args.base} holds {was}"
+                    found.append(f"{rule}: {name} holds {len(lines)} where {shown} holds {was}"
                                  + f"; see lines {', '.join(lines)}" * more)
     held = tier_of(project, report) if report else None
     stop = open_stop(project, report) if report else None
@@ -1649,11 +1724,12 @@ def cmd_guard(args) -> int:
             tiers.pop()
         before, declared = tiers[-1].get("before") or {}, tier.get("files") or []
         where = f"slice {tier['slice']} does not list it" if tier.get("slice") else "tier was not given it"
-        mine = [name for name in files if digests(project, [name])[name] != before.get(name)]
+        now = digests(project, files)
+        mine = [name for name in files if now[name] not in (before.get(name_key(name)), before.get(name))]
         found += [f"outside: {name} changed and {where}; undo it, or run tier again with it, which may stop the work"
                   for name in mine if not covers(declared, name)]
         rows = {row[0]: row[3] for row in rows_of(plan["body"], "## Slices", 5, [])} if plan else {}
-        state, text = work_state(project, declared), text_hash(plan["body"]) if plan else None
+        state, text = work_state(project, declared, base), text_hash(plan["body"]) if plan else None
         fresh = {key for key, run in runs(project, report).items() if run.get("verdict") == "verified"
                  and run.get("state") == state and run.get("plan-hash") in (None, text)}
         wanted = re.findall(r"C\d+", rows.get(tier.get("slice"), ""))
