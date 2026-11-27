@@ -91,8 +91,7 @@ def test_which_verifiers_run_is_computed_from_the_principle_files_and_the_lenses
     assert mine["principle"] == "P10" and mine["reads"][1] == (pack / "lenses" / "weights.md").as_posix()
     assert "lang-x.weights" not in names("*.do") and "lang-x.weights" not in names("*.R", "P9")  # P9: compound
     assert "lang-x.weights" in names("*.R", artifact=REPORT, stage="review")  # the file the work changed
-    git(project, "checkout", "-q", "--", CODE)
-    assert "lang-x.weights" not in names("*.R", artifact=REPORT, stage="review")
+    assert "lang-x.weights" not in names("*.Rmd, vignettes/", artifact=REPORT, stage="review")
     # A track narrows a lens once the artifact names one; a trigger code cannot read rules nothing out.
     assert "lang-x.weights" in names({"files": "*.R", "track": "research"}) and "lang-x.weights" in names(7)
     plan = project / PLAN
@@ -289,8 +288,9 @@ def test_the_lines_that_code_prints_for_a_verifier_run_as_written(env):
             assert code == 0 and ("recorded: " in out or "missing: none" in out), (line, out)
         assert [v["verifier"] for v in held(env, artifact)] == names
     run = dispatched(env, REPORT, "review")[0]["kickoff"].split("A run that code records: ")[1].splitlines()[0]
-    words = shlex.split(run.replace("\\", "/").replace("<the command>", f"{PY} check1.py"))
-    assert env["cg"](*words[2:-2])[1].count("(ad hoc)") == 1
+    words = [f"{PY} check1.py" if word == "<the command>" else word for word in shlex.split(run.replace("\\", "/"))]
+    code, out = env["cg"](*words[2:-2])
+    assert code == 0 and "check: ad hoc (ad hoc)" in out and "verdict: verified" in out, out
 
 
 def test_the_playbooks_have_code_say_which_verifiers_run_and_name_none():
