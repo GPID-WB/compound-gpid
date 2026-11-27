@@ -179,7 +179,7 @@ def test_the_rerun_says_yes_again_when_the_agent_stops_a_second_time(monkeypatch
         monkeypatch.setattr(gate, "turn", turn)
         monkeypatch.setattr(gate, "changed", lambda project: list(files))
         monkeypatch.setattr(gate, "reports", lambda project: {"report.md": bool(files)})
-        monkeypatch.setattr(gate, "newest", lambda project, folder: {
+        monkeypatch.setattr(gate, "newest", lambda project, folder, before=None: {
             "status": "completed" if files else "in-progress", "complete": True, "replies": [gate.YES_QUICK]})
         monkeypatch.setattr(gate, "stopped", lambda project, state: False)
         (tmp_path / "R" / "headcount.R").unlink(missing_ok=True)
@@ -229,7 +229,7 @@ def test_the_rerun_takes_a_plan_to_its_hard_stop_and_judges_it_from_the_files(mo
                 state.update(status="approved", replies=[prompt])
             return ""
         monkeypatch.setattr(gate, "turn", turn)
-        monkeypatch.setattr(gate, "newest", lambda project, folder: dict(state) if folder == "plans" else idea)
+        monkeypatch.setattr(gate, "newest", lambda project, folder, before=None: dict(state) if folder == "plans" else idea)
         monkeypatch.setattr(gate, "changed", lambda project: [".cg-docs/plans/plan.md"])
         checks = {}
         gate.run_plan(gate.Agent("kilo", "kilo", "openai/m"), tmp_path, [], checks)
@@ -256,7 +256,7 @@ def test_step_h_needs_the_line_it_asked_for_to_be_new(monkeypatch, tmp_path):
         return ""
     idea = {"path": tmp_path / ".cg-docs" / "brainstorms" / "idea.md", "status": "decided"}
     monkeypatch.setattr(gate, "turn", turn)
-    monkeypatch.setattr(gate, "newest", lambda project, folder: dict(state) if folder == "plans" else idea)
+    monkeypatch.setattr(gate, "newest", lambda project, folder, before=None: dict(state) if folder == "plans" else idea)
     monkeypatch.setattr(gate, "changed", lambda project: [])
     checks = {}
     gate.run_plan(gate.Agent("kilo", "kilo", "openai/m"), tmp_path, [], checks)
@@ -294,7 +294,7 @@ def test_step_c_asks_that_code_recorded_the_yes_and_that_the_report_rests_on_evi
     for state, passes in (({"replies": [gate.YES_QUICK], "complete": True}, (True, True)),
                           ({"replies": [], "complete": True}, (False, True)),
                           ({"replies": ["Yes"], "complete": False}, (False, False))):
-        monkeypatch.setattr(gate, "newest", lambda project, folder: {"status": "completed", **state})
+        monkeypatch.setattr(gate, "newest", lambda project, folder, before=None: {"status": "completed", **state})
         checks = {}
         said.clear()
         gate.run_quick(gate.Agent("kilo", "kilo", "openai/m"), tmp_path, [], checks)
@@ -341,7 +341,7 @@ def test_the_rerun_takes_the_work_on_a_plan_to_its_end_and_judges_it_from_the_re
                 report.update(status="completed", complete=True)
             return ""
         monkeypatch.setattr(gate, "turn", turn)
-        monkeypatch.setattr(gate, "newest", lambda project, folder: dict(plan if folder == "plans" else report))
+        monkeypatch.setattr(gate, "newest", lambda project, folder, before=None: dict(plan if folder == "plans" else report))
         monkeypatch.setattr(gate, "evidence", lambda project, state: list(records))
         monkeypatch.setattr(gate, "stopped", lambda project, state: waiting[0])
         monkeypatch.setattr(gate, "reports", lambda project: {"old.md": True, **({"report.md": False} if said else {})})
@@ -374,7 +374,7 @@ def test_the_rerun_asks_for_an_action_that_cannot_be_undone_and_needs_the_stop_b
                 report["replies"] = [prompt] if stops else []
             return ""
         monkeypatch.setattr(gate, "turn", turn)
-        monkeypatch.setattr(gate, "newest", lambda project, folder: dict(report))
+        monkeypatch.setattr(gate, "newest", lambda project, folder, before=None: dict(report))
         monkeypatch.setattr(gate, "reports", lambda project: {"old.md": True, **({"report.md": False} if said else {})})
         tier = {"kind": "tier", "stop": ["irreversible: it deletes or overwrites data"] if stops else []}
         monkeypatch.setattr(gate, "evidence", lambda project, state: [tier])
