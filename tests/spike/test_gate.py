@@ -232,11 +232,13 @@ def test_the_rerun_takes_a_plan_to_its_hard_stop_and_judges_it_from_the_files(mo
         monkeypatch.setattr(gate, "turn", turn)
         monkeypatch.setattr(gate, "newest", lambda project, folder, before=None: dict(state) if folder == "plans" else idea)
         monkeypatch.setattr(gate, "changed", lambda project: [".cg-docs/plans/plan.md"])
+        monkeypatch.setattr(gate, "conformance", lambda project, state, stage, log: {
+            "missing": [], "verdicts": [{"review": "self-review", "earlier": False}]})
         checks = {}
         gate.run_plan(gate.Agent("kilo", "kilo", "openai/m"), tmp_path, [], checks)
         return said, checks
     said, checks = run(records_the_correction=False)
-    assert said == ["H1 ask for the plan", "H2 a yes that goes on", "H3 yes"] and len(checks) == 6, (said, checks)
+    assert said == ["H1 ask for the plan", "H2 a yes that goes on", "H3 yes"] and len(checks) == 8, (said, checks)
     assert all(checks.values()), checks
     said, checks = run(records_the_correction=True)
     assert not checks["H: a yes that goes on is not recorded as a yes"]
@@ -348,11 +350,13 @@ def test_the_rerun_takes_the_work_on_a_plan_to_its_end_and_judges_it_from_the_re
         monkeypatch.setattr(gate, "stopped", lambda project, state: waiting[0])
         monkeypatch.setattr(gate, "reports", lambda project: {"old.md": True, **({"report.md": False} if said else {})})
         monkeypatch.setattr(gate, "cg", lambda project, *args: (0, "guard: clean\n"))
+        monkeypatch.setattr(gate, "conformance", lambda project, state, stage, log: {
+            "missing": [], "verdicts": [{"review": "self-review", "earlier": False}]})
         checks = {}
         gate.run_work(gate.Agent("kilo", "kilo", "openai/m"), tmp_path, [], checks)
         return said, checks
     said, checks = run(declares=True)
-    assert said == ["W1 ask for the work", "W2 yes at a stop"] and len(checks) == 5 and all(checks.values()), checks
+    assert said == ["W1 ask for the work", "W2 yes at a stop"] and len(checks) == 6 and all(checks.values()), checks
     said, checks = run(declares=False)
     assert not checks["W: every check of the plan ran as the plan declares it, and is verified"], checks
 
@@ -501,6 +505,8 @@ def test_a_yes_that_changes_nothing_is_followed_by_an_answer_that_takes_the_reco
         monkeypatch.setattr(gate, "turn", turn)
         monkeypatch.setattr(gate, "newest", lambda project, folder, before=None: dict(state) if folder == "plans" else idea)
         monkeypatch.setattr(gate, "changed", lambda project: [])
+        monkeypatch.setattr(gate, "conformance", lambda project, state, stage, log: {
+            "missing": [], "verdicts": [{"review": "self-review", "earlier": False}]})
         checks = {}
         gate.run_plan(gate.Agent("kilo", "kilo", "openai/m"), tmp_path, [], checks)
         return said, checks
@@ -554,3 +560,52 @@ def test_the_irreversible_action_is_asked_for_before_the_brainstorm(monkeypatch,
     ran.clear()
     gate.run_agent(gate.Agent("kilo", "kilo", "openai/m"), tmp_path, "BWX")  # W still brings G and H
     assert ran == ["X", "G", "H", "W"], ran
+
+
+def test_steps_h_and_w_ask_for_a_verdict_of_each_verifier_and_for_its_kind_of_review(monkeypatch, tmp_path):
+    """Task 2.5 (#228): the plan and the work playbook dispatch the verifiers through code. The gate
+    reads what code holds afterwards, `cg.py conformance --json`: every verifier that code dispatches
+    gave a verdict, each verdict says whether the review was independent or a self-review, and for a
+    plan each verdict is on the text the human approved. It cannot see whether a verifier ran in a
+    fresh context or what its kickoff held: the listing goes into the transcript for a reader."""
+    sys.path.insert(0, str(GATE))
+    sys.path.insert(0, str(HUB / "spike" / "host-matrix"))
+    import run_cli_gate as gate
+    one = {"verifier": "contract", "verdict": "PASS", "review": "independent", "earlier": False}
+    assert gate.reviewed({"missing": [], "verdicts": [one, {**one, "verdict": "FLAG", "review": "self-review"}]})
+    assert not gate.reviewed({}) and not gate.reviewed({"missing": [], "verdicts": []})  # no dispatch at all
+    assert not gate.reviewed({"missing": ["plan simplicity"], "verdicts": [one]})
+    assert not gate.reviewed({"missing": [], "verdicts": [one, {**one, "review": "thorough"}]})
+    assert not gate.reviewed({"missing": [], "verdicts": [{"verifier": "contract", "verdict": "PASS"}]})
+    # What the script reads is what the installed cg.py prints, and the listing goes into the transcript.
+    asked, log = [], []
+
+    def cg(project, *args):
+        asked.append(args)
+        return (1, json.dumps({"missing": ["review claims"], "verdicts": [one]})) if "--json" in args else (1, "listing\n")
+    monkeypatch.setattr(gate, "cg", cg)
+    state = {"path": tmp_path / "report.md"}
+    assert gate.conformance(tmp_path, state, "review", log) == {"missing": ["review claims"], "verdicts": [one]}
+    assert asked[-1] == ("conformance", str(state["path"]), "--stage", "review", "--json") and "listing" in log[-1]
+    assert gate.conformance(tmp_path, None, "plan", log) == {}
+    monkeypatch.setattr(gate, "cg", lambda project, *args: (2, "no such command"))
+    assert gate.conformance(tmp_path, state, "plan", log) == {}  # an install that is behind fails the check
+    # Step H and step W each hold the check, and step H asks that the verdicts are on the approved text.
+    monkeypatch.setattr(gate, "turn", lambda *args: "")
+    monkeypatch.setattr(gate, "changed", lambda project: [])
+    plan = {"path": tmp_path / "plan.md", "status": "approved", "complete": True, "replies": ["Yes."], "intent": "",
+            "text": "", "plan": "plan.md"}
+    monkeypatch.setattr(gate, "newest", lambda project, folder, before=None: dict(plan))
+    for found, kinds, on_text in (({"missing": [], "verdicts": [one]}, True, True),
+                                  ({"missing": [], "verdicts": [{**one, "earlier": True}]}, True, False),
+                                  ({"missing": ["plan contract"], "verdicts": []}, False, False)):
+        monkeypatch.setattr(gate, "conformance", lambda project, state, stage, log, found=found: found)
+        checks = {}
+        gate.run_plan(gate.Agent("kilo", "kilo", "openai/m"), tmp_path, [], checks)
+        assert checks["H: each verifier of the plan stage gave a verdict, with its kind of review"] == kinds, found
+        assert checks["H: each verdict is on the plan as the human approved it"] == on_text, found
+        monkeypatch.setattr(gate, "evidence", lambda project, state: [])
+        monkeypatch.setattr(gate, "stopped", lambda project, state: False)
+        checks = {}
+        gate.run_work(gate.Agent("kilo", "kilo", "openai/m"), tmp_path, [], checks)
+        assert checks["W: each verifier of the review stage gave a verdict, with its kind of review"] == kinds, found
