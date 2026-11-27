@@ -25,7 +25,7 @@ After the review of task 2.3, `cg.py` stood at 1,705 lines, with `evidence`, `gu
 ## Considered and set aside
 
 - Keeping 2,500 and moving commands into packs. The commands still to come are the loop's own, and core never imports from a pack (`SCOPE.md`).
-- Splitting `cg.py` into several files. The budget counts lines of tooling, not files, so a split changes nothing in it. Whether one file stays readable is a separate question, for the same review at the end of milestone 2.
+- Splitting `cg.py` into several files. The budget counts lines of tooling, not files, so a split changes nothing in it.
 - No limit. The limit is what made each task count its lines and give some back.
 
 ## Consequences
