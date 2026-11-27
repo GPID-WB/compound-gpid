@@ -39,7 +39,7 @@ Words such as output, artifact, worked example, verification and validation have
 
 ## How a verifier works
 
-A verifier is started in a fresh context. It receives the work under review (the diff, the outputs, the artifacts), the approved contract, and its principle file. It never receives the author's explanation of the work.
+A verifier is started in a fresh context. It receives the kickoff that code prints: where the work under review and the contract are (at the plan stage, the plan and the intent the human decided), `verifier.md`, its principle file, and its lens when there is one. It never receives the author's explanation of the work.
 
 It returns one **verdict block**: the principle, a verdict of PASS, FLAG, INCONCLUSIVE or NOT APPLICABLE, its findings, and a note on what it could not inspect. `verifier.md`, beside the guide, gives the block and the rules every verifier follows. `cg.py verifiers` writes the kickoff of each verifier from fixed text and from paths, and `cg.py conformance` records each verdict in the conformance record.
 
@@ -53,7 +53,7 @@ Rules for every verifier:
 
 ## Evidence grades
 
-Used in findings and in every claim an agent makes (P7).
+Used in every claim an agent makes (P7). A finding of a verifier that points at a line is E2, and one that points at the record of a run is E4.
 
 | Grade | Meaning |
 |---|---|

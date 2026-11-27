@@ -54,8 +54,8 @@ Rules:
 
 ## Deterministic checks
 
-- `cg.py verifiers` writes the kickoff of each verifier from fixed text and from paths. It takes no word from the agent that did the work.
-- `cg.py conformance` records a finding as a flag only when it opens with a pointer that code can open, and writes down whether the review was independent or a self-review.
+- `cg.py verifiers` writes the kickoff of each verifier from fixed text and from paths. It takes no text from the agent that did the work but the name of the artifact's file, which `cg.py new` makes.
+- `cg.py conformance` records a finding as a flag only when it opens with a pointer that code can open, and writes down the kind of review the agent declares: independent or a self-review.
 - An adversary report exists for standard and deep work.
 - The report records three rounds or fewer.
 - Each finding points at the record of the run that proves it.

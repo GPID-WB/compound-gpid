@@ -111,7 +111,7 @@ An agent that checks one principle in a fresh context and returns a verdict bloc
 _Avoid_: reviewer agent, critic
 
 **Lens**:
-The instruction file a verifier reads. Packs add lenses for their field.
+An instruction file a verifier reads beside its principle file, when one exists. Packs add lenses for their field, and each lens of a pack runs as a verifier of its own.
 _Avoid_: persona
 
 **Independent review**:
@@ -180,7 +180,7 @@ The human's statement that they can explain the work, given after reading the de
 What the agent presents at sign-off: what changed, why, how it was verified and validated, what could still be wrong, what was not checked.
 
 **Conformance record**:
-The file holding one verdict per principle for a piece of work.
+The file holding the verdicts of the verifiers on one artifact, such as a plan or a work report. Code adds a line for each verdict and keeps every one, and the newest verdict of each verifier at each stage is the one that counts.
 
 ## Packaging
 
@@ -202,8 +202,8 @@ _Avoid_: kernel
 - A plan is built on a decided **intent**. An approved plan changes only by an **amendment**.
 - A check that ran leaves **evidence** and gets a **verdict**.
 - **Verification** and **validation** together are what "prove it works" means.
-- A **verifier** reads one **lens**, checks one **principle**, and returns a verdict block.
-- The **conformance record** holds one verdict per principle. **Sign-off** needs all of them.
+- A **verifier** checks one **principle**, reads its principle file and a **lens** when there is one, and returns a verdict block.
+- The **conformance record** of an artifact holds the verdicts of its verifiers. **Sign-off** needs a verdict from each verifier that applies.
 - A **pack** holds skills and lenses. The **hub** lists packs.
 - The **guide** opens **playbooks**. A playbook applies **principles**.
 - A brainstorm leaves an **intent**. **Grilling** settles its decisions, and what is left unsettled is written down as an **assumption**.

@@ -506,3 +506,10 @@ def test_the_texts_hold_what_the_review_of_task_2_5_found_in_their_wording():
     assert "each finding with its pointer" in plan[plan.index("**Reply:**"):]  # W9
     close = work[work.index("## 6."):]
     assert "each finding of `guard` the human decided on" in close and "given on an earlier text" in close  # W10, W11
+    index = (CG / "principles" / "README.md").read_text(encoding="utf-8")
+    assert "the approved contract, and its principle file" not in index and "the kickoff that code prints" in index  # W13
+    assert "Used in findings" not in index and "is E4" in index  # W14
+    p5 = (CG / "principles" / "P05-adversarial-by-default.md").read_text(encoding="utf-8")
+    assert "the name of the artifact's file" in p5 and "the kind of review the agent declares" in p5  # W15
+    glossary = (CG / "GLOSSARY.md").read_text(encoding="utf-8")
+    assert "one verdict per principle" not in glossary and "reads one **lens**" not in glossary  # W16
