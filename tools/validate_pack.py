@@ -13,7 +13,8 @@ Rules
 - Each lens has `id`, `file`, `principle` and `when`; its file exists inside
   the lead skill; its principle exists among core's principle files; its
   `when` is file patterns as text, or an object with `files` and optionally
-  `track` (ADR 0003, 2026-11-27).
+  `track` (ADR 0003, 2026-11-27); its `id` is lowercase words joined by
+  hyphens, used once in the pack, since it names the verifier `<pack>.<id>`.
 - Each track has `track` and `playbook` (and optionally `alias`); the
   playbook exists inside the lead skill.
 - Skill names are unique across every pack validated together.
@@ -129,6 +130,10 @@ def check_contract(pack: Path, principles):
                 problems.append(f"{where} {path_key} '{entry.get(path_key)}' is not a file inside {lead.name}/")
             if key != "lenses":
                 continue
+            ids = [other.get("id") for other in entries if isinstance(other, dict)]
+            if not isinstance(entry.get("id"), str) or not NAME.fullmatch(entry["id"]) or ids.count(entry["id"]) > 1:
+                problems.append(f"{where} id must be lowercase words joined by hyphens, used once in the pack: it "
+                                f"names the verifier <pack>.<id> in a line that code prints to run (review of #228)")
             if entry.get("principle") not in principles:
                 problems.append(f"{where} principle '{entry.get('principle')}' is not one of core's principles")
             when = entry.get("when") if isinstance(entry.get("when"), dict) else {"files": entry.get("when")}

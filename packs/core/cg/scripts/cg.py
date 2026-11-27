@@ -1789,9 +1789,10 @@ def work_files(project: Path, a: dict):
     """The files a lens of a pack is matched against: for a plan the files its slices list, for a work
     report the files that differ from the commit the work began on. None when code cannot tell, and
     then no lens is ruled out: git cannot say, or a slice lists a folder or a pattern."""
-    if a["type"] == "plan":
+    if a["type"] == "plan":  # a name is a folder when the project holds one, data.raw/ too (review of #228)
         names = [name for row in rows_of(a["body"], "## Slices", 5, []) for name in listed(project, row[2])]
-        return None if any("*" in name or "." not in posixpath.basename(name) for name in names) else names
+        return None if any("*" in name or (project / name).is_dir() or "." not in posixpath.basename(name)
+                           for name in names) else names
     return changed_files(project, base_of(project, a, True)) if a["type"] == "work-report" else []
 
 
@@ -1811,10 +1812,12 @@ def dispatch(project: Path, a: dict, stage: str):
         for pack, lens in lenses:
             when = lens.get("when") if isinstance(lens.get("when"), dict) else {"files": lens.get("when")}
             patterns = listed(project, when["files"]) if isinstance(when.get("files"), str) else []
+            name = f"{pack['name']}.{lens.get('id')}"  # a pack installed twice gives its lens once (review of #228)
             # A trigger that code cannot read rules nothing out, and a track narrows once the artifact names one.
             if lens.get("principle") == p["id"] and (not track or when.get("track") in (None, track)) and (
-                    files is None or not patterns or any(covers(patterns, name) for name in files)):
-                found.append({"verifier": f"{pack['name']}.{lens.get('id')}", "principle": p["id"], "name": p["name"],
+                    files is None or not patterns or any(covers(patterns, f) for f in files)) and all(
+                    v["verifier"] != name for v in found):
+                found.append({"verifier": name, "principle": p["id"], "name": p["name"],
                               "reads": [p["path"], Path(pack["path"]) / str(lens.get("file"))]})
     return found
 
@@ -1828,16 +1831,21 @@ def kickoff(project: Path, a: dict, stage: str, v: dict) -> str:
     """The text that starts one verifier: templates/kickoff.md, with nothing filled in but paths and
     IDs that code computes. No line of an artifact and no word of the agent that did the work goes
     into it, and the command takes none, so no kickoff holds the author's explanation (P5)."""
-    def link(artifact, key):  # a link of the frontmatter is passed on only when it names a file
-        value = artifact["fields"].get(key)
-        return value if isinstance(value, str) and (project / value).is_file() else "a file that is not there"
+    def link(artifact, key):  # a link of the frontmatter, which the author can edit, is passed on only when code
+        value = str(artifact["fields"].get(key) or "")  # holds it as what it names (review of #228)
+        if key == "intent":
+            return value if (decided_intent(project, value) or {}).get("path") == value else None
+        held = record_at(project / value) if posixpath.normpath(value).startswith(".cg-docs/approvals/") else {}
+        return value if (held.get("artifact"), held.get("hash")) == (artifact["path"], text_hash(artifact["body"])) else None
     values = {"cg": CG_DIR.as_posix(), "verifier": v["verifier"], "principle": f"{v['principle']} {v['name']}",
               "stage": stage, "project": project.as_posix(), "artifact": a["path"], "contract": "none",
               "evidence": "none", "run": "none at this stage, so point at a file and a line",
               "reads": "\n".join(f"{number}. {Path(path).as_posix()}"
                                  for number, path in enumerate([CG_DIR / "verifier.md", *v["reads"]], 1))}
     if a["type"] == "plan":
-        values["contract"] = f"in the plan itself; the human decided the intent it is built on, {link(a, 'intent')}"
+        intent = link(a, "intent")
+        values["contract"] = "in the plan itself; " + (f"the human decided the intent it is built on, {intent}" if intent
+                                                       else "it names no intent that the human decided")
     elif a["type"] == "work-report":
         base, plan = base_of(project, a, True), plan_of(project, a)
         values.update(
@@ -1847,19 +1855,27 @@ def kickoff(project: Path, a: dict, stage: str, v: dict) -> str:
             evidence=f".cg-docs/evidence/{Path(a['name']).stem}/ and .cg-docs/approvals/",
             run=cg_line(project, "evidence", "--run", '"<the command>"', "--report", f'"{a["path"]}"'))
         if plan:
+            record = link(plan, "approval")
             values["contract"] = f"the plan {plan['path']}, " + (
-                f"which the human approved as the record {link(plan, 'approval')} holds it"
-                if is_approved(project, plan) else "which the human has not approved as it now reads")
+                "which the human has not approved as it now reads" if not is_approved(project, plan) else
+                f"which the human approved as the record {record} holds it" if record else
+                "which the human approved as it now reads; the record it names under approval is not that yes")
     template = (CG_DIR / "templates" / "kickoff.md").read_text(encoding="utf-8")
     return re.sub(r"\{([a-z]+)\}", lambda m: values.get(m.group(1), m.group(0)), template).strip()
 
 
 def staged(project: Path, arg: str, stage):
     """The artifact that the verifiers of a stage look at, or of any stage when none is given, as
-    read_artifact reads it. When the file is none, a line says so."""
+    read_artifact reads it. When the file is none, a line says so. Its name is in every kickoff, so it is
+    one that cg.py new makes, in the folder of its type, and carries no other words (review of #228)."""
     at = artifact_at(project, arg)
     if at and (at[1] == STAGES[stage] if stage else at[1] in STAGES.values()):
-        return read_artifact(*at, project)
+        folder = (project / ".cg-docs" / ARTIFACT_FOLDERS[at[1]]).resolve()
+        if at[0].parent == folder and re.fullmatch(r"\d{4}-\d\d-\d\d-[a-z0-9-]{1,60}\.md", at[0].name):
+            return read_artifact(*at, project)
+        print(f"the verifiers check {article(at[1])} as cg.py new names it, YYYY-MM-DD-<its title in 60 characters at "
+              f"most>.md in .cg-docs/{ARTIFACT_FOLDERS[at[1]]}/, because the kickoff names the file; this is not one: {arg}")
+        return None
     print(f"at the {stage} stage the verifiers check {article(STAGES[stage])} of this project, and this is none: {arg}"
           if stage else f"not a plan, a work report or a solution of this project: {arg}")
 
@@ -1892,41 +1908,57 @@ def verdicts(project: Path, a: dict):
     """(path, verdicts): the conformance record of an artifact, one file under .cg-docs/conformance/
     in a folder named as the artifact's, and every verdict in it, oldest first. One line holds one
     verdict, and a line is only ever added: verdicts recorded at the same moment are all kept, and
-    none is written over. A line that cannot be read stays where it is and counts for nothing."""
+    none is written over. A line that cannot be read, or that is no verdict code writes for this
+    artifact, with its kind of review, stays where it is and counts for nothing (review of #228)."""
     path, found = project / ".cg-docs" / "conformance" / ARTIFACT_FOLDERS[a["type"]] / f"{Path(a['name']).stem}.jsonl", []
     for line in path.read_text(encoding="utf-8", errors="replace").splitlines() if path.is_file() else []:
         try:
             found.append(json.loads(line))
         except ValueError:
             pass
-    return path, [v for v in found if isinstance(v, dict)]
+    given = {"UNVERIFIED", *(verdict.replace("-", " ") for verdict in VERDICTS)}
+    return path, [v for v in found if isinstance(v, dict) and v.get("artifact") == a["path"]
+                  and v.get("review") in REVIEWS and v.get("verdict") in given]
+
+
+def seen(project: Path, a: dict) -> str:
+    """What a verdict is given on: the text of a plan or a solution; for a work report, which changes as it
+    is filled in, the state of each file the work changed since it began (review of #228)."""
+    return work_state(project, [""], base_of(project, a, True)) if a["type"] == "work-report" else text_hash(a["body"])
 
 
 def standing(project: Path, a: dict, stage: str):
     """Where an artifact stands at a stage: (stage, verifier, verdict) for each verifier that dispatch()
-    names, with its newest verdict on record, or None. A verdict says under `earlier` whether the text
-    it was given on has changed since. What applies is computed again each time, as the work now is."""
-    newest = {v.get("verifier"): {**v, "earlier": v.get("on") not in (None, text_hash(a["body"]))}
+    names, with its newest verdict on record, or None. A verdict says under `earlier` whether what it
+    was given on has changed since. What applies is computed again each time, as the work now is."""
+    now_seen = seen(project, a)
+    newest = {v.get("verifier"): {**v, "earlier": v.get("on") not in (None, now_seen)}
               for v in verdicts(project, a)[1] if v.get("stage") == stage}
     return [(stage, v, newest.get(v["verifier"])) for v in dispatch(project, a, stage)]
 
 
-def proven(project: Path, finding: str):
-    """(pointer, sentence) when a finding opens with proof that code can open: a file of the project
-    with a line it holds, as path:line, or the record of a run under .cg-docs/evidence/. Else None.
-    Whether the pointer shows what the sentence says is for the reader to judge."""
-    found = re.match(r"(.{1,400}?)(?::(\d+))?:\s+(\S.*)$", finding)
-    name = data_path(project, found.group(1).strip("`\"' ")) if found else ".."
+def proven(project: Path, finding: str, a: dict):
+    """(pointer, sentence) when a finding opens with proof that code can open: a line of a file of the
+    project that no data rule names, as path:line or path:first-last, or a record of a run of this work
+    under .cg-docs/evidence/. Marks of Markdown around the pointer, and a column after the line, are
+    read past (review of #228). Else None. Whether the pointer shows what the sentence says is for the
+    reader to judge."""
+    found = re.match(r"[`*\"']*(.{1,400}?)(?::(\d+)(?:-(\d+)|:\d+)?)?[`*\"']*:\s+(\S.*)$", finding)
+    name = data_path(project, found.group(1).strip("`*\"' ")) if found else ".."
+    data = (read_config(project)[0] or {}).get("data")  # the kickoff clears no data file, and a rule for the root names none
+    rules = [key for key in rule_paths(project, {"data": data}) if key] if isinstance(data, dict) else []
+    runs = [p.relative_to(project).as_posix() for p, _ in records(project, a, "check")] if a["type"] == "work-report" else []
     try:
-        if project not in (project / name).resolve().parents:  # a link that leaves the project is no file of it
+        if project not in (project / name).resolve().parents or covers(rules, name):  # a link that leaves is no file
             return None
         with open(project / name, "rb") as handle:  # its lines are counted, and nothing of it is kept
             lines = sum(1 for _ in handle)
     except (OSError, ValueError):
         return None
-    held = (1 <= int(found.group(2)) <= lines if found.group(2) else
-            name.startswith(".cg-docs/evidence/") and record_at(project / name).get("kind") == "check")
-    return (name + (":" + found.group(2) if found.group(2) else ""), found.group(3)) if held else None
+    first, last = (int(found.group(2)), int(found.group(3) or found.group(2))) if found.group(2) else (0, 0)
+    held = name in runs if not first else 1 <= first <= last <= lines and (
+        name in runs or not name.startswith(".cg-docs/evidence/"))
+    return (name + (f":{first}" + f"-{last}" * bool(found.group(3)) if first else ""), found.group(4)) if held else None
 
 
 def cmd_conformance(args) -> int:
@@ -1964,25 +1996,33 @@ def cmd_conformance(args) -> int:
                            f"does not apply to this work")
         if refused:
             return say(refused)
-        opened = [(text, proven(project, text)) for text in findings]
+        opened = [(text, proven(project, text, a)) for text in findings]
         entry = {"artifact": a["path"], "stage": args.stage, "verifier": args.verifier,
                  "principle": named[args.verifier]["principle"],
                  "verdict": args.verdict.replace("-", " ") if any(p for _, p in opened) or not findings else "UNVERIFIED",
                  "review": args.review, "findings": [{"where": p[0], "what": p[1][:300]} for _, p in opened if p],
                  "unverified": [text[:300] for text, p in opened if not p], "note": note[:300],
-                 # A verdict is on the text it was given on. A work report changes as it is filled in, so it has none.
-                 "on": None if a["type"] == "work-report" else text_hash(a["body"]), "time": now()}
+                 "on": seen(project, a), "time": now()}  # a verdict is on what it was given on
+        problem = "a line added after one that was cut short, or in the same instant as another, could not be read"
+        for _ in range(3):  # so look after each write, and add it again
+            try:
+                path.parent.mkdir(parents=True, exist_ok=True)
+                with open(path, "a", encoding="utf-8", newline="\n") as handle:
+                    handle.write(json.dumps(entry, ensure_ascii=False) + "\n")
+            except OSError as error:  # a file held by another program, as a sync client may hold one
+                problem = str(error)
+                continue
+            if entry in verdicts(project, a)[1]:
+                break
+        else:  # never said to be recorded when it is not (review of #228)
+            return say([f"the verdict of {args.verifier} is not recorded, because three writes left no line that code "
+                        f"can read ({problem}); run the line again"])
         print(f"recorded: {args.verifier} ({entry['principle']}) at the {args.stage} stage: {entry['verdict']}, "
               f"{REVIEWS[args.review]}" + "".join(f"\nunverified: {text}" for text in entry["unverified"]))
         if entry["unverified"]:
-            print("  code found no proof it can open at the start of an unverified finding: a file of the project "
-                  "with a line it holds, written path:line, or the record of a run under .cg-docs/evidence/")
-        path.parent.mkdir(parents=True, exist_ok=True)
-        for _ in range(3):  # a line added after one that was cut short, or in the same instant as another, may
-            with open(path, "a", encoding="utf-8", newline="\n") as handle:  # not be readable: look, and add it again
-                handle.write(json.dumps(entry, ensure_ascii=False) + "\n")
-            if entry in verdicts(project, a)[1]:
-                break
+            print("  code found no proof it can open at the start of an unverified finding: a line of a file of the "
+                  "project that is no data file, written path:line, or the record of a run of this work under "
+                  ".cg-docs/evidence/")
         print(f"record: {path.relative_to(project).as_posix()}")
         return 0
     plan = plan_of(project, a) if a["type"] == "work-report" and not args.stage else None
