@@ -1,0 +1,32 @@
+{
+  "codex": {
+    "review: verdict: FLAG": true,
+    "review: each finding proposes the code that replaces it": true,
+    "review: a check of the plan that never ran: @plan, at '| C5 |'": true,
+    "review: a check that fails on the work as it now is: @plan, at '| C4 |'": true,
+    "review: a check that cannot fail: @plan, at '| C3 |'": true,
+    "review: evidence from a proxy: @plan, at '| C2 |'": true,
+    "review: a claim with no evidence: @report, at 'C5 passes'": true,
+    "review: a statistic with no independent check: @profile, at '| Its bootstrap interval |'": true,
+    "review: an expected value derived the same way as the output: checks/headcount.py, at 'expected = headcount('": true,
+    "review: a number that measures something else: pipeline.py, at 'if row[\"weight\"]'": true,
+    "review: a claim of validation with no record: @report, at 'matches the figure'": true,
+    "review: the verifier changed no file of the project": true,
+    "review: the verifier reran every check of the plan itself": true
+  },
+  "kilo": {
+    "review: verdict: FLAG": true,
+    "review: each finding proposes the code that replaces it": true,
+    "review: a check of the plan that never ran: @plan, at '| C5 |'": true,
+    "review: a check that fails on the work as it now is: @plan, at '| C4 |'": true,
+    "review: a check that cannot fail: @plan, at '| C3 |'": true,
+    "review: evidence from a proxy: @plan, at '| C2 |'": true,
+    "review: a claim with no evidence: @report, at 'C5 passes'": true,
+    "review: a statistic with no independent check: @profile, at '| Its bootstrap interval |'": true,
+    "review: an expected value derived the same way as the output: checks/headcount.py, at 'expected = headcount('": false,
+    "review: a number that measures something else: pipeline.py, at 'if row[\"weight\"]'": false,
+    "review: a claim of validation with no record: @report, at 'matches the figure'": true,
+    "review: the verifier changed no file of the project": true,
+    "review: the verifier reran every check of the plan itself": true
+  }
+}
