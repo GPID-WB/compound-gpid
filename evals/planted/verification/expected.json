@@ -1,0 +1,24 @@
+{
+  "verifier": "verification",
+  "data": {"data/survey.csv": "Public"},
+  "about": "Each case is a violation planted in project/, in plan.md, in the work report (report.md), in the verification profile or in the evidence that 'work' leaves (review stage). 'code' names the rule of cg.py evidence --rerun that finds its part, or null when only judgement can. '@plan', '@report' and '@profile' are the plan, the work report and .cg-docs/verification.md of the built project. A finding catches a case when its pointer is 'file' at the line that holds 'text', three lines either way, or is one of 'or', where 'record' is a record under .cg-docs/evidence/. 'work' is the work as it went: for each slice the checks that ran, on the files as they were then, which 'earlier' gives as a text of the final file and the text it held.",
+  "intent": "intent.md",
+  "report": "report.md",
+  "reruns": true,
+  "work": [
+    {"slice": "S1", "earlier": {"pipeline.py": ["if len(members) >= SMALL:", "if members:"]}, "checks": ["C1"]},
+    {"slice": "S2", "earlier": {"pipeline.py": ["if len(members) >= SMALL:", "if members:"]}, "checks": ["C2", "C4"]},
+    {"slice": "S3", "checks": ["C3"]}
+  ],
+  "review": [
+    {"flag": "a check of the plan that never ran", "code": "not-run", "file": "@plan", "text": "| C5 |", "or": ["record"]},
+    {"flag": "a check that fails on the work as it now is", "code": "fails", "file": "@plan", "text": "| C4 |", "or": ["record", "pipeline.py"]},
+    {"flag": "a check that cannot fail", "code": "cannot-fail", "file": "@plan", "text": "| C3 |", "or": ["record"]},
+    {"flag": "evidence from a proxy", "code": "proxy", "file": "@plan", "text": "| C2 |", "or": ["record"]},
+    {"flag": "a claim with no evidence", "code": "unrecorded", "file": "@report", "text": "C5 passes", "or": ["record"]},
+    {"flag": "a statistic with no independent check", "code": "no-validation", "file": "@profile", "text": "| Its bootstrap interval |", "or": ["record"]},
+    {"flag": "an expected value derived the same way as the output", "code": null, "file": "checks/headcount.py", "text": "expected = headcount("},
+    {"flag": "a number that measures something else", "code": null, "file": "pipeline.py", "text": "if row[\"weight\"]"},
+    {"flag": "a claim of validation with no record", "code": null, "file": "@report", "text": "matches the figure"}
+  ]
+}

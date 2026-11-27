@@ -584,9 +584,6 @@ def test_the_other_texts_name_the_work_playbook_and_what_code_now_records(env):
     guide = (CG / "SKILL.md").read_text(encoding="utf-8")
     row = next(line for line in guide.splitlines() if line.startswith("|") and "`work` after `/cg`" in line)
     assert "`--playbook work`" in row and "section 3" in row
-    env["config"]()
-    state = json.loads(env["cg"]("status", "--guide", "--playbook", "work", "--json")[1])
-    assert state["playbook"].endswith("work.md") and state["next"] == "read playbooks/work.md"
     quick, plan = QUICK_TEXT.read_text(encoding="utf-8"), (CG / "playbooks" / "plan.md").read_text(encoding="utf-8")
     assert "PLACEHOLDER" not in quick and "PLACEHOLDER: written in task 2.4" not in plan
     assert "`/cg work`" in plan[plan.index("**Reply:**"):] and "pair of backticks" in plan[plan.index("## 3."):plan.index("## 4.")]
@@ -605,3 +602,26 @@ def test_the_other_texts_name_the_work_playbook_and_what_code_now_records(env):
     assert "`cg.py evidence`" in p4[p4.index("## Deterministic checks"):]
     cg = load_cg()
     assert cg.ALWAYS_STOP == ("irreversible",) and "evidence" in (hub / "docs" / "adr" / "0006-evidence.md").read_text()
+
+
+def test_gate_rerun_22_a_request_for_the_work_with_no_approved_plan_goes_to_quick_work(env):
+    """Gate rerun 22: asked with /cg for a change, an agent ran status with --playbook work on its own reading,
+    got the work playbook, found no approved plan, changed nothing and sent the human to /cg plan. With no plan
+    approved as it now reads, status names quick work and says why; with one, the work playbook. A plan and a
+    brainstorm open as they did, and the guide's row for the work says where such a request goes."""
+    env["config"]()
+    for draft in (False, True):
+        if draft:
+            env["put"]("plan", front("plan", "draft") + BODY)
+        state = json.loads(env["cg"]("status", "--guide", "--playbook", "work", "--json")[1])
+        assert state["playbook"].endswith("quick.md") and "no plan is approved" in state["next"], state
+        assert state["next"].startswith("read playbooks/quick.md; ") and "/cg plan" in state["next"]
+    assert env["cg"]("approve", PLAN, "--reply", "Yes.")[0] == 0
+    state = json.loads(env["cg"]("status", "--guide", "--playbook", "work", "--json")[1])
+    assert state["playbook"].endswith("work.md") and state["next"] == "read playbooks/work.md"
+    for asked in ("plan", "brainstorm"):
+        state = json.loads(env["cg"]("status", "--guide", "--playbook", asked, "--json")[1])
+        assert state["playbook"].endswith(f"{asked}.md") and state["next"] == f"read playbooks/{asked}.md"
+    row = next(line for line in (CG / "SKILL.md").read_text(encoding="utf-8").splitlines()
+               if line.startswith("|") and "`work` after `/cg`" in line)
+    assert "no plan is approved" in row and "quick work" in row

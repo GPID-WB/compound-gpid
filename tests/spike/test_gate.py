@@ -345,6 +345,8 @@ def test_the_rerun_takes_the_work_on_a_plan_to_its_end_and_judges_it_from_the_re
                 waiting[0] = False
                 records.append({"kind": "repro", "report": ".cg-docs/work-reports/report.md", "exits": [],  # P3, by code
                                 "outputs": {}, "findings": [], "state": "sha256:0", "verdict": "inconclusive"})
+                records.append({"kind": "rerun", "report": ".cg-docs/work-reports/report.md", "exits": [0, 0],  # P4
+                                "checks": {"C1": {}, "C2": {}}, "findings": [], "state": "sha256:0"})
                 report.update(status="completed", complete=True)
             return ""
         monkeypatch.setattr(gate, "turn", turn)
@@ -359,7 +361,7 @@ def test_the_rerun_takes_the_work_on_a_plan_to_its_end_and_judges_it_from_the_re
         gate.run_work(gate.Agent("kilo", "kilo", "openai/m"), tmp_path, [], checks)
         return said, checks
     said, checks = run(declares=True)
-    assert said == ["W1 ask for the work", "W2 yes at a stop"] and len(checks) == 7 and all(checks.values()), checks
+    assert said == ["W1 ask for the work", "W2 yes at a stop"] and len(checks) == 8 and all(checks.values()), checks
     said, checks = run(declares=False)
     assert not checks["W: every check of the plan ran as the plan declares it, and is verified"], checks
 
@@ -637,3 +639,22 @@ def test_step_w_asks_that_code_ran_its_part_of_p3_on_the_work(monkeypatch, tmp_p
     folder.mkdir(parents=True)
     (folder / "0001-20261127T000000Z-repro.json").write_text(json.dumps(ran), encoding="utf-8")
     assert gate.reproduced(gate.evidence(tmp_path, state), report)
+
+
+def test_step_w_asks_that_the_verification_verifier_reran_every_check_of_the_plan(tmp_path):
+    """Task 2.7 (#230): the verifier of P4 reruns every check of the plan itself, through the line its kickoff
+    gives, which leaves a record of `kind: rerun` among the evidence of the work report. Step W asks for one
+    that holds every check of the plan, written after the last slice began, from the files alone. It measures
+    that the checks were rerun, and neither what the rerun found nor the verdict."""
+    sys.path.insert(0, str(GATE))
+    sys.path.insert(0, str(HUB / "spike" / "host-matrix"))
+    import run_cli_gate as gate
+    report, wanted = ".cg-docs/work-reports/2026-11-27-x.md", {"C1", "C2"}
+    ran = {"kind": "rerun", "report": report, "checks": {"C1": {}, "C2": {}}, "exits": [0, 1], "findings": [],
+           "state": "sha256:0"}
+    assert gate.reran([{"kind": "tier"}, {"kind": "check"}, ran], report, wanted)
+    assert not gate.reran([{"kind": "tier"}, dict(ran, checks={"C1": {}})], report, wanted)  # one check of two
+    assert not gate.reran([ran, {"kind": "tier"}], report, wanted)  # before the last slice began
+    assert not gate.reran([{"kind": "tier"}, dict(ran, report=".cg-docs/work-reports/2026-11-26-y.md")], report, wanted)
+    assert not gate.reran([{"kind": "tier"}, {"kind": "rerun", "report": report}], report, wanted)  # typed by hand
+    assert not gate.reran([{"kind": "tier"}, ran], report, set())  # a plan with no check reran nothing

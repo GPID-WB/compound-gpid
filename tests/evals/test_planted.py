@@ -69,3 +69,34 @@ def test_a_dry_run_builds_each_stage_and_prints_the_kickoff_with_the_lens_and_st
     assert "lenses/determinism.md" in out and "no agent started" in out, out
     assert list((project / ".cg-docs" / "evidence").rglob("*-repro.json")), out
     assert (project / ".cg-docs" / "plans" / "2026-11-27-poverty-brief.md").is_file()
+
+
+def test_the_verification_folder_builds_the_work_as_it_went_and_the_runner_asks_that_every_check_was_rerun(tmp_path):
+    """Task 2.7 (#230): the planted work of P4 is a plan the human approved, its slices done with the checks run on
+    the files as they were then, and a work report with its claims. Its verifier runs at the review stage only.
+    The runner asks that the verifier reran every check of the plan itself: a record of a rerun, made during its
+    turn, that holds each check. A case may point at the plan, the work report or the verification profile."""
+    sys.path.insert(0, str(RUNNER.parent))
+    import run_planted
+    done = subprocess.run([sys.executable, str(RUNNER), "--dry-run", "--cg", str(CG), "--dest", str(tmp_path / "lens"),
+                           "--only", "codex", "--verifier", "verification"], capture_output=True, text=True)
+    out, project = done.stdout + done.stderr, tmp_path / "lens" / "toy-poverty-codex"
+    assert done.returncode == 0 and out.count("You are the verifier `verification`") == 1, out
+    assert "lenses/verification.md" in out and "Every check of the plan, rerun by code: " in out, out
+    folder = project / ".cg-docs" / "evidence" / "2026-11-27-poverty-brief"
+    found = [json.loads(path.read_text(encoding="utf-8")) for path in sorted(folder.glob("*.json"))]
+    assert [(r["kind"], r.get("slice") or r.get("check")) for r in found] == [
+        ("tier", "S1"), ("check", "C1"), ("tier", "S2"), ("check", "C2"), ("check", "C4"), ("tier", "S3"),
+        ("check", "C3")], found
+    assert [r["verdict"] for r in found if r["kind"] == "check"] == ["verified"] * 4
+    known = run_planted.records(project)
+    assert not run_planted.reran(project, known)
+    code = subprocess.run([sys.executable, str(CG), "evidence", "--rerun", "--report", run_planted.REPORT,
+                           "--project", str(project)], capture_output=True, text=True).returncode
+    assert code == 1 and run_planted.reran(project, known) and not run_planted.reran(project, run_planted.records(project))
+    cases = json.loads((RUNNER.parent / "verification" / "expected.json").read_text(encoding="utf-8"))["review"]
+    head = "principle: P4\nverdict: FLAG\nfindings:\n"
+    report = next(n for n, line in enumerate((project / run_planted.REPORT).read_text().splitlines(), 1) if "C5 passes" in line)
+    reply = head + f"  - {run_planted.REPORT}:{report}: C5 never ran (P1; fix: run it)\nnote: none\n"
+    result = run_planted.judge(project, cases, reply)
+    assert result["a claim with no evidence: @report, at 'C5 passes'"] and sum(result.values()) == 3, result

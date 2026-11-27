@@ -12,7 +12,7 @@ import shutil
 
 from test_artifacts import ALL_NO, CG, HUB, env, load_cg  # noqa: F401  (env is a fixture)
 from test_verifiers import dispatched, give, held
-from test_work import PLAN, PY, QUICK, REPORT, git, start
+from test_work import PLAN, PY, QUICK, REPORT, fill, git, start, yes
 
 PLANTED = HUB / "evals" / "planted" / "determinism"
 CASES = json.loads((PLANTED / "expected.json").read_text(encoding="utf-8"))
@@ -33,14 +33,22 @@ def begin(env, report="Poverty brief"):
 
 
 def planted(env):
-    """The planted project, with its profile, which runs the pipeline with this interpreter."""
+    """The planted project, with its profile, which runs the pipeline with this interpreter. Its outputs were
+    typed and no commit holds them, so the human's yes to writing over them is on record (stop rule 1, #230)."""
     project = env["project"]
     shutil.copytree(PLANTED / "project", project, dirs_exist_ok=True)
     (project / ".cg-docs").mkdir(exist_ok=True)
     profile = (PLANTED / "verification.md").read_text(encoding="utf-8").replace("\npython ", f"\n{PY} ")
     (project / ".cg-docs" / "verification.md").write_text(profile, encoding="utf-8")
-    begin(env)
+    overwrite(env, begin(env))
     return project
+
+
+def overwrite(env, report):
+    """The overwrite declared as stop rule 1 of the work playbook says, and the human's plain yes to it."""
+    assert env["cg"]("tier", *yes("irreversible"), "--touches", "pipeline.py", "--reads", "none", "--report", report)[0] == 0
+    fill(env["project"] / report)
+    assert env["cg"]("approve", report, "--reply", "Yes.")[0] == 0
 
 
 def repro(env, report=BRIEF):
@@ -192,6 +200,54 @@ def test_guard_names_a_file_that_a_recorded_run_wrote_apart_from_a_change_outsid
     assert run["wrote"] == [load_cg().name_key(made)]
     (project / made).unlink()
     assert env["cg"]("guard", "--report", REPORT) == (0, "guard: clean\n")
+
+
+def test_review_of_2_6_repro_writes_over_no_output_that_no_commit_holds_without_the_humans_yes(env):
+    """Review of #229, followed up in #230: repro ran the pipeline and lost a typed output that no commit held.
+    Writing over a file that no commit holds is stop rule 1 of the work playbook. Before its first run repro
+    refuses, names the output and writes nothing; it runs on an output a commit holds as it now is, and after
+    the human's recorded yes to the overwrite, which covers that one run."""
+    project = env["project"]
+    (project / "run.py").write_text("open('out.csv', 'w').write('1')\n")
+    (project / ".cg-docs").mkdir()
+    (project / ".cg-docs" / "verification.md").write_text(PROFILE.format(run=f"{PY} run.py"), encoding="utf-8")
+    report = begin(env)
+    (project / "out.csv").write_text("typed\n")
+    code, out, record, _ = repro(env, report)
+    assert code == 1 and "refused: " in out and "out.csv" in out and not record, out
+    assert (project / "out.csv").read_text() == "typed\n"
+    git(project, "add", "-A")
+    git(project, "commit", "-q", "-m", "the typed output")
+    code, out, record, _ = repro(env, report)
+    assert record["exits"] == [0, 0] and (project / "out.csv").read_text() == "1", out
+    assert "refused: " in repro(env, report)[1]  # the runs wrote it, and no commit holds what they wrote
+    overwrite(env, report)
+    assert repro(env, report)[2]["exits"] == [0, 0] and "refused: " in repro(env, report)[1]  # one yes, one run
+
+
+def test_review_of_2_6_a_requirements_file_or_an_environment_that_pins_every_version_is_a_pin(env):
+    """Review of #229, R17: a requirements.txt in which every package pins a version with ==, and an
+    environment.yml whose dependencies all carry one, were named `unpinned`. A range, a bare name or a file
+    that only includes another is still no pin."""
+    cg, project = load_cg(), env["project"]
+    for name, text, pinned in (
+            ("requirements.txt", "# pins\nnumpy==1.26.4\npandas[performance]==2.2.2 ; python_version > '3.8'\n"
+                                 "    --hash=sha256:abc\n", True),
+            ("requirements.txt", "numpy==1.26.4\npandas>=2\n", False), ("requirements.txt", "-r base.txt\n", False),
+            ("environment.yml", "name: brief\nchannels:\n  - conda-forge\ndependencies:\n  - python=3.11\n"
+                                "  - numpy=1.26.4=py311h0\n  - pip:\n    - polars==0.20.31\n", True),
+            ("environment.yml", "dependencies:\n  - python=3.11\n  - numpy\n", False)):
+        (project / name).write_text(text, encoding="utf-8")
+        assert cg.pins(project / name) == pinned, (name, text)
+    (project / "environment.yml").unlink()
+    (project / "requirements.txt").write_text("numpy==1.26.4\n", encoding="utf-8")
+    (project / "pipeline.py").write_text("print(1)\n")
+    (project / ".cg-docs").mkdir()
+    (project / ".cg-docs" / "verification.md").write_text(PROFILE.format(run="not found"), encoding="utf-8")
+    report = begin(env)
+    assert "unpinned" not in json.dumps(repro(env, report)[2]["findings"])
+    (project / "requirements.txt").write_text("numpy\n", encoding="utf-8")
+    assert ("unpinned", "uv.lock") in [(f["rule"], f["where"]) for f in repro(env, report)[2]["findings"]]
 
 
 # ---------------------------------------------------------------- the text
