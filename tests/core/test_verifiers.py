@@ -149,13 +149,16 @@ def test_a_flag_without_proof_is_recorded_as_unverified(env):
                  for end in ("ad-hoc", "tier"))
     loose = ["the share ignores the weights", "R/nothing.R:1: no such file", f"{CODE}:99: no such line", f"{CODE}: no line",
              f"{CODE}:0: no such line", "../outside.R:1: outside the project", f"{Path(__file__).as_posix()}:1: outside it",
-             f"{tier}: a record of tier is no run", "the plan says: nothing about a seed"]
+             f"{tier}: a record of tier is no run", "the plan says: nothing about a seed", "R:1: a folder is no file"]
+    if hasattr(Path, "symlink_to") and __import__("os").name != "nt":  # a link out of the project is no file of it
+        (project / "link.R").symlink_to(Path(__file__))
+        loose.append("link.R:1: a link that leaves the project")
     code, out = give(env, REPORT, "review", "determinism", "FLAG", "independent", *[x for f in loose for x in ("--finding", f)])
     assert code == 0 and "determinism (P3) at the review stage: UNVERIFIED, independent review" in out, out
     assert out.count("\nunverified: ") == len(loose) and "path:line" in out
     last = held(env, REPORT)[-1]
     assert last["verdict"] == "UNVERIFIED" and last["findings"] == [] and last["unverified"] == loose
-    proven = [f"{CODE}:1: the share is typed in (P1; fix: compute it)", f"{run}: a zero weight gives NaN",
+    proven = [f"{CODE}:1: the share is typed in (P1; fix: compute it)", f"{run}: a zero weight\n  gives NaN",
               f"{(project / CODE).as_posix()}:1: an absolute path inside the project"]
     code, out = give(env, REPORT, "review", "determinism", "FLAG", "independent", "--finding", loose[0],
                      *[x for f in proven for x in ("--finding", f)])
