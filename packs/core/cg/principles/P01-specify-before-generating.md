@@ -64,3 +64,4 @@ Flag when:
 - `cg.py validate`: the plan has every contract section. Each check has an ID, a command and an outcome that means failure, and a slice ends in it. Nothing in the plan is still marked as open, and `cg.py approve` refuses a plan while a row of its Open questions has no recommended answer or no answer from the human.
 - `cg.py new plan` makes a plan only on a decided intent, and `cg.py approve` refuses a plan whose intent is not decided as it now reads.
 - `cg.py approve` record exists and its hash matches the current plan. The record keeps the text that was approved, and a changed plan is approved again only with a new dated line under `## Amendments`, beside the earlier lines.
+- `cg.py claims`, at the review stage: each file that the approved plan names in its contract, its data register or its slices is in the project when the work is done.

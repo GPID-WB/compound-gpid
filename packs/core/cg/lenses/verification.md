@@ -25,7 +25,7 @@ Before you judge anything, run the line of your kickoff after "Every check of th
 | Flag | Code's rules | You judge | Fix: the change to propose | Priority |
 |---|---|---|---|---|
 | A check of the plan that does not pass on the work as it now is | `not-run`, `fails`: sure | a check the work ran on an earlier state of its files and that fails now was broken by a later change | the fix in the code at the first place where things go wrong, then the check run through `evidence` again; never a change to the check | P1 |
-| A claim with no evidence | `unrecorded`: to judge | a line of the work report, a commit message or a comment that says a check passed, a number is right or the work is done, and no record shows it; an inconclusive verdict reported as a pass | the run that shows it, through `evidence`, or the claim taken out | P1 |
+| A claim with no evidence | `unrecorded`, `unbacked`: to judge | a line of the work report, a commit message or a comment that says a check passed, a number is right or matches a source, or the work is done, and no record shows it; an inconclusive verdict reported as a pass | the run that shows it, through `evidence`, or the claim taken out | P1 |
 | Evidence from a proxy | `proxy`: to judge | the check shows only that code runs, compiles or loads, that a file exists, or how many rows it has; it checks an intermediate object, and the real output is never checked | a check on the value of the real output, against an expected value from a source independent of the code | P1 |
 | A check that cannot fail | `cannot-fail`: sure | the expected value comes from the code under test or from the output it checks; the tolerance is wider than any error that matters; with the behavior broken in a probe, the check still passes | a command whose exit code is the check's own, such as `devtools::test(stop_on_failure = TRUE)`; an expected value from a worked example or a reference value | P1 |
 | A statistic with no independent check | `no-validation`: to judge | an output the work reports has no reference value, no cross-check in a second software and no expectation the human stated before the run; its expected value was derived the same way as the output | the reference value, the cross-check or the human's prior expectation, in the outputs map and in a check of the plan | P1 |
@@ -34,14 +34,14 @@ Before you judge anything, run the line of your kickoff after "Every check of th
 
 ## Every reported number
 
-For each number that the work report or a report of the project gives, and each output that the outputs map names, ask what else it could be measuring. Look for each answer in the code, the checks and their records, and open no output to read its values (rule 6):
+For each number that the work report or a report of the project gives, and each output that the outputs map names, ask what else it could be measuring. Trace it back through the code, from the line that writes it to the line that computes it and on to the line that reads its input, and name each filter, merge, weight and unit on the way: each one is a place where the number can come to measure something else. Look for each answer in the code, the checks and their records, and open no output to read its values (rule 6):
 
-- rows dropped, a missing value or weight passed over, a merge that did not match, a filter that left nothing;
+- rows dropped by a filter or a condition, such as a test on a weight or a value that is missing, zero or empty; a merge that did not match, or matched twice;
 - a cached or stale output, a step or a branch that never ran, an error that was caught and passed over;
-- another sample, population, weight, vintage or definition than the claim names;
+- another sample, population, weight, unit, vintage or definition than the claim names;
 - noise: a difference smaller than its spread, or one run of something that samples.
 
-An answer you cannot rule out from a line or a record is a finding. Point at the line of code that lets it happen.
+An answer you cannot rule out from a line or a record is a finding. Point at the line of the filter, the merge, the weight or the unit that lets it happen, and say in the sentence what the number measures there.
 
 ## Prove and propose
 

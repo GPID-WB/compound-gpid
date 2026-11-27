@@ -52,5 +52,4 @@ Flag when:
 
 ## Deterministic checks
 
-- Each measured claim links to an evidence entry that exists.
-- Numbers in report text are matched against the output files they cite.
+- `cg.py claims`: each file and each record the work report names is in the project, each file its Changed table names was changed, a claim labelled measured names a pointer, and a number on a line that names an output of the outputs map is one that output holds. A function the work report names that no code of the project defines is a line to judge.
