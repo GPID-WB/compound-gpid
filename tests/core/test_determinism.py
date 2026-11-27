@@ -98,6 +98,58 @@ def test_repro_catches_the_part_of_each_planted_violation_that_code_can_find(env
     code, out = env["cg"]("guard", "--report", BRIEF)
     assert "FAIL written: output/notes.txt was written by a run of repro" in out, out
     assert "FAIL outside: output/headcount.csv" in out and "outside: output/notes.txt" not in out, out
+    # Review of #229: a record of another work report, copied beside this one's, is no proof (ADR 0008).
+    copied = path.replace("-repro.json", "-copied-repro.json")
+    (project / copied).write_text(json.dumps({**record, "report": ".cg-docs/work-reports/2026-11-26-other.md"}))
+    assert give(env, BRIEF, "review", "determinism", "FLAG", "independent", "--finding", f"{copied}: other work")[0] == 0
+    assert held(env, BRIEF)[-1]["verdict"] == "UNVERIFIED", held(env, BRIEF)[-1]
+
+
+def test_review_of_2_6_an_empty_seed_or_a_seed_for_one_call_clears_nothing_below_and_common_draws_are_found(env):
+    """Review of #229: `random.seed()` and `set.seed(NULL)`, which seed from the clock, cleared every draw below
+    them, and so did a seed given to one call (`random_state=`, `withr::with_seed`, Stata's `seed()`). Draws in
+    common forms were missed: `rlnorm` and `mvrnorm` in R, a bare `default_rng()` and scipy's `rvs` in Python,
+    `cap noi bootstrap`, `bysort: sample` and `runiformint` in Stata; and so were `os.walk` and `$S_DATE`. A seed
+    set once for the whole file still clears, and so does a seed for its own call."""
+    files = {"a.py": "import random\nrandom.seed()\nx = random.random()\n",
+             "b.py": "a = df.sample(n=3, random_state=1)\nb = df.sample(n=3)\n",
+             "c.py": "from numpy.random import default_rng\nrng = default_rng()\nx = stats.norm.rvs(size=3)\n",
+             "d.py": "import os\nfor root, folders, names in os.walk('data'):\n    pass\n",
+             "e.R": "set.seed(NULL)\nx <- rlnorm(5)\ny <- withr::with_seed(7, rnorm(1))\nz <- MASS::mvrnorm(5, m, s)\n",
+             "f.do": "version 18\nbootstrap r(mean), reps(5) seed(1): summarize x\ncap noi bootstrap r(mean), reps(5): summarize x\n"
+                     "bysort region: sample 10\ngenerate u = runiformint(1, 6)\nfile write fh \"$S_DATE\"\n",
+             "g.R": "set.seed(7)\nx <- rnorm(5)\ny <- future.apply::future_lapply(1:3, function(i) rnorm(1), future.seed = 1)\n"}
+    env["config"]()
+    for name, text in files.items():
+        (env["project"] / name).write_text(text, encoding="utf-8")
+    found = {(f["rule"], f["where"]) for f in load_cg().scan(env["project"], list(files))}
+    assert found == {("unseeded", "a.py:3"), ("unseeded", "b.py:2"), ("unseeded", "c.py:2-3"), ("unsorted", "d.py:2"),
+                     ("unseeded", "e.R:2"), ("unseeded", "e.R:4"), ("unseeded", "f.do:3-5"), ("clock", "f.do:6")}, found
+
+
+def test_review_of_2_6_repro_runs_one_command_and_keeps_no_name_it_found_under_an_output_folder(env):
+    """Review of #229: a comment above the Run command was run in its place, and a Run block of two lines ran its
+    first line; both gave findings that were false. A folder of the outputs map that the runs made was named
+    missing, and the names of the files found in it went into the record, a person's name among them (P12).
+    Four fixes were wrong where they stand: a seed above each draw, a shell command that is R, `uv lock` with no
+    pyproject.toml, and a rewrite for a pipeline that keeps a cache."""
+    project = env["project"]
+    (project / ".cg-docs").mkdir()
+    (project / "run.py").write_text("import os\nos.makedirs('output/letters', exist_ok=True)\n"
+                                    "open('output/letters/jane-doe.txt', 'w').write('1')\n")
+    profile = PROFILE.replace("| A draw | `out.csv` |", "| The letters | `output/` |")
+    (project / ".cg-docs" / "verification.md").write_text(profile.format(run=f"# from the root\n{PY} run.py"))
+    report = begin(env)
+    code, out, record, _ = repro(env, report)
+    assert record["exits"] == [0, 0] and "output/letters/jane-doe.txt: same" in out and "missing" not in out, out
+    assert "jane-doe" not in json.dumps(record) and len(record["outputs"]) == 1, record
+    (project / ".cg-docs" / "verification.md").write_text(profile.format(run=f"{PY} run.py\n{PY} run.py"))
+    code, out, record, _ = repro(env, report)
+    assert record["exits"] == [] and ("no-run", ".cg-docs/verification.md") in [(f["rule"], f["where"])
+                                                                              for f in record["findings"]], out
+    cg = load_cg()
+    assert "each draw" not in cg.RUN_FIXES["differs"] and 'Rscript -e "targets::tar_make()"' in cg.RUN_FIXES["no-run"]
+    assert "uv init --bare" in cg.LOCKFILES[1][2] and all("make -B" in cg.RUN_FIXES[r] for r in ("not-written", "once"))
 
 
 def test_repro_passes_a_pipeline_that_writes_the_same_outputs_twice_and_records_what_it_cannot_run(env):

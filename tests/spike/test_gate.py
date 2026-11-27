@@ -343,7 +343,8 @@ def test_the_rerun_takes_the_work_on_a_plan_to_its_end_and_judges_it_from_the_re
                 records.append({"kind": "check", "check": "C2" if declares else "ad hoc", "label": label_,
                                 "verdict": "verified"})
                 waiting[0] = False
-                records.append({"kind": "repro", "verdict": "inconclusive"})  # code's part of P3, at the close
+                records.append({"kind": "repro", "report": ".cg-docs/work-reports/report.md", "exits": [],  # P3, by code
+                                "outputs": {}, "findings": [], "state": "sha256:0", "verdict": "inconclusive"})
                 report.update(status="completed", complete=True)
             return ""
         monkeypatch.setattr(gate, "turn", turn)
@@ -621,10 +622,18 @@ def test_step_w_asks_that_code_ran_its_part_of_p3_on_the_work(monkeypatch, tmp_p
     sys.path.insert(0, str(GATE))
     sys.path.insert(0, str(HUB / "spike" / "host-matrix"))
     import run_cli_gate as gate
-    assert gate.reproduced([{"kind": "tier"}, {"kind": "check"}, {"kind": "repro", "verdict": "not verified"}])
-    assert not gate.reproduced([{"kind": "tier"}, {"kind": "check", "check": "repro"}]) and not gate.reproduced([])
+    report = ".cg-docs/work-reports/2026-11-27-x.md"
+    ran = {"kind": "repro", "report": report, "exits": [], "outputs": {}, "findings": [], "state": "sha256:0"}
+    assert gate.reproduced([{"kind": "tier"}, {"kind": "check"}, dict(ran, verdict="not verified")], report)
+    assert not gate.reproduced([{"kind": "tier"}, {"kind": "check", "check": "repro"}], report)
+    assert not gate.reproduced([], report)
+    # Review of #229: a record typed by hand, one that names another work report, and one written before the
+    # last slice began each passed.
+    assert not gate.reproduced([{"kind": "tier"}, {"kind": "repro", "report": report}], report)
+    assert not gate.reproduced([{"kind": "tier"}, dict(ran, report=".cg-docs/work-reports/2026-11-26-y.md")], report)
+    assert not gate.reproduced([ran, {"kind": "tier"}], report)
     state = {"path": tmp_path / ".cg-docs" / "work-reports" / "2026-11-27-x.md"}
     folder = tmp_path / ".cg-docs" / "evidence" / "2026-11-27-x"
     folder.mkdir(parents=True)
-    (folder / "0001-20261127T000000Z-repro.json").write_text(json.dumps({"kind": "repro"}), encoding="utf-8")
-    assert gate.reproduced(gate.evidence(tmp_path, state))
+    (folder / "0001-20261127T000000Z-repro.json").write_text(json.dumps(ran), encoding="utf-8")
+    assert gate.reproduced(gate.evidence(tmp_path, state), report)
