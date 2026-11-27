@@ -133,8 +133,10 @@ def test_the_adversary_and_simplicity_lenses_hold_what_code_does_in_the_shape_of
     principle files say what code holds, the guide records what was dropped, and the decision is ADR 0011."""
     cg = load_cg()
     for name, principle, words in (
+            # Lens run 2 (#231): Kilo read the bound on rounds as a bound on its probes, and stopped after two.
             ("adversary", "P5", ("three rounds", "doubt theater", "dropped:", "reproduced", "300 characters",
-                                 "python -B -c", "Rscript -e", "fails again", "rule 6", "rule 7")),
+                                 "python -B -c", "Rscript -e", "fails again", "rule 6", "rule 7",
+                                 "as many probes as the contract needs")),
             ("simplicity", "P6", ("`cg.py scope`", "## At the plan stage", "scratch copy", *[f"`{r}`" for r in cg.SCOPE]))):
         text = (CG / "lenses" / f"{name}.md").read_text(encoding="utf-8")
         front, body = text.split("\n---\n", 1)
