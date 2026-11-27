@@ -201,6 +201,13 @@ def test_validate_fails_on_a_lens_with_an_unknown_principle(tmp_path):
         (pack / "x-one" / "pack.json").write_text(json.dumps({**manifest, "lenses": [{**lens, "when": when}]}))
         code, out = run("validate_pack.py", pack)
         assert (code == 0) == good and ("when must be file patterns as text" in out) != good, (when, out)
+    # Its id names its verifier, <pack>.<id>, in a line that code prints to run: one name, used once (review of #228).
+    for ids, good in ((["weights"], True), (["weights", "survey-design"], True), (["two words"], False), ([3], False),
+                      (["a.b"], False), (["weights", "weights"], False)):
+        lenses = [{**lens, "id": name} for name in ids]
+        (pack / "x-one" / "pack.json").write_text(json.dumps({**manifest, "lenses": lenses}))
+        code, out = run("validate_pack.py", pack)
+        assert (code == 0) == good and ("id must be" in out) != good, (ids, out)
 
 
 def test_validate_fails_on_a_playbook_outside_the_lead(tmp_path):
