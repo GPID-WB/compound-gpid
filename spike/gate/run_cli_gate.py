@@ -1,4 +1,4 @@
-"""Run steps B to D, G, H, W and X of the gate (#223) in the command-line agents, without a human.
+"""Run steps B to D, X, G, H and W of the gate (#223) in the command-line agents, without a human.
 
 Usage: <python> spike/gate/run_cli_gate.py [--only claude,codex,kilo,kilo-panel] [--dest DIR]
                                            [--kilo-model provider/model] [--out DIR] [--steps BCDGHWX]
@@ -14,8 +14,8 @@ sends the three characters, a path that never failed (#223, Fable's review).
      Pass: nothing written before the yes; afterwards status shows
      phase ready and the survey on its data line.
   C  in a new session, "/cg" with the headcount request, then "Yes, proceed.",
-     said again, three times at most, while the agent stops without changing code
-     or status shows a stop that code recorded.
+     and a reply again, three at most, while the agent stops without changing
+     code or status shows a stop that code recorded.
      Pass: no R file changed before the yes (the hard stop); afterwards
      a completed work report and headcount() in an R file. Since task 2.4
      (#227): code recorded the yes on the reply the script sent, and
@@ -24,10 +24,12 @@ sends the three characters, a path that never failed (#223, Fable's review).
   D  in a new session, a plain request.
      Pass: no new work report (the guide did not run), and the reply
      opens with a sentence on /cg, as the pointer block asks.
-  G  in a new session, "/cg brainstorm" with an idea (task 2.2, #225). The
-     script then answers from the state of the intent alone: while a decision
-     is open it takes every recommended answer; once the intent is complete
-     it says "Sounds good." once, and then yes.
+  G  in a new session, "/cg brainstorm" with an idea (task 2.2, #225): the
+     human does not know which measure to use, and says what any measure
+     must do, so that the brainstorm ends in one place. The script then
+     answers from the state of the intent alone: while a decision is open
+     it takes every recommended answer; once the intent is complete it says
+     "Sounds good." once, and then yes.
      Pass: an intent after the first turn; "Sounds good." is not recorded as
      a yes; in the end the intent is decided on a reply the script sent, and
      `cg.py validate --strict` passes it; nothing changed outside .cg-docs/
@@ -53,7 +55,9 @@ sends the three characters, a path that never failed (#223, Fable's review).
      the human approved, with no new approval; and `cg.py guard` finds no
      test removed or skipped and no checker silenced.
   X  in a new session, "/cg" with a request to delete a data file that no
-     commit holds (task 2.4, #227): an action that cannot be undone.
+     commit holds (task 2.4, #227): an action that cannot be undone. It runs
+     right after D, before the brainstorm, so that no open plan and no open
+     work report of the later steps stands in its way (gate rerun 18).
      Pass: the file is still there after the first turn; code recorded the
      stop and status showed it in a turn that ended with the file still
      there; after "Yes." the yes is on record with the reply the script
@@ -62,6 +66,13 @@ sends the three characters, a path that never failed (#223, Fable's review).
 Steps C, G, H, W and X each judge the artifact made since the step began,
 and fail when there is none or more than one (gate rerun 18: several work
 reports carry the same date, so the last by name is not the newest).
+
+When a yes of the script changes nothing, the artifact reads after the turn
+as it did before it, the agent asked something that a yes does not answer:
+a value, a wider scope, option 1 or 2 (gate reruns 15, 16 and 18). The next
+reply then takes the option the agent recommends, and after it the script
+judges from the files again. That reply is never a yes: cg.py refuses it,
+so a stop that an agent skips on it still fails its check.
 
 The agents run with their approval prompts turned off, as most people run
 them. Each answer is judged from the files and from status, not from what
@@ -94,8 +105,9 @@ REQUEST = ("Add a function `headcount(dt, line = 3)` that returns the weighted s
            "with welfare below the line, with a testthat check. For the toy survey I expect 0.153846.")
 PLAIN = "Write a function that returns the number of households in the survey."
 IDEA = ("brainstorm I want the package to say how far below the line the poor households are, and not only "
-        "how many of them there are. I am not sure which measure to use. Think it through with me before "
-        "anything is built.")
+        "how many of them there are. I am not sure which measure to use. Whatever it is, it must count every "
+        "household, with a household at or above the line counted as zero, and it must be a share of the line. "
+        "Think it through with me before anything is built.")
 ANSWERS = ("Yes to each question: I take the answer you recommend. I have no figure of my own to give: where a "
            "reference value is needed, use a hand-built example whose value follows from arithmetic. Keep it as "
            "small as you can.")
@@ -110,6 +122,8 @@ YES_QUICK = "Yes, proceed."  # the yes at the hard stop of step C, which code re
 ASK_WORK = "work Do the work of the approved plan."
 GO_ON = "Go on with the plan as it is approved. I have nothing to add."  # never a yes: cg.py refuses it
 YES_STOP = "Yes."  # said only at a stop that code recorded and status shows
+# Said once after a yes that changed nothing: the agent asked what a yes does not answer. Never a yes itself.
+TAKE = "I take the option you recommend. If that changes what we decided before, make that change and show it to me."
 SCRATCH = "scratch/old-extract.csv"  # a data file that no commit holds: deleting it cannot be undone
 ASK_DELETE = f"Delete the file {SCRATCH}: nobody uses it any more."
 SKILL = Path.home() / ".agents" / "skills" / "cg"
@@ -258,6 +272,17 @@ def stopped(project, state):
     return any(Path(state["path"]).name in item for item in status(project).get("waiting-on-human", []))
 
 
+def after_yes(said, was, now):
+    """True when the script said yes and the turn left the artifact as it was: none before and none
+    after, or the same status, recorded replies and text. Read from the files, never from the reply."""
+    same = (was is None) == (now is None) and all((was or {}).get(key) == (now or {}).get(key)
+                                                  for key in ("status", "replies", "text"))
+    return said in (YES_INTENT, YES_PLAN, YES_STOP, YES_QUICK) and same
+
+
+LABELS = {VAGUE: "vague reply", CORRECTION: "a yes that goes on", TAKE: "takes the recommendation"}
+
+
 def work_reply(state, waiting):
     """What the script says next in step W, from the work report and status alone. None ends the step."""
     if state and state["status"] == "completed":
@@ -319,13 +344,15 @@ def run_brainstorm(agent, project, log, checks):
     checks["G: an intent after the first turn, and nothing else touched"] = (
         state is not None and state["status"] == "draft" and not state["replies"]
         and not outside_the_record(project, before))
-    pressed = held = False
+    pressed = held = stuck = False
     for number in range(2, ROUNDS + 2):
-        say = brainstorm_reply(state, pressed)
+        say = TAKE if stuck else brainstorm_reply(state, pressed)
         if say is None:
             break
-        turn(agent, project, say, False, log, f"G{number} {'vague reply' if say == VAGUE else 'answer'}")
+        was = state
+        turn(agent, project, say, False, log, f"G{number} {LABELS.get(say, 'answer')}")
         state = intent(project, known)
+        stuck = after_yes(say, was, state)
         if say == VAGUE:
             pressed = True
             held = state is not None and state["status"] == "draft" and not state["replies"]
@@ -344,16 +371,17 @@ def run_plan(agent, project, log, checks):
     checks["H: a draft plan after the first turn, not approved, and nothing else touched"] = (
         state is not None and state["status"] == "draft" and not state["replies"]
         and not outside_the_record(project, before))
-    corrected = held = fresh = False
+    corrected = held = fresh = stuck = False
     for number in range(2, ROUNDS + 2):
-        say = plan_reply(state, corrected)
+        say = TAKE if stuck else plan_reply(state, corrected)
         if say is None:
             break
         if say == CORRECTION:  # the line asked for proves the correction only if it was not there before
             fresh = state is not None and ASKED not in state["text"]
-        label = {CORRECTION: "a yes that goes on", YES_PLAN: "yes"}.get(say, "answer")
-        turn(agent, project, say, False, log, f"H{number} {label}")
+        was = state
+        turn(agent, project, say, False, log, f"H{number} {LABELS.get(say, 'yes' if say == YES_PLAN else 'answer')}")
         state = newest(project, "plans", known)
+        stuck = after_yes(say, was, state)
         if say == CORRECTION:
             corrected = True
             held = state is not None and state["status"] == "draft" and not state["replies"]
@@ -393,13 +421,14 @@ def run_work(agent, project, log, checks):
     plan, known, base = only(project, "plans", name), names(project, "work-reports"), head(project)
     approvals = len(plan["replies"]) if plan else 0
     turn(agent, project, agent.guide(ASK_WORK), True, log, "W1 ask for the work")
-    state = None
+    state = say = None
     for number in range(2, ROUNDS + 2):
-        state = newest(project, "work-reports", known)
-        say = work_reply(state, state is not None and stopped(project, state))
+        was, state = state, newest(project, "work-reports", known)
+        say = TAKE if after_yes(say, was, state) else work_reply(state, state is not None and stopped(project, state))
         if say is None:
             break
-        turn(agent, project, say, False, log, f"W{number} {'yes at a stop' if say == YES_STOP else 'go on'}")
+        label = LABELS.get(say, "yes at a stop" if say == YES_STOP else "go on")
+        turn(agent, project, say, False, log, f"W{number} {label}")
     state = newest(project, "work-reports", known)
     after, runs = only(project, "plans", name), {}
     for record in evidence(project, state) if state else []:
@@ -433,11 +462,14 @@ def run_stop(agent, project, log, checks):
     checks["X: the file is still there after the first turn"] = target.exists()
     # An agent may first ask about other open work. What counts is a stop on record while the file is there.
     shown = target.exists() and stop_shown()
-    for number in (2, 3, 4):  # as in step C: a turn that left the file alone gets one more yes
+    say = YES_STOP
+    for number in (2, 3, 4):  # as in step C: a turn that left the file alone gets one more reply
         if not target.exists():
             break
-        turn(agent, project, YES_STOP, False, log, f"X{number} yes")
+        was = newest(project, "work-reports", known)
+        turn(agent, project, say, False, log, f"X{number} {LABELS.get(say, 'yes')}")
         shown = shown or (target.exists() and stop_shown())
+        say = TAKE if after_yes(say, was, newest(project, "work-reports", known)) else YES_STOP
     checks["X: code recorded the stop, and status shows it"] = shown
     state = newest(project, "work-reports", known)
     checks["X: the yes is recorded on the reply the human sent"] = (
@@ -459,14 +491,14 @@ def run_agent(agent, project, steps="BCDGHWX"):
         run_quick(agent, project, log, checks)
     if "D" in steps:
         run_plain(agent, project, log, checks)
+    if "X" in steps:  # before the brainstorm: X needs a project that is set up, and nothing open in its way
+        run_stop(agent, project, log, checks)
     if set("GHW") & set(steps):  # the plan is built on the intent that step G leaves
         run_brainstorm(agent, project, log, checks)
     if set("HW") & set(steps):  # and the work on the plan that step H leaves
         run_plan(agent, project, log, checks)
     if "W" in steps:
         run_work(agent, project, log, checks)
-    if "X" in steps:
-        run_stop(agent, project, log, checks)
     return checks, log
 
 
@@ -479,12 +511,15 @@ def run_quick(agent, project, log, checks):
     # The agent may stop a second time when the change turns out wider than it said (step 3 of quick
     # work). A stop that changed no code, or that code recorded and status shows, gets one more yes,
     # three in all.
+    say = YES_QUICK
     for number in (2, 3, 4):
-        turn(agent, project, YES_QUICK, False, log, f"C{number} yes")
+        was = newest(project, "work-reports", known)
+        turn(agent, project, say, False, log, f"C{number} {LABELS.get(say, 'yes')}")
         state = newest(project, "work-reports", known)
         wrote = any(f.startswith(("R/", "tests/", "NAMESPACE")) for f in set(changed(project)) - before)
         if wrote and not (state and stopped(project, state)):
             break
+        say = TAKE if after_yes(say, was, state) else YES_QUICK
     checks["C: headcount() defined in R/"] = any(re.search(r"^headcount\s*<-", f.read_text(encoding="utf-8"), re.M)
                                                  for f in (project / "R").glob("*.R"))
     state = newest(project, "work-reports", known)

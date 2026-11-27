@@ -6,13 +6,13 @@ Go or no-go before milestone 2. The maintainer is at the keyboard; a build sessi
 
 ## Rerun without a human
 
-After a fix, `run_cli_gate.py` repeats steps B to D, G, H, W and X in Claude Code, Codex and Kilo from the command line, on fresh copies in `~/temp/cg-gate/rerun`, with their approval prompts off:
+After a fix, `run_cli_gate.py` repeats steps B to D, then X, G, H and W, in Claude Code, Codex and Kilo from the command line, on fresh copies in `~/temp/cg-gate/rerun`, with their approval prompts off:
 
 ```
 python3 spike/gate/run_cli_gate.py --kilo-model openai/gpt-6-luna
 ```
 
-It judges each step from the files and from status, writes cleaned transcripts and `results.json` to `.cg-docs/gate-m1/rerun/`, and exits 1 when a check fails. Copilot and Posit Assistant have no command line: a human checks them in the editor.
+It judges each step from the files and from status, and decides what to say next from them alone. When a yes it gave changed nothing, its next reply takes the option the agent recommends. It writes cleaned transcripts and `results.json` to `.cg-docs/gate-m1/rerun/`, and exits 1 when a check fails. Copilot and Posit Assistant have no command line: a human checks them in the editor.
 
 ## What stays and what is thrown away
 
@@ -101,7 +101,7 @@ Quote each line of your instructions that mentions Compound GPID.
 **G. Brainstorm** (task 2.2, #225). In a new chat, type:
 
 ```text
-/cg brainstorm I want the package to say how far below the line the poor households are, and not only how many of them there are. I am not sure which measure to use. Think it through with me before anything is built.
+/cg brainstorm I want the package to say how far below the line the poor households are, and not only how many of them there are. I am not sure which measure to use. Whatever it is, it must count every household, with a household at or above the line counted as zero, and it must be a share of the line. Think it through with me before anything is built.
 ```
 
 It should look things up in the package first, then ask you at most three numbered questions at a time, each with the answer it recommends, and write an intent under `.cg-docs/brainstorms/` as it goes. It should change no code. When it shows you the whole intent and asks whether this is what you want, answer `Sounds good.` once: it should ask what is unclear, and record nothing. Then say yes: the intent becomes `decided`, with your reply in a file under `.cg-docs/approvals/`.
