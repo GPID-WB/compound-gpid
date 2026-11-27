@@ -1889,9 +1889,16 @@ def cmd_verifiers(args) -> int:
 
 def verdicts(project: Path, a: dict):
     """(path, verdicts): the conformance record of an artifact, one file under .cg-docs/conformance/
-    in a folder named as the artifact's, and every verdict code wrote into it, oldest first."""
-    path = project / ".cg-docs" / "conformance" / ARTIFACT_FOLDERS[a["type"]] / f"{Path(a['name']).stem}.json"
-    return path, [v for v in record_at(path).get("verdicts") or [] if isinstance(v, dict)]
+    in a folder named as the artifact's, and every verdict in it, oldest first. One line holds one
+    verdict, and a line is only ever added: verdicts recorded at the same moment are all kept, and
+    none is written over. A line that cannot be read stays where it is and counts for nothing."""
+    path, found = project / ".cg-docs" / "conformance" / ARTIFACT_FOLDERS[a["type"]] / f"{Path(a['name']).stem}.jsonl", []
+    for line in path.read_text(encoding="utf-8", errors="replace").splitlines() if path.is_file() else []:
+        try:
+            found.append(json.loads(line))
+        except ValueError:
+            pass
+    return path, [v for v in found if isinstance(v, dict)]
 
 
 def standing(project: Path, a: dict, stage: str):
@@ -1935,7 +1942,7 @@ def cmd_conformance(args) -> int:
     a = staged(project, args.artifact, args.stage) if project else None
     if a is None:
         return 2
-    path, held = verdicts(project, a)
+    path = verdicts(project, a)[0]
     if args.verifier:
         if not (args.stage and args.verdict and args.review):
             print("to record a verdict give --stage, --verifier, --verdict and --review: independent when another agent "
@@ -1954,13 +1961,11 @@ def cmd_conformance(args) -> int:
         if args.verdict in VERDICTS[2:] and not note:
             refused.append(f"{args.verdict} needs --note: what kept the verifier from checking, or why the principle "
                            f"does not apply to this work")
-        if path.is_file() and not record_at(path):
-            refused.append(f"{path.relative_to(project).as_posix()} cannot be read as a conformance record; put it "
-                           f"right or move it away first, so that no verdict in it is written over")
         if refused:
             return say(refused)
         opened = [(text, proven(project, text)) for text in findings]
-        entry = {"stage": args.stage, "verifier": args.verifier, "principle": named[args.verifier]["principle"],
+        entry = {"artifact": a["path"], "stage": args.stage, "verifier": args.verifier,
+                 "principle": named[args.verifier]["principle"],
                  "verdict": args.verdict.replace("-", " ") if any(p for _, p in opened) or not findings else "UNVERIFIED",
                  "review": args.review, "findings": [{"where": p[0], "what": p[1][:300]} for _, p in opened if p],
                  "unverified": [text[:300] for text, p in opened if not p], "note": note[:300],
@@ -1971,7 +1976,13 @@ def cmd_conformance(args) -> int:
         if entry["unverified"]:
             print("  code found no proof it can open at the start of an unverified finding: a file of the project "
                   "with a line it holds, written path:line, or the record of a run under .cg-docs/evidence/")
-        print(f"record: {write_record(project, path, {'artifact': a['path'], 'verdicts': held + [entry]})}")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        for _ in range(3):  # a line added after one that was cut short, or in the same instant as another, may
+            with open(path, "a", encoding="utf-8", newline="\n") as handle:  # not be readable: look, and add it again
+                handle.write(json.dumps(entry, ensure_ascii=False) + "\n")
+            if entry in verdicts(project, a)[1]:
+                break
+        print(f"record: {path.relative_to(project).as_posix()}")
         return 0
     plan = plan_of(project, a) if a["type"] == "work-report" and not args.stage else None
     rows = standing(project, plan, "plan") if plan else []
