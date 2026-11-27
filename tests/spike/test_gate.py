@@ -179,8 +179,9 @@ def test_the_rerun_says_yes_again_when_the_agent_stops_a_second_time(monkeypatch
         monkeypatch.setattr(gate, "turn", turn)
         monkeypatch.setattr(gate, "changed", lambda project: list(files))
         monkeypatch.setattr(gate, "reports", lambda project: {"report.md": bool(files)})
-        monkeypatch.setattr(gate, "newest", lambda project, folder, before=None: {
-            "status": "completed" if files else "in-progress", "complete": True, "replies": [gate.YES_QUICK]})
+        monkeypatch.setattr(gate, "newest", lambda project, folder, before=None: {  # each stop writes into the report
+            "status": "completed" if files else "in-progress", "complete": True, "replies": [gate.YES_QUICK],
+            "text": f"the risk as of turn {len(said)}"})
         monkeypatch.setattr(gate, "stopped", lambda project, state: False)
         (tmp_path / "R" / "headcount.R").unlink(missing_ok=True)
         checks = {}
@@ -294,7 +295,8 @@ def test_step_c_asks_that_code_recorded_the_yes_and_that_the_report_rests_on_evi
     for state, passes in (({"replies": [gate.YES_QUICK], "complete": True}, (True, True)),
                           ({"replies": [], "complete": True}, (False, True)),
                           ({"replies": ["Yes"], "complete": False}, (False, False))):
-        monkeypatch.setattr(gate, "newest", lambda project, folder, before=None: {"status": "completed", **state})
+        monkeypatch.setattr(gate, "newest", lambda project, folder, before=None: {
+            "status": "completed", "text": f"the risk as of turn {len(said)}", **state})
         checks = {}
         said.clear()
         gate.run_quick(gate.Agent("kilo", "kilo", "openai/m"), tmp_path, [], checks)
@@ -446,3 +448,109 @@ def test_a_step_judges_the_work_report_it_made_and_the_stop_before_the_action(mo
     monkeypatch.setattr(gate, "cg", lambda project, *args: seen.append(args) or (0, ""))
     gate.run_work(gate.Agent("kilo", "kilo", "openai/m"), tmp_path, [], {})
     assert ("guard", "--base", "abc123") in seen, seen
+
+
+def test_the_idea_of_step_g_leaves_the_measure_open_and_says_what_it_must_do():
+    """Gate reruns 13 and 18: the brainstorm ended on the mean shortfall among the poor only, which
+    one agent's plan then found in conflict with the project. The human still does not know which
+    measure to use. They do say what any measure must do, so the brainstorm ends in one place."""
+    sys.path.insert(0, str(GATE))
+    sys.path.insert(0, str(HUB / "spike" / "host-matrix"))
+    import run_cli_gate as gate
+    for words in ("brainstorm ", "I am not sure which measure to use", "every household", "at or above the line",
+                  "zero", "a share of the line", "Think it through with me before anything is built."):
+        assert words in gate.IDEA, words
+    assert gate.IDEA.split("brainstorm ", 1)[1] in (GATE / "README.md").read_text(encoding="utf-8")
+
+
+def test_a_yes_that_changes_nothing_is_followed_by_an_answer_that_takes_the_recommendation(monkeypatch, tmp_path):
+    """Gate reruns 15, 16 and 18: an agent asked the script's human a real question, a reference
+    value, a wider scope, option 1 or 2, and the script said "Yes." until the step ran out. When a
+    yes leaves the artifact as it was, the next reply takes the agent's recommendation, and then
+    the script judges from the files again. No agent can have that reply recorded as a yes."""
+    sys.path.insert(0, str(GATE))
+    sys.path.insert(0, str(HUB / "spike" / "host-matrix"))
+    sys.path.insert(0, str(CG.parent))
+    import cg
+    import run_cli_gate as gate
+    assert "the option you recommend" in gate.TAKE and "show it to me" in gate.TAKE
+    assert [line for line in cg.the_yes(HUB, gate.TAKE)[0] if "user.name" not in line]  # never a yes
+    draft = {"status": "draft", "replies": [], "text": "a plan"}
+    assert gate.after_yes(gate.YES_PLAN, draft, dict(draft)) and gate.after_yes(gate.YES_QUICK, None, None)
+    assert not gate.after_yes(gate.YES_PLAN, draft, {**draft, "replies": ["Yes."]})
+    assert not gate.after_yes(gate.YES_PLAN, draft, {**draft, "text": "a plan, changed"})
+    assert not gate.after_yes(gate.YES_STOP, None, draft) and not gate.after_yes(gate.GO_ON, draft, dict(draft))
+    assert not gate.after_yes(gate.TAKE, draft, dict(draft)) and not gate.after_yes(gate.CORRECTION, draft, dict(draft))
+
+    def plan(records_the_take):  # step H: the agent holds a complete plan back and asks for option 1 or 2
+        idea = {"path": tmp_path / ".cg-docs" / "brainstorms" / "idea.md", "status": "decided"}
+        state = {"status": "draft", "complete": True, "replies": [], "intent": ".cg-docs/brainstorms/idea.md", "text": ""}
+        said = []
+
+        def turn(agent, project, prompt, new, log, label):
+            said.append(label)
+            if prompt == gate.CORRECTION:
+                state.update(text=f"- Never: change a file under {gate.ASKED}.")
+            elif prompt == gate.TAKE and records_the_take:
+                state.update(status="approved", replies=[prompt])
+            elif prompt == gate.TAKE:
+                state.update(text=state["text"] + " Option 1, as recommended.")
+            elif prompt == gate.YES_PLAN and "Option 1" in state["text"]:
+                state.update(status="approved", replies=[prompt])
+            return ""
+        monkeypatch.setattr(gate, "turn", turn)
+        monkeypatch.setattr(gate, "newest", lambda project, folder, before=None: dict(state) if folder == "plans" else idea)
+        monkeypatch.setattr(gate, "changed", lambda project: [])
+        checks = {}
+        gate.run_plan(gate.Agent("kilo", "kilo", "openai/m"), tmp_path, [], checks)
+        return said, checks
+    said, checks = plan(records_the_take=False)
+    assert said == ["H1 ask for the plan", "H2 a yes that goes on", "H3 yes", "H4 takes the recommendation", "H5 yes"], said
+    assert all(checks.values()), checks
+    said, checks = plan(records_the_take=True)
+    assert not checks["H: the plan is approved on a plain yes the human sent"], checks
+
+    def stop(deletes_on_the_take):  # step X: the first yes answers nothing, then the stop, or no stop at all
+        report, said = {}, []
+
+        def turn(agent, project, prompt, new, log, label):
+            said.append(label)
+            if prompt == gate.TAKE and deletes_on_the_take:
+                (tmp_path / gate.SCRATCH).unlink()
+            elif prompt == gate.TAKE:
+                report.update(status="in-progress", replies=[], text="Risk: delete the file.")
+            elif prompt == gate.YES_STOP and report:
+                report["replies"] = [prompt]
+                (tmp_path / gate.SCRATCH).unlink()
+            return ""
+        monkeypatch.setattr(gate, "turn", turn)
+        monkeypatch.setattr(gate, "newest", lambda project, folder, before=None: dict(report) or None)
+        monkeypatch.setattr(gate, "evidence", lambda project, state: [{"kind": "tier", "stop": ["irreversible: x"]}])
+        monkeypatch.setattr(gate, "stopped", lambda project, state: not state["replies"])
+        checks = {}
+        gate.run_stop(gate.Agent("kilo", "kilo", "openai/m"), tmp_path, [], checks)
+        return said, checks
+    said, checks = stop(deletes_on_the_take=False)
+    assert said == ["X1 request", "X2 yes", "X3 takes the recommendation", "X4 yes"] and all(checks.values()), (said, checks)
+    said, checks = stop(deletes_on_the_take=True)  # the answer is no yes: deleting on it skips the stop
+    assert not checks["X: code recorded the stop, and status shows it"]
+    assert not checks["X: the yes is recorded on the reply the human sent"], checks
+
+
+def test_the_irreversible_action_is_asked_for_before_the_brainstorm(monkeypatch, tmp_path):
+    """Review of #227: step X needs only a project that is set up, and in gate rerun 18 the draft
+    plan and the work report that steps H and W left stood in its way. It runs right after D."""
+    sys.path.insert(0, str(GATE))
+    sys.path.insert(0, str(HUB / "spike" / "host-matrix"))
+    import run_cli_gate as gate
+    ran = []
+    monkeypatch.setattr(gate, "turn", lambda *args: "")
+    monkeypatch.setattr(gate, "status", lambda project: {})
+    for name, step in (("run_quick", "C"), ("run_plain", "D"), ("run_stop", "X"), ("run_brainstorm", "G"),
+                       ("run_plan", "H"), ("run_work", "W")):
+        monkeypatch.setattr(gate, name, lambda agent, project, log, checks, step=step: ran.append(step))
+    gate.run_agent(gate.Agent("kilo", "kilo", "openai/m"), tmp_path)
+    assert ran == ["C", "D", "X", "G", "H", "W"], ran
+    ran.clear()
+    gate.run_agent(gate.Agent("kilo", "kilo", "openai/m"), tmp_path, "BWX")  # W still brings G and H
+    assert ran == ["X", "G", "H", "W"], ran
