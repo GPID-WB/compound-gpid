@@ -136,7 +136,9 @@ def judge(project: Path, cases, reply: str, plan=PLAN):
     finding proposes the code that would replace it, and whether each case is caught. A case is caught
     by a finding whose pointer is its file, at the line that holds its text, three lines either way,
     or is one of the places under "or", where "record" is a record under .cg-docs/evidence/. One
-    finding catches one case: five findings that each named a whole file caught every case (review)."""
+    finding catches one case: five findings that each named a whole file caught every case (review).
+    A pointer names ten lines at most, and a record that is there: as many findings that each named
+    a whole file as it has cases, or a record that no run wrote, still did (review of #230)."""
     block = reply[reply.rfind("principle:"):] if "principle:" in reply else reply
     verdict = re.search(r"^\s*verdict:\s*(\S+)", block, re.M)
     found = [m.groups() for m in map(FINDING.match, block.split("\nnote:")[0].splitlines()) if m]
@@ -151,8 +153,9 @@ def judge(project: Path, cases, reply: str, plan=PLAN):
         allowed = case.get("or", [])
         key = f"{case['flag']}: {case['file']}" + (f", at '{case['text']}'" if "text" in case else "")
         options[key] = [n for n, (path, first, last, _) in enumerate(found) if (
-            ("record" in allowed) if path.startswith(".cg-docs/evidence/") else path in allowed or path == name and (
-                not line or bool(first) and int(first) - 3 <= line <= int(last or first) + 3))]
+            ("record" in allowed and (project / path).is_file()) if path.startswith(".cg-docs/evidence/") else
+            path in allowed or path == name and (not line or bool(first) and int(last or first) - int(first) <= 10
+                                                 and int(first) - 3 <= line <= int(last or first) + 3))]
 
     def place(key, seen):  # give the case a finding of its own, moving another case to another finding if it must
         for n in options[key]:
@@ -167,11 +170,12 @@ def judge(project: Path, cases, reply: str, plan=PLAN):
 
 
 def state(project: Path) -> str:
-    """One digest of the files of the project, git's and the records of a run left out."""
+    """One digest of the files of the project, git's and the records of a run left out, and the byte code that
+    Python writes when a check imports a module, as a rerun of the checks does (review of #230)."""
     found = hashlib.sha256()
     for path in sorted(project.rglob("*")):
         name = path.relative_to(project).as_posix()
-        if path.is_file() and not name.startswith((".git/", ".cg-docs/evidence/")):
+        if path.is_file() and not name.startswith((".git/", ".cg-docs/evidence/")) and "__pycache__" not in path.parts:
             found.update(name.encode() + b"\0" + path.read_bytes())
     return found.hexdigest()
 

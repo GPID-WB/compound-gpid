@@ -131,7 +131,9 @@ def test_review_of_2_7_the_rerun_leaves_the_files_the_runner_counts_and_a_lazy_r
     for name, count in (("@plan", 4), ("@report", 2), ("@profile", 1), ("pipeline.py", 2), ("checks/headcount.py", 1)):
         many += [f"  - {run_planted.PLACES.get(name, name)}:1-{size(name)}: this file breaks P4 (P1; fix: rewrite it)"] * count
     result = run_planted.judge(project, cases, head + "\n".join(many) + "\nnote: none\n")
-    assert sum(result.values()) - 2 <= 1, result  # the case of a failing check allows any line of pipeline.py
+    caught = {key.split(':')[0] for key, ok in list(result.items())[2:] if ok}  # a failing check allows any line
+    assert caught <= {'a check that fails on the work as it now is', 'an expected value derived the same way as '
+                      'the output'}, result  # of pipeline.py, and checks/headcount.py has 11 lines in all
     fake = head + "  - .cg-docs/evidence/2026-11-27-poverty-brief/0099-rerun.json: a check fails (P1; fix: fix it)\n" * 6
     assert sum(run_planted.judge(project, cases, fake + "note: none\n").values()) - 2 == 0
     record = sorted((project / ".cg-docs" / "evidence" / "2026-11-27-poverty-brief").glob("*-rerun.json"))[-1]
