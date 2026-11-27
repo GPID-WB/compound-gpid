@@ -181,3 +181,36 @@ def test_the_simplicity_folder_builds_the_change_on_the_commit_it_began_on_and_r
     changed = subprocess.run(["git", "-C", str(project), "status", "--short"], capture_output=True, text=True).stdout
     assert len(log.splitlines()) == 1 and " M pipeline.py" in changed and "?? checks/table.py" in changed, changed
     assert list((project / ".cg-docs" / "evidence").rglob("*-scope.json")), out
+
+
+def test_the_contract_and_claims_folders_build_their_work_and_run_claims(tmp_path):
+    """Task 2.8 (#231), second half: the planted work of P1 and of P7 is a plan the human approved and its slices done,
+    and the runner runs cg.py claims once every slice is done, as the work playbook does. The contract verifier runs at
+    the plan and the review stage, the claims verifier at the review stage."""
+    for verifier, stages in (("contract", 2), ("claims", 1)):
+        done = subprocess.run([sys.executable, str(RUNNER), "--dry-run", "--cg", str(CG), "--dest", str(tmp_path / verifier),
+                               "--only", "codex", "--verifier", verifier], capture_output=True, text=True)
+        out, project = done.stdout + done.stderr, tmp_path / verifier / "toy-poverty-codex"
+        assert done.returncode == 0 and out.count(f"You are the verifier `{verifier}`") == stages, out
+        assert f"lenses/{verifier}.md" in out and list((project / ".cg-docs" / "evidence").rglob("*-claims.json")), out
+
+
+def test_lens_run_1_a_finding_at_the_line_of_a_case_catches_that_case_and_no_case_beside_it(tmp_path):
+    """Lens run 1 of the verification lens (#231): Kilo flagged the claim of validation at its line, and Codex the
+    filter on the weight at its line, and the runner gave each of those findings to another case within three lines
+    or under "or", because each agent had folded two cases into one finding. The count was right and the case it
+    named as missed was not. A finding at the line of a case now catches that case and no other."""
+    sys.path.insert(0, str(RUNNER.parent))
+    import run_planted
+    done = subprocess.run([sys.executable, str(RUNNER), "--dry-run", "--cg", str(CG), "--dest", str(tmp_path / "lens"),
+                           "--only", "kilo", "--verifier", "verification"], capture_output=True, text=True)
+    project = tmp_path / "lens" / "toy-poverty-kilo"
+    assert done.returncode == 0, done.stdout + done.stderr
+    cases = json.loads((RUNNER.parent / "verification" / "expected.json").read_text(encoding="utf-8"))["review"]
+    record = sorted((project / ".cg-docs" / "evidence").rglob("*-C1.json"))[0].relative_to(project).as_posix()
+    line = next(n for n, text in enumerate((project / run_planted.REPORT).read_text().splitlines(), 1) if "matches the" in text)
+    block = (f"principle: P4\nverdict: FLAG\nfindings:\n  - {record}: C5 never ran, and the report says it passes (P1; fix: "
+             f"run it)\n  - {run_planted.REPORT}:{line}: no record shows the comparison (P1; fix: a check)\nnote: none\n")
+    result = run_planted.judge(project, cases, block)
+    assert result["a claim of validation with no record: @report, at 'matches the figure'"], result
+    assert sum(result.values()) - 2 == 2, result

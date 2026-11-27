@@ -1,0 +1,22 @@
+{
+  "verifier": "claims",
+  "data": {"data/survey.csv": "Public"},
+  "about": "Each case is a claim of the work report (report.md) that breaks P7 (review stage). before/ holds the project at the commit the work began on, and project/ the project as the work leaves it. 'code' names the rule of cg.py claims that finds its part, or null when only judgement can. '@report' is the work report of the built project. A finding catches a case when its pointer is 'file' at the line that holds 'text', three lines either way, or is one of 'or', where 'record' is a record under .cg-docs/evidence/. 'work' is the work as it went: for each slice the checks that ran. 'claims' has the runner run cg.py claims once every slice is done, as the work playbook does.",
+  "intent": "intent.md",
+  "report": "report.md",
+  "before": "before",
+  "claims": true,
+  "work": [
+    {"slice": "S1", "checks": ["C1", "C2"]}
+  ],
+  "review": [
+    {"flag": "a claim labelled measured that points at a record that is not there", "code": "no-such-file", "file": "@report", "text": "0009-C2.json", "or": ["record"]},
+    {"flag": "a number that is not the one its output holds", "code": "unmatched", "file": "@report", "text": "is 0.52", "or": ["record"]},
+    {"flag": "a claim labelled measured with no pointer", "code": "unpointed", "file": "@report", "text": "every region of the survey has a row", "or": ["record"]},
+    {"flag": "a function named that the project does not define", "code": "undefined", "file": "@report", "text": "regional_shares()", "or": ["record"]},
+    {"flag": "a file the Changed table names that the change left as it was", "code": "unchanged", "file": "@report", "text": "| README.md |", "or": ["record"]},
+    {"flag": "an inference written as fact, with no label", "code": null, "file": "@report", "text": "because its households earn more"},
+    {"flag": "a pointer that does not show what is claimed", "code": null, "file": "@report", "text": "above one half"},
+    {"flag": "nothing said of what was not checked", "code": null, "file": "@report", "text": "Nothing: every check"}
+  ]
+}

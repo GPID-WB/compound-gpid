@@ -349,6 +349,8 @@ def test_the_rerun_takes_the_work_on_a_plan_to_its_end_and_judges_it_from_the_re
                                 "checks": {"C1": {}, "C2": {}}, "findings": [], "state": "sha256:0"})
                 records.append({"kind": "scope", "report": ".cg-docs/work-reports/report.md", "files": 1,  # P6
                                 "added": 3, "findings": [], "state": "sha256:0"})
+                records.append({"kind": "claims", "report": ".cg-docs/work-reports/report.md",  # P1 and P7
+                                "findings": [], "state": "sha256:0"})
                 report.update(status="completed", complete=True)
             return ""
         monkeypatch.setattr(gate, "turn", turn)
@@ -363,7 +365,7 @@ def test_the_rerun_takes_the_work_on_a_plan_to_its_end_and_judges_it_from_the_re
         gate.run_work(gate.Agent("kilo", "kilo", "openai/m"), tmp_path, [], checks)
         return said, checks
     said, checks = run(declares=True)
-    assert said == ["W1 ask for the work", "W2 yes at a stop"] and len(checks) == 11 and all(checks.values()), checks
+    assert said == ["W1 ask for the work", "W2 yes at a stop"] and len(checks) == 12 and all(checks.values()), checks
     said, checks = run(declares=False)
     assert not checks["W: every check of the plan ran as the plan declares it, and is verified"], checks
 
@@ -753,3 +755,18 @@ def test_step_w_asks_that_code_measured_the_change_for_p6(tmp_path):
     assert not gate.scoped([ran, {"kind": "tier"}], report)  # before the last slice began
     assert not gate.scoped([{"kind": "tier"}, {"kind": "scope", "report": report}], report)  # typed by hand
     assert not gate.scoped([{"kind": "tier"}, dict(ran, report=".cg-docs/work-reports/2026-11-26-y.md")], report)
+
+
+def test_step_w_asks_that_code_held_the_plan_and_the_work_report_to_the_project(tmp_path):
+    """Task 2.8 (#231), second half: after `scope` the work playbook has code run `cg.py claims`, which holds what the
+    plan and the work report name to the project and its records, for P1 and P7. Step W asks for that record of this
+    work report, after its last slice began, from the files alone, as it does for `scope`."""
+    sys.path.insert(0, str(GATE))
+    sys.path.insert(0, str(HUB / "spike" / "host-matrix"))
+    import run_cli_gate as gate
+    report = ".cg-docs/work-reports/2026-11-27-x.md"
+    ran = {"kind": "claims", "report": report, "findings": [], "state": "sha256:0"}
+    assert gate.claimed([{"kind": "tier"}, {"kind": "scope"}, ran], report)
+    assert not gate.claimed([ran, {"kind": "tier"}], report)  # before the last slice began
+    assert not gate.claimed([{"kind": "tier"}, {"kind": "claims", "report": report}], report)  # typed by hand
+    assert not gate.claimed([{"kind": "tier"}, dict(ran, report=".cg-docs/work-reports/2026-11-26-y.md")], report)

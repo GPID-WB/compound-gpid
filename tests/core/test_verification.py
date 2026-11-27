@@ -156,7 +156,8 @@ def test_the_lens_says_what_code_reruns_what_is_judged_and_asks_what_else_each_n
             if line.startswith("| ") and "---" not in line][1:]
     assert len(rows) >= 6 and all(row[3].strip() for row in rows)  # each flag has the change that replaces it
     for words in ("rerun", "no evidence", "proxy", "cannot fail", "independent", "what else it could be measuring",
-                  "Every check of the plan, rerun by code", "INCONCLUSIVE", "rule 6"):
+                  "Every check of the plan, rerun by code", "INCONCLUSIVE", "rule 6", "the line that computes it",
+                  "each filter, merge, weight and unit"):  # lens run 1 (#231): trace each number
         assert words in body, words
     assert "{rerun}" in (CG / "templates" / "kickoff.md").read_text(encoding="utf-8")
     p4 = (CG / "principles" / "P04-prove-it-works.md").read_text(encoding="utf-8")
@@ -178,6 +179,11 @@ def test_review_of_2_7_a_claim_beside_a_negation_and_r_runs_that_exit_with_0_on_
                "- C5 never passed.", "- C5 is not verified.", "- No run of C5 passed.", "| C5 | a share outside 0 and 1 |"]
     assert [c for c in claims if not re.search(rules["unrecorded"], c, re.I)] == []
     assert [c for c in negated if re.search(rules["unrecorded"], c, re.I)] == []
+    # Lens run 1 (#231): a claim of success or validation that names no check is found too, by the same shape.
+    claims = ["- The headcount ratio matches the figure the survey report publishes.", "- The table was validated "
+              "against the census.", "- The interval reproduces the published one, and agrees with Stata."]
+    assert [c for c in claims if not re.search(rules["unbacked"], c, re.I)] == [] and rules["unbacked"] == rules[
+        "unrecorded"] and not re.search(rules["unbacked"], "- The share was not validated against a source.", re.I)
     cannot = ['Rscript -e "testthat::test_file(\'tests/testthat/test-gap.R\')"',
               'Rscript -e "library(testthat); test_file(\'tests/testthat/test-gap.R\')"',
               'Rscript -e "try(testthat::test_dir(\'tests\'))"',
