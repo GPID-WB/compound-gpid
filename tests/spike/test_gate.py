@@ -361,7 +361,7 @@ def test_the_rerun_takes_the_work_on_a_plan_to_its_end_and_judges_it_from_the_re
         gate.run_work(gate.Agent("kilo", "kilo", "openai/m"), tmp_path, [], checks)
         return said, checks
     said, checks = run(declares=True)
-    assert said == ["W1 ask for the work", "W2 yes at a stop"] and len(checks) == 8 and all(checks.values()), checks
+    assert said == ["W1 ask for the work", "W2 yes at a stop"] and len(checks) == 10 and all(checks.values()), checks
     said, checks = run(declares=False)
     assert not checks["W: every check of the plan ran as the plan declares it, and is verified"], checks
 
