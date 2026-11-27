@@ -16,7 +16,7 @@ Version 2 is a hub of packs. Everyone installs the core pack; language, research
 | `.claude-plugin/marketplace.json` | The pack index, read by `install.py`. It is also a valid Claude Code marketplace, but that is not a supported way to install. |
 | `install.py`, `docs/install-block.md` | The installer, and the one install text. |
 | `tools/` | Checks run in CI, and the version sync. |
-| `docs/adr/` | Decision records: hosts, sources, packs, no base host, artifacts, evidence and the guard, the budget of the core tooling, the verifier engine, the determinism verifier and `cg.py repro`. |
+| `docs/adr/` | Decision records: hosts, sources, packs, no base host, artifacts, evidence and the guard, the budget of the core tooling, the verifier engine, the determinism verifier and `cg.py repro`, the verification verifier and `cg.py evidence --rerun`. |
 | `docs/v2/HANDOFF.md` | Where the build stands and what comes next. |
 | `SCOPE.md`, `.out-of-scope/` | What belongs in core, the size budgets, and ideas already set aside. |
 | `.cg-docs/` | This project's own plans, reviews and solutions, from version 1 on. |
