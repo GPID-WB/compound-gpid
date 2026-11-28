@@ -6,5 +6,12 @@
   "data": {
     ".cg-docs/token/workflow-costs.csv": "Public",
     "spike/gate/toy-r/inst/extdata/survey.csv": "Public"
+  },
+  "approved-tools": {
+    "Claude Code": "Public",
+    "Codex": "Public",
+    "Kilo Code": "Public",
+    "Posit Assistant": "Public",
+    "GitHub Copilot": "Public"
   }
 }
